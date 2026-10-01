@@ -2,74 +2,15 @@ import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
-import { ChevronRightIcon, StarIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
-import { describeRule } from '../../core/life-items/repeat';
-import type { LifeItem } from '../../core/life-items/types';
-import { formatDay, formatWhen } from '../items/dateFields';
+import type { CaptureKind, LifeItem } from '../../core/life-items/types';
+import { formatDay } from '../items/dateFields';
+import CheckRow from '../items/CheckRow';
 import CaptureBar from '../now/components/CaptureBar';
+import { dayLabel } from '../reflect/format';
+import { captureKindLabel, captureKinds } from './captureKinds';
 import { lifeItemTypeLabels } from './labels';
-import UnsortedItem from './UnsortedItem';
-
-const LEAVE_MS = 260;
-
-function itemMeta(item: LifeItem): string {
-  const parts = [item.type ? lifeItemTypeLabels[item.type] : 'Unsorted'];
-  if (item.repeat) parts.push(describeRule(item.repeat));
-  if (item.scheduledAt) parts.push(item.repeat ? `next ${formatWhen(item.scheduledAt)}` : formatWhen(item.scheduledAt));
-  if (item.status === 'WAITING') {
-    parts.push(item.checkBackAt ? `Waiting · check back ${formatDay(item.checkBackAt)}` : 'Waiting');
-  }
-  return parts.join(' · ');
-}
-
-function OpenItem({ item }: { item: LifeItem }) {
-  const { openItem, offerUndo } = useOverlays();
-  const [leaving, setLeaving] = useState(false);
-
-  // The card eases away first, so finishing feels like relief rather than a jump.
-  function close(status: 'DONE' | 'LET_GO') {
-    setLeaving(true);
-    window.setTimeout(async () => {
-      const change = await lifeService.setStatus(item.id, status);
-      const routineNext = status === 'DONE' && item.repeat && change.item.scheduledAt;
-      offerUndo(
-        routineNext ? `Done. Next: ${formatWhen(routineNext)}` : `${status === 'DONE' ? 'Done' : 'Let go'}: ${item.title}`,
-        change.undo,
-      );
-      setLeaving(false);
-    }, LEAVE_MS);
-  }
-
-  return (
-    <div className={`item-card${leaving ? ' item-card--leaving' : ''}`}>
-      <div className="item-card__row">
-        <button type="button" className="item-card__open" onClick={() => openItem(item.id)}>
-          <span className="item-card__title">{item.title}</span>
-          <span className="item-card__meta">{itemMeta(item)}</span>
-          {item.nextStep && <span className="item-card__step">Next: {item.nextStep}</span>}
-        </button>
-        <button
-          type="button"
-          className="icon-toggle"
-          aria-pressed={item.important}
-          aria-label={item.important ? 'Unmark important' : 'Mark important'}
-          onClick={() => lifeService.setImportant(item.id, !item.important)}
-        >
-          <StarIcon filled={item.important} size={20} />
-        </button>
-      </div>
-      <div className="chip-row">
-        <button type="button" className="chip" disabled={leaving} onClick={() => close('DONE')}>
-          Done
-        </button>
-        <button type="button" className="chip" disabled={leaving} onClick={() => close('LET_GO')}>
-          Let go
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function ClosedItems({ items }: { items: LifeItem[] }) {
   const { openItem } = useOverlays();
@@ -95,39 +36,79 @@ function ClosedItems({ items }: { items: LifeItem[] }) {
   );
 }
 
-const byCreated = (a: LifeItem, b: LifeItem) => a.createdAt.localeCompare(b.createdAt);
+/** What it is (as tagged or sorted) and when it arrived. */
+function captureDetail(item: LifeItem): string {
+  const what = captureKindLabel(item.captureKind) ?? (item.type ? lifeItemTypeLabels[item.type] : undefined);
+  const when = `${dayLabel(item.createdAt)} ${new Date(item.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+  return what ? `${what} · ${when}` : when;
+}
+
+const newestFirst = (a: LifeItem, b: LifeItem) => b.createdAt.localeCompare(a.createdAt);
+const SHOWN = 12;
 const CLOSED_SHOWN = 20;
 
 export default function CapturePage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
-  const active = items.filter((item) => item.status === 'OPEN' || item.status === 'WAITING').sort(byCreated);
-  const unsorted = active.filter((item) => item.type === null);
-  const sorted = active.filter((item) => item.type !== null);
+  const [kind, setKind] = useState<CaptureKind | undefined>();
+  const [showAll, setShowAll] = useState(false);
+  // Tasks added on Plan live there; this list is what came through Capture.
+  const active = items
+    .filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.source !== 'MANUAL')
+    .sort(newestFirst);
+  const shown = showAll ? active : active.slice(0, SHOWN);
   const closed = items
     .filter((item) => item.status === 'DONE' || item.status === 'LET_GO')
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .slice(0, CLOSED_SHOWN);
+  const chosen = captureKinds.find((option) => option.id === kind);
 
   return (
     <div className="page">
       <PageHeader title="Capture" subtitle="Get it out of your head. Sorting can wait." settings />
-      <CaptureBar />
 
-      {unsorted.length > 0 && (
-        <section aria-label="Not sorted yet" className="stack-tight">
-          <h2 className="section-label">Not sorted yet</h2>
-          {unsorted.map((item) => (
-            <UnsortedItem key={item.id} item={item} />
-          ))}
-        </section>
-      )}
+      <div className="kind-list" role="group" aria-label="What kind (optional)">
+        {captureKinds.map(({ id, label, prompt, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            className="kind-tile"
+            aria-pressed={kind === id}
+            onClick={() => setKind(kind === id ? undefined : id)}
+          >
+            <span className="kind-tile__icon">
+              <Icon size={28} />
+            </span>
+            <span className="kind-tile__text">
+              <span className="kind-tile__title">{label}</span>
+              <span className="kind-tile__prompt">{prompt}</span>
+            </span>
+            <ChevronRightIcon size={18} className="kind-tile__chevron" />
+          </button>
+        ))}
+      </div>
 
-      {sorted.length > 0 && (
-        <section aria-label="In your life" className="stack-tight">
-          <h2 className="section-label">In your life</h2>
-          {sorted.map((item) => (
-            <OpenItem key={item.id} item={item} />
-          ))}
+      <div className="stack-tight">
+        <CaptureBar kind={kind} placeholder={chosen?.prompt ?? 'Or anything at all'} onCaptured={() => setKind(undefined)} />
+        {chosen && (
+          <button type="button" className="text-link capture-kind-clear" onClick={() => setKind(undefined)}>
+            Tagged as {chosen.label.toLowerCase()} · Clear
+          </button>
+        )}
+      </div>
+
+      {active.length > 0 && (
+        <section className="plan-section" aria-label="Recent captures">
+          <h2 className="section-label">Recent captures</h2>
+          <ul className="check-list">
+            {shown.map((item) => (
+              <CheckRow key={item.id} item={item} done={false} detail={captureDetail(item)} />
+            ))}
+          </ul>
+          {active.length > SHOWN && (
+            <button type="button" className="text-link" onClick={() => setShowAll(!showAll)}>
+              {showAll ? 'Show fewer' : `Show all ${active.length}`}
+            </button>
+          )}
         </section>
       )}
 

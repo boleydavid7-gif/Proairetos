@@ -47,7 +47,7 @@ export function observePeriod({ range, now, items, events, decisions, values, oc
   const results: Observation[] = [];
 
   const captured = count('CREATED');
-  if (captured > 0) results.push({ kind: 'CAPTURED', text: `${plural(captured, 'thing')} captured` });
+  if (captured > 0) results.push({ kind: 'CAPTURED', text: `${plural(captured, 'thing')} added` });
 
   const done = count('COMPLETED');
   const letGo = count('LET_GO');

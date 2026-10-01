@@ -22,6 +22,7 @@ import NowCard from '../today/NowCard';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
+import Intention from '../today/Intention';
 import { greeting } from '../today/greeting';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
@@ -152,9 +153,9 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      {isToday && <CaptureBar />}
-      {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
+      <Intention date={date} isToday={isToday} />
       {isToday && <TodayThree date={today} items={items} />}
+      {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
 
       {entries.length > 0 && (
         <section className="stack-tight" aria-label="Your day">
@@ -175,17 +176,16 @@ export default function NowPage() {
       )}
 
       {patterns && patterns.length === 0 && (
-        <button type="button" className="list-card list-card--button" onClick={() => navigate('schedule')}>
-          <span className="list-card__text">
-            <span className="list-card__title">Add your schedule</span>
-            <span className="list-card__detail list-card__detail--full">
-              Work hours, rotating shifts, or protected time. It repeats on its own.
-            </span>
+        <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
+          <span className="quiet-row__text">
+            <span>Add your schedule</span>
+            <span className="quiet-row__detail">Work hours, rotating shifts, or protected time.</span>
           </span>
-          <ChevronRightIcon size={18} className="list-card__chevron" />
+          <ChevronRightIcon size={18} className="quiet-row__chevron" />
         </button>
       )}
 
+      {isToday && <CaptureBar variant="quiet" />}
       {isToday && <AlsoToday sections={alsoSections} />}
       {isToday && <DoneToday today={today} />}
 

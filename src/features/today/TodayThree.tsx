@@ -4,7 +4,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
 import type { LifeItem } from '../../core/life-items/types';
-import { ChevronRightIcon } from '../../components/icons/Icons';
+import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
 
 type Props = {
   date: string;
@@ -40,7 +40,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
     <dialog
       ref={dialog}
       className="sheet"
-      aria-label="Today's three"
+      aria-label="Today’s path"
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
@@ -49,10 +49,10 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Done
         </button>
-        <p className="sheet__title sheet__title--static">Today's three</p>
+        <p className="sheet__title sheet__title--static">Today’s path</p>
         <p className="sheet__hint">
-          Things from your list you want to keep in front of you today. They sit near the top of Today until the day
-          ends; nothing carries over.
+          Up to three things from your list to walk through today. They sit on Today until the day ends; nothing
+          carries over.
         </p>
         <p className="sheet__status">
           {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.
@@ -91,48 +91,63 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   );
 }
 
-/** The person's own up-to-three for today. Unchosen days stay quiet; nothing carries over as a debt. */
+/**
+ * Today’s path: the person's own up to three for the day, as a short path of
+ * circles. Checking one closes it with an undo; nothing carries over as a debt.
+ */
 export default function TodayThree({ date, items }: Props) {
-  const { openItem } = useOverlays();
+  const { openItem, offerUndo } = useOverlays();
   const [picking, setPicking] = useState(false);
   const anyOpen = items.some(isOpen);
   const picks = items
-    .filter((item) => item.pickedFor === date && isOpen(item))
+    .filter((item) => item.pickedFor === date && (isOpen(item) || item.status === 'DONE'))
     .sort((a, b) => (a.pickedAt ?? '').localeCompare(b.pickedAt ?? ''));
 
-  // With nothing captured there is nothing to choose from, so the section waits.
-  if (!anyOpen && !picking) return null;
+  // With nothing to choose from, the section waits.
+  if (!anyOpen && picks.length === 0 && !picking) return null;
+
+  async function toggle(item: LifeItem) {
+    const done = item.status === 'DONE';
+    const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');
+    if (!done) offerUndo(`Done: ${item.title}`, change.undo);
+  }
 
   return (
-    <section className="stack-tight" aria-label="Today's three">
+    <section className="today-section" aria-label="Today’s path">
+      <div className="section-heading">
+        <h2 className="section-label">Today’s path</h2>
+        <button type="button" className="text-link" onClick={() => setPicking(true)}>
+          {picks.length > 0 ? 'Change' : 'Choose'}
+        </button>
+      </div>
       {picks.length > 0 ? (
-        <>
-          <div className="section-heading">
-            <h2 className="section-label">Today's three</h2>
-            <button type="button" className="text-link" onClick={() => setPicking(true)}>
-              Change
-            </button>
-          </div>
-          <ol className="three-list">
-            {picks.map((item) => (
-              <li key={item.id}>
-                <button type="button" className="three-item" onClick={() => openItem(item.id)}>
-                  <span className="three-item__title">{item.title}</span>
-                  {item.nextStep && <span className="three-item__step">Next: {item.nextStep}</span>}
+        <ol className="path">
+          {picks.map((item) => {
+            const done = item.status === 'DONE';
+            return (
+              <li key={item.id} className={`path__step${done ? ' path__step--done' : ''}`}>
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={done}
+                  aria-label={item.title}
+                  className="path__circle"
+                  onClick={() => toggle(item)}
+                >
+                  {done && <CheckIcon size={14} />}
                 </button>
+                <button type="button" className="path__text" onClick={() => openItem(item.id)}>
+                  <span className="path__title">{item.title}</span>
+                  {item.nextStep && !done && <span className="path__detail">Next: {item.nextStep}</span>}
+                </button>
+                <ChevronRightIcon size={16} className="path__chevron" />
               </li>
-            ))}
-          </ol>
-        </>
+            );
+          })}
+        </ol>
       ) : (
-        <button type="button" className="list-card list-card--button" onClick={() => setPicking(true)}>
-          <span className="list-card__text">
-            <span className="list-card__title">Today's three</span>
-            <span className="list-card__detail list-card__detail--full">
-              Pick up to three things from your list to keep in front of you today. Optional.
-            </span>
-          </span>
-          <ChevronRightIcon size={18} className="list-card__chevron" />
+        <button type="button" className="path-empty" onClick={() => setPicking(true)}>
+          Pick up to three things from your list to walk through today. Optional.
         </button>
       )}
       {picking && <Picker date={date} items={items} onClose={() => setPicking(false)} />}

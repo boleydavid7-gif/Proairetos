@@ -1,13 +1,22 @@
 import { useBackHandler } from '../../app/back/backStack';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { backupService, storageMode } from '../../app/services';
-import { ArrowLeftIcon } from '../../components/icons/Icons';
+import {
+  ArrowLeftIcon,
+  BookIcon,
+  CalendarIcon,
+  ChevronRightIcon,
+  CloudIcon,
+  CompassIcon,
+  InboxIcon,
+  ShieldIcon,
+} from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import { clearPreferences, lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { signOut, syncStatus } from '../../app/sync/syncController';
-import AccountSection from './AccountSection';
+import AccountSection, { useSyncStatus } from './AccountSection';
 import type { AppRoute } from '../../app/routes/routeTypes';
 
 function download(text: string) {
@@ -256,18 +265,95 @@ function DeleteSection() {
 const tabLabels: Partial<Record<AppRoute, string>> = {
   today: 'Today',
   reflect: 'Reflect',
+  plan: 'Plan',
   capture: 'Capture',
   compass: 'Compass',
 };
 
+type View = 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+
+const viewTitles: Record<View, string> = {
+  account: 'Account and sync',
+  backup: 'Back up and restore',
+  privacy: 'Privacy',
+  delete: 'Delete everything',
+  about: 'About Proairetos',
+};
+
+function Row({ icon, title, value, onClick }: { icon: ReactNode; title: string; value?: string; onClick: () => void }) {
+  return (
+    <button type="button" className="settings-row" onClick={onClick}>
+      <span className="settings-row__icon">{icon}</span>
+      <span className="settings-row__text">{title}</span>
+      {value && <span className="settings-row__value">{value}</span>}
+      <ChevronRightIcon size={18} className="settings-row__chevron" />
+    </button>
+  );
+}
+
+function syncLabel(phase: string): string {
+  if (phase === 'ready') return 'On';
+  if (phase === 'unavailable') return 'This device';
+  if (phase === 'signed-out') return 'Off';
+  return 'Finish setup';
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   const returnTo = useReturnRoute();
-  useBackHandler(true, () => navigate(returnTo));
+  const status = useSyncStatus();
+  const [view, setView] = useState<View | null>(null);
   const [mode, setMode] = useState<'device' | 'memory'>('device');
   useEffect(() => {
     storageMode.then(setMode);
   }, []);
+  useBackHandler(true, () => navigate(returnTo));
+  // A detail page sits on top of the list, so back returns to the list first.
+  useBackHandler(view !== null, () => setView(null));
+
+  if (view) {
+    return (
+      <div className="page">
+        <button type="button" className="back-link" onClick={() => setView(null)}>
+          <ArrowLeftIcon size={18} />
+          Settings
+        </button>
+        <PageHeader title={viewTitles[view]} />
+        {view === 'account' && <AccountSection />}
+        {view === 'backup' && (
+          <>
+            <ExportSection />
+            <ImportSection />
+          </>
+        )}
+        {view === 'delete' && <DeleteSection />}
+        {view === 'privacy' && (
+          <section className="settings-card" aria-label="Privacy">
+            <p className="section-description">
+              {mode === 'device'
+                ? 'Everything is stored on this device. If you turn on sync, it is encrypted here before anything is uploaded, so the server only ever holds locked data.'
+                : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
+            </p>
+            <p className="section-description">
+              What you write is never analyzed, scored, or sent anywhere to be read. Reminders arrive without their text; the
+              app shows the words only after it opens on your device.
+            </p>
+          </section>
+        )}
+        {view === 'about' && (
+          <section className="settings-card" aria-label="About">
+            <p className="section-description">
+              Proairetos records your life; it does not interpret it. You choose what matters, and the app reflects it back:
+              no scores, no streaks, nothing ranked for you.
+            </p>
+            <p className="section-description">
+              The name comes from Epictetus: prohairesis, the part of us that chooses how to respond.
+            </p>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -275,16 +361,23 @@ export default function SettingsPage() {
         <ArrowLeftIcon size={18} />
         {tabLabels[returnTo] ?? 'Back'}
       </button>
-      <PageHeader title="Settings" subtitle="Your data stays yours." />
-      <p className="section-description">
-        {mode === 'device'
-          ? 'Everything is stored on this device. If you turn on sync, it is encrypted here before anything is uploaded.'
-          : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
-      </p>
-      <AccountSection />
-      <ExportSection />
-      <ImportSection />
-      <DeleteSection />
+      <PageHeader title="Settings" subtitle="Your practice, your data." />
+
+      <div className="settings-list">
+        <Row icon={<CloudIcon size={22} />} title="Account and sync" value={syncLabel(status.phase)} onClick={() => setView('account')} />
+        <Row icon={<CompassIcon size={22} />} title="Values" onClick={() => navigate('compass')} />
+        <Row icon={<CalendarIcon size={22} />} title="Schedule and shifts" onClick={() => navigate('schedule')} />
+      </div>
+
+      <div className="settings-list">
+        <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
+        <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
+      </div>
+
+      <div className="settings-list">
+        <Row icon={<span className="settings-row__danger">×</span>} title="Delete everything" onClick={() => setView('delete')} />
+      </div>
     </div>
   );
 }

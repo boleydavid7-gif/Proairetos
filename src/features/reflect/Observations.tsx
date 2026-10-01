@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { compassService, decisionService, lifeService, scheduleService } from '../../app/services';
 import { observePeriod, type ObservationKind } from '../../core/reflections/observations';
-import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
+import { insightRange, type InsightPeriod } from '../../core/reflections/insights';
 import { hiddenObservationKinds, setHiddenObservationKinds } from '../../data/storage/preferences';
 
-async function load(period: ReflectPeriod) {
+async function load(period: InsightPeriod) {
   const now = new Date();
-  const range = periodRange(period, now);
+  const range = insightRange(period, now);
   const [items, events, decisions, values, occurrences] = await Promise.all([
     lifeService.list(),
     lifeService.historyForAll(),
     decisionService.list(),
     compassService.values(),
-    scheduleService.occurrencesBetween(range.start, range.end),
+    // All time would mean expanding a repeating schedule without end; a year back is plenty.
+    period === 'all'
+      ? scheduleService.occurrencesBetween(new Date(now.getTime() - 365 * 86_400_000), now)
+      : scheduleService.occurrencesBetween(range.start, range.end),
   ]);
   return observePeriod({ range, now, items, events, decisions, values, occurrences });
 }
@@ -25,7 +28,7 @@ function subscribeAll(listener: () => void) {
 }
 
 /** What happened in the period, as plain facts. The person decides what any of it means. */
-export default function Observations({ period }: { period: ReflectPeriod }) {
+export default function Observations({ period }: { period: InsightPeriod }) {
   const observations = useServiceData(subscribeAll, () => load(period), [period]);
   const [hidden, setHidden] = useState<string[]>(() => hiddenObservationKinds());
 

@@ -11,6 +11,9 @@ import {
   rollRoutineForward,
   setNextStep,
   setPickedFor,
+  setPlanGroup,
+  setPlannedFor,
+  type CaptureInput,
   setRepeat,
   setStepPlan,
   skipRoutine,
@@ -25,7 +28,7 @@ import {
   type ItemChange,
   type StatusOptions,
 } from '../../core/life-items/commands';
-import type { ControlSplit, LifeItem, LifeItemStatus, LifeItemType } from '../../core/life-items/types';
+import type { ControlSplit, LifeItem, LifeItemStatus, LifeItemType, PlanGroup } from '../../core/life-items/types';
 import type { ItemEventRepository } from '../../data/repositories/itemEventRepository';
 import type { LifeItemRepository } from '../../data/repositories/lifeItemRepository';
 import { createListeners } from '../listeners';
@@ -155,8 +158,20 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return events.listForItems(all.map((item) => item.id));
     },
 
-    capture(title: string, type: LifeItemType | null = null): Promise<LifeItem> {
-      return serial(() => save(captureItem(context, { userId, title, type }), true));
+    capture(
+      title: string,
+      type: LifeItemType | null = null,
+      extra: Omit<CaptureInput, 'userId' | 'title' | 'type'> = {},
+    ): Promise<LifeItem> {
+      return serial(() => save(captureItem(context, { userId, title, type, ...extra }), true));
+    },
+
+    setPlanGroup(id: string, group: PlanGroup | undefined) {
+      return apply(id, (item) => setPlanGroup(context, item, group));
+    },
+
+    setPlannedFor(id: string, date: string | undefined) {
+      return apply(id, (item) => setPlannedFor(context, item, date));
     },
 
     sort(id: string, type: LifeItemType | null) {

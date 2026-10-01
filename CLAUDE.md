@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (158 tests), includes the language guard
+npm test             # vitest (171 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -61,8 +61,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/app/`: shell, routes, overlays (sheets, focus, pause, undo toast),
   `back/` (one back stack for Android back, browser back, edge swipe),
   `sync/` (controller, reminder times).
-- `src/features/`: screens. Today = `features/now/NowPage.tsx` (calm:
-  one message card, "your three", timeline, folded lists, done today).
+- `src/features/`: screens. Five tabs: Today, Reflect, Plan, Capture,
+  Compass. Today = `features/now/NowPage.tsx` (greeting, daily Stoic
+  line, intention, Today's path = up to three picks, timeline, folded
+  lists, done today, landscape at the foot). Plan (`features/plan/`)
+  groups checklists by the person's own marks (Important, Maintenance,
+  Meaningful; logic in `planView.ts`). Capture has optional kinds
+  (Thought, Emotion, Concern, Idea) above the free box. Reflect is a
+  timeline; Journal (`features/journal/`) is the full-page writer with
+  optional inner weather (the person picks it; the app never infers
+  mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
+  only counts what was recorded: no trends, conclusions, or advice.
+  Settings is a list of rows with detail pages.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (landscape at the foot of Today), `PageHeader` (`settings`

@@ -139,3 +139,18 @@ export function clearPreferences(): void {
     // Nothing to clear if storage is blocked.
   }
 }
+
+// ---------- Journal draft ----------
+
+export type JournalDraft = { body: string; weather?: string; valueIds?: string[]; promptKey?: string };
+
+const JOURNAL_DRAFT_KEY = 'proairetos.journalDraft';
+
+/** What was being written when the journal was left, so leaving never loses words. */
+export function loadJournalDraft(): JournalDraft | null {
+  return readJson<JournalDraft>(JOURNAL_DRAFT_KEY);
+}
+
+export function saveJournalDraft(draft: JournalDraft | null): void {
+  writeJson(JOURNAL_DRAFT_KEY, draft && (draft.body.trim() || draft.weather || draft.valueIds?.length) ? draft : null);
+}

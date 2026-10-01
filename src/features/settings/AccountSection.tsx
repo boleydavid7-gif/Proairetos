@@ -15,7 +15,7 @@ import {
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
 
-function useSyncStatus() {
+export function useSyncStatus() {
   return useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
 }
 

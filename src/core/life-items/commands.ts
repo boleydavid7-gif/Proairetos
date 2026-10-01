@@ -3,7 +3,7 @@ import type { ItemEvent, ItemEventKind } from '../item-events/types';
 import { canTransition } from './transitions';
 import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } from './repeat';
 import { toLocalDate } from '../scheduling/dates';
-import type { ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType } from './types';
+import type { CaptureKind, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
 
 /**
  * Every change to a life item goes through these commands. Each returns the
@@ -27,6 +27,10 @@ export type CaptureInput = {
   title: string;
   type?: LifeItemType | null;
   source?: LifeItemSource;
+  captureKind?: CaptureKind;
+  planGroup?: PlanGroup;
+  important?: boolean;
+  plannedFor?: string;
 };
 
 function event(
@@ -56,9 +60,12 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
     type: input.type ?? null,
     title,
     status: 'OPEN',
-    important: false,
+    important: input.important ?? false,
     source: input.source ?? 'CAPTURE',
     carried: false,
+    ...(input.captureKind ? { captureKind: input.captureKind } : {}),
+    ...(input.planGroup ? { planGroup: input.planGroup } : {}),
+    ...(input.plannedFor ? { plannedFor: input.plannedFor } : {}),
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -287,4 +294,18 @@ export function setStepPlan(
     }),
     events: [],
   };
+}
+
+/** The person's grouping on Plan, or none. */
+export function setPlanGroup(ctx: DomainContext, item: LifeItem, group: PlanGroup | undefined): ItemChange {
+  if (item.planGroup === group) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { planGroup: group }), events: [] };
+}
+
+/** A day without a time, or none. Moving it is recorded like any other move. */
+export function setPlannedFor(ctx: DomainContext, item: LifeItem, date: string | undefined): ItemChange {
+  if (item.plannedFor === date) return { item, events: [] };
+  const timestamp = ctx.now().toISOString();
+  const events = item.plannedFor && date ? [event(ctx, item.id, 'RESCHEDULED', timestamp, { fromTime: item.plannedFor, toTime: date })] : [];
+  return { item: touch(item, timestamp, { plannedFor: date }), events };
 }

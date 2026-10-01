@@ -84,7 +84,7 @@ describe('observations for a week', () => {
   const byKind = Object.fromEntries(observations.map((o) => [o.kind, o]));
 
   it('counts only what happened in the period', () => {
-    expect(byKind.CAPTURED.text).toBe('2 things captured');
+    expect(byKind.CAPTURED.text).toBe('2 things added');
     expect(byKind.CLOSED.text).toBe('1 done · 1 let go');
     expect(byKind.DECISIONS).toMatchObject({ text: '1 decision made', detail: 'Change teams: Stay' });
   });

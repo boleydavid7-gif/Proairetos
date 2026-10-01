@@ -4,7 +4,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService } from '../../app/services';
 import { StarIcon } from '../../components/icons/Icons';
-import type { LifeItem, LifeItemStatus } from '../../core/life-items/types';
+import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
 import { lifeItemTypeLabels, lifeItemTypes } from '../capture/labels';
 import { formatDay, fromDateInput, fromDateTimeInput, toDateInput, toDateTimeInput } from './dateFields';
@@ -297,6 +297,46 @@ function NextStepSection({ item }: { item: LifeItem }) {
   );
 }
 
+/** The person's own grouping and day on Plan. */
+function PlanSection({ item }: { item: LifeItem }) {
+  const groups: { id: PlanGroup; label: string }[] = [
+    { id: 'MAINTENANCE', label: 'Maintenance' },
+    { id: 'MEANINGFUL', label: 'Meaningful' },
+  ];
+  return (
+    <section className="sheet__section" aria-label="Plan">
+      <p className="sheet__label">On Plan</p>
+      <div className="chip-row" role="group" aria-label="Plan group">
+        {groups.map((group) => (
+          <button
+            key={group.id}
+            type="button"
+            className="chip"
+            aria-pressed={item.planGroup === group.id}
+            onClick={() => lifeService.setPlanGroup(item.id, item.planGroup === group.id ? undefined : group.id)}
+          >
+            {group.label}
+          </button>
+        ))}
+      </div>
+      <div className="field-row">
+        <input
+          type="date"
+          className="field-input"
+          aria-label="Planned day"
+          value={item.plannedFor ?? ''}
+          onChange={(event) => lifeService.setPlannedFor(item.id, event.target.value || undefined)}
+        />
+        {item.plannedFor && (
+          <button type="button" className="button-quiet" onClick={() => lifeService.setPlannedFor(item.id, undefined)}>
+            Clear
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
   const { offerUndo } = useOverlays();
   const history = useServiceData(lifeService.subscribe, () => lifeService.history(item.id), [item.id]) ?? [];
@@ -357,6 +397,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         <StarIcon filled={item.important} size={20} />
         <span>{item.important ? 'Marked important' : 'Mark important'}</span>
       </button>
+
+      <PlanSection item={item} />
 
       <section className="sheet__section" aria-label="When">
         <p className="sheet__label">When</p>

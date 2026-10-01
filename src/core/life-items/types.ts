@@ -6,6 +6,12 @@ export type LifeItemType =
   | 'MAKE_TIME_FOR'
   | 'THINKING_ABOUT';
 
+/** How something arrived through Capture, as the person tagged it. Only a label; nothing acts on it. */
+export type CaptureKind = 'THOUGHT' | 'EMOTION' | 'CONCERN' | 'IDEA';
+
+/** The person's own grouping for Plan. Important is the separate `important` mark. */
+export type PlanGroup = 'MAINTENANCE' | 'MEANINGFUL';
+
 export type LifeItemStatus =
   | 'OPEN'
   | 'WAITING'
@@ -49,6 +55,10 @@ export interface LifeItem {
   nextStepCue?: string;
   /** "If something gets in the way, I will...", the person's own plan. */
   ifObstacle?: string;
+  captureKind?: CaptureKind;
+  planGroup?: PlanGroup;
+  /** Local date ("YYYY-MM-DD") planned for, without a time. */
+  plannedFor?: string;
   /** A routine: repeats from scheduledAt. */
   repeat?: RepeatRule;
   /** Local date ("YYYY-MM-DD") the person chose this as one of up to three for that day. */

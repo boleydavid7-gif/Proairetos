@@ -1,16 +1,16 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
-import { BookIcon, ChevronRightIcon, MoonIcon, PenIcon, SunIcon } from '../../components/icons/Icons';
+import { BookIcon, BreatheIcon, ChevronRightIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { ReflectPeriod } from '../../core/reflections/periods';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
-import Observations from './Observations';
-import { dayLabel, isDaytime } from './format';
-import { promptText, reflectionPrompts } from './prompts';
+import { dayLabel } from './format';
+import { promptText } from './prompts';
+import { entryMark } from './weather';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -18,151 +18,85 @@ const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'month', label: 'Month' },
 ];
 
-function ReflectionCard({ reflection }: { reflection: Reflection }) {
+function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDay: boolean }) {
   const [open, setOpen] = useState(false);
   const { openDecision, offerUndo } = useOverlays();
-  if (reflection.decisionId) {
-    return (
-      <button type="button" className="list-card list-card--button" onClick={() => openDecision(reflection.decisionId!)}>
-        <span className="list-card__icon">
-          <PenIcon size={22} />
-        </span>
-        <span className="list-card__text">
-          <span className="list-card__title">Note on a decision</span>
-          <span className="list-card__detail">{reflection.body}</span>
-        </span>
-        <ChevronRightIcon size={18} className="list-card__chevron" />
-      </button>
-    );
-  }
   const time = new Date(reflection.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const mark = reflection.decisionId ? { icon: PenIcon, label: 'Note on a decision' } : entryMark(reflection);
+  const Icon = mark.icon;
+  const prompt = reflection.decisionId ? 'Note on a decision' : promptText(reflection.promptKey);
 
   return (
-    <div className="reflection-entry">
-      <button type="button" className="list-card list-card--button" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="list-card__icon">
-          {isDaytime(reflection.createdAt) ? <SunIcon size={26} /> : <MoonIcon size={24} />}
-        </span>
-        <span className="list-card__text">
-          <span className="list-card__title">
-            {dayLabel(reflection.createdAt)} <span className="list-card__time">{time}</span>
-          </span>
-          {promptText(reflection.promptKey) && <span className="list-card__prompt">{promptText(reflection.promptKey)}</span>}
-          <span className={`list-card__detail${open ? ' list-card__detail--full' : ''}`}>{reflection.body}</span>
-        </span>
-        <ChevronRightIcon size={18} className="list-card__chevron" />
-      </button>
-      {open && (
-        <div className="reflection-entry__actions">
+    <li className="timeline-entry">
+      <span className="timeline-entry__mark" role="img" aria-label={mark.label}>
+        <Icon size={30} />
+      </span>
+      <div className="timeline-entry__body">
+        <div className="timeline-entry__head">
+          <span className="timeline-entry__time">{showDay ? `${dayLabel(reflection.createdAt)}, ${time}` : time}</span>
           <button
             type="button"
-            className="button-quiet"
-            onClick={async () => {
-              const deletion = await reflectionService.remove(reflection.id);
-              offerUndo('Reflection deleted', deletion.undo);
-            }}
+            className="check-row__more"
+            aria-label="More"
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
           >
-            Delete
+            <MoreIcon size={20} />
           </button>
         </div>
-      )}
-    </div>
+        {prompt && <span className="timeline-entry__prompt">{prompt}</span>}
+        <button
+          type="button"
+          className={`timeline-entry__text${open ? ' timeline-entry__text--full' : ''}`}
+          onClick={() => (reflection.decisionId ? openDecision(reflection.decisionId) : setOpen(!open))}
+        >
+          {reflection.body}
+        </button>
+        {open && (
+          <div className="reflection-entry__actions">
+            {reflection.decisionId && (
+              <button type="button" className="button-quiet" onClick={() => openDecision(reflection.decisionId!)}>
+                Open decision
+              </button>
+            )}
+            <button
+              type="button"
+              className="button-quiet"
+              onClick={async () => {
+                const deletion = await reflectionService.remove(reflection.id);
+                offerUndo('Reflection deleted', deletion.undo);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    </li>
   );
 }
 
-function Composer() {
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState('');
-  const [promptKey, setPromptKey] = useState<string | undefined>();
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    if (!draft.trim()) return;
-    await reflectionService.write({ body: draft, promptKey });
-    setDraft('');
-    setPromptKey(undefined);
-    setOpen(false);
-  }
-
-  if (!open) {
-    return (
-      <button type="button" className="list-card list-card--button" onClick={() => setOpen(true)}>
-        <span className="list-card__icon list-card__icon--accent">
-          <PenIcon size={22} />
-        </span>
-        <span className="list-card__text">
-          <span className="list-card__title">Write a reflection</span>
-          <span className="list-card__detail">A few words is enough.</span>
-        </span>
-        <ChevronRightIcon size={18} className="list-card__chevron" />
-      </button>
-    );
-  }
-
+function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; title: string; detail: string; onClick: () => void }) {
   return (
-    <form className="composer" onSubmit={submit} aria-label="Write a reflection">
-      <div className="chip-row" role="group" aria-label="A place to start (optional)">
-        {reflectionPrompts.map((prompt) => (
-          <button
-            key={prompt.key}
-            type="button"
-            className="chip chip--prompt"
-            aria-pressed={promptKey === prompt.key}
-            onClick={() => setPromptKey(promptKey === prompt.key ? undefined : prompt.key)}
-          >
-            {prompt.text}
-          </button>
-        ))}
-      </div>
-      {promptKey && <p className="composer__prompt">{promptText(promptKey)}</p>}
-      <textarea
-        className="composer__input"
-        rows={4}
-        autoFocus
-        placeholder="Write whatever you want to keep"
-        aria-label="Reflection"
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-      />
-      <div className="composer__actions">
-        <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
-          Cancel
-        </button>
-        <button type="submit" className="button-accent" disabled={!draft.trim()}>
-          Save
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function WeeklyReviewCard() {
-  const navigate = useNavigate();
-  const all = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
-  const last = all
-    .filter((reflection) => reflection.promptKey === 'weekly-review')
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-
-  return (
-    <button type="button" className="list-card list-card--button" onClick={() => navigate('review')}>
-      <span className="list-card__icon list-card__icon--accent">
-        <BookIcon size={22} />
+    <button type="button" className="settings-row" onClick={onClick}>
+      <span className="settings-row__icon">{icon}</span>
+      <span className="settings-row__text">
+        <span>{title}</span>
+        <span className="settings-row__detail">{detail}</span>
       </span>
-      <span className="list-card__text">
-        <span className="list-card__title">Weekly review</span>
-        <span className="list-card__detail">
-          About 15 minutes, every step optional.
-          {last ? ` Last one ${dayLabel(last.createdAt).toLowerCase()}.` : ''}
-        </span>
-      </span>
-      <ChevronRightIcon size={18} className="list-card__chevron" />
+      <ChevronRightIcon size={18} className="settings-row__chevron" />
     </button>
   );
 }
 
 export default function ReflectPage() {
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<ReflectPeriod>('today');
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.listFor(period), [period]);
+  const all = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
+  const lastReview = all
+    .filter((reflection) => reflection.promptKey === 'weekly-review')
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
   return (
     <div className="page">
@@ -183,22 +117,39 @@ export default function ReflectPage() {
         ))}
       </div>
 
-      <WeeklyReviewCard />
-
-      <Observations period={period} />
-
-      <Composer />
-
       {reflections && (
-        <section aria-label="Your reflections" className="stack-tight">
-          <h2 className="section-label">Your reflections</h2>
+        <section aria-label="Your reflections">
           {reflections.length === 0 ? (
-            <p className="empty-note">Nothing written in this period yet.</p>
+            <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
           ) : (
-            reflections.map((reflection) => <ReflectionCard key={reflection.id} reflection={reflection} />)
+            <ol className="timeline">
+              {reflections.map((reflection) => (
+                <TimelineEntry key={reflection.id} reflection={reflection} showDay={period !== 'today'} />
+              ))}
+            </ol>
           )}
         </section>
       )}
+
+      <button type="button" className="add-reflection" onClick={() => navigate('journal')}>
+        <PenIcon size={18} />
+        Add a reflection
+      </button>
+
+      <div className="settings-list">
+        <MoreRow
+          icon={<BreatheIcon size={22} />}
+          title="Insights"
+          detail="What you recorded, gathered by week and month."
+          onClick={() => navigate('insights')}
+        />
+        <MoreRow
+          icon={<BookIcon size={22} />}
+          title="Weekly review"
+          detail={`About 15 minutes, every step optional.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
+          onClick={() => navigate('review')}
+        />
+      </div>
 
       <DecisionsSection />
     </div>

@@ -191,3 +191,99 @@ export function ScalesIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function ChecklistIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="4.5" width="5" height="5" rx="1" />
+      <rect x="4" y="14.5" width="5" height="5" rx="1" />
+      <path d="M12.5 7h7.5M12.5 17h7.5" />
+    </Icon>
+  );
+}
+
+export function MoreIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 12h.01M12 12h.01M18 12h.01" strokeWidth={2.6} />
+    </Icon>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5.5 12.5l4 4 9-9" />
+    </Icon>
+  );
+}
+
+export function NoteIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M14 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V10" />
+      <path d="M8 10h4.5M8 13.5h7M8 17h5M17.5 3.5l3 3-5 5H12.5v-3z" />
+    </Icon>
+  );
+}
+
+export function CloudIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 18.5h10.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 7.3 10 4.3 4.3 0 0 0 7 18.5z" />
+    </Icon>
+  );
+}
+
+export function PartlyCloudyIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 4v1.5M4.2 6.2l1 1M3 11h1.5M13.8 6.2l-1 1" />
+      <path d="M6.3 12.3A3.6 3.6 0 0 1 12.6 9" />
+      <path d="M9 19.5h8.5a3 3 0 0 0 .3-6 4.6 4.6 0 0 0-8.8-1.2A3.6 3.6 0 0 0 9 19.5z" />
+    </Icon>
+  );
+}
+
+export function RainIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 15h10.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 7.3 6.5 4.3 4.3 0 0 0 7 15z" />
+      <path d="M8.5 18l-1 2.5M12.5 18l-1 2.5M16.5 18l-1 2.5" />
+    </Icon>
+  );
+}
+
+export function StormIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 15h10.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 7.3 6.5 4.3 4.3 0 0 0 7 15z" />
+      <path d="M12.5 15.5l-2 3h3l-2 3" />
+    </Icon>
+  );
+}
+
+export function BulbIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 17.5h6M10 20.5h4M12 3.5a6 6 0 0 0-3.5 10.9c.4.3.5.7.5 1.1v2h6v-2c0-.4.2-.8.5-1.1A6 6 0 0 0 12 3.5z" />
+    </Icon>
+  );
+}
+
+export function TagIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 12.5V4.5h8l9 9-8 8z" />
+      <circle cx="8" cy="9" r="1.3" />
+    </Icon>
+  );
+}
+
+export function BookmarkIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 4h10v16l-5-3.5L7 20z" />
+    </Icon>
+  );
+}

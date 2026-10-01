@@ -9,13 +9,16 @@ import CompassPage from '../features/compass/CompassPage';
 import ScheduleScreen from '../features/schedule/ScheduleScreen';
 import WeeklyReview from '../features/review/WeeklyReview';
 import SettingsPage from '../features/settings/SettingsPage';
+import PlanPage from '../features/plan/PlanPage';
+import JournalPage from '../features/journal/JournalPage';
+import InsightsPage from '../features/insights/InsightsPage';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 
-const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'capture', 'compass']);
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'capture', 'compass']);
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
@@ -54,6 +57,9 @@ export default function App() {
       {route === 'schedule' && <ScheduleScreen />}
       {route === 'review' && <WeeklyReview />}
       {route === 'settings' && <SettingsPage />}
+      {route === 'plan' && <PlanPage />}
+      {route === 'journal' && <JournalPage />}
+      {route === 'insights' && <InsightsPage />}
       </AppShell>
     </OverlayProvider>
     </ReturnRouteContext.Provider>
