@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { ChevronRightIcon, MoonIcon, PenIcon, SunIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { ReflectPeriod } from '../../core/reflections/periods';
 import type { Reflection } from '../../core/reflections/types';
+import DecisionsSection from './DecisionsSection';
+import Observations from './Observations';
 import { dayLabel, isDaytime } from './format';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
@@ -15,6 +18,21 @@ const periods: { id: ReflectPeriod; label: string }[] = [
 
 function ReflectionCard({ reflection }: { reflection: Reflection }) {
   const [open, setOpen] = useState(false);
+  const { openDecision } = useOverlays();
+  if (reflection.decisionId) {
+    return (
+      <button type="button" className="list-card list-card--button" onClick={() => openDecision(reflection.decisionId!)}>
+        <span className="list-card__icon">
+          <PenIcon size={22} />
+        </span>
+        <span className="list-card__text">
+          <span className="list-card__title">Note on a decision</span>
+          <span className="list-card__detail">{reflection.body}</span>
+        </span>
+        <ChevronRightIcon size={18} className="list-card__chevron" />
+      </button>
+    );
+  }
   const time = new Date(reflection.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
   return (
@@ -106,6 +124,8 @@ export default function ReflectPage() {
         ))}
       </div>
 
+      <Observations period={period} />
+
       <Composer />
 
       {reflections && (
@@ -118,6 +138,8 @@ export default function ReflectPage() {
           )}
         </section>
       )}
+
+      <DecisionsSection />
     </div>
   );
 }

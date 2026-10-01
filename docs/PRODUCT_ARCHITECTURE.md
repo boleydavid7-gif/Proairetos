@@ -161,6 +161,13 @@ Rules:
 - no generated reflections
 - observations only
 
+In the product, "What happened" lists plain facts for today, the week, or
+the month, in a fixed order: things captured; done and let go; focused
+minutes; items connected to each value; items moved more than once;
+waiting longest (7+ days); decisions made; scheduled work and protected
+time. Any kind can be hidden. A test checks the wording never uses
+judgment language.
+
 ---
 
 ## 6. Pause Engine
@@ -213,6 +220,12 @@ Flow:
 ```
 Thinking about → Decision → Reflection
 ```
+
+In the product: a Thinking about item offers "Make a decision". The person
+writes the question, options, choice, and optional reasons, and can pick a
+look-back date. The item's history records "Decided" and it can be marked
+done. On the look-back date the decision returns on Today; notes written
+then are kept as reflections linked to the decision.
 
 ---
 

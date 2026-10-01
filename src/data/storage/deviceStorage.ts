@@ -1,6 +1,8 @@
 import type { CompassStatementRepository } from '../repositories/compassStatementRepository';
+import type { DecisionRepository } from '../repositories/decisionRepository';
 import {
   createIndexedDbCompassStatementRepository,
+  createIndexedDbDecisionRepository,
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
@@ -12,6 +14,7 @@ import type { ItemEventRepository } from '../repositories/itemEventRepository';
 import type { LifeItemRepository } from '../repositories/lifeItemRepository';
 import {
   createMemoryCompassStatementRepository,
+  createMemoryDecisionRepository,
   createMemoryItemEventRepository,
   createMemoryLifeItemRepository,
   createMemoryReflectionRepository,
@@ -34,6 +37,7 @@ export type Repositories = {
   statements: CompassStatementRepository;
   schedulePatterns: SchedulePatternRepository;
   scheduleExceptions: ScheduleExceptionRepository;
+  decisions: DecisionRepository;
 };
 
 type Backend = Repositories & { mode: StorageMode };
@@ -53,6 +57,7 @@ async function openBackend(): Promise<Backend> {
       statements: createIndexedDbCompassStatementRepository(ready),
       schedulePatterns: createIndexedDbSchedulePatternRepository(ready),
       scheduleExceptions: createIndexedDbScheduleExceptionRepository(ready),
+      decisions: createIndexedDbDecisionRepository(ready),
     };
   } catch (error) {
     console.warn('On-device storage is unavailable; keeping data in memory for this visit.', error);
@@ -65,6 +70,7 @@ async function openBackend(): Promise<Backend> {
       statements: createMemoryCompassStatementRepository(),
       schedulePatterns: createMemorySchedulePatternRepository(),
       scheduleExceptions: createMemoryScheduleExceptionRepository(),
+      decisions: createMemoryDecisionRepository(),
     };
   }
 }
@@ -94,5 +100,6 @@ export function createDeviceStorage(): Repositories & { mode: Promise<StorageMod
     statements: deferred(backend.then((b) => b.statements)),
     schedulePatterns: deferred(backend.then((b) => b.schedulePatterns)),
     scheduleExceptions: deferred(backend.then((b) => b.scheduleExceptions)),
+    decisions: deferred(backend.then((b) => b.decisions)),
   };
 }

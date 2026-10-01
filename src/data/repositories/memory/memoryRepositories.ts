@@ -1,10 +1,12 @@
 import type { CompassStatementModel } from '../../models/compassStatementModel';
+import type { DecisionModel } from '../../models/decisionModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
 import type { LifeItemModel } from '../../models/lifeItemModel';
 import type { ReflectionModel } from '../../models/reflectionModel';
 import type { ScheduleExceptionModel, SchedulePatternModel } from '../../models/scheduleModel';
 import type { ChosenValueModel } from '../../models/valueModel';
 import type { CompassStatementRepository } from '../compassStatementRepository';
+import type { DecisionRepository } from '../decisionRepository';
 import type { ItemEventRepository } from '../itemEventRepository';
 import type { LifeItemRepository } from '../lifeItemRepository';
 import type { ReflectionRepository } from '../reflectionRepository';
@@ -104,6 +106,10 @@ export function createMemorySchedulePatternRepository(): SchedulePatternReposito
 
 export function createMemoryScheduleExceptionRepository(): ScheduleExceptionRepository {
   return createMemoryUserCollection<ScheduleExceptionModel>();
+}
+
+export function createMemoryDecisionRepository(): DecisionRepository {
+  return createMemoryUserCollection<DecisionModel>();
 }
 
 export function createMemoryValueRepository(): ValueRepository {

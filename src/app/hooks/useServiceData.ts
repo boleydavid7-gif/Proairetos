@@ -11,9 +11,13 @@ export function useServiceData<T>(subscribe: Subscribe, load: () => Promise<T>, 
 
   useEffect(() => {
     let active = true;
+    // Several changes in a row start several loads. Only the latest may land,
+    // or an older, slower load could overwrite fresher data.
+    let latest = 0;
     const refresh = () => {
+      const request = ++latest;
       load().then((result) => {
-        if (active) setData(result);
+        if (active && request === latest) setData(result);
       });
     };
 

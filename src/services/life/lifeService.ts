@@ -5,6 +5,7 @@ import {
   changeStatus,
   connectValue,
   disconnectValue,
+  recordDecision,
   recordFocus,
   setNextStep,
   setControlSplit,
@@ -154,6 +155,10 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setNextStep(id: string, step: string | undefined) {
       return apply(id, (item) => setNextStep(context, item, step));
+    },
+
+    recordDecision(id: string, decisionId: string) {
+      return apply(id, (item) => recordDecision(context, item, decisionId));
     },
 
     recordFocus(id: string, minutes: number) {

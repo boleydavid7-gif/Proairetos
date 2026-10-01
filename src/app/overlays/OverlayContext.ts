@@ -14,6 +14,9 @@ export type Overlays = {
   openFocus: () => void;
   /** The one-minute arrival moment. */
   openPause: () => void;
+  /** Write down a decision, optionally from a Thinking about item. */
+  startDecision: (from?: { itemId: string; title: string }) => void;
+  openDecision: (id: string) => void;
 };
 
 export const OverlayContext = createContext<Overlays | null>(null);

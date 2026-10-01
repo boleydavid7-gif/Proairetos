@@ -9,6 +9,7 @@ import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckB
 import { answeredPauseOffers, previousVisitDate } from '../../data/storage/preferences';
 import PauseOfferCard from '../pause/PauseOfferCard';
 import CheckBackNudges from '../today/CheckBackNudges';
+import RevisitNudges from '../today/RevisitNudges';
 import WelcomeBack from '../today/WelcomeBack';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
@@ -31,6 +32,7 @@ export default function NowPage() {
   const { openItem, startFocus, openPause } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
+  const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const today = toLocalDate(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
@@ -49,7 +51,7 @@ export default function NowPage() {
     ) ?? [];
 
   const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns) : [];
-  const earlier = fromEarlierDays(items, clock);
+  const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
   const earlierIds = new Set(earlier.map((item) => item.id));
   const ready = readyToCheckBack(items, clock);
   const readyIds = new Set(ready.map((item) => item.id));
@@ -90,7 +92,12 @@ export default function NowPage() {
         </div>
       )}
 
-      {showWelcome && <WelcomeBack days={away} earlier={earlier} onDismiss={() => setWelcomeDismissed(true)} />}
+      {showWelcome && <WelcomeBack
+          days={away}
+          earlier={earlier}
+          onDismiss={() => setWelcomeDismissed(true)}
+          onCleared={(ids) => setCleared(new Set(ids))}
+        />}
       {isToday && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {isToday && <LookAhead />}
       {isToday && <CaptureBar />}
@@ -129,6 +136,7 @@ export default function NowPage() {
       {isToday && now && (
         <>
           <CheckBackNudges items={ready} />
+          <RevisitNudges />
           <ImportantItems items={now.important} />
           <WaitingItems items={now.waiting.filter((item) => !readyIds.has(item.id))} />
           <UnsortedPreview count={now.unsortedCount} />

@@ -4,6 +4,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import type { Reflection } from '../../core/reflections/types';
 import {
   createIndexedDbCompassStatementRepository,
+  createIndexedDbDecisionRepository,
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
@@ -173,7 +174,7 @@ describe('indexeddb schedule stores', () => {
     v2.close();
 
     const v3 = openDatabase(factory);
-    expect((await v3).version).toBe(3);
+    expect((await v3).version).toBe(4);
     expect(await createIndexedDbValueRepository(v3).list('u')).toHaveLength(1);
 
     const patterns = createIndexedDbSchedulePatternRepository(v3);
@@ -184,6 +185,18 @@ describe('indexeddb schedule stores', () => {
     await patterns.add(pattern);
     await patterns.put({ ...pattern, name: 'Plant' });
     expect((await patterns.list('u')).map((p) => p.name)).toEqual(['Plant']);
+  });
+});
+
+describe('indexeddb decisions store', () => {
+  it('opens at version 4 with a decisions store that keeps data', async () => {
+    const db = openDatabase(new IDBFactory());
+    expect((await db).version).toBe(4);
+    const decisions = createIndexedDbDecisionRepository(db);
+    const decision = { id: 'd', userId: 'u', question: 'q', options: ['a'], choice: 'a', decidedAt: 'x' };
+    await decisions.add(decision);
+    await decisions.put({ ...decision, revisitedAt: 'y' });
+    expect(await decisions.list('u')).toEqual([{ ...decision, revisitedAt: 'y' }]);
   });
 });
 
@@ -209,7 +222,7 @@ describe('indexeddb persistence', () => {
     v1.close();
 
     const v2 = openDatabase(factory);
-    expect((await v2).version).toBe(3);
+    expect((await v2).version).toBe(4);
     expect((await createIndexedDbLifeItemRepository(v2).list('u')).map((item) => item.id)).toEqual(['kept']);
     expect(await createIndexedDbItemEventRepository(v2).listForItem('kept')).toHaveLength(1);
     await createIndexedDbValueRepository(v2).add({ id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x' });

@@ -14,6 +14,7 @@ export const ItemEventKinds = {
   HONORED: 'HONORED',
   TYPE_CHANGED: 'TYPE_CHANGED',
   FOCUSED: 'FOCUSED',
+  DECIDED: 'DECIDED',
 } as const;
 
 export type ItemEventKind = typeof ItemEventKinds[keyof typeof ItemEventKinds];

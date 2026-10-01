@@ -216,3 +216,9 @@ export function recordFocus(ctx: DomainContext, item: LifeItem, minutes: number)
   const timestamp = ctx.now().toISOString();
   return { item, events: [event(ctx, item.id, 'FOCUSED', timestamp, { metadata: { minutes: whole } })] };
 }
+
+/** Notes on a Thinking about item that a decision was made from it. */
+export function recordDecision(ctx: DomainContext, item: LifeItem, decisionId: string): ItemChange {
+  const timestamp = ctx.now().toISOString();
+  return { item, events: [event(ctx, item.id, 'DECIDED', timestamp, { metadata: { decisionId } })] };
+}

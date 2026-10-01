@@ -1929,3 +1929,159 @@ button:disabled {
 .pause-screen__end {
   margin-top: var(--space-5);
 }
+
+/* ---------- Step 5: observations and decisions ---------- */
+
+.observations {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.observation {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+}
+
+.observation + .observation {
+  border-top: 1px solid var(--color-border);
+}
+
+.observation__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: var(--space-1);
+}
+
+.observation__title {
+  font-weight: 500;
+}
+
+.observation__detail {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  white-space: pre-line;
+}
+
+.observation__hide {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 1.1rem;
+}
+
+.observations__restore {
+  align-self: flex-start;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.option-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.option-row input[type='radio'] {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--color-accent);
+}
+
+.decision-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.12), var(--color-surface) 70%);
+}
+
+.decision-choice__text {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--color-accent-strong);
+}
+
+.decision-choice__others,
+.decision-reasons {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.decision-reasons {
+  white-space: pre-wrap;
+  color: var(--color-text);
+}
+
+.decision-note {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.decision-note time {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.decision-note p {
+  margin: var(--space-1) 0 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.decision-note-form {
+  width: 100%;
+}
+
+.decision-link {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(201, 162, 116, 0.3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
+  text-align: left;
+}

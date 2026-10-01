@@ -93,3 +93,13 @@ export function answerPauseOffer(key: string): void {
   const keys = [...answeredPauseOffers(), key].slice(-50);
   writeJson(PAUSE_DISMISSED_KEY, keys);
 }
+
+const HIDDEN_OBSERVATIONS_KEY = 'proairetos.hiddenObservations';
+
+export function hiddenObservationKinds(): string[] {
+  return readJson<string[]>(HIDDEN_OBSERVATIONS_KEY) ?? [];
+}
+
+export function setHiddenObservationKinds(kinds: string[]): void {
+  writeJson(HIDDEN_OBSERVATIONS_KEY, kinds);
+}

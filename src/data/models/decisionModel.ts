@@ -1,10 +1,3 @@
-export type DecisionModel = {
-  id: string;
-  userId: string;
-  lifeItemId?: string | null;
-  options?: string[];
-  choice?: string | null;
-  decidedAt?: string | null;
-  revisitAt?: string | null;
-  laterNote?: string | null;
-};
+import type { Decision } from '../../core/decisions/types';
+
+export type DecisionModel = Decision;

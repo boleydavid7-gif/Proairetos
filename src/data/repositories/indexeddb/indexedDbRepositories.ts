@@ -1,10 +1,12 @@
 import type { CompassStatementModel } from '../../models/compassStatementModel';
+import type { DecisionModel } from '../../models/decisionModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
 import type { LifeItemModel } from '../../models/lifeItemModel';
 import type { ReflectionModel } from '../../models/reflectionModel';
 import type { ScheduleExceptionModel, SchedulePatternModel } from '../../models/scheduleModel';
 import type { ChosenValueModel } from '../../models/valueModel';
 import type { CompassStatementRepository } from '../compassStatementRepository';
+import type { DecisionRepository } from '../decisionRepository';
 import { requestToPromise, stores, transactionDone, type StoreName } from '../../storage/indexeddb/database';
 import type { ItemEventRepository } from '../itemEventRepository';
 import type { LifeItemRepository } from '../lifeItemRepository';
@@ -120,6 +122,10 @@ export function createIndexedDbSchedulePatternRepository(db: Db): SchedulePatter
 
 export function createIndexedDbScheduleExceptionRepository(db: Db): ScheduleExceptionRepository {
   return createUserCollection<ScheduleExceptionModel>(db, stores.scheduleExceptions);
+}
+
+export function createIndexedDbDecisionRepository(db: Db): DecisionRepository {
+  return createUserCollection<DecisionModel>(db, stores.decisions);
 }
 
 export function createIndexedDbValueRepository(db: Db): ValueRepository {

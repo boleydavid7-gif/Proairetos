@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, lifeService } from '../../app/services';
+import { compassService, decisionService, lifeService } from '../../app/services';
 import { StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
@@ -167,6 +167,34 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   );
 }
 
+/** Thinking about -> Decision. Shows decisions already made from this item. */
+function DecisionSection({ item }: { item: LifeItem }) {
+  const { startDecision, openDecision } = useOverlays();
+  const decisions = useServiceData(decisionService.subscribe, () => decisionService.list()) ?? [];
+  const made = decisions.filter((decision) => decision.lifeItemId === item.id);
+  if (item.type !== 'THINKING_ABOUT' && made.length === 0) return null;
+
+  return (
+    <section className="sheet__section" aria-label="Decision">
+      {made.map((decision) => (
+        <button key={decision.id} type="button" className="decision-link" onClick={() => openDecision(decision.id)}>
+          <span className="sheet__label">Decided</span>
+          <span>{decision.choice}</span>
+        </button>
+      ))}
+      {item.type === 'THINKING_ABOUT' && (item.status === 'OPEN' || item.status === 'WAITING') && (
+        <button
+          type="button"
+          className="chip chip--wide"
+          onClick={() => startDecision({ itemId: item.id, title: item.title })}
+        >
+          Make a decision
+        </button>
+      )}
+    </section>
+  );
+}
+
 /** One concrete next action. Small enough to start without deciding anything else. */
 function NextStepSection({ item }: { item: LifeItem }) {
   const { startFocus } = useOverlays();
@@ -307,6 +335,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       </section>
 
       <ControlSplitSection item={item} />
+
+      <DecisionSection item={item} />
 
       <ValueConnections item={item} values={values} />
 

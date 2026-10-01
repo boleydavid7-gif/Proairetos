@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { focusedMinutes, pause, resume, startSession, type FocusSession } from '../../core/focus/session';
 import { loadFocusSession, saveFocusSession } from '../../data/storage/preferences';
+import DecideSheet, { type DecideFrom } from '../../features/decisions/DecideSheet';
+import DecisionSheet from '../../features/decisions/DecisionSheet';
 import FocusBar from '../../features/focus/FocusBar';
 import FocusScreen from '../../features/focus/FocusScreen';
 import FocusStart from '../../features/focus/FocusStart';
@@ -31,6 +33,8 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
   // After a reload, a running session comes back as the small bar, not the full screen.
   const [focusVisible, setFocusVisible] = useState(false);
   const [pausing, setPausing] = useState(false);
+  const [deciding, setDeciding] = useState<{ from?: DecideFrom } | null>(null);
+  const [decisionId, setDecisionId] = useState<string | null>(null);
 
   const focusItem = useServiceData(
     lifeService.subscribe,
@@ -64,6 +68,14 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       focusSession: session,
       openFocus: () => setFocusVisible(true),
       openPause: () => setPausing(true),
+      startDecision: (from?: DecideFrom) => {
+        setItemId(null);
+        setDeciding({ from });
+      },
+      openDecision: (id: string) => {
+        setItemId(null);
+        setDecisionId(id);
+      },
     }),
     [offerUndo, startFocus, session],
   );
@@ -104,6 +116,11 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       {session && !focusVisible && <FocusBar session={session} onOpen={() => setFocusVisible(true)} />}
 
       {pausing && <PauseScreen onClose={() => setPausing(false)} />}
+
+      {deciding && (
+        <DecideSheet from={deciding.from} onClose={() => setDeciding(null)} onDecided={(id) => setDecisionId(id)} />
+      )}
+      {decisionId && !deciding && <DecisionSheet decisionId={decisionId} onClose={() => setDecisionId(null)} />}
 
       {toast && (
         <UndoToast

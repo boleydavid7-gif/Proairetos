@@ -7,10 +7,12 @@ type Props = {
   days: number;
   earlier: LifeItem[];
   onDismiss: () => void;
+  /** Lets the page hide cleared items at once, before its data reloads. */
+  onCleared: (ids: string[]) => void;
 };
 
 /** After time away: no pile, no catching up. Just a soft way back in. */
-export default function WelcomeBack({ days, earlier, onDismiss }: Props) {
+export default function WelcomeBack({ days, earlier, onDismiss, onCleared }: Props) {
   const { openItem } = useOverlays();
   const [looking, setLooking] = useState(false);
 
@@ -43,7 +45,9 @@ export default function WelcomeBack({ days, earlier, onDismiss }: Props) {
               type="button"
               className="chip chip--accent"
               onClick={async () => {
-                await lifeService.clearTimes(earlier.map((item) => item.id));
+                const ids = earlier.map((item) => item.id);
+                await lifeService.clearTimes(ids);
+                onCleared(ids);
                 onDismiss();
               }}
             >
