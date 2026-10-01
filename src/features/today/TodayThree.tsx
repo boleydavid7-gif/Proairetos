@@ -4,11 +4,14 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
 import type { LifeItem } from '../../core/life-items/types';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 
 type Props = {
   date: string;
   items: LifeItem[];
 };
+
+const isOpen = (item: LifeItem) => item.status === 'OPEN' || item.status === 'WAITING';
 
 function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   const { dialog, panel } = useSheet();
@@ -16,7 +19,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   // Shows a tap at once; the saved value takes over when it arrives.
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const open = items
-    .filter((item) => item.status === 'OPEN' || item.status === 'WAITING')
+    .filter(isOpen)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const isPicked = (item: LifeItem) => pending[item.id] ?? item.pickedFor === date;
 
@@ -37,7 +40,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
     <dialog
       ref={dialog}
       className="sheet"
-      aria-label="Choose up to three"
+      aria-label="Today's three"
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
@@ -46,7 +49,11 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Done
         </button>
-        <p className="sheet__title sheet__title--static">Up to three for today</p>
+        <p className="sheet__title sheet__title--static">Today's three</p>
+        <p className="sheet__hint">
+          Things from your list you want to keep in front of you today. They sit near the top of Today until the day
+          ends; nothing carries over.
+        </p>
         <p className="sheet__status">
           {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.
         </p>
@@ -88,16 +95,20 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
 export default function TodayThree({ date, items }: Props) {
   const { openItem } = useOverlays();
   const [picking, setPicking] = useState(false);
+  const anyOpen = items.some(isOpen);
   const picks = items
-    .filter((item) => item.pickedFor === date && (item.status === 'OPEN' || item.status === 'WAITING'))
+    .filter((item) => item.pickedFor === date && isOpen(item))
     .sort((a, b) => (a.pickedAt ?? '').localeCompare(b.pickedAt ?? ''));
 
+  // With nothing captured there is nothing to choose from, so the section waits.
+  if (!anyOpen && !picking) return null;
+
   return (
-    <section className="stack-tight" aria-label="Your three for today">
+    <section className="stack-tight" aria-label="Today's three">
       {picks.length > 0 ? (
         <>
           <div className="section-heading">
-            <h2 className="section-label">Your three for today</h2>
+            <h2 className="section-label">Today's three</h2>
             <button type="button" className="text-link" onClick={() => setPicking(true)}>
               Change
             </button>
@@ -114,8 +125,14 @@ export default function TodayThree({ date, items }: Props) {
           </ol>
         </>
       ) : (
-        <button type="button" className="chip chip--wide" onClick={() => setPicking(true)}>
-          Choose up to three for today
+        <button type="button" className="list-card list-card--button" onClick={() => setPicking(true)}>
+          <span className="list-card__text">
+            <span className="list-card__title">Today's three</span>
+            <span className="list-card__detail list-card__detail--full">
+              Pick up to three things from your list to keep in front of you today. Optional.
+            </span>
+          </span>
+          <ChevronRightIcon size={18} className="list-card__chevron" />
         </button>
       )}
       {picking && <Picker date={date} items={items} onClose={() => setPicking(false)} />}
