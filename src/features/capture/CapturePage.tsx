@@ -4,6 +4,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { ChevronRightIcon, StarIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
+import { describeRule } from '../../core/life-items/repeat';
 import type { LifeItem } from '../../core/life-items/types';
 import { formatDay, formatWhen } from '../items/dateFields';
 import CaptureBar from '../now/components/CaptureBar';
@@ -32,7 +33,8 @@ function UnsortedItem({ item }: { item: LifeItem }) {
 
 function itemMeta(item: LifeItem): string {
   const parts = [item.type ? lifeItemTypeLabels[item.type] : 'Unsorted'];
-  if (item.scheduledAt) parts.push(formatWhen(item.scheduledAt));
+  if (item.repeat) parts.push(describeRule(item.repeat));
+  if (item.scheduledAt) parts.push(item.repeat ? `next ${formatWhen(item.scheduledAt)}` : formatWhen(item.scheduledAt));
   if (item.status === 'WAITING') {
     parts.push(item.checkBackAt ? `Waiting · check back ${formatDay(item.checkBackAt)}` : 'Waiting');
   }
@@ -48,7 +50,12 @@ function OpenItem({ item }: { item: LifeItem }) {
     setLeaving(true);
     window.setTimeout(async () => {
       const change = await lifeService.setStatus(item.id, status);
-      offerUndo(`${status === 'DONE' ? 'Done' : 'Let go'}: ${item.title}`, change.undo);
+      const routineNext = status === 'DONE' && item.repeat && change.item.scheduledAt;
+      offerUndo(
+        routineNext ? `Done. Next: ${formatWhen(routineNext)}` : `${status === 'DONE' ? 'Done' : 'Let go'}: ${item.title}`,
+        change.undo,
+      );
+      setLeaving(false);
     }, LEAVE_MS);
   }
 

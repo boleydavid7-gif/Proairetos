@@ -4,9 +4,13 @@ import { decisionService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 
 /** Decisions whose look-back day has come, chosen by the person when they decided. */
+export function useDecisionsToRevisit() {
+  return useServiceData(decisionService.subscribe, () => decisionService.toRevisit()) ?? [];
+}
+
 export default function RevisitNudges() {
   const { openDecision } = useOverlays();
-  const due = useServiceData(decisionService.subscribe, () => decisionService.toRevisit()) ?? [];
+  const due = useDecisionsToRevisit();
   if (due.length === 0) return null;
 
   return (

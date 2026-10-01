@@ -8,6 +8,7 @@ import type { ChosenValue } from '../../core/values/types';
 import { lifeItemTypeLabels, lifeItemTypes } from '../capture/labels';
 import { formatDay, fromDateInput, fromDateTimeInput, toDateInput, toDateTimeInput } from './dateFields';
 import { describeEvent } from './historyLabels';
+import RepeatSection from './RepeatSection';
 
 type Props = {
   itemId: string;
@@ -120,6 +121,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   const [open, setOpen] = useState(Boolean(item.controlSplit));
 
   if (item.type !== 'THINKING_ABOUT') return null;
+  const mineLines = (item.controlSplit?.inMyControl ?? []).filter((line) => line !== item.nextStep);
 
   const save = () => {
     const unchanged =
@@ -163,6 +165,18 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
           />
         </label>
       </div>
+      {mineLines.length > 0 && (
+        <div className="control-split__pivot">
+          <p className="sheet__hint">Turn something in your control into the next step:</p>
+          <div className="chip-row">
+            {mineLines.map((line) => (
+              <button key={line} type="button" className="chip" onClick={() => lifeService.setNextStep(item.id, line)}>
+                {line}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -195,12 +209,17 @@ function DecisionSection({ item }: { item: LifeItem }) {
   );
 }
 
-/** One concrete next action. Small enough to start without deciding anything else. */
+/**
+ * One concrete next action, optionally with when/where and an if-obstacle
+ * plan: the two parts of an implementation intention.
+ */
 function NextStepSection({ item }: { item: LifeItem }) {
   const { startFocus } = useOverlays();
   const [draft, setDraft] = useState('');
+  const [cue, setCue] = useState(item.nextStepCue ?? '');
+  const [obstacle, setObstacle] = useState(item.ifObstacle ?? '');
   const isActive = item.status === 'OPEN' || item.status === 'WAITING';
-  if (!isActive || (item.type !== 'DO' && item.type !== null)) return null;
+  if (!isActive || (item.type !== 'DO' && item.type !== 'THINKING_ABOUT' && item.type !== null)) return null;
 
   const save = () => {
     if (draft.trim()) {
@@ -213,12 +232,44 @@ function NextStepSection({ item }: { item: LifeItem }) {
     <section className="sheet__section next-step" aria-label="Next step">
       <p className="sheet__label">Next small step</p>
       {item.nextStep ? (
-        <div className="next-step__current">
-          <p className="next-step__text">{item.nextStep}</p>
-          <button type="button" className="chip" onClick={() => lifeService.setNextStep(item.id, undefined)}>
-            Step done
-          </button>
-        </div>
+        <>
+          <div className="next-step__current">
+            <p className="next-step__text">{item.nextStep}</p>
+            <button
+              type="button"
+              className="chip"
+              onClick={() => {
+                setCue('');
+                setObstacle('');
+                lifeService.setNextStep(item.id, undefined);
+              }}
+            >
+              Step done
+            </button>
+          </div>
+          <label className="plan-field">
+            <span>When or where</span>
+            <input
+              className="field-input"
+              placeholder="e.g. after breakfast, at my desk"
+              maxLength={140}
+              value={cue}
+              onChange={(event) => setCue(event.target.value)}
+              onBlur={() => cue !== (item.nextStepCue ?? '') && lifeService.setStepPlan(item.id, { nextStepCue: cue })}
+            />
+          </label>
+          <label className="plan-field">
+            <span>If something gets in the way, I will</span>
+            <input
+              className="field-input"
+              placeholder="e.g. do just the first two minutes"
+              maxLength={140}
+              value={obstacle}
+              onChange={(event) => setObstacle(event.target.value)}
+              onBlur={() => obstacle !== (item.ifObstacle ?? '') && lifeService.setStepPlan(item.id, { ifObstacle: obstacle })}
+            />
+          </label>
+        </>
       ) : (
         <form
           className="inline-form"
@@ -334,6 +385,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         </div>
       </section>
 
+      <RepeatSection item={item} />
+
       <ControlSplitSection item={item} />
 
       <DecisionSection item={item} />
@@ -374,6 +427,19 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       <div className="sheet__footer">
         {isActive ? (
           <>
+            {item.repeat && (
+              <button
+                type="button"
+                className="button-quiet"
+                onClick={async () => {
+                  const change = await lifeService.skipRoutine(item.id);
+                  onClose();
+                  offerUndo(`Skipped this time: ${item.title}`, change.undo);
+                }}
+              >
+                Skip this time
+              </button>
+            )}
             <button type="button" className="button-quiet" onClick={() => close('LET_GO')}>
               Let go
             </button>

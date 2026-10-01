@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import {
   formatClockDown,
@@ -12,7 +12,8 @@ type Props = {
   nextStep?: string;
   onPause: () => void;
   onResume: () => void;
-  onStop: () => void;
+  /** Ends the session, with an optional note on where the person left off. */
+  onStop: (leftOff?: string) => void;
   onAnother: () => void;
   onHide: () => void;
 };
@@ -26,9 +27,49 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
   const finished = isFinished(session, now);
   const progress = 1 - remaining / session.durationMs;
 
+  const [wrappingUp, setWrappingUp] = useState(false);
+  const [leftOff, setLeftOff] = useState('');
+
   useEffect(() => {
     if (finished) navigator.vibrate?.(200);
   }, [finished]);
+
+  // Before switching away, a short note on where you stopped makes it easier to come back.
+  const stop = () => (session.itemId ? setWrappingUp(true) : onStop());
+
+  if (wrappingUp) {
+    return (
+      <div className="focus-screen" role="dialog" aria-modal="true" aria-label="Finish focus">
+        <form
+          className="focus-screen__center focus-wrap"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onStop(leftOff);
+          }}
+        >
+          <p className="focus-screen__item">Where did you leave off?</p>
+          <p className="focus-screen__message">A few words now make it easier to pick up later. It becomes the next step.</p>
+          <input
+            className="field-input"
+            aria-label="Where you left off"
+            placeholder="e.g. halfway through section 2"
+            maxLength={140}
+            autoFocus
+            value={leftOff}
+            onChange={(event) => setLeftOff(event.target.value)}
+          />
+          <div className="focus-screen__actions">
+            <button type="button" className="button-quiet" onClick={() => onStop()}>
+              Skip
+            </button>
+            <button type="submit" className="button-accent" disabled={!leftOff.trim()}>
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="focus-screen" role="dialog" aria-modal="true" aria-label="Focus">
@@ -71,14 +112,14 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
               <button type="button" className="button-quiet" onClick={onAnother}>
                 Another round
               </button>
-              <button type="button" className="button-accent" onClick={onStop}>
+              <button type="button" className="button-accent" onClick={stop}>
                 Done
               </button>
             </div>
           </>
         ) : (
           <div className="focus-screen__actions">
-            <button type="button" className="button-quiet" onClick={onStop}>
+            <button type="button" className="button-quiet" onClick={stop}>
               Stop
             </button>
             {session.pausedAt ? (

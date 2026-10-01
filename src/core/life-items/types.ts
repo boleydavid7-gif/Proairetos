@@ -1,3 +1,5 @@
+import type { RepeatRule } from './repeat';
+
 export type LifeItemType =
   | 'DO'
   | 'REMEMBER'
@@ -43,6 +45,14 @@ export interface LifeItem {
   controlSplit?: ControlSplit;
   /** The very next small, concrete action, in the person's words. */
   nextStep?: string;
+  /** When or where the next step will happen: the cue of an implementation intention. */
+  nextStepCue?: string;
+  /** "If something gets in the way, I will...", the person's own plan. */
+  ifObstacle?: string;
+  /** A routine: repeats from scheduledAt. */
+  repeat?: RepeatRule;
+  /** Local date ("YYYY-MM-DD") the person chose this as one of up to three for that day. */
+  pickedFor?: string;
   createdAt: string;
   updatedAt: string;
 }

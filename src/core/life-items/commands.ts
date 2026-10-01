@@ -1,6 +1,8 @@
 import type { DomainContext } from '../context';
 import type { ItemEvent, ItemEventKind } from '../item-events/types';
 import { canTransition } from './transitions';
+import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } from './repeat';
+import { toLocalDate } from '../scheduling/dates';
 import type { ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType } from './types';
 
 /**
@@ -206,7 +208,11 @@ export function setNextStep(ctx: DomainContext, item: LifeItem, step: string | u
     throw new Error(`Keep a next step to ${MAX_NEXT_STEP_LENGTH} characters.`);
   }
   if (item.nextStep === trimmed) return { item, events: [] };
-  return { item: touch(item, ctx.now().toISOString(), { nextStep: trimmed }), events: [] };
+  // A new or finished step starts with a fresh cue and plan.
+  return {
+    item: touch(item, ctx.now().toISOString(), { nextStep: trimmed, nextStepCue: undefined, ifObstacle: undefined }),
+    events: [],
+  };
 }
 
 /** Records time spent focusing on an item. Facts only: no targets, no streaks. */
@@ -221,4 +227,63 @@ export function recordFocus(ctx: DomainContext, item: LifeItem, minutes: number)
 export function recordDecision(ctx: DomainContext, item: LifeItem, decisionId: string): ItemChange {
   const timestamp = ctx.now().toISOString();
   return { item, events: [event(ctx, item.id, 'DECIDED', timestamp, { metadata: { decisionId } })] };
+}
+
+/** Starts, changes, or ends a routine. A routine needs a time to repeat from. */
+export function setRepeat(ctx: DomainContext, item: LifeItem, rule: RepeatRule | undefined): ItemChange {
+  if (rule && !item.scheduledAt) throw new Error('Set a time first, then choose how it repeats.');
+  if (rule && !isValidRule(rule)) throw new Error('Choose how often it repeats.');
+  if (JSON.stringify(item.repeat) === JSON.stringify(rule)) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { repeat: rule }), events: [] };
+}
+
+/**
+ * A routine whose time has passed rolls forward to its next time today or
+ * later. Nothing is marked missed; there is no pile.
+ */
+export function rollRoutineForward(item: LifeItem, now: Date): LifeItem {
+  if (!item.repeat || !item.scheduledAt || item.status !== 'OPEN') return item;
+  const today = toLocalDate(now);
+  if (toLocalDate(new Date(item.scheduledAt)) >= today) return item;
+  return { ...item, scheduledAt: occurrenceOnOrAfter(item.repeat, item.scheduledAt, today) };
+}
+
+/** Finishing a routine records it as done and moves it to its next time. */
+export function completeRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
+  if (!item.repeat || !item.scheduledAt) throw new Error('This item does not repeat.');
+  const timestamp = ctx.now().toISOString();
+  return {
+    item: touch(item, timestamp, { scheduledAt: nextOccurrence(item.repeat, item.scheduledAt), nextStep: undefined }),
+    events: [event(ctx, item.id, 'COMPLETED', timestamp, { metadata: { occurrence: item.scheduledAt, routine: true } })],
+  };
+}
+
+/** Skips this time of a routine without recording anything against it. */
+export function skipRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
+  if (!item.repeat || !item.scheduledAt) throw new Error('This item does not repeat.');
+  return { item: touch(item, ctx.now().toISOString(), { scheduledAt: nextOccurrence(item.repeat, item.scheduledAt) }), events: [] };
+}
+
+export const MAX_TODAY_PICKS = 3;
+
+/** Marks an item as one of the person's up to three for a day, or clears it. */
+export function setPickedFor(ctx: DomainContext, item: LifeItem, date: string | undefined): ItemChange {
+  if (item.pickedFor === date) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { pickedFor: date }), events: [] };
+}
+
+/** The when/where cue and if-obstacle plan for the next step. */
+export function setStepPlan(
+  ctx: DomainContext,
+  item: LifeItem,
+  plan: { nextStepCue?: string; ifObstacle?: string },
+): ItemChange {
+  const clean = (text: string | undefined) => text?.trim() || undefined;
+  return {
+    item: touch(item, ctx.now().toISOString(), {
+      ...('nextStepCue' in plan ? { nextStepCue: clean(plan.nextStepCue) } : {}),
+      ...('ifObstacle' in plan ? { ifObstacle: clean(plan.ifObstacle) } : {}),
+    }),
+    events: [],
+  };
 }

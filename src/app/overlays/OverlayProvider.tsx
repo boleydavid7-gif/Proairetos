@@ -51,10 +51,11 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
     setFocusStart({ target });
   }, []);
 
-  const finishFocus = useCallback(() => {
+  const finishFocus = useCallback((leftOff?: string) => {
     if (session?.itemId) {
       const minutes = focusedMinutes(session, Date.now());
       if (minutes >= 1) lifeService.recordFocus(session.itemId, minutes).catch(() => undefined);
+      if (leftOff?.trim()) lifeService.setNextStep(session.itemId, leftOff).catch(() => undefined);
     }
     setSession(null);
     setFocusVisible(false);
@@ -103,7 +104,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
           nextStep={focusItem?.nextStep}
           onPause={() => setSession(pause(session, Date.now()))}
           onResume={() => setSession(resume(session, Date.now()))}
-          onStop={finishFocus}
+          onStop={(leftOff) => finishFocus(leftOff)}
           onAnother={() => {
             const target = session.itemId ? { id: session.itemId, title: session.itemTitle ?? '' } : undefined;
             finishFocus();

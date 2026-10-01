@@ -1,12 +1,66 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useServiceData } from '../../../app/hooks/useServiceData';
 import { useNavigate } from '../../../app/navigationContext';
-import { compassService, lifeService } from '../../../app/services';
+import { compassService, lifeService, reflectionService } from '../../../app/services';
 import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
 import { isLookAheadSetAside, setLookAheadAside } from '../../../data/storage/preferences';
 
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
+export const PREMEDITATION_PROMPT = 'What might get in the way today, and how do you want to meet it?';
+
+/**
+ * The Stoic morning premeditation, which matches mental contrasting with
+ * implementation intentions. Optional; saved as the person's own reflection.
+ */
+function Premeditation() {
+  const todays = useServiceData(reflectionService.subscribe, () => reflectionService.listFor('today'));
+  const [draft, setDraft] = useState('');
+  const [open, setOpen] = useState(false);
+  const saved = todays?.find((reflection) => reflection.promptKey === 'premeditation');
+
+  if (saved) {
+    return (
+      <div className="look-ahead__plan">
+        <p className="look-ahead__label">Your plan for what might get in the way</p>
+        <p className="look-ahead__plan-text">{saved.body}</p>
+      </div>
+    );
+  }
+  if (!open) {
+    return (
+      <button type="button" className="text-link look-ahead__plan-open" onClick={() => setOpen(true)}>
+        What might get in the way today?
+      </button>
+    );
+  }
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!draft.trim()) return;
+    await reflectionService.write({ body: draft, promptKey: 'premeditation' });
+  };
+
+  return (
+    <form className="look-ahead__plan" onSubmit={submit}>
+      <label className="look-ahead__label" htmlFor="premeditation">
+        {PREMEDITATION_PROMPT}
+      </label>
+      <textarea
+        id="premeditation"
+        className="field-input field-input--area"
+        rows={2}
+        placeholder="If ..., then I will ..."
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+      />
+      <button type="submit" className="chip chip--accent chip--wide" disabled={!draft.trim()}>
+        Keep this plan
+      </button>
+    </form>
+  );
+}
 
 /**
  * A once-a-day look ahead built only from what the person wrote and
@@ -78,6 +132,8 @@ export default function LookAhead() {
           </ul>
         </div>
       )}
+
+      <Premeditation />
 
       <button type="button" className="button-quiet look-ahead__aside" onClick={setAside}>
         Set aside for today

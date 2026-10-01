@@ -5,9 +5,16 @@ import {
   changeStatus,
   connectValue,
   disconnectValue,
+  completeRoutine,
   recordDecision,
   recordFocus,
+  rollRoutineForward,
   setNextStep,
+  setPickedFor,
+  setRepeat,
+  setStepPlan,
+  skipRoutine,
+  MAX_TODAY_PICKS,
   setControlSplit,
   editItem,
   scheduleItem,
@@ -61,10 +68,13 @@ export function createLifeService({ userId, context, items, events }: LifeServic
     return item;
   }
 
+  // Routines whose time has passed are presented at their next time; see rollRoutineForward.
+  const present = (item: LifeItem) => rollRoutineForward(item, context.now());
+
   async function load(id: string): Promise<LifeItem> {
     const item = await items.getById(id);
     if (!item || item.userId !== userId) throw new Error(`Life item ${id} was not found.`);
-    return item;
+    return present(item);
   }
 
   function apply(id: string, command: (item: LifeItem) => ItemChange): Promise<LifeItem> {
@@ -99,13 +109,13 @@ export function createLifeService({ userId, context, items, events }: LifeServic
   return {
     subscribe: listeners.subscribe,
 
-    list(): Promise<LifeItem[]> {
-      return items.list(userId);
+    async list(): Promise<LifeItem[]> {
+      return (await items.list(userId)).map(present);
     },
 
     async get(id: string): Promise<LifeItem | null> {
       const item = await items.getById(id);
-      return item && item.userId === userId ? item : null;
+      return item && item.userId === userId ? present(item) : null;
     },
 
     history(itemId: string): Promise<ItemEvent[]> {
@@ -125,8 +135,37 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => setItemType(context, item, type));
     },
 
+    /** Done on a routine records it and moves it to its next time; otherwise a normal status change. */
     setStatus(id: string, status: LifeItemStatus, options?: StatusOptions): Promise<UndoableChange> {
-      return applyUndoable(id, (item) => changeStatus(context, item, status, options));
+      return applyUndoable(id, (item) =>
+        status === 'DONE' && item.repeat && item.status === 'OPEN'
+          ? completeRoutine(context, item)
+          : changeStatus(context, item, status, options),
+      );
+    },
+
+    skipRoutine(id: string): Promise<UndoableChange> {
+      return applyUndoable(id, (item) => skipRoutine(context, item));
+    },
+
+    setRepeat(id: string, rule: Parameters<typeof setRepeat>[2]) {
+      return apply(id, (item) => setRepeat(context, item, rule));
+    },
+
+    setStepPlan(id: string, plan: { nextStepCue?: string; ifObstacle?: string }) {
+      return apply(id, (item) => setStepPlan(context, item, plan));
+    },
+
+    /** One of up to three for a day, chosen by the person. */
+    pickForDay(id: string, date: string | undefined): Promise<LifeItem> {
+      // The count and the change happen in one queued step, so quick taps cannot exceed the limit.
+      return serial(async () => {
+        if (date) {
+          const picked = (await items.list(userId)).filter((item) => item.pickedFor === date && item.id !== id);
+          if (picked.length >= MAX_TODAY_PICKS) throw new Error(`Up to ${MAX_TODAY_PICKS} for a day. Unpick one first.`);
+        }
+        return save(setPickedFor(context, await load(id), date));
+      });
     },
 
     setCheckBack(id: string, checkBackAt: string | undefined) {

@@ -6,16 +6,19 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, scheduleService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
-import { answeredPauseOffers, previousVisitDate } from '../../data/storage/preferences';
-import PauseOfferCard from '../pause/PauseOfferCard';
-import CheckBackNudges from '../today/CheckBackNudges';
-import RevisitNudges from '../today/RevisitNudges';
-import WelcomeBack from '../today/WelcomeBack';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+import { answeredPauseOffers, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
+import PauseOfferCard from '../pause/PauseOfferCard';
 import { formatLocalDay } from '../schedule/format';
+import AlsoToday from '../today/AlsoToday';
+import CheckBackNudges from '../today/CheckBackNudges';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import DayTimeline from '../today/DayTimeline';
+import DoneToday from '../today/DoneToday';
 import NowCard from '../today/NowCard';
+import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
+import TodayThree from '../today/TodayThree';
+import WelcomeBack from '../today/WelcomeBack';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
 import ImportantItems from './components/ImportantItems';
@@ -26,6 +29,11 @@ import UnsortedPreview from './components/UnsortedPreview';
 import WaitingItems from './components/WaitingItems';
 import { useNow } from './hooks/useNow';
 
+/**
+ * Today, kept calm: at most one message card, then capture, what is happening
+ * now, the person's own three, and the day's timeline. Everything else folds
+ * into one line of counts.
+ */
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
@@ -49,15 +57,45 @@ export default function NowPage() {
       () => scheduleService.occurrencesBetween(atTime(addDays(today, -1), '00:00'), atTime(addDays(today, 3), '00:00')),
       [today],
     ) ?? [];
+  const toRevisit = useDecisionsToRevisit();
 
   const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns) : [];
   const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
   const earlierIds = new Set(earlier.map((item) => item.id));
   const ready = readyToCheckBack(items, clock);
   const readyIds = new Set(ready.map((item) => item.id));
-  const showWelcome = isToday && away >= RETURN_AFTER_DAYS && !welcomeDismissed;
   const offer = patterns ? pauseOffer(clock, nearOccurrences, patterns, answeredPauseOffers()) : undefined;
   const hasAnything = entries.length > 0 || (now && !now.isEmpty);
+
+  // Only one message at a time, most time-sensitive first.
+  const message = !isToday
+    ? null
+    : offer
+      ? 'pause'
+      : away >= RETURN_AFTER_DAYS && !welcomeDismissed
+        ? 'welcome'
+        : !isLookAheadSetAside()
+          ? 'look-ahead'
+          : null;
+
+  const waiting = now?.waiting.filter((item) => !readyIds.has(item.id)) ?? [];
+  const alsoSections = now
+    ? [
+        { id: 'check-back', label: 'Check back', count: ready.length, content: <CheckBackNudges items={ready} /> },
+        { id: 'revisit', label: 'Look back', count: toRevisit.length, content: <RevisitNudges /> },
+        { id: 'important', label: 'Important', count: now.important.length, content: <ImportantItems items={now.important} /> },
+        { id: 'waiting', label: 'Waiting', count: waiting.length, content: <WaitingItems items={waiting} /> },
+        { id: 'unsorted', label: 'Not sorted', count: now.unsortedCount, content: <UnsortedPreview count={now.unsortedCount} /> },
+        {
+          id: 'earlier',
+          label: 'From earlier days',
+          count: message === 'welcome' ? 0 : earlier.length,
+          content: (
+            <ScheduledItems label="From earlier days" items={now.scheduled.filter((item) => earlierIds.has(item.id))} />
+          ),
+        },
+      ]
+    : [];
 
   return (
     <div className="page">
@@ -92,16 +130,20 @@ export default function NowPage() {
         </div>
       )}
 
-      {showWelcome && <WelcomeBack
+      {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
+      {message === 'welcome' && (
+        <WelcomeBack
           days={away}
           earlier={earlier}
           onDismiss={() => setWelcomeDismissed(true)}
           onCleared={(ids) => setCleared(new Set(ids))}
-        />}
-      {isToday && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
-      {isToday && <LookAhead />}
+        />
+      )}
+      {message === 'look-ahead' && <LookAhead />}
+
       {isToday && <CaptureBar />}
       {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
+      {isToday && <TodayThree date={today} items={items} />}
 
       {entries.length > 0 && (
         <section className="stack-tight" aria-label="Your day">
@@ -133,23 +175,8 @@ export default function NowPage() {
         </button>
       )}
 
-      {isToday && now && (
-        <>
-          <CheckBackNudges items={ready} />
-          <RevisitNudges />
-          <ImportantItems items={now.important} />
-          <WaitingItems items={now.waiting.filter((item) => !readyIds.has(item.id))} />
-          <UnsortedPreview count={now.unsortedCount} />
-          {!showWelcome && earlier.length > 0 && (
-            <details className="earlier">
-              <summary>
-                From earlier days <span className="closed-list__count">{earlier.length}</span>
-              </summary>
-              <ScheduledItems label="From earlier days" items={(now.scheduled ?? []).filter((item) => earlierIds.has(item.id))} />
-            </details>
-          )}
-        </>
-      )}
+      {isToday && <AlsoToday sections={alsoSections} />}
+      {isToday && <DoneToday today={today} />}
 
       {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
       {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}
