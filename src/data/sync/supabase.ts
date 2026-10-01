@@ -161,3 +161,29 @@ export async function replaceReminders(userId: string, reminders: { id: string; 
     .upsert(reminders.map((r) => ({ ...r, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
   if (error) throw new Error(error.message);
 }
+
+// ---------- Calendar feed (optional, readable by choice) ----------
+
+/** The link calendar apps subscribe to. */
+export function calendarFeedUrl(token: string): string {
+  return `${syncConfig.url}/functions/v1/calendar-feed?token=${token}`;
+}
+
+/** The token already in use, so another device keeps the same link. */
+export async function fetchCalendarFeedToken(): Promise<string | null> {
+  const { data, error } = await (await supabase()).from('calendar_feeds').select('token').maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data?.token as string | undefined) ?? null;
+}
+
+export async function publishCalendarFeed(userId: string, token: string, ics: string): Promise<void> {
+  const { error } = await (await supabase())
+    .from('calendar_feeds')
+    .upsert({ user_id: userId, token, ics, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteCalendarFeed(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('calendar_feeds').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}

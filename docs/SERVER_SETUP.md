@@ -23,6 +23,8 @@ VAPID **private** key in Cloudflare or in this repository.
 2. Paste the whole contents of
    `supabase/migrations/20261001000000_proairetos_sync.sql` and choose **Run**.
 3. It is safe to run again if anything was interrupted.
+4. Do the same with `supabase/migrations/20261002000000_calendar_feed.sql`
+   (only needed for the calendar subscription link, but harmless otherwise).
 
 This creates four tables, each locked so a person can only ever reach their
 own rows:
@@ -33,6 +35,7 @@ own rows:
 | `user_keys` | Your data key, locked by your passphrase and by your recovery key | No: encrypted |
 | `push_subscriptions` | Where to deliver notifications to your devices | Yes (an address, no content) |
 | `reminders` | When to remind you, as times and hashed ids | Times only |
+| `calendar_feeds` | Only if you turn on the calendar link: the calendar file you chose to publish | Yes, by your choice |
 
 ## 3. Sign-in emails
 
@@ -136,6 +139,15 @@ supabase secrets set \
 supabase functions deploy send-reminders --no-verify-jwt
 ```
 
+For the calendar subscription link, also deploy:
+
+```
+supabase functions deploy calendar-feed --no-verify-jwt
+```
+
+Here `--no-verify-jwt` is needed because calendar apps cannot sign in; the
+function serves a feed only to a link holding its long random token.
+
 `YOUR_PROJECT_REF` is the part before `.supabase.co` in your Project URL.
 `--no-verify-jwt` is correct here: the function instead checks
 `CRON_SECRET`, so only your scheduled job can run it.
@@ -166,13 +178,15 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 
 ## 9. Try it
 
-1. Open the app, then **Compass → Settings and your data → Account and sync**.
+1. Open the app, tap the gear (top right), then **Account and sync**.
 2. Enter your email, then paste the link (or code) from the email.
 3. Choose a passphrase. **Write down the recovery key it shows.** It is the
    only way back in if you forget the passphrase. Nobody, including
    Supabase, can recover it for you.
 4. On a second device, sign in with the same email and enter the passphrase.
-5. For reminders on **iPhone**: open the site in Safari, **Share → Add to
+5. Calendar link (optional): **Settings → Calendar subscription → Create
+   link**, then use the Apple, Google, or Outlook button it shows.
+6. For reminders on **iPhone**: open the site in Safari, **Share → Add to
    Home Screen**, open Proairetos from the Home Screen, then turn on
    reminders in Settings (iOS 16.4 or newer). On **Android**, turn them on
    in Settings directly.
@@ -190,6 +204,9 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   with reminders on.
 - Notifications say only "Something you chose is ready". The details are
   in the app.
+- **Calendar link, only if you turn it on:** the calendar file you chose to
+  publish is readable by the server and by anyone with the link. By default
+  it holds only work times titled "Work". Turning it off deletes it.
 
 ## Good to know
 

@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (179 tests), includes the language guard
+npm test             # vitest (184 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -88,8 +88,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`useReturnRoute`). Today's caption is a daily Stoic line
   (`core/stoic/dailyLine.ts`, steady through the day; avoid quotes with
   banned words such as "should").
-- `supabase/`: migration (RLS on every table) and the `send-reminders`
-  edge function (payload-less push).
+- `supabase/`: migrations (RLS on every table), the `send-reminders`
+  edge function (payload-less push), and `calendar-feed` (serves the
+  optional calendar subscription by secret token; deployed with
+  --no-verify-jwt). The feed is the one thing the server can read, only
+  if the person turns it on; built on the device by `core/calendar/`
+  (ics + what to include, default shift times titled "Work") and
+  republished after each sync (`syncController` calendar section).
 
 ## Testing approach that has worked
 
@@ -119,6 +124,10 @@ Supabase project and tables exist. Remaining steps are in
 `docs/SERVER_SETUP.md` (Site URL, copy URL + publishable key, VAPID keys,
 Cloudflare build variables, deploy function, cron). Sign-in accepts the
 email's link (templates are locked on the free plan without custom SMTP).
+
+Calendar subscription: code complete, needs the server (second
+migration + `calendar-feed` function); the download-a-file option works
+without it. Not yet tested against a live Supabase.
 
 Not yet verified on a real phone: swipe gestures, fonts (EB Garamond and
 Inter, bundled via @fontsource), real Supabase emails and push delivery.

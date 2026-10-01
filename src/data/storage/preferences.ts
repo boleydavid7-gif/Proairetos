@@ -196,3 +196,23 @@ export function dictationAccepted(): boolean {
 export function acceptDictation(): void {
   writeJson(DICTATION_KEY, true);
 }
+
+// ---------- Calendar feed ----------
+
+const FEED_KEY = 'proairetos.calendarFeed';
+
+export type StoredFeedOptions = { shifts: boolean; shiftLabels: boolean; protectedTime: boolean; tasks: boolean };
+
+export type StoredFeed = { enabled: boolean; options: StoredFeedOptions };
+
+export function loadCalendarFeed(): StoredFeed {
+  const stored = readJson<Partial<StoredFeed>>(FEED_KEY);
+  return {
+    enabled: stored?.enabled === true,
+    options: { shifts: true, shiftLabels: false, protectedTime: false, tasks: false, ...stored?.options },
+  };
+}
+
+export function saveCalendarFeed(feed: StoredFeed): void {
+  writeJson(FEED_KEY, feed);
+}

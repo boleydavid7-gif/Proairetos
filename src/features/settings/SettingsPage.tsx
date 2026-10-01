@@ -19,6 +19,7 @@ import {
   clearPreferences,
   displayName,
   lastBackupDate,
+  loadCalendarFeed,
   loadDaySettings,
   recordBackup,
   saveDaySettings,
@@ -28,6 +29,7 @@ import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
+import CalendarSection from './CalendarSection';
 import type { AppRoute } from '../../app/routes/routeTypes';
 
 function download(text: string) {
@@ -281,11 +283,12 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 const viewTitles: Record<View, string> = {
   profile: 'Your name',
   day: 'When your day starts',
+  calendar: 'Calendar subscription',
   account: 'Account and sync',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -421,6 +424,7 @@ export default function SettingsPage() {
         <PageHeader title={viewTitles[view]} />
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
+        {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
         {view === 'backup' && (
           <>
@@ -483,6 +487,12 @@ export default function SettingsPage() {
         <Row icon={<CompassIcon size={22} />} title="Values" onClick={() => navigate('compass')} />
         <Row icon={<CalendarIcon size={22} />} title="Schedule and shifts" onClick={() => navigate('schedule')} />
         <Row icon={<MoonIcon size={22} />} title="When your day starts" value={daySummary()} onClick={() => setView('day')} />
+        <Row
+          icon={<CalendarIcon size={22} />}
+          title="Calendar subscription"
+          value={loadCalendarFeed().enabled ? 'On' : undefined}
+          onClick={() => setView('calendar')}
+        />
       </div>
 
       <div className="settings-list">
