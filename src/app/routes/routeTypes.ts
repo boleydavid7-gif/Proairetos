@@ -1,16 +1,16 @@
 export type AppRoute =
-  | 'now'
-  | 'day'
-  | 'life'
+  | 'today'
   | 'reflect'
+  | 'capture'
+  | 'compass'
   | 'settings';
 
 export const routePaths: Record<AppRoute, string> = {
-  now: '/now',
-  day: '/day',
-  life: '/life',
+  today: '/today',
   reflect: '/reflect',
+  capture: '/capture',
+  compass: '/compass',
   settings: '/settings',
 };
 
-export const defaultRoute: AppRoute = 'now';
+export const defaultRoute: AppRoute = 'today';

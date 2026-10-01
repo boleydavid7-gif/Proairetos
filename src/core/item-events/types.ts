@@ -23,8 +23,10 @@ export interface ItemEvent {
   kind: ItemEventKind;
   timestamp: string;
   valueId?: string;
-  fromType?: string;
-  toType?: string;
+  fromType?: string | null;
+  toType?: string | null;
+  fromStatus?: string;
+  toStatus?: string;
   fromTime?: string;
   toTime?: string;
   metadata?: Record<string, unknown>;

@@ -1,18 +1,11 @@
-import type { LifeItem } from '../../core/life-items/types';
+import type { LifeService } from '../../services/life/lifeService';
 import type { NowViewModel } from './types';
 import { buildNowViewModel } from './nowViewModel';
 
-export type LifeItemSource = () => LifeItem[];
-
-// No storage is wired yet; Now renders its empty state until it is.
-const emptySource: LifeItemSource = () => [];
-
-export function createNowController(source: LifeItemSource = emptySource) {
+export function createNowController(life: Pick<LifeService, 'list'>) {
   return {
-    getViewModel(now: Date = new Date()): NowViewModel {
-      return buildNowViewModel(source(), now);
+    async getViewModel(now: Date = new Date()): Promise<NowViewModel> {
+      return buildNowViewModel(await life.list(), now);
     },
   };
 }
-
-export const nowController = createNowController();

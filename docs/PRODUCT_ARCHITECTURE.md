@@ -17,10 +17,17 @@ The person remains responsible for deciding what matters and what to change.
 # Navigation
 
 ```
-Now · Day · Life · Reflect
+Today · Reflect · Capture · Compass
 ```
 
-Capture is not a destination. It is available from every screen.
+- Today: what the person chose to see now (Attention Engine), and later the
+  day's schedule (Life Context Engine).
+- Reflect: the person's own reflections by day, week, and month, plus
+  observations without interpretation (Reflection Engine).
+- Capture: quick capture, sorting, and every open life item (Capture Engine).
+- Compass: values and statements (Compass Engine).
+
+The capture bar also appears on Today, so capturing never requires navigating.
 
 ---
 
@@ -178,6 +185,19 @@ AI never:
 - assigns values automatically
 - interprets emotions
 - gives life advice without request
+
+---
+
+# Domain Layer
+
+Every change to a life item goes through a command in
+`src/core/life-items/commands.ts`. A command returns the updated item and the
+events that record what happened (created, sorted, scheduled or rescheduled,
+waiting, completed, let go, reopened, carried). Services persist the item and
+its events together. Reflection reads this history; it never infers from it.
+
+Marking an item important is the person's own mark and is not logged as
+history.
 
 ---
 

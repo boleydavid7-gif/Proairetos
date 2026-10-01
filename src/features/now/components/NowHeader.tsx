@@ -1,8 +1,10 @@
 export default function NowHeader() {
+  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
   return (
-    <header className="now-header">
-      <h1 className="now-header__title">Now</h1>
-      <p className="now-header__subtitle">A quiet view of what is present.</p>
+    <header className="page-header">
+      <h1 className="page-header__title">Today</h1>
+      <p className="page-header__subtitle">{date}</p>
     </header>
   );
 }

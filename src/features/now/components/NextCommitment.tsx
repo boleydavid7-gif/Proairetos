@@ -13,19 +13,13 @@ function formatTime(iso: string): string {
 }
 
 export default function NextCommitment({ commitment }: Props) {
+  if (!commitment) return null;
+
   return (
-    <section aria-label="Next commitment" className="now-card">
-      <h2 className="now-card__label">Next commitment</h2>
-      {commitment ? (
-        <>
-          <p className="now-card__title">{commitment.title}</p>
-          {commitment.scheduledAt && (
-            <p className="now-card__meta">{formatTime(commitment.scheduledAt)}</p>
-          )}
-        </>
-      ) : (
-        <p className="now-card__meta">No upcoming commitment.</p>
-      )}
+    <section aria-label="Next commitment" className="card">
+      <h2 className="section-label">Next commitment</h2>
+      <p className="card__title">{commitment.title}</p>
+      {commitment.scheduledAt && <p className="card__meta">{formatTime(commitment.scheduledAt)}</p>}
     </section>
   );
 }

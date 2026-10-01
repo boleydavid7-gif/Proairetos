@@ -3,5 +3,5 @@ export type AppState = {
 };
 
 export const initialAppState: AppState = {
-  activeRoute: 'now',
+  activeRoute: 'today',
 };

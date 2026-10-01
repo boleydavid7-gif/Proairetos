@@ -1,9 +1,9 @@
 import type { AppRoute } from './routes/routeTypes';
 
-// Capture is not a destination: it lives on every screen as the capture bar.
+// The capture bar also sits on Today, so capturing never requires navigating.
 export const navigation: readonly { id: AppRoute; label: string }[] = [
-  { id: 'now', label: 'Now' },
-  { id: 'day', label: 'Day' },
-  { id: 'life', label: 'Life' },
+  { id: 'today', label: 'Today' },
   { id: 'reflect', label: 'Reflect' },
+  { id: 'capture', label: 'Capture' },
+  { id: 'compass', label: 'Compass' },
 ];
