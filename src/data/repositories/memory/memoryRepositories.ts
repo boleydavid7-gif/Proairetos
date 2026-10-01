@@ -2,11 +2,13 @@ import type { CompassStatementModel } from '../../models/compassStatementModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
 import type { LifeItemModel } from '../../models/lifeItemModel';
 import type { ReflectionModel } from '../../models/reflectionModel';
+import type { ScheduleExceptionModel, SchedulePatternModel } from '../../models/scheduleModel';
 import type { ChosenValueModel } from '../../models/valueModel';
 import type { CompassStatementRepository } from '../compassStatementRepository';
 import type { ItemEventRepository } from '../itemEventRepository';
 import type { LifeItemRepository } from '../lifeItemRepository';
 import type { ReflectionRepository } from '../reflectionRepository';
+import type { ScheduleExceptionRepository, SchedulePatternRepository } from '../scheduleRepository';
 import type { ValueRepository } from '../valueRepository';
 
 // Copies on the way in and out so callers can never mutate stored records.
@@ -86,10 +88,22 @@ function createMemoryUserCollection<T extends { id: string; userId: string }>() 
       records.set(record.id, copy(record));
       return copy(record);
     },
+    async put(record: T) {
+      records.set(record.id, copy(record));
+      return copy(record);
+    },
     async remove(id: string) {
       records.delete(id);
     },
   };
+}
+
+export function createMemorySchedulePatternRepository(): SchedulePatternRepository {
+  return createMemoryUserCollection<SchedulePatternModel>();
+}
+
+export function createMemoryScheduleExceptionRepository(): ScheduleExceptionRepository {
+  return createMemoryUserCollection<ScheduleExceptionModel>();
 }
 
 export function createMemoryValueRepository(): ValueRepository {

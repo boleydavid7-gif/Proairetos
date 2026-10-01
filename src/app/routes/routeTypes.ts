@@ -3,6 +3,7 @@ export type AppRoute =
   | 'reflect'
   | 'capture'
   | 'compass'
+  | 'schedule'
   | 'settings';
 
 export const routePaths: Record<AppRoute, string> = {
@@ -10,6 +11,7 @@ export const routePaths: Record<AppRoute, string> = {
   reflect: '/reflect',
   capture: '/capture',
   compass: '/compass',
+  schedule: '/schedule',
   settings: '/settings',
 };
 

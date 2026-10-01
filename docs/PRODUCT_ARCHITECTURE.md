@@ -110,6 +110,20 @@ Rules:
 - never decides availability
 - schedule patterns are user-defined
 
+In the product:
+- Every schedule is a repeating cycle of runs ("7 days of these hours,
+  then 1 day off, ..."). A weekly job is a 7-day cycle anchored on a
+  Monday; a rotation is any longer cycle, up to 366 days.
+- Hours ending at or before they start run past midnight. A night shift
+  belongs to the day it starts and also shows on the morning it ends.
+- One day can be changed without touching the pattern: different hours,
+  not working, or extra hours on a day off.
+- Patterns are either work and commitments, or protected time.
+- Templates are starting points only (weekly, days/evenings/nights,
+  4 on 4 off, 2-2-3, protected time, blank).
+- Today shows what is under way and what starts next, with plain
+  countdowns, and a timeline for any day.
+
 ---
 
 ## 4. Attention Engine

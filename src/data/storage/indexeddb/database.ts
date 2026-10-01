@@ -1,6 +1,7 @@
 export const DB_NAME = 'proairetos';
 // Version 1: lifeItems, itemEvents, reflections. Version 2: values, statements.
-export const DB_VERSION = 2;
+// Version 3: schedulePatterns, scheduleExceptions.
+export const DB_VERSION = 3;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -8,6 +9,8 @@ export const stores = {
   reflections: 'reflections',
   values: 'values',
   statements: 'statements',
+  schedulePatterns: 'schedulePatterns',
+  scheduleExceptions: 'scheduleExceptions',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -36,6 +39,12 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.statements)) {
         db.createObjectStore(stores.statements, { keyPath: 'id' }).createIndex('userId', 'userId');
+      }
+      if (!db.objectStoreNames.contains(stores.schedulePatterns)) {
+        db.createObjectStore(stores.schedulePatterns, { keyPath: 'id' }).createIndex('userId', 'userId');
+      }
+      if (!db.objectStoreNames.contains(stores.scheduleExceptions)) {
+        db.createObjectStore(stores.scheduleExceptions, { keyPath: 'id' }).createIndex('userId', 'userId');
       }
     };
 

@@ -33,9 +33,7 @@ export function buildNowViewModel(items: LifeItem[], now: Date): NowViewModel {
   const nowIso = now.toISOString();
   const nextCommitment = scheduled.find((item) => (item.scheduledAt ?? '') >= nowIso) ?? null;
 
-  const important = visible.filter(
-    (item) => item.reasons.includes('IMPORTANT') && !item.reasons.includes('SCHEDULED'),
-  );
+  const important = visible.filter((item) => item.reasons.includes('IMPORTANT'));
 
   const waiting = visible
     .filter((item) => item.reasons.includes('CHECK_BACK'))

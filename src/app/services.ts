@@ -3,6 +3,7 @@ import { createDeviceStorage } from '../data/storage/deviceStorage';
 import { createCompassService } from '../services/compass/compassService';
 import { createLifeService } from '../services/life/lifeService';
 import { createReflectionService } from '../services/reflection/reflectionService';
+import { createScheduleService } from '../services/schedule/scheduleService';
 
 // Until accounts exist, everything belongs to one person on this device.
 const userId = 'local';
@@ -29,4 +30,11 @@ export const compassService = createCompassService({
   context,
   values: storage.values,
   statements: storage.statements,
+});
+
+export const scheduleService = createScheduleService({
+  userId,
+  context,
+  patterns: storage.schedulePatterns,
+  exceptions: storage.scheduleExceptions,
 });

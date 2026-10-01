@@ -7,6 +7,7 @@ import {
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
+  createIndexedDbSchedulePatternRepository,
   createIndexedDbValueRepository,
 } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import {
@@ -149,6 +150,43 @@ describe.each(Object.entries(implementations))('%s compass repositories', (_name
   });
 });
 
+describe('indexeddb schedule stores', () => {
+  it('upgrades a version 2 database and stores schedules', async () => {
+    const factory = new IDBFactory();
+    const v2 = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = factory.open('proairetos', 2);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        for (const name of ['lifeItems', 'reflections', 'values', 'statements']) {
+          db.createObjectStore(name, { keyPath: 'id' }).createIndex('userId', 'userId');
+        }
+        const events = db.createObjectStore('itemEvents', { keyPath: 'seq', autoIncrement: true });
+        events.createIndex('id', 'id', { unique: true });
+        events.createIndex('itemId', 'itemId');
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await createIndexedDbValueRepository(Promise.resolve(v2)).add({
+      id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x',
+    });
+    v2.close();
+
+    const v3 = openDatabase(factory);
+    expect((await v3).version).toBe(3);
+    expect(await createIndexedDbValueRepository(v3).list('u')).toHaveLength(1);
+
+    const patterns = createIndexedDbSchedulePatternRepository(v3);
+    const pattern = {
+      id: 'p', userId: 'u', name: 'Work', kind: 'COMMITTED' as const, layout: 'CYCLE' as const,
+      anchorDate: '2026-09-29', segments: [{ days: 1, blocks: [] }], createdAt: 'x', updatedAt: 'x',
+    };
+    await patterns.add(pattern);
+    await patterns.put({ ...pattern, name: 'Plant' });
+    expect((await patterns.list('u')).map((p) => p.name)).toEqual(['Plant']);
+  });
+});
+
 describe('indexeddb persistence', () => {
   it('upgrades a version 1 database without losing anything', async () => {
     const factory = new IDBFactory();
@@ -171,7 +209,7 @@ describe('indexeddb persistence', () => {
     v1.close();
 
     const v2 = openDatabase(factory);
-    expect((await v2).version).toBe(2);
+    expect((await v2).version).toBe(3);
     expect((await createIndexedDbLifeItemRepository(v2).list('u')).map((item) => item.id)).toEqual(['kept']);
     expect(await createIndexedDbItemEventRepository(v2).listForItem('kept')).toHaveLength(1);
     await createIndexedDbValueRepository(v2).add({ id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x' });

@@ -1,39 +1,120 @@
-import PageHeader from '../../components/layout/PageHeader';
+import { useState } from 'react';
+import { useClock } from '../../app/hooks/useClock';
+import { useServiceData } from '../../app/hooks/useServiceData';
+import { useNavigate } from '../../app/navigationContext';
+import { useOverlays } from '../../app/overlays/OverlayContext';
+import { lifeService, scheduleService } from '../../app/services';
+import { ChevronRightIcon } from '../../components/icons/Icons';
+import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+import { formatLocalDay } from '../schedule/format';
+import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
+import DayTimeline from '../today/DayTimeline';
+import NowCard from '../today/NowCard';
+import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
-import LookAhead from './components/LookAhead';
-import NextCommitment from './components/NextCommitment';
 import ImportantItems from './components/ImportantItems';
-import ScheduledItems from './components/ScheduledItems';
-import WaitingItems from './components/WaitingItems';
-import UnsortedPreview from './components/UnsortedPreview';
+import LookAhead from './components/LookAhead';
 import NowEmptyState from './components/NowEmptyState';
+import ScheduledItems from './components/ScheduledItems';
+import UnsortedPreview from './components/UnsortedPreview';
+import WaitingItems from './components/WaitingItems';
 import { useNow } from './hooks/useNow';
 
 export default function NowPage() {
+  const clock = useClock();
+  const navigate = useNavigate();
+  const { openItem } = useOverlays();
+  const today = toLocalDate(clock);
+  const [offset, setOffset] = useState(0);
+  const [changing, setChanging] = useState<DayChangeTarget | null>(null);
+  const date = addDays(today, offset);
+  const isToday = offset === 0;
+
   const now = useNow();
-  const nowIso = new Date().toISOString();
-  const others = now?.scheduled.filter((item) => item.id !== now.nextCommitment?.id) ?? [];
-  const comingUp = others.filter((item) => (item.scheduledAt ?? '') >= nowIso);
-  const earlier = others.filter((item) => (item.scheduledAt ?? '') < nowIso);
-  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
+  const patterns = useServiceData(scheduleService.subscribe, () => scheduleService.patterns());
+  const dayOccurrences = useServiceData(scheduleService.subscribe, () => scheduleService.day(date), [date]) ?? [];
+  const nearOccurrences =
+    useServiceData(
+      scheduleService.subscribe,
+      () => scheduleService.occurrencesBetween(atTime(addDays(today, -1), '00:00'), atTime(addDays(today, 3), '00:00')),
+      [today],
+    ) ?? [];
+
+  const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns) : [];
+  const startOfToday = atTime(today, '00:00').toISOString();
+  const fromEarlierDays = (now?.scheduled ?? []).filter((item) => (item.scheduledAt ?? '') < startOfToday);
+  const hasAnything = entries.length > 0 || (now && !now.isEmpty);
 
   return (
     <div className="page">
-      <PageHeader title="Today" subtitle={date} />
-      <LookAhead />
-      <CaptureBar />
-      {now && (now.isEmpty ? (
-        <NowEmptyState />
-      ) : (
+      <header className="page-header day-header">
+        <div className="day-header__row">
+          <button type="button" className="day-header__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
+            <ChevronRightIcon size={22} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+          <h1 className="page-header__title">{dayTitle(date, today)}</h1>
+          <button type="button" className="day-header__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
+            <ChevronRightIcon size={22} />
+          </button>
+        </div>
+        <p className="page-header__subtitle">
+          {formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}
+          {!isToday && (
+            <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
+              Back to today
+            </button>
+          )}
+        </p>
+      </header>
+
+      {isToday && <LookAhead />}
+      {isToday && <CaptureBar />}
+      {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
+
+      {entries.length > 0 && (
+        <section className="stack-tight" aria-label="Your day">
+          <div className="section-heading">
+            <h2 className="section-label">{isToday ? 'Your day' : 'That day'}</h2>
+            <button type="button" className="text-link" onClick={() => navigate('schedule')}>
+              Schedule
+            </button>
+          </div>
+          <DayTimeline
+            date={date}
+            entries={entries}
+            now={isToday ? clock : undefined}
+            onChangeDay={setChanging}
+            onOpenItem={openItem}
+          />
+        </section>
+      )}
+
+      {patterns && patterns.length === 0 && (
+        <button type="button" className="list-card list-card--button" onClick={() => navigate('schedule')}>
+          <span className="list-card__text">
+            <span className="list-card__title">Add your schedule</span>
+            <span className="list-card__detail list-card__detail--full">
+              Work hours, rotating shifts, or protected time. It repeats on its own.
+            </span>
+          </span>
+          <ChevronRightIcon size={18} className="list-card__chevron" />
+        </button>
+      )}
+
+      {isToday && now && (
         <>
-          <NextCommitment commitment={now.nextCommitment} />
-          <ScheduledItems label="Coming up" items={comingUp} />
           <ImportantItems items={now.important} />
           <WaitingItems items={now.waiting} />
           <UnsortedPreview count={now.unsortedCount} />
-          <ScheduledItems label="Earlier" items={earlier} />
+          <ScheduledItems label="From earlier days" items={fromEarlierDays} />
         </>
-      ))}
+      )}
+
+      {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
+      {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}
+
+      {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
     </div>
   );
 }

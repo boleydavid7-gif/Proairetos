@@ -4,6 +4,8 @@ import {
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
+  createIndexedDbScheduleExceptionRepository,
+  createIndexedDbSchedulePatternRepository,
   createIndexedDbValueRepository,
 } from '../repositories/indexeddb/indexedDbRepositories';
 import type { ItemEventRepository } from '../repositories/itemEventRepository';
@@ -13,9 +15,12 @@ import {
   createMemoryItemEventRepository,
   createMemoryLifeItemRepository,
   createMemoryReflectionRepository,
+  createMemoryScheduleExceptionRepository,
+  createMemorySchedulePatternRepository,
   createMemoryValueRepository,
 } from '../repositories/memory/memoryRepositories';
 import type { ReflectionRepository } from '../repositories/reflectionRepository';
+import type { ScheduleExceptionRepository, SchedulePatternRepository } from '../repositories/scheduleRepository';
 import type { ValueRepository } from '../repositories/valueRepository';
 import { openDatabase } from './indexeddb/database';
 
@@ -27,6 +32,8 @@ export type Repositories = {
   reflections: ReflectionRepository;
   values: ValueRepository;
   statements: CompassStatementRepository;
+  schedulePatterns: SchedulePatternRepository;
+  scheduleExceptions: ScheduleExceptionRepository;
 };
 
 type Backend = Repositories & { mode: StorageMode };
@@ -44,6 +51,8 @@ async function openBackend(): Promise<Backend> {
       reflections: createIndexedDbReflectionRepository(ready),
       values: createIndexedDbValueRepository(ready),
       statements: createIndexedDbCompassStatementRepository(ready),
+      schedulePatterns: createIndexedDbSchedulePatternRepository(ready),
+      scheduleExceptions: createIndexedDbScheduleExceptionRepository(ready),
     };
   } catch (error) {
     console.warn('On-device storage is unavailable; keeping data in memory for this visit.', error);
@@ -54,6 +63,8 @@ async function openBackend(): Promise<Backend> {
       reflections: createMemoryReflectionRepository(),
       values: createMemoryValueRepository(),
       statements: createMemoryCompassStatementRepository(),
+      schedulePatterns: createMemorySchedulePatternRepository(),
+      scheduleExceptions: createMemoryScheduleExceptionRepository(),
     };
   }
 }
@@ -81,5 +92,7 @@ export function createDeviceStorage(): Repositories & { mode: Promise<StorageMod
     reflections: deferred(backend.then((b) => b.reflections)),
     values: deferred(backend.then((b) => b.values)),
     statements: deferred(backend.then((b) => b.statements)),
+    schedulePatterns: deferred(backend.then((b) => b.schedulePatterns)),
+    scheduleExceptions: deferred(backend.then((b) => b.scheduleExceptions)),
   };
 }
