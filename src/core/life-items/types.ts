@@ -1,20 +1,21 @@
-export const LifeItemTypes = {
-  DO: 'DO',
-  REMEMBER: 'REMEMBER',
-  MAKE_TIME_FOR: 'MAKE_TIME_FOR',
-  THINKING_ABOUT: 'THINKING_ABOUT',
-} as const;
+export type LifeItemType =
+  | 'DO'
+  | 'REMEMBER'
+  | 'MAKE_TIME_FOR'
+  | 'THINKING_ABOUT';
 
-export type LifeItemType = typeof LifeItemTypes[keyof typeof LifeItemTypes];
+export type LifeItemStatus =
+  | 'OPEN'
+  | 'WAITING'
+  | 'DONE'
+  | 'LET_GO';
 
-export const LifeItemStatuses = {
-  OPEN: 'OPEN',
-  WAITING: 'WAITING',
-  DONE: 'DONE',
-  LET_GO: 'LET_GO',
-} as const;
-
-export type LifeItemStatus = typeof LifeItemStatuses[keyof typeof LifeItemStatuses];
+export type LifeItemSource =
+  | 'MANUAL'
+  | 'CAPTURE'
+  | 'CALENDAR'
+  | 'IMPORT'
+  | 'ASSISTANT_CONFIRMED';
 
 export interface LifeItem {
   id: string;
@@ -26,5 +27,8 @@ export interface LifeItem {
   important: boolean;
   scheduledAt?: string;
   checkBackAt?: string;
+  source: LifeItemSource;
   carried: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
