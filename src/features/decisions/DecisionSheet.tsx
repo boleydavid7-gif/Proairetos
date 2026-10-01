@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useState, type FormEvent } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 import { decisionService, reflectionService } from '../../app/services';
 import {
   confidenceLabels,
@@ -21,7 +23,8 @@ const day = (iso: string) => formatLocalDay(toLocalDate(new Date(iso)), { month:
 
 /** Looking back on a decision: what was chosen, why, and notes written since. */
 export default function DecisionSheet({ decisionId, onClose }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
+  const { offerUndo } = useOverlays();
   const decision = useServiceData(decisionService.subscribe, () => decisionService.get(decisionId), [decisionId]);
   const notes = useServiceData(reflectionService.subscribe, () => reflectionService.forDecision(decisionId), [decisionId]) ?? [];
   const [draft, setDraft] = useState('');
@@ -31,9 +34,6 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
   const [process, setProcess] = useState<DecisionProcess>();
   const [outcome, setOutcome] = useState<DecisionOutcome>();
 
-  useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
-  }, []);
 
   const close = () => dialog.current?.close();
   const due = decision?.revisitAt && !decision.revisitedAt && decision.revisitAt <= new Date().toISOString();
@@ -60,7 +60,7 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && close()}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={close}>
           Close
@@ -102,7 +102,17 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
               <p className="sheet__label">Looking back</p>
               {notes.map((note) => (
                 <article key={note.id} className="decision-note">
-                  <time dateTime={note.createdAt}>{day(note.createdAt)}</time>
+                  <div className="decision-note__head">
+                    <time dateTime={note.createdAt}>{day(note.createdAt)}</time>
+                    <button
+                      type="button"
+                      className="statement__remove"
+                      aria-label="Delete this note"
+                      onClick={async () => offerUndo('Note deleted', (await reflectionService.remove(note.id)).undo)}
+                    >
+                      ×
+                    </button>
+                  </div>
                   <p>{note.body}</p>
                 </article>
               ))}

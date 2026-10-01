@@ -1,3 +1,4 @@
+import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import {
@@ -22,6 +23,7 @@ const RADIUS = 104;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function FocusScreen({ session, nextStep, onPause, onResume, onStop, onAnother, onHide }: Props) {
+  useBackHandler(true, onHide);
   const now = useClock(1000).getTime();
   const remaining = remainingMs(session, now);
   const finished = isFinished(session, now);

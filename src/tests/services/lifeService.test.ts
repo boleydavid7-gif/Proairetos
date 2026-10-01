@@ -106,4 +106,23 @@ describe('life service', () => {
     await service.setImportant(item.id, true);
     expect((await service.get(item.id))?.important).toBe(true);
   });
+
+  it('deletes an item and its history, and undo restores both exactly', async () => {
+    const { service } = setup();
+    const keep = await service.capture('Keep me');
+    const item = await service.capture('Captured by mistake');
+    await service.sort(item.id, 'DO');
+    const before = await service.get(item.id);
+    const history = await service.history(item.id);
+
+    const deletion = await service.deleteItem(item.id);
+    expect(await service.get(item.id)).toBeNull();
+    expect(await service.history(item.id)).toEqual([]);
+    expect((await service.list()).map((i) => i.id)).toEqual([keep.id]);
+
+    await deletion.undo();
+    await deletion.undo();
+    expect(await service.get(item.id)).toEqual(before);
+    expect(await service.history(item.id)).toEqual(history);
+  });
 });

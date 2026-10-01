@@ -122,4 +122,17 @@ describe('routines in the service', () => {
     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(3);
     expect((await service.list()).filter((i) => i.pickedFor === '2026-10-01')).toHaveLength(3);
   });
+
+  it('lists the three in the order they were picked', async () => {
+    const { service, clock } = setup();
+    const first = await service.capture('first');
+    const second = await service.capture('second');
+    await service.pickForDay(second.id, '2026-10-01');
+    clock.advance(1000);
+    await service.pickForDay(first.id, '2026-10-01');
+    const picked = (await service.list())
+      .filter((i) => i.pickedFor === '2026-10-01')
+      .sort((a, b) => (a.pickedAt ?? '').localeCompare(b.pickedAt ?? ''));
+    expect(picked.map((i) => i.title)).toEqual(['second', 'first']);
+  });
 });

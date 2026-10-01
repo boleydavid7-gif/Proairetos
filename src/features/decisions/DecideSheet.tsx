@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useState } from 'react';
 import { decisionService, lifeService } from '../../app/services';
 import { MAX_DECISION_OPTIONS, confidenceLabels, type DecisionConfidence } from '../../core/decisions/types';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
@@ -13,7 +14,7 @@ type Props = {
 
 /** Writing down a decision. Every word is the person's; nothing is weighed or suggested. */
 export default function DecideSheet({ from, onClose, onDecided }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
   const [question, setQuestion] = useState(from?.title ?? '');
   const [options, setOptions] = useState<string[]>(['', '']);
   const [chosen, setChosen] = useState<number | null>(null);
@@ -25,9 +26,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
   const [closeItem, setCloseItem] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
-  }, []);
 
   const filled = options.map((option) => option.trim());
   const canSave = question.trim() && chosen !== null && filled[chosen];
@@ -64,7 +62,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Close

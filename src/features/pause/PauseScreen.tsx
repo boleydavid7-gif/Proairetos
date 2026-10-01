@@ -1,3 +1,4 @@
+import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import { loadPauseSettings, savePauseSettings, type PauseSettings } from '../../data/storage/preferences';
@@ -18,6 +19,7 @@ const anchors: { id: PauseSettings['anchor']; label: string; gather: string }[] 
  * anchor need not be the breath.
  */
 export default function PauseScreen({ onClose }: Props) {
+  useBackHandler(true, onClose);
   const [settings, setSettings] = useState<PauseSettings>(() => loadPauseSettings());
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const now = useClock(1000).getTime();

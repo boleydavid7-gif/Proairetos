@@ -269,7 +269,8 @@ export const MAX_TODAY_PICKS = 3;
 /** Marks an item as one of the person's up to three for a day, or clears it. */
 export function setPickedFor(ctx: DomainContext, item: LifeItem, date: string | undefined): ItemChange {
   if (item.pickedFor === date) return { item, events: [] };
-  return { item: touch(item, ctx.now().toISOString(), { pickedFor: date }), events: [] };
+  const timestamp = ctx.now().toISOString();
+  return { item: touch(item, timestamp, { pickedFor: date, pickedAt: date ? timestamp : undefined }), events: [] };
 }
 
 /** The when/where cue and if-obstacle plan for the next step. */

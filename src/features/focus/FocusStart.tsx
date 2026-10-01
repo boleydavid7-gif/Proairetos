@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useState } from 'react';
 import { focusDurations } from '../../core/focus/session';
 import type { FocusTarget } from '../../app/overlays/OverlayContext';
 
@@ -9,12 +10,9 @@ type Props = {
 };
 
 export default function FocusStart({ target, onStart, onClose }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
   const [custom, setCustom] = useState('');
 
-  useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
-  }, []);
 
   const start = (minutes: number) => {
     onStart(minutes);
@@ -30,8 +28,11 @@ export default function FocusStart({ target, onStart, onClose }: Props) {
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
+        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
+          Cancel
+        </button>
         <p className="sheet__title sheet__title--static">Focus</p>
         <p className="sheet__status">{target ? target.title : 'Just a stretch of time for one thing.'}</p>
         <div className="focus-choices" role="group" aria-label="How long">

@@ -1,3 +1,4 @@
+import EdgeSwipe from './back/EdgeSwipe';
 import { useEffect, useState } from 'react';
 import { startSync } from './sync/syncController';
 import OnboardingPage from '../features/onboarding/OnboardingPage';
@@ -35,6 +36,7 @@ export default function App() {
 
   return (
     <NavigationContext.Provider value={setRoute}>
+    <EdgeSwipe />
     <OverlayProvider>
       <AppShell route={route} onNavigate={setRoute}>
       {route === 'today' && <NowPage />}

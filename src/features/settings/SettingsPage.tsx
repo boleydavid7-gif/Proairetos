@@ -1,3 +1,4 @@
+import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from '../../app/navigationContext';
 import { backupService, storageMode } from '../../app/services';
@@ -185,6 +186,22 @@ function ImportSection() {
         </div>
       )}
 
+      {(text || error) && (
+        <button
+          type="button"
+          className="button-quiet"
+          onClick={() => {
+            setText(null);
+            setReady(null);
+            setLocked(false);
+            setPassword('');
+            setError('');
+            if (input.current) input.current.value = '';
+          }}
+        >
+          Cancel
+        </button>
+      )}
       {error && (
         <p className="form-error" role="alert">
           {error}
@@ -237,6 +254,7 @@ function DeleteSection() {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  useBackHandler(true, () => navigate('compass'));
   const [mode, setMode] = useState<'device' | 'memory'>('device');
   useEffect(() => {
     storageMode.then(setMode);

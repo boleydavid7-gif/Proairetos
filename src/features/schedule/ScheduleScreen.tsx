@@ -1,3 +1,4 @@
+import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -44,6 +45,8 @@ export default function ScheduleScreen() {
   const patterns = useServiceData(scheduleService.subscribe, () => scheduleService.patterns());
   const [mode, setMode] = useState<Mode>({ view: 'list' });
   const toList = () => setMode({ view: 'list' });
+  useBackHandler(true, () => navigate('today'));
+  useBackHandler(mode.view !== 'list', toList);
 
   const back = (
     <button type="button" className="back-link" onClick={() => (mode.view === 'list' ? navigate('today') : toList())}>

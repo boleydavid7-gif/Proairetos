@@ -124,6 +124,32 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return events.listForItem(itemId);
     },
 
+    /**
+     * Deletes an item and its history for good, with an undo that restores
+     * both exactly. Unlike Let go, nothing of it remains.
+     */
+    deleteItem(id: string): Promise<{ undo: Undo }> {
+      return serial(async () => {
+        const item = await items.getById(id);
+        if (!item || item.userId !== userId) throw new Error(`Life item ${id} was not found.`);
+        const history = await events.listForItem(id);
+        await events.remove(history.map((event) => event.id));
+        await items.remove(id);
+        listeners.notify();
+        let undone = false;
+        return {
+          undo: () =>
+            serial(async () => {
+              if (undone) return;
+              undone = true;
+              await items.create(item);
+              await events.append(history);
+              listeners.notify();
+            }),
+        };
+      });
+    },
+
     async historyForAll(): Promise<ItemEvent[]> {
       const all = await items.list(userId);
       return events.listForItems(all.map((item) => item.id));

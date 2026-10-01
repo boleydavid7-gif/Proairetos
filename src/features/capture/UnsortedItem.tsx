@@ -5,7 +5,7 @@ import { lifeItemTypeLabels, lifeItemTypes } from './labels';
 
 /** A capture waiting to be sorted, with one tap per type. */
 export default function UnsortedItem({ item }: { item: LifeItem }) {
-  const { openItem } = useOverlays();
+  const { openItem, offerUndo } = useOverlays();
 
   return (
     <div className="item-card">
@@ -18,6 +18,14 @@ export default function UnsortedItem({ item }: { item: LifeItem }) {
             {lifeItemTypeLabels[type]}
           </button>
         ))}
+        <button
+          type="button"
+          className="chip chip--quiet"
+          aria-label={`Delete "${item.title}"`}
+          onClick={async () => offerUndo(`Deleted: ${item.title}`, (await lifeService.deleteItem(item.id)).undo)}
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

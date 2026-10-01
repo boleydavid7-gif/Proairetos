@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useEffect, useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
@@ -10,7 +11,7 @@ type Props = {
 };
 
 function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
   const [error, setError] = useState('');
   // Shows a tap at once; the saved value takes over when it arrives.
   const [pending, setPending] = useState<Record<string, boolean>>({});
@@ -31,9 +32,6 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   }, [items, date]);
   const pickedCount = open.filter(isPicked).length;
 
-  useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
-  }, []);
 
   return (
     <dialog
@@ -43,7 +41,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Done
@@ -90,7 +88,9 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
 export default function TodayThree({ date, items }: Props) {
   const { openItem } = useOverlays();
   const [picking, setPicking] = useState(false);
-  const picks = items.filter((item) => item.pickedFor === date && (item.status === 'OPEN' || item.status === 'WAITING'));
+  const picks = items
+    .filter((item) => item.pickedFor === date && (item.status === 'OPEN' || item.status === 'WAITING'))
+    .sort((a, b) => (a.pickedAt ?? '').localeCompare(b.pickedAt ?? ''));
 
   return (
     <section className="stack-tight" aria-label="Your three for today">

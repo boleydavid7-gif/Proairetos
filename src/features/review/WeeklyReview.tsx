@@ -1,3 +1,4 @@
+import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -142,6 +143,7 @@ export default function WeeklyReview() {
   const [note, setNote] = useState('');
   const [finished, setFinished] = useState(false);
   const last = step === steps.length - 1;
+  useBackHandler(true, () => navigate('reflect'));
 
   async function finish() {
     await reflectionService

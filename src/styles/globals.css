@@ -2439,3 +2439,30 @@ button:disabled {
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
+
+/* ---------- Deleting ---------- */
+
+.sheet__footer {
+  align-items: center;
+}
+
+.sheet__delete {
+  padding-left: 0;
+  color: var(--color-text-faint);
+}
+
+.chip--quiet {
+  border-style: dashed;
+  color: var(--color-text-faint);
+}
+
+.reflection-entry__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.decision-note__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

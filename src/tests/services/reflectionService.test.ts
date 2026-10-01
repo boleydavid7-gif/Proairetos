@@ -30,4 +30,15 @@ describe('reflection service', () => {
     expect((await service.listFor('week')).map((r) => r.body)).toEqual(['Next Tuesday']);
     expect((await service.listFor('month')).map((r) => r.body)).toEqual(['Next Tuesday', 'Thursday', 'Wednesday']);
   });
+
+  it('deletes a reflection, and undo brings it back', async () => {
+    const { context } = testContext();
+    const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
+    const written = await service.write({ body: 'Not what I meant to write' });
+
+    const deletion = await service.remove(written.id);
+    expect(await service.all()).toEqual([]);
+    await deletion.undo();
+    expect(await service.all()).toEqual([written]);
+  });
 });

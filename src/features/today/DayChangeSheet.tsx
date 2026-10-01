@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { scheduleService } from '../../app/services';
 import type { TimeBlock } from '../../core/scheduling/types';
@@ -19,15 +20,12 @@ type Props = {
 
 /** Changes one day of a schedule: different hours, a day off, or extra hours. */
 export default function DayChangeSheet({ target, onClose }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
   const change = useServiceData(scheduleService.subscribe, () => scheduleService.dayChange(target.patternId, target.date));
   const working = target.blocks.length > 0;
   const [editing, setEditing] = useState(false);
   const [block, setBlock] = useState<TimeBlock>(target.blocks[0] ?? { start: '09:00', end: '17:00', label: 'Extra' });
 
-  useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
-  }, []);
 
   const close = () => dialog.current?.close();
   const apply = async (blocks: TimeBlock[]) => {
@@ -43,7 +41,7 @@ export default function DayChangeSheet({ target, onClose }: Props) {
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && close()}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={close}>
           Close

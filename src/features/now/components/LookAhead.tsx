@@ -55,9 +55,14 @@ function Premeditation() {
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
       />
-      <button type="submit" className="chip chip--accent chip--wide" disabled={!draft.trim()}>
-        Keep this plan
-      </button>
+      <div className="chip-row">
+        <button type="submit" className="chip chip--accent" disabled={!draft.trim()}>
+          Keep this plan
+        </button>
+        <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

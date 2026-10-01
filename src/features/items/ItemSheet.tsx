@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSheet } from '../../components/ui/useSheet';
+import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService } from '../../app/services';
@@ -425,6 +426,18 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       )}
 
       <div className="sheet__footer">
+        <button
+          type="button"
+          className="button-quiet sheet__delete"
+          onClick={async () => {
+            const deletion = await lifeService.deleteItem(item.id);
+            onClose();
+            offerUndo(`Deleted: ${item.title}`, deletion.undo);
+          }}
+        >
+          Delete
+        </button>
+        <span className="editor-actions__spacer" />
         {isActive ? (
           <>
             {item.repeat && (
@@ -458,13 +471,9 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 }
 
 export default function ItemSheet({ itemId, onClose }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const { dialog, panel } = useSheet();
   const item = useServiceData(lifeService.subscribe, () => lifeService.get(itemId), [itemId]);
 
-  useEffect(() => {
-    const element = dialog.current;
-    if (element && !element.open) element.showModal();
-  }, []);
 
   return (
     <dialog
@@ -477,7 +486,7 @@ export default function ItemSheet({ itemId, onClose }: Props) {
         if (event.target === dialog.current) dialog.current?.close();
       }}
     >
-      <div className="sheet__panel">
+      <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Close

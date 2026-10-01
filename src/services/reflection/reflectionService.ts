@@ -47,6 +47,23 @@ export function createReflectionService({ userId, context, reflections }: Reflec
       return reflection;
     },
 
+    /** Deletes a reflection, with an undo that puts it back exactly. */
+    async remove(id: string): Promise<{ undo: () => Promise<void> }> {
+      const reflection = (await reflections.list(userId)).find((r) => r.id === id);
+      if (!reflection) throw new Error('That reflection no longer exists.');
+      await reflections.remove(id);
+      listeners.notify();
+      let undone = false;
+      return {
+        undo: async () => {
+          if (undone) return;
+          undone = true;
+          await reflections.create(reflection);
+          listeners.notify();
+        },
+      };
+    },
+
     /** Follow-up notes on one decision, oldest first. */
     async forDecision(decisionId: string): Promise<Reflection[]> {
       return (await reflections.list(userId))

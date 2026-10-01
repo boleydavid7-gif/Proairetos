@@ -20,7 +20,7 @@ const periods: { id: ReflectPeriod; label: string }[] = [
 
 function ReflectionCard({ reflection }: { reflection: Reflection }) {
   const [open, setOpen] = useState(false);
-  const { openDecision } = useOverlays();
+  const { openDecision, offerUndo } = useOverlays();
   if (reflection.decisionId) {
     return (
       <button type="button" className="list-card list-card--button" onClick={() => openDecision(reflection.decisionId!)}>
@@ -38,19 +38,35 @@ function ReflectionCard({ reflection }: { reflection: Reflection }) {
   const time = new Date(reflection.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
   return (
-    <button type="button" className="list-card list-card--button" aria-expanded={open} onClick={() => setOpen(!open)}>
-      <span className="list-card__icon">
-        {isDaytime(reflection.createdAt) ? <SunIcon size={26} /> : <MoonIcon size={24} />}
-      </span>
-      <span className="list-card__text">
-        <span className="list-card__title">
-          {dayLabel(reflection.createdAt)} <span className="list-card__time">{time}</span>
+    <div className="reflection-entry">
+      <button type="button" className="list-card list-card--button" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="list-card__icon">
+          {isDaytime(reflection.createdAt) ? <SunIcon size={26} /> : <MoonIcon size={24} />}
         </span>
-        {promptText(reflection.promptKey) && <span className="list-card__prompt">{promptText(reflection.promptKey)}</span>}
-        <span className={`list-card__detail${open ? ' list-card__detail--full' : ''}`}>{reflection.body}</span>
-      </span>
-      <ChevronRightIcon size={18} className="list-card__chevron" />
-    </button>
+        <span className="list-card__text">
+          <span className="list-card__title">
+            {dayLabel(reflection.createdAt)} <span className="list-card__time">{time}</span>
+          </span>
+          {promptText(reflection.promptKey) && <span className="list-card__prompt">{promptText(reflection.promptKey)}</span>}
+          <span className={`list-card__detail${open ? ' list-card__detail--full' : ''}`}>{reflection.body}</span>
+        </span>
+        <ChevronRightIcon size={18} className="list-card__chevron" />
+      </button>
+      {open && (
+        <div className="reflection-entry__actions">
+          <button
+            type="button"
+            className="button-quiet"
+            onClick={async () => {
+              const deletion = await reflectionService.remove(reflection.id);
+              offerUndo('Reflection deleted', deletion.undo);
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

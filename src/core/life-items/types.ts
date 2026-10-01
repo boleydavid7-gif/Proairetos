@@ -53,6 +53,8 @@ export interface LifeItem {
   repeat?: RepeatRule;
   /** Local date ("YYYY-MM-DD") the person chose this as one of up to three for that day. */
   pickedFor?: string;
+  /** When it was picked, so the three keep the order they were chosen in. */
+  pickedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
