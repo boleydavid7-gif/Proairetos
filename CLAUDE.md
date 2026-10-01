@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (184 tests), includes the language guard
+npm test             # vitest (185 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -37,7 +37,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 ## Deploying
 
 - Cloudflare **Worker** (static assets) connected to GitHub; pushes to
-  `main` deploy to the dev site https://proairetos.boleydavid7.workers.dev.
+  `main` deploy. The site is https://proairetos.com (custom domain on
+  the Worker); https://proairetos.boleydavid7.workers.dev is the old
+  address and shows a "moved" notice (`app/MovedNotice.tsx`), since
+  browser data does not cross addresses (backup, then restore).
   Config: `wrangler.jsonc` (single-page fallback). `public/_headers` keeps
   `sw.js` and the shell uncached; do not add long "immutable" rules for
   `/assets` (unknown paths serve the app page).

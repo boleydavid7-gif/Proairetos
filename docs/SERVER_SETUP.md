@@ -42,7 +42,9 @@ own rows:
 1. **Authentication → Sign In / Providers → Email**: make sure Email is
    enabled.
 2. **Authentication → URL Configuration**: set **Site URL** to
-   `https://proairetos.boleydavid7.workers.dev`.
+   `https://proairetos.com`. Under **Redirect URLs**, add
+   `https://proairetos.com/**` (and `https://www.proairetos.com/**` if you
+   use www).
 
 That is all that is required. Supabase's standard email contains a sign-in
 **link**, and the app accepts it two ways:

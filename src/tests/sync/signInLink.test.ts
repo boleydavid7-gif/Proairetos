@@ -2,7 +2,7 @@ import { parseSignInLink } from '../../data/sync/supabase';
 
 describe('sign-in links from the email', () => {
   it('reads the standard Supabase link', () => {
-    const link = 'https://abcd.supabase.co/auth/v1/verify?token=pkce_0123abcdef&type=magiclink&redirect_to=https://proairetos.boleydavid7.workers.dev';
+    const link = 'https://abcd.supabase.co/auth/v1/verify?token=pkce_0123abcdef&type=magiclink&redirect_to=https://proairetos.com';
     expect(parseSignInLink(link)).toEqual({ kind: 'token-hash', tokenHash: 'pkce_0123abcdef', type: 'magiclink' });
   });
 
@@ -14,7 +14,7 @@ describe('sign-in links from the email', () => {
   });
 
   it('reads a link that already landed on the app with a session', () => {
-    expect(parseSignInLink('https://proairetos.boleydavid7.workers.dev/#access_token=AT&refresh_token=RT&type=magiclink')).toEqual({
+    expect(parseSignInLink('https://proairetos.com/#access_token=AT&refresh_token=RT&type=magiclink')).toEqual({
       kind: 'session', accessToken: 'AT', refreshToken: 'RT',
     });
   });

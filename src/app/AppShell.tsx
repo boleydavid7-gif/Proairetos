@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import MovedNotice from './MovedNotice';
 import { navigation } from './navigation';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
@@ -23,6 +24,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
   return (
     <div className="app-shell">
       <main className="app-shell__content">
+        <MovedNotice />
         {mode === 'memory' && (
           <p className="storage-notice" role="status">
             This browser is not letting Proairetos save. What you add stays until this tab closes.

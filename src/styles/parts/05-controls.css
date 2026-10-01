@@ -161,3 +161,19 @@
   font-size: 0.875rem;
   line-height: 1.4;
 }
+
+.moved-notice p {
+  margin: 0 0 var(--space-3);
+}
+
+.moved-notice__link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* Links styled as chips read like the buttons beside them. */
+a.chip {
+  color: var(--color-text);
+  text-decoration: none;
+}
