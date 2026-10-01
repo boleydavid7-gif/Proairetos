@@ -36,8 +36,9 @@ export default function App() {
   if (!started) {
     return (
       <OnboardingPage
-        onGetStarted={() => {
+        onGetStarted={(next) => {
           markOnboarded();
+          if (next) setRoute(next);
           setStarted(true);
         }}
       />

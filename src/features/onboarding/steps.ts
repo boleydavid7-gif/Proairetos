@@ -3,6 +3,8 @@ export type OnboardingStep = {
   lines: string[];
   action: string;
   brand?: boolean;
+  /** The optional form for name, values, and shifts. */
+  form?: boolean;
 };
 
 export const onboardingSteps: OnboardingStep[] = [
@@ -20,6 +22,12 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'Yours to choose',
     lines: ['You decide what matters.', 'Proairetos keeps it in sight and never keeps score.'],
+    action: 'Continue',
+  },
+  {
+    title: 'Make it yours',
+    lines: ['All optional. Everything can change later.'],
     action: 'Begin',
+    form: true,
   },
 ];
