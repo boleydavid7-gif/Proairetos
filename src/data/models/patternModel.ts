@@ -1,7 +1,9 @@
+import type { PatternType } from '../../core/patterns/types';
+
 export type PatternModel = {
   id: string;
   userId: string;
-  type: string;
+  type: PatternType;
   subjectId?: string | null;
   description: string;
   createdAt: string;
@@ -9,7 +11,7 @@ export type PatternModel = {
 
 export type PatternDismissalModel = {
   userId: string;
-  patternType: string;
+  patternType: PatternType;
   subjectId?: string | null;
   dismissedAt: string;
 };

@@ -3,7 +3,14 @@ export type AppRoute =
   | 'day'
   | 'life'
   | 'reflect'
-  | 'capture'
   | 'settings';
+
+export const routePaths: Record<AppRoute, string> = {
+  now: '/now',
+  day: '/day',
+  life: '/life',
+  reflect: '/reflect',
+  settings: '/settings',
+};
 
 export const defaultRoute: AppRoute = 'now';

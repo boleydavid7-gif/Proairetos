@@ -1,11 +1,18 @@
-export type ProtectedField = {
+/**
+ * Field encryption is not implemented yet.
+ *
+ * Nothing here pretends otherwise: sensitive fields are tagged as plaintext,
+ * and any attempt to encrypt throws so it cannot silently ship as a no-op.
+ */
+export type SensitiveField = {
   value: string;
-  encrypted: boolean;
+  encrypted: false;
 };
 
-export function markForEncryption(value: string): ProtectedField {
-  return {
-    value,
-    encrypted: true,
-  };
+export function plaintextField(value: string): SensitiveField {
+  return { value, encrypted: false };
+}
+
+export function encryptField(_value: string): never {
+  throw new Error('Field encryption is not implemented. Do not store sensitive data remotely yet.');
 }

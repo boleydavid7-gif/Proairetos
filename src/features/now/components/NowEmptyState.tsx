@@ -1,3 +1,3 @@
 export default function NowEmptyState() {
-  return <p>Nothing needs your attention right now.</p>;
+  return <p className="now-empty">Nothing is asking for your attention right now.</p>;
 }

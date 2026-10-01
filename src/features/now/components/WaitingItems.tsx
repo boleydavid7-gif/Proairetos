@@ -1,28 +1,23 @@
-type Item = {
-  title: string;
-  checkBack?: string;
-};
+import type { NowItem } from '../types';
 
 type Props = {
-  items?: Item[];
+  items: NowItem[];
 };
 
-export default function WaitingItems({ items = [] }: Props) {
+export default function WaitingItems({ items }: Props) {
+  if (items.length === 0) return null;
+
   return (
-    <section aria-label="Waiting items" className="space-y-3">
-      <h2 className="text-sm text-white/50">Waiting</h2>
-      {items.length === 0 ? (
-        <p className="text-white/60">No waiting items.</p>
-      ) : (
-        items.map((item) => (
-          <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-white">{item.title}</p>
-            {item.checkBack && (
-              <p className="mt-1 text-sm text-white/50">Check back {item.checkBack}</p>
-            )}
-          </div>
-        ))
-      )}
+    <section aria-label="Waiting items" className="now-section">
+      <h2 className="now-card__label">Waiting</h2>
+      {items.map((item) => (
+        <div key={item.id} className="now-card">
+          <p className="now-card__title">{item.title}</p>
+          {item.checkBackAt && (
+            <p className="now-card__meta">Check back {new Date(item.checkBackAt).toLocaleDateString()}</p>
+          )}
+        </div>
+      ))}
     </section>
   );
 }

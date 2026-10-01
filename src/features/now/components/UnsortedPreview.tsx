@@ -1,15 +1,16 @@
 type Props = {
-  count?: number;
+  count: number;
 };
 
-export default function UnsortedPreview({ count = 0 }: Props) {
+export default function UnsortedPreview({ count }: Props) {
+  if (count === 0) return null;
+
   return (
-    <section
-      aria-label="Unsorted captures"
-      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
-    >
-      <h2 className="text-sm text-white/50">Not sorted yet</h2>
-      <p className="mt-1 text-white">{count} capture{count === 1 ? "" : "s"}</p>
+    <section aria-label="Unsorted captures" className="now-card">
+      <h2 className="now-card__label">Not sorted yet</h2>
+      <p className="now-card__title">
+        {count} capture{count === 1 ? '' : 's'}
+      </p>
     </section>
   );
 }

@@ -3,18 +3,25 @@ import CaptureBar from './components/CaptureBar';
 import NextCommitment from './components/NextCommitment';
 import WaitingItems from './components/WaitingItems';
 import UnsortedPreview from './components/UnsortedPreview';
+import NowEmptyState from './components/NowEmptyState';
 import { useNow } from './hooks/useNow';
 
 export default function NowPage() {
   const now = useNow();
 
   return (
-    <main className="now-page">
+    <div className="now-page">
       <NowHeader />
       <CaptureBar />
-      <NextCommitment commitment={now.nextCommitment} />
-      <WaitingItems items={now.waitingItems} />
-      <UnsortedPreview count={now.unsortedCount} />
-    </main>
+      {now.isEmpty ? (
+        <NowEmptyState />
+      ) : (
+        <>
+          <NextCommitment commitment={now.nextCommitment} />
+          <WaitingItems items={now.waiting} />
+          <UnsortedPreview count={now.unsortedCount} />
+        </>
+      )}
+    </div>
   );
 }

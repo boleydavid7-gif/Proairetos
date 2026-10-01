@@ -1,11 +1,18 @@
+import type { LifeItem } from '../../core/life-items/types';
 import type { NowViewModel } from './types';
-import { getNowItems } from './nowQueries';
+import { buildNowViewModel } from './nowViewModel';
 
-export async function buildNowView(): Promise<NowViewModel> {
-  const items = await getNowItems();
+export type LifeItemSource = () => LifeItem[];
 
+// No storage is wired yet; Now renders its empty state until it is.
+const emptySource: LifeItemSource = () => [];
+
+export function createNowController(source: LifeItemSource = emptySource) {
   return {
-    items,
-    hasAttentionItems: items.length > 0,
+    getViewModel(now: Date = new Date()): NowViewModel {
+      return buildNowViewModel(source(), now);
+    },
   };
 }
+
+export const nowController = createNowController();
