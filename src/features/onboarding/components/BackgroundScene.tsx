@@ -1,4 +1,4 @@
-import backgroundImage from '../../../../assets/images/8EA72423-E18F-4424-BC26-D212000BC220.png';
+import backgroundImage from '../../../assets/images/8EA72423-E18F-4424-BC26-D212000BC220.png';
 
 export default function BackgroundScene() {
   return (
