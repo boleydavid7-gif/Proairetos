@@ -1,10 +1,10 @@
-# Cloudflare Pages: always check for a new service worker and app shell.
+# Always check for a new service worker and app shell, so new versions arrive promptly.
+# (Hashed files under /assets use Cloudflare's default revalidation. A year-long
+# "immutable" rule is unsafe here: an unknown path serves the app page, which must
+# never be cached as if it were a script.)
 /sw.js
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
 /
   Cache-Control: no-cache
-
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable

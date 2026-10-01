@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v2';
+const CACHE = 'proairetos-v3';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -22,7 +22,9 @@ async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response.ok || response.type === 'opaque') {
+  // A missing file can come back as the app page; never keep that in place of a script or style.
+  const isPage = (response.headers.get('content-type') || '').includes('text/html');
+  if ((response.ok && !isPage) || response.type === 'opaque') {
     const cache = await caches.open(CACHE);
     cache.put(request, response.clone());
   }

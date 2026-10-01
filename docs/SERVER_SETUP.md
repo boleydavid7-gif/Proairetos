@@ -52,7 +52,9 @@ Screen.
    ```
 
 3. **Authentication → URL Configuration**: set **Site URL** to your
-   Cloudflare address (for example `https://proairetos.pages.dev`).
+   Cloudflare address, `https://proairetos.boleydavid7.workers.dev`. Sign-in
+   uses a typed code, so this only matters for links in emails; it can be
+   set later.
 4. Supabase's built-in email is limited to a few messages per hour. That is
    fine for one person. If others will use the app, add your own email
    provider under **Authentication → Emails → SMTP Settings**.
@@ -62,7 +64,8 @@ Screen.
 **Project Settings → API**:
 
 - **Project URL**: this becomes `VITE_SUPABASE_URL`
-- **anon public** key: this becomes `VITE_SUPABASE_ANON_KEY`
+- **Publishable** key (`sb_publishable_…`) or, on older dashboards, the
+  **anon public** key (`eyJ…`): this becomes `VITE_SUPABASE_ANON_KEY`
 
 The anon key is designed to be public; the table locks from step 2 are what
 protect your data.
@@ -82,19 +85,31 @@ It prints a **Public Key** and a **Private Key**.
 
 ## 6. Add the settings to Cloudflare
 
-Cloudflare dashboard → **Workers & Pages** → your Proairetos project →
-**Settings → Variables and Secrets** (or **Environment variables**). Add to
-both **Production** and **Preview**:
+Proairetos is deployed as a Cloudflare **Worker** connected to GitHub. The
+three values are needed when the app is **built**, so they go in the build
+settings, not the runtime ones.
 
-| Name | Value |
-| --- | --- |
-| `VITE_SUPABASE_URL` | Project URL from step 4 |
-| `VITE_SUPABASE_ANON_KEY` | anon public key from step 4 |
-| `VITE_VAPID_PUBLIC_KEY` | Public key from step 5 |
+1. Cloudflare dashboard → **Workers & Pages** → **proairetos** →
+   **Settings** → **Build**.
+2. Check the build configuration:
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+   - **Root directory:** `/` (leave empty if it shows a blank field)
+3. Under **Build → Variables and secrets** (sometimes labelled **Build
+   variables**), add:
 
-Then redeploy (**Deployments → Retry deployment**, or push any commit).
-These values are built into the app, so a redeploy is needed after changing
-them.
+   | Name | Value |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | Project URL from step 4 |
+   | `VITE_SUPABASE_ANON_KEY` | Publishable or anon key from step 4 |
+   | `VITE_VAPID_PUBLIC_KEY` | Public key from step 5 |
+
+   Do not add them under the Worker's runtime **Variables and Secrets**;
+   the app reads them only while being built.
+4. Start a new build: **Deployments → View build history → Retry build**,
+   or push any commit to `main`.
+
+These values are baked into the app, so rebuild after changing them.
 
 At this point **sync works**. Reminders need two more steps.
 

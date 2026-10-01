@@ -1,0 +1,12 @@
+{
+  // Cloudflare Worker that serves the built app (static assets only, no server code).
+  // Workers Builds: build command "npm run build", deploy command "npx wrangler deploy".
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "proairetos",
+  "compatibility_date": "2026-09-30",
+  "assets": {
+    "directory": "./dist",
+    // The app has one page; any unknown path loads it.
+    "not_found_handling": "single-page-application"
+  }
+}

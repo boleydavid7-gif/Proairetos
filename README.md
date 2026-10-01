@@ -13,14 +13,17 @@ npm run typecheck
 npm run build      # typecheck + production build into dist/
 ```
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers)
+
+The app is a Cloudflare Worker that serves the built files (`wrangler.jsonc`).
+With the repository connected in Cloudflare (Workers Builds):
 
 - Build command: `npm run build`
-- Output directory: `dist`
-- Node.js 20 or newer
+- Deploy command: `npx wrangler deploy`
+- Root directory: `/`
 
-`public/_headers` keeps the service worker and app shell uncached so new
-versions reach people promptly.
+Unknown paths load the app (single-page mode). `public/_headers` keeps the
+service worker and app shell uncached so new versions arrive promptly.
 
 ## Data
 
