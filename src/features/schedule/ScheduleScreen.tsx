@@ -26,8 +26,8 @@ function fromTemplate(template: ScheduleTemplate): PatternInput {
 }
 
 function toInput(pattern: SchedulePattern): PatternInput {
-  const { name, kind, layout, anchorDate, segments, endDate } = pattern;
-  return structuredClone({ name, kind, layout, anchorDate, segments, endDate });
+  const { name, kind, layout, anchorDate, segments, endDate, pauseWhenEnds } = pattern;
+  return structuredClone({ name, kind, layout, anchorDate, segments, endDate, pauseWhenEnds });
 }
 
 function summary(pattern: SchedulePattern): string {

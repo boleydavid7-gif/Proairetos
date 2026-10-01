@@ -6,6 +6,7 @@ export type NowItem = {
   reasons: NowItemReason[];
   scheduledAt?: string;
   checkBackAt?: string;
+  nextStep?: string;
 };
 
 export type NowViewModel = {

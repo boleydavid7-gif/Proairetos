@@ -196,3 +196,23 @@ export function setControlSplit(ctx: DomainContext, item: LifeItem, split: Contr
 
   return { item: touch(item, ctx.now().toISOString(), { controlSplit: empty ? undefined : controlSplit }), events: [] };
 }
+
+export const MAX_NEXT_STEP_LENGTH = 140;
+
+/** Sets or clears the next small step. The person's own plan, not logged as history. */
+export function setNextStep(ctx: DomainContext, item: LifeItem, step: string | undefined): ItemChange {
+  const trimmed = step?.trim() || undefined;
+  if (trimmed && trimmed.length > MAX_NEXT_STEP_LENGTH) {
+    throw new Error(`Keep a next step to ${MAX_NEXT_STEP_LENGTH} characters.`);
+  }
+  if (item.nextStep === trimmed) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { nextStep: trimmed }), events: [] };
+}
+
+/** Records time spent focusing on an item. Facts only: no targets, no streaks. */
+export function recordFocus(ctx: DomainContext, item: LifeItem, minutes: number): ItemChange {
+  const whole = Math.round(minutes);
+  if (whole < 1) return { item, events: [] };
+  const timestamp = ctx.now().toISOString();
+  return { item, events: [event(ctx, item.id, 'FOCUSED', timestamp, { metadata: { minutes: whole } })] };
+}

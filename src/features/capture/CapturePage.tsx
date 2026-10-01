@@ -58,6 +58,7 @@ function OpenItem({ item }: { item: LifeItem }) {
         <button type="button" className="item-card__open" onClick={() => openItem(item.id)}>
           <span className="item-card__title">{item.title}</span>
           <span className="item-card__meta">{itemMeta(item)}</span>
+          {item.nextStep && <span className="item-card__step">Next: {item.nextStep}</span>}
         </button>
         <button
           type="button"

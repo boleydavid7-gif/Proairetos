@@ -41,6 +41,8 @@ export interface LifeItem {
   /** Values the person chose to connect. Always optional. */
   valueIds?: string[];
   controlSplit?: ControlSplit;
+  /** The very next small, concrete action, in the person's words. */
+  nextStep?: string;
   createdAt: string;
   updatedAt: string;
 }

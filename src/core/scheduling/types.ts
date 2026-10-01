@@ -35,6 +35,8 @@ export interface SchedulePattern {
   segments: ScheduleSegment[];
   /** Optional last local date the pattern applies. */
   endDate?: string;
+  /** Offer a one-minute pause when a block of this pattern ends. Off unless chosen. */
+  pauseWhenEnds?: boolean;
   createdAt: string;
   updatedAt: string;
 }

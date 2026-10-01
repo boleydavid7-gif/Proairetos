@@ -9,6 +9,7 @@ function toNowItem(item: LifeItem): NowItem {
     reasons: nowReasonsFor(item),
     scheduledAt: item.scheduledAt,
     checkBackAt: item.checkBackAt,
+    nextStep: item.nextStep,
   };
 }
 

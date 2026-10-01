@@ -9,7 +9,10 @@ import type {
 import type { ScheduleExceptionRepository, SchedulePatternRepository } from '../../data/repositories/scheduleRepository';
 import { createListeners } from '../listeners';
 
-export type PatternInput = Pick<SchedulePattern, 'name' | 'kind' | 'layout' | 'anchorDate' | 'segments' | 'endDate'>;
+export type PatternInput = Pick<
+  SchedulePattern,
+  'name' | 'kind' | 'layout' | 'anchorDate' | 'segments' | 'endDate' | 'pauseWhenEnds'
+>;
 
 export class ScheduleValidationError extends Error {
   constructor(readonly problems: string[]) {

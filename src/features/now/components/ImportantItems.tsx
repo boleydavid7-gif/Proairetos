@@ -15,7 +15,7 @@ export default function ImportantItems({ items }: Props) {
     <section aria-label="Marked important" className="stack-tight">
       <h2 className="section-label">Marked important</h2>
       {items.map((item) => (
-        <ListCard key={item.id} onClick={() => openItem(item.id)} icon={<StarIcon filled size={22} />} title={item.title} />
+        <ListCard key={item.id} onClick={() => openItem(item.id)} icon={<StarIcon filled size={22} />} title={item.title} detail={item.nextStep && `Next: ${item.nextStep}`} />
       ))}
     </section>
   );

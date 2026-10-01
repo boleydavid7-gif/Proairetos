@@ -267,6 +267,18 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
         <CycleEditor segments={draft.segments} onChange={(segments) => set({ segments })} />
       )}
 
+      <label className="toggle-check">
+        <input
+          type="checkbox"
+          checked={Boolean(draft.pauseWhenEnds)}
+          onChange={(event) => set({ pauseWhenEnds: event.target.checked || undefined })}
+        />
+        <span>
+          Offer a one-minute pause when this ends
+          <span className="toggle-check__hint">A quiet moment to arrive before the next part of your day.</span>
+        </span>
+      </label>
+
       <details className="stack-tight" open={Boolean(draft.endDate)}>
         <summary className="section-label">Ends on a date (optional)</summary>
         <div className="field-row">

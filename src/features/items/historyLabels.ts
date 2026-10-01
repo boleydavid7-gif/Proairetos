@@ -35,5 +35,9 @@ export function describeEvent(event: ItemEvent, valueNames: Record<string, strin
       return valueName ? `Disconnected from ${valueName}` : 'Disconnected from a value';
     case 'HONORED':
       return 'Honored';
+    case 'FOCUSED': {
+      const minutes = Number(event.metadata?.minutes ?? 0);
+      return minutes ? `Focused for ${minutes} min` : 'Focused';
+    }
   }
 }

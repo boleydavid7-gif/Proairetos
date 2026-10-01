@@ -13,6 +13,7 @@ export const ItemEventKinds = {
   UN_CARRIED: 'UN_CARRIED',
   HONORED: 'HONORED',
   TYPE_CHANGED: 'TYPE_CHANGED',
+  FOCUSED: 'FOCUSED',
 } as const;
 
 export type ItemEventKind = typeof ItemEventKinds[keyof typeof ItemEventKinds];

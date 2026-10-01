@@ -5,6 +5,11 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, scheduleService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
+import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
+import { answeredPauseOffers, previousVisitDate } from '../../data/storage/preferences';
+import PauseOfferCard from '../pause/PauseOfferCard';
+import CheckBackNudges from '../today/CheckBackNudges';
+import WelcomeBack from '../today/WelcomeBack';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
@@ -23,7 +28,9 @@ import { useNow } from './hooks/useNow';
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
-  const { openItem } = useOverlays();
+  const { openItem, startFocus, openPause } = useOverlays();
+  const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const today = toLocalDate(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
@@ -42,8 +49,12 @@ export default function NowPage() {
     ) ?? [];
 
   const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns) : [];
-  const startOfToday = atTime(today, '00:00').toISOString();
-  const fromEarlierDays = (now?.scheduled ?? []).filter((item) => (item.scheduledAt ?? '') < startOfToday);
+  const earlier = fromEarlierDays(items, clock);
+  const earlierIds = new Set(earlier.map((item) => item.id));
+  const ready = readyToCheckBack(items, clock);
+  const readyIds = new Set(ready.map((item) => item.id));
+  const showWelcome = isToday && away >= RETURN_AFTER_DAYS && !welcomeDismissed;
+  const offer = patterns ? pauseOffer(clock, nearOccurrences, patterns, answeredPauseOffers()) : undefined;
   const hasAnything = entries.length > 0 || (now && !now.isEmpty);
 
   return (
@@ -68,6 +79,19 @@ export default function NowPage() {
         </p>
       </header>
 
+      {isToday && (
+        <div className="day-tools">
+          <button type="button" className="chip" onClick={() => startFocus()}>
+            Focus
+          </button>
+          <button type="button" className="chip" onClick={openPause}>
+            Pause
+          </button>
+        </div>
+      )}
+
+      {showWelcome && <WelcomeBack days={away} earlier={earlier} onDismiss={() => setWelcomeDismissed(true)} />}
+      {isToday && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {isToday && <LookAhead />}
       {isToday && <CaptureBar />}
       {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
@@ -104,10 +128,18 @@ export default function NowPage() {
 
       {isToday && now && (
         <>
+          <CheckBackNudges items={ready} />
           <ImportantItems items={now.important} />
-          <WaitingItems items={now.waiting} />
+          <WaitingItems items={now.waiting.filter((item) => !readyIds.has(item.id))} />
           <UnsortedPreview count={now.unsortedCount} />
-          <ScheduledItems label="From earlier days" items={fromEarlierDays} />
+          {!showWelcome && earlier.length > 0 && (
+            <details className="earlier">
+              <summary>
+                From earlier days <span className="closed-list__count">{earlier.length}</span>
+              </summary>
+              <ScheduledItems label="From earlier days" items={(now.scheduled ?? []).filter((item) => earlierIds.has(item.id))} />
+            </details>
+          )}
         </>
       )}
 

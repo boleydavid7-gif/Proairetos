@@ -5,6 +5,8 @@ import {
   changeStatus,
   connectValue,
   disconnectValue,
+  recordFocus,
+  setNextStep,
   setControlSplit,
   editItem,
   scheduleItem,
@@ -148,6 +150,19 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     disconnectValue(id: string, valueId: string) {
       return apply(id, (item) => disconnectValue(context, item, valueId));
+    },
+
+    setNextStep(id: string, step: string | undefined) {
+      return apply(id, (item) => setNextStep(context, item, step));
+    },
+
+    recordFocus(id: string, minutes: number) {
+      return apply(id, (item) => recordFocus(context, item, minutes));
+    },
+
+    /** Clears the times of several items at once, e.g. after time away. Each is recorded. */
+    async clearTimes(ids: string[]): Promise<void> {
+      for (const id of ids) await apply(id, (item) => scheduleItem(context, item, undefined));
     },
 
     setControlSplit(id: string, split: ControlSplit) {

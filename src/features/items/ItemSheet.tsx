@@ -167,6 +167,56 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   );
 }
 
+/** One concrete next action. Small enough to start without deciding anything else. */
+function NextStepSection({ item }: { item: LifeItem }) {
+  const { startFocus } = useOverlays();
+  const [draft, setDraft] = useState('');
+  const isActive = item.status === 'OPEN' || item.status === 'WAITING';
+  if (!isActive || (item.type !== 'DO' && item.type !== null)) return null;
+
+  const save = () => {
+    if (draft.trim()) {
+      lifeService.setNextStep(item.id, draft);
+      setDraft('');
+    }
+  };
+
+  return (
+    <section className="sheet__section next-step" aria-label="Next step">
+      <p className="sheet__label">Next small step</p>
+      {item.nextStep ? (
+        <div className="next-step__current">
+          <p className="next-step__text">{item.nextStep}</p>
+          <button type="button" className="chip" onClick={() => lifeService.setNextStep(item.id, undefined)}>
+            Step done
+          </button>
+        </div>
+      ) : (
+        <form
+          className="inline-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            save();
+          }}
+        >
+          <input
+            className="field-input"
+            aria-label="Next small step"
+            placeholder="The very next thing you could do"
+            maxLength={140}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            onBlur={save}
+          />
+        </form>
+      )}
+      <button type="button" className="chip chip--wide" onClick={() => startFocus({ id: item.id, title: item.title })}>
+        Focus on this
+      </button>
+    </section>
+  );
+}
+
 function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
   const { offerUndo } = useOverlays();
   const history = useServiceData(lifeService.subscribe, () => lifeService.history(item.id), [item.id]) ?? [];
@@ -215,6 +265,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
           </button>
         ))}
       </div>
+
+      <NextStepSection item={item} />
 
       <button
         type="button"

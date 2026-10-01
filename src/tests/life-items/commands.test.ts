@@ -4,6 +4,8 @@ import {
   changeStatus,
   connectValue,
   disconnectValue,
+  recordFocus,
+  setNextStep,
   setControlSplit,
   editItem,
   scheduleItem,
@@ -146,5 +148,20 @@ describe('life item commands', () => {
 
     const cleared = setControlSplit(context, split.item, { inMyControl: [' '], notInMyControl: [] });
     expect(cleared.item.controlSplit).toBeUndefined();
+  });
+
+  it('sets and clears a next small step without history', () => {
+    const { context, item } = captured();
+    const stepped = setNextStep(context, item, '  Find the phone number  ');
+    expect(stepped.item.nextStep).toBe('Find the phone number');
+    expect(stepped.events).toEqual([]);
+    expect(setNextStep(context, stepped.item, '   ').item.nextStep).toBeUndefined();
+    expect(() => setNextStep(context, item, 'x'.repeat(141))).toThrow();
+  });
+
+  it('records focused minutes as a plain event, ignoring under a minute', () => {
+    const { context, item } = captured();
+    expect(recordFocus(context, item, 25).events[0]).toMatchObject({ kind: 'FOCUSED', metadata: { minutes: 25 } });
+    expect(recordFocus(context, item, 0.4).events).toEqual([]);
   });
 });

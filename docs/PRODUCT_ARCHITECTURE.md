@@ -174,6 +174,27 @@ Examples:
 
 This is not a meditation replacement. It supports awareness.
 
+In the product: a one-minute arrival moment (a slow breathing circle and
+a few quiet cues) can be started any time from Today. Schedule patterns can
+opt in to offering it when a block ends; the offer appears for 45 minutes
+and is asked once.
+
+---
+
+# ADHD Support
+
+Built within the design rules (no rewards, streaks, or pressure):
+- Next small step: one concrete action on a Do item, in the person's words.
+- Focus timer: 10, 25, 45 minutes or any length, started from an item or
+  on its own. It survives reloads and records plain focused minutes in the
+  item's history. Nothing is counted against anyone.
+- Check-back nudges: a waiting item returns to Today on the day the person
+  chose, with Heard back, Check again later, or Let go.
+- Guilt-free return: after three or more days away, a welcome card says
+  nothing is late. Items with times on earlier days are gathered into one
+  quiet group, never shown as a pile, with an option to clear their times.
+- Relief instead of praise: closing an item eases it away, with undo.
+
 ---
 
 ## 7. Decision Engine
