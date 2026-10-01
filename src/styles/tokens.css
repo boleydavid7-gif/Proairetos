@@ -1,14 +1,19 @@
 :root {
   --color-bg: #07100e;
   --color-surface: #0d1714;
+  --color-surface-raised: #12201b;
   --color-surface-soft: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.12);
   --color-text: #f4f6f2;
   --color-text-muted: #aeb9b2;
   --color-accent: #e9c47f;
   --color-accent-strong: #f0c978;
+  --color-accent-ink: #132019;
+
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
