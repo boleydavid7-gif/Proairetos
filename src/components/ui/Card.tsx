@@ -4,5 +4,9 @@ type CardProps = {
 };
 
 export default function Card({ children, className = '' }: CardProps) {
-  return <section className={className}>{children}</section>;
+  return (
+    <section className={`card ${className}`}>
+      {children}
+    </section>
+  );
 }
