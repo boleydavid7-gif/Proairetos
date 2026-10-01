@@ -75,14 +75,19 @@ function SignIn() {
             run(() => confirmCode(email, code));
           }}
         >
-          <p className="sheet__hint">We sent a code to {email}. It can take a minute to arrive.</p>
+          <p className="sheet__hint">
+            We sent an email to {email}. It can take a minute to arrive. If it has a code, enter it below. If it has a
+            link instead, long-press the link, choose Copy, and paste it below. Do not open the link first.
+          </p>
           <div className="inline-form">
             <input
-              inputMode="numeric"
               autoComplete="one-time-code"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
               className="field-input"
-              aria-label="Code from the email"
-              placeholder="Code from the email"
+              aria-label="Code or link from the email"
+              placeholder="Code or link from the email"
               value={code}
               onChange={(event) => setCode(event.target.value)}
             />

@@ -34,30 +34,37 @@ own rows:
 | `push_subscriptions` | Where to deliver notifications to your devices | Yes (an address, no content) |
 | `reminders` | When to remind you, as times and hashed ids | Times only |
 
-## 3. Turn on sign-in by emailed code
-
-Proairetos signs in with a 6-digit code instead of a link, because on iPhone
-a link opens Safari, which does not share storage with the app on your Home
-Screen.
+## 3. Sign-in emails
 
 1. **Authentication → Sign In / Providers → Email**: make sure Email is
    enabled.
-2. **Authentication → Emails → Templates → Magic Link**: replace the body
-   with something that includes the code, for example:
+2. **Authentication → URL Configuration**: set **Site URL** to
+   `https://proairetos.boleydavid7.workers.dev`.
 
-   ```html
-   <h2>Your Proairetos code</h2>
-   <p>Enter this code in the app: <strong>{{ .Token }}</strong></p>
-   <p>If you did not ask for it, you can ignore this email.</p>
-   ```
+That is all that is required. Supabase's standard email contains a sign-in
+**link**, and the app accepts it two ways:
 
-3. **Authentication → URL Configuration**: set **Site URL** to your
-   Cloudflare address, `https://proairetos.boleydavid7.workers.dev`. Sign-in
-   uses a typed code, so this only matters for links in emails; it can be
-   set later.
-4. Supabase's built-in email is limited to a few messages per hour. That is
-   fine for one person. If others will use the app, add your own email
-   provider under **Authentication → Emails → SMTP Settings**.
+- **Paste it** (works everywhere, including the iPhone Home Screen app):
+  long-press the link in the email, choose **Copy**, and paste it into the
+  "Code or link from the email" box. Do not open the link first; a link
+  works once.
+- **Open it** in the same browser you use the app in (a computer, or
+  Android): you are signed in directly.
+
+**Optional: a 6-digit code instead.** On the free plan the email templates
+are locked (greyed out) while Supabase's built-in sender is used. To unlock
+them, add your own sender under **Authentication → Emails → SMTP Settings**
+(for example a Gmail app password, or a provider such as Resend). Then edit
+both the **Magic Link** and **Confirm signup** templates to include the code:
+
+```html
+<h2>Your Proairetos code</h2>
+<p>Enter this code in the app: <strong>{{ .Token }}</strong></p>
+<p>If you did not ask for it, you can ignore this email.</p>
+```
+
+Your own sender also lifts Supabase's limit of a few emails per hour, which
+matters if other people will use the app.
 
 ## 4. Copy the public settings
 
@@ -160,7 +167,7 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 ## 9. Try it
 
 1. Open the app, then **Compass → Settings and your data → Account and sync**.
-2. Enter your email, then the code from the email.
+2. Enter your email, then paste the link (or code) from the email.
 3. Choose a passphrase. **Write down the recovery key it shows.** It is the
    only way back in if you forget the passphrase. Nobody, including
    Supabase, can recover it for you.

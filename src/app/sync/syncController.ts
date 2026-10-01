@@ -14,6 +14,7 @@ import {
   signOutRemote,
   syncConfig,
   verifySignInCode,
+  verifySignInLink,
 } from '../../data/sync/supabase';
 import type { SyncStateStore } from '../../data/sync/types';
 import { createListeners } from '../../services/listeners';
@@ -167,8 +168,13 @@ export async function requestCode(email: string): Promise<void> {
   await sendSignInCode(email.trim());
 }
 
-export async function confirmCode(email: string, code: string): Promise<void> {
-  await verifySignInCode(email.trim(), code);
+/** Accepts either the 6-digit code or the sign-in link from the email. */
+export async function confirmCode(email: string, codeOrLink: string): Promise<void> {
+  const value = codeOrLink.trim();
+  if (/^https?:\/\//i.test(value)) await verifySignInLink(value);
+  else await verifySignInCode(email.trim(), value);
+  // Opening the link in this browser leaves tokens in the address; tidy it.
+  if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);
   await resolvePhase();
   if (status.phase === 'ready') void syncNow();
 }

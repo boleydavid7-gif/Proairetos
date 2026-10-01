@@ -1,4 +1,4 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { EmailOtpType, SupabaseClient, User } from '@supabase/supabase-js';
 import type { WrappedKey } from './keys';
 import type { OutgoingRecord, RemoteRecord, RemoteStore } from './types';
 
@@ -22,7 +22,8 @@ export function supabase(): Promise<SupabaseClient> {
   if (!isSyncConfigured) return Promise.reject(new Error('Sync is not set up for this app.'));
   client ??= import('@supabase/supabase-js').then(({ createClient }) =>
     createClient(syncConfig.url!, syncConfig.anonKey!, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'proairetos.auth' },
+      // detectSessionInUrl: opening the email's link in this browser signs in directly.
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'proairetos.auth' },
     }),
   );
   return client;
@@ -40,6 +41,51 @@ export async function sendSignInCode(email: string): Promise<void> {
 export async function verifySignInCode(email: string, code: string): Promise<User> {
   const { data, error } = await (await supabase()).auth.verifyOtp({ email, token: code.trim(), type: 'email' });
   if (error || !data.user) throw new Error(error?.message ?? 'That code did not work. Request a new one.');
+  return data.user;
+}
+
+export type SignInLink =
+  | { kind: 'token-hash'; tokenHash: string; type: EmailOtpType }
+  | { kind: 'session'; accessToken: string; refreshToken: string };
+
+const otpTypes: EmailOtpType[] = ['magiclink', 'signup', 'email', 'invite', 'recovery', 'email_change'];
+
+/**
+ * Reads the sign-in link from Supabase's standard email, for when the email
+ * has a link instead of a code (the default when no custom email sender is
+ * set up). On iPhone the link would open Safari, which does not share
+ * storage with the Home Screen app, so the person copies it and pastes it.
+ */
+export function parseSignInLink(text: string): SignInLink | null {
+  let url: URL;
+  try {
+    url = new URL(text.trim());
+  } catch {
+    return null;
+  }
+  const params = new URLSearchParams(url.search);
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+  const accessToken = hash.get('access_token');
+  const refreshToken = hash.get('refresh_token');
+  if (accessToken && refreshToken) return { kind: 'session', accessToken, refreshToken };
+
+  const tokenHash = params.get('token_hash') ?? params.get('token');
+  if (!tokenHash) return null;
+  const type = (params.get('type') ?? 'magiclink') as EmailOtpType;
+  return { kind: 'token-hash', tokenHash, type: otpTypes.includes(type) ? type : 'magiclink' };
+}
+
+export async function verifySignInLink(text: string): Promise<User> {
+  const link = parseSignInLink(text);
+  if (!link) throw new Error('That does not look like the sign-in link from the email. Copy the whole link and try again.');
+  const auth = (await supabase()).auth;
+  const { data, error } =
+    link.kind === 'session'
+      ? await auth.setSession({ access_token: link.accessToken, refresh_token: link.refreshToken })
+      : await auth.verifyOtp({ token_hash: link.tokenHash, type: link.type });
+  if (error || !data.user) {
+    throw new Error(error?.message ?? 'That link did not work. It may have been used already; request a new email.');
+  }
   return data.user;
 }
 
