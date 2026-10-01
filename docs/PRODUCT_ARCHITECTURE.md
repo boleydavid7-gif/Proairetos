@@ -201,6 +201,18 @@ history.
 
 ---
 
+# Storage and Offline
+
+Data lives on the person's device in IndexedDB and never leaves it yet.
+The app installs to the home screen and opens without a connection. If
+storage is blocked, data is kept in memory for that visit and the app says
+so plainly.
+
+Undo removes a change and its events entirely: an undone change did not
+happen, so it does not appear in history.
+
+---
+
 # Design Rules
 
 Language the system never uses about a person's life is enforced in
