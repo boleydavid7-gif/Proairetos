@@ -57,4 +57,25 @@ describe('life service', () => {
     expect(await mine.list()).toEqual([]);
     await expect(mine.setStatus(item.id, 'DONE')).rejects.toThrow();
   });
+
+  it('undoes a status change completely, as if it never happened', async () => {
+    const { service } = setup();
+    const item = await service.capture('Return library books');
+    await service.setStatus(item.id, 'WAITING', { checkBackAt: '2026-10-05' });
+    const before = await service.get(item.id);
+
+    const done = await service.setStatus(item.id, 'DONE');
+    expect(done.item.status).toBe('DONE');
+
+    await done.undo();
+    await done.undo();
+
+    expect(await service.get(item.id)).toEqual(before);
+    expect((await service.history(item.id)).map((e) => e.kind)).toEqual(['CREATED', 'WAITING_STARTED']);
+  });
+
+  it('returns null for items that are missing or belong to someone else', async () => {
+    const { service } = setup();
+    expect(await service.get('missing')).toBeNull();
+  });
 });

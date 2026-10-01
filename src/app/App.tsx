@@ -6,6 +6,7 @@ import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
 import PageHeader from '../components/layout/PageHeader';
 import AppShell from './AppShell';
+import OverlayProvider from './overlays/OverlayProvider';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 
@@ -29,12 +30,14 @@ export default function App() {
   }
 
   return (
-    <AppShell route={route} onNavigate={setRoute}>
+    <OverlayProvider>
+      <AppShell route={route} onNavigate={setRoute}>
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
       {route === 'capture' && <CapturePage />}
       {route === 'compass' && <CompassPage />}
       {route === 'settings' && <RoutePlaceholder title="Settings" />}
-    </AppShell>
+      </AppShell>
+    </OverlayProvider>
   );
 }

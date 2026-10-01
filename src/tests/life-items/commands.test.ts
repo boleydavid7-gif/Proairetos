@@ -5,6 +5,7 @@ import {
   editItem,
   scheduleItem,
   setCarried,
+  setCheckBack,
   setImportant,
   setItemType,
 } from '../../core/life-items/commands';
@@ -103,5 +104,15 @@ describe('life item commands', () => {
     changeStatus(context, item, 'DONE');
     setItemType(context, item, 'REMEMBER');
     expect(item).toEqual(before);
+  });
+
+  it('moves the check-back date only on waiting items, without logging it', () => {
+    const { context, item } = captured();
+    const waiting = changeStatus(context, item, 'WAITING', { checkBackAt: '2026-10-05' }).item;
+    const moved = setCheckBack(context, waiting, '2026-10-08');
+
+    expect(moved.item.checkBackAt).toBe('2026-10-08');
+    expect(moved.events).toEqual([]);
+    expect(() => setCheckBack(context, item, '2026-10-08')).toThrow();
   });
 });

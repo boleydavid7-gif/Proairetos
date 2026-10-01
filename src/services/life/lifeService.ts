@@ -6,6 +6,7 @@ import {
   editItem,
   scheduleItem,
   setCarried,
+  setCheckBack,
   setImportant,
   setItemType,
   type ItemChange,
@@ -15,6 +16,13 @@ import type { LifeItem, LifeItemStatus, LifeItemType } from '../../core/life-ite
 import type { ItemEventRepository } from '../../data/repositories/itemEventRepository';
 import type { LifeItemRepository } from '../../data/repositories/lifeItemRepository';
 import { createListeners } from '../listeners';
+
+export type Undo = () => Promise<void>;
+
+export type UndoableChange = {
+  item: LifeItem;
+  undo: Undo;
+};
 
 export type LifeServiceDeps = {
   userId: string;
@@ -37,10 +45,36 @@ export function createLifeService({ userId, context, items, events }: LifeServic
     return item;
   }
 
-  async function apply(id: string, command: (item: LifeItem) => ItemChange): Promise<LifeItem> {
+  async function load(id: string): Promise<LifeItem> {
     const item = await items.getById(id);
     if (!item || item.userId !== userId) throw new Error(`Life item ${id} was not found.`);
-    return save(command(item));
+    return item;
+  }
+
+  async function apply(id: string, command: (item: LifeItem) => ItemChange): Promise<LifeItem> {
+    return save(command(await load(id)));
+  }
+
+  /**
+   * Applies a change that can be taken back. Undo restores the item exactly
+   * and removes the events, because an undone change did not happen.
+   */
+  async function applyUndoable(id: string, command: (item: LifeItem) => ItemChange): Promise<UndoableChange> {
+    const before = await load(id);
+    const change = command(before);
+    const item = await save(change);
+    let undone = false;
+
+    return {
+      item,
+      async undo() {
+        if (undone) return;
+        undone = true;
+        await items.update(before);
+        await events.remove(change.events.map((event) => event.id));
+        listeners.notify();
+      },
+    };
   }
 
   return {
@@ -48,6 +82,11 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     list(): Promise<LifeItem[]> {
       return items.list(userId);
+    },
+
+    async get(id: string): Promise<LifeItem | null> {
+      const item = await items.getById(id);
+      return item && item.userId === userId ? item : null;
     },
 
     history(itemId: string): Promise<ItemEvent[]> {
@@ -67,8 +106,12 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => setItemType(context, item, type));
     },
 
-    setStatus(id: string, status: LifeItemStatus, options?: StatusOptions) {
-      return apply(id, (item) => changeStatus(context, item, status, options));
+    setStatus(id: string, status: LifeItemStatus, options?: StatusOptions): Promise<UndoableChange> {
+      return applyUndoable(id, (item) => changeStatus(context, item, status, options));
+    },
+
+    setCheckBack(id: string, checkBackAt: string | undefined) {
+      return apply(id, (item) => setCheckBack(context, item, checkBackAt));
     },
 
     schedule(id: string, at: string | undefined) {

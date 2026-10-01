@@ -152,3 +152,12 @@ export function editItem(
     events: [],
   };
 }
+
+/** Moves the check-back date of a waiting item. The person's own reminder, not logged as history. */
+export function setCheckBack(ctx: DomainContext, item: LifeItem, checkBackAt: string | undefined): ItemChange {
+  if (item.status !== 'WAITING') {
+    throw new Error('Only waiting items have a check-back date.');
+  }
+  if (item.checkBackAt === checkBackAt) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { checkBackAt }), events: [] };
+}
