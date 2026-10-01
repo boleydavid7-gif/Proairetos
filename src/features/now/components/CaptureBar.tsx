@@ -1,10 +1,28 @@
+import { useState, type FormEvent } from 'react';
+import { lifeService } from '../../../app/services';
+
 export default function CaptureBar() {
+  const [text, setText] = useState('');
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!text.trim()) return;
+    await lifeService.capture(text);
+    setText('');
+  }
+
   return (
-    <section aria-label="Capture" className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+    <form aria-label="Capture" className="card capture-bar" onSubmit={submit}>
       <input
-        className="w-full bg-transparent text-white placeholder:text-white/40 outline-none"
+        className="capture-bar__input"
         placeholder="Capture something"
+        aria-label="Capture something"
+        value={text}
+        onChange={(event) => setText(event.target.value)}
       />
-    </section>
+      <button type="submit" className="capture-bar__submit" disabled={!text.trim()}>
+        Add
+      </button>
+    </form>
   );
 }

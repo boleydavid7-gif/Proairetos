@@ -4,14 +4,18 @@ import AccountLink from './components/AccountLink';
 import CompassMark from './components/CompassMark';
 import OnboardingLayout from './components/OnboardingLayout';
 
-export default function OnboardingPage() {
+type Props = {
+  onGetStarted: () => void;
+};
+
+export default function OnboardingPage({ onGetStarted }: Props) {
   return (
     <OnboardingLayout>
       <div className="onboarding-content">
         <CompassMark />
         <WelcomeHero />
         <div className="onboarding-actions">
-          <GetStartedButton />
+          <GetStartedButton onClick={onGetStarted} />
           <AccountLink />
         </div>
       </div>

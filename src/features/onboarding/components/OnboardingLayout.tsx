@@ -4,11 +4,9 @@ type Props = { children: React.ReactNode };
 
 export default function OnboardingLayout({ children }: Props) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10 text-center">
+    <main className="onboarding-layout">
       <BackgroundScene />
-      <div className="relative z-10 flex w-full max-w-sm flex-col items-center justify-center gap-8">
-        {children}
-      </div>
+      {children}
     </main>
   );
 }

@@ -1,15 +1,18 @@
-export type NowSource =
-  | 'scheduled'
-  | 'important'
-  | 'check_back'
-  | 'unsorted';
+import type { NowItemReason } from '../../core/now/types';
 
 export type NowItem = {
   id: string;
   title: string;
-  source: NowSource;
+  reasons: NowItemReason[];
+  scheduledAt?: string;
+  checkBackAt?: string;
 };
 
-export type NowView = {
-  items: NowItem[];
+export type NowViewModel = {
+  nextCommitment: NowItem | null;
+  scheduled: NowItem[];
+  important: NowItem[];
+  waiting: NowItem[];
+  unsortedCount: number;
+  isEmpty: boolean;
 };

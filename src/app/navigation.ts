@@ -1,8 +1,9 @@
-export const navigation = [
+import type { AppRoute } from './routes/routeTypes';
+
+// The capture bar also sits on Today, so capturing never requires navigating.
+export const navigation: readonly { id: AppRoute; label: string }[] = [
   { id: 'today', label: 'Today' },
   { id: 'reflect', label: 'Reflect' },
   { id: 'capture', label: 'Capture' },
-  { id: 'compass', label: 'Your Compass' },
-] as const;
-
-export type NavigationId = (typeof navigation)[number]['id'];
+  { id: 'compass', label: 'Compass' },
+];

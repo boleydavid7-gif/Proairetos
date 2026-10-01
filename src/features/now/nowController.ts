@@ -1,11 +1,11 @@
+import type { LifeService } from '../../services/life/lifeService';
 import type { NowViewModel } from './types';
-import { getNowItems } from './nowQueries';
+import { buildNowViewModel } from './nowViewModel';
 
-export async function buildNowView(): Promise<NowViewModel> {
-  const items = await getNowItems();
-
+export function createNowController(life: Pick<LifeService, 'list'>) {
   return {
-    items,
-    hasAttentionItems: items.length > 0,
+    async getViewModel(now: Date = new Date()): Promise<NowViewModel> {
+      return buildNowViewModel(await life.list(), now);
+    },
   };
 }

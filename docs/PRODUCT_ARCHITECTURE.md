@@ -14,6 +14,23 @@ The person remains responsible for deciding what matters and what to change.
 
 ---
 
+# Navigation
+
+```
+Today · Reflect · Capture · Compass
+```
+
+- Today: what the person chose to see now (Attention Engine), and later the
+  day's schedule (Life Context Engine).
+- Reflect: the person's own reflections by day, week, and month, plus
+  observations without interpretation (Reflection Engine).
+- Capture: quick capture, sorting, and every open life item (Capture Engine).
+- Compass: values and statements (Compass Engine).
+
+The capture bar also appears on Today, so capturing never requires navigating.
+
+---
+
 # Core Loop
 
 ```
@@ -48,13 +65,15 @@ Rules:
 
 Purpose: Externalize thoughts and obligations.
 
-Capture types:
+Life item types (a capture can also stay unsorted):
 - Do
 - Remember
 - Make time for
 - Thinking about
-- Decision
-- Reflection
+
+Decisions and reflections are not item types. They are their own records:
+a Decision can link to a Thinking about item, and a Reflection can link to
+an item, a decision, or a period of time.
 
 Rules:
 - capture first
@@ -169,7 +188,23 @@ AI never:
 
 ---
 
+# Domain Layer
+
+Every change to a life item goes through a command in
+`src/core/life-items/commands.ts`. A command returns the updated item and the
+events that record what happened (created, sorted, scheduled or rescheduled,
+waiting, completed, let go, reopened, carried). Services persist the item and
+its events together. Reflection reads this history; it never infers from it.
+
+Marking an item important is the person's own mark and is not logged as
+history.
+
+---
+
 # Design Rules
+
+Language the system never uses about a person's life is enforced in
+`src/core/rules/languageRules.ts`, and a test scans every source file for it.
 
 Never add:
 - productivity scores
