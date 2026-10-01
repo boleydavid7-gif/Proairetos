@@ -27,6 +27,8 @@ export function createReflectionService({ userId, context, reflections }: Reflec
 
   return {
     subscribe: listeners.subscribe,
+    /** Tells screens to reload, e.g. after sync brought changes from another device. */
+    refresh: listeners.notify,
 
     async write(input: WriteReflectionInput): Promise<Reflection> {
       if (!input.body.trim()) throw new Error('A reflection needs some text.');

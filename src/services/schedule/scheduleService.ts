@@ -53,6 +53,8 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
 
   return {
     subscribe: listeners.subscribe,
+    /** Tells screens to reload, e.g. after sync brought changes from another device. */
+    refresh: listeners.notify,
 
     async patterns(): Promise<SchedulePattern[]> {
       return (await load()).patterns;

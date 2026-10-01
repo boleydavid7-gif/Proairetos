@@ -318,6 +318,24 @@ Choices informed by research, kept within the design rules:
 - Proairetos is Stoic-inspired, not orthodox: the four Stoic virtues are
   offered as a group alongside other values.
 
-Not yet: notifications that reach the person when the app is closed. They
-need a server and are planned with accounts and sync.
+Notifications that reach the person when the app is closed use the
+optional server; see Sync and Reminders.
+
+---
+
+# Sync and Reminders
+
+- Local-first: the device is the source of truth and works offline.
+- End-to-end encrypted: a random data key seals every record (AES-GCM,
+  bound to its collection and id). The server stores that key only wrapped
+  by the person's passphrase (PBKDF2) and by a recovery key shown once.
+- Sync compares each record's fingerprint with the last synced one, pulls
+  changes after a server sequence number, then pushes. A record changed on
+  this device since the last sync keeps this device's version.
+- Sign-in by emailed code (not a link), because iPhone home-screen apps do
+  not share storage with Safari.
+- Reminders: the device uploads only times and hashed ids; the server sends
+  empty pushes; the notification says "Something you chose is ready".
+- Supabase row-level security limits every row to its owner; tested against
+  Postgres with a second user attempting to read, change, and forge rows.
 

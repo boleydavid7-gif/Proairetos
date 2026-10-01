@@ -13,6 +13,7 @@ const context = systemContext();
 const storage = createDeviceStorage();
 
 export const storageMode = storage.mode;
+export const deviceDatabase = storage.database;
 
 export const lifeService = createLifeService({
   userId,

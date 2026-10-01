@@ -5,6 +5,8 @@ import { ArrowLeftIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import { clearPreferences, lastBackupDate, recordBackup } from '../../data/storage/preferences';
+import { signOut, syncStatus } from '../../app/sync/syncController';
+import AccountSection from './AccountSection';
 
 function download(text: string) {
   const date = new Date().toISOString().slice(0, 10);
@@ -199,7 +201,10 @@ function DeleteSection() {
   return (
     <section className="settings-card" aria-label="Delete everything">
       <h2 className="section-label">Delete everything</h2>
-      <p className="section-description">Removes all your items, reflections, decisions, values, and schedules from this device.</p>
+      <p className="section-description">
+        Removes all your items, reflections, decisions, values, and schedules from this device. If you use sync, this device
+        is signed out first, so your other devices and encrypted account are not affected.
+      </p>
       {confirming ? (
         <div className="chip-row">
           <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>
@@ -211,6 +216,8 @@ function DeleteSection() {
             disabled={busy}
             onClick={async () => {
               setBusy(true);
+              // Sign this device out first, so the deletion stays here and is not synced to other devices.
+              if (syncStatus.get().phase !== 'unavailable' && syncStatus.get().phase !== 'signed-out') await signOut();
               await backupService.deleteAll();
               clearPreferences();
               window.location.reload();
@@ -244,9 +251,10 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle="Your data stays yours." />
       <p className="section-description">
         {mode === 'device'
-          ? 'Everything is stored on this device only. Nothing is sent anywhere.'
+          ? 'Everything is stored on this device. If you turn on sync, it is encrypted here before anything is uploaded.'
           : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
       </p>
+      <AccountSection />
       <ExportSection />
       <ImportSection />
       <DeleteSection />

@@ -24,6 +24,13 @@ versions reach people promptly.
 
 ## Data
 
-Everything is stored on the device in IndexedDB. Nothing leaves the
-browser yet. If a browser blocks storage, the app keeps data in memory for
-that visit and says so.
+Everything is stored on the device in IndexedDB. If a browser blocks
+storage, the app keeps data in memory for that visit and says so.
+
+Optional sync is end-to-end encrypted: records are sealed on the device
+(AES-GCM) with a key the server never sees, and stored in Supabase behind
+row-level security. Reminders send only times to the server. See
+[docs/SERVER_SETUP.md](docs/SERVER_SETUP.md) to turn it on; without the
+`VITE_SUPABASE_*` settings the app runs fully offline.
+
+`supabase/` holds the database migration and the reminder function.

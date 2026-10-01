@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v1';
+const CACHE = 'proairetos-v2';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -56,4 +56,30 @@ self.addEventListener('fetch', (event) => {
   if ((sameOrigin && url.pathname !== '/sw.js') || FONT_HOSTS.includes(url.hostname)) {
     event.respondWith(cacheFirst(request));
   }
+});
+
+// ---------- Private reminders ----------
+// Pushes arrive empty. The server knows only that a reminder is due, never
+// what it is about, so the notification says so plainly; details are in the app.
+
+self.addEventListener('push', (event) => {
+  event.waitUntil(
+    self.registration.showNotification('Proairetos', {
+      body: 'Something you chose is ready.',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: 'proairetos-reminder',
+      renotify: true,
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      const open = windows.find((client) => 'focus' in client);
+      return open ? open.focus() : self.clients.openWindow('/');
+    }),
+  );
 });

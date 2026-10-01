@@ -18,7 +18,7 @@ import {
   createMemoryReflectionRepository,
   createMemoryValueRepository,
 } from '../../data/repositories/memory/memoryRepositories';
-import { openDatabase } from '../../data/storage/indexeddb/database';
+import { DB_VERSION, openDatabase } from '../../data/storage/indexeddb/database';
 
 const implementations = {
   memory: () => ({
@@ -174,7 +174,7 @@ describe('indexeddb schedule stores', () => {
     v2.close();
 
     const v3 = openDatabase(factory);
-    expect((await v3).version).toBe(4);
+    expect((await v3).version).toBe(DB_VERSION);
     expect(await createIndexedDbValueRepository(v3).list('u')).toHaveLength(1);
 
     const patterns = createIndexedDbSchedulePatternRepository(v3);
@@ -189,9 +189,9 @@ describe('indexeddb schedule stores', () => {
 });
 
 describe('indexeddb decisions store', () => {
-  it('opens at version 4 with a decisions store that keeps data', async () => {
+  it('opens with a decisions store that keeps data', async () => {
     const db = openDatabase(new IDBFactory());
-    expect((await db).version).toBe(4);
+    expect((await db).version).toBe(DB_VERSION);
     const decisions = createIndexedDbDecisionRepository(db);
     const decision = { id: 'd', userId: 'u', question: 'q', options: ['a'], choice: 'a', decidedAt: 'x' };
     await decisions.add(decision);
@@ -222,7 +222,7 @@ describe('indexeddb persistence', () => {
     v1.close();
 
     const v2 = openDatabase(factory);
-    expect((await v2).version).toBe(4);
+    expect((await v2).version).toBe(DB_VERSION);
     expect((await createIndexedDbLifeItemRepository(v2).list('u')).map((item) => item.id)).toEqual(['kept']);
     expect(await createIndexedDbItemEventRepository(v2).listForItem('kept')).toHaveLength(1);
     await createIndexedDbValueRepository(v2).add({ id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x' });

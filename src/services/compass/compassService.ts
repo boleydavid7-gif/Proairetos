@@ -22,6 +22,8 @@ export function createCompassService({ userId, context, values, statements }: Co
 
   return {
     subscribe: listeners.subscribe,
+    /** Tells screens to reload, e.g. after sync brought changes from another device. */
+    refresh: listeners.notify,
 
     async values(): Promise<ChosenValue[]> {
       return (await values.list(userId)).sort(byChosen);

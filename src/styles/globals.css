@@ -2417,3 +2417,25 @@ button:disabled {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+.recovery-key {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px dashed rgba(201, 162, 116, 0.5);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  word-break: break-all;
+  color: var(--color-accent-strong);
+  user-select: all;
+}
+
+.settings-sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}

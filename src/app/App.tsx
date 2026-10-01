@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { startSync } from './sync/syncController';
 import OnboardingPage from '../features/onboarding/OnboardingPage';
 import NowPage from '../features/now/NowPage';
 import CapturePage from '../features/capture/CapturePage';
@@ -16,6 +17,10 @@ import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
   const [route, setRoute] = useState<AppRoute>(defaultRoute);
+
+  useEffect(() => {
+    void startSync();
+  }, []);
 
   if (!started) {
     return (

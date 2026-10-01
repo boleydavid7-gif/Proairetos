@@ -28,6 +28,8 @@ export function createDecisionService({ userId, context, decisions }: DecisionSe
 
   return {
     subscribe: listeners.subscribe,
+    /** Tells screens to reload, e.g. after sync brought changes from another device. */
+    refresh: listeners.notify,
 
     /** Newest first. */
     async list(): Promise<Decision[]> {

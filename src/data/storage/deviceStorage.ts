@@ -40,7 +40,7 @@ export type Repositories = {
   decisions: DecisionRepository;
 };
 
-type Backend = Repositories & { mode: StorageMode };
+type Backend = Repositories & { mode: StorageMode; database: Promise<IDBDatabase> | null };
 
 async function openBackend(): Promise<Backend> {
   try {
@@ -50,6 +50,7 @@ async function openBackend(): Promise<Backend> {
     const ready = Promise.resolve(db);
     return {
       mode: 'device',
+      database: ready,
       items: createIndexedDbLifeItemRepository(ready),
       events: createIndexedDbItemEventRepository(ready),
       reflections: createIndexedDbReflectionRepository(ready),
@@ -63,6 +64,7 @@ async function openBackend(): Promise<Backend> {
     console.warn('On-device storage is unavailable; keeping data in memory for this visit.', error);
     return {
       mode: 'memory',
+      database: null,
       items: createMemoryLifeItemRepository(),
       events: createMemoryItemEventRepository(),
       reflections: createMemoryReflectionRepository(),
@@ -89,10 +91,15 @@ function deferred<T extends object>(target: Promise<T>): T {
   });
 }
 
-export function createDeviceStorage(): Repositories & { mode: Promise<StorageMode> } {
+export function createDeviceStorage(): Repositories & {
+  mode: Promise<StorageMode>;
+  database: Promise<IDBDatabase | null>;
+} {
   const backend = openBackend();
   return {
     mode: backend.then((b) => b.mode),
+    /** The raw database for sync, or null when storage is blocked. */
+    database: backend.then((b) => b.database),
     items: deferred(backend.then((b) => b.items)),
     events: deferred(backend.then((b) => b.events)),
     reflections: deferred(backend.then((b) => b.reflections)),

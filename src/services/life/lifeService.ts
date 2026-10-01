@@ -108,6 +108,8 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
   return {
     subscribe: listeners.subscribe,
+    /** Tells screens to reload, e.g. after sync brought changes from another device. */
+    refresh: listeners.notify,
 
     async list(): Promise<LifeItem[]> {
       return (await items.list(userId)).map(present);
