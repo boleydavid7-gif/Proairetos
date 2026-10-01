@@ -9,16 +9,18 @@ type Props = {
 
 export default function WaitingItems({ items = [] }: Props) {
   return (
-    <section aria-label="Waiting items">
-      <h2>Waiting</h2>
+    <section aria-label="Waiting items" className="space-y-3">
+      <h2 className="text-sm text-white/50">Waiting</h2>
       {items.length === 0 ? (
-        <p>No waiting items.</p>
+        <p className="text-white/60">No waiting items.</p>
       ) : (
         items.map((item) => (
-          <p key={item.title}>
-            {item.title}
-            {item.checkBack ? ` — ${item.checkBack}` : ""}
-          </p>
+          <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-white">{item.title}</p>
+            {item.checkBack && (
+              <p className="mt-1 text-sm text-white/50">Check back {item.checkBack}</p>
+            )}
+          </div>
         ))
       )}
     </section>
