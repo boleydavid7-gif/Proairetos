@@ -122,3 +122,30 @@ export function PenIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function GearIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6" />
+      <circle cx="12" cy="12" r="6.6" />
+    </Icon>
+  );
+}
+
+export function BreatheIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 9c2.8-2.4 5.7-2.4 8.5 0s5.7 2.4 8.5 0M3.5 15c2.8-2.4 5.7-2.4 8.5 0s5.7 2.4 8.5 0" />
+    </Icon>
+  );
+}
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
+      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    </Icon>
+  );
+}

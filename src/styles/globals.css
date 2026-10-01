@@ -277,8 +277,9 @@ button:disabled {
 
 .section-label {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   color: var(--color-text);
 }
 
@@ -919,19 +920,43 @@ button:disabled {
 .value-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: 3.5rem;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
-  border: 1px solid rgba(201, 162, 116, 0.25);
+  gap: var(--space-4);
+  min-height: 4.5rem;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(201, 162, 116, 0.1), var(--color-surface) 70%);
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.08), var(--color-surface) 65%);
+}
+
+.value-card__icon {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.value-card__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .value-card__name {
   font-family: var(--font-serif);
-  font-size: 1.4rem;
-  color: var(--color-accent-strong);
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.value-card__detail {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
 }
 
 .value-card__confirm {
@@ -1382,40 +1407,6 @@ button:disabled {
 
 /* ---------- Today as a day ---------- */
 
-.day-header__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-left: calc(var(--space-3) * -1);
-}
-
-.day-header__row .page-header__title {
-  margin: 0;
-}
-
-.day-header__step {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-faint);
-}
-
-.day-header__step:last-child {
-  margin-left: auto;
-}
-
-.day-header .page-header__subtitle {
-  margin-top: var(--space-3);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
 .day-header__back,
 .text-link {
   padding: 0;
@@ -1590,12 +1581,6 @@ button:disabled {
 }
 
 /* ---------- Step 4: next step, focus, pause, return ---------- */
-
-.day-tools {
-  display: flex;
-  gap: var(--space-2);
-  margin-top: calc(var(--space-2) * -1);
-}
 
 .item-card__step {
   margin-top: 0.15rem;
@@ -2404,11 +2389,6 @@ button:disabled {
   line-height: 1.5;
 }
 
-.settings-link {
-  align-self: center;
-  margin-top: var(--space-4);
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -2465,4 +2445,156 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* ---------- Headers: settings gear, landscape hero, quick actions ---------- */
+
+.page-header {
+  position: relative;
+}
+
+.page-header__actions,
+.page-hero__actions {
+  position: absolute;
+  top: calc(var(--space-2) * -1);
+  right: calc(var(--space-2) * -1);
+}
+
+.page-header__actions + .page-header__title {
+  padding-right: var(--space-6);
+}
+
+.header-action {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color 150ms ease;
+}
+
+.header-action:hover {
+  color: var(--color-accent-strong);
+}
+
+/* The hero reaches the screen edges and the top, then fades into the page. */
+.page-hero {
+  --hero-top: calc(env(safe-area-inset-top) + var(--space-6));
+  position: relative;
+  isolation: isolate;
+  min-height: calc(var(--hero-top) + 11.5rem);
+  margin: calc(var(--hero-top) * -1) calc(var(--space-5) * -1) 0;
+  padding: var(--hero-top) var(--space-5) 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.page-hero__photo,
+.page-hero__wash {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.page-hero__photo {
+  background-size: cover;
+  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.74) contrast(1.05);
+}
+
+.page-hero--peaks .page-hero__photo {
+  background-position: center 30%;
+}
+
+.page-hero--valley .page-hero__photo {
+  background-position: center 58%;
+}
+
+.page-hero__wash {
+  background:
+    linear-gradient(180deg, rgba(10, 12, 14, 0.15) 0%, rgba(10, 12, 14, 0.05) 35%, rgba(10, 12, 14, 0.7) 75%, var(--color-bg) 100%);
+}
+
+.page-hero__actions {
+  top: calc(var(--hero-top) - var(--space-2));
+  right: var(--space-3);
+}
+
+.page-hero__actions .header-action {
+  color: var(--color-text);
+}
+
+.page-hero .page-header__title {
+  font-size: 2.3rem;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+.page-hero .page-header__subtitle {
+  color: rgba(242, 236, 226, 0.82);
+}
+
+/* Wider than the column: fade the photo at its sides instead of a hard edge. */
+@media (min-width: 34rem) {
+  .page-hero__photo,
+  .page-hero__wash {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+}
+
+.day-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: calc(var(--space-3) * -1);
+}
+
+.day-stepper__step {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.day-stepper .day-header__back {
+  margin-left: var(--space-2);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.quick-action {
+  min-height: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.quick-action span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.quick-action:hover {
+  border-color: rgba(201, 162, 116, 0.4);
+  background: var(--color-surface-raised);
 }

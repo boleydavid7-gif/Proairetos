@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (151 tests), includes the language guard
+npm test             # vitest (155 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -64,6 +64,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/features/`: screens. Today = `features/now/NowPage.tsx` (calm:
   one message card, "your three", timeline, folded lists, done today).
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
+- `src/components/layout/`: `PageHero` (landscape header on Today and
+  Compass), `PageHeader` (`settings` prop adds the gear). Settings returns
+  to the last main tab (`useReturnRoute`).
 - `supabase/`: migration (RLS on every table) and the `send-reminders`
   edge function (payload-less push).
 

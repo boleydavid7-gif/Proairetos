@@ -5,6 +5,7 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, scheduleService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
+import PageHero from '../../components/layout/PageHero';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { answeredPauseOffers, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
@@ -19,6 +20,8 @@ import NowCard from '../today/NowCard';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
+import { greeting } from '../today/greeting';
+import QuickActions from '../today/QuickActions';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
 import ImportantItems from './components/ImportantItems';
@@ -37,7 +40,7 @@ import { useNow } from './hooks/useNow';
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
-  const { openItem, startFocus, openPause } = useOverlays();
+  const { openItem } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
@@ -99,36 +102,30 @@ export default function NowPage() {
 
   return (
     <div className="page">
-      <header className="page-header day-header">
-        <div className="day-header__row">
-          <button type="button" className="day-header__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
-            <ChevronRightIcon size={22} style={{ transform: 'rotate(180deg)' }} />
-          </button>
-          <h1 className="page-header__title">{dayTitle(date, today)}</h1>
-          <button type="button" className="day-header__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
-            <ChevronRightIcon size={22} />
-          </button>
-        </div>
-        <p className="page-header__subtitle">
-          {formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}
-          {!isToday && (
-            <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
-              Back to today
+      <PageHero
+        focus="valley"
+        title={isToday ? greeting(clock) : dayTitle(date, today)}
+        subtitle={
+          <div className="day-stepper">
+            <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
+              <ChevronRightIcon size={20} style={{ transform: 'rotate(180deg)' }} />
             </button>
-          )}
-        </p>
-      </header>
+            <span className="day-stepper__date">
+              {formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}
+            </span>
+            <button type="button" className="day-stepper__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
+              <ChevronRightIcon size={20} />
+            </button>
+            {!isToday && (
+              <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
+                Back to today
+              </button>
+            )}
+          </div>
+        }
+      />
 
-      {isToday && (
-        <div className="day-tools">
-          <button type="button" className="chip" onClick={() => startFocus()}>
-            Focus
-          </button>
-          <button type="button" className="chip" onClick={openPause}>
-            Pause
-          </button>
-        </div>
-      )}
+      {isToday && <QuickActions />}
 
       {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {message === 'welcome' && (

@@ -166,7 +166,7 @@ export default function ReflectPage() {
 
   return (
     <div className="page">
-      <PageHeader title="Reflect" subtitle="Look back, notice patterns, and return to what matters." />
+      <PageHeader title="Reflect" subtitle="Look back, notice patterns, and return to what matters." settings />
 
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (

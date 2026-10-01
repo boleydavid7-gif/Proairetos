@@ -110,7 +110,7 @@ export default function CapturePage() {
 
   return (
     <div className="page">
-      <PageHeader title="Capture" subtitle="Get it out of your head. Sorting can wait." />
+      <PageHeader title="Capture" subtitle="Get it out of your head. Sorting can wait." settings />
       <CaptureBar />
 
       {unsorted.length > 0 && (

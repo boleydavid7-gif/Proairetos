@@ -1,6 +1,6 @@
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from '../../app/navigationContext';
+import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { backupService, storageMode } from '../../app/services';
 import { ArrowLeftIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
@@ -8,6 +8,7 @@ import { countRecords, parseBackupFile, type BackupData } from '../../data/backu
 import { clearPreferences, lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection from './AccountSection';
+import type { AppRoute } from '../../app/routes/routeTypes';
 
 function download(text: string) {
   const date = new Date().toISOString().slice(0, 10);
@@ -252,9 +253,17 @@ function DeleteSection() {
   );
 }
 
+const tabLabels: Partial<Record<AppRoute, string>> = {
+  today: 'Today',
+  reflect: 'Reflect',
+  capture: 'Capture',
+  compass: 'Compass',
+};
+
 export default function SettingsPage() {
   const navigate = useNavigate();
-  useBackHandler(true, () => navigate('compass'));
+  const returnTo = useReturnRoute();
+  useBackHandler(true, () => navigate(returnTo));
   const [mode, setMode] = useState<'device' | 'memory'>('device');
   useEffect(() => {
     storageMode.then(setMode);
@@ -262,9 +271,9 @@ export default function SettingsPage() {
 
   return (
     <div className="page">
-      <button type="button" className="back-link" onClick={() => navigate('compass')}>
+      <button type="button" className="back-link" onClick={() => navigate(returnTo)}>
         <ArrowLeftIcon size={18} />
-        Compass
+        {tabLabels[returnTo] ?? 'Back'}
       </button>
       <PageHeader title="Settings" subtitle="Your data stays yours." />
       <p className="section-description">

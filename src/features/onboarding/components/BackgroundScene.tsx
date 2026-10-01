@@ -1,4 +1,4 @@
-import valley from '../../../assets/images/onboarding/valley.webp';
+import valley from '../../../assets/images/scenes/valley.webp';
 
 export default function BackgroundScene() {
   return (

@@ -1,19 +1,27 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
-import { useNavigate } from '../../app/navigationContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
-import PageHeader from '../../components/layout/PageHeader';
+import { CompassIcon } from '../../components/icons/Icons';
+import PageHero from '../../components/layout/PageHero';
+import { describeValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import ValuePicker from './ValuePicker';
 
 function ValueCard({ value }: { value: ChosenValue }) {
   const [confirming, setConfirming] = useState(false);
+  const description = describeValue(value.name);
 
   return (
     <li className="value-card">
-      <span className="value-card__name">{value.name}</span>
+      <span className="value-card__icon" aria-hidden="true">
+        <CompassIcon size={22} />
+      </span>
+      <span className="value-card__text">
+        <span className="value-card__name">{value.name}</span>
+        {description && <span className="value-card__detail">{description}</span>}
+      </span>
       {confirming ? (
         <span className="value-card__confirm">
           <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>
@@ -41,14 +49,13 @@ export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
   const [picking, setPicking] = useState(false);
-  const navigate = useNavigate();
 
   if (!values) return null;
   const canAdd = values.length < MAX_USER_VALUES;
 
   return (
     <div className="page">
-      <PageHeader title="Compass" subtitle="Keep sight of what matters to you." />
+      <PageHero title="Compass" subtitle="Keep sight of what matters to you." focus="peaks" />
 
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
@@ -100,10 +107,6 @@ export default function CompassPage() {
         placeholder="Something to put aside"
         statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
       />
-
-      <button type="button" className="text-link settings-link" onClick={() => navigate('settings')}>
-        Settings and your data
-      </button>
     </div>
   );
 }

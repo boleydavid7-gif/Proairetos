@@ -11,13 +11,20 @@ import WeeklyReview from '../features/review/WeeklyReview';
 import SettingsPage from '../features/settings/SettingsPage';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
-import { NavigationContext } from './navigationContext';
+import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
+
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'capture', 'compass']);
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
   const [route, setRoute] = useState<AppRoute>(defaultRoute);
+  const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
+
+  useEffect(() => {
+    if (mainTabs.has(route)) setLastTab(route);
+  }, [route]);
 
   useEffect(() => {
     void startSync();
@@ -36,6 +43,7 @@ export default function App() {
 
   return (
     <NavigationContext.Provider value={setRoute}>
+    <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
     <OverlayProvider>
       <AppShell route={route} onNavigate={setRoute}>
@@ -48,6 +56,7 @@ export default function App() {
       {route === 'settings' && <SettingsPage />}
       </AppShell>
     </OverlayProvider>
+    </ReturnRouteContext.Provider>
     </NavigationContext.Provider>
   );
 }
