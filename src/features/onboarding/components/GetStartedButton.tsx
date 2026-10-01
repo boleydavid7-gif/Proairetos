@@ -1,3 +1,7 @@
 export default function GetStartedButton() {
-  return <button type="button">Get Started</button>;
+  return (
+    <button className="onboarding-primary" type="button">
+      Get Started
+    </button>
+  );
 }
