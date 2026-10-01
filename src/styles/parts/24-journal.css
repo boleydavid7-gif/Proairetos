@@ -1,0 +1,117 @@
+/* ---------- Journal ---------- */
+
+.journal__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.journal__back {
+  margin-bottom: 0;
+}
+
+.journal__date {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.journal__scene {
+  height: 9.5rem;
+  margin-top: calc(var(--space-2) * -1);
+  border-radius: var(--radius-md);
+  background-size: cover;
+  background-position: center 60%;
+  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.78) contrast(1.05);
+}
+
+.journal__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.journal__input {
+  width: 100%;
+  min-height: 12rem;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.journal__input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.journal__input:focus {
+  outline: none;
+  border-color: rgba(201, 162, 116, 0.5);
+}
+
+.section-optional {
+  margin-left: var(--space-2);
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.weather-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-1);
+}
+
+.weather-picker__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-faint);
+}
+
+.weather-picker__option span {
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.weather-picker__option[aria-pressed='true'] {
+  border-color: rgba(201, 162, 116, 0.45);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.journal__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.journal__tool {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.journal__tool[aria-pressed='true'] {
+  color: var(--color-accent);
+}
+
+.journal__save {
+  flex: 1;
+  min-height: 3rem;
+  border-radius: var(--radius-md);
+}

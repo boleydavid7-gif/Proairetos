@@ -1,0 +1,79 @@
+/* ---------- Item cards: open target and calm close-out ---------- */
+
+.app-shell {
+  color-scheme: dark;
+}
+
+.item-card {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.item-card--leaving {
+  opacity: 0;
+  transform: translateX(12px) scale(0.98);
+}
+
+.item-card__open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.chip[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.chip--accent {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.chip--wide {
+  align-self: flex-start;
+}
+
+.closed-list summary {
+  cursor: pointer;
+  list-style: none;
+  margin-bottom: var(--space-3);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.closed-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.closed-list__count {
+  margin-left: var(--space-1);
+  font-weight: 400;
+  color: var(--color-text-faint);
+}
+
+.closed-list__item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.closed-list__meta {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}

@@ -1,0 +1,174 @@
+/* ---------- Today as a day ---------- */
+
+.day-header__back,
+.text-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-size: 0.875rem;
+}
+
+.now-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.now-card__current {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.14), transparent 80%);
+}
+
+.now-card__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.now-card__detail {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.now-card__next {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.now-card__current + .now-card__next {
+  border-top: 1px solid var(--color-border);
+}
+
+.now-card__next svg {
+  color: var(--color-accent);
+}
+
+.now-card__next:disabled {
+  cursor: default;
+}
+
+.now-card__label {
+  color: var(--color-text-muted);
+}
+
+.now-card__when {
+  font-weight: 600;
+  color: var(--color-accent-strong);
+  text-align: right;
+}
+
+.now-card__at {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.timeline__entry {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  text-align: left;
+}
+
+.timeline__entry--committed {
+  border-left-color: var(--color-accent);
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.1), var(--color-surface) 60%);
+}
+
+.timeline__entry--protected {
+  border-left-color: var(--color-sand);
+  border-left-style: dashed;
+}
+
+.timeline__time {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline__until {
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}
+
+.timeline__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.timeline__title {
+  font-weight: 500;
+}
+
+.timeline__detail {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.timeline__off {
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.timeline__now {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-accent-strong);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timeline__now::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-accent);
+  opacity: 0.6;
+}
+
+.sheet__title--static {
+  margin: 0;
+}

@@ -1,0 +1,252 @@
+/* ---------- Schedule ---------- */
+
+.back-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  margin-bottom: calc(var(--space-4) * -1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field-input--large {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+}
+
+.mini-segmented {
+  display: inline-grid;
+  grid-auto-flow: column;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-ink-raised);
+}
+
+.mini-segmented--wide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.mini-segmented button {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.mini-segmented button[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-weight: 500;
+}
+
+.run-list,
+.week-list,
+.preview,
+.form-problems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.run-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.run-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.run-card__header,
+.run-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.run-card__header {
+  justify-content: space-between;
+}
+
+.run-card__title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.run-card__tools {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.icon-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.icon-button:disabled {
+  opacity: 0.3;
+}
+
+.run-card__days {
+  flex: none;
+  width: 4.5rem;
+  text-align: center;
+}
+
+.run-card__unit {
+  flex: 1;
+  color: var(--color-text-muted);
+}
+
+.block-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.block-fields__time {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.block-fields__note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-accent-strong);
+}
+
+.week-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.week-day__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2rem;
+}
+
+.week-day__toggle input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--color-accent);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.preview__day {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  background: var(--color-surface);
+}
+
+.preview__day + .preview__day {
+  border-top: 1px solid var(--color-border);
+}
+
+.preview__day--off {
+  background: transparent;
+  color: var(--color-text-faint);
+}
+
+.preview__date {
+  flex: none;
+  min-width: 6.5rem;
+  color: var(--color-text-muted);
+}
+
+.preview__hours {
+  text-align: right;
+}
+
+.form-problems {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(201, 162, 116, 0.35);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.editor-actions__spacer {
+  flex: 1;
+}
+
+.editor-actions__confirm {
+  display: flex;
+  align-items: center;
+}
+
+.kind-dot {
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin: 0 var(--space-2);
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.kind-dot--protected {
+  background: transparent;
+  border: 2px solid var(--color-sand);
+}

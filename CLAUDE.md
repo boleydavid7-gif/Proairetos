@@ -75,6 +75,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Settings is a list of rows with detail pages, under a profile card;
   the name (greeting on Today) is a device-only preference.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
+- `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
+  order; add new styles to the matching part (or a new last part).
+  `28-touch.css` keeps every control at least 44px to tap.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (landscape at the foot of Today), `PageHeader` (`settings`
   prop adds the gear). Settings returns to the last main tab
@@ -113,5 +116,5 @@ Supabase project and tables exist. Remaining steps are in
 Cloudflare build variables, deploy function, cron). Sign-in accepts the
 email's link (templates are locked on the free plan without custom SMTP).
 
-Not yet verified on a real phone: swipe gestures, fonts (EB Garamond via
-Google Fonts), real Supabase emails and push delivery.
+Not yet verified on a real phone: swipe gestures, fonts (EB Garamond and
+Inter, bundled via @fontsource), real Supabase emails and push delivery.

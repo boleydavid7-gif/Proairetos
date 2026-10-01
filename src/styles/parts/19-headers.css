@@ -1,0 +1,237 @@
+/* ---------- Headers: settings gear, landscape hero, quick actions ---------- */
+
+.page-header {
+  position: relative;
+}
+
+.page-header__actions,
+.page-hero__actions {
+  position: absolute;
+  top: calc(var(--space-2) * -1);
+  right: calc(var(--space-2) * -1);
+}
+
+.page-header__actions + .page-header__title {
+  padding-right: var(--space-6);
+}
+
+.header-action {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color 150ms ease;
+}
+
+.header-action:hover {
+  color: var(--color-accent-strong);
+}
+
+/* Today: a quiet typographic header, the landscape resting at the foot of the page. */
+.today-header .page-header__title {
+  padding-right: var(--space-6);
+  font-size: 2.3rem;
+  line-height: 1.1;
+}
+
+.today-header__line {
+  margin: 0;
+  max-width: 21rem;
+}
+
+.today-header__line blockquote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.today-header__line figcaption {
+  margin-top: var(--space-1);
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}
+
+/* A hairline with a small sand dot in the middle, as in the mockup. */
+.today-header__rule {
+  position: relative;
+  height: 1px;
+  margin: var(--space-5) 0 var(--space-3);
+  background: linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent);
+}
+
+.today-header__rule::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.day-stepper__date {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.day-stepper__tools {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.chip--small {
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  font-size: 0.85rem;
+}
+
+/* On a short day the landscape still rests at the bottom of the screen. */
+.page--landscape {
+  min-height: calc(100svh - env(safe-area-inset-top) - var(--tab-bar-height) - env(safe-area-inset-bottom) - var(--space-6) * 2);
+}
+
+/* Extends under the bottom padding and the translucent tab bar. */
+.page-landscape {
+  --landscape-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
+  position: relative;
+  height: calc(17rem + var(--landscape-bottom));
+  margin: auto calc(var(--space-5) * -1) calc(var(--landscape-bottom) * -1);
+  pointer-events: none;
+}
+
+.page-landscape__photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 62%;
+  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.7) contrast(1.05);
+}
+
+/*
+ * The fade is a gradient laid over the photo in the page colour, not a mask:
+ * Safari can drop a mask on an element that also has a filter, which left a
+ * hard edge at the top. Many stops make the fade ease in rather than band.
+ */
+.page-landscape::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0 0;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg) 0%,
+    rgba(10, 12, 14, 0.96) 10%,
+    rgba(10, 12, 14, 0.86) 20%,
+    rgba(10, 12, 14, 0.68) 30%,
+    rgba(10, 12, 14, 0.46) 40%,
+    rgba(10, 12, 14, 0.26) 50%,
+    rgba(10, 12, 14, 0.1) 60%,
+    rgba(10, 12, 14, 0) 70%
+  );
+}
+
+/* Wider than the column: the sides fade the same way. */
+@media (min-width: 34rem) {
+  .page-landscape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, var(--color-bg), rgba(10, 12, 14, 0) 14%, rgba(10, 12, 14, 0) 86%, var(--color-bg));
+  }
+}
+
+/* The hero reaches the screen edges and the top, then fades into the page. */
+.page-hero {
+  --hero-top: calc(env(safe-area-inset-top) + var(--space-6));
+  position: relative;
+  isolation: isolate;
+  min-height: calc(var(--hero-top) + 11.5rem);
+  margin: calc(var(--hero-top) * -1) calc(var(--space-5) * -1) 0;
+  padding: var(--hero-top) var(--space-5) 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.page-hero__photo,
+.page-hero__wash {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.page-hero__photo {
+  background-size: cover;
+  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.74) contrast(1.05);
+}
+
+.page-hero--peaks .page-hero__photo {
+  background-position: center 30%;
+}
+
+.page-hero--valley .page-hero__photo {
+  background-position: center 58%;
+}
+
+.page-hero__wash {
+  background:
+    linear-gradient(180deg, rgba(10, 12, 14, 0.15) 0%, rgba(10, 12, 14, 0.05) 35%, rgba(10, 12, 14, 0.7) 75%, var(--color-bg) 100%);
+}
+
+.page-hero__actions {
+  top: calc(var(--hero-top) - var(--space-2));
+  right: var(--space-3);
+}
+
+.page-hero__actions .header-action {
+  color: var(--color-text);
+}
+
+.page-hero .page-header__title {
+  font-size: 2.3rem;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+.page-hero .page-header__subtitle {
+  color: rgba(242, 236, 226, 0.82);
+}
+
+/* Wider than the column: fade the photo at its sides instead of a hard edge. */
+@media (min-width: 34rem) {
+  .page-hero__photo,
+  .page-hero__wash {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+}
+
+.day-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: calc(var(--space-3) * -1);
+}
+
+.day-stepper__step {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.day-stepper .day-header__back {
+  margin-left: var(--space-2);
+}

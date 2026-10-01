@@ -1,0 +1,135 @@
+/* ---------- Compass ---------- */
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-count {
+  font-size: 0.85rem;
+  color: var(--color-text-faint);
+}
+
+.section-description {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.value-list,
+.statement-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.value-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 4.5rem;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.08), var(--color-surface) 65%);
+}
+
+.value-card__icon {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+}
+
+.value-card__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.value-card__name {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.value-card__detail {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.value-card__confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.value-card__remove,
+.statement__remove {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.statement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-surface);
+}
+
+.statement__body {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.picker__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.picker__cancel {
+  align-self: flex-end;
+}
+
+.inline-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.form-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-accent-strong);
+}

@@ -1,0 +1,190 @@
+/* ---------- Today: intention, path, quiet rows ---------- */
+
+.today-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.intention {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 4rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  text-align: left;
+}
+
+.intention__text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.intention--empty {
+  border-left-color: var(--color-border);
+}
+
+.intention--empty .intention__text {
+  color: var(--color-text-faint);
+}
+
+.intention__mark {
+  flex: none;
+  color: var(--color-text-faint);
+}
+
+.intention--editing {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.intention__input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  resize: none;
+}
+
+.intention__input:focus {
+  outline: none;
+}
+
+.path {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.path__step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 3.5rem;
+}
+
+/* The line between circles. */
+.path__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0.7rem;
+  top: calc(50% + 0.85rem);
+  height: calc(100% - 1.7rem);
+  width: 1px;
+  background: var(--color-border);
+}
+
+.path__circle {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid var(--color-text-faint);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-accent-ink);
+}
+
+.path__step--done .path__circle {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.path__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  text-align: left;
+}
+
+.path__title {
+  font-size: 0.95rem;
+}
+
+.path__step--done .path__title {
+  color: var(--color-text-faint);
+}
+
+.path__detail {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.path__chevron {
+  position: absolute;
+  right: 0;
+  color: var(--color-text-faint);
+  pointer-events: none;
+}
+
+.path-empty,
+.quiet-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.quiet-row {
+  color: var(--color-text);
+}
+
+.quiet-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.quiet-row__detail {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.quiet-row__chevron {
+  color: var(--color-text-faint);
+}
+
+.capture-bar--quiet {
+  min-height: 3rem;
+  padding-left: 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.settings-row__danger {
+  width: 22px;
+  text-align: center;
+  color: #c98a7a;
+  font-size: 1.3rem;
+  line-height: 1;
+}

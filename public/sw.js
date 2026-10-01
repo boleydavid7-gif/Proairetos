@@ -1,8 +1,7 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v3';
+const CACHE = 'proairetos-v4';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
-const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -55,7 +54,7 @@ self.addEventListener('fetch', (event) => {
 
   // Built assets have content hashes in their names, so a cached copy never goes stale.
   const sameOrigin = url.origin === self.location.origin;
-  if ((sameOrigin && url.pathname !== '/sw.js') || FONT_HOSTS.includes(url.hostname)) {
+  if (sameOrigin && url.pathname !== '/sw.js') {
     event.respondWith(cacheFirst(request));
   }
 });

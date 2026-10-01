@@ -1,0 +1,54 @@
+/* ---------- Weekly review ---------- */
+
+.review-progress {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: calc(var(--space-3) * -1);
+}
+
+.review-progress__dot {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+.review-progress__dot[data-active] {
+  background: var(--color-accent);
+}
+
+.week-ahead {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.week-ahead__day {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  font-size: 0.9rem;
+}
+
+.week-ahead__day + .week-ahead__day {
+  border-top: 1px solid var(--color-border);
+}
+
+.week-ahead__date {
+  color: var(--color-text-muted);
+}
+
+.week-ahead__entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.week-ahead__quiet {
+  color: var(--color-text-faint);
+}

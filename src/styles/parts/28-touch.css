@@ -1,0 +1,33 @@
+/* ---------- Touch: at least 44px to tap, whatever the drawn size ---------- */
+
+/* The box and circle stay small to look at; an invisible margin takes the tap. */
+.check-row__box,
+.path__circle {
+  position: relative;
+}
+
+.check-row__box::after,
+.path__circle::after {
+  content: '';
+  position: absolute;
+  inset: -0.75rem;
+}
+
+.check-row__more,
+.day-stepper__step,
+.value-card__remove,
+.statement__remove,
+.observation__hide,
+.header-action {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
