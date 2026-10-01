@@ -2549,7 +2549,7 @@ button:disabled {
 .page-landscape {
   --landscape-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
   position: relative;
-  height: calc(13rem + var(--landscape-bottom));
+  height: calc(17rem + var(--landscape-bottom));
   margin: auto calc(var(--space-5) * -1) calc(var(--landscape-bottom) * -1);
   pointer-events: none;
 }
@@ -2560,16 +2560,38 @@ button:disabled {
   background-size: cover;
   background-position: center 62%;
   filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.7) contrast(1.05);
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
-  mask-image: linear-gradient(180deg, transparent, #000 55%);
 }
 
+/*
+ * The fade is a gradient laid over the photo in the page colour, not a mask:
+ * Safari can drop a mask on an element that also has a filter, which left a
+ * hard edge at the top. Many stops make the fade ease in rather than band.
+ */
+.page-landscape::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0 0;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg) 0%,
+    rgba(10, 12, 14, 0.96) 10%,
+    rgba(10, 12, 14, 0.86) 20%,
+    rgba(10, 12, 14, 0.68) 30%,
+    rgba(10, 12, 14, 0.46) 40%,
+    rgba(10, 12, 14, 0.26) 50%,
+    rgba(10, 12, 14, 0.1) 60%,
+    rgba(10, 12, 14, 0) 70%
+  );
+}
+
+/* Wider than the column: the sides fade the same way. */
 @media (min-width: 34rem) {
-  .page-landscape__photo {
-    -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-    -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(180deg, transparent, #000 55%), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-    mask-composite: intersect;
+  .page-landscape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, var(--color-bg), rgba(10, 12, 14, 0) 14%, rgba(10, 12, 14, 0) 86%, var(--color-bg));
   }
 }
 
