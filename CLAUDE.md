@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (171 tests), includes the language guard
+npm test             # vitest (172 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -72,7 +72,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   optional inner weather (the person picks it; the app never infers
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
   only counts what was recorded: no trends, conclusions, or advice.
-  Settings is a list of rows with detail pages.
+  Settings is a list of rows with detail pages, under a profile card;
+  the name (greeting on Today) is a device-only preference.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (landscape at the foot of Today), `PageHeader` (`settings`

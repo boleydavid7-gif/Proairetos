@@ -14,7 +14,8 @@ import {
 } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
-import { clearPreferences, lastBackupDate, recordBackup } from '../../data/storage/preferences';
+import { clearPreferences, displayName, lastBackupDate, recordBackup, setDisplayName } from '../../data/storage/preferences';
+import valley from '../../assets/images/scenes/valley.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import type { AppRoute } from '../../app/routes/routeTypes';
@@ -270,9 +271,10 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 const viewTitles: Record<View, string> = {
+  profile: 'Your name',
   account: 'Account and sync',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -291,6 +293,41 @@ function Row({ icon, title, value, onClick }: { icon: ReactNode; title: string; 
   );
 }
 
+function ProfileSection({ onDone }: { onDone: () => void }) {
+  const [name, setName] = useState(displayName);
+  return (
+    <form
+      className="settings-card"
+      aria-label="Your name"
+      onSubmit={(event) => {
+        event.preventDefault();
+        setDisplayName(name);
+        onDone();
+      }}
+    >
+      <p className="section-description">Used only to greet you on Today. It stays on this device.</p>
+      <input
+        className="field-input"
+        autoFocus
+        autoComplete="given-name"
+        aria-label="Name"
+        placeholder="What would you like to be called?"
+        maxLength={40}
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+      />
+      <div className="composer__actions">
+        <button type="button" className="button-quiet" onClick={onDone}>
+          Cancel
+        </button>
+        <button type="submit" className="button-accent">
+          Save
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -303,6 +340,8 @@ export default function SettingsPage() {
   const returnTo = useReturnRoute();
   const status = useSyncStatus();
   const [view, setView] = useState<View | null>(null);
+  // Re-read after the name page closes.
+  const name = view === null ? displayName() : '';
   const [mode, setMode] = useState<'device' | 'memory'>('device');
   useEffect(() => {
     storageMode.then(setMode);
@@ -319,6 +358,7 @@ export default function SettingsPage() {
           Settings
         </button>
         <PageHeader title={viewTitles[view]} />
+        {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'account' && <AccountSection />}
         {view === 'backup' && (
           <>
@@ -362,6 +402,15 @@ export default function SettingsPage() {
         {tabLabels[returnTo] ?? 'Back'}
       </button>
       <PageHeader title="Settings" subtitle="Your practice, your data." />
+
+      <button type="button" className="profile-card" onClick={() => setView('profile')}>
+        <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
+        <span className="profile-card__text">
+          <span className="profile-card__name">{name || 'Add your name'}</span>
+          <span className="profile-card__detail">{status.email ?? (name ? 'On this device' : 'So Today can greet you')}</span>
+        </span>
+        <ChevronRightIcon size={18} className="settings-row__chevron" />
+      </button>
 
       <div className="settings-list">
         <Row icon={<CloudIcon size={22} />} title="Account and sync" value={syncLabel(status.phase)} onClick={() => setView('account')} />

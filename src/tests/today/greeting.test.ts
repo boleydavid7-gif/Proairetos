@@ -15,3 +15,10 @@ describe('greeting', () => {
     expect(greeting(at(23))).toBe('Good evening');
   });
 });
+
+describe('greeting with a name', () => {
+  it('adds the name the person chose, and nothing when there is none', () => {
+    expect(greeting(at(6), 'David')).toBe('Good morning, David');
+    expect(greeting(at(2), '  ')).toBe('Hello');
+  });
+});

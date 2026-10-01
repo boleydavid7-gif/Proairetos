@@ -10,7 +10,7 @@ import SettingsButton from '../../components/layout/SettingsButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { stoicLineFor } from '../../core/stoic/dailyLine';
-import { answeredPauseOffers, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
+import { answeredPauseOffers, displayName, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
 import PauseOfferCard from '../pause/PauseOfferCard';
 import { formatLocalDay } from '../schedule/format';
 import AlsoToday from '../today/AlsoToday';
@@ -44,6 +44,7 @@ export default function NowPage() {
   const navigate = useNavigate();
   const { openItem, startFocus, openPause } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
+  const [name] = useState(displayName);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const today = toLocalDate(clock);
@@ -109,7 +110,7 @@ export default function NowPage() {
         <div className="page-header__actions">
           <SettingsButton />
         </div>
-        <h1 className="page-header__title">{isToday ? greeting(clock) : dayTitle(date, today)}</h1>
+        <h1 className="page-header__title">{isToday ? greeting(clock, name) : dayTitle(date, today)}</h1>
         <figure className="today-header__line">
           <blockquote>{line.text}</blockquote>
           {line.source && <figcaption>{line.source}</figcaption>}

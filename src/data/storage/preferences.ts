@@ -154,3 +154,16 @@ export function loadJournalDraft(): JournalDraft | null {
 export function saveJournalDraft(draft: JournalDraft | null): void {
   writeJson(JOURNAL_DRAFT_KEY, draft && (draft.body.trim() || draft.weather || draft.valueIds?.length) ? draft : null);
 }
+
+// ---------- Name ----------
+
+const NAME_KEY = 'proairetos.displayName';
+
+/** The name the person chose to be greeted by, if any. Kept on this device only. */
+export function displayName(): string {
+  return readJson<string>(NAME_KEY) ?? '';
+}
+
+export function setDisplayName(name: string): void {
+  writeJson(NAME_KEY, name.trim() || null);
+}
