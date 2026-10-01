@@ -2,27 +2,28 @@ import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
-import { CompassIcon } from '../../components/icons/Icons';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import ValuePicker from './ValuePicker';
+import { valueIcon } from './valueIcons';
 
-function ValueCard({ value }: { value: ChosenValue }) {
+function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
   const [confirming, setConfirming] = useState(false);
   const description = describeValue(value.name);
+  const Icon = valueIcon(value.name);
 
   return (
     <li className="value-card">
       <span className="value-card__icon" aria-hidden="true">
-        <CompassIcon size={22} />
+        <Icon size={24} />
       </span>
       <span className="value-card__text">
         <span className="value-card__name">{value.name}</span>
         {description && <span className="value-card__detail">{description}</span>}
       </span>
-      {confirming ? (
+      {!editing ? null : confirming ? (
         <span className="value-card__confirm">
           <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>
             Keep
@@ -49,20 +50,30 @@ export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
   const [picking, setPicking] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   if (!values) return null;
   const canAdd = values.length < MAX_USER_VALUES;
 
   return (
     <div className="page">
-      <PageHero title="Compass" subtitle="Keep sight of what matters to you." focus="peaks" />
+      <PageHero title="Compass" subtitle="Who are you practicing becoming?" focus="peaks" />
 
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
-          <h2 className="section-label">Your values</h2>
-          <span className="section-count">
-            {values.length} of {MAX_USER_VALUES}
-          </span>
+          <h2 className="section-label">My values</h2>
+          {values.length > 0 && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => {
+                setEditing(!editing);
+                setPicking(false);
+              }}
+            >
+              {editing ? 'Done' : 'Edit'}
+            </button>
+          )}
         </div>
 
         {values.length === 0 && !picking && (
@@ -76,7 +87,7 @@ export default function CompassPage() {
         {values.length > 0 && (
           <ul className="value-list">
             {values.map((value) => (
-              <ValueCard key={value.id} value={value} />
+              <ValueCard key={value.id} value={value} editing={editing} />
             ))}
           </ul>
         )}
@@ -84,9 +95,10 @@ export default function CompassPage() {
         {picking ? (
           <ValuePicker chosen={values} onDone={() => setPicking(false)} />
         ) : (
-          canAdd && (
+          canAdd &&
+          (editing || values.length === 0) && (
             <button type="button" className="chip chip--wide" onClick={() => setPicking(true)}>
-              {values.length === 0 ? 'Choose a value' : 'Choose another value'}
+              {values.length === 0 ? 'Choose a value' : `Choose another value (${values.length} of ${MAX_USER_VALUES})`}
             </button>
           )
         )}

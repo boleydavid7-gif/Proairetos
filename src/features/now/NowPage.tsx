@@ -5,9 +5,11 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, scheduleService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
-import PageHero from '../../components/layout/PageHero';
+import Landscape from '../../components/layout/Landscape';
+import SettingsButton from '../../components/layout/SettingsButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+import { stoicLineFor } from '../../core/stoic/dailyLine';
 import { answeredPauseOffers, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
 import PauseOfferCard from '../pause/PauseOfferCard';
 import { formatLocalDay } from '../schedule/format';
@@ -21,7 +23,6 @@ import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
 import { greeting } from '../today/greeting';
-import QuickActions from '../today/QuickActions';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
 import ImportantItems from './components/ImportantItems';
@@ -40,7 +41,7 @@ import { useNow } from './hooks/useNow';
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
-  const { openItem } = useOverlays();
+  const { openItem, startFocus, openPause } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
@@ -49,6 +50,7 @@ export default function NowPage() {
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   const date = addDays(today, offset);
   const isToday = offset === 0;
+  const line = stoicLineFor(date);
 
   const now = useNow();
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
@@ -101,31 +103,43 @@ export default function NowPage() {
     : [];
 
   return (
-    <div className="page">
-      <PageHero
-        focus="valley"
-        title={isToday ? greeting(clock) : dayTitle(date, today)}
-        subtitle={
-          <div className="day-stepper">
-            <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
-              <ChevronRightIcon size={20} style={{ transform: 'rotate(180deg)' }} />
-            </button>
-            <span className="day-stepper__date">
-              {formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}
-            </span>
-            <button type="button" className="day-stepper__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
-              <ChevronRightIcon size={20} />
-            </button>
-            {!isToday && (
-              <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
-                Back to today
+    <div className="page page--landscape">
+      <header className="page-header today-header">
+        <div className="page-header__actions">
+          <SettingsButton />
+        </div>
+        <h1 className="page-header__title">{isToday ? greeting(clock) : dayTitle(date, today)}</h1>
+        <figure className="today-header__line">
+          <blockquote>{line.text}</blockquote>
+          {line.source && <figcaption>{line.source}</figcaption>}
+        </figure>
+        <div className="today-header__rule" aria-hidden="true" />
+        <div className="day-stepper">
+          <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
+            <ChevronRightIcon size={18} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+          <span className="day-stepper__date">
+            {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
+          </span>
+          <button type="button" className="day-stepper__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
+            <ChevronRightIcon size={18} />
+          </button>
+          {isToday ? (
+            <span className="day-stepper__tools">
+              <button type="button" className="chip chip--small" onClick={() => startFocus()}>
+                Focus
               </button>
-            )}
-          </div>
-        }
-      />
-
-      {isToday && <QuickActions />}
+              <button type="button" className="chip chip--small" onClick={openPause}>
+                Pause
+              </button>
+            </span>
+          ) : (
+            <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
+              Back to today
+            </button>
+          )}
+        </div>
+      </header>
 
       {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {message === 'welcome' && (
@@ -177,6 +191,8 @@ export default function NowPage() {
 
       {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
       {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}
+
+      <Landscape />
 
       {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
     </div>

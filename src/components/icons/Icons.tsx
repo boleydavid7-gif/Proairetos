@@ -149,3 +149,45 @@ export function CalendarIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function SproutIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 20.5V11M12 13c0-4-2.5-6.5-7-6.5 0 4 2.5 6.5 7 6.5zM12 11c0-3.5 2.2-5.5 6.5-5.5 0 3.5-2.2 5.5-6.5 5.5z" />
+    </Icon>
+  );
+}
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6.3z" />
+      <path d="M12 3.5v17" />
+    </Icon>
+  );
+}
+
+export function MountainIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2.5 19.5l7-11 4 6 2.5-3.5 5.5 8.5z" />
+      <path d="M7.6 11.5l1.9 1.5 1.6-1.4" />
+    </Icon>
+  );
+}
+
+export function HeartIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 19.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7a4.2 4.2 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z" />
+    </Icon>
+  );
+}
+
+export function ScalesIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4v16M8 20h8M5 7h14M5 7l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7l-2.5 6a2.5 2.5 0 0 0 5 0z" />
+    </Icon>
+  );
+}

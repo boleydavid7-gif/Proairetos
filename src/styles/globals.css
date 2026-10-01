@@ -934,8 +934,6 @@ button:disabled {
   height: 2.75rem;
   display: grid;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent-soft);
   color: var(--color-accent);
 }
 
@@ -2480,6 +2478,101 @@ button:disabled {
   color: var(--color-accent-strong);
 }
 
+/* Today: a quiet typographic header, the landscape resting at the foot of the page. */
+.today-header .page-header__title {
+  padding-right: var(--space-6);
+  font-size: 2.3rem;
+  line-height: 1.1;
+}
+
+.today-header__line {
+  margin: 0;
+  max-width: 21rem;
+}
+
+.today-header__line blockquote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.today-header__line figcaption {
+  margin-top: var(--space-1);
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}
+
+/* A hairline with a small sand dot in the middle, as in the mockup. */
+.today-header__rule {
+  position: relative;
+  height: 1px;
+  margin: var(--space-5) 0 var(--space-3);
+  background: linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent);
+}
+
+.today-header__rule::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.day-stepper__date {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.day-stepper__tools {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.chip--small {
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  font-size: 0.85rem;
+}
+
+/* On a short day the landscape still rests at the bottom of the screen. */
+.page--landscape {
+  min-height: calc(100svh - env(safe-area-inset-top) - var(--tab-bar-height) - env(safe-area-inset-bottom) - var(--space-6) * 2);
+}
+
+/* Extends under the bottom padding and the translucent tab bar. */
+.page-landscape {
+  --landscape-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
+  position: relative;
+  height: calc(13rem + var(--landscape-bottom));
+  margin: auto calc(var(--space-5) * -1) calc(var(--landscape-bottom) * -1);
+  pointer-events: none;
+}
+
+.page-landscape__photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 62%;
+  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.7) contrast(1.05);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
+  mask-image: linear-gradient(180deg, transparent, #000 55%);
+}
+
+@media (min-width: 34rem) {
+  .page-landscape__photo {
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(180deg, transparent, #000 55%), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-composite: intersect;
+  }
+}
+
 /* The hero reaches the screen edges and the top, then fades into the page. */
 .page-hero {
   --hero-top: calc(env(safe-area-inset-top) + var(--space-6));
@@ -2566,35 +2659,4 @@ button:disabled {
 
 .day-stepper .day-header__back {
   margin-left: var(--space-2);
-}
-
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2);
-}
-
-.quick-action {
-  min-height: 5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-accent);
-  transition: border-color 150ms ease, background 150ms ease;
-}
-
-.quick-action span {
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-}
-
-.quick-action:hover {
-  border-color: rgba(201, 162, 116, 0.4);
-  background: var(--color-surface-raised);
 }
