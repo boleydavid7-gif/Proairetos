@@ -5,6 +5,7 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, reflectionService } from '../../app/services';
 import valley from '../../assets/images/scenes/valley.webp';
+import MicButton from '../../components/dictation/MicButton';
 import { ArrowLeftIcon, TagIcon } from '../../components/icons/Icons';
 import type { InnerWeather } from '../../core/reflections/types';
 import { loadJournalDraft, saveJournalDraft } from '../../data/storage/preferences';
@@ -122,6 +123,10 @@ export default function JournalPage() {
       )}
 
       <div className="journal__toolbar">
+        <MicButton
+          className="journal__tool"
+          onText={(spoken) => setBody((current) => (current.trim() ? `${current.replace(/\s+$/, '')} ${spoken}` : spoken))}
+        />
         {values.length > 0 && (
           <button
             type="button"

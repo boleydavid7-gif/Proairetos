@@ -183,3 +183,16 @@ export function loadDaySettings(): StoredDaySettings {
 export function saveDaySettings(settings: StoredDaySettings): void {
   writeJson(DAY_SETTINGS_KEY, settings);
 }
+
+// ---------- Dictation ----------
+
+const DICTATION_KEY = 'proairetos.dictationAccepted';
+
+/** Whether the person has read, and accepted, where dictated speech goes. */
+export function dictationAccepted(): boolean {
+  return readJson<boolean>(DICTATION_KEY) === true;
+}
+
+export function acceptDictation(): void {
+  writeJson(DICTATION_KEY, true);
+}

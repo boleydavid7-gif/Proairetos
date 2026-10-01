@@ -440,6 +440,10 @@ export default function SettingsPage() {
               What you write is never analyzed, scored, or sent anywhere to be read. Reminders arrive without their text; the
               app shows the words only after it opens on your device.
             </p>
+            <p className="section-description">
+              Dictation, if you use it, is the one exception: your phone maker’s speech service (Apple or Google) turns your
+              speech into text, as your keyboard’s microphone does. It asks before the first use.
+            </p>
           </section>
         )}
         {view === 'about' && (

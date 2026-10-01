@@ -81,7 +81,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).
-  `28-touch.css` keeps every control at least 44px to tap.
+  `29-touch.css` (last) keeps every control at least 44px to tap.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (landscape at the foot of Today), `PageHeader` (`settings`
   prop adds the gear). Settings returns to the last main tab

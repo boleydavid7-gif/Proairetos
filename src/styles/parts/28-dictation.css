@@ -1,0 +1,36 @@
+/* ---------- Dictation ---------- */
+
+.mic-button {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.mic-button--listening {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  animation: mic-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes mic-breathe {
+  50% {
+    box-shadow: 0 0 0 6px rgba(201, 162, 116, 0.12);
+  }
+}
+
+.mic-button__error {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.journal__tool.mic-button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}

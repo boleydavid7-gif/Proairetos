@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { lifeService } from '../../../app/services';
+import MicButton from '../../../components/dictation/MicButton';
 import { CaptureIcon } from '../../../components/icons/Icons';
 import type { CaptureKind } from '../../../core/life-items/types';
 
@@ -46,10 +47,12 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
-      {text.trim() && (
+      {text.trim() ? (
         <button type="submit" className="capture-bar__submit">
           Add
         </button>
+      ) : (
+        variant === 'box' && <MicButton onText={(spoken) => setText((current) => (current ? `${current} ${spoken}` : spoken))} />
       )}
     </form>
   );
