@@ -12,16 +12,17 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
     <div className="app-shell">
       <main className="app-shell__content">{children}</main>
 
-      <nav className="app-shell__nav" aria-label="Main navigation">
-        {navigation.map((item) => (
+      <nav className="tab-bar" aria-label="Main navigation">
+        {navigation.map(({ id, label, icon: Icon }) => (
           <button
-            key={item.id}
+            key={id}
             type="button"
-            className="app-shell__nav-item"
-            aria-current={item.id === route ? 'page' : undefined}
-            onClick={() => onNavigate(item.id)}
+            className="tab-bar__item"
+            aria-current={id === route ? 'page' : undefined}
+            onClick={() => onNavigate(id)}
           >
-            {item.label}
+            <Icon size={24} />
+            <span>{label}</span>
           </button>
         ))}
       </nav>

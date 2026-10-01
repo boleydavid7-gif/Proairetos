@@ -3,16 +3,13 @@ import OnboardingPage from '../features/onboarding/OnboardingPage';
 import NowPage from '../features/now/NowPage';
 import CapturePage from '../features/capture/CapturePage';
 import ReflectPage from '../features/reflect/ReflectPage';
+import CompassPage from '../features/compass/CompassPage';
+import PageHeader from '../components/layout/PageHeader';
 import AppShell from './AppShell';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 
 function RoutePlaceholder({ title }: { title: string }) {
-  return (
-    <header className="page-header">
-      <h1 className="page-header__title">{title}</h1>
-      <p className="page-header__subtitle">This space is not built yet.</p>
-    </header>
-  );
+  return <PageHeader title={title} subtitle="This space is not built yet." />;
 }
 
 export default function App() {
@@ -28,7 +25,7 @@ export default function App() {
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
       {route === 'capture' && <CapturePage />}
-      {route === 'compass' && <RoutePlaceholder title="Compass" />}
+      {route === 'compass' && <CompassPage />}
       {route === 'settings' && <RoutePlaceholder title="Settings" />}
     </AppShell>
   );

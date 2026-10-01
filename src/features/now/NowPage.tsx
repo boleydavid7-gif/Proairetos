@@ -1,7 +1,7 @@
-import NowHeader from './components/NowHeader';
+import PageHeader from '../../components/layout/PageHeader';
 import CaptureBar from './components/CaptureBar';
 import NextCommitment from './components/NextCommitment';
-import ItemList from './components/ItemList';
+import ImportantItems from './components/ImportantItems';
 import WaitingItems from './components/WaitingItems';
 import UnsortedPreview from './components/UnsortedPreview';
 import NowEmptyState from './components/NowEmptyState';
@@ -9,17 +9,18 @@ import { useNow } from './hooks/useNow';
 
 export default function NowPage() {
   const now = useNow();
+  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
     <div className="page">
-      <NowHeader />
+      <PageHeader title="Today" subtitle={date} />
       <CaptureBar />
       {now && (now.isEmpty ? (
         <NowEmptyState />
       ) : (
         <>
           <NextCommitment commitment={now.nextCommitment} />
-          <ItemList label="Marked important" items={now.important} />
+          <ImportantItems items={now.important} />
           <WaitingItems items={now.waiting} />
           <UnsortedPreview count={now.unsortedCount} />
         </>

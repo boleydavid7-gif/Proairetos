@@ -1,13 +1,15 @@
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
+import { StarIcon } from '../../components/icons/Icons';
+import PageHeader from '../../components/layout/PageHeader';
 import type { LifeItem } from '../../core/life-items/types';
 import CaptureBar from '../now/components/CaptureBar';
 import { lifeItemTypeLabels, lifeItemTypes } from './labels';
 
 function UnsortedItem({ item }: { item: LifeItem }) {
   return (
-    <div className="card stack-tight">
-      <p className="card__title">{item.title}</p>
+    <div className="item-card">
+      <p className="item-card__title">{item.title}</p>
       <div className="chip-row" role="group" aria-label={`Sort "${item.title}"`}>
         {lifeItemTypes.map((type) => (
           <button key={type} type="button" className="chip" onClick={() => lifeService.sort(item.id, type)}>
@@ -21,9 +23,15 @@ function UnsortedItem({ item }: { item: LifeItem }) {
 
 function OpenItem({ item }: { item: LifeItem }) {
   return (
-    <div className="card stack-tight">
-      <div className="card__row">
-        <p className="card__title">{item.title}</p>
+    <div className="item-card">
+      <div className="item-card__row">
+        <div>
+          <p className="item-card__title">{item.title}</p>
+          <p className="item-card__meta">
+            {item.type && lifeItemTypeLabels[item.type]}
+            {item.status === 'WAITING' && ' · Waiting'}
+          </p>
+        </div>
         <button
           type="button"
           className="icon-toggle"
@@ -31,13 +39,9 @@ function OpenItem({ item }: { item: LifeItem }) {
           aria-label={item.important ? 'Unmark important' : 'Mark important'}
           onClick={() => lifeService.setImportant(item.id, !item.important)}
         >
-          {item.important ? '★' : '☆'}
+          <StarIcon filled={item.important} size={20} />
         </button>
       </div>
-      <p className="card__meta">
-        {item.type && lifeItemTypeLabels[item.type]}
-        {item.status === 'WAITING' && ' · Waiting'}
-      </p>
       <div className="chip-row">
         <button type="button" className="chip" onClick={() => lifeService.setStatus(item.id, 'DONE')}>
           Done
@@ -60,15 +64,11 @@ export default function CapturePage() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <h1 className="page-header__title">Capture</h1>
-        <p className="page-header__subtitle">Get it out of your head. Sorting can wait.</p>
-      </header>
-
+      <PageHeader title="Capture" subtitle="Get it out of your head. Sorting can wait." />
       <CaptureBar />
 
       {unsorted.length > 0 && (
-        <section aria-label="Not sorted yet" className="stack">
+        <section aria-label="Not sorted yet" className="stack-tight">
           <h2 className="section-label">Not sorted yet</h2>
           {unsorted.map((item) => (
             <UnsortedItem key={item.id} item={item} />
@@ -77,7 +77,7 @@ export default function CapturePage() {
       )}
 
       {sorted.length > 0 && (
-        <section aria-label="Your life items" className="stack">
+        <section aria-label="In your life" className="stack-tight">
           <h2 className="section-label">In your life</h2>
           {sorted.map((item) => (
             <OpenItem key={item.id} item={item} />
@@ -85,7 +85,12 @@ export default function CapturePage() {
         </section>
       )}
 
-      {active.length === 0 && <p className="empty-note">Nothing captured yet.</p>}
+      {active.length === 0 && (
+        <div className="empty-state">
+          <p className="empty-state__title">Nothing captured yet.</p>
+          <p className="empty-state__detail">Whatever is on your mind can go here.</p>
+        </div>
+      )}
     </div>
   );
 }

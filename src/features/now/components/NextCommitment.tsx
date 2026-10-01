@@ -1,3 +1,5 @@
+import { ClockIcon } from '../../../components/icons/Icons';
+import ListCard from '../../../components/ui/ListCard';
 import type { NowItem } from '../types';
 
 type Props = {
@@ -16,10 +18,13 @@ export default function NextCommitment({ commitment }: Props) {
   if (!commitment) return null;
 
   return (
-    <section aria-label="Next commitment" className="card">
+    <section aria-label="Next commitment" className="stack-tight">
       <h2 className="section-label">Next commitment</h2>
-      <p className="card__title">{commitment.title}</p>
-      {commitment.scheduledAt && <p className="card__meta">{formatTime(commitment.scheduledAt)}</p>}
+      <ListCard
+        icon={<ClockIcon size={22} />}
+        title={commitment.title}
+        detail={commitment.scheduledAt && formatTime(commitment.scheduledAt)}
+      />
     </section>
   );
 }

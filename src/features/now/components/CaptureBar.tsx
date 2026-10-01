@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { lifeService } from '../../../app/services';
+import { CaptureIcon } from '../../../components/icons/Icons';
 
 export default function CaptureBar() {
   const [text, setText] = useState('');
@@ -12,7 +13,8 @@ export default function CaptureBar() {
   }
 
   return (
-    <form aria-label="Capture" className="card capture-bar" onSubmit={submit}>
+    <form aria-label="Capture" className="capture-bar" onSubmit={submit}>
+      <CaptureIcon size={20} className="capture-bar__icon" />
       <input
         className="capture-bar__input"
         placeholder="Capture something"
@@ -20,9 +22,11 @@ export default function CaptureBar() {
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
-      <button type="submit" className="capture-bar__submit" disabled={!text.trim()}>
-        Add
-      </button>
+      {text.trim() && (
+        <button type="submit" className="capture-bar__submit">
+          Add
+        </button>
+      )}
     </form>
   );
 }
