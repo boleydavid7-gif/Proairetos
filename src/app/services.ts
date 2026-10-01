@@ -1,5 +1,6 @@
 import { systemContext } from '../core/context';
 import { createDeviceStorage } from '../data/storage/deviceStorage';
+import { createCompassService } from '../services/compass/compassService';
 import { createLifeService } from '../services/life/lifeService';
 import { createReflectionService } from '../services/reflection/reflectionService';
 
@@ -21,4 +22,11 @@ export const reflectionService = createReflectionService({
   userId,
   context,
   reflections: storage.reflections,
+});
+
+export const compassService = createCompassService({
+  userId,
+  context,
+  values: storage.values,
+  statements: storage.statements,
 });

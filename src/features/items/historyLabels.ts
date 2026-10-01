@@ -4,7 +4,8 @@ import { lifeItemTypeLabels } from '../capture/labels';
 import { formatWhen } from './dateFields';
 
 /** Plain descriptions of what happened. No judgment, no interpretation. */
-export function describeEvent(event: ItemEvent): string {
+export function describeEvent(event: ItemEvent, valueNames: Record<string, string> = {}): string {
+  const valueName = event.valueId ? valueNames[event.valueId] : undefined;
   switch (event.kind) {
     case 'CREATED':
       return 'Captured';
@@ -29,9 +30,9 @@ export function describeEvent(event: ItemEvent): string {
     case 'UN_CARRIED':
       return 'No longer carried';
     case 'VALUE_CONNECTED':
-      return 'Connected to a value';
+      return valueName ? `Connected to ${valueName}` : 'Connected to a value';
     case 'VALUE_DISCONNECTED':
-      return 'Disconnected from a value';
+      return valueName ? `Disconnected from ${valueName}` : 'Disconnected from a value';
     case 'HONORED':
       return 'Honored';
   }

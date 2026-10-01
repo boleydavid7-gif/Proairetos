@@ -7,9 +7,15 @@ export default function CaptureBar() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!text.trim()) return;
-    await lifeService.capture(text);
+    const value = text;
+    if (!value.trim()) return;
+    // Clear right away so the next thought can be typed while this one saves.
     setText('');
+    try {
+      await lifeService.capture(value);
+    } catch {
+      setText((current) => current || value);
+    }
   }
 
   return (

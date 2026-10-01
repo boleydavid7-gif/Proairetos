@@ -1,5 +1,6 @@
 import PageHeader from '../../components/layout/PageHeader';
 import CaptureBar from './components/CaptureBar';
+import LookAhead from './components/LookAhead';
 import NextCommitment from './components/NextCommitment';
 import ImportantItems from './components/ImportantItems';
 import ScheduledItems from './components/ScheduledItems';
@@ -19,6 +20,7 @@ export default function NowPage() {
   return (
     <div className="page">
       <PageHeader title="Today" subtitle={date} />
+      <LookAhead />
       <CaptureBar />
       {now && (now.isEmpty ? (
         <NowEmptyState />

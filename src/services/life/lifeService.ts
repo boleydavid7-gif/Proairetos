@@ -3,6 +3,9 @@ import type { ItemEvent } from '../../core/item-events/types';
 import {
   captureItem,
   changeStatus,
+  connectValue,
+  disconnectValue,
+  setControlSplit,
   editItem,
   scheduleItem,
   setCarried,
@@ -12,7 +15,7 @@ import {
   type ItemChange,
   type StatusOptions,
 } from '../../core/life-items/commands';
-import type { LifeItem, LifeItemStatus, LifeItemType } from '../../core/life-items/types';
+import type { ControlSplit, LifeItem, LifeItemStatus, LifeItemType } from '../../core/life-items/types';
 import type { ItemEventRepository } from '../../data/repositories/itemEventRepository';
 import type { LifeItemRepository } from '../../data/repositories/lifeItemRepository';
 import { createListeners } from '../listeners';
@@ -38,6 +41,16 @@ export type LifeServiceDeps = {
 export function createLifeService({ userId, context, items, events }: LifeServiceDeps) {
   const listeners = createListeners();
 
+  // Changes run one at a time. Two quick taps (say, leaving a text field and
+  // tapping a chip) would otherwise both read the same item and the second
+  // write would silently undo the first.
+  let queue: Promise<unknown> = Promise.resolve();
+  function serial<T>(task: () => Promise<T>): Promise<T> {
+    const run = queue.then(task);
+    queue = run.catch(() => undefined);
+    return run;
+  }
+
   async function save(change: ItemChange, isNew = false): Promise<LifeItem> {
     const item = isNew ? await items.create(change.item) : await items.update(change.item);
     if (change.events.length > 0) await events.append(change.events);
@@ -51,30 +64,33 @@ export function createLifeService({ userId, context, items, events }: LifeServic
     return item;
   }
 
-  async function apply(id: string, command: (item: LifeItem) => ItemChange): Promise<LifeItem> {
-    return save(command(await load(id)));
+  function apply(id: string, command: (item: LifeItem) => ItemChange): Promise<LifeItem> {
+    return serial(async () => save(command(await load(id))));
   }
 
   /**
    * Applies a change that can be taken back. Undo restores the item exactly
    * and removes the events, because an undone change did not happen.
    */
-  async function applyUndoable(id: string, command: (item: LifeItem) => ItemChange): Promise<UndoableChange> {
-    const before = await load(id);
-    const change = command(before);
-    const item = await save(change);
-    let undone = false;
+  function applyUndoable(id: string, command: (item: LifeItem) => ItemChange): Promise<UndoableChange> {
+    return serial(async () => {
+      const before = await load(id);
+      const change = command(before);
+      const item = await save(change);
+      let undone = false;
 
-    return {
-      item,
-      async undo() {
-        if (undone) return;
-        undone = true;
-        await items.update(before);
-        await events.remove(change.events.map((event) => event.id));
-        listeners.notify();
-      },
-    };
+      return {
+        item,
+        undo: () =>
+          serial(async () => {
+            if (undone) return;
+            undone = true;
+            await items.update(before);
+            await events.remove(change.events.map((event) => event.id));
+            listeners.notify();
+          }),
+      };
+    });
   }
 
   return {
@@ -99,7 +115,7 @@ export function createLifeService({ userId, context, items, events }: LifeServic
     },
 
     capture(title: string, type: LifeItemType | null = null): Promise<LifeItem> {
-      return save(captureItem(context, { userId, title, type }), true);
+      return serial(() => save(captureItem(context, { userId, title, type }), true));
     },
 
     sort(id: string, type: LifeItemType | null) {
@@ -124,6 +140,18 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setCarried(id: string, carried: boolean) {
       return apply(id, (item) => setCarried(context, item, carried));
+    },
+
+    connectValue(id: string, valueId: string) {
+      return apply(id, (item) => connectValue(context, item, valueId));
+    },
+
+    disconnectValue(id: string, valueId: string) {
+      return apply(id, (item) => disconnectValue(context, item, valueId));
+    },
+
+    setControlSplit(id: string, split: ControlSplit) {
+      return apply(id, (item) => setControlSplit(context, item, split));
     },
 
     edit(id: string, changes: { title?: string; notes?: string }) {

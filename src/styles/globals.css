@@ -886,3 +886,243 @@ button:disabled {
   color: var(--color-accent-strong);
   font-weight: 600;
 }
+
+/* ---------- Compass ---------- */
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-count {
+  font-size: 0.85rem;
+  color: var(--color-text-faint);
+}
+
+.section-description {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.value-list,
+.statement-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.value-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 3.5rem;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  border: 1px solid rgba(201, 162, 116, 0.25);
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, rgba(201, 162, 116, 0.1), var(--color-surface) 70%);
+}
+
+.value-card__name {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--color-accent-strong);
+}
+
+.value-card__confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.value-card__remove,
+.statement__remove {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.statement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-surface);
+}
+
+.statement__body {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.picker__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.picker__cancel {
+  align-self: flex-end;
+}
+
+.inline-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.form-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-accent-strong);
+}
+
+/* ---------- Look ahead ---------- */
+
+.look-ahead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid rgba(201, 162, 116, 0.28);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(201, 162, 116, 0.14), transparent 60%),
+    var(--color-surface);
+}
+
+.look-ahead--invite {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.look-ahead__invite-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.look-ahead__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--color-accent-strong);
+}
+
+.look-ahead__prompt,
+.look-ahead__detail {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.look-ahead__values {
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.look-ahead__values li {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid rgba(201, 162, 116, 0.35);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--color-accent-strong);
+}
+
+.look-ahead__quote {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-accent);
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.look-ahead__day {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.look-ahead__label {
+  margin: 0 0 var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.look-ahead__day ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.95rem;
+}
+
+.look-ahead__day time {
+  display: inline-block;
+  min-width: 4.75rem;
+  color: var(--color-text-muted);
+}
+
+.look-ahead__aside {
+  align-self: flex-end;
+  padding-right: 0;
+}
+
+.chip--value[aria-pressed='true'] {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+}
+
+.control-split__columns {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.control-split__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 360px) {
+  .control-split__columns {
+    grid-template-columns: 1fr;
+  }
+}

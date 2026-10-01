@@ -1,10 +1,14 @@
+import type { CompassStatementModel } from '../../models/compassStatementModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
 import type { LifeItemModel } from '../../models/lifeItemModel';
 import type { ReflectionModel } from '../../models/reflectionModel';
+import type { ChosenValueModel } from '../../models/valueModel';
+import type { CompassStatementRepository } from '../compassStatementRepository';
 import { requestToPromise, stores, transactionDone, type StoreName } from '../../storage/indexeddb/database';
 import type { ItemEventRepository } from '../itemEventRepository';
 import type { LifeItemRepository } from '../lifeItemRepository';
 import type { ReflectionRepository } from '../reflectionRepository';
+import type { ValueRepository } from '../valueRepository';
 
 type Db = Promise<IDBDatabase>;
 
@@ -87,4 +91,27 @@ export function createIndexedDbReflectionRepository(db: Db): ReflectionRepositor
       return read<ReflectionModel[]>(db, stores.reflections, (store) => store.index('userId').getAll(userId));
     },
   };
+}
+
+function createUserCollection<T extends { id: string; userId: string }>(db: Db, store: StoreName) {
+  return {
+    list(userId: string) {
+      return read<T[]>(db, store, (objects) => objects.index('userId').getAll(userId));
+    },
+    async add(record: T) {
+      await write(db, store, (objects) => objects.add(record));
+      return record;
+    },
+    async remove(id: string) {
+      await write(db, store, (objects) => objects.delete(id));
+    },
+  };
+}
+
+export function createIndexedDbValueRepository(db: Db): ValueRepository {
+  return createUserCollection<ChosenValueModel>(db, stores.values);
+}
+
+export function createIndexedDbCompassStatementRepository(db: Db): CompassStatementRepository {
+  return createUserCollection<CompassStatementModel>(db, stores.statements);
 }

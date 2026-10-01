@@ -59,6 +59,18 @@ Rules:
 - maximum five values
 - app never determines values
 
+In the product:
+- Presets are offered alphabetically so none is favoured (the Stoic
+  cardinal virtues are among them); people can also write their own.
+- Any item can be connected to a value, only by the person. Connecting and
+  disconnecting are recorded in the item's history.
+- The look-ahead on Today shows the person's own values, the words they
+  chose to remember, and what they scheduled for the day. It appears once
+  a day until set aside, so it fits any schedule, including shifts. It
+  adds nothing of its own.
+- Thinking about items can hold an optional split: what is in my control,
+  and what is not.
+
 ---
 
 ## 2. Capture Engine

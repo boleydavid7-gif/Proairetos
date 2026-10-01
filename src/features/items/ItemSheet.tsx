@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService } from '../../app/services';
+import { compassService, lifeService } from '../../app/services';
 import { StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus } from '../../core/life-items/types';
+import type { ChosenValue } from '../../core/values/types';
 import { lifeItemTypeLabels, lifeItemTypes } from '../capture/labels';
 import { formatDay, fromDateInput, fromDateTimeInput, toDateInput, toDateTimeInput } from './dateFields';
 import { describeEvent } from './historyLabels';
@@ -81,9 +82,96 @@ function WaitingSection({ item }: { item: LifeItem }) {
   );
 }
 
+function ValueConnections({ item, values }: { item: LifeItem; values: ChosenValue[] }) {
+  if (values.length === 0) return null;
+  const connected = new Set(item.valueIds ?? []);
+
+  return (
+    <section className="sheet__section" aria-label="Connected values">
+      <p className="sheet__label">Connected to</p>
+      <div className="chip-row" role="group" aria-label="Your values">
+        {values.map((value) => (
+          <button
+            key={value.id}
+            type="button"
+            className="chip chip--value"
+            aria-pressed={connected.has(value.id)}
+            onClick={() =>
+              connected.has(value.id)
+                ? lifeService.disconnectValue(item.id, value.id)
+                : lifeService.connectValue(item.id, value.id)
+            }
+          >
+            {value.name}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const toLines = (text: string) => text.split('\n');
+const fromLines = (lines: string[] | undefined) => (lines ?? []).join('\n');
+
+/** The Stoic split for Thinking about items: what is up to me, and what is not. */
+function ControlSplitSection({ item }: { item: LifeItem }) {
+  const [mine, setMine] = useState(fromLines(item.controlSplit?.inMyControl));
+  const [notMine, setNotMine] = useState(fromLines(item.controlSplit?.notInMyControl));
+  const [open, setOpen] = useState(Boolean(item.controlSplit));
+
+  if (item.type !== 'THINKING_ABOUT') return null;
+
+  const save = () => {
+    const unchanged =
+      mine === fromLines(item.controlSplit?.inMyControl) && notMine === fromLines(item.controlSplit?.notInMyControl);
+    if (!unchanged) lifeService.setControlSplit(item.id, { inMyControl: toLines(mine), notInMyControl: toLines(notMine) });
+  };
+
+  if (!open) {
+    return (
+      <button type="button" className="chip chip--wide" onClick={() => setOpen(true)}>
+        Sort what is in your control
+      </button>
+    );
+  }
+
+  return (
+    <section className="sheet__section control-split" aria-label="What is in your control">
+      <p className="sheet__label">What is in your control</p>
+      <p className="sheet__hint">One thing per line. Optional, and only for you.</p>
+      <div className="control-split__columns">
+        <label className="control-split__column">
+          <span>In my control</span>
+          <textarea
+            aria-label="In my control"
+            className="field-input field-input--area"
+            rows={4}
+            value={mine}
+            onChange={(event) => setMine(event.target.value)}
+            onBlur={save}
+          />
+        </label>
+        <label className="control-split__column">
+          <span>Not in my control</span>
+          <textarea
+            aria-label="Not in my control"
+            className="field-input field-input--area"
+            rows={4}
+            value={notMine}
+            onChange={(event) => setNotMine(event.target.value)}
+            onBlur={save}
+          />
+        </label>
+      </div>
+    </section>
+  );
+}
+
 function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
   const { offerUndo } = useOverlays();
   const history = useServiceData(lifeService.subscribe, () => lifeService.history(item.id), [item.id]) ?? [];
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
+  const valueNames = Object.fromEntries(values.map((value) => [value.id, value.name]));
   const [title, setTitle] = useState(item.title);
   const [notes, setNotes] = useState(item.notes ?? '');
   const [when, setWhen] = useState(toDateTimeInput(item.scheduledAt));
@@ -166,6 +254,10 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         </div>
       </section>
 
+      <ControlSplitSection item={item} />
+
+      <ValueConnections item={item} values={values} />
+
       <WaitingSection item={item} />
 
       <section className="sheet__section" aria-label="Notes">
@@ -189,7 +281,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
           <ol>
             {history.map((event) => (
               <li key={event.id}>
-                <span>{describeEvent(event)}</span>
+                <span>{describeEvent(event, valueNames)}</span>
                 <time dateTime={event.timestamp}>{formatDay(event.timestamp)}</time>
               </li>
             ))}

@@ -1,10 +1,13 @@
 export const DB_NAME = 'proairetos';
-export const DB_VERSION = 1;
+// Version 1: lifeItems, itemEvents, reflections. Version 2: values, statements.
+export const DB_VERSION = 2;
 
 export const stores = {
   lifeItems: 'lifeItems',
   itemEvents: 'itemEvents',
   reflections: 'reflections',
+  values: 'values',
+  statements: 'statements',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -27,6 +30,12 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.reflections)) {
         db.createObjectStore(stores.reflections, { keyPath: 'id' }).createIndex('userId', 'userId');
+      }
+      if (!db.objectStoreNames.contains(stores.values)) {
+        db.createObjectStore(stores.values, { keyPath: 'id' }).createIndex('userId', 'userId');
+      }
+      if (!db.objectStoreNames.contains(stores.statements)) {
+        db.createObjectStore(stores.statements, { keyPath: 'id' }).createIndex('userId', 'userId');
       }
     };
 

@@ -1,7 +1,7 @@
 import type { DomainContext } from '../context';
 import type { ItemEvent, ItemEventKind } from '../item-events/types';
 import { canTransition } from './transitions';
-import type { LifeItem, LifeItemSource, LifeItemStatus, LifeItemType } from './types';
+import type { ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType } from './types';
 
 /**
  * Every change to a life item goes through these commands. Each returns the
@@ -160,4 +160,39 @@ export function setCheckBack(ctx: DomainContext, item: LifeItem, checkBackAt: st
   }
   if (item.checkBackAt === checkBackAt) return { item, events: [] };
   return { item: touch(item, ctx.now().toISOString(), { checkBackAt }), events: [] };
+}
+
+/** Connects one of the person's values to an item. Never done automatically. */
+export function connectValue(ctx: DomainContext, item: LifeItem, valueId: string): ItemChange {
+  const current = item.valueIds ?? [];
+  if (current.includes(valueId)) return { item, events: [] };
+
+  const timestamp = ctx.now().toISOString();
+  return {
+    item: touch(item, timestamp, { valueIds: [...current, valueId] }),
+    events: [event(ctx, item.id, 'VALUE_CONNECTED', timestamp, { valueId })],
+  };
+}
+
+export function disconnectValue(ctx: DomainContext, item: LifeItem, valueId: string): ItemChange {
+  const current = item.valueIds ?? [];
+  if (!current.includes(valueId)) return { item, events: [] };
+
+  const timestamp = ctx.now().toISOString();
+  return {
+    item: touch(item, timestamp, { valueIds: current.filter((id) => id !== valueId) }),
+    events: [event(ctx, item.id, 'VALUE_DISCONNECTED', timestamp, { valueId })],
+  };
+}
+
+/** Saves what is and is not in the person's control. Only for Thinking about items. */
+export function setControlSplit(ctx: DomainContext, item: LifeItem, split: ControlSplit): ItemChange {
+  if (item.type !== 'THINKING_ABOUT') {
+    throw new Error('The control split is for Thinking about items.');
+  }
+  const clean = (lines: string[]) => lines.map((line) => line.trim()).filter(Boolean);
+  const controlSplit = { inMyControl: clean(split.inMyControl), notInMyControl: clean(split.notInMyControl) };
+  const empty = controlSplit.inMyControl.length === 0 && controlSplit.notInMyControl.length === 0;
+
+  return { item: touch(item, ctx.now().toISOString(), { controlSplit: empty ? undefined : controlSplit }), events: [] };
 }

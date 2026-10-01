@@ -1,9 +1,13 @@
+import type { CompassStatementModel } from '../../models/compassStatementModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
 import type { LifeItemModel } from '../../models/lifeItemModel';
 import type { ReflectionModel } from '../../models/reflectionModel';
+import type { ChosenValueModel } from '../../models/valueModel';
+import type { CompassStatementRepository } from '../compassStatementRepository';
 import type { ItemEventRepository } from '../itemEventRepository';
 import type { LifeItemRepository } from '../lifeItemRepository';
 import type { ReflectionRepository } from '../reflectionRepository';
+import type { ValueRepository } from '../valueRepository';
 
 // Copies on the way in and out so callers can never mutate stored records.
 const copy = <T>(value: T): T => structuredClone(value);
@@ -68,4 +72,30 @@ export function createMemoryReflectionRepository(): ReflectionRepository {
       return reflections.filter((reflection) => reflection.userId === userId).map(copy);
     },
   };
+}
+
+/** A simple keyed collection owned by one person at a time. */
+function createMemoryUserCollection<T extends { id: string; userId: string }>() {
+  const records = new Map<string, T>();
+  return {
+    async list(userId: string) {
+      return [...records.values()].filter((record) => record.userId === userId).map(copy);
+    },
+    async add(record: T) {
+      if (records.has(record.id)) throw new Error(`Record ${record.id} already exists.`);
+      records.set(record.id, copy(record));
+      return copy(record);
+    },
+    async remove(id: string) {
+      records.delete(id);
+    },
+  };
+}
+
+export function createMemoryValueRepository(): ValueRepository {
+  return createMemoryUserCollection<ChosenValueModel>();
+}
+
+export function createMemoryCompassStatementRepository(): CompassStatementRepository {
+  return createMemoryUserCollection<CompassStatementModel>();
 }

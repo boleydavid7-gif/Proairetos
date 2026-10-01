@@ -2,6 +2,9 @@ import {
   InvalidTransitionError,
   captureItem,
   changeStatus,
+  connectValue,
+  disconnectValue,
+  setControlSplit,
   editItem,
   scheduleItem,
   setCarried,
@@ -114,5 +117,34 @@ describe('life item commands', () => {
     expect(moved.item.checkBackAt).toBe('2026-10-08');
     expect(moved.events).toEqual([]);
     expect(() => setCheckBack(context, item, '2026-10-08')).toThrow();
+  });
+
+  it('connects and disconnects values only when asked, recording each', () => {
+    const { context, item } = captured();
+    const connected = connectValue(context, item, 'courage');
+
+    expect(connected.item.valueIds).toEqual(['courage']);
+    expect(connected.events[0]).toMatchObject({ kind: 'VALUE_CONNECTED', valueId: 'courage' });
+    expect(connectValue(context, connected.item, 'courage').events).toEqual([]);
+
+    const disconnected = disconnectValue(context, connected.item, 'courage');
+    expect(disconnected.item.valueIds).toEqual([]);
+    expect(disconnected.events[0]).toMatchObject({ kind: 'VALUE_DISCONNECTED', valueId: 'courage' });
+  });
+
+  it('keeps a control split only on Thinking about items, dropping blank lines', () => {
+    const { context, item } = captured();
+    expect(() => setControlSplit(context, item, { inMyControl: ['a'], notInMyControl: [] })).toThrow();
+
+    const thinking = setItemType(context, item, 'THINKING_ABOUT').item;
+    const split = setControlSplit(context, thinking, {
+      inMyControl: [' How I prepare ', ''],
+      notInMyControl: ['What they decide'],
+    });
+    expect(split.item.controlSplit).toEqual({ inMyControl: ['How I prepare'], notInMyControl: ['What they decide'] });
+    expect(split.events).toEqual([]);
+
+    const cleared = setControlSplit(context, split.item, { inMyControl: [' '], notInMyControl: [] });
+    expect(cleared.item.controlSplit).toBeUndefined();
   });
 });

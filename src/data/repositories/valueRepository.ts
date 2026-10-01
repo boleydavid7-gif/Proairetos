@@ -1,7 +1,7 @@
-import type { ValueModel } from "../models/valueModel";
+import type { ChosenValueModel } from "../models/valueModel";
 
 export interface ValueRepository {
-  create(value: ValueModel): Promise<ValueModel>;
-  getAvailable(userId: string): Promise<ValueModel[]>;
-  getSelected(userId: string): Promise<ValueModel[]>;
+  list(userId: string): Promise<ChosenValueModel[]>;
+  add(value: ChosenValueModel): Promise<ChosenValueModel>;
+  remove(id: string): Promise<void>;
 }

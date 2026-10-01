@@ -7,6 +7,7 @@ import CompassPage from '../features/compass/CompassPage';
 import PageHeader from '../components/layout/PageHeader';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
+import { NavigationContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 
@@ -30,6 +31,7 @@ export default function App() {
   }
 
   return (
+    <NavigationContext.Provider value={setRoute}>
     <OverlayProvider>
       <AppShell route={route} onNavigate={setRoute}>
       {route === 'today' && <NowPage />}
@@ -39,5 +41,6 @@ export default function App() {
       {route === 'settings' && <RoutePlaceholder title="Settings" />}
       </AppShell>
     </OverlayProvider>
+    </NavigationContext.Provider>
   );
 }

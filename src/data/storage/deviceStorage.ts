@@ -1,16 +1,22 @@
+import type { CompassStatementRepository } from '../repositories/compassStatementRepository';
 import {
+  createIndexedDbCompassStatementRepository,
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
+  createIndexedDbValueRepository,
 } from '../repositories/indexeddb/indexedDbRepositories';
 import type { ItemEventRepository } from '../repositories/itemEventRepository';
 import type { LifeItemRepository } from '../repositories/lifeItemRepository';
 import {
+  createMemoryCompassStatementRepository,
   createMemoryItemEventRepository,
   createMemoryLifeItemRepository,
   createMemoryReflectionRepository,
+  createMemoryValueRepository,
 } from '../repositories/memory/memoryRepositories';
 import type { ReflectionRepository } from '../repositories/reflectionRepository';
+import type { ValueRepository } from '../repositories/valueRepository';
 import { openDatabase } from './indexeddb/database';
 
 export type StorageMode = 'device' | 'memory';
@@ -19,6 +25,8 @@ export type Repositories = {
   items: LifeItemRepository;
   events: ItemEventRepository;
   reflections: ReflectionRepository;
+  values: ValueRepository;
+  statements: CompassStatementRepository;
 };
 
 type Backend = Repositories & { mode: StorageMode };
@@ -34,6 +42,8 @@ async function openBackend(): Promise<Backend> {
       items: createIndexedDbLifeItemRepository(ready),
       events: createIndexedDbItemEventRepository(ready),
       reflections: createIndexedDbReflectionRepository(ready),
+      values: createIndexedDbValueRepository(ready),
+      statements: createIndexedDbCompassStatementRepository(ready),
     };
   } catch (error) {
     console.warn('On-device storage is unavailable; keeping data in memory for this visit.', error);
@@ -42,6 +52,8 @@ async function openBackend(): Promise<Backend> {
       items: createMemoryLifeItemRepository(),
       events: createMemoryItemEventRepository(),
       reflections: createMemoryReflectionRepository(),
+      values: createMemoryValueRepository(),
+      statements: createMemoryCompassStatementRepository(),
     };
   }
 }
@@ -67,5 +79,7 @@ export function createDeviceStorage(): Repositories & { mode: Promise<StorageMod
     items: deferred(backend.then((b) => b.items)),
     events: deferred(backend.then((b) => b.events)),
     reflections: deferred(backend.then((b) => b.reflections)),
+    values: deferred(backend.then((b) => b.values)),
+    statements: deferred(backend.then((b) => b.statements)),
   };
 }

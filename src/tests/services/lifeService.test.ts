@@ -78,4 +78,32 @@ describe('life service', () => {
     const { service } = setup();
     expect(await service.get('missing')).toBeNull();
   });
+
+  it('applies quick successive changes to one item without losing any', async () => {
+    const { service } = setup();
+    const item = await service.capture('Whether to change teams');
+    await service.sort(item.id, 'THINKING_ABOUT');
+
+    await Promise.all([
+      service.setControlSplit(item.id, { inMyControl: ['How I prepare'], notInMyControl: [] }),
+      service.connectValue(item.id, 'courage'),
+      service.setImportant(item.id, true),
+      service.edit(item.id, { notes: 'Talk to Sam first' }),
+    ]);
+
+    expect(await service.get(item.id)).toMatchObject({
+      controlSplit: { inMyControl: ['How I prepare'], notInMyControl: [] },
+      valueIds: ['courage'],
+      important: true,
+      notes: 'Talk to Sam first',
+    });
+  });
+
+  it('keeps working after a refused change', async () => {
+    const { service } = setup();
+    const item = await service.capture('Book dentist');
+    await expect(service.setControlSplit(item.id, { inMyControl: ['x'], notInMyControl: [] })).rejects.toThrow();
+    await service.setImportant(item.id, true);
+    expect((await service.get(item.id))?.important).toBe(true);
+  });
 });

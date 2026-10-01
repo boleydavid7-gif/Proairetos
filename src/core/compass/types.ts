@@ -7,3 +7,5 @@ export interface CompassStatement {
   body: string;
   createdAt: string;
 }
+
+export const MAX_STATEMENT_LENGTH = 280;

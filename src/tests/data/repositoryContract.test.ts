@@ -3,14 +3,18 @@ import type { ItemEvent } from '../../core/item-events/types';
 import type { LifeItem } from '../../core/life-items/types';
 import type { Reflection } from '../../core/reflections/types';
 import {
+  createIndexedDbCompassStatementRepository,
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
+  createIndexedDbValueRepository,
 } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import {
+  createMemoryCompassStatementRepository,
   createMemoryItemEventRepository,
   createMemoryLifeItemRepository,
   createMemoryReflectionRepository,
+  createMemoryValueRepository,
 } from '../../data/repositories/memory/memoryRepositories';
 import { openDatabase } from '../../data/storage/indexeddb/database';
 
@@ -19,6 +23,8 @@ const implementations = {
     items: createMemoryLifeItemRepository(),
     events: createMemoryItemEventRepository(),
     reflections: createMemoryReflectionRepository(),
+    values: createMemoryValueRepository(),
+    statements: createMemoryCompassStatementRepository(),
   }),
   indexeddb: () => {
     const db = openDatabase(new IDBFactory());
@@ -26,6 +32,8 @@ const implementations = {
       items: createIndexedDbLifeItemRepository(db),
       events: createIndexedDbItemEventRepository(db),
       reflections: createIndexedDbReflectionRepository(db),
+      values: createIndexedDbValueRepository(db),
+      statements: createIndexedDbCompassStatementRepository(db),
     };
   },
 };
@@ -120,7 +128,56 @@ describe.each(Object.entries(implementations))('%s repositories', (_name, create
   });
 });
 
+describe.each(Object.entries(implementations))('%s compass repositories', (_name, create) => {
+  it('adds, lists per person, and removes values and statements', async () => {
+    const { values, statements } = create();
+    const value = { id: 'v', userId: 'u', name: 'Courage', source: 'PRESET' as const, chosenAt: '2026-10-01' };
+    const statement = { id: 's', userId: 'u', type: 'REMEMBER' as const, body: 'People over plans', createdAt: '2026-10-01' };
+
+    await values.add(value);
+    await values.add({ ...value, id: 'v2', userId: 'someone-else' });
+    await statements.add(statement);
+
+    expect(await values.list('u')).toEqual([value]);
+    expect(await statements.list('u')).toEqual([statement]);
+    await expect(values.add(value)).rejects.toThrow();
+
+    await values.remove('v');
+    await statements.remove('s');
+    expect(await values.list('u')).toEqual([]);
+    expect(await statements.list('u')).toEqual([]);
+  });
+});
+
 describe('indexeddb persistence', () => {
+  it('upgrades a version 1 database without losing anything', async () => {
+    const factory = new IDBFactory();
+    // Recreate the version 1 schema exactly as it shipped, with data in it.
+    const v1 = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = factory.open('proairetos', 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        db.createObjectStore('lifeItems', { keyPath: 'id' }).createIndex('userId', 'userId');
+        const events = db.createObjectStore('itemEvents', { keyPath: 'seq', autoIncrement: true });
+        events.createIndex('id', 'id', { unique: true });
+        events.createIndex('itemId', 'itemId');
+        db.createObjectStore('reflections', { keyPath: 'id' }).createIndex('userId', 'userId');
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await createIndexedDbLifeItemRepository(Promise.resolve(v1)).create(lifeItem('kept'));
+    await createIndexedDbItemEventRepository(Promise.resolve(v1)).append([itemEvent('e', 'kept')]);
+    v1.close();
+
+    const v2 = openDatabase(factory);
+    expect((await v2).version).toBe(2);
+    expect((await createIndexedDbLifeItemRepository(v2).list('u')).map((item) => item.id)).toEqual(['kept']);
+    expect(await createIndexedDbItemEventRepository(v2).listForItem('kept')).toHaveLength(1);
+    await createIndexedDbValueRepository(v2).add({ id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x' });
+    expect(await createIndexedDbValueRepository(v2).list('u')).toHaveLength(1);
+  });
+
   it('keeps data across reopening the database', async () => {
     const factory = new IDBFactory();
     const first = await openDatabase(factory);

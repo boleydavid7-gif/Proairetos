@@ -1,13 +1,3 @@
-export interface ValueModel {
-  id: string;
-  userId?: string;
-  name: string;
-  source: 'PRESET' | 'CUSTOM';
-  createdAt: string;
-}
+import type { ChosenValue } from '../../core/values/types';
 
-export interface UserValueModel {
-  userId: string;
-  valueId: string;
-  chosenAt: string;
-}
+export type ChosenValueModel = ChosenValue;
