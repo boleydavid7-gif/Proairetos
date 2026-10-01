@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { decisionService, lifeService } from '../../app/services';
-import { MAX_DECISION_OPTIONS } from '../../core/decisions/types';
+import { MAX_DECISION_OPTIONS, confidenceLabels, type DecisionConfidence } from '../../core/decisions/types';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
 
 export type DecideFrom = { itemId: string; title: string };
@@ -18,6 +18,8 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
   const [options, setOptions] = useState<string[]>(['', '']);
   const [chosen, setChosen] = useState<number | null>(null);
   const [reasons, setReasons] = useState('');
+  const [expected, setExpected] = useState('');
+  const [confidence, setConfidence] = useState<DecisionConfidence | undefined>();
   const [revisit, setRevisit] = useState<RevisitChoice>('month');
   const [picked, setPicked] = useState('');
   const [closeItem, setCloseItem] = useState(true);
@@ -38,6 +40,8 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
         options: filled,
         choice: filled[chosen],
         reasons,
+        expected,
+        confidence,
         revisitAt: revisitDate(revisit, picked),
         lifeItemId: from?.itemId,
       });
@@ -126,6 +130,31 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
             onChange={(event) => setReasons(event.target.value)}
           />
         </label>
+
+        <section className="sheet__section" aria-label="Expectation">
+          <label className="plan-field">
+            <span className="sheet__label">What do you expect to happen? (optional)</span>
+            <input
+              className="field-input"
+              placeholder="Written now, before you know"
+              value={expected}
+              onChange={(event) => setExpected(event.target.value)}
+            />
+          </label>
+          <div className="chip-row" role="group" aria-label="How sure">
+            {(Object.keys(confidenceLabels) as DecisionConfidence[]).map((level) => (
+              <button
+                key={level}
+                type="button"
+                className="chip"
+                aria-pressed={confidence === level}
+                onClick={() => setConfidence(confidence === level ? undefined : level)}
+              >
+                {confidenceLabels[level]}
+              </button>
+            ))}
+          </div>
+        </section>
 
         <section className="sheet__section" aria-label="Look back">
           <p className="sheet__label">Look back on it</p>

@@ -1,5 +1,5 @@
 import type { DomainContext } from '../context';
-import { MAX_DECISION_OPTIONS, MAX_DECISION_TEXT, type Decision } from './types';
+import { MAX_DECISION_OPTIONS, MAX_DECISION_TEXT, type Decision, type DecisionConfidence } from './types';
 
 export type DecisionInput = {
   question: string;
@@ -8,6 +8,8 @@ export type DecisionInput = {
   reasons?: string;
   revisitAt?: string;
   lifeItemId?: string;
+  expected?: string;
+  confidence?: DecisionConfidence;
 };
 
 export class DecisionError extends Error {
@@ -33,7 +35,7 @@ export function makeDecision(ctx: DomainContext, userId: string, input: Decision
   if (!question) throw new DecisionError('Write what you are deciding.');
   if (!choice) throw new DecisionError('Write what you chose.');
   if (options.length > MAX_DECISION_OPTIONS) throw new DecisionError(`Keep it to ${MAX_DECISION_OPTIONS} options.`);
-  if ([question, choice, input.reasons ?? '', ...options].some((text) => text.length > MAX_DECISION_TEXT)) {
+  if ([question, choice, input.reasons ?? '', input.expected ?? '', ...options].some((text) => text.length > MAX_DECISION_TEXT)) {
     throw new DecisionError(`Keep each part to ${MAX_DECISION_TEXT} characters.`);
   }
 
@@ -45,6 +47,8 @@ export function makeDecision(ctx: DomainContext, userId: string, input: Decision
     options,
     choice,
     reasons: input.reasons?.trim() || undefined,
+    expected: input.expected?.trim() || undefined,
+    confidence: input.confidence,
     decidedAt: ctx.now().toISOString(),
     revisitAt: input.revisitAt,
   };

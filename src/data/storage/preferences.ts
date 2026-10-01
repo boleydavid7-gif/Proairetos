@@ -96,10 +96,25 @@ export function answerPauseOffer(key: string): void {
 
 const HIDDEN_OBSERVATIONS_KEY = 'proairetos.hiddenObservations';
 
+// "Moved more than once" starts hidden: neutral wording can still be heard as criticism.
+const DEFAULT_HIDDEN_OBSERVATIONS = ['MOVED'];
+
 export function hiddenObservationKinds(): string[] {
-  return readJson<string[]>(HIDDEN_OBSERVATIONS_KEY) ?? [];
+  return readJson<string[]>(HIDDEN_OBSERVATIONS_KEY) ?? DEFAULT_HIDDEN_OBSERVATIONS;
 }
 
 export function setHiddenObservationKinds(kinds: string[]): void {
   writeJson(HIDDEN_OBSERVATIONS_KEY, kinds);
+}
+
+const PAUSE_SETTINGS_KEY = 'proairetos.pauseSettings';
+
+export type PauseSettings = { minutes: 1 | 3; anchor: 'breath' | 'feet' | 'sounds' };
+
+export function loadPauseSettings(): PauseSettings {
+  return readJson<PauseSettings>(PAUSE_SETTINGS_KEY) ?? { minutes: 1, anchor: 'breath' };
+}
+
+export function savePauseSettings(settings: PauseSettings): void {
+  writeJson(PAUSE_SETTINGS_KEY, settings);
 }

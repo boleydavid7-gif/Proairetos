@@ -8,28 +8,10 @@ import { describeRule } from '../../core/life-items/repeat';
 import type { LifeItem } from '../../core/life-items/types';
 import { formatDay, formatWhen } from '../items/dateFields';
 import CaptureBar from '../now/components/CaptureBar';
-import { lifeItemTypeLabels, lifeItemTypes } from './labels';
+import { lifeItemTypeLabels } from './labels';
+import UnsortedItem from './UnsortedItem';
 
 const LEAVE_MS = 260;
-
-function UnsortedItem({ item }: { item: LifeItem }) {
-  const { openItem } = useOverlays();
-
-  return (
-    <div className="item-card">
-      <button type="button" className="item-card__open" onClick={() => openItem(item.id)}>
-        <span className="item-card__title">{item.title}</span>
-      </button>
-      <div className="chip-row" role="group" aria-label={`Sort "${item.title}"`}>
-        {lifeItemTypes.map((type) => (
-          <button key={type} type="button" className="chip" onClick={() => lifeService.sort(item.id, type)}>
-            {lifeItemTypeLabels[type]}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function itemMeta(item: LifeItem): string {
   const parts = [item.type ? lifeItemTypeLabels[item.type] : 'Unsorted'];

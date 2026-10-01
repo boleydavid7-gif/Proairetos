@@ -4,6 +4,7 @@ export type AppRoute =
   | 'capture'
   | 'compass'
   | 'schedule'
+  | 'review'
   | 'settings';
 
 export const routePaths: Record<AppRoute, string> = {
@@ -12,6 +13,7 @@ export const routePaths: Record<AppRoute, string> = {
   capture: '/capture',
   compass: '/compass',
   schedule: '/schedule',
+  review: '/review',
   settings: '/settings',
 };
 

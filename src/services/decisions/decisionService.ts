@@ -1,6 +1,6 @@
 import type { DomainContext } from '../../core/context';
 import { decisionsToRevisit, makeDecision, type DecisionInput } from '../../core/decisions/rules';
-import type { Decision } from '../../core/decisions/types';
+import type { Decision, DecisionOutcome, DecisionProcess } from '../../core/decisions/types';
 import type { DecisionRepository } from '../../data/repositories/decisionRepository';
 import { createListeners } from '../listeners';
 
@@ -47,6 +47,12 @@ export function createDecisionService({ userId, context, decisions }: DecisionSe
 
     async setRevisit(id: string, revisitAt: string | undefined): Promise<Decision> {
       return save({ ...(await load(id)), revisitAt, revisitedAt: undefined });
+    },
+
+    /** Records the two separate look-back answers and finishes revisiting. */
+    async recordLookBack(id: string, process: DecisionProcess, outcome: DecisionOutcome): Promise<Decision> {
+      const at = context.now().toISOString();
+      return save({ ...(await load(id)), lookBack: { process, outcome, at }, revisitedAt: at });
     },
 
     async finishRevisiting(id: string): Promise<Decision> {

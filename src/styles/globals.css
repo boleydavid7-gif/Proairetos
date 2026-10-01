@@ -2255,3 +2255,121 @@ button:disabled {
 .look-ahead__plan-open {
   align-self: flex-start;
 }
+
+.decision-confidence {
+  color: var(--color-text-muted);
+}
+
+.look-back {
+  padding: var(--space-4);
+  border: 1px solid rgba(201, 162, 116, 0.3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.breath--still {
+  transform: scale(1);
+  opacity: 0.7;
+}
+
+.pause-screen__phase {
+  margin: var(--space-5) 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pause-screen__phase + .pause-screen__breath {
+  margin-top: 0;
+}
+
+.pause-screen__anchors {
+  justify-content: center;
+}
+
+.pause-screen .mini-segmented--wide {
+  width: 100%;
+}
+
+.chip--prompt {
+  min-height: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.composer__prompt,
+.list-card__prompt {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--color-accent-strong);
+}
+
+.list-card__prompt {
+  font-size: 0.95rem;
+}
+
+.picker__group {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Weekly review ---------- */
+
+.review-progress {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: calc(var(--space-3) * -1);
+}
+
+.review-progress__dot {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+.review-progress__dot[data-active] {
+  background: var(--color-accent);
+}
+
+.week-ahead {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.week-ahead__day {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  font-size: 0.9rem;
+}
+
+.week-ahead__day + .week-ahead__day {
+  border-top: 1px solid var(--color-border);
+}
+
+.week-ahead__date {
+  color: var(--color-text-muted);
+}
+
+.week-ahead__entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.week-ahead__quiet {
+  color: var(--color-text-faint);
+}

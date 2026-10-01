@@ -5,6 +5,7 @@ import CapturePage from '../features/capture/CapturePage';
 import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
 import ScheduleScreen from '../features/schedule/ScheduleScreen';
+import WeeklyReview from '../features/review/WeeklyReview';
 import PageHeader from '../components/layout/PageHeader';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
@@ -40,6 +41,7 @@ export default function App() {
       {route === 'capture' && <CapturePage />}
       {route === 'compass' && <CompassPage />}
       {route === 'schedule' && <ScheduleScreen />}
+      {route === 'review' && <WeeklyReview />}
       {route === 'settings' && <RoutePlaceholder title="Settings" />}
       </AppShell>
     </OverlayProvider>

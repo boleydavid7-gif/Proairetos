@@ -63,4 +63,22 @@ describe('decision service', () => {
     await service.setRevisit(second.id, '2026-10-01T00:00:00.000Z');
     expect((await service.toRevisit()).map((d) => d.id)).toEqual([second.id]);
   });
+
+  it('keeps the expectation written beforehand and the two look-back answers', async () => {
+    const { context } = testContext('2026-10-01T12:00:00.000Z');
+    const service = createDecisionService({ userId: 'u', context, decisions: createMemoryDecisionRepository() });
+    const decision = await service.decide({
+      question: 'Change teams',
+      options: ['Stay', 'Move'],
+      choice: 'Move',
+      expected: '  More interesting work within a month  ',
+      confidence: 'MEDIUM',
+      revisitAt: '2026-10-01T00:00:00.000Z',
+    });
+    expect(decision).toMatchObject({ expected: 'More interesting work within a month', confidence: 'MEDIUM' });
+
+    const looked = await service.recordLookBack(decision.id, 'AGAIN', 'NOT_AS_HOPED');
+    expect(looked.lookBack).toMatchObject({ process: 'AGAIN', outcome: 'NOT_AS_HOPED' });
+    expect(await service.toRevisit()).toEqual([]);
+  });
 });

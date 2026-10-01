@@ -17,6 +17,9 @@ export interface ChosenValue {
 export const MAX_USER_VALUES = 5;
 export const MAX_VALUE_NAME_LENGTH = 40;
 
+/** Wisdom, courage, justice, temperance: the virtues classical Stoicism held to be the only true goods. */
+export const stoicVirtues: readonly string[] = ['Courage', 'Justice', 'Temperance', 'Wisdom'];
+
 /**
  * Starting points to choose from, offered alphabetically so none is
  * favoured. The first four are the Stoic cardinal virtues; people can

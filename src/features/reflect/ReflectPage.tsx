@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
-import { ChevronRightIcon, MoonIcon, PenIcon, SunIcon } from '../../components/icons/Icons';
+import { BookIcon, ChevronRightIcon, MoonIcon, PenIcon, SunIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { ReflectPeriod } from '../../core/reflections/periods';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
 import Observations from './Observations';
 import { dayLabel, isDaytime } from './format';
+import { promptText, reflectionPrompts } from './prompts';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -44,6 +46,7 @@ function ReflectionCard({ reflection }: { reflection: Reflection }) {
         <span className="list-card__title">
           {dayLabel(reflection.createdAt)} <span className="list-card__time">{time}</span>
         </span>
+        {promptText(reflection.promptKey) && <span className="list-card__prompt">{promptText(reflection.promptKey)}</span>}
         <span className={`list-card__detail${open ? ' list-card__detail--full' : ''}`}>{reflection.body}</span>
       </span>
       <ChevronRightIcon size={18} className="list-card__chevron" />
@@ -54,12 +57,14 @@ function ReflectionCard({ reflection }: { reflection: Reflection }) {
 function Composer() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const [promptKey, setPromptKey] = useState<string | undefined>();
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!draft.trim()) return;
-    await reflectionService.write({ body: draft });
+    await reflectionService.write({ body: draft, promptKey });
     setDraft('');
+    setPromptKey(undefined);
     setOpen(false);
   }
 
@@ -80,6 +85,20 @@ function Composer() {
 
   return (
     <form className="composer" onSubmit={submit} aria-label="Write a reflection">
+      <div className="chip-row" role="group" aria-label="A place to start (optional)">
+        {reflectionPrompts.map((prompt) => (
+          <button
+            key={prompt.key}
+            type="button"
+            className="chip chip--prompt"
+            aria-pressed={promptKey === prompt.key}
+            onClick={() => setPromptKey(promptKey === prompt.key ? undefined : prompt.key)}
+          >
+            {prompt.text}
+          </button>
+        ))}
+      </div>
+      {promptKey && <p className="composer__prompt">{promptText(promptKey)}</p>}
       <textarea
         className="composer__input"
         rows={4}
@@ -98,6 +117,30 @@ function Composer() {
         </button>
       </div>
     </form>
+  );
+}
+
+function WeeklyReviewCard() {
+  const navigate = useNavigate();
+  const all = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
+  const last = all
+    .filter((reflection) => reflection.promptKey === 'weekly-review')
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+
+  return (
+    <button type="button" className="list-card list-card--button" onClick={() => navigate('review')}>
+      <span className="list-card__icon list-card__icon--accent">
+        <BookIcon size={22} />
+      </span>
+      <span className="list-card__text">
+        <span className="list-card__title">Weekly review</span>
+        <span className="list-card__detail">
+          About 15 minutes, every step optional.
+          {last ? ` Last one ${dayLabel(last.createdAt).toLowerCase()}.` : ''}
+        </span>
+      </span>
+      <ChevronRightIcon size={18} className="list-card__chevron" />
+    </button>
   );
 }
 
@@ -123,6 +166,8 @@ export default function ReflectPage() {
           </button>
         ))}
       </div>
+
+      <WeeklyReviewCard />
 
       <Observations period={period} />
 

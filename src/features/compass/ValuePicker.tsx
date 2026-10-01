@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { compassService } from '../../app/services';
-import { MAX_VALUE_NAME_LENGTH, presetValues, type ChosenValue } from '../../core/values/types';
+import { MAX_VALUE_NAME_LENGTH, presetValues, stoicVirtues, type ChosenValue } from '../../core/values/types';
 
 type Props = {
   chosen: ChosenValue[];
@@ -31,13 +31,34 @@ export default function ValuePicker({ chosen, onDone }: Props) {
 
   return (
     <div className="picker">
-      <p className="picker__hint">Pick one that rings true, or write your own.</p>
-      <div className="chip-row" role="group" aria-label="Values to choose from">
-        {available.map((name) => (
-          <button key={name} type="button" className="chip" onClick={() => choose(name)}>
-            {name}
-          </button>
-        ))}
+      <p className="picker__hint">
+        Pick ones that ring true, or write your own. Proairetos is Stoic-inspired, but your values are yours.
+      </p>
+      <div className="stack-tight" role="group" aria-label="Values to choose from">
+        {available.some((name) => stoicVirtues.includes(name)) && (
+          <>
+            <p className="picker__group">The four Stoic virtues</p>
+            <div className="chip-row">
+              {available
+                .filter((name) => stoicVirtues.includes(name))
+                .map((name) => (
+                  <button key={name} type="button" className="chip" onClick={() => choose(name)}>
+                    {name}
+                  </button>
+                ))}
+            </div>
+          </>
+        )}
+        <p className="picker__group">Other values</p>
+        <div className="chip-row">
+          {available
+            .filter((name) => !stoicVirtues.includes(name))
+            .map((name) => (
+              <button key={name} type="button" className="chip" onClick={() => choose(name)}>
+                {name}
+              </button>
+            ))}
+        </div>
       </div>
       <form className="inline-form" onSubmit={submit}>
         <input

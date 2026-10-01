@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { decisionService, reflectionService } from '../../app/services';
+import {
+  confidenceLabels,
+  outcomeLabels,
+  processLabels,
+  type DecisionOutcome,
+  type DecisionProcess,
+} from '../../core/decisions/types';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
@@ -21,6 +28,8 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
   const [rescheduling, setRescheduling] = useState(false);
   const [picked, setPicked] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [process, setProcess] = useState<DecisionProcess>();
+  const [outcome, setOutcome] = useState<DecisionOutcome>();
 
   useEffect(() => {
     if (dialog.current && !dialog.current.open) dialog.current.showModal();
@@ -72,6 +81,16 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
               )}
             </section>
 
+            {decision.expected && (
+              <section className="sheet__section" aria-label="What you expected">
+                <p className="sheet__label">What you expected</p>
+                <p className="decision-reasons">
+                  {decision.expected}
+                  {decision.confidence && <span className="decision-confidence"> · {confidenceLabels[decision.confidence]}</span>}
+                </p>
+              </section>
+            )}
+
             {decision.reasons && (
               <section className="sheet__section" aria-label="Why">
                 <p className="sheet__label">Why</p>
@@ -101,6 +120,49 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
                 </button>
               </form>
             </section>
+
+            {decision.lookBack ? (
+              <section className="sheet__section" aria-label="Your look back">
+                <p className="sheet__label">Your look back</p>
+                <p className="decision-reasons">
+                  The decision: {processLabels[decision.lookBack.process]}
+                  <br />
+                  The outcome: {outcomeLabels[decision.lookBack.outcome]}
+                </p>
+              </section>
+            ) : (
+              due && (
+                <section className="sheet__section look-back" aria-label="Look back">
+                  <p className="sheet__hint">
+                    A sound choice can turn out badly, and a poor one can turn out well. Look at them separately.
+                  </p>
+                  <p className="sheet__label">Given what you knew then, the decision</p>
+                  <div className="chip-row" role="group" aria-label="The decision">
+                    {(Object.keys(processLabels) as DecisionProcess[]).map((key) => (
+                      <button key={key} type="button" className="chip" aria-pressed={process === key} onClick={() => setProcess(key)}>
+                        {processLabels[key]}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="sheet__label">How it turned out</p>
+                  <div className="chip-row" role="group" aria-label="The outcome">
+                    {(Object.keys(outcomeLabels) as DecisionOutcome[]).map((key) => (
+                      <button key={key} type="button" className="chip" aria-pressed={outcome === key} onClick={() => setOutcome(key)}>
+                        {outcomeLabels[key]}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="chip chip--accent chip--wide"
+                    disabled={!process || !outcome}
+                    onClick={() => process && outcome && decisionService.recordLookBack(decisionId, process, outcome)}
+                  >
+                    Save look back
+                  </button>
+                </section>
+              )
+            )}
 
             <section className="sheet__section" aria-label="Revisit">
               <p className="sheet__hint">

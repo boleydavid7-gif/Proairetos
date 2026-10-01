@@ -289,3 +289,35 @@ Never add:
 The product should help someone say:
 
 > I stopped losing sight of what matters, and it never made me feel behind.
+
+---
+
+# Evidence Alignment
+
+Choices informed by research, kept within the design rules:
+- Implementation intentions (Gollwitzer & Sheeran): next steps can carry
+  "when or where" and "if something gets in the way, I will".
+- Mental contrasting / Stoic premeditation (Oettingen; Seneca): optional
+  obstacle plan in the look-ahead.
+- Progress principle (Amabile & Kramer): "Done today", with no score.
+- Habit formation (Lally et al.): routines that repeat in a stable context;
+  missed times roll forward rather than piling up.
+- Attention residue (Leroy & Glomb): focus ends with "Where did you leave
+  off?"; pause offers at transitions.
+- Cognitive load: Today shows one message card at a time and folds
+  secondary lists into one line of counts. Up to three for today, chosen
+  by the person.
+- GTD weekly review: an optional guided review in Reflect.
+- Hindsight bias and "resulting": decisions record an expectation and
+  confidence beforehand, and the look-back judges the choice and the
+  outcome separately.
+- MBCT breathing space: Pause has three phases (notice, gather, widen),
+  one or three minutes, with breath, feet, or sounds as the anchor.
+- Self-distancing (Kross & Ayduk) and Seneca's evening review: optional
+  reflection prompts. "Moved more than once" starts hidden.
+- Proairetos is Stoic-inspired, not orthodox: the four Stoic virtues are
+  offered as a group alongside other values.
+
+Not yet: notifications that reach the person when the app is closed. They
+need a server and are planned with accounts and sync.
+
