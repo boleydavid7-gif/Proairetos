@@ -6,16 +6,12 @@ import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
 import ScheduleScreen from '../features/schedule/ScheduleScreen';
 import WeeklyReview from '../features/review/WeeklyReview';
-import PageHeader from '../components/layout/PageHeader';
+import SettingsPage from '../features/settings/SettingsPage';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
-
-function RoutePlaceholder({ title }: { title: string }) {
-  return <PageHeader title={title} subtitle="This space is not built yet." />;
-}
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
@@ -42,7 +38,7 @@ export default function App() {
       {route === 'compass' && <CompassPage />}
       {route === 'schedule' && <ScheduleScreen />}
       {route === 'review' && <WeeklyReview />}
-      {route === 'settings' && <RoutePlaceholder title="Settings" />}
+      {route === 'settings' && <SettingsPage />}
       </AppShell>
     </OverlayProvider>
     </NavigationContext.Provider>

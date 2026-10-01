@@ -2373,3 +2373,47 @@ button:disabled {
 .week-ahead__quiet {
   color: var(--color-text-faint);
 }
+
+/* ---------- Settings ---------- */
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.settings-card .section-description {
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.restore-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid rgba(201, 162, 116, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.restore-preview p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.settings-link {
+  align-self: center;
+  margin-top: var(--space-4);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

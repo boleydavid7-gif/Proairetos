@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useNavigate } from '../../app/navigationContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHeader from '../../components/layout/PageHeader';
@@ -40,6 +41,7 @@ export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
   const [picking, setPicking] = useState(false);
+  const navigate = useNavigate();
 
   if (!values) return null;
   const canAdd = values.length < MAX_USER_VALUES;
@@ -98,6 +100,10 @@ export default function CompassPage() {
         placeholder="Something to put aside"
         statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
       />
+
+      <button type="button" className="text-link settings-link" onClick={() => navigate('settings')}>
+        Settings and your data
+      </button>
     </div>
   );
 }

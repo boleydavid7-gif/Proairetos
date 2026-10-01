@@ -118,3 +118,24 @@ export function loadPauseSettings(): PauseSettings {
 export function savePauseSettings(settings: PauseSettings): void {
   writeJson(PAUSE_SETTINGS_KEY, settings);
 }
+
+const LAST_BACKUP_KEY = 'proairetos.lastBackup';
+
+export function lastBackupDate(): string | null {
+  return readJson<string>(LAST_BACKUP_KEY);
+}
+
+export function recordBackup(): void {
+  writeJson(LAST_BACKUP_KEY, new Date().toISOString());
+}
+
+/** Removes every per-device preference this app stored. */
+export function clearPreferences(): void {
+  try {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('proairetos.'))
+      .forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // Nothing to clear if storage is blocked.
+  }
+}

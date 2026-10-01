@@ -65,7 +65,7 @@ export function createMemoryItemEventRepository(): ItemEventRepository {
 }
 
 export function createMemoryReflectionRepository(): ReflectionRepository {
-  const reflections: ReflectionModel[] = [];
+  let reflections: ReflectionModel[] = [];
 
   return {
     async create(reflection) {
@@ -74,6 +74,9 @@ export function createMemoryReflectionRepository(): ReflectionRepository {
     },
     async list(userId) {
       return reflections.filter((reflection) => reflection.userId === userId).map(copy);
+    },
+    async remove(id) {
+      reflections = reflections.filter((reflection) => reflection.id !== id);
     },
   };
 }
