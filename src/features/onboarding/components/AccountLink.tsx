@@ -1,3 +1,7 @@
 export default function AccountLink() {
-  return <button type="button">I already have an account</button>;
+  return (
+    <button className="onboarding-secondary" type="button">
+      I already have an account
+    </button>
+  );
 }
