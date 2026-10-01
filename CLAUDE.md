@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (172 tests), includes the language guard
+npm test             # vitest (179 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -52,6 +52,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   blocks; one-day exceptions; DST-safe local-date math in `dates.ts`.
   Also routines (`life-items/repeat.ts`), focus sessions, rhythm (time
   away, check-back, pause offers), observations, decisions.
+  The person's day (`rhythm/personalDay.ts`, `usePersonalDay`): a day
+  turns over at a chosen hour, but a work block running past it carries
+  the day until 3 h after it ends (night shifts). Today, Plan, path,
+  intention and Done today use it; Reflect periods stay calendar-based.
 - `src/data/`: repositories (IndexedDB + in-memory, same interfaces),
   `storage/indexeddb/database.ts` (DB_VERSION 5; add stores with an
   upgrade test), backup format/crypto, `sync/` (keys, engine, Supabase

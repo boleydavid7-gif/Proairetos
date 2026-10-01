@@ -61,3 +61,12 @@ describe('plan for a day', () => {
     expect(section.done.map((i) => i.title)).toEqual(['Call family']);
   });
 });
+
+describe('plan with the person’s own day', () => {
+  it('keeps something done at 3 am on a night shift in the day the shift began', () => {
+    const doneOnShift = item({ title: 'Chart review', status: 'DONE', updatedAt: new Date(2026, 9, 2, 3).toISOString() });
+    const nightDay = { start: new Date(2026, 9, 1, 10), end: new Date(2026, 9, 2, 10) };
+    expect(planFor('2026-10-01', '2026-10-01', [doneOnShift], nightDay)[0].done.map((i) => i.title)).toEqual(['Chart review']);
+    expect(planFor('2026-10-02', '2026-10-01', [doneOnShift], { start: nightDay.end, end: new Date(2026, 9, 3, 0) })).toEqual([]);
+  });
+});

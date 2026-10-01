@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
+import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import CheckRow from '../items/CheckRow';
 import PageHeader from '../../components/layout/PageHeader';
-import { addDays, toLocalDate } from '../../core/scheduling/dates';
+import { addDays } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import { dayTitle } from '../today/timeline';
 import AddTaskSheet from './AddTaskSheet';
@@ -13,13 +14,13 @@ import { planFor } from './planView';
 
 export default function PlanPage() {
   const clock = useClock();
-  const today = toLocalDate(clock);
+  const { today, rangeOf } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [adding, setAdding] = useState(false);
   const date = addDays(today, offset);
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
   if (!items) return null;
-  const sections = planFor(date, today, items);
+  const sections = planFor(date, today, items, rangeOf(date));
 
   return (
     <div className="page">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
+import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -8,7 +9,7 @@ import { ChevronRightIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
-import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+import { addDays, atTime } from '../../core/scheduling/dates';
 import { stoicLineFor } from '../../core/stoic/dailyLine';
 import { answeredPauseOffers, displayName, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
 import PauseOfferCard from '../pause/PauseOfferCard';
@@ -47,7 +48,7 @@ export default function NowPage() {
   const [name] = useState(displayName);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
-  const today = toLocalDate(clock);
+  const { today, rangeOf } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   const date = addDays(today, offset);
@@ -188,7 +189,7 @@ export default function NowPage() {
 
       {isToday && <CaptureBar variant="quiet" />}
       {isToday && <AlsoToday sections={alsoSections} />}
-      {isToday && <DoneToday today={today} />}
+      {isToday && <DoneToday today={today} range={rangeOf(today)} />}
 
       {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
       {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}

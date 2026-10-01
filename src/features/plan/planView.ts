@@ -39,8 +39,19 @@ function sectionOf(item: LifeItem): PlanSectionId {
  * that. Undated doing items show on today. Things closed that day stay,
  * checked, so a tap can reopen them.
  */
-export function planFor(date: string, today: string, items: LifeItem[]): PlanSection[] {
+export function planFor(
+  date: string,
+  today: string,
+  items: LifeItem[],
+  range?: { start: Date; end: Date },
+): PlanSection[] {
   const isToday = date === today;
+  // Closed during that day: the person's own day when known, else the calendar date.
+  const closedOn = (item: LifeItem) => {
+    if (!range) return toLocalDate(new Date(item.updatedAt)) === date;
+    const at = new Date(item.updatedAt).getTime();
+    return at >= range.start.getTime() && at < range.end.getTime();
+  };
   const belongs = (item: LifeItem) => {
     const day = itemDay(item);
     if (day) return day === date || (isToday && day < today && isOpen(item));
@@ -49,7 +60,7 @@ export function planFor(date: string, today: string, items: LifeItem[]): PlanSec
 
   const open = items.filter((item) => isOpen(item) && belongs(item));
   const done = items.filter(
-    (item) => item.status === 'DONE' && toLocalDate(new Date(item.updatedAt)) === date && (itemDay(item) === date || isPlanItem(item)),
+    (item) => item.status === 'DONE' && closedOn(item) && (itemDay(item) === date || isPlanItem(item)),
   );
   const byCreated = (a: LifeItem, b: LifeItem) => a.createdAt.localeCompare(b.createdAt);
 

@@ -10,11 +10,21 @@ import {
   CloudIcon,
   CompassIcon,
   InboxIcon,
+  MoonIcon,
   ShieldIcon,
 } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
-import { clearPreferences, displayName, lastBackupDate, recordBackup, setDisplayName } from '../../data/storage/preferences';
+import {
+  clearPreferences,
+  displayName,
+  lastBackupDate,
+  loadDaySettings,
+  recordBackup,
+  saveDaySettings,
+  setDisplayName,
+} from '../../data/storage/preferences';
+import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
@@ -271,10 +281,11 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 const viewTitles: Record<View, string> = {
   profile: 'Your name',
+  day: 'When your day starts',
   account: 'Account and sync',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -328,6 +339,56 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
   );
 }
 
+const startHours = [0, 1, 2, 3, 4, 5];
+const hourLabel = (hour: number) => (hour === 0 ? 'Midnight' : `${hour} am`);
+
+function DaySection() {
+  const [settings, setSettings] = useState(loadDaySettings);
+  const update = (next: typeof settings) => {
+    setSettings(next);
+    saveDaySettings(next);
+  };
+  return (
+    <section className="settings-card" aria-label="When your day starts">
+      <p className="section-description">
+        Today, Plan, your path, and your intention all belong to one day. This sets when that day turns over.
+      </p>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={settings.followShifts}
+        onClick={() => update({ ...settings, followShifts: !settings.followShifts })}
+      >
+        <span className={`toggle-switch${settings.followShifts ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>Let my day follow my shifts</span>
+      </button>
+      <p className="sheet__hint">
+        A shift that runs past the turnover keeps the day going until {AFTER_WORK_HOURS} hours after it ends, so a night
+        shift and the time after it stay one day. Uses the work hours in your schedule.
+      </p>
+      <p className="sheet__label">Otherwise a new day starts at</p>
+      <div className="chip-row" role="group" aria-label="New day starts at">
+        {startHours.map((hour) => (
+          <button
+            key={hour}
+            type="button"
+            className="chip"
+            aria-pressed={settings.startHour === hour}
+            onClick={() => update({ ...settings, startHour: hour })}
+          >
+            {hourLabel(hour)}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function daySummary(): string {
+  const settings = loadDaySettings();
+  return settings.followShifts ? 'Follows shifts' : hourLabel(settings.startHour);
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -359,6 +420,7 @@ export default function SettingsPage() {
         </button>
         <PageHeader title={viewTitles[view]} />
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
+        {view === 'day' && <DaySection />}
         {view === 'account' && <AccountSection />}
         {view === 'backup' && (
           <>
@@ -416,6 +478,7 @@ export default function SettingsPage() {
         <Row icon={<CloudIcon size={22} />} title="Account and sync" value={syncLabel(status.phase)} onClick={() => setView('account')} />
         <Row icon={<CompassIcon size={22} />} title="Values" onClick={() => navigate('compass')} />
         <Row icon={<CalendarIcon size={22} />} title="Schedule and shifts" onClick={() => navigate('schedule')} />
+        <Row icon={<MoonIcon size={22} />} title="When your day starts" value={daySummary()} onClick={() => setView('day')} />
       </div>
 
       <div className="settings-list">

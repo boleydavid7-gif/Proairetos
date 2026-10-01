@@ -167,3 +167,19 @@ export function displayName(): string {
 export function setDisplayName(name: string): void {
   writeJson(NAME_KEY, name.trim() || null);
 }
+
+// ---------- When a day turns over ----------
+
+const DAY_SETTINGS_KEY = 'proairetos.daySettings';
+
+export type StoredDaySettings = { startHour: number; followShifts: boolean };
+
+export function loadDaySettings(): StoredDaySettings {
+  const stored = readJson<Partial<StoredDaySettings>>(DAY_SETTINGS_KEY) ?? {};
+  const startHour = Number.isInteger(stored.startHour) && stored.startHour! >= 0 && stored.startHour! <= 5 ? stored.startHour! : 0;
+  return { startHour, followShifts: stored.followShifts ?? true };
+}
+
+export function saveDaySettings(settings: StoredDaySettings): void {
+  writeJson(DAY_SETTINGS_KEY, settings);
+}

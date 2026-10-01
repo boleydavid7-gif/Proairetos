@@ -1,22 +1,24 @@
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
-import { toLocalDate } from '../../core/scheduling/dates';
 
 const SHOWN = 6;
 
 /** What you finished today, quietly. Progress you can see, with no score attached. */
-export default function DoneToday({ today }: { today: string }) {
+export default function DoneToday({ today, range }: { today: string; range: { start: Date; end: Date } }) {
   const done = useServiceData(
     lifeService.subscribe,
     async () => {
       const [items, events] = await Promise.all([lifeService.list(), lifeService.historyForAll()]);
       const titles = new Map(items.map((item) => [item.id, item.title]));
       return events
-        .filter((event) => event.kind === 'COMPLETED' && toLocalDate(new Date(event.timestamp)) === today)
+        .filter((event) => {
+          const at = new Date(event.timestamp).getTime();
+          return event.kind === 'COMPLETED' && at >= range.start.getTime() && at < range.end.getTime();
+        })
         .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
         .map((event) => ({ id: event.id, title: titles.get(event.itemId) ?? 'An item' }));
     },
-    [today],
+    [today, range.start.getTime(), range.end.getTime()],
   );
   if (!done || done.length === 0) return null;
 
