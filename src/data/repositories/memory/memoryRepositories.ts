@@ -36,7 +36,7 @@ export function createMemoryLifeItemRepository(): LifeItemRepository {
 }
 
 export function createMemoryItemEventRepository(): ItemEventRepository {
-  const events: ItemEventModel[] = [];
+  let events: ItemEventModel[] = [];
 
   return {
     async append(newEvents) {
@@ -48,6 +48,10 @@ export function createMemoryItemEventRepository(): ItemEventRepository {
     async listForItems(itemIds) {
       const ids = new Set(itemIds);
       return events.filter((event) => ids.has(event.itemId)).map(copy);
+    },
+    async remove(eventIds) {
+      const ids = new Set(eventIds);
+      events = events.filter((event) => !ids.has(event.id));
     },
   };
 }

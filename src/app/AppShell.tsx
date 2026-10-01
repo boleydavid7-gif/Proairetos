@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { navigation } from './navigation';
+import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
 
 type AppShellProps = {
@@ -7,10 +9,27 @@ type AppShellProps = {
   children?: React.ReactNode;
 };
 
+function useStorageMode() {
+  const [mode, setMode] = useState<'device' | 'memory'>('device');
+  useEffect(() => {
+    storageMode.then(setMode);
+  }, []);
+  return mode;
+}
+
 export default function AppShell({ route, onNavigate, children }: AppShellProps) {
+  const mode = useStorageMode();
+
   return (
     <div className="app-shell">
-      <main className="app-shell__content">{children}</main>
+      <main className="app-shell__content">
+        {mode === 'memory' && (
+          <p className="storage-notice" role="status">
+            This browser is not letting Proairetos save. What you add stays until this tab closes.
+          </p>
+        )}
+        {children}
+      </main>
 
       <nav className="tab-bar" aria-label="Main navigation">
         {navigation.map(({ id, label, icon: Icon }) => (

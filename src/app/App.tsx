@@ -7,17 +7,25 @@ import CompassPage from '../features/compass/CompassPage';
 import PageHeader from '../components/layout/PageHeader';
 import AppShell from './AppShell';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
+import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 
 function RoutePlaceholder({ title }: { title: string }) {
   return <PageHeader title={title} subtitle="This space is not built yet." />;
 }
 
 export default function App() {
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(hasOnboarded);
   const [route, setRoute] = useState<AppRoute>(defaultRoute);
 
   if (!started) {
-    return <OnboardingPage onGetStarted={() => setStarted(true)} />;
+    return (
+      <OnboardingPage
+        onGetStarted={() => {
+          markOnboarded();
+          setStarted(true);
+        }}
+      />
+    );
   }
 
   return (

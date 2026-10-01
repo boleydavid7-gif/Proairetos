@@ -1,0 +1,90 @@
+import type { ItemEventModel } from '../../models/itemEventModel';
+import type { LifeItemModel } from '../../models/lifeItemModel';
+import type { ReflectionModel } from '../../models/reflectionModel';
+import { requestToPromise, stores, transactionDone, type StoreName } from '../../storage/indexeddb/database';
+import type { ItemEventRepository } from '../itemEventRepository';
+import type { LifeItemRepository } from '../lifeItemRepository';
+import type { ReflectionRepository } from '../reflectionRepository';
+
+type Db = Promise<IDBDatabase>;
+
+async function read<T>(db: Db, store: StoreName, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  const tx = (await db).transaction(store, 'readonly');
+  return requestToPromise(run(tx.objectStore(store)));
+}
+
+async function write(db: Db, store: StoreName, run: (store: IDBObjectStore) => void): Promise<void> {
+  const tx = (await db).transaction(store, 'readwrite');
+  run(tx.objectStore(store));
+  await transactionDone(tx);
+}
+
+export function createIndexedDbLifeItemRepository(db: Db): LifeItemRepository {
+  async function getById(id: string): Promise<LifeItemModel | null> {
+    return (await read<LifeItemModel | undefined>(db, stores.lifeItems, (store) => store.get(id))) ?? null;
+  }
+
+  return {
+    async create(item) {
+      await write(db, stores.lifeItems, (store) => store.add(item));
+      return item;
+    },
+    getById,
+    list(userId) {
+      return read<LifeItemModel[]>(db, stores.lifeItems, (store) => store.index('userId').getAll(userId));
+    },
+    async update(item) {
+      if (!(await getById(item.id))) throw new Error(`Life item ${item.id} does not exist.`);
+      await write(db, stores.lifeItems, (store) => store.put(item));
+      return item;
+    },
+    async remove(id) {
+      await write(db, stores.lifeItems, (store) => store.delete(id));
+    },
+  };
+}
+
+export function createIndexedDbItemEventRepository(db: Db): ItemEventRepository {
+  // Index order is itemId, then the auto-increment key: the order events were written.
+  async function listForItem(itemId: string): Promise<ItemEventModel[]> {
+    const stored = await read<(ItemEventModel & { seq?: number })[]>(db, stores.itemEvents, (store) =>
+      store.index('itemId').getAll(itemId),
+    );
+    return stored.map(({ seq: _seq, ...event }) => event);
+  }
+
+  return {
+    async append(events) {
+      if (events.length === 0) return;
+      await write(db, stores.itemEvents, (store) => events.forEach((event) => store.add(event)));
+    },
+    listForItem,
+    async listForItems(itemIds) {
+      const lists = await Promise.all(itemIds.map(listForItem));
+      return lists.flat();
+    },
+    async remove(eventIds) {
+      if (eventIds.length === 0) return;
+      await write(db, stores.itemEvents, (store) => {
+        for (const id of eventIds) {
+          const lookup = store.index('id').getKey(id);
+          lookup.onsuccess = () => {
+            if (lookup.result !== undefined) store.delete(lookup.result);
+          };
+        }
+      });
+    },
+  };
+}
+
+export function createIndexedDbReflectionRepository(db: Db): ReflectionRepository {
+  return {
+    async create(reflection) {
+      await write(db, stores.reflections, (store) => store.add(reflection));
+      return reflection;
+    },
+    list(userId) {
+      return read<ReflectionModel[]>(db, stores.reflections, (store) => store.index('userId').getAll(userId));
+    },
+  };
+}
