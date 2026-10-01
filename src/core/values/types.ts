@@ -7,9 +7,10 @@ export type ValueSource = typeof ValueSources[keyof typeof ValueSources];
 
 export interface Value {
   id: string;
-  userId?: string;
+  userId?: string | null;
   name: string;
   source: ValueSource;
+  createdAt?: string;
 }
 
 export interface UserValue {
