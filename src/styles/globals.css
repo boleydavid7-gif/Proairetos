@@ -37,6 +37,18 @@ textarea {
   gap: 2rem;
 }
 
+.onboarding-compass-mark {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 155, 75, 0.35);
+  color: #d8b36a;
+  font-size: 1.75rem;
+}
+
 .onboarding-hero {
   display: flex;
   flex-direction: column;
