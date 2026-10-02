@@ -71,3 +71,28 @@ describe('removing from Compass', () => {
     expect(await service.statements()).toEqual([statement]);
   });
 });
+
+describe('people who matter', () => {
+  it('adds people, keeps a note and an in-touch date, and keeps them apart from statements', async () => {
+    const { service } = setup();
+    await service.writeStatement('REMEMBER', 'Begin again');
+    const mum = await service.addPerson('  Mum ');
+    expect(mum).toMatchObject({ type: 'PERSON', body: 'Mum' });
+
+    await service.updatePerson(mum.id, { note: 'Sunday calls', inTouchAt: '2026-10-02T10:00:00.000Z' });
+    let [person] = (await service.statements()).filter((s) => s.type === 'PERSON');
+    expect(person).toMatchObject({ body: 'Mum', note: 'Sunday calls', inTouchAt: '2026-10-02T10:00:00.000Z', createdAt: mum.createdAt });
+
+    await service.updatePerson(mum.id, { note: '', inTouchAt: null });
+    [person] = (await service.statements()).filter((s) => s.type === 'PERSON');
+    expect(person.note).toBeUndefined();
+    expect(person.inTouchAt).toBeUndefined();
+    expect((await service.statements()).filter((s) => s.type === 'REMEMBER')).toHaveLength(1);
+  });
+
+  it('keeps the list short', async () => {
+    const { service } = setup();
+    for (let i = 0; i < 20; i++) await service.addPerson(`Person ${i}`);
+    await expect(service.addPerson('One more')).rejects.toThrow(/Up to 20/);
+  });
+});

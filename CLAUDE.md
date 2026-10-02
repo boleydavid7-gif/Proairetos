@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (200 tests), includes the language guard
+npm test             # vitest (216 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -99,6 +99,19 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Today's chips (`rhythm/aWhileAgo.ts`: 21+ days, keep rests 30 days);
   value cards reveal "In practice" (`values/descriptions.ts`); empty
   Plan/Reflect/Capture show a `GentleLine` (`stoic/gentleLines.ts`).
+- Today is shaped by the person: `useTodayParts` (Settings > What Today
+  shows; "Not for me" sets a part aside with undo) and a Lighter view
+  (`LighterView`, the leaf). Lists that come back are routines with a
+  `checklist` that clears each time (`setChecklist`); they stay off the
+  timeline and send no reminders. Reminders respect quiet hours and
+  protected time (`rhythm/quietHours.ts`; held, never dropped).
+- Trust: Support screen (`features/support/`, crisis lines, reached from
+  Settings and practices, never triggered by content); public
+  `public/privacy.html`; `delete-account` function; backup offer
+  (`rhythm/backupOffer.ts`). Appearance: `app/appearance.ts` sets
+  `data-theme` (dark default, light, system) and text size; light tokens
+  in `tokens.css`. People who matter: Compass statements of type PERSON.
+  `FEEDBACK_EMAIL` in `app/siteAddress.ts` shows Send feedback when set.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

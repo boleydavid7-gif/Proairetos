@@ -1,6 +1,6 @@
 import type { DomainContext } from '../../core/context';
 import { writeStatement } from '../../core/compass/statements';
-import type { CompassStatement, CompassStatementType } from '../../core/compass/types';
+import { MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
 import { chooseValue } from '../../core/values/rules';
 import type { ChosenValue } from '../../core/values/types';
 import type { CompassStatementRepository } from '../../data/repositories/compassStatementRepository';
@@ -61,6 +61,36 @@ export function createCompassService({ userId, context, values, statements }: Co
       await statements.add(statement);
       listeners.notify();
       return statement;
+    },
+
+    /** Adds someone who matters, by name. A short list, kept by the person. */
+    async addPerson(name: string): Promise<CompassStatement> {
+      const people = (await statements.list(userId)).filter((s) => s.type === 'PERSON');
+      if (people.length >= MAX_PEOPLE) throw new Error(`Up to ${MAX_PEOPLE} people. Remove one to add another.`);
+      const person = writeStatement(context, userId, 'PERSON', name);
+      await statements.add(person);
+      listeners.notify();
+      return person;
+    },
+
+    /** Changes a person's note or in-touch date; everything else stays as it was. */
+    async updatePerson(id: string, changes: { note?: string; inTouchAt?: string | null }): Promise<CompassStatement> {
+      const person = (await statements.list(userId)).find((s) => s.id === id && s.type === 'PERSON');
+      if (!person) throw new Error('That person is no longer on your list.');
+      const updated: CompassStatement = { ...person };
+      if ('note' in changes) {
+        const note = changes.note?.trim();
+        if (note) updated.note = note.slice(0, MAX_STATEMENT_LENGTH);
+        else delete updated.note;
+      }
+      if ('inTouchAt' in changes) {
+        if (changes.inTouchAt) updated.inTouchAt = changes.inTouchAt;
+        else delete updated.inTouchAt;
+      }
+      await statements.remove(id);
+      await statements.add(updated);
+      listeners.notify();
+      return updated;
     },
 
     /** Removes a statement, with an undo that puts it back exactly. */
