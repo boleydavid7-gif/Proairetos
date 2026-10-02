@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
+import { syncConfig } from '../../data/sync/supabase';
 import {
   confirmCode,
   requestCode,
@@ -351,6 +352,38 @@ function DeleteAccount() {
   );
 }
 
+/**
+ * For whoever sets up the server: which build settings this copy of the
+ * app was given, and when it was built. Shows only that a value is
+ * present, never the value.
+ */
+function SetupCheck() {
+  const built = typeof __BUILT_AT__ === 'string' ? new Date(__BUILT_AT__) : null;
+  const rows: [string, boolean][] = [
+    ['VITE_SUPABASE_URL', Boolean(syncConfig.url)],
+    ['VITE_SUPABASE_ANON_KEY', Boolean(syncConfig.anonKey)],
+    ['VITE_VAPID_PUBLIC_KEY', Boolean(syncConfig.vapidPublicKey)],
+  ];
+  return (
+    <details className="setup-check">
+      <summary>Setting up the server?</summary>
+      <ul>
+        {rows.map(([name, present]) => (
+          <li key={name}>
+            <code>{name}</code>: {present ? 'received' : 'not in this build'}
+          </li>
+        ))}
+      </ul>
+      {built && (
+        <p className="sheet__hint">
+          This copy was built{' '}
+          {built.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.
+        </p>
+      )}
+    </details>
+  );
+}
+
 export default function AccountSection() {
   const status = useSyncStatus();
 
@@ -359,6 +392,7 @@ export default function AccountSection() {
       <section className="settings-card" aria-label="Account and sync">
         <h2 className="section-label">Account and sync</h2>
         <p className="section-description">Sync is not set up for this app yet. Everything stays on this device.</p>
+        <SetupCheck />
       </section>
     );
   }
