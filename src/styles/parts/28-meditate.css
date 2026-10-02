@@ -211,9 +211,14 @@
 
 /* ---------- The breathing circle ---------- */
 
-/* --breath runs from 0 (rest, after the out-breath) to 1 (the top of the in-breath). */
+/*
+ * --light runs from 0 (dim, after the out-breath) to 1 (the top of the
+ * in-breath), smoothed in BreathCircle. Every layer is pre-blurred and only
+ * its opacity and scale change, so phones draw it smoothly; `screen`
+ * blending adds light to the photo behind instead of painting over it.
+ */
 .breath-circle {
-  --breath: 0;
+  --light: 0.18;
   position: relative;
   width: min(66vw, 16.5rem);
   aspect-ratio: 1;
@@ -227,45 +232,80 @@
   overflow: visible;
 }
 
-/* Light spilling out past the ring as the breath comes in. */
-.breath-circle__aura {
+.breath-circle__spill,
+.breath-circle__bloom {
   position: absolute;
-  inset: 8%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 205, 145, 0.42) 50%, rgba(255, 190, 120, 0) 72%);
-  opacity: calc(0.15 + var(--breath) * 0.85);
-  scale: calc(1 + var(--breath) * 0.5);
-  filter: blur(14px);
   pointer-events: none;
+  mix-blend-mode: screen;
+  will-change: opacity, transform;
+}
+
+.breath-circle__spill {
+  inset: -70%;
+  /* Falls off like real light: bright near the ring, then a long, even fade. */
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 220, 170, 0.3) 0%,
+    rgba(255, 210, 155, 0.26) 22%,
+    rgba(255, 198, 140, 0.17) 34%,
+    rgba(255, 188, 125, 0.09) 50%,
+    rgba(255, 180, 115, 0.04) 66%,
+    rgba(255, 175, 110, 0.012) 82%,
+    rgba(255, 175, 110, 0) 100%
+  );
+  opacity: calc(var(--light) * 0.95);
+  transform: scale(calc(0.9 + var(--light) * 0.14));
+}
+
+/* Where the ring sits (about 64% out), the light is strongest; it eases off on both sides. */
+.breath-circle__bloom {
+  inset: -14%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 230, 190, 0) 38%,
+    rgba(255, 226, 182, 0.08) 50%,
+    rgba(255, 224, 178, 0.3) 62%,
+    rgba(255, 220, 172, 0.34) 65%,
+    rgba(255, 212, 160, 0.16) 74%,
+    rgba(255, 204, 150, 0.05) 86%,
+    rgba(255, 200, 145, 0) 100%
+  );
+  filter: blur(4px);
+  opacity: calc(0.1 + var(--light) * 0.9);
+  transform: scale(calc(0.98 + var(--light) * 0.04));
 }
 
 .breath-circle__veil {
-  fill: rgba(12, 16, 26, 0.16);
+  fill: rgba(12, 16, 26, 0.14);
 }
 
-.breath-circle__fill {
-  opacity: calc(0.35 + var(--breath) * 0.65);
+.breath-circle__core {
+  mix-blend-mode: screen;
+  opacity: calc(0.25 + var(--light) * 0.75);
 }
 
-.breath-circle__glow {
+.breath-circle__halo {
   fill: none;
-  stroke: rgba(255, 200, 140, 0.55);
-  stroke-width: calc(6px + var(--breath) * 30px);
-  opacity: calc(0.2 + var(--breath) * 0.8);
-  filter: blur(calc(5px + var(--breath) * 9px));
+  stroke: rgb(255, 214, 160);
+  stroke-width: 18;
+  filter: blur(9px);
+  mix-blend-mode: screen;
+  opacity: calc(0.1 + var(--light) * 0.75);
 }
 
+/* The ring itself warms towards white as it brightens. */
 .breath-circle__ring {
   fill: none;
-  stroke: rgb(255, 220, 170);
+  stroke: rgb(255, 232, 196);
   stroke-width: 2.2;
-  opacity: calc(0.6 + var(--breath) * 0.4);
-  filter: drop-shadow(0 0 calc(3px + var(--breath) * 10px) rgba(255, 190, 120, 0.7));
+  filter: drop-shadow(0 0 4px rgba(255, 196, 130, 0.8));
+  opacity: calc(0.55 + var(--light) * 0.45);
 }
 
 /* Before a sit: just the circle, softly lit, not moving. */
 .breath-circle--still {
-  --breath: 0.25;
+  --light: 0.18;
 }
 
 .breath-circle__label {
@@ -529,15 +569,32 @@
   font-size: 0.8rem;
 }
 
-.sound-list__play {
+.sound-list__preview {
   flex: none;
   display: grid;
   place-items: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
-  color: var(--color-text);
+  background: none;
+  color: var(--color-text-muted);
+}
+
+.sound-list__preview--on {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+.sound-list__switch {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 3rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
 }
 
 .sound-list__row--on .sound-list__icon,
@@ -545,10 +602,77 @@
   color: var(--color-accent-strong);
 }
 
-.sound-list__row--on .sound-list__play {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
+/* Which kind of sit the list chooses for. */
+.meditate-for {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.meditate-for__kinds {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meditate-for__kinds .chip {
+  flex: none;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Make it your own: folded until opened. */
+.customize {
+  gap: 0;
+  padding-block: var(--space-2);
+}
+
+.customize__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.customize__chevron {
+  transition: rotate 260ms var(--ease-out, ease);
+}
+
+.customize__head[aria-expanded='true'] .customize__chevron {
+  rotate: 90deg;
+}
+
+.customize__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2) 0 var(--space-3);
+  animation: customize-in 280ms var(--ease-out, ease) both;
+}
+
+@keyframes customize-in {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+
+.customize__body .sheet__label {
+  margin: var(--space-2) 0 0;
+}
+
+.customize__body .meditate-options__lengths {
+  justify-content: flex-start;
+}
+
+.customize__reset {
+  align-self: flex-start;
 }
 
 /* Three small bars, rising and falling while something plays. */
@@ -634,61 +758,6 @@
   width: 1.5rem;
 }
 
-/* ---------- Now playing, from anywhere ---------- */
-
-.now-playing {
-  position: fixed;
-  inset: auto var(--space-5) calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-3));
-  z-index: 9;
-  max-width: 30rem;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.35);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-raised);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-  animation: toast-in 380ms var(--ease-spring, ease) both;
-}
-
-.now-playing--raised {
-  bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-3) + 3.75rem);
-}
-
-.now-playing__label {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: 2.75rem;
-  border: 0;
-  background: none;
-  color: var(--color-text);
-  font-size: 0.9rem;
-  text-align: left;
-}
-
-.now-playing__label > span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.now-playing__stop {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 0;
-  border-radius: 50%;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-}
-
 /* ---------- A sit, full screen ---------- */
 
 .sit-screen {
@@ -729,7 +798,6 @@
 
 .sit-screen__center {
   position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

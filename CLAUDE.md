@@ -178,18 +178,26 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   scripts of cues spread over 5-30 min, optionally read aloud by the phone's
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
   circle, counts, and breath sounds from one clock; the circle is still
-  until a sit starts, then glows out on the in-breath and dims on the
-  out-breath via `--breath`; no moving dot), Sounds and Music. All
+  until a sit starts, then brightens on the in-breath and dims on the
+  out-breath via `--light`, smoothed in JS (~0.35 s lag) and drawn with
+  pre-blurred `screen`-blended layers so it reads as light; no moving dot).
+  Each kind of sit (five session types + breathing) has its own setup
+  (`core/meditate/setup.ts`: length, words often/now and then/rarely/none,
+  read aloud, circle pace, counts, bells, breath sounds, sounds, music);
+  preferences keep only what changed. Sounds and Music tabs are switches
+  ("Plays during" a chosen kind) plus a 20 s preview; nothing plays
+  outside a sit except a preview. All
   real recordings in `public/sounds/*.mp3` (sources and licences in
   `docs/SOUNDS.md`). `app/sound/`: `engine` (audio clock, iPhone media
   trick `wakeAudio`/`letGo`, recordings kept in Cache Storage
   `proairetos-sounds`; the service worker skips `/sounds/`), `soundscapes`
-  catalogue, `player` (one sound looped from a decoded buffer + one piece
-  of music streamed through a media element; start it inside the tap).
+  catalogue, `player` (`startSit`: sounds looped from decoded buffers,
+  layered, + one piece of music streamed through a media element; start
+  it inside the tap; `preview`).
   Breath sounds: one recorded breath split into `breath-in.mp3` and
   `breath-out.mp3`, played at natural speed as each step starts (stretching
-  it sounded wrong). `SitScreen` is portalled to body;
-  `NowPlaying` shows what plays on other tabs. Nothing about a sit is recorded.
+  it sounded wrong). `SitScreen` is portalled to body.
+  Nothing about a sit is recorded.
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass; every word must match, newest first, all on device.
@@ -215,7 +223,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Moving between places uses view transitions (`app/transitions.ts`):
   every route change goes through `go()` in App (tabs slide by bar order,
   pages push in and pop out); a page's own tabs call `transition(...,
-  'panel')` and mark their content `.vt-panel`. The tab bar holds still
+  'panel')` and key their `.vt-panel` by tab: no snapshot there, the new
+  content just slides in (Safari tinted snapshots of filtered photos green). The tab bar holds still
   (`view-transition-name`). Without support or with reduced motion,
   changes are immediate with a soft fade.
   `28-calm.css` is the calm pass: one level of borders, muted text links,

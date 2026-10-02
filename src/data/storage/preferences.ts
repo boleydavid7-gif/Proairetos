@@ -1,5 +1,5 @@
-import type { BreathPatternId } from '../../core/meditate/breathing';
 import type { SessionId } from '../../core/meditate/sessions';
+import type { SitKind, SitSetup } from '../../core/meditate/setup';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
 
@@ -466,31 +466,30 @@ const MEDITATE_KEY = 'proairetos.meditate';
 
 export type MeditateSettings = {
   tab: 'sessions' | 'breathe' | 'sounds' | 'music';
+  /** The session type chosen on Sessions. */
   session: SessionId;
-  minutes: number;
-  /** A sound or music id, or 'none'; each session starts with its own until changed. */
-  sessionSound: Partial<Record<SessionId, string>>;
-  speak: boolean;
-  pattern: BreathPatternId;
-  breatheMinutes: number;
-  breatheSound: string;
-  breathSounds: boolean;
+  /** Which kind of sit the Sounds and Music tabs are choosing for. */
+  soundsFor: SitKind;
+  /** Only what the person changed, per kind of sit; the rest stays as it came. */
+  setups: Partial<Record<SitKind, Partial<SitSetup>>>;
 };
 
 const meditateDefaults: MeditateSettings = {
   tab: 'sessions',
   session: 'guided',
-  minutes: 10,
-  sessionSound: {},
-  speak: true,
-  pattern: 'calm',
-  breatheMinutes: 3,
-  breatheSound: 'none',
-  breathSounds: true,
+  soundsFor: 'guided',
+  setups: {},
 };
 
 export function loadMeditate(): MeditateSettings {
-  return { ...meditateDefaults, ...readJson<Partial<MeditateSettings>>(MEDITATE_KEY) };
+  const saved = readJson<Partial<MeditateSettings>>(MEDITATE_KEY) ?? {};
+  // Earlier versions kept other fields here; only these carry over.
+  return {
+    tab: saved.tab ?? meditateDefaults.tab,
+    session: saved.session ?? meditateDefaults.session,
+    soundsFor: saved.soundsFor ?? saved.session ?? meditateDefaults.soundsFor,
+    setups: saved.setups ?? {},
+  };
 }
 
 export function saveMeditate(settings: MeditateSettings): void {

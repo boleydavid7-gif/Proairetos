@@ -1,27 +1,28 @@
 import { audio, buffer, gain, isKept, letGo, recording, soundedSpan, wakeAudio, type Layer } from './engine';
-import { soundCatalogue, soundEntry, type SoundKind } from './soundscapes';
+import { soundCatalogue, soundEntry, type SoundEntry, type SoundKind } from './soundscapes';
 
 /**
- * What is playing: one sound and one piece of music at most, mixed. It
- * keeps playing across tabs until stopped, or until the timer runs out,
- * when it fades away rather than cutting off.
+ * What plays during a sit: any number of sounds layered together, and one
+ * piece of music. They begin with the sit (from the Start tap) and end
+ * with it. Separately, any one recording can be previewed for a short while
+ * on the Sounds and Music tabs.
  */
 export type PlayerState = {
-  sound: string | null;
-  music: string | null;
+  /** What a running sit is playing. */
+  playing: readonly string[];
+  /** The one recording being previewed, if any. */
+  preview: string | null;
   volume: Record<SoundKind, number>;
-  /** The timer chosen, in minutes, if any. */
-  timer: number | null;
-  /** When playing stops by itself (ms since epoch), if a timer is set. */
-  stopAt: number | null;
-  /** A recording still on its way (the first time it plays). */
-  loading: string | null;
+  /** Recordings still on their way (the first time they play). */
+  loading: readonly string[];
   /** A recording that could not be fetched, to say so plainly. */
   problem: string | null;
 };
 
 const FADE_IN = 2;
 const FADE_OUT = 1.5;
+/** A preview plays this long, then fades away by itself. */
+const PREVIEW_SECONDS = 20;
 const VOLUME_KEY = 'proairetos.soundVolume';
 
 function savedVolume(): Record<SoundKind, number> {
@@ -34,21 +35,14 @@ function savedVolume(): Record<SoundKind, number> {
   return { sound: 0.7, music: 0.6 };
 }
 
-let state: PlayerState = {
-  sound: null,
-  music: null,
-  volume: savedVolume(),
-  timer: null,
-  stopAt: null,
-  loading: null,
-  problem: null,
-};
+let state: PlayerState = { playing: [], preview: null, volume: savedVolume(), loading: [], problem: null };
 /** Music already on the device, ready to play at once (and offline). */
 const ready = new Map<string, string>();
 const listeners = new Set<() => void>();
 const buses: Partial<Record<SoundKind, GainNode>> = {};
-const playing: Partial<Record<SoundKind, Layer>> = {};
-let timer: number | undefined;
+const sit = new Map<string, Layer>();
+let previewLayer: Layer | null = null;
+let previewTimer: number | undefined;
 
 function set(next: Partial<PlayerState>): void {
   state = { ...state, ...next };
@@ -82,13 +76,14 @@ function fadeAway(layer: Layer, seconds: number): void {
     () => {
       layer.stop();
       layer.output.disconnect();
+      letGo();
     },
     seconds * 1000 + 100,
   );
 }
 
 function showOnLockScreen(): void {
-  const titles = [soundEntry(state.sound)?.title, soundEntry(state.music)?.title].filter(Boolean);
+  const titles = state.playing.map((id) => soundEntry(id)?.title).filter(Boolean);
   try {
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = titles.length
@@ -97,6 +92,81 @@ function showOnLockScreen(): void {
   } catch {
     // Not every browser shows it.
   }
+}
+
+/**
+ * Starts one recording, fading in. Sounds are short loops, decoded whole so
+ * they repeat without a seam; music is long and streams through a media
+ * element started inside the tap. `onTrouble` runs if it cannot be fetched.
+ */
+function begin(entry: SoundEntry, onTrouble: () => void): Layer {
+  wakeAudio();
+  const ctx = audio();
+  const output = gain(ctx, 0);
+  output.connect(bus(entry.kind));
+  let end = () => undefined as void;
+  let stopped = false;
+  const fadeIn = () => {
+    output.gain.setValueAtTime(0, ctx.currentTime);
+    output.gain.linearRampToValueAtTime(1, ctx.currentTime + FADE_IN);
+  };
+  const layer: Layer = {
+    output,
+    stop: () => {
+      stopped = true;
+      end();
+    },
+  };
+
+  if (entry.kind === 'sound') {
+    set({ loading: [...state.loading, entry.id] });
+    buffer(entry.file)
+      .then((data) => {
+        set({ loading: state.loading.filter((id) => id !== entry.id) });
+        if (stopped) return;
+        const source = ctx.createBufferSource();
+        const span = soundedSpan(data);
+        source.buffer = data;
+        source.loop = true;
+        source.loopStart = span.start;
+        source.loopEnd = span.end;
+        source.connect(output);
+        source.start(ctx.currentTime, span.start);
+        fadeIn();
+        end = () => {
+          try {
+            source.stop();
+          } catch {
+            // Already stopped.
+          }
+        };
+      })
+      .catch(() => {
+        set({ loading: state.loading.filter((id) => id !== entry.id) });
+        onTrouble();
+      });
+    return layer;
+  }
+
+  const element = new Audio();
+  element.loop = true;
+  element.preload = 'auto';
+  element.setAttribute('playsinline', '');
+  element.src = ready.get(entry.file) ?? entry.file;
+  const node = ctx.createMediaElementSource(element);
+  node.connect(output);
+  element.addEventListener('error', onTrouble, { once: true });
+  void element.play().catch(onTrouble);
+  fadeIn();
+  end = () => {
+    element.pause();
+    element.removeAttribute('src');
+    element.load();
+    node.disconnect();
+  };
+  // Kept on the device after this, so it plays offline next time.
+  if (!ready.has(entry.file)) void recording(entry.file).catch(() => undefined);
+  return layer;
 }
 
 export const player = {
@@ -109,88 +179,53 @@ export const player = {
     return state;
   },
 
-  /**
-   * Plays a sound or a piece of music, replacing whatever of that kind was
-   * playing. Call it from the tap itself: phones only start sound there.
-   */
-  play(id: string | null): void {
+  /** Begins what a sit plays. Call it from the Start tap itself: phones only start sound there. */
+  startSit(ids: readonly string[]): void {
+    player.stopPreview();
+    player.stop(0.3);
+    const entries = ids.map(soundEntry).filter((entry): entry is SoundEntry => entry !== undefined);
+    for (const entry of entries) {
+      const layer = begin(entry, () => {
+        if (sit.get(entry.id) !== layer) return;
+        sit.delete(entry.id);
+        set({ playing: state.playing.filter((id) => id !== entry.id), problem: entry.id });
+      });
+      sit.set(entry.id, layer);
+    }
+    set({ playing: entries.map((entry) => entry.id), problem: null });
+    showOnLockScreen();
+  },
+
+  /** Ends what the sit plays, fading over `fade` seconds. */
+  stop(fade = FADE_OUT): void {
+    for (const layer of sit.values()) fadeAway(layer, fade);
+    sit.clear();
+    if (state.playing.length) set({ playing: [] });
+    showOnLockScreen();
+  },
+
+  /** Plays one recording for a short while, or stops it if it is the one playing. */
+  preview(id: string): void {
     const entry = soundEntry(id);
     if (!entry) return;
-    const kind = entry.kind;
-    player.stop(kind);
-    wakeAudio();
-    const ctx = audio();
-    const output = gain(ctx, 0);
-    output.connect(bus(kind));
-    let end = () => undefined as void;
-    let stopped = false;
-    const layer: Layer = {
-      output,
-      stop: () => {
-        stopped = true;
-        end();
-      },
-    };
-    playing[kind] = layer;
-    set({ [kind]: entry.id, problem: null } as Partial<PlayerState>);
-    showOnLockScreen();
-    const fadeIn = () => {
-      output.gain.setValueAtTime(0, ctx.currentTime);
-      output.gain.linearRampToValueAtTime(1, ctx.currentTime + FADE_IN);
-    };
-    const couldNotPlay = () => {
-      if (playing[kind] !== layer) return;
-      player.stop(kind, 0);
-      set({ problem: entry.id, loading: null });
-    };
+    const same = state.preview === id;
+    player.stopPreview();
+    if (same) return;
+    const layer = begin(entry, () => {
+      if (previewLayer !== layer) return;
+      player.stopPreview();
+      set({ problem: id });
+    });
+    previewLayer = layer;
+    set({ preview: id, problem: null });
+    previewTimer = window.setTimeout(() => player.stopPreview(2), PREVIEW_SECONDS * 1000);
+  },
 
-    if (kind === 'sound') {
-      // Short loops: decoded whole, so they repeat without a seam.
-      set({ loading: entry.id });
-      buffer(entry.file)
-        .then((data) => {
-          if (state.loading === entry.id) set({ loading: null });
-          if (stopped) return;
-          const source = ctx.createBufferSource();
-          const span = soundedSpan(data);
-          source.buffer = data;
-          source.loop = true;
-          source.loopStart = span.start;
-          source.loopEnd = span.end;
-          source.connect(output);
-          source.start(ctx.currentTime, span.start);
-          fadeIn();
-          end = () => {
-            try {
-              source.stop();
-            } catch {
-              // Already stopped.
-            }
-          };
-        })
-        .catch(couldNotPlay);
-      return;
-    }
-
-    // Music is long: it streams through a media element, started inside the tap.
-    const element = new Audio();
-    element.loop = true;
-    element.preload = 'auto';
-    element.setAttribute('playsinline', '');
-    element.src = ready.get(entry.file) ?? entry.file;
-    const node = ctx.createMediaElementSource(element);
-    node.connect(output);
-    element.addEventListener('error', couldNotPlay, { once: true });
-    void element.play().catch(couldNotPlay);
-    fadeIn();
-    end = () => {
-      element.pause();
-      element.removeAttribute('src');
-      element.load();
-      node.disconnect();
-    };
-    // Kept on the device after this, so it plays offline next time.
-    if (!ready.has(entry.file)) void recording(entry.file).catch(() => undefined);
+  stopPreview(fade = 0.6): void {
+    window.clearTimeout(previewTimer);
+    if (previewLayer) fadeAway(previewLayer, fade);
+    previewLayer = null;
+    if (state.preview) set({ preview: null });
   },
 
   /** Readies music already on the device, so a tap plays it at once, even offline. */
@@ -202,28 +237,6 @@ export const player = {
     }
   },
 
-  /** Stops one kind, or everything, with a short fade. */
-  stop(kind?: SoundKind, fade = FADE_OUT): void {
-    for (const each of kind ? [kind] : (['sound', 'music'] as const)) {
-      const layer = playing[each];
-      if (layer) {
-        fadeAway(layer, fade);
-        window.setTimeout(letGo, fade * 1000 + 200);
-      }
-      delete playing[each];
-    }
-    set(kind ? ({ [kind]: null } as Partial<PlayerState>) : { sound: null, music: null });
-    if (!state.sound && !state.music) player.setTimer(null);
-    showOnLockScreen();
-  },
-
-  toggle(id: string): void {
-    const kind = soundEntry(id)?.kind;
-    if (!kind) return;
-    if (state[kind] === id) player.stop(kind);
-    else player.play(id);
-  },
-
   setVolume(kind: SoundKind, value: number): void {
     const node = buses[kind];
     if (node) node.gain.setTargetAtTime(value, audio().currentTime, 0.05);
@@ -233,18 +246,5 @@ export const player = {
     } catch {
       // Volume is remembered when it can be.
     }
-  },
-
-  /** Stops everything after `minutes`, fading over the last half minute. `null` keeps playing. */
-  setTimer(minutes: number | null): void {
-    window.clearTimeout(timer);
-    timer = undefined;
-    if (minutes === null) {
-      if (state.timer !== null) set({ timer: null, stopAt: null });
-      return;
-    }
-    const stopAt = Date.now() + minutes * 60_000;
-    timer = window.setTimeout(() => player.stop(undefined, 30), Math.max(0, stopAt - Date.now() - 30_000));
-    set({ timer: minutes, stopAt });
   },
 };

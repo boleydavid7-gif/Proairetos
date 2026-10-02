@@ -6,7 +6,6 @@ import DecisionSheet from '../../features/decisions/DecisionSheet';
 import FocusBar from '../../features/focus/FocusBar';
 import FocusScreen from '../../features/focus/FocusScreen';
 import FocusStart from '../../features/focus/FocusStart';
-import NowPlaying from '../../features/meditate/NowPlaying';
 import ItemSheet from '../../features/items/ItemSheet';
 import PauseScreen from '../../features/pause/PauseScreen';
 import PracticeScreen from '../../features/pause/PracticeScreen';
@@ -30,14 +29,7 @@ function useFocusSession() {
   return [session, setSession] as const;
 }
 
-export default function OverlayProvider({
-  children,
-  onMeditate,
-}: {
-  children: ReactNode;
-  /** Opens Meditate from the now-playing bar; absent while Meditate is open. */
-  onMeditate?: () => void;
-}) {
+export default function OverlayProvider({ children }: { children: ReactNode }) {
   const [itemId, setItemId] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [focusStart, setFocusStart] = useState<{ target?: FocusTarget } | null>(null);
@@ -138,7 +130,6 @@ export default function OverlayProvider({
         />
       )}
       {session && !focusVisible && <FocusBar session={session} onOpen={() => setFocusVisible(true)} />}
-      {onMeditate && <NowPlaying onOpen={onMeditate} raised={Boolean(session && !focusVisible)} />}
 
       {pausing && (
         <PauseScreen

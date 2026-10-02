@@ -2,16 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBackHandler } from '../../app/back/backStack';
 import { audio, buffer, gain, letGo, playOnce, wakeAudio } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
-import { BELL_FILE, soundEntry } from '../../app/sound/soundscapes';
-import { breathAt, breathPattern, type BreathPatternId, type BreathStepKind } from '../../core/meditate/breathing';
-import { cueAt, session, sessionCues, type SessionId } from '../../core/meditate/sessions';
+import { BELL_FILE } from '../../app/sound/soundscapes';
+import { breathAt, breathPattern, type BreathStepKind } from '../../core/meditate/breathing';
+import { cueAt, session, sessionCues } from '../../core/meditate/sessions';
+import type { SitKind, SitSetup } from '../../core/meditate/setup';
 import { PauseIcon, PlayIcon } from '../../components/icons/Icons';
 import BreathCircle from './BreathCircle';
 import lake from '../../assets/images/scenes/lake.webp';
 
-export type SitPlan =
-  | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean; breathSounds: boolean }
-  | { kind: 'breathe'; pattern: BreathPatternId; minutes: number; sound: string; breathSounds: boolean };
+/** A sit about to begin: its kind and how the person set it up. */
+export type SitPlan = { kind: SitKind; setup: SitSetup };
 
 /** The recorded breath for a step, at its own pace, starting as the step does. */
 function breathFile(kind: BreathStepKind): string | undefined {
@@ -51,10 +51,11 @@ function hush(): void {
  * them all together. Leaving early is always one tap, and nothing is kept.
  */
 export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: () => void }) {
-  const script = plan.kind === 'session' ? session(plan.id) : undefined;
-  const pattern = breathPattern(plan.kind === 'session' ? script!.pace : plan.pattern);
-  const total = plan.minutes * 60;
-  const [cues] = useState(() => (script ? sessionCues(script, plan.minutes) : []));
+  const { setup } = plan;
+  const script = plan.kind === 'breathe' ? undefined : session(plan.kind);
+  const pattern = breathPattern(setup.pace);
+  const total = setup.minutes * 60;
+  const [cues] = useState(() => (script ? sessionCues(script, setup.minutes, setup.guidance) : []));
 
   // The clock: time banked before the last pause, plus time since resuming.
   const banked = useRef(0);
@@ -69,7 +70,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
 
   const effects = useRef<GainNode | null>(null);
   const scheduled = useRef(new Set<number>());
-  const startedSound = useRef<string | null>(null);
   const spoken = useRef(-1);
   const faded = useRef(false);
 
@@ -77,8 +77,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     hush();
     // A paused sit holds the whole audio clock; let other sounds carry on.
     void audio().resume();
-    const kind = soundEntry(startedSound.current)?.kind;
-    if (kind && player.state()[kind] === startedSound.current) player.stop(kind, 2);
+    player.stop(2);
     onClose();
   }, [onClose]);
   useBackHandler(true, leave);
@@ -90,9 +89,8 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     const ctx = audio();
     effects.current = gain(ctx, 0.9);
     effects.current.connect(ctx.destination);
-    if (!script?.fadeOut) void playOnce(BELL_FILE, effects.current, 0.3).catch(() => undefined);
-    // The sound was started by the Start tap (phones only begin sound there).
-    if (soundEntry(plan.sound)) startedSound.current = plan.sound;
+    // The sounds were started by the Start tap itself (phones only begin sound there).
+    if (setup.bells) void playOnce(BELL_FILE, effects.current, 0.3).catch(() => undefined);
     let lock: { release(): Promise<void> } | undefined;
     const nav = navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } };
     if (!script?.fadeOut) nav.wakeLock?.request('screen').then((held) => (lock = held)).catch(() => undefined);
@@ -114,25 +112,24 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     const id = window.setInterval(() => {
       const seconds = elapsed();
       setNow(seconds);
-      if (script && plan.kind === 'session') {
+      if (script) {
         const cue = cueAt(cues, seconds);
         if (cue && cue.at !== spoken.current && running) {
           spoken.current = cue.at;
-          if (plan.speak && seconds - cue.at < 3) speak(cue.text);
+          if (setup.speak && seconds - cue.at < 3) speak(cue.text);
         }
         if (script.fadeOut && !faded.current && total - seconds <= 60) {
           faded.current = true;
-          const kind = soundEntry(startedSound.current)?.kind;
-          if (kind) player.stop(kind, Math.max(1, total - seconds));
+          player.stop(Math.max(1, total - seconds));
         }
       }
     }, 250);
     return () => window.clearInterval(id);
-  }, [elapsed, cues, script, plan, total, running]);
+  }, [elapsed, cues, script, setup, total, running]);
 
   // Breath sounds, a real breath, scheduled a little ahead on the audio clock.
   useEffect(() => {
-    if (!plan.breathSounds || !running || done) return;
+    if (!setup.breathSounds || !running || done) return;
     const ctx = audio();
     const bus = gain(ctx, 1);
     bus.connect(ctx.destination);
@@ -163,7 +160,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       bus.gain.setTargetAtTime(0, ctx.currentTime, 0.1);
       window.setTimeout(() => bus.disconnect(), 600);
     };
-  }, [plan, running, done, elapsed, pattern, total]);
+  }, [setup, running, done, elapsed, pattern, total]);
 
   // The end: a bell (or the quiet end of a sleep sit), and the sound eases away.
   useEffect(() => {
@@ -171,10 +168,9 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     since.current = null;
     banked.current = total * 1000;
     hush();
-    if (!script?.fadeOut && effects.current) void playOnce(BELL_FILE, effects.current, 0.1).catch(() => undefined);
-    const kind = soundEntry(startedSound.current)?.kind;
-    if (kind && player.state()[kind] === startedSound.current) player.stop(kind, script?.fadeOut ? 2 : 8);
-  }, [done, script, total]);
+    if (setup.bells && effects.current) void playOnce(BELL_FILE, effects.current, 0.1).catch(() => undefined);
+    player.stop(script?.fadeOut ? 2 : 8);
+  }, [done, script, setup, total]);
 
   function toggle() {
     if (running) {
@@ -210,7 +206,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       ) : (
         <div className="sit-screen__center">
           <p className="sit-screen__eyebrow">{title}</p>
-          {plan.kind === 'breathe' ? (
+          {setup.counts ? (
             <BreathCircle pattern={pattern} elapsed={elapsed} show="counts" />
           ) : (
             <BreathCircle pattern={pattern} elapsed={elapsed} show="caption" caption={clock(total - now)} />
@@ -219,7 +215,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
             {cue?.text ?? (plan.kind === 'breathe' ? 'Follow the circle. Breathe through the nose if that is easy.' : '')}
           </p>
           <div className="sit-screen__controls">
-            <span className="sit-screen__time">{plan.kind === 'breathe' ? `${clock(total - now)} left` : ''}</span>
+            <span className="sit-screen__time">{setup.counts ? `${clock(total - now)} left` : ''}</span>
             <button
               type="button"
               className="sit-screen__toggle"

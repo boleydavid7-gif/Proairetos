@@ -8,8 +8,9 @@ import type { AppRoute } from './routes/routeTypes';
  * loose. Where the browser has no view transitions, or the person asks
  * for less motion, the change is immediate and the page simply fades in.
  *
- * `page` moves the whole page (the tab bar stays still); `panel` moves only
- * the `.vt-panel` under a page's own tabs.
+ * `page` moves the whole page (the tab bar stays still). `panel` is for a
+ * page's own tabs: no snapshot at all (Safari tinted snapshots of filtered
+ * photos green); the new `.vt-panel` simply slides in from the side tapped.
  */
 export type Direction = 'left' | 'right' | 'forward' | 'back';
 
@@ -25,13 +26,23 @@ export function canTransition(): boolean {
   );
 }
 
+let panelTimer: number | undefined;
+
 export function transition(direction: Direction, update: () => void, scope: 'page' | 'panel' = 'page'): void {
+  const root = document.documentElement;
+  if (scope === 'panel') {
+    // The panel is keyed by its tab, so it mounts fresh and plays the slide once.
+    root.dataset.panel = direction;
+    window.clearTimeout(panelTimer);
+    panelTimer = window.setTimeout(() => delete root.dataset.panel, 450);
+    update();
+    return;
+  }
   if (!canTransition()) {
     update();
     return;
   }
-  const root = document.documentElement;
-  root.dataset.nav = scope === 'panel' ? `panel-${direction}` : direction;
+  root.dataset.nav = direction;
   const running = (document as ViewTransitionDocument).startViewTransition!(() => flushSync(update));
   running.finished.finally(() => {
     if (root.dataset.nav?.endsWith(direction)) delete root.dataset.nav;

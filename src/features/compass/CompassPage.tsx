@@ -170,7 +170,7 @@ export default function CompassPage() {
         </div>
       )}
 
-      <div className="vt-panel">
+      <div key={tab} className="vt-panel">
       {tab === 'values' && (
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">

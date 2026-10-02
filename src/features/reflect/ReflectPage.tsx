@@ -148,7 +148,7 @@ export default function ReflectPage() {
       </div>
 
       {reflections && (
-        <section className="vt-panel" aria-label="Your reflections">
+        <section key={period} className="vt-panel" aria-label="Your reflections">
           {reflections.length === 0 ? (
             <>
               <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>

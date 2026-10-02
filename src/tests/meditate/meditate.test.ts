@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { breathAt, breathPattern, breathPatterns, cycleSeconds, patternCounts } from '../../core/meditate/breathing';
 import { cueAt, sessionCues, sessionLengths, sessions } from '../../core/meditate/sessions';
+import { defaultSetup, isChanged, setupFor } from '../../core/meditate/setup';
 import { containsJudgmentLanguage } from '../../core/rules/languageRules';
 
 describe('breathing', () => {
@@ -69,5 +70,29 @@ describe('sessions', () => {
     for (const script of sessions)
       for (const text of [script.line, ...script.opening, ...script.middle, ...script.closing])
         expect(containsJudgmentLanguage(text)).toBe(false);
+  });
+});
+
+describe('each kind of sit is the person own', () => {
+  it('starts from its own defaults', () => {
+    expect(defaultSetup('sleep')).toMatchObject({ bells: false, sounds: ['rain'], breathSounds: false });
+    expect(defaultSetup('kindness').music).toBe('mozart');
+    expect(defaultSetup('breathe')).toMatchObject({ counts: true, minutes: 3, pace: 'calm' });
+  });
+
+  it('keeps only what was changed, and knows when nothing was', () => {
+    expect(setupFor('guided', { minutes: 20 }).minutes).toBe(20);
+    expect(setupFor('guided', { minutes: 20 }).pace).toBe(defaultSetup('guided').pace);
+    expect(isChanged('guided', undefined)).toBe(false);
+    expect(isChanged('guided', { minutes: defaultSetup('guided').minutes })).toBe(false);
+    expect(isChanged('guided', { sounds: ['rain'] })).toBe(true);
+  });
+
+  it('spaces words by how often they are wanted, and none leaves it to the bells', () => {
+    const guided = sessions[0];
+    const often = sessionCues(guided, 10, 'often').length;
+    const rarely = sessionCues(guided, 10, 'rarely').length;
+    expect(often).toBeGreaterThan(rarely);
+    expect(sessionCues(guided, 30, 'none')).toEqual([]);
   });
 });

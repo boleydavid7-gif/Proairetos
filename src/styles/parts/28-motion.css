@@ -219,10 +219,6 @@
   view-transition-name: tab-bar;
 }
 
-.now-playing {
-  view-transition-name: now-playing;
-}
-
 .focus-bar {
   view-transition-name: focus-bar;
 }
@@ -234,9 +230,27 @@
   gap: var(--space-5);
 }
 
-/* Named only while a page's own tabs change, so on page moves it travels with the page. */
-html[data-nav^='panel-'] .vt-panel {
-  view-transition-name: panel;
+/* A page's own tabs: the new content slides in from the side tapped. */
+html[data-panel='right'] .vt-panel {
+  animation: panel-in-right 320ms var(--ease-out) both;
+}
+
+html[data-panel='left'] .vt-panel {
+  animation: panel-in-left 320ms var(--ease-out) both;
+}
+
+@keyframes panel-in-right {
+  from {
+    opacity: 0;
+    translate: 24px 0;
+  }
+}
+
+@keyframes panel-in-left {
+  from {
+    opacity: 0;
+    translate: -24px 0;
+  }
 }
 
 .meditate-panel.vt-panel {
@@ -257,23 +271,19 @@ html[data-nav^='panel-'] .vt-panel {
 }
 
 /* Along the tab bar: the new page comes from the side of the tab tapped. */
-html[data-nav='right']::view-transition-old(root),
-html[data-nav='panel-right']::view-transition-old(panel) {
+html[data-nav='right']::view-transition-old(root) {
   animation-name: slide-out-left;
 }
 
-html[data-nav='right']::view-transition-new(root),
-html[data-nav='panel-right']::view-transition-new(panel) {
+html[data-nav='right']::view-transition-new(root) {
   animation-name: slide-in-right;
 }
 
-html[data-nav='left']::view-transition-old(root),
-html[data-nav='panel-left']::view-transition-old(panel) {
+html[data-nav='left']::view-transition-old(root) {
   animation-name: slide-out-right;
 }
 
-html[data-nav='left']::view-transition-new(root),
-html[data-nav='panel-left']::view-transition-new(panel) {
+html[data-nav='left']::view-transition-new(root) {
   animation-name: slide-in-left;
 }
 
@@ -294,16 +304,6 @@ html[data-nav='back']::view-transition-old(root) {
 
 html[data-nav='back']::view-transition-new(root) {
   animation-name: come-forward;
-}
-
-/* Only the panel moves; the rest of the page stays as it is. */
-html[data-nav^='panel-']::view-transition-old(root),
-html[data-nav^='panel-']::view-transition-new(root) {
-  animation: none;
-}
-
-html[data-nav^='panel-']::view-transition-group(panel) {
-  animation-duration: 320ms;
 }
 
 @keyframes slide-in-right {
@@ -369,8 +369,7 @@ html[data-nav='back']::view-transition-old(root) {
 
 /* With view transitions the fade-in is not needed; without them it is all there is. */
 @supports (view-transition-name: none) {
-  .page-enter,
-  .meditate-panel {
+  .page-enter {
     animation: none;
   }
 }

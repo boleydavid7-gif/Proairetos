@@ -14,8 +14,9 @@ export type SessionScript = {
   /** One line under the title. */
   line: string;
   minutes: number;
-  /** The sound it starts with; the person can change it. */
-  sound: string;
+  /** What plays at first (sound ids, and one piece of music); the person can change both. */
+  sounds: readonly string[];
+  music: string | null;
   /** The circle breathes at this pace, without counts. */
   pace: BreathPatternId;
   opening: readonly string[];
@@ -26,7 +27,7 @@ export type SessionScript = {
   source: string;
 };
 
-export const sessionLengths = [5, 10, 15, 20, 30] as const;
+export const sessionLengths = [5, 10, 15, 20, 30, 45, 60] as const;
 
 export const sessions: readonly SessionScript[] = [
   {
@@ -34,7 +35,8 @@ export const sessions: readonly SessionScript[] = [
     title: 'Guided',
     line: 'A gentle sit with the breath and the body, step by step.',
     minutes: 10,
-    sound: 'none',
+    sounds: [],
+    music: null,
     pace: 'slow',
     opening: [
       'Find a way of sitting or lying that feels steady and easy.',
@@ -63,7 +65,8 @@ export const sessions: readonly SessionScript[] = [
     title: 'Mindfulness',
     line: 'Open awareness: sounds, sensations, thoughts, coming and going.',
     minutes: 10,
-    sound: 'forest',
+    sounds: ['forest'],
+    music: null,
     pace: 'even',
     opening: [
       'Settle in, and take a few easy breaths.',
@@ -90,7 +93,8 @@ export const sessions: readonly SessionScript[] = [
     title: 'Sleep',
     line: 'A slow body scan with long out-breaths. The sound fades as it ends.',
     minutes: 20,
-    sound: 'rain',
+    sounds: ['rain'],
+    music: null,
     pace: 'four-seven-eight',
     opening: [
       'Lie down and let the bed hold all of your weight.',
@@ -117,7 +121,8 @@ export const sessions: readonly SessionScript[] = [
     title: 'Focus',
     line: 'Counting breaths from one to ten, to gather a scattered mind.',
     minutes: 10,
-    sound: 'waterfall',
+    sounds: ['waterfall'],
+    music: null,
     pace: 'even',
     opening: [
       'Sit upright and at ease.',
@@ -143,7 +148,8 @@ export const sessions: readonly SessionScript[] = [
     title: 'Kindness',
     line: 'Warm wishes, for yourself and then for others.',
     minutes: 10,
-    sound: 'mozart',
+    sounds: [],
+    music: 'mozart',
     pace: 'calm',
     opening: [
       'Settle in, and place a hand on your heart if that feels right.',
@@ -177,18 +183,24 @@ export type Cue = { at: number; text: string };
 const OPEN_GAP = 18;
 const CLOSE_GAP = 20;
 
+/** How often words come: about one every so many seconds through the middle; none is a silent sit. */
+export type Guidance = 'often' | 'some' | 'rarely' | 'none';
+export const guidanceGaps: Record<Exclude<Guidance, 'none'>, number> = { often: 40, some: 90, rarely: 180 };
+
 /**
  * The cues of a session over `minutes`, each with its start in seconds.
- * The middle cues are spread evenly with silence between; a short session
- * keeps only as many as fit, about one every 40 seconds.
+ * The middle cues are spread evenly with silence between; `guidance` sets
+ * how much silence (a short session keeps only as many as fit), and
+ * `none` leaves the whole sit to the bells.
  */
-export function sessionCues(script: SessionScript, minutes: number): Cue[] {
+export function sessionCues(script: SessionScript, minutes: number, guidance: Guidance = 'often'): Cue[] {
+  if (guidance === 'none') return [];
   const total = minutes * 60;
   const cues: Cue[] = script.opening.map((text, index) => ({ at: 3 + index * OPEN_GAP, text }));
   const middleFrom = 3 + script.opening.length * OPEN_GAP;
   const closingFrom = total - script.closing.length * CLOSE_GAP - 5;
   const room = closingFrom - middleFrom;
-  const fit = Math.max(0, Math.min(script.middle.length, Math.floor(room / 40)));
+  const fit = Math.max(0, Math.min(script.middle.length, Math.floor(room / guidanceGaps[guidance])));
   // Keep the cues spread across the script, not just the first few.
   const middle = Array.from({ length: fit }, (_, index) => script.middle[Math.floor((index * script.middle.length) / fit)]);
   middle.forEach((text, index) => cues.push({ at: Math.round(middleFrom + ((index + 0.5) * room) / fit), text }));

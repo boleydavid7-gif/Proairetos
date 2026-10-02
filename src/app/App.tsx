@@ -76,7 +76,7 @@ export default function App() {
     <NavigationContext.Provider value={go}>
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
-    <OverlayProvider onMeditate={route === 'meditate' ? undefined : () => go('meditate')}>
+    <OverlayProvider>
       <AppShell route={route} onNavigate={go}>
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
