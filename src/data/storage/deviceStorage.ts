@@ -1,6 +1,8 @@
+import type { AttachmentRepository } from '../repositories/attachmentRepository';
 import type { CompassStatementRepository } from '../repositories/compassStatementRepository';
 import type { DecisionRepository } from '../repositories/decisionRepository';
 import {
+  createIndexedDbAttachmentRepository,
   createIndexedDbCompassStatementRepository,
   createIndexedDbDecisionRepository,
   createIndexedDbItemEventRepository,
@@ -13,6 +15,7 @@ import {
 import type { ItemEventRepository } from '../repositories/itemEventRepository';
 import type { LifeItemRepository } from '../repositories/lifeItemRepository';
 import {
+  createMemoryAttachmentRepository,
   createMemoryCompassStatementRepository,
   createMemoryDecisionRepository,
   createMemoryItemEventRepository,
@@ -38,6 +41,7 @@ export type Repositories = {
   schedulePatterns: SchedulePatternRepository;
   scheduleExceptions: ScheduleExceptionRepository;
   decisions: DecisionRepository;
+  attachments: AttachmentRepository;
 };
 
 type Backend = Repositories & { mode: StorageMode; database: Promise<IDBDatabase> | null };
@@ -59,6 +63,7 @@ async function openBackend(): Promise<Backend> {
       schedulePatterns: createIndexedDbSchedulePatternRepository(ready),
       scheduleExceptions: createIndexedDbScheduleExceptionRepository(ready),
       decisions: createIndexedDbDecisionRepository(ready),
+      attachments: createIndexedDbAttachmentRepository(ready),
     };
   } catch (error) {
     console.warn('On-device storage is unavailable; keeping data in memory for this visit.', error);
@@ -73,6 +78,7 @@ async function openBackend(): Promise<Backend> {
       schedulePatterns: createMemorySchedulePatternRepository(),
       scheduleExceptions: createMemoryScheduleExceptionRepository(),
       decisions: createMemoryDecisionRepository(),
+      attachments: createMemoryAttachmentRepository(),
     };
   }
 }
@@ -108,5 +114,6 @@ export function createDeviceStorage(): Repositories & {
     schedulePatterns: deferred(backend.then((b) => b.schedulePatterns)),
     scheduleExceptions: deferred(backend.then((b) => b.scheduleExceptions)),
     decisions: deferred(backend.then((b) => b.decisions)),
+    attachments: deferred(backend.then((b) => b.attachments)),
   };
 }

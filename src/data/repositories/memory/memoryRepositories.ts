@@ -1,3 +1,5 @@
+import type { Attachment } from '../../../core/attachments/types';
+import type { AttachmentRepository } from '../attachmentRepository';
 import type { CompassStatementModel } from '../../models/compassStatementModel';
 import type { DecisionModel } from '../../models/decisionModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
@@ -109,6 +111,10 @@ export function createMemorySchedulePatternRepository(): SchedulePatternReposito
 
 export function createMemoryScheduleExceptionRepository(): ScheduleExceptionRepository {
   return createMemoryUserCollection<ScheduleExceptionModel>();
+}
+
+export function createMemoryAttachmentRepository(): AttachmentRepository {
+  return createMemoryUserCollection<Attachment>();
 }
 
 export function createMemoryDecisionRepository(): DecisionRepository {

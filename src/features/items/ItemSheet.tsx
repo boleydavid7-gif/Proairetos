@@ -4,7 +4,8 @@ import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, decisionService, lifeService } from '../../app/services';
+import { attachmentService, compassService, decisionService, lifeService } from '../../app/services';
+import Attachments from './attachments/Attachments';
 import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
@@ -585,6 +586,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
       {item.checklist && <ChecklistSection item={item} />}
 
+      <Attachments itemId={item.id} />
+
       <details
         className="sheet__more"
         open={moreOpen}
@@ -668,9 +671,14 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
           type="button"
           className="button-quiet sheet__delete"
           onClick={async () => {
+            // Its photos and files go with it; undo brings both back.
+            const files = await attachmentService.removeForItem(item.id);
             const deletion = await lifeService.deleteItem(item.id);
             onClose();
-            offerUndo(`Deleted: ${item.title}`, deletion.undo);
+            offerUndo(`Deleted: ${item.title}`, async () => {
+              await deletion.undo();
+              await files.undo();
+            });
           }}
         >
           Delete

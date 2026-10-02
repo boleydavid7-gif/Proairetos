@@ -2,6 +2,7 @@ import { IDBFactory } from 'fake-indexeddb';
 import { BackupError } from '../../data/backup/format';
 import {
   createIndexedDbCompassStatementRepository,
+  createIndexedDbAttachmentRepository,
   createIndexedDbDecisionRepository,
   createIndexedDbItemEventRepository,
   createIndexedDbLifeItemRepository,
@@ -13,6 +14,7 @@ import {
 import { openDatabase } from '../../data/storage/indexeddb/database';
 import type { Repositories } from '../../data/storage/deviceStorage';
 import { createBackupService } from '../../services/backup/backupService';
+import { createAttachmentService } from '../../services/attachments/attachmentService';
 import { createCompassService } from '../../services/compass/compassService';
 import { createDecisionService } from '../../services/decisions/decisionService';
 import { createLifeService } from '../../services/life/lifeService';
@@ -31,6 +33,7 @@ function device(userId = 'local') {
     schedulePatterns: createIndexedDbSchedulePatternRepository(db),
     scheduleExceptions: createIndexedDbScheduleExceptionRepository(db),
     decisions: createIndexedDbDecisionRepository(db),
+    attachments: createIndexedDbAttachmentRepository(db),
   };
   const { context } = testContext();
   return {
@@ -40,6 +43,7 @@ function device(userId = 'local') {
     reflections: createReflectionService({ userId, context, reflections: repositories.reflections }),
     schedule: createScheduleService({ userId, context, patterns: repositories.schedulePatterns, exceptions: repositories.scheduleExceptions }),
     decisions: createDecisionService({ userId, context, decisions: repositories.decisions }),
+    attachments: createAttachmentService({ userId, context, attachments: repositories.attachments }),
   };
 }
 
@@ -54,6 +58,7 @@ async function fill(d: ReturnType<typeof device>) {
   });
   await d.schedule.changeDay(pattern.id, '2026-10-01', []);
   await d.decisions.decide({ question: 'Teams', options: ['Stay'], choice: 'Stay' });
+  await d.attachments.add(item.id, { name: 'receipt.jpg', type: 'image/jpeg', data: new Uint8Array([255, 216, 0, 1, 2, 3]).buffer });
 }
 
 describe('backup', () => {
@@ -67,6 +72,7 @@ describe('backup', () => {
     await to.backup.replaceAll(data);
 
     expect(await to.backup.exportData()).toEqual(await from.backup.exportData());
+    expect((await to.backup.exportData()).attachments?.[0]).toMatchObject({ name: 'receipt.jpg', data: btoa(String.fromCharCode(255, 216, 0, 1, 2, 3)) });
   });
 
   it('seals a backup with a password and refuses the wrong one', async () => {

@@ -17,6 +17,21 @@ export type BackupServiceDeps = {
 };
 
 /** Everything on the device, out to a file and back. The person's data, in their hands. */
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  // In chunks, so large photos do not overflow the call stack.
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+}
+
+function fromBase64(text: string): ArrayBuffer {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
 export function createBackupService({ userId, context, repositories: r }: BackupServiceDeps) {
   async function exportData(): Promise<BackupData> {
     const lifeItems = await r.items.list(userId);
@@ -29,7 +44,8 @@ export function createBackupService({ userId, context, repositories: r }: Backup
       r.scheduleExceptions.list(userId),
       r.decisions.list(userId),
     ]);
-    return { lifeItems, itemEvents, reflections, values, statements, schedulePatterns, scheduleExceptions, decisions };
+    const attachments = (await r.attachments.list(userId)).map((attachment) => ({ ...attachment, data: toBase64(attachment.data) }));
+    return { lifeItems, itemEvents, reflections, values, statements, schedulePatterns, scheduleExceptions, decisions, attachments };
   }
 
   async function deleteAll(): Promise<void> {
@@ -43,6 +59,7 @@ export function createBackupService({ userId, context, repositories: r }: Backup
       ...current.schedulePatterns.map((pattern) => r.schedulePatterns.remove(pattern.id)),
       ...current.scheduleExceptions.map((exception) => r.scheduleExceptions.remove(exception.id)),
       ...current.decisions.map((decision) => r.decisions.remove(decision.id)),
+      ...(current.attachments ?? []).map((attachment) => r.attachments.remove(attachment.id)),
     ]);
   }
 
@@ -83,6 +100,7 @@ export function createBackupService({ userId, context, repositories: r }: Backup
       for (const pattern of mine(data.schedulePatterns)) await r.schedulePatterns.add(pattern);
       for (const exception of mine(data.scheduleExceptions)) await r.scheduleExceptions.put(exception);
       for (const decision of mine(data.decisions)) await r.decisions.add(decision);
+      for (const attachment of mine(data.attachments ?? [])) await r.attachments.add({ ...attachment, data: fromBase64(attachment.data) });
     },
   };
 }

@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (266 tests), includes the language guard
+npm test             # vitest (268 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -65,7 +65,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the day until 3 h after it ends (night shifts). Today, Plan, path,
   intention and Done today use it; Reflect periods stay calendar-based.
 - `src/data/`: repositories (IndexedDB + in-memory, same interfaces),
-  `storage/indexeddb/database.ts` (DB_VERSION 5; add stores with an
+  `storage/indexeddb/database.ts` (DB_VERSION 6; add stores with an
   upgrade test), backup format/crypto, `sync/` (keys, engine, Supabase
   adapter, local stores).
 - `src/services/`: application services; they serialize writes (life
@@ -84,8 +84,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   line, intention, Today's path = up to three picks, timeline, folded
   lists, done today, landscape at the foot). Each day in Days ahead lists its
   untimed to-dos by the person's own marks (Important, Maintenance,
-  Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has optional kinds
-  (Thought, Emotion, Concern, Idea) above the free box. Reflect is a
+  Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has the five kinds
+  above the free box. Reflect is a
   timeline; Journal (`features/journal/`) is the full-page writer with
   optional inner weather (the person picks it; the app never infers
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
@@ -94,7 +94,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the name (greeting on Today) is a device-only preference.
 - Practices are woven in, never a feature: `core/practices/practices.ts`
   (short steps + credited source), shown by `features/pause/PracticeScreen`.
-  Pause ends with "Another way to pause"; an Emotion capture may get a
+  Pause ends with "Another way to pause"; a Feeling capture may get a
   quiet "Sit with it" offer (`components/ui/QuietOffer`, rules in
   preferences `takeOffer`: at most one offer a day, "not for me" hides a
   kind, a Settings switch turns all off); a Concern's sheet starts with
@@ -106,8 +106,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Today's chips (`rhythm/aWhileAgo.ts`: 21+ days, keep rests 30 days);
   value cards reveal "In practice" (`values/descriptions.ts`); empty
   Plan/Reflect/Capture show a `GentleLine` (`stoic/gentleLines.ts`).
-- Today is shaped by the person: `useTodayParts` (Settings > What Today
-  shows; "Not for me" sets a part aside with undo) and a Lighter view
+- Today is shaped by the person: `useTodayParts` (Settings > What's
+  included; "Not for me" sets a part aside with undo) and a Lighter view
   (`LighterView`, the leaf; for the day it is chosen, easing back the next
   day). Things not sorted lead to Sort through, which also sets the kind.
   An item's When is one field: a day, plus a time if it has one
@@ -129,7 +129,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `worker/calendarProxy.ts` at `/api/calendar` (https only, calendar files
   only, nothing stored). `wrangler.jsonc` runs the Worker only for `/api/*`;
   the service worker never caches `/api/`. Events show in Today's timeline
-  and on Plan. Each calendar has a role (Just show / Counts as work /
+  and in Days ahead. Each calendar has a role (Just show / Counts as work /
   Counts as protected time); `blocksBetween()` turns timed events from
   counting calendars into schedule-shaped blocks for `usePersonalDay`,
   `closingFrom`, and reminder quiet hours.
@@ -161,13 +161,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (its steps take it) and "Make time for this": a weekly PROTECTED schedule
   (`core/compass/goalTime.ts`, linked by `patternId`) whose blocks show the
   goal's next step on Today and Days ahead (`goalLines`). Never checked.
-- Days ahead: two pages, routes `days` (list) and `calendar`
+- Days ahead: two pages, routes `plan` (list) and `calendar`
   (`features/days/DaysAheadPage`), seven days at a time with week steps;
   the calendar has Week (hours), Month (Sunday-first grid with colour
   dots and a count; the chosen day lists below),
   and Year (marked days; tap a month). Opened from "Your day" on Today (tapping
   an entry passes the day and entry via `setDaysAheadOpening`). One round
-  + button adds a timed item (`AddEventSheet`). Colours are the person's
+  + button adds something at a time or for a day (`AddEventSheet`). Colours are the person's
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
   items, schedules, and other calendars; items and schedules also take a
   `location`.
@@ -184,6 +184,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   file (one-off events; repeats are left to Other calendars), CSV and
   Todoist exports (ISO dates only), Google Tasks (Takeout JSON), and plain
   lists; `features/settings/BringInSection` shows every row before saving.
+- Photos and files on items: `attachments` store (DB 6), `services/attachments`,
+  `features/items/attachments/` (photos resized to 1600px JPEG, 10 MB cap,
+  viewer, remove with undo; deleting an item takes its files, undo restores
+  both). On device and in backups (base64, optional so older backups still
+  restore); not synced.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

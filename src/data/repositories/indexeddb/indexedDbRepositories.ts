@@ -1,3 +1,5 @@
+import type { Attachment } from '../../../core/attachments/types';
+import type { AttachmentRepository } from '../attachmentRepository';
 import type { CompassStatementModel } from '../../models/compassStatementModel';
 import type { DecisionModel } from '../../models/decisionModel';
 import type { ItemEventModel } from '../../models/itemEventModel';
@@ -125,6 +127,10 @@ export function createIndexedDbSchedulePatternRepository(db: Db): SchedulePatter
 
 export function createIndexedDbScheduleExceptionRepository(db: Db): ScheduleExceptionRepository {
   return createUserCollection<ScheduleExceptionModel>(db, stores.scheduleExceptions);
+}
+
+export function createIndexedDbAttachmentRepository(db: Db): AttachmentRepository {
+  return createUserCollection<Attachment>(db, stores.attachments);
 }
 
 export function createIndexedDbDecisionRepository(db: Db): DecisionRepository {

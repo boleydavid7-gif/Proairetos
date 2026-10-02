@@ -1,3 +1,4 @@
+import type { Attachment } from '../../core/attachments/types';
 import type { Decision } from '../../core/decisions/types';
 import type { CompassStatement } from '../../core/compass/types';
 import type { ItemEvent } from '../../core/item-events/types';
@@ -18,7 +19,11 @@ export interface BackupData {
   schedulePatterns: SchedulePattern[];
   scheduleExceptions: ScheduleException[];
   decisions: Decision[];
+  /** Photos and files, their bytes as base64. Absent in backups made before they existed. */
+  attachments?: BackupAttachment[];
 }
+
+export type BackupAttachment = Omit<Attachment, 'data'> & { data: string };
 
 export interface PlainBackup {
   format: typeof BACKUP_FORMAT;
@@ -73,6 +78,14 @@ export function validateData(value: unknown): BackupData {
       }
     }
   }
+  if (value.attachments !== undefined) {
+    if (!Array.isArray(value.attachments)) throw new BackupError('Some attachments in this file are damaged.');
+    for (const record of value.attachments) {
+      if (!isRecord(record) || typeof record.id !== 'string' || typeof record.data !== 'string' || typeof record.itemId !== 'string') {
+        throw new BackupError('Some attachments in this file are damaged.');
+      }
+    }
+  }
   return value as unknown as BackupData;
 }
 
@@ -94,5 +107,8 @@ export function parseBackupFile(text: string): BackupFile {
 }
 
 export function countRecords(data: BackupData): Record<keyof BackupData, number> {
-  return Object.fromEntries(backupKeys.map((key) => [key, data[key].length])) as Record<keyof BackupData, number>;
+  return {
+    ...Object.fromEntries(backupKeys.map((key) => [key, data[key]?.length ?? 0])),
+    attachments: data.attachments?.length ?? 0,
+  } as Record<keyof BackupData, number>;
 }

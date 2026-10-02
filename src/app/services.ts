@@ -1,5 +1,6 @@
 import { systemContext } from '../core/context';
 import { createDeviceStorage } from '../data/storage/deviceStorage';
+import { createAttachmentService } from '../services/attachments/attachmentService';
 import { createBackupService } from '../services/backup/backupService';
 import { createCompassService } from '../services/compass/compassService';
 import { createDecisionService } from '../services/decisions/decisionService';
@@ -45,3 +46,5 @@ export const scheduleService = createScheduleService({
 export const decisionService = createDecisionService({ userId, context, decisions: storage.decisions });
 
 export const backupService = createBackupService({ userId, context, repositories: storage });
+
+export const attachmentService = createAttachmentService({ userId, context, attachments: storage.attachments });

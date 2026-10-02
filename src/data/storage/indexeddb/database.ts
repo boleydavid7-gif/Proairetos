@@ -2,7 +2,8 @@ export const DB_NAME = 'proairetos';
 // Version 1: lifeItems, itemEvents, reflections. Version 2: values, statements.
 // Version 3: schedulePatterns, scheduleExceptions. Version 4: decisions.
 // Version 5: syncState (fingerprints of synced records), syncMeta (cursor, device key).
-export const DB_VERSION = 5;
+// Version 6: attachments (photos and files kept with items, device only).
+export const DB_VERSION = 6;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -15,6 +16,7 @@ export const stores = {
   decisions: 'decisions',
   syncState: 'syncState',
   syncMeta: 'syncMeta',
+  attachments: 'attachments',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -58,6 +60,9 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.syncMeta)) {
         db.createObjectStore(stores.syncMeta, { keyPath: 'name' });
+      }
+      if (!db.objectStoreNames.contains(stores.attachments)) {
+        db.createObjectStore(stores.attachments, { keyPath: 'id' }).createIndex('userId', 'userId');
       }
     };
 

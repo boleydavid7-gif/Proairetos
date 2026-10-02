@@ -9,6 +9,7 @@ import {
   createIndexedDbLifeItemRepository,
   createIndexedDbReflectionRepository,
   createIndexedDbSchedulePatternRepository,
+  createIndexedDbAttachmentRepository,
   createIndexedDbValueRepository,
 } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import {
@@ -227,6 +228,9 @@ describe('indexeddb persistence', () => {
     expect(await createIndexedDbItemEventRepository(v2).listForItem('kept')).toHaveLength(1);
     await createIndexedDbValueRepository(v2).add({ id: 'v', userId: 'u', name: 'Calm', source: 'PRESET', chosenAt: 'x' });
     expect(await createIndexedDbValueRepository(v2).list('u')).toHaveLength(1);
+    const attachments = createIndexedDbAttachmentRepository(v2);
+    await attachments.add({ id: 'a', userId: 'u', itemId: 'kept', name: 'x.jpg', type: 'image/jpeg', size: 2, createdAt: 'x', data: new Uint8Array([1, 2]).buffer });
+    expect(new Uint8Array((await attachments.list('u'))[0].data)).toEqual(new Uint8Array([1, 2]));
   });
 
   it('keeps data across reopening the database', async () => {
