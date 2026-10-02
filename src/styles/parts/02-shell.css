@@ -17,6 +17,8 @@
 
 .tab-bar {
   position: fixed;
+  /* Above page content (which sits over Today's landscape), below the focus bar, toasts, and Pause. */
+  z-index: 5;
   inset: auto 0 0 0;
   display: grid;
   grid-template-columns: repeat(5, 1fr);

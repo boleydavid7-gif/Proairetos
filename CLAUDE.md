@@ -134,7 +134,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   order; add new styles to the matching part (or a new last part).
   `29-touch.css` (last) keeps every control at least 44px to tap.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
-  `Landscape` (landscape at the foot of Today), `PageHeader` (`settings`
+  `Landscape` (fixed behind the lower half of Today, fading in from halfway; tab bar sits above it), `PageHeader` (`settings`
   prop adds the gear). Settings returns to the last main tab
   (`useReturnRoute`). Today's caption is a daily Stoic line
   (`core/stoic/dailyLine.ts`, steady through the day; avoid quotes with

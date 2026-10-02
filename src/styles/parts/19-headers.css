@@ -100,10 +100,13 @@
 
 /* Extends under the bottom padding and the translucent tab bar. */
 .page-landscape {
-  --landscape-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
-  position: relative;
-  height: calc(17rem + var(--landscape-bottom));
-  margin: auto calc(var(--space-5) * -1) calc(var(--landscape-bottom) * -1);
+  /* Fixed behind the lower half of the screen; Today's content scrolls over it, as in the mockup. */
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  height: 55svh;
   pointer-events: none;
 }
 
@@ -124,21 +127,27 @@
   content: '';
   position: absolute;
   inset: -1px 0 0;
+  /* Fades in over the top half; below that the photo shows, under a light tint so text on top stays readable. */
   background: linear-gradient(
     180deg,
     var(--color-bg) 0%,
-    rgba(var(--color-bg-rgb), 0.96) 10%,
-    rgba(var(--color-bg-rgb), 0.86) 20%,
-    rgba(var(--color-bg-rgb), 0.68) 30%,
-    rgba(var(--color-bg-rgb), 0.46) 40%,
-    rgba(var(--color-bg-rgb), 0.26) 50%,
-    rgba(var(--color-bg-rgb), 0.1) 60%,
-    rgba(var(--color-bg-rgb), 0) 70%
+    rgba(var(--color-bg-rgb), 0.9) 8%,
+    rgba(var(--color-bg-rgb), 0.74) 16%,
+    rgba(var(--color-bg-rgb), 0.56) 26%,
+    rgba(var(--color-bg-rgb), 0.42) 36%,
+    rgba(var(--color-bg-rgb), var(--landscape-scrim)) 50%,
+    rgba(var(--color-bg-rgb), var(--landscape-scrim)) 100%
   );
 }
 
 /* Wider than the column: the sides fade the same way. */
 @media (min-width: 34rem) {
+  .page-landscape {
+    left: 50%;
+    width: 34rem;
+    transform: translateX(-50%);
+  }
+
   .page-landscape::before {
     content: '';
     position: absolute;
@@ -234,4 +243,10 @@
 
 .day-stepper .day-header__back {
   margin-left: var(--space-2);
+}
+
+/* Today's content sits above the fixed landscape. */
+.page--landscape > :not(.page-landscape) {
+  position: relative;
+  z-index: 1;
 }
