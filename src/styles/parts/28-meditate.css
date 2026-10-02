@@ -153,7 +153,9 @@
 
 /* ---------- The breathing circle ---------- */
 
+/* --breath runs from 0 (rest, after the out-breath) to 1 (the top of the in-breath). */
 .breath-circle {
+  --breath: 0;
   position: relative;
   width: min(66vw, 16.5rem);
   aspect-ratio: 1;
@@ -161,36 +163,51 @@
 }
 
 .breath-circle svg {
+  position: relative;
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* Light spilling out past the ring as the breath comes in. */
+.breath-circle__aura {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 205, 145, 0.42) 50%, rgba(255, 190, 120, 0) 72%);
+  opacity: calc(0.15 + var(--breath) * 0.85);
+  scale: calc(1 + var(--breath) * 0.5);
+  filter: blur(14px);
+  pointer-events: none;
 }
 
 .breath-circle__veil {
   fill: rgba(12, 16, 26, 0.16);
 }
 
+.breath-circle__fill {
+  opacity: calc(0.35 + var(--breath) * 0.65);
+}
+
 .breath-circle__glow {
   fill: none;
-  stroke: rgba(255, 200, 140, 0.5);
-  stroke-width: 12;
-  filter: blur(8px);
+  stroke: rgba(255, 200, 140, 0.55);
+  stroke-width: calc(6px + var(--breath) * 30px);
+  opacity: calc(0.2 + var(--breath) * 0.8);
+  filter: blur(calc(5px + var(--breath) * 9px));
 }
 
 .breath-circle__ring {
   fill: none;
-  stroke: rgba(255, 220, 170, 0.85);
+  stroke: rgb(255, 220, 170);
   stroke-width: 2.2;
-  filter: drop-shadow(0 0 6px rgba(255, 190, 120, 0.55));
+  opacity: calc(0.6 + var(--breath) * 0.4);
+  filter: drop-shadow(0 0 calc(3px + var(--breath) * 10px) rgba(255, 190, 120, 0.7));
 }
 
-.breath-circle__dot {
-  fill: #ffd9a0;
-}
-
-.breath-circle__halo {
-  fill: rgba(255, 213, 154, 0.35);
-  filter: blur(4px);
+/* Before a sit: just the circle, softly lit, not moving. */
+.breath-circle--still {
+  --breath: 0.25;
 }
 
 .breath-circle__label {

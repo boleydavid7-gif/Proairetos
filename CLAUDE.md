@@ -176,7 +176,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,
   scripts of cues spread over 5-30 min, optionally read aloud by the phone's
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
-  circle, counts, and breath sounds from one clock), Sounds and Music. All
+  circle, counts, and breath sounds from one clock; the circle is still
+  until a sit starts, then glows out on the in-breath and dims on the
+  out-breath via `--breath`; no moving dot), Sounds and Music. All
   audio is generated on device with Web Audio (`app/sound/`: `engine`,
   `soundscapes` catalogue, `player` singleton with one sound + one music,
   volume, stop-after timer, limiter; `breath` for breath sounds and bells).

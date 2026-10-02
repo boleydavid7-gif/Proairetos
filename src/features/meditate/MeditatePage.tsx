@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { wakeAudio, letGo } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
@@ -36,12 +36,6 @@ function soundName(id: string): string {
   return soundEntry(id)?.title ?? 'Silence';
 }
 
-/** A clock for the circle on the page: it just keeps breathing. */
-function useIdleClock(): () => number {
-  const start = useRef(performance.now());
-  return useCallback(() => (performance.now() - start.current) / 1000, []);
-}
-
 /**
  * Meditate: sit for a while with a little guidance, follow a breathing
  * pattern, or just play a sound or some music while you do something else.
@@ -51,7 +45,6 @@ export default function MeditatePage() {
   const [settings, setSettings] = useState(loadMeditate);
   const [sitting, setSitting] = useState<SitPlan | null>(null);
   const [picking, setPicking] = useState<'session' | 'breathe' | null>(null);
-  const idle = useIdleClock();
   const update = (next: Partial<MeditateSettings>) => {
     const merged = { ...settings, ...next };
     setSettings(merged);
@@ -101,7 +94,7 @@ export default function MeditatePage() {
 
       {settings.tab === 'sessions' && (
         <section className="meditate-panel" aria-label="Sessions">
-          <BreathCircle pattern={breathPattern(script.pace)} elapsed={idle} show="words" />
+          <BreathCircle pattern={breathPattern(script.pace)} show="none" />
           <div className="session-kinds" role="radiogroup" aria-label="Kind of session">
             {sessions.map((each) => {
               const Icon = sessionIcons[each.id];
@@ -127,7 +120,14 @@ export default function MeditatePage() {
             type="button"
             className="meditate-start"
             onClick={() =>
-              start({ kind: 'session', id: script.id, minutes: settings.minutes, sound: sessionSound, speak: settings.speak })
+              start({
+                kind: 'session',
+                id: script.id,
+                minutes: settings.minutes,
+                sound: sessionSound,
+                speak: settings.speak,
+                breathSounds: settings.breathSounds,
+              })
             }
           >
             <PlayIcon size={22} />
@@ -159,6 +159,18 @@ export default function MeditatePage() {
               <span className="meditate-options__value">{soundName(sessionSound)}</span>
               <ChevronRightIcon size={16} />
             </button>
+            <button
+              type="button"
+              className="toggle-row"
+              aria-pressed={settings.breathSounds}
+              onClick={() => update({ breathSounds: !settings.breathSounds })}
+            >
+              <span className={`toggle-switch${settings.breathSounds ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+              <span className="toggle-row__text">
+                <span>Breath sounds</span>
+                <span className="toggle-row__detail">A soft breath in and out, with the circle.</span>
+              </span>
+            </button>
             <button type="button" className="toggle-row" aria-pressed={settings.speak} onClick={() => update({ speak: !settings.speak })}>
               <span className={`toggle-switch${settings.speak ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
               <span className="toggle-row__text">
@@ -173,7 +185,7 @@ export default function MeditatePage() {
 
       {settings.tab === 'breathe' && (
         <section className="meditate-panel" aria-label="Breathe">
-          <BreathCircle pattern={pattern} elapsed={idle} show="counts" />
+          <BreathCircle pattern={pattern} show="none" />
           <button
             type="button"
             className="meditate-start"

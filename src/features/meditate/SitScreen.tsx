@@ -11,7 +11,7 @@ import BreathCircle from './BreathCircle';
 import lake from '../../assets/images/scenes/lake.webp';
 
 export type SitPlan =
-  | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean }
+  | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean; breathSounds: boolean }
   | { kind: 'breathe'; pattern: BreathPatternId; minutes: number; sound: string; breathSounds: boolean };
 
 function clock(seconds: number): string {
@@ -131,7 +131,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
 
   // Breath sounds, scheduled a little ahead on the audio clock.
   useEffect(() => {
-    if (plan.kind !== 'breathe' || !plan.breathSounds || !running || done) return;
+    if (!plan.breathSounds || !running || done) return;
     const ctx = audio();
     const bus = gain(ctx, 1);
     bus.connect(ctx.destination);
