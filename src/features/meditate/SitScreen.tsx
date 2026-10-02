@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBackHandler } from '../../app/back/backStack';
-import { breathSound, bell } from '../../app/sound/breath';
-import { audio, gain, letGo, wakeAudio } from '../../app/sound/engine';
+import { audio, buffer, gain, letGo, playOnce, wakeAudio } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
-import { soundEntry } from '../../app/sound/soundscapes';
-import { breathAt, breathPattern, type BreathPatternId } from '../../core/meditate/breathing';
+import { BELL_FILE, soundEntry } from '../../app/sound/soundscapes';
+import { breathAt, breathPattern, type BreathPatternId, type BreathStepKind } from '../../core/meditate/breathing';
 import { cueAt, session, sessionCues, type SessionId } from '../../core/meditate/sessions';
 import { PauseIcon, PlayIcon } from '../../components/icons/Icons';
 import BreathCircle from './BreathCircle';
@@ -13,6 +12,12 @@ import lake from '../../assets/images/scenes/lake.webp';
 export type SitPlan =
   | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean; breathSounds: boolean }
   | { kind: 'breathe'; pattern: BreathPatternId; minutes: number; sound: string; breathSounds: boolean };
+
+/** The recorded breath for a step, slowed (pitch kept) to fit it: breath-in-4 … breath-out-8. */
+function breathFile(kind: BreathStepKind, seconds: number): string | undefined {
+  if (kind !== 'in' && kind !== 'out') return undefined;
+  return `/sounds/breath-${kind}-${Math.min(8, Math.max(4, Math.round(seconds)))}.m4a`;
+}
 
 function clock(seconds: number): string {
   const whole = Math.max(0, Math.ceil(seconds));
@@ -64,7 +69,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
   const done = now >= total;
 
   const effects = useRef<GainNode | null>(null);
-  const breathBus = useRef<GainNode | null>(null);
   const scheduled = useRef(new Set<number>());
   const startedSound = useRef<string | null>(null);
   const spoken = useRef(-1);
@@ -87,11 +91,9 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     const ctx = audio();
     effects.current = gain(ctx, 0.9);
     effects.current.connect(ctx.destination);
-    if (!script?.fadeOut) bell(ctx, effects.current, ctx.currentTime + 0.3);
-    if (soundEntry(plan.sound)) {
-      player.play(plan.sound);
-      startedSound.current = plan.sound;
-    }
+    if (!script?.fadeOut) void playOnce(BELL_FILE, effects.current, 0.3).catch(() => undefined);
+    // The sound was started by the Start tap (phones only begin sound there).
+    if (soundEntry(plan.sound)) startedSound.current = plan.sound;
     let lock: { release(): Promise<void> } | undefined;
     const nav = navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } };
     if (!script?.fadeOut) nav.wakeLock?.request('screen').then((held) => (lock = held)).catch(() => undefined);
@@ -129,25 +131,30 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     return () => window.clearInterval(id);
   }, [elapsed, cues, script, plan, total, running]);
 
-  // Breath sounds, scheduled a little ahead on the audio clock.
+  // Breath sounds, a real breath, scheduled a little ahead on the audio clock.
   useEffect(() => {
     if (!plan.breathSounds || !running || done) return;
     const ctx = audio();
     const bus = gain(ctx, 1);
     bus.connect(ctx.destination);
-    breathBus.current = bus;
     scheduled.current.clear();
+    // Fetch the few files this pattern uses before the first one is due.
+    for (const step of pattern.steps) {
+      const file = breathFile(step.kind, step.seconds);
+      if (file) void buffer(file).catch(() => undefined);
+    }
     const id = window.setInterval(() => {
       const at = elapsed();
       let moment = breathAt(at, pattern);
-      // From the next step start onwards; a step already under way stays silent.
+      // From the next step onwards; a step already under way stays quiet.
       let start = moment.stepStart + moment.step.seconds;
       while (start < at + 1.2 && start < total) {
         moment = breathAt(start + 0.001, pattern);
         const key = Math.round(start * 1000);
-        if (!scheduled.current.has(key)) {
+        const file = breathFile(moment.step.kind, moment.step.seconds);
+        if (file && !scheduled.current.has(key)) {
           scheduled.current.add(key);
-          breathSound(ctx, bus, moment.step.kind, ctx.currentTime + (start - at), Math.min(moment.step.seconds, total - start));
+          void playOnce(file, bus, Math.max(0, start - at)).catch(() => undefined);
         }
         start += moment.step.seconds;
       }
@@ -165,8 +172,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     since.current = null;
     banked.current = total * 1000;
     hush();
-    const ctx = audio();
-    if (!script?.fadeOut && effects.current) bell(ctx, effects.current, ctx.currentTime + 0.1);
+    if (!script?.fadeOut && effects.current) void playOnce(BELL_FILE, effects.current, 0.1).catch(() => undefined);
     const kind = soundEntry(startedSound.current)?.kind;
     if (kind && player.state()[kind] === startedSound.current) player.stop(kind, script?.fadeOut ? 2 : 8);
   }, [done, script, total]);

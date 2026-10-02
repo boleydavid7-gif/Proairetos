@@ -117,7 +117,7 @@ export const sessions: readonly SessionScript[] = [
     title: 'Focus',
     line: 'Counting breaths from one to ten, to gather a scattered mind.',
     minutes: 10,
-    sound: 'white',
+    sound: 'waterfall',
     pace: 'even',
     opening: [
       'Sit upright and at ease.',
@@ -143,7 +143,7 @@ export const sessions: readonly SessionScript[] = [
     title: 'Kindness',
     line: 'Warm wishes, for yourself and then for others.',
     minutes: 10,
-    sound: 'soft-keys',
+    sound: 'mozart',
     pace: 'calm',
     opening: [
       'Settle in, and place a hand on your heart if that feels right.',

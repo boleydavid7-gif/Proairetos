@@ -473,8 +473,8 @@ export type MeditateSettings = {
   speak: boolean;
   pattern: BreathPatternId;
   breatheMinutes: number;
-  breathSounds: boolean;
   breatheSound: string;
+  breathSounds: boolean;
 };
 
 const meditateDefaults: MeditateSettings = {
@@ -485,8 +485,8 @@ const meditateDefaults: MeditateSettings = {
   speak: true,
   pattern: 'calm',
   breatheMinutes: 3,
-  breathSounds: true,
   breatheSound: 'none',
+  breathSounds: true,
 };
 
 export function loadMeditate(): MeditateSettings {

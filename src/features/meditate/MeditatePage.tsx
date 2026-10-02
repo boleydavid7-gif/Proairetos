@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { wakeAudio, letGo } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
@@ -54,6 +54,7 @@ export default function MeditatePage() {
   // Sound has to be woken inside the tap itself, or iPhones keep it silent.
   const start = (plan: SitPlan) => {
     wakeAudio();
+    if (soundEntry(plan.sound)) player.play(plan.sound);
     setSitting(plan);
     window.setTimeout(letGo, 1000);
   };
@@ -168,7 +169,7 @@ export default function MeditatePage() {
               <span className={`toggle-switch${settings.breathSounds ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
               <span className="toggle-row__text">
                 <span>Breath sounds</span>
-                <span className="toggle-row__detail">A soft breath in and out, with the circle.</span>
+                <span className="toggle-row__detail">A breath in and out, with the circle.</span>
               </span>
             </button>
             <button type="button" className="toggle-row" aria-pressed={settings.speak} onClick={() => update({ speak: !settings.speak })}>
@@ -241,6 +242,11 @@ export default function MeditatePage() {
                 </button>
               ))}
             </div>
+            <button type="button" className="meditate-options__row" onClick={() => setPicking('breathe')}>
+              <span>Sound</span>
+              <span className="meditate-options__value">{soundName(settings.breatheSound)}</span>
+              <ChevronRightIcon size={16} />
+            </button>
             <button
               type="button"
               className="toggle-row"
@@ -250,13 +256,8 @@ export default function MeditatePage() {
               <span className={`toggle-switch${settings.breathSounds ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
               <span className="toggle-row__text">
                 <span>Breath sounds</span>
-                <span className="toggle-row__detail">A soft breath in and out, timed to the circle.</span>
+                <span className="toggle-row__detail">A breath in and out, with the circle.</span>
               </span>
-            </button>
-            <button type="button" className="meditate-options__row" onClick={() => setPicking('breathe')}>
-              <span>Sound</span>
-              <span className="meditate-options__value">{soundName(settings.breatheSound)}</span>
-              <ChevronRightIcon size={16} />
             </button>
           </div>
           <p className="meditate-source">{pattern.source}</p>
@@ -293,6 +294,9 @@ const timers: { minutes: number | null; label: string }[] = [
 /** Sounds or music to play on their own, while you do anything else. */
 function Library({ kind }: { kind: SoundKind }) {
   const state = useSyncExternalStore(player.subscribe, player.state);
+  useEffect(() => {
+    void player.prepare();
+  }, []);
   const playingNow = state[kind];
   const other = state[kind === 'sound' ? 'music' : 'sound'];
 
@@ -315,9 +319,15 @@ function Library({ kind }: { kind: SoundKind }) {
                 <span className="sound-list__icon">{Icon && <Icon size={24} />}</span>
                 <span className="sound-list__text">
                   <span className="sound-list__title">{entry.title}</span>
-                  <span className="sound-list__line">{entry.line}</span>
+                  <span className="sound-list__line">
+                    {state.problem === entry.id
+                      ? 'Could not load this just now. Once it has played here, it plays offline too.'
+                      : state.loading === entry.id
+                        ? 'Getting it ready…'
+                        : entry.line}
+                  </span>
                 </span>
-                {on && (
+                {on && state.loading !== entry.id && (
                   <span className="sound-list__bars" aria-hidden="true">
                     <i />
                     <i />

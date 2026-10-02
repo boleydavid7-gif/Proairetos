@@ -451,13 +451,6 @@ export function WindIcon(props: IconProps) {
   );
 }
 
-export function NoiseIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M4 10.5v3M7 8v8M10 5.5v13M13 9v6M16 7v10M19 10v4" />
-    </Icon>
-  );
-}
 
 export function KeysIcon(props: IconProps) {
   return (
@@ -469,28 +462,51 @@ export function KeysIcon(props: IconProps) {
   );
 }
 
-export function BarsIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5 19v-6M9 19V8M13 19v-9M17 19V5M21 19v-4" />
-    </Icon>
-  );
-}
 
-export function PlanetIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="5.5" />
-      <path d="M6.6 13.5C3.5 15.6 2.3 17.5 3 18.6c1.1 1.7 6.6-.3 12.2-4.4S23 6.5 21.9 4.8c-.7-1.1-2.9-.8-5.9.6" />
-    </Icon>
-  );
-}
 
 export function BowlIcon(props: IconProps) {
   return (
     <Icon {...props}>
       <path d="M3.5 11.5h17c0 4.4-3.8 8-8.5 8s-8.5-3.6-8.5-8z" />
       <path d="M9.5 8.5c.6-1 .6-2 0-3M13 8.5c.6-1 .6-2 0-3M16.5 8.5c.6-1 .6-2 0-3" />
+    </Icon>
+  );
+}
+
+export function ChimesIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 3.5h16M7 3.5v9M12 3.5v13M17 3.5v7" />
+      <path d="M6 12.5h2v3H6zM11 16.5h2v3h-2zM16 10.5h2v3h-2z" />
+    </Icon>
+  );
+}
+
+export function FanIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="1.6" />
+      <path d="M12 10.4C11 7 12 4 14.5 4s2.5 3.6-1.3 6.9M13.6 12c3.4-1 6.4 0 6.4 2.5s-3.6 2.5-6.9-1.3M12 13.6c1 3.4 0 6.4-2.5 6.4s-2.5-3.6 1.3-6.9M10.4 12C7 13 4 12 4 9.5s3.6-2.5 6.9 1.3" />
+    </Icon>
+  );
+}
+
+export function FluteIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3.5 17.5 17.5 3.5l3 3-14 14z" />
+      <circle cx="10" cy="11" r="0.7" fill="currentColor" />
+      <circle cx="12.5" cy="8.5" r="0.7" fill="currentColor" />
+      <circle cx="15" cy="6" r="0.7" fill="currentColor" />
+    </Icon>
+  );
+}
+
+export function CelloIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 2.5v6M10 8.5c-2.8 0-4 1.8-4 3.6 0 1.2.8 1.9.8 2.9S5 16.6 5 18c0 2 2.2 3.5 7 3.5s7-1.5 7-3.5c0-1.4-1.8-2-1.8-3s.8-1.7.8-2.9c0-1.8-1.2-3.6-4-3.6z" />
+      <path d="M12 8.5v10M10.5 18.5h3" />
     </Icon>
   );
 }

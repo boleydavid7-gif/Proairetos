@@ -6,7 +6,7 @@ const RING = 132;
 /**
  * The breathing circle. Still until a sit begins; then it glows outward on
  * the in-breath and dims back on the out-breath, drawing every frame from
- * `elapsed()`, the same clock as the counts and the breath sounds.
+ * `elapsed()`, the same clock as the counts and the cues.
  */
 export default function BreathCircle({
   pattern,
