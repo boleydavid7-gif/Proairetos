@@ -321,7 +321,7 @@ const viewTitles: Record<View, string> = {
   calendars: 'Other calendars',
   weather: 'Weather',
   offers: 'Quiet offers',
-  today: 'What Today shows',
+  today: 'What’s included',
   appearance: 'Appearance',
   help: 'Help & feedback',
   sources: 'Where this comes from',
@@ -440,6 +440,33 @@ const todayParts: { part: TodayPart; label: string }[] = [
   { part: 'close-day', label: 'Close the day' },
 ];
 
+const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; detail: string }[] }[] = [
+  {
+    group: 'Capture and planning',
+    parts: [
+      { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once; it is split up for you to check.' },
+      { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
+      { part: 'energy', label: 'Energy', detail: 'Say how much energy you have; things you marked as light come first.' },
+    ],
+  },
+  {
+    group: 'Compass',
+    parts: [
+      { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
+      { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
+      { part: 'words', label: 'Words', detail: 'Things to remember and things put aside.' },
+    ],
+  },
+  {
+    group: 'Reflect',
+    parts: [
+      { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
+      { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, every step optional.' },
+      { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
+    ],
+  },
+];
+
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
 const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
 
@@ -518,8 +545,12 @@ function TodaySection() {
   const shows = useTodayParts();
   const [lighter, setLighter] = useState(lighterToday);
   return (
-    <section className="settings-card" aria-label="What Today shows">
-      <p className="section-description">Keep Today as full or as bare as suits you. Nothing here is required.</p>
+    <section className="settings-card" aria-label="What’s included">
+      <p className="section-description">
+        Keep Proairetos as full or as bare as suits you. Switch anything off and it steps out of the way; switch it back
+        on any time. Nothing you recorded is lost.
+      </p>
+      <p className="sheet__label">On Today</p>
       {todayParts.map(({ part, label }) => (
         <button
           key={part}
@@ -532,6 +563,26 @@ function TodaySection() {
           <span>{label}</span>
         </button>
       ))}
+      {elsewhereParts.map(({ group, parts }) => (
+        <div key={group} className="stack-tight">
+          <p className="sheet__label">{group}</p>
+          {parts.map(({ part, label, detail }) => (
+            <button
+              key={part}
+              type="button"
+              className="toggle-row"
+              aria-pressed={shows(part)}
+              onClick={() => setTodayPartShown(part, !shows(part))}
+            >
+              <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+              <span className="toggle-row__text">
+                <span>{label}</span>
+                <span className="toggle-row__detail">{detail}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      ))}
       <p className="sheet__label">Lighter view</p>
       <button
         type="button"
@@ -543,7 +594,7 @@ function TodaySection() {
         }}
       >
         <span className={`toggle-switch${lighter ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span>Just the next thing, a pause, and capture</span>
+        <span className="toggle-row__text">Just the next thing, a pause, and capture</span>
       </button>
       <p className="sheet__hint">Also one tap from the leaf at the top of Today.</p>
     </section>
@@ -777,7 +828,7 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
-        <Row icon={<SunIcon size={22} />} title="What Today shows" onClick={() => setView('today')} />
+        <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
         <Row
           icon={<MoonIcon size={22} />}
           title="Appearance"

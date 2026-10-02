@@ -1,3 +1,4 @@
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -95,6 +96,7 @@ function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; titl
 }
 
 export default function ReflectPage() {
+  const shows = useTodayParts();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<ReflectPeriod>('today');
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.listFor(period), [period]);
@@ -145,21 +147,25 @@ export default function ReflectPage() {
       </button>
 
       <div className="settings-list">
+        {shows('insights') && (
         <MoreRow
           icon={<BreatheIcon size={22} />}
           title="Insights"
           detail="What you recorded, gathered by week and month."
           onClick={() => navigate('insights')}
         />
+        )}
+        {shows('weekly-review') && (
         <MoreRow
           icon={<BookIcon size={22} />}
           title="Weekly review"
           detail={`About 15 minutes, every step optional.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
           onClick={() => navigate('review')}
         />
+        )}
       </div>
 
-      <DecisionsSection />
+      {shows('decisions') && <DecisionsSection />}
     </div>
   );
 }

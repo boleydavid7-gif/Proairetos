@@ -314,7 +314,17 @@ export type TodayPart =
   | 'capture'
   | 'a-while-ago'
   | 'close-day'
-  | 'open-time';
+  | 'open-time'
+  // Parts elsewhere in the app, chosen in Settings > What's included.
+  | 'brain-dump'
+  | 'sort-through'
+  | 'energy'
+  | 'goals'
+  | 'people'
+  | 'words'
+  | 'insights'
+  | 'decisions'
+  | 'weekly-review';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 
@@ -326,6 +336,16 @@ export function todayHiddenSnapshot(): string {
 export function todayHidden(): TodayPart[] {
   const snapshot = todayHiddenSnapshot();
   return snapshot ? (snapshot.split(',') as TodayPart[]) : [];
+}
+
+/**
+ * A new person starts with a lighter Today: the line, intention, path,
+ * their day, and capture. The rest is one switch away in Settings. Only
+ * set when nothing was chosen yet, so no one's choices change.
+ */
+export function startLight(): void {
+  if (readJson<TodayPart[]>(TODAY_HIDDEN_KEY) !== null) return;
+  writeJson(TODAY_HIDDEN_KEY, ['look-ahead', 'open-time', 'a-while-ago', 'close-day'] satisfies TodayPart[]);
 }
 
 export function setTodayPartShown(part: TodayPart, shown: boolean): void {

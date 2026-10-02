@@ -1,3 +1,4 @@
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -110,11 +111,28 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
   );
 }
 
+type CompassTab = 'values' | 'goals' | 'people' | 'words';
+
+const compassTabs: { id: CompassTab; label: string }[] = [
+  { id: 'values', label: 'Values' },
+  { id: 'goals', label: 'Goals' },
+  { id: 'people', label: 'People' },
+  { id: 'words', label: 'Words' },
+];
+
+/** The tab last opened, kept on this device only. */
+let lastCompassTab: CompassTab = 'values';
+
 export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
   const [picking, setPicking] = useState(false);
   const [editing, setEditing] = useState(false);
+  const shows = useTodayParts();
+  const tabs = compassTabs.filter((option) => option.id === 'values' || shows(option.id));
+  const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
+  // A tab set aside in Settings falls back to values.
+  const tab = tabs.some((option) => option.id === chosenTab) ? chosenTab : 'values';
 
   if (!values) return null;
   const canAdd = values.length < MAX_USER_VALUES;
@@ -123,6 +141,27 @@ export default function CompassPage() {
     <div className="page">
       <PageHero title="Compass" subtitle="Who are you practicing becoming?" focus="peaks" />
 
+      {tabs.length > 1 && (
+        <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
+          {tabs.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              className="segmented__option"
+              aria-selected={tab === option.id}
+              onClick={() => {
+                lastCompassTab = option.id;
+                chooseTab(option.id);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {tab === 'values' && (
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
           <h2 className="section-label">My values</h2>
@@ -167,26 +206,31 @@ export default function CompassPage() {
           )
         )}
       </section>
+      )}
 
-      <GoalsSection goals={statements.filter((statement) => statement.type === 'GOAL')} />
+      {tab === 'goals' && <GoalsSection goals={statements.filter((statement) => statement.type === 'GOAL')} />}
 
-      <StatementList
-        type="REMEMBER"
-        title="Remember"
-        description="Words you want in front of you."
-        placeholder="Something to remember"
-        statements={statements.filter((statement) => statement.type === 'REMEMBER')}
-      />
+      {tab === 'words' && (
+        <>
+          <StatementList
+            type="REMEMBER"
+            title="Remember"
+            description="Words you want in front of you."
+            placeholder="Something to remember"
+            statements={statements.filter((statement) => statement.type === 'REMEMBER')}
+          />
 
-      <StatementList
-        type="PUSHED_ASIDE"
-        title="Put aside"
-        description="Things you have decided not to carry."
-        placeholder="Something to put aside"
-        statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
-      />
+          <StatementList
+            type="PUSHED_ASIDE"
+            title="Put aside"
+            description="Things you have decided not to carry."
+            placeholder="Something to put aside"
+            statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
+          />
+        </>
+      )}
 
-      <PeopleSection people={statements.filter((statement) => statement.type === 'PERSON')} />
+      {tab === 'people' && <PeopleSection people={statements.filter((statement) => statement.type === 'PERSON')} />}
     </div>
   );
 }

@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (247 tests), includes the language guard
+npm test             # vitest (251 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -74,11 +74,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `back/` (one back stack for Android back, browser back, edge swipe),
   `sync/` (controller, reminder times).
 - `src/features/`: screens. Five tabs: Today, Reflect, Plan, Capture,
-  Compass. Today = `features/now/NowPage.tsx` (greeting, daily Stoic
+  Compass. Plan is Days ahead (routes `plan` and `calendar`). Kinds are one
+  set everywhere (`core/life-items/kinds.ts`: To do, Remember, Concern,
+  Idea, Feeling), read from the stored type + capture tag. Settings >
+  What's included switches parts of Today and the app on or off
+  (`useTodayParts`; `startLight()` gives new people a lighter Today).
+  Compass is tabbed (Values, Goals, People, Words). The item sheet shows
+  essentials and puts the rest under More. Today = `features/now/NowPage.tsx` (greeting, daily Stoic
   line, intention, Today's path = up to three picks, timeline, folded
-  lists, done today, landscape at the foot). Plan (`features/plan/`)
-  groups checklists by the person's own marks (Important, Maintenance,
-  Meaningful; logic in `planView.ts`). Capture has optional kinds
+  lists, done today, landscape at the foot). Each day in Days ahead lists its
+  untimed to-dos by the person's own marks (Important, Maintenance,
+  Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has optional kinds
   (Thought, Emotion, Concern, Idea) above the free box. Reflect is a
   timeline; Journal (`features/journal/`) is the full-page writer with
   optional inner weather (the person picks it; the app never infers

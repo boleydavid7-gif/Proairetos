@@ -1,3 +1,4 @@
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import ColorChoice from '../../components/ui/ColorChoice';
 import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
@@ -437,6 +438,7 @@ function PlanSection({ item }: { item: LifeItem }) {
 }
 
 function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
+  const shows = useTodayParts();
   const { offerUndo } = useOverlays();
   const history = useServiceData(lifeService.subscribe, () => lifeService.history(item.id), [item.id]) ?? [];
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
@@ -553,7 +555,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
             <span>{item.important ? 'Marked important' : 'Mark important'}</span>
           </button>
 
-          <button
+          {shows('energy') && (
+<button
             type="button"
             className="toggle-row"
             aria-pressed={Boolean(item.light)}
@@ -562,10 +565,11 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
             <FeatherIcon size={20} />
             <span>{item.light ? 'Takes little energy' : 'Mark as taking little energy'}</span>
           </button>
+)}
 
           <PlanSection item={item} />
 
-          <GoalSection item={item} />
+          {shows('goals') && <GoalSection item={item} />}
 
           <LookSection item={item} />
 
@@ -573,7 +577,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
           {kindOf(item) !== 'CONCERN' && <ControlSplitSection item={item} />}
 
-          <DecisionSection item={item} />
+          {shows('decisions') && <DecisionSection item={item} />}
 
           <ValueConnections item={item} values={values} />
 

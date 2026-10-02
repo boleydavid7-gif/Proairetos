@@ -250,3 +250,8 @@
   position: relative;
   z-index: 1;
 }
+
+/* Today has no day arrows, so its date lines up with the page. */
+.today-header .day-stepper {
+  margin-left: 0;
+}

@@ -323,3 +323,7 @@ button.value-card__text:disabled {
   color: var(--color-text-muted);
   font-size: 0.85rem;
 }
+
+.compass-tabs {
+  grid-template-columns: repeat(var(--tabs, 4), minmax(0, 1fr));
+}

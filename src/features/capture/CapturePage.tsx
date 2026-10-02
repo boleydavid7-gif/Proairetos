@@ -19,6 +19,7 @@ import BrainDumpSheet from './BrainDumpSheet';
 import QuickSortSheet, { sortable } from './QuickSortSheet';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 
 function ClosedItems({ items }: { items: LifeItem[] }) {
   const { openItem } = useOverlays();
@@ -64,6 +65,7 @@ export default function CapturePage() {
   const [dumping, setDumping] = useState(false);
   const [sorting, setSorting] = useState(false);
   const { today } = usePersonalDay(useClock());
+  const shows = useTodayParts();
   const { openPractice, openThinkThrough } = useOverlays();
   // Tasks added on Plan live there; this list is what came through Capture.
   const active = items
@@ -99,6 +101,7 @@ export default function CapturePage() {
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
         ))}
+        {shows('brain-dump') && (
         <button type="button" className="kind-tile kind-tile--dump" onClick={() => setDumping(true)}>
           <span className="kind-tile__icon">
             <InboxIcon size={28} />
@@ -109,6 +112,7 @@ export default function CapturePage() {
           </span>
           <ChevronRightIcon size={18} className="kind-tile__chevron" />
         </button>
+        )}
       </div>
       {dumping && <BrainDumpSheet onClose={() => setDumping(false)} />}
 
@@ -153,7 +157,7 @@ export default function CapturePage() {
         <section className="plan-section" aria-label="Recent captures">
           <div className="section-heading">
             <h2 className="section-label">Recent captures</h2>
-            {sortable(items, today).length > 1 && (
+            {shows('sort-through') && sortable(items, today).length > 1 && (
               <button type="button" className="text-link" onClick={() => setSorting(true)}>
                 Sort through
               </button>

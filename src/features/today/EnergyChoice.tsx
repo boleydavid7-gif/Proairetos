@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { energyFor, setEnergy, subscribePreferences, type Energy } from '../../data/storage/preferences';
 
 const options: { id: Energy; label: string }[] = [
@@ -14,6 +15,8 @@ export function useEnergy(date: string): Energy | undefined {
 /** The person's own word for their energy today. Optional, for today only, and never guessed. */
 export default function EnergyChoice({ date }: { date: string }) {
   const energy = useEnergy(date);
+  const shows = useTodayParts();
+  if (!shows('energy')) return null;
   return (
     <div className="energy-choice">
       <span className="energy-choice__label">Energy today</span>

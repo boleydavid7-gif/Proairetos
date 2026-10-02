@@ -18,7 +18,7 @@ import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
-import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
+import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
 const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
 
@@ -50,6 +50,7 @@ export default function App() {
       <OnboardingPage
         onGetStarted={(next) => {
           markOnboarded();
+          startLight();
           if (next) setRoute(next);
           setStarted(true);
         }}

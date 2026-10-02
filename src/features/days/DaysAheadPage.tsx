@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -90,6 +91,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const { openItem } = useOverlays();
   const { today, rangeOf } = usePersonalDay(useClock());
   const [sorting, setSorting] = useState(false);
+  const shows = useTodayParts();
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -243,7 +245,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </button>
       )}
 
-      {view === 'list' && toSort.length > 1 && (
+      {view === 'list' && shows('sort-through') && toSort.length > 1 && (
         <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
           <span className="quiet-row__text">
             <span>Sort through your list</span>
