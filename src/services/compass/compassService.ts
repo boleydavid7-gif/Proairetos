@@ -1,3 +1,4 @@
+import type { TagColor } from '../../core/look/tagColors';
 import type { DomainContext } from '../../core/context';
 import { writeStatement } from '../../core/compass/statements';
 import { MAX_GOALS, MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
@@ -84,7 +85,7 @@ export function createCompassService({ userId, context, values, statements }: Co
     },
 
     /** Changes a goal's note or reached mark, with an undo that puts it back as it was. */
-    async updateGoal(id: string, changes: { note?: string; reachedAt?: string | null }): Promise<{ goal: CompassStatement; undo: () => Promise<void> }> {
+    async updateGoal(id: string, changes: { note?: string; reachedAt?: string | null; color?: TagColor | null; patternId?: string | null }): Promise<{ goal: CompassStatement; undo: () => Promise<void> }> {
       const goal = (await statements.list(userId)).find((s) => s.id === id && s.type === 'GOAL');
       if (!goal) throw new Error('That is no longer on your list.');
       const updated: CompassStatement = { ...goal };
@@ -96,6 +97,14 @@ export function createCompassService({ userId, context, values, statements }: Co
       if ('reachedAt' in changes) {
         if (changes.reachedAt) updated.reachedAt = changes.reachedAt;
         else delete updated.reachedAt;
+      }
+      if ('color' in changes) {
+        if (changes.color) updated.color = changes.color;
+        else delete updated.color;
+      }
+      if ('patternId' in changes) {
+        if (changes.patternId) updated.patternId = changes.patternId;
+        else delete updated.patternId;
       }
       await statements.remove(id);
       await statements.add(updated);

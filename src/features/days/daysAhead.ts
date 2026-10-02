@@ -1,5 +1,6 @@
 import type { CalendarSource } from '../../app/calendars/otherCalendars';
 import type { TagColor } from '../../core/look/tagColors';
+import type { CompassStatement } from '../../core/compass/types';
 import type { SchedulePattern } from '../../core/scheduling/types';
 import { blockTitle, type TimelineEntry } from '../today/timeline';
 
@@ -26,7 +27,14 @@ export type EntryLook = { title: string; color?: TagColor; icon: EntryIcon; loca
  * quiet default by kind. Colours are labels only; nothing reads meaning
  * into them.
  */
-export function entryLook(entry: Timed, patterns: readonly SchedulePattern[], sources: readonly CalendarSource[]): EntryLook {
+export type GoalContext = { goals: readonly CompassStatement[]; lines: ReadonlyMap<string, string> };
+
+export function entryLook(
+  entry: Timed,
+  patterns: readonly SchedulePattern[],
+  sources: readonly CalendarSource[],
+  goals: GoalContext = { goals: [], lines: new Map() },
+): EntryLook {
   if (entry.kind === 'shift') {
     const pattern = patterns.find((p) => p.id === entry.occurrence.patternId);
     const protectedTime = entry.occurrence.kind === 'PROTECTED';
@@ -36,12 +44,14 @@ export function entryLook(entry: Timed, patterns: readonly SchedulePattern[], so
       color: pattern?.color ?? (protectedTime ? 'sage' : 'amber'),
       icon: protectedTime ? 'protected' : 'work',
       location: pattern?.location,
-      detail: entry.occurrence.changed ? 'Changed for this day' : undefined,
+      detail: goals.lines.get(entry.occurrence.patternId) ?? (entry.occurrence.changed ? 'Changed for this day' : undefined),
     };
   }
   if (entry.kind === 'event') {
     const source = sources.find((s) => s.id === entry.event.sourceId);
     return { title: entry.event.title, color: source?.color ?? 'sky', icon: 'event', location: entry.event.location, detail: entry.event.source };
   }
-  return { title: entry.item.title, color: entry.item.color, icon: 'item', location: entry.item.location };
+  // A step toward a goal takes the goal's colour unless it has its own.
+  const goalColor = entry.item.goalId ? goals.goals.find((goal) => goal.id === entry.item.goalId)?.color : undefined;
+  return { title: entry.item.title, color: entry.item.color ?? goalColor, icon: 'item', location: entry.item.location };
 }

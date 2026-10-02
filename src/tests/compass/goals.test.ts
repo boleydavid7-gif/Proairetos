@@ -24,3 +24,14 @@ describe('goal record', () => {
     ]);
   });
 });
+
+describe('goal lines', () => {
+  it('names the goal and its oldest open step beside its time', async () => {
+    const { goalLines } = await import('../../core/compass/goals');
+    const goal = { id: 'g', userId: 'u', type: 'GOAL' as const, body: 'Learn guitar', createdAt: '', patternId: 'p' };
+    const lines = goalLines([goal, { ...goal, id: 'h', patternId: undefined }], [item('a', { title: 'Learn three chords' })]);
+    expect([...lines]).toEqual([['p', 'For Learn guitar · Next: Learn three chords']]);
+    const named = goalLines([goal], [], [{ id: 'p', name: 'Learn guitar' }]);
+    expect([...named]).toEqual([]);
+  });
+});

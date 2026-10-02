@@ -302,3 +302,24 @@ button.value-card__text:disabled {
   color: var(--color-text-faint);
   font-size: 0.8rem;
 }
+
+.goal__main--colored {
+  border-left: 4px solid var(--tag);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.goal-time {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.goal-time__when {
+  margin: 0;
+}
+
+.goal-time__next {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}

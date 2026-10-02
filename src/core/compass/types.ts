@@ -1,3 +1,5 @@
+import type { TagColor } from '../look/tagColors';
+
 /**
  * PERSON: someone who matters to the person; the body is their name.
  * GOAL: something they are working toward, in their own words.
@@ -16,6 +18,10 @@ export interface CompassStatement {
   inTouchAt?: string;
   /** For a goal: when the person said it was reached. Their mark; the app never decides it. */
   reachedAt?: string;
+  /** For a goal: a colour the person gave it; steps and its time take it too. */
+  color?: TagColor;
+  /** For a goal: the protected-time schedule the person set aside for it. */
+  patternId?: string;
 }
 
 export const MAX_PEOPLE = 20;

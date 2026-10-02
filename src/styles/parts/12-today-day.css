@@ -364,3 +364,7 @@
   outline: 1px solid var(--tag);
 }
 
+
+.timeline__detail--goal {
+  color: var(--color-accent);
+}

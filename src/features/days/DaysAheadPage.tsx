@@ -6,7 +6,8 @@ import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService, scheduleService } from '../../app/services';
+import { compassService, lifeService, scheduleService } from '../../app/services';
+import { goalLines } from '../../core/compass/goals';
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
@@ -55,7 +56,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener)];
+  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -94,16 +95,19 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
     async () => {
       const from = atTime(addDays(first, -1), '00:00');
       const until = atTime(addDays(first, span + 1), '00:00');
-      const [items, patterns, occurrences] = await Promise.all([
+      const [items, patterns, occurrences, statements] = await Promise.all([
         lifeService.list(),
         scheduleService.patterns(),
         scheduleService.occurrencesBetween(from, until),
+        compassService.statements(),
       ]);
+      const goals = statements.filter((statement) => statement.type === 'GOAL');
       const events = otherCalendars.eventsBetween(from, until);
       const sources = calendarSources();
       return {
         patterns,
         sources,
+        goals: { goals, lines: goalLines(goals, items, patterns) },
         days: days.map((date) => ({ date, entries: buildDayTimeline(date, occurrences, items, patterns, events) })),
       };
     },
@@ -231,7 +235,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   </li>
                 ))}
                 {timed.map((entry) => {
-                  const look = entryLook(entry, data.patterns, data.sources);
+                  const look = entryLook(entry, data.patterns, data.sources, data.goals);
                   const Icon = icons[look.icon];
                   const tappable = entry.kind !== 'event';
                   const body = (
@@ -303,7 +307,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 return (
                   <div key={date} className="cal-col" role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
                     {timed.map((entry) => {
-                      const look = entryLook(entry, data.patterns, data.sources);
+                      const look = entryLook(entry, data.patterns, data.sources, data.goals);
                       const from = Math.max(entry.start.getTime(), dayStart);
                       const until = Math.min(end(entry).getTime(), dayEnd);
                       const style = {
@@ -352,7 +356,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           <div className="month__grid">
             {data.days.map(({ date, entries }) => {
               const looks = entries.flatMap((entry): { title: string; color?: string; short?: string }[] =>
-                entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources)],
+                entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
               );
               const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
               return (
@@ -404,7 +408,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   ))}
                   {inMonth.map(({ date, entries }) => {
                     const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
-                    const color = timed[0] ? entryLook(timed[0], data.patterns, data.sources).color ?? 'none' : undefined;
+                    const color = timed[0] ? entryLook(timed[0], data.patterns, data.sources, data.goals).color ?? 'none' : undefined;
                     const marked = timed.length > 0 || entries.some((entry) => entry.kind === 'allday');
                     return (
                       <span

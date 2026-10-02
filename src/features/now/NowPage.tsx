@@ -9,7 +9,8 @@ import NotForMe from '../today/NotForMe';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService, scheduleService } from '../../app/services';
+import { compassService, lifeService, scheduleService } from '../../app/services';
+import { goalLines } from '../../core/compass/goals';
 import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
@@ -97,6 +98,8 @@ export default function NowPage() {
       [today],
     ) ?? [];
   const toRevisit = useDecisionsToRevisit();
+  const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
+  const linesForGoals = goalLines(statements, items, patterns ?? []);
 
   const calendarEvents =
     useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(atTime(date, '00:00'), atTime(addDays(date, 1), '00:00')), [date]) ?? [];
@@ -265,6 +268,7 @@ export default function NowPage() {
             now={isToday ? clock : undefined}
             onChangeDay={setChanging}
             onOpenItem={openItem}
+            goalLines={linesForGoals}
             onOpenEntry={(key) => {
               setDaysAheadOpening({ start: date, focusKey: key });
               navigate('days');

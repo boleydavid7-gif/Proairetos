@@ -13,6 +13,8 @@ type Props = {
   onOpenItem: (id: string) => void;
   /** When set, tapping any timed entry calls this instead, e.g. to open the days ahead. */
   onOpenEntry?: (key: string) => void;
+  /** Lines beside blocks of time set aside for a goal, by schedule id. */
+  goalLines?: ReadonlyMap<string, string>;
 };
 
 function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: string): string {
@@ -21,7 +23,7 @@ function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: str
   return [started, ends, entry.occurrence.changed ? 'changed for this day' : ''].filter(Boolean).join(' · ');
 }
 
-export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem, onOpenEntry }: Props) {
+export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem, onOpenEntry, goalLines }: Props) {
   const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday');
   const nowIndex = now ? timed.findIndex((entry) => 'start' in entry && entry.start > now) : -1;
   const markerAt = now ? (nowIndex === -1 ? timed.length : nowIndex) : -1;
@@ -83,6 +85,9 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                 <span className="timeline__body">
                   <span className="timeline__title">{blockTitle(entry.occurrence)}</span>
                   {shiftDetail(entry, date) && <span className="timeline__detail">{shiftDetail(entry, date)}</span>}
+                  {goalLines?.get(entry.occurrence.patternId) && (
+                    <span className="timeline__detail timeline__detail--goal">{goalLines.get(entry.occurrence.patternId)}</span>
+                  )}
                 </span>
               </button>
             </li>

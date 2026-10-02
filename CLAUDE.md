@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (245 tests), includes the language guard
+npm test             # vitest (247 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -148,7 +148,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   after a Concern capture; "Come back to the room" grounding practice.
   Goals: Compass "Working toward" (statement type GOAL, `reachedAt`; items
   link by `goalId`; `core/compass/goals.ts` lists next steps and steps
-  taken with dates; no percentages or targets).
+  taken with dates; no percentages or targets). A goal can have a colour
+  (its steps take it) and "Make time for this": a weekly PROTECTED schedule
+  (`core/compass/goalTime.ts`, linked by `patternId`) whose blocks show the
+  goal's next step on Today and Days ahead (`goalLines`). Never checked.
 - Days ahead: two pages, routes `days` (list) and `calendar`
   (`features/days/DaysAheadPage`), seven days at a time with week steps;
   the calendar has Week (hours), Month (chips; tap a day for its week),
