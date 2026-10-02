@@ -48,6 +48,8 @@ export interface LifeItem {
   /** The person's own mark: this takes little energy. Used only to show such things first when they say energy is low. */
   light?: boolean;
   scheduledAt?: string;
+  /** When it ends, if the person gave an end. Moves with the start, keeping its length. */
+  endsAt?: string;
   checkBackAt?: string;
   source: LifeItemSource;
   carried: boolean;

@@ -9,7 +9,7 @@ import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
 import { itemKinds, kindOf } from '../../core/life-items/kinds';
-import { formatDay, fromDateInput, toDateInput, toTimeInput } from './dateFields';
+import { endAt, formatDay, fromDateInput, toDateInput, toTimeInput } from './dateFields';
 import { atTime, toLocalDate } from '../../core/scheduling/dates';
 import { describeEvent } from './historyLabels';
 import RepeatSection from './RepeatSection';
@@ -407,15 +407,16 @@ function WhenSection({ item }: { item: LifeItem }) {
   const timedAt = item.scheduledAt ? new Date(item.scheduledAt) : undefined;
   const [day, setDay] = useState(timedAt ? toLocalDate(timedAt) : (item.plannedFor ?? ''));
   const [time, setTime] = useState(timedAt ? toTimeInput(timedAt) : '');
+  const [until, setUntil] = useState(item.endsAt ? toTimeInput(new Date(item.endsAt)) : '');
 
-  async function save(nextDay: string, nextTime: string) {
+  async function save(nextDay: string, nextTime: string, nextUntil = until) {
     if (!nextDay) {
       if (item.scheduledAt) await lifeService.schedule(item.id, undefined);
       if (item.plannedFor) await lifeService.setPlannedFor(item.id, undefined);
       return;
     }
     if (nextTime) {
-      await lifeService.schedule(item.id, atTime(nextDay, nextTime).toISOString());
+      await lifeService.scheduleSpan(item.id, atTime(nextDay, nextTime).toISOString(), endAt(nextDay, nextTime, nextUntil));
       if (item.plannedFor) await lifeService.setPlannedFor(item.id, undefined);
     } else {
       if (item.scheduledAt) await lifeService.schedule(item.id, undefined);
@@ -454,6 +455,19 @@ function WhenSection({ item }: { item: LifeItem }) {
           />
         </label>
       </div>
+      {time && (
+        <label className="block-fields__time when-until">
+          <span>Until (optional)</span>
+          <input
+            type="time"
+            className="field-input"
+            aria-label="Until"
+            value={until}
+            onChange={(event) => setUntil(event.target.value)}
+            onBlur={() => day && void save(day, time, until)}
+          />
+        </label>
+      )}
       {(day || time) && (
         <button
           type="button"
@@ -461,7 +475,8 @@ function WhenSection({ item }: { item: LifeItem }) {
           onClick={() => {
             setDay('');
             setTime('');
-            void save('', '');
+            setUntil('');
+            void save('', '', '');
           }}
         >
           Clear

@@ -509,3 +509,11 @@
   min-height: 3.25rem;
   margin-top: var(--space-6);
 }
+
+/* Search and the gear sit in the corner, as on Today; the + stays beside the title. */
+.days-corner {
+  position: static;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: calc(var(--space-5) * -1);
+}

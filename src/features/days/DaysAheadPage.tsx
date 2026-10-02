@@ -18,7 +18,7 @@ import {
   PlusIcon,
   ShieldIcon,
 } from '../../components/icons/Icons';
-import { ITEM_MINUTES } from '../../core/rhythm/openTime';
+import { itemSpan } from '../../core/rhythm/openTime';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
@@ -78,7 +78,9 @@ function subscribeAll(listener: () => void) {
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
-const end = (entry: Timed) => (entry.kind === 'item' ? new Date(entry.start.getTime() + ITEM_MINUTES * 60_000) : entry.end);
+const end = (entry: Timed) => (entry.kind === 'item' ? itemSpan(entry.item.scheduledAt!, entry.item.endsAt).end : entry.end);
+/** An item shows an end only when the person gave one. */
+const hasEnd = (entry: Timed) => entry.kind !== 'item' || Boolean(entry.item.endsAt);
 const pad = (n: number) => String(n).padStart(2, '0');
 const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
@@ -189,14 +191,16 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
 
   return (
     <div className="page days-page">
+      <div className="page-header__actions days-corner">
+        <SearchButton />
+        <SettingsButton />
+      </div>
       <header className="days-header">
         <div>
           <h1 className="page-header__title">Days ahead</h1>
           <p className="page-header__subtitle">Your upcoming days at a glance</p>
         </div>
         <span className="days-header__actions">
-          <SearchButton />
-          <SettingsButton />
           <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
             <PlusIcon size={26} />
           </button>
@@ -283,7 +287,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     <>
                       <span className="days-row__time">
                         {formatTimeOf(entry.start)}
-                        {entry.kind !== 'item' && <span className="days-row__until">{formatTimeOf(end(entry))}</span>}
+                        {hasEnd(entry) && <span className="days-row__until">{formatTimeOf(end(entry))}</span>}
                       </span>
                       <span className="days-row__icon">
                         <Icon size={22} />
@@ -465,7 +469,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                           <span className="month-row__meta">
                             <span>
                               {formatTimeOf(entry.start)}
-                              {entry.kind !== 'item' && ` – ${formatTimeOf(end(entry))}`}
+                              {hasEnd(entry) && ` – ${formatTimeOf(end(entry))}`}
                             </span>
                             {look.location && (
                               <span className="days-row__where">

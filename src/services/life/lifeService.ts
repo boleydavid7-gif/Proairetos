@@ -31,6 +31,7 @@ import {
   setGoal,
   setLook,
   setKind,
+  setEnd,
   setItemType,
   type ItemChange,
   type StatusOptions,
@@ -242,6 +243,15 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     schedule(id: string, at: string | undefined) {
       return apply(id, (item) => scheduleItem(context, item, at));
+    },
+
+    /** A start and an optional end together. */
+    scheduleSpan(id: string, at: string, endsAt: string | undefined) {
+      return serial(async () => {
+        const moved = scheduleItem(context, await load(id), at);
+        const ended = setEnd(context, moved.item, endsAt);
+        return save({ item: ended.item, events: [...moved.events, ...ended.events] });
+      });
     },
 
     setImportant(id: string, important: boolean) {

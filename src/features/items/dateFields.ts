@@ -1,3 +1,5 @@
+import { addDays, atTime } from '../../core/scheduling/dates';
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 function localDate(date: Date): string {
@@ -50,3 +52,13 @@ export function formatDay(iso: string): string {
 export function toTimeInput(date: Date): string {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+/** An end on the same day, or the next morning when it is earlier than the start (overnight). */
+export function endAt(day: string, start: string, until: string): string | undefined {
+  if (!until) return undefined;
+  const begin = atTime(day, start);
+  let finish = atTime(day, until);
+  if (finish <= begin) finish = atTime(addDays(day, 1), until);
+  return finish.toISOString();
+}
+

@@ -109,7 +109,7 @@ export default function NowPage() {
   const busy = [
     ...nearOccurrences,
     ...todayEvents.filter((event) => !event.allDay),
-    ...items.filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.scheduledAt).map((item) => itemSpan(item.scheduledAt!)),
+    ...items.filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.scheduledAt).map((item) => itemSpan(item.scheduledAt!, item.endsAt)),
   ];
   const stretches = openStretches(todayRange, clock, busy, loadQuietHours());
   const clashes = overlaps(

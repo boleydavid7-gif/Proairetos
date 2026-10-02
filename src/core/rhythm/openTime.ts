@@ -52,7 +52,9 @@ function roundUp(date: Date): Date {
   return new Date(Math.ceil(date.getTime() / quarter) * quarter);
 }
 
-export function itemSpan(scheduledAt: string): Span {
+/** The time an item holds: to its end if it has one, else ITEM_MINUTES. */
+export function itemSpan(scheduledAt: string, endsAt?: string): Span {
   const start = new Date(scheduledAt);
-  return { start, end: new Date(start.getTime() + ITEM_MINUTES * 60_000) };
+  const end = endsAt && new Date(endsAt) > start ? new Date(endsAt) : new Date(start.getTime() + ITEM_MINUTES * 60_000);
+  return { start, end };
 }

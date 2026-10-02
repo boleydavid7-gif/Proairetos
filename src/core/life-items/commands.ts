@@ -137,15 +137,31 @@ export function changeStatus(
 }
 
 /** Sets, moves, or clears the time an item is scheduled for. */
+/** A new start for an item, with its end (if any) moved to keep the same length; no start clears the end. */
+function movedTo(item: LifeItem, at: string | undefined): Pick<LifeItem, 'scheduledAt' | 'endsAt'> {
+  if (!at) return { scheduledAt: undefined, endsAt: undefined };
+  if (!item.endsAt || !item.scheduledAt) return { scheduledAt: at, endsAt: item.endsAt };
+  const length = new Date(item.endsAt).getTime() - new Date(item.scheduledAt).getTime();
+  return { scheduledAt: at, endsAt: new Date(new Date(at).getTime() + length).toISOString() };
+}
+
 export function scheduleItem(ctx: DomainContext, item: LifeItem, at: string | undefined): ItemChange {
   if (item.scheduledAt === at) return { item, events: [] };
 
   const timestamp = ctx.now().toISOString();
   const kind = item.scheduledAt ? 'RESCHEDULED' : 'SCHEDULED';
   return {
-    item: touch(item, timestamp, { scheduledAt: at }),
+    item: touch(item, timestamp, movedTo(item, at)),
     events: [event(ctx, item.id, kind, timestamp, { fromTime: item.scheduledAt, toTime: at })],
   };
+}
+
+/** Sets or clears the end. An end at or before the start is not kept. */
+export function setEnd(ctx: DomainContext, item: LifeItem, endsAt: string | undefined): ItemChange {
+  const valid = endsAt && item.scheduledAt && new Date(endsAt) > new Date(item.scheduledAt) ? endsAt : undefined;
+  if (item.endsAt === valid) return { item, events: [] };
+  const { endsAt: _previous, ...rest } = item;
+  return { item: touch(rest, ctx.now().toISOString(), valid ? { endsAt: valid } : {}), events: [] };
 }
 
 export function setCarried(ctx: DomainContext, item: LifeItem, carried: boolean): ItemChange {
@@ -302,7 +318,7 @@ export function rollRoutineForward(item: LifeItem, now: Date): LifeItem {
   if (toLocalDate(new Date(item.scheduledAt)) >= today) return item;
   return {
     ...item,
-    scheduledAt: occurrenceOnOrAfter(item.repeat, item.scheduledAt, today),
+    ...movedTo(item, occurrenceOnOrAfter(item.repeat, item.scheduledAt, today)),
     ...(item.checklist ? { checklist: freshLines(item.checklist) } : {}),
   };
 }
@@ -315,7 +331,7 @@ export function completeRoutine(ctx: DomainContext, item: LifeItem): ItemChange 
   const timestamp = ctx.now().toISOString();
   return {
     item: touch(item, timestamp, {
-      scheduledAt: nextOccurrence(item.repeat, item.scheduledAt),
+      ...movedTo(item, nextOccurrence(item.repeat, item.scheduledAt)),
       nextStep: undefined,
       ...(item.checklist ? { checklist: freshLines(item.checklist) } : {}),
     }),
@@ -326,7 +342,7 @@ export function completeRoutine(ctx: DomainContext, item: LifeItem): ItemChange 
 /** Skips this time of a routine without recording anything against it. */
 export function skipRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
   if (!item.repeat || !item.scheduledAt) throw new Error('This item does not repeat.');
-  return { item: touch(item, ctx.now().toISOString(), { scheduledAt: nextOccurrence(item.repeat, item.scheduledAt) }), events: [] };
+  return { item: touch(item, ctx.now().toISOString(), movedTo(item, nextOccurrence(item.repeat, item.scheduledAt))), events: [] };
 }
 
 export const MAX_TODAY_PICKS = 3;

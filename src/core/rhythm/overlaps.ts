@@ -14,7 +14,7 @@ export function overlaps(items: readonly LifeItem[], busy: readonly Busy[], from
   for (const item of items) {
     if (item.status !== 'OPEN' && item.status !== 'WAITING') continue;
     if (!item.scheduledAt || item.repeat) continue;
-    const span = itemSpan(item.scheduledAt);
+    const span = itemSpan(item.scheduledAt, item.endsAt);
     if (span.end <= from || span.start >= until) continue;
     const clash = busy.find((block) => span.start < block.end && span.end > block.start);
     if (clash) found.push({ item, with: clash.title, key: `${item.id}@${item.scheduledAt}` });

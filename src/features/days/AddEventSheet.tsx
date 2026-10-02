@@ -8,6 +8,7 @@ import type { RepeatRule } from '../../core/life-items/repeat';
 import type { PlanGroup } from '../../core/life-items/types';
 import { atTime } from '../../core/scheduling/dates';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
+import { endAt } from '../items/dateFields';
 
 const listRepeats: { id: string; label: string; rule: RepeatRule }[] = [
   { id: 'daily', label: 'Every day', rule: { kind: 'EVERY_N_DAYS', interval: 1 } },
@@ -36,6 +37,7 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
   const [day, setDay] = useState(date);
   const [timed, setTimed] = useState(true);
   const [time, setTime] = useState('09:00');
+  const [until, setUntil] = useState('');
   const [location, setLocation] = useState('');
   const [color, setColor] = useState<TagColor | undefined>();
   const [more, setMore] = useState(false);
@@ -71,7 +73,7 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
       } else if (timed) {
         const at = atTime(day, time);
         const item = await lifeService.add(title, 'TODO', marks);
-        await lifeService.schedule(item.id, at.toISOString());
+        await lifeService.scheduleSpan(item.id, at.toISOString(), endAt(day, time, until));
         id = item.id;
         message = `Added: ${item.title}, ${formatLocalDay(day)} ${formatTimeOf(at)}`;
       } else {
@@ -130,6 +132,12 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
               <label className="block-fields__time">
                 <span>Time</span>
                 <input type="time" className="field-input" aria-label="Time" value={time} onChange={(event) => setTime(event.target.value)} />
+              </label>
+            )}
+            {timed && !asList && (
+              <label className="block-fields__time">
+                <span>Until</span>
+                <input type="time" className="field-input" aria-label="Until" value={until} onChange={(event) => setUntil(event.target.value)} />
               </label>
             )}
           </div>

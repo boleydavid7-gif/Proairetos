@@ -36,7 +36,7 @@ export function feedEvents(occurrences: readonly ScheduleOccurrence[], items: re
       if (item.status !== 'OPEN' && item.status !== 'WAITING') continue;
       if (item.scheduledAt) {
         const start = new Date(item.scheduledAt);
-        events.push({ uid: `item-${item.id}`, title: item.title, start, end: new Date(start.getTime() + ITEM_MINUTES * 60_000) });
+        events.push({ uid: `item-${item.id}`, title: item.title, start, end: item.endsAt && new Date(item.endsAt) > start ? new Date(item.endsAt) : new Date(start.getTime() + ITEM_MINUTES * 60_000) });
       } else if (item.plannedFor) {
         events.push({ uid: `item-${item.id}`, title: item.title, date: item.plannedFor });
       }
