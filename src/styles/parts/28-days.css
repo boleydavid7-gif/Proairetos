@@ -517,3 +517,30 @@
   justify-content: flex-end;
   margin-bottom: calc(var(--space-5) * -1);
 }
+
+/* ---------- Bring things in ---------- */
+
+.import-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.import-sources strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.import-file {
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+.import-list {
+  max-height: 55svh;
+  overflow-y: auto;
+}

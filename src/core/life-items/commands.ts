@@ -36,6 +36,7 @@ export type CaptureInput = {
   goalId?: string;
   location?: string;
   color?: TagColor;
+  notes?: string;
 };
 
 function event(
@@ -74,6 +75,7 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
     ...(input.goalId ? { goalId: input.goalId } : {}),
     ...(input.location?.trim() ? { location: input.location.trim() } : {}),
     ...(input.color ? { color: input.color } : {}),
+    ...(input.notes?.trim() ? { notes: input.notes.trim() } : {}),
     createdAt: timestamp,
     updatedAt: timestamp,
   };

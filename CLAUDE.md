@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (255 tests), includes the language guard
+npm test             # vitest (266 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -178,6 +178,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   sends `?share_title&share_text&share_url` to `/`; `features/share/` reads
   it once, cleans the address, and offers a Capture sheet. Bump the
   service worker cache when the manifest changes.
+- End times: items take `endsAt` (Until); moving the start keeps the
+  length (`movedTo` in commands, routines too); `itemSpan` uses it.
+- Bring things in (Settings): `core/import/readers.ts` reads a calendar
+  file (one-off events; repeats are left to Other calendars), CSV and
+  Todoist exports (ISO dates only), Google Tasks (Takeout JSON), and plain
+  lists; `features/settings/BringInSection` shows every row before saving.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

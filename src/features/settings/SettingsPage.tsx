@@ -1,3 +1,4 @@
+import BringInSection from './BringInSection';
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
@@ -305,7 +306,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'weather' | 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'import' | 'weather' | 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -325,6 +326,7 @@ const viewTitles: Record<View, string> = {
   help: 'Help & feedback',
   sources: 'Where this comes from',
   account: 'Account and sync',
+  import: 'Bring things in',
   backup: 'Back up and restore',
   privacy: 'Privacy',
   delete: 'Delete everything',
@@ -726,6 +728,7 @@ export default function SettingsPage() {
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
+        {view === 'import' && <BringInSection />}
         {view === 'backup' && (
           <>
             <ExportSection />
@@ -813,6 +816,7 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row icon={<InboxIcon size={22} />} title="Bring things in" value="From other apps" onClick={() => setView('import')} />
         <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
         <Row
           icon={<MoonIcon size={22} />}
