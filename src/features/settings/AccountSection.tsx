@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
+import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import {
   confirmCode,
   disableReminders,
@@ -8,6 +9,7 @@ import {
   confirmEncryption,
   prepareEncryption,
   deleteAccount,
+  refreshReminders,
   signOut,
   syncNow,
   syncStatus,
@@ -309,6 +311,7 @@ function Ready() {
           </button>
         )}
         {reminderError && <p className="form-error">{reminderError}</p>}
+        {status.reminders === 'on' && <QuietHoursControls />}
       </div>
 
       {confirmingSignOut ? (
@@ -330,6 +333,53 @@ function Ready() {
       )}
 
       <DeleteAccount />
+    </div>
+  );
+}
+
+/** When reminders wait. A held reminder arrives as soon as the quiet ends. */
+function QuietHoursControls() {
+  const [quiet, setQuiet] = useState(loadQuietHours);
+  const update = (next: typeof quiet) => {
+    setQuiet(next);
+    saveQuietHours(next);
+    void refreshReminders();
+  };
+  return (
+    <div className="quiet-hours">
+      <button type="button" className="toggle-row" aria-pressed={quiet.on} onClick={() => update({ ...quiet, on: !quiet.on })}>
+        <span className={`toggle-switch${quiet.on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>Quiet hours</span>
+      </button>
+      {quiet.on && (
+        <div className="field-row">
+          <input
+            type="time"
+            className="field-input"
+            aria-label="Quiet from"
+            value={quiet.start}
+            onChange={(event) => event.target.value && update({ ...quiet, start: event.target.value })}
+          />
+          <span className="sheet__hint">to</span>
+          <input
+            type="time"
+            className="field-input"
+            aria-label="Quiet until"
+            value={quiet.end}
+            onChange={(event) => event.target.value && update({ ...quiet, end: event.target.value })}
+          />
+        </div>
+      )}
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={quiet.duringProtected}
+        onClick={() => update({ ...quiet, duringProtected: !quiet.duringProtected })}
+      >
+        <span className={`toggle-switch${quiet.duringProtected ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>Also during protected time in my schedule</span>
+      </button>
+      <p className="sheet__hint">A reminder that falls in quiet time arrives when it ends. None are dropped.</p>
     </div>
   );
 }

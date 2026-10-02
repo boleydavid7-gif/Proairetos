@@ -34,7 +34,7 @@ export function buildDayTimeline(
     }));
 
   const scheduled: TimelineEntry[] = items
-    .filter((item) => isOpen(item) && item.scheduledAt && toLocalDate(new Date(item.scheduledAt)) === date)
+    .filter((item) => isOpen(item) && !item.checklist && item.scheduledAt && toLocalDate(new Date(item.scheduledAt)) === date)
     .map((item) => ({ kind: 'item', key: item.id, start: new Date(item.scheduledAt!), item }));
 
   const startingToday = new Set(occurrences.filter((o) => o.date === date).map((o) => o.patternId));

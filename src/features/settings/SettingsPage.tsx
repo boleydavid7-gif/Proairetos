@@ -2,6 +2,7 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -15,6 +16,7 @@ import {
   InboxIcon,
   MoonIcon,
   ShieldIcon,
+  SunIcon,
 } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
@@ -22,6 +24,10 @@ import {
   clearPreferences,
   displayName,
   hiddenOffers,
+  lighterToday,
+  setLighterToday,
+  setTodayPartShown,
+  type TodayPart,
   quietOffersOn,
   restoreOffers,
   setQuietOffers,
@@ -290,7 +296,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -303,6 +309,7 @@ const viewTitles: Record<View, string> = {
   day: 'When your day starts',
   calendar: 'Calendar subscription',
   offers: 'Quiet offers',
+  today: 'What Today shows',
   sources: 'Where this comes from',
   account: 'Account and sync',
   backup: 'Back up and restore',
@@ -405,6 +412,53 @@ function DaySection() {
 function daySummary(): string {
   const settings = loadDaySettings();
   return settings.followShifts ? 'Follows your schedule' : hourLabel(settings.startHour);
+}
+
+const todayParts: { part: TodayPart; label: string }[] = [
+  { part: 'line', label: 'The daily line' },
+  { part: 'look-ahead', label: 'Look ahead' },
+  { part: 'intention', label: 'Today’s intention' },
+  { part: 'path', label: 'Today’s path' },
+  { part: 'schedule-prompt', label: 'Add your schedule' },
+  { part: 'capture', label: 'Capture line' },
+  { part: 'a-while-ago', label: 'From a while ago' },
+  { part: 'close-day', label: 'Close the day' },
+];
+
+function TodaySection() {
+  const shows = useTodayParts();
+  const [lighter, setLighter] = useState(lighterToday);
+  return (
+    <section className="settings-card" aria-label="What Today shows">
+      <p className="section-description">Keep Today as full or as bare as suits you. Nothing here is required.</p>
+      {todayParts.map(({ part, label }) => (
+        <button
+          key={part}
+          type="button"
+          className="toggle-row"
+          aria-pressed={shows(part)}
+          onClick={() => setTodayPartShown(part, !shows(part))}
+        >
+          <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+          <span>{label}</span>
+        </button>
+      ))}
+      <p className="sheet__label">Lighter view</p>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={lighter}
+        onClick={() => {
+          setLighterToday(!lighter);
+          setLighter(!lighter);
+        }}
+      >
+        <span className={`toggle-switch${lighter ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>Just the next thing, a pause, and capture</span>
+      </button>
+      <p className="sheet__hint">Also one tap from the leaf at the top of Today.</p>
+    </section>
+  );
 }
 
 function OffersSection() {
@@ -539,6 +593,7 @@ export default function SettingsPage() {
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
         {view === 'offers' && <OffersSection />}
+        {view === 'today' && <TodaySection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
@@ -617,6 +672,7 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row icon={<SunIcon size={22} />} title="What Today shows" onClick={() => setView('today')} />
         <Row icon={<BreatheIcon size={22} />} title="Quiet offers" value={quietOffersOn() ? 'On' : 'Off'} onClick={() => setView('offers')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
         <Row icon={<CompassIcon size={22} />} title="Where this comes from" onClick={() => setView('sources')} />

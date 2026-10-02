@@ -102,3 +102,56 @@
 .tab-bar__item span {
   font-size: 0.7rem;
 }
+
+.check-row {
+  flex-wrap: wrap;
+}
+
+.check-lines {
+  flex-basis: 100%;
+  margin: -0.4rem 0 var(--space-3) 2.4rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.check-lines__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.check-lines__line--done span {
+  color: var(--color-text-faint);
+  text-decoration: line-through;
+}
+
+.check-lines__box {
+  position: relative;
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid var(--color-text-faint);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-accent-ink);
+}
+
+.check-lines__line--done .check-lines__box {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+/* Small box, full tap area. */
+.check-lines__box::after {
+  content: '';
+  position: absolute;
+  inset: -0.8rem;
+}

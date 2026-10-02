@@ -5,6 +5,7 @@ import { compassService, lifeService, reflectionService } from '../../../app/ser
 import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
 import { isLookAheadSetAside, setLookAheadAside } from '../../../data/storage/preferences';
+import NotForMe from '../../today/NotForMe';
 
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -100,6 +101,7 @@ export default function LookAhead() {
             <button type="button" className="button-quiet" onClick={setAside}>
               Not today
             </button>
+            <NotForMe part="look-ahead" />
           </div>
         </div>
       </section>
@@ -143,6 +145,7 @@ export default function LookAhead() {
       <button type="button" className="button-quiet look-ahead__aside" onClick={setAside}>
         Set aside for today
       </button>
+      <NotForMe part="look-ahead" />
     </section>
   );
 }

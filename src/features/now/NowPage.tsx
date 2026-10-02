@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
+import LighterView from '../today/LighterView';
+import NotForMe from '../today/NotForMe';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, scheduleService } from '../../app/services';
-import { ChevronRightIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
@@ -16,6 +19,9 @@ import {
   displayName,
   isLookAheadSetAside,
   keepConcern,
+  lighterToday,
+  setLighterToday,
+  subscribePreferences,
   keptConcerns,
   previousVisitDate,
 } from '../../data/storage/preferences';
@@ -60,6 +66,8 @@ export default function NowPage() {
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [name] = useState(displayName);
   const [kept, setKept] = useState(keptConcerns);
+  const shows = useTodayParts();
+  const lighter = useSyncExternalStore(subscribePreferences, lighterToday);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
@@ -96,7 +104,7 @@ export default function NowPage() {
       ? 'pause'
       : away >= RETURN_AFTER_DAYS && !welcomeDismissed
         ? 'welcome'
-        : !isLookAheadSetAside()
+        : !isLookAheadSetAside() && shows('look-ahead')
           ? 'look-ahead'
           : null;
 
@@ -108,7 +116,7 @@ export default function NowPage() {
         {
           id: 'a-while-ago',
           label: 'From a while ago',
-          count: aWhileAgo.length,
+          count: shows('a-while-ago') ? aWhileAgo.length : 0,
           content: (
             <AWhileAgo
               items={aWhileAgo}
@@ -138,10 +146,21 @@ export default function NowPage() {
     <div className="page page--landscape">
       <header className="page-header today-header">
         <div className="page-header__actions">
+          {isToday && (
+            <button
+              type="button"
+              className="header-action"
+              aria-label={lighter ? 'Show everything' : 'Lighter view'}
+              aria-pressed={lighter}
+              onClick={() => setLighterToday(!lighter)}
+            >
+              <SproutIcon size={22} />
+            </button>
+          )}
           <SettingsButton />
         </div>
         <h1 className="page-header__title">{isToday ? greeting(clock, name) : dayTitle(date, today)}</h1>
-        <DailyLine key={date} line={line} />
+        {shows('line') && <DailyLine key={date} line={line} />}
         <div className="today-header__rule" aria-hidden="true" />
         <div className="day-stepper">
           <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
@@ -170,6 +189,11 @@ export default function NowPage() {
         </div>
       </header>
 
+      {isToday && lighter ? (
+        <LighterView items={items} today={today} />
+      ) : (
+        <>
+
       {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {message === 'welcome' && (
         <WelcomeBack
@@ -181,8 +205,8 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      <Intention date={date} isToday={isToday} />
-      {isToday && <TodayThree date={today} items={items} />}
+      {shows('intention') && <Intention date={date} isToday={isToday} />}
+      {isToday && shows('path') && <TodayThree date={today} items={items} />}
       {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
 
       {entries.length > 0 && (
@@ -203,21 +227,24 @@ export default function NowPage() {
         </section>
       )}
 
-      {patterns && patterns.length === 0 && (
-        <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
-          <span className="quiet-row__text">
-            <span>Add your schedule</span>
-            <span className="quiet-row__detail">Work, study, caring for someone, or time you protect.</span>
-          </span>
-          <ChevronRightIcon size={18} className="quiet-row__chevron" />
-        </button>
+      {patterns && patterns.length === 0 && shows('schedule-prompt') && (
+        <div className="quiet-row-wrap">
+          <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
+            <span className="quiet-row__text">
+              <span>Add your schedule</span>
+              <span className="quiet-row__detail">Work, study, caring for someone, or time you protect.</span>
+            </span>
+            <ChevronRightIcon size={18} className="quiet-row__chevron" />
+          </button>
+          <NotForMe part="schedule-prompt" />
+        </div>
       )}
 
-      {isToday && <CaptureBar variant="quiet" />}
+      {isToday && shows('capture') && <CaptureBar variant="quiet" />}
       {isToday && <BackupOffer today={today} recordCount={items.length} />}
       {isToday && <AlsoToday sections={alsoSections} />}
       {isToday && <DoneToday today={today} range={rangeOf(today)} />}
-      {isToday && (
+      {isToday && shows('close-day') && (
         <CloseDay
           today={today}
           range={rangeOf(today)}
@@ -229,6 +256,9 @@ export default function NowPage() {
 
       {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
       {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}
+
+        </>
+      )}
 
       <Landscape />
 

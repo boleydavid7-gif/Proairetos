@@ -12,6 +12,8 @@ export type CaptureKind = 'THOUGHT' | 'EMOTION' | 'CONCERN' | 'IDEA';
 /** The person's own grouping for Plan. Important is the separate `important` mark. */
 export type PlanGroup = 'MAINTENANCE' | 'MEANINGFUL';
 
+export type ChecklistLine = { id: string; text: string; done: boolean };
+
 export type LifeItemStatus =
   | 'OPEN'
   | 'WAITING'
@@ -59,6 +61,11 @@ export interface LifeItem {
   planGroup?: PlanGroup;
   /** Local date ("YYYY-MM-DD") planned for, without a time. */
   plannedFor?: string;
+  /**
+   * Lines of a list. On a routine, the ticks clear each time it comes
+   * round, so the list returns fresh: nothing carries over.
+   */
+  checklist?: ChecklistLine[];
   /** A routine: repeats from scheduledAt. */
   repeat?: RepeatRule;
   /** Local date ("YYYY-MM-DD") the person chose this as one of up to three for that day. */

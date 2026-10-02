@@ -27,3 +27,15 @@ describe('reminder times', () => {
     expect(JSON.stringify(reminders)).not.toMatch(/Secret|timed|waiting/);
   });
 });
+
+describe('reminders and quiet hours', () => {
+  it('holds a late reminder until quiet hours end, and skips lists that come back', async () => {
+    const { defaultQuietHours } = await import('../../core/rhythm/quietHours');
+    const items = [
+      item('late', { scheduledAt: new Date(2026, 9, 1, 23, 15).toISOString() }),
+      item('list', { scheduledAt: new Date(2026, 9, 1, 16).toISOString(), repeat: { kind: 'EVERY_N_DAYS', interval: 7 }, checklist: [{ id: 'l', text: 'x', done: false }] }),
+    ];
+    const reminders = await upcomingReminders(items, [], now, { quiet: defaultQuietHours, blocks: [] });
+    expect(reminders.map((r) => new Date(r.fire_at))).toEqual([new Date(2026, 9, 2, 7, 0)]);
+  });
+});

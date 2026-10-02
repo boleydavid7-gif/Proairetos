@@ -3,7 +3,7 @@ import type { ItemEvent, ItemEventKind } from '../item-events/types';
 import { canTransition } from './transitions';
 import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } from './repeat';
 import { toLocalDate } from '../scheduling/dates';
-import type { CaptureKind, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
+import type { CaptureKind, ChecklistLine, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
 
 /**
  * Every change to a life item goes through these commands. Each returns the
@@ -252,15 +252,25 @@ export function rollRoutineForward(item: LifeItem, now: Date): LifeItem {
   if (!item.repeat || !item.scheduledAt || item.status !== 'OPEN') return item;
   const today = toLocalDate(now);
   if (toLocalDate(new Date(item.scheduledAt)) >= today) return item;
-  return { ...item, scheduledAt: occurrenceOnOrAfter(item.repeat, item.scheduledAt, today) };
+  return {
+    ...item,
+    scheduledAt: occurrenceOnOrAfter(item.repeat, item.scheduledAt, today),
+    ...(item.checklist ? { checklist: freshLines(item.checklist) } : {}),
+  };
 }
+
+const freshLines = (lines: ChecklistLine[]) => lines.map((line) => ({ ...line, done: false }));
 
 /** Finishing a routine records it as done and moves it to its next time. */
 export function completeRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
   if (!item.repeat || !item.scheduledAt) throw new Error('This item does not repeat.');
   const timestamp = ctx.now().toISOString();
   return {
-    item: touch(item, timestamp, { scheduledAt: nextOccurrence(item.repeat, item.scheduledAt), nextStep: undefined }),
+    item: touch(item, timestamp, {
+      scheduledAt: nextOccurrence(item.repeat, item.scheduledAt),
+      nextStep: undefined,
+      ...(item.checklist ? { checklist: freshLines(item.checklist) } : {}),
+    }),
     events: [event(ctx, item.id, 'COMPLETED', timestamp, { metadata: { occurrence: item.scheduledAt, routine: true } })],
   };
 }
@@ -308,4 +318,22 @@ export function setPlannedFor(ctx: DomainContext, item: LifeItem, date: string |
   const timestamp = ctx.now().toISOString();
   const events = item.plannedFor && date ? [event(ctx, item.id, 'RESCHEDULED', timestamp, { fromTime: item.plannedFor, toTime: date })] : [];
   return { item: touch(item, timestamp, { plannedFor: date }), events };
+}
+
+/** Sets a list's lines from text, keeping ticks on lines that stay the same. */
+export function setChecklist(ctx: DomainContext, item: LifeItem, texts: string[]): ItemChange {
+  const clean = texts.map((text) => text.trim()).filter(Boolean);
+  const checklist = clean.length
+    ? clean.map((text) => {
+        const same = item.checklist?.find((line) => line.text === text);
+        return same ?? { id: ctx.newId(), text, done: false };
+      })
+    : undefined;
+  return { item: touch(item, ctx.now().toISOString(), { checklist }), events: [] };
+}
+
+export function toggleChecklistLine(ctx: DomainContext, item: LifeItem, lineId: string): ItemChange {
+  if (!item.checklist) return { item, events: [] };
+  const checklist = item.checklist.map((line) => (line.id === lineId ? { ...line, done: !line.done } : line));
+  return { item: touch(item, ctx.now().toISOString(), { checklist }), events: [] };
 }

@@ -300,3 +300,63 @@ export function keptConcerns(): Record<string, string> {
 export function keepConcern(id: string, at: Date = new Date()): void {
   writeJson(KEPT_KEY, { ...keptConcerns(), [id]: at.toISOString() });
 }
+
+// ---------- What Today shows ----------
+// Each part of Today that asks something can be set aside for good with
+// "Not for me", and brought back in Settings.
+
+export type TodayPart =
+  | 'line'
+  | 'look-ahead'
+  | 'intention'
+  | 'path'
+  | 'schedule-prompt'
+  | 'capture'
+  | 'a-while-ago'
+  | 'close-day';
+
+const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
+
+/** A string snapshot, so screens can read it live without re-rendering forever. */
+export function todayHiddenSnapshot(): string {
+  return (readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []).join(',');
+}
+
+export function todayHidden(): TodayPart[] {
+  const snapshot = todayHiddenSnapshot();
+  return snapshot ? (snapshot.split(',') as TodayPart[]) : [];
+}
+
+export function setTodayPartShown(part: TodayPart, shown: boolean): void {
+  const hidden = new Set(todayHidden());
+  if (shown) hidden.delete(part);
+  else hidden.add(part);
+  writeJson(TODAY_HIDDEN_KEY, [...hidden]);
+}
+
+// ---------- Lighter view ----------
+
+const LIGHTER_KEY = 'proairetos.lighterToday';
+
+/** Today shrunk to one next thing, a pause, and capture, until the person turns it off. */
+export function lighterToday(): boolean {
+  return readJson<boolean>(LIGHTER_KEY) === true;
+}
+
+export function setLighterToday(on: boolean): void {
+  writeJson(LIGHTER_KEY, on);
+}
+
+// ---------- Quiet hours for reminders ----------
+
+const QUIET_KEY = 'proairetos.quietHours';
+
+export type StoredQuietHours = { on: boolean; start: string; end: string; duringProtected: boolean };
+
+export function loadQuietHours(): StoredQuietHours {
+  return { on: true, start: '22:00', end: '07:00', duringProtected: true, ...readJson<Partial<StoredQuietHours>>(QUIET_KEY) };
+}
+
+export function saveQuietHours(quiet: StoredQuietHours): void {
+  writeJson(QUIET_KEY, quiet);
+}

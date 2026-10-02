@@ -298,6 +298,39 @@ function NextStepSection({ item }: { item: LifeItem }) {
   );
 }
 
+/** Lines of a list, one per line. On a routine they come back unticked each time. */
+function ChecklistSection({ item }: { item: LifeItem }) {
+  const current = (item.checklist ?? []).map((line) => line.text).join('\n');
+  const [text, setText] = useState(current);
+  const [open, setOpen] = useState(Boolean(item.checklist));
+
+  if (!open) {
+    return (
+      <button type="button" className="chip chip--wide" onClick={() => setOpen(true)}>
+        Add a list
+      </button>
+    );
+  }
+
+  return (
+    <section className="sheet__section" aria-label="List">
+      <p className="sheet__label">List</p>
+      <textarea
+        className="field-input field-input--area"
+        rows={4}
+        aria-label="List lines, one per line"
+        placeholder="One per line"
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        onBlur={() => {
+          if (text !== current) lifeService.setChecklist(item.id, text.split('\n'));
+        }}
+      />
+      {item.repeat && <p className="sheet__hint">Ticks clear each time it comes back.</p>}
+    </section>
+  );
+}
+
 /** The person's own grouping and day on Plan. */
 function PlanSection({ item }: { item: LifeItem }) {
   const groups: { id: PlanGroup; label: string }[] = [
@@ -402,6 +435,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       </button>
 
       <PlanSection item={item} />
+
+      <ChecklistSection item={item} />
 
       <section className="sheet__section" aria-label="When">
         <p className="sheet__label">When</p>

@@ -23,7 +23,7 @@ export function nowReasonsFor(item: LifeItem): NowItemReason[] {
 
   const reasons: NowItemReason[] = [];
 
-  if (item.scheduledAt) reasons.push('SCHEDULED');
+  if (item.scheduledAt && !item.checklist) reasons.push('SCHEDULED');
   if (item.important) reasons.push('IMPORTANT');
   if (item.status === 'WAITING' && item.checkBackAt) reasons.push('CHECK_BACK');
   if (item.type === null) reasons.push('UNSORTED');

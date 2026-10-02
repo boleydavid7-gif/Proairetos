@@ -39,6 +39,25 @@ export default function CheckRow({ item, done, detail }: { item: LifeItem; done:
       <button type="button" className="check-row__more" aria-label={`More for ${item.title}`} onClick={() => openItem(item.id)}>
         <MoreIcon size={20} />
       </button>
+      {item.checklist && !done && (
+        <ul className="check-lines">
+          {item.checklist.map((line) => (
+            <li key={line.id} className={`check-lines__line${line.done ? ' check-lines__line--done' : ''}`}>
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={line.done}
+                aria-label={line.text}
+                className="check-lines__box"
+                onClick={() => lifeService.toggleChecklistLine(item.id, line.id)}
+              >
+                {line.done && <CheckIcon size={12} />}
+              </button>
+              <span>{line.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </li>
   );
 }

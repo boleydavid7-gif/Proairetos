@@ -5,6 +5,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import CheckRow from '../items/CheckRow';
+import { describeRule } from '../../core/life-items/repeat';
 import PageHeader from '../../components/layout/PageHeader';
 import { addDays } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
@@ -45,7 +46,7 @@ export default function PlanPage() {
           <h2 className="section-label">{section.label}</h2>
           <ul className="check-list">
             {section.open.map((item) => (
-              <CheckRow key={item.id} item={item} done={false} />
+              <CheckRow key={item.id} item={item} done={false} detail={item.repeat && item.checklist ? `Comes back ${describeRule(item.repeat).toLowerCase()}` : undefined} />
             ))}
             {section.done.map((item) => (
               <CheckRow key={item.id} item={item} done />

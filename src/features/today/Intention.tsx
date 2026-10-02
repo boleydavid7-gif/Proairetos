@@ -3,6 +3,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { BookmarkIcon } from '../../components/icons/Icons';
+import NotForMe from './NotForMe';
 
 /** The person's own intention for a day, in their words. Optional. */
 export default function Intention({ date, isToday }: { date: string; isToday: boolean }) {
@@ -38,9 +39,12 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
       <div className="section-heading">
         <h2 className="section-label">{label}</h2>
         {!editing && (
-          <button type="button" className="text-link" onClick={edit}>
-            {current ? 'Edit' : 'Set'}
-          </button>
+          <span className="section-heading__actions">
+            {!current && isToday && <NotForMe part="intention" />}
+            <button type="button" className="text-link" onClick={edit}>
+              {current ? 'Edit' : 'Set'}
+            </button>
+          </span>
         )}
       </div>
       {editing ? (

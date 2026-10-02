@@ -11,7 +11,9 @@ import {
   rollRoutineForward,
   setNextStep,
   setPickedFor,
+  setChecklist,
   setPlanGroup,
+  toggleChecklistLine,
   setPlannedFor,
   type CaptureInput,
   setRepeat,
@@ -164,6 +166,14 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       extra: Omit<CaptureInput, 'userId' | 'title' | 'type'> = {},
     ): Promise<LifeItem> {
       return serial(() => save(captureItem(context, { userId, title, type, ...extra }), true));
+    },
+
+    setChecklist(id: string, lines: string[]) {
+      return apply(id, (item) => setChecklist(context, item, lines));
+    },
+
+    toggleChecklistLine(id: string, lineId: string) {
+      return apply(id, (item) => toggleChecklistLine(context, item, lineId));
     },
 
     setPlanGroup(id: string, group: PlanGroup | undefined) {

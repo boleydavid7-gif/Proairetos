@@ -34,7 +34,7 @@ import {
 } from '../services';
 import { upcomingReminders } from './reminders';
 import { buildCalendarFile } from './calendarFile';
-import { loadCalendarFeed, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
+import { loadCalendarFeed, loadQuietHours, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
 
 export type SyncPhase =
   | 'unavailable' // not configured, or storage blocked
@@ -110,10 +110,17 @@ function refreshScreens() {
   for (const service of [lifeService, reflectionService, compassService, scheduleService, decisionService]) service.refresh();
 }
 
+/** Recomputes reminder times, e.g. after quiet hours change. */
+export function refreshReminders(): Promise<void> {
+  return updateReminders().catch(() => undefined);
+}
+
 async function updateReminders() {
   if (!userId || status.reminders !== 'on') return;
   const [items, decisions] = await Promise.all([lifeService.list(), decisionService.list()]);
-  await replaceReminders(userId, await upcomingReminders(items, decisions, new Date()));
+  const now = new Date();
+  const blocks = await scheduleService.occurrencesBetween(now, new Date(now.getTime() + 15 * 86_400_000));
+  await replaceReminders(userId, await upcomingReminders(items, decisions, now, { quiet: loadQuietHours(), blocks }));
 }
 
 export async function syncNow(): Promise<SyncResult | null> {

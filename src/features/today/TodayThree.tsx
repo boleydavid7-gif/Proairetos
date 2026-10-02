@@ -5,6 +5,7 @@ import { lifeService } from '../../app/services';
 import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
 import type { LifeItem } from '../../core/life-items/types';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
+import NotForMe from './NotForMe';
 
 type Props = {
   date: string;
@@ -117,9 +118,12 @@ export default function TodayThree({ date, items }: Props) {
     <section className="today-section" aria-label="Today’s path">
       <div className="section-heading">
         <h2 className="section-label">Today’s path</h2>
-        <button type="button" className="text-link" onClick={() => setPicking(true)}>
-          {picks.length > 0 ? 'Change' : 'Choose'}
-        </button>
+        <span className="section-heading__actions">
+          {picks.length === 0 && <NotForMe part="path" />}
+          <button type="button" className="text-link" onClick={() => setPicking(true)}>
+            {picks.length > 0 ? 'Change' : 'Choose'}
+          </button>
+        </span>
       </div>
       {picks.length > 0 ? (
         <ol className="path">
