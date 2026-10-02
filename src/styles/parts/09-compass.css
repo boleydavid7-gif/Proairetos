@@ -29,6 +29,7 @@
 
 .value-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
   min-height: 4.5rem;
@@ -206,4 +207,14 @@ button.value-card__text:disabled {
   flex-direction: column;
   gap: var(--space-2);
   padding: 0 var(--space-4) var(--space-3);
+}
+
+/* One small thing for today, offered when a value is opened. */
+.value-card__today {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) var(--space-1) 0;
+  animation: rise 260ms ease-out both;
 }

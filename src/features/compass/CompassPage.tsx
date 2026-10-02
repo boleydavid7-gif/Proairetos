@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService } from '../../app/services';
+import { compassService, lifeService } from '../../app/services';
+import { useClock } from '../../app/hooks/useClock';
+import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
@@ -10,6 +12,56 @@ import StatementList from './StatementList';
 import PeopleSection from './PeopleSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
+
+/**
+ * Offered when a value is opened: one small thing for today, in the
+ * person's own words. Saved for today and linked to the value. No answer
+ * is asked for; leaving it empty is fine.
+ */
+function HonourToday({ value }: { value: ChosenValue }) {
+  const { offerUndo } = useOverlays();
+  const { today } = usePersonalDay(useClock());
+  const [text, setText] = useState('');
+
+  async function save() {
+    const title = text.trim();
+    if (!title) return;
+    setText('');
+    const item = await lifeService.capture(title, 'DO', { plannedFor: today });
+    await lifeService.connectValue(item.id, value.id);
+    offerUndo(`For today: ${title}`, async () => {
+      await lifeService.deleteItem(item.id);
+    });
+  }
+
+  return (
+    <form
+      className="value-card__today"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void save();
+      }}
+    >
+      <label className="daily-line__label" htmlFor={`honour-${value.id}`}>
+        What would {value.name.toLowerCase()} look like today?
+      </label>
+      <div className="field-row">
+        <input
+          id={`honour-${value.id}`}
+          className="field-input"
+          placeholder="One small thing, if you like"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+        />
+        {text.trim() && (
+          <button type="submit" className="chip chip--small">
+            Add
+          </button>
+        )}
+      </div>
+    </form>
+  );
+}
 
 function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
   const { offerUndo } = useOverlays();
@@ -26,8 +78,8 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
       <button
         type="button"
         className="value-card__text"
-        disabled={!practice || editing}
-        aria-expanded={practice && !editing ? open : undefined}
+        disabled={editing}
+        aria-expanded={!editing ? open : undefined}
         onClick={() => setOpen(!open)}
       >
         <span className="value-card__name">{value.name}</span>
@@ -39,6 +91,7 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
           </span>
         )}
       </button>
+      {open && !editing && <HonourToday value={value} />}
       {editing && (
         <button
           type="button"

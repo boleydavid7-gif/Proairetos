@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (227 tests), includes the language guard
+npm test             # vitest (240 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -129,6 +129,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `sky` on new reflections (Journal, Close the day, look-ahead plan).
   Reflect's mark: chosen inner weather, else sky, else sun/moon by clock.
   Place rounded to ~1 km, device-only; codes mapped in `core/weather/sky.ts`.
+- Planning help that leaves the choice with the person: Capture's "Empty
+  your head" (`core/capture/brainDump.ts`: on-device split + first guess
+  of kind and named day, reviewed before saving); "Sort through"
+  (`features/capture/QuickSortSheet`, plain facts from
+  `core/life-items/facts.ts`); Today's "Open time"
+  (`core/rhythm/openTime.ts`, gaps after blocks, events, set times, quiet
+  hours; tap to give something a time); overlap notes
+  (`core/rhythm/overlaps.ts`, never moves anything itself); the item's
+  `light` mark and a per-day energy word (`energyFor`, never guessed) that
+  only shows light things first; values beside path picks and "What would
+  X look like today?" on an opened value. Insights adds when things got
+  done and this period beside the last (plain counts, no arrows).
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

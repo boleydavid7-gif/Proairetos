@@ -52,7 +52,7 @@ describe('insights', () => {
       { id: 'v2', userId: 'u', name: 'Courage', source: 'PRESET' as const, chosenAt: at(1, 1) },
     ];
     const result = gatherInsights(range, [item({ valueIds: ['v1'] })], [reflection({ valueIds: ['v1'] })], values);
-    expect(result.values).toEqual([{ name: 'Patience', entries: 1, items: 1 }]);
+    expect(result.values).toEqual([{ name: 'Patience', entries: 1, items: 1, done: 0 }]);
   });
 
   it('places the clock into four parts of the day', () => {
@@ -65,5 +65,51 @@ describe('insights and Plan tasks', () => {
     const range = insightRange('week', new Date(2026, 9, 1, 12));
     const result = gatherInsights(range, [item({ source: 'MANUAL', type: 'DO' }), item({ captureKind: 'IDEA' })], [], []);
     expect(result.captured).toEqual({ counts: { THOUGHT: 0, EMOTION: 0, CONCERN: 0, IDEA: 1 }, untagged: 0 });
+  });
+});
+
+describe('done by the clock, values, and side by side', () => {
+  const ev = (kind: 'COMPLETED' | 'LET_GO' | 'FOCUSED', itemId: string, timestamp: string, minutes?: number) => ({
+    id: `${kind}-${itemId}-${timestamp}`, itemId, kind, timestamp, ...(minutes ? { metadata: { minutes } } : {}),
+  });
+  const thing = (id: string, valueIds?: string[]) => ({
+    id, userId: 'u', type: 'DO' as const, title: id, status: 'DONE' as const, important: false, source: 'CAPTURE' as const, carried: false,
+    createdAt: '2026-09-20T10:00:00', updatedAt: '2026-09-20T10:00:00', ...(valueIds ? { valueIds } : {}),
+  });
+
+  it('counts when things were marked done and which values they were linked to', async () => {
+    const { gatherInsights, insightRange } = await import('../../core/reflections/insights');
+    const range = insightRange('week', new Date('2026-10-01T12:00:00'));
+    const result = gatherInsights(
+      range,
+      [thing('a', ['v']), thing('b')],
+      [],
+      [{ id: 'v', userId: 'u', name: 'Courage', source: 'PRESET' as const, chosenAt: '' }],
+      [ev('COMPLETED', 'a', '2026-09-30T08:00:00'), ev('COMPLETED', 'b', '2026-09-30T19:00:00'), ev('COMPLETED', 'b', '2026-09-20T19:00:00')],
+    );
+    expect(result.doneAt).toEqual({ MORNING: 1, AFTERNOON: 0, EVENING: 1, NIGHT: 0 });
+    expect(result.values).toEqual([{ name: 'Courage', entries: 0, items: 0, done: 1 }]);
+  });
+
+  it('puts this week beside last week as plain counts', async () => {
+    const { previousRange, insightRange, sideBySide } = await import('../../core/reflections/insights');
+    const now = new Date('2026-10-01T12:00:00');
+    const before = previousRange('week', now)!;
+    expect(before.start.getDate()).toBe(21);
+    expect(previousRange('all', now)).toBeUndefined();
+    const rows = sideBySide(
+      insightRange('week', now),
+      before,
+      [thing('a'), { ...thing('c'), createdAt: '2026-09-30T09:00:00' }],
+      [ev('COMPLETED', 'a', '2026-09-30T08:00:00'), ev('LET_GO', 'b', '2026-09-24T08:00:00'), ev('FOCUSED', 'a', '2026-09-29T08:00:00', 25)],
+      [],
+    );
+    expect(rows).toEqual([
+      { label: 'Captured', now: 1, before: 0 },
+      { label: 'Done', now: 1, before: 0 },
+      { label: 'Let go', now: 0, before: 1 },
+      { label: 'Focused minutes', now: 25, before: 0 },
+      { label: 'Reflections', now: 0, before: 0 },
+    ]);
   });
 });

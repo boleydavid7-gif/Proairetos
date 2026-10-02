@@ -3,9 +3,9 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { compassService, lifeService, reflectionService } from '../../app/services';
-import { ArrowLeftIcon, ClockIcon, CompassIcon, NoteIcon, SunIcon } from '../../components/icons/Icons';
+import { ArrowLeftIcon, CheckIcon, ClockIcon, CompassIcon, NoteIcon, ScalesIcon, SunIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
-import { gatherInsights, insightRange, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
+import { gatherInsights, insightRange, previousRange, sideBySide, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
 import { captureKinds } from '../capture/captureKinds';
 import Observations from '../reflect/Observations';
 import { weatherOptions } from '../reflect/weather';
@@ -48,8 +48,19 @@ export default function InsightsPage() {
   const insights = useServiceData(
     subscribeAll,
     async () => {
-      const [items, reflections, values] = await Promise.all([lifeService.list(), reflectionService.all(), compassService.values()]);
-      return gatherInsights(insightRange(period, new Date()), items, reflections, values);
+      const [items, reflections, values, events] = await Promise.all([
+        lifeService.list(),
+        reflectionService.all(),
+        compassService.values(),
+        lifeService.historyForAll(),
+      ]);
+      const now = new Date();
+      const range = insightRange(period, now);
+      const before = previousRange(period, now);
+      return {
+        ...gatherInsights(range, items, reflections, values, events),
+        sideBySide: before ? sideBySide(range, before, items, events, reflections) : undefined,
+      };
     },
     [period],
   );
@@ -139,12 +150,57 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
+          <InsightCard icon={<CheckIcon size={26} />} title="When things got done">
+            {Object.values(insights.doneAt).every((n) => n === 0) ? (
+              <p className="insight-card__note">Nothing marked done in this period.</p>
+            ) : (
+              <dl className="insight-counts">
+                {(Object.keys(timeLabels) as TimeOfDay[]).map((time) => (
+                  <div key={time}>
+                    <dt>{timeLabels[time]}</dt>
+                    <dd>{insights.doneAt[time]}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </InsightCard>
+
+          {insights.sideBySide && (
+            <InsightCard icon={<ScalesIcon size={26} />} title={period === 'week' ? 'This week and last' : 'This month and last'}>
+              <table className="side-by-side">
+                <thead>
+                  <tr>
+                    <th scope="col"><span className="visually-hidden">What</span></th>
+                    <th scope="col">{period === 'week' ? 'This week' : 'This month'}</th>
+                    <th scope="col">{period === 'week' ? 'Last week' : 'Last month'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {insights.sideBySide.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      <td>{row.now}</td>
+                      <td>{row.before}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </InsightCard>
+          )}
+
           {insights.values.length > 0 && (
             <InsightCard icon={<CompassIcon size={26} />} title="Your values in what you recorded">
               <ul className="insight-lines">
                 {insights.values.map((row) => (
                   <li key={row.name}>
-                    <strong>{row.name}</strong>: {[row.entries && plural(row.entries, 'entry', 'entries'), row.items && plural(row.items, 'item')].filter(Boolean).join(', ')}
+                    <strong>{row.name}</strong>:{' '}
+                    {[
+                      row.entries && plural(row.entries, 'entry', 'entries'),
+                      row.items && `${plural(row.items, 'item')} linked`,
+                      row.done && `${row.done} done`,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
                   </li>
                 ))}
               </ul>
