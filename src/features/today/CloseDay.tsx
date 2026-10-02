@@ -38,7 +38,7 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       // Tomorrow's path holds three; anything beyond that simply stays on the list.
       await lifeService.pickForDay(id, tomorrow).then(() => carried.push(id), () => undefined);
     }
-    const written = note.trim() ? await reflectionService.write({ body: note, promptKey: 'day-close', sky: weather.skyNow() }) : null;
+    const written = note.trim() ? await reflectionService.write({ body: note, promptKey: 'worth-it', sky: weather.skyNow() }) : null;
     setClosedDay(today);
     offerUndo('The day is closed. Rest well.', async () => {
       for (const id of carried) await lifeService.pickForDay(id, today).catch(() => undefined);
@@ -101,13 +101,13 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
           </section>
         )}
 
-        <section className="sheet__section" aria-label="Set down">
-          <p className="sheet__label">Anything to set down before you rest?</p>
+        <section className="sheet__section" aria-label="What made today worth it">
+          <p className="sheet__label">What made today worth it?</p>
           <textarea
             className="field-input field-input--area"
             rows={3}
-            aria-label="Anything to set down"
-            placeholder="Optional. It goes to Reflect."
+            aria-label="What made today worth it"
+            placeholder="Optional. Something small counts. It goes to Reflect."
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />

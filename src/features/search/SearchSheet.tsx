@@ -10,7 +10,7 @@ import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
 
 const statementLabels: Record<string, string> = {
-  REMEMBER: 'Remember',
+  REMEMBER: 'Worth getting up for',
   PUSHED_ASIDE: 'Put aside',
   PERSON: 'Person',
   GOAL: 'Goal',

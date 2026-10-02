@@ -455,7 +455,7 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     parts: [
       { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
       { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
-      { part: 'words', label: 'Words', detail: 'Things to remember and things put aside.' },
+      { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
     ],
   },
   {
@@ -650,6 +650,10 @@ const sources: { tradition: string; lines: string[] }[] = [
       'Aristotle, Nicomachean Ethics: character grows through practice.',
       'Epicurus, Letter to Menoeceus: simple pleasures and a calm mind.',
     ],
+  },
+  {
+    tradition: 'Japan',
+    lines: ['Ikigai, as Mieko Kamiya and Ken Mogi describe it: the small things that make life worth living.'],
   },
   {
     tradition: 'Psychology',

@@ -214,9 +214,9 @@ export default function CompassPage() {
         <>
           <StatementList
             type="REMEMBER"
-            title="Remember"
-            description="Words you want in front of you."
-            placeholder="Something to remember"
+            title="Worth getting up for"
+            description="Small things that make life worth living, in your words."
+            placeholder="First light on the river, a call with Sam…"
             statements={statements.filter((statement) => statement.type === 'REMEMBER')}
           />
 
