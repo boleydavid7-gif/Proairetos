@@ -193,7 +193,7 @@ export const player = {
     for (const entry of soundCatalogue) {
       if (entry.kind !== 'music' || ready.has(entry.file) || !(await isKept(entry.file))) continue;
       const bytes = await recording(entry.file);
-      ready.set(entry.file, URL.createObjectURL(new Blob([bytes], { type: 'audio/mp4' })));
+      ready.set(entry.file, URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' })));
     }
   },
 

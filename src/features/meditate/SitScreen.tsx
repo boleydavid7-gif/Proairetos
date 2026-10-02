@@ -13,10 +13,10 @@ export type SitPlan =
   | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean; breathSounds: boolean }
   | { kind: 'breathe'; pattern: BreathPatternId; minutes: number; sound: string; breathSounds: boolean };
 
-/** The recorded breath for a step, slowed (pitch kept) to fit it: breath-in-4 … breath-out-8. */
+/** The recorded breath for a step, slowed (pitch kept) to fit it: breath-in-4 … breath-out-8 (.mp3). */
 function breathFile(kind: BreathStepKind, seconds: number): string | undefined {
   if (kind !== 'in' && kind !== 'out') return undefined;
-  return `/sounds/breath-${kind}-${Math.min(8, Math.max(4, Math.round(seconds)))}.m4a`;
+  return `/sounds/breath-${kind}-${Math.min(8, Math.max(4, Math.round(seconds)))}.mp3`;
 }
 
 function clock(seconds: number): string {

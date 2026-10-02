@@ -180,10 +180,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   until a sit starts, then glows out on the in-breath and dims on the
   out-breath via `--breath`; no moving dot), Sounds and Music. All
   audio is generated on device with Web Audio (`app/sound/`: `engine`,
-  `soundscapes` catalogue, `player` singleton with one sound + one music,
-  volume, stop-after timer, limiter; `breath` for breath sounds and bells).
-  `SitScreen` is portalled to body; `NowPlaying` shows what plays on other
-  tabs. Nothing about a sit is recorded.
+  real recordings in `public/sounds/*.mp3` (sources and licences in
+  `docs/SOUNDS.md`). `app/sound/`: `engine` (audio clock, iPhone media
+  trick `wakeAudio`/`letGo`, recordings kept in Cache Storage
+  `proairetos-sounds`; the service worker skips `/sounds/`), `soundscapes`
+  catalogue, `player` (one sound looped from a decoded buffer + one piece
+  of music streamed through a media element; start it inside the tap).
+  Breath sounds: one recorded breath split and stretched to
+  `breath-{in,out}-{4..8}.mp3`. `SitScreen` is portalled to body; `NowPlaying` shows what plays on other
+tabs. Nothing about a sit is recorded.
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass; every word must match, newest first, all on device.

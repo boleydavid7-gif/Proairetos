@@ -1,7 +1,7 @@
 # Sounds in Meditate
 
-Every sound is a real recording. Files live in `public/sounds/` as AAC
-(`.m4a`, 96 kbps), loudness-matched. Nature sounds were cut to a minute
+Every sound is a real recording. Files live in `public/sounds/` as MP3
+(VBR around 130 kbps; every browser plays it), loudness-matched. Nature sounds were cut to a minute
 or less and their ends crossfaded into their beginnings, so they loop
 without a seam; music plays whole and begins again.
 

@@ -20,7 +20,7 @@ const sound = (id: string, title: string, line: string, icon: string): SoundEntr
   title,
   line,
   icon,
-  file: `/sounds/${id}.m4a`,
+  file: `/sounds/${id}.mp3`,
 });
 
 const music = (id: string, title: string, line: string, icon: string): SoundEntry => ({
@@ -29,7 +29,7 @@ const music = (id: string, title: string, line: string, icon: string): SoundEntr
   title,
   line,
   icon,
-  file: `/sounds/${id}.m4a`,
+  file: `/sounds/${id}.mp3`,
 });
 
 export const soundCatalogue: readonly SoundEntry[] = [
@@ -60,4 +60,4 @@ export function soundEntry(id: string | null | undefined): SoundEntry | undefine
 }
 
 /** The bell that opens and closes a sit: one strike of a real singing bowl. */
-export const BELL_FILE = '/sounds/bell.m4a';
+export const BELL_FILE = '/sounds/bell.mp3';
