@@ -43,6 +43,7 @@ import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
 import OpenTime from '../today/OpenTime';
+import AgendaSheet from '../today/AgendaSheet';
 import Overlaps from '../today/Overlaps';
 import { nextOpen, overlaps } from '../../core/rhythm/overlaps';
 
@@ -81,6 +82,7 @@ export default function NowPage() {
   const { today, rangeOf, blocks } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
+  const [agendaFocus, setAgendaFocus] = useState<string | null>(null);
   const date = addDays(today, offset);
   const isToday = offset === 0;
   const line = stoicLineFor(date);
@@ -252,6 +254,7 @@ export default function NowPage() {
             now={isToday ? clock : undefined}
             onChangeDay={setChanging}
             onOpenItem={openItem}
+            onOpenEntry={setAgendaFocus}
           />
         </section>
       )}
@@ -297,6 +300,16 @@ export default function NowPage() {
 
       <Landscape />
 
+      {agendaFocus !== null && (
+        <AgendaSheet
+          today={today}
+          start={date}
+          focusKey={agendaFocus}
+          onClose={() => setAgendaFocus(null)}
+          onOpenItem={openItem}
+          onChangeDay={setChanging}
+        />
+      )}
       {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
     </div>
   );

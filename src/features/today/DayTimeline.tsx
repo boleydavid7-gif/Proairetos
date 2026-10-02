@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, type KeyboardEvent } from 'react';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatTimeOf } from '../schedule/format';
 import type { DayChangeTarget } from './DayChangeSheet';
@@ -11,6 +11,8 @@ type Props = {
   now?: Date;
   onChangeDay: (target: DayChangeTarget) => void;
   onOpenItem: (id: string) => void;
+  /** When set, tapping any timed entry calls this instead, e.g. to open the days ahead. */
+  onOpenEntry?: (key: string) => void;
 };
 
 function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: string): string {
@@ -19,7 +21,7 @@ function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: str
   return [started, ends, entry.occurrence.changed ? 'changed for this day' : ''].filter(Boolean).join(' · ');
 }
 
-export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem }: Props) {
+export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem, onOpenEntry }: Props) {
   const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday');
   const nowIndex = now ? timed.findIndex((entry) => 'start' in entry && entry.start > now) : -1;
   const markerAt = now ? (nowIndex === -1 ? timed.length : nowIndex) : -1;
@@ -66,7 +68,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                 type="button"
                 className={`timeline__entry timeline__entry--${entry.occurrence.kind.toLowerCase()}`}
                 onClick={() =>
-                  onChangeDay({
+                  onOpenEntry ? onOpenEntry(entry.key) : onChangeDay({
                     patternId: entry.occurrence.patternId,
                     patternName: entry.occurrence.patternName,
                     date: entry.occurrence.date,
@@ -86,7 +88,10 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             </li>
           ) : entry.kind === 'event' ? (
             <li>
-              <div className="timeline__entry timeline__entry--event">
+              <div
+                className="timeline__entry timeline__entry--event"
+                {...(onOpenEntry ? { role: 'button', tabIndex: 0, onClick: () => onOpenEntry(entry.key), onKeyDown: (e: KeyboardEvent) => e.key === 'Enter' && onOpenEntry(entry.key) } : {})}
+              >
                 <span className="timeline__time">
                   {formatTimeOf(entry.start)}
                   <span className="timeline__until">{formatTimeOf(entry.end)}</span>
@@ -101,7 +106,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             </li>
           ) : entry.kind === 'item' ? (
             <li>
-              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => onOpenItem(entry.item.id)}>
+              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => (onOpenEntry ? onOpenEntry(entry.item.id) : onOpenItem(entry.item.id))}>
                 <span className="timeline__time">{formatTimeOf(entry.start)}</span>
                 <span className="timeline__body">
                   <span className="timeline__title">{entry.item.title}</span>

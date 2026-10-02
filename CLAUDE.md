@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (240 tests), includes the language guard
+npm test             # vitest (242 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -141,6 +141,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   only shows light things first; values beside path picks and "What would
   X look like today?" on an opened value. Insights adds when things got
   done and this period beside the last (plain counts, no arrows).
+- Inner work, offered never pushed: "Think it through"
+  (`core/practices/thinkThrough.ts`, `features/pause/ThinkThroughScreen`;
+  CBT thought record + Epictetus, every step skippable, kept in Reflect
+  only if chosen) from Pause's list, a concern's sheet, and a quiet offer
+  after a Concern capture; "Come back to the room" grounding practice.
+  Goals: Compass "Working toward" (statement type GOAL, `reachedAt`; items
+  link by `goalId`; `core/compass/goals.ts` lists next steps and steps
+  taken with dates; no percentages or targets).
+- Tapping an entry in Today's "Your day" opens Days ahead
+  (`features/today/AgendaSheet`): a list of the next week (more on
+  request) or a three-day calendar; items still open their sheet.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

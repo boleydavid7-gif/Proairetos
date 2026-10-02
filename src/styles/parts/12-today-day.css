@@ -274,3 +274,199 @@
 .overlap__text {
   margin: 0;
 }
+
+/* ---------- Days ahead (list and calendar) ---------- */
+
+.sheet--tall .sheet__panel {
+  height: 92svh;
+}
+
+.agenda-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.agenda-day__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.agenda-day__date {
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+}
+
+.agenda-day__empty {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-row__button,
+.agenda-row--quiet {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 3px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.agenda-row--committed .agenda-row__button {
+  border-left-color: var(--color-accent);
+}
+
+.agenda-row--protected .agenda-row__button {
+  border-left-color: var(--color-sand);
+  border-left-style: dashed;
+}
+
+.agenda-row--focus .agenda-row__button {
+  outline: 1px solid var(--color-accent);
+}
+
+.agenda-row__time {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-row__until,
+.agenda-row__source {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.agenda-row__title {
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cal-head {
+  display: grid;
+  grid-template-columns: 2.75rem repeat(3, 1fr);
+  gap: 2px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.cal-head__day {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-head__day strong {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.cal-head__day--today strong {
+  color: var(--color-accent);
+}
+
+.cal-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+.cal-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem repeat(3, 1fr);
+  gap: 2px;
+  background: repeating-linear-gradient(180deg, var(--color-border) 0 1px, transparent 1px 44px);
+}
+
+.cal-hours {
+  position: relative;
+}
+
+.cal-hours span {
+  position: absolute;
+  right: 0.3rem;
+  transform: translateY(-50%);
+  color: var(--color-text-faint);
+  font-size: 0.65rem;
+}
+
+.cal-col {
+  position: relative;
+}
+
+.cal-entry {
+  position: absolute;
+  display: flex;
+  align-items: flex-start;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  min-height: 0;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.cal-entry--block {
+  background: rgba(201, 162, 116, 0.18);
+  border-left: 2px solid var(--color-accent);
+}
+
+.cal-entry--protected {
+  background: rgba(201, 162, 116, 0.08);
+  border-left-style: dashed;
+}
+
+.cal-entry--point {
+  left: 22%;
+  z-index: 1;
+  background: var(--color-ink-raised);
+  border: 1px solid var(--color-border);
+}
+
+.cal-entry--focus {
+  outline: 1px solid var(--color-accent);
+}
+
+/* In the calendar only the hours scroll. */
+.sheet__panel--still {
+  overflow: hidden;
+}
