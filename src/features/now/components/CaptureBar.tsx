@@ -2,11 +2,12 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { lifeService } from '../../../app/services';
 import MicButton from '../../../components/dictation/MicButton';
 import { CaptureIcon } from '../../../components/icons/Icons';
-import type { CaptureKind, LifeItem } from '../../../core/life-items/types';
+import type { ItemKind } from '../../../core/life-items/kinds';
+import type { LifeItem } from '../../../core/life-items/types';
 
 type Props = {
   /** A kind chosen above the box; it tags the next capture only. */
-  kind?: CaptureKind;
+  kind?: ItemKind;
   placeholder?: string;
   onCaptured?: (item: LifeItem) => void;
   /** Quiet: a single underlined line, for Today. */
@@ -29,7 +30,7 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
     // Clear right away so the next thought can be typed while this one saves.
     setText('');
     try {
-      const item = await lifeService.capture(value, null, kind ? { captureKind: kind } : {});
+      const item = await lifeService.add(value, kind);
       onCaptured?.(item);
     } catch {
       setText((current) => current || value);

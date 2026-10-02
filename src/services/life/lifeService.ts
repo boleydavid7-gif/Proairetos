@@ -1,3 +1,4 @@
+import { kindFields, type ItemKind } from '../../core/life-items/kinds';
 import type { DomainContext } from '../../core/context';
 import type { ItemEvent } from '../../core/item-events/types';
 import {
@@ -29,6 +30,7 @@ import {
   setLight,
   setGoal,
   setLook,
+  setKind,
   setItemType,
   type ItemChange,
   type StatusOptions,
@@ -185,6 +187,16 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setPlannedFor(id: string, date: string | undefined) {
       return apply(id, (item) => setPlannedFor(context, item, date));
+    },
+
+    /** Captures with one of the kinds people see. */
+    add(title: string, kind: ItemKind | undefined, extra: Omit<CaptureInput, 'userId' | 'title' | 'type' | 'captureKind'> = {}): Promise<LifeItem> {
+      const { type, captureKind } = kindFields(kind);
+      return serial(() => save(captureItem(context, { userId, title, type, ...(captureKind ? { captureKind } : {}), ...extra }), true));
+    },
+
+    setKind(id: string, kind: ItemKind | undefined) {
+      return apply(id, (item) => setKind(context, item, kind));
     },
 
     sort(id: string, type: LifeItemType | null) {

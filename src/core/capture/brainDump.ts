@@ -5,9 +5,11 @@ import { addDays, parseLocalDate } from '../scheduling/dates';
  * separate lines with a guess at what each one is. Plain rules on the
  * device; nothing leaves it. Every guess is shown for the person to keep
  * or change before anything is saved, and a line with no clear guess
- * stays a plain note.
+ * stays something to remember.
  */
-export type DumpKind = 'DO' | 'CONCERN' | 'IDEA' | 'FEELING' | 'NOTE';
+import type { ItemKind } from '../life-items/kinds';
+
+export type DumpKind = ItemKind;
 
 export type DumpLine = {
   text: string;
@@ -60,14 +62,14 @@ export function guessKind(text: string): DumpKind {
   if (FEELING.test(text)) return 'FEELING';
   if (CONCERN.test(text)) return 'CONCERN';
   if (IDEA.test(text)) return 'IDEA';
-  if (LEAD_IN.test(text)) return 'DO';
+  if (LEAD_IN.test(text)) return 'TODO';
   const first = text.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '') ?? '';
-  return VERBS.has(first) ? 'DO' : 'NOTE';
+  return VERBS.has(first) ? 'TODO' : 'REMEMBER';
 }
 
 /** "I need to call the garage" becomes "Call the garage"; other lines keep the person's words. */
 export function cleanTitle(text: string, kind: DumpKind): string {
-  const words = kind === 'DO' ? text.replace(LEAD_IN, '') : text;
+  const words = kind === 'TODO' ? text.replace(LEAD_IN, '') : text;
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
@@ -89,7 +91,7 @@ export function namedDay(text: string, today: string): string | undefined {
 export function readDump(text: string, today: string): DumpLine[] {
   return splitDump(text).map((piece) => {
     const kind = guessKind(piece);
-    const plannedFor = kind === 'DO' || kind === 'NOTE' ? namedDay(piece, today) : undefined;
+    const plannedFor = kind === 'TODO' || kind === 'REMEMBER' ? namedDay(piece, today) : undefined;
     return { text: cleanTitle(piece, kind), kind, ...(plannedFor ? { plannedFor } : {}) };
   });
 }

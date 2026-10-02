@@ -4,6 +4,7 @@ import { canTransition } from './transitions';
 import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } from './repeat';
 import { toLocalDate } from '../scheduling/dates';
 import type { TagColor } from '../look/tagColors';
+import { kindFields, type ItemKind } from './kinds';
 import type { CaptureKind, ChecklistLine, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
 
 /**
@@ -78,6 +79,18 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
   };
 
   return { item, events: [event(ctx, item.id, 'CREATED', timestamp, { toType: item.type })] };
+}
+
+/** Sets the one kind people see, recording a type change in history as before. */
+export function setKind(ctx: DomainContext, item: LifeItem, kind: ItemKind | undefined): ItemChange {
+  const fields = kindFields(kind);
+  const typed = setItemType(ctx, item, fields.type);
+  if (typed.item.captureKind === fields.captureKind) return typed;
+  const { captureKind: _previous, ...rest } = typed.item;
+  return {
+    item: touch(rest, ctx.now().toISOString(), fields.captureKind ? { captureKind: fields.captureKind } : {}),
+    events: typed.events,
+  };
 }
 
 export function setItemType(ctx: DomainContext, item: LifeItem, type: LifeItemType | null): ItemChange {

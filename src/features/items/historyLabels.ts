@@ -1,6 +1,6 @@
 import type { ItemEvent } from '../../core/item-events/types';
 import type { LifeItemType } from '../../core/life-items/types';
-import { lifeItemTypeLabels } from '../capture/labels';
+import { kindLabel, kindOf } from '../../core/life-items/kinds';
 import { formatWhen } from './dateFields';
 
 /** Plain descriptions of what happened. No judgment, no interpretation. */
@@ -10,7 +10,7 @@ export function describeEvent(event: ItemEvent, valueNames: Record<string, strin
     case 'CREATED':
       return 'Captured';
     case 'TYPE_CHANGED':
-      return event.toType ? `Sorted as ${lifeItemTypeLabels[event.toType as LifeItemType]}` : 'Unsorted';
+      return event.toType ? `Sorted as ${kindLabel(kindOf({ type: event.toType as LifeItemType }))}` : 'Unsorted';
     case 'SCHEDULED':
       return event.toTime ? `Set for ${formatWhen(event.toTime)}` : 'Scheduled';
     case 'RESCHEDULED':

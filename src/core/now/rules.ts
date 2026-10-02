@@ -1,3 +1,4 @@
+import { kindOf } from '../life-items/kinds';
 import type { LifeItem } from '../life-items/types';
 import type { NowItemReason } from './types';
 
@@ -26,7 +27,7 @@ export function nowReasonsFor(item: LifeItem): NowItemReason[] {
   if (item.scheduledAt && !item.checklist) reasons.push('SCHEDULED');
   if (item.important) reasons.push('IMPORTANT');
   if (item.status === 'WAITING' && item.checkBackAt) reasons.push('CHECK_BACK');
-  if (item.type === null) reasons.push('UNSORTED');
+  if (kindOf(item) === undefined) reasons.push('UNSORTED');
 
   return reasons;
 }

@@ -16,19 +16,19 @@ describe('brain dump', () => {
   });
 
   it('makes a first guess, feelings and worries before tasks', () => {
-    expect(guessKind('I need to call the bank')).toBe('DO');
-    expect(guessKind('renew passport')).toBe('DO');
+    expect(guessKind('I need to call the bank')).toBe('TODO');
+    expect(guessKind('renew passport')).toBe('TODO');
     expect(guessKind('worried about mum’s appointment')).toBe('CONCERN');
     expect(guessKind('call mum, worried about her')).toBe('CONCERN');
     expect(guessKind('I’m feeling really tired')).toBe('FEELING');
     expect(guessKind('maybe a herb garden')).toBe('IDEA');
-    expect(guessKind('the blue folder is in the car')).toBe('NOTE');
+    expect(guessKind('the blue folder is in the car')).toBe('REMEMBER');
   });
 
   it('cleans task lead-ins and reads named days', () => {
     const lines = readDump('I need to call the garage tomorrow\nidea: a reading corner', '2026-10-02');
     expect(lines).toEqual([
-      { text: 'Call the garage tomorrow', kind: 'DO', plannedFor: '2026-10-03' },
+      { text: 'Call the garage tomorrow', kind: 'TODO', plannedFor: '2026-10-03' },
       { text: 'Idea: a reading corner', kind: 'IDEA' },
     ]);
     // 2026-10-02 is a Friday: "Friday" means next week's, "Monday" the coming one.

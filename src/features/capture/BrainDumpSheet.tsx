@@ -3,27 +3,12 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import MicButton from '../../components/dictation/MicButton';
 import { useSheet } from '../../components/ui/useSheet';
-import { readDump, type DumpKind, type DumpLine } from '../../core/capture/brainDump';
-import type { CaptureKind, LifeItemType } from '../../core/life-items/types';
+import { readDump, type DumpLine } from '../../core/capture/brainDump';
+import { itemKinds } from '../../core/life-items/kinds';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 
-export const dumpKinds: readonly { id: DumpKind; label: string }[] = [
-  { id: 'DO', label: 'To do' },
-  { id: 'CONCERN', label: 'Concern' },
-  { id: 'IDEA', label: 'Idea' },
-  { id: 'FEELING', label: 'Feeling' },
-  { id: 'NOTE', label: 'Note' },
-];
-
-/** How each kind is saved: the same type and capture tags the rest of the app already reads. */
-export const savedAs: Record<DumpKind, { type: LifeItemType | null; captureKind?: CaptureKind }> = {
-  DO: { type: 'DO' },
-  CONCERN: { type: 'THINKING_ABOUT', captureKind: 'CONCERN' },
-  IDEA: { type: 'THINKING_ABOUT', captureKind: 'IDEA' },
-  FEELING: { type: null, captureKind: 'EMOTION' },
-  NOTE: { type: null, captureKind: 'THOUGHT' },
-};
+export const dumpKinds = itemKinds;
 
 type Row = DumpLine & { key: number };
 
@@ -52,11 +37,7 @@ export default function BrainDumpSheet({ onClose }: { onClose: () => void }) {
     const saved: string[] = [];
     try {
       for (const row of keep) {
-        const { type, captureKind } = savedAs[row.kind];
-        const item = await lifeService.capture(row.text, type, {
-          ...(captureKind ? { captureKind } : {}),
-          ...(row.plannedFor ? { plannedFor: row.plannedFor } : {}),
-        });
+        const item = await lifeService.add(row.text, row.kind, row.plannedFor ? { plannedFor: row.plannedFor } : {});
         saved.push(item.id);
       }
       offerUndo(saved.length === 1 ? 'Saved 1 thing' : `Saved ${saved.length} things`, async () => {

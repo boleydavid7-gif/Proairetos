@@ -123,12 +123,12 @@ export default function InsightsPage() {
               <dl className="insight-counts">
                 {captureKinds.map((kind) => (
                   <div key={kind.id}>
-                    <dt>{kind.label}s</dt>
+                    <dt>{kind.label}</dt>
                     <dd>{insights.captured.counts[kind.id]}</dd>
                   </div>
                 ))}
                 <div>
-                  <dt>Not tagged</dt>
+                  <dt>Not sorted</dt>
                   <dd>{insights.captured.untagged}</dd>
                 </div>
               </dl>

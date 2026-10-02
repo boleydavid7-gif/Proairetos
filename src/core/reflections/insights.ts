@@ -1,5 +1,6 @@
 import type { ItemEvent } from '../item-events/types';
-import type { CaptureKind, LifeItem } from '../life-items/types';
+import { kindOf, type ItemKind } from '../life-items/kinds';
+import type { LifeItem } from '../life-items/types';
 import type { ChosenValue } from '../values/types';
 import { isWithin, periodRange, type PeriodRange } from './periods';
 import type { InnerWeather, Reflection } from './types';
@@ -25,7 +26,7 @@ export type Insights = {
   /** Weather the person picked, in a fixed order, with how many entries had none. */
   weather: { counts: Record<InnerWeather, number>; unmarked: number };
   /** Captures in the period by the kind the person tagged. */
-  captured: { counts: Record<CaptureKind, number>; untagged: number };
+  captured: { counts: Record<ItemKind, number>; untagged: number };
   /** When reflections were written, by the clock only. */
   writtenAt: Record<TimeOfDay, number>;
   /** When things were marked done, by the clock only. */
@@ -62,10 +63,11 @@ export function gatherInsights(
     else unmarked += 1;
   }
 
-  const kinds: Record<CaptureKind, number> = { THOUGHT: 0, EMOTION: 0, CONCERN: 0, IDEA: 0 };
+  const kinds: Record<ItemKind, number> = { TODO: 0, REMEMBER: 0, CONCERN: 0, IDEA: 0, FEELING: 0 };
   let untagged = 0;
   for (const item of captures) {
-    if (item.captureKind) kinds[item.captureKind] += 1;
+    const kind = kindOf(item);
+    if (kind) kinds[kind] += 1;
     else untagged += 1;
   }
 

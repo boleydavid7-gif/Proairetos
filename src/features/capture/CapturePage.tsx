@@ -8,17 +8,17 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { ChevronRightIcon, InboxIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
-import type { CaptureKind, LifeItem } from '../../core/life-items/types';
+import type { LifeItem } from '../../core/life-items/types';
 import { formatDay } from '../items/dateFields';
 import CheckRow from '../items/CheckRow';
 import CaptureBar from '../now/components/CaptureBar';
 import { dayLabel } from '../reflect/format';
-import { captureKindLabel, captureKinds } from './captureKinds';
+import { captureKinds } from './captureKinds';
+import { kindLabel, kindOf, type ItemKind } from '../../core/life-items/kinds';
 import BrainDumpSheet from './BrainDumpSheet';
 import QuickSortSheet, { sortable } from './QuickSortSheet';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
-import { lifeItemTypeLabels } from './labels';
 
 function ClosedItems({ items }: { items: LifeItem[] }) {
   const { openItem } = useOverlays();
@@ -46,7 +46,7 @@ function ClosedItems({ items }: { items: LifeItem[] }) {
 
 /** What it is (as tagged or sorted) and when it arrived. */
 function captureDetail(item: LifeItem): string {
-  const what = captureKindLabel(item.captureKind) ?? (item.type ? lifeItemTypeLabels[item.type] : undefined);
+  const what = kindLabel(kindOf(item));
   const when = `${dayLabel(item.createdAt)} ${new Date(item.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
   return what ? `${what} · ${when}` : when;
 }
@@ -57,7 +57,7 @@ const CLOSED_SHOWN = 20;
 
 export default function CapturePage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
-  const [kind, setKind] = useState<CaptureKind | undefined>();
+  const [kind, setKind] = useState<ItemKind | undefined>();
   const [showAll, setShowAll] = useState(false);
   const [offering, setOffering] = useState<'sit-with-it' | 'think-it-through' | null>(null);
   const [offerFrom, setOfferFrom] = useState<LifeItem | undefined>();
@@ -119,7 +119,7 @@ export default function CapturePage() {
           onCaptured={(item) => {
             // After naming a feeling or a worry, a practice is offered, quietly and at most once a day.
             const today = toLocalDate(new Date());
-            if (kind === 'EMOTION' && takeOffer('sit-with-it', today)) setOffering('sit-with-it');
+            if (kind === 'FEELING' && takeOffer('sit-with-it', today)) setOffering('sit-with-it');
             if (kind === 'CONCERN' && takeOffer('think-it-through', today)) {
               setOffering('think-it-through');
               setOfferFrom(item);

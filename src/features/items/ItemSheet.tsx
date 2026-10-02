@@ -7,7 +7,7 @@ import { compassService, decisionService, lifeService } from '../../app/services
 import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
-import { lifeItemTypeLabels, lifeItemTypes } from '../capture/labels';
+import { itemKinds, kindOf } from '../../core/life-items/kinds';
 import { formatDay, fromDateInput, fromDateTimeInput, toDateInput, toDateTimeInput } from './dateFields';
 import { describeEvent } from './historyLabels';
 import RepeatSection from './RepeatSection';
@@ -132,8 +132,8 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   const [notMine, setNotMine] = useState(fromLines(item.controlSplit?.notInMyControl));
   const [open, setOpen] = useState(Boolean(item.controlSplit));
 
-  if (item.type !== 'THINKING_ABOUT' && item.captureKind !== 'CONCERN') return null;
-  const isConcern = item.captureKind === 'CONCERN';
+  if (item.type !== 'THINKING_ABOUT' && kindOf(item) !== 'CONCERN') return null;
+  const isConcern = kindOf(item) === 'CONCERN';
   const mineLines = (item.controlSplit?.inMyControl ?? []).filter((line) => line !== item.nextStep);
 
   const save = () => {
@@ -462,22 +462,22 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         </p>
       )}
 
-      <div className="chip-row" role="group" aria-label="Type">
-        {lifeItemTypes.map((type) => (
+      <div className="chip-row" role="group" aria-label="Kind">
+        {itemKinds.map((kind) => (
           <button
-            key={type}
+            key={kind.id}
             type="button"
             className="chip"
-            aria-pressed={item.type === type}
-            onClick={() => lifeService.sort(item.id, item.type === type ? null : type)}
+            aria-pressed={kindOf(item) === kind.id}
+            onClick={() => lifeService.setKind(item.id, kindOf(item) === kind.id ? undefined : kind.id)}
           >
-            {lifeItemTypeLabels[type]}
+            {kind.label}
           </button>
         ))}
       </div>
 
-      {item.captureKind === 'CONCERN' && <ControlSplitSection item={item} />}
-      {item.captureKind === 'CONCERN' && <ThinkThroughLink item={item} />}
+      {kindOf(item) === 'CONCERN' && <ControlSplitSection item={item} />}
+      {kindOf(item) === 'CONCERN' && <ThinkThroughLink item={item} />}
 
       <NextStepSection item={item} />
 
@@ -539,7 +539,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
       <RepeatSection item={item} />
 
-      {item.captureKind !== 'CONCERN' && <ControlSplitSection item={item} />}
+      {kindOf(item) !== 'CONCERN' && <ControlSplitSection item={item} />}
 
       <DecisionSection item={item} />
 

@@ -1,9 +1,9 @@
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import type { LifeItem } from '../../core/life-items/types';
-import { lifeItemTypeLabels, lifeItemTypes } from './labels';
+import { itemKinds } from '../../core/life-items/kinds';
 
-/** A capture waiting to be sorted, with one tap per type. */
+/** A capture waiting to be sorted, with one tap per kind. */
 export default function UnsortedItem({ item }: { item: LifeItem }) {
   const { openItem, offerUndo } = useOverlays();
 
@@ -13,9 +13,9 @@ export default function UnsortedItem({ item }: { item: LifeItem }) {
         <span className="item-card__title">{item.title}</span>
       </button>
       <div className="chip-row" role="group" aria-label={`Sort "${item.title}"`}>
-        {lifeItemTypes.map((type) => (
-          <button key={type} type="button" className="chip" onClick={() => lifeService.sort(item.id, type)}>
-            {lifeItemTypeLabels[type]}
+        {itemKinds.map((kind) => (
+          <button key={kind.id} type="button" className="chip" onClick={() => lifeService.setKind(item.id, kind.id)}>
+            {kind.label}
           </button>
         ))}
         <button

@@ -42,7 +42,7 @@ describe('insights', () => {
       [reflection({ createdAt: at(1, 7) }), reflection({ createdAt: at(1, 23) })],
       [],
     );
-    expect(result.captured).toEqual({ counts: { THOUGHT: 0, EMOTION: 1, CONCERN: 0, IDEA: 1 }, untagged: 1 });
+    expect(result.captured).toEqual({ counts: { TODO: 0, REMEMBER: 0, CONCERN: 0, IDEA: 1, FEELING: 1 }, untagged: 1 });
     expect(result.writtenAt).toEqual({ MORNING: 1, AFTERNOON: 0, EVENING: 0, NIGHT: 1 });
   });
 
@@ -64,7 +64,7 @@ describe('insights and Plan tasks', () => {
   it('counts only what came through Capture as captured', () => {
     const range = insightRange('week', new Date(2026, 9, 1, 12));
     const result = gatherInsights(range, [item({ source: 'MANUAL', type: 'DO' }), item({ captureKind: 'IDEA' })], [], []);
-    expect(result.captured).toEqual({ counts: { THOUGHT: 0, EMOTION: 0, CONCERN: 0, IDEA: 1 }, untagged: 0 });
+    expect(result.captured).toEqual({ counts: { TODO: 0, REMEMBER: 0, CONCERN: 0, IDEA: 1, FEELING: 0 }, untagged: 0 });
   });
 });
 

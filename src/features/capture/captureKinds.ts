@@ -1,20 +1,14 @@
 import type { ComponentType } from 'react';
-import { BulbIcon, CloudIcon, HeartIcon, NoteIcon } from '../../components/icons/Icons';
-import type { CaptureKind } from '../../core/life-items/types';
+import { BulbIcon, CheckIcon, CloudIcon, HeartIcon, NoteIcon } from '../../components/icons/Icons';
+import { itemKinds, type ItemKind } from '../../core/life-items/kinds';
 
-export type CaptureKindOption = {
-  id: CaptureKind;
-  label: string;
-  /** Shown as the placeholder: a way in, never a required format. */
-  prompt: string;
-  icon: ComponentType<{ size?: number }>;
+const icons: Record<ItemKind, ComponentType<{ size?: number }>> = {
+  TODO: CheckIcon,
+  REMEMBER: NoteIcon,
+  CONCERN: CloudIcon,
+  IDEA: BulbIcon,
+  FEELING: HeartIcon,
 };
 
-export const captureKinds: readonly CaptureKindOption[] = [
-  { id: 'THOUGHT', label: 'Thought', prompt: 'I need to remember…', icon: NoteIcon },
-  { id: 'EMOTION', label: 'Emotion', prompt: 'I’m feeling…', icon: HeartIcon },
-  { id: 'CONCERN', label: 'Concern', prompt: 'I’m worried about…', icon: CloudIcon },
-  { id: 'IDEA', label: 'Idea', prompt: 'An idea for later…', icon: BulbIcon },
-];
-
-export const captureKindLabel = (kind: CaptureKind | undefined) => captureKinds.find((k) => k.id === kind)?.label;
+/** The kinds as Capture shows them, each with a way in. Never a required format. */
+export const captureKinds = itemKinds.map((kind) => ({ ...kind, icon: icons[kind.id] }));

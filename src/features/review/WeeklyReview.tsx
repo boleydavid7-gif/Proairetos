@@ -1,3 +1,4 @@
+import { kindOf } from '../../core/life-items/kinds';
 import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -24,7 +25,7 @@ const steps = [
 
 function SortStep() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
-  const unsorted = items.filter((item) => item.type === null && (item.status === 'OPEN' || item.status === 'WAITING'));
+  const unsorted = items.filter((item) => kindOf(item) === undefined && (item.status === 'OPEN' || item.status === 'WAITING'));
   if (unsorted.length === 0) return <p className="empty-note">Everything is sorted.</p>;
   return (
     <div className="stack-tight">
