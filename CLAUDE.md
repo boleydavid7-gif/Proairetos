@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (251 tests), includes the language guard
+npm test             # vitest (252 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -108,7 +108,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Plan/Reflect/Capture show a `GentleLine` (`stoic/gentleLines.ts`).
 - Today is shaped by the person: `useTodayParts` (Settings > What Today
   shows; "Not for me" sets a part aside with undo) and a Lighter view
-  (`LighterView`, the leaf). Lists that come back are routines with a
+  (`LighterView`, the leaf; for the day it is chosen, easing back the next
+  day). Things not sorted lead to Sort through, which also sets the kind.
+  An item's When is one field: a day, plus a time if it has one
+  (time -> `scheduledAt`, day only -> `plannedFor`). Lists that come back are routines with a
   `checklist` that clears each time (`setChecklist`); they stay off the
   timeline and send no reminders. Reminders respect quiet hours and
   protected time (`rhythm/quietHours.ts`; held, never dropped).

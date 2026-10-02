@@ -359,13 +359,17 @@ export function setTodayPartShown(part: TodayPart, shown: boolean): void {
 
 const LIGHTER_KEY = 'proairetos.lighterToday';
 
-/** Today shrunk to one next thing, a pause, and capture, until the person turns it off. */
-export function lighterToday(): boolean {
-  return readJson<boolean>(LIGHTER_KEY) === true;
+/**
+ * Today shrunk to one next thing, a pause, and capture, for the day the
+ * person chose it. It eases back by itself the next day; lasting choices
+ * live in Settings > What's included.
+ */
+export function lighterToday(day: string): boolean {
+  return readJson<string>(LIGHTER_KEY) === day;
 }
 
-export function setLighterToday(on: boolean): void {
-  writeJson(LIGHTER_KEY, on);
+export function setLighterToday(on: boolean, day = ''): void {
+  writeJson(LIGHTER_KEY, on ? day : null);
 }
 
 // ---------- Energy, as the person says it ----------

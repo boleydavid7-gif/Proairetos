@@ -45,3 +45,8 @@ export function formatWhen(iso: string): string {
 export function formatDay(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 }
+
+/** A date -> value for <input type="time">, in local time. */
+export function toTimeInput(date: Date): string {
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

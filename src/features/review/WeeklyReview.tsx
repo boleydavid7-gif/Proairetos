@@ -8,7 +8,7 @@ import { compassService, lifeService, reflectionService, scheduleService } from 
 import { ArrowLeftIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
-import UnsortedItem from '../capture/UnsortedItem';
+import QuickSortSheet from '../capture/QuickSortSheet';
 import CaptureBar from '../now/components/CaptureBar';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
@@ -25,13 +25,18 @@ const steps = [
 
 function SortStep() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
+  const [sorting, setSorting] = useState(false);
   const unsorted = items.filter((item) => kindOf(item) === undefined && (item.status === 'OPEN' || item.status === 'WAITING'));
-  if (unsorted.length === 0) return <p className="empty-note">Everything is sorted.</p>;
+  if (unsorted.length === 0 && !sorting) return <p className="empty-note">Everything is sorted.</p>;
   return (
     <div className="stack-tight">
-      {unsorted.map((item) => (
-        <UnsortedItem key={item.id} item={item} />
-      ))}
+      <p className="empty-note">{unsorted.length === 1 ? '1 thing not sorted yet.' : `${unsorted.length} things not sorted yet.`}</p>
+      <button type="button" className="chip chip--wide" onClick={() => setSorting(true)}>
+        Sort through them
+      </button>
+      {sorting && (
+        <QuickSortSheet items={items} today={toLocalDate(new Date())} unsortedFirst onClose={() => setSorting(false)} />
+      )}
     </div>
   );
 }

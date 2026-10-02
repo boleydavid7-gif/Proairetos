@@ -54,7 +54,7 @@ import BackupOffer from '../today/BackupOffer';
 import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
-import { blockTitle, buildDayTimeline, dayTitle } from '../today/timeline';
+import { blockTitle, buildDayTimeline } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
 import ImportantItems from './components/ImportantItems';
 import LookAhead from './components/LookAhead';
@@ -77,15 +77,13 @@ export default function NowPage() {
   const [name] = useState(displayName);
   const [kept, setKept] = useState(keptConcerns);
   const shows = useTodayParts();
-  const lighter = useSyncExternalStore(subscribePreferences, lighterToday);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
-  // Today shows today; other days live in Days ahead.
-  const offset = 0;
+  const lighter = useSyncExternalStore(subscribePreferences, () => lighterToday(today));
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
-  const date = addDays(today, offset);
-  const isToday = offset === 0;
+  // Today shows today; other days live in Days ahead.
+  const date = today;
   const line = stoicLineFor(date);
 
   const now = useNow();
@@ -131,15 +129,13 @@ export default function NowPage() {
   const hasAnything = entries.length > 0 || (now && !now.isEmpty);
 
   // Only one message at a time, most time-sensitive first.
-  const message = !isToday
-    ? null
-    : offer
-      ? 'pause'
-      : away >= RETURN_AFTER_DAYS && !welcomeDismissed
-        ? 'welcome'
-        : !isLookAheadSetAside() && shows('look-ahead')
-          ? 'look-ahead'
-          : null;
+  const message = offer
+    ? 'pause'
+    : away >= RETURN_AFTER_DAYS && !welcomeDismissed
+      ? 'welcome'
+      : !isLookAheadSetAside() && shows('look-ahead')
+        ? 'look-ahead'
+        : null;
 
   const aWhileAgo = fromAWhileAgo(items, clock, kept);
   const waiting = now?.waiting.filter((item) => !readyIds.has(item.id)) ?? [];
@@ -163,7 +159,7 @@ export default function NowPage() {
         { id: 'revisit', label: 'Look back', count: toRevisit.length, content: <RevisitNudges /> },
         { id: 'important', label: 'Important', count: now.important.length, content: <ImportantItems items={now.important} /> },
         { id: 'waiting', label: 'Waiting', count: waiting.length, content: <WaitingItems items={waiting} /> },
-        { id: 'unsorted', label: 'Not sorted', count: now.unsortedCount, content: <UnsortedPreview count={now.unsortedCount} /> },
+        { id: 'unsorted', label: 'Not sorted', count: now.unsortedCount, content: <UnsortedPreview count={now.unsortedCount} items={items} today={today} /> },
         {
           id: 'earlier',
           label: 'From earlier days',
@@ -179,21 +175,19 @@ export default function NowPage() {
     <div className="page page--landscape">
       <header className="page-header today-header">
         <div className="page-header__actions">
-          {isToday && <TodayWeather />}
-          {isToday && (
-            <button
-              type="button"
-              className="header-action"
-              aria-label={lighter ? 'Show everything' : 'Lighter view'}
-              aria-pressed={lighter}
-              onClick={() => setLighterToday(!lighter)}
-            >
-              <SproutIcon size={22} />
-            </button>
-          )}
+          <TodayWeather />
+          <button
+            type="button"
+            className="header-action"
+            aria-label={lighter ? 'Show everything' : 'Lighter today'}
+            aria-pressed={lighter}
+            onClick={() => setLighterToday(!lighter, today)}
+          >
+            <SproutIcon size={22} />
+          </button>
           <SettingsButton />
         </div>
-        <h1 className="page-header__title">{isToday ? greeting(clock, name) : dayTitle(date, today)}</h1>
+        <h1 className="page-header__title">{greeting(clock, name)}</h1>
         {shows('line') && <DailyLine key={date} line={line} />}
         <div className="today-header__rule" aria-hidden="true" />
         <div className="day-stepper">
@@ -211,7 +205,7 @@ export default function NowPage() {
         </div>
       </header>
 
-      {isToday && lighter ? (
+      {lighter ? (
         <LighterView items={items} today={today} />
       ) : (
         <>
@@ -227,14 +221,14 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      {shows('intention') && <Intention date={date} isToday={isToday} />}
-      {isToday && shows('path') && <TodayThree date={today} items={items} />}
-      {isToday && <NowCard now={clock} occurrences={nearOccurrences} items={items} />}
+      {shows('intention') && <Intention date={date} isToday />}
+      {shows('path') && <TodayThree date={today} items={items} />}
+      {<NowCard now={clock} occurrences={nearOccurrences} items={items} />}
 
       {entries.length > 0 && (
         <section className="stack-tight" aria-label="Your day">
           <div className="section-heading">
-            <h2 className="section-label">{isToday ? 'Your day' : 'That day'}</h2>
+            <h2 className="section-label">Your day</h2>
             <span className="section-heading__actions">
               <button
                 type="button"
@@ -254,7 +248,7 @@ export default function NowPage() {
           <DayTimeline
             date={date}
             entries={entries}
-            now={isToday ? clock : undefined}
+            now={clock}
             onChangeDay={setChanging}
             onOpenItem={openItem}
             goalLines={linesForGoals}
@@ -266,9 +260,9 @@ export default function NowPage() {
         </section>
       )}
 
-      {isToday && <Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
+      {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
 
-      {isToday && shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
+      {shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
         <OpenTime stretches={stretches} items={items} today={today} />
       )}
 
@@ -285,11 +279,11 @@ export default function NowPage() {
         </div>
       )}
 
-      {isToday && shows('capture') && <CaptureBar variant="quiet" />}
-      {isToday && <BackupOffer today={today} recordCount={items.length} />}
-      {isToday && <AlsoToday sections={alsoSections} />}
-      {isToday && <DoneToday today={today} range={rangeOf(today)} />}
-      {isToday && shows('close-day') && (
+      {shows('capture') && <CaptureBar variant="quiet" />}
+      {<BackupOffer today={today} recordCount={items.length} />}
+      {<AlsoToday sections={alsoSections} />}
+      {<DoneToday today={today} range={rangeOf(today)} />}
+      {shows('close-day') && (
         <CloseDay
           today={today}
           range={rangeOf(today)}
@@ -299,8 +293,7 @@ export default function NowPage() {
         />
       )}
 
-      {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
-      {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}
+      {now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
 
         </>
       )}

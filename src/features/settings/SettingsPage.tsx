@@ -28,10 +28,8 @@ import {
   clearPreferences,
   displayName,
   hiddenOffers,
-  lighterToday,
   loadAppearance,
   saveAppearance,
-  setLighterToday,
   setTodayPartShown,
   type TodayPart,
   quietOffersOn,
@@ -544,7 +542,6 @@ function AppearanceSection() {
 
 function TodaySection() {
   const shows = useTodayParts();
-  const [lighter, setLighter] = useState(lighterToday);
   return (
     <section className="settings-card" aria-label="What’s included">
       <p className="section-description">
@@ -584,20 +581,7 @@ function TodaySection() {
           ))}
         </div>
       ))}
-      <p className="sheet__label">Lighter view</p>
-      <button
-        type="button"
-        className="toggle-row"
-        aria-pressed={lighter}
-        onClick={() => {
-          setLighterToday(!lighter);
-          setLighter(!lighter);
-        }}
-      >
-        <span className={`toggle-switch${lighter ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span className="toggle-row__text">Just the next thing, a pause, and capture</span>
-      </button>
-      <p className="sheet__hint">Also one tap from the leaf at the top of Today.</p>
+      <p className="sheet__hint">For a lighter day, tap the leaf at the top of Today: just the next thing, a pause, and capture, until tomorrow.</p>
     </section>
   );
 }

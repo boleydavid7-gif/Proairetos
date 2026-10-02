@@ -4,13 +4,15 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService } from '../../app/services';
 import { useSheet } from '../../components/ui/useSheet';
 import { itemFacts } from '../../core/life-items/facts';
+import { itemKinds, kindOf } from '../../core/life-items/kinds';
 import type { LifeItem } from '../../core/life-items/types';
 
 /** What can be sorted: open, not a routine, and not already set for today. */
-export function sortable(items: readonly LifeItem[], today: string): LifeItem[] {
+export function sortable(items: readonly LifeItem[], today: string, unsortedFirst = false): LifeItem[] {
   return items
     .filter((item) => item.status === 'OPEN' && !item.repeat && item.plannedFor !== today && item.pickedFor !== today)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .sort((a, b) => (unsortedFirst ? Number(kindOf(a) !== undefined) - Number(kindOf(b) !== undefined) : 0));
 }
 
 /**
@@ -18,11 +20,22 @@ export function sortable(items: readonly LifeItem[], today: string): LifeItem[] 
  * plain choices. The person decides; the app only shows what they marked
  * and when things arrived. Leaving part way is fine; nothing is owed.
  */
-export default function QuickSortSheet({ items, today, onClose }: { items: readonly LifeItem[]; today: string; onClose: () => void }) {
+export default function QuickSortSheet({
+  items,
+  today,
+  unsortedFirst = false,
+  onClose,
+}: {
+  items: readonly LifeItem[];
+  today: string;
+  /** From a "not sorted" prompt: things without a kind come first. */
+  unsortedFirst?: boolean;
+  onClose: () => void;
+}) {
   const { dialog, panel, close } = useSheet();
   const { offerUndo } = useOverlays();
   // The list is fixed when the sheet opens, so choices do not reshuffle it.
-  const [queue] = useState(() => sortable(items, today).map((item) => item.id));
+  const [queue] = useState(() => sortable(items, today, unsortedFirst).map((item) => item.id));
   const [handled, setHandled] = useState<readonly string[]>([]);
   const [busy, setBusy] = useState(false);
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
@@ -60,9 +73,22 @@ export default function QuickSortSheet({ items, today, onClose }: { items: reado
 
         {current ? (
           <>
-            <p className="sheet__hint">One at a time. Today, later, or let it go. Stop whenever you like.</p>
+            <p className="sheet__hint">One at a time. What it is, if you like; then today, later, or let it go. Stop whenever you like.</p>
             <div className="sort-card">
               <p className="sort-card__title">{current.title}</p>
+              <div className="chip-row" role="group" aria-label="Kind">
+                {itemKinds.map((kind) => (
+                  <button
+                    key={kind.id}
+                    type="button"
+                    className="chip chip--small"
+                    aria-pressed={kindOf(current) === kind.id}
+                    onClick={() => lifeService.setKind(current.id, kindOf(current) === kind.id ? undefined : kind.id)}
+                  >
+                    {kind.label}
+                  </button>
+                ))}
+              </div>
               <ul className="sort-card__facts">
                 {itemFacts(current, today, names).map((fact) => (
                   <li key={fact}>{fact}</li>

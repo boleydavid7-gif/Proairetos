@@ -9,7 +9,8 @@ import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
 import { itemKinds, kindOf } from '../../core/life-items/kinds';
-import { formatDay, fromDateInput, fromDateTimeInput, toDateInput, toDateTimeInput } from './dateFields';
+import { formatDay, fromDateInput, toDateInput, toTimeInput } from './dateFields';
+import { atTime, toLocalDate } from '../../core/scheduling/dates';
 import { describeEvent } from './historyLabels';
 import RepeatSection from './RepeatSection';
 
@@ -398,6 +399,78 @@ function GoalSection({ item }: { item: LifeItem }) {
   );
 }
 
+/**
+ * When, as one field: a day, and a time if it has one. With a time it sits
+ * on that day's timeline; without, it is planned for the day.
+ */
+function WhenSection({ item }: { item: LifeItem }) {
+  const timedAt = item.scheduledAt ? new Date(item.scheduledAt) : undefined;
+  const [day, setDay] = useState(timedAt ? toLocalDate(timedAt) : (item.plannedFor ?? ''));
+  const [time, setTime] = useState(timedAt ? toTimeInput(timedAt) : '');
+
+  async function save(nextDay: string, nextTime: string) {
+    if (!nextDay) {
+      if (item.scheduledAt) await lifeService.schedule(item.id, undefined);
+      if (item.plannedFor) await lifeService.setPlannedFor(item.id, undefined);
+      return;
+    }
+    if (nextTime) {
+      await lifeService.schedule(item.id, atTime(nextDay, nextTime).toISOString());
+      if (item.plannedFor) await lifeService.setPlannedFor(item.id, undefined);
+    } else {
+      if (item.scheduledAt) await lifeService.schedule(item.id, undefined);
+      await lifeService.setPlannedFor(item.id, nextDay);
+    }
+  }
+
+  return (
+    <section className="sheet__section" aria-label="When">
+      <p className="sheet__label">When</p>
+      <div className="block-fields">
+        <label className="block-fields__time">
+          <span>Day</span>
+          <input
+            type="date"
+            className="field-input"
+            aria-label="Day"
+            value={day}
+            onChange={(event) => {
+              setDay(event.target.value);
+              void save(event.target.value, event.target.value ? time : '');
+              if (!event.target.value) setTime('');
+            }}
+          />
+        </label>
+        <label className="block-fields__time">
+          <span>Time (optional)</span>
+          <input
+            type="time"
+            className="field-input"
+            aria-label="Time"
+            value={time}
+            disabled={!day}
+            onChange={(event) => setTime(event.target.value)}
+            onBlur={() => day && void save(day, time)}
+          />
+        </label>
+      </div>
+      {(day || time) && (
+        <button
+          type="button"
+          className="button-quiet when-clear"
+          onClick={() => {
+            setDay('');
+            setTime('');
+            void save('', '');
+          }}
+        >
+          Clear
+        </button>
+      )}
+    </section>
+  );
+}
+
 function PlanSection({ item }: { item: LifeItem }) {
   const groups: { id: PlanGroup; label: string }[] = [
     { id: 'MAINTENANCE', label: 'Maintenance' },
@@ -405,7 +478,7 @@ function PlanSection({ item }: { item: LifeItem }) {
   ];
   return (
     <section className="sheet__section" aria-label="Plan">
-      <p className="sheet__label">Group and day</p>
+      <p className="sheet__label">Group</p>
       <div className="chip-row" role="group" aria-label="Plan group">
         {groups.map((group) => (
           <button
@@ -419,20 +492,6 @@ function PlanSection({ item }: { item: LifeItem }) {
           </button>
         ))}
       </div>
-      <div className="field-row">
-        <input
-          type="date"
-          className="field-input"
-          aria-label="Planned day"
-          value={item.plannedFor ?? ''}
-          onChange={(event) => lifeService.setPlannedFor(item.id, event.target.value || undefined)}
-        />
-        {item.plannedFor && (
-          <button type="button" className="button-quiet" onClick={() => lifeService.setPlannedFor(item.id, undefined)}>
-            Clear
-          </button>
-        )}
-      </div>
     </section>
   );
 }
@@ -445,7 +504,6 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
   const valueNames = Object.fromEntries(values.map((value) => [value.id, value.name]));
   const [title, setTitle] = useState(item.title);
   const [notes, setNotes] = useState(item.notes ?? '');
-  const [when, setWhen] = useState(toDateTimeInput(item.scheduledAt));
   const isActive = item.status === 'OPEN' || item.status === 'WAITING';
   // More starts open when something in it is already set, so nothing chosen is hidden.
   const [moreOpen, setMoreOpen] = useState(
@@ -508,33 +566,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
       <NextStepSection item={item} />
 
-      <section className="sheet__section" aria-label="When">
-        <p className="sheet__label">When</p>
-        <div className="field-row">
-          <input
-            type="datetime-local"
-            className="field-input"
-            aria-label="Date and time"
-            value={when}
-            onChange={(event) => setWhen(event.target.value)}
-            onBlur={() => {
-              if (when !== toDateTimeInput(item.scheduledAt)) lifeService.schedule(item.id, fromDateTimeInput(when));
-            }}
-          />
-          {item.scheduledAt && (
-            <button
-              type="button"
-              className="button-quiet"
-              onClick={() => {
-                setWhen('');
-                lifeService.schedule(item.id, undefined);
-              }}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </section>
+      <WhenSection item={item} />
 
       {item.checklist && <ChecklistSection item={item} />}
 
