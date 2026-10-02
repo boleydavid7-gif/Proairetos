@@ -133,7 +133,7 @@ export const player = {
       output.gain.setValueAtTime(0, ctx.currentTime);
       output.gain.linearRampToValueAtTime(1, ctx.currentTime + FADE_IN);
     };
-    const failed = () => {
+    const couldNotPlay = () => {
       if (playing[kind] !== layer) return;
       player.stop(kind, 0);
       set({ problem: entry.id, loading: null });
@@ -163,7 +163,7 @@ export const player = {
             }
           };
         })
-        .catch(failed);
+        .catch(couldNotPlay);
       return;
     }
 
@@ -175,8 +175,8 @@ export const player = {
     element.src = ready.get(entry.file) ?? entry.file;
     const node = ctx.createMediaElementSource(element);
     node.connect(output);
-    element.addEventListener('error', failed, { once: true });
-    void element.play().catch(failed);
+    element.addEventListener('error', couldNotPlay, { once: true });
+    void element.play().catch(couldNotPlay);
     fadeIn();
     end = () => {
       element.pause();
