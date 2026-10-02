@@ -10,6 +10,7 @@ import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import PeopleSection from './PeopleSection';
+import GoalsSection from './GoalsSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
 
@@ -166,6 +167,8 @@ export default function CompassPage() {
           )
         )}
       </section>
+
+      <GoalsSection goals={statements.filter((statement) => statement.type === 'GOAL')} />
 
       <StatementList
         type="REMEMBER"

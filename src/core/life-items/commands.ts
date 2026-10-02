@@ -31,6 +31,7 @@ export type CaptureInput = {
   planGroup?: PlanGroup;
   important?: boolean;
   plannedFor?: string;
+  goalId?: string;
 };
 
 function event(
@@ -66,6 +67,7 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
     ...(input.captureKind ? { captureKind: input.captureKind } : {}),
     ...(input.planGroup ? { planGroup: input.planGroup } : {}),
     ...(input.plannedFor ? { plannedFor: input.plannedFor } : {}),
+    ...(input.goalId ? { goalId: input.goalId } : {}),
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -142,6 +144,13 @@ export function setCarried(ctx: DomainContext, item: LifeItem, carried: boolean)
 export function setImportant(ctx: DomainContext, item: LifeItem, important: boolean): ItemChange {
   if (item.important === important) return { item, events: [] };
   return { item: touch(item, ctx.now().toISOString(), { important }), events: [] };
+}
+
+export function setGoal(ctx: DomainContext, item: LifeItem, goalId: string | undefined): ItemChange {
+  if (item.goalId === goalId) return { item, events: [] };
+  const timestamp = ctx.now().toISOString();
+  const { goalId: _previous, ...rest } = item;
+  return { item: touch(rest, timestamp, goalId ? { goalId } : {}), events: [] };
 }
 
 export function setLight(ctx: DomainContext, item: LifeItem, light: boolean): ItemChange {

@@ -1,6 +1,6 @@
 import type { DomainContext } from '../../core/context';
 import { writeStatement } from '../../core/compass/statements';
-import { MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
+import { MAX_GOALS, MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
 import { chooseValue } from '../../core/values/rules';
 import type { ChosenValue } from '../../core/values/types';
 import type { CompassStatementRepository } from '../../data/repositories/compassStatementRepository';
@@ -71,6 +71,43 @@ export function createCompassService({ userId, context, values, statements }: Co
       await statements.add(person);
       listeners.notify();
       return person;
+    },
+
+    /** Adds something the person is working toward. A few at a time. */
+    async addGoal(body: string): Promise<CompassStatement> {
+      const open = (await statements.list(userId)).filter((s) => s.type === 'GOAL' && !s.reachedAt);
+      if (open.length >= MAX_GOALS) throw new Error(`Up to ${MAX_GOALS} at a time. Mark one reached or set one down to add another.`);
+      const goal = writeStatement(context, userId, 'GOAL', body);
+      await statements.add(goal);
+      listeners.notify();
+      return goal;
+    },
+
+    /** Changes a goal's note or reached mark, with an undo that puts it back as it was. */
+    async updateGoal(id: string, changes: { note?: string; reachedAt?: string | null }): Promise<{ goal: CompassStatement; undo: () => Promise<void> }> {
+      const goal = (await statements.list(userId)).find((s) => s.id === id && s.type === 'GOAL');
+      if (!goal) throw new Error('That is no longer on your list.');
+      const updated: CompassStatement = { ...goal };
+      if ('note' in changes) {
+        const note = changes.note?.trim();
+        if (note) updated.note = note.slice(0, MAX_STATEMENT_LENGTH);
+        else delete updated.note;
+      }
+      if ('reachedAt' in changes) {
+        if (changes.reachedAt) updated.reachedAt = changes.reachedAt;
+        else delete updated.reachedAt;
+      }
+      await statements.remove(id);
+      await statements.add(updated);
+      listeners.notify();
+      return {
+        goal: updated,
+        undo: async () => {
+          await statements.remove(id);
+          await statements.add(goal);
+          listeners.notify();
+        },
+      };
     },
 
     /** Changes a person's note or in-touch date; everything else stays as it was. */

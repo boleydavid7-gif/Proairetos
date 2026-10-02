@@ -218,3 +218,87 @@ button.value-card__text:disabled {
   padding: 0 var(--space-2) var(--space-1) 0;
   animation: rise 260ms ease-out both;
 }
+
+/* ---------- Working toward ---------- */
+
+.goals {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.goal {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.goal__main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.goal__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.goal__note {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.goal__meta {
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+}
+
+.goal__more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.goal__list ul {
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal__step {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.goal__done {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.goal__when {
+  flex: none;
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}

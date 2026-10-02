@@ -1,5 +1,8 @@
-/** PERSON: someone who matters to the person; the body is their name. */
-export type CompassStatementType = 'REMEMBER' | 'PUSHED_ASIDE' | 'PERSON';
+/**
+ * PERSON: someone who matters to the person; the body is their name.
+ * GOAL: something they are working toward, in their own words.
+ */
+export type CompassStatementType = 'REMEMBER' | 'PUSHED_ASIDE' | 'PERSON' | 'GOAL';
 
 export interface CompassStatement {
   id: string;
@@ -11,8 +14,13 @@ export interface CompassStatement {
   note?: string;
   /** For a person: when the person last chose to note they were in touch. A record, never a reminder. */
   inTouchAt?: string;
+  /** For a goal: when the person said it was reached. Their mark; the app never decides it. */
+  reachedAt?: string;
 }
 
 export const MAX_PEOPLE = 20;
+
+/** A few at a time keeps them in view. */
+export const MAX_GOALS = 5;
 
 export const MAX_STATEMENT_LENGTH = 280;

@@ -342,6 +342,31 @@ function ChecklistSection({ item }: { item: LifeItem }) {
 }
 
 /** The person's own grouping and day on Plan. */
+/** Which goal this is a step toward, if any. Only shown once the person has a goal. */
+function GoalSection({ item }: { item: LifeItem }) {
+  const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
+  const goals = statements.filter((statement) => statement.type === 'GOAL' && (!statement.reachedAt || statement.id === item.goalId));
+  if (goals.length === 0) return null;
+  return (
+    <section className="sheet__section" aria-label="Working toward">
+      <p className="sheet__label">A step toward</p>
+      <div className="chip-row" role="group" aria-label="Goal">
+        {goals.map((goal) => (
+          <button
+            key={goal.id}
+            type="button"
+            className="chip"
+            aria-pressed={item.goalId === goal.id}
+            onClick={() => lifeService.setGoal(item.id, item.goalId === goal.id ? undefined : goal.id)}
+          >
+            {goal.body}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function PlanSection({ item }: { item: LifeItem }) {
   const groups: { id: PlanGroup; label: string }[] = [
     { id: 'MAINTENANCE', label: 'Maintenance' },
@@ -456,6 +481,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       </button>
 
       <PlanSection item={item} />
+
+      <GoalSection item={item} />
 
       <ChecklistSection item={item} />
 
