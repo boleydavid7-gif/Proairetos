@@ -64,3 +64,93 @@
   font-size: 0.78rem;
   text-decoration: none;
 }
+
+/* ---------- Empty your head (brain dump) ---------- */
+
+.kind-tile--dump {
+  border-style: dashed;
+}
+
+.dump-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.dump-box__text {
+  flex: 1;
+  min-height: 10rem;
+}
+
+.dump-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dump-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dump-row__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dump-row__text {
+  flex: 1;
+}
+
+.dump-row__remove {
+  flex: none;
+  font-size: 0.8rem;
+}
+
+.dump-row__kinds {
+  flex-wrap: wrap;
+}
+
+/* ---------- Sort through ---------- */
+
+.sort-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.sort-card__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  text-align: left;
+}
+
+.sort-card__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.sort-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}

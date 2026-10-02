@@ -14,12 +14,14 @@ import { dayTitle } from '../today/timeline';
 import AddTaskSheet from './AddTaskSheet';
 import GentleLine from '../../components/ui/GentleLine';
 import { planFor } from './planView';
+import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
 
 export default function PlanPage() {
   const clock = useClock();
   const { today, rangeOf } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [sorting, setSorting] = useState(false);
   const date = addDays(today, offset);
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
   const calendarEvents =
@@ -50,6 +52,17 @@ export default function PlanPage() {
           <ChevronRightIcon size={20} />
         </button>
       </div>
+
+      {offset === 0 && sortable(items, today).length > 1 && (
+        <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
+          <span className="quiet-row__text">
+            <span>Sort through your list</span>
+            <span className="quiet-row__detail">One at a time: today, later, or let it go.</span>
+          </span>
+          <ChevronRightIcon size={18} className="quiet-row__chevron" />
+        </button>
+      )}
+      {sorting && <QuickSortSheet items={items} today={today} onClose={() => setSorting(false)} />}
 
       {calendarEvents.length > 0 && (
         <section className="plan-section" aria-label="From your calendars">

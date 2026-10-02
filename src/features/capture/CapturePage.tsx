@@ -6,7 +6,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
-import { ChevronRightIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon, InboxIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { CaptureKind, LifeItem } from '../../core/life-items/types';
 import { formatDay } from '../items/dateFields';
@@ -14,6 +14,10 @@ import CheckRow from '../items/CheckRow';
 import CaptureBar from '../now/components/CaptureBar';
 import { dayLabel } from '../reflect/format';
 import { captureKindLabel, captureKinds } from './captureKinds';
+import BrainDumpSheet from './BrainDumpSheet';
+import QuickSortSheet, { sortable } from './QuickSortSheet';
+import { useClock } from '../../app/hooks/useClock';
+import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { lifeItemTypeLabels } from './labels';
 
 function ClosedItems({ items }: { items: LifeItem[] }) {
@@ -56,6 +60,9 @@ export default function CapturePage() {
   const [kind, setKind] = useState<CaptureKind | undefined>();
   const [showAll, setShowAll] = useState(false);
   const [offering, setOffering] = useState(false);
+  const [dumping, setDumping] = useState(false);
+  const [sorting, setSorting] = useState(false);
+  const { today } = usePersonalDay(useClock());
   const { openPractice } = useOverlays();
   // Tasks added on Plan live there; this list is what came through Capture.
   const active = items
@@ -91,7 +98,18 @@ export default function CapturePage() {
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
         ))}
+        <button type="button" className="kind-tile kind-tile--dump" onClick={() => setDumping(true)}>
+          <span className="kind-tile__icon">
+            <InboxIcon size={28} />
+          </span>
+          <span className="kind-tile__text">
+            <span className="kind-tile__title">Empty your head</span>
+            <span className="kind-tile__prompt">Everything at once; it gets split up for you to check</span>
+          </span>
+          <ChevronRightIcon size={18} className="kind-tile__chevron" />
+        </button>
       </div>
+      {dumping && <BrainDumpSheet onClose={() => setDumping(false)} />}
 
       <div className="stack-tight">
         <CaptureBar
@@ -126,7 +144,15 @@ export default function CapturePage() {
 
       {active.length > 0 && (
         <section className="plan-section" aria-label="Recent captures">
-          <h2 className="section-label">Recent captures</h2>
+          <div className="section-heading">
+            <h2 className="section-label">Recent captures</h2>
+            {sortable(items, today).length > 1 && (
+              <button type="button" className="text-link" onClick={() => setSorting(true)}>
+                Sort through
+              </button>
+            )}
+          </div>
+          {sorting && <QuickSortSheet items={items} today={today} onClose={() => setSorting(false)} />}
           <ul className="check-list">
             {shown.map((item) => (
               <CheckRow key={item.id} item={item} done={false} detail={captureDetail(item)} />
