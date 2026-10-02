@@ -127,7 +127,15 @@ At this point **sync works**. Reminders need two more steps.
 
 ## 7. Deploy the reminder function
 
-Install the Supabase CLI (https://supabase.com/docs/guides/cli), then from
+**Without a computer (Supabase dashboard):** **Edge Functions → Secrets**,
+add the four secrets below. Then **Edge Functions → Deploy a new function →
+Via editor**, name it `send-reminders`, paste the contents of
+`supabase/functions/send-reminders/index.ts`, deploy, and in the function's
+**Details** turn **Enforce JWT verification** off. Repeat for
+`delete-account` (leave JWT verification on) and, if you want the calendar
+link, `calendar-feed` (JWT verification off).
+
+**With a computer:** install the Supabase CLI (https://supabase.com/docs/guides/cli), then from
 this repository:
 
 ```
@@ -198,10 +206,11 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 4. On a second device, sign in with the same email and enter the passphrase.
 5. Calendar link (optional): **Settings → Calendar subscription → Create
    link**, then use the Apple, Google, or Outlook button it shows.
-6. For reminders on **iPhone**: open the site in Safari, **Share → Add to
-   Home Screen**, open Proairetos from the Home Screen, then turn on
-   reminders in Settings (iOS 16.4 or newer). On **Android**, turn them on
-   in Settings directly.
+6. Notifications on **iPhone**: open the site in Safari, **Share → Add to
+   Home Screen**, open Proairetos from the Home Screen (iOS 16.4 or newer).
+   Then **Settings → Notifications → Allow notifications**, and switch on
+   **Also when the app is closed**. On **Android**, do the same in Settings
+   directly.
 
 ---
 
@@ -214,8 +223,9 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   sizes, which kind each is (for example "reflections"), and when they
   changed; the times reminders are due; and the push address of each device
   with reminders on.
-- Notifications say only "Something you chose is ready". The details are
-  in the app.
+- Notifications are written on your phone when the (empty) push arrives,
+  from what is on the device; the server never sees the words. Settings →
+  Notifications → On the lock screen can hide the details there too.
 - **Calendar link, only if you turn it on:** the calendar file you chose to
   publish is readable by the server and by anyone with the link. By default
   it holds only the times of your commitments, titled "Busy". Turning it off deletes it.
