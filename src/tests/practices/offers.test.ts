@@ -49,3 +49,16 @@ describe('practices', () => {
     }
   });
 });
+
+describe('backup offer', () => {
+  it('is offered only without sync, with something to lose, at most monthly', async () => {
+    const { backupWorthOffering } = await import('../../core/rhythm/backupOffer');
+    const now = new Date(2026, 9, 2);
+    const base = { syncing: false, recordCount: 25, lastBackup: null, now };
+    expect(backupWorthOffering(base)).toBe(true);
+    expect(backupWorthOffering({ ...base, syncing: true })).toBe(false);
+    expect(backupWorthOffering({ ...base, recordCount: 3 })).toBe(false);
+    expect(backupWorthOffering({ ...base, lastBackup: new Date(2026, 8, 25).toISOString() })).toBe(false);
+    expect(backupWorthOffering({ ...base, lastBackup: new Date(2026, 7, 20).toISOString() })).toBe(true);
+  });
+});

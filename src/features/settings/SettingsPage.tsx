@@ -1,6 +1,7 @@
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -10,6 +11,7 @@ import {
   ChevronRightIcon,
   CloudIcon,
   CompassIcon,
+  HeartIcon,
   InboxIcon,
   MoonIcon,
   ShieldIcon,
@@ -290,6 +292,12 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
 
 type View = 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
+// Another screen can ask Settings to open straight onto one page (say, from a backup offer).
+let requestedView: View | null = null;
+export function openSettingsAt(view: View): void {
+  requestedView = view;
+}
+
 const viewTitles: Record<View, string> = {
   profile: 'Your name',
   day: 'When your day starts',
@@ -504,7 +512,12 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const returnTo = useReturnRoute();
   const status = useSyncStatus();
-  const [view, setView] = useState<View | null>(null);
+  const { openSupport } = useOverlays();
+  const [view, setView] = useState<View | null>(() => {
+    const requested = requestedView;
+    requestedView = null;
+    return requested;
+  });
   // Re-read after the name page closes.
   const name = view === null ? displayName() : '';
   const [mode, setMode] = useState<'device' | 'memory'>('device');
@@ -551,6 +564,9 @@ export default function SettingsPage() {
               Dictation, if you use it, is the one exception: your phone maker’s speech service (Apple or Google) turns your
               speech into text, as your keyboard’s microphone does. It asks before the first use.
             </p>
+            <a className="text-link" href="/privacy" target="_blank" rel="noreferrer">
+              Read the full privacy page
+            </a>
           </section>
         )}
         {view === 'about' && (
@@ -604,6 +620,10 @@ export default function SettingsPage() {
         <Row icon={<BreatheIcon size={22} />} title="Quiet offers" value={quietOffersOn() ? 'On' : 'Off'} onClick={() => setView('offers')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
         <Row icon={<CompassIcon size={22} />} title="Where this comes from" onClick={() => setView('sources')} />
+      </div>
+
+      <div className="settings-list">
+        <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
       </div>
 
       <div className="settings-list">

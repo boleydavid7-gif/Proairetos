@@ -52,3 +52,22 @@ describe('compass service', () => {
     await expect(service.writeStatement('REMEMBER', '   ')).rejects.toThrow();
   });
 });
+
+describe('removing from Compass', () => {
+  it('puts a removed value and statement back exactly on undo', async () => {
+    const { service } = setup();
+    const value = await service.chooseValue('Patience');
+    const statement = await service.writeStatement('REMEMBER', 'Begin again');
+
+    const valueRemoval = await service.removeValue(value.id);
+    const statementRemoval = await service.removeStatement(statement.id);
+    expect(await service.values()).toEqual([]);
+    expect(await service.statements()).toEqual([]);
+
+    await valueRemoval.undo();
+    await statementRemoval.undo();
+    await valueRemoval.undo();
+    expect(await service.values()).toEqual([value]);
+    expect(await service.statements()).toEqual([statement]);
+  });
+});

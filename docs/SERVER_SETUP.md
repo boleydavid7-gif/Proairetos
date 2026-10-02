@@ -141,6 +141,16 @@ supabase secrets set \
 supabase functions deploy send-reminders --no-verify-jwt
 ```
 
+So people can delete their account and server data themselves (Settings →
+Account and sync), deploy:
+
+```
+supabase functions deploy delete-account
+```
+
+Leave JWT verification on for this one: only a signed-in person can call
+it, and only for their own account.
+
 For the calendar subscription link, also deploy:
 
 ```

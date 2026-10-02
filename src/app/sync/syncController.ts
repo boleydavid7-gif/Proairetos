@@ -6,6 +6,7 @@ import {
   createSupabaseRemoteStore,
   currentUser,
   deleteCalendarFeed,
+  deleteRemoteAccount,
   fetchCalendarFeedToken,
   publishCalendarFeed,
   updateCalendarFeed,
@@ -228,6 +229,17 @@ export async function signOut(): Promise<void> {
   dataKey = null;
   userId = null;
   set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: undefined });
+}
+
+/**
+ * Deletes the account and everything on the server, then signs this device
+ * out. What is on this device stays here.
+ */
+export async function deleteAccount(): Promise<void> {
+  if (status.phase === 'unavailable' || status.phase === 'signed-out') throw new Error('Not signed in.');
+  await deleteRemoteAccount();
+  saveCalendarFeed({ ...loadCalendarFeed(), enabled: false });
+  await signOut();
 }
 
 // ---------- Reminders ----------

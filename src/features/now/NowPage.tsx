@@ -34,6 +34,7 @@ import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
+import BackupOffer from '../today/BackupOffer';
 import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
@@ -213,6 +214,7 @@ export default function NowPage() {
       )}
 
       {isToday && <CaptureBar variant="quiet" />}
+      {isToday && <BackupOffer today={today} recordCount={items.length} />}
       {isToday && <AlsoToday sections={alsoSections} />}
       {isToday && <DoneToday today={today} range={rangeOf(today)} />}
       {isToday && (

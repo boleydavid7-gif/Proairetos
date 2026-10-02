@@ -9,6 +9,7 @@ import FocusStart from '../../features/focus/FocusStart';
 import ItemSheet from '../../features/items/ItemSheet';
 import PauseScreen from '../../features/pause/PauseScreen';
 import PracticeScreen from '../../features/pause/PracticeScreen';
+import SupportScreen from '../../features/support/SupportScreen';
 import type { PracticeId } from '../../core/practices/practices';
 import type { Undo } from '../../services/life/lifeService';
 import { useServiceData } from '../hooks/useServiceData';
@@ -37,6 +38,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
   const [pausing, setPausing] = useState(false);
   // undefined: closed; null: the list; an id: that practice.
   const [practice, setPractice] = useState<PracticeId | null | undefined>(undefined);
+  const [support, setSupport] = useState(false);
   const [deciding, setDeciding] = useState<{ from?: DecideFrom } | null>(null);
   const [decisionId, setDecisionId] = useState<string | null>(null);
 
@@ -74,6 +76,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       openFocus: () => setFocusVisible(true),
       openPause: () => setPausing(true),
       openPractice: (id?: PracticeId) => setPractice(id ?? null),
+      openSupport: () => setSupport(true),
       startDecision: (from?: DecideFrom) => {
         setItemId(null);
         setDeciding({ from });
@@ -131,8 +134,14 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
         />
       )}
       {practice !== undefined && (
-        <PracticeScreen key={practice ?? 'list'} practiceId={practice ?? undefined} onClose={() => setPractice(undefined)} />
+        <PracticeScreen
+          key={practice ?? 'list'}
+          practiceId={practice ?? undefined}
+          onClose={() => setPractice(undefined)}
+          onSupport={() => setSupport(true)}
+        />
       )}
+      {support && <SupportScreen onClose={() => setSupport(false)} />}
 
       {deciding && (
         <DecideSheet from={deciding.from} onClose={() => setDeciding(null)} onDecided={(id) => setDecisionId(id)} />

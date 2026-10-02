@@ -36,9 +36,20 @@ export function createCompassService({ userId, context, values, statements }: Co
       return value;
     },
 
-    async removeValue(id: string): Promise<void> {
+    /** Removes a value, with an undo that puts it back exactly. */
+    async removeValue(id: string): Promise<{ undo: () => Promise<void> }> {
+      const value = (await values.list(userId)).find((v) => v.id === id);
       await values.remove(id);
       listeners.notify();
+      let undone = false;
+      return {
+        undo: async () => {
+          if (undone || !value) return;
+          undone = true;
+          await values.add(value);
+          listeners.notify();
+        },
+      };
     },
 
     async statements(): Promise<CompassStatement[]> {
@@ -52,9 +63,20 @@ export function createCompassService({ userId, context, values, statements }: Co
       return statement;
     },
 
-    async removeStatement(id: string): Promise<void> {
+    /** Removes a statement, with an undo that puts it back exactly. */
+    async removeStatement(id: string): Promise<{ undo: () => Promise<void> }> {
+      const statement = (await statements.list(userId)).find((s) => s.id === id);
       await statements.remove(id);
       listeners.notify();
+      let undone = false;
+      return {
+        undo: async () => {
+          if (undone || !statement) return;
+          undone = true;
+          await statements.add(statement);
+          listeners.notify();
+        },
+      };
     },
   };
 }

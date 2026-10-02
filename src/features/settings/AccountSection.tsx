@@ -7,6 +7,7 @@ import {
   requestCode,
   confirmEncryption,
   prepareEncryption,
+  deleteAccount,
   signOut,
   syncNow,
   syncStatus,
@@ -326,6 +327,61 @@ function Ready() {
       )}
       {confirmingSignOut && (
         <p className="sheet__hint">Your data stays on this device and in your encrypted account. Sync stops until you sign in again.</p>
+      )}
+
+      <DeleteAccount />
+    </div>
+  );
+}
+
+/** Removes the account and everything on the server. Confirmed in two steps; this device keeps its copy. */
+function DeleteAccount() {
+  const [step, setStep] = useState<'closed' | 'confirm'>('closed');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  if (step === 'closed') {
+    return (
+      <button type="button" className="text-link account-delete" onClick={() => setStep('confirm')}>
+        Delete my account and server data…
+      </button>
+    );
+  }
+
+  return (
+    <div className="settings-sub">
+      <p className="sheet__label">Delete my account</p>
+      <p className="section-description">
+        Removes your account and everything stored on the server: your encrypted data, keys, reminder times, and any
+        calendar link. Other devices are signed out. Everything on this device stays here, so download a backup first if
+        you want a copy elsewhere. This cannot be undone.
+      </p>
+      <div className="chip-row">
+        <button type="button" className="button-quiet" onClick={() => setStep('closed')}>
+          Keep my account
+        </button>
+        <button
+          type="button"
+          className="chip"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError('');
+            try {
+              await deleteAccount();
+            } catch (cause) {
+              setError(cause instanceof Error ? cause.message : 'That did not finish. Try again.');
+              setBusy(false);
+            }
+          }}
+        >
+          {busy ? 'Deleting…' : 'Yes, delete my account'}
+        </button>
+      </div>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

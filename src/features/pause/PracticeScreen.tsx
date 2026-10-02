@@ -6,10 +6,12 @@ type Props = {
   /** Opens straight into one practice; otherwise shows the short list first. */
   practiceId?: PracticeId;
   onClose: () => void;
+  /** Opens crisis lines and support. */
+  onSupport?: () => void;
 };
 
 /** One step at a time, at the person's own pace. Leavable at any point. */
-export default function PracticeScreen({ practiceId, onClose }: Props) {
+export default function PracticeScreen({ practiceId, onClose, onSupport }: Props) {
   const [chosen, setChosen] = useState<PracticeId | undefined>(practiceId);
   const [step, setStep] = useState(0);
   const [showSource, setShowSource] = useState(false);
@@ -46,6 +48,11 @@ export default function PracticeScreen({ practiceId, onClose }: Props) {
           <button type="button" className="button-quiet" onClick={onClose}>
             Close
           </button>
+          {onSupport && (
+            <button type="button" className="text-link practice__support" onClick={onSupport}>
+              If things feel like too much
+            </button>
+          )}
         </div>
       </div>
     );
@@ -68,6 +75,11 @@ export default function PracticeScreen({ practiceId, onClose }: Props) {
               Where this comes from
             </button>
             {showSource && <p className="practice__source">{practice.source}</p>}
+            {practice.id === 'sit-with-it' && onSupport && (
+              <button type="button" className="text-link practice__support" onClick={onSupport}>
+                If it feels like too much, people are there to talk
+              </button>
+            )}
           </>
         ) : (
           <>

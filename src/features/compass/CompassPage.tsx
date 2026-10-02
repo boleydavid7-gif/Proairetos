@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
@@ -10,7 +11,7 @@ import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
 
 function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
-  const [confirming, setConfirming] = useState(false);
+  const { offerUndo } = useOverlays();
   const [open, setOpen] = useState(false);
   const description = describeValue(value.name);
   const practice = practiceOfValue(value.name);
@@ -37,21 +38,15 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
           </span>
         )}
       </button>
-      {!editing ? null : confirming ? (
-        <span className="value-card__confirm">
-          <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>
-            Keep
-          </button>
-          <button type="button" className="chip" onClick={() => compassService.removeValue(value.id)}>
-            Remove
-          </button>
-        </span>
-      ) : (
+      {editing && (
         <button
           type="button"
           className="value-card__remove"
           aria-label={`Remove ${value.name}`}
-          onClick={() => setConfirming(true)}
+          onClick={async () => {
+            const removal = await compassService.removeValue(value.id);
+            offerUndo(`Removed ${value.name}`, removal.undo);
+          }}
         >
           ×
         </button>

@@ -203,3 +203,12 @@ export async function updateCalendarFeed(userId: string, token: string, ics: str
   if (error) throw new Error(error.message);
   return (data?.length ?? 0) > 0;
 }
+
+// ---------- Deleting the account ----------
+
+/** Deletes the account on the server and everything stored with it. The device keeps its own copy. */
+export async function deleteRemoteAccount(): Promise<void> {
+  const client = await supabase();
+  const { error } = await client.functions.invoke('delete-account', { method: 'POST' });
+  if (error) throw new Error('The account could not be deleted. Check your connection and try again.');
+}

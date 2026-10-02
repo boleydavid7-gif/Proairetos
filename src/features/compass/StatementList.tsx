@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import { MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
 
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function StatementList({ type, title, description, placeholder, statements }: Props) {
+  const { offerUndo } = useOverlays();
   const [draft, setDraft] = useState('');
 
   async function submit(event: FormEvent) {
@@ -40,7 +42,10 @@ export default function StatementList({ type, title, description, placeholder, s
                 type="button"
                 className="statement__remove"
                 aria-label={`Remove "${statement.body}"`}
-                onClick={() => compassService.removeStatement(statement.id)}
+                onClick={async () => {
+                  const removal = await compassService.removeStatement(statement.id);
+                  offerUndo('Removed', removal.undo);
+                }}
               >
                 ×
               </button>

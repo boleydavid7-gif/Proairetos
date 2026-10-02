@@ -17,6 +17,8 @@ export type Overlays = {
   openPause: () => void;
   /** A short practice, or the list of them. */
   openPractice: (id?: PracticeId) => void;
+  /** Crisis lines and support, always reachable. */
+  openSupport: () => void;
   /** Write down a decision, optionally from a Thinking about item. */
   startDecision: (from?: { itemId: string; title: string }) => void;
   openDecision: (id: string) => void;
