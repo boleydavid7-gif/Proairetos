@@ -94,8 +94,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   optional inner weather (the person picks it; the app never infers
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
   only counts what was recorded: no trends, conclusions, or advice.
-  Settings is a list of rows with detail pages, under a profile card;
-  the name (greeting on Today) is a device-only preference.
+  Settings is labelled groups of rows (`SettingsGroup`: Your days,
+  Notifications, The app, Your data, About; support row last) with
+  detail pages, under a profile card. Calendars holds both other
+  calendars and the subscription; What's included holds Quiet offers;
+  About holds sources; Values live only in Compass. The name (greeting
+  on Today) is a device-only preference.
 - Practices are woven in, never a feature: `core/practices/practices.ts`
   (short steps + credited source), shown by `features/pause/PracticeScreen`.
   Pause ends with "Another way to pause"; a Feeling capture may get a
@@ -203,7 +207,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `breath-out.mp3`, played at natural speed as each step starts (stretching
   it sounded wrong). `SitScreen` is portalled to body.
   Nothing about a sit is recorded.
-- Notifications (Settings > Notifications, `features/settings/NotificationsSection`):
+- Notifications (Settings > Notifications, `features/settings/NotificationsSection`:
+  one plain list of switches, a lead or time beside a switch only while
+  it is on, Coming up folded; keep explanations out of it):
   written on the device. `core/notify/notices.ts` (`noticesBetween`: timed
   items by their `remind` minutes, absent = at the time, [] = none; other
   calendars with a lead; own schedule blocks; check-backs and look-backs at

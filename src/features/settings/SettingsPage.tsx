@@ -12,11 +12,9 @@ import {
   ArrowLeftIcon,
   BellIcon,
   BookIcon,
-  BreatheIcon,
   CalendarIcon,
   ChevronRightIcon,
   CloudIcon,
-  CompassIcon,
   HeartIcon,
   InboxIcon,
   MoonIcon,
@@ -39,7 +37,6 @@ import {
   restoreOffers,
   setQuietOffers,
   lastBackupDate,
-  loadCalendarFeed,
   loadDaySettings,
   recordBackup,
   saveDaySettings,
@@ -120,7 +117,9 @@ function ExportSection() {
         {busy ? 'Preparing…' : 'Download backup'}
       </button>
       <p className="sheet__hint">
-        {last ? `Last backup ${new Date(last).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}.` : 'No backup yet.'}
+        {last
+          ? `Last backup ${new Date(last).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}.`
+          : 'No backup yet.'}
       </p>
     </section>
   );
@@ -180,7 +179,9 @@ function ImportSection() {
   return (
     <section className="settings-card" aria-label="Restore">
       <h2 className="section-label">Restore from a backup</h2>
-      <p className="section-description">Replaces what is on this device with the backup. Nothing changes until you confirm.</p>
+      <p className="section-description">
+        Replaces what is on this device with the backup. Nothing changes until you confirm.
+      </p>
       <input
         ref={input}
         type="file"
@@ -218,8 +219,13 @@ function ImportSection() {
       {ready && (
         <div className="restore-preview">
           <p>
-            Backup from {new Date(ready.exportedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}:{' '}
-            {describeCounts(ready.data)}.
+            Backup from{' '}
+            {new Date(ready.exportedAt).toLocaleDateString(undefined, {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+            : {describeCounts(ready.data)}.
           </p>
           <p className="sheet__hint">Everything currently on this device will be replaced.</p>
           <div className="chip-row">
@@ -266,8 +272,8 @@ function DeleteSection() {
     <section className="settings-card" aria-label="Delete everything">
       <h2 className="section-label">Delete everything</h2>
       <p className="section-description">
-        Removes all your items, reflections, decisions, values, and schedules from this device. If you use sync, this device
-        is signed out first, so your other devices and encrypted account are not affected.
+        Removes all your items, reflections, decisions, values, and schedules from this device. If you use sync, this
+        device is signed out first, so your other devices and encrypted account are not affected.
       </p>
       {confirming ? (
         <div className="chip-row">
@@ -308,7 +314,24 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'notifications' | 'import' | 'weather' | 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View =
+  | 'notifications'
+  | 'import'
+  | 'weather'
+  | 'calendars'
+  | 'help'
+  | 'appearance'
+  | 'today'
+  | 'offers'
+  | 'sources'
+  | 'calendar'
+  | 'day'
+  | 'profile'
+  | 'account'
+  | 'backup'
+  | 'privacy'
+  | 'delete'
+  | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -321,7 +344,7 @@ const viewTitles: Record<View, string> = {
   profile: 'Your name',
   day: 'When your day starts',
   calendar: 'Share to your calendar',
-  calendars: 'Other calendars',
+  calendars: 'Calendars',
   weather: 'Weather',
   offers: 'Quiet offers',
   today: 'What’s included',
@@ -335,6 +358,16 @@ const viewTitles: Record<View, string> = {
   delete: 'Delete everything',
   about: 'About Proairetos',
 };
+
+/** A few related rows under a small heading. */
+function SettingsGroup({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="settings-group" aria-label={label}>
+      <h2 className="settings-group__label">{label}</h2>
+      <div className="settings-list">{children}</div>
+    </section>
+  );
+}
 
 function Row({ icon, title, value, onClick }: { icon: ReactNode; title: string; value?: string; onClick: () => void }) {
   return (
@@ -429,7 +462,7 @@ function DaySection() {
 
 function daySummary(): string {
   const settings = loadDaySettings();
-  return settings.followShifts ? 'Follows your schedule' : hourLabel(settings.startHour);
+  return settings.followShifts ? 'With your schedule' : hourLabel(settings.startHour);
 }
 
 const todayParts: { part: TodayPart; label: string }[] = [
@@ -448,9 +481,17 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
   {
     group: 'Capture and planning',
     parts: [
-      { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once; it is split up for you to check.' },
+      {
+        part: 'brain-dump',
+        label: 'Empty your head',
+        detail: 'Write everything at once; it is split up for you to check.',
+      },
       { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
-      { part: 'energy', label: 'Energy', detail: 'Say how much energy you have; things you marked as light come first.' },
+      {
+        part: 'energy',
+        label: 'Energy',
+        detail: 'Say how much energy you have; things you marked as light come first.',
+      },
     ],
   },
   {
@@ -476,12 +517,30 @@ const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } a
 const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
 
 const helpTopics: { title: string; body: string }[] = [
-  { title: 'Capture first', body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.' },
-  { title: 'Today', body: 'Your greeting, a line for the day, and only what you choose: an intention, up to three things for your path, your schedule. Tap the leaf for a lighter view.' },
-  { title: 'Days ahead', body: 'Your coming days as a list or a calendar: what has a time, and what you planned for the day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.' },
-  { title: 'Pause and practices', body: 'Pause is a minute to arrive. From there, “Another way to pause” has a few short practices from Stoic and Buddhist traditions.' },
-  { title: 'Reflect and Insights', body: 'Write as much or as little as you like. Insights only counts what you recorded; it never draws conclusions.' },
-  { title: 'Your data', body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Back up and restore live in Settings.' },
+  {
+    title: 'Capture first',
+    body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.',
+  },
+  {
+    title: 'Today',
+    body: 'Your greeting, a line for the day, and only what you choose: an intention, up to three things for your path, your schedule. Tap the leaf for a lighter view.',
+  },
+  {
+    title: 'Days ahead',
+    body: 'Your coming days as a list or a calendar: what has a time, and what you planned for the day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.',
+  },
+  {
+    title: 'Pause and practices',
+    body: 'Pause is a minute to arrive. From there, “Another way to pause” has a few short practices from Stoic and Buddhist traditions.',
+  },
+  {
+    title: 'Reflect and Insights',
+    body: 'Write as much or as little as you like. Insights only counts what you recorded; it never draws conclusions.',
+  },
+  {
+    title: 'Your data',
+    body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Back up and restore live in Settings.',
+  },
 ];
 
 function HelpSection() {
@@ -494,11 +553,16 @@ function HelpSection() {
         </div>
       ))}
       {FEEDBACK_EMAIL ? (
-        <a className="chip chip--accent chip--wide" href={`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('Proairetos feedback')}`}>
+        <a
+          className="chip chip--accent chip--wide"
+          href={`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('Proairetos feedback')}`}
+        >
           Send feedback
         </a>
       ) : (
-        <p className="sheet__hint">Proairetos collects no usage data, so what people say is the only way it learns what helps.</p>
+        <p className="sheet__hint">
+          Proairetos collects no usage data, so what people say is the only way it learns what helps.
+        </p>
       )}
     </section>
   );
@@ -541,8 +605,15 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
-      <p className="sheet__hint">Text, spacing, and buttons all grow together. Your phone’s own text size is respected too.</p>
-      <button type="button" className="toggle-row" aria-pressed={appearance.taps} onClick={() => update({ ...appearance, taps: !appearance.taps })}>
+      <p className="sheet__hint">
+        Text, spacing, and buttons all grow together. Your phone’s own text size is respected too.
+      </p>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={appearance.taps}
+        onClick={() => update({ ...appearance, taps: !appearance.taps })}
+      >
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
@@ -594,7 +665,9 @@ function TodaySection() {
           ))}
         </div>
       ))}
-      <p className="sheet__hint">For a lighter day, tap the leaf at the top of Today: just the next thing, a pause, and capture, until tomorrow.</p>
+      <p className="sheet__hint">
+        For a lighter day, tap the leaf at the top of Today: just the next thing, a pause, and capture, until tomorrow.
+      </p>
     </section>
   );
 }
@@ -604,6 +677,7 @@ function OffersSection() {
   const [hidden, setHidden] = useState(hiddenOffers);
   return (
     <section className="settings-card" aria-label="Quiet offers">
+      <h2 className="section-label">Quiet offers</h2>
       <p className="section-description">
         Now and then, at a natural moment, Proairetos offers a short practice: a minute with a feeling you just named,
         for instance. At most one a day, and ignoring it is a complete answer.
@@ -679,6 +753,7 @@ const sources: { tradition: string; lines: string[] }[] = [
 function SourcesSection() {
   return (
     <section className="settings-card" aria-label="Where this comes from">
+      <h2 className="section-label">Where this comes from</h2>
       <p className="section-description">
         Proairetos borrows its practices from people who thought carefully about living well. The name is Epictetus’s
         word for the part of us that chooses how to respond.
@@ -735,10 +810,22 @@ export default function SettingsPage() {
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
         {view === 'offers' && <OffersSection />}
-        {view === 'today' && <TodaySection />}
+        {view === 'today' && (
+          <>
+            <TodaySection />
+            <OffersSection />
+          </>
+        )}
         {view === 'appearance' && <AppearanceSection />}
         {view === 'help' && <HelpSection />}
-        {view === 'calendars' && <OtherCalendarsSection />}
+        {view === 'calendars' && (
+          <>
+            <h2 className="settings-group__label">Calendars you see here</h2>
+            <OtherCalendarsSection />
+            <h2 className="settings-group__label">Your days, in another calendar</h2>
+            <CalendarSection onOpenAccount={() => setView('account')} />
+          </>
+        )}
         {view === 'weather' && <WeatherSection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
@@ -760,12 +847,12 @@ export default function SettingsPage() {
                 : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
             </p>
             <p className="section-description">
-              What you write is never analyzed, scored, or sent anywhere to be read. Reminders arrive without their text; the
-              app shows the words only after it opens on your device.
+              What you write is never analyzed, scored, or sent anywhere to be read. Notifications are written on this
+              device; the server only ever learns when one is due.
             </p>
             <p className="section-description">
-              Dictation, if you use it, is the one exception: your phone maker’s speech service (Apple or Google) turns your
-              speech into text, as your keyboard’s microphone does. It asks before the first use.
+              Dictation, if you use it, is the one exception: your phone maker’s speech service (Apple or Google) turns
+              your speech into text, as your keyboard’s microphone does. It asks before the first use.
             </p>
             <a className="text-link" href="/privacy" target="_blank" rel="noreferrer">
               Read the full privacy page
@@ -775,14 +862,15 @@ export default function SettingsPage() {
         {view === 'about' && (
           <section className="settings-card" aria-label="About">
             <p className="section-description">
-              Proairetos records your life; it does not interpret it. You choose what matters, and the app reflects it back:
-              no scores, no streaks, nothing ranked for you.
+              Proairetos records your life; it does not interpret it. You choose what matters, and the app reflects it
+              back: no scores, no streaks, nothing ranked for you.
             </p>
             <p className="section-description">
               The name comes from Epictetus: prohairesis, the part of us that chooses how to respond.
             </p>
           </section>
         )}
+        {view === 'about' && <SourcesSection />}
       </div>
     );
   }
@@ -799,41 +887,35 @@ export default function SettingsPage() {
         <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
         <span className="profile-card__text">
           <span className="profile-card__name">{name || 'Add your name'}</span>
-          <span className="profile-card__detail">{status.email ?? (name ? 'On this device' : 'So Today can greet you')}</span>
+          <span className="profile-card__detail">
+            {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
+          </span>
         </span>
         <ChevronRightIcon size={18} className="settings-row__chevron" />
       </button>
 
-      <div className="settings-list">
-        <Row icon={<CloudIcon size={22} />} title="Account and sync" value={syncLabel(status.phase)} onClick={() => setView('account')} />
-        <Row icon={<CompassIcon size={22} />} title="Values" onClick={() => navigate('compass')} />
+      <SettingsGroup label="Your days">
         <Row icon={<CalendarIcon size={22} />} title="Your schedule" onClick={() => navigate('schedule')} />
-        <Row icon={<MoonIcon size={22} />} title="When your day starts" value={daySummary()} onClick={() => setView('day')} />
+        <Row icon={<MoonIcon size={22} />} title="Day starts" value={daySummary()} onClick={() => setView('day')} />
+        <Row
+          icon={<CalendarIcon size={22} />}
+          title="Calendars"
+          value={calendarSources().length ? String(calendarSources().length) : undefined}
+          onClick={() => setView('calendars')}
+        />
         <Row
           icon={<PartlyCloudyIcon size={22} />}
           title="Weather"
           value={weatherSettings().on ? 'On' : 'Off'}
           onClick={() => setView('weather')}
         />
-        <Row
-          icon={<CalendarIcon size={22} />}
-          title="Other calendars"
-          value={calendarSources().length ? String(calendarSources().length) : undefined}
-          onClick={() => setView('calendars')}
-        />
-        <Row
-          icon={<CalendarIcon size={22} />}
-          title="Share to your calendar"
-          value={loadCalendarFeed().enabled ? 'On' : undefined}
-          onClick={() => setView('calendar')}
-        />
-      </div>
+      </SettingsGroup>
 
-      <div className="settings-list">
-        <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
-        <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
-        <Row icon={<InboxIcon size={22} />} title="Bring things in" value="From other apps" onClick={() => setView('import')} />
+      <SettingsGroup label="Notifications">
         <Row icon={<BellIcon size={22} />} title="Notifications" onClick={() => setView('notifications')} />
+      </SettingsGroup>
+
+      <SettingsGroup label="The app">
         <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
         <Row
           icon={<MoonIcon size={22} />}
@@ -841,18 +923,37 @@ export default function SettingsPage() {
           value={themeLabels[loadAppearance().theme]}
           onClick={() => setView('appearance')}
         />
-        <Row icon={<BreatheIcon size={22} />} title="Quiet offers" value={quietOffersOn() ? 'On' : 'Off'} onClick={() => setView('offers')} />
+      </SettingsGroup>
+
+      <SettingsGroup label="Your data">
+        <Row
+          icon={<CloudIcon size={22} />}
+          title="Account and sync"
+          value={syncLabel(status.phase)}
+          onClick={() => setView('account')}
+        />
+        <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row
+          icon={<InboxIcon size={22} />}
+          title="Bring things in"
+          value="From other apps"
+          onClick={() => setView('import')}
+        />
+        <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
+        <Row
+          icon={<span className="settings-row__danger">×</span>}
+          title="Delete everything"
+          onClick={() => setView('delete')}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup label="About">
         <Row icon={<NoteIcon size={22} />} title="Help & feedback" onClick={() => setView('help')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
-        <Row icon={<CompassIcon size={22} />} title="Where this comes from" onClick={() => setView('sources')} />
-      </div>
+      </SettingsGroup>
 
       <div className="settings-list">
         <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
-      </div>
-
-      <div className="settings-list">
-        <Row icon={<span className="settings-row__danger">×</span>} title="Delete everything" onClick={() => setView('delete')} />
       </div>
     </div>
   );
