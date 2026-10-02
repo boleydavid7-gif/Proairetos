@@ -19,7 +19,7 @@ export function takeDaysAheadOpening(): { start?: string; focusKey?: string } {
 export type Timed = Exclude<TimelineEntry, { kind: 'off' } | { kind: 'allday' }>;
 export type EntryIcon = 'work' | 'protected' | 'item' | 'event';
 
-export type EntryLook = { title: string; color?: TagColor; icon: EntryIcon; location?: string; detail?: string };
+export type EntryLook = { title: string; color?: TagColor; icon: EntryIcon; location?: string; detail?: string; short?: string };
 
 /**
  * How an entry looks: the person's own colour if they gave one, else a
@@ -32,6 +32,7 @@ export function entryLook(entry: Timed, patterns: readonly SchedulePattern[], so
     const protectedTime = entry.occurrence.kind === 'PROTECTED';
     return {
       title: blockTitle(entry.occurrence),
+      short: entry.occurrence.label ?? entry.occurrence.patternName,
       color: pattern?.color ?? (protectedTime ? 'sage' : 'amber'),
       icon: protectedTime ? 'protected' : 'work',
       location: pattern?.location,

@@ -151,7 +151,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   taken with dates; no percentages or targets).
 - Days ahead: two pages, routes `days` (list) and `calendar`
   (`features/days/DaysAheadPage`), seven days at a time with week steps;
-  the calendar shows 3 or 7 days. Opened from "Your day" on Today (tapping
+  the calendar has Week (hours), Month (chips; tap a day for its week),
+  and Year (marked days; tap a month). Opened from "Your day" on Today (tapping
   an entry passes the day and entry via `setDaysAheadOpening`). One round
   + button adds a timed item (`AddEventSheet`). Colours are the person's
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
