@@ -1,3 +1,5 @@
+import { directionAlong, transition } from '../../app/transitions';
+import lake from '../../assets/images/scenes/lake.webp';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -109,6 +111,17 @@ export default function ReflectPage() {
     <div className="page">
       <PageHeader title="Reflect" subtitle="Look back, notice patterns, and return to what matters." settings />
 
+      {shows('meditate') && (
+        <button type="button" className="meditate-card" onClick={() => navigate('meditate')}>
+          <span className="meditate-card__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
+          <span className="meditate-card__text">
+            <span className="meditate-card__title">Meditate</span>
+            <span className="meditate-card__detail">Sessions, breathing, sounds, and music.</span>
+          </span>
+          <ChevronRightIcon size={20} />
+        </button>
+      )}
+
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (
           <button
@@ -117,7 +130,17 @@ export default function ReflectPage() {
             role="tab"
             aria-selected={period === option.id}
             className="segmented__option"
-            onClick={() => setPeriod(option.id)}
+            onClick={() =>
+              transition(
+                directionAlong(
+                  periods.map((each) => each.id),
+                  period,
+                  option.id,
+                ),
+                () => setPeriod(option.id),
+                'panel',
+              )
+            }
           >
             {option.label}
           </button>
@@ -125,7 +148,7 @@ export default function ReflectPage() {
       </div>
 
       {reflections && (
-        <section aria-label="Your reflections">
+        <section className="vt-panel" aria-label="Your reflections">
           {reflections.length === 0 ? (
             <>
               <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>

@@ -1,5 +1,5 @@
 import EdgeSwipe from './back/EdgeSwipe';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { startSync } from './sync/syncController';
 import { otherCalendars } from './calendars/otherCalendars';
 import { weather } from './weather/weather';
@@ -18,16 +18,25 @@ import MeditatePage from '../features/meditate/MeditatePage';
 import SharedSheet from '../features/share/SharedSheet';
 import { takeShared } from '../features/share/shared';
 import AppShell from './AppShell';
+import { directionBetween, transition } from './transitions';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
-const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass', 'meditate']);
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
   const [route, setRoute] = useState<AppRoute>(defaultRoute);
+  const current = useRef(route);
+  current.current = route;
+  // Every move between places slides the way it goes (see transitions.ts).
+  const go = useCallback((next: AppRoute) => {
+    const from = current.current;
+    if (next === from) return;
+    transition(directionBetween(from, next), () => setRoute(next));
+  }, []);
   const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
   // Read once at start; kept until onboarding is done, if it is not yet.
   const [shared, setShared] = useState(takeShared);
@@ -64,11 +73,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContext.Provider value={setRoute}>
+    <NavigationContext.Provider value={go}>
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
-    <OverlayProvider onMeditate={route === 'meditate' ? undefined : () => setRoute('meditate')}>
-      <AppShell route={route} onNavigate={setRoute}>
+    <OverlayProvider onMeditate={route === 'meditate' ? undefined : () => go('meditate')}>
+      <AppShell route={route} onNavigate={go}>
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
       {route === 'capture' && <CapturePage />}

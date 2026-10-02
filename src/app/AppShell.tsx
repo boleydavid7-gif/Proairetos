@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import MovedNotice from './MovedNotice';
 import { navigation } from './navigation';
-import { useTodayParts } from './hooks/useTodayParts';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
 
@@ -21,9 +20,6 @@ function useStorageMode() {
 
 export default function AppShell({ route, onNavigate, children }: AppShellProps) {
   const mode = useStorageMode();
-  const shows = useTodayParts();
-  // Meditate can be switched off in Settings > What's included.
-  const tabs = navigation.filter(({ id }) => id !== 'meditate' || shows('meditate'));
 
   return (
     <div className="app-shell">
@@ -40,13 +36,13 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
         </div>
       </main>
 
-      <nav className="tab-bar" aria-label="Main navigation" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
-        {tabs.map(({ id, label, icon: Icon }) => (
+      <nav className="tab-bar" aria-label="Main navigation">
+        {navigation.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             type="button"
             className="tab-bar__item"
-            aria-current={id === route || (id === 'plan' && route === 'calendar') ? 'page' : undefined}
+            aria-current={id === route || (id === 'plan' && route === 'calendar') || (id === 'reflect' && route === 'meditate') ? 'page' : undefined}
             onClick={() => onNavigate(id)}
           >
             <Icon size={24} />

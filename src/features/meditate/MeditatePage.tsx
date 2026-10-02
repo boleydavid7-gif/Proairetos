@@ -1,11 +1,14 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { wakeAudio, letGo } from '../../app/sound/engine';
+import { useBackHandler } from '../../app/back/backStack';
+import { useNavigate } from '../../app/navigationContext';
+import { directionAlong, transition } from '../../app/transitions';
 import { player } from '../../app/sound/player';
 import { soundCatalogue, soundEntry, type SoundKind } from '../../app/sound/soundscapes';
 import SearchButton from '../../components/layout/SearchButton';
 import SettingsButton from '../../components/layout/SettingsButton';
-import { ChevronRightIcon, ClockIcon, HeartIcon, LeafIcon, LotusIcon, MoonIcon, PlayIcon, StopIcon, TargetIcon } from '../../components/icons/Icons';
+import { ArrowLeftIcon, ChevronRightIcon, ClockIcon, HeartIcon, LeafIcon, LotusIcon, MoonIcon, PlayIcon, StopIcon, TargetIcon } from '../../components/icons/Icons';
 import { breathPattern, breathPatterns, patternCounts } from '../../core/meditate/breathing';
 import { session, sessionLengths, sessions, type SessionId } from '../../core/meditate/sessions';
 import { loadMeditate, saveMeditate, type MeditateSettings } from '../../data/storage/preferences';
@@ -42,6 +45,9 @@ function soundName(id: string): string {
  * Nothing is counted or kept; every choice is remembered on this device.
  */
 export default function MeditatePage() {
+  const navigate = useNavigate();
+  // Back (gesture or button) returns to Reflect; a sit open above takes it first.
+  useBackHandler(true, () => navigate('reflect'));
   const [settings, setSettings] = useState(loadMeditate);
   const [sitting, setSitting] = useState<SitPlan | null>(null);
   const [picking, setPicking] = useState<'session' | 'breathe' | null>(null);
@@ -67,7 +73,10 @@ export default function MeditatePage() {
     <div className="page meditate-page">
       <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
       <header className="meditate-page__top">
-        <p className="meditate-page__name">Meditate</p>
+        <button type="button" className="meditate-page__back" onClick={() => navigate('reflect')}>
+          <ArrowLeftIcon size={22} />
+          <span>Meditate</span>
+        </button>
         <div className="meditate-page__actions">
           <SearchButton />
           <SettingsButton />
@@ -86,7 +95,17 @@ export default function MeditatePage() {
             role="tab"
             aria-selected={settings.tab === tab.id}
             className="meditate-tabs__tab"
-            onClick={() => update({ tab: tab.id })}
+            onClick={() =>
+              transition(
+                directionAlong(
+                  tabs.map((t) => t.id),
+                  settings.tab,
+                  tab.id,
+                ),
+                () => update({ tab: tab.id }),
+                'panel',
+              )
+            }
           >
             {tab.label}
           </button>
@@ -94,7 +113,7 @@ export default function MeditatePage() {
       </div>
 
       {settings.tab === 'sessions' && (
-        <section className="meditate-panel" aria-label="Sessions">
+        <section className="meditate-panel vt-panel" aria-label="Sessions">
           <BreathCircle pattern={breathPattern(script.pace)} show="none" />
           <div className="session-kinds" role="radiogroup" aria-label="Kind of session">
             {sessions.map((each) => {
@@ -185,7 +204,7 @@ export default function MeditatePage() {
       )}
 
       {settings.tab === 'breathe' && (
-        <section className="meditate-panel" aria-label="Breathe">
+        <section className="meditate-panel vt-panel" aria-label="Breathe">
           <BreathCircle pattern={pattern} show="none" />
           <button
             type="button"
@@ -301,7 +320,7 @@ function Library({ kind }: { kind: SoundKind }) {
   const other = state[kind === 'sound' ? 'music' : 'sound'];
 
   return (
-    <section className="meditate-panel meditate-panel--library" aria-label={kind === 'sound' ? 'Sounds' : 'Music'}>
+    <section className="meditate-panel meditate-panel--library vt-panel" aria-label={kind === 'sound' ? 'Sounds' : 'Music'}>
       <div className="sound-list">
         {soundCatalogue
           .filter((entry) => entry.kind === kind)

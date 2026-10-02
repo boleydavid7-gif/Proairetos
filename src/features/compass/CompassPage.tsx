@@ -1,3 +1,4 @@
+import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -152,7 +153,15 @@ export default function CompassPage() {
               aria-selected={tab === option.id}
               onClick={() => {
                 lastCompassTab = option.id;
-                chooseTab(option.id);
+                transition(
+                  directionAlong(
+                    tabs.map((each) => each.id),
+                    tab,
+                    option.id,
+                  ),
+                  () => chooseTab(option.id),
+                  'panel',
+                );
               }}
             >
               {option.label}
@@ -161,6 +170,7 @@ export default function CompassPage() {
         </div>
       )}
 
+      <div className="vt-panel">
       {tab === 'values' && (
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
@@ -231,6 +241,7 @@ export default function CompassPage() {
       )}
 
       {tab === 'people' && <PeopleSection people={statements.filter((statement) => statement.type === 'PERSON')} />}
+      </div>
     </div>
   );
 }

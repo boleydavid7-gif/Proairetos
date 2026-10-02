@@ -211,3 +211,166 @@
     scale: 0.96;
   }
 }
+
+/* ---------- Moving between places (view transitions; see app/transitions.ts) ---------- */
+
+/* The tab bar and anything fixed above it hold still while pages move. */
+.tab-bar {
+  view-transition-name: tab-bar;
+}
+
+.now-playing {
+  view-transition-name: now-playing;
+}
+
+.focus-bar {
+  view-transition-name: focus-bar;
+}
+
+/* The content under a page's own tabs: the only part that moves when they change. */
+.vt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Named only while a page's own tabs change, so on page moves it travels with the page. */
+html[data-nav^='panel-'] .vt-panel {
+  view-transition-name: panel;
+}
+
+.meditate-panel.vt-panel {
+  gap: var(--space-4);
+}
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out);
+  /* The two pictures cross; neither blends into the other's colours. */
+  mix-blend-mode: normal;
+}
+
+/* Along the tab bar: the new page comes from the side of the tab tapped. */
+html[data-nav='right']::view-transition-old(root),
+html[data-nav='panel-right']::view-transition-old(panel) {
+  animation-name: slide-out-left;
+}
+
+html[data-nav='right']::view-transition-new(root),
+html[data-nav='panel-right']::view-transition-new(panel) {
+  animation-name: slide-in-right;
+}
+
+html[data-nav='left']::view-transition-old(root),
+html[data-nav='panel-left']::view-transition-old(panel) {
+  animation-name: slide-out-right;
+}
+
+html[data-nav='left']::view-transition-new(root),
+html[data-nav='panel-left']::view-transition-new(panel) {
+  animation-name: slide-in-left;
+}
+
+/* Into a page: it slides over the one beneath, which settles back. */
+html[data-nav='forward']::view-transition-old(root) {
+  animation-name: settle-back;
+}
+
+html[data-nav='forward']::view-transition-new(root) {
+  animation-name: push-in;
+  animation-duration: 420ms;
+}
+
+/* Back out: the page slides away and the one beneath comes forward again. */
+html[data-nav='back']::view-transition-old(root) {
+  animation-name: push-out;
+}
+
+html[data-nav='back']::view-transition-new(root) {
+  animation-name: come-forward;
+}
+
+/* Only the panel moves; the rest of the page stays as it is. */
+html[data-nav^='panel-']::view-transition-old(root),
+html[data-nav^='panel-']::view-transition-new(root) {
+  animation: none;
+}
+
+html[data-nav^='panel-']::view-transition-group(panel) {
+  animation-duration: 320ms;
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(14%);
+  }
+}
+
+@keyframes slide-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-14%);
+  }
+}
+
+@keyframes slide-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(10%);
+  }
+}
+
+@keyframes push-in {
+  from {
+    opacity: 0.4;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes settle-back {
+  to {
+    opacity: 0.5;
+    transform: translateX(-18%) scale(0.98);
+  }
+}
+
+@keyframes push-out {
+  to {
+    opacity: 0.4;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes come-forward {
+  from {
+    opacity: 0.5;
+    transform: translateX(-18%) scale(0.98);
+  }
+}
+
+/* Coming back in, the page slides above the one it covers. */
+html[data-nav='back']::view-transition-old(root) {
+  z-index: 1;
+}
+
+/* With view transitions the fade-in is not needed; without them it is all there is. */
+@supports (view-transition-name: none) {
+  .page-enter,
+  .meditate-panel {
+    animation: none;
+  }
+}

@@ -63,11 +63,69 @@
   margin-top: calc(var(--space-2) * -1);
 }
 
-.meditate-page__name {
-  margin: 0;
+.meditate-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  margin-left: calc(var(--space-2) * -1);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-text);
   font-family: var(--font-serif);
   font-size: 1.45rem;
   text-shadow: var(--hero-shadow);
+}
+
+/* The way in, on Reflect: a window onto the lake. */
+.meditate-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 5.5rem;
+  padding: var(--space-4) var(--space-5);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  background: #11141a;
+  color: #f6eee2;
+  text-align: left;
+  isolation: isolate;
+}
+
+.meditate-card__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center 58%;
+}
+
+.meditate-card__scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(8, 10, 16, 0.75), rgba(8, 10, 16, 0.15));
+}
+
+.meditate-card__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+}
+
+.meditate-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+}
+
+.meditate-card__detail {
+  color: rgba(246, 238, 226, 0.8);
+  font-size: 0.85rem;
 }
 
 .meditate-page__actions {
@@ -748,14 +806,4 @@
 
 .sit-screen__done {
   min-width: 12rem;
-}
-
-/* Six tabs: every label on one line. */
-.tab-bar__item span {
-  white-space: nowrap;
-}
-
-.tab-bar:has(> :nth-child(6)) .tab-bar__item span {
-  font-size: 0.66rem;
-  letter-spacing: -0.01em;
 }

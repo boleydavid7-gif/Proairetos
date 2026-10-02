@@ -73,8 +73,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/app/`: shell, routes, overlays (sheets, focus, pause, undo toast),
   `back/` (one back stack for Android back, browser back, edge swipe),
   `sync/` (controller, reminder times).
-- `src/features/`: screens. Six tabs: Today, Reflect, Days ahead,
-  Meditate, Capture, Compass (Meditate can be switched off in What's included). Days ahead uses routes `plan` (list) and `calendar`. Kinds are one
+- `src/features/`: screens. Five tabs: Today, Reflect, Days ahead,
+  Capture, Compass. Meditate opens from a card on Reflect (switchable in
+  What's included); its tab-bar mark stays on Reflect. Days ahead uses routes `plan` (list) and `calendar`. Kinds are one
   set everywhere (`core/life-items/kinds.ts`: To do, Remember, Concern,
   Idea, Feeling), read from the stored type + capture tag. Settings >
   What's included switches parts of Today and the app on or off
@@ -172,7 +173,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
   items, schedules, and other calendars; items and schedules also take a
   `location`.
-- Meditate (`features/meditate/`, route `meditate`, lake photo
+- Meditate (`features/meditate/`, route `meditate` under Reflect, lake photo
   `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,
   scripts of cues spread over 5-30 min, optionally read aloud by the phone's
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
@@ -210,6 +211,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).
   `29-touch.css` (last) keeps every control at least 44px to tap.
+  Moving between places uses view transitions (`app/transitions.ts`):
+  every route change goes through `go()` in App (tabs slide by bar order,
+  pages push in and pop out); a page's own tabs call `transition(...,
+  'panel')` and mark their content `.vt-panel`. The tab bar holds still
+  (`view-transition-name`). Without support or with reduced motion,
+  changes are immediate with a soft fade.
   `28-calm.css` is the calm pass: one level of borders, muted text links,
   gold kept for one main action per screen, theme tokens for surfaces.
   `28-motion.css` holds motion (ease tokens, press `scale`, sliding

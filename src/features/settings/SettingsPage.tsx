@@ -459,14 +459,9 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     ],
   },
   {
-    group: 'Meditate',
-    parts: [
-      { part: 'meditate', label: 'Meditate tab', detail: 'Sessions, breathing, sounds, and music, as a tab of its own.' },
-    ],
-  },
-  {
     group: 'Reflect',
     parts: [
+      { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
       { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
       { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, every step optional.' },
       { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
