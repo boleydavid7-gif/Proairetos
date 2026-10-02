@@ -154,3 +154,30 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
 }
+
+/* Under each kind, what is there lately, on one line. */
+.kind-tile__prompt {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kind-tile--unsorted {
+  border-style: dashed;
+}
+
+/* A kind's own page. */
+.capture-shelf__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.capture-shelf__head .page-header__title {
+  margin: 0;
+}
+
+.capture-shelf__head .page-header__subtitle {
+  margin: var(--space-1) 0 0;
+}

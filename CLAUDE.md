@@ -86,7 +86,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   lists, done today, landscape at the foot). Each day in Days ahead lists its
   untimed to-dos by the person's own marks (Important, Maintenance,
   Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has the five kinds
-  above the free box. Reflect is a
+  above the free box; each kind opens its own page (`CaptureKindPage`: add
+  box for that kind, its open captures, closed recently), and captures with
+  no kind wait on a Not sorted yet page (with Sort through). Tiles show the
+  newest titles, never counts. Reflect is a
   timeline; Journal (`features/journal/`) is the full-page writer with
   optional inner weather (the person picks it; the app never infers
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
