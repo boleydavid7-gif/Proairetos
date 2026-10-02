@@ -11,7 +11,7 @@ import { createListeners } from '../listeners';
 
 export type PatternInput = Pick<
   SchedulePattern,
-  'name' | 'kind' | 'layout' | 'anchorDate' | 'segments' | 'endDate' | 'pauseWhenEnds'
+  'name' | 'kind' | 'layout' | 'anchorDate' | 'segments' | 'endDate' | 'pauseWhenEnds' | 'color' | 'location'
 >;
 
 export class ScheduleValidationError extends Error {
@@ -40,6 +40,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
   const clean = (input: PatternInput): PatternInput => ({
     ...input,
     name: input.name.trim(),
+    location: input.location?.trim() || undefined,
     segments: input.segments.map((segment) => ({
       days: segment.days,
       blocks: segment.blocks.map((block) => ({ ...block, label: block.label?.trim() || undefined })),

@@ -1,0 +1,207 @@
+/* ---------- Colours the person chose ---------- */
+
+.tag--amber { --tag: var(--tag-amber); }
+.tag--violet { --tag: var(--tag-violet); }
+.tag--sage { --tag: var(--tag-sage); }
+.tag--sky { --tag: var(--tag-sky); }
+.tag--rose { --tag: var(--tag-rose); }
+.tag--slate { --tag: var(--tag-slate); }
+.tag--none { --tag: var(--color-text-faint); }
+
+.color-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.color-choice__swatch {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--tag) content-box;
+  padding: 6px;
+}
+
+.color-choice__swatch[aria-pressed='true'] {
+  border-color: var(--tag);
+}
+
+/* ---------- Days ahead ---------- */
+
+.days-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.days-header .page-header__subtitle {
+  margin: var(--space-1) 0 0;
+}
+
+.days-add {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: 0 6px 24px rgba(201, 162, 116, 0.35);
+}
+
+.days-page .segmented__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.days-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.days-stepper__range {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.days-back {
+  align-self: center;
+}
+
+.days-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(var(--color-bg-rgb), 0.4);
+}
+
+.days-day__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  font-weight: normal;
+}
+
+.days-day__date {
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.days-day__empty,
+.days-allday {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.days-row__button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 4.6rem auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--tag);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.days-row--focus .days-row__button {
+  border-color: color-mix(in srgb, var(--tag) 70%, transparent);
+  background: color-mix(in srgb, var(--tag) 10%, var(--color-surface));
+}
+
+.days-row__time {
+  display: flex;
+  flex-direction: column;
+  padding-right: var(--space-2);
+  border-right: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.days-row__until {
+  color: var(--color-text-muted);
+}
+
+.days-row__icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--tag) 20%, transparent);
+  color: var(--tag);
+}
+
+.days-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.days-row__title {
+  font-size: 1.05rem;
+}
+
+.days-row__where {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.days-row__chevron {
+  color: var(--color-text-faint);
+}
+
+.days-calendar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.days-calendar .cal-scroll {
+  max-height: 62svh;
+}
+
+.days-page .segmented {
+  grid-template-columns: 1fr 1fr;
+}
+
+.days-calendar--week .cal-entry {
+  padding: 2px;
+  font-size: 0.6rem;
+  overflow-wrap: anywhere;
+}

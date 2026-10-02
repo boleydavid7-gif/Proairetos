@@ -1,3 +1,4 @@
+import type { TagColor } from '../../core/look/tagColors';
 import type { ExternalEvent } from '../../core/calendar/readIcs';
 import { createListeners } from '../../services/listeners';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -20,6 +21,8 @@ export type CalendarSource = {
    * shift); or as protected time (reminders wait until it ends).
    */
   role?: CalendarRole;
+  /** A colour the person gave it, for the days-ahead view. */
+  color?: TagColor;
   refreshedAt?: string;
   error?: string;
 };
@@ -142,6 +145,10 @@ export const otherCalendars = {
 
   setRole(id: string, role: CalendarRole) {
     updateSource(id, { role });
+  },
+
+  setColor(id: string, color: TagColor | undefined) {
+    updateSource(id, { color });
   },
 
   /**

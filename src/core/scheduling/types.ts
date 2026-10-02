@@ -1,3 +1,4 @@
+import type { TagColor } from '../look/tagColors';
 /**
  * Schedules are described as a repeating cycle of runs: "7 days of these
  * hours, then 1 day off, ...". A weekly job is a 7-day cycle starting on a
@@ -37,6 +38,10 @@ export interface SchedulePattern {
   endDate?: string;
   /** Offer a one-minute pause when a block of this pattern ends. Off unless chosen. */
   pauseWhenEnds?: boolean;
+  /** A colour the person gave it, for the days-ahead view. */
+  color?: TagColor;
+  /** Where it happens, in the person's words. */
+  location?: string;
   createdAt: string;
   updatedAt: string;
 }

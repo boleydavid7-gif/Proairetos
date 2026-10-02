@@ -1,3 +1,4 @@
+import ColorChoice from '../../components/ui/ColorChoice';
 import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -343,6 +344,26 @@ function ChecklistSection({ item }: { item: LifeItem }) {
 
 /** The person's own grouping and day on Plan. */
 /** Which goal this is a step toward, if any. Only shown once the person has a goal. */
+/** Where it happens and a colour: the person's own labels for Days ahead. */
+function LookSection({ item }: { item: LifeItem }) {
+  const [location, setLocation] = useState(item.location ?? '');
+  return (
+    <section className="sheet__section" aria-label="Where and colour">
+      <p className="sheet__label">Where</p>
+      <input
+        className="field-input"
+        aria-label="Where"
+        placeholder="A place, if it helps"
+        value={location}
+        onChange={(event) => setLocation(event.target.value)}
+        onBlur={() => location !== (item.location ?? '') && lifeService.setLook(item.id, { location })}
+      />
+      <p className="sheet__label">Colour</p>
+      <ColorChoice value={item.color} onChange={(color) => lifeService.setLook(item.id, { color: color ?? null })} />
+    </section>
+  );
+}
+
 function GoalSection({ item }: { item: LifeItem }) {
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
   const goals = statements.filter((statement) => statement.type === 'GOAL' && (!statement.reachedAt || statement.id === item.goalId));
@@ -483,6 +504,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       <PlanSection item={item} />
 
       <GoalSection item={item} />
+
+      <LookSection item={item} />
 
       <ChecklistSection item={item} />
 

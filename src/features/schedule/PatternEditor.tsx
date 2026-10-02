@@ -1,3 +1,4 @@
+import ColorChoice from '../../components/ui/ColorChoice';
 import { useState } from 'react';
 import { scheduleService } from '../../app/services';
 import { mondayOnOrBefore, minutesOf } from '../../core/scheduling/dates';
@@ -243,6 +244,21 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
         <button type="button" aria-pressed={draft.kind === 'PROTECTED'} onClick={() => set({ kind: 'PROTECTED' })}>
           Protected time
         </button>
+      </div>
+
+      <div className="stack-tight">
+        <label className="field-label" htmlFor="schedule-location">
+          Where (optional)
+        </label>
+        <input
+          id="schedule-location"
+          className="field-input"
+          value={draft.location ?? ''}
+          placeholder="A place, if it helps"
+          onChange={(event) => set({ location: event.target.value || undefined })}
+        />
+        <span className="field-label">Colour (optional)</span>
+        <ColorChoice value={draft.color} onChange={(color) => set({ color })} />
       </div>
 
       <div className="stack-tight">

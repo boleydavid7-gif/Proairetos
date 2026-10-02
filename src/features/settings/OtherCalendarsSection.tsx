@@ -1,3 +1,4 @@
+import ColorChoice from '../../components/ui/ColorChoice';
 import { useRef, useState, type FormEvent } from 'react';
 import { calendarSources, otherCalendars, type CalendarRole } from '../../app/calendars/otherCalendars';
 import { refreshReminders } from '../../app/sync/syncController';
@@ -120,6 +121,7 @@ export default function OtherCalendarsSection() {
                     </button>
                   ))}
                 </div>
+                <ColorChoice label={`Colour for ${source.name}`} value={source.color} onChange={(color) => otherCalendars.setColor(source.id, color)} />
               </li>
             ))}
           </ul>

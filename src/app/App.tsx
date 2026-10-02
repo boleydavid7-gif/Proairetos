@@ -14,6 +14,7 @@ import SettingsPage from '../features/settings/SettingsPage';
 import PlanPage from '../features/plan/PlanPage';
 import JournalPage from '../features/journal/JournalPage';
 import InsightsPage from '../features/insights/InsightsPage';
+import DaysAheadPage from '../features/days/DaysAheadPage';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
@@ -73,6 +74,8 @@ export default function App() {
       {route === 'plan' && <PlanPage />}
       {route === 'journal' && <JournalPage />}
       {route === 'insights' && <InsightsPage />}
+      {route === 'days' && <DaysAheadPage key="list" view="list" />}
+      {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       </AppShell>
     </OverlayProvider>
     </ReturnRouteContext.Provider>

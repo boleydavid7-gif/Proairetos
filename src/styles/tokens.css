@@ -1,4 +1,10 @@
 :root {
+  --tag-amber: #e0a94f;
+  --tag-violet: #a48be8;
+  --tag-sage: #8fb894;
+  --tag-sky: #7fb2e0;
+  --tag-rose: #e08c96;
+  --tag-slate: #9aa3ad;
   /* Palette from the mockup swatches: ink, stone, sand, parchment. */
   --color-ink: #0a0c0e;
   --color-ink-raised: #111518;
@@ -52,6 +58,12 @@
  * Settings (System follows the phone). Every pair here reads at 4.5:1 or more.
  */
 :root[data-theme='light'] {
+  --tag-amber: #a8701c;
+  --tag-violet: #6d52c4;
+  --tag-sage: #4c7a52;
+  --tag-sky: #3a6f9e;
+  --tag-rose: #a8485a;
+  --tag-slate: #5d6670;
   --color-ink: #f4ecdf;
   --color-ink-raised: #efe5d5;
   --color-surface: #fbf6ee;
@@ -77,6 +89,12 @@
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
+  --tag-amber: #a8701c;
+  --tag-violet: #6d52c4;
+  --tag-sage: #4c7a52;
+  --tag-sky: #3a6f9e;
+  --tag-rose: #a8485a;
+  --tag-slate: #5d6670;
     --color-ink: #f4ecdf;
     --color-ink-raised: #efe5d5;
     --color-surface: #fbf6ee;

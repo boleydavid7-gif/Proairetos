@@ -43,7 +43,7 @@ import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
 import OpenTime from '../today/OpenTime';
-import AgendaSheet from '../today/AgendaSheet';
+import { setDaysAheadOpening } from '../days/daysAhead';
 import Overlaps from '../today/Overlaps';
 import { nextOpen, overlaps } from '../../core/rhythm/overlaps';
 
@@ -82,7 +82,6 @@ export default function NowPage() {
   const { today, rangeOf, blocks } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
-  const [agendaFocus, setAgendaFocus] = useState<string | null>(null);
   const date = addDays(today, offset);
   const isToday = offset === 0;
   const line = stoicLineFor(date);
@@ -244,9 +243,21 @@ export default function NowPage() {
         <section className="stack-tight" aria-label="Your day">
           <div className="section-heading">
             <h2 className="section-label">{isToday ? 'Your day' : 'That day'}</h2>
-            <button type="button" className="text-link" onClick={() => navigate('schedule')}>
-              Schedule
-            </button>
+            <span className="section-heading__actions">
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => {
+                  setDaysAheadOpening({ start: date });
+                  navigate('days');
+                }}
+              >
+                Days ahead
+              </button>
+              <button type="button" className="text-link" onClick={() => navigate('schedule')}>
+                Schedule
+              </button>
+            </span>
           </div>
           <DayTimeline
             date={date}
@@ -254,7 +265,10 @@ export default function NowPage() {
             now={isToday ? clock : undefined}
             onChangeDay={setChanging}
             onOpenItem={openItem}
-            onOpenEntry={setAgendaFocus}
+            onOpenEntry={(key) => {
+              setDaysAheadOpening({ start: date, focusKey: key });
+              navigate('days');
+            }}
           />
         </section>
       )}
@@ -300,16 +314,6 @@ export default function NowPage() {
 
       <Landscape />
 
-      {agendaFocus !== null && (
-        <AgendaSheet
-          today={today}
-          start={date}
-          focusKey={agendaFocus}
-          onClose={() => setAgendaFocus(null)}
-          onOpenItem={openItem}
-          onChangeDay={setChanging}
-        />
-      )}
       {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
     </div>
   );

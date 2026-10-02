@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (243 tests), includes the language guard
+npm test             # vitest (245 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -149,9 +149,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Goals: Compass "Working toward" (statement type GOAL, `reachedAt`; items
   link by `goalId`; `core/compass/goals.ts` lists next steps and steps
   taken with dates; no percentages or targets).
-- Tapping an entry in Today's "Your day" opens Days ahead
-  (`features/today/AgendaSheet`): a list of the next week (more on
-  request) or a three-day calendar; items still open their sheet.
+- Days ahead: two pages, routes `days` (list) and `calendar`
+  (`features/days/DaysAheadPage`), seven days at a time with week steps;
+  the calendar shows 3 or 7 days. Opened from "Your day" on Today (tapping
+  an entry passes the day and entry via `setDaysAheadOpening`). One round
+  + button adds a timed item (`AddEventSheet`). Colours are the person's
+  labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
+  items, schedules, and other calendars; items and schedules also take a
+  `location`.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

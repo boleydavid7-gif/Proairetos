@@ -28,6 +28,7 @@ import {
   setImportant,
   setLight,
   setGoal,
+  setLook,
   setItemType,
   type ItemChange,
   type StatusOptions,
@@ -233,6 +234,10 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setImportant(id: string, important: boolean) {
       return apply(id, (item) => setImportant(context, item, important));
+    },
+
+    setLook(id: string, look: Parameters<typeof setLook>[2]) {
+      return apply(id, (item) => setLook(context, item, look));
     },
 
     setGoal(id: string, goalId: string | undefined) {

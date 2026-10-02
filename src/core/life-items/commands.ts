@@ -3,6 +3,7 @@ import type { ItemEvent, ItemEventKind } from '../item-events/types';
 import { canTransition } from './transitions';
 import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } from './repeat';
 import { toLocalDate } from '../scheduling/dates';
+import type { TagColor } from '../look/tagColors';
 import type { CaptureKind, ChecklistLine, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
 
 /**
@@ -32,6 +33,8 @@ export type CaptureInput = {
   important?: boolean;
   plannedFor?: string;
   goalId?: string;
+  location?: string;
+  color?: TagColor;
 };
 
 function event(
@@ -68,6 +71,8 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
     ...(input.planGroup ? { planGroup: input.planGroup } : {}),
     ...(input.plannedFor ? { plannedFor: input.plannedFor } : {}),
     ...(input.goalId ? { goalId: input.goalId } : {}),
+    ...(input.location?.trim() ? { location: input.location.trim() } : {}),
+    ...(input.color ? { color: input.color } : {}),
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -144,6 +149,22 @@ export function setCarried(ctx: DomainContext, item: LifeItem, carried: boolean)
 export function setImportant(ctx: DomainContext, item: LifeItem, important: boolean): ItemChange {
   if (item.important === important) return { item, events: [] };
   return { item: touch(item, ctx.now().toISOString(), { important }), events: [] };
+}
+
+/** Where and what colour: the person's own labels for the days-ahead view. Not logged as history. */
+export function setLook(ctx: DomainContext, item: LifeItem, look: { location?: string; color?: TagColor | null }): ItemChange {
+  const next: LifeItem = { ...item };
+  if ('location' in look) {
+    const location = look.location?.trim();
+    if (location) next.location = location;
+    else delete next.location;
+  }
+  if ('color' in look) {
+    if (look.color) next.color = look.color;
+    else delete next.color;
+  }
+  if (next.location === item.location && next.color === item.color) return { item, events: [] };
+  return { item: touch(next, ctx.now().toISOString(), {}), events: [] };
 }
 
 export function setGoal(ctx: DomainContext, item: LifeItem, goalId: string | undefined): ItemChange {
