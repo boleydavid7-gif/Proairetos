@@ -68,7 +68,7 @@ export default function OtherCalendarsSection() {
     <>
       <section className="settings-card" aria-label="Your other calendars">
         <p className="section-description">
-          See events from Google, Apple, or Outlook alongside your day, on Today and Plan. Read-only: Proairetos never
+          See events from Google, Apple, or Outlook alongside your day, on Today and in Days ahead. Read-only: Proairetos never
           changes them. The links and events stay on this device.
         </p>
         <p className="sheet__hint">

@@ -73,8 +73,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/app/`: shell, routes, overlays (sheets, focus, pause, undo toast),
   `back/` (one back stack for Android back, browser back, edge swipe),
   `sync/` (controller, reminder times).
-- `src/features/`: screens. Five tabs: Today, Reflect, Plan, Capture,
-  Compass. Plan is Days ahead (routes `plan` and `calendar`). Kinds are one
+- `src/features/`: screens. Five tabs: Today, Reflect, Days ahead,
+  Capture, Compass. Days ahead uses routes `plan` (list) and `calendar`. Kinds are one
   set everywhere (`core/life-items/kinds.ts`: To do, Remember, Concern,
   Idea, Feeling), read from the stored type + capture tag. Settings >
   What's included switches parts of Today and the app on or off

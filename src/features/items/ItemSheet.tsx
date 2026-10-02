@@ -405,7 +405,7 @@ function PlanSection({ item }: { item: LifeItem }) {
   ];
   return (
     <section className="sheet__section" aria-label="Plan">
-      <p className="sheet__label">On Plan</p>
+      <p className="sheet__label">Group and day</p>
       <div className="chip-row" role="group" aria-label="Plan group">
         {groups.map((group) => (
           <button

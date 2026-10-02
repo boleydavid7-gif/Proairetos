@@ -301,7 +301,8 @@ function DeleteSection() {
 const tabLabels: Partial<Record<AppRoute, string>> = {
   today: 'Today',
   reflect: 'Reflect',
-  plan: 'Plan',
+  plan: 'Days ahead',
+  calendar: 'Days ahead',
   capture: 'Capture',
   compass: 'Compass',
 };
@@ -473,7 +474,7 @@ const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as c
 const helpTopics: { title: string; body: string }[] = [
   { title: 'Capture first', body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.' },
   { title: 'Today', body: 'Your greeting, a line for the day, and only what you choose: an intention, up to three things for your path, your schedule. Tap the leaf for a lighter view.' },
-  { title: 'Plan', body: 'Checklists for a day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.' },
+  { title: 'Days ahead', body: 'Your coming days as a list or a calendar: what has a time, and what you planned for the day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.' },
   { title: 'Pause and practices', body: 'Pause is a minute to arrive. From there, “Another way to pause” has a few short practices from Stoic and Buddhist traditions.' },
   { title: 'Reflect and Insights', body: 'Write as much or as little as you like. Insights only counts what you recorded; it never draws conclusions.' },
   { title: 'Your data', body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Back up and restore live in Settings.' },
