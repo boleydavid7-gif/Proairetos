@@ -73,11 +73,13 @@ matters if other people will use the app.
 
 ## 4. Copy the public settings
 
-**Project Settings → API**:
-
-- **Project URL**: this becomes `VITE_SUPABASE_URL`
-- **Publishable** key (`sb_publishable_…`) or, on older dashboards, the
-  **anon public** key (`eyJ…`): this becomes `VITE_SUPABASE_ANON_KEY`
+- **Project URL** (becomes `VITE_SUPABASE_URL`): the **Connect** button on
+  the project's home page shows it; so does **Project Settings → Data API**.
+  It is always `https://YOUR_PROJECT_REF.supabase.co`, where the ref is the
+  last part of the dashboard address (`supabase.com/dashboard/project/REF`).
+- **Key** (becomes `VITE_SUPABASE_ANON_KEY`): **Project Settings → API Keys**,
+  the **Publishable** key (`sb_publishable_…`); or under **Legacy API keys**,
+  the **anon public** key (`eyJ…`). Never the secret or service_role key.
 
 The anon key is designed to be public; the table locks from step 2 are what
 protect your data.
