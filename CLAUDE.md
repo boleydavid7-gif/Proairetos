@@ -107,7 +107,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   value cards reveal "In practice" (`values/descriptions.ts`); empty
   Plan/Reflect/Capture show a `GentleLine` (`stoic/gentleLines.ts`).
 - Today is shaped by the person: `useTodayParts` (Settings > What's
-  included; "Not for me" sets a part aside with undo) and a Lighter view
+  included; "Not for me" sets a part aside with undo,
+  offered once a part was shown on 3 days: `partSeen`) and a Lighter view
   (`LighterView`, the leaf; for the day it is chosen, easing back the next
   day). Things not sorted lead to Sort through, which also sets the kind.
   An item's When is one field: a day, plus a time if it has one
