@@ -78,17 +78,22 @@ function fadeAway(layer: Layer, seconds: number): void {
   layer.output.gain.cancelScheduledValues(ctx.currentTime);
   layer.output.gain.setValueAtTime(layer.output.gain.value, ctx.currentTime);
   layer.output.gain.linearRampToValueAtTime(0, ctx.currentTime + seconds);
-  window.setTimeout(() => {
-    layer.stop();
-    layer.output.disconnect();
-  }, seconds * 1000 + 100);
+  window.setTimeout(
+    () => {
+      layer.stop();
+      layer.output.disconnect();
+    },
+    seconds * 1000 + 100,
+  );
 }
 
 function showOnLockScreen(): void {
   const titles = [soundEntry(state.sound)?.title, soundEntry(state.music)?.title].filter(Boolean);
   try {
     if (!('mediaSession' in navigator)) return;
-    navigator.mediaSession.metadata = titles.length ? new MediaMetadata({ title: titles.join(' · '), artist: 'Proairetos' }) : null;
+    navigator.mediaSession.metadata = titles.length
+      ? new MediaMetadata({ title: titles.join(' · '), artist: 'Proairetos' })
+      : null;
   } catch {
     // Not every browser shows it.
   }
