@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { scheduleService } from '../../app/services';
 import { mondayOnOrBefore, minutesOf } from '../../core/scheduling/dates';
 import { cycleLength } from '../../core/scheduling/patterns';
+import type { TagColor } from '../../core/look/tagColors';
 import type { SchedulePattern, ScheduleSegment, TimeBlock } from '../../core/scheduling/types';
 import { ScheduleValidationError, type PatternInput } from '../../services/schedule/scheduleService';
 import SchedulePreview from './SchedulePreview';
@@ -55,6 +56,7 @@ function RunCard({
   onChange,
   onMove,
   onRemove,
+  onColor,
 }: {
   segment: ScheduleSegment;
   index: number;
@@ -62,6 +64,7 @@ function RunCard({
   onChange: (segment: ScheduleSegment) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;
+  onColor: (color: TagColor | undefined) => void;
 }) {
   const working = segment.blocks.length > 0;
   const block = segment.blocks[0] ?? defaultBlock;
@@ -120,10 +123,26 @@ function RunCard({
             onChange={(event) => onChange({ ...segment, blocks: [{ ...block, label: event.target.value }] })}
           />
           <BlockFields block={block} label={name} onChange={(next) => onChange({ ...segment, blocks: [next] })} />
+          <ColorChoice label={`${block.label?.trim() || name} colour`} value={block.color} onChange={onColor} />
         </>
       )}
     </li>
   );
+}
+
+/**
+ * Gives a shift its colour, and every other shift with the same name too,
+ * so all of a rotation's Nights match with one choice.
+ */
+export function colorShift(segments: ScheduleSegment[], index: number, color: TagColor | undefined): ScheduleSegment[] {
+  const name = segments[index]?.blocks[0]?.label?.trim().toLowerCase();
+  return segments.map((segment, i) => {
+    const block = segment.blocks[0];
+    const same = i === index || (name && block?.label?.trim().toLowerCase() === name);
+    if (!block || !same) return segment;
+    const { color: _old, ...rest } = block;
+    return { ...segment, blocks: [color ? { ...rest, color } : rest, ...segment.blocks.slice(1)] };
+  });
 }
 
 function CycleEditor({ segments, onChange }: { segments: ScheduleSegment[]; onChange: (segments: ScheduleSegment[]) => void }) {
@@ -152,6 +171,7 @@ function CycleEditor({ segments, onChange }: { segments: ScheduleSegment[]; onCh
             onChange={(next) => update(index, next)}
             onMove={(direction) => move(index, direction)}
             onRemove={() => onChange(segments.filter((_, i) => i !== index))}
+            onColor={(color) => onChange(colorShift(segments, index, color))}
           />
         ))}
       </ol>
@@ -189,6 +209,13 @@ function WeeklyEditor({ segments, onChange }: { segments: ScheduleSegment[]; onC
                 <span>{day}</span>
               </label>
               {block && <BlockFields block={block} label={day} onChange={(next) => update(index, [next])} />}
+              {block && (
+                <ColorChoice
+                  label={`${day} colour`}
+                  value={block.color}
+                  onChange={(color) => update(index, [{ ...block, color }])}
+                />
+              )}
             </li>
           );
         })}
@@ -257,8 +284,9 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           placeholder="A place, if it helps"
           onChange={(event) => set({ location: event.target.value || undefined })}
         />
-        <span className="field-label">Colour (optional)</span>
+        <span className="field-label">Colour for the whole schedule (optional)</span>
         <ColorChoice value={draft.color} onChange={(color) => set({ color })} />
+        <p className="sheet__hint">A shift with its own colour (in the cycle above) shows in that colour instead.</p>
       </div>
 
       <div className="stack-tight">

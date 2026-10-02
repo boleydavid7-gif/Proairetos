@@ -171,7 +171,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   an entry passes the day and entry via `setDaysAheadOpening`). One round
   + button adds something at a time or for a day (`AddEventSheet`). Colours are the person's
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
-  items, schedules, and other calendars; items and schedules also take a
+  items, schedules, each shift of a schedule (`TimeBlock.color`, carried
+  onto occurrences; choosing one colours every shift with the same name,
+  `colorShift`; it wins over the schedule's colour), and other calendars; items and schedules also take a
   `location`.
 - Meditate (`features/meditate/`, route `meditate` under Reflect, lake photo
   `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,

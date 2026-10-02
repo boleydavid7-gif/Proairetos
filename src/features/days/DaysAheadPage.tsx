@@ -169,7 +169,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         patternId: entry.occurrence.patternId,
         patternName: entry.occurrence.patternName,
         date: entry.occurrence.date,
-        blocks: [{ start: hhmm(entry.start), end: hhmm(entry.end), label: entry.occurrence.label }],
+        blocks: [{ start: hhmm(entry.start), end: hhmm(entry.end), label: entry.occurrence.label, color: entry.occurrence.color }],
       });
   };
 

@@ -41,7 +41,7 @@ export function entryLook(
     return {
       title: blockTitle(entry.occurrence),
       short: entry.occurrence.label ?? entry.occurrence.patternName,
-      color: pattern?.color ?? (protectedTime ? 'sage' : 'amber'),
+      color: entry.occurrence.color ?? pattern?.color ?? (protectedTime ? 'sage' : 'amber'),
       icon: protectedTime ? 'protected' : 'work',
       location: pattern?.location,
       detail: goals.lines.get(entry.occurrence.patternId) ?? (entry.occurrence.changed ? 'Changed for this day' : undefined),

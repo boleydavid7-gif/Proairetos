@@ -68,13 +68,13 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             <li>
               <button
                 type="button"
-                className={`timeline__entry timeline__entry--${entry.occurrence.kind.toLowerCase()}`}
+                className={`timeline__entry timeline__entry--${entry.occurrence.kind.toLowerCase()}${entry.occurrence.color ? ` timeline__entry--colored tag--${entry.occurrence.color}` : ''}`}
                 onClick={() =>
                   onOpenEntry ? onOpenEntry(entry.key) : onChangeDay({
                     patternId: entry.occurrence.patternId,
                     patternName: entry.occurrence.patternName,
                     date: entry.occurrence.date,
-                    blocks: [{ start: formatHHMM(entry.start), end: formatHHMM(entry.end), label: entry.occurrence.label }],
+                    blocks: [{ start: formatHHMM(entry.start), end: formatHHMM(entry.end), label: entry.occurrence.label, color: entry.occurrence.color }],
                   })
                 }
               >

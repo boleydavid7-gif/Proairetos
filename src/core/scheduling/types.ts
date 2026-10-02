@@ -13,6 +13,8 @@ export interface TimeBlock {
   start: string;
   end: string;
   label?: string;
+  /** A colour for this shift (days, evenings, nights), over the schedule's own. */
+  color?: TagColor;
 }
 
 /** A run of identical days. No blocks means days off. */
@@ -68,6 +70,8 @@ export interface ScheduleOccurrence {
   start: Date;
   end: Date;
   changed: boolean;
+  /** The shift's own colour, if the person gave it one. */
+  color?: TagColor;
 }
 
 export const MAX_SEGMENT_DAYS = 366;

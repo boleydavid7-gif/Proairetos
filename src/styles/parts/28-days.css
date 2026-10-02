@@ -600,3 +600,9 @@
   object-fit: contain;
   border-radius: var(--radius-sm);
 }
+
+/* A shift with its own colour, on Today's timeline. */
+.timeline__entry--colored {
+  border-left-color: var(--tag);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tag) 14%, transparent), var(--color-surface) 60%);
+}
