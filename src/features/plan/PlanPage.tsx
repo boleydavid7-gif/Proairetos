@@ -10,6 +10,7 @@ import { addDays } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import { dayTitle } from '../today/timeline';
 import AddTaskSheet from './AddTaskSheet';
+import GentleLine from '../../components/ui/GentleLine';
 import { planFor } from './planView';
 
 export default function PlanPage() {
@@ -54,7 +55,10 @@ export default function PlanPage() {
       ))}
 
       {sections.length === 0 && (
-        <p className="empty-note">Nothing planned for {offset === 0 ? 'today' : 'this day'}. Add something if you like.</p>
+        <div>
+          <p className="empty-note">Nothing planned for {offset === 0 ? 'today' : 'this day'}. Add something if you like.</p>
+          <GentleLine />
+        </div>
       )}
 
       <button type="button" className="button-accent button-accent--wide" onClick={() => setAdding(true)}>

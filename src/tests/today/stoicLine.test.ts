@@ -16,3 +16,14 @@ describe('daily Stoic line', () => {
     for (let i = 0; i < 100; i++) expect(stoicLines).toContain(stoicLineFor(addDays('2026-01-01', i)));
   });
 });
+
+describe('ways to try the daily line', () => {
+  it('pairs every line with one way to try it', async () => {
+    const { stoicLines } = await import('../../core/stoic/dailyLine');
+    for (let i = 0; i < 400; i++) {
+      const line = stoicLineFor(addDays('2026-01-01', i));
+      expect(line.tryIt, line.text).toBeTruthy();
+    }
+    expect(stoicLines.length).toBeGreaterThan(10);
+  });
+});

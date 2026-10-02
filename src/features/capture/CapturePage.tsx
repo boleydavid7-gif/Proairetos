@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import QuietOffer from '../../components/ui/QuietOffer';
+import GentleLine from '../../components/ui/GentleLine';
 import { hideOffer, takeOffer } from '../../data/storage/preferences';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -143,6 +144,7 @@ export default function CapturePage() {
         <div className="empty-state">
           <p className="empty-state__title">{closed.length > 0 ? 'All clear.' : 'Nothing captured yet.'}</p>
           <p className="empty-state__detail">Whatever is on your mind can go here.</p>
+          {closed.length > 0 && <GentleLine />}
         </div>
       )}
 

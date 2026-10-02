@@ -188,3 +188,67 @@
   font-size: 1.3rem;
   line-height: 1;
 }
+
+/* The daily line is a quiet button: it turns over to a way to try it. */
+.daily-line {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.daily-line:disabled {
+  cursor: default;
+}
+
+.daily-line__try {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.5;
+  animation: rise 260ms ease-out both;
+}
+
+.daily-line__label {
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.a-while-ago {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.a-while-ago__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.a-while-ago__title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.a-while-ago__when {
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}

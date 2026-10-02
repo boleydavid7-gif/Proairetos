@@ -11,3 +11,11 @@ describe('value descriptions', () => {
     expect(describeValue('Gardening')).toBeUndefined();
   });
 });
+
+describe('value practices', () => {
+  it('offers a way to practise every starting value', async () => {
+    const { practiceOfValue } = await import('../../core/values/descriptions');
+    for (const name of presetValues) expect(practiceOfValue(name), name).toBeTruthy();
+    expect(practiceOfValue('Gardening')).toBeUndefined();
+  });
+});

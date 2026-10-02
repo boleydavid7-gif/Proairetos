@@ -3,7 +3,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
-import { describeValue } from '../../core/values/descriptions';
+import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import ValuePicker from './ValuePicker';
@@ -11,7 +11,9 @@ import { valueIcon } from './valueIcons';
 
 function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
   const [confirming, setConfirming] = useState(false);
+  const [open, setOpen] = useState(false);
   const description = describeValue(value.name);
+  const practice = practiceOfValue(value.name);
   const Icon = valueIcon(value.name);
 
   return (
@@ -19,10 +21,22 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
       <span className="value-card__icon" aria-hidden="true">
         <Icon size={24} />
       </span>
-      <span className="value-card__text">
+      <button
+        type="button"
+        className="value-card__text"
+        disabled={!practice || editing}
+        aria-expanded={practice && !editing ? open : undefined}
+        onClick={() => setOpen(!open)}
+      >
         <span className="value-card__name">{value.name}</span>
         {description && <span className="value-card__detail">{description}</span>}
-      </span>
+        {open && practice && !editing && (
+          <span className="value-card__practice">
+            <span className="daily-line__label">In practice</span>
+            {practice}
+          </span>
+        )}
+      </button>
       {!editing ? null : confirming ? (
         <span className="value-card__confirm">
           <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>

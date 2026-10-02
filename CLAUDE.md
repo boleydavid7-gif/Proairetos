@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (193 tests), includes the language guard
+npm test             # vitest (199 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -90,6 +90,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   "What part of this is up to you?"; "Close the day" appears on Today
   from `closingFrom()` (last hours of the person's day, or after the
   day's last work block). Plain words in the UI, no labels or counts.
+  Also woven in: the daily line turns over to "Try it today" (`tryIt`
+  in `dailyLine.ts`); "From a while ago" folds old open concerns into
+  Today's chips (`rhythm/aWhileAgo.ts`: 21+ days, keep rests 30 days);
+  value cards reveal "In practice" (`values/descriptions.ts`); empty
+  Plan/Reflect/Capture show a `GentleLine` (`stoic/gentleLines.ts`).
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

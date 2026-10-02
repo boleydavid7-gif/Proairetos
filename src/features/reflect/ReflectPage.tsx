@@ -8,6 +8,7 @@ import PageHeader from '../../components/layout/PageHeader';
 import type { ReflectPeriod } from '../../core/reflections/periods';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
+import GentleLine from '../../components/ui/GentleLine';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
@@ -120,7 +121,10 @@ export default function ReflectPage() {
       {reflections && (
         <section aria-label="Your reflections">
           {reflections.length === 0 ? (
-            <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
+            <>
+              <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
+              <GentleLine />
+            </>
           ) : (
             <ol className="timeline">
               {reflections.map((reflection) => (

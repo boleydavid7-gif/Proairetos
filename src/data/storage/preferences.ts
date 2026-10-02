@@ -278,3 +278,16 @@ export function closedDay(): string | null {
 export function setClosedDay(date: string | null): void {
   writeJson(CLOSED_DAY_KEY, date);
 }
+
+// ---------- From a while ago ----------
+
+const KEPT_KEY = 'proairetos.keptConcerns';
+
+/** When the person last chose "still with me" for each old concern. */
+export function keptConcerns(): Record<string, string> {
+  return readJson<Record<string, string>>(KEPT_KEY) ?? {};
+}
+
+export function keepConcern(id: string, at: Date = new Date()): void {
+  writeJson(KEPT_KEY, { ...keptConcerns(), [id]: at.toISOString() });
+}

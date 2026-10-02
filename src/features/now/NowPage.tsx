@@ -11,7 +11,16 @@ import SettingsButton from '../../components/layout/SettingsButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { stoicLineFor } from '../../core/stoic/dailyLine';
-import { answeredPauseOffers, displayName, isLookAheadSetAside, previousVisitDate } from '../../data/storage/preferences';
+import {
+  answeredPauseOffers,
+  displayName,
+  isLookAheadSetAside,
+  keepConcern,
+  keptConcerns,
+  previousVisitDate,
+} from '../../data/storage/preferences';
+import { fromAWhileAgo } from '../../core/rhythm/aWhileAgo';
+import AWhileAgo from '../today/AWhileAgo';
 import PauseOfferCard from '../pause/PauseOfferCard';
 import { formatLocalDay } from '../schedule/format';
 import AlsoToday from '../today/AlsoToday';
@@ -25,6 +34,7 @@ import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
+import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
@@ -48,6 +58,7 @@ export default function NowPage() {
   const { openItem, startFocus, openPause } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [name] = useState(displayName);
+  const [kept, setKept] = useState(keptConcerns);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
@@ -88,10 +99,25 @@ export default function NowPage() {
           ? 'look-ahead'
           : null;
 
+  const aWhileAgo = fromAWhileAgo(items, clock, kept);
   const waiting = now?.waiting.filter((item) => !readyIds.has(item.id)) ?? [];
   const alsoSections = now
     ? [
         { id: 'check-back', label: 'Check back', count: ready.length, content: <CheckBackNudges items={ready} /> },
+        {
+          id: 'a-while-ago',
+          label: 'From a while ago',
+          count: aWhileAgo.length,
+          content: (
+            <AWhileAgo
+              items={aWhileAgo}
+              onKeep={(id) => {
+                keepConcern(id);
+                setKept(keptConcerns());
+              }}
+            />
+          ),
+        },
         { id: 'revisit', label: 'Look back', count: toRevisit.length, content: <RevisitNudges /> },
         { id: 'important', label: 'Important', count: now.important.length, content: <ImportantItems items={now.important} /> },
         { id: 'waiting', label: 'Waiting', count: waiting.length, content: <WaitingItems items={waiting} /> },
@@ -114,10 +140,7 @@ export default function NowPage() {
           <SettingsButton />
         </div>
         <h1 className="page-header__title">{isToday ? greeting(clock, name) : dayTitle(date, today)}</h1>
-        <figure className="today-header__line">
-          <blockquote>{line.text}</blockquote>
-          {line.source && <figcaption>{line.source}</figcaption>}
-        </figure>
+        <DailyLine key={date} line={line} />
         <div className="today-header__rule" aria-hidden="true" />
         <div className="day-stepper">
           <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
