@@ -20,7 +20,7 @@ import {
   ShieldIcon,
 } from '../../components/icons/Icons';
 import { ITEM_MINUTES } from '../../core/rhythm/openTime';
-import { addDays, atTime, mondayOnOrBefore } from '../../core/scheduling/dates';
+import { addDays, atTime } from '../../core/scheduling/dates';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
@@ -38,6 +38,20 @@ function monthStart(date: string, n = 0): string {
 }
 
 const yearStart = (date: string, n = 0) => `${Number(date.slice(0, 4)) + n}-01-01`;
+
+/** Month and year grids start their weeks on Sunday. */
+const sundayOnOrBefore = (date: string) => addDays(date, -new Date(`${date}T12:00:00`).getDay());
+
+/** Just the weeks the month touches: four to six rows of seven. */
+function monthCells(date: string): number {
+  const first = monthStart(date);
+  const lead = new Date(`${first}T12:00:00`).getDay();
+  const [y, m] = first.split('-').map(Number);
+  const length = new Date(y, m, 0).getDate();
+  return Math.ceil((lead + length) / 7) * 7;
+}
+
+const countLabel = (n: number) => (n === 1 ? '1 event' : `${n} events`);
 
 function daysBetweenInclusive(from: string, until: string): string[] {
   const days: string[] = [];
@@ -84,7 +98,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const shape: 'list' | CalendarMode = view === 'list' ? 'list' : mode;
   const days =
     shape === 'month'
-      ? Array.from({ length: 42 }, (_, i) => addDays(mondayOnOrBefore(monthStart(start)), i))
+      ? Array.from({ length: monthCells(start) }, (_, i) => addDays(sundayOnOrBefore(monthStart(start)), i))
       : shape === 'year'
         ? daysBetweenInclusive(yearStart(start), `${start.slice(0, 4)}-12-31`)
         : Array.from({ length: WEEK }, (_, i) => addDays(start, i));
@@ -129,15 +143,16 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       for (const day of data?.days ?? []) {
         const dayStart = atTime(day.date, '00:00').getTime();
         for (const entry of day.entries) {
-          if (!('start' in entry)) continue;
-          earliest = Math.min(earliest, Math.max(0, (entry.start.getTime() - dayStart) / 3_600_000));
+          // A block carried over from the night before does not set where the day opens.
+          if (!('start' in entry) || entry.start.getTime() < dayStart) continue;
+          earliest = Math.min(earliest, (entry.start.getTime() - dayStart) / 3_600_000);
         }
       }
       const top = target && scroller.current.contains(target) ? target.offsetTop - HOUR_PX / 2 : (earliest - 0.5) * HOUR_PX;
       scroller.current.scrollTop = Math.max(0, top);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data === undefined, view, start, mode]);
+  }, [data?.days[0]?.date, data?.days.length, view, mode]);
 
   const open = (entry: Timed) => {
     if (entry.kind === 'item') openItem(entry.item.id);
@@ -185,12 +200,14 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       </div>
 
       {view === 'calendar' && (
-        <div className="mini-segmented mini-segmented--wide" role="group" aria-label="Calendar view">
+        <div className="segmented segmented--even" role="tablist" aria-label="Calendar view">
           {(['week', 'month', 'year'] as const).map((option) => (
             <button
               key={option}
               type="button"
-              aria-pressed={mode === option}
+              role="tab"
+              className="segmented__option"
+              aria-selected={mode === option}
               onClick={() => {
                 setMode(option);
                 if (option === 'month') setStart(start.slice(0, 7) === today.slice(0, 7) ? today : monthStart(start));
@@ -203,15 +220,15 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       )}
 
       <div className="days-stepper">
-        <button type="button" className="day-stepper__step" aria-label="Earlier" onClick={() => move(-1)}>
-          <ChevronRightIcon size={18} style={{ transform: 'rotate(180deg)' }} />
+        <button type="button" className="days-stepper__step" aria-label="Earlier" onClick={() => move(-1)}>
+          <ChevronRightIcon size={20} style={{ transform: 'rotate(180deg)' }} />
         </button>
         <span className="days-stepper__range">{rangeLabel}</span>
-        <button type="button" className="day-stepper__step" aria-label="Later" onClick={() => move(1)}>
-          <ChevronRightIcon size={18} />
+        <button type="button" className="days-stepper__step" aria-label="Later" onClick={() => move(1)}>
+          <ChevronRightIcon size={20} />
         </button>
       </div>
-      {start !== today && (
+      {(shape === 'month' ? monthStart(start) !== monthStart(today) : shape === 'year' ? start.slice(0, 4) !== today.slice(0, 4) : start !== today) && (
         <button type="button" className="text-link days-back" onClick={() => setStart(today)}>
           Back to today
         </button>
@@ -345,51 +362,121 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       )}
 
       {shape === 'month' && data && (
-        <div className="month" role="grid" aria-label={rangeLabel}>
-          <div className="month__head" role="row">
-            {data.days.slice(0, 7).map(({ date }) => (
-              <span key={date} role="columnheader">
-                {formatLocalDay(date, { weekday: 'narrow' })}
-              </span>
-            ))}
+        <>
+          <div className="month" role="grid" aria-label={rangeLabel}>
+            <div className="month__head" role="row">
+              {data.days.slice(0, 7).map(({ date }) => (
+                <span key={date} role="columnheader">
+                  {formatLocalDay(date, { weekday: 'short' })}
+                </span>
+              ))}
+            </div>
+            <div className="month__grid">
+              {data.days.map(({ date, entries }) => {
+                const looks = entries.flatMap((entry): { title: string; color?: string }[] =>
+                  entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
+                );
+                const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
+                return (
+                  <button
+                    key={date}
+                    type="button"
+                    role="gridcell"
+                    aria-selected={date === start}
+                    className={`month__day${outside ? ' month__day--outside' : ''}${date === today ? ' month__day--today' : ''}`}
+                    aria-label={`${formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}${looks.length ? `, ${countLabel(looks.length)}` : ''}`}
+                    onClick={() => setStart(date)}
+                  >
+                    <span className="month__num">{Number(date.slice(8))}</span>
+                    {looks.length > 0 && (
+                      <span className="month__dots" aria-hidden="true">
+                        {looks.slice(0, 3).map((look, index) => (
+                          <span key={index} className={`month__dot tag--${look.color ?? 'none'}`} />
+                        ))}
+                      </span>
+                    )}
+                    {looks.length > 0 && !outside && (
+                      <span className={`month__count tag--${looks[0].color ?? 'none'}`} aria-hidden="true">
+                        <strong>{looks.length}</strong>
+                        {looks.length === 1 ? 'event' : 'events'}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="month__grid">
-            {data.days.map(({ date, entries }) => {
-              const looks = entries.flatMap((entry): { title: string; color?: string; short?: string }[] =>
-                entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
-              );
-              const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
-              return (
-                <button
-                  key={date}
-                  type="button"
-                  role="gridcell"
-                  className={`month__day${outside ? ' month__day--outside' : ''}${date === today ? ' month__day--today' : ''}`}
-                  aria-label={`${formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}${looks.length ? `, ${looks.map((l) => l.title).join(', ')}` : ''}`}
-                  onClick={() => {
-                    setStart(date);
-                    setMode('week');
-                  }}
-                >
-                  <span className="month__num">{Number(date.slice(8))}</span>
-                  {looks.slice(0, 3).map((look, index) => (
-                    <span key={index} className={`month__chip tag--${look.color ?? 'none'}`}>
-                      {look.short ?? look.title}
-                    </span>
+
+          {(() => {
+            const day = data.days.find(({ date }) => date === start);
+            if (!day) return null;
+            const timed = day.entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
+            const allDay = day.entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
+            const count = timed.length + allDay.length;
+            return (
+              <section className="month-day" aria-label={formatLocalDay(start, { weekday: 'long', month: 'long', day: 'numeric' })}>
+                <div className="month-day__head">
+                  <h2 className="month-day__title">{formatLocalDay(start, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</h2>
+                  {count > 0 && <span className="month-day__count">{countLabel(count)}</span>}
+                </div>
+                {count === 0 && <p className="days-day__empty">Nothing set.</p>}
+                <ul className="days-list">
+                  {allDay.map((entry) => (
+                    <li key={entry.key} className="days-allday">
+                      All day · {entry.event.title}
+                    </li>
                   ))}
-                  {looks.length > 3 && <span className="month__more">+{looks.length - 3}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  {timed.map((entry) => {
+                    const look = entryLook(entry, data.patterns, data.sources, data.goals);
+                    const Icon = icons[look.icon];
+                    const tappable = entry.kind !== 'event';
+                    const body = (
+                      <>
+                        <span className="days-row__icon">
+                          <Icon size={22} />
+                        </span>
+                        <span className="days-row__text">
+                          <span className="days-row__title">{look.title}</span>
+                          <span className="month-row__meta">
+                            <span>
+                              {formatTimeOf(entry.start)}
+                              {entry.kind !== 'item' && ` – ${formatTimeOf(end(entry))}`}
+                            </span>
+                            {look.location && (
+                              <span className="days-row__where">
+                                <PinIcon size={14} /> {look.location}
+                              </span>
+                            )}
+                          </span>
+                          {look.detail && <span className="days-row__where">{look.detail}</span>}
+                        </span>
+                        {tappable && <ChevronRightIcon size={18} className="days-row__chevron" />}
+                      </>
+                    );
+                    return (
+                      <li key={entry.key} className={`days-row month-row tag--${look.color ?? 'none'}`}>
+                        {tappable ? (
+                          <button type="button" className="days-row__button" onClick={() => open(entry)}>
+                            {body}
+                          </button>
+                        ) : (
+                          <div className="days-row__button">{body}</div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            );
+          })()}
+        </>
       )}
 
       {shape === 'year' && data && (
         <div className="year">
           {Array.from({ length: 12 }, (_, month) => {
             const first = `${start.slice(0, 4)}-${pad(month + 1)}-01`;
-            const lead = (new Date(`${first}T12:00:00`).getDay() + 6) % 7;
+            const lead = new Date(`${first}T12:00:00`).getDay();
             const inMonth = data.days.filter(({ date }) => date.slice(0, 7) === first.slice(0, 7));
             return (
               <button

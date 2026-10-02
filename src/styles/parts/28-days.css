@@ -208,32 +208,53 @@
 
 /* ---------- Month ---------- */
 
+.days-page .segmented--even {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.days-stepper__step {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.days-stepper__range {
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
 .month {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .month__head,
 .month__grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 2px;
+  gap: 4px;
 }
 
 .month__head span {
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   text-align: center;
 }
 
 .month__day {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 2px;
-  min-height: 4.75rem;
-  padding: 3px;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 4.6rem;
+  padding: 5px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
@@ -244,38 +265,96 @@
 }
 
 .month__day--outside {
-  opacity: 0.4;
+  opacity: 0.38;
 }
 
-.month__day--today {
+.month__day[aria-selected='true'] {
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent), 0 0 14px rgba(201, 162, 116, 0.35);
 }
 
 .month__num {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
 }
 
 .month__day--today .month__num {
   color: var(--color-accent);
+  font-weight: 700;
+}
+
+.month__dots {
+  display: flex;
+  gap: 3px;
+}
+
+.month__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tag);
+}
+
+.month__count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  margin-top: auto;
+  padding: 2px 0;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--tag) 22%, transparent);
+  font-size: 0.55rem;
+  line-height: 1.15;
+}
+
+.month__count strong {
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
-.month__chip {
-  overflow: hidden;
-  padding: 0 3px;
-  border-left: 2px solid var(--tag);
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--tag) 22%, transparent);
-  font-size: 0.6rem;
-  line-height: 1.5;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.month-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(var(--color-bg-rgb), 0.4);
 }
 
-.month__more {
+.month-day__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.month-day__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: normal;
+}
+
+.month-day__count {
+  flex: none;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.month-row .days-row__button {
+  grid-template-columns: auto 1fr auto;
+}
+
+.month-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem var(--space-4);
   color: var(--color-text-muted);
-  font-size: 0.6rem;
+  font-size: 0.85rem;
 }
 
 /* ---------- Year ---------- */

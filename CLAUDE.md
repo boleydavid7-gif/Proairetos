@@ -154,7 +154,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   goal's next step on Today and Days ahead (`goalLines`). Never checked.
 - Days ahead: two pages, routes `days` (list) and `calendar`
   (`features/days/DaysAheadPage`), seven days at a time with week steps;
-  the calendar has Week (hours), Month (chips; tap a day for its week),
+  the calendar has Week (hours), Month (Sunday-first grid with colour
+  dots and a count; the chosen day lists below),
   and Year (marked days; tap a month). Opened from "Your day" on Today (tapping
   an entry passes the day and entry via `setDaysAheadOpening`). One round
   + button adds a timed item (`AddEventSheet`). Colours are the person's
