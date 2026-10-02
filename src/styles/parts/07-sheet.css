@@ -18,7 +18,7 @@
 }
 
 .sheet[open] .sheet__panel {
-  animation: sheet-up 240ms ease-out both;
+  animation: sheet-up 340ms var(--ease-out) backwards;
 }
 
 .sheet__panel {

@@ -23,18 +23,18 @@ function recognitionClass(): (new () => Recognition) | undefined {
 export const dictationSupported = () => typeof window !== 'undefined' && recognitionClass() !== undefined;
 
 function Notice({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
-  const { dialog, panel } = useSheet();
+  const { dialog, panel, close } = useSheet();
   return (
     <dialog
       ref={dialog}
       className="sheet"
       aria-label="About dictation"
       onClose={onClose}
-      onClick={(event) => event.target === dialog.current && dialog.current?.close()}
+      onClick={(event) => event.target === dialog.current && close()}
     >
       <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
-        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
+        <button type="button" className="sheet__close" onClick={() => close()}>
           Not now
         </button>
         <p className="sheet__title sheet__title--static">Before you dictate</p>
@@ -49,7 +49,7 @@ function Notice({ onAccept, onClose }: { onAccept: () => void; onClose: () => vo
           onClick={() => {
             acceptDictation();
             onAccept();
-            dialog.current?.close();
+            close();
           }}
         >
           Use dictation

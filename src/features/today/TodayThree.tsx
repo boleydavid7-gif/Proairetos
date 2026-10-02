@@ -1,3 +1,4 @@
+import { tap } from '../../app/feel';
 import { useSheet } from '../../components/ui/useSheet';
 import { useEffect, useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -156,6 +157,7 @@ export default function TodayThree({ date, items }: Props) {
 
   async function toggle(item: LifeItem) {
     const done = item.status === 'DONE';
+    if (!done) tap();
     const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');
     if (!done) offerUndo(`Done: ${item.title}`, change.undo);
   }

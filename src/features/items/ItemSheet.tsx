@@ -717,7 +717,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 }
 
 export default function ItemSheet({ itemId, onClose }: Props) {
-  const { dialog, panel } = useSheet();
+  const { dialog, panel, close } = useSheet();
   const item = useServiceData(lifeService.subscribe, () => lifeService.get(itemId), [itemId]);
 
   return (
@@ -728,15 +728,15 @@ export default function ItemSheet({ itemId, onClose }: Props) {
       onClose={onClose}
       onClick={(event) => {
         // A tap on the backdrop (the dialog itself, outside the panel) closes it.
-        if (event.target === dialog.current) dialog.current?.close();
+        if (event.target === dialog.current) close();
       }}
     >
       <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
-        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
+        <button type="button" className="sheet__close" onClick={() => close()}>
           Close
         </button>
-        {item && <SheetBody key={item.id} item={item} onClose={() => dialog.current?.close()} />}
+        {item && <SheetBody key={item.id} item={item} onClose={() => close()} />}
         {item === null && <p className="empty-note">This item is no longer here.</p>}
       </div>
     </dialog>

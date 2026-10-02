@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
+import { tap } from '../../app/feel';
 import { lifeService } from '../../app/services';
 import { CheckIcon, MoreIcon } from '../../components/icons/Icons';
 import type { LifeItem } from '../../core/life-items/types';
@@ -10,6 +11,7 @@ export default function CheckRow({ item, done, detail }: { item: LifeItem; done:
   const [busy, setBusy] = useState(false);
 
   async function toggle() {
+    if (!done) tap();
     setBusy(true);
     try {
       const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');

@@ -442,10 +442,15 @@ export function saveQuietHours(quiet: StoredQuietHours): void {
 
 const APPEARANCE_KEY = 'proairetos.appearance';
 
-export type Appearance = { theme: 'system' | 'dark' | 'light'; textSize: 'default' | 'large' | 'larger' };
+export type Appearance = {
+  theme: 'system' | 'dark' | 'light';
+  textSize: 'default' | 'large' | 'larger';
+  /** A soft buzz when ticking something off, on phones that have one. */
+  taps: boolean;
+};
 
 export function loadAppearance(): Appearance {
-  return { theme: 'dark', textSize: 'default', ...readJson<Partial<Appearance>>(APPEARANCE_KEY) };
+  return { theme: 'dark', textSize: 'default', taps: true, ...readJson<Partial<Appearance>>(APPEARANCE_KEY) };
 }
 
 export function saveAppearance(appearance: Appearance): void {

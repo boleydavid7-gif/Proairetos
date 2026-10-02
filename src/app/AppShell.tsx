@@ -30,7 +30,10 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
             This browser is not letting Proairetos save. What you add stays until this tab closes.
           </p>
         )}
-        {children}
+        {/* Each page fades in; keyed so a new route starts fresh. */}
+        <div key={route} className="page-enter">
+          {children}
+        </div>
       </main>
 
       <nav className="tab-bar" aria-label="Main navigation">

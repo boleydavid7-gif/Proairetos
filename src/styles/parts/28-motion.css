@@ -1,0 +1,213 @@
+/* ---------- Motion: soft, quick, and never in the way ---------- */
+/* Everything here stops when the device asks for less motion (see 29-touch.css). */
+
+:root {
+  /* Settles gently, like something set down. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A small overshoot for things that pop into place. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in: cubic-bezier(0.55, 0, 0.75, 0.3);
+}
+
+/* Buttons give under the finger and spring back. `scale` leaves each
+   control's own `transform` alone; :where keeps this easy to override. */
+:where(button, a, summary, [role='button']) {
+  transition:
+    scale 180ms var(--ease-spring),
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, a, summary, [role='button']):active:not(:disabled) {
+  scale: 0.96;
+  transition-duration: 60ms;
+}
+
+/* Wide rows only dip a little; a big thing shrinking reads as a jolt. */
+:where(.settings-row, .days-row__button, .check-row__title, .path__text, .sheet__title, .toggle-row, .text-link):active:not(:disabled) {
+  scale: 0.985;
+}
+
+/* Main buttons keep their own transitions; add the spring to them. */
+.tab-bar__item,
+.segmented__option,
+.chip {
+  transition:
+    scale 180ms var(--ease-spring),
+    color 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+/* ---------- Pages ---------- */
+
+/* Opacity only: a transform here would unpin Today's fixed landscape. */
+.page-enter {
+  animation: page-in 260ms var(--ease-out);
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Tab bar ---------- */
+
+.tab-bar__item svg {
+  transition: translate 280ms var(--ease-spring);
+}
+
+.tab-bar__item[aria-current='page'] svg {
+  translate: 0 -2px;
+}
+
+/* ---------- Sheets ---------- */
+
+.sheet::backdrop {
+  animation: backdrop-in 280ms ease both;
+  transition: opacity 220ms ease;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet__panel {
+  transition: transform 300ms var(--ease-spring);
+}
+
+/* Leaving: glide down and fade the room back in. 220ms matches CLOSE_MS in useSheet. */
+.sheet--closing .sheet__panel {
+  transform: translateY(105%);
+  transition: transform 220ms var(--ease-in);
+}
+
+.sheet--closing::backdrop {
+  animation: none;
+  opacity: 0;
+}
+
+/* ---------- Segmented: the highlight slides to the choice ---------- */
+
+.segmented {
+  position: relative;
+  isolation: isolate;
+  --count: 3;
+  --at: 0;
+}
+
+.segmented:not(:has(> :nth-child(3))) {
+  --count: 2;
+}
+
+.segmented:has(> :nth-child(4)) {
+  --count: 4;
+}
+
+.segmented:has(> :nth-child(2)[aria-selected='true']) {
+  --at: 1;
+}
+
+.segmented:has(> :nth-child(3)[aria-selected='true']) {
+  --at: 2;
+}
+
+.segmented:has(> :nth-child(4)[aria-selected='true']) {
+  --at: 3;
+}
+
+.segmented::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: var(--space-1);
+  bottom: var(--space-1);
+  left: var(--space-1);
+  width: calc((100% - 2 * var(--space-1)) / var(--count));
+  border-radius: var(--radius-sm);
+  background: radial-gradient(80% 120% at 50% 50%, rgba(201, 162, 116, 0.22), rgba(201, 162, 116, 0.06));
+  translate: calc(var(--at) * 100%) 0;
+  transition: translate 340ms var(--ease-spring);
+}
+
+.segmented:not(:has([aria-selected='true']))::before {
+  opacity: 0;
+}
+
+.segmented .segmented__option[aria-selected='true'] {
+  background: transparent;
+}
+
+/* ---------- Ticking off ---------- */
+
+.check-row__box,
+.path__circle,
+.check-lines__box {
+  transition:
+    scale 220ms var(--ease-spring),
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.check-row__box:active:not(:disabled),
+.path__circle:active,
+.check-lines__box:active {
+  scale: 0.82;
+}
+
+/* The tick draws itself in. */
+.check-row__box svg,
+.path__circle svg,
+.check-lines__box svg {
+  animation: tick-in 360ms var(--ease-spring) both;
+}
+
+@keyframes tick-in {
+  from {
+    scale: 0.4;
+    opacity: 0;
+  }
+}
+
+.check-row__title,
+.path__title {
+  transition: color 300ms ease;
+}
+
+/* ---------- Toggles and chips ---------- */
+
+.toggle-switch::after {
+  transition:
+    transform 300ms var(--ease-spring),
+    background 200ms ease;
+}
+
+.chip[aria-pressed='true'] {
+  animation: chip-on 280ms var(--ease-spring);
+}
+
+@keyframes chip-on {
+  from {
+    scale: 0.94;
+  }
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  animation: toast-in 380ms var(--ease-spring) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    translate: 0 1rem;
+    scale: 0.96;
+  }
+}

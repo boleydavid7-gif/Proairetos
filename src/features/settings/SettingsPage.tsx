@@ -538,6 +538,13 @@ function AppearanceSection() {
         ))}
       </div>
       <p className="sheet__hint">Text, spacing, and buttons all grow together. Your phone’s own text size is respected too.</p>
+      <button type="button" className="toggle-row" aria-pressed={appearance.taps} onClick={() => update({ ...appearance, taps: !appearance.taps })}>
+        <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span className="toggle-row__text">
+          <span>Gentle taps</span>
+          <span className="toggle-row__detail">A soft buzz when you tick something off, on phones that have one.</span>
+        </span>
+      </button>
     </section>
   );
 }

@@ -10,13 +10,13 @@ type Props = {
 };
 
 export default function FocusStart({ target, onStart, onClose }: Props) {
-  const { dialog, panel } = useSheet();
+  const { dialog, panel, close } = useSheet();
   const [custom, setCustom] = useState('');
 
 
   const start = (minutes: number) => {
     onStart(minutes);
-    dialog.current?.close();
+    close();
   };
   const customMinutes = Number(custom);
 
@@ -26,11 +26,11 @@ export default function FocusStart({ target, onStart, onClose }: Props) {
       className="sheet"
       aria-label="Start focus"
       onClose={onClose}
-      onClick={(event) => event.target === dialog.current && dialog.current?.close()}
+      onClick={(event) => event.target === dialog.current && close()}
     >
       <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
-        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
+        <button type="button" className="sheet__close" onClick={() => close()}>
           Cancel
         </button>
         <p className="sheet__title sheet__title--static">Focus</p>

@@ -22,7 +22,7 @@ type Props = {
  * review, kept to under a minute. Nothing here is required.
  */
 function CloseDaySheet({ today, range, items, onClose }: Props) {
-  const { dialog, panel } = useSheet();
+  const { dialog, panel, close } = useSheet();
   const { offerUndo } = useOverlays();
   const done = useDoneIn(today, range) ?? [];
   const openPicks = items.filter((item) => item.pickedFor === today && (item.status === 'OPEN' || item.status === 'WAITING'));
@@ -45,7 +45,7 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       if (written) await reflectionService.remove(written.id);
       setClosedDay(null);
     });
-    dialog.current?.close();
+    close();
   }
 
   return (
@@ -54,11 +54,11 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       className="sheet"
       aria-label="Close the day"
       onClose={onClose}
-      onClick={(event) => event.target === dialog.current && dialog.current?.close()}
+      onClick={(event) => event.target === dialog.current && close()}
     >
       <div ref={panel} className="sheet__panel">
         <div className="sheet__grabber" aria-hidden="true" />
-        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
+        <button type="button" className="sheet__close" onClick={() => close()}>
           Not now
         </button>
         <p className="sheet__title sheet__title--static">Close the day</p>

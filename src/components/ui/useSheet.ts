@@ -2,20 +2,49 @@ import { useEffect, useRef } from 'react';
 import { useBackHandler } from '../../app/back/backStack';
 
 const DISMISS_DISTANCE = 110;
+/** How long a sheet takes to glide away; matches `.sheet--closing` in 07-sheet.css. */
+const CLOSE_MS = 220;
+
+function reducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 /**
  * Everything a bottom sheet needs to be easy to leave: opens as a modal,
  * closes on the system back gesture, and closes on a swipe down when
  * scrolled to the top. Tap outside, Escape, and the Close button are wired
- * by each sheet through `dialog`.
+ * by each sheet through `dialog`. Every way out glides the sheet down
+ * first (instantly when the device asks for less motion).
  */
 export function useSheet() {
   const dialog = useRef<HTMLDialogElement>(null);
   const panel = useRef<HTMLDivElement>(null);
-  const close = () => dialog.current?.close();
+  const closing = useRef(false);
+  const close = () => {
+    const element = dialog.current;
+    if (!element?.open || closing.current) return;
+    if (reducedMotion()) {
+      element.close();
+      return;
+    }
+    closing.current = true;
+    // A swiped panel goes on from where it was let go.
+    if (panel.current) panel.current.style.transform = '';
+    element.classList.add('sheet--closing');
+    window.setTimeout(() => element.close(), CLOSE_MS);
+  };
 
   useEffect(() => {
-    if (dialog.current && !dialog.current.open) dialog.current.showModal();
+    const element = dialog.current;
+    if (!element) return;
+    if (!element.open) element.showModal();
+    // Escape glides out like every other way of leaving.
+    const cancel = (event: Event) => {
+      event.preventDefault();
+      close();
+    };
+    element.addEventListener('cancel', cancel);
+    return () => element.removeEventListener('cancel', cancel);
   }, []);
 
   useBackHandler(true, close);
@@ -42,8 +71,8 @@ export function useSheet() {
       if (startY === null) return;
       element.style.transition = '';
       if (dy > DISMISS_DISTANCE) {
-        element.style.transform = 'translateY(100%)';
-        window.setTimeout(() => dialog.current?.close(), 150);
+        // From where the finger let go, the rest of the way down.
+        close();
       } else {
         element.style.transform = '';
       }
