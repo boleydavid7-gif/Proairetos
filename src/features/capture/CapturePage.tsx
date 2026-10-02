@@ -59,11 +59,12 @@ export default function CapturePage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
   const [kind, setKind] = useState<CaptureKind | undefined>();
   const [showAll, setShowAll] = useState(false);
-  const [offering, setOffering] = useState(false);
+  const [offering, setOffering] = useState<'sit-with-it' | 'think-it-through' | null>(null);
+  const [offerFrom, setOfferFrom] = useState<LifeItem | undefined>();
   const [dumping, setDumping] = useState(false);
   const [sorting, setSorting] = useState(false);
   const { today } = usePersonalDay(useClock());
-  const { openPractice } = useOverlays();
+  const { openPractice, openThinkThrough } = useOverlays();
   // Tasks added on Plan live there; this list is what came through Capture.
   const active = items
     .filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.source !== 'MANUAL')
@@ -115,24 +116,30 @@ export default function CapturePage() {
         <CaptureBar
           kind={kind}
           placeholder={chosen?.prompt ?? 'Or anything at all'}
-          onCaptured={() => {
-            // After naming a feeling, a minute with it is offered, quietly and at most once a day.
-            if (kind === 'EMOTION' && takeOffer('sit-with-it', toLocalDate(new Date()))) setOffering(true);
+          onCaptured={(item) => {
+            // After naming a feeling or a worry, a practice is offered, quietly and at most once a day.
+            const today = toLocalDate(new Date());
+            if (kind === 'EMOTION' && takeOffer('sit-with-it', today)) setOffering('sit-with-it');
+            if (kind === 'CONCERN' && takeOffer('think-it-through', today)) {
+              setOffering('think-it-through');
+              setOfferFrom(item);
+            }
             setKind(undefined);
           }}
         />
         {offering && (
           <QuietOffer
-            text="Sit with it for a minute"
+            text={offering === 'sit-with-it' ? 'Sit with it for a minute' : 'Think it through'}
             onAccept={() => {
-              setOffering(false);
-              openPractice('sit-with-it');
+              setOffering(null);
+              if (offering === 'sit-with-it') openPractice('sit-with-it');
+              else openThinkThrough(offerFrom ? { itemId: offerFrom.id, text: offerFrom.title } : undefined);
             }}
             onNotForMe={() => {
-              hideOffer('sit-with-it');
-              setOffering(false);
+              hideOffer(offering);
+              setOffering(null);
             }}
-            onDismiss={() => setOffering(false)}
+            onDismiss={() => setOffering(null)}
           />
         )}
         {chosen && (

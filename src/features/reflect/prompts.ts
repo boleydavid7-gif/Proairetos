@@ -15,5 +15,6 @@ export function promptText(key: string | undefined): string | undefined {
   if (key === 'premeditation') return 'What might get in the way today?';
   if (key === 'weekly-review') return 'Weekly review';
   if (key === 'day-close') return 'Closing the day';
+  if (key === 'think-it-through') return 'Thought it through';
   return reflectionPrompts.find((prompt) => prompt.key === key)?.text;
 }

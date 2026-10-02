@@ -116,6 +116,16 @@ const toLines = (text: string) => text.split('\n');
 const fromLines = (lines: string[] | undefined) => (lines ?? []).join('\n');
 
 /** The Stoic split for Thinking about items: what is up to me, and what is not. */
+/** For a worry: the written practice, starting from the person's own words. */
+function ThinkThroughLink({ item }: { item: LifeItem }) {
+  const { openThinkThrough } = useOverlays();
+  return (
+    <button type="button" className="chip chip--wide" onClick={() => openThinkThrough({ itemId: item.id, text: item.title })}>
+      Think it through
+    </button>
+  );
+}
+
 function ControlSplitSection({ item }: { item: LifeItem }) {
   const [mine, setMine] = useState(fromLines(item.controlSplit?.inMyControl));
   const [notMine, setNotMine] = useState(fromLines(item.controlSplit?.notInMyControl));
@@ -421,6 +431,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       </div>
 
       {item.captureKind === 'CONCERN' && <ControlSplitSection item={item} />}
+      {item.captureKind === 'CONCERN' && <ThinkThroughLink item={item} />}
 
       <NextStepSection item={item} />
 

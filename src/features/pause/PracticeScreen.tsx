@@ -8,10 +8,12 @@ type Props = {
   onClose: () => void;
   /** Opens crisis lines and support. */
   onSupport?: () => void;
+  /** Opens the written practice, Think it through. */
+  onThinkThrough?: () => void;
 };
 
 /** One step at a time, at the person's own pace. Leavable at any point. */
-export default function PracticeScreen({ practiceId, onClose, onSupport }: Props) {
+export default function PracticeScreen({ practiceId, onClose, onSupport, onThinkThrough }: Props) {
   const [chosen, setChosen] = useState<PracticeId | undefined>(practiceId);
   const [step, setStep] = useState(0);
   const [showSource, setShowSource] = useState(false);
@@ -44,6 +46,14 @@ export default function PracticeScreen({ practiceId, onClose, onSupport }: Props
                 </button>
               </li>
             ))}
+            {onThinkThrough && (
+              <li>
+                <button type="button" className="practice-list__item" onClick={onThinkThrough}>
+                  <span className="practice-list__title">Think it through</span>
+                  <span className="practice-list__line">For a thought that has a grip. Written, a step at a time.</span>
+                </button>
+              </li>
+            )}
           </ul>
           <button type="button" className="button-quiet" onClick={onClose}>
             Close

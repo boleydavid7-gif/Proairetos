@@ -231,7 +231,7 @@ export function saveCalendarFeed(feed: StoredFeed): void {
 // never repeated once the person says "not for me", and all of them can be
 // turned off.
 
-export type OfferKind = 'sit-with-it' | 'up-to-you' | 'backup';
+export type OfferKind = 'sit-with-it' | 'up-to-you' | 'backup' | 'think-it-through';
 
 const OFFERS_KEY = 'proairetos.quietOffers';
 

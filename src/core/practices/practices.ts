@@ -4,7 +4,7 @@
  * counted, or required. Names stay human ("Sit with it"), and the source is
  * credited for anyone curious.
  */
-export type PracticeId = 'sit-with-it' | 'view-from-above' | 'kindness' | 'noting' | 'simple-good';
+export type PracticeId = 'ground' | 'sit-with-it' | 'view-from-above' | 'kindness' | 'noting' | 'simple-good';
 
 export type Practice = {
   id: PracticeId;
@@ -18,6 +18,21 @@ export type Practice = {
 };
 
 export const practices: readonly Practice[] = [
+  {
+    id: 'ground',
+    title: 'Come back to the room',
+    line: 'For a moment that feels like too much.',
+    steps: [
+      'Put your feet flat on the floor. Feel it holding you up.',
+      'Look around and quietly name five things you can see.',
+      'Four things you can feel: your clothes, the air, the chair, your hands.',
+      'Three things you can hear, near or far.',
+      'Two things you can smell, or two you like the smell of.',
+      'One slow breath, longer out than in.',
+    ],
+    close: 'You are here, in this room, in this minute. That is enough for now.',
+    source: 'The 5-4-3-2-1 grounding exercise, widely used for anxiety, rooted in mindful attention to the senses.',
+  },
   {
     id: 'sit-with-it',
     title: 'Sit with it',
