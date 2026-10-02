@@ -9,7 +9,8 @@ export type AppRoute =
   | 'schedule'
   | 'review'
   | 'settings'
-  | 'calendar';
+  | 'calendar'
+  | 'meditate';
 
 export const routePaths: Record<AppRoute, string> = {
   today: '/today',
@@ -23,6 +24,7 @@ export const routePaths: Record<AppRoute, string> = {
   review: '/review',
   settings: '/settings',
   calendar: '/calendar',
+  meditate: '/meditate',
 };
 
 export const defaultRoute: AppRoute = 'today';

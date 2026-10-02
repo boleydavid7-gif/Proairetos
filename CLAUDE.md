@@ -73,8 +73,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/app/`: shell, routes, overlays (sheets, focus, pause, undo toast),
   `back/` (one back stack for Android back, browser back, edge swipe),
   `sync/` (controller, reminder times).
-- `src/features/`: screens. Five tabs: Today, Reflect, Days ahead,
-  Capture, Compass. Days ahead uses routes `plan` (list) and `calendar`. Kinds are one
+- `src/features/`: screens. Six tabs: Today, Reflect, Days ahead,
+  Meditate, Capture, Compass (Meditate can be switched off in What's included). Days ahead uses routes `plan` (list) and `calendar`. Kinds are one
   set everywhere (`core/life-items/kinds.ts`: To do, Remember, Concern,
   Idea, Feeling), read from the stored type + capture tag. Settings >
   What's included switches parts of Today and the app on or off
@@ -172,6 +172,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
   items, schedules, and other calendars; items and schedules also take a
   `location`.
+- Meditate (`features/meditate/`, route `meditate`, lake photo
+  `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,
+  scripts of cues spread over 5-30 min, optionally read aloud by the phone's
+  speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
+  circle, counts, and breath sounds from one clock), Sounds and Music. All
+  audio is generated on device with Web Audio (`app/sound/`: `engine`,
+  `soundscapes` catalogue, `player` singleton with one sound + one music,
+  volume, stop-after timer, limiter; `breath` for breath sounds and bells).
+  `SitScreen` is portalled to body; `NowPlaying` shows what plays on other
+  tabs. Nothing about a sit is recorded.
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass; every word must match, newest first, all on device.

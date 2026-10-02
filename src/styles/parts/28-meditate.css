@@ -1,0 +1,744 @@
+/* ---------- Meditate: the lake at dusk, with glass over it ---------- */
+
+/* Always the dusk palette over the photo, whatever the app's theme. */
+.meditate-page,
+.sit-screen {
+  color-scheme: dark;
+  --color-surface: rgba(16, 19, 24, 0.6);
+  --color-surface-raised: rgba(255, 255, 255, 0.07);
+  --color-surface-soft: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-text: #f6eee2;
+  --color-text-muted: rgba(246, 238, 226, 0.74);
+  --color-text-faint: rgba(246, 238, 226, 0.56);
+  --color-accent: #f0c98e;
+  --color-accent-strong: #f6d6a4;
+  --color-accent-soft: rgba(240, 201, 142, 0.16);
+  --color-accent-ink: #22180c;
+  --glass: rgba(14, 17, 22, 0.5);
+  color: var(--color-text);
+}
+
+.meditate-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.meditate-page__scene,
+.sit-screen__scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center 38%;
+}
+
+/* Darker at the top for the title and at the foot for the buttons. */
+.meditate-page__scene::after,
+.sit-screen__scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 10, 16, 0.72) 0%,
+    rgba(8, 10, 16, 0.25) 30%,
+    rgba(8, 10, 16, 0.2) 55%,
+    rgba(8, 10, 16, 0.62) 80%,
+    rgba(8, 10, 16, 0.85) 100%
+  );
+}
+
+.meditate-page > :not(.meditate-page__scene, dialog) {
+  position: relative;
+  z-index: 1;
+}
+
+.meditate-page__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.meditate-page__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  text-shadow: var(--hero-shadow);
+}
+
+.meditate-page__actions {
+  display: flex;
+  margin-right: calc(var(--space-2) * -1);
+}
+
+.meditate-page__actions .header-action {
+  color: var(--color-text);
+}
+
+.meditate-page__hero {
+  text-align: center;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+
+.meditate-page__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.3rem, 11vw, 3rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.meditate-page__subtitle {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+}
+
+/* Tabs underlined, as in the mockup. */
+.meditate-tabs {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.meditate-tabs__tab {
+  position: relative;
+  flex: 1;
+  min-height: 2.75rem;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  text-shadow: var(--hero-shadow);
+}
+
+.meditate-tabs__tab::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  scale: 0 1;
+  transition: scale 280ms var(--ease-spring, ease);
+}
+
+.meditate-tabs__tab[aria-selected='true'] {
+  color: var(--color-accent-strong);
+  font-weight: 500;
+}
+
+.meditate-tabs__tab[aria-selected='true']::after {
+  scale: 1 1;
+}
+
+.meditate-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: page-in 260ms var(--ease-out, ease);
+}
+
+.meditate-panel__line {
+  margin: calc(var(--space-2) * -1) 0 0;
+  color: var(--color-text-muted);
+  text-align: center;
+  text-shadow: var(--hero-shadow);
+}
+
+/* ---------- The breathing circle ---------- */
+
+.breath-circle {
+  position: relative;
+  width: min(66vw, 16.5rem);
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+.breath-circle svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.breath-circle__veil {
+  fill: rgba(12, 16, 26, 0.16);
+}
+
+.breath-circle__glow {
+  fill: none;
+  stroke: rgba(255, 200, 140, 0.5);
+  stroke-width: 12;
+  filter: blur(8px);
+}
+
+.breath-circle__ring {
+  fill: none;
+  stroke: rgba(255, 220, 170, 0.85);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 6px rgba(255, 190, 120, 0.55));
+}
+
+.breath-circle__dot {
+  fill: #ffd9a0;
+}
+
+.breath-circle__halo {
+  fill: rgba(255, 213, 154, 0.35);
+  filter: blur(4px);
+}
+
+.breath-circle__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  pointer-events: none;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+}
+
+.breath-circle__step {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+}
+
+.breath-circle__count {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Kinds of session ---------- */
+
+.session-kinds {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+.session-kinds__kind {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  text-shadow: var(--hero-shadow);
+}
+
+.session-kinds__icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.session-kinds__kind[aria-checked='true'] {
+  color: var(--color-accent-strong);
+}
+
+.session-kinds__kind[aria-checked='true'] .session-kinds__icon {
+  border-color: rgba(240, 201, 142, 0.6);
+  background: rgba(240, 201, 142, 0.14);
+}
+
+.session-kinds__kind > span:last-child {
+  position: relative;
+  padding-bottom: var(--space-2);
+}
+
+.session-kinds__kind[aria-checked='true'] > span:last-child::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* ---------- Options on glass ---------- */
+
+.meditate-options,
+.breath-patterns,
+.sound-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.meditate-options__lengths {
+  justify-content: center;
+}
+
+.meditate-options__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.meditate-options__value {
+  flex: 1;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.meditate-start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: min(100%, 22rem);
+  min-height: 3.6rem;
+  margin: 0 auto;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, #f6d29b, #e8b978);
+  color: var(--color-accent-ink);
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(232, 185, 120, 0.28);
+}
+
+.meditate-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin: calc(var(--space-2) * -1) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.meditate-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.meditate-source {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* ---------- Breathing patterns ---------- */
+
+.breath-patterns {
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+.breath-patterns__pattern {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.breath-patterns__pattern[aria-checked='true'] {
+  border-color: rgba(240, 201, 142, 0.45);
+  background: var(--color-accent-soft);
+}
+
+.breath-patterns__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.breath-patterns__title {
+  font-weight: 500;
+}
+
+.breath-patterns__counts {
+  color: var(--color-accent-strong);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.breath-patterns__line {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Sounds and music ---------- */
+
+.sound-list {
+  gap: 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.sound-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 4rem;
+  padding: var(--space-2) var(--space-1);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.sound-list__row:last-child {
+  border-bottom: 0;
+}
+
+.sound-list__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  color: var(--color-text-muted);
+}
+
+.sound-list__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.sound-list__title {
+  font-size: 1rem;
+}
+
+.sound-list__line {
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}
+
+.sound-list__play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  color: var(--color-text);
+}
+
+.sound-list__row--on .sound-list__icon,
+.sound-list__row--on .sound-list__title {
+  color: var(--color-accent-strong);
+}
+
+.sound-list__row--on .sound-list__play {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+/* Three small bars, rising and falling while something plays. */
+.sound-list__bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.9rem;
+}
+
+.sound-list__bars i {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transform-origin: bottom;
+  animation: bars 1.1s ease-in-out infinite;
+}
+
+.sound-list__bars i:nth-child(2) {
+  animation-delay: -0.4s;
+}
+
+.sound-list__bars i:nth-child(3) {
+  animation-delay: -0.75s;
+}
+
+@keyframes bars {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+}
+
+.volume input {
+  flex: 1;
+  accent-color: var(--color-accent);
+}
+
+.meditate-panel .sheet__label,
+.meditate-panel .sheet__hint {
+  margin: 0;
+}
+
+/* Choosing a sound, in a sheet. */
+.sound-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sound-choice__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.9rem;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  text-align: left;
+}
+
+.sound-choice__row[aria-checked='true'] {
+  border-color: rgba(201, 162, 116, 0.5);
+  color: var(--color-accent-strong);
+}
+
+.sound-choice__icon {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+}
+
+/* ---------- Now playing, from anywhere ---------- */
+
+.now-playing {
+  position: fixed;
+  inset: auto var(--space-5) calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-3));
+  z-index: 9;
+  max-width: 30rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  border: 1px solid rgba(201, 162, 116, 0.35);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  animation: toast-in 380ms var(--ease-spring, ease) both;
+}
+
+.now-playing--raised {
+  bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-3) + 3.75rem);
+}
+
+.now-playing__label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.now-playing__label > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.now-playing__stop {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+/* ---------- A sit, full screen ---------- */
+
+.sit-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + var(--space-6)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-5));
+  text-align: center;
+  background: #07090d;
+  animation: page-in 500ms var(--ease-out, ease) both;
+}
+
+.sit-screen__scene {
+  transition: filter 4s ease;
+}
+
+.sit-screen--sleep .sit-screen__scene {
+  filter: brightness(0.55);
+}
+
+.sit-screen__leave {
+  position: absolute;
+  z-index: 1;
+  top: calc(env(safe-area-inset-top) + var(--space-4));
+  right: var(--space-4);
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  color: var(--color-text);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sit-screen__center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 26rem;
+}
+
+.sit-screen__eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: var(--hero-shadow);
+}
+
+.sit-screen__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  text-shadow: var(--hero-shadow);
+}
+
+.sit-screen__cue {
+  min-height: 4.5em;
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.65);
+  animation: cue-in 1.2s ease both;
+}
+
+@keyframes cue-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.sit-screen__controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
+.sit-screen__time {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding-right: var(--space-4);
+}
+
+.sit-screen__toggle {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: var(--glass);
+  color: var(--color-text);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sit-screen__paused {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.sit-screen__done {
+  min-width: 12rem;
+}
+
+/* Six tabs: every label on one line. */
+.tab-bar__item span {
+  white-space: nowrap;
+}
+
+.tab-bar:has(> :nth-child(6)) .tab-bar__item span {
+  font-size: 0.66rem;
+  letter-spacing: -0.01em;
+}

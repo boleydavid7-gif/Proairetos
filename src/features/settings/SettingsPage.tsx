@@ -459,6 +459,12 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     ],
   },
   {
+    group: 'Meditate',
+    parts: [
+      { part: 'meditate', label: 'Meditate tab', detail: 'Sessions, breathing, sounds, and music, as a tab of its own.' },
+    ],
+  },
+  {
     group: 'Reflect',
     parts: [
       { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },

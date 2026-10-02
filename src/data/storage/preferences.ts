@@ -1,3 +1,5 @@
+import type { BreathPatternId } from '../../core/meditate/breathing';
+import type { SessionId } from '../../core/meditate/sessions';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
 
@@ -323,6 +325,7 @@ export type TodayPart =
   | 'people'
   | 'words'
   | 'insights'
+  | 'meditate'
   | 'decisions'
   | 'weekly-review';
 
@@ -455,4 +458,41 @@ export function loadAppearance(): Appearance {
 
 export function saveAppearance(appearance: Appearance): void {
   writeJson(APPEARANCE_KEY, appearance);
+}
+
+// ---------- Meditate ----------
+
+const MEDITATE_KEY = 'proairetos.meditate';
+
+export type MeditateSettings = {
+  tab: 'sessions' | 'breathe' | 'sounds' | 'music';
+  session: SessionId;
+  minutes: number;
+  /** A sound or music id, or 'none'; each session starts with its own until changed. */
+  sessionSound: Partial<Record<SessionId, string>>;
+  speak: boolean;
+  pattern: BreathPatternId;
+  breatheMinutes: number;
+  breathSounds: boolean;
+  breatheSound: string;
+};
+
+const meditateDefaults: MeditateSettings = {
+  tab: 'sessions',
+  session: 'guided',
+  minutes: 10,
+  sessionSound: {},
+  speak: true,
+  pattern: 'calm',
+  breatheMinutes: 3,
+  breathSounds: true,
+  breatheSound: 'none',
+};
+
+export function loadMeditate(): MeditateSettings {
+  return { ...meditateDefaults, ...readJson<Partial<MeditateSettings>>(MEDITATE_KEY) };
+}
+
+export function saveMeditate(settings: MeditateSettings): void {
+  writeJson(MEDITATE_KEY, settings);
 }

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { BookIcon, CalendarIcon, CaptureIcon, CompassIcon, SunIcon } from '../components/icons/Icons';
+import { BookIcon, CalendarIcon, CaptureIcon, CompassIcon, LotusIcon, SunIcon } from '../components/icons/Icons';
 import type { AppRoute } from './routes/routeTypes';
 
 // The capture bar also sits on Today, so capturing never requires navigating.
@@ -7,6 +7,7 @@ export const navigation: readonly { id: AppRoute; label: string; icon: Component
   { id: 'today', label: 'Today', icon: SunIcon },
   { id: 'reflect', label: 'Reflect', icon: BookIcon },
   { id: 'plan', label: 'Days ahead', icon: CalendarIcon },
+  { id: 'meditate', label: 'Meditate', icon: LotusIcon },
   { id: 'capture', label: 'Capture', icon: CaptureIcon },
   { id: 'compass', label: 'Compass', icon: CompassIcon },
 ];

@@ -14,6 +14,7 @@ import SettingsPage from '../features/settings/SettingsPage';
 import JournalPage from '../features/journal/JournalPage';
 import InsightsPage from '../features/insights/InsightsPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
+import MeditatePage from '../features/meditate/MeditatePage';
 import SharedSheet from '../features/share/SharedSheet';
 import { takeShared } from '../features/share/shared';
 import AppShell from './AppShell';
@@ -22,7 +23,7 @@ import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
-const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass', 'meditate']);
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
@@ -66,7 +67,7 @@ export default function App() {
     <NavigationContext.Provider value={setRoute}>
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
-    <OverlayProvider>
+    <OverlayProvider onMeditate={route === 'meditate' ? undefined : () => setRoute('meditate')}>
       <AppShell route={route} onNavigate={setRoute}>
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
@@ -79,6 +80,7 @@ export default function App() {
       {route === 'insights' && <InsightsPage />}
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
+      {route === 'meditate' && <MeditatePage />}
       </AppShell>
       {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}
     </OverlayProvider>
