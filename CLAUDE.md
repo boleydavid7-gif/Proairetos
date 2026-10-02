@@ -196,6 +196,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `29-touch.css` (last) keeps every control at least 44px to tap.
   `28-calm.css` is the calm pass: one level of borders, muted text links,
   gold kept for one main action per screen, theme tokens for surfaces.
+  `28-motion.css` holds motion (ease tokens, press `scale`, sliding
+  segmented highlight, tick pop, page fade: opacity only so Today's fixed
+  landscape stays put). Sheets glide out via `useSheet().close` (always use
+  it, not `dialog.close()`). `app/feel.ts` `tap()` buzzes on tick-off when
+  Appearance > Gentle taps is on.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (fixed behind the lower half of Today, fading in from halfway; tab bar sits above it), `PageHeader` (`settings`
   prop adds the gear). Settings returns to the last main tab
