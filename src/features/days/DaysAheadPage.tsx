@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
-import { useBackHandler } from '../../app/back/backStack';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -9,7 +8,6 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, scheduleService } from '../../app/services';
 import { goalLines } from '../../core/compass/goals';
 import {
-  ArrowLeftIcon,
   BriefcaseIcon,
   CalendarIcon,
   ChevronRightIcon,
@@ -24,7 +22,11 @@ import { addDays, atTime } from '../../core/scheduling/dates';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
+import { planFor } from '../plan/planView';
 import AddEventSheet from './AddEventSheet';
+import DayPlan from './DayPlan';
+import SettingsButton from '../../components/layout/SettingsButton';
+import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
 import { entryLook, setDaysAheadOpening, takeDaysAheadOpening, type EntryIcon, type Timed } from './daysAhead';
 
 export type DaysView = 'list' | 'calendar';
@@ -86,14 +88,14 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
 export default function DaysAheadPage({ view }: { view: DaysView }) {
   const navigate = useNavigate();
   const { openItem } = useOverlays();
-  const { today } = usePersonalDay(useClock());
+  const { today, rangeOf } = usePersonalDay(useClock());
+  const [sorting, setSorting] = useState(false);
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
   const [adding, setAdding] = useState(false);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   const focusKey = opening.focusKey;
-  useBackHandler(true, () => navigate('today'));
 
   const shape: 'list' | CalendarMode = view === 'list' ? 'list' : mode;
   const days =
@@ -119,6 +121,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       const events = otherCalendars.eventsBetween(from, until);
       const sources = calendarSources();
       return {
+        items,
         patterns,
         sources,
         goals: { goals, lines: goalLines(goals, items, patterns) },
@@ -165,6 +168,13 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       });
   };
 
+  const hasPlan = (date: string) =>
+    Boolean(data) &&
+    planFor(date, today, data!.items, rangeOf(date)).some((section) =>
+      [...section.open, ...section.done].some((item) => !item.scheduledAt || item.checklist),
+    );
+  const toSort = data ? sortable(data.items, today) : [];
+
   const move = (n: number) =>
     setStart(shape === 'month' ? monthStart(start, n) : shape === 'year' ? yearStart(start, n) : addDays(start, n * WEEK));
   const rangeLabel =
@@ -176,22 +186,21 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
 
   return (
     <div className="page days-page">
-      <button type="button" className="back-link" onClick={() => navigate('today')}>
-        <ArrowLeftIcon size={18} />
-        Today
-      </button>
       <header className="days-header">
         <div>
           <h1 className="page-header__title">Days ahead</h1>
           <p className="page-header__subtitle">Your upcoming days at a glance</p>
         </div>
-        <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
-          <PlusIcon size={26} />
-        </button>
+        <span className="days-header__actions">
+          <SettingsButton />
+          <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
+            <PlusIcon size={26} />
+          </button>
+        </span>
       </header>
 
       <div className="segmented" role="tablist" aria-label="View">
-        <button type="button" role="tab" aria-selected={view === 'list'} className="segmented__option" onClick={() => { setDaysAheadOpening({ start }); navigate('days'); }}>
+        <button type="button" role="tab" aria-selected={view === 'list'} className="segmented__option" onClick={() => { setDaysAheadOpening({ start }); navigate('plan'); }}>
           <ListIcon size={20} /> List
         </button>
         <button type="button" role="tab" aria-selected={view === 'calendar'} className="segmented__option" onClick={() => { setDaysAheadOpening({ start }); navigate('calendar'); }}>
@@ -234,6 +243,17 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </button>
       )}
 
+      {view === 'list' && toSort.length > 1 && (
+        <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
+          <span className="quiet-row__text">
+            <span>Sort through your list</span>
+            <span className="quiet-row__detail">One at a time: today, later, or let it go.</span>
+          </span>
+          <ChevronRightIcon size={18} className="quiet-row__chevron" />
+        </button>
+      )}
+      {sorting && data && <QuickSortSheet items={data.items} today={today} onClose={() => setSorting(false)} />}
+
       {view === 'list' &&
         data?.days.map(({ date, entries }) => {
           const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
@@ -244,7 +264,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 {dayTitle(date, today)}
                 <span className="days-day__date">{formatLocalDay(date, { month: 'short', day: 'numeric' })}</span>
               </h2>
-              {timed.length === 0 && allDay.length === 0 && <p className="days-day__empty">Nothing set.</p>}
+              {timed.length === 0 && allDay.length === 0 && !hasPlan(date) && <p className="days-day__empty">Nothing set.</p>}
               <ul className="days-list">
                 {allDay.map((entry) => (
                   <li key={entry.key} className="days-allday">
@@ -293,6 +313,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   );
                 })}
               </ul>
+              <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} />
             </section>
           );
         })}
@@ -419,7 +440,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   <h2 className="month-day__title">{formatLocalDay(start, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</h2>
                   {count > 0 && <span className="month-day__count">{countLabel(count)}</span>}
                 </div>
-                {count === 0 && <p className="days-day__empty">Nothing set.</p>}
+                {count === 0 && !hasPlan(start) && <p className="days-day__empty">Nothing set.</p>}
                 <ul className="days-list">
                   {allDay.map((entry) => (
                     <li key={entry.key} className="days-allday">
@@ -466,6 +487,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     );
                   })}
                 </ul>
+                <DayPlan date={start} today={today} items={data.items} range={rangeOf(start)} />
               </section>
             );
           })()}

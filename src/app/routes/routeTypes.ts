@@ -9,7 +9,6 @@ export type AppRoute =
   | 'schedule'
   | 'review'
   | 'settings'
-  | 'days'
   | 'calendar';
 
 export const routePaths: Record<AppRoute, string> = {
@@ -23,7 +22,6 @@ export const routePaths: Record<AppRoute, string> = {
   schedule: '/schedule',
   review: '/review',
   settings: '/settings',
-  days: '/days',
   calendar: '/calendar',
 };
 

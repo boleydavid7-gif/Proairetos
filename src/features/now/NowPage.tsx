@@ -81,7 +81,8 @@ export default function NowPage() {
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
-  const [offset, setOffset] = useState(0);
+  // Today shows today; other days live in Days ahead.
+  const offset = 0;
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   const date = addDays(today, offset);
   const isToday = offset === 0;
@@ -196,29 +197,17 @@ export default function NowPage() {
         {shows('line') && <DailyLine key={date} line={line} />}
         <div className="today-header__rule" aria-hidden="true" />
         <div className="day-stepper">
-          <button type="button" className="day-stepper__step" aria-label="Previous day" onClick={() => setOffset(offset - 1)}>
-            <ChevronRightIcon size={18} style={{ transform: 'rotate(180deg)' }} />
-          </button>
           <span className="day-stepper__date">
             {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
           </span>
-          <button type="button" className="day-stepper__step" aria-label="Next day" onClick={() => setOffset(offset + 1)}>
-            <ChevronRightIcon size={18} />
-          </button>
-          {isToday ? (
-            <span className="day-stepper__tools">
-              <button type="button" className="chip chip--small" onClick={() => startFocus()}>
-                Focus
-              </button>
-              <button type="button" className="chip chip--small" onClick={openPause}>
-                Pause
-              </button>
-            </span>
-          ) : (
-            <button type="button" className="day-header__back" onClick={() => setOffset(0)}>
-              Back to today
+          <span className="day-stepper__tools">
+            <button type="button" className="chip chip--small" onClick={() => startFocus()}>
+              Focus
             </button>
-          )}
+            <button type="button" className="chip chip--small" onClick={openPause}>
+              Pause
+            </button>
+          </span>
         </div>
       </header>
 
@@ -252,7 +241,7 @@ export default function NowPage() {
                 className="text-link"
                 onClick={() => {
                   setDaysAheadOpening({ start: date });
-                  navigate('days');
+                  navigate('plan');
                 }}
               >
                 Days ahead
@@ -271,7 +260,7 @@ export default function NowPage() {
             goalLines={linesForGoals}
             onOpenEntry={(key) => {
               setDaysAheadOpening({ start: date, focusKey: key });
-              navigate('days');
+              navigate('plan');
             }}
           />
         </section>

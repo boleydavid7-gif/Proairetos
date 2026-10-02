@@ -52,7 +52,6 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   }, [items, date]);
   const pickedCount = open.filter(isPicked).length;
 
-
   return (
     <dialog
       ref={dialog}
@@ -68,48 +67,71 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         </button>
         <p className="sheet__title sheet__title--static">Today’s path</p>
         <p className="sheet__hint">
-          Up to three things from your list to walk through today. They sit on Today until the day ends; nothing
-          carries over.
+          Up to three things from your list to walk through today. They sit on Today until the day ends; nothing carries
+          over.
         </p>
         <p className="sheet__status">
           {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.
         </p>
         <EnergyChoice date={date} />
         {open.length === 0 && <p className="empty-note">Nothing open yet. Capture something first.</p>}
-        <ul className="pick-list">
-          {open.map((item) => {
-            const picked = isPicked(item);
-            return (
-              <li key={item.id}>
-                <label className="pick-row">
-                  <input
-                    type="checkbox"
-                    checked={picked}
-                    disabled={!picked && pickedCount >= MAX_TODAY_PICKS}
-                    onChange={async () => {
-                      setError('');
-                      setPending((current) => ({ ...current, [item.id]: !picked }));
-                      try {
-                        await lifeService.pickForDay(item.id, picked ? undefined : date);
-                      } catch (cause) {
-                        setError(cause instanceof Error ? cause.message : 'Could not choose that.');
-                        setPending(({ [item.id]: _failed, ...rest }) => rest);
-                      }
-                    }}
-                  />
-                  <span className="pick-row__text">
-                    <span>{item.title}</span>
-                    {(item.light || linkedValues(item, names).length > 0) && (
-                      <span className="pick-row__detail">
-                        {[item.light ? 'Takes little energy' : '', ...linkedValues(item, names)].filter(Boolean).join(' · ')}
-                      </span>
-                    )}
-                  </span>
-                </label>
-              </li>
-            );
-          })}
-        </ul>
+        {[
+          {
+            id: 'planned',
+            label: 'Planned for today',
+            list: open.filter((item) => item.plannedFor === date),
+          },
+          {
+            id: 'rest',
+            label: 'Everything else',
+            list: open.filter((item) => item.plannedFor !== date),
+          },
+        ]
+          .filter((group) => group.list.length > 0)
+          .map((group, _index, groups) => (
+            <div key={group.id} className="pick-group">
+              {groups.length > 1 && <p className="sheet__label">{group.label}</p>}
+              <ul className="pick-list">
+                {group.list.map((item) => {
+                  const picked = isPicked(item);
+                  return (
+                    <li key={item.id}>
+                      <label className="pick-row">
+                        <input
+                          type="checkbox"
+                          checked={picked}
+                          disabled={!picked && pickedCount >= MAX_TODAY_PICKS}
+                          onChange={async () => {
+                            setError('');
+                            setPending((current) => ({
+                              ...current,
+                              [item.id]: !picked,
+                            }));
+                            try {
+                              await lifeService.pickForDay(item.id, picked ? undefined : date);
+                            } catch (cause) {
+                              setError(cause instanceof Error ? cause.message : 'Could not choose that.');
+                              setPending(({ [item.id]: _failed, ...rest }) => rest);
+                            }
+                          }}
+                        />
+                        <span className="pick-row__text">
+                          <span>{item.title}</span>
+                          {(item.light || linkedValues(item, names).length > 0) && (
+                            <span className="pick-row__detail">
+                              {[item.light ? 'Takes little energy' : '', ...linkedValues(item, names)]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         {error && <p className="form-error">{error}</p>}
       </div>
     </dialog>

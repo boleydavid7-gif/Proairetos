@@ -11,7 +11,6 @@ import CompassPage from '../features/compass/CompassPage';
 import ScheduleScreen from '../features/schedule/ScheduleScreen';
 import WeeklyReview from '../features/review/WeeklyReview';
 import SettingsPage from '../features/settings/SettingsPage';
-import PlanPage from '../features/plan/PlanPage';
 import JournalPage from '../features/journal/JournalPage';
 import InsightsPage from '../features/insights/InsightsPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
@@ -21,7 +20,7 @@ import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded } from '../data/storage/preferences';
 
-const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'capture', 'compass']);
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
@@ -71,10 +70,9 @@ export default function App() {
       {route === 'schedule' && <ScheduleScreen />}
       {route === 'review' && <WeeklyReview />}
       {route === 'settings' && <SettingsPage />}
-      {route === 'plan' && <PlanPage />}
       {route === 'journal' && <JournalPage />}
       {route === 'insights' && <InsightsPage />}
-      {route === 'days' && <DaysAheadPage key="list" view="list" />}
+      {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       </AppShell>
     </OverlayProvider>
