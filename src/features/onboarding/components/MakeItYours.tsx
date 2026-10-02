@@ -4,7 +4,7 @@ export type Choices = { name: string; values: string[]; shifts: boolean };
 
 type Props = { choices: Choices; onChange: (choices: Choices) => void };
 
-/** Name, up to five values, and whether to set up shifts next. Every part can be left empty. */
+/** Name, up to five values, and whether to set up a schedule next. Every part can be left empty. */
 export default function MakeItYours({ choices, onChange }: Props) {
   const toggleValue = (name: string) =>
     onChange({
@@ -56,7 +56,7 @@ export default function MakeItYours({ choices, onChange }: Props) {
         onClick={() => onChange({ ...choices, shifts: !choices.shifts })}
       >
         <span className="make-yours__check" aria-hidden="true">{choices.shifts ? '✓' : ''}</span>
-        Set up my work hours or shifts next
+        Set up my schedule next
       </button>
     </div>
   );

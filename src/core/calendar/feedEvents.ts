@@ -2,11 +2,11 @@ import type { LifeItem } from '../life-items/types';
 import type { ScheduleOccurrence } from '../scheduling/types';
 import type { CalendarEvent } from './ics';
 
-/** What the person chose to put in their calendar. Off unless chosen, except shifts. */
+/** What the person chose to put in their calendar. Off unless chosen, except commitments. */
 export type FeedOptions = {
-  /** Work blocks from the schedule. */
+  /** Committed blocks from the schedule (work, study, care). */
   shifts: boolean;
-  /** Title shifts with their own labels ("Nights") instead of a plain "Work". */
+  /** Title them with their own labels ("Class") instead of a plain "Busy". */
   shiftLabels: boolean;
   /** Protected time blocks, titled "Protected time". */
   protectedTime: boolean;
@@ -26,8 +26,8 @@ export function feedEvents(occurrences: readonly ScheduleOccurrence[], items: re
     if (isWork ? !options.shifts : !options.protectedTime) continue;
     const title = isWork
       ? options.shiftLabels
-        ? occurrence.label || occurrence.patternName || 'Work'
-        : 'Work'
+        ? occurrence.label || occurrence.patternName || 'Busy'
+        : 'Busy'
       : 'Protected time';
     events.push({ uid: `block-${occurrence.patternId}-${occurrence.start.toISOString()}`, title, start: occurrence.start, end: occurrence.end });
   }

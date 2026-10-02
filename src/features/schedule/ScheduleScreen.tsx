@@ -93,7 +93,7 @@ export default function ScheduleScreen() {
   return (
     <div className="page">
       {back}
-      <PageHeader title="Your schedule" subtitle="Work, shifts, and time you protect. It repeats on its own." />
+      <PageHeader title="Your schedule" subtitle="Work, study, care, and time you protect. It repeats on its own." />
 
       {patterns && patterns.length === 0 && (
         <div className="empty-state">

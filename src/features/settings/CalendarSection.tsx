@@ -11,8 +11,8 @@ import { loadCalendarFeed, saveCalendarFeed, type StoredFeedOptions } from '../.
 import { useSyncStatus } from './AccountSection';
 
 const choices: { key: keyof StoredFeedOptions; label: string; hint?: string }[] = [
-  { key: 'shifts', label: 'Work hours from my schedule' },
-  { key: 'shiftLabels', label: 'Use my shift names', hint: 'Instead of a plain "Work", e.g. "Nights".' },
+  { key: 'shifts', label: 'Commitments from my schedule' },
+  { key: 'shiftLabels', label: 'Use the names from my schedule', hint: 'Instead of a plain "Busy", e.g. "Class" or "Nights".' },
   { key: 'protectedTime', label: 'Protected time' },
   { key: 'tasks', label: 'Things with a day or time', hint: 'Includes their titles, so anyone with the link can read them.' },
 ];

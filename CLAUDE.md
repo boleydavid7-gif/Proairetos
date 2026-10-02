@@ -18,8 +18,12 @@ rule: **the system records life; it does not interpret life.**
   scans **every source file, comments included** (overdue, failed, stalled,
   lazy, avoiding, behind, should). Reword rather than disable.
 - Capture first; sorting optional. Values are user-chosen (max five).
-- The user works rotating shifts (28-day days/evenings/nights rotation
-  starting Tue 2026-09-29); never assume a standard schedule.
+- Universal: for anyone, on any schedule or none. UI wording stays
+  neutral (work, study, care); never assume a 9-to-5 or shift work. The
+  owner's 28-day days/evenings/nights rotation (from Tue 2026-09-29) is a
+  demanding test case, not the target.
+- Never a chore: everything is offered, never asked twice; nothing
+  piles up or needs catching up; one tap, under a minute.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 
@@ -110,7 +114,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   optional calendar subscription by secret token; deployed with
   --no-verify-jwt). The feed is the one thing the server can read, only
   if the person turns it on; built on the device by `core/calendar/`
-  (ics + what to include, default shift times titled "Work") and
+  (ics + what to include, default commitment times titled "Busy") and
   republished after each sync (`syncController` calendar section).
 
 ## Testing approach that has worked

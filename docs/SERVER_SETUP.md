@@ -208,7 +208,7 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   in the app.
 - **Calendar link, only if you turn it on:** the calendar file you chose to
   publish is readable by the server and by anyone with the link. By default
-  it holds only work times titled "Work". Turning it off deletes it.
+  it holds only the times of your commitments, titled "Busy". Turning it off deletes it.
 
 ## Good to know
 

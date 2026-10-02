@@ -231,7 +231,7 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           id="schedule-name"
           className="field-input field-input--large"
           value={draft.name}
-          placeholder="Work"
+          placeholder="Work, Class, Care…"
           onChange={(event) => set({ name: event.target.value })}
         />
       </div>

@@ -370,11 +370,11 @@ function DaySection() {
         onClick={() => update({ ...settings, followShifts: !settings.followShifts })}
       >
         <span className={`toggle-switch${settings.followShifts ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span>Let my day follow my shifts</span>
+        <span>Let late hours count as the same day</span>
       </button>
       <p className="sheet__hint">
-        A shift that runs past the turnover keeps the day going until {AFTER_WORK_HOURS} hours after it ends, so a night
-        shift and the time after it stay one day. Uses the work hours in your schedule.
+        When something in your schedule runs past the turnover, like a late or overnight stretch of work, the day keeps
+        going until {AFTER_WORK_HOURS} hours after it ends, so it and the time after it stay one day.
       </p>
       <p className="sheet__label">Otherwise a new day starts at</p>
       <div className="chip-row" role="group" aria-label="New day starts at">
@@ -396,7 +396,7 @@ function DaySection() {
 
 function daySummary(): string {
   const settings = loadDaySettings();
-  return settings.followShifts ? 'Follows shifts' : hourLabel(settings.startHour);
+  return settings.followShifts ? 'Follows your schedule' : hourLabel(settings.startHour);
 }
 
 function OffersSection() {
@@ -588,7 +588,7 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Row icon={<CloudIcon size={22} />} title="Account and sync" value={syncLabel(status.phase)} onClick={() => setView('account')} />
         <Row icon={<CompassIcon size={22} />} title="Values" onClick={() => navigate('compass')} />
-        <Row icon={<CalendarIcon size={22} />} title="Schedule and shifts" onClick={() => navigate('schedule')} />
+        <Row icon={<CalendarIcon size={22} />} title="Your schedule" onClick={() => navigate('schedule')} />
         <Row icon={<MoonIcon size={22} />} title="When your day starts" value={daySummary()} onClick={() => setView('day')} />
         <Row
           icon={<CalendarIcon size={22} />}

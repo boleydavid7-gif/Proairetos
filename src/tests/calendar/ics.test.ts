@@ -47,9 +47,9 @@ describe('calendar file', () => {
 });
 
 describe('what goes in the feed', () => {
-  it('shares shifts as plain "Work" by default, and nothing else', () => {
+  it('shares commitments as plain "Busy" by default, and nothing else', () => {
     const events = feedEvents([night, { ...night, kind: 'PROTECTED', patternId: 'p2' }], [item({ plannedFor: '2026-10-02' })], defaultFeedOptions);
-    expect(events.map((e) => e.title)).toEqual(['Work']);
+    expect(events.map((e) => e.title)).toEqual(['Busy']);
   });
 
   it('adds labels, protected time, and dated items only when chosen', () => {

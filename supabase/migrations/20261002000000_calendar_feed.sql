@@ -3,7 +3,7 @@
 -- The one place the server holds readable data, and only by the person's
 -- choice: a calendar file they asked to publish so Apple, Google, or
 -- Microsoft calendars can subscribe to it. It holds only what they picked
--- (by default, work times titled "Work"). Everything else stays end-to-end
+-- (by default, commitment times titled "Busy"). Everything else stays end-to-end
 -- encrypted in `records`.
 --
 -- Safe to run more than once.

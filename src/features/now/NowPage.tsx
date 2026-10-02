@@ -206,7 +206,7 @@ export default function NowPage() {
         <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
           <span className="quiet-row__text">
             <span>Add your schedule</span>
-            <span className="quiet-row__detail">Work hours, rotating shifts, or protected time.</span>
+            <span className="quiet-row__detail">Work, study, caring for someone, or time you protect.</span>
           </span>
           <ChevronRightIcon size={18} className="quiet-row__chevron" />
         </button>

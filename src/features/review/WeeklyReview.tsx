@@ -17,7 +17,7 @@ const steps = [
   { title: 'Clear your head', hint: 'Anything on your mind? Capture it here, a line each. Sorting comes next.' },
   { title: 'Sort what came in', hint: 'Give each capture a type, or leave it for later.' },
   { title: 'Waiting', hint: 'Anything you have heard back about, or want to check on?' },
-  { title: 'The week ahead', hint: 'Your shifts and what you have scheduled for the next seven days.' },
+  { title: 'The week ahead', hint: 'What you have scheduled for the next seven days.' },
   { title: 'Decisions', hint: 'Choices ready to look back on.' },
   { title: 'Your values', hint: 'Which of these do you want to keep in sight this week?' },
 ] as const;
