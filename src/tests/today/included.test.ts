@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { setTodayPartShown, startLight, todayHidden } from '../../data/storage/preferences';
+import { partSeen, setTodayPartShown, startLight, todayHidden } from '../../data/storage/preferences';
 
 beforeEach(() => {
   const data = new Map<string, string>();
@@ -23,5 +23,15 @@ describe('what is included', () => {
     setTodayPartShown('goals', false);
     startLight();
     expect(todayHidden()).toEqual(['goals']);
+  });
+});
+
+describe('Not for me', () => {
+  it('is offered only after a part has been around on three days', () => {
+    expect(partSeen('path', new Date(2026, 9, 1, 9))).toBe(false);
+    expect(partSeen('path', new Date(2026, 9, 1, 18))).toBe(false);
+    expect(partSeen('path', new Date(2026, 9, 2, 9))).toBe(false);
+    expect(partSeen('path', new Date(2026, 9, 4, 9))).toBe(true);
+    expect(partSeen('intention', new Date(2026, 9, 4, 9))).toBe(false);
   });
 });

@@ -1,9 +1,12 @@
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { setTodayPartShown, type TodayPart } from '../../data/storage/preferences';
+import { useState } from 'react';
+import { partSeen, setTodayPartShown, type TodayPart } from '../../data/storage/preferences';
 
-/** Sets a part of Today aside for good. Undo is offered; Settings can bring it back any time. */
+/** Sets a part of Today aside for good, offered once the part has been around a few days. Undo is offered; Settings can bring it back any time. */
 export default function NotForMe({ part }: { part: TodayPart }) {
   const { offerUndo } = useOverlays();
+  const [offered] = useState(() => partSeen(part));
+  if (!offered) return null;
   return (
     <button
       type="button"

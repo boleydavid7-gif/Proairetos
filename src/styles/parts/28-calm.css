@@ -1,0 +1,50 @@
+/* ---------- Calm pass: one level of borders, gold for one thing per screen ---------- */
+
+/* Text links read as quiet text; gold is kept for the main action. */
+.text-link {
+  color: var(--color-text-muted);
+}
+
+.toggle-row[aria-pressed='true'] {
+  color: var(--color-text);
+}
+
+/* Days ahead: days are sections with a heading, not boxes around boxes. */
+.days-day {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.days-row__button {
+  border-color: transparent;
+  background: var(--color-surface-soft);
+}
+
+/* The + button sits quietly. */
+.days-add {
+  width: 3rem;
+  height: 3rem;
+  box-shadow: none;
+}
+
+/* Month: cells without outlines, dots without a second count. */
+.month__day {
+  border-color: transparent;
+  background: var(--color-surface-soft);
+}
+
+.month__count {
+  display: none;
+}
+
+/* Kinds in one row that scrolls sideways instead of wrapping. */
+.chip-row[aria-label='Kind'] {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chip-row[aria-label='Kind'] .chip {
+  flex: none;
+}

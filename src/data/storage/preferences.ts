@@ -355,6 +355,27 @@ export function setTodayPartShown(part: TodayPart, shown: boolean): void {
   writeJson(TODAY_HIDDEN_KEY, [...hidden]);
 }
 
+const PART_SEEN_KEY = 'proairetos.todayPartSeen';
+/** "Not for me" waits until a part has been around on this many days. */
+export const NOT_FOR_ME_AFTER_DAYS = 3;
+
+/**
+ * Notes the day a part of Today was shown and says whether it has been
+ * around long enough to offer "Not for me". A new part is left to be met
+ * first; the quiet link comes later, and Settings always has the switch.
+ */
+export function partSeen(part: TodayPart, today = new Date()): boolean {
+  const seen = readJson<Record<string, string[]>>(PART_SEEN_KEY) ?? {};
+  const days = seen[part] ?? [];
+  if (days.length >= NOT_FOR_ME_AFTER_DAYS) return true;
+  const day = localDayKey(today);
+  if (!days.includes(day)) {
+    seen[part] = [...days, day];
+    writeJson(PART_SEEN_KEY, seen);
+  }
+  return (seen[part] ?? days).length >= NOT_FOR_ME_AFTER_DAYS;
+}
+
 // ---------- Lighter view ----------
 
 const LIGHTER_KEY = 'proairetos.lighterToday';

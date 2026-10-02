@@ -193,6 +193,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).
   `29-touch.css` (last) keeps every control at least 44px to tap.
+  `28-calm.css` is the calm pass: one level of borders, muted text links,
+  gold kept for one main action per screen, theme tokens for surfaces.
 - `src/components/layout/`: `PageHero` (landscape header, Compass),
   `Landscape` (fixed behind the lower half of Today, fading in from halfway; tab bar sits above it), `PageHeader` (`settings`
   prop adds the gear). Settings returns to the last main tab
