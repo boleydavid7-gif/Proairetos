@@ -12,6 +12,7 @@ import GentleLine from '../../components/ui/GentleLine';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
+import { formatTemp } from '../../core/weather/sky';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -34,7 +35,10 @@ function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDa
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">
-          <span className="timeline-entry__time">{showDay ? `${dayLabel(reflection.createdAt)}, ${time}` : time}</span>
+          <span className="timeline-entry__time">
+            {showDay ? `${dayLabel(reflection.createdAt)}, ${time}` : time}
+            {reflection.sky && <span className="timeline-entry__temp"> · {formatTemp(reflection.sky)}</span>}
+          </span>
           <button
             type="button"
             className="check-row__more"

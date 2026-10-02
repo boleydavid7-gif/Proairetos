@@ -6,6 +6,7 @@ import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
 import { isLookAheadSetAside, setLookAheadAside } from '../../../data/storage/preferences';
 import NotForMe from '../../today/NotForMe';
+import { weather } from '../../../app/weather/weather';
 
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -40,7 +41,7 @@ function Premeditation() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!draft.trim()) return;
-    await reflectionService.write({ body: draft, promptKey: 'premeditation' });
+    await reflectionService.write({ body: draft, promptKey: 'premeditation', sky: weather.skyNow() });
   };
 
   return (

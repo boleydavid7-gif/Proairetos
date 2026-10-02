@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (223 tests), includes the language guard
+npm test             # vitest (225 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -121,6 +121,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   only, nothing stored). `wrangler.jsonc` runs the Worker only for `/api/*`;
   the service worker never caches `/api/`. Events show in Today's timeline
   and on Plan.
+- Weather (opt-in, `app/weather/weather.ts`, Open-Meteo, no key): the
+  sky beside the icons on Today (`TodayWeather`), and recorded as
+  `sky` on new reflections (Journal, Close the day, look-ahead plan).
+  Reflect's mark: chosen inner weather, else sky, else sun/moon by clock.
+  Place rounded to ~1 km, device-only; codes mapped in `core/weather/sky.ts`.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

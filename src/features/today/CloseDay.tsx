@@ -7,6 +7,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import { addDays } from '../../core/scheduling/dates';
 import { closedDay, setClosedDay, subscribePreferences } from '../../data/storage/preferences';
 import { useDoneIn } from './DoneToday';
+import { weather } from '../../app/weather/weather';
 
 type Props = {
   today: string;
@@ -37,7 +38,7 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       // Tomorrow's path holds three; anything beyond that simply stays on the list.
       await lifeService.pickForDay(id, tomorrow).then(() => carried.push(id), () => undefined);
     }
-    const written = note.trim() ? await reflectionService.write({ body: note, promptKey: 'day-close' }) : null;
+    const written = note.trim() ? await reflectionService.write({ body: note, promptKey: 'day-close', sky: weather.skyNow() }) : null;
     setClosedDay(today);
     offerUndo('The day is closed. Rest well.', async () => {
       for (const id of carried) await lifeService.pickForDay(id, today).catch(() => undefined);

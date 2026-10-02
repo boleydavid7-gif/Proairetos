@@ -10,6 +10,9 @@ import { ArrowLeftIcon, TagIcon } from '../../components/icons/Icons';
 import type { InnerWeather } from '../../core/reflections/types';
 import { loadJournalDraft, saveJournalDraft } from '../../data/storage/preferences';
 import { promptText, reflectionPrompts } from '../reflect/prompts';
+import { weather as outdoor } from '../../app/weather/weather';
+
+const skyNow = () => outdoor.skyNow();
 import { weatherOptions } from '../reflect/weather';
 
 /**
@@ -38,7 +41,7 @@ export default function JournalPage() {
   async function save() {
     if (!body.trim()) return;
     setSaving(true);
-    const written = await reflectionService.write({ body, weather, valueIds, promptKey });
+    const written = await reflectionService.write({ body, weather, valueIds, promptKey, sky: skyNow() });
     saveJournalDraft(null);
     offerUndo('Saved to Reflect', async () => {
       await reflectionService.remove(written.id);

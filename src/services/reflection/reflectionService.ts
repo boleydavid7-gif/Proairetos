@@ -1,6 +1,7 @@
 import type { DomainContext } from '../../core/context';
 import { isWithin, periodRange, type ReflectPeriod } from '../../core/reflections/periods';
 import type { InnerWeather, Reflection, ReflectionKind } from '../../core/reflections/types';
+import type { Sky } from '../../core/weather/sky';
 import type { ReflectionRepository } from '../../data/repositories/reflectionRepository';
 import { createListeners } from '../listeners';
 
@@ -18,6 +19,7 @@ export type WriteReflectionInput = {
   promptKey?: string;
   weather?: InnerWeather;
   valueIds?: string[];
+  sky?: Sky;
 };
 
 /**
@@ -45,6 +47,7 @@ export function createReflectionService({ userId, context, reflections }: Reflec
         decisionId: input.decisionId,
         promptKey: input.promptKey,
         ...(input.weather ? { weather: input.weather } : {}),
+        ...(input.sky ? { sky: input.sky } : {}),
         ...(input.valueIds?.length ? { valueIds: input.valueIds } : {}),
       });
       listeners.notify();

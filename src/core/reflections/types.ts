@@ -1,3 +1,5 @@
+import type { Sky } from '../weather/sky';
+
 export type ReflectionKind =
   | 'FREE'
   /** The person's intention for one day; periodStart holds that local date. */
@@ -23,6 +25,8 @@ export interface Reflection {
   decisionId?: string;
   promptKey?: string;
   weather?: InnerWeather;
+  /** The outdoor sky when this was written, if the person turned weather on. A fact, not a mood. */
+  sky?: Sky;
   /** Values the person tagged this with. */
   valueIds?: string[];
 }

@@ -324,3 +324,31 @@
   align-self: stretch;
   min-height: 3rem;
 }
+
+.today-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.today-weather svg {
+  color: var(--color-accent);
+}
+
+.timeline-entry__temp {
+  color: var(--color-text-faint);
+}
+
+/* On Today the icons (weather, lighter view, settings) sit on their own row above the greeting, as in the mockup. */
+.today-header .page-header__actions {
+  position: static;
+  justify-content: flex-end;
+  margin: calc(var(--space-3) * -1) calc(var(--space-2) * -1) var(--space-1) 0;
+}
+
+.today-header .page-header__title {
+  padding-right: 0;
+}

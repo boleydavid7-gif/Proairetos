@@ -296,3 +296,12 @@ export function MicIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function SnowIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 13h10.5a3.5 3.5 0 0 0 .4-7A5.5 5.5 0 0 0 7.3 4.5 4.3 4.3 0 0 0 7 13z" />
+      <path d="M8.5 16.5v.01M12 18v.01M15.5 16.5v.01M10 20.5v.01M14 20.5v.01" strokeWidth={2.4} />
+    </Icon>
+  );
+}

@@ -4,6 +4,7 @@ import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
 import LighterView from '../today/LighterView';
+import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -149,6 +150,7 @@ export default function NowPage() {
     <div className="page page--landscape">
       <header className="page-header today-header">
         <div className="page-header__actions">
+          {isToday && <TodayWeather />}
           {isToday && (
             <button
               type="button"
