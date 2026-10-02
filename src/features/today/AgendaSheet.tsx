@@ -236,7 +236,7 @@ export default function AgendaSheet({ today, start: firstDay, focusKey, onClose,
                       {timed.map((entry) => {
                         const start = Math.max(entry.start.getTime(), dayStart);
                         const end = Math.min(entryEnd(entry).getTime(), dayEnd);
-                        // Blocks sit behind; items and events sit on top, a little narrower, so both stay readable.
+                        // Blocks fill the column; items and events lie over them, a little narrower, so both stay readable.
                         const layer = entry.kind === 'shift' ? 'block' : 'point';
                         const style = {
                           top: ((start - dayStart) / 3_600_000) * HOUR_PX,
