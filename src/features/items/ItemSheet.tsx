@@ -121,7 +121,11 @@ const fromLines = (lines: string[] | undefined) => (lines ?? []).join('\n');
 function ThinkThroughLink({ item }: { item: LifeItem }) {
   const { openThinkThrough } = useOverlays();
   return (
-    <button type="button" className="chip chip--wide" onClick={() => openThinkThrough({ itemId: item.id, text: item.title })}>
+    <button
+      type="button"
+      className="chip chip--wide"
+      onClick={() => openThinkThrough({ itemId: item.id, text: item.title })}
+    >
       Think it through
     </button>
   );
@@ -139,7 +143,8 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   const save = () => {
     const unchanged =
       mine === fromLines(item.controlSplit?.inMyControl) && notMine === fromLines(item.controlSplit?.notInMyControl);
-    if (!unchanged) lifeService.setControlSplit(item.id, { inMyControl: toLines(mine), notInMyControl: toLines(notMine) });
+    if (!unchanged)
+      lifeService.setControlSplit(item.id, { inMyControl: toLines(mine), notInMyControl: toLines(notMine) });
   };
 
   if (!open) {
@@ -279,7 +284,9 @@ function NextStepSection({ item }: { item: LifeItem }) {
               maxLength={140}
               value={obstacle}
               onChange={(event) => setObstacle(event.target.value)}
-              onBlur={() => obstacle !== (item.ifObstacle ?? '') && lifeService.setStepPlan(item.id, { ifObstacle: obstacle })}
+              onBlur={() =>
+                obstacle !== (item.ifObstacle ?? '') && lifeService.setStepPlan(item.id, { ifObstacle: obstacle })
+              }
             />
           </label>
         </>
@@ -366,7 +373,9 @@ function LookSection({ item }: { item: LifeItem }) {
 
 function GoalSection({ item }: { item: LifeItem }) {
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
-  const goals = statements.filter((statement) => statement.type === 'GOAL' && (!statement.reachedAt || statement.id === item.goalId));
+  const goals = statements.filter(
+    (statement) => statement.type === 'GOAL' && (!statement.reachedAt || statement.id === item.goalId),
+  );
   if (goals.length === 0) return null;
   return (
     <section className="sheet__section" aria-label="Working toward">
@@ -436,6 +445,22 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
   const [notes, setNotes] = useState(item.notes ?? '');
   const [when, setWhen] = useState(toDateTimeInput(item.scheduledAt));
   const isActive = item.status === 'OPEN' || item.status === 'WAITING';
+  // More starts open when something in it is already set, so nothing chosen is hidden.
+  const [moreOpen, setMoreOpen] = useState(
+    () =>
+      Boolean(
+        item.notes ||
+        item.repeat ||
+        item.goalId ||
+        item.location ||
+        item.color ||
+        item.planGroup ||
+        item.important ||
+        item.light,
+      ) ||
+      (item.valueIds?.length ?? 0) > 0 ||
+      item.status === 'WAITING',
+  );
 
   async function close(status: 'DONE' | 'LET_GO') {
     const change = await lifeService.setStatus(item.id, status);
@@ -481,34 +506,6 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
       <NextStepSection item={item} />
 
-      <button
-        type="button"
-        className="toggle-row"
-        aria-pressed={item.important}
-        onClick={() => lifeService.setImportant(item.id, !item.important)}
-      >
-        <StarIcon filled={item.important} size={20} />
-        <span>{item.important ? 'Marked important' : 'Mark important'}</span>
-      </button>
-
-      <button
-        type="button"
-        className="toggle-row"
-        aria-pressed={Boolean(item.light)}
-        onClick={() => lifeService.setLight(item.id, !item.light)}
-      >
-        <FeatherIcon size={20} />
-        <span>{item.light ? 'Takes little energy' : 'Mark as taking little energy'}</span>
-      </button>
-
-      <PlanSection item={item} />
-
-      <GoalSection item={item} />
-
-      <LookSection item={item} />
-
-      <ChecklistSection item={item} />
-
       <section className="sheet__section" aria-label="When">
         <p className="sheet__label">When</p>
         <div className="field-row">
@@ -537,30 +534,69 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         </div>
       </section>
 
-      <RepeatSection item={item} />
+      {item.checklist && <ChecklistSection item={item} />}
 
-      {kindOf(item) !== 'CONCERN' && <ControlSplitSection item={item} />}
+      <details
+        className="sheet__more"
+        open={moreOpen}
+        onToggle={(event) => setMoreOpen((event.target as HTMLDetailsElement).open)}
+      >
+        <summary>More</summary>
+        <div className="sheet__more-body">
+          <button
+            type="button"
+            className="toggle-row"
+            aria-pressed={item.important}
+            onClick={() => lifeService.setImportant(item.id, !item.important)}
+          >
+            <StarIcon filled={item.important} size={20} />
+            <span>{item.important ? 'Marked important' : 'Mark important'}</span>
+          </button>
 
-      <DecisionSection item={item} />
+          <button
+            type="button"
+            className="toggle-row"
+            aria-pressed={Boolean(item.light)}
+            onClick={() => lifeService.setLight(item.id, !item.light)}
+          >
+            <FeatherIcon size={20} />
+            <span>{item.light ? 'Takes little energy' : 'Mark as taking little energy'}</span>
+          </button>
 
-      <ValueConnections item={item} values={values} />
+          <PlanSection item={item} />
 
-      <WaitingSection item={item} />
+          <GoalSection item={item} />
 
-      <section className="sheet__section" aria-label="Notes">
-        <p className="sheet__label">Notes</p>
-        <textarea
-          className="field-input field-input--area"
-          rows={3}
-          aria-label="Notes"
-          placeholder="Anything you want to keep with this"
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          onBlur={() => {
-            if (notes !== (item.notes ?? '')) lifeService.edit(item.id, { notes });
-          }}
-        />
-      </section>
+          <LookSection item={item} />
+
+          <RepeatSection item={item} />
+
+          {kindOf(item) !== 'CONCERN' && <ControlSplitSection item={item} />}
+
+          <DecisionSection item={item} />
+
+          <ValueConnections item={item} values={values} />
+
+          <WaitingSection item={item} />
+
+          <section className="sheet__section" aria-label="Notes">
+            <p className="sheet__label">Notes</p>
+            <textarea
+              className="field-input field-input--area"
+              rows={3}
+              aria-label="Notes"
+              placeholder="Anything you want to keep with this"
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              onBlur={() => {
+                if (notes !== (item.notes ?? '')) lifeService.edit(item.id, { notes });
+              }}
+            />
+          </section>
+
+          {!item.checklist && <ChecklistSection item={item} />}
+        </div>
+      </details>
 
       {history.length > 0 && (
         <details className="sheet__history">
@@ -624,7 +660,6 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 export default function ItemSheet({ itemId, onClose }: Props) {
   const { dialog, panel } = useSheet();
   const item = useServiceData(lifeService.subscribe, () => lifeService.get(itemId), [itemId]);
-
 
   return (
     <dialog
