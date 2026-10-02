@@ -17,6 +17,7 @@ export function itemFacts(item: LifeItem, today: string, valueNames: ReadonlyMap
   };
 
   if (item.important) facts.push('Marked important');
+  if (item.light) facts.push('Takes little energy');
   for (const id of item.valueIds ?? []) {
     const name = valueNames.get(id);
     if (name) facts.push(`Linked to ${name}`);

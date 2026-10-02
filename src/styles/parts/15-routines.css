@@ -230,3 +230,15 @@
   font-weight: 600;
   color: var(--color-text-muted);
 }
+
+.pick-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: var(--space-2) 0;
+}
+
+.pick-row__detail {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}

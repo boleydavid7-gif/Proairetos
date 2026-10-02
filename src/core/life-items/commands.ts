@@ -144,6 +144,11 @@ export function setImportant(ctx: DomainContext, item: LifeItem, important: bool
   return { item: touch(item, ctx.now().toISOString(), { important }), events: [] };
 }
 
+export function setLight(ctx: DomainContext, item: LifeItem, light: boolean): ItemChange {
+  if (Boolean(item.light) === light) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { light: light || undefined }), events: [] };
+}
+
 export function editItem(
   ctx: DomainContext,
   item: LifeItem,

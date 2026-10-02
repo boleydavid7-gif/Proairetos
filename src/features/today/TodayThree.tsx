@@ -1,11 +1,22 @@
 import { useSheet } from '../../components/ui/useSheet';
 import { useEffect, useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService } from '../../app/services';
+import { compassService, lifeService } from '../../app/services';
 import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
 import type { LifeItem } from '../../core/life-items/types';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
+import EnergyChoice, { useEnergy } from './EnergyChoice';
+import { useServiceData } from '../../app/hooks/useServiceData';
+
+/** The names of the values the person linked to an item, for showing beside it. */
+function useValueNames(): ReadonlyMap<string, string> {
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
+  return new Map(values.map((value) => [value.id, value.name]));
+}
+
+const linkedValues = (item: LifeItem, names: ReadonlyMap<string, string>) =>
+  (item.valueIds ?? []).map((id) => names.get(id)).filter((name): name is string => Boolean(name));
 
 type Props = {
   date: string;
@@ -16,13 +27,17 @@ const isOpen = (item: LifeItem) => item.status === 'OPEN' || item.status === 'WA
 
 function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   const { dialog, panel } = useSheet();
+  const energy = useEnergy(date);
+  const names = useValueNames();
   const [error, setError] = useState('');
   // Shows a tap at once; the saved value takes over when it arrives.
   const [pending, setPending] = useState<Record<string, boolean>>({});
   // Done picks still hold their place in the three, so they are listed (and can be unpicked) too.
   const open = items
     .filter((item) => isOpen(item) || (item.status === 'DONE' && item.pickedFor === date))
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    // When the person says energy is low, what they marked as light comes first. Nothing else is reordered.
+    .sort((a, b) => (energy === 'low' || energy === 'some' ? Number(Boolean(b.light)) - Number(Boolean(a.light)) : 0));
   const isPicked = (item: LifeItem) => pending[item.id] ?? item.pickedFor === date;
 
   // Drop a pending tap once the saved data agrees with it.
@@ -59,6 +74,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         <p className="sheet__status">
           {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.
         </p>
+        <EnergyChoice date={date} />
         {open.length === 0 && <p className="empty-note">Nothing open yet. Capture something first.</p>}
         <ul className="pick-list">
           {open.map((item) => {
@@ -81,7 +97,14 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
                       }
                     }}
                   />
-                  <span>{item.title}</span>
+                  <span className="pick-row__text">
+                    <span>{item.title}</span>
+                    {(item.light || linkedValues(item, names).length > 0) && (
+                      <span className="pick-row__detail">
+                        {[item.light ? 'Takes little energy' : '', ...linkedValues(item, names)].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
+                  </span>
                 </label>
               </li>
             );
@@ -99,6 +122,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
  */
 export default function TodayThree({ date, items }: Props) {
   const { openItem, offerUndo } = useOverlays();
+  const names = useValueNames();
   const [picking, setPicking] = useState(false);
   const anyOpen = items.some(isOpen);
   const picks = items
@@ -144,6 +168,9 @@ export default function TodayThree({ date, items }: Props) {
                 <button type="button" className="path__text" onClick={() => openItem(item.id)}>
                   <span className="path__title">{item.title}</span>
                   {item.nextStep && !done && <span className="path__detail">Next: {item.nextStep}</span>}
+                  {linkedValues(item, names).length > 0 && (
+                    <span className="path__detail path__detail--value">For {linkedValues(item, names).join(', ')}</span>
+                  )}
                 </button>
                 <ChevronRightIcon size={16} className="path__chevron" />
               </li>

@@ -434,6 +434,7 @@ const todayParts: { part: TodayPart; label: string }[] = [
   { part: 'intention', label: 'Today’s intention' },
   { part: 'path', label: 'Today’s path' },
   { part: 'schedule-prompt', label: 'Add your schedule' },
+  { part: 'open-time', label: 'Open time' },
   { part: 'capture', label: 'Capture line' },
   { part: 'a-while-ago', label: 'From a while ago' },
   { part: 'close-day', label: 'Close the day' },

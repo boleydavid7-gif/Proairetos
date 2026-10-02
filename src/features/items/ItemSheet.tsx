@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService } from '../../app/services';
-import { StarIcon } from '../../components/icons/Icons';
+import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
 import { lifeItemTypeLabels, lifeItemTypes } from '../capture/labels';
@@ -432,6 +432,16 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
       >
         <StarIcon filled={item.important} size={20} />
         <span>{item.important ? 'Marked important' : 'Mark important'}</span>
+      </button>
+
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={Boolean(item.light)}
+        onClick={() => lifeService.setLight(item.id, !item.light)}
+      >
+        <FeatherIcon size={20} />
+        <span>{item.light ? 'Takes little energy' : 'Mark as taking little energy'}</span>
       </button>
 
       <PlanSection item={item} />

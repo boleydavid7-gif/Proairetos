@@ -42,6 +42,9 @@ import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
+import OpenTime from '../today/OpenTime';
+import { itemSpan, openStretches } from '../../core/rhythm/openTime';
+import { loadQuietHours } from '../../data/storage/preferences';
 import BackupOffer from '../today/BackupOffer';
 import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
@@ -93,6 +96,15 @@ export default function NowPage() {
 
   const calendarEvents =
     useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(atTime(date, '00:00'), atTime(addDays(date, 1), '00:00')), [date]) ?? [];
+  const todayRange = rangeOf(today);
+  const todayEvents =
+    useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(todayRange.start, todayRange.end), [todayRange.start.getTime()]) ?? [];
+  const busy = [
+    ...nearOccurrences,
+    ...todayEvents.filter((event) => !event.allDay),
+    ...items.filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.scheduledAt).map((item) => itemSpan(item.scheduledAt!)),
+  ];
+  const stretches = openStretches(todayRange, clock, busy, loadQuietHours());
   const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns, calendarEvents) : [];
   const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
   const earlierIds = new Set(earlier.map((item) => item.id));
@@ -230,6 +242,10 @@ export default function NowPage() {
             onOpenItem={openItem}
           />
         </section>
+      )}
+
+      {isToday && shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
+        <OpenTime stretches={stretches} items={items} today={today} />
       )}
 
       {patterns && patterns.length === 0 && shows('schedule-prompt') && (

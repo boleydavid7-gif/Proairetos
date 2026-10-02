@@ -150,6 +150,14 @@ export function CalendarIcon(props: IconProps) {
   );
 }
 
+export function FeatherIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 19 14.5 9.5M6.5 17.5C5.5 11 9 5 19 4.5c-.5 10-6.5 13.5-12.5 13z" />
+    </Icon>
+  );
+}
+
 export function SproutIcon(props: IconProps) {
   return (
     <Icon {...props}>

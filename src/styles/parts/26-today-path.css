@@ -352,3 +352,7 @@
 .today-header .page-header__title {
   padding-right: 0;
 }
+
+.path__detail--value {
+  color: var(--color-accent);
+}

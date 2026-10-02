@@ -313,7 +313,8 @@ export type TodayPart =
   | 'schedule-prompt'
   | 'capture'
   | 'a-while-ago'
-  | 'close-day';
+  | 'close-day'
+  | 'open-time';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 
@@ -345,6 +346,22 @@ export function lighterToday(): boolean {
 
 export function setLighterToday(on: boolean): void {
   writeJson(LIGHTER_KEY, on);
+}
+
+// ---------- Energy, as the person says it ----------
+
+const ENERGY_KEY = 'proairetos.energy';
+
+export type Energy = 'full' | 'some' | 'low';
+
+/** Set by the person for one day only; it never carries over, and the app never guesses it. */
+export function energyFor(date: string): Energy | undefined {
+  const stored = readJson<{ date: string; energy: Energy }>(ENERGY_KEY);
+  return stored?.date === date ? stored.energy : undefined;
+}
+
+export function setEnergy(date: string, energy: Energy | undefined): void {
+  writeJson(ENERGY_KEY, energy ? { date, energy } : null);
 }
 
 // ---------- Quiet hours for reminders ----------

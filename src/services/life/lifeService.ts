@@ -26,6 +26,7 @@ import {
   setCarried,
   setCheckBack,
   setImportant,
+  setLight,
   setItemType,
   type ItemChange,
   type StatusOptions,
@@ -231,6 +232,10 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setImportant(id: string, important: boolean) {
       return apply(id, (item) => setImportant(context, item, important));
+    },
+
+    setLight(id: string, light: boolean) {
+      return apply(id, (item) => setLight(context, item, light));
     },
 
     setCarried(id: string, carried: boolean) {
