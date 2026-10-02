@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBackHandler } from '../../app/back/backStack';
 import { breathSound, bell } from '../../app/sound/breath';
-import { audio, gain } from '../../app/sound/engine';
+import { audio, gain, letGo, wakeAudio } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
 import { soundEntry } from '../../app/sound/soundscapes';
 import { breathAt, breathPattern, type BreathPatternId } from '../../core/meditate/breathing';
@@ -82,6 +82,8 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
 
   // Start: the bell, the chosen sound, and the screen kept awake.
   useEffect(() => {
+    // Woken by the Start tap already; this hold lasts as long as the screen.
+    wakeAudio();
     const ctx = audio();
     effects.current = gain(ctx, 0.9);
     effects.current.connect(ctx.destination);
@@ -98,7 +100,10 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       void lock?.release().catch(() => undefined);
       const bus = effects.current;
       // Let the last bell ring out before letting go.
-      window.setTimeout(() => bus?.disconnect(), 15_000);
+      window.setTimeout(() => {
+        bus?.disconnect();
+        letGo();
+      }, 15_000);
     };
     // Runs once for the life of the screen.
   }, []);
@@ -174,7 +179,8 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       audio().suspend().catch(() => undefined);
     } else {
       since.current = performance.now();
-      void audio().resume();
+      wakeAudio();
+      letGo();
     }
     setRunning(!running);
   }

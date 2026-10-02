@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
+import { wakeAudio, letGo } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
 import { soundCatalogue, soundEntry, type SoundKind } from '../../app/sound/soundscapes';
 import SearchButton from '../../components/layout/SearchButton';
@@ -55,6 +56,13 @@ export default function MeditatePage() {
     const merged = { ...settings, ...next };
     setSettings(merged);
     saveMeditate(merged);
+  };
+
+  // Sound has to be woken inside the tap itself, or iPhones keep it silent.
+  const start = (plan: SitPlan) => {
+    wakeAudio();
+    setSitting(plan);
+    window.setTimeout(letGo, 1000);
   };
 
   const script = session(settings.session);
@@ -119,7 +127,7 @@ export default function MeditatePage() {
             type="button"
             className="meditate-start"
             onClick={() =>
-              setSitting({ kind: 'session', id: script.id, minutes: settings.minutes, sound: sessionSound, speak: settings.speak })
+              start({ kind: 'session', id: script.id, minutes: settings.minutes, sound: sessionSound, speak: settings.speak })
             }
           >
             <PlayIcon size={22} />
@@ -170,7 +178,7 @@ export default function MeditatePage() {
             type="button"
             className="meditate-start"
             onClick={() =>
-              setSitting({
+              start({
                 kind: 'breathe',
                 pattern: pattern.id,
                 minutes: settings.breatheMinutes,

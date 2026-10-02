@@ -19,8 +19,83 @@ export function audio(): AudioContext {
     const Context = window.AudioContext ?? (window as Win).webkitAudioContext;
     shared = new Context({ latencyHint: 'playback' });
   }
-  if (shared.state === 'suspended') void shared.resume();
+  // iPhones can also report 'interrupted' after a call or a lock.
+  if (shared.state !== 'running') void shared.resume().catch(() => undefined);
   return shared;
+}
+
+// ---------- Playing as media ----------
+
+/*
+ * On iPhones, sound made with Web Audio counts as an app sound effect:
+ * the silent switch mutes it and it stops when the screen locks. Playing
+ * an <audio> element at the same time makes the page a media player, so
+ * the sounds play like music does. The element itself is silence.
+ */
+let media: HTMLAudioElement | null = null;
+let holds = 0;
+
+function silence(): string {
+  // Half a second of 8-bit mono silence as a WAV file.
+  const samples = 4000;
+  const bytes = new Uint8Array(44 + samples);
+  const view = new DataView(bytes.buffer);
+  const text = (at: number, value: string) => [...value].forEach((char, i) => (bytes[at + i] = char.charCodeAt(0)));
+  text(0, 'RIFF');
+  view.setUint32(4, 36 + samples, true);
+  text(8, 'WAVEfmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, 8000, true);
+  view.setUint32(28, 8000, true);
+  view.setUint16(32, 1, true);
+  view.setUint16(34, 8, true);
+  text(36, 'data');
+  view.setUint32(40, samples, true);
+  bytes.fill(128, 44);
+  return URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+}
+
+/**
+ * Call from a tap, before any sound starts: wakes the audio clock and lets
+ * sounds play through the silent switch, as music does. Each call is
+ * matched by `letGo()` when that sound ends.
+ */
+export function wakeAudio(): void {
+  holds++;
+  const ctx = audio();
+  try {
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = 'playback';
+  } catch {
+    // Older browsers have no audio session.
+  }
+  // A one-sample sound inside the tap unlocks older iPhones.
+  try {
+    const tick = ctx.createBufferSource();
+    tick.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    tick.connect(ctx.destination);
+    tick.start();
+  } catch {
+    // Nothing to unlock.
+  }
+  try {
+    if (!media) {
+      media = new Audio(silence());
+      media.loop = true;
+      media.setAttribute('playsinline', '');
+    }
+    if (media.paused) void media.play().catch(() => undefined);
+  } catch {
+    // Web Audio still plays where media elements are refused.
+  }
+}
+
+/** Ends one `wakeAudio()`; when none are left, other apps' audio can come back. */
+export function letGo(): void {
+  holds = Math.max(0, holds - 1);
+  if (holds === 0) media?.pause();
 }
 
 // ---------- Noise ----------

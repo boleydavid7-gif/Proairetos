@@ -1,4 +1,4 @@
-import { audio, gain, type Layer } from './engine';
+import { audio, gain, letGo, wakeAudio, type Layer } from './engine';
 import { soundEntry, type SoundKind } from './soundscapes';
 
 /**
@@ -96,6 +96,7 @@ export const player = {
     const kind: SoundKind | undefined = entry?.kind;
     if (!entry || !kind) return;
     player.stop(kind);
+    wakeAudio();
     const ctx = audio();
     const layer = entry.build(ctx);
     layer.output.gain.setValueAtTime(0, ctx.currentTime);
@@ -110,7 +111,10 @@ export const player = {
   stop(kind?: SoundKind, fade = FADE_OUT): void {
     for (const each of kind ? [kind] : (['sound', 'music'] as const)) {
       const layer = playing[each];
-      if (layer) fadeAway(layer, fade);
+      if (layer) {
+        fadeAway(layer, fade);
+        window.setTimeout(letGo, fade * 1000 + 200);
+      }
       delete playing[each];
     }
     set(kind ? ({ [kind]: null } as Partial<PlayerState>) : { sound: null, music: null });
