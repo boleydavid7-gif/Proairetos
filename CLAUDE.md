@@ -198,6 +198,19 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `breath-out.mp3`, played at natural speed as each step starts (stretching
   it sounded wrong). `SitScreen` is portalled to body.
   Nothing about a sit is recorded.
+- Notifications (Settings > Notifications, `features/settings/NotificationsSection`):
+  written on the device. `core/notify/notices.ts` (`noticesBetween`: timed
+  items by their `remind` minutes, absent = at the time, [] = none; other
+  calendars with a lead; own schedule blocks; check-backs and look-backs at
+  9:00; an optional look at the day; quiet hours hold and re-word them;
+  `privateNotice` for a private lock screen). `app/notify/`: `upcoming.ts`
+  gathers sources; `notifications.ts` keeps the next 14 days in Cache
+  Storage `proairetos-notify` for the service worker, shows them by timer
+  while the app is open, and feeds the server only times
+  (`sync/reminders.ts` `reminderTimes`). The SW's push handler shows the
+  stored words (generic text only if none found); a tap opens `?open=`
+  (`NoticeOpener`: item, day, Today, Reflect). Background delivery needs
+  sync + the `send-reminders` function (server setup still paused).
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass; every word must match, newest first, all on device.

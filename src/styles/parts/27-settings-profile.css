@@ -227,3 +227,107 @@
 .other-calendars__roles {
   margin-left: 3.35rem;
 }
+
+/* ---------- Notifications ---------- */
+
+/* How one looks: a lock-screen notification, drawn plainly. */
+.notice-preview {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.notice-preview__card {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 22px;
+  background: rgba(40, 44, 50, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #f4f1ec;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme='light'] .notice-preview__card {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f1b16;
+}
+
+.notice-preview__icon {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 10px;
+}
+
+.notice-preview__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notice-preview__app {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.notice-preview__title {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.notice-preview__body {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.notify-leads {
+  padding-left: calc(2.6rem + var(--space-3));
+}
+
+.notify-day-at {
+  padding-left: calc(2.6rem + var(--space-3));
+  max-width: 14rem;
+}
+
+.notify-upcoming {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notify-upcoming li {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+}
+
+.notify-upcoming__when {
+  flex: none;
+  min-width: 8.5rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.notify-upcoming__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remind-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

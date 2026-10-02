@@ -28,6 +28,7 @@ import {
   setCheckBack,
   setImportant,
   setLight,
+  setRemind,
   setGoal,
   setLook,
   setKind,
@@ -264,6 +265,10 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setGoal(id: string, goalId: string | undefined) {
       return apply(id, (item) => setGoal(context, item, goalId));
+    },
+
+    setRemind(id: string, minutes: readonly number[] | undefined) {
+      return apply(id, (item) => setRemind(context, item, minutes));
     },
 
     setLight(id: string, light: boolean) {

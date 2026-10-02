@@ -1,3 +1,4 @@
+import { remindChoices, remindLabel, remindersOf } from '../../core/notify/notices';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import ColorChoice from '../../components/ui/ColorChoice';
 import { useSheet } from '../../components/ui/useSheet';
@@ -469,6 +470,7 @@ function WhenSection({ item }: { item: LifeItem }) {
           />
         </label>
       )}
+      {item.scheduledAt && <RemindChoice item={item} />}
       {(day || time) && (
         <button
           type="button"
@@ -484,6 +486,42 @@ function WhenSection({ item }: { item: LifeItem }) {
         </button>
       )}
     </section>
+  );
+}
+
+/** When to be reminded of a timed thing: any of a few times before, or none. */
+function RemindChoice({ item }: { item: LifeItem }) {
+  const chosen = remindersOf(item);
+  const toggle = (minutes: number) =>
+    void lifeService.setRemind(
+      item.id,
+      chosen.includes(minutes) ? chosen.filter((each) => each !== minutes) : [...chosen, minutes],
+    );
+  return (
+    <div className="remind-choice">
+      <p className="sheet__label">Remind me</p>
+      <div className="chip-row" role="group" aria-label="Remind me">
+        {remindChoices.map((minutes) => (
+          <button
+            key={minutes}
+            type="button"
+            className="chip chip--small"
+            aria-pressed={chosen.includes(minutes)}
+            onClick={() => toggle(minutes)}
+          >
+            {remindLabel(minutes)}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="chip chip--small"
+          aria-pressed={chosen.length === 0}
+          onClick={() => void lifeService.setRemind(item.id, [])}
+        >
+          No reminder
+        </button>
+      </div>
+    </div>
   );
 }
 

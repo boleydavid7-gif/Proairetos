@@ -1,15 +1,11 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
-import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import {
   confirmCode,
-  disableReminders,
-  enableReminders,
   requestCode,
   confirmEncryption,
   prepareEncryption,
   deleteAccount,
-  refreshReminders,
   signOut,
   syncNow,
   syncStatus,
@@ -260,10 +256,6 @@ function Unlock() {
 function Ready() {
   const status = useSyncStatus();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
-  const [reminderError, setReminderError] = useState('');
-  const isInstalled =
-    window.matchMedia?.('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true;
-  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
     <div className="stack-tight">
@@ -281,38 +273,7 @@ function Ready() {
         Sync now
       </button>
 
-      <div className="settings-sub">
-        <p className="sheet__label">Reminders on this device</p>
-        <p className="section-description">
-          The server only learns when to remind you, never what about. Notifications say "Something you chose is ready";
-          details stay in the app.
-        </p>
-        {status.reminders === 'unsupported' &&
-          (isIos && !isInstalled ? (
-            <p className="sheet__hint">On iPhone, add Proairetos to your Home Screen first (Share, then Add to Home Screen), then open it from there.</p>
-          ) : (
-            <p className="sheet__hint">This browser cannot show reminders.</p>
-          ))}
-        {status.reminders === 'blocked' && (
-          <p className="sheet__hint">Notifications are blocked for this app. You can allow them in your phone’s settings.</p>
-        )}
-        {status.reminders === 'off' && (
-          <button
-            type="button"
-            className="chip chip--wide"
-            onClick={() => enableReminders().catch((cause) => setReminderError(message(cause)))}
-          >
-            Turn on reminders
-          </button>
-        )}
-        {status.reminders === 'on' && (
-          <button type="button" className="chip chip--wide" onClick={() => void disableReminders()}>
-            Turn off reminders
-          </button>
-        )}
-        {reminderError && <p className="form-error">{reminderError}</p>}
-        {status.reminders === 'on' && <QuietHoursControls />}
-      </div>
+      <p className="sheet__hint">Notifications, including when the app is closed, are in Settings, Notifications.</p>
 
       {confirmingSignOut ? (
         <div className="chip-row">
@@ -333,53 +294,6 @@ function Ready() {
       )}
 
       <DeleteAccount />
-    </div>
-  );
-}
-
-/** When reminders wait. A held reminder arrives as soon as the quiet ends. */
-function QuietHoursControls() {
-  const [quiet, setQuiet] = useState(loadQuietHours);
-  const update = (next: typeof quiet) => {
-    setQuiet(next);
-    saveQuietHours(next);
-    void refreshReminders();
-  };
-  return (
-    <div className="quiet-hours">
-      <button type="button" className="toggle-row" aria-pressed={quiet.on} onClick={() => update({ ...quiet, on: !quiet.on })}>
-        <span className={`toggle-switch${quiet.on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span>Quiet hours</span>
-      </button>
-      {quiet.on && (
-        <div className="field-row">
-          <input
-            type="time"
-            className="field-input"
-            aria-label="Quiet from"
-            value={quiet.start}
-            onChange={(event) => event.target.value && update({ ...quiet, start: event.target.value })}
-          />
-          <span className="sheet__hint">to</span>
-          <input
-            type="time"
-            className="field-input"
-            aria-label="Quiet until"
-            value={quiet.end}
-            onChange={(event) => event.target.value && update({ ...quiet, end: event.target.value })}
-          />
-        </div>
-      )}
-      <button
-        type="button"
-        className="toggle-row"
-        aria-pressed={quiet.duringProtected}
-        onClick={() => update({ ...quiet, duringProtected: !quiet.duringProtected })}
-      >
-        <span className={`toggle-switch${quiet.duringProtected ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span>Also during protected time in my schedule</span>
-      </button>
-      <p className="sheet__hint">A reminder that falls in quiet time arrives when it ends. None are dropped.</p>
     </div>
   );
 }

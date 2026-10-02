@@ -32,10 +32,10 @@ import {
   reflectionService,
   scheduleService,
 } from '../services';
-import { upcomingReminders } from './reminders';
+import { reminderTimes } from './reminders';
+import { upcomingNotices } from '../notify/upcoming';
 import { buildCalendarFile } from './calendarFile';
-import { otherCalendars } from '../calendars/otherCalendars';
-import { loadCalendarFeed, loadQuietHours, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
+import { loadCalendarFeed, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
 
 export type SyncPhase =
   | 'unavailable' // not configured, or storage blocked
@@ -118,11 +118,8 @@ export function refreshReminders(): Promise<void> {
 
 async function updateReminders() {
   if (!userId || status.reminders !== 'on') return;
-  const [items, decisions] = await Promise.all([lifeService.list(), decisionService.list()]);
-  const now = new Date();
-  const until = new Date(now.getTime() + 15 * 86_400_000);
-  const blocks = [...(await scheduleService.occurrencesBetween(now, until)), ...otherCalendars.blocksBetween(now, until)];
-  await replaceReminders(userId, await upcomingReminders(items, decisions, now, { quiet: loadQuietHours(), blocks }));
+  // Only the times leave the device; the words are written here when the push arrives.
+  await replaceReminders(userId, await reminderTimes(await upcomingNotices()));
 }
 
 export async function syncNow(): Promise<SyncResult | null> {

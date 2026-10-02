@@ -1,3 +1,4 @@
+import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -9,6 +10,7 @@ import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
+  BellIcon,
   BookIcon,
   BreatheIcon,
   CalendarIcon,
@@ -306,7 +308,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'import' | 'weather' | 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'notifications' | 'import' | 'weather' | 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -315,6 +317,7 @@ export function openSettingsAt(view: View): void {
 }
 
 const viewTitles: Record<View, string> = {
+  notifications: 'Notifications',
   profile: 'Your name',
   day: 'When your day starts',
   calendar: 'Share to your calendar',
@@ -740,6 +743,7 @@ export default function SettingsPage() {
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
+        {view === 'notifications' && <NotificationsSection />}
         {view === 'import' && <BringInSection />}
         {view === 'backup' && (
           <>
@@ -829,6 +833,7 @@ export default function SettingsPage() {
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
         <Row icon={<InboxIcon size={22} />} title="Bring things in" value="From other apps" onClick={() => setView('import')} />
+        <Row icon={<BellIcon size={22} />} title="Notifications" onClick={() => setView('notifications')} />
         <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
         <Row
           icon={<MoonIcon size={22} />}

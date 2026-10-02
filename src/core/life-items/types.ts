@@ -50,6 +50,11 @@ export interface LifeItem {
   scheduledAt?: string;
   /** When it ends, if the person gave an end. Moves with the start, keeping its length. */
   endsAt?: string;
+  /**
+   * Reminders, as minutes before `scheduledAt` (0 is at the time). Absent
+   * means at the time; an empty list means no reminder.
+   */
+  remind?: number[];
   checkBackAt?: string;
   source: LifeItemSource;
   carried: boolean;

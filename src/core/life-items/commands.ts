@@ -210,6 +210,13 @@ export function setLight(ctx: DomainContext, item: LifeItem, light: boolean): It
   return { item: touch(item, ctx.now().toISOString(), { light: light || undefined }), events: [] };
 }
 
+/** The person's reminders for a timed item: minutes before, soonest first; empty for none. */
+export function setRemind(ctx: DomainContext, item: LifeItem, minutes: readonly number[] | undefined): ItemChange {
+  const next = minutes ? [...new Set(minutes.filter((m) => Number.isFinite(m) && m >= 0))].sort((a, b) => b - a) : undefined;
+  if (JSON.stringify(next) === JSON.stringify(item.remind)) return { item, events: [] };
+  return { item: touch(item, ctx.now().toISOString(), { remind: next }), events: [] };
+}
+
 export function editItem(
   ctx: DomainContext,
   item: LifeItem,

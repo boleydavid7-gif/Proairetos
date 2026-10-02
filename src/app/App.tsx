@@ -18,6 +18,8 @@ import MeditatePage from '../features/meditate/MeditatePage';
 import SharedSheet from '../features/share/SharedSheet';
 import { takeShared } from '../features/share/shared';
 import AppShell from './AppShell';
+import NoticeOpener from './notify/NoticeOpener';
+import { notifications } from './notify/notifications';
 import { directionBetween, transition } from './transitions';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
@@ -50,6 +52,7 @@ export default function App() {
     // Other calendars refresh on open and when the app comes back into view (at most hourly).
     void otherCalendars.refresh();
     void weather.refresh();
+    notifications.start();
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       void otherCalendars.refresh();
@@ -77,6 +80,7 @@ export default function App() {
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
     <OverlayProvider>
+      <NoticeOpener />
       <AppShell route={route} onNavigate={go}>
       {route === 'today' && <NowPage />}
       {route === 'reflect' && <ReflectPage />}
