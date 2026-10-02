@@ -7,8 +7,9 @@ import { ChevronRightIcon } from '../../components/icons/Icons';
 import CheckRow from '../items/CheckRow';
 import { describeRule } from '../../core/life-items/repeat';
 import PageHeader from '../../components/layout/PageHeader';
-import { addDays } from '../../core/scheduling/dates';
-import { formatLocalDay } from '../schedule/format';
+import { addDays, atTime } from '../../core/scheduling/dates';
+import { otherCalendars } from '../../app/calendars/otherCalendars';
+import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import { dayTitle } from '../today/timeline';
 import AddTaskSheet from './AddTaskSheet';
 import GentleLine from '../../components/ui/GentleLine';
@@ -21,6 +22,15 @@ export default function PlanPage() {
   const [adding, setAdding] = useState(false);
   const date = addDays(today, offset);
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
+  const calendarEvents =
+    useServiceData(
+      otherCalendars.subscribe,
+      async () =>
+        otherCalendars
+          .eventsBetween(atTime(date, '00:00'), atTime(addDays(date, 1), '00:00'))
+          .filter((event) => !event.allDay || (event.allDay.from <= date && date < event.allDay.until)),
+      [date],
+    ) ?? [];
   if (!items) return null;
   const sections = planFor(date, today, items, rangeOf(date));
 
@@ -40,6 +50,25 @@ export default function PlanPage() {
           <ChevronRightIcon size={20} />
         </button>
       </div>
+
+      {calendarEvents.length > 0 && (
+        <section className="plan-section" aria-label="From your calendars">
+          <h2 className="section-label">From your calendars</h2>
+          <ul className="calendar-events">
+            {calendarEvents.map((event) => (
+              <li key={event.key} className="calendar-events__row">
+                <span className="calendar-events__time">
+                  {event.allDay ? 'All day' : `${formatTimeOf(event.start)}–${formatTimeOf(event.end)}`}
+                </span>
+                <span className="calendar-events__text">
+                  <span>{event.title}</span>
+                  <span className="calendar-events__source">{event.source}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {sections.map((section) => (
         <section key={section.id} className="plan-section" aria-label={section.label}>

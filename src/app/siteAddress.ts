@@ -14,4 +14,4 @@ export function isOldAddress(hostname: string = window.location.hostname): boole
  * Where "Send feedback" writes to. Empty keeps the button hidden; the app
  * collects no usage data, so this is the only way to hear from people.
  */
-export const FEEDBACK_EMAIL = '';
+export const FEEDBACK_EMAIL = 'boleydavid1227@outlook.com';

@@ -1,11 +1,16 @@
 {
-  // Cloudflare Worker that serves the built app (static assets only, no server code).
+  // Cloudflare Worker that serves the built app. worker/index.ts only adds
+  // /api/calendar, which passes calendar files through for "Other calendars".
   // Workers Builds: build command "npm run build", deploy command "npx wrangler deploy".
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "proairetos",
   "compatibility_date": "2026-09-30",
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    // Only the calendar bridge runs code; everything else is served as files.
+    "run_worker_first": ["/api/*"],
     // The app has one page; any unknown path loads it.
     "not_found_handling": "single-page-application"
   }

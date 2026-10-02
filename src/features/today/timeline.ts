@@ -1,11 +1,14 @@
 import type { LifeItem } from '../../core/life-items/types';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import type { ScheduleOccurrence, SchedulePattern } from '../../core/scheduling/types';
+import type { CalendarEvent } from '../../app/calendars/otherCalendars';
 
 export type TimelineEntry =
   | { kind: 'shift'; key: string; start: Date; end: Date; occurrence: ScheduleOccurrence }
   | { kind: 'item'; key: string; start: Date; item: LifeItem }
-  | { kind: 'off'; key: string; pattern: SchedulePattern };
+  | { kind: 'off'; key: string; pattern: SchedulePattern }
+  | { kind: 'event'; key: string; start: Date; end: Date; event: CalendarEvent }
+  | { kind: 'allday'; key: string; event: CalendarEvent };
 
 const isOpen = (item: LifeItem) => item.status === 'OPEN' || item.status === 'WAITING';
 
@@ -19,6 +22,7 @@ export function buildDayTimeline(
   occurrences: ScheduleOccurrence[],
   items: LifeItem[],
   patterns: SchedulePattern[],
+  events: CalendarEvent[] = [],
 ): TimelineEntry[] {
   const dayStart = atTime(date, '00:00');
   const dayEnd = atTime(addDays(date, 1), '00:00');
@@ -44,10 +48,18 @@ export function buildDayTimeline(
     .filter((pattern) => !startingToday.has(pattern.id))
     .map((pattern) => ({ kind: 'off', key: `off:${pattern.id}`, pattern }));
 
-  const timed = [...shifts, ...scheduled].sort(
+  // Events from the person's other calendars, read-only.
+  const fromCalendars: TimelineEntry[] = events
+    .filter((event) => !event.allDay && event.start < dayEnd && event.end > dayStart)
+    .map((event) => ({ kind: 'event', key: `event:${event.key}`, start: event.start, end: event.end, event }));
+  const allDay: TimelineEntry[] = events
+    .filter((event) => event.allDay && event.allDay.from <= date && date < event.allDay.until)
+    .map((event) => ({ kind: 'allday', key: `allday:${event.key}`, event }));
+
+  const timed = [...shifts, ...scheduled, ...fromCalendars].sort(
     (a, b) => (a as { start: Date }).start.getTime() - (b as { start: Date }).start.getTime(),
   );
-  return [...off, ...timed];
+  return [...off, ...allDay, ...timed];
 }
 
 export type NowStatus = {

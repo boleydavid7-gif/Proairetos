@@ -115,3 +115,82 @@
 .quiet-hours .field-row {
   align-items: center;
 }
+
+/* ---------- Other calendars ---------- */
+
+.other-calendars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.other-calendars__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.other-calendars__text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.other-calendars__meta {
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+}
+
+.calendar-guides summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--color-accent-strong);
+  cursor: pointer;
+}
+
+.calendar-events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendar-events__row {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-events__time {
+  flex: none;
+  width: 6.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.calendar-events__text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+}
+
+.calendar-events__source,
+.timeline__source {
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+}
+
+.timeline__allday {
+  padding: var(--space-2) 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.timeline__entry--event {
+  border-left: 2px dashed var(--color-border);
+}

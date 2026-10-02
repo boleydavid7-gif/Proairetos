@@ -1,6 +1,7 @@
 import EdgeSwipe from './back/EdgeSwipe';
 import { useEffect, useState } from 'react';
 import { startSync } from './sync/syncController';
+import { otherCalendars } from './calendars/otherCalendars';
 import OnboardingPage from '../features/onboarding/OnboardingPage';
 import NowPage from '../features/now/NowPage';
 import CapturePage from '../features/capture/CapturePage';
@@ -31,6 +32,11 @@ export default function App() {
 
   useEffect(() => {
     void startSync();
+    // Other calendars refresh on open and when the app comes back into view (at most hourly).
+    void otherCalendars.refresh();
+    const onVisible = () => document.visibilityState === 'visible' && void otherCalendars.refresh();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
   if (!started) {

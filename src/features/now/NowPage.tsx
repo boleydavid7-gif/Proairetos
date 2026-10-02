@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { otherCalendars } from '../../app/calendars/otherCalendars';
 import LighterView from '../today/LighterView';
 import NotForMe from '../today/NotForMe';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -89,7 +90,9 @@ export default function NowPage() {
     ) ?? [];
   const toRevisit = useDecisionsToRevisit();
 
-  const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns) : [];
+  const calendarEvents =
+    useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(atTime(date, '00:00'), atTime(addDays(date, 1), '00:00')), [date]) ?? [];
+  const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns, calendarEvents) : [];
   const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
   const earlierIds = new Set(earlier.map((item) => item.id));
   const ready = readyToCheckBack(items, clock);

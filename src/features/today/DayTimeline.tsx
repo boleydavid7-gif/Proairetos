@@ -20,7 +20,7 @@ function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: str
 }
 
 export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem }: Props) {
-  const timed = entries.filter((entry) => entry.kind !== 'off');
+  const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday');
   const nowIndex = now ? timed.findIndex((entry) => 'start' in entry && entry.start > now) : -1;
   const markerAt = now ? (nowIndex === -1 ? timed.length : nowIndex) : -1;
   const marker = now && (
@@ -49,6 +49,14 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
           ) : null,
         )}
 
+      {entries.map((entry) =>
+        entry.kind === 'allday' ? (
+          <li key={entry.key} className="timeline__allday">
+            All day · {entry.event.title} <span className="timeline__source">{entry.event.source}</span>
+          </li>
+        ) : null,
+      )}
+
       {timed.map((entry, index) => (
         <Fragment key={entry.key}>
           {index === markerAt && marker}
@@ -75,6 +83,21 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                   {shiftDetail(entry, date) && <span className="timeline__detail">{shiftDetail(entry, date)}</span>}
                 </span>
               </button>
+            </li>
+          ) : entry.kind === 'event' ? (
+            <li>
+              <div className="timeline__entry timeline__entry--event">
+                <span className="timeline__time">
+                  {formatTimeOf(entry.start)}
+                  <span className="timeline__until">{formatTimeOf(entry.end)}</span>
+                </span>
+                <span className="timeline__body">
+                  <span className="timeline__title">{entry.event.title}</span>
+                  <span className="timeline__detail">
+                    {[entry.event.source, entry.event.location].filter(Boolean).join(' · ')}
+                  </span>
+                </span>
+              </div>
             </li>
           ) : entry.kind === 'item' ? (
             <li>

@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v5';
+const CACHE = 'proairetos-v6';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
@@ -62,7 +62,8 @@ self.addEventListener('fetch', (event) => {
 
   // Built assets have content hashes in their names, so a cached copy never goes stale.
   const sameOrigin = url.origin === self.location.origin;
-  if (sameOrigin && url.pathname !== '/sw.js') {
+  // /api/ answers are live (other calendars), never cached.
+  if (sameOrigin && url.pathname !== '/sw.js' && !url.pathname.startsWith('/api/')) {
     event.respondWith(cacheFirst(request));
   }
 });

@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (216 tests), includes the language guard
+npm test             # vitest (223 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -45,7 +45,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the Worker); https://proairetos.boleydavid7.workers.dev is the old
   address and shows a "moved" notice (`app/MovedNotice.tsx`), since
   browser data does not cross addresses (backup, then restore).
-  Config: `wrangler.jsonc` (single-page fallback). `public/_headers` keeps
+  Config: `wrangler.jsonc` (single-page fallback; `worker/index.ts` handles
+  only `/api/*`). `public/_headers` keeps
   `sw.js` and the shell uncached; do not add long "immutable" rules for
   `/assets` (unknown paths serve the app page).
 - The user deploys from `main`. Work on the session branch and push to
@@ -112,6 +113,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `data-theme` (dark default, light, system) and text size; light tokens
   in `tokens.css`. People who matter: Compass statements of type PERSON.
   `FEEDBACK_EMAIL` in `app/siteAddress.ts` shows Send feedback when set.
+- Other calendars (read-only, device-only): `app/calendars/otherCalendars.ts`
+  (sources + cached events in localStorage, refresh hourly on open),
+  `core/calendar/readIcs.ts` (ical.js, lazy-loaded; repeats, exceptions,
+  time zones). Links that block web fetches go through the Worker bridge
+  `worker/calendarProxy.ts` at `/api/calendar` (https only, calendar files
+  only, nothing stored). `wrangler.jsonc` runs the Worker only for `/api/*`;
+  the service worker never caches `/api/`. Events show in Today's timeline
+  and on Plan.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

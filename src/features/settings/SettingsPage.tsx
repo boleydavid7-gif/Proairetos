@@ -48,6 +48,8 @@ import valley from '../../assets/images/scenes/valley.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import CalendarSection from './CalendarSection';
+import OtherCalendarsSection from './OtherCalendarsSection';
+import { calendarSources } from '../../app/calendars/otherCalendars';
 import type { AppRoute } from '../../app/routes/routeTypes';
 
 function download(text: string) {
@@ -301,7 +303,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'calendars' | 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -312,7 +314,8 @@ export function openSettingsAt(view: View): void {
 const viewTitles: Record<View, string> = {
   profile: 'Your name',
   day: 'When your day starts',
-  calendar: 'Calendar subscription',
+  calendar: 'Share to your calendar',
+  calendars: 'Other calendars',
   offers: 'Quiet offers',
   today: 'What Today shows',
   appearance: 'Appearance',
@@ -677,6 +680,7 @@ export default function SettingsPage() {
         {view === 'today' && <TodaySection />}
         {view === 'appearance' && <AppearanceSection />}
         {view === 'help' && <HelpSection />}
+        {view === 'calendars' && <OtherCalendarsSection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
@@ -746,7 +750,13 @@ export default function SettingsPage() {
         <Row icon={<MoonIcon size={22} />} title="When your day starts" value={daySummary()} onClick={() => setView('day')} />
         <Row
           icon={<CalendarIcon size={22} />}
-          title="Calendar subscription"
+          title="Other calendars"
+          value={calendarSources().length ? String(calendarSources().length) : undefined}
+          onClick={() => setView('calendars')}
+        />
+        <Row
+          icon={<CalendarIcon size={22} />}
+          title="Share to your calendar"
           value={loadCalendarFeed().enabled ? 'On' : undefined}
           onClick={() => setView('calendar')}
         />
