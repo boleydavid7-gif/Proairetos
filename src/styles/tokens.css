@@ -7,6 +7,14 @@
   --color-parchment: #f0dec3;
 
   --color-bg: var(--color-ink);
+  /* The page colour as numbers, for fades that blend into it. */
+  --color-bg-rgb: 10, 12, 14;
+  --color-bar-rgb: 14, 17, 20;
+  --hero-text: rgba(242, 236, 226, 0.82);
+  --landscape-brightness: 0.7;
+  --grabber: rgba(255, 255, 255, 0.18);
+  --hero-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
   --color-surface: #14181b;
   --color-surface-raised: #1b2024;
   --color-surface-soft: rgba(255, 255, 255, 0.04);
@@ -36,4 +44,56 @@
   --space-6: 32px;
 
   --tab-bar-height: 4.5rem;
+}
+
+/*
+ * Light appearance: parchment and ink, from the onboarding. Chosen in
+ * Settings (System follows the phone). Every pair here reads at 4.5:1 or more.
+ */
+:root[data-theme='light'] {
+  --color-ink: #f4ecdf;
+  --color-ink-raised: #efe5d5;
+  --color-surface: #fbf6ee;
+  --color-surface-raised: #ffffff;
+  --color-surface-soft: rgba(43, 37, 31, 0.04);
+  --color-border: rgba(43, 37, 31, 0.12);
+  --color-text: #2b251f;
+  --color-text-muted: #5f554a;
+  --color-text-faint: #706558;
+  --color-accent: #86643f;
+  --color-accent-strong: #6f5233;
+  --color-accent-soft: rgba(134, 100, 63, 0.12);
+  --color-accent-ink: #fbf6ee;
+  --color-bg-rgb: 244, 236, 223;
+  --color-bar-rgb: 251, 246, 238;
+  --hero-text: #5f554a;
+  --landscape-brightness: 0.95;
+  --grabber: rgba(43, 37, 31, 0.22);
+  --hero-shadow: none;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --color-ink: #f4ecdf;
+    --color-ink-raised: #efe5d5;
+    --color-surface: #fbf6ee;
+    --color-surface-raised: #ffffff;
+    --color-surface-soft: rgba(43, 37, 31, 0.04);
+    --color-border: rgba(43, 37, 31, 0.12);
+    --color-text: #2b251f;
+    --color-text-muted: #5f554a;
+    --color-text-faint: #706558;
+    --color-accent: #86643f;
+    --color-accent-strong: #6f5233;
+    --color-accent-soft: rgba(134, 100, 63, 0.12);
+    --color-accent-ink: #fbf6ee;
+    --color-bg-rgb: 244, 236, 223;
+    --color-bar-rgb: 251, 246, 238;
+    --hero-text: #5f554a;
+    --landscape-brightness: 0.95;
+  --grabber: rgba(43, 37, 31, 0.22);
+  --hero-shadow: none;
+    color-scheme: light;
+  }
 }

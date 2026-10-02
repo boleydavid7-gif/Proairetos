@@ -360,3 +360,17 @@ export function loadQuietHours(): StoredQuietHours {
 export function saveQuietHours(quiet: StoredQuietHours): void {
   writeJson(QUIET_KEY, quiet);
 }
+
+// ---------- Appearance ----------
+
+const APPEARANCE_KEY = 'proairetos.appearance';
+
+export type Appearance = { theme: 'system' | 'dark' | 'light'; textSize: 'default' | 'large' | 'larger' };
+
+export function loadAppearance(): Appearance {
+  return { theme: 'dark', textSize: 'default', ...readJson<Partial<Appearance>>(APPEARANCE_KEY) };
+}
+
+export function saveAppearance(appearance: Appearance): void {
+  writeJson(APPEARANCE_KEY, appearance);
+}

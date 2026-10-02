@@ -9,3 +9,9 @@ export const SITE_URL = 'https://proairetos.com';
 export function isOldAddress(hostname: string = window.location.hostname): boolean {
   return hostname.endsWith('.workers.dev');
 }
+
+/**
+ * Where "Send feedback" writes to. Empty keeps the button hidden; the app
+ * collects no usage data, so this is the only way to hear from people.
+ */
+export const FEEDBACK_EMAIL = '';

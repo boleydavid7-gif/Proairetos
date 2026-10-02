@@ -9,6 +9,11 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './styles/globals.css';
+import { applyAppearance } from './app/appearance';
+
+// Theme and text size before the first paint, and again when the phone switches light or dark.
+applyAppearance();
+window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

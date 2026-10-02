@@ -3,6 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { applyAppearance } from '../../app/appearance';
+import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -15,6 +17,7 @@ import {
   HeartIcon,
   InboxIcon,
   MoonIcon,
+  NoteIcon,
   ShieldIcon,
   SunIcon,
 } from '../../components/icons/Icons';
@@ -25,6 +28,8 @@ import {
   displayName,
   hiddenOffers,
   lighterToday,
+  loadAppearance,
+  saveAppearance,
   setLighterToday,
   setTodayPartShown,
   type TodayPart,
@@ -296,7 +301,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'help' | 'appearance' | 'today' | 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -310,6 +315,8 @@ const viewTitles: Record<View, string> = {
   calendar: 'Calendar subscription',
   offers: 'Quiet offers',
   today: 'What Today shows',
+  appearance: 'Appearance',
+  help: 'Help & feedback',
   sources: 'Where this comes from',
   account: 'Account and sync',
   backup: 'Back up and restore',
@@ -424,6 +431,80 @@ const todayParts: { part: TodayPart; label: string }[] = [
   { part: 'a-while-ago', label: 'From a while ago' },
   { part: 'close-day', label: 'Close the day' },
 ];
+
+const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
+const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
+
+const helpTopics: { title: string; body: string }[] = [
+  { title: 'Capture first', body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.' },
+  { title: 'Today', body: 'Your greeting, a line for the day, and only what you choose: an intention, up to three things for your path, your schedule. Tap the leaf for a lighter view.' },
+  { title: 'Plan', body: 'Checklists for a day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.' },
+  { title: 'Pause and practices', body: 'Pause is a minute to arrive. From there, “Another way to pause” has a few short practices from Stoic and Buddhist traditions.' },
+  { title: 'Reflect and Insights', body: 'Write as much or as little as you like. Insights only counts what you recorded; it never draws conclusions.' },
+  { title: 'Your data', body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Back up and restore live in Settings.' },
+];
+
+function HelpSection() {
+  return (
+    <section className="settings-card" aria-label="Help">
+      {helpTopics.map((topic) => (
+        <div key={topic.title} className="sources">
+          <p className="sheet__label">{topic.title}</p>
+          <p className="section-description">{topic.body}</p>
+        </div>
+      ))}
+      {FEEDBACK_EMAIL ? (
+        <a className="chip chip--accent chip--wide" href={`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('Proairetos feedback')}`}>
+          Send feedback
+        </a>
+      ) : (
+        <p className="sheet__hint">Proairetos collects no usage data, so what people say is the only way it learns what helps.</p>
+      )}
+    </section>
+  );
+}
+
+function AppearanceSection() {
+  const [appearance, setAppearance] = useState(loadAppearance);
+  const update = (next: typeof appearance) => {
+    setAppearance(next);
+    saveAppearance(next);
+    applyAppearance(next);
+  };
+  return (
+    <section className="settings-card" aria-label="Appearance">
+      <p className="sheet__label">Theme</p>
+      <div className="chip-row" role="group" aria-label="Theme">
+        {(Object.keys(themeLabels) as (keyof typeof themeLabels)[]).map((theme) => (
+          <button
+            key={theme}
+            type="button"
+            className="chip"
+            aria-pressed={appearance.theme === theme}
+            onClick={() => update({ ...appearance, theme })}
+          >
+            {themeLabels[theme]}
+          </button>
+        ))}
+      </div>
+      <p className="sheet__label">Text size</p>
+      <div className="chip-row" role="group" aria-label="Text size">
+        {(Object.keys(sizeLabels) as (keyof typeof sizeLabels)[]).map((size) => (
+          <button
+            key={size}
+            type="button"
+            className="chip"
+            aria-pressed={appearance.textSize === size}
+            onClick={() => update({ ...appearance, textSize: size })}
+          >
+            {sizeLabels[size]}
+          </button>
+        ))}
+      </div>
+      <p className="sheet__hint">Text, spacing, and buttons all grow together. Your phone’s own text size is respected too.</p>
+    </section>
+  );
+}
 
 function TodaySection() {
   const shows = useTodayParts();
@@ -594,6 +675,8 @@ export default function SettingsPage() {
         {view === 'day' && <DaySection />}
         {view === 'offers' && <OffersSection />}
         {view === 'today' && <TodaySection />}
+        {view === 'appearance' && <AppearanceSection />}
+        {view === 'help' && <HelpSection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
@@ -673,7 +756,14 @@ export default function SettingsPage() {
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
         <Row icon={<SunIcon size={22} />} title="What Today shows" onClick={() => setView('today')} />
+        <Row
+          icon={<MoonIcon size={22} />}
+          title="Appearance"
+          value={themeLabels[loadAppearance().theme]}
+          onClick={() => setView('appearance')}
+        />
         <Row icon={<BreatheIcon size={22} />} title="Quiet offers" value={quietOffersOn() ? 'On' : 'Off'} onClick={() => setView('offers')} />
+        <Row icon={<NoteIcon size={22} />} title="Help & feedback" onClick={() => setView('help')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
         <Row icon={<CompassIcon size={22} />} title="Where this comes from" onClick={() => setView('sources')} />
       </div>

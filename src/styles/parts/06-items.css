@@ -1,7 +1,7 @@
 /* ---------- Item cards: open target and calm close-out ---------- */
 
 .app-shell {
-  color-scheme: dark;
+  color-scheme: inherit;
 }
 
 .item-card {
