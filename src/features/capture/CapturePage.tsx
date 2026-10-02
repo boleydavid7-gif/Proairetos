@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import QuietOffer from '../../components/ui/QuietOffer';
+import { hideOffer, takeOffer } from '../../data/storage/preferences';
+import { toLocalDate } from '../../core/scheduling/dates';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
@@ -51,6 +54,8 @@ export default function CapturePage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
   const [kind, setKind] = useState<CaptureKind | undefined>();
   const [showAll, setShowAll] = useState(false);
+  const [offering, setOffering] = useState(false);
+  const { openPractice } = useOverlays();
   // Tasks added on Plan live there; this list is what came through Capture.
   const active = items
     .filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.source !== 'MANUAL')
@@ -88,7 +93,29 @@ export default function CapturePage() {
       </div>
 
       <div className="stack-tight">
-        <CaptureBar kind={kind} placeholder={chosen?.prompt ?? 'Or anything at all'} onCaptured={() => setKind(undefined)} />
+        <CaptureBar
+          kind={kind}
+          placeholder={chosen?.prompt ?? 'Or anything at all'}
+          onCaptured={() => {
+            // After naming a feeling, a minute with it is offered, quietly and at most once a day.
+            if (kind === 'EMOTION' && takeOffer('sit-with-it', toLocalDate(new Date()))) setOffering(true);
+            setKind(undefined);
+          }}
+        />
+        {offering && (
+          <QuietOffer
+            text="Sit with it for a minute"
+            onAccept={() => {
+              setOffering(false);
+              openPractice('sit-with-it');
+            }}
+            onNotForMe={() => {
+              hideOffer('sit-with-it');
+              setOffering(false);
+            }}
+            onDismiss={() => setOffering(false)}
+          />
+        )}
         {chosen && (
           <button type="button" className="text-link capture-kind-clear" onClick={() => setKind(undefined)}>
             Tagged as {chosen.label.toLowerCase()} · Clear

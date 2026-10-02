@@ -28,7 +28,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (185 tests), includes the language guard
+npm test             # vitest (193 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -81,6 +81,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   only counts what was recorded: no trends, conclusions, or advice.
   Settings is a list of rows with detail pages, under a profile card;
   the name (greeting on Today) is a device-only preference.
+- Practices are woven in, never a feature: `core/practices/practices.ts`
+  (short steps + credited source), shown by `features/pause/PracticeScreen`.
+  Pause ends with "Another way to pause"; an Emotion capture may get a
+  quiet "Sit with it" offer (`components/ui/QuietOffer`, rules in
+  preferences `takeOffer`: at most one offer a day, "not for me" hides a
+  kind, a Settings switch turns all off); a Concern's sheet starts with
+  "What part of this is up to you?"; "Close the day" appears on Today
+  from `closingFrom()` (last hours of the person's day, or after the
+  day's last work block). Plain words in the UI, no labels or counts.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

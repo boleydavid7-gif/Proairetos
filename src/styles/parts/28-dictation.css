@@ -34,3 +34,135 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface);
 }
+
+/* ---------- Quiet offers and practices ---------- */
+
+.quiet-offer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) 0 var(--space-1) var(--space-1);
+  border-left: 2px solid var(--color-accent);
+  animation: rise 320ms ease-out both;
+}
+
+.quiet-offer__accept {
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.quiet-offer__actions {
+  display: flex;
+  align-items: center;
+}
+
+.quiet-offer__quiet {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+.pause-screen__other {
+  margin-top: var(--space-2);
+}
+
+.practice {
+  max-width: 24rem;
+}
+
+.practice__text {
+  margin: 0;
+  min-height: 7.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.practice__steps {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.practice__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.practice__dot--here {
+  background: var(--color-accent);
+}
+
+.practice__source {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.practice-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.practice-list__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left;
+}
+
+.practice-list__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.practice-list__line {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.close-day__done {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sources__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}

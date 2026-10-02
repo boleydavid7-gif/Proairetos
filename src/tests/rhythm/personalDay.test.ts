@@ -49,3 +49,30 @@ describe('personal day', () => {
     expect(second.start).toEqual(at('2026-10-02', '10:00'));
   });
 });
+
+describe('when closing the day is offered', () => {
+  it('opens the last hours of an unscheduled day', async () => {
+    const { closingFrom } = await import('../../core/rhythm/personalDay');
+    const range = dayRange('2026-10-01', [], follow);
+    expect(closingFrom(range, [])).toEqual(at('2026-10-01', '18:00'));
+  });
+
+  it('waits until a late shift is over', async () => {
+    const { closingFrom } = await import('../../core/rhythm/personalDay');
+    const evening = [block('2026-10-01', '14:30', '2026-10-01', '22:30')];
+    expect(closingFrom(dayRange('2026-10-01', evening, follow), evening)).toEqual(at('2026-10-01', '22:30'));
+  });
+
+  it('closes a night-shift day after the shift, not during it', async () => {
+    const { closingFrom } = await import('../../core/rhythm/personalDay');
+    const nights = [block('2026-10-01', '22:30', '2026-10-02', '06:30')];
+    const range = dayRange('2026-10-01', nights, follow);
+    expect(closingFrom(range, nights)).toEqual(at('2026-10-02', '06:30'));
+  });
+
+  it('keeps the usual evening window after a day job', async () => {
+    const { closingFrom } = await import('../../core/rhythm/personalDay');
+    const nineToFive = [block('2026-10-01', '09:00', '2026-10-01', '17:00')];
+    expect(closingFrom(dayRange('2026-10-01', nineToFive, follow), nineToFive)).toEqual(at('2026-10-01', '18:00'));
+  });
+});

@@ -24,6 +24,8 @@ import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import TodayThree from '../today/TodayThree';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
+import CloseDay from '../today/CloseDay';
+import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
@@ -48,7 +50,7 @@ export default function NowPage() {
   const [name] = useState(displayName);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
-  const { today, rangeOf } = usePersonalDay(clock);
+  const { today, rangeOf, blocks } = usePersonalDay(clock);
   const [offset, setOffset] = useState(0);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   const date = addDays(today, offset);
@@ -190,6 +192,15 @@ export default function NowPage() {
       {isToday && <CaptureBar variant="quiet" />}
       {isToday && <AlsoToday sections={alsoSections} />}
       {isToday && <DoneToday today={today} range={rangeOf(today)} />}
+      {isToday && (
+        <CloseDay
+          today={today}
+          range={rangeOf(today)}
+          items={items}
+          now={clock}
+          availableFrom={closingFrom(rangeOf(today), blocks)}
+        />
+      )}
 
       {isToday && now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
       {!isToday && entries.length === 0 && <p className="empty-note">Nothing scheduled.</p>}

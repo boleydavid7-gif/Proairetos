@@ -216,3 +216,65 @@ export function loadCalendarFeed(): StoredFeed {
 export function saveCalendarFeed(feed: StoredFeed): void {
   writeJson(FEED_KEY, feed);
 }
+
+// ---------- Quiet offers ----------
+// A practice is sometimes offered at a natural moment. At most one a day,
+// never repeated once the person says "not for me", and all of them can be
+// turned off.
+
+export type OfferKind = 'sit-with-it' | 'up-to-you';
+
+const OFFERS_KEY = 'proairetos.quietOffers';
+
+type OfferState = { on: boolean; hidden: OfferKind[]; lastShown?: string };
+
+function offerState(): OfferState {
+  const stored = readJson<Partial<OfferState>>(OFFERS_KEY) ?? {};
+  return { on: stored.on ?? true, hidden: stored.hidden ?? [], lastShown: stored.lastShown };
+}
+
+export function quietOffersOn(): boolean {
+  return offerState().on;
+}
+
+export function setQuietOffers(on: boolean): void {
+  writeJson(OFFERS_KEY, { ...offerState(), on });
+}
+
+export function hiddenOffers(): OfferKind[] {
+  return offerState().hidden;
+}
+
+/** "Not for me": this kind of offer never appears again (until restored in Settings). */
+export function hideOffer(kind: OfferKind): void {
+  const state = offerState();
+  writeJson(OFFERS_KEY, { ...state, hidden: [...new Set([...state.hidden, kind])] });
+}
+
+export function restoreOffers(): void {
+  writeJson(OFFERS_KEY, { ...offerState(), hidden: [] });
+}
+
+/**
+ * Whether an offer may appear now, and if so, records it as today's one
+ * offer. `today` is a local date.
+ */
+export function takeOffer(kind: OfferKind, today: string): boolean {
+  const state = offerState();
+  if (!state.on || state.hidden.includes(kind) || state.lastShown === today) return false;
+  writeJson(OFFERS_KEY, { ...state, lastShown: today });
+  return true;
+}
+
+// ---------- Closing the day ----------
+
+const CLOSED_DAY_KEY = 'proairetos.closedDay';
+
+/** The last day the person closed, so the link rests until the next one. */
+export function closedDay(): string | null {
+  return readJson<string>(CLOSED_DAY_KEY);
+}
+
+export function setClosedDay(date: string | null): void {
+  writeJson(CLOSED_DAY_KEY, date);
+}

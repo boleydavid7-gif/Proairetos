@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { FocusSession } from '../../core/focus/session';
 import type { Undo } from '../../services/life/lifeService';
+import type { PracticeId } from '../../core/practices/practices';
 
 export type FocusTarget = { id: string; title: string };
 
@@ -14,6 +15,8 @@ export type Overlays = {
   openFocus: () => void;
   /** The one-minute arrival moment. */
   openPause: () => void;
+  /** A short practice, or the list of them. */
+  openPractice: (id?: PracticeId) => void;
   /** Write down a decision, optionally from a Thinking about item. */
   startDecision: (from?: { itemId: string; title: string }) => void;
   openDecision: (id: string) => void;

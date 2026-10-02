@@ -22,7 +22,7 @@ export function usePersonalDay(now: Date) {
 
   return useMemo(() => {
     const today = personalDate(now, blocks, settings);
-    return { today, rangeOf: (date: string) => dayRange(date, blocks, settings) };
+    return { today, blocks, rangeOf: (date: string) => dayRange(date, blocks, settings) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now, blocks, settings.startHour, settings.followShifts]);
 }

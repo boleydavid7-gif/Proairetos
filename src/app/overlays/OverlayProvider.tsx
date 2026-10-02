@@ -8,6 +8,8 @@ import FocusScreen from '../../features/focus/FocusScreen';
 import FocusStart from '../../features/focus/FocusStart';
 import ItemSheet from '../../features/items/ItemSheet';
 import PauseScreen from '../../features/pause/PauseScreen';
+import PracticeScreen from '../../features/pause/PracticeScreen';
+import type { PracticeId } from '../../core/practices/practices';
 import type { Undo } from '../../services/life/lifeService';
 import { useServiceData } from '../hooks/useServiceData';
 import { lifeService } from '../services';
@@ -33,6 +35,8 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
   // After a reload, a running session comes back as the small bar, not the full screen.
   const [focusVisible, setFocusVisible] = useState(false);
   const [pausing, setPausing] = useState(false);
+  // undefined: closed; null: the list; an id: that practice.
+  const [practice, setPractice] = useState<PracticeId | null | undefined>(undefined);
   const [deciding, setDeciding] = useState<{ from?: DecideFrom } | null>(null);
   const [decisionId, setDecisionId] = useState<string | null>(null);
 
@@ -69,6 +73,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       focusSession: session,
       openFocus: () => setFocusVisible(true),
       openPause: () => setPausing(true),
+      openPractice: (id?: PracticeId) => setPractice(id ?? null),
       startDecision: (from?: DecideFrom) => {
         setItemId(null);
         setDeciding({ from });
@@ -116,7 +121,18 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       )}
       {session && !focusVisible && <FocusBar session={session} onOpen={() => setFocusVisible(true)} />}
 
-      {pausing && <PauseScreen onClose={() => setPausing(false)} />}
+      {pausing && (
+        <PauseScreen
+          onClose={() => setPausing(false)}
+          onAnotherWay={() => {
+            setPausing(false);
+            setPractice(null);
+          }}
+        />
+      )}
+      {practice !== undefined && (
+        <PracticeScreen key={practice ?? 'list'} practiceId={practice ?? undefined} onClose={() => setPractice(undefined)} />
+      )}
 
       {deciding && (
         <DecideSheet from={deciding.from} onClose={() => setDeciding(null)} onDecided={(id) => setDecisionId(id)} />

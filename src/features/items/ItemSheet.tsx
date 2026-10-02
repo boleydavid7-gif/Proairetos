@@ -121,7 +121,8 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   const [notMine, setNotMine] = useState(fromLines(item.controlSplit?.notInMyControl));
   const [open, setOpen] = useState(Boolean(item.controlSplit));
 
-  if (item.type !== 'THINKING_ABOUT') return null;
+  if (item.type !== 'THINKING_ABOUT' && item.captureKind !== 'CONCERN') return null;
+  const isConcern = item.captureKind === 'CONCERN';
   const mineLines = (item.controlSplit?.inMyControl ?? []).filter((line) => line !== item.nextStep);
 
   const save = () => {
@@ -133,7 +134,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   if (!open) {
     return (
       <button type="button" className="chip chip--wide" onClick={() => setOpen(true)}>
-        Sort what is in your control
+        {isConcern ? 'What part of this is up to you?' : 'Sort what is in your control'}
       </button>
     );
   }
@@ -386,6 +387,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         ))}
       </div>
 
+      {item.captureKind === 'CONCERN' && <ControlSplitSection item={item} />}
+
       <NextStepSection item={item} />
 
       <button
@@ -430,7 +433,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
       <RepeatSection item={item} />
 
-      <ControlSplitSection item={item} />
+      {item.captureKind !== 'CONCERN' && <ControlSplitSection item={item} />}
 
       <DecisionSection item={item} />
 

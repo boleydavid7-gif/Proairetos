@@ -3,9 +3,9 @@ import { lifeService } from '../../app/services';
 
 const SHOWN = 6;
 
-/** What you finished today, quietly. Progress you can see, with no score attached. */
-export default function DoneToday({ today, range }: { today: string; range: { start: Date; end: Date } }) {
-  const done = useServiceData(
+/** Titles of what was finished within a day's range, in order. */
+export function useDoneIn(today: string, range: { start: Date; end: Date }) {
+  return useServiceData(
     lifeService.subscribe,
     async () => {
       const [items, events] = await Promise.all([lifeService.list(), lifeService.historyForAll()]);
@@ -20,6 +20,11 @@ export default function DoneToday({ today, range }: { today: string; range: { st
     },
     [today, range.start.getTime(), range.end.getTime()],
   );
+}
+
+/** What you finished today, quietly. Progress you can see, with no score attached. */
+export default function DoneToday({ today, range }: { today: string; range: { start: Date; end: Date } }) {
+  const done = useDoneIn(today, range);
   if (!done || done.length === 0) return null;
 
   return (

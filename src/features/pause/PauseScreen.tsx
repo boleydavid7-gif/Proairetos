@@ -5,6 +5,8 @@ import { loadPauseSettings, savePauseSettings, type PauseSettings } from '../../
 
 type Props = {
   onClose: () => void;
+  /** Opens the short list of other practices. */
+  onAnotherWay?: () => void;
 };
 
 const anchors: { id: PauseSettings['anchor']; label: string; gather: string }[] = [
@@ -18,7 +20,7 @@ const anchors: { id: PauseSettings['anchor']; label: string; gather: string }[] 
  * gather attention on one anchor, then widen. One or three minutes, and the
  * anchor need not be the breath.
  */
-export default function PauseScreen({ onClose }: Props) {
+export default function PauseScreen({ onClose, onAnotherWay }: Props) {
   useBackHandler(true, onClose);
   const [settings, setSettings] = useState<PauseSettings>(() => loadPauseSettings());
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -69,6 +71,11 @@ export default function PauseScreen({ onClose }: Props) {
           <button type="button" className="button-quiet" onClick={onClose}>
             Not now
           </button>
+          {onAnotherWay && (
+            <button type="button" className="text-link pause-screen__other" onClick={onAnotherWay}>
+              Another way to pause
+            </button>
+          )}
         </div>
       </div>
     );
@@ -97,6 +104,11 @@ export default function PauseScreen({ onClose }: Props) {
             <button type="button" className="button-accent" onClick={onClose}>
               Done
             </button>
+            {onAnotherWay && (
+              <button type="button" className="text-link pause-screen__other" onClick={onAnotherWay}>
+                Another way to pause
+              </button>
+            )}
           </>
         ) : (
           <>

@@ -54,3 +54,23 @@ export function personalDate(now: Date, blocks: readonly ScheduleOccurrence[], s
 export function dayRange(date: string, blocks: readonly ScheduleOccurrence[], settings: DaySettings): { start: Date; end: Date } {
   return { start: dayStart(date, blocks, settings), end: dayStart(addDays(date, 1), blocks, settings) };
 }
+
+/** How long before the day turns over that closing it is offered, when no work marks the end. */
+export const CLOSING_HOURS = 6;
+
+/**
+ * When "Close the day" becomes available: the last few hours of the day,
+ * or once the day's last work block has ended if that is later (so a night
+ * shift is closed after it, not in the middle of it).
+ */
+export function closingFrom(range: { start: Date; end: Date }, blocks: readonly ScheduleOccurrence[]): Date {
+  let from = range.end.getTime() - CLOSING_HOURS * 3_600_000;
+  for (const block of blocks) {
+    const started = block.start.getTime();
+    const ended = block.end.getTime();
+    if (block.kind === 'COMMITTED' && started >= range.start.getTime() && started < range.end.getTime() && ended < range.end.getTime()) {
+      from = Math.max(from, ended);
+    }
+  }
+  return new Date(Math.max(from, range.start.getTime()));
+}

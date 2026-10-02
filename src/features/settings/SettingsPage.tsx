@@ -5,6 +5,7 @@ import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
   BookIcon,
+  BreatheIcon,
   CalendarIcon,
   ChevronRightIcon,
   CloudIcon,
@@ -18,6 +19,10 @@ import { countRecords, parseBackupFile, type BackupData } from '../../data/backu
 import {
   clearPreferences,
   displayName,
+  hiddenOffers,
+  quietOffersOn,
+  restoreOffers,
+  setQuietOffers,
   lastBackupDate,
   loadCalendarFeed,
   loadDaySettings,
@@ -283,12 +288,14 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   compass: 'Compass',
 };
 
-type View = 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
+type View = 'offers' | 'sources' | 'calendar' | 'day' | 'profile' | 'account' | 'backup' | 'privacy' | 'delete' | 'about';
 
 const viewTitles: Record<View, string> = {
   profile: 'Your name',
   day: 'When your day starts',
   calendar: 'Calendar subscription',
+  offers: 'Quiet offers',
+  sources: 'Where this comes from',
   account: 'Account and sync',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -392,6 +399,100 @@ function daySummary(): string {
   return settings.followShifts ? 'Follows shifts' : hourLabel(settings.startHour);
 }
 
+function OffersSection() {
+  const [on, setOn] = useState(quietOffersOn);
+  const [hidden, setHidden] = useState(hiddenOffers);
+  return (
+    <section className="settings-card" aria-label="Quiet offers">
+      <p className="section-description">
+        Now and then, at a natural moment, Proairetos offers a short practice: a minute with a feeling you just named,
+        for instance. At most one a day, and ignoring it is a complete answer.
+      </p>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={on}
+        onClick={() => {
+          setQuietOffers(!on);
+          setOn(!on);
+        }}
+      >
+        <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>Offer practices now and then</span>
+      </button>
+      {hidden.length > 0 && (
+        <button
+          type="button"
+          className="text-link"
+          onClick={() => {
+            restoreOffers();
+            setHidden([]);
+          }}
+        >
+          Bring back the {hidden.length === 1 ? 'one' : hidden.length} you set aside
+        </button>
+      )}
+      <p className="sheet__hint">The practices are always there under Pause → Another way to pause.</p>
+    </section>
+  );
+}
+
+const sources: { tradition: string; lines: string[] }[] = [
+  {
+    tradition: 'Stoicism',
+    lines: [
+      'Epictetus, Enchiridion and Discourses: what is up to us, and what is not.',
+      'Seneca, Letters: the evening review.',
+      'Marcus Aurelius, Meditations: the view from above.',
+      'Pierre Hadot, The Inner Citadel and Philosophy as a Way of Life: philosophy as daily exercise.',
+    ],
+  },
+  {
+    tradition: 'Buddhism',
+    lines: [
+      'Mindfulness, noting, and impermanence (anicca) from insight meditation.',
+      'Loving-kindness (metta).',
+      'RAIN, as taught by Tara Brach.',
+    ],
+  },
+  {
+    tradition: 'Greek philosophy',
+    lines: [
+      'Aristotle, Nicomachean Ethics: character grows through practice.',
+      'Epicurus, Letter to Menoeceus: simple pleasures and a calm mind.',
+    ],
+  },
+  {
+    tradition: 'Psychology',
+    lines: [
+      'The three-minute breathing space from mindfulness-based cognitive therapy (MBCT).',
+      'Peter Gollwitzer: if-then plans.',
+      'Kristin Neff: self-compassion.',
+    ],
+  },
+];
+
+function SourcesSection() {
+  return (
+    <section className="settings-card" aria-label="Where this comes from">
+      <p className="section-description">
+        Proairetos borrows its practices from people who thought carefully about living well. The name is Epictetus’s
+        word for the part of us that chooses how to respond.
+      </p>
+      {sources.map((source) => (
+        <div key={source.tradition} className="sources">
+          <p className="sheet__label">{source.tradition}</p>
+          <ul className="sources__list">
+            {source.lines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -424,6 +525,8 @@ export default function SettingsPage() {
         <PageHeader title={viewTitles[view]} />
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
+        {view === 'offers' && <OffersSection />}
+        {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
         {view === 'backup' && (
@@ -498,7 +601,9 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
         <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row icon={<BreatheIcon size={22} />} title="Quiet offers" value={quietOffersOn() ? 'On' : 'Off'} onClick={() => setView('offers')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
+        <Row icon={<CompassIcon size={22} />} title="Where this comes from" onClick={() => setView('sources')} />
       </div>
 
       <div className="settings-list">
