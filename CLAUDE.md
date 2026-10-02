@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (252 tests), includes the language guard
+npm test             # vitest (255 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -171,6 +171,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   labels (`core/look/tagColors.ts`, `--tag-*` tokens, `ColorChoice`) on
   items, schedules, and other calendars; items and schedules also take a
   `location`.
+- Search (`core/search/search.ts`, `features/search/SearchSheet`, the
+  magnifier beside the gear on every main tab): items, reflections,
+  decisions, Compass; every word must match, newest first, all on device.
+- Share into Capture (Android): `share_target` in `public/manifest.webmanifest`
+  sends `?share_title&share_text&share_url` to `/`; `features/share/` reads
+  it once, cleans the address, and offers a Capture sheet. Bump the
+  service worker cache when the manifest changes.
 - `src/components/ui/useSheet.ts`: every bottom sheet uses it.
 - `src/styles/globals.css` only imports `parts/NN-*.css` in cascade
   order; add new styles to the matching part (or a new last part).

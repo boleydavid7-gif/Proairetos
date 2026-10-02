@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import valley from '../../assets/images/scenes/valley.webp';
+import SearchButton from './SearchButton';
 import SettingsButton from './SettingsButton';
 
 type Props = {
@@ -16,6 +17,7 @@ export default function PageHero({ title, subtitle, focus = 'peaks' }: Props) {
       <div aria-hidden="true" className="page-hero__photo" style={{ backgroundImage: `url(${valley})` }} />
       <div aria-hidden="true" className="page-hero__wash" />
       <div className="page-hero__actions">
+        <SearchButton />
         <SettingsButton />
       </div>
       <div className="page-hero__text">

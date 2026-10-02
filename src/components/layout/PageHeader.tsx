@@ -1,3 +1,4 @@
+import SearchButton from './SearchButton';
 import SettingsButton from './SettingsButton';
 
 type Props = {
@@ -12,6 +13,7 @@ export default function PageHeader({ title, subtitle, settings = false }: Props)
     <header className="page-header">
       {settings && (
         <div className="page-header__actions">
+          <SearchButton />
           <SettingsButton />
         </div>
       )}

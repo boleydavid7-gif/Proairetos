@@ -14,6 +14,8 @@ import SettingsPage from '../features/settings/SettingsPage';
 import JournalPage from '../features/journal/JournalPage';
 import InsightsPage from '../features/insights/InsightsPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
+import SharedSheet from '../features/share/SharedSheet';
+import { takeShared } from '../features/share/shared';
 import AppShell from './AppShell';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
@@ -26,6 +28,8 @@ export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
   const [route, setRoute] = useState<AppRoute>(defaultRoute);
   const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
+  // Read once at start; kept until onboarding is done, if it is not yet.
+  const [shared, setShared] = useState(takeShared);
 
   useEffect(() => {
     if (mainTabs.has(route)) setLastTab(route);
@@ -76,6 +80,7 @@ export default function App() {
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       </AppShell>
+      {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}
     </OverlayProvider>
     </ReturnRouteContext.Provider>
     </NavigationContext.Provider>

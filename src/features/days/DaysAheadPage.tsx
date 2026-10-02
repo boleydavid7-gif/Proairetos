@@ -27,6 +27,7 @@ import { planFor } from '../plan/planView';
 import AddEventSheet from './AddEventSheet';
 import DayPlan from './DayPlan';
 import SettingsButton from '../../components/layout/SettingsButton';
+import SearchButton from '../../components/layout/SearchButton';
 import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
 import { entryLook, setDaysAheadOpening, takeDaysAheadOpening, type EntryIcon, type Timed } from './daysAhead';
 
@@ -194,6 +195,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           <p className="page-header__subtitle">Your upcoming days at a glance</p>
         </div>
         <span className="days-header__actions">
+          <SearchButton />
           <SettingsButton />
           <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
             <PlusIcon size={26} />

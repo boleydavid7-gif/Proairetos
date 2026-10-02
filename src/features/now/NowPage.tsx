@@ -14,6 +14,7 @@ import { goalLines } from '../../core/compass/goals';
 import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
+import SearchButton from '../../components/layout/SearchButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { stoicLineFor } from '../../core/stoic/dailyLine';
@@ -185,6 +186,7 @@ export default function NowPage() {
           >
             <SproutIcon size={22} />
           </button>
+          <SearchButton />
           <SettingsButton />
         </div>
         <h1 className="page-header__title">{greeting(clock, name)}</h1>
