@@ -186,8 +186,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `proairetos-sounds`; the service worker skips `/sounds/`), `soundscapes`
   catalogue, `player` (one sound looped from a decoded buffer + one piece
   of music streamed through a media element; start it inside the tap).
-  Breath sounds: one recorded breath split and stretched to
-  `breath-{in,out}-{4..8}.mp3`. `SitScreen` is portalled to body;
+  Breath sounds: one recorded breath split into `breath-in.mp3` and
+  `breath-out.mp3`, played at natural speed as each step starts (stretching
+  it sounded wrong). `SitScreen` is portalled to body;
   `NowPlaying` shows what plays on other tabs. Nothing about a sit is recorded.
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,

@@ -9,7 +9,7 @@ without a seam; music plays whole and begins again.
 | --- | --- | --- | --- |
 | rain, window, storm, river, ocean, waterfall, forest, birds, crickets, campfire, wind, chimes, fan | Field recordings | [Moodist](https://github.com/remvze/moodist) (`public/sounds/`) | Pixabay Content License or CC0, as Moodist lists them |
 | bowls, bell | One singing bowl, struck four times at slightly different pitches (bowls); its first strike (bell) | Moodist `things/singing-bowl.mp3` | Pixabay Content License / CC0 |
-| breath-in-N, breath-out-N | One recorded breath, split into in and out, and slowed with pitch kept (Rubber Band) to fit 4 to 8 seconds | `breathe-95275` by freesound_community on Pixabay, supplied by the owner | Pixabay Content License |
+| breath-in, breath-out | One recorded breath, split into in and out, at its own pace | `breathe-95275` by freesound_community on Pixabay, supplied by the owner | Pixabay Content License |
 | beethoven | Beethoven, Sonata No. 8 "Pathétique", II. Adagio cantabile, played by Daniel Veesey | [CC0-1.0-Music](https://github.com/SoundSafari/CC0-1.0-Music) (Free Music Archive) | CC0 |
 | mozart | Mozart, Sonata K. 333, II. Andante cantabile, played by Brendan Kinsella | CC0-1.0-Music | CC0 |
 | schubert | Schubert, Sonata D. 960, II. Andante sostenuto, played by David H. Porter | CC0-1.0-Music | CC0 |

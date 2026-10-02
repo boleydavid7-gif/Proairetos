@@ -13,10 +13,9 @@ export type SitPlan =
   | { kind: 'session'; id: SessionId; minutes: number; sound: string; speak: boolean; breathSounds: boolean }
   | { kind: 'breathe'; pattern: BreathPatternId; minutes: number; sound: string; breathSounds: boolean };
 
-/** The recorded breath for a step, slowed (pitch kept) to fit it: breath-in-4 … breath-out-8 (.mp3). */
-function breathFile(kind: BreathStepKind, seconds: number): string | undefined {
-  if (kind !== 'in' && kind !== 'out') return undefined;
-  return `/sounds/breath-${kind}-${Math.min(8, Math.max(4, Math.round(seconds)))}.mp3`;
+/** The recorded breath for a step, at its own pace, starting as the step does. */
+function breathFile(kind: BreathStepKind): string | undefined {
+  return kind === 'in' || kind === 'out' ? `/sounds/breath-${kind}.mp3` : undefined;
 }
 
 function clock(seconds: number): string {
@@ -140,7 +139,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     scheduled.current.clear();
     // Fetch the few files this pattern uses before the first one is due.
     for (const step of pattern.steps) {
-      const file = breathFile(step.kind, step.seconds);
+      const file = breathFile(step.kind);
       if (file) void buffer(file).catch(() => undefined);
     }
     const id = window.setInterval(() => {
@@ -151,7 +150,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       while (start < at + 1.2 && start < total) {
         moment = breathAt(start + 0.001, pattern);
         const key = Math.round(start * 1000);
-        const file = breathFile(moment.step.kind, moment.step.seconds);
+        const file = breathFile(moment.step.kind);
         if (file && !scheduled.current.has(key)) {
           scheduled.current.add(key);
           void playOnce(file, bus, Math.max(0, start - at)).catch(() => undefined);
