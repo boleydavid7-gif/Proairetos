@@ -24,4 +24,12 @@ describe('sign-in links from the email', () => {
     expect(parseSignInLink('https://example.com/nothing-here')).toBeNull();
     expect(parseSignInLink('  https://abcd.supabase.co/auth/v1/verify?token=t  ')).toMatchObject({ tokenHash: 't', type: 'magiclink' });
   });
+
+  it('finds the link inside Outlook Safe Links and similar wrappers', () => {
+    const real = 'https://abc.supabase.co/auth/v1/verify?token=pkce_123abc&type=magiclink&redirect_to=https://proairetos.com';
+    const safe = `https://na01.safelinks.protection.outlook.com/?url=${encodeURIComponent(real)}&data=05%7C02&sdata=xyz&reserved=0`;
+    expect(parseSignInLink(safe)).toEqual({ kind: 'token-hash', tokenHash: 'pkce_123abc', type: 'magiclink' });
+    const google = `https://www.google.com/url?q=${encodeURIComponent(real)}&sa=D`;
+    expect(parseSignInLink(google)).toEqual({ kind: 'token-hash', tokenHash: 'pkce_123abc', type: 'magiclink' });
+  });
 });

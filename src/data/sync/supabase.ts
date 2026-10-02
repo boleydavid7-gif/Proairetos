@@ -56,10 +56,28 @@ const otpTypes: EmailOtpType[] = ['magiclink', 'signup', 'email', 'invite', 'rec
  * set up). On iPhone the link would open Safari, which does not share
  * storage with the Home Screen app, so the person copies it and pastes it.
  */
+/**
+ * Mail apps often wrap links in their own: Outlook's Safe Links
+ * (`…safelinks.protection.outlook.com/?url=…`), Google's `/url?q=…`, and
+ * similar. The real sign-in link is the one inside; unwrap until there.
+ */
+function unwrapLink(url: URL): URL {
+  for (let round = 0; round < 4; round += 1) {
+    const inner = url.searchParams.get('url') ?? url.searchParams.get('q') ?? url.searchParams.get('u');
+    if (!inner || url.searchParams.has('token') || url.searchParams.has('token_hash')) return url;
+    try {
+      url = new URL(inner);
+    } catch {
+      return url;
+    }
+  }
+  return url;
+}
+
 export function parseSignInLink(text: string): SignInLink | null {
   let url: URL;
   try {
-    url = new URL(text.trim());
+    url = unwrapLink(new URL(text.trim()));
   } catch {
     return null;
   }
