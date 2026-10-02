@@ -70,3 +70,9 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+/* A sibling app's own icon, in Settings > More apps. */
+.settings-row__app {
+  display: block;
+  border-radius: 7px;
+}

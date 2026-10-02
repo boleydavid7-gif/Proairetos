@@ -8,3 +8,9 @@
   Cache-Control: no-cache
 /
   Cache-Control: no-cache
+/askesis/sw.js
+  Cache-Control: no-cache
+/askesis/
+  Cache-Control: no-cache
+/askesis/index.html
+  Cache-Control: no-cache

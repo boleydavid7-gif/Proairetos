@@ -1,0 +1,17 @@
+{
+  "id": "/askesis/",
+  "name": "Askesis by Proairetos",
+  "short_name": "Askesis",
+  "description": "A gradual path from your first walk-run to a marathon, built on the science of endurance training.",
+  "start_url": "/askesis/",
+  "scope": "/askesis/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0f0e",
+  "theme_color": "#0b0f0e",
+  "icons": [
+    { "src": "/askesis/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/askesis/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/askesis/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

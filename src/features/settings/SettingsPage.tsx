@@ -947,6 +947,15 @@ export default function SettingsPage() {
         />
       </SettingsGroup>
 
+      <SettingsGroup label="More apps">
+        <Row
+          icon={<img className="settings-row__app" src="/askesis/icon.svg" alt="" width={26} height={26} />}
+          title="Askesis"
+          value="Running, step by step"
+          onClick={() => window.location.assign('/askesis/')}
+        />
+      </SettingsGroup>
+
       <SettingsGroup label="About">
         <Row icon={<NoteIcon size={22} />} title="Help & feedback" onClick={() => setView('help')} />
         <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />

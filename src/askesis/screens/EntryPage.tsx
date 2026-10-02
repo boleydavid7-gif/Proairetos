@@ -1,0 +1,204 @@
+import { useEffect, useState } from 'react';
+import type { Nav, Route } from '../app/App';
+import { FeltFace } from '../app/icons';
+import { newId, useEntries, useSettings, useToday } from '../app/state';
+import { BackLink, Segmented, useUndo } from '../app/ui';
+import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
+import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
+import type { Plan } from '../core/plans';
+import { deleteEntry, putEntry } from '../data/store';
+import { locate } from './WorkoutPage';
+
+const digits = (text: string) => text.replace(/[^\d]/g, '').slice(0, 2);
+
+/**
+ * Logging a workout by hand: from a watch, or from memory. Only the date is
+ * needed; everything else can be left blank. Opening an earlier entry edits it.
+ */
+export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan }) {
+  const settings = useSettings();
+  const today = useToday();
+  const entries = useEntries();
+  const undo = useUndo();
+  const existing = route.id ? entries?.find((entry) => entry.id === route.id) : undefined;
+  const session = route.workoutId ? locate(route.workoutId, plan) : undefined;
+
+  const [activity, setActivity] = useState<Activity>('run');
+  const [date, setDate] = useState(today);
+  const [unit, setUnit] = useState<Unit>(settings.unit);
+  const [distance, setDistance] = useState('');
+  const [h, setH] = useState('');
+  const [m, setM] = useState('');
+  const [s, setS] = useState('');
+  const [hr, setHr] = useState('');
+  const [felt, setFelt] = useState<Felt>();
+  const [notes, setNotes] = useState('');
+  const [wentWell, setWentWell] = useState('');
+  const [nextTime, setNextTime] = useState('');
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaded) return;
+    if (route.id && !existing) return;
+    const seconds = existing?.seconds ?? route.seconds;
+    if (seconds) {
+      setH(seconds >= 3600 ? String(Math.floor(seconds / 3600)) : '');
+      setM(String(Math.floor((seconds % 3600) / 60)));
+      setS(String(Math.round(seconds % 60)).padStart(2, '0'));
+    }
+    if (existing) {
+      setActivity(existing.activity);
+      setDate(existing.date);
+      if (existing.meters) setDistance(inUnit(existing.meters, unit).toFixed(2).replace(/\.?0+$/, ''));
+      if (existing.avgHr) setHr(String(existing.avgHr));
+      setFelt(existing.felt);
+      setNotes(existing.notes ?? '');
+      setWentWell(existing.wentWell ?? '');
+      setNextTime(existing.nextTime ?? '');
+    } else if (session?.workout.kind === 'walk') setActivity('walk');
+    setLoaded(true);
+  }, [existing, loaded]);
+
+  const seconds = (Number(h) || 0) * 3600 + (Number(m) || 0) * 60 + (Number(s) || 0);
+  const meters = parseDistance(distance, unit);
+  const pace = meters && seconds ? paceOf(seconds, meters, unit) : undefined;
+  const title = existing?.workoutTitle ?? session?.workout.title;
+
+  const switchUnit = (next: Unit) => {
+    if (meters) setDistance((meters / METERS[next]).toFixed(2).replace(/\.?0+$/, ''));
+    setUnit(next);
+  };
+
+  const save = async () => {
+    const entry: LogEntry = {
+      id: existing?.id ?? newId(),
+      createdAt: existing?.createdAt ?? new Date().toISOString(),
+      date: date || today,
+      activity,
+      seconds: seconds || undefined,
+      meters,
+      avgHr: Number(hr) > 30 && Number(hr) < 240 ? Math.round(Number(hr)) : undefined,
+      felt,
+      notes: notes.trim() || undefined,
+      wentWell: wentWell.trim() || undefined,
+      nextTime: nextTime.trim() || undefined,
+      intention: existing?.intention ?? route.intention,
+      workoutId: existing?.workoutId ?? route.workoutId,
+      workoutTitle: title,
+    };
+    await putEntry(entry);
+    nav.swap({ name: 'log' });
+  };
+
+  const remove = async () => {
+    if (!existing) return;
+    await deleteEntry(existing.id);
+    undo('Workout removed', () => void putEntry(existing));
+    nav.back();
+  };
+
+  return (
+    <div className="page entry">
+      <BackLink label="Back" onBack={nav.back} />
+      <h1 className="title">{existing ? 'Your workout' : 'Log workout'}</h1>
+      {title && <p className="muted">{title}</p>}
+
+      <Segmented
+        label="Activity"
+        value={activity}
+        options={(Object.keys(activities) as Activity[]).map((id) => ({ id, label: activities[id] }))}
+        onChange={setActivity}
+        small
+      />
+
+      <label className="field">
+        <span className="label">Date</span>
+        <input className="input" type="date" value={date} max={today} onChange={(event) => setDate(event.target.value)} />
+      </label>
+
+      <div className="field">
+        <label className="label" htmlFor="distance">
+          Distance
+        </label>
+        <div className="input-row">
+          <input
+            id="distance"
+            className="input"
+            inputMode="decimal"
+            placeholder="Optional"
+            value={distance}
+            onChange={(event) => setDistance(event.target.value)}
+          />
+          <Segmented
+            label="Unit"
+            value={unit}
+            options={[
+              { id: 'mi', label: 'mi' },
+              { id: 'km', label: 'km' },
+            ]}
+            onChange={switchUnit}
+            small
+          />
+        </div>
+      </div>
+
+      <fieldset className="field time-field">
+        <legend className="label">Time</legend>
+        <div className="time-boxes">
+          <input className="input" inputMode="numeric" aria-label="Hours" placeholder="00" value={h} onChange={(event) => setH(digits(event.target.value))} />
+          <span aria-hidden="true">:</span>
+          <input className="input" inputMode="numeric" aria-label="Minutes" placeholder="MM" value={m} onChange={(event) => setM(digits(event.target.value))} />
+          <span aria-hidden="true">:</span>
+          <input className="input" inputMode="numeric" aria-label="Seconds" placeholder="00" value={s} onChange={(event) => setS(digits(event.target.value))} />
+        </div>
+        <p className="hint">{pace ? `Pace ${formatPace(pace, unit)}, worked out from time and distance.` : 'With a time and distance, the pace works itself out.'}</p>
+      </fieldset>
+
+      <label className="field">
+        <span className="label">Average heart rate</span>
+        <input className="input" inputMode="numeric" placeholder="Optional, bpm" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
+      </label>
+
+      <div className="field">
+        <span className="label" id="felt-label">
+          How did it feel?
+        </span>
+        <div className="faces" role="group" aria-labelledby="felt-label">
+          {(Object.keys(feelings) as Felt[]).map((id) => (
+            <button key={id} type="button" className="face" aria-pressed={felt === id} onClick={() => setFelt(felt === id ? undefined : id)}>
+              <FeltFace felt={id} />
+              <span>{feelings[id]}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="field">
+        <span className="label">Notes</span>
+        <textarea className="input textarea" rows={3} placeholder="Conditions, route, anything to remember" value={notes} onChange={(event) => setNotes(event.target.value)} />
+      </label>
+
+      <details className="more-words" open={Boolean(wentWell || nextTime) || undefined}>
+        <summary>A few more words, if you like</summary>
+        <label className="field">
+          <span className="label">What went well?</span>
+          <input className="input" value={wentWell} onChange={(event) => setWentWell(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="label">Next time</span>
+          <input className="input" value={nextTime} onChange={(event) => setNextTime(event.target.value)} />
+        </label>
+      </details>
+      {(existing?.intention ?? route.intention) && <p className="hint">Before you started: “{existing?.intention ?? route.intention}”</p>}
+
+      <button type="button" className="button-main" onClick={() => void save()}>
+        Save workout
+      </button>
+      {existing && (
+        <button type="button" className="button-quiet" onClick={() => void remove()}>
+          Remove this workout
+        </button>
+      )}
+    </div>
+  );
+}
