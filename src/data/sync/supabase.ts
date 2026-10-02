@@ -106,9 +106,21 @@ export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey; reco
   return data ? { passphrase: data.passphrase_wrap as WrappedKey, recovery: data.recovery_wrap as WrappedKey } : null;
 }
 
-export async function saveWrappedKeys(passphrase: WrappedKey, recovery: WrappedKey): Promise<void> {
-  const { error } = await (await supabase()).from('user_keys').insert({ passphrase_wrap: passphrase, recovery_wrap: recovery });
-  if (error) throw new Error(error.message);
+export async function saveWrappedKeys(userId: string, passphrase: WrappedKey, recovery: WrappedKey): Promise<void> {
+  // The owner is named outright rather than left to the column default, so a
+  // table set up without that default still accepts the row.
+  // Insert, never overwrite: keys another device already saved must stay.
+  const { error } = await (await supabase())
+    .from('user_keys')
+    .insert({ user_id: userId, passphrase_wrap: passphrase, recovery_wrap: recovery });
+  if (error) throw new Error(signInExpired(error.message));
+}
+
+/** An RLS refusal here almost always means the sign-in did not reach the request. */
+function signInExpired(message: string): string {
+  return /row-level security/i.test(message)
+    ? 'The server did not recognise this sign-in. Sign out, sign in again with a new email link, and try once more.'
+    : message;
 }
 
 // ---------- Sealed records ----------

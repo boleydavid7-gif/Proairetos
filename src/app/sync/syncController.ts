@@ -207,7 +207,8 @@ export function prepareEncryption(passphrase: string): Promise<KeySetup> {
  * uploads the wrapped keys, keeps the key on this device, and starts syncing.
  */
 export async function confirmEncryption(setup: KeySetup): Promise<void> {
-  await saveWrappedKeys(setup.passphraseWrap, setup.recoveryWrap);
+  if (!userId) throw new Error('This device is not signed in any more. Sign in again, then set up once more.');
+  await saveWrappedKeys(userId, setup.passphraseWrap, setup.recoveryWrap);
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
   set({ phase: 'ready' });
