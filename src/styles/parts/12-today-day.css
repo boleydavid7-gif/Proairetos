@@ -250,3 +250,27 @@
 .place-row:disabled {
   opacity: 0.5;
 }
+
+/* ---------- Overlaps ---------- */
+
+.overlaps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.overlap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  background: rgba(var(--color-bg-rgb), 0.55);
+}
+
+.overlap__text {
+  margin: 0;
+}

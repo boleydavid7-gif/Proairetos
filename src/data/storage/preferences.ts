@@ -364,6 +364,21 @@ export function setEnergy(date: string, energy: Energy | undefined): void {
   writeJson(ENERGY_KEY, energy ? { date, energy } : null);
 }
 
+// ---------- Overlaps the person chose to keep ----------
+
+const KEPT_OVERLAPS_KEY = 'proairetos.keptOverlaps';
+
+/** Keys ("id@time") of overlaps the person said were fine. Moving the item makes a new key, so a new overlap is shown again. */
+export function keptOverlaps(): string {
+  return (readJson<string[]>(KEPT_OVERLAPS_KEY) ?? []).join('\n');
+}
+
+export function keepOverlap(key: string): void {
+  const kept = readJson<string[]>(KEPT_OVERLAPS_KEY) ?? [];
+  // Only the most recent are kept, so nothing piles up.
+  writeJson(KEPT_OVERLAPS_KEY, [...kept.filter((k) => k !== key), key].slice(-50));
+}
+
 // ---------- Quiet hours for reminders ----------
 
 const QUIET_KEY = 'proairetos.quietHours';

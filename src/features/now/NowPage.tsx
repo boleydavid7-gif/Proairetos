@@ -43,13 +43,16 @@ import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
 import OpenTime from '../today/OpenTime';
+import Overlaps from '../today/Overlaps';
+import { nextOpen, overlaps } from '../../core/rhythm/overlaps';
+
 import { itemSpan, openStretches } from '../../core/rhythm/openTime';
 import { loadQuietHours } from '../../data/storage/preferences';
 import BackupOffer from '../today/BackupOffer';
 import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
-import { buildDayTimeline, dayTitle } from '../today/timeline';
+import { blockTitle, buildDayTimeline, dayTitle } from '../today/timeline';
 import CaptureBar from './components/CaptureBar';
 import ImportantItems from './components/ImportantItems';
 import LookAhead from './components/LookAhead';
@@ -105,6 +108,15 @@ export default function NowPage() {
     ...items.filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.scheduledAt).map((item) => itemSpan(item.scheduledAt!)),
   ];
   const stretches = openStretches(todayRange, clock, busy, loadQuietHours());
+  const clashes = overlaps(
+    items,
+    [
+      ...nearOccurrences.map((block) => ({ start: block.start, end: block.end, title: blockTitle(block) })),
+      ...todayEvents.filter((event) => !event.allDay).map((event) => ({ start: event.start, end: event.end, title: event.title })),
+    ],
+    clock,
+    todayRange.end,
+  );
   const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns, calendarEvents) : [];
   const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
   const earlierIds = new Set(earlier.map((item) => item.id));
@@ -243,6 +255,8 @@ export default function NowPage() {
           />
         </section>
       )}
+
+      {isToday && <Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
 
       {isToday && shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
         <OpenTime stretches={stretches} items={items} today={today} />
