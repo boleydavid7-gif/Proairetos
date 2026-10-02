@@ -214,3 +214,16 @@
   background: transparent;
   text-align: left;
 }
+
+.other-calendars__item {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+
+.other-calendars__item .other-calendars__row {
+  border-bottom: 0;
+}
+
+.other-calendars__roles {
+  margin-left: 3.35rem;
+}

@@ -1,5 +1,7 @@
 import type { ExternalEvent } from '../../core/calendar/readIcs';
 import { createListeners } from '../../services/listeners';
+import { toLocalDate } from '../../core/scheduling/dates';
+import type { ScheduleOccurrence } from '../../core/scheduling/types';
 
 /**
  * Calendars the person reads from elsewhere (Google, Apple, Outlook, or a
@@ -12,12 +14,20 @@ export type CalendarSource = {
   /** A subscription link; absent for a one-time file import. */
   url?: string;
   shown: boolean;
+  /**
+   * How the calendar's timed events count, as the person chose: only shown;
+   * as work and commitments (a late one carries the day, like a night
+   * shift); or as protected time (reminders wait until it ends).
+   */
+  role?: CalendarRole;
   refreshedAt?: string;
   error?: string;
 };
 
+export type CalendarRole = 'show' | 'commitment' | 'protected';
+
 type StoredEvent = Omit<ExternalEvent, 'start' | 'end'> & { start: string; end: string };
-export type CalendarEvent = ExternalEvent & { source: string };
+export type CalendarEvent = ExternalEvent & { source: string; sourceId: string };
 
 const SOURCES_KEY = 'proairetos.otherCalendars';
 const eventsKey = (id: string) => `proairetos.otherCalendars.${id}`;
@@ -130,6 +140,31 @@ export const otherCalendars = {
     updateSource(id, { shown });
   },
 
+  setRole(id: string, role: CalendarRole) {
+    updateSource(id, { role });
+  },
+
+  /**
+   * Timed events from calendars the person set to count, shaped like
+   * schedule blocks, so the day's turnover, closing the day, and quiet
+   * hours treat them the same way. All-day events never count.
+   */
+  blocksBetween(start: Date, end: Date): ScheduleOccurrence[] {
+    const roles = new Map(calendarSources().map((source) => [source.id, source.role ?? 'show']));
+    return this.eventsBetween(start, end)
+      .filter((event) => !event.allDay && roles.get(event.sourceId) !== 'show')
+      .map((event) => ({
+        patternId: `calendar:${event.sourceId}`,
+        patternName: event.source,
+        kind: roles.get(event.sourceId) === 'protected' ? ('PROTECTED' as const) : ('COMMITTED' as const),
+        label: event.title,
+        date: toLocalDate(event.start),
+        start: event.start,
+        end: event.end,
+        changed: false,
+      }));
+  },
+
   /** Removes a calendar from this device, with an undo that puts it back as it was. */
   remove(id: string): { undo: () => Promise<void> } {
     const source = calendarSources().find((s) => s.id === id);
@@ -155,6 +190,7 @@ export const otherCalendars = {
           start: new Date(event.start),
           end: new Date(event.end),
           source: source.name,
+          sourceId: source.id,
         })),
       )
       .filter((event) => event.start < end && event.end > start)

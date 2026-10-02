@@ -1,7 +1,14 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
+import { calendarSources, otherCalendars, type CalendarRole } from '../../app/calendars/otherCalendars';
+import { refreshReminders } from '../../app/sync/syncController';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
+
+const roles: { id: CalendarRole; label: string }[] = [
+  { id: 'show', label: 'Just show' },
+  { id: 'commitment', label: 'Counts as work' },
+  { id: 'protected', label: 'Counts as protected time' },
+];
 
 const guides: { name: string; steps: string }[] = [
   {
@@ -63,34 +70,56 @@ export default function OtherCalendarsSection() {
           See events from Google, Apple, or Outlook alongside your day, on Today and Plan. Read-only: Proairetos never
           changes them. The links and events stay on this device.
         </p>
+        <p className="sheet__hint">
+          “Counts as work” lets a late or overnight event keep your day going, like a night shift, and sets when Close
+          the day appears. “Counts as protected time” holds reminders until it ends.
+        </p>
         {sources.length > 0 && (
           <ul className="other-calendars">
             {sources.map((source) => (
-              <li key={source.id} className="other-calendars__row">
-                <button
-                  type="button"
-                  className="toggle-row"
-                  aria-pressed={source.shown}
-                  onClick={() => otherCalendars.setShown(source.id, !source.shown)}
-                >
-                  <span className={`toggle-switch${source.shown ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-                  <span className="other-calendars__text">
-                    <span>{source.name}</span>
-                    <span className="other-calendars__meta">
-                      {source.error ? source.error : source.url ? updatedLabel(source.refreshedAt) : 'Imported from a file'}
+              <li key={source.id} className="other-calendars__item">
+                <div className="other-calendars__row">
+                  <button
+                    type="button"
+                    className="toggle-row"
+                    aria-pressed={source.shown}
+                    onClick={() => otherCalendars.setShown(source.id, !source.shown)}
+                  >
+                    <span className={`toggle-switch${source.shown ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+                    <span className="other-calendars__text">
+                      <span>{source.name}</span>
+                      <span className="other-calendars__meta">
+                        {source.error ? source.error : source.url ? updatedLabel(source.refreshedAt) : 'Imported from a file'}
+                      </span>
                     </span>
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  className="button-quiet"
-                  onClick={() => {
-                    const removal = otherCalendars.remove(source.id);
-                    offerUndo(`Removed ${source.name}`, removal.undo);
-                  }}
-                >
-                  Remove
-                </button>
+                  </button>
+                  <button
+                    type="button"
+                    className="button-quiet"
+                    onClick={() => {
+                      const removal = otherCalendars.remove(source.id);
+                      offerUndo(`Removed ${source.name}`, removal.undo);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div className="chip-row other-calendars__roles" role="group" aria-label={`How ${source.name} counts`}>
+                  {roles.map((role) => (
+                    <button
+                      key={role.id}
+                      type="button"
+                      className="chip chip--small"
+                      aria-pressed={(source.role ?? 'show') === role.id}
+                      onClick={() => {
+                        otherCalendars.setRole(source.id, role.id);
+                        void refreshReminders();
+                      }}
+                    >
+                      {role.label}
+                    </button>
+                  ))}
+                </div>
               </li>
             ))}
           </ul>

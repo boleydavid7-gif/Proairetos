@@ -32,7 +32,7 @@ rule: **the system records life; it does not interpret life.**
 ```
 npm install
 npm run dev          # local dev server
-npm test             # vitest (225 tests), includes the language guard
+npm test             # vitest (227 tests), includes the language guard
 npm run typecheck
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
@@ -120,7 +120,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `worker/calendarProxy.ts` at `/api/calendar` (https only, calendar files
   only, nothing stored). `wrangler.jsonc` runs the Worker only for `/api/*`;
   the service worker never caches `/api/`. Events show in Today's timeline
-  and on Plan.
+  and on Plan. Each calendar has a role (Just show / Counts as work /
+  Counts as protected time); `blocksBetween()` turns timed events from
+  counting calendars into schedule-shaped blocks for `usePersonalDay`,
+  `closingFrom`, and reminder quiet hours.
 - Weather (opt-in, `app/weather/weather.ts`, Open-Meteo, no key): the
   sky beside the icons on Today (`TodayWeather`), and recorded as
   `sky` on new reflections (Journal, Close the day, look-ahead plan).

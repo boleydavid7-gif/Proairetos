@@ -34,6 +34,7 @@ import {
 } from '../services';
 import { upcomingReminders } from './reminders';
 import { buildCalendarFile } from './calendarFile';
+import { otherCalendars } from '../calendars/otherCalendars';
 import { loadCalendarFeed, loadQuietHours, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
 
 export type SyncPhase =
@@ -119,7 +120,8 @@ async function updateReminders() {
   if (!userId || status.reminders !== 'on') return;
   const [items, decisions] = await Promise.all([lifeService.list(), decisionService.list()]);
   const now = new Date();
-  const blocks = await scheduleService.occurrencesBetween(now, new Date(now.getTime() + 15 * 86_400_000));
+  const until = new Date(now.getTime() + 15 * 86_400_000);
+  const blocks = [...(await scheduleService.occurrencesBetween(now, until)), ...otherCalendars.blocksBetween(now, until)];
   await replaceReminders(userId, await upcomingReminders(items, decisions, now, { quiet: loadQuietHours(), blocks }));
 }
 
