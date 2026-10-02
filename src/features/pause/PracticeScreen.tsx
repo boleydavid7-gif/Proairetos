@@ -14,12 +14,11 @@ export default function PracticeScreen({ practiceId, onClose }: Props) {
   const [step, setStep] = useState(0);
   const [showSource, setShowSource] = useState(false);
 
-  // Back steps back through the practice, then to the list, then out.
-  useBackHandler(true, () => {
-    if (chosen && step > 0) setStep(step - 1);
-    else if (chosen && !practiceId) setChosen(undefined);
-    else onClose();
-  });
+  // One back step per layer: a practice chosen from the list returns to the
+  // list, and the screen itself closes. Each registers while it is open, so
+  // repeated back gestures always land on what is showing.
+  useBackHandler(true, onClose);
+  useBackHandler(chosen !== undefined && !practiceId, () => setChosen(undefined));
 
   if (!chosen) {
     return (
@@ -80,9 +79,16 @@ export default function PracticeScreen({ practiceId, onClose }: Props) {
                 <span key={index} className={index === step ? 'practice__dot practice__dot--here' : 'practice__dot'} />
               ))}
             </div>
-            <button type="button" className="button-accent" onClick={() => setStep(step + 1)}>
-              {step === practice.steps.length - 1 ? 'Finish' : 'Next'}
-            </button>
+            <div className="practice__nav">
+              {step > 0 && (
+                <button type="button" className="button-quiet" onClick={() => setStep(step - 1)}>
+                  Back
+                </button>
+              )}
+              <button type="button" className="button-accent" onClick={() => setStep(step + 1)}>
+                {step === practice.steps.length - 1 ? 'Finish' : 'Next'}
+              </button>
+            </div>
             <button type="button" className="button-quiet pause-screen__end" onClick={onClose}>
               End here
             </button>

@@ -18,8 +18,9 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   const [error, setError] = useState('');
   // Shows a tap at once; the saved value takes over when it arrives.
   const [pending, setPending] = useState<Record<string, boolean>>({});
+  // Done picks still hold their place in the three, so they are listed (and can be unpicked) too.
   const open = items
-    .filter(isOpen)
+    .filter((item) => isOpen(item) || (item.status === 'DONE' && item.pickedFor === date))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const isPicked = (item: LifeItem) => pending[item.id] ?? item.pickedFor === date;
 

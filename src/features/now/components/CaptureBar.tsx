@@ -47,12 +47,12 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
-      {text.trim() ? (
+      {/* The mic stays mounted while text arrives, so dictation keeps listening across phrases. */}
+      {variant === 'box' && <MicButton onText={(spoken) => setText((current) => (current ? `${current} ${spoken}` : spoken))} />}
+      {text.trim() && (
         <button type="submit" className="capture-bar__submit">
           Add
         </button>
-      ) : (
-        variant === 'box' && <MicButton onText={(spoken) => setText((current) => (current ? `${current} ${spoken}` : spoken))} />
       )}
     </form>
   );

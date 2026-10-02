@@ -21,6 +21,10 @@ const item = (fields: Partial<LifeItem>): LifeItem => ({
 });
 
 describe('calendar file', () => {
+  it('escapes each special character with exactly one backslash', () => {
+    expect(escapeText('a;b')).toBe('a' + String.fromCharCode(92) + ';b');
+  });
+
   it('writes timed and all-day events in UTC with CRLF lines', () => {
     const ics = buildIcs(
       [
@@ -38,7 +42,7 @@ describe('calendar file', () => {
   });
 
   it('escapes text and folds long lines without breaking characters', () => {
-    expect(escapeText('Pick up milk, eggs; then\nhome')).toBe('Pick up milk\\, eggs\; then\\nhome');
+    expect(escapeText('Pick up milk, eggs; then\nhome')).toBe('Pick up milk\\, eggs\\; then\\nhome');
     const long = `SUMMARY:${'é'.repeat(60)}`;
     const folded = foldLine(long);
     expect(folded.split('\r\n ').join('')).toBe(long);

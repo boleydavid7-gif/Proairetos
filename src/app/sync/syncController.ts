@@ -8,6 +8,7 @@ import {
   deleteCalendarFeed,
   fetchCalendarFeedToken,
   publishCalendarFeed,
+  updateCalendarFeed,
   fetchWrappedKeys,
   isSyncConfigured,
   removePushSubscription,
@@ -271,49 +272,60 @@ export async function disableReminders(): Promise<void> {
 // Optional. The calendar file the person chose to publish is the one thing
 // the server can read; everything else stays encrypted.
 
-let feedToken: string | null = null;
-
 function newToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-/** Rebuilds and uploads the feed, if the person turned it on. */
+/**
+ * Rebuilds the feed's file after a sync, if this device has it on. The
+ * server's current link is the truth: if the feed was turned off or given a
+ * new link on another device, this never brings an old one back.
+ */
 export async function refreshCalendarFeed(): Promise<void> {
   const feed = loadCalendarFeed();
   if (!feed.enabled || status.phase !== 'ready' || !userId || !navigator.onLine) return;
-  feedToken ??= (await fetchCalendarFeedToken()) ?? newToken();
-  await publishCalendarFeed(userId, feedToken, await buildCalendarFile(feed.options));
+  const token = await fetchCalendarFeedToken();
+  if (!token) {
+    saveCalendarFeed({ ...feed, enabled: false });
+    return;
+  }
+  const updated = await updateCalendarFeed(userId, token, await buildCalendarFile(feed.options));
+  if (!updated) saveCalendarFeed({ ...feed, enabled: false });
 }
 
-/** Turns the feed on and returns its link. Another device that already published keeps its link. */
+/** Turns the feed on and returns its link. A link already in use (from another device) is kept. */
 export async function enableCalendarFeed(options: StoredFeedOptions): Promise<string> {
   if (status.phase !== 'ready' || !userId) throw new Error('Turn on sync first, in Account and sync.');
+  const token = (await fetchCalendarFeedToken()) ?? newToken();
+  await publishCalendarFeed(userId, token, await buildCalendarFile(options));
+  // Marked on only once the file is really published.
   saveCalendarFeed({ enabled: true, options });
-  feedToken = (await fetchCalendarFeedToken()) ?? newToken();
-  await refreshCalendarFeed();
-  return calendarFeedUrl(feedToken);
+  return calendarFeedUrl(token);
 }
 
-/** The current link, if the feed is on. */
+/** The current link, read from the server so a link renewed elsewhere shows correctly. */
 export async function calendarFeedLink(): Promise<string | null> {
   if (!loadCalendarFeed().enabled || status.phase !== 'ready') return null;
-  feedToken ??= await fetchCalendarFeedToken();
-  return feedToken ? calendarFeedUrl(feedToken) : null;
+  const token = await fetchCalendarFeedToken();
+  if (!token) {
+    saveCalendarFeed({ ...loadCalendarFeed(), enabled: false });
+    return null;
+  }
+  return calendarFeedUrl(token);
 }
 
 /** A fresh link; the old one stops working, so calendars holding it no longer update. */
 export async function renewCalendarFeedLink(): Promise<string> {
   if (status.phase !== 'ready' || !userId) throw new Error('Turn on sync first, in Account and sync.');
-  feedToken = newToken();
-  await refreshCalendarFeed();
-  return calendarFeedUrl(feedToken);
+  const token = newToken();
+  await publishCalendarFeed(userId, token, await buildCalendarFile(loadCalendarFeed().options));
+  return calendarFeedUrl(token);
 }
 
 /** Deletes the published file; subscribed calendars stop updating. */
 export async function disableCalendarFeed(): Promise<void> {
   const feed = loadCalendarFeed();
-  saveCalendarFeed({ ...feed, enabled: false });
-  feedToken = null;
   if (userId) await deleteCalendarFeed(userId);
+  saveCalendarFeed({ ...feed, enabled: false });
 }

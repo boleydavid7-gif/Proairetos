@@ -187,3 +187,19 @@ export async function deleteCalendarFeed(userId: string): Promise<void> {
   const { error } = await (await supabase()).from('calendar_feeds').delete().eq('user_id', userId);
   if (error) throw new Error(error.message);
 }
+
+/**
+ * Refreshes an existing feed's file only. If the feed was turned off or
+ * given a new link elsewhere, nothing matches and nothing is recreated.
+ * Returns whether a feed was updated.
+ */
+export async function updateCalendarFeed(userId: string, token: string, ics: string): Promise<boolean> {
+  const { data, error } = await (await supabase())
+    .from('calendar_feeds')
+    .update({ ics, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('token', token)
+    .select('token');
+  if (error) throw new Error(error.message);
+  return (data?.length ?? 0) > 0;
+}

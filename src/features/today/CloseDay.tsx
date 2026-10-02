@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService, reflectionService } from '../../app/services';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import { useSheet } from '../../components/ui/useSheet';
 import type { LifeItem } from '../../core/life-items/types';
 import { addDays } from '../../core/scheduling/dates';
-import { closedDay, setClosedDay } from '../../data/storage/preferences';
+import { closedDay, setClosedDay, subscribePreferences } from '../../data/storage/preferences';
 import { useDoneIn } from './DoneToday';
 
 type Props = {
@@ -129,7 +129,8 @@ export default function CloseDay({
   now,
 }: Omit<Props, 'onClose'> & { availableFrom: Date; now: Date }) {
   const [open, setOpen] = useState(false);
-  const [closed, setClosed] = useState(() => closedDay() === today);
+  // Read live, so an undo, or the day turning over, shows straight away.
+  const closed = useSyncExternalStore(subscribePreferences, closedDay) === today;
   if (now.getTime() < availableFrom.getTime() || (closed && !open)) return null;
 
   return (
@@ -146,10 +147,7 @@ export default function CloseDay({
           today={today}
           range={range}
           items={items}
-          onClose={() => {
-            setOpen(false);
-            setClosed(closedDay() === today);
-          }}
+          onClose={() => setOpen(false)}
         />
       )}
     </>

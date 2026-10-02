@@ -166,3 +166,9 @@
   font-size: 0.875rem;
   line-height: 1.6;
 }
+
+.practice__nav {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}

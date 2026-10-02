@@ -29,7 +29,7 @@ function nextDate(date: string): string {
 
 /** Text values escape backslash, semicolon, comma, and newlines. */
 export function escapeText(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 }
 
 /** Lines longer than 75 bytes continue on the next line after a space, never splitting a character. */

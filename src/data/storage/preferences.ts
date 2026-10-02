@@ -51,6 +51,14 @@ function readJson<T>(key: string): T | null {
   }
 }
 
+// Screens that show a preference can listen, so a change (an undo, say) shows at once.
+const preferenceListeners = new Set<() => void>();
+
+export function subscribePreferences(listener: () => void): () => void {
+  preferenceListeners.add(listener);
+  return () => preferenceListeners.delete(listener);
+}
+
 function writeJson(key: string, value: unknown): void {
   try {
     if (value === null) localStorage.removeItem(key);
@@ -58,6 +66,7 @@ function writeJson(key: string, value: unknown): void {
   } catch {
     // Not saved across reloads in this browser; the app still works this visit.
   }
+  preferenceListeners.forEach((listener) => listener());
 }
 
 const FOCUS_KEY = 'proairetos.focusSession';
