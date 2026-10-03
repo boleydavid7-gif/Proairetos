@@ -129,6 +129,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `checklist` that clears each time (`setChecklist`); they stay off the
   timeline and send no reminders. Reminders respect quiet hours and
   protected time (`rhythm/quietHours.ts`; held, never dropped).
+- One backup for the family: the Proairetos backup file (`data/backup/format.ts`)
+  also carries Askesis (workouts, plan), SOMA (recipes, groceries) and every
+  app's settings from localStorage (`data/backup/family.ts`: prefixes
+  `proairetos.`, `askesis:`, `soma:`; never the sign-in session, caches,
+  drafts, other calendars' events, the calendar feed link, or Askesis songs).
+  All optional in the format, so older backups still restore. Askesis and
+  SOMA's Your data use the same card (`app/family/FamilyBackup.tsx`; their
+  older files still restore through `older`); any app's backup counts as the
+  one last backup (`proairetos.lastBackup`).
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer

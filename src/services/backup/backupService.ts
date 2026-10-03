@@ -8,12 +8,15 @@ import {
   type BackupData,
   type BackupFile,
 } from '../../data/backup/format';
+import type { FamilyData } from '../../data/backup/family';
 import type { Repositories } from '../../data/storage/deviceStorage';
 
 export type BackupServiceDeps = {
   userId: string;
   context: DomainContext;
   repositories: Repositories;
+  /** The other apps and every app's settings, in the same file (see data/backup/family.ts). */
+  family?: { gather(): Promise<FamilyData>; restore(data: FamilyData): Promise<void> };
 };
 
 /** Everything on the device, out to a file and back. The person's data, in their hands. */
@@ -32,7 +35,7 @@ function fromBase64(text: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-export function createBackupService({ userId, context, repositories: r }: BackupServiceDeps) {
+export function createBackupService({ userId, context, repositories: r, family }: BackupServiceDeps) {
   async function exportData(): Promise<BackupData> {
     const lifeItems = await r.items.list(userId);
     const [itemEvents, reflections, values, statements, schedulePatterns, scheduleExceptions, decisions] = await Promise.all([
@@ -45,7 +48,8 @@ export function createBackupService({ userId, context, repositories: r }: Backup
       r.decisions.list(userId),
     ]);
     const attachments = (await r.attachments.list(userId)).map((attachment) => ({ ...attachment, data: toBase64(attachment.data) }));
-    return { lifeItems, itemEvents, reflections, values, statements, schedulePatterns, scheduleExceptions, decisions, attachments };
+    const others = family ? await family.gather().catch(() => ({})) : {};
+    return { lifeItems, itemEvents, reflections, values, statements, schedulePatterns, scheduleExceptions, decisions, attachments, ...others };
   }
 
   async function deleteAll(): Promise<void> {
@@ -101,6 +105,7 @@ export function createBackupService({ userId, context, repositories: r }: Backup
       for (const exception of mine(data.scheduleExceptions)) await r.scheduleExceptions.put(exception);
       for (const decision of mine(data.decisions)) await r.decisions.add(decision);
       for (const attachment of mine(data.attachments ?? [])) await r.attachments.add({ ...attachment, data: fromBase64(attachment.data) });
+      if (family) await family.restore({ askesis: data.askesis, soma: data.soma, settings: data.settings });
     },
   };
 }

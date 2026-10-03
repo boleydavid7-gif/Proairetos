@@ -5,7 +5,8 @@ import { scene } from '../app/scenes';
 import { useSettings } from '../app/state';
 import { BackLink, Brand, Switch, useUndo } from '../app/ui';
 import { sources } from '../core/tryIt';
-import { backup, deleteEverything, restore, saveSettings, type Backup } from '../data/store';
+import FamilyBackup from '../../app/family/FamilyBackup';
+import { deleteEverything, restore, saveSettings, type Backup } from '../data/store';
 
 export default function MorePage({ nav }: { nav: Nav }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
@@ -124,49 +125,19 @@ export function SettingsPage({ nav }: { nav: Nav }) {
 
 export function DataPage({ nav }: { nav: Nav }) {
   const undo = useUndo();
-  const [status, setStatus] = useState<string>();
   const [confirming, setConfirming] = useState(false);
   return (
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">On this phone only.</p>
-      <div className="card">
-        <button
-          type="button"
-          className="button-quiet"
-          onClick={async () => {
-            const file = await backup();
-            const blob = new Blob([JSON.stringify(file)], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `soma-${file.savedAt.slice(0, 10)}.json`;
-            link.click();
-            URL.revokeObjectURL(link.href);
-          }}
-        >
-          Save a backup file
-        </button>
-        <label className="button-quiet">
-          Restore from a file
-          <input
-            type="file"
-            accept="application/json,.json"
-            hidden
-            onChange={async (event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              if (!file) return;
-              try {
-                const count = await restore(JSON.parse(await file.text()) as Backup);
-                setStatus(count === 1 ? 'One recipe brought in.' : `${count} recipes brought in.`);
-              } catch (cause) {
-                setStatus(cause instanceof Error ? cause.message : 'That file could not be read.');
-              }
-            }}
-          />
-        </label>
-      </div>
+      <FamilyBackup
+        older={async (text: string) => {
+          const file = JSON.parse(text) as Backup;
+          if (file.app !== 'soma') return undefined;
+          const count = await restore(file);
+          return count === 1 ? 'One recipe brought in from an older SOMA backup.' : `${count} recipes brought in from an older SOMA backup.`;
+        }}
+      />
       <div className="card">
         {confirming ? (
           <>
@@ -194,11 +165,6 @@ export function DataPage({ nav }: { nav: Nav }) {
           </button>
         )}
       </div>
-      {status && (
-        <p className="hint" role="status">
-          {status}
-        </p>
-      )}
     </div>
   );
 }

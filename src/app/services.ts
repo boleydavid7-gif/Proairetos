@@ -1,4 +1,5 @@
 import { systemContext } from '../core/context';
+import { gatherFamily, restoreFamily } from '../data/backup/family';
 import { createDeviceStorage } from '../data/storage/deviceStorage';
 import { createAttachmentService } from '../services/attachments/attachmentService';
 import { createBackupService } from '../services/backup/backupService';
@@ -45,6 +46,14 @@ export const scheduleService = createScheduleService({
 
 export const decisionService = createDecisionService({ userId, context, decisions: storage.decisions });
 
-export const backupService = createBackupService({ userId, context, repositories: storage });
+export const backupService = createBackupService({
+  userId,
+  context,
+  repositories: storage,
+  family: {
+    gather: async () => gatherFamily(await storage.database),
+    restore: async (data) => restoreFamily(data, await storage.database),
+  },
+});
 
 export const attachmentService = createAttachmentService({ userId, context, attachments: storage.attachments });

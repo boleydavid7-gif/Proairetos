@@ -6,11 +6,13 @@ import type { LifeItem } from '../../core/life-items/types';
 import type { Reflection } from '../../core/reflections/types';
 import type { ScheduleException, SchedulePattern } from '../../core/scheduling/types';
 import type { ChosenValue } from '../../core/values/types';
+import type { FamilyData } from './family';
 
 export const BACKUP_FORMAT = 'proairetos-backup';
 export const BACKUP_VERSION = 1;
 
-export interface BackupData {
+/** Proairetos's records, and (optional, so older backups still restore) Askesis, SOMA and every app's settings. */
+export interface BackupData extends FamilyData {
   lifeItems: LifeItem[];
   itemEvents: ItemEvent[];
   reflections: Reflection[];
@@ -46,7 +48,7 @@ export interface EncryptedBackup {
 
 export type BackupFile = PlainBackup | EncryptedBackup;
 
-export const backupKeys: (keyof BackupData)[] = [
+export const backupKeys: (keyof Omit<BackupData, keyof FamilyData | 'attachments'>)[] = [
   'lifeItems',
   'itemEvents',
   'reflections',
@@ -86,6 +88,13 @@ export function validateData(value: unknown): BackupData {
       }
     }
   }
+  const family = value as FamilyData;
+  const lists = (part: unknown, keys: string[]) =>
+    part === undefined || (isRecord(part) && keys.every((key) => part[key] === undefined || Array.isArray(part[key])));
+  if (!lists(family.askesis, ['workouts', 'plans']) || !lists(family.soma, ['recipes', 'groceries'])) {
+    throw new BackupError('Some of the other apps’ records in this file are damaged.');
+  }
+  if (family.settings !== undefined && !isRecord(family.settings)) throw new BackupError('The settings in this file are damaged.');
   return value as unknown as BackupData;
 }
 
@@ -106,9 +115,13 @@ export function parseBackupFile(text: string): BackupFile {
   return { ...(parsed as unknown as PlainBackup), data: validateData(parsed.data) };
 }
 
-export function countRecords(data: BackupData): Record<keyof BackupData, number> {
+export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes', number>;
+
+export function countRecords(data: BackupData): RecordCounts {
   return {
     ...Object.fromEntries(backupKeys.map((key) => [key, data[key]?.length ?? 0])),
     attachments: data.attachments?.length ?? 0,
-  } as Record<keyof BackupData, number>;
+    workouts: data.askesis?.workouts?.length ?? 0,
+    recipes: data.soma?.recipes?.length ?? 0,
+  } as RecordCounts;
 }

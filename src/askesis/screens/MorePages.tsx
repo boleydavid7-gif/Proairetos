@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import FamilyBackup from '../../app/family/FamilyBackup';
 import type { Nav } from '../app/App';
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
@@ -7,7 +8,6 @@ import { formatDuration, formatPace, METERS, parseDuration, raceDistances, timeF
 import { estimatedMax, maxHeartRate, zoneRanges } from '../core/zones';
 import {
   clearEntries,
-  exportAll,
   loadPlan,
   readBackup,
   restore,
@@ -15,7 +15,6 @@ import {
   savePlan,
   listEntries,
   putEntry,
-  type Backup,
 } from '../data/store';
 
 // ---------- Before you start ----------
@@ -232,32 +231,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
 
 export function DataPage({ nav }: { nav: Nav }) {
   const undo = useUndo();
-  const file = useRef<HTMLInputElement>(null);
-  const [pending, setPending] = useState<Backup>();
-  const [message, setMessage] = useState('');
   const [confirming, setConfirming] = useState(false);
-
-  const download = async () => {
-    const backup = await exportAll();
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `askesis-${backup.exportedAt.slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    setMessage(`Saved ${backup.entries.length} workouts.`);
-  };
-
-  const read = async (chosen: File | undefined) => {
-    if (!chosen) return;
-    try {
-      setPending(readBackup(await chosen.text()));
-      setMessage('');
-    } catch (cause) {
-      setMessage(cause instanceof Error ? cause.message : 'That file could not be read.');
-    }
-  };
 
   const wipe = async () => {
     const before = { entries: await listEntries(), plan: loadPlan() };
@@ -275,44 +249,13 @@ export function DataPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
       <p className="lead">On this phone, and synced when signed in to Proairetos.</p>
-      <div className="card">
-        <h2 className="card__title card__title--small">Back up</h2>
-        <button type="button" className="button-quiet" onClick={() => void download()}>
-          Save a backup file
-        </button>
-      </div>
-      <div className="card">
-        <h2 className="card__title card__title--small">Restore</h2>
-        <input ref={file} type="file" accept="application/json,.json" hidden onChange={(event) => void read(event.target.files?.[0])} />
-        {pending ? (
-          <>
-            <p>
-              A backup from {new Date(pending.exportedAt).toLocaleDateString()} with {pending.entries.length} workouts.
-            </p>
-            <div className="button-row">
-              <button
-                type="button"
-                className="button-main"
-                onClick={() =>
-                  void restore(pending).then(() => {
-                    setMessage('Restored.');
-                    setPending(undefined);
-                  })
-                }
-              >
-                Restore it
-              </button>
-              <button type="button" className="button-quiet" onClick={() => setPending(undefined)}>
-                Cancel
-              </button>
-            </div>
-          </>
-        ) : (
-          <button type="button" className="button-quiet" onClick={() => file.current?.click()}>
-            Choose a backup file
-          </button>
-        )}
-      </div>
+      <FamilyBackup
+        older={async (text: string) => {
+          const old = readBackup(text);
+          await restore(old);
+          return `Brought in ${old.entries.length} workouts from an older Askesis backup.`;
+        }}
+      />
       <div className="card">
         <h2 className="card__title card__title--small">Delete everything</h2>
         <p className="muted">Removes your plan and every workout, here and, if you sync, on your other devices. Your Proairetos data is not touched.</p>
@@ -331,11 +274,6 @@ export function DataPage({ nav }: { nav: Nav }) {
           </button>
         )}
       </div>
-      {message && (
-        <p className="hint" role="status">
-          {message}
-        </p>
-      )}
     </div>
   );
 }
