@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import type { Nav, Route } from '../app/App';
-import { BoxIcon, GearIcon, InfoIcon, JarIcon, Leaf } from '../app/icons';
+import { BoxIcon, GearIcon, InfoIcon, JarIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { useSettings } from '../app/state';
 import { BackLink, Brand, Switch, useUndo } from '../app/ui';
@@ -32,7 +32,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
         <li>
           <a className="row" href="/">
             <span className="row__icon">
-              <Leaf size={22} />
+              <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
             </span>
             <span className="row__text">
               <span>Proairetos</span>
@@ -43,7 +43,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
         <li>
           <a className="row" href="/askesis/">
             <span className="row__icon">
-              <Leaf size={22} />
+              <img className="row__app" src="/askesis/icon.svg" alt="" width={26} height={26} />
             </span>
             <span className="row__text">
               <span>Askesis</span>

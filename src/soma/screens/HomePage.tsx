@@ -54,22 +54,18 @@ export default function HomePage({ nav }: { nav: Nav }) {
           <button type="button" className="tile" onClick={() => nav.go({ name: 'import' })}>
             <LinkIcon size={26} />
             <span className="tile__title">Import</span>
-            <span className="tile__detail">From a link or text</span>
           </button>
           <button type="button" className="tile" onClick={() => nav.go({ name: 'edit' })}>
             <PlusIcon size={26} />
             <span className="tile__title">Add</span>
-            <span className="tile__detail">Write one in</span>
           </button>
           <button type="button" className="tile" onClick={() => nav.swap({ name: 'recipes' })}>
             <BookIcon size={26} />
             <span className="tile__title">My recipes</span>
-            <span className="tile__detail">{recipes[0]?.title ?? 'Nothing here yet'}</span>
           </button>
           <button type="button" className="tile" onClick={() => nav.swap({ name: 'groceries' })}>
             <BasketIcon size={26} />
             <span className="tile__title">Groceries</span>
-            <span className="tile__detail">By aisle</span>
           </button>
         </div>
 

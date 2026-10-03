@@ -2347,3 +2347,23 @@ html[data-nav='back']::view-transition-new(root) {
   flex: 1;
   min-width: 0;
 }
+
+/* Another app's own icon, as on the home screen. */
+.row__app {
+  display: block;
+  border-radius: 7px;
+}
+
+/* The Askesis mark: dark on light pages, light over photographs. */
+:root[data-theme='light'] {
+  --mark: #2c3a34;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --mark: #2c3a34;
+  }
+}
+.hero__content,
+.welcome__content {
+  --mark: #e8ece9;
+}

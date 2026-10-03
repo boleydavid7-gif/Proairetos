@@ -1,5 +1,5 @@
 import type { Nav, Route } from '../app/App';
-import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, Mark, ShieldIcon, TargetIcon } from '../app/icons';
+import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { Brand } from '../app/ui';
 import { useAccount, useSettings } from '../app/state';
@@ -48,11 +48,23 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
         <li>
           <a className="row" href="/">
             <span className="row__icon">
-              <Mark size={24} />
+              <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
             </span>
             <span className="row__text">
               <span>Proairetos</span>
               <span className="row__detail">Your days, your values, your reflections</span>
+            </span>
+            <ChevronIcon size={18} />
+          </a>
+        </li>
+        <li>
+          <a className="row" href="/soma/">
+            <span className="row__icon">
+              <img className="row__app" src="/soma/icon.svg" alt="" width={26} height={26} />
+            </span>
+            <span className="row__text">
+              <span>SOMA</span>
+              <span className="row__detail">Recipes and groceries</span>
             </span>
             <ChevronIcon size={18} />
           </a>
@@ -92,7 +104,7 @@ function Account() {
   const body = (
     <>
       <span className="row__icon">
-        <Mark size={24} />
+        <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
       </span>
       <span className="row__text">
         <span>{title}</span>

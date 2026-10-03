@@ -25,7 +25,7 @@ function Icon({ size = 22, className, children, fill }: IconProps & { children: 
 export function Mark({ size = 30 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M2 40 L19 10 L27 23 L32 16 L46 40 Z" fill="#e8ece9" />
+      <path d="M2 40 L19 10 L27 23 L32 16 L46 40 Z" fill="var(--mark, #e8ece9)" />
       <path d="M19 10 L22.3 15.3 L21 14.5 L19.5 16.2 L18 14.3 L16 15.3 Z" fill="#86d9b0" />
     </svg>
   );
