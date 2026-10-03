@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v10';
+const CACHE = 'proairetos-v11';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   // Askesis, the training app, has its own service worker and cache.
-  if (url.origin === self.location.origin && url.pathname.startsWith('/askesis')) return;
+  if (url.origin === self.location.origin && (url.pathname.startsWith('/askesis') || url.pathname.startsWith('/soma'))) return;
 
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {

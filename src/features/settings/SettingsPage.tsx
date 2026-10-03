@@ -966,6 +966,12 @@ export default function SettingsPage() {
           value="Running, step by step"
           onClick={() => window.location.assign('/askesis/')}
         />
+        <Row
+          icon={<img className="settings-row__app" src="/soma/icon.svg" alt="" width={26} height={26} />}
+          title="SOMA"
+          value="Recipes and groceries"
+          onClick={() => window.location.assign('/soma/')}
+        />
       </SettingsGroup>
 
       <SettingsGroup label="About">

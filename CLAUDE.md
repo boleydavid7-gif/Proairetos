@@ -392,6 +392,24 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Photos: `src/askesis/assets/scenes/*.webp` (cut from the owner's sheet; low
   resolution, replace with larger originals when available).
 
+## SOMA (recipes, same repository)
+
+- A third app at `/soma/` (`soma/index.html` -> `src/soma/`, own manifest,
+  icon (leaf sprig) and service worker in `public/soma/`; Proairetos's
+  `sw.js` ignores `/soma`; linked from Proairetos Settings > More apps).
+  Plan and what is built: `docs/SOMA.md`. Records, never judges: no
+  calories, scores or good/bad food; Ways to try it (`core/tryIt.ts`) are
+  optional, sourced, kept only as the person's notes.
+- Recipes and groceries in IndexedDB `soma` (`data/store.ts`), device only for
+  now; settings in localStorage `soma:settings`. Import through the Worker
+  bridge `/api/recipe` (`worker/recipeProxy.ts`, JSON-LD only, nothing
+  stored) or pasted text; Ideas from TheMealDB (direct, CORS). Groceries by
+  aisle (`core/aisles.ts`, first matching phrase wins; moves remembered in
+  `aisleChoices`). Reuses Askesis UI pieces and `askesis.css`, with
+  `soma.css` tokens on `:root.soma`. "I cooked this" can keep a line in
+  Proairetos Reflect (promptKey `after-meal`).
+- The language guard covers it: no `loading="lazy"` (write images without it).
+
 ## Testing approach that has worked
 
 - Unit tests for domain, services, repositories (fake-indexeddb), sync
