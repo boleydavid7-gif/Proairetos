@@ -363,13 +363,17 @@ export function AboutPage({ nav }: { nav: Nav }) {
         Like Proairetos, it records and never judges: no streaks, no scores, nothing to catch up on. The plans offer;
         you choose. Everything stays on your phone.
       </p>
-      <h2 className="label">How the plans are built</h2>
+      <h2 className="label">How your path is built</h2>
+      <p>
+        One path, from your first walk-run onward, toward an aim you set: a time, a distance, or simply to keep running. You
+        join where you are, and the path goes only as far as your aim needs.
+      </p>
       <ul className="tips">
         <li>Mostly easy: hard running at a fifth of each week or less.</li>
-        <li>Gradual: weekly time grows under 10% between building weeks.</li>
+        <li>Gradual: weekly time grows under 10% between building weeks, and running days are added one at a time.</li>
         <li>An easier week every fourth week.</li>
         <li>Threshold runs, 4 × 4 intervals and long runs in their classic forms.</li>
-        <li>A two- to three-week taper before a race.</li>
+        <li>A taper before a distance aim, and counting back to a date if you give one.</li>
         <li>Effort and time, never pace, so they work anywhere and for anyone.</li>
       </ul>
       <h2 className="label">Sources</h2>

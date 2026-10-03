@@ -14,13 +14,12 @@ import WelcomePage from '../screens/WelcomePage';
 import PlanPage from '../screens/PlanPage';
 import AfterPage from '../screens/AfterPage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
-import type { Level } from '../core/plans';
 
 export type Route =
   | { name: Tab }
   | { name: 'welcome' }
   | { name: 'safety'; first?: boolean }
-  | { name: 'plan'; first?: boolean; level?: Level }
+  | { name: 'plan'; first?: boolean }
   | { name: 'workout'; id: string }
   | { name: 'guide'; id: string; intention?: string }
   | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; intention?: string; date?: string }
@@ -100,7 +99,7 @@ export default function App() {
       case 'safety':
         return <SafetyPage nav={nav} first={route.first} />;
       case 'plan':
-        return <PlanPage nav={nav} first={route.first} level={route.level} />;
+        return <PlanPage nav={nav} first={route.first} />;
       case 'home':
         return <HomePage nav={nav} plan={plan} planState={planState} />;
       case 'learn':

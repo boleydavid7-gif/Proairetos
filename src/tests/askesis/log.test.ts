@@ -1,7 +1,7 @@
 import { periodRange, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
 import { formatDuration, formatPace, paceOf, parseDistance, parseDuration } from '../../askesis/core/pace';
 import { layOut, nightNote } from '../../askesis/core/week';
-import { buildPlan } from '../../askesis/core/plans';
+import { buildPath } from '../../askesis/core/plans';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 
 const entry = (date: string, meters: number, seconds: number, extra: Partial<LogEntry> = {}): LogEntry => ({
@@ -54,7 +54,7 @@ describe('the log', () => {
 });
 
 describe('laying a plan week over the calendar', () => {
-  const plan = buildPlan({ level: 'intermediate', days: 3 });
+  const plan = buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 3 });
 
   it('puts sessions on the chosen weekdays and honours a move', () => {
     const week = plan.weeks[0];
@@ -81,7 +81,7 @@ describe('laying a plan week over the calendar', () => {
 });
 
 describe('a lighter day, and coming back', () => {
-  const plan = buildPlan({ level: 'intermediate', days: 4 });
+  const plan = buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 4 });
 
   it('makes any session easier and shorter, with nothing hard', async () => {
     const { lighterVersion, asToday } = await import('../../askesis/core/gentler');
@@ -97,7 +97,7 @@ describe('a lighter day, and coming back', () => {
   it('halves the running in a beginner walk-run', async () => {
     const { lighterVersion } = await import('../../askesis/core/gentler');
     const { flatten } = await import('../../askesis/core/workouts');
-    const first = buildPlan({ level: 'beginner', days: 3 }).weeks[0].workouts[0];
+    const first = buildPath({ aim: { kind: 'time', minutes: 30 }, days: 3 }).weeks[0].workouts[0];
     const running = (w: typeof first) => flatten(w.parts).filter((s) => s.effort === 'easy').length;
     expect(running(lighterVersion(first))).toBe(4);
     expect(running(first)).toBe(8);

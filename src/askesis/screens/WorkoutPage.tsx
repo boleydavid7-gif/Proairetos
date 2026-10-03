@@ -7,7 +7,7 @@ import { useEntries, useSettings, useToday } from '../app/state';
 import { BackLink, dayLabel, Hero, Segmented } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { buildPlan, daysFor, defaultWeekdays, findWorkout, goalsFor, levels, type Level, type Plan } from '../core/plans';
+import { defaultWeekdays, examplePath, findWorkout, type Plan } from '../core/plans';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { intentionPrompt, raceDayLine } from '../core/stoic';
 import { isSet, lengthLabel, mainEffort, partLabel, totalMinutes, type Part } from '../core/workouts';
@@ -17,17 +17,13 @@ import { asToday, canLighten } from '../core/gentler';
 import { updatePlan } from '../app/state';
 
 /** Finds a session in the person's plan, or in any plan when browsing. */
+/** Finds a session in the person's path, or in the example path shown before an aim is set. */
 function locate(id: string, plan: Plan | undefined) {
   const found = plan && findWorkout(plan, id);
   if (found) return { ...found, plan };
-  for (const level of Object.keys(levels) as Level[])
-    for (const days of daysFor(level))
-      for (const goal of goalsFor(level)) {
-        const other = buildPlan({ level, days, goal });
-        const hit = findWorkout(other, id);
-        if (hit) return { ...hit, plan: other };
-      }
-  return undefined;
+  const example = examplePath();
+  const hit = findWorkout(example, id);
+  return hit && { ...hit, plan: example };
 }
 
 export { locate };
@@ -65,7 +61,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
         <h1 className="title">{workout.title}</h1>
         <p className="muted">
           Week {week.n} · {weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]]} ·{' '}
-          {levels[found.plan.level].name}
+          {week.stage}
         </p>
 
         <ul className="facts">

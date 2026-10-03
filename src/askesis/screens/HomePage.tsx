@@ -7,7 +7,8 @@ import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '
 import { Brand, dayLabel, greeting, Hero } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { levels, type Plan } from '../core/plans';
+import { aimWords, isLastWeek, weekAt, type Plan } from '../core/plans';
+import LookBack from './LookBack';
 import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
@@ -27,9 +28,10 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const thisWeeks = entries.filter((entry) => entry.date >= dates[0] && entry.date <= dates[6]);
   const lastWeeks = entries.filter((entry) => entry.date >= addDays(monday, -7) && entry.date < monday);
 
-  const week = plan && planState ? plan.weeks[Math.min(planState.week, plan.weeks.length) - 1] : undefined;
+  const resting = planState?.restWeek === monday;
+  const week = plan && planState && !resting ? weekAt(plan, planState.week) : undefined;
   const newWeek = planState && planState.weekOf < monday;
-  const finished = plan && planState && planState.week >= plan.weeks.length && newWeek && lastWeeks.length > 0;
+  const finished = Boolean(plan && planState && isLastWeek(plan, planState.week) && newWeek);
   const hardLastWeek = lastWeeks.filter((entry) => entry.felt === 'hard').length >= 2;
 
   const days: DayPlan[] = useMemo(
@@ -67,12 +69,20 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
       </Hero>
 
       <div className="page page--under-hero">
-        {!plan || !planState || !week ? (
+        {resting && planState ? (
+          <section className="card" aria-label="A week of rest">
+            <h2 className="card__title">A week of rest.</h2>
+            <p className="muted">Nothing planned. Next week, what comes next is yours to choose.</p>
+            <button type="button" className="button-quiet" onClick={() => updatePlan({ restWeek: undefined })}>
+              Back to the plan this week
+            </button>
+          </section>
+        ) : !plan || !planState || !week ? (
           <section className="card">
-            <h2 className="card__title">Choose your path</h2>
-            <p className="muted">Beginner, intermediate or advanced, three to six days a week.</p>
+            <h2 className="card__title">Set your aim</h2>
+            <p className="muted">A time, a distance, or just to keep running. The path starts where you are.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
-              Choose a plan
+              Set your aim
             </button>
           </section>
         ) : (
@@ -108,43 +118,14 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             {newWeek && (
               <section className="card card--offer" aria-label="A new week">
                 {finished ? (
-                  <>
-                    <h2 className="card__title">That’s the plan, done.</h2>
-                    <p className="muted">All {plan.weeks.length} weeks. What comes next is up to you.</p>
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button-main"
-                        onClick={() =>
-                          nav.go({
-                            name: 'plan',
-                            level:
-                              plan.level === 'beginner'
-                                ? 'intermediate'
-                                : plan.level === 'intermediate'
-                                  ? 'advanced'
-                                  : 'advanced',
-                          })
-                        }
-                      >
-                        See what’s next
-                      </button>
-                      <button
-                        type="button"
-                        className="button-quiet"
-                        onClick={() => updatePlan({ weekOf: monday, moves: {} })}
-                      >
-                        Keep this week
-                      </button>
-                    </div>
-                  </>
+                  <LookBack nav={nav} plan={plan} state={planState} entries={entries} today={today} />
                 ) : (
                   <>
                     <h2 className="card__title">Week {planState.week + 1} is ready.</h2>
                     <p className="muted">
                       {hardLastWeek
                         ? `Two or more runs last week felt hard. Staying on week ${planState.week} for another go is an option.`
-                        : `${plan.weeks[planState.week].theme}. Or stay on week ${planState.week} a little longer.`}
+                        : `${weekAt(plan, planState.week + 1).theme}. Or stay on week ${planState.week} a little longer.`}
                     </p>
                     <div className="button-row">
                       <button
@@ -168,13 +149,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             )}
 
             <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
-              <span className="card__eyebrow">Your current phase</span>
-              <span className="card__title">{levels[plan.level].name}</span>
-              <span className="muted">
-                {week.phase} · {week.theme}
-              </span>
+              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
+              <span className="card__title">{week.stage}</span>
+              <span className="muted">{week.theme}</span>
               <span className="card__foot">
-                Week {week.n} of {plan.weeks.length}
+                Week {week.n}
+                {plan.cycleFrom ? '' : ` of ${plan.weeks.length}`}
                 <ChevronIcon size={18} />
               </span>
             </button>

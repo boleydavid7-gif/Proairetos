@@ -3,15 +3,15 @@ import { BoxIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, Mark, S
 import { scene } from '../app/scenes';
 import { Brand } from '../app/ui';
 import { useAccount } from '../app/state';
-import { levels, type Plan } from '../core/plans';
+import { aimWords, type Plan } from '../core/plans';
 import type { ReactNode } from 'react';
 
 export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
     {
       icon: <TargetIcon />,
-      title: 'Your plan',
-      detail: plan ? `${levels[plan.level].name} · ${plan.days} days a week` : 'Choose a plan',
+      title: 'Your aim',
+      detail: plan ? `${aimWords(plan.aim)} · ${plan.days} days a week` : 'Set your aim',
       route: { name: 'plan' },
     },
     { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Optional numbers for each effort', route: { name: 'zones' } },

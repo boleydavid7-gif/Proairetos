@@ -1,92 +1,94 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { CheckIcon, ChevronIcon } from '../app/icons';
-import { Brand, Segmented } from '../app/ui';
-import { buildPlan, daysFor, defaultWeekdays, goals, levels, weekMinutes, type Level, type Plan } from '../core/plans';
+import { useSettings } from '../app/state';
+import { Brand } from '../app/ui';
+import { aimWords, defaultWeekdays, examplePath, stageLines, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
 
-/** Every plan, every week, open to look at. Nothing is locked. */
+/**
+ * The whole path, one continuous line of weeks grouped by stage. Every week
+ * is open to look at and to repeat; nothing is locked.
+ */
 export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
-  const [level, setLevel] = useState<Level>(plan?.level ?? 'beginner');
-  const shown = plan && plan.level === level ? plan : buildPlan({ level, days: daysFor(level)[0] });
-  const mine = plan && shown.id === plan.id;
-  const [open, setOpen] = useState<number | undefined>(mine ? planState?.week : undefined);
-  // Each session on its day: the days chosen for this plan, or the usual ones when looking at another plan.
-  const sessionDays = sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(shown.days), shown.days);
+  const settings = useSettings();
+  const shown = plan ?? examplePath();
+  const current = plan && planState ? planState.week : undefined;
+  // In a steady rhythm past the last listed week, the week shown is its place in the rhythm.
+  const currentListed = current && shown.cycleFrom && current > shown.weeks.length
+    ? shown.cycleFrom + ((current - shown.cycleFrom) % (shown.weeks.length - shown.cycleFrom + 1))
+    : current;
+  const [open, setOpen] = useState<number | undefined>(currentListed);
+  const sessionDays = sessionWeekdays(planState ? planState.weekdays : defaultWeekdays(shown.days), shown.days);
+
+  const row = (week: PlanWeek) => {
+    const here = currentListed === week.n;
+    const past = currentListed !== undefined && week.n < currentListed;
+    return (
+      <li key={week.n} className={`weeks__item${here ? ' weeks__item--current' : ''}`}>
+        <button type="button" className="weeks__head" aria-expanded={open === week.n} onClick={() => setOpen(open === week.n ? undefined : week.n)}>
+          <span className={`weeks__dot${past ? ' weeks__dot--past' : ''}${here ? ' weeks__dot--current' : ''}`} aria-hidden="true">
+            {past && <CheckIcon size={14} />}
+          </span>
+          <span className="weeks__text">
+            <span className="weeks__name">
+              Week {here && current ? current : week.n}
+              {here && <span className="weeks__here"> · this week</span>}
+            </span>
+            <span className="weeks__theme">
+              {week.theme} · {lengthLabel(weekMinutes(week))}
+            </span>
+          </span>
+          <ChevronIcon size={18} className={open === week.n ? 'turned' : undefined} />
+        </button>
+        {open === week.n && (
+          <ul className="weeks__sessions">
+            {week.workouts.map((workout, i) => (
+              <li key={workout.id}>
+                <button type="button" className="session-row" onClick={() => nav.go({ name: 'workout', id: workout.id })}>
+                  <span className="session-row__day">{weekdayNames[sessionDays[i]].slice(0, 3)}</span>
+                  <span className="session-row__main">
+                    <span className="session-row__title">{workout.title}</span>
+                    <span className="session-row__summary">{workout.summary}</span>
+                  </span>
+                  <span className="session-row__len">{workout.kind === 'race' ? '' : lengthLabel(totalMinutes(workout.parts))}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    );
+  };
 
   return (
     <div className="page">
       <Brand />
       <h1 className="title">Train</h1>
-      <p className="lead">Structured plans for every level. Every week is open; repeat any of them.</p>
-      <Segmented
-        label="Level"
-        value={level}
-        options={(Object.keys(levels) as Level[]).map((id) => ({ id, label: levels[id].name }))}
-        onChange={(next) => {
-          setLevel(next);
-          setOpen(plan?.level === next ? planState?.week : undefined);
-        }}
-      />
-      <p className="muted plan-line">
-        {levels[level].line} {shown.weeks.length} weeks
-        {level === 'advanced' ? `, ${goals[shown.goal].name.toLowerCase()}` : ''}, {shown.days} days a week.
+      <p className="lead">
+        {plan ? `${planState?.aimWords ?? aimWords(plan.aim, settings.unit)}. ` : 'An example path: a 10K, three days a week. '}
+        One path, week by week. Every week is open; repeat any of them.
       </p>
 
-      <ol className="weeks">
-        {shown.weeks.map((week) => {
-          const current = mine && planState?.week === week.n;
-          const past = mine && planState && week.n < planState.week;
-          return (
-            <li key={week.n} className={`weeks__item${current ? ' weeks__item--current' : ''}`}>
-              <button
-                type="button"
-                className="weeks__head"
-                aria-expanded={open === week.n}
-                onClick={() => setOpen(open === week.n ? undefined : week.n)}
-              >
-                <span className={`weeks__dot${past ? ' weeks__dot--past' : ''}${current ? ' weeks__dot--current' : ''}`} aria-hidden="true">
-                  {past && <CheckIcon size={14} />}
-                </span>
-                <span className="weeks__text">
-                  <span className="weeks__name">
-                    Week {week.n}
-                    {current && <span className="weeks__here"> · this week</span>}
-                  </span>
-                  <span className="weeks__theme">
-                    {week.theme} · {lengthLabel(weekMinutes(week))}
-                  </span>
-                </span>
-                <ChevronIcon size={18} className={open === week.n ? 'turned' : undefined} />
-              </button>
-              {open === week.n && (
-                <ul className="weeks__sessions">
-                  {week.workouts.map((workout, i) => (
-                    <li key={workout.id}>
-                      <button type="button" className="session-row" onClick={() => nav.go({ name: 'workout', id: workout.id })}>
-                        <span className="session-row__day">{weekdayNames[sessionDays[i]].slice(0, 3)}</span>
-                        <span className="session-row__main">
-                          <span className="session-row__title">{workout.title}</span>
-                          <span className="session-row__summary">{workout.summary}</span>
-                        </span>
-                        <span className="session-row__len">{workout.kind === 'race' ? '' : lengthLabel(totalMinutes(workout.parts))}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          );
-        })}
-      </ol>
+      {stagesOf(shown).map((stage) => (
+        <section key={`${stage.stage}-${stage.from}`} className="stage" aria-label={stage.stage}>
+          <div className="stage__head">
+            <h2 className="stage__name">{stage.stage}</h2>
+            <span className="stage__weeks">
+              {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
+            </span>
+          </div>
+          <p className="hint">{stageLines[stage.stage]}</p>
+          <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
+        </section>
+      ))}
+      {shown.cycleFrom && <p className="hint">And then round again, for as long as you like.</p>}
 
-      {!mine && (
-        <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan', level })}>
-          Use the {levels[level].name.toLowerCase()} plan
-        </button>
-      )}
+      <button type="button" className={plan ? 'button-quiet' : 'button-main'} onClick={() => nav.go({ name: 'plan' })}>
+        {plan ? 'Change your aim' : 'Set your aim'}
+      </button>
     </div>
   );
 }

@@ -3,10 +3,11 @@ import type { LogEntry } from '../../askesis/core/log';
 import { activities } from '../../askesis/core/log';
 import { asToday } from '../../askesis/core/gentler';
 import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pace';
-import { buildPlan } from '../../askesis/core/plans';
+import { buildPath, weekAt } from '../../askesis/core/plans';
 import { layOut } from '../../askesis/core/week';
+import { mondayOnOrBefore as mondayOf } from '../../core/scheduling/dates';
 import { lengthLabel, totalMinutes, type Workout } from '../../askesis/core/workouts';
-import type { PlanState } from '../../askesis/data/store';
+import { fromOldPlan, type PlanState } from '../../askesis/data/store';
 import { stores } from '../../data/storage/indexeddb/database';
 import { deviceDatabase } from '../services';
 import { onRemoteChanges } from '../sync/syncController';
@@ -42,7 +43,8 @@ export async function readRuns(): Promise<Runs> {
     readAll<LogEntry>(db, stores.askesisWorkouts),
     readAll<PlanState & { id: string }>(db, stores.askesisPlans),
   ]);
-  return { workouts, plan: plans.find((record) => record.id === 'current'), unit: unit() };
+  const record = plans.find((each) => each.id === 'current');
+  return { workouts, plan: record && fromOldPlan(record as PlanState & { week: number }), unit: unit() };
 }
 
 /** Kept fresh when a sync brings runs from elsewhere, or on coming back to the app. */
@@ -68,9 +70,17 @@ export function useRuns(): Runs | undefined {
 export function todaysRun(runs: Runs | undefined, today: string): Workout | undefined {
   const state = runs?.plan;
   if (!state) return undefined;
-  const plan = buildPlan({ level: state.level, days: state.days, goal: state.goal });
-  const week = plan.weeks[Math.min(state.week, plan.weeks.length) - 1];
-  if (!week) return undefined;
+  const plan = buildPath({
+    aim: state.aim,
+    days: state.days,
+    gentler: state.gentler,
+    raceDate: state.raceDate,
+    joinWeek: state.joinWeek,
+    today: state.startedOn,
+  });
+  // A rest week the person chose: nothing planned.
+  if (state.restWeek === mondayOf(today)) return undefined;
+  const week = weekAt(plan, state.week);
   const day = layOut(week, today, state.weekdays, state.moves, runs.workouts.filter((entry) => entry.date === today)).find(
     (each) => each.date === today && !each.done,
   );

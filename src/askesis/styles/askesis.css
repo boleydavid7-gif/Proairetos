@@ -2052,3 +2052,47 @@ html[data-nav='back']::view-transition-new(root) {
   color: var(--mint);
   border-color: rgba(134, 217, 176, 0.4);
 }
+
+/* ---------- The path, by stage ---------- */
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stage__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 6px;
+}
+
+.stage__name {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+
+.stage__weeks {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.path-summary p {
+  margin: 0;
+}
+
+.input-unit {
+  align-self: center;
+}
+
+.look-back__facts {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-soft);
+}

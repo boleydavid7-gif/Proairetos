@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { addDays, mondayOnOrBefore, parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 import { syncStatus, type SyncStatus } from '../../app/sync/syncController';
-import { buildPlan, defaultWeekdays, type Plan, type PlanChoice } from '../core/plans';
+import { buildPath, defaultWeekdays, type PathChoice, type Plan } from '../core/plans';
 import type { LogEntry } from '../core/log';
 import { scheduleBetween } from '../data/proairetosSchedule';
 import {
@@ -36,10 +36,22 @@ export function usePlanState(): PlanState | undefined {
   return useMemo(() => loadPlan(), [v]);
 }
 
+/** The path from what is saved: same aim, days, pace and date give the same path. */
+export function pathFor(state: PlanState): Plan {
+  return buildPath({
+    aim: state.aim,
+    days: state.days,
+    gentler: state.gentler,
+    raceDate: state.raceDate,
+    joinWeek: state.joinWeek,
+    today: state.startedOn,
+  });
+}
+
 export function usePlan(state: PlanState | undefined): Plan | undefined {
   return useMemo(
-    () => (state ? buildPlan({ level: state.level, days: state.days, goal: state.goal }) : undefined),
-    [state?.level, state?.days, state?.goal],
+    () => (state ? pathFor(state) : undefined),
+    [JSON.stringify(state?.aim), state?.days, state?.gentler, state?.raceDate, state?.joinWeek, state?.startedOn],
   );
 }
 
@@ -80,14 +92,23 @@ export function useWeekSchedule(today: string, allowed: boolean): ScheduleOccurr
   return blocks;
 }
 
-export function startPlan(choice: PlanChoice & { weekdays?: number[]; week?: number }, today: string): void {
-  const plan = buildPlan(choice);
+export type PathStart = PathChoice & { weekdays?: number[]; week?: number; aimWords?: string };
+
+/** Begins a path: from the week chosen, on the days chosen. */
+export function startPlan(choice: PathStart, today: string, keep: Partial<PlanState> = {}): void {
+  const join = Math.max(1, choice.week ?? 1);
+  const days = Math.min(6, Math.max(3, choice.days));
+  const plan = buildPath({ ...choice, days, joinWeek: join, today });
   savePlan({
-    level: plan.level,
-    goal: plan.goal,
-    days: plan.days,
-    weekdays: choice.weekdays?.length === plan.days ? choice.weekdays : defaultWeekdays(plan.days),
-    week: Math.min(plan.weeks.length, Math.max(1, choice.week ?? 1)),
+    ...keep,
+    aim: choice.aim,
+    aimWords: choice.aimWords?.trim() || undefined,
+    days,
+    gentler: choice.gentler || undefined,
+    raceDate: choice.raceDate || undefined,
+    weekdays: choice.weekdays?.length === days ? choice.weekdays : defaultWeekdays(days),
+    week: Math.min(plan.weeks.length, join),
+    joinWeek: Math.min(plan.weeks.length, join),
     weekOf: mondayOnOrBefore(today),
     moves: {},
     startedOn: today,

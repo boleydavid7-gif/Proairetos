@@ -1,7 +1,7 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { LogEntry } from '../core/log';
-import type { Goal, Level } from '../core/plans';
+import type { Aim } from '../core/plans';
 import type { Unit } from '../core/pace';
 
 /**
@@ -14,25 +14,51 @@ import type { Unit } from '../core/pace';
  */
 
 export type PlanState = {
-  level: Level;
-  goal: Goal;
+  /** What the person is aiming for, in their terms. */
+  aim: Aim;
+  /** The aim in their own words, if they gave any ("the river loop"). */
+  aimWords?: string;
   days: number;
   /** Weekdays the person runs, 0 = Monday. */
   weekdays: number[];
-  /** The plan week in use. */
+  /** The week of the path in use (1 is the first walk-run). */
   week: number;
-  /** The Monday that plan week began on, so a new calendar week can offer the next. */
+  /** The week they joined the path at. */
+  joinWeek: number;
+  /** The Monday that week began on, so a new calendar week can offer the next. */
   weekOf: string;
   /** Sessions moved to another day this week: workout id -> date. */
   moves: Record<string, string>;
   startedOn: string;
+  /** Slower growth. */
+  gentler?: boolean;
+  /** A race or event date the path counts back to. */
+  raceDate?: string;
   /** A session made lighter, for that day only. */
   lighter?: { date: string; workoutId: string };
   /** The last workout date when coming back was offered, so it is asked once. */
   comeBackAsked?: string;
-  /** The Compass goal this plan is linked to, if the person added one. */
+  /** The Compass goal this path is linked to, if the person added one. */
   goalId?: string;
+  /** A week of rest the person chose, by its Monday: nothing planned. */
+  restWeek?: string;
 };
+
+type OldPlanState = { level?: 'beginner' | 'intermediate' | 'advanced'; goal?: string; week: number };
+
+/** Plans from before paths (a level and a goal) become the matching aim and point on the path. */
+export function fromOldPlan(record: Partial<PlanState> & OldPlanState): PlanState {
+  if (record.aim) return { joinWeek: 1, ...record } as PlanState;
+  const aim: Aim =
+    record.level === 'intermediate'
+      ? { kind: 'distance', meters: 10000 }
+      : record.level === 'advanced'
+        ? { kind: 'distance', meters: record.goal === 'marathon' ? 42195 : 21097.5 }
+        : { kind: 'time', minutes: 30 };
+  const beginner = record.level === 'beginner' || !record.level;
+  const { level: _l, goal: _g, ...rest } = record;
+  return { ...(rest as PlanState), aim, week: beginner ? record.week : 10 + record.week, joinWeek: beginner ? 1 : 11 };
+}
 
 export type Settings = {
   unit: Unit;
@@ -165,7 +191,7 @@ async function readPlan(): Promise<PlanState | undefined> {
   const record = await run<(PlanState & { id: string }) | undefined>(stores.askesisPlans, 'readonly', (s) => s.get(PLAN_ID));
   if (!record) return undefined;
   const { id: _id, ...rest } = record;
-  return rest;
+  return fromOldPlan(rest as PlanState & { week: number });
 }
 
 // ---------- Workouts ----------
@@ -228,7 +254,7 @@ export async function startStore(): Promise<void> {
   if (await db()) {
     await moveFromOldDatabase().catch(() => undefined);
     const oldPlan = readJson<PlanState>(OLD_PLAN);
-    if (oldPlan && !(await readPlan())) await run(stores.askesisPlans, 'readwrite', (s) => s.put({ ...oldPlan, id: PLAN_ID }));
+    if (oldPlan && !(await readPlan())) await run(stores.askesisPlans, 'readwrite', (s) => s.put({ ...fromOldPlan(oldPlan as PlanState & { week: number }), id: PLAN_ID }));
     writeJson(OLD_PLAN, undefined);
   }
   plan = await readPlan().catch(() => undefined);

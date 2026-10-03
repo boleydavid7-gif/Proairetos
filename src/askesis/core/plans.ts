@@ -1,4 +1,5 @@
-import { set, step, totalMinutes, type Part, type Workout, type WorkoutKind } from './workouts';
+import { daysBetween, mondayOnOrBefore } from '../../core/scheduling/dates';
+import { flatten, set, step, totalMinutes, type Part, type Workout, type WorkoutKind } from './workouts';
 
 /**
  * Training plans, built from what endurance research agrees on:
@@ -18,16 +19,37 @@ import { set, step, totalMinutes, type Part, type Workout, type WorkoutKind } fr
  * - A taper. Before a race, volume falls by roughly 40-60% over about two
  *   weeks while a little intensity stays (Bosquet et al., 2007).
  *
- * Plans prescribe time and effort, never pace: that works without a GPS,
+ * Paths prescribe time and effort, never pace: that works without a GPS,
  * on any terrain, and for anyone.
  */
-export type Level = 'beginner' | 'intermediate' | 'advanced';
-export type Goal = 'run-30' | '10k' | 'half' | 'marathon';
-export type PlanChoice = { level: Level; days: number; goal?: Goal };
+/**
+ * One continuous path, toward an aim the person sets. Weeks are numbered
+ * from the very first walk-run; someone already running joins further
+ * along. The path only goes as far as the aim needs: an aim of 45 easy
+ * minutes never meets marathon long runs or hard intervals.
+ */
+export type Aim =
+  | { kind: 'time'; minutes: number }
+  | { kind: 'distance'; meters: number }
+  | { kind: 'steady' };
+
+export type PathChoice = {
+  aim: Aim;
+  days: number;
+  /** Slower growth: about 5% a week instead of about 7.5%. */
+  gentler?: boolean;
+  /** A race or event on this date: the path counts back to it. */
+  raceDate?: string;
+  /** Needed with a date: the week joined and today's date. */
+  joinWeek?: number;
+  today?: string;
+};
+
+export type Stage = 'Start' | 'Base' | 'Build' | 'Hold' | 'Shape' | 'Taper' | 'Your aim' | 'Keep going';
 
 export type PlanWeek = {
   n: number;
-  phase: string;
+  stage: Stage;
   theme: string;
   easier: boolean;
   workouts: Workout[];
@@ -35,44 +57,41 @@ export type PlanWeek = {
 
 export type Plan = {
   id: string;
-  level: Level;
-  goal: Goal;
+  aim: Aim;
   days: number;
-  title: string;
   weeks: PlanWeek[];
+  /** Steady aims go round a four-week rhythm from this week on. */
+  cycleFrom?: number;
+  /** With a date: how the path fits it. */
+  fit?: 'fits' | 'shortened' | 'held';
 };
 
-export const levels: Record<Level, { name: string; line: string; who: string }> = {
-  beginner: {
-    name: 'Beginner',
-    line: 'From walking to 30 minutes of running.',
-    who: 'New to running, or coming back after a long break.',
-  },
-  intermediate: {
-    name: 'Intermediate',
-    line: 'Build endurance and run a 10K.',
-    who: 'You can run about 30 minutes without stopping.',
-  },
-  advanced: {
-    name: 'Advanced',
-    line: 'Train for a half marathon or a marathon.',
-    who: 'You run 3 to 5 days a week and have run a 10K or longer.',
-  },
+export const stageLines: Record<Stage, string> = {
+  Start: 'Walk-run, until 30 minutes of running arrives.',
+  Base: 'More easy time on your feet, and strides.',
+  Build: 'Longer runs, a little more each week.',
+  Hold: 'Holding steady until the date comes.',
+  Shape: 'Sharper sessions for your aim.',
+  Taper: 'Less running, kept sharp.',
+  'Your aim': 'The week of your aim.',
+  'Keep going': 'A steady rhythm, gently varied, round and round.',
 };
 
-export const goals: Record<Goal, { name: string; weeks: number }> = {
-  'run-30': { name: '30 minutes of running', weeks: 10 },
-  '10k': { name: '10K', weeks: 12 },
-  half: { name: 'Half marathon', weeks: 14 },
-  marathon: { name: 'Marathon', weeks: 18 },
-};
+export const aimDistances: { name: string; meters: number }[] = [
+  { name: '5K', meters: 5000 },
+  { name: '10K', meters: 10000 },
+  { name: 'Half marathon', meters: 21097.5 },
+  { name: 'Marathon', meters: 42195 },
+];
 
-export function daysFor(level: Level): number[] {
-  return level === 'beginner' ? [3, 4] : level === 'intermediate' ? [3, 4, 5] : [4, 5, 6];
-}
-
-export function goalsFor(level: Level): Goal[] {
-  return level === 'beginner' ? ['run-30'] : level === 'intermediate' ? ['10k'] : ['half', 'marathon'];
+/** "Run 45 minutes without stopping", "Run a 10K", "Run 8 km", "Keep running, steadily". */
+export function aimWords(aim: Aim, unit: 'mi' | 'km' = 'km'): string {
+  if (aim.kind === 'steady') return 'Keep running, steadily';
+  if (aim.kind === 'time') return `Run ${aim.minutes} minutes without stopping`;
+  const known = aimDistances.find((each) => Math.abs(each.meters - aim.meters) < 50);
+  if (known) return known.name.length <= 3 ? `Run a ${known.name}` : `Run a ${known.name.toLowerCase()}`;
+  const value = unit === 'mi' ? aim.meters / 1609.344 : aim.meters / 1000;
+  return `Run ${Number(value.toFixed(1))} ${unit}`;
 }
 
 /** Weekdays (0 = Monday) a plan uses until the person picks their own. */
@@ -234,9 +253,9 @@ function describeWalkRun(parts: Part[]): string {
   return `Run ${first.minutes} minutes without stopping`;
 }
 
-function beginnerPlan(days: number): Plan {
-  const id = `beginner-run-30-${days}`;
-  const weeks = beginnerWeeks.map(([theme, a, b, c], index) => {
+/** Weeks 1-10 of every path: walk-run to 30 minutes. Extra days are brisk walks. */
+function startWeeks(id: string, days: number): PlanWeek[] {
+  return beginnerWeeks.map(([theme, a, b, c], index) => {
     const n = index + 1;
     const session = (parts: Part[]): Draft => ({
       kind: 'walk-run',
@@ -244,23 +263,24 @@ function beginnerPlan(days: number): Plan {
       summary: describeWalkRun(parts),
       parts: [step('walk', 5, 'Warm up'), ...parts, step('walk', 5, 'Cool down')],
     });
-    const drafts: Draft[] = [session(a), session(b), session(c)];
-    if (days >= 4)
-      drafts.splice(2, 0, {
-        kind: 'walk',
-        title: 'Brisk walk',
-        summary: 'Easy aerobic time, no running',
-        parts: [step('walk', 30)],
-      });
-    return {
-      n,
-      phase: n <= 3 ? 'Start' : n === 4 ? 'Easier week' : n <= 8 ? 'Build' : 'Finish',
-      theme,
-      easier: n === 4,
-      workouts: drafts.map((draft, i) => finish(id, n, i, draft)),
-    };
+    const walk = (minutes: number): Draft => ({
+      kind: 'walk',
+      title: 'Brisk walk',
+      summary: 'Easy aerobic time, no running',
+      parts: [step('walk', minutes)],
+    });
+    const runs = [session(a), session(b), session(c)];
+    const drafts: Draft[] =
+      days >= 6
+        ? [runs[0], walk(30), runs[1], walk(25), runs[2], walk(35)]
+        : days === 5
+          ? [runs[0], walk(30), runs[1], walk(25), runs[2]]
+          : days === 4
+            ? [runs[0], runs[1], walk(30), runs[2]]
+            : runs;
+    const stage: Stage = 'Start';
+    return { n, stage, theme, easier: n === 4, workouts: drafts.map((draft, i) => finish(id, n, i, draft)) };
   });
-  return { id, level: 'beginner', goal: 'run-30', days, title: 'Beginner: 30 minutes of running', weeks };
 }
 
 // ---------- Sessions for the longer plans ----------
@@ -346,12 +366,12 @@ function racePaceLong(minutes: number, repeat: number, length: number): Draft {
   };
 }
 
-function raceDay(goal: Goal): Draft {
+function aimDay(aim: Aim, warmUp: number): Draft {
   return {
     kind: 'race',
-    title: `Race day: ${goals[goal].name}`,
-    summary: goal === '10k' ? 'Your 10K, or a time trial on your own' : 'The day you trained for',
-    parts: [warm(10)],
+    title: aimWords(aim).replace(/^Run a /, 'Your ').replace(/^Run /, 'Your '),
+    summary: 'A race, an event, or a run of your own: the day you trained for',
+    parts: [warm(warmUp)],
   };
 }
 
@@ -398,6 +418,21 @@ function arrangeWeek(
     if (extra.strides && i === easyCount - (extra.recovery && easyCount >= 3 ? 2 : 1)) return stridesRun(middle);
     return easyRun(middle + spread[plainIndex++]);
   });
+  // Nudge plain easy runs by five minutes so the week's total follows its target, keeping them distinct and in bounds.
+  const sum = () => totalMinutes(long.parts) + qualityMinutes + easies.reduce((t, d) => t + totalMinutes(d.parts), 0);
+  for (let guard = 0; guard < 8; guard += 1) {
+    const diff = target - sum();
+    if (Math.abs(diff) <= 2.5) break;
+    const delta = diff > 0 ? 5 : -5;
+    const lengths = easies.map((d) => (d.title === 'Easy run' ? totalMinutes(d.parts) : -1));
+    const order = lengths.map((_, i) => i).sort((a, b) => (delta > 0 ? lengths[a] - lengths[b] : lengths[b] - lengths[a]));
+    const pick = order.find((i) => {
+      const next = lengths[i] + delta;
+      return lengths[i] > 0 && next >= extra.easyMin && next <= longest && !lengths.includes(next);
+    });
+    if (pick === undefined) break;
+    easies[pick] = easyRun(lengths[pick] + delta);
+  }
   // Harder days apart, the long run last.
   const [q1, q2] = quality;
   const [e1, e2, e3, e4] = easies;
@@ -412,75 +447,9 @@ function arrangeWeek(
   return order.filter((draft): draft is Draft => Boolean(draft));
 }
 
-// ---------- Intermediate: 10K in 12 weeks ----------
+// ---------- The path after week 10 ----------
 
-function intermediatePlan(days: number): Plan {
-  const id = `intermediate-10k-${days}`;
-  const start = ({ 3: 100, 4: 130, 5: 160 } as Record<number, number>)[days] ?? 130;
-  const factors = [1, 1.08, 1.16, 0.85, 1.2, 1.28, 1.36, 1, 1.4, 1.48, 1.1, 0.7];
-  const themes = [
-    'Easy time on your feet',
-    'Add strides',
-    'First hills',
-    'An easier week',
-    'Your first threshold session',
-    'Longer threshold',
-    'Threshold, two long blocks',
-    'An easier week',
-    'Intervals begin',
-    'More intervals',
-    'Sharpen, and ease off',
-    'Race week',
-  ];
-  const weeks: PlanWeek[] = factors.map((factor, index) => {
-    const n = index + 1;
-    const target = start * factor;
-    const easier = n === 4 || n === 8;
-    const raceWeek = n === 12;
-    const longMinutes = Math.min(80, Math.max(40, target * 0.3));
-    const long: LongPlan = {
-      minutes: longMinutes,
-      cap: 80,
-      race: raceWeek,
-      make: (minutes) => (raceWeek ? raceDay('10k') : longRun(minutes, [6, 7, 9, 10].includes(n) ? 10 : 0)),
-    };
-    const q1: Draft | undefined = (
-      {
-        2: stridesRun(30),
-        3: hills(8, 10),
-        4: stridesRun(30),
-        5: tempo('3x6', 10),
-        6: tempo('3x8', 10),
-        7: tempo('2x12', 10),
-        8: tempo('2x8', 10),
-        9: intervals('5x3', 10),
-        10: intervals('6x3', 10),
-        11: intervals('4x4', 10),
-        12: tempo('3x3', 10),
-      } as Record<number, Draft>
-    )[n];
-    const q2 = days >= 5 ? ({ 9: tempo('20', 10), 10: tempo('2x10', 10), 11: tempo('15', 10) } as Record<number, Draft>)[n] : undefined;
-    const quality = [q1, q2].filter((draft): draft is Draft => Boolean(draft));
-    const drafts = arrangeWeek(days, target, long, quality, {
-      strides: n >= 5 && !raceWeek && days >= 4,
-      easyMin: 20,
-      easyMax: 50,
-      recovery: false,
-    });
-    return {
-      n,
-      phase: easier ? 'Easier week' : n <= 3 ? 'Base' : n <= 7 ? 'Build' : n <= 10 ? 'Peak' : n === 11 ? 'Taper' : 'Race week',
-      theme: themes[index],
-      easier,
-      workouts: drafts.map((draft, i) => finish(id, n, i, draft)),
-    };
-  });
-  return { id, level: 'intermediate', goal: '10k', days, title: 'Intermediate: 10K', weeks };
-}
-
-// ---------- Advanced: half marathon and marathon ----------
-
-const thresholdSteps = ['3x8', '3x10', '4x8', '2x15', '3x12', '25', '4x10', '30', '2x20', '35'];
+const thresholdSteps = ['3x6', '3x8', '3x10', '2x12', '4x8', '2x15', '3x12', '25', '4x10', '30', '2x20', '35'];
 const intervalSteps = ['5x3', '4x4', '6x3', '5x4', '6x3', '5x4'];
 const marathonBlocks: [number, number][] = [
   [2, 15],
@@ -491,101 +460,295 @@ const marathonBlocks: [number, number][] = [
   [2, 30],
 ];
 
-function advancedPlan(days: number, goal: 'half' | 'marathon'): Plan {
-  const id = `advanced-${goal}-${days}`;
-  const marathon = goal === 'marathon';
-  const start = (marathon ? { 4: 240, 5: 280, 6: 320 } : { 4: 180, 5: 220, 6: 260 })[days as 4 | 5 | 6] ?? 220;
-  const factors = marathon
-    ? [1, 1.07, 1.14, 0.85, 1.2, 1.27, 1.34, 0.95, 1.4, 1.47, 1.53, 1.05, 1.56, 1.6, 1.62, 0.75, 0.6, 0.4]
-    : [1, 1.07, 1.14, 0.85, 1.2, 1.27, 1.34, 0.95, 1.4, 1.46, 1.5, 1.05, 0.8, 0.5];
-  const total = factors.length;
-  const taperFrom = marathon ? 16 : 13;
-  const longCap = marathon ? 180 : 120;
-  let built = 0;
-  const weeks: PlanWeek[] = factors.map((factor, index) => {
-    const n = index + 1;
-    const target = start * factor;
-    const raceWeek = n === total;
-    const taper = n >= taperFrom && !raceWeek;
-    const easier = !taper && !raceWeek && n % 4 === 0;
-    const base = n <= 3;
-    // The long run is a larger share for a marathon, where time on feet matters most.
-    const longMinutes = Math.min(longCap, Math.max(60, target * (marathon ? 0.35 : 0.3)));
-
-    const steadyFinish = Math.min(30, 15 + built * 3);
-    const long: LongPlan = {
-      minutes: longMinutes,
-      cap: longCap,
-      race: raceWeek,
-      make: (minutes) => {
-        if (raceWeek) return raceDay(goal);
-        if (base || easier || taper) return longRun(minutes);
-        if (marathon && n >= 9) {
-          const [repeat, length] = marathonBlocks[Math.min(marathonBlocks.length - 1, n - 9 - Math.floor((n - 9) / 4))];
-          return racePaceLong(minutes, repeat, length);
-        }
-        return longRun(minutes, steadyFinish, marathon ? undefined : 'About half-marathon effort');
-      },
-    };
-
-    const quality: Draft[] = [];
-    if (raceWeek) quality.push(marathon ? tempo('2x5', 15) : tempo('2x5', 15));
-    else if (taper) {
-      quality.push(intervals('4x3', 15));
-      if (days >= 5) quality.push(tempo('3x5', 15));
-    } else if (base) {
-      quality.push(hills(6 + n * 2, 15));
-      if (days >= 5) quality.push({ kind: 'easy', title: 'Steady run', summary: `${15 + n * 5} min steady in the middle`, parts: [warm(10), step('steady', 15 + n * 5), cool(10)] });
-    } else if (easier) {
-      quality.push(tempo('2x8', 15));
-    } else {
-      const threshold = tempo(thresholdSteps[Math.min(thresholdSteps.length - 1, built)], 15);
-      const vo2 = intervals(intervalSteps[Math.min(intervalSteps.length - 1, Math.floor(built / 2))], 15);
-      if (days >= 5) quality.push(threshold, vo2);
-      else quality.push(built % 2 === 0 ? threshold : vo2);
-      built += 1;
-    }
-
-    const drafts = arrangeWeek(days, target, long, quality, {
-      strides: !raceWeek,
-      easyMin: 30,
-      easyMax: 75,
-      recovery: days >= 6,
-    });
-    return {
-      n,
-      phase: raceWeek ? 'Race week' : taper ? 'Taper' : easier ? 'Easier week' : base ? 'Base' : n >= total - 6 ? 'Peak' : 'Build',
-      theme: raceWeek
-        ? 'Race week'
-        : taper
-          ? 'Ease off, keep a little sharpness'
-          : easier
-            ? 'An easier week'
-            : base
-              ? 'Base: hills and easy time'
-              : marathon && n >= 9
-                ? 'Threshold, intervals, race effort'
-                : 'Threshold and intervals',
-      easier,
-      workouts: drafts.map((draft, i) => finish(id, n, i, draft)),
-    };
-  });
+function steadyRun(minutes: number): Draft {
   return {
-    id,
-    level: 'advanced',
-    goal,
-    days,
-    title: `Advanced: ${goals[goal].name}`,
-    weeks,
+    kind: 'easy',
+    title: 'Steady run',
+    summary: `${minutes} min steady in the middle`,
+    parts: [warm(10), step('steady', minutes), cool(10)],
   };
 }
 
-export function buildPlan(choice: PlanChoice): Plan {
-  const allowed = daysFor(choice.level);
-  const days = allowed.includes(choice.days) ? choice.days : allowed[0];
-  if (choice.level === 'beginner') return beginnerPlan(days);
-  if (choice.level === 'intermediate') return intermediatePlan(days);
-  return advancedPlan(days, choice.goal === 'marathon' ? 'marathon' : 'half');
+/**
+ * The long run and weekly time an aim calls for. Distances follow common
+ * practice: about 45 minutes long and two hours a week for a 5K, up to
+ * three hours long and five and a half a week for a marathon; anything in
+ * between sits between them. A long run stays under about 45% of a week.
+ */
+function needs(aim: Aim, days: number, startMinutes: number): { long: number; weekly: number } {
+  const roomy = (long: number, weekly: number) => ({ long, weekly: Math.max(Math.min(weekly, days * 65), long / 0.45, startMinutes) });
+  if (aim.kind === 'steady') return roomy(50, days * 40);
+  if (aim.kind === 'time') return roomy(aim.minutes, aim.minutes / 0.33);
+  const anchors: [number, number, number][] = [
+    [5000, 45, 130],
+    [10000, 75, 170],
+    [21097.5, 120, 240],
+    [42195, 180, 330],
+  ];
+  const m = Math.min(Math.max(aim.meters, 5000), 42195);
+  let i = 0;
+  while (i < anchors.length - 2 && m > anchors[i + 1][0]) i += 1;
+  const [m0, l0, w0] = anchors[i];
+  const [m1, l1, w1] = anchors[i + 1];
+  const t = (Math.log(m) - Math.log(m0)) / (Math.log(m1) - Math.log(m0));
+  return roomy(round5(l0 + (l1 - l0) * t), w0 + (w1 - w0) * t);
+}
+
+type Growth = { limit?: number; hold?: number };
+
+function pathId(choice: PathChoice, growth: Growth): string {
+  const aim = choice.aim;
+  const what = aim.kind === 'time' ? `t${aim.minutes}` : aim.kind === 'distance' ? `d${Math.round(aim.meters)}` : 'steady';
+  const fit = growth.limit !== undefined ? `-l${growth.limit}` : growth.hold ? `-h${growth.hold}` : '';
+  return `path-${what}-${choice.days}${choice.gentler ? '-g' : ''}${fit}`;
+}
+
+/** The longest stretch of running without a walk, in minutes. */
+function longestRun(week: PlanWeek): number {
+  return Math.max(0, ...week.workouts.flatMap((workout) => flatten(workout.parts).filter((s) => s.effort === 'easy').map((s) => s.minutes)));
+}
+
+function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks: number } {
+  const days = Math.min(6, Math.max(3, Math.round(choice.days)));
+  const aim = choice.aim;
+  const id = pathId({ ...choice, days }, growth);
+  const weeks: PlanWeek[] = startWeeks(id, days);
+
+  // Aims up to 30 minutes are met within the walk-run start.
+  if (aim.kind === 'time' && aim.minutes <= 30) {
+    const end = Math.max(7, weeks.findIndex((week) => longestRun(week) >= aim.minutes));
+    const kept = weeks.slice(0, end + 1);
+    kept[end] = { ...kept[end], stage: 'Your aim', theme: aimWords(aim) };
+    return { id, aim, days, weeks: kept, growthWeeks: 0 };
+  }
+
+  const distance = aim.kind === 'distance';
+  const longAim = aim.kind === 'distance' && aim.meters >= 15000;
+  const marathon = aim.kind === 'distance' && aim.meters >= 35000;
+  const warmUp = longAim ? 15 : 10;
+  const startMinutes = weekMinutes(weeks[9]);
+  const need = needs(aim, days, startMinutes);
+  const rate = choice.gentler ? 1.05 : 1.075;
+  const extra = (strides: boolean) => ({
+    strides,
+    easyMin: 20,
+    easyMax: longAim ? 75 : 55,
+    recovery: days >= 6,
+  });
+
+  let n = weeks.length;
+  let level = startMinutes;
+  let lastLong = 30;
+  let built = 0;
+  let growthWeeks = 0;
+
+  // After the start, running days are added one a week; the other days stay brisk walks until then.
+  const addWeek = (stage: Stage, theme: string, easier: boolean, target: number, long: LongPlan, quality: Draft[], runDays = days) => {
+    n += 1;
+    const walks = days - runDays;
+    const drafts = arrangeWeek(runDays, target - walks * 30, long, quality, extra(runDays >= 4 || quality.length === 0));
+    for (let w = 0; w < walks; w += 1)
+      drafts.splice(1 + w * 2, 0, { kind: 'walk', title: 'Brisk walk', summary: 'Easy aerobic time, no running', parts: [step('walk', 30)] });
+    weeks.push({ n, stage, theme, easier, workouts: drafts.map((draft, i) => finish(id, n, i, draft)) });
+  };
+
+  /** Marathon-effort blocks sized to the week: no more than about a seventh of it. */
+  const raceBlocks = (upTo: number): [number, number] => {
+    for (let i = Math.min(upTo, marathonBlocks.length - 1); i >= 0; i -= 1) {
+      const [repeat, length] = marathonBlocks[i];
+      if (repeat * length <= level * 0.14) return marathonBlocks[i];
+    }
+    return marathonBlocks[0];
+  };
+
+  /** The largest step so far whose hard minutes fit the week's budget (under a fifth of the week, all told). */
+  const fit = (steps: string[], upTo: number, budget: number) => {
+    const minutesOf = (spec: string) => spec.split('x').map(Number).reduce((a, b) => a * b, 1);
+    for (let i = Math.min(upTo, steps.length - 1); i >= 0; i -= 1) if (minutesOf(steps[i]) <= budget) return steps[i];
+    return steps[0];
+  };
+
+  const qualityFor = (k: number, easier: boolean, target = level): Draft[] => {
+    if (!distance) return easier || k % 2 === 1 ? [] : [steadyRun(Math.min(30, 10 + k * 2))];
+    if (easier) return k >= 8 ? [tempo('2x8', warmUp)] : [];
+    if (k <= 4) return k === 2 || k === 3 ? [hills(6 + k * 2, warmUp)] : [];
+    const both = days >= 5 && longAim;
+    // Steady minutes in the long run count too: hard and steady together stay under about 28% of the week.
+    const longSteady = marathon && built >= 4 ? raceBlocks(built - 4).reduce((a, b) => a * b, 1) : longAim ? Math.min(30, level * 0.1) : 0;
+    const budget = Math.max(12, Math.min(target * (both ? 0.09 : 0.17), target * 0.27 - longSteady));
+    const quality = [tempo(fit(thresholdSteps, built, budget), warmUp)];
+    if (both) quality.push(intervals(fit(intervalSteps, Math.floor(built / 2), budget), warmUp));
+    built += 1;
+    return quality;
+  };
+
+  const longFor = (k: number, easier: boolean, minutes: number): LongPlan => {
+    const finishSteady = longAim && !easier && k > 4 ? round5(Math.min(30, 15 + built * 3, level * 0.1)) : 0;
+    return {
+      minutes,
+      cap: Math.max(minutes, need.long),
+      make: (m) => {
+        if (aim.kind === 'time' && m >= aim.minutes) {
+          const run = longRun(aim.minutes);
+          return { ...run, title: aimWords(aim), summary: 'Easy, the whole way: your aim' };
+        }
+        if (marathon && !easier && built >= 5) {
+          const [repeat, length] = raceBlocks(built - 5);
+          return racePaceLong(m, repeat, length);
+        }
+        return longRun(m, finishSteady, longAim && !marathon ? 'About half-marathon effort' : undefined);
+      },
+    };
+  };
+
+  // Base and Build: weekly time grows by 5-8% a building week, every fourth week easier,
+  // the long run by no more than ten minutes a week, until the aim's needs are met.
+  const limit = growth.limit ?? 80;
+  for (let k = 1; k <= limit; k += 1) {
+    // Distance aims build for at least eight weeks before sharpening, even when the time is already there.
+    if (level >= need.weekly - 2 && lastLong >= need.long && (!distance || k > 8)) break;
+    const easier = k % 4 === 0;
+    let target: number;
+    if (easier) target = level * 0.8;
+    else {
+      level = Math.min(need.weekly, level * rate);
+      target = level;
+    }
+    const longMinutes = easier
+      ? Math.max(30, lastLong - 15)
+      : Math.min(need.long, Math.max(lastLong, Math.min(lastLong + 10, target * 0.45)));
+    if (!easier) lastLong = longMinutes;
+    const stage: Stage = k <= 4 ? 'Base' : 'Build';
+    const quality = qualityFor(k, easier, target);
+    const theme = easier
+      ? 'An easier week'
+      : stage === 'Base'
+        ? 'Easy time on your feet, and strides'
+        : distance
+          ? quality.length > 1
+            ? 'Threshold and intervals'
+            : 'Threshold work, longer runs'
+          : 'Longer runs, a little more each week';
+    addWeek(stage, theme, easier, target, longFor(k, easier, longMinutes), quality, Math.min(days, 3 + k));
+    // The next week grows from the week as laid out, so rounding never piles up.
+    if (!easier) level = Math.min(level, weekMinutes(weeks[weeks.length - 1]));
+    growthWeeks = k;
+  }
+
+  // Holding steady, when a date leaves room to spare.
+  for (let h = 1; h <= (growth.hold ?? 0); h += 1) {
+    const easier = h % 4 === 0;
+    const target = easier ? level * 0.8 : level;
+    addWeek('Hold', easier ? 'An easier week' : 'Holding steady', easier, target, longFor(growthWeeks + h, easier, easier ? Math.max(30, lastLong - 15) : lastLong), qualityFor(growthWeeks + h, easier));
+  }
+
+  if (aim.kind === 'time') {
+    // The path never ends on an easier week: one more ordinary week, with the aim as its long run.
+    if (weeks[weeks.length - 1].easier) {
+      addWeek('Build', 'Longer runs, a little more each week', false, level, longFor(growthWeeks + 1, false, need.long), [], days);
+      growthWeeks += 1;
+    }
+    // The last building week holds the aim itself, as its long run.
+    const last = weeks[weeks.length - 1];
+    weeks[weeks.length - 1] = { ...last, stage: 'Your aim', theme: aimWords(aim) };
+    return { id, aim, days, weeks, growthWeeks };
+  }
+
+  if (aim.kind === 'steady') {
+    // Round and round: a four-week rhythm at the level reached.
+    const cycleFrom = n + 1;
+    const rhythm: [string, number, number, Draft[], boolean][] = [
+      ['A steady week, with strides', 1, lastLong, [], false],
+      ['A steady week, with a steady run', 1, lastLong - 5, [steadyRun(15)], false],
+      ['A little longer', 1.05, lastLong + 10, [], false],
+      ['An easier week', 0.8, Math.max(30, lastLong - 15), [], true],
+    ];
+    for (const [theme, share, longMinutes, quality, easier] of rhythm)
+      addWeek('Keep going', theme, easier, level * share, { minutes: longMinutes, cap: longMinutes + 10, make: (m) => longRun(m) }, quality);
+    return { id, aim, days, weeks, cycleFrom, growthWeeks };
+  }
+
+  // Shape: two sharper weeks at the level reached.
+  for (const spec of ['5x3', '4x4']) {
+    const quality = [intervals(spec, warmUp)];
+    if (days >= 5 && longAim) quality.push(tempo('25', warmUp));
+    const long: LongPlan = {
+      minutes: lastLong,
+      cap: lastLong,
+      make: (m) => (marathon ? racePaceLong(m, ...raceBlocks(3)) : longRun(m, longAim ? 20 : 0, longAim ? 'About half-marathon effort' : undefined)),
+    };
+    addWeek('Shape', 'Sharper sessions', false, level, long, quality);
+  }
+
+  // Taper and the aim's week: less running, a little intensity kept (Bosquet et al., 2007).
+  const taper = marathon ? [0.8, 0.65] : longAim ? [0.75] : [0.8];
+  for (const share of taper) {
+    const quality = [intervals('4x3', warmUp)];
+    if (days >= 5 && longAim) quality.push(tempo('3x5', warmUp));
+    addWeek('Taper', 'Ease off, keep a little sharpness', false, level * share, { minutes: lastLong * share, cap: lastLong, make: (m) => longRun(m) }, quality);
+  }
+  addWeek('Your aim', aimWords(aim), false, level * (marathon ? 0.4 : 0.5), { minutes: 10, cap: 10, race: true, make: () => aimDay(aim, warmUp) }, [
+    tempo(longAim ? '2x5' : '3x3', warmUp),
+  ]);
+  return { id, aim, days, weeks, growthWeeks };
+}
+
+/**
+ * The path for an aim. With a date, it counts back to it: if there is more
+ * time than the gentle path needs, it holds steady for a while; if less,
+ * it grows for fewer weeks (never faster) and says so.
+ */
+export function buildPath(choice: PathChoice): Plan {
+  const natural = generate(choice);
+  const strip = ({ growthWeeks: _g, ...plan }: Plan & { growthWeeks: number }): Plan => plan;
+  if (!choice.raceDate || !choice.today || choice.aim.kind === 'steady' || natural.growthWeeks === 0) return strip(natural);
+  const join = Math.max(1, choice.joinWeek ?? 1);
+  const available = Math.floor(daysBetween(mondayOnOrBefore(choice.today), mondayOnOrBefore(choice.raceDate)) / 7) + 1;
+  const needed = natural.weeks.length - join + 1;
+  if (needed === available) return { ...strip(natural), fit: 'fits' };
+  if (needed < available) return { ...strip(generate(choice, { hold: available - needed })), fit: 'held' };
+  const limit = Math.max(Math.max(0, join - 10), natural.growthWeeks - (needed - available));
+  return { ...strip(generate(choice, { limit })), fit: 'shortened' };
+}
+
+/** A week by its number; steady paths go round their rhythm after the last week. */
+export function weekAt(plan: Plan, n: number): PlanWeek {
+  if (n <= plan.weeks.length) return plan.weeks[Math.max(1, n) - 1];
+  if (plan.cycleFrom) {
+    const cycle = plan.weeks.slice(plan.cycleFrom - 1);
+    return { ...cycle[(n - plan.cycleFrom) % cycle.length], n };
+  }
+  return plan.weeks[plan.weeks.length - 1];
+}
+
+/** Whether the path is finished at week n: its aim week is done and nothing follows. */
+export function isLastWeek(plan: Plan, n: number): boolean {
+  return !plan.cycleFrom && n >= plan.weeks.length;
+}
+
+/**
+ * Where someone joins, from how much they run now (minutes a week). Not yet
+ * running: week 1. About 30 minutes at a time: the week after the start.
+ * More: the week whose time is closest without going over.
+ */
+export function joinWeekFor(plan: Plan, weeklyMinutes: number): number {
+  if (weeklyMinutes <= 0) return 1;
+  const growing = plan.weeks.filter((week) => week.stage === 'Base' || week.stage === 'Build' || week.stage === 'Hold' || week.stage === 'Keep going');
+  if (growing.length === 0) return Math.min(plan.weeks.length, 8);
+  let join = growing[0].n;
+  for (const week of growing) if (!week.easier && weekMinutes(week) <= weeklyMinutes * 1.05) join = week.n;
+  return join;
+}
+
+/** The stages in order, each with its first and last week. */
+export function stagesOf(plan: Plan): { stage: Stage; from: number; to: number }[] {
+  const out: { stage: Stage; from: number; to: number }[] = [];
+  for (const week of plan.weeks) {
+    const last = out[out.length - 1];
+    if (last && last.stage === week.stage) last.to = week.n;
+    else out.push({ stage: week.stage, from: week.n, to: week.n });
+  }
+  return out;
 }
 
 export function weekMinutes(week: PlanWeek): number {
@@ -598,4 +761,9 @@ export function findWorkout(plan: Plan, id: string): { week: PlanWeek; workout: 
     if (workout) return { week, workout };
   }
   return undefined;
+}
+
+/** The path shown in Train before an aim is set: a 10K, three days a week. */
+export function examplePath(): Plan {
+  return buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 3 });
 }

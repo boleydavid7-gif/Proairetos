@@ -5,15 +5,9 @@ import type { SchedulePattern } from '../../core/scheduling/types';
 import type { CompassStatement } from '../../core/compass/types';
 import { updatePlan, useToday } from '../app/state';
 import { Switch, useUndo } from '../app/ui';
-import type { Goal } from '../core/plans';
+import { aimWords } from '../core/plans';
 import type { PlanState } from '../data/store';
 
-const goalWords: Record<Goal, string> = {
-  'run-30': 'Run 30 minutes without stopping',
-  '10k': 'Run a 10K',
-  half: 'Run a half marathon',
-  marathon: 'Run a marathon',
-};
 
 /**
  * The plan's aim as a Proairetos goal ("Working toward" in Compass), and, if
@@ -24,7 +18,7 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
   const today = useToday();
   const undo = useUndo();
   const [goal, setGoal] = useState<CompassStatement | null>();
-  const [words, setWords] = useState(goalWords[plan.goal]);
+  const [words, setWords] = useState(plan.aimWords ?? aimWords(plan.aim));
   const [protect, setProtect] = useState(true);
   const [start, setStart] = useState('07:00');
   const [end, setEnd] = useState('08:00');
@@ -35,7 +29,7 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
   }, [plan.goalId]);
 
   const add = async () => {
-    const created = await compassService.addGoal(words.trim() || goalWords[plan.goal]);
+    const created = await compassService.addGoal(words.trim() || aimWords(plan.aim));
     let patternId: string | undefined;
     if (protect && end > start) {
       const pattern = await scheduleService.createPattern(

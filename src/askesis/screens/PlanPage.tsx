@@ -1,60 +1,103 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { addDays, mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { startPlan, usePlanState, useSettings, useToday } from '../app/state';
-import { BackLink, Segmented, useUndo } from '../app/ui';
-import { buildPlan, daysFor, defaultWeekdays, goals, goalsFor, levels, type Goal, type Level } from '../core/plans';
+import { pathFor, startPlan, useEntries, usePlanState, useSettings, useToday } from '../app/state';
+import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
+import { inUnit, METERS } from '../core/pace';
+import { aimDistances, aimWords, buildPath, defaultWeekdays, joinWeekFor, weekAt, weekMinutes, type Aim } from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
 import GoalLink, { moveGoalTime } from './GoalLink';
 
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-/** Choosing a plan: first time, or any time after from More. */
-export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; first?: boolean; level?: Level }) {
+type Kind = Aim['kind'];
+/** Where someone is now, as minutes a week; -1 is "about 30 minutes at a time", -2 "where I am on my path". */
+type Now = number;
+
+const sameAim = (a: Aim, b: Aim) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * Setting an aim: the person's own, in their words. The path is drawn from
+ * where they are to that aim, and redrawn whenever they change it.
+ */
+export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) {
   const today = useToday();
   const settings = useSettings();
   const current = usePlanState();
+  const entries = useEntries() ?? [];
   const undo = useUndo();
-  const [level, setLevel] = useState<Level>(openLevel ?? current?.level ?? 'beginner');
-  const [goal, setGoal] = useState<Goal>(current?.goal ?? goalsFor(level)[0]);
-  const [days, setDays] = useState<number>(current?.days ?? daysFor(level)[0]);
-  const [weekdays, setWeekdays] = useState<number[]>(current?.weekdays ?? defaultWeekdays(days));
-  const [week, setWeek] = useState<number>(1);
+  const unit = settings.unit;
+  const currentMeters = current?.aim.kind === 'distance' ? current.aim.meters : undefined;
+  const ownAtStart = currentMeters !== undefined && !aimDistances.some((d) => Math.abs(d.meters - currentMeters) < 50);
 
-  const allowedDays = daysFor(level);
-  const goalChoice = goalsFor(level).includes(goal) ? goal : goalsFor(level)[0];
-  const dayChoice = allowedDays.includes(days) ? days : allowedDays[0];
-  const plan = buildPlan({ level, days: dayChoice, goal: goalChoice });
-  // The days exactly as picked; saving waits until there are as many as the plan has sessions.
-  const chosenDays = weekdays.length <= dayChoice ? weekdays : defaultWeekdays(dayChoice);
-  const daysReady = chosenDays.length === dayChoice;
-  const same = current && current.level === level && current.goal === goalChoice && current.days === dayChoice;
+  const [kind, setKind] = useState<Kind>(current?.aim.kind ?? 'time');
+  const [minutes, setMinutes] = useState(current?.aim.kind === 'time' ? current.aim.minutes : 30);
+  const [meters, setMeters] = useState(currentMeters ?? 5000);
+  const [own, setOwn] = useState(ownAtStart);
+  const [ownText, setOwnText] = useState(ownAtStart && currentMeters ? String(Number(inUnit(currentMeters, unit).toFixed(1))) : '');
+  const [words, setWords] = useState(current?.aimWords ?? '');
+  const [dated, setDated] = useState(Boolean(current?.raceDate));
+  const [raceDate, setRaceDate] = useState(current?.raceDate ?? addDays(today, 84));
+  const [gentler, setGentler] = useState(Boolean(current?.gentler));
+  const [days, setDays] = useState(current?.days ?? 3);
+  const [weekdays, setWeekdays] = useState<number[]>(current?.weekdays ?? defaultWeekdays(3));
 
-  const pickLevel = (next: Level) => {
-    setLevel(next);
-    setGoal(goalsFor(next)[0]);
-    const nextDays = daysFor(next).includes(days) ? days : daysFor(next)[0];
-    setDays(nextDays);
-    setWeekdays(defaultWeekdays(nextDays));
-    setWeek(1);
-  };
+  // From the log: the last two weeks' running, as minutes a week.
+  const monday = mondayOnOrBefore(today);
+  const logged = entries
+    .filter((entry) => entry.date >= addDays(monday, -14) && entry.date < monday)
+    .reduce((sum, entry) => sum + (entry.seconds ?? 0), 0);
+  const fromLog = Math.round(logged / 60 / 2);
+  const [now, setNow] = useState<Now>(current ? -2 : fromLog >= 60 ? fromLog : 0);
+
+  const aim: Aim =
+    kind === 'steady'
+      ? { kind: 'steady' }
+      : kind === 'time'
+        ? { kind: 'time', minutes }
+        : { kind: 'distance', meters: own ? (Number(ownText.replace(',', '.')) || 0) * METERS[unit] : meters };
+  const aimReady = aim.kind !== 'distance' || aim.meters >= 1000;
+  const chosenDays = weekdays.length <= days ? weekdays : defaultWeekdays(days);
+  const daysReady = chosenDays.length === days;
+
+  const naturalPath = useMemo(
+    () => (aimReady ? buildPath({ aim, days, gentler }) : undefined),
+    [JSON.stringify(aim), days, gentler, aimReady],
+  );
+  const join = useMemo(() => {
+    if (!naturalPath) return 1;
+    if (now === 0) return 1;
+    if (now === -1) return Math.min(naturalPath.weeks.length, 11);
+    if (now === -2 && current) return joinWeekFor(naturalPath, weekMinutes(weekAt(pathFor(current), current.week)));
+    return joinWeekFor(naturalPath, now);
+  }, [naturalPath, now]);
+  const path = aimReady ? buildPath({ aim, days, gentler, raceDate: dated ? raceDate : undefined, joinWeek: join, today }) : undefined;
+
+  const unchanged = Boolean(
+    current &&
+      sameAim(current.aim, aim) &&
+      Boolean(current.gentler) === gentler &&
+      (current.raceDate ?? '') === (dated ? raceDate : '') &&
+      current.days === days &&
+      now === -2,
+  );
+
   const pickDays = (next: number) => {
     setDays(next);
     setWeekdays(defaultWeekdays(next));
   };
   const toggleDay = (day: number) => {
-    const has = chosenDays.includes(day);
-    if (has) setWeekdays(chosenDays.filter((d) => d !== day));
-    else if (chosenDays.length < dayChoice) setWeekdays([...chosenDays, day].sort((a, b) => a - b));
+    if (chosenDays.includes(day)) setWeekdays(chosenDays.filter((d) => d !== day));
+    else if (chosenDays.length < days) setWeekdays([...chosenDays, day].sort((a, b) => a - b));
     else setWeekdays([...chosenDays.slice(1), day].sort((a, b) => a - b));
   };
 
   const save = () => {
-    const before = current;
-    if (same && current) {
-      // Same plan: only the days change; the week stays, and any time set aside for the goal follows.
-      savePlan({ ...current, weekdays: chosenDays, moves: {} });
-      const changed = chosenDays.join() !== [...current.weekdays].sort((a, b) => a - b).join();
-      if (changed)
+    if (!path) return;
+    if (unchanged && current) {
+      // Same path: only the days or words change; the week stays, and time set aside for the goal follows the days.
+      savePlan({ ...current, weekdays: chosenDays, moves: {}, aimWords: words.trim() || undefined });
+      if (chosenDays.join() !== [...current.weekdays].sort((a, b) => a - b).join())
         void moveGoalTime(current.goalId, chosenDays, today).then((putBack) =>
           undo(putBack ? 'Run days and protected time moved' : 'Run days changed', () => {
             savePlan(current);
@@ -62,8 +105,12 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
           }),
         );
     } else {
-      startPlan({ level, goal: goalChoice, days: dayChoice, weekdays: chosenDays, week }, today);
-      if (before) undo('Plan changed', () => savePlan(before));
+      const before = current;
+      startPlan(
+        { aim, days, gentler, raceDate: dated ? raceDate : undefined, weekdays: chosenDays, week: join, aimWords: words },
+        today,
+      );
+      if (before) undo('A new path', () => savePlan(before));
     }
     if (first) {
       saveSettings({ ...settings, started: true });
@@ -71,46 +118,162 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
     } else nav.back();
   };
 
+  const weeksToAim = path && !path.cycleFrom ? path.weeks.length - join + 1 : undefined;
+  const joinWeek = path ? weekAt(path, join) : undefined;
+
   return (
     <div className="page">
       {!first && <BackLink label="More" onBack={nav.back} />}
-      <h1 className="title">{first ? 'Choose your path' : 'Your plan'}</h1>
-      <p className="lead">Pick where you are now. You can change it any time; what you have logged stays.</p>
+      <h1 className="title">{first ? 'What are you aiming for?' : 'Your aim'}</h1>
+      <p className="lead">Your own aim, at your pace. Change it any time; the path redraws from where you are.</p>
 
-      <div className="level-cards" role="group" aria-label="Level">
-        {(Object.keys(levels) as Level[]).map((id) => (
-          <button key={id} type="button" className="level-card" aria-pressed={level === id} onClick={() => pickLevel(id)}>
-            <span className="level-card__name">{levels[id].name}</span>
-            <span className="level-card__line">{levels[id].line}</span>
-            <span className="level-card__who">{levels[id].who}</span>
-          </button>
-        ))}
-      </div>
+      <Segmented
+        label="Aim"
+        value={kind}
+        options={[
+          { id: 'time', label: 'A time' },
+          { id: 'distance', label: 'A distance' },
+          { id: 'steady', label: 'Keep running' },
+        ]}
+        onChange={setKind}
+      />
 
-      {goalsFor(level).length > 1 && (
+      {kind === 'time' && (
         <section className="field">
-          <h2 className="label">Training for</h2>
-          <Segmented
-            label="Training for"
-            value={goalChoice}
-            options={goalsFor(level).map((id) => ({ id, label: goals[id].name }))}
-            onChange={(next) => setGoal(next)}
-          />
+          <h2 className="label">Run without stopping for</h2>
+          <div className="stepper">
+            <button type="button" className="stepper__button" aria-label="Less" onClick={() => setMinutes(Math.max(10, minutes - 5))}>
+              −
+            </button>
+            <span className="stepper__value">{minutes} minutes</span>
+            <button type="button" className="stepper__button" aria-label="More" onClick={() => setMinutes(Math.min(180, minutes + 5))}>
+              +
+            </button>
+          </div>
         </section>
       )}
+
+      {kind === 'distance' && (
+        <section className="field">
+          <h2 className="label">Run</h2>
+          <div className="chip-row" role="group" aria-label="Distance">
+            {aimDistances.map((each) => (
+              <button
+                key={each.name}
+                type="button"
+                className="chip"
+                aria-pressed={!own && Math.abs(meters - each.meters) < 50}
+                onClick={() => {
+                  setOwn(false);
+                  setMeters(each.meters);
+                }}
+              >
+                {each.name}
+              </button>
+            ))}
+            <button type="button" className="chip" aria-pressed={own} onClick={() => setOwn(true)}>
+              Your own
+            </button>
+          </div>
+          {own && (
+            <div className="input-row">
+              <input
+                className="input"
+                inputMode="decimal"
+                aria-label={`Distance in ${unit}`}
+                placeholder={unit === 'mi' ? 'For example 5' : 'For example 8'}
+                value={ownText}
+                onChange={(event) => setOwnText(event.target.value)}
+              />
+              <span className="hint input-unit">{unit}</span>
+            </div>
+          )}
+        </section>
+      )}
+
+      {kind === 'steady' && (
+        <p className="muted">
+          No target: a steady rhythm on your days, gently varied, round and round. If you are new to running, it starts with the
+          walk-run weeks.
+        </p>
+      )}
+
+      <label className="field">
+        <span className="label">In your words, if you like</span>
+        <input className="input" value={words} placeholder={aimWords(aim, unit)} onChange={(event) => setWords(event.target.value)} />
+      </label>
+
+      {kind !== 'steady' && (
+        <section className="field">
+          <h2 className="label">When</h2>
+          <Segmented
+            label="When"
+            value={dated ? 'date' : 'none'}
+            options={[
+              { id: 'none', label: 'No date' },
+              { id: 'date', label: 'A date' },
+            ]}
+            onChange={(value) => setDated(value === 'date')}
+            small
+          />
+          {dated && (
+            <input
+              className="input"
+              type="date"
+              min={addDays(today, 7)}
+              aria-label="The date"
+              value={raceDate}
+              onChange={(event) => setRaceDate(event.target.value)}
+            />
+          )}
+        </section>
+      )}
+
+      <div className="card switches">
+        <Switch
+          on={gentler}
+          label="Go gentler"
+          detail="Weekly time grows about 5% a week instead of about 7%. More weeks, the same place."
+          onToggle={() => setGentler(!gentler)}
+        />
+      </div>
+
+      <section className="field">
+        <h2 className="label">Where you are now</h2>
+        <div className="chip-row" role="group" aria-label="Where you are now">
+          {current && (
+            <button type="button" className="chip" aria-pressed={now === -2} onClick={() => setNow(-2)}>
+              Where I am on my path
+            </button>
+          )}
+          <button type="button" className="chip" aria-pressed={now === 0} onClick={() => setNow(0)}>
+            Not running yet
+          </button>
+          <button type="button" className="chip" aria-pressed={now === -1} onClick={() => setNow(-1)}>
+            About 30 minutes at a time
+          </button>
+          {fromLog >= 60 && (
+            <button type="button" className="chip" aria-pressed={now === fromLog} onClick={() => setNow(fromLog)}>
+              From my log: about {Math.round(fromLog / 6) / 10} h a week
+            </button>
+          )}
+          {[120, 180, 240].map((each) => (
+            <button key={each} type="button" className="chip" aria-pressed={now === each} onClick={() => setNow(each)}>
+              About {each / 60}
+              {each === 240 ? '+' : ''} hours a week
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="field">
         <h2 className="label">Days a week</h2>
         <Segmented
           label="Days a week"
-          value={String(dayChoice)}
-          options={allowedDays.map((d) => ({ id: String(d), label: `${d} days` }))}
+          value={String(days)}
+          options={[3, 4, 5, 6].map((d) => ({ id: String(d), label: `${d} days` }))}
           onChange={(next) => pickDays(Number(next))}
         />
-      </section>
-
-      <section className="field">
-        <h2 className="label">Which days</h2>
         <div className="weekday-row" role="group" aria-label="Which days">
           {weekdayNames.map((name, day) => (
             <button key={name} type="button" className="weekday" aria-pressed={chosenDays.includes(day)} onClick={() => toggleDay(day)}>
@@ -119,30 +282,29 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
           ))}
         </div>
         <p className="hint">
-          The longest run goes on the last of these. If you use Proairetos here, days after a night of work are marked.
+          The longest run goes on the last of these. Days after a night of work are marked, if you use Proairetos here.
         </p>
       </section>
 
-      {!same && plan.weeks.length > 1 && (
-        <section className="field">
-          <h2 className="label">Start at</h2>
-          <div className="stepper">
-            <button type="button" className="stepper__button" aria-label="Earlier week" onClick={() => setWeek(Math.max(1, week - 1))}>
-              −
-            </button>
-            <span className="stepper__value">
-              Week {week} of {plan.weeks.length}
-            </span>
-            <button
-              type="button"
-              className="stepper__button"
-              aria-label="Later week"
-              onClick={() => setWeek(Math.min(plan.weeks.length, week + 1))}
-            >
-              +
-            </button>
-          </div>
-          <p className="hint">{plan.weeks[week - 1].theme}. Week 1 is a good place to start for most people.</p>
+      {path && joinWeek && (
+        <section className="card path-summary" aria-label="Your path">
+          <span className="card__eyebrow">Your path</span>
+          <p>
+            You join at week {join}: {joinWeek.stage.toLowerCase()}, {joinWeek.theme.charAt(0).toLowerCase() + joinWeek.theme.slice(1)}.
+          </p>
+          {path.cycleFrom ? (
+            <p className="muted">Then a steady rhythm, gently varied, for as long as you like.</p>
+          ) : (
+            weeksToAim !== undefined && (
+              <p className="muted">
+                {path.fit === 'shortened'
+                  ? `The date comes sooner than a gentle path needs, so it grows for fewer weeks, never faster: ${weeksToAim} weeks.`
+                  : path.fit === 'held'
+                    ? `${weeksToAim} weeks to the date, with a few holding steady before the sharper ones.`
+                    : `About ${weeksToAim} ${weeksToAim === 1 ? 'week' : 'weeks'} to your aim${gentler ? ', gently' : ''}.`}
+              </p>
+            )
+          )}
         </section>
       )}
 
@@ -151,25 +313,25 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
           <h2 className="label">Distances in</h2>
           <Segmented
             label="Distances in"
-            value={settings.unit}
+            value={unit}
             options={[
               { id: 'mi', label: 'Miles' },
               { id: 'km', label: 'Kilometres' },
             ]}
-            onChange={(unit) => saveSettings({ ...settings, unit })}
+            onChange={(next) => saveSettings({ ...settings, unit: next })}
           />
         </section>
       )}
 
-      {!first && current && same && <GoalLink plan={current} />}
+      {!first && current && unchanged && <GoalLink plan={current} />}
 
       {!daysReady && (
         <p className="hint" role="status">
-          Pick {dayChoice - chosenDays.length} more {dayChoice - chosenDays.length === 1 ? 'day' : 'days'}.
+          Pick {days - chosenDays.length} more {days - chosenDays.length === 1 ? 'day' : 'days'}.
         </p>
       )}
-      <button type="button" className="button-main" onClick={save} disabled={!daysReady}>
-        {first ? 'Begin' : same ? 'Keep these days' : `Start ${levels[level].name.toLowerCase()} plan`}
+      <button type="button" className="button-main" onClick={save} disabled={!daysReady || !path}>
+        {first ? 'Begin' : unchanged ? 'Keep this path' : 'Start this path'}
       </button>
     </div>
   );
