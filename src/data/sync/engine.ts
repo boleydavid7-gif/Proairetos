@@ -1,5 +1,6 @@
 import { openRecord, sealRecord } from './keys';
 import {
+  laterCollections,
   syncCollections,
   type LocalRecord,
   type LocalSyncStore,
@@ -31,7 +32,7 @@ export async function fingerprint(record: unknown): Promise<string> {
 
 const stateKey = (collection: SyncCollection, id: string) => `${collection}:${id}`;
 
-export type SyncResult = { pulled: number; pushed: number };
+export type SyncResult = { pulled: number; pushed: number; held?: number };
 
 /**
  * Local-first sync. The device stays the source of truth; the server holds
@@ -106,7 +107,7 @@ export function createSyncEngine(deps: {
     }
   }
 
-  async function push(): Promise<number> {
+  async function push(): Promise<{ pushed: number; held: number }> {
     const known = await state.fingerprints();
     const current = await snapshot();
     const outgoing: { record: OutgoingRecord; key: string; fp?: string }[] = [];
@@ -129,15 +130,26 @@ export function createSyncEngine(deps: {
       });
     }
 
-    for (let i = 0; i < outgoing.length; i += PAGE) {
-      const batch = outgoing.slice(i, i + PAGE);
-      await remote.push(batch.map((entry) => entry.record));
-      for (const entry of batch) {
-        if (entry.fp) await state.setFingerprint(entry.key, entry.fp);
-        else await state.removeFingerprint(entry.key);
+    const send = async (entries: typeof outgoing) => {
+      for (let i = 0; i < entries.length; i += PAGE) {
+        const batch = entries.slice(i, i + PAGE);
+        await remote.push(batch.map((entry) => entry.record));
+        for (const entry of batch) {
+          if (entry.fp) await state.setFingerprint(entry.key, entry.fp);
+          else await state.removeFingerprint(entry.key);
+        }
       }
+    };
+    const isLater = (entry: (typeof outgoing)[number]) => laterCollections.includes(entry.record.collection);
+    await send(outgoing.filter((entry) => !isLater(entry)));
+    const later = outgoing.filter(isLater);
+    try {
+      await send(later);
+      return { pushed: outgoing.length, held: 0 };
+    } catch {
+      // A server without the newer migration refuses these; they stay changed here and go next time.
+      return { pushed: outgoing.length - later.length, held: later.length };
     }
-    return outgoing.length;
   }
 
   return {
@@ -146,8 +158,8 @@ export function createSyncEngine(deps: {
       running ??= (async () => {
         try {
           const pulled = await pull();
-          const pushed = await push();
-          return { pulled, pushed };
+          const { pushed, held } = await push();
+          return held ? { pulled, pushed, held } : { pulled, pushed };
         } finally {
           running = null;
         }

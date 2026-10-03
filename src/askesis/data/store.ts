@@ -1,11 +1,16 @@
+import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
+import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { LogEntry } from '../core/log';
 import type { Goal, Level } from '../core/plans';
 import type { Unit } from '../core/pace';
 
 /**
- * Everything Askesis keeps, on this device only. Workouts live in their own
- * IndexedDB database ("askesis"); the plan and settings are small and kept
- * in localStorage. Proairetos's own data is never written from here.
+ * Everything Askesis keeps. Workouts and the plan in use live in the
+ * Proairetos database on this device (stores `askesisWorkouts` and
+ * `askesisPlans`), so they sync, sealed, with the same account and key as
+ * Proairetos: signing in there covers both. Settings stay on this device.
+ * Askesis never reads or writes Proairetos's own records except the
+ * schedule, read only.
  */
 
 export type PlanState = {
@@ -40,7 +45,8 @@ export type Settings = {
 };
 
 const SETTINGS = 'askesis:settings';
-const PLAN = 'askesis:plan';
+const OLD_PLAN = 'askesis:plan';
+const PLAN_ID = 'current';
 
 function readJson<T>(key: string): T | undefined {
   try {
@@ -95,90 +101,131 @@ export function saveSettings(next: Settings): void {
   notify();
 }
 
+// ---------- The shared database ----------
+
+let database: Promise<IDBDatabase | undefined> | undefined;
+/** When IndexedDB is unavailable, everything is kept for this visit only. */
+const memory = { entries: new Map<string, LogEntry>(), plan: undefined as (PlanState & { id: string }) | undefined };
+
+function db(): Promise<IDBDatabase | undefined> {
+  database ??= openDatabase().catch(() => undefined);
+  return database;
+}
+
+function run<T>(store: string, mode: IDBTransactionMode, work: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  return db().then(
+    (handle) =>
+      new Promise<T>((resolve, reject) => {
+        const transaction = handle!.transaction(store, mode);
+        const request = work(transaction.objectStore(store));
+        transaction.oncomplete = () => resolve(request.result);
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+      }),
+  );
+}
+
+// ---------- The plan ----------
+
+let plan: PlanState | undefined;
+
+/** The plan in use, read once at start and kept current. */
 export function loadPlan(): PlanState | undefined {
-  return readJson<PlanState>(PLAN);
+  return plan;
 }
 
 export function savePlan(next: PlanState | undefined): void {
-  writeJson(PLAN, next);
+  plan = next;
   notify();
+  void (async () => {
+    if (!(await db())) {
+      memory.plan = next && { ...next, id: PLAN_ID };
+      return;
+    }
+    if (next) await run(stores.askesisPlans, 'readwrite', (s) => s.put({ ...next, id: PLAN_ID }));
+    else await run(stores.askesisPlans, 'readwrite', (s) => s.delete(PLAN_ID));
+    syncSoon();
+  })().catch(() => undefined);
 }
 
-// ---------- Workouts (IndexedDB) ----------
-
-const DB = 'askesis';
-const STORE = 'entries';
-let opening: Promise<IDBDatabase> | undefined;
-/** When IndexedDB is unavailable, workouts are kept for this visit only. */
-let memory: Map<string, LogEntry> | undefined;
-
-function open(factory: IDBFactory = indexedDB): Promise<IDBDatabase> {
-  opening ??= new Promise((resolve, reject) => {
-    const request = factory.open(DB, 1);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' }).createIndex('date', 'date');
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-  return opening;
+async function readPlan(): Promise<PlanState | undefined> {
+  if (!(await db())) return memory.plan;
+  const record = await run<(PlanState & { id: string }) | undefined>(stores.askesisPlans, 'readonly', (s) => s.get(PLAN_ID));
+  if (!record) return undefined;
+  const { id: _id, ...rest } = record;
+  return rest;
 }
 
-async function withStore<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
-  const db = await open();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE, mode);
-    const request = run(transaction.objectStore(STORE));
-    transaction.oncomplete = () => resolve(request.result);
-    transaction.onerror = () => reject(transaction.error);
-    transaction.onabort = () => reject(transaction.error);
-  });
-}
-
-async function fallback(): Promise<Map<string, LogEntry> | undefined> {
-  if (memory) return memory;
-  try {
-    await open();
-    return undefined;
-  } catch {
-    memory = new Map();
-    return memory;
-  }
-}
+// ---------- Workouts ----------
 
 export async function listEntries(): Promise<LogEntry[]> {
-  const kept = await fallback();
-  if (kept) return [...kept.values()];
-  return withStore('readonly', (store) => store.getAll() as IDBRequest<LogEntry[]>);
+  if (!(await db())) return [...memory.entries.values()];
+  return run(stores.askesisWorkouts, 'readonly', (s) => s.getAll() as IDBRequest<LogEntry[]>);
 }
 
 export async function putEntry(entry: LogEntry): Promise<void> {
-  const kept = await fallback();
-  if (kept) kept.set(entry.id, entry);
-  else await withStore('readwrite', (store) => store.put(entry));
+  if (!(await db())) memory.entries.set(entry.id, entry);
+  else await run(stores.askesisWorkouts, 'readwrite', (s) => s.put(entry));
   notify();
+  syncSoon();
 }
 
 export async function deleteEntry(id: string): Promise<void> {
-  const kept = await fallback();
-  if (kept) kept.delete(id);
-  else await withStore('readwrite', (store) => store.delete(id));
+  if (!(await db())) memory.entries.delete(id);
+  else await run(stores.askesisWorkouts, 'readwrite', (s) => s.delete(id));
   notify();
+  syncSoon();
 }
 
 export async function clearEntries(): Promise<void> {
-  const kept = await fallback();
-  if (kept) kept.clear();
-  else await withStore('readwrite', (store) => store.clear());
+  if (!(await db())) memory.entries.clear();
+  else await run(stores.askesisWorkouts, 'readwrite', (s) => s.clear());
   notify();
+  syncSoon();
 }
 
-/** For tests: a fresh database factory. */
-export function useFactory(factory: IDBFactory): void {
-  opening = undefined;
-  memory = undefined;
-  void open(factory);
+// ---------- Start ----------
+
+/** The first Askesis kept its own database; anything there moves into the shared one, once. */
+async function moveFromOldDatabase(): Promise<void> {
+  const old = await new Promise<IDBDatabase | undefined>((resolve) => {
+    try {
+      const request = indexedDB.open('askesis');
+      request.onupgradeneeded = () => request.transaction?.abort();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve(undefined);
+    } catch {
+      resolve(undefined);
+    }
+  });
+  if (!old) return;
+  const entries = old.objectStoreNames.contains('entries')
+    ? await new Promise<LogEntry[]>((resolve) => {
+        const request = old.transaction('entries', 'readonly').objectStore('entries').getAll();
+        request.onsuccess = () => resolve(request.result as LogEntry[]);
+        request.onerror = () => resolve([]);
+      })
+    : [];
+  old.close();
+  for (const entry of entries) await run(stores.askesisWorkouts, 'readwrite', (s) => s.put(entry));
+  indexedDB.deleteDatabase('askesis');
+}
+
+/** Opens storage, brings over anything from the first version, and listens for synced changes. */
+export async function startStore(): Promise<void> {
+  if (await db()) {
+    await moveFromOldDatabase().catch(() => undefined);
+    const oldPlan = readJson<PlanState>(OLD_PLAN);
+    if (oldPlan && !(await readPlan())) await run(stores.askesisPlans, 'readwrite', (s) => s.put({ ...oldPlan, id: PLAN_ID }));
+    writeJson(OLD_PLAN, undefined);
+  }
+  plan = await readPlan().catch(() => undefined);
+  onRemoteChanges(() => {
+    void readPlan().then((next) => {
+      plan = next;
+      notify();
+    });
+  });
 }
 
 // ---------- Backup ----------

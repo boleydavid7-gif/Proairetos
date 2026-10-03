@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { addDays, mondayOnOrBefore, parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
+import { syncStatus, type SyncStatus } from '../../app/sync/syncController';
 import { buildPlan, defaultWeekdays, type Plan, type PlanChoice } from '../core/plans';
 import type { LogEntry } from '../core/log';
 import { scheduleBetween } from '../data/proairetosSchedule';
@@ -102,3 +103,8 @@ export const newId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+
+/** The Proairetos account, shared: signed in there means signed in here. */
+export function useAccount(): SyncStatus {
+  return useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
+}

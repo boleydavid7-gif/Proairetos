@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { BackIcon, HomeIcon, LearnIcon, LogIcon, Mark, MoreIcon, TrainIcon } from './icons';
 
 export type Tab = 'home' | 'learn' | 'train' | 'log' | 'more';
@@ -64,8 +64,14 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void;
   small?: boolean;
 }) {
+  const at = Math.max(0, options.findIndex((option) => option.id === value));
   return (
-    <div className={`segmented${small ? ' segmented--small' : ''}`} role="group" aria-label={label}>
+    <div
+      className={`segmented${small ? ' segmented--small' : ''}`}
+      role="group"
+      aria-label={label}
+      style={{ '--count': options.length, '--at': at } as CSSProperties}
+    >
       {options.map((option) => (
         <button
           key={option.id}

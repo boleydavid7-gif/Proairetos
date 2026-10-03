@@ -288,10 +288,20 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   marathon (18). Tests hold them to the science: hard minutes <= 20% of each
   week, weekly time +<10% over recent weeks, easier every 4th week, taper.
   Effort scale in `core/effort.ts`; HR zones (Tanaka, Karvonen) in `core/zones.ts`.
-- Data: workouts in IndexedDB `askesis` (`data/store.ts`); plan and settings in
-  localStorage. Reads (never writes) the Proairetos schedule on the device
-  (`data/proairetosSchedule.ts`, opens without a version and aborts creation)
-  to mark sessions after a night of work.
+- Data: workouts and the plan live in the Proairetos database (DB 7 stores
+  `askesisWorkouts`, `askesisPlans`, record id `current`), so they sync,
+  sealed, with the same account and key: signing in to Proairetos covers
+  Askesis (`main.tsx` runs `startStore()` then `startSync()`; writes call
+  `syncSoon()`; `onRemoteChanges` reloads). Device settings in localStorage.
+  The server accepts the two collections after migration
+  `20261003000000_askesis_sync.sql`; until then the engine holds them
+  (`laterCollections`, `SyncResult.held`) and Proairetos records sync as before.
+  The first version's `askesis` database moves over once and is deleted.
+  Reads (never writes) the Proairetos schedule to mark sessions after nights.
+- Motion: same as Proairetos: `app/transitions.ts` (tabs slide by bar order,
+  pages push in, back comes forward), sliding segmented highlight (`--count`,
+  `--at` set inline), press spring, choices pop, `tap()` (Gentle taps) on
+  each guide step change.
 - Learn articles (`core/learn.ts`) cite sources; daily Stoic line and the
   optional "What part of this is up to you?" intention (`core/stoic.ts`).
 - Guide (`screens/GuidePage.tsx`): wall-clock steps, spoken cues and a bell,

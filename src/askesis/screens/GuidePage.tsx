@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { tap } from '../../app/feel';
 import { audio, playOnce } from '../../app/sound/engine';
 import { BELL_FILE } from '../../app/sound/soundscapes';
 import type { Nav } from '../app/App';
@@ -112,12 +113,15 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     if (!running || !current) return;
     if (elapsed >= total) {
       setFinished(true);
+      tap(60);
       if (settings.bells) void playOnce(BELL_FILE, audio().destination).catch(() => undefined);
       if (settings.voice) say('That’s the session.');
       return;
     }
     if (spokenIndex.current !== index) {
       spokenIndex.current = index;
+      // A buzz with each change, for a phone in a pocket (where the phone allows it).
+      if (index > 0) tap(40);
       if (settings.bells && index > 0) void playOnce(BELL_FILE, audio().destination).catch(() => undefined);
       if (settings.voice) say(`${efforts[current.effort].say}, ${spoken(current.minutes)}.`);
     }

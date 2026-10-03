@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { usePlan, usePlanState, useSettings } from './state';
 import { TabBar, UndoProvider, type Tab } from './ui';
 import HomePage from '../screens/HomePage';
@@ -47,14 +48,15 @@ export default function App() {
   const settings = useSettings();
   const planState = usePlanState();
   const plan = usePlan(planState);
-  const [route, setRoute] = useState<Route>(() => (settings.started ? { name: 'home' } : { name: 'welcome' }));
+  const [route, setRoute] = useState<Route>(() => (settings.started || planState ? { name: 'home' } : { name: 'welcome' }));
   const [lastTab, setLastTab] = useState<Tab>('home');
 
   useEffect(() => {
     history.replaceState({ askesis: route }, '');
     const onPop = (event: PopStateEvent) => {
       const next = (event.state as { askesis?: Route } | null)?.askesis;
-      setRoute(next ?? { name: 'home' });
+      // The phone's back gesture and button: the page slides away, the one beneath comes forward.
+      transition('back', () => setRoute(next ?? { name: 'home' }));
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
@@ -66,13 +68,22 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [route]);
 
+  const current = useRef(route);
+  current.current = route;
+  /** Along the tab bar, the new page comes from the side tapped; anything else pushes in. */
+  const directionTo = (next: Route): Direction => {
+    const from = current.current.name;
+    if (isTab(from) && isTab(next.name)) return directionAlong(tabNames, from, next.name);
+    return isTab(next.name) && !isTab(from) ? 'back' : 'forward';
+  };
   const go = useCallback((next: Route) => {
     history.pushState({ askesis: next }, '');
-    setRoute(next);
+    transition(directionTo(next), () => setRoute(next));
   }, []);
   const swap = useCallback((next: Route) => {
     history.replaceState({ askesis: next }, '');
-    setRoute(next);
+    if (next.name === current.current.name && isTab(next.name)) return;
+    transition(directionTo(next), () => setRoute(next));
   }, []);
   const back = useCallback(() => {
     if (history.state?.askesis && history.length > 1) history.back();

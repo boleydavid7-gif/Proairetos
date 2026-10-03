@@ -6,6 +6,7 @@ import { BackLink, Segmented, useUndo } from '../app/ui';
 import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
 import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
 import type { Plan } from '../core/plans';
+import { tap } from '../../app/feel';
 import { deleteEntry, putEntry } from '../data/store';
 import { locate } from './WorkoutPage';
 
@@ -87,6 +88,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       workoutTitle: title,
     };
     await putEntry(entry);
+    tap();
     nav.swap({ name: 'log' });
   };
 
@@ -165,7 +167,10 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
         </span>
         <div className="faces" role="group" aria-labelledby="felt-label">
           {(Object.keys(feelings) as Felt[]).map((id) => (
-            <button key={id} type="button" className="face" aria-pressed={felt === id} onClick={() => setFelt(felt === id ? undefined : id)}>
+            <button key={id} type="button" className="face" aria-pressed={felt === id} onClick={() => {
+                tap();
+                setFelt(felt === id ? undefined : id);
+              }}>
               <FeltFace felt={id} />
               <span>{feelings[id]}</span>
             </button>

@@ -267,7 +267,7 @@ export function DataPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">Everything Askesis keeps stays on this phone, in this browser. A backup file is the way to move it.</p>
+      <p className="lead">Your plan and workouts stay on this phone. When you are signed in to Proairetos, they also sync, sealed, with your account. A backup file is another way to keep them.</p>
       <div className="card">
         <h2 className="card__title card__title--small">Back up</h2>
         <p className="muted">Your plan, settings and every workout, in one file.</p>
@@ -310,7 +310,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       </div>
       <div className="card">
         <h2 className="card__title card__title--small">Delete everything</h2>
-        <p className="muted">Removes your plan and every workout from this phone. Your Proairetos data is not touched.</p>
+        <p className="muted">Removes your plan and every workout, here and, if you sync, on your other devices. Your Proairetos data is not touched.</p>
         {confirming ? (
           <div className="button-row">
             <button type="button" className="button-danger" onClick={() => void wipe()}>

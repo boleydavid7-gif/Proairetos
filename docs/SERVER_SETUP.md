@@ -25,6 +25,9 @@ VAPID **private** key in Cloudflare or in this repository.
 3. It is safe to run again if anything was interrupted.
 4. Do the same with `supabase/migrations/20261002000000_calendar_feed.sql`
    (only needed for the calendar subscription link, but harmless otherwise).
+5. And with `supabase/migrations/20261003000000_askesis_sync.sql`, so Askesis
+   (the training app) can sync its workouts and plan with the same account.
+   Until it runs, Askesis keeps them on the phone and Proairetos syncs as usual.
 
 This creates four tables, each locked so a person can only ever reach their
 own rows:

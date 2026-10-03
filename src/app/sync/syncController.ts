@@ -51,6 +51,8 @@ export type SyncStatus = {
   lastSyncedAt?: string;
   error?: string;
   reminders: 'unsupported' | 'off' | 'on' | 'blocked';
+  /** Records the server did not accept yet (it needs the Askesis migration). */
+  held?: number;
 };
 
 const KEY_META = 'dataKey';
@@ -107,8 +109,23 @@ async function resolvePhase(): Promise<void> {
   set({ phase: wrapped ? 'locked' : 'needs-setup', email: user.email, reminders });
 }
 
+const remoteChanges = createListeners();
+
+/** Told when a sync brought changes from elsewhere (Askesis listens to reload its own records). */
+export function onRemoteChanges(listener: () => void): () => void {
+  return remoteChanges.subscribe(listener);
+}
+
 function refreshScreens() {
   for (const service of [lifeService, reflectionService, compassService, scheduleService, decisionService]) service.refresh();
+  remoteChanges.notify();
+}
+
+/** Syncs shortly after things settle; for changes made outside the services (Askesis). */
+export function syncSoon(): void {
+  if (status.phase !== 'ready') return;
+  window.clearTimeout(changeTimer);
+  changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
 }
 
 /** Recomputes reminder times, e.g. after quiet hours change. */
@@ -144,7 +161,7 @@ export async function syncNow(): Promise<SyncResult | null> {
     }
     await updateReminders().catch(() => undefined);
     await refreshCalendarFeed().catch(() => undefined);
-    set({ syncing: false, lastSyncedAt });
+    set({ syncing: false, lastSyncedAt, held: result.held || undefined });
     return result;
   } catch (error) {
     set({ syncing: false, error: error instanceof Error ? error.message : 'Sync could not finish. It will try again.' });

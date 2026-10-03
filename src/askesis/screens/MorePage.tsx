@@ -2,6 +2,7 @@ import type { Nav, Route } from '../app/App';
 import { BoxIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, Mark, ShieldIcon, TargetIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { Brand } from '../app/ui';
+import { useAccount } from '../app/state';
 import { levels, type Plan } from '../core/plans';
 import type { ReactNode } from 'react';
 
@@ -23,6 +24,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
   return (
     <div className="page more">
       <Brand />
+      <Account />
       <ul className="rows">
         {rows.map((row) => (
           <li key={row.title}>
@@ -57,5 +59,50 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
         </figcaption>
       </figure>
     </div>
+  );
+}
+
+/** The account is Proairetos's: signing in there signs in here, with the same key. */
+function Account() {
+  const account = useAccount();
+  const synced = account.lastSyncedAt
+    ? new Date(account.lastSyncedAt).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })
+    : undefined;
+  const [title, detail, link] =
+    account.phase === 'ready'
+      ? [
+          account.email ?? 'Signed in',
+          account.held
+            ? 'Workouts wait on this phone until the server is updated.'
+            : `Your plan and workouts sync with Proairetos${synced ? `. Last ${synced}` : ''}.`,
+          false,
+        ]
+      : account.phase === 'signed-out'
+        ? ['Not signed in', 'Sign in once in Proairetos and it covers Askesis too.', true]
+        : account.phase === 'locked' || account.phase === 'needs-setup'
+          ? ['Signed in', 'Finish setting up sync in Proairetos, then it covers Askesis too.', true]
+          : ['On this phone', 'Everything stays on this phone.', false];
+  const body = (
+    <>
+      <span className="row__icon">
+        <Mark size={24} />
+      </span>
+      <span className="row__text">
+        <span>{title}</span>
+        <span className="row__detail">{detail}</span>
+      </span>
+      {link && <ChevronIcon size={18} />}
+    </>
+  );
+  return (
+    <section className="rows account" aria-label="Account">
+      {link ? (
+        <a className="row" href="/">
+          {body}
+        </a>
+      ) : (
+        <div className="row">{body}</div>
+      )}
+    </section>
   );
 }
