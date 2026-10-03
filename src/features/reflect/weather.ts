@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { CloudIcon, MoonIcon, PartlyCloudyIcon, RainIcon, SnowIcon, StormIcon, SunIcon } from '../../components/icons/Icons';
+import { CloudIcon, MoonIcon, PartlyCloudyIcon, RainIcon, SnowIcon, StormIcon, SunIcon, StarIcon } from '../../components/icons/Icons';
 import { formatTemp, skyKind, skyLabel, type Sky } from '../../core/weather/sky';
 import type { InnerWeather, Reflection } from '../../core/reflections/types';
 import { isDaytime } from './format';
@@ -34,6 +34,8 @@ export function skyIcon(sky: Pick<Sky, 'code' | 'isDay'>): IconComponent {
  * the time of day, sun by day and moon by night.
  */
 export function entryMark(reflection: Reflection): { icon: IconComponent; label: string } {
+  if (reflection.promptKey === 'gratitude' || reflection.promptKey === 'three-good-things')
+    return { icon: StarIcon, label: 'Gratitude' };
   if (reflection.weather) {
     const option = weatherOptions.find((o) => o.id === reflection.weather)!;
     return { icon: option.icon, label: `Inner weather: ${option.label}` };

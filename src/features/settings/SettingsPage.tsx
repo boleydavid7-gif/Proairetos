@@ -475,6 +475,7 @@ const todayParts: { part: TodayPart; label: string }[] = [
   { part: 'capture', label: 'Capture line' },
   { part: 'a-while-ago', label: 'From a while ago' },
   { part: 'close-day', label: 'Close the day' },
+  { part: 'three-good-things', label: 'Three good things' },
 ];
 
 const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; detail: string }[] }[] = [
@@ -487,6 +488,7 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
         detail: 'Write everything at once; it is split up for you to check.',
       },
       { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
+      { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
       {
         part: 'energy',
         label: 'Energy',

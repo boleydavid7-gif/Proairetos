@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { lifeService } from '../../app/services';
+import { lifeService, reflectionService } from '../../app/services';
+import GratitudePage, { GRATITUDE } from './GratitudePage';
 import { transition } from '../../app/transitions';
-import { ChevronRightIcon, InboxIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon, InboxIcon, StarIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { LifeItem } from '../../core/life-items/types';
 import CaptureBar from '../now/components/CaptureBar';
@@ -40,8 +41,15 @@ export default function CapturePage() {
       .sort(newestFirst);
   const unsorted = openOn('UNSORTED');
   const go = (next: CaptureShelf | null) => transition(next ? 'forward' : 'back', () => setShelf(next));
+  const [gratefulOpen, setGratefulOpen] = useState(false);
+  const openGrateful = (open: boolean) => transition(open ? 'forward' : 'back', () => setGratefulOpen(open));
+  // The newest thing the person was grateful for, under the tile, like the kinds' newest titles.
+  const grateful = (useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [])
+    .filter((reflection) => reflection.promptKey === GRATITUDE)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   if (shelf) return <CaptureKindPage key={shelf} shelf={shelf} onBack={() => go(null)} />;
+  if (gratefulOpen) return <GratitudePage onBack={() => openGrateful(false)} />;
 
   return (
     <div className="page">
@@ -60,6 +68,18 @@ export default function CapturePage() {
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
         ))}
+        {shows('gratitude') && (
+          <button type="button" className="kind-tile" onClick={() => openGrateful(true)}>
+            <span className="kind-tile__icon">
+              <StarIcon size={28} />
+            </span>
+            <span className="kind-tile__text">
+              <span className="kind-tile__title">Grateful</span>
+              <span className="kind-tile__prompt">{grateful[0]?.body ?? 'I’m grateful for…'}</span>
+            </span>
+            <ChevronRightIcon size={18} className="kind-tile__chevron" />
+          </button>
+        )}
         {unsorted.length > 0 && (
           <button type="button" className="kind-tile kind-tile--unsorted" onClick={() => go('UNSORTED')}>
             <span className="kind-tile__icon">

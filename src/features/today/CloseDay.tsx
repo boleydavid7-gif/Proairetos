@@ -7,6 +7,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import { addDays } from '../../core/scheduling/dates';
 import { closedDay, setClosedDay, subscribePreferences } from '../../data/storage/preferences';
 import { useDoneIn } from './DoneToday';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { weather } from '../../app/weather/weather';
 
 type Props = {
@@ -24,10 +25,11 @@ type Props = {
 function CloseDaySheet({ today, range, items, onClose }: Props) {
   const { dialog, panel, close } = useSheet();
   const { offerUndo } = useOverlays();
+  const shows = useTodayParts();
   const done = useDoneIn(today, range) ?? [];
   const openPicks = items.filter((item) => item.pickedFor === today && (item.status === 'OPEN' || item.status === 'WAITING'));
   const [carry, setCarry] = useState<Set<string>>(new Set());
-  const [note, setNote] = useState('');
+  const [good, setGood] = useState(['', '', '']);
   const [busy, setBusy] = useState(false);
   const tomorrow = addDays(today, 1);
 
@@ -38,7 +40,11 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       // Tomorrow's path holds three; anything beyond that simply stays on the list.
       await lifeService.pickForDay(id, tomorrow).then(() => carried.push(id), () => undefined);
     }
-    const written = note.trim() ? await reflectionService.write({ body: note, promptKey: 'worth-it', sky: weather.skyNow() }) : null;
+    // Three good things (Seligman et al., 2005): kept as one reflection, only the lines written.
+    const lines = good.map((line) => line.trim()).filter(Boolean);
+    const written = lines.length
+      ? await reflectionService.write({ body: lines.map((line) => `· ${line}`).join('\n'), promptKey: 'three-good-things', sky: weather.skyNow() })
+      : null;
     setClosedDay(today);
     offerUndo('The day is closed. Rest well.', async () => {
       for (const id of carried) await lifeService.pickForDay(id, today).catch(() => undefined);
@@ -101,17 +107,22 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
           </section>
         )}
 
-        <section className="sheet__section" aria-label="What made today worth it">
-          <p className="sheet__label">What made today worth it?</p>
-          <textarea
-            className="field-input field-input--area"
-            rows={3}
-            aria-label="What made today worth it"
-            placeholder="Optional. Something small counts. It goes to Reflect."
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </section>
+        {shows('three-good-things') && (
+          <section className="sheet__section" aria-label="Three good things">
+            <p className="sheet__label">Three good things</p>
+            <p className="sheet__hint">Small things count. Why it went well, too, if you like. It goes to Reflect.</p>
+            {good.map((line, i) => (
+              <input
+                key={i}
+                className="field-input three-good__line"
+                aria-label={`Good thing ${i + 1}`}
+                placeholder={['Something that went well', 'Another, however small', 'And one more, if it comes'][i]}
+                value={line}
+                onChange={(event) => setGood(good.map((each, j) => (j === i ? event.target.value : each)))}
+              />
+            ))}
+          </section>
+        )}
 
         <button type="button" className="button-accent button-accent--wide" disabled={busy} onClick={finish}>
           Close the day

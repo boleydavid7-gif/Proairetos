@@ -98,3 +98,8 @@
 .add-reflection svg {
   color: var(--color-accent);
 }
+
+/* Entries written as lines (three good things) keep their lines. */
+.timeline-entry__text {
+  white-space: pre-line;
+}

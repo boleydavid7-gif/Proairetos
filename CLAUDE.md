@@ -88,7 +88,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has the five kinds
   above the free box; each kind opens its own page (`CaptureKindPage`: add
   box for that kind, its open captures, closed recently), and captures with
-  no kind wait on a Not sorted yet page (with Sort through). Tiles show the
+  no kind wait on a Not sorted yet page (with Sort through). A Grateful tile
+  (`GratitudePage`, What's included part `gratitude`) keeps "I'm grateful for…"
+  lines as reflections (promptKey `gratitude`), never as items. Close the day
+  asks for Three good things (part `three-good-things`, promptKey of the same
+  name; it replaced "What made today worth it"); both show in Reflect with a
+  star. The Journal stays in Reflect only. Tiles show the
   newest titles, never counts. Reflect is a
   timeline; Journal (`features/journal/`) is the full-page writer with
   optional inner weather (the person picks it; the app never infers

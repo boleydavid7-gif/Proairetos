@@ -329,6 +329,8 @@ export type TodayPart =
   | 'meditate'
   | 'decisions'
   | 'weekly-review'
+  | 'gratitude'
+  | 'three-good-things'
   // Runs from Askesis, the training app beside Proairetos.
   | 'askesis';
 
