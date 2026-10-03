@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { addDays, mondayOnOrBefore } from '../../core/scheduling/dates';
+import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, ClockIcon, PulseIcon } from '../app/icons';
 import { kindScene, scene } from '../app/scenes';
@@ -9,6 +9,7 @@ import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
 import { aimWords, isLastWeek, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
+import { stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
 import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
@@ -26,13 +27,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const monday = mondayOnOrBefore(today);
   const dates = weekDates(today);
   const thisWeeks = entries.filter((entry) => entry.date >= dates[0] && entry.date <= dates[6]);
-  const lastWeeks = entries.filter((entry) => entry.date >= addDays(monday, -7) && entry.date < monday);
 
   const resting = planState?.restWeek === monday;
   const week = plan && planState && !resting ? weekAt(plan, planState.week) : undefined;
   const newWeek = planState && planState.weekOf < monday;
   const finished = Boolean(plan && planState && isLastWeek(plan, planState.week) && newWeek);
-  const hardLastWeek = lastWeeks.filter((entry) => entry.felt === 'hard').length >= 2;
+  const suggestion = plan && planState && newWeek && !finished ? suggestWeek(plan, planState.week, entries, monday) : undefined;
 
   const days: DayPlan[] = useMemo(
     () =>
@@ -119,30 +119,15 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                 {finished ? (
                   <LookBack nav={nav} plan={plan} state={planState} entries={entries} today={today} />
                 ) : (
-                  <>
-                    <h2 className="card__title">Week {planState.week + 1} is ready.</h2>
-                    <p className="muted">
-                      {hardLastWeek
-                        ? `Two or more runs last week felt hard. Staying on week ${planState.week} for another go is an option.`
-                        : `${weekAt(plan, planState.week + 1).theme}. Or stay on week ${planState.week} a little longer.`}
-                    </p>
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button-main"
-                        onClick={() => updatePlan({ week: planState.week + 1, weekOf: monday, moves: {} })}
-                      >
-                        Start week {planState.week + 1}
-                      </button>
-                      <button
-                        type="button"
-                        className="button-quiet"
-                        onClick={() => updatePlan({ weekOf: monday, moves: {} })}
-                      >
-                        Stay on week {planState.week}
-                      </button>
-                    </div>
-                  </>
+                  suggestion && (
+                    <NewWeek
+                      plan={plan}
+                      current={planState.week}
+                      suggestion={suggestion}
+                      dated={Boolean(planState.raceDate)}
+                      onPick={(n) => updatePlan({ week: n, weekOf: monday, moves: {} })}
+                    />
+                  )
                 )}
               </section>
             )}
@@ -153,7 +138,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               <span className="muted">{week.theme}</span>
               <span className="card__foot">
                 Week {week.n}
-                {plan.cycleFrom ? '' : ` of ${plan.weeks.length}`}
+                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
                 <ChevronIcon size={18} />
               </span>
             </button>
@@ -286,5 +271,65 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         )}
       </div>
     </div>
+  );
+}
+
+function toAimWords(weeks: number | undefined): string {
+  if (weeks === undefined) return '';
+  return weeks === 1 ? 'the week of your aim' : `about ${weeks} weeks to your aim`;
+}
+
+/** A new week: what was logged, the week that fits it, and how far that leaves the aim. The choice stays with the runner. */
+function NewWeek({
+  plan,
+  current,
+  suggestion,
+  dated,
+  onPick,
+}: {
+  plan: Plan;
+  current: number;
+  suggestion: Suggestion;
+  dated: boolean;
+  onPick: (week: number) => void;
+}) {
+  const { week, why, reading } = suggestion;
+  const theme = weekAt(plan, week).theme;
+  const facts =
+    why === 'quiet'
+      ? 'Nothing logged last week.'
+      : `Last week: ${lengthLabel(reading.lastWeek)} running` +
+        (reading.sessionsDone ? `, ${reading.sessionsDone} of ${reading.sessions} sessions` : '') +
+        (reading.lastLongest ? `, longest ${lengthLabel(reading.lastLongest)}` : '') +
+        '.';
+  const reason = {
+    next: `Next: week ${week}, ${theme.charAt(0).toLowerCase() + theme.slice(1)}.`,
+    ahead: `More than week ${current} asked. Week ${week} fits it, with no more than about 10% added.`,
+    again: reading.hard >= 2 ? `Two or more runs felt hard. Week ${current} again lets it settle.` : `Week ${current} again, to settle into it.`,
+    earlier: `Week ${week} is closer to what you ran.`,
+    quiet: `Week ${current} again, or move on.`,
+  }[why];
+  const left = weeksToAim(plan, week);
+  const others = [current + 1, current].filter(
+    (n, i, all) => n !== week && all.indexOf(n) === i && (plan.cycleFrom || n <= plan.weeks.length),
+  );
+  return (
+    <>
+      <h2 className="card__title">{week === current ? 'A new week.' : `Week ${week} is ready.`}</h2>
+      <p className="muted">{facts}</p>
+      <p className="muted">{reason}</p>
+      {week !== current && <p className="muted">What it builds: {stageBuilds[weekAt(plan, week).stage].charAt(0).toLowerCase() + stageBuilds[weekAt(plan, week).stage].slice(1)}</p>}
+      {left !== undefined && !dated && <p className="muted">From there, {toAimWords(left)}.</p>}
+      <button type="button" className="button-main" onClick={() => onPick(week)}>
+        {week === current ? `Week ${week} again` : `Start week ${week}`}
+      </button>
+      <div className="button-row">
+        {others.map((n) => (
+          <button key={n} type="button" className="button-quiet" onClick={() => onPick(n)}>
+            {n === current ? `Stay on week ${n}` : `Week ${n}`}
+          </button>
+        ))}
+      </div>
+    </>
   );
 }

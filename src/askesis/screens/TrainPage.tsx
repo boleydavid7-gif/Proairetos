@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { CheckIcon, ChevronIcon } from '../app/icons';
-import { useSettings } from '../app/state';
+import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand } from '../app/ui';
 import { aimWords, defaultWeekdays, examplePath, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
+import { stageBuilds, thenAndNow, weeksToAim } from '../core/progress';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
@@ -14,6 +15,8 @@ import type { PlanState } from '../data/store';
  */
 export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const settings = useSettings();
+  const today = useToday();
+  const change = thenAndNow(useEntries() ?? [], today);
   const shown = plan ?? examplePath();
   const current = plan && planState ? planState.week : undefined;
   // In a steady rhythm past the last listed week, the week shown is its place in the rhythm.
@@ -69,6 +72,39 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
       <h1 className="title">Train</h1>
       <p className="lead">{plan ? (planState?.aimWords ?? aimWords(plan.aim, settings.unit)) : 'An example: a 10K, three days a week.'}</p>
 
+      {plan && planState && !plan.cycleFrom && (
+        <section className="card progress" aria-label="Where you are">
+          <div className="progress__row">
+            <span className="card__eyebrow">Started</span>
+            <span>
+              Week {planState.joinWeek}, {shortDate(planState.startedOn)} · about {weeksToAim(plan, planState.joinWeek)} weeks to your aim
+            </span>
+          </div>
+          <div className="progress__row">
+            <span className="card__eyebrow">Now</span>
+            <span>
+              Week {planState.week} · {weeksToAim(plan, planState.week) === 1 ? 'the week of your aim' : `about ${weeksToAim(plan, planState.week)} weeks to go`}
+            </span>
+          </div>
+          {change && (
+            <>
+              <div className="progress__row">
+                <span className="card__eyebrow">Your first two weeks</span>
+                <span>
+                  {lengthLabel(change.then.weekly)} a week, longest run {lengthLabel(change.then.longest)}
+                </span>
+              </div>
+              <div className="progress__row">
+                <span className="card__eyebrow">The last three weeks</span>
+                <span>
+                  {lengthLabel(change.now.weekly)} a week, longest run {lengthLabel(change.now.longest)}
+                </span>
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
       {stagesOf(shown).map((stage) => (
         <section key={`${stage.stage}-${stage.from}`} className="stage" aria-label={stage.stage}>
           <div className="stage__head">
@@ -77,6 +113,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
             </span>
           </div>
+          <p className="hint">{stageBuilds[stage.stage]}</p>
           <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
         </section>
       ))}
@@ -87,3 +124,8 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
     </div>
   );
 }
+
+const shortDate = (date: string) => {
+  const [y, m, d] = date.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};

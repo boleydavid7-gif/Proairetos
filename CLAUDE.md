@@ -304,6 +304,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   "Carry on from week N" when editing, walk-run weeks keep their number),
   Where you want to be, Your plan (days, date, gentler). A time aim they can
   already run says so. Keep explanation lines out of Askesis screens.
+  Each new week reads the log (`core/progress.ts`, `suggestWeek`): walk-run
+  weeks move on when most sessions were logged; later, a week run as written
+  suggests the next, clearly more carries ahead to the furthest growing week
+  within ~10% of the busiest recent week and 10 min of the longest run, much
+  less offers the week again or an earlier one, two hard runs offer it again.
+  Home's card shows the facts, the reason, what the week builds
+  (`stageBuilds`) and weeks to the aim from there; the runner picks. Train
+  shows Started / Now and their own first two weeks beside the last three
+  (`thenAndNow`).
   `PlanState` keeps aim, own words, join
   week, date, gentler; old level plans convert (`fromOldPlan`). Tests hold
   80 combinations to the science rules. Reaching the aim shows `LookBack`

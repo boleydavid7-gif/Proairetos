@@ -66,17 +66,6 @@ export type Plan = {
   fit?: 'fits' | 'shortened' | 'held';
 };
 
-export const stageLines: Record<Stage, string> = {
-  Start: 'Walk-run, until 30 minutes of running arrives.',
-  Base: 'More easy time on your feet, and strides.',
-  Build: 'Longer runs, a little more each week.',
-  Hold: 'Holding steady until the date comes.',
-  Shape: 'Sharper sessions for your aim.',
-  Taper: 'Less running, kept sharp.',
-  'Your aim': 'The week of your aim.',
-  'Keep going': 'A steady rhythm, gently varied, round and round.',
-};
-
 export const aimDistances: { name: string; meters: number; words: string }[] = [
   { name: '1 mile', meters: 1609.344, words: 'Run a mile' },
   { name: '5K', meters: 5000, words: 'Run a 5K' },

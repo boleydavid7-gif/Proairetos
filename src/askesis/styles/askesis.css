@@ -742,6 +742,16 @@ input[type='date'].input {
   font-weight: 600;
 }
 
+.progress {
+  display: grid;
+  gap: 10px;
+}
+
+.progress__row {
+  display: grid;
+  gap: 2px;
+}
+
 .choice-list {
   display: grid;
   gap: 8px;
