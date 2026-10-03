@@ -10,6 +10,7 @@ import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './styles/globals.css';
 import { applyAppearance } from './app/appearance';
+import { startDailyCopies } from './app/family/dailyCopy';
 
 // Theme and text size before the first paint, and again when the phone switches light or dark.
 applyAppearance();
@@ -20,6 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>,
 );
+
+// A copy of everything, once a day, kept on this phone (Settings > Your data).
+startDailyCopies();
 
 // Offline support in production builds only, so development always loads fresh code.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

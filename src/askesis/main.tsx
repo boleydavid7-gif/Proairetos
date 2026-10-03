@@ -11,6 +11,7 @@ import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './styles/askesis.css';
 import { applyAppearance } from '../app/appearance';
+import { startDailyCopies } from '../app/family/dailyCopy';
 
 // The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar colour.
 function appearance() {
@@ -33,6 +34,7 @@ void startStore()
       </React.StrictMode>,
     );
     void startSync();
+    startDailyCopies();
   });
 
 // Its own service worker, scoped to /askesis/, so it installs and opens offline as its own app.

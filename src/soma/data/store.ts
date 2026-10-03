@@ -1,16 +1,19 @@
 import type { AisleChoices } from '../core/aisles';
 import type { GroceryItem } from '../core/groceries';
 import type { Recipe } from '../core/recipes';
+import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
+import { openSoma } from '../../data/backup/family';
+import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 
 /*
- * SOMA keeps recipes and the grocery list in its own database on this phone
- * (IndexedDB "soma"), and a few settings in localStorage. Nothing leaves the
- * phone except a recipe page read through the app's own bridge, and the
- * searches sent to TheMealDB when the person looks for ideas.
+ * SOMA keeps recipes and the grocery list in the Proairetos database on this
+ * phone (stores somaRecipes, somaGroceries), so they sync, sealed, with the
+ * same account as Proairetos and Askesis. A few settings live in
+ * localStorage. Nothing else leaves the phone except a recipe page read
+ * through the app's own bridge, and searches sent to TheMealDB for ideas.
  */
-const DB = 'soma';
-const RECIPES = 'recipes';
-const GROCERIES = 'groceries';
+const RECIPES = stores.somaRecipes;
+const GROCERIES = stores.somaGroceries;
 const SETTINGS = 'soma:settings';
 
 export type Settings = {
@@ -33,23 +36,12 @@ export const defaultSettings = (): Settings => ({
   aisleChoices: {},
 });
 
+/** When IndexedDB is unavailable, everything is kept for this visit only. */
 const memory = { recipes: new Map<string, Recipe>(), groceries: new Map<string, GroceryItem>() };
 let opened: Promise<IDBDatabase | undefined> | undefined;
 
 function db(): Promise<IDBDatabase | undefined> {
-  opened ??= new Promise((resolve) => {
-    try {
-      const request = indexedDB.open(DB, 1);
-      request.onupgradeneeded = () => {
-        request.result.createObjectStore(RECIPES, { keyPath: 'id' });
-        request.result.createObjectStore(GROCERIES, { keyPath: 'id' });
-      };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => resolve(undefined);
-    } catch {
-      resolve(undefined);
-    }
-  });
+  opened ??= openDatabase().catch(() => undefined);
   return opened;
 }
 
@@ -58,9 +50,11 @@ function run<T>(store: string, mode: IDBTransactionMode, work: (s: IDBObjectStor
     (database) =>
       new Promise<T>((resolve, reject) => {
         if (!database) return reject(new Error('No database'));
-        const request = work(database.transaction(store, mode).objectStore(store));
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
+        const transaction = database.transaction(store, mode);
+        const request = work(transaction.objectStore(store));
+        transaction.oncomplete = () => resolve(request.result);
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
       }),
   );
 }
@@ -89,6 +83,7 @@ export async function putRecipe(recipe: Recipe): Promise<void> {
   if (!(await db())) memory.recipes.set(recipe.id, recipe);
   else await run(RECIPES, 'readwrite', (s) => s.put(recipe));
   notify();
+  syncSoon();
 }
 
 /** Removes a recipe; the returned function puts it back. */
@@ -98,6 +93,7 @@ export async function deleteRecipe(id: string): Promise<() => Promise<void>> {
   if (!(await db())) memory.recipes.delete(id);
   else await run(RECIPES, 'readwrite', (s) => s.delete(id));
   notify();
+  syncSoon();
   return async () => {
     if (recipe) await putRecipe(recipe);
   };
@@ -112,10 +108,10 @@ export async function listGroceries(): Promise<GroceryItem[]> {
 
 /** Replaces the whole list (it is small); used for adds, ticks, moves and clears. */
 export async function saveGroceries(items: readonly GroceryItem[]): Promise<void> {
-  if (!(await db())) {
+  const database = await db();
+  if (!database) {
     memory.groceries = new Map(items.map((item) => [item.id, item]));
   } else {
-    const database = (await db())!;
     await new Promise<void>((resolve, reject) => {
       const tx = database.transaction(GROCERIES, 'readwrite');
       const store = tx.objectStore(GROCERIES);
@@ -126,6 +122,35 @@ export async function saveGroceries(items: readonly GroceryItem[]): Promise<void
     });
   }
   notify();
+  syncSoon();
+}
+
+// ---------- Start ----------
+
+/** The first SOMA kept its own database; anything there moves into the shared one, once. */
+async function moveFromOldDatabase(): Promise<void> {
+  const exists = await indexedDB.databases?.().then((all) => all.some((each) => each.name === 'soma')).catch(() => true);
+  if (exists === false) return;
+  const old = await openSoma();
+  if (!old) return;
+  const read = (store: string) =>
+    new Promise<unknown[]>((resolve) => {
+      if (!old.objectStoreNames.contains(store)) return resolve([]);
+      const request = old.transaction(store, 'readonly').objectStore(store).getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve([]);
+    });
+  const [recipes, groceries] = [await read('recipes'), await read('groceries')];
+  old.close();
+  for (const recipe of recipes) await run(RECIPES, 'readwrite', (s) => s.put(recipe));
+  for (const item of groceries) await run(GROCERIES, 'readwrite', (s) => s.put(item));
+  indexedDB.deleteDatabase('soma');
+}
+
+/** Opens storage, brings over anything from the first version, and listens for synced changes. */
+export async function startStore(): Promise<void> {
+  if (await db()) await moveFromOldDatabase().catch(() => undefined);
+  onRemoteChanges(notify);
 }
 
 // ---------- Settings ----------

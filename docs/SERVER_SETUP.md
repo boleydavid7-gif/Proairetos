@@ -28,6 +28,9 @@ VAPID **private** key in Cloudflare or in this repository.
 5. And with `supabase/migrations/20261003000000_askesis_sync.sql`, so Askesis
    (the training app) can sync its workouts and plan with the same account.
    Until it runs, Askesis keeps them on the phone and Proairetos syncs as usual.
+6. And with `supabase/migrations/20261010000000_soma_sync.sql`, so SOMA
+   (recipes) syncs its recipes and grocery list too. Until it runs, SOMA keeps
+   them on the phone.
 
 This creates four tables, each locked so a person can only ever reach their
 own rows:

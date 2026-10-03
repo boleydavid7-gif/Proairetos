@@ -65,7 +65,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the day until 3 h after it ends (night shifts). Today, Plan, path,
   intention and Done today use it; Reflect periods stay calendar-based.
 - `src/data/`: repositories (IndexedDB + in-memory, same interfaces),
-  `storage/indexeddb/database.ts` (DB_VERSION 6; add stores with an
+  `storage/indexeddb/database.ts` (DB_VERSION 8; add stores with an
   upgrade test), backup format/crypto, `sync/` (keys, engine, Supabase
   adapter, local stores).
 - `src/services/`: application services; they serialize writes (life
@@ -138,6 +138,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   SOMA's Your data use the same card (`app/family/FamilyBackup.tsx`; their
   older files still restore through `older`); any app's backup counts as the
   one last backup (`proairetos.lastBackup`).
+  Daily copies: once a day when any app opens (`app/family/dailyCopy.ts`,
+  `startDailyCopies` in each `main.tsx`), the same file is kept in IndexedDB
+  `proairetos-daily` (`data/backup/daily.ts`, last 7 days, none when there is
+  nothing to keep); switch `proairetos.dailyCopy` (on unless "false"); listed
+  and restorable on every app's backup page (`useDailyCopies`).
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer
@@ -409,8 +414,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Plan and what is built: `docs/SOMA.md`. Records, never judges: no
   calories, scores or good/bad food; Ways to try it (`core/tryIt.ts`) are
   optional, sourced, kept only as the person's notes.
-- Recipes and groceries in IndexedDB `soma` (`data/store.ts`), device only for
-  now; settings in localStorage `soma:settings`. Import through the Worker
+- Recipes and groceries in the Proairetos database (DB 8 stores
+  `somaRecipes`, `somaGroceries`; `data/store.ts`), synced like Askesis
+  (`laterCollections` until migration `20261010000000_soma_sync.sql`; the
+  old `soma` database moves over once in `startStore`); settings in localStorage `soma:settings`. Import through the Worker
   bridge `/api/recipe` (`worker/recipeProxy.ts`, JSON-LD only, nothing
   stored) or pasted text; Ideas from TheMealDB (direct, CORS). Groceries by
   aisle (`core/aisles.ts`, first matching phrase wins; moves remembered in

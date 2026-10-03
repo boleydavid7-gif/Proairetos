@@ -2,8 +2,8 @@ import { stores } from '../storage/indexeddb/database';
 
 /**
  * The other apps in the family, in the same backup as Proairetos: Askesis's
- * workouts and plan (in the Proairetos database), SOMA's recipes and grocery
- * list (in its own database, "soma"), and the settings of all three, which
+ * workouts and plan and SOMA's recipes and grocery list (all in the
+ * Proairetos database), and the settings of all three, which
  * live in this browser's storage. One file holds everything; whichever app
  * makes it, restoring it brings all three back.
  *
@@ -78,7 +78,7 @@ function done(tx: IDBTransaction): Promise<void> {
   });
 }
 
-/** SOMA's database, opened the way SOMA opens it (made if this phone has never opened SOMA). */
+/** The first SOMA's own database (before its records moved into the Proairetos database). */
 export function openSoma(factory: IDBFactory = indexedDB): Promise<IDBDatabase | undefined> {
   return new Promise((resolve) => {
     try {
@@ -109,30 +109,24 @@ async function replaceStore(db: IDBDatabase, store: string, records: unknown[]):
   await done(tx);
 }
 
-export async function gatherFamily(proairetos: IDBDatabase | null | undefined, soma: Promise<IDBDatabase | undefined> = openSoma()): Promise<FamilyData> {
+export async function gatherFamily(proairetos: IDBDatabase | null | undefined): Promise<FamilyData> {
   const out: FamilyData = { settings: settingsSnapshot() };
-  if (proairetos) out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
-  const somaDb = await soma;
-  if (somaDb) out.soma = { recipes: await readAll(somaDb, 'recipes'), groceries: await readAll(somaDb, 'groceries') };
+  if (proairetos) {
+    out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
+    out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
+  }
   return out;
 }
 
 /** Brings the family back from a backup: each app's part only if the file has it (older backups have none). */
-export async function restoreFamily(
-  data: FamilyData,
-  proairetos: IDBDatabase | null | undefined,
-  soma: Promise<IDBDatabase | undefined> = openSoma(),
-): Promise<void> {
-  if (data.askesis && proairetos) {
+export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | null | undefined): Promise<void> {
+  if (proairetos && data.askesis) {
     await replaceStore(proairetos, stores.askesisWorkouts, data.askesis.workouts ?? []);
     await replaceStore(proairetos, stores.askesisPlans, data.askesis.plans ?? []);
   }
-  if (data.soma) {
-    const somaDb = await soma;
-    if (somaDb) {
-      await replaceStore(somaDb, 'recipes', data.soma.recipes ?? []);
-      await replaceStore(somaDb, 'groceries', data.soma.groceries ?? []);
-    }
+  if (proairetos && data.soma) {
+    await replaceStore(proairetos, stores.somaRecipes, data.soma.recipes ?? []);
+    await replaceStore(proairetos, stores.somaGroceries, data.soma.groceries ?? []);
   }
   if (data.settings) restoreSettings(data.settings);
 }

@@ -5,6 +5,7 @@ import { scene } from '../app/scenes';
 import { useSettings } from '../app/state';
 import { BackLink, Brand, Switch, useUndo } from '../app/ui';
 import { sources } from '../core/tryIt';
+import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import { deleteEverything, restore, saveSettings, type Backup } from '../data/store';
 
@@ -18,6 +19,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
   return (
     <div className="page more">
       <Brand />
+      <AccountCard app="SOMA" what="Your recipes and grocery list" waiting="Recipes" />
       <ul className="rows">
         {rows.map((row) => (
           <li key={row.title}>

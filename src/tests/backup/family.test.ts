@@ -1,5 +1,5 @@
 import { IDBFactory } from 'fake-indexeddb';
-import { gatherFamily, keptInBackup, openSoma, restoreFamily, settingsSnapshot } from '../../data/backup/family';
+import { gatherFamily, keptInBackup, restoreFamily, settingsSnapshot } from '../../data/backup/family';
 import { validateData } from '../../data/backup/format';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 
@@ -47,22 +47,20 @@ describe('one backup for the family', () => {
   it('carries Askesis and SOMA records and settings from one phone to another', async () => {
     const fromFactory = new IDBFactory();
     const from = await openDatabase(fromFactory);
-    const fromSoma = (await openSoma(fromFactory))!;
     await put(from, stores.askesisWorkouts, { id: 'w1', date: '2026-10-05' });
     await put(from, stores.askesisPlans, { id: 'current', week: 3 });
-    await put(fromSoma, 'recipes', { id: 'r1', title: 'Soup' });
+    await put(from, stores.somaRecipes, { id: 'r1', title: 'Soup' });
     localStorage.setItem('askesis:settings', '{"unit":"mi"}');
-    const family = await gatherFamily(from, Promise.resolve(fromSoma));
+    const family = await gatherFamily(from);
     expect(family.askesis?.workouts).toHaveLength(1);
     expect(family.soma?.recipes).toEqual([{ id: 'r1', title: 'Soup' }]);
 
     localStorage.clear();
     const toFactory = new IDBFactory();
     const to = await openDatabase(toFactory);
-    const toSoma = (await openSoma(toFactory))!;
-    await put(toSoma, 'recipes', { id: 'old', title: 'Gone after restore' });
-    await restoreFamily(JSON.parse(JSON.stringify(family)), to, Promise.resolve(toSoma));
-    const back = await gatherFamily(to, Promise.resolve(toSoma));
+    await put(to, stores.somaRecipes, { id: 'old', title: 'Gone after restore' });
+    await restoreFamily(JSON.parse(JSON.stringify(family)), to);
+    const back = await gatherFamily(to);
     expect(back.askesis?.plans).toEqual([{ id: 'current', week: 3 }]);
     expect(back.soma?.recipes).toEqual([{ id: 'r1', title: 'Soup' }]);
     expect(localStorage.getItem('askesis:settings')).toBe('{"unit":"mi"}');

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import { lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { backupService } from '../services';
+import { dayName, useDailyCopies } from './useDailyCopies';
 
 /**
  * The family's one backup, for Askesis and SOMA's "Your data" pages. It is
@@ -84,6 +85,8 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
         <p className="hint">{last ? `Last backup ${when(last)}.` : 'No backup yet.'}</p>
       </section>
 
+      <DailyCopies />
+
       <section className="card family-backup" aria-label="Restore">
         <h2 className="card__title card__title--small">Restore</h2>
         <input ref={input} type="file" accept="application/json,.json" hidden aria-label="Backup file" onChange={(event) => void choose(event.target.files?.[0])} />
@@ -140,5 +143,65 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
         )}
       </section>
     </>
+  );
+}
+
+/** A copy made each day on this phone, the last seven kept; any day can be restored. */
+function DailyCopies() {
+  const { on, turn, copies, restore } = useDailyCopies();
+  const [chosen, setChosen] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string>();
+  return (
+    <section className="card family-backup" aria-label="Daily copies">
+      <h2 className="card__title card__title--small">Daily copies</h2>
+      <button type="button" className="switch-row" role="switch" aria-checked={on} onClick={() => void turn(!on)}>
+        <span className="switch-row__text">
+          <span>Keep a copy each day</span>
+          <span className="switch-row__detail">On this phone, the last seven days.</span>
+        </span>
+        <span className={`switch${on ? ' switch--on' : ''}`} aria-hidden="true" />
+      </button>
+      {copies.length > 0 && (
+        <ul className="daily-copies">
+          {copies.map((copy) => (
+            <li key={copy.day}>
+              <button type="button" className="button-quiet" aria-pressed={chosen === copy.day} onClick={() => setChosen(chosen === copy.day ? undefined : copy.day)}>
+                {dayName(copy.day)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {chosen && (
+        <>
+          <p className="muted">This replaces what is on this phone, in all three apps, with {dayName(chosen)}’s copy.</p>
+          <button
+            type="button"
+            className="button-main"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await restore(chosen);
+              } catch {
+                setProblem('Restoring stopped partway. Try again.');
+                setBusy(false);
+              }
+            }}
+          >
+            Restore this copy
+          </button>
+          <button type="button" className="button-quiet" onClick={() => setChosen(undefined)}>
+            Cancel
+          </button>
+        </>
+      )}
+      {problem && (
+        <p className="hint" role="status">
+          {problem}
+        </p>
+      )}
+    </section>
   );
 }

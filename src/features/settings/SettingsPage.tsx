@@ -52,6 +52,7 @@ import WeatherSection from './WeatherSection';
 import { weatherSettings } from '../../app/weather/weather';
 import { calendarSources } from '../../app/calendars/otherCalendars';
 import type { AppRoute } from '../../app/routes/routeTypes';
+import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 
 function download(text: string) {
   const date = new Date().toISOString().slice(0, 10);
@@ -124,6 +125,72 @@ function ExportSection() {
           ? `Last backup ${new Date(last).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}.`
           : 'No backup yet.'}
       </p>
+    </section>
+  );
+}
+
+/** A copy made each day on this device, the last seven kept; any day can be restored. */
+function DailySection() {
+  const { on, turn, copies, restore } = useDailyCopies();
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  return (
+    <section className="settings-card" aria-label="Daily copies">
+      <h2 className="section-label">Daily copies</h2>
+      <button type="button" className="toggle-row" aria-pressed={on} onClick={() => void turn(!on)}>
+        <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span className="toggle-row__text">
+          <span>Keep a copy each day</span>
+          <span className="toggle-row__detail">On this device, the last seven days, for all three apps.</span>
+        </span>
+      </button>
+      {copies.length > 0 && (
+        <div className="chip-row">
+          {copies.map((copy) => (
+            <button
+              key={copy.day}
+              type="button"
+              className="chip"
+              aria-pressed={chosen === copy.day}
+              onClick={() => setChosen(chosen === copy.day ? null : copy.day)}
+            >
+              {dayName(copy.day)}
+            </button>
+          ))}
+        </div>
+      )}
+      {chosen && (
+        <div className="restore-preview">
+          <p className="sheet__hint">Everything currently on this device, in all three apps, will be replaced with {dayName(chosen)}’s copy.</p>
+          <div className="chip-row">
+            <button type="button" className="chip" onClick={() => setChosen(null)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="chip chip--accent"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  await restore(chosen);
+                } catch {
+                  setError('Restoring stopped partway. Try again.');
+                  setBusy(false);
+                }
+              }}
+            >
+              {busy ? 'Restoring…' : 'Restore this copy'}
+            </button>
+          </div>
+        </div>
+      )}
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
     </section>
   );
 }
@@ -850,6 +917,7 @@ export default function SettingsPage() {
         {view === 'backup' && (
           <>
             <ExportSection />
+            <DailySection />
             <ImportSection />
           </>
         )}

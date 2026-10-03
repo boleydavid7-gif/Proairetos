@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app/App';
+import { startStore } from './data/store';
+import { startSync } from '../app/sync/syncController';
 // Same type as Proairetos, bundled so it works offline.
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
@@ -11,6 +13,7 @@ import '@fontsource/inter/latin-600.css';
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
 import { applyAppearance } from '../app/appearance';
+import { startDailyCopies } from '../app/family/dailyCopy';
 
 // The same theme and text size as Proairetos, with SOMA's own bar colour.
 function appearance() {
@@ -23,11 +26,18 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+// Storage first (anything from the first SOMA moves into the shared database), then the same sign-in and sync as Proairetos.
+void startStore()
+  .catch(() => undefined)
+  .then(() => {
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
+    void startSync();
+    startDailyCopies();
+  });
 
 // Its own service worker, scoped to /soma/, so it installs and opens offline as its own app.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

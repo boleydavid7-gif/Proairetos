@@ -33,9 +33,12 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   rendering).
 - **More**: Usually have, Settings (daily line, ways to try it), Your data
   (backup file, restore, remove everything with undo), About and sources.
-- Data: IndexedDB `soma` on the phone (recipes, groceries), settings in
-  localStorage. Photos from the phone are shrunk to 1200 px and kept with the
-  recipe. Not synced yet.
+- Data: the Proairetos database on the phone (stores `somaRecipes`,
+  `somaGroceries`, DB 8), settings in localStorage. Synced, sealed, with the
+  same account as Proairetos once the server has
+  `20261010000000_soma_sync.sql`. The first version's `soma` database moves
+  over once and is deleted. Photos from the phone are shrunk to 1200 px and
+  kept with the recipe. In the family backup and the daily copies.
 - Look: the family's components (askesis.css) with SOMA's warm tokens
   (`styles/soma.css`): cream and olive in light, forest in dark, following
   Proairetos's Appearance. Photos cut from the owner's sheet

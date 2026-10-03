@@ -2367,3 +2367,16 @@ html[data-nav='back']::view-transition-new(root) {
 .welcome__content {
   --mark: #e8ece9;
 }
+
+/* Daily copies (Your data, Askesis and SOMA) */
+.daily-copies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+}
+.daily-copies [aria-pressed='true'] {
+  color: var(--mint);
+}

@@ -5,7 +5,8 @@ export const DB_NAME = 'proairetos';
 // Version 6: attachments (photos and files kept with items, device only).
 // Version 7: askesisWorkouts, askesisPlans (Askesis, the training app, served
 // from the same address, keeps its records here so they sync with the account).
-export const DB_VERSION = 7;
+// Version 8: somaRecipes, somaGroceries (SOMA, the recipe app, likewise).
+export const DB_VERSION = 8;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -21,6 +22,8 @@ export const stores = {
   attachments: 'attachments',
   askesisWorkouts: 'askesisWorkouts',
   askesisPlans: 'askesisPlans',
+  somaRecipes: 'somaRecipes',
+  somaGroceries: 'somaGroceries',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -74,11 +77,17 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       if (!db.objectStoreNames.contains(stores.askesisPlans)) {
         db.createObjectStore(stores.askesisPlans, { keyPath: 'id' });
       }
+      if (!db.objectStoreNames.contains(stores.somaRecipes)) {
+        db.createObjectStore(stores.somaRecipes, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.somaGroceries)) {
+        db.createObjectStore(stores.somaGroceries, { keyPath: 'id' });
+      }
     };
 
     request.onsuccess = () => {
       const db = request.result;
-      // Proairetos and Askesis share this database; a newer one opening in the other app
+      // Proairetos, Askesis and SOMA share this database; a newer one opening in the other app
       // gets the way cleared, and this page reloads to pick up the new version.
       db.onversionchange = () => {
         db.close();
