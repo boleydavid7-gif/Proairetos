@@ -26,6 +26,12 @@ export type PlanState = {
   /** Sessions moved to another day this week: workout id -> date. */
   moves: Record<string, string>;
   startedOn: string;
+  /** A session made lighter, for that day only. */
+  lighter?: { date: string; workoutId: string };
+  /** The last workout date when coming back was offered, so it is asked once. */
+  comeBackAsked?: string;
+  /** The Compass goal this plan is linked to, if the person added one. */
+  goalId?: string;
 };
 
 export type Settings = {
@@ -42,6 +48,10 @@ export type Settings = {
   started: boolean;
   /** Read the before-you-start note. */
   safetySeen: boolean;
+  /** After saving a workout: a minute to cool down and a line for Reflect. */
+  afterOffers: boolean;
+  /** The day's Stoic line on Home. */
+  dailyLine: boolean;
 };
 
 const SETTINGS = 'askesis:settings';
@@ -82,6 +92,8 @@ export const defaultSettings = (): Settings => ({
   readSchedule: true,
   started: false,
   safetySeen: false,
+  afterOffers: true,
+  dailyLine: true,
 });
 
 const listeners = new Set<() => void>();

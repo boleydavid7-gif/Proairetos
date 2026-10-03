@@ -17,5 +17,6 @@ export function promptText(key: string | undefined): string | undefined {
   if (key === 'day-close') return 'Closing the day';
   if (key === 'worth-it') return 'What made today worth it';
   if (key === 'think-it-through') return 'Thought it through';
+  if (key === 'after-run') return 'After a run, in Askesis';
   return reflectionPrompts.find((prompt) => prompt.key === key)?.text;
 }

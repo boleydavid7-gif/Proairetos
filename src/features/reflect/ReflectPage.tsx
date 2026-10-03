@@ -8,7 +8,10 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { BookIcon, BreatheIcon, ChevronRightIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
-import type { ReflectPeriod } from '../../core/reflections/periods';
+import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
+import { toLocalDate } from '../../core/scheduling/dates';
+import { useRuns } from '../../app/askesis/runs';
+import RunEntry from './RunEntry';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
 import GentleLine from '../../components/ui/GentleLine';
@@ -103,6 +106,16 @@ export default function ReflectPage() {
   const [period, setPeriod] = useState<ReflectPeriod>('today');
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.listFor(period), [period]);
   const all = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
+  // Runs logged in Askesis sit in the same timeline, if the person keeps them in view.
+  const runs = useRuns();
+  const range = periodRange(period, new Date());
+  const ran = shows('askesis')
+    ? (runs?.workouts ?? []).filter((entry) => entry.date >= toLocalDate(range.start) && entry.date < toLocalDate(range.end))
+    : [];
+  const timeline = [
+    ...(reflections ?? []).map((reflection) => ({ at: reflection.createdAt, reflection })),
+    ...ran.map((run) => ({ at: run.createdAt, run })),
+  ].sort((a, b) => b.at.localeCompare(a.at));
   const lastReview = all
     .filter((reflection) => reflection.promptKey === 'weekly-review')
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
@@ -149,16 +162,20 @@ export default function ReflectPage() {
 
       {reflections && (
         <section key={period} className="vt-panel" aria-label="Your reflections">
-          {reflections.length === 0 ? (
+          {timeline.length === 0 ? (
             <>
               <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
               <GentleLine />
             </>
           ) : (
             <ol className="timeline">
-              {reflections.map((reflection) => (
-                <TimelineEntry key={reflection.id} reflection={reflection} showDay={period !== 'today'} />
-              ))}
+              {timeline.map((entry) =>
+                'run' in entry ? (
+                  <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />
+                ) : (
+                  <TimelineEntry key={entry.reflection.id} reflection={entry.reflection} showDay={period !== 'today'} />
+                ),
+              )}
             </ol>
           )}
         </section>

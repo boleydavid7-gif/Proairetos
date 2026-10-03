@@ -6,6 +6,7 @@ import { otherCalendars } from '../../app/calendars/otherCalendars';
 import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
+import TodayRun from '../today/TodayRun';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -261,6 +262,8 @@ export default function NowPage() {
           />
         </section>
       )}
+
+      {shows('askesis') && <TodayRun today={today} />}
 
       {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
 

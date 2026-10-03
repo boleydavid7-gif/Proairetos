@@ -188,7 +188,8 @@ export function PacePage({ nav }: { nav: Nav }) {
 
 export function SettingsPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
-  const flip = (key: 'voice' | 'bells' | 'keepAwake' | 'readSchedule') => saveSettings({ ...settings, [key]: !settings[key] });
+  const flip = (key: 'voice' | 'bells' | 'keepAwake' | 'readSchedule' | 'afterOffers' | 'dailyLine') =>
+    saveSettings({ ...settings, [key]: !settings[key] });
   return (
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
@@ -214,6 +215,16 @@ export function SettingsPage({ nav }: { nav: Nav }) {
           label="Use my Proairetos schedule"
           detail="Marks sessions the day after a night of work. Read on this phone only."
           onToggle={() => flip('readSchedule')}
+        />
+      </div>
+      <h2 className="label">What’s included</h2>
+      <div className="card switches">
+        <Switch on={settings.dailyLine} label="A line for the day" detail="From the Stoics, on Home." onToggle={() => flip('dailyLine')} />
+        <Switch
+          on={settings.afterOffers}
+          label="After a workout"
+          detail="A minute to cool down, and a line to keep in Reflect."
+          onToggle={() => flip('afterOffers')}
         />
       </div>
       <p className="hint">With the screen locked, a phone may pause the cues. They pick up again, on time, when you look.</p>

@@ -356,3 +356,12 @@
 .path__detail--value {
   color: var(--color-accent);
 }
+
+.quiet-row__icon {
+  display: flex;
+  color: var(--color-text-muted);
+}
+
+a.quiet-row {
+  text-decoration: none;
+}

@@ -10,6 +10,18 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './styles/askesis.css';
+import { applyAppearance } from '../app/appearance';
+
+// The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar colour.
+function appearance() {
+  applyAppearance();
+  const theme = document.documentElement.dataset.theme;
+  const light = theme === 'light' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f3f4ef' : '#0b0f0e');
+}
+appearance();
+window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
+window.addEventListener('storage', appearance);
 
 // Storage first (the plan is read once), then the same sign-in and sync as Proairetos.
 void startStore()

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Nav, Route } from '../app/App';
 import { FeltFace } from '../app/icons';
-import { newId, useEntries, useSettings, useToday } from '../app/state';
+import { newId, useEntries, usePlanState, useSettings, useToday } from '../app/state';
+import { asToday } from '../core/gentler';
 import { BackLink, Segmented, useUndo } from '../app/ui';
 import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
 import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
@@ -22,7 +23,9 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
   const entries = useEntries();
   const undo = useUndo();
   const existing = route.id ? entries?.find((entry) => entry.id === route.id) : undefined;
-  const session = route.workoutId ? locate(route.workoutId, plan) : undefined;
+  const planState = usePlanState();
+  const located = route.workoutId ? locate(route.workoutId, plan) : undefined;
+  const session = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
 
   const [activity, setActivity] = useState<Activity>('run');
   const [date, setDate] = useState(today);
@@ -89,7 +92,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
     };
     await putEntry(entry);
     tap();
-    nav.swap({ name: 'log' });
+    nav.swap(existing ? { name: 'log' } : { name: 'after', id: entry.id });
   };
 
   const remove = async () => {

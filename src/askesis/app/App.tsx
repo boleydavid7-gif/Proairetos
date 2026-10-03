@@ -12,6 +12,7 @@ import WorkoutPage from '../screens/WorkoutPage';
 import GuidePage from '../screens/GuidePage';
 import WelcomePage from '../screens/WelcomePage';
 import PlanPage from '../screens/PlanPage';
+import AfterPage from '../screens/AfterPage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
 import type { Level } from '../core/plans';
 
@@ -28,7 +29,8 @@ export type Route =
   | { name: 'pace' }
   | { name: 'settings' }
   | { name: 'data' }
-  | { name: 'about' };
+  | { name: 'about' }
+  | { name: 'after'; id: string };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -127,6 +129,8 @@ export default function App() {
         return <DataPage nav={nav} />;
       case 'about':
         return <AboutPage nav={nav} />;
+      case 'after':
+        return <AfterPage nav={nav} id={route.id} />;
     }
   })();
 

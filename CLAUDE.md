@@ -304,6 +304,22 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   each guide step change.
 - Learn articles (`core/learn.ts`) cite sources; daily Stoic line and the
   optional "What part of this is up to you?" intention (`core/stoic.ts`).
+- Bending to a life (`core/gentler.ts`): "Lighter today" swaps a session for
+  an easier version for that day only (`PlanState.lighter`, `asToday`);
+  after 2+ weeks with nothing logged (counted from the later of the last
+  workout and the plan's start) an earlier week is offered once
+  (`comeBackOffer`, `comeBackAsked`). After saving a new workout, `AfterPage`
+  offers a minute of breathing and one line kept in Proairetos Reflect
+  (promptKey `after-run`); Settings > What's included turns it and the daily
+  line off.
+- Askesis writes to Proairetos only when asked: "Add to Compass" on the plan
+  page (`GoalLink`) makes a GOAL and, if chosen, weekly PROTECTED time on the
+  run days (`goalSchedule`), linked by `PlanState.goalId`.
+- Proairetos reads Askesis (`app/askesis/runs.ts`, Today part `askesis` in
+  What's included): today's session as a row on Today (`TodayRun`), runs in
+  Done today and in the Reflect timeline (`RunEntry`).
+- Appearance follows Proairetos (`applyAppearance`: theme and text size);
+  light tokens at the end of `askesis.css`; words over photos stay light.
 - Guide (`screens/GuidePage.tsx`): wall-clock steps, spoken cues and a bell,
   audio session `ambient` so the person's own music keeps playing; wake lock.
 - Photos: `src/askesis/assets/scenes/*.webp` (cut from the owner's sheet; low

@@ -4,6 +4,7 @@ import { startPlan, usePlanState, useSettings, useToday } from '../app/state';
 import { BackLink, Segmented, useUndo } from '../app/ui';
 import { buildPlan, daysFor, defaultWeekdays, goals, goalsFor, levels, type Goal, type Level } from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
+import GoalLink from './GoalLink';
 
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -149,6 +150,8 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
           />
         </section>
       )}
+
+      {!first && current && same && <GoalLink plan={current} />}
 
       <button type="button" className="button-main" onClick={save}>
         {first ? 'Begin' : same ? 'Keep these days' : `Start ${levels[level].name.toLowerCase()} plan`}

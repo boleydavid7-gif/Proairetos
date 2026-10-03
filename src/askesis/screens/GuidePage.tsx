@@ -4,7 +4,8 @@ import { audio, playOnce } from '../../app/sound/engine';
 import { BELL_FILE } from '../../app/sound/soundscapes';
 import type { Nav } from '../app/App';
 import { LockIcon, MuteIcon, PauseIcon, PlayIcon, SoundIcon } from '../app/icons';
-import { useSettings } from '../app/state';
+import { usePlanState, useSettings, useToday } from '../app/state';
+import { asToday } from '../core/gentler';
 import { BackLink } from '../app/ui';
 import { efforts } from '../core/effort';
 import type { Plan } from '../core/plans';
@@ -55,8 +56,11 @@ function spoken(minutes: number): string {
  */
 export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: string; plan?: Plan; intention?: string }) {
   const settings = useSettings();
-  const found = locate(id, plan);
-  const steps = useMemo(() => (found ? flatten(found.workout.parts) : []), [found?.workout.id]);
+  const planState = usePlanState();
+  const today = useToday();
+  const located = locate(id, plan);
+  const found = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
+  const steps = useMemo(() => (found ? flatten(found.workout.parts) : []), [found?.workout.id, found?.workout.title]);
   const bounds = useMemo(() => {
     let at = 0;
     return steps.map((item) => {

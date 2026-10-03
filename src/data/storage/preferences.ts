@@ -328,7 +328,9 @@ export type TodayPart =
   | 'insights'
   | 'meditate'
   | 'decisions'
-  | 'weekly-review';
+  | 'weekly-review'
+  // Runs from Askesis, the training app beside Proairetos.
+  | 'askesis';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 

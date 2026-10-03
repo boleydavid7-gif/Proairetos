@@ -76,3 +76,16 @@
   display: block;
   border-radius: 7px;
 }
+
+/* A run from Askesis in Reflect: the title, then the person's own words. */
+.run-entry__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.run-entry__words {
+  color: var(--color-text-muted);
+}

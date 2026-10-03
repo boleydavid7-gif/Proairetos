@@ -12,6 +12,8 @@ import { intentionPrompt, raceDayLine } from '../core/stoic';
 import { isSet, lengthLabel, mainEffort, partLabel, totalMinutes, type Part } from '../core/workouts';
 import { heartRange } from '../core/zones';
 import type { PlanState } from '../data/store';
+import { asToday, canLighten } from '../core/gentler';
+import { updatePlan } from '../app/state';
 
 /** Finds a session in the person's plan, or in any plan when browsing. */
 function locate(id: string, plan: Plan | undefined) {
@@ -43,10 +45,14 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
         <p className="muted">This session is not in your plan any more.</p>
       </div>
     );
-  const { workout, week } = found;
-  const index = week.workouts.indexOf(workout) + 1;
-  const done = planState?.week === week.n ? entries.find((entry) => entry.workoutId === workout.id && entry.date >= mondayOnOrBefore(today)) : undefined;
+  const { week } = found;
+  const full = found.workout;
+  const workout = asToday(full, planState?.lighter, today);
+  const lighter = workout !== full;
+  const index = week.workouts.indexOf(full) + 1;
+  const done = planState?.week === week.n ? entries.find((entry) => entry.workoutId === full.id && entry.date >= mondayOnOrBefore(today)) : undefined;
   const race = workout.kind === 'race';
+  const mine = Boolean(plan && planState && found.plan.id === plan.id);
   const effort = mainEffort(workout.parts);
 
   return (
@@ -139,7 +145,17 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
           >
             {race ? 'Log your race' : 'I did it on my own · Log it'}
           </button>
+          {mine && !done && (lighter || canLighten(full)) && (
+            <button
+              type="button"
+              className="text-link lighter-link"
+              onClick={() => updatePlan({ lighter: lighter ? undefined : { date: today, workoutId: full.id } })}
+            >
+              {lighter ? 'Back to the full session' : 'Lighter today'}
+            </button>
+          )}
         </div>
+        {lighter && <p className="hint">Just for today. Tomorrow the plan is as it was; nothing is owed.</p>}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
 import { levels, type Plan } from '../core/plans';
 import { lineFor } from '../core/stoic';
+import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
@@ -32,10 +33,19 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const hardLastWeek = lastWeeks.filter((entry) => entry.felt === 'hard').length >= 2;
 
   const days: DayPlan[] = useMemo(
-    () => (week && planState ? layOut(week, today, planState.weekdays, planState.moves, thisWeeks, blocks) : []),
+    () =>
+      week && planState
+        ? layOut(week, today, planState.weekdays, planState.moves, thisWeeks, blocks).map((day) => ({
+            ...day,
+            workout: day.date === today ? asToday(day.workout, planState.lighter, today) : day.workout,
+          }))
+        : [],
     [week, planState, today, thisWeeks.length, blocks],
   );
-  const focus = days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
+  const comeBack =
+    planState && !newWeek ? comeBackOffer(entries, planState.week, today, planState.comeBackAsked, planState.startedOn) : undefined;
+  const focus =
+    days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
 
   const move = (workoutId: string, date: string) => {
     if (!planState) return;
@@ -65,6 +75,34 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
           </section>
         ) : (
           <>
+            {comeBack && (
+              <section className="card card--offer" aria-label="Coming back">
+                <h2 className="card__title">Good to see you.</h2>
+                <p className="muted">
+                  It has been {gapWords(comeBack.gapDays)} since your last workout. Fitness fades a little with time
+                  off, so starting again at week {comeBack.toWeek} eases you back in. Carrying on is fine too.
+                </p>
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button-main"
+                    onClick={() =>
+                      updatePlan({ week: comeBack.toWeek, weekOf: monday, moves: {}, comeBackAsked: comeBack.lastDate })
+                    }
+                  >
+                    Start at week {comeBack.toWeek}
+                  </button>
+                  <button
+                    type="button"
+                    className="button-quiet"
+                    onClick={() => updatePlan({ comeBackAsked: comeBack.lastDate })}
+                  >
+                    Carry on at week {comeBack.fromWeek}
+                  </button>
+                </div>
+              </section>
+            )}
+
             {newWeek && (
               <section className="card card--offer" aria-label="A new week">
                 {finished ? (
@@ -78,13 +116,22 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                         onClick={() =>
                           nav.go({
                             name: 'plan',
-                            level: plan.level === 'beginner' ? 'intermediate' : plan.level === 'intermediate' ? 'advanced' : 'advanced',
+                            level:
+                              plan.level === 'beginner'
+                                ? 'intermediate'
+                                : plan.level === 'intermediate'
+                                  ? 'advanced'
+                                  : 'advanced',
                           })
                         }
                       >
                         See what’s next
                       </button>
-                      <button type="button" className="button-quiet" onClick={() => updatePlan({ weekOf: monday, moves: {} })}>
+                      <button
+                        type="button"
+                        className="button-quiet"
+                        onClick={() => updatePlan({ weekOf: monday, moves: {} })}
+                      >
                         Keep this week
                       </button>
                     </div>
@@ -105,7 +152,11 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                       >
                         Start week {planState.week + 1}
                       </button>
-                      <button type="button" className="button-quiet" onClick={() => updatePlan({ weekOf: monday, moves: {} })}>
+                      <button
+                        type="button"
+                        className="button-quiet"
+                        onClick={() => updatePlan({ weekOf: monday, moves: {} })}
+                      >
                         Stay on week {planState.week}
                       </button>
                     </div>
@@ -127,10 +178,16 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             </button>
 
             <section className="card" aria-label="Today’s focus">
-              <span className="card__eyebrow">{focus?.date === today ? 'Today’s focus' : focus ? `Next: ${dayLabel(focus.date, today)}` : 'This week'}</span>
+              <span className="card__eyebrow">
+                {focus?.date === today ? 'Today’s focus' : focus ? `Next: ${dayLabel(focus.date, today)}` : 'This week'}
+              </span>
               {focus ? (
                 <>
-                  <button type="button" className="focus" onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}>
+                  <button
+                    type="button"
+                    className="focus"
+                    onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
+                  >
                     <img className="focus__image" src={scene(kindScene[focus.workout.kind])} alt="" />
                     <span className="focus__text">
                       <span className="focus__title">{focus.workout.title}</span>
@@ -148,7 +205,11 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     <ChevronIcon size={18} />
                   </button>
                   {focus.date === today && (
-                    <button type="button" className="button-main" onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}>
+                    <button
+                      type="button"
+                      className="button-main"
+                      onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
+                    >
                       Start today’s workout
                     </button>
                   )}
@@ -161,8 +222,15 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             <section aria-label="This week" className="week-list">
               <h2 className="label">This week</h2>
               {days.map((day) => (
-                <div key={day.workout.id} className={`week-row${day.date < today && !day.done ? ' week-row--passed' : ''}`}>
-                  <button type="button" className="week-row__main" onClick={() => nav.go({ name: 'workout', id: day.workout.id })}>
+                <div
+                  key={day.workout.id}
+                  className={`week-row${day.date < today && !day.done ? ' week-row--passed' : ''}`}
+                >
+                  <button
+                    type="button"
+                    className="week-row__main"
+                    onClick={() => nav.go({ name: 'workout', id: day.workout.id })}
+                  >
                     <span className={`week-row__day${day.date === today ? ' week-row__day--today' : ''}`}>
                       {dayLabel(day.date, today)}
                     </span>
@@ -172,12 +240,18 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                         <span className="week-row__len"> · {lengthLabel(totalMinutes(day.workout.parts))}</span>
                       )}
                     </span>
-                    <span className="week-row__felt">{day.done ? (day.done.felt ? feelings[day.done.felt] : 'Done') : ''}</span>
+                    <span className="week-row__felt">
+                      {day.done ? (day.done.felt ? feelings[day.done.felt] : 'Done') : ''}
+                    </span>
                   </button>
                   {day.note && !day.done && (
                     <p className="week-row__note">
                       {day.note}.{' '}
-                      <button type="button" className="text-link" onClick={() => setMoving(moving === day.workout.id ? undefined : day.workout.id)}>
+                      <button
+                        type="button"
+                        className="text-link"
+                        onClick={() => setMoving(moving === day.workout.id ? undefined : day.workout.id)}
+                      >
                         Move it
                       </button>
                     </p>
@@ -201,10 +275,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
           </>
         )}
 
-        <figure className="daily-line">
-          <blockquote>{line.text}</blockquote>
-          <figcaption>{line.by}</figcaption>
-        </figure>
+        {settings.dailyLine && (
+          <figure className="daily-line">
+            <blockquote>{line.text}</blockquote>
+            <figcaption>{line.by}</figcaption>
+          </figure>
+        )}
       </div>
     </div>
   );

@@ -79,3 +79,47 @@ describe('laying a plan week over the calendar', () => {
     expect(nightNote('2026-10-03', [{ ...night, kind: 'PROTECTED' }])).toBeUndefined();
   });
 });
+
+describe('a lighter day, and coming back', () => {
+  const plan = buildPlan({ level: 'intermediate', days: 4 });
+
+  it('makes any session easier and shorter, with nothing hard', async () => {
+    const { lighterVersion, asToday } = await import('../../askesis/core/gentler');
+    const { intenseMinutes, totalMinutes } = await import('../../askesis/core/workouts');
+    const intervals = plan.weeks.flatMap((week) => week.workouts).find((workout) => workout.kind === 'intervals')!;
+    const light = lighterVersion(intervals);
+    expect(intenseMinutes(light.parts)).toBe(0);
+    expect(totalMinutes(light.parts)).toBeLessThan(totalMinutes(intervals.parts));
+    expect(light.id).toBe(intervals.id);
+    expect(asToday(intervals, { date: '2026-10-03', workoutId: intervals.id }, '2026-10-04')).toBe(intervals);
+  });
+
+  it('halves the running in a beginner walk-run', async () => {
+    const { lighterVersion } = await import('../../askesis/core/gentler');
+    const { flatten } = await import('../../askesis/core/workouts');
+    const first = buildPlan({ level: 'beginner', days: 3 }).weeks[0].workouts[0];
+    const running = (w: typeof first) => flatten(w.parts).filter((s) => s.effort === 'easy').length;
+    expect(running(lighterVersion(first))).toBe(4);
+    expect(running(first)).toBe(8);
+  });
+
+  it('offers an earlier week after two weeks away, once', async () => {
+    const { comeBackOffer } = await import('../../askesis/core/gentler');
+    const runs = [entry('2026-09-01', 3000, 1200)];
+    expect(comeBackOffer(runs, 6, '2026-09-10', undefined)).toBeUndefined();
+    expect(comeBackOffer(runs, 6, '2026-09-18', undefined)).toMatchObject({ fromWeek: 6, toWeek: 5 });
+    expect(comeBackOffer(runs, 6, '2026-10-03', undefined)).toMatchObject({ toWeek: 4 });
+    expect(comeBackOffer(runs, 6, '2026-12-01', undefined)).toMatchObject({ toWeek: 1 });
+    expect(comeBackOffer(runs, 6, '2026-10-03', '2026-09-01')).toBeUndefined();
+    expect(comeBackOffer(runs, 1, '2026-10-03', undefined)).toBeUndefined();
+  });
+});
+
+describe('coming back, for a plan just begun', () => {
+  it('does not count time before the plan started', async () => {
+    const { comeBackOffer } = await import('../../askesis/core/gentler');
+    const runs = [entry('2026-09-01', 3000, 1200)];
+    expect(comeBackOffer(runs, 3, '2026-10-03', undefined, '2026-10-03')).toBeUndefined();
+    expect(comeBackOffer(runs, 3, '2026-10-20', undefined, '2026-10-03')).toMatchObject({ toWeek: 2 });
+  });
+});

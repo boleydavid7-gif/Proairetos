@@ -212,11 +212,16 @@ export const articles: Article[] = [
         heading: 'When to hold steady',
         text: 'If a week felt hard, or life got full, repeating a week is a good choice. Askesis will offer it when your notes say "Hard" more than once, and the choice is always yours.',
       },
+      {
+        heading: 'Coming back after time off',
+        text: 'Fitness fades gradually without training: noticeably after two to four weeks, more after that, while it returns faster than it first took to build. After two weeks or more away, Askesis offers to start a few weeks earlier in the plan. A lighter day is always there too, for days that call for less.',
+      },
     ],
     takeaway: 'Small, steady increases with lighter weeks in between beat big jumps.',
     sources: [
       'Nielsen RO, et al. Excessive progression in weekly running distance and risk of running-related injuries. J Orthop Sports Phys Ther. 2014;44(10):739-747.',
       'Buist I, et al. No effect of a graded training program on the number of running-related injuries in novice runners. Am J Sports Med. 2008;36(1):33-39.',
+      'Mujika I, Padilla S. Detraining: loss of training-induced physiological and performance adaptations. Part I. Sports Med. 2000;30(2):79-87.',
     ],
   },
   {

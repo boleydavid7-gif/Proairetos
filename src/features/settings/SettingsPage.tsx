@@ -511,6 +511,16 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
       { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
     ],
   },
+  {
+    group: 'Askesis',
+    parts: [
+      {
+        part: 'askesis',
+        label: 'Runs',
+        detail: 'Today’s session from Askesis on Today; finished runs in Done today and Reflect.',
+      },
+    ],
+  },
 ];
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;

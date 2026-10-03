@@ -1,5 +1,7 @@
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
+import { runTitle, useRuns } from '../../app/askesis/runs';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 
 const SHOWN = 6;
 
@@ -24,7 +26,13 @@ export function useDoneIn(today: string, range: { start: Date; end: Date }) {
 
 /** What you finished today, quietly. Progress you can see, with no score attached. */
 export default function DoneToday({ today, range }: { today: string; range: { start: Date; end: Date } }) {
-  const done = useDoneIn(today, range);
+  const items = useDoneIn(today, range);
+  const runs = useRuns();
+  const shows = useTodayParts();
+  const ran = shows('askesis')
+    ? (runs?.workouts ?? []).filter((entry) => entry.date === today).map((entry) => ({ id: entry.id, title: runTitle(entry, runs!.unit) }))
+    : [];
+  const done = items && [...items, ...ran];
   if (!done || done.length === 0) return null;
 
   return (

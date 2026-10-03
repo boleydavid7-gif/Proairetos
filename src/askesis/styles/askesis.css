@@ -20,6 +20,11 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --tab-height: calc(64px + env(safe-area-inset-bottom));
   color-scheme: dark;
+  --bar: rgba(9, 12, 11, 0.94);
+  --placeholder: #77837e;
+  --glow-top: #142019;
+  --switch-off: #2c3633;
+  --on-photo: #f1f4f1;
 }
 
 * {
@@ -36,7 +41,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -435,7 +440,7 @@ p {
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
-  background: rgba(9, 12, 11, 0.94);
+  background: var(--bar);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
 }
@@ -635,7 +640,7 @@ p {
 }
 
 .input::placeholder {
-  color: #77837e;
+  color: var(--placeholder);
 }
 
 .textarea {
@@ -644,7 +649,7 @@ p {
 }
 
 input[type='date'].input {
-  color-scheme: dark;
+  color-scheme: inherit;
 }
 
 .input-row {
@@ -1081,7 +1086,7 @@ input[type='date'].input {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background: radial-gradient(120% 60% at 50% 0%, #142019 0%, var(--bg) 70%);
+  background: radial-gradient(120% 60% at 50% 0%, var(--glow-top) 0%, var(--bg) 70%);
 }
 
 .guide__top {
@@ -1565,7 +1570,7 @@ input[type='date'].input {
   width: 46px;
   height: 28px;
   border-radius: 14px;
-  background: #2c3633;
+  background: var(--switch-off);
   transition: background 180ms var(--ease);
 }
 
@@ -1916,4 +1921,84 @@ html[data-nav='back']::view-transition-new(root) {
     animation: none;
     transition: none;
   }
+}
+
+.lighter-link {
+  align-self: center;
+}
+
+/* ---------- After a workout ---------- */
+
+.cool-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.cool-down__circle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(134, 217, 176, 0.55) 0%, rgba(134, 217, 176, 0.18) 55%, transparent 72%);
+  will-change: transform;
+}
+
+.cool-down__word {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+}
+
+/* ---------- Light, following Proairetos's Appearance setting ---------- */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f4ef;
+  --surface: #ffffff;
+  --surface-2: #eef1ec;
+  --line: #dbe2dd;
+  --text: #17201c;
+  --text-soft: #34413b;
+  --muted: #5b6863;
+  --mint: #2f8a63;
+  --mint-ink: #ffffff;
+  --mint-soft: rgba(47, 138, 99, 0.1);
+  --bar: rgba(247, 248, 244, 0.95);
+  --placeholder: #8a958f;
+  --glow-top: #dcebe2;
+  --switch-off: #cfd7d2;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f3f4ef;
+    --surface: #ffffff;
+    --surface-2: #eef1ec;
+    --line: #dbe2dd;
+    --text: #17201c;
+    --text-soft: #34413b;
+    --muted: #5b6863;
+    --mint: #2f8a63;
+    --mint-ink: #ffffff;
+    --mint-soft: rgba(47, 138, 99, 0.1);
+    --bar: rgba(247, 248, 244, 0.95);
+    --placeholder: #8a958f;
+    --glow-top: #dcebe2;
+    --switch-off: #cfd7d2;
+  }
+}
+
+/* Words over photographs stay light in either theme. */
+.hero__content,
+.welcome__content,
+.more__foot figcaption {
+  color: var(--on-photo);
+  --text: var(--on-photo);
+  --text-soft: rgba(241, 244, 241, 0.85);
+}
+
+.hero__content .back-link {
+  color: var(--on-photo);
 }

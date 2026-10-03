@@ -1,0 +1,93 @@
+import { useEffect, useState } from 'react';
+import type { LogEntry } from '../../askesis/core/log';
+import { activities } from '../../askesis/core/log';
+import { asToday } from '../../askesis/core/gentler';
+import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pace';
+import { buildPlan } from '../../askesis/core/plans';
+import { layOut } from '../../askesis/core/week';
+import { lengthLabel, totalMinutes, type Workout } from '../../askesis/core/workouts';
+import type { PlanState } from '../../askesis/data/store';
+import { stores } from '../../data/storage/indexeddb/database';
+import { deviceDatabase } from '../services';
+import { onRemoteChanges } from '../sync/syncController';
+
+/**
+ * Askesis, the training app, keeps its runs in this same database. Proairetos
+ * only reads them, so one life is recorded in one place: today's session on
+ * Today, finished runs in Done today and Reflect.
+ */
+export type Runs = { plan?: PlanState; workouts: LogEntry[]; unit: Unit };
+
+function readAll<T>(db: IDBDatabase, store: string): Promise<T[]> {
+  return new Promise((resolve) => {
+    if (!db.objectStoreNames.contains(store)) return resolve([]);
+    const request = db.transaction(store, 'readonly').objectStore(store).getAll();
+    request.onsuccess = () => resolve(request.result as T[]);
+    request.onerror = () => resolve([]);
+  });
+}
+
+function unit(): Unit {
+  try {
+    return (JSON.parse(localStorage.getItem('askesis:settings') ?? '{}') as { unit?: Unit }).unit ?? 'km';
+  } catch {
+    return 'km';
+  }
+}
+
+export async function readRuns(): Promise<Runs> {
+  const db = await deviceDatabase;
+  if (!db) return { workouts: [], unit: unit() };
+  const [workouts, plans] = await Promise.all([
+    readAll<LogEntry>(db, stores.askesisWorkouts),
+    readAll<PlanState & { id: string }>(db, stores.askesisPlans),
+  ]);
+  return { workouts, plan: plans.find((record) => record.id === 'current'), unit: unit() };
+}
+
+/** Kept fresh when a sync brings runs from elsewhere, or on coming back to the app. */
+export function useRuns(): Runs | undefined {
+  const [runs, setRuns] = useState<Runs>();
+  useEffect(() => {
+    let live = true;
+    const load = () => void readRuns().then((next) => live && setRuns(next));
+    load();
+    const off = onRemoteChanges(load);
+    const onShow = () => document.visibilityState === 'visible' && load();
+    document.addEventListener('visibilitychange', onShow);
+    return () => {
+      live = false;
+      off();
+      document.removeEventListener('visibilitychange', onShow);
+    };
+  }, []);
+  return runs;
+}
+
+/** Today's planned session, if there is one and it is not done yet. */
+export function todaysRun(runs: Runs | undefined, today: string): Workout | undefined {
+  const state = runs?.plan;
+  if (!state) return undefined;
+  const plan = buildPlan({ level: state.level, days: state.days, goal: state.goal });
+  const week = plan.weeks[Math.min(state.week, plan.weeks.length) - 1];
+  if (!week) return undefined;
+  const day = layOut(week, today, state.weekdays, state.moves, runs.workouts.filter((entry) => entry.date === today)).find(
+    (each) => each.date === today && !each.done,
+  );
+  return day && asToday(day.workout, state.lighter, today);
+}
+
+export function runLength(workout: Workout): string {
+  return workout.kind === 'race' ? '' : lengthLabel(totalMinutes(workout.parts));
+}
+
+/** "Easy run · 3.1 mi · 26:14". */
+export function runTitle(entry: LogEntry, distanceUnit: Unit): string {
+  return [
+    entry.workoutTitle ?? activities[entry.activity],
+    entry.meters ? formatDistance(entry.meters, distanceUnit) : undefined,
+    entry.seconds ? formatDuration(entry.seconds) : undefined,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}

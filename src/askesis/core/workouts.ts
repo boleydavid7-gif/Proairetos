@@ -80,5 +80,6 @@ export function mainEffort(parts: readonly Part[]): Effort {
   const byEffort = minutesByEffort(parts);
   const harder = (['hard', 'tempo', 'steady', 'stride'] as Effort[]).find((effort) => byEffort[effort] > 0);
   if (harder) return harder;
-  return byEffort.easy >= byEffort.walk ? 'easy' : 'walk';
+  // Any running at all makes it a run; walking is only the main effort of a walk.
+  return byEffort.easy > 0 || byEffort.recovery > 0 ? 'easy' : 'walk';
 }
