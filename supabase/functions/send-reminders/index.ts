@@ -11,19 +11,35 @@ import webpush from 'npm:web-push@3.6.7';
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
-webpush.setVapidDetails(
-  Deno.env.get('VAPID_SUBJECT')!,
-  Deno.env.get('VAPID_PUBLIC_KEY')!,
-  Deno.env.get('VAPID_PRIVATE_KEY')!,
-);
+// Secrets pasted on a phone often carry a space, a newline or quotes; tidy them.
+const secret = (name: string) => (Deno.env.get(name) ?? '').trim().replace(/^["']|["']$/g, '');
+
+/** Sets the reminder keys, or says plainly which one is missing or wrong. */
+function vapidProblem(): string | null {
+  const subject = secret('VAPID_SUBJECT');
+  const publicKey = secret('VAPID_PUBLIC_KEY');
+  const privateKey = secret('VAPID_PRIVATE_KEY');
+  if (!subject) return 'VAPID_SUBJECT is not set (for example mailto:you@example.com).';
+  if (!/^(mailto:|https:)/.test(subject)) return 'VAPID_SUBJECT must start with mailto: or https:';
+  if (!publicKey) return 'VAPID_PUBLIC_KEY is not set.';
+  if (!privateKey) return 'VAPID_PRIVATE_KEY is not set.';
+  try {
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    return null;
+  } catch (cause) {
+    return `The VAPID keys were not accepted: ${cause instanceof Error ? cause.message : String(cause)}`;
+  }
+}
 
 // Late reminders older than this are dropped rather than sent hours later.
 const STALE_AFTER_MINUTES = 60;
 
-Deno.serve(async (request) => {
-  if (request.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) {
-    return new Response('Not allowed', { status: 401 });
+async function handle(request: Request): Promise<Response> {
+  if (!secret('CRON_SECRET') || (request.headers.get('x-cron-secret') ?? '').trim() !== secret('CRON_SECRET')) {
+    return new Response('Not allowed: the cron secret does not match CRON_SECRET.', { status: 401 });
   }
+  const problem = vapidProblem();
+  if (problem) return new Response(problem, { status: 500 });
 
   const now = new Date();
   const staleBefore = new Date(now.getTime() - STALE_AFTER_MINUTES * 60_000).toISOString();
@@ -73,4 +89,13 @@ Deno.serve(async (request) => {
   await supabase.from('reminders').delete().lt('fire_at', new Date(now.getTime() - 7 * 86_400_000).toISOString());
 
   return Response.json({ due: due?.length ?? 0, people: people.length, sent });
+}
+
+Deno.serve(async (request) => {
+  try {
+    return await handle(request);
+  } catch (cause) {
+    // Said in the reply, so it shows in net._http_response without opening the logs.
+    return new Response(`send-reminders: ${cause instanceof Error ? cause.message : String(cause)}`, { status: 500 });
+  }
 });
