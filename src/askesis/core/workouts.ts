@@ -62,6 +62,9 @@ export function intenseMinutes(parts: readonly Part[]): number {
 /** "25 min", "1 h 10 min", "20 s". */
 export function lengthLabel(minutes: number): string {
   if (minutes < 1) return `${Math.round(minutes * 60)} s`;
+  // Half minutes are part of some sessions (walk 2½ min); say them as they are.
+  if (minutes < 60 && Math.abs(minutes * 2 - Math.round(minutes * 2)) < 0.01 && Math.round(minutes * 2) % 2 === 1)
+    return `${Math.floor(minutes)}½ min`;
   const whole = Math.round(minutes);
   if (whole < 60) return `${whole} min`;
   const hours = Math.floor(whole / 60);

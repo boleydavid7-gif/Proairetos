@@ -19,3 +19,14 @@ describe('session bells', () => {
     expect(bellFor('hard').rate).toBeGreaterThan(1);
   });
 });
+
+describe('lengths in words', () => {
+  it('keeps half minutes', async () => {
+    const { lengthLabel } = await import('../../askesis/core/workouts');
+    expect(lengthLabel(2.5)).toBe('2½ min');
+    expect(lengthLabel(7.5)).toBe('7½ min');
+    expect(lengthLabel(3)).toBe('3 min');
+    expect(lengthLabel(0.5)).toBe('30 s');
+    expect(lengthLabel(12.4)).toBe('12 min');
+  });
+});
