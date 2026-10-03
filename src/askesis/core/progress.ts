@@ -157,3 +157,22 @@ export function thenAndNow(entries: readonly LogEntry[], today: string): { then:
   const now = stretch(nowFrom, today, 3);
   return now.weekly > 0 ? { then: stretch(first, addDays(first, 13), 2), now } : undefined;
 }
+
+/** The days with a run on them since the first one logged: who they are becoming, in plain numbers. */
+export function runDays(entries: readonly LogEntry[]): { days: number; since: string } | undefined {
+  const dates = new Set(entries.filter(counts).map((e) => e.date));
+  if (dates.size === 0) return undefined;
+  return { days: dates.size, since: [...dates].sort()[0] };
+}
+
+/** How runs felt over the last four weeks, as the runner marked them. Nothing is guessed. */
+export function howItFelt(entries: readonly LogEntry[], today: string): { good: number; challenging: number; hard: number } | undefined {
+  const from = addDays(today, -27);
+  const marked = entries.filter((e) => counts(e) && e.felt && e.date >= from && e.date <= today);
+  if (marked.length === 0) return undefined;
+  return {
+    good: marked.filter((e) => e.felt === 'easy' || e.felt === 'good').length,
+    challenging: marked.filter((e) => e.felt === 'challenging').length,
+    hard: marked.filter((e) => e.felt === 'hard').length,
+  };
+}

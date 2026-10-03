@@ -5,7 +5,8 @@ import { asToday } from '../../askesis/core/gentler';
 import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pace';
 import { buildPath, weekAt } from '../../askesis/core/plans';
 import { layOut } from '../../askesis/core/week';
-import { mondayOnOrBefore as mondayOf } from '../../core/scheduling/dates';
+import { addDays, atTime, mondayOnOrBefore as mondayOf, toLocalDate } from '../../core/scheduling/dates';
+import type { RunTime } from '../../core/notify/notices';
 import { lengthLabel, totalMinutes, type Workout } from '../../askesis/core/workouts';
 import { fromOldPlan, type PlanState } from '../../askesis/data/store';
 import { stores } from '../../data/storage/indexeddb/database';
@@ -85,6 +86,46 @@ export function todaysRun(runs: Runs | undefined, today: string): Workout | unde
     (each) => each.date === today && !each.done,
   );
   return day && asToday(day.workout, state.lighter, today);
+}
+
+/**
+ * Run days in this week and the next, at the time the runner chose, for
+ * reminders. This week's sessions by name; next week's week is theirs to
+ * choose, so those are only "Run day".
+ */
+export function runTimes(runs: Runs, now: Date, until: Date): RunTime[] {
+  const state = runs.plan;
+  if (!state?.runAt) return [];
+  const plan = buildPath({
+    aim: state.aim,
+    days: state.days,
+    gentler: state.gentler,
+    raceDate: state.raceDate,
+    joinWeek: state.joinWeek,
+    today: state.startedOn,
+  });
+  const today = toLocalDate(now);
+  const thisMonday = mondayOf(today);
+  const out: RunTime[] = [];
+  for (let day = today; atTime(day, '00:00') < until; day = addDays(day, 1)) {
+    const monday = mondayOf(day);
+    if (monday > addDays(thisMonday, 7)) break;
+    if (state.restWeek === monday) continue;
+    const later = monday !== thisMonday;
+    const week = weekAt(plan, later ? state.week + 1 : state.week);
+    const session = layOut(week, day, state.weekdays, later ? {} : state.moves, runs.workouts).find(
+      (each) => each.date === day && !each.done,
+    );
+    if (!session) continue;
+    const workout = asToday(session.workout, state.lighter, day);
+    out.push({
+      key: `${day}:${state.runAt}`,
+      at: atTime(day, state.runAt),
+      title: later ? 'Run day' : [workout.title, runLength(workout)].filter(Boolean).join(' · '),
+      place: state.place,
+    });
+  }
+  return out;
 }
 
 export function runLength(workout: Workout): string {

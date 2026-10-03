@@ -42,6 +42,14 @@ export type PlanState = {
   goalId?: string;
   /** A week of rest the person chose, by its Monday: nothing planned. */
   restWeek?: string;
+  /** Why this matters to them, in their words; shown back at the start of a week and before a run. */
+  why?: string;
+  /** Their usual time on run days ("06:30"), for the session and its reminder. */
+  runAt?: string;
+  /** Where they usually run. */
+  place?: string;
+  /** Their own plan for when something gets in the way ("walk it instead"). */
+  ifThen?: string;
 };
 
 type OldPlanState = { level?: 'beginner' | 'intermediate' | 'advanced'; goal?: string; week: number };

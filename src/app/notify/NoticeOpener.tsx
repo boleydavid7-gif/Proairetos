@@ -3,7 +3,7 @@ import { setDaysAheadOpening } from '../../features/days/daysAhead';
 import { useNavigate } from '../navigationContext';
 import { useOverlays } from '../overlays/OverlayContext';
 
-/** Where a tapped notification leads: `item:ID`, `day:YYYY-MM-DD`, `today`, or `reflect`. */
+/** Where a tapped notification leads: `item:ID`, `day:YYYY-MM-DD`, `today`, `reflect`, or `askesis` (the training app). */
 function useOpen() {
   const navigate = useNavigate();
   const { openItem } = useOverlays();
@@ -15,6 +15,7 @@ function useOpen() {
       setDaysAheadOpening({ start: open.slice(4) });
       navigate('plan');
     } else if (open === 'reflect') navigate('reflect');
+    else if (open === 'askesis') window.location.assign('/askesis/');
     else navigate('today');
   };
 }

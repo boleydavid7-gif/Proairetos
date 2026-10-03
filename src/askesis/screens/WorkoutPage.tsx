@@ -59,6 +59,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
       </Hero>
       <div className="page page--under-hero">
         <h1 className="title">{workout.title}</h1>
+        {mine && planState?.why && <p className="own-words">“{planState.why}”</p>}
         <p className="muted">
           Week {week.n} · {weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]]} ·{' '}
           {week.stage}

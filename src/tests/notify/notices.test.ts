@@ -37,6 +37,13 @@ describe('notices', () => {
     expect(notices[0].open).toBe('item:Dentist');
   });
 
+  it('reminds of run days at the runner’s own time, and opens Askesis', () => {
+    const runs = [{ key: '2026-10-02:06:30', at: new Date(2026, 9, 2, 6, 30), title: 'Easy run · 40 min', place: 'River path' }];
+    const notices = noticesBetween({ ...base, items: [], runs, settings: defaultNoticeSettings });
+    expect(notices.map((n) => [time(n.at), n.title, n.body, n.open])).toEqual([['6:30', 'Easy run · 40 min', 'At 6:30 · River path', 'askesis']]);
+    expect(noticesBetween({ ...base, items: [], runs, settings: { ...defaultNoticeSettings, runs: false } })).toEqual([]);
+  });
+
   it('reminds at the time by default, and not at all when the person said none', () => {
     const at = new Date(2026, 9, 2, 10).toISOString();
     const notices = noticesBetween({

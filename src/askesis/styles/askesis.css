@@ -742,6 +742,26 @@ input[type='date'].input {
   font-weight: 600;
 }
 
+.input-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
+}
+
+.input--area {
+  resize: vertical;
+  min-height: 64px;
+  padding-top: 12px;
+  line-height: 1.4;
+  font: inherit;
+}
+
+.own-words {
+  font-family: var(--serif, inherit);
+  font-style: italic;
+  color: var(--text);
+}
+
 .progress {
   display: grid;
   gap: 10px;

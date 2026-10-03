@@ -312,7 +312,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Home's card shows the facts, the reason, what the week builds
   (`stageBuilds`) and weeks to the aim from there; the runner picks. Train
   shows Started / Now and their own first two weeks beside the last three
-  (`thenAndNow`).
+  (`thenAndNow`), days run since the first (`runDays`) and how runs felt
+  over four weeks as marked (`howItFelt`).
+  Sticking with it, from the research: their own reason (`PlanState.why`,
+  asked in Where you want to be; shown on the new-week card and before a
+  run), a time and place (`runAt`, `place`) and an if-then plan (`ifThen`,
+  shown on Home on the day). Run days with a time become Proairetos notices
+  (`runTimes` in `app/askesis/runs.ts`, kind `run`, switch "Run days, from
+  Askesis", tap opens `/askesis/`); quiet hours hold them like any other.
   `PlanState` keeps aim, own words, join
   week, date, gentler; old level plans convert (`fromOldPlan`). Tests hold
   80 combinations to the science rules. Reaching the aim shows `LookBack`

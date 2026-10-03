@@ -161,6 +161,7 @@ export default function NotificationsSection() {
           label="Decisions to look back on"
           onToggle={() => update({ lookBacks: !settings.lookBacks })}
         />
+        <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
         <Switch on={settings.day} label="A look at your day" onToggle={() => update({ day: !settings.day })}>
           <input
             type="time"

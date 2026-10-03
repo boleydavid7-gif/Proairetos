@@ -125,6 +125,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                       current={planState.week}
                       suggestion={suggestion}
                       dated={Boolean(planState.raceDate)}
+                      reason={planState.why}
                       onPick={(n) => updatePlan({ week: n, weekOf: monday, moves: {} })}
                     />
                   )
@@ -170,6 +171,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     </span>
                     <ChevronIcon size={18} />
                   </button>
+                  {(planState.runAt || planState.place) && (
+                    <p className="muted">{[planState.runAt && clock(planState.runAt), planState.place].filter(Boolean).join(' · ')}</p>
+                  )}
+                  {focus.date === today && planState.ifThen && (
+                    <p className="hint">If something gets in the way: {planState.ifThen}</p>
+                  )}
                   {focus.date === today && (
                     <div className="button-row">
                       <button
@@ -285,12 +292,14 @@ function NewWeek({
   current,
   suggestion,
   dated,
+  reason: ownWhy,
   onPick,
 }: {
   plan: Plan;
   current: number;
   suggestion: Suggestion;
   dated: boolean;
+  reason?: string;
   onPick: (week: number) => void;
 }) {
   const { week, why, reading } = suggestion;
@@ -316,6 +325,7 @@ function NewWeek({
   return (
     <>
       <h2 className="card__title">{week === current ? 'A new week.' : `Week ${week} is ready.`}</h2>
+      {ownWhy && <p className="own-words">“{ownWhy}”</p>}
       <p className="muted">{facts}</p>
       <p className="muted">{reason}</p>
       {week !== current && <p className="muted">What it builds: {stageBuilds[weekAt(plan, week).stage].charAt(0).toLowerCase() + stageBuilds[weekAt(plan, week).stage].slice(1)}</p>}
@@ -332,4 +342,10 @@ function NewWeek({
       </div>
     </>
   );
+}
+
+/** "06:30" in the phone's own way of writing a time. */
+function clock(time: string): string {
+  const [h, m] = time.split(':').map(Number);
+  return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }

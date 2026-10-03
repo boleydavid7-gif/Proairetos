@@ -4,7 +4,7 @@ import { CheckIcon, ChevronIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand } from '../app/ui';
 import { aimWords, defaultWeekdays, examplePath, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
-import { stageBuilds, thenAndNow, weeksToAim } from '../core/progress';
+import { howItFelt, runDays, stageBuilds, thenAndNow, weeksToAim } from '../core/progress';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
@@ -16,7 +16,10 @@ import type { PlanState } from '../data/store';
 export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const settings = useSettings();
   const today = useToday();
-  const change = thenAndNow(useEntries() ?? [], today);
+  const entries = useEntries() ?? [];
+  const change = thenAndNow(entries, today);
+  const ran = runDays(entries);
+  const felt = howItFelt(entries, today);
   const shown = plan ?? examplePath();
   const current = plan && planState ? planState.week : undefined;
   // In a steady rhythm past the last listed week, the week shown is its place in the rhythm.
@@ -86,6 +89,28 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               Week {planState.week} · {weeksToAim(plan, planState.week) === 1 ? 'the week of your aim' : `about ${weeksToAim(plan, planState.week)} weeks to go`}
             </span>
           </div>
+          {ran && (
+            <div className="progress__row">
+              <span className="card__eyebrow">Days you have run</span>
+              <span>
+                {ran.days} since {shortDate(ran.since)}
+              </span>
+            </div>
+          )}
+          {felt && (
+            <div className="progress__row">
+              <span className="card__eyebrow">How runs felt, last four weeks</span>
+              <span>
+                {[
+                  felt.good && `${felt.good} easy or good`,
+                  felt.challenging && `${felt.challenging} challenging`,
+                  felt.hard && `${felt.hard} hard`,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            </div>
+          )}
           {change && (
             <>
               <div className="progress__row">

@@ -80,6 +80,10 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
   const [own, setOwn] = useState(ownAtStart);
   const [ownText, setOwnText] = useState(ownAtStart && currentMeters ? String(Number(inUnit(currentMeters, unit).toFixed(1))) : '');
   const [words, setWords] = useState(current?.aimWords ?? '');
+  const [why, setWhy] = useState(current?.why ?? '');
+  const [runAt, setRunAt] = useState(current?.runAt ?? '');
+  const [place, setPlace] = useState(current?.place ?? '');
+  const [ifThen, setIfThen] = useState(current?.ifThen ?? '');
 
   const [dated, setDated] = useState(Boolean(current?.raceDate));
   const [raceDate, setRaceDate] = useState(current?.raceDate ?? addDays(today, 84));
@@ -147,6 +151,12 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
   const save = () => {
     if (!path) return;
+    const own = {
+      why: why.trim() || undefined,
+      runAt: runAt || undefined,
+      place: place.trim() || undefined,
+      ifThen: ifThen.trim() || undefined,
+    };
     if (unchanged && current) {
       // Same path: only the days or words change; the week stays, and time set aside for the goal follows the days.
       savePlan({
@@ -154,6 +164,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         weekdays: chosenDays,
         moves: {},
         aimWords: words.trim() || undefined,
+        ...own,
       });
       if (chosenDays.join() !== [...current.weekdays].sort((a, b) => a - b).join())
         void moveGoalTime(current.goalId, chosenDays, today).then((putBack) =>
@@ -175,6 +186,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           aimWords: words,
         },
         today,
+        own,
       );
       if (before) undo('A new path', () => savePlan(before));
     }
@@ -329,6 +341,17 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           <input className="input" value={words} placeholder={aimWords(aim, unit)} onChange={(event) => setWords(event.target.value)} />
         </label>
 
+        <label className="field">
+          <span className="label">Why it matters to you, if you like</span>
+          <textarea
+            className="input input--area"
+            rows={2}
+            value={why}
+            placeholder="For a clear head. To keep up with my kids."
+            onChange={(event) => setWhy(event.target.value)}
+          />
+        </label>
+
         <button type="button" className="button-main" onClick={() => goTo('plan')} disabled={!aimReady}>
           Next
         </button>
@@ -359,6 +382,20 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           ))}
         </div>
       </section>
+
+      <section className="field">
+        <h2 className="label">When and where, if you like</h2>
+        <div className="input-pair">
+          <input className="input" type="time" aria-label="Usual time" value={runAt} onChange={(event) => setRunAt(event.target.value)} />
+          <input className="input" aria-label="Where" placeholder="Where" value={place} onChange={(event) => setPlace(event.target.value)} />
+        </div>
+        {runAt && <p className="hint">A reminder at this time comes through Proairetos notifications, when they are on.</p>}
+      </section>
+
+      <label className="field">
+        <span className="label">If something gets in the way, I’ll…</span>
+        <input className="input" value={ifThen} placeholder="Walk it instead" onChange={(event) => setIfThen(event.target.value)} />
+      </label>
 
       {kind !== 'steady' && (
         <section className="field">
