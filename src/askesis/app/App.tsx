@@ -23,7 +23,7 @@ export type Route =
   | { name: 'plan'; first?: boolean; level?: Level }
   | { name: 'workout'; id: string }
   | { name: 'guide'; id: string; intention?: string }
-  | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; intention?: string }
+  | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; intention?: string; date?: string }
   | { name: 'article'; id: string }
   | { name: 'zones' }
   | { name: 'pace' }

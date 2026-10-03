@@ -30,7 +30,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
   const session = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
 
   const [activity, setActivity] = useState<Activity>('run');
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(route.date ?? today);
   const [unit, setUnit] = useState<Unit>(settings.unit);
   const [distance, setDistance] = useState('');
   const [h, setH] = useState('');

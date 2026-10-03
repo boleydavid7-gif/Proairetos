@@ -288,6 +288,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   marathon (18). Tests hold them to the science: hard minutes <= 20% of each
   week, weekly time +<10% over recent weeks, easier every 4th week, taper.
   Effort scale in `core/effort.ts`; HR zones (Tanaka, Karvonen) in `core/zones.ts`.
+  Sessions in a week are never identical (beginner weeks have three close
+  variants; plain easy runs are 5 min apart, the long run stays 10+ min
+  longer) and every session totals a multiple of 5 min (`roundSession`
+  adjusts the last stretch). Each session shows its weekday (`sessionWeekdays`);
+  Home's This week has a quick Log per day (entry route `date` + `workoutId`).
 - Data: workouts and the plan live in the Proairetos database (DB 7 stores
   `askesisWorkouts`, `askesisPlans`, record id `current`), so they sync,
   sealed, with the same account and key: signing in to Proairetos covers

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { CheckIcon, ChevronIcon } from '../app/icons';
 import { Brand, Segmented } from '../app/ui';
-import { buildPlan, daysFor, goals, levels, weekMinutes, type Level, type Plan } from '../core/plans';
+import { buildPlan, daysFor, defaultWeekdays, goals, levels, weekMinutes, type Level, type Plan } from '../core/plans';
+import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
 
@@ -12,6 +13,8 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
   const shown = plan && plan.level === level ? plan : buildPlan({ level, days: daysFor(level)[0] });
   const mine = plan && shown.id === plan.id;
   const [open, setOpen] = useState<number | undefined>(mine ? planState?.week : undefined);
+  // Each session on its day: the days chosen for this plan, or the usual ones when looking at another plan.
+  const sessionDays = sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(shown.days), shown.days);
 
   return (
     <div className="page">
@@ -60,10 +63,11 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               </button>
               {open === week.n && (
                 <ul className="weeks__sessions">
-                  {week.workouts.map((workout) => (
+                  {week.workouts.map((workout, i) => (
                     <li key={workout.id}>
                       <button type="button" className="session-row" onClick={() => nav.go({ name: 'workout', id: workout.id })}>
-                        <span>
+                        <span className="session-row__day">{weekdayNames[sessionDays[i]].slice(0, 3)}</span>
+                        <span className="session-row__main">
                           <span className="session-row__title">{workout.title}</span>
                           <span className="session-row__summary">{workout.summary}</span>
                         </span>

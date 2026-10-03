@@ -7,7 +7,8 @@ import { useEntries, useSettings, useToday } from '../app/state';
 import { BackLink, dayLabel, Hero, Segmented } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { buildPlan, daysFor, findWorkout, goalsFor, levels, type Level, type Plan } from '../core/plans';
+import { buildPlan, daysFor, defaultWeekdays, findWorkout, goalsFor, levels, type Level, type Plan } from '../core/plans';
+import { sessionWeekdays, weekdayNames } from '../core/week';
 import { intentionPrompt, raceDayLine } from '../core/stoic';
 import { isSet, lengthLabel, mainEffort, partLabel, totalMinutes, type Part } from '../core/workouts';
 import { heartRange } from '../core/zones';
@@ -63,7 +64,8 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
       <div className="page page--under-hero">
         <h1 className="title">{workout.title}</h1>
         <p className="muted">
-          Week {week.n} · Session {index} · {levels[found.plan.level].name}
+          Week {week.n} · {weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]]} ·{' '}
+          {levels[found.plan.level].name}
         </p>
 
         <ul className="facts">

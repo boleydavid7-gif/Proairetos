@@ -172,7 +172,29 @@ type Draft = { kind: WorkoutKind; title: string; summary: string; parts: Part[] 
 
 function finish(planId: string, week: number, index: number, draft: Draft): Workout {
   const notes = kindNotes[draft.kind];
-  return { id: `${planId}.w${week}.${index}`, ...draft, why: notes.why, tips: notes.tips };
+  const parts = draft.kind === 'race' ? draft.parts : roundSession(draft.parts);
+  return { id: `${planId}.w${week}.${index}`, ...draft, parts, why: notes.why, tips: notes.tips };
+}
+
+/**
+ * Sessions add up to a round number of minutes (30, 35, 45): the last
+ * stretch, usually the cool-down, gives or takes the odd minutes. It never
+ * shrinks below three minutes; otherwise it grows to the next round number.
+ */
+export function roundSession(parts: Part[]): Part[] {
+  const total = Math.round(totalMinutes(parts) * 60) / 60;
+  const down = Math.floor(total / 5 + 1e-9) * 5;
+  const up = Math.ceil(total / 5 - 1e-9) * 5;
+  if (Math.abs(total - up) < 1e-6) return parts;
+  const last = parts[parts.length - 1];
+  const out = [...parts];
+  if (!('repeat' in last)) {
+    const shrunk = last.minutes - (total - down);
+    out[out.length - 1] = { ...last, minutes: total - down <= 2 && shrunk >= 3 ? shrunk : last.minutes + (up - total) };
+  } else {
+    out.push(step('easy', up - total, 'Easy to finish'));
+  }
+  return out;
 }
 
 const round5 = (minutes: number) => Math.max(5, Math.round(minutes / 5) * 5);
@@ -182,32 +204,39 @@ const round5 = (minutes: number) => Math.max(5, Math.round(minutes / 5) * 5);
 const walkRun = (run: number, walk: number, repeat: number): Part[] => [set(repeat, step('easy', run), step('walk', walk))];
 const continuous = (run: number): Part[] => [step('easy', run)];
 
-/** [theme, first two sessions, third session], one per week. */
-const beginnerWeeks: [string, Part[], Part[]][] = [
-  ['Get comfortable moving', walkRun(1, 1.5, 8), walkRun(1, 1.5, 8)],
-  ['Build consistency', walkRun(1.5, 2, 6), walkRun(1.5, 2, 6)],
-  ['A little more running', walkRun(2, 2, 5), walkRun(2.5, 2, 4)],
-  ['A lighter week', walkRun(2, 2, 4), walkRun(2, 2, 4)],
-  ['Longer runs between walks', walkRun(3, 1.5, 4), walkRun(4, 2, 3)],
-  ['Five minutes and more', walkRun(5, 2, 3), walkRun(8, 2, 2)],
-  ['Ten minutes at a time', walkRun(8, 2, 2), walkRun(10, 2, 2)],
-  ['Your first long run', walkRun(12, 2, 2), continuous(20)],
-  ['Steady and easy', continuous(22), continuous(25)],
-  ['30 minutes, your way', continuous(25), continuous(30)],
+/**
+ * [theme, three sessions], one per week. The three are close cousins: the
+ * same amount of running, shaped a little differently, the third reaching a
+ * touch further. Repeating a week is always fine.
+ */
+const beginnerWeeks: [string, Part[], Part[], Part[]][] = [
+  ['Get comfortable moving', walkRun(1, 1.5, 8), walkRun(1, 1, 8), walkRun(1.5, 1.5, 6)],
+  ['Build consistency', walkRun(1.5, 2, 6), walkRun(1.5, 1.5, 6), walkRun(2, 2, 5)],
+  ['A little more running', walkRun(2, 2, 5), walkRun(2.5, 2, 4), walkRun(3, 2, 4)],
+  ['A lighter week', walkRun(2, 2, 5), walkRun(2.5, 2, 4), walkRun(2, 1.5, 5)],
+  ['Longer runs between walks', walkRun(3, 1.5, 4), walkRun(4, 2, 3), walkRun(5, 2.5, 3)],
+  ['Five minutes and more', walkRun(5, 2, 3), walkRun(7, 2, 2), walkRun(8, 2, 2)],
+  ['Ten minutes at a time', walkRun(8, 2, 2), walkRun(10, 2, 2), walkRun(12, 2, 2)],
+  ['Your first long run', continuous(15), continuous(18), continuous(20)],
+  ['Steady and easy', continuous(20), continuous(22), continuous(25)],
+  ['30 minutes, your way', continuous(25), continuous(28), continuous(30)],
 ];
+
+/** 1.5 -> "1½", 2 -> "2". */
+const minutesWord = (minutes: number) => (Number.isInteger(minutes) ? String(minutes) : `${Math.floor(minutes) || ''}½`);
 
 function describeWalkRun(parts: Part[]): string {
   const first = parts[0];
   if ('repeat' in first) {
     const [run, walk] = first.steps;
-    return `${first.repeat} x run ${run.minutes} min, walk ${walk.minutes} min`;
+    return `${first.repeat} x run ${minutesWord(run.minutes)} min, walk ${minutesWord(walk.minutes)} min`;
   }
   return `Run ${first.minutes} minutes without stopping`;
 }
 
 function beginnerPlan(days: number): Plan {
   const id = `beginner-run-30-${days}`;
-  const weeks = beginnerWeeks.map(([theme, ab, c], index) => {
+  const weeks = beginnerWeeks.map(([theme, a, b, c], index) => {
     const n = index + 1;
     const session = (parts: Part[]): Draft => ({
       kind: 'walk-run',
@@ -215,7 +244,7 @@ function beginnerPlan(days: number): Plan {
       summary: describeWalkRun(parts),
       parts: [step('walk', 5, 'Warm up'), ...parts, step('walk', 5, 'Cool down')],
     });
-    const drafts: Draft[] = [session(ab), session(ab), session(c)];
+    const drafts: Draft[] = [session(a), session(b), session(c)];
     if (days >= 4)
       drafts.splice(2, 0, {
         kind: 'walk',
@@ -327,20 +356,47 @@ function raceDay(goal: Goal): Draft {
 }
 
 /** Fits the week's sessions to its time: a long run, the harder sessions, and easy running between. */
+type LongPlan = { minutes: number; cap: number; make: (minutes: number) => Draft; race?: boolean };
+
+/** Steps of five minutes around the middle, so plain easy runs in a week are never the same length. */
+function offsets(count: number): number[] {
+  return [[0], [5, -5], [5, 0, -5], [10, 5, -5, -10], [10, 5, 0, -5, -10]][Math.max(0, Math.min(5, count) - 1)];
+}
+
 function arrangeWeek(
   days: number,
   target: number,
-  long: Draft,
+  longPlan: LongPlan,
   quality: Draft[],
   extra: { strides: boolean; easyMin: number; easyMax: number; recovery: boolean },
 ): Draft[] {
   const easyCount = days - 1 - quality.length;
-  const used = totalMinutes(long.parts) + quality.reduce((sum, draft) => sum + totalMinutes(draft.parts), 0);
-  const each = Math.min(extra.easyMax, Math.max(extra.easyMin, (target - used) / Math.max(1, easyCount)));
+  const qualityMinutes = quality.reduce((sum, draft) => sum + totalMinutes(draft.parts), 0);
+  const special = (extra.recovery && easyCount >= 3 ? 1 : 0) + (extra.strides && easyCount >= 1 ? 1 : 0);
+  const plain = Math.max(0, easyCount - special);
+  const spread = offsets(plain);
+
+  // The long run stays the longest: at least ten minutes past the longest easy run.
+  let longMinutes = longPlan.minutes;
+  let each = (target - longMinutes - qualityMinutes) / Math.max(1, easyCount);
+  if (!longPlan.race) {
+    const need = round5(Math.min(extra.easyMax, Math.max(extra.easyMin, each))) + Math.max(0, ...spread) + 10;
+    if (need > longMinutes) {
+      longMinutes = Math.min(longPlan.cap, need);
+      each = (target - longMinutes - qualityMinutes) / Math.max(1, easyCount);
+    }
+  }
+  const long = longPlan.make(longMinutes);
+  const longest = longPlan.race ? extra.easyMax : Math.min(extra.easyMax, totalMinutes(long.parts) - 10);
+  let middle = round5(Math.min(extra.easyMax, Math.max(extra.easyMin, each)));
+  middle = Math.min(middle, longest - Math.max(0, ...spread));
+  middle = Math.max(middle, extra.easyMin - Math.min(0, ...spread));
+
+  let plainIndex = 0;
   const easies: Draft[] = Array.from({ length: easyCount }, (_, i) => {
-    if (extra.recovery && i === easyCount - 1 && easyCount >= 3) return easyRun(Math.max(extra.easyMin, each * 0.7), 'recovery');
-    if (extra.strides && i === easyCount - 1) return stridesRun(each);
-    return easyRun(each);
+    if (extra.recovery && i === easyCount - 1 && easyCount >= 3) return easyRun(Math.max(extra.easyMin, middle * 0.7), 'recovery');
+    if (extra.strides && i === easyCount - (extra.recovery && easyCount >= 3 ? 2 : 1)) return stridesRun(middle);
+    return easyRun(middle + spread[plainIndex++]);
   });
   // Harder days apart, the long run last.
   const [q1, q2] = quality;
@@ -382,9 +438,12 @@ function intermediatePlan(days: number): Plan {
     const easier = n === 4 || n === 8;
     const raceWeek = n === 12;
     const longMinutes = Math.min(80, Math.max(40, target * 0.3));
-    const long = raceWeek
-      ? raceDay('10k')
-      : longRun(longMinutes, [6, 7, 9, 10].includes(n) ? 10 : 0);
+    const long: LongPlan = {
+      minutes: longMinutes,
+      cap: 80,
+      race: raceWeek,
+      make: (minutes) => (raceWeek ? raceDay('10k') : longRun(minutes, [6, 7, 9, 10].includes(n) ? 10 : 0)),
+    };
     const q1: Draft | undefined = (
       {
         2: stridesRun(30),
@@ -453,13 +512,21 @@ function advancedPlan(days: number, goal: 'half' | 'marathon'): Plan {
     // The long run is a larger share for a marathon, where time on feet matters most.
     const longMinutes = Math.min(longCap, Math.max(60, target * (marathon ? 0.35 : 0.3)));
 
-    let long: Draft;
-    if (raceWeek) long = raceDay(goal);
-    else if (base || easier || taper) long = longRun(longMinutes);
-    else if (marathon && n >= 9) {
-      const [repeat, length] = marathonBlocks[Math.min(marathonBlocks.length - 1, n - 9 - Math.floor((n - 9) / 4))];
-      long = racePaceLong(longMinutes, repeat, length);
-    } else long = longRun(longMinutes, Math.min(30, 15 + built * 3), marathon ? undefined : 'About half-marathon effort');
+    const steadyFinish = Math.min(30, 15 + built * 3);
+    const long: LongPlan = {
+      minutes: longMinutes,
+      cap: longCap,
+      race: raceWeek,
+      make: (minutes) => {
+        if (raceWeek) return raceDay(goal);
+        if (base || easier || taper) return longRun(minutes);
+        if (marathon && n >= 9) {
+          const [repeat, length] = marathonBlocks[Math.min(marathonBlocks.length - 1, n - 9 - Math.floor((n - 9) / 4))];
+          return racePaceLong(minutes, repeat, length);
+        }
+        return longRun(minutes, steadyFinish, marathon ? undefined : 'About half-marathon effort');
+      },
+    };
 
     const quality: Draft[] = [];
     if (raceWeek) quality.push(marathon ? tempo('2x5', 15) : tempo('2x5', 15));

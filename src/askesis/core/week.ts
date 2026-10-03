@@ -56,3 +56,11 @@ export function freeDaysThisWeek(
   const taken = new Set(plans.map((plan) => plan.date));
   return weekDates(today).filter((date) => date >= today && !taken.has(date) && !nightNote(date, occurrences));
 }
+
+export const weekdayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/** Which weekday (0 = Monday) each session of a week falls on, in order. */
+export function sessionWeekdays(weekdays: readonly number[], count: number): number[] {
+  const days = [...weekdays].sort((a, b) => a - b);
+  return Array.from({ length: count }, (_, i) => days[i] ?? Math.min(6, i * 2));
+}

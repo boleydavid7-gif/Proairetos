@@ -16,6 +16,24 @@ describe('training plans', () => {
       for (const week of plan.weeks) expect(week.workouts.length, `${plan.id} week ${week.n}`).toBe(plan.days);
   });
 
+  it('rounds every session to five minutes', () => {
+    for (const plan of everyPlan())
+      for (const week of plan.weeks)
+        for (const workout of week.workouts) {
+          if (workout.kind === 'race') continue;
+          const total = Math.round(totalMinutes(workout.parts) * 60) / 60;
+          expect(total % 5, `${workout.id} ${total}`).toBe(0);
+        }
+  });
+
+  it('does not repeat the same session within a week', () => {
+    for (const plan of everyPlan())
+      for (const week of plan.weeks) {
+        const shapes = week.workouts.filter((w) => w.kind !== 'walk').map((w) => JSON.stringify(w.parts));
+        expect(new Set(shapes).size, `${plan.id} week ${week.n}`).toBe(shapes.length);
+      }
+  });
+
   it('gives every session a unique id', () => {
     for (const plan of everyPlan()) {
       const ids = plan.weeks.flatMap((week) => week.workouts.map((workout) => workout.id));

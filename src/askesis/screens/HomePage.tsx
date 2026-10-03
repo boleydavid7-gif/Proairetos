@@ -43,7 +43,9 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
     [week, planState, today, thisWeeks.length, blocks],
   );
   const comeBack =
-    planState && !newWeek ? comeBackOffer(entries, planState.week, today, planState.comeBackAsked, planState.startedOn) : undefined;
+    planState && !newWeek
+      ? comeBackOffer(entries, planState.week, today, planState.comeBackAsked, planState.startedOn)
+      : undefined;
   const focus =
     days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
 
@@ -205,13 +207,22 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     <ChevronIcon size={18} />
                   </button>
                   {focus.date === today && (
-                    <button
-                      type="button"
-                      className="button-main"
-                      onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
-                    >
-                      Start today’s workout
-                    </button>
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button-main"
+                        onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
+                      >
+                        Start
+                      </button>
+                      <button
+                        type="button"
+                        className="button-quiet"
+                        onClick={() => nav.go({ name: 'entry', workoutId: focus.workout.id, date: focus.date })}
+                      >
+                        Log it
+                      </button>
+                    </div>
                   )}
                 </>
               ) : (
@@ -226,24 +237,37 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                   key={day.workout.id}
                   className={`week-row${day.date < today && !day.done ? ' week-row--passed' : ''}`}
                 >
-                  <button
-                    type="button"
-                    className="week-row__main"
-                    onClick={() => nav.go({ name: 'workout', id: day.workout.id })}
-                  >
-                    <span className={`week-row__day${day.date === today ? ' week-row__day--today' : ''}`}>
-                      {dayLabel(day.date, today)}
-                    </span>
-                    <span className="week-row__what">
-                      {day.workout.title}
-                      {day.workout.kind !== 'race' && (
-                        <span className="week-row__len"> · {lengthLabel(totalMinutes(day.workout.parts))}</span>
-                      )}
-                    </span>
-                    <span className="week-row__felt">
-                      {day.done ? (day.done.felt ? feelings[day.done.felt] : 'Done') : ''}
-                    </span>
-                  </button>
+                  <div className="week-row__line">
+                    <button
+                      type="button"
+                      className="week-row__main"
+                      onClick={() => nav.go({ name: 'workout', id: day.workout.id })}
+                    >
+                      <span className={`week-row__day${day.date === today ? ' week-row__day--today' : ''}`}>
+                        {dayLabel(day.date, today)}
+                      </span>
+                      <span className="week-row__what">
+                        {day.workout.title}
+                        {day.workout.kind !== 'race' && (
+                          <span className="week-row__len"> · {lengthLabel(totalMinutes(day.workout.parts))}</span>
+                        )}
+                        <span className="week-row__summary">{day.workout.summary}</span>
+                      </span>
+                      <span className="week-row__felt">
+                        {day.done ? (day.done.felt ? feelings[day.done.felt] : 'Done') : ''}
+                      </span>
+                    </button>
+                    {!day.done && day.date <= today && (
+                      <button
+                        type="button"
+                        className="chip week-row__log"
+                        aria-label={`Log ${day.workout.title}, ${dayLabel(day.date, today)}`}
+                        onClick={() => nav.go({ name: 'entry', workoutId: day.workout.id, date: day.date })}
+                      >
+                        Log
+                      </button>
+                    )}
+                  </div>
                   {day.note && !day.done && (
                     <p className="week-row__note">
                       {day.note}.{' '}

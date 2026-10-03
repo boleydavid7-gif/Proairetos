@@ -2008,3 +2008,47 @@ html[data-nav='back']::view-transition-new(root) {
   opacity: 0.45;
   cursor: default;
 }
+
+/* Each session on its day. */
+.session-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  justify-content: initial;
+}
+
+.session-row__day {
+  color: var(--mint);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.session-row__main {
+  display: flex;
+  flex-direction: column;
+}
+
+.week-row__summary {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* A day's row: the session, and a quick Log beside it. */
+.week-row__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.week-row__line .week-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-row__log {
+  flex: none;
+  min-height: 44px;
+  min-width: 56px;
+  color: var(--mint);
+  border-color: rgba(134, 217, 176, 0.4);
+}
