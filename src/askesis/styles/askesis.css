@@ -1240,6 +1240,98 @@ input[type='date'].input {
   color: var(--text-soft);
 }
 
+.guide__music {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.guide__song {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide__pocket {
+  min-height: 44px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.pocket {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pocket__time {
+  font-size: 2.4rem;
+  color: rgba(255, 255, 255, 0.28);
+  font-variant-numeric: tabular-nums;
+}
+
+.pocket__hint {
+  color: rgba(255, 255, 255, 0.22);
+  font-size: 0.9rem;
+  transition: color 1.2s linear;
+}
+
+.pocket--holding .pocket__hint {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.music-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.music-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.song-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.song-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--line);
+}
+
+.song-list__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .guide__controls {
   margin-top: auto;
   width: 100%;

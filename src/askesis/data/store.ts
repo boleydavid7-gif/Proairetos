@@ -86,6 +86,10 @@ export type Settings = {
   afterOffers: boolean;
   /** The day's Stoic line on Home. */
   dailyLine: boolean;
+  /** Music during a guided session: none, songs kept in Askesis, or another app's (which mixes, screen on). */
+  music: 'none' | 'mine' | 'other';
+  /** Songs in a new order each time. */
+  shuffle: boolean;
 };
 
 const SETTINGS = 'askesis:settings';
@@ -128,6 +132,8 @@ export const defaultSettings = (): Settings => ({
   safetySeen: false,
   afterOffers: true,
   dailyLine: true,
+  music: 'none',
+  shuffle: true,
 });
 
 const listeners = new Set<() => void>();

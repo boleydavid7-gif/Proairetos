@@ -8,6 +8,7 @@ import TrainPage from '../screens/TrainPage';
 import LogPage from '../screens/LogPage';
 import EntryPage from '../screens/EntryPage';
 import MorePage from '../screens/MorePage';
+import MusicPage from '../screens/MusicPage';
 import WorkoutPage from '../screens/WorkoutPage';
 import GuidePage from '../screens/GuidePage';
 import WelcomePage from '../screens/WelcomePage';
@@ -25,6 +26,7 @@ export type Route =
   | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; intention?: string; date?: string }
   | { name: 'article'; id: string }
   | { name: 'zones' }
+  | { name: 'music' }
   | { name: 'pace' }
   | { name: 'settings' }
   | { name: 'data' }
@@ -118,6 +120,8 @@ export default function App() {
         return <EntryPage nav={nav} route={route} plan={plan} />;
       case 'article':
         return <ArticlePage nav={nav} id={route.id} />;
+      case 'music':
+        return <MusicPage nav={nav} />;
       case 'zones':
         return <ZonesPage nav={nav} />;
       case 'pace':

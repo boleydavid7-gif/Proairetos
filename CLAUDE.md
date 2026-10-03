@@ -365,8 +365,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Done today and in the Reflect timeline (`RunEntry`).
 - Appearance follows Proairetos (`applyAppearance`: theme and text size);
   light tokens at the end of `askesis.css`; words over photos stay light.
-- Guide (`screens/GuidePage.tsx`): wall-clock steps, spoken cues and a bell,
-  audio session `ambient` so the person's own music keeps playing; wake lock.
+- Guide (`screens/GuidePage.tsx`): wall-clock steps, spoken cues, wake lock.
+  Bells for the whole session (`core/cues.ts`: two low to walk, one to run,
+  one bright for faster, three to finish) are handed to the audio clock at
+  Start (`app/runAudio.ts`) and again after a pause or on looking back, so
+  they keep time with the screen locked while the page plays as media
+  (`wakeAudio`, session `playback`). Pocket mode: black screen, hold to wake.
+  Music (`app/music.ts`, More > Music): None, Songs here (files from the
+  phone in IndexedDB `askesis-music`, device only, not synced or backed up;
+  played through the audio clock so it softens under each bell; shuffle; Next
+  song in the guide), or Another app (session `ambient` to mix; screen on).
 - Photos: `src/askesis/assets/scenes/*.webp` (cut from the owner's sheet; low
   resolution, replace with larger originals when available).
 

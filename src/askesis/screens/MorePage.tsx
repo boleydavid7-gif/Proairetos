@@ -1,18 +1,25 @@
 import type { Nav, Route } from '../app/App';
-import { BoxIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, Mark, ShieldIcon, TargetIcon } from '../app/icons';
+import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, Mark, ShieldIcon, TargetIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { Brand } from '../app/ui';
-import { useAccount } from '../app/state';
+import { useAccount, useSettings } from '../app/state';
 import { aimWords, type Plan } from '../core/plans';
 import type { ReactNode } from 'react';
 
 export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
+  const settings = useSettings();
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
     {
       icon: <TargetIcon />,
       title: 'Your aim',
       detail: plan ? `${aimWords(plan.aim)} · ${plan.days} days a week` : 'Set your aim',
       route: { name: 'plan' },
+    },
+    {
+      icon: <SoundIcon />,
+      title: 'Music',
+      detail: settings.music === 'mine' ? 'Songs here' : settings.music === 'other' ? 'Another app' : 'Songs for your sessions',
+      route: { name: 'music' },
     },
     { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Optional numbers for each effort', route: { name: 'zones' } },
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: 'Pace, time and distance', route: { name: 'pace' } },
