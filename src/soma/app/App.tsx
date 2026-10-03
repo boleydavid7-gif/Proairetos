@@ -11,6 +11,11 @@ import ImportPage from '../screens/ImportPage';
 import IdeasPage from '../screens/IdeasPage';
 import GroceriesPage from '../screens/GroceriesPage';
 import CookPage from '../screens/CookPage';
+import TonightPage from '../screens/TonightPage';
+import WeekPage from '../screens/WeekPage';
+import PausePage from '../screens/PausePage';
+import type { Mark } from '../core/recipes';
+import type { TimeChoice } from '../core/tonight';
 import MorePage, { AboutPage, DataPage, SettingsPage, UsuallyPage } from '../screens/MorePage';
 
 export type Route =
@@ -20,6 +25,9 @@ export type Route =
   | { name: 'edit'; id?: string }
   | { name: 'import' }
   | { name: 'cook'; id: string; servings?: number }
+  | { name: 'tonight'; time?: TimeChoice }
+  | { name: 'week'; mark?: Mark }
+  | { name: 'pause'; id: string }
   | { name: 'usually' }
   | { name: 'settings' }
   | { name: 'data' }
@@ -95,6 +103,12 @@ export default function App() {
         return <ImportPage nav={nav} />;
       case 'cook':
         return <CookPage nav={nav} id={route.id} servings={route.servings} />;
+      case 'tonight':
+        return <TonightPage nav={nav} time={route.time} />;
+      case 'week':
+        return <WeekPage nav={nav} mark={route.mark} />;
+      case 'pause':
+        return <PausePage nav={nav} id={route.id} />;
       case 'usually':
         return <UsuallyPage nav={nav} />;
       case 'settings':
@@ -106,7 +120,7 @@ export default function App() {
     }
   })();
 
-  const showTabs = !['welcome', 'cook'].includes(route.name);
+  const showTabs = !['welcome', 'cook', 'pause'].includes(route.name);
   return (
     <UndoProvider>
       <div className={`shell${showTabs ? ' shell--tabs' : ''}`}>

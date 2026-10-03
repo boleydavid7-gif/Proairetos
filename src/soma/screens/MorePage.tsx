@@ -119,6 +119,10 @@ export function SettingsPage({ nav }: { nav: Nav }) {
       <div className="card switches">
         <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />
+        <Switch on={settings.fitsYourDay} label="Your day, from Proairetos" onToggle={() => saveSettings({ ...settings, fitsYourDay: !settings.fitsYourDay })} />
+        <Switch on={settings.seasons} label="In season" onToggle={() => saveSettings({ ...settings, seasons: !settings.seasons })} />
+        <Switch on={settings.pauseBeforeEating} label="A moment before eating" onToggle={() => saveSettings({ ...settings, pauseBeforeEating: !settings.pauseBeforeEating })} />
+        <Switch on={settings.readAloud} label="Read steps aloud" onToggle={() => saveSettings({ ...settings, readAloud: !settings.readAloud })} />
       </div>
       <p className="hint">Theme and text size follow Proairetos (Settings, Appearance).</p>
     </div>

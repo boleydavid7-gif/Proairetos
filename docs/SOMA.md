@@ -45,14 +45,51 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   (`src/soma/assets/scenes`, low resolution; replace with originals). Icon:
   the leaf sprig from the welcome screen.
 
+## A kitchen companion (decide, prepare, nourish)
+
+- **What can I make tonight?** (`TonightPage`, `core/tonight.ts`): time,
+  energy (starts from the Proairetos energy word for today), familiar or new,
+  each skippable; three of the person's own recipes at a time, kitchen first,
+  plain facts ("30 min · uses spinach · last cooked Sep 20"), "Some others".
+- **Your day, from Proairetos** (`app/proairetos.ts`, `core/dayShape.ts`):
+  reads the schedule (never writes). A committed block through 17:00-20:00
+  today shows its own name ("Class until 9:00 PM") and opens Tonight at 30
+  min; two or more late blocks in the next four days offer "Cook once, eat
+  twice?" (the week, Make ahead marks first). Settings switch.
+- **The kitchen** (Groceries > In the kitchen, `core/kitchen.ts`): Put away
+  moves ticked items there with the day; "Bought Tuesday" facts, oldest
+  first; Used up (undo); added by hand. Kept in the groceries store
+  (`place: 'kitchen'`), so it syncs with no new migration.
+- **A loose week** (`WeekPage`, `core/week.ts`, `Recipe.planned` days):
+  seven days from today, Add from your recipes (search, marks), × with undo;
+  "Groceries for these" leaves out Usually have and the kitchen. Plan it for
+  a day from a recipe. Proairetos shows planned meals in Days ahead.
+- **Your marks** (`Recipe.marks`: Quick, Comfort, For others, Make ahead,
+  Light) on the recipe page; the first line of your note shows at the top.
+- **Cook mode**: Before you start (what to take out, oven heat from the
+  steps), amounts beside each ingredient's first mention in the steps (not
+  when the step gives one), measured amounts in steps scale with servings
+  (`core/cookAids.ts`); several named timers (`timerName`) in a tray, bells
+  handed to the audio clock so they ring with the screen locked
+  (`app/timers.ts`); Read aloud; Say "next" / "back" / "again" (speech
+  recognition where the phone has it).
+- **Missing something?** (`core/swaps.ts`): swaps for this recipe's
+  ingredients, only when asked; King Arthur Baking for baking ones.
+- **A moment before eating** (`PausePage`): after Finished, at most once a
+  day, 30 s breathing circle and Epictetus (Enchiridion 15). Settings switch.
+- **Cooked for** (`Recipe.cookedFor`): after I cooked this, Compass people
+  or any name; Proairetos Reflect shows "Cooked for Mom" (Today part `soma`).
+- **In season** (`core/seasons.ts`, after USDA SNAP-Ed): on Home with your
+  recipes that use it; south of the equator when the weather place is.
+- **Share** a recipe as text (the paste import reads it back).
+
 ## Next
 
-- Meal plan: recipes on days, shown in Proairetos Days ahead; the week's
-  groceries in one tap.
-- Sync with the Proairetos account (new collections, as Askesis did).
 - A photo of a recipe card read on the phone (OCR, loaded only when used).
 - Askesis link: meals around runs.
 - Pictures for recipes without one: a photo taken by the person, or an
   image made by an AI image service through the Worker (needs a key and has a
   cost per image; offered, never automatic).
 - Unit conversion (cups and grams, °F and °C).
+- AI help, only on a tap: images, tidying a pasted recipe, a draft from
+  what is in the kitchen.

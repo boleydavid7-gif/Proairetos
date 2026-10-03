@@ -16,7 +16,15 @@ export type GroceryItem = {
   /** Recipes it came from, by id and title, for the By recipe view. */
   from: { id: string; title: string }[];
   addedAt: string;
+  /** 'kitchen': bought and at home (the kitchen list), no longer to buy. */
+  place?: 'kitchen';
+  /** When it came home (YYYY-MM-DD). */
+  boughtAt?: string;
 };
+
+/** Still to buy, as opposed to already in the kitchen. */
+export const onList = (item: GroceryItem) => item.place !== 'kitchen';
+export const inKitchen = (item: GroceryItem) => item.place === 'kitchen';
 
 export type NewLine = { line: string; recipe?: { id: string; title: string } };
 
@@ -81,7 +89,7 @@ export function addToList(
     const { name } = amountOf(line);
     if (!name.trim()) continue;
     const key = itemKey(name);
-    const existing = out.find((item) => itemKey(item.name) === key && !item.checked);
+    const existing = out.find((item) => itemKey(item.name) === key && !item.checked && onList(item));
     const amount = amountText(line);
     if (existing) {
       existing.amounts = joinAmounts(existing.amounts, amount);
@@ -102,7 +110,8 @@ export function addToList(
 }
 
 /** Items by aisle, in shop order; ticked ones last within each aisle. */
-export function byAisle(list: readonly GroceryItem[]): { aisle: Aisle; items: GroceryItem[] }[] {
+export function byAisle(all: readonly GroceryItem[]): { aisle: Aisle; items: GroceryItem[] }[] {
+  const list = all.filter(onList);
   const order: Aisle[] = ['Produce', 'Meat & fish', 'Dairy & eggs', 'Bakery', 'Pantry', 'Spices', 'Frozen', 'Drinks', 'Other'];
   return order
     .map((aisle) => ({
@@ -117,7 +126,7 @@ export function byAisle(list: readonly GroceryItem[]): { aisle: Aisle; items: Gr
 /** Items by the recipe they came from; items added by hand under "Added". */
 export function byRecipe(list: readonly GroceryItem[]): { title: string; items: GroceryItem[] }[] {
   const groups = new Map<string, { title: string; items: GroceryItem[] }>();
-  for (const item of list) {
+  for (const item of list.filter(onList)) {
     const sources = item.from.length ? item.from : [{ id: '', title: 'Added' }];
     for (const source of sources) {
       const group = groups.get(source.id) ?? { title: source.title, items: [] };
@@ -130,7 +139,7 @@ export function byRecipe(list: readonly GroceryItem[]): { title: string; items: 
 
 /** The list as plain text, to share or paste anywhere. */
 export function listAsText(list: readonly GroceryItem[]): string {
-  return byAisle(list.filter((item) => !item.checked))
+  return byAisle(list.filter((item) => !item.checked && onList(item)))
     .map(({ aisle, items }) => [aisle, ...items.map((item) => `- ${item.name}${item.amounts.length ? ` (${item.amounts.join(' + ')})` : ''}`)].join('\n'))
     .join('\n\n');
 }

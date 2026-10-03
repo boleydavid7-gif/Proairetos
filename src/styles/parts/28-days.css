@@ -606,3 +606,15 @@
   border-left-color: var(--tag);
   background: linear-gradient(90deg, color-mix(in srgb, var(--tag) 14%, transparent), var(--color-surface) 60%);
 }
+
+/* Meals planned in SOMA, one quiet line under the day. */
+.days-meals {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: 2px 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+}

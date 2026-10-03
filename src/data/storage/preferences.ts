@@ -332,7 +332,9 @@ export type TodayPart =
   | 'gratitude'
   | 'three-good-things'
   // Runs from Askesis, the training app beside Proairetos.
-  | 'askesis';
+  | 'askesis'
+  // Meals from SOMA, the recipe app beside Proairetos.
+  | 'soma';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 

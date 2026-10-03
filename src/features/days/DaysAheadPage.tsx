@@ -3,6 +3,7 @@ import { calendarSources, otherCalendars } from '../../app/calendars/otherCalend
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -13,6 +14,7 @@ import {
   CalendarIcon,
   ChevronRightIcon,
   ClockIcon,
+  LeafIcon,
   ListIcon,
   PinIcon,
   PlusIcon,
@@ -95,6 +97,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const { today, rangeOf } = usePersonalDay(useClock());
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
+  const recipes = useRecipesFromSoma();
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -321,6 +324,13 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   );
                 })}
               </ul>
+              {shows('soma') && mealsOn(recipes, date).length > 0 && (
+                <a className="days-meals" href="/soma/">
+                  <LeafIcon size={18} /> {mealsOn(recipes, date)
+                    .map((meal) => meal.title)
+                    .join(', ')}
+                </a>
+              )}
               <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} />
             </section>
           );

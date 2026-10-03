@@ -424,6 +424,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `aisleChoices`). Reuses Askesis UI pieces and `askesis.css`, with
   `soma.css` tokens on `:root.soma`. "I cooked this" can keep a line in
   Proairetos Reflect (promptKey `after-meal`).
+- Kitchen companion (`docs/SOMA.md`): Tonight (`core/tonight.ts`), your
+  day from the Proairetos schedule and energy word (`app/proairetos.ts`,
+  `core/dayShape.ts`, read only), kitchen list in the groceries store
+  (`place: 'kitchen'`), loose week (`Recipe.planned`), marks, cook aids
+  (`core/cookAids.ts`), named timers on the audio clock, swaps, seasons,
+  a moment before eating, cooked for (`Recipe.cookedFor`). Proairetos reads
+  recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
+  day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

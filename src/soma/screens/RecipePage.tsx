@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { reflectionService } from '../../app/services';
 import type { Nav } from '../app/App';
-import { ClockIcon, HeartIcon, PotIcon, ServesIcon } from '../app/icons';
+import { ClockIcon, HeartIcon, PotIcon, ServesIcon, ShareIcon } from '../app/icons';
 import { dishScene } from '../app/scenes';
 import { newId, useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { startTimer, stopTimer, timeLeft, useTimers } from '../app/timers';
 import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
 import { addToList, usuallyHave } from '../core/groceries';
 import { scaleLine } from '../core/ingredients';
-import { headingText, isHeading, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
+import { headingText, isHeading, marks, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
+import { stepsWithAmounts, timerName } from '../core/cookAids';
+import { swapsFor } from '../core/swaps';
+import { recipeAsText } from '../core/share';
+import { togglePlanned, weekFrom } from '../core/week';
+import { usePeople } from '../app/proairetos';
 import { waysToTry } from '../core/tryIt';
 import { deleteRecipe, loadSettings, putRecipe, saveGroceries } from '../data/store';
 
@@ -34,7 +39,7 @@ export function StepTimers({ step }: { step: string }) {
             className="timer-chip"
             onClick={() => {
               if (rang) stopTimer(rang.id);
-              startTimer(label, minutes);
+              startTimer(label, minutes, timerName(step, label));
             }}
           >
             <ClockIcon size={16} /> {rang ? 'Again: ' : ''}
@@ -43,6 +48,21 @@ export function StepTimers({ step }: { step: string }) {
         );
       })}
     </span>
+  );
+}
+
+/** Every timer running or rung, wherever it was started. */
+export function TimerTray() {
+  const timers = useTimers();
+  if (!timers.length) return null;
+  return (
+    <div className="timer-tray" role="status" aria-label="Timers">
+      {timers.map((timer) => (
+        <button key={timer.id} type="button" className={`timer-chip${timer.done ? '' : ' timer-chip--running'}`} onClick={() => stopTimer(timer.id)} aria-label={timer.done ? `${timer.name} is done. Dismiss` : `Stop ${timer.name}`}>
+          {timer.name} · {timer.done ? 'done' : timeLeft(timer)}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -81,6 +101,11 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const [picking, setPicking] = useState(false);
   const [notes, setNotes] = useState(recipe?.notes ?? '');
   const [afterLine, setAfterLine] = useState<string>();
+  const [cookedFor, setCookedFor] = useState<string[]>([]);
+  const [otherName, setOtherName] = useState('');
+  const [sheet, setSheet] = useState<'swaps' | 'plan'>();
+  const [copied, setCopied] = useState(false);
+  const people = usePeople();
   useTimers();
 
   useEffect(() => {
@@ -103,6 +128,20 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const time = minutesLabel(timeOf(recipe));
   const ways = settings.waysToTry ? waysToTry(recipe) : [];
   const lastCooked = recipe.cooked?.at(-1);
+  const note = recipe.notes.trim();
+
+  const share = async () => {
+    const text = recipeAsText(recipe);
+    try {
+      if (navigator.share) await navigator.share({ title: recipe.title, text });
+      else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+      }
+    } catch {
+      // Closed without sharing.
+    }
+  };
 
   const remove = async () => {
     const putBack = await deleteRecipe(recipe.id);
@@ -127,6 +166,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               onClick={() => void save({ favorite: !recipe.favorite })}
             >
               <HeartIcon size={20} filled={recipe.favorite} />
+            </button>
+            <button type="button" className="round-button" aria-label="Share this recipe" onClick={() => void share()}>
+              <ShareIcon size={20} />
             </button>
             <button type="button" className="round-button" onClick={() => nav.go({ name: 'edit', id: recipe.id })}>
               Edit
@@ -154,6 +196,32 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         ) : (
           recipe.source && <span>{recipe.source}</span>
         )}
+      </div>
+      {copied && (
+        <p className="hint" role="status">
+          Copied, ready to paste.
+        </p>
+      )}
+      {note && tab !== 'notes' && (
+        <button type="button" className="recipe-note" onClick={() => setTab('notes')}>
+          {note.split('\n')[0]}
+        </button>
+      )}
+      <div className="chip-grid recipe-marks" role="group" aria-label="Your marks">
+        {marks.map((mark) => {
+          const on = Boolean(recipe.marks?.includes(mark.id));
+          return (
+            <button
+              key={mark.id}
+              type="button"
+              className="chip chip--small"
+              aria-pressed={on}
+              onClick={() => void save({ marks: on ? recipe.marks!.filter((each) => each !== mark.id) : [...(recipe.marks ?? []), mark.id] })}
+            >
+              {mark.label}
+            </button>
+          );
+        })}
       </div>
       {recipe.tags.length > 0 && (
         <div className="tags">
@@ -223,12 +291,17 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               Add to groceries
             </button>
           )}
+          {swapsFor(recipe.ingredients).length > 0 && (
+            <button type="button" className="text-link" onClick={() => setSheet('swaps')}>
+              Missing something?
+            </button>
+          )}
         </section>
       )}
 
       {tab === 'steps' && (
         <section aria-label="Steps">
-          <StepList steps={recipe.steps} />
+          <StepList steps={stepsWithAmounts(recipe.steps, recipe.ingredients, factor)} />
           {recipe.steps.length > 0 && (
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'cook', id: recipe.id, servings: serves })}>
               <PotIcon size={20} /> Cook, step by step
@@ -286,12 +359,18 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       )}
 
       <section className="field" aria-label="Cooked">
+        <div className="button-row">
+          <button type="button" className="button-quiet" onClick={() => setSheet('plan')}>
+            Plan it for a day
+          </button>
+        </div>
         {afterLine === undefined ? (
           <button
             type="button"
             className="button-quiet"
             onClick={() => {
               void save({ cooked: [...(recipe.cooked ?? []).filter((day) => day !== today), today] });
+              setCookedFor(recipe.cookedFor?.[today] ?? []);
               setAfterLine('');
             }}
           >
@@ -300,6 +379,47 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         ) : (
           <div className="card">
             <p>That’s recorded.</p>
+            <span className="label">Cooked for, if you like</span>
+            <div className="chip-grid" role="group" aria-label="Cooked for">
+              {[...new Set([...people, ...cookedFor])].map((name) => {
+                const on = cookedFor.includes(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    className="chip chip--small"
+                    aria-pressed={on}
+                    onClick={() => {
+                      const next = on ? cookedFor.filter((each) => each !== name) : [...cookedFor, name];
+                      setCookedFor(next);
+                      const map = { ...(recipe.cookedFor ?? {}) };
+                      if (next.length) map[today] = next;
+                      else delete map[today];
+                      void save({ cookedFor: map });
+                    }}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+            <form
+              className="add-row"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const name = otherName.trim();
+                if (!name || cookedFor.includes(name)) return;
+                const next = [...cookedFor, name];
+                setCookedFor(next);
+                setOtherName('');
+                void save({ cookedFor: { ...(recipe.cookedFor ?? {}), [today]: next } });
+              }}
+            >
+              <input className="input" aria-label="Someone else" placeholder="Someone else" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+              <button type="submit" className="button-quiet" disabled={!otherName.trim()}>
+                Add
+              </button>
+            </form>
             <label className="field">
               <span className="label">How did you feel after? If you like</span>
               <input className="input" value={afterLine} onChange={(event) => setAfterLine(event.target.value)} placeholder="Light and full of energy" />
@@ -324,6 +444,19 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         </button>
       </section>
 
+      {sheet === 'swaps' && <Swaps ingredients={recipe.ingredients} onClose={() => setSheet(undefined)} />}
+      {sheet === 'plan' && (
+        <PlanDays
+          recipe={recipe}
+          today={today}
+          onClose={() => setSheet(undefined)}
+          onToggle={(day) => void putRecipe({ ...togglePlanned(recipe, day, today), updatedAt: new Date().toISOString() })}
+          onWeek={() => {
+            setSheet(undefined);
+            nav.go({ name: 'week' });
+          }}
+        />
+      )}
       {picking && (
         <AddToGroceries
           lines={lines}
@@ -387,6 +520,67 @@ function AddToGroceries({ lines, onClose, onAdd }: { lines: string[]; onClose: (
         <button type="button" className="button-quiet" onClick={onClose}>
           Cancel
         </button>
+      </div>
+    </div>
+  );
+}
+
+function useEscape(onClose: () => void) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+}
+
+/** Swaps for what this recipe has, shown only when asked. */
+function Swaps({ ingredients, onClose }: { ingredients: string[]; onClose: () => void }) {
+  useEscape(onClose);
+  return (
+    <div className="sheet-back" onClick={onClose}>
+      <div className="sheet" role="dialog" aria-label="Missing something?" onClick={(event) => event.stopPropagation()}>
+        <h2 className="sheet__title">Missing something?</h2>
+        <ul className="swaps">
+          {swapsFor(ingredients).map(({ line, swap }) => (
+            <li key={swap.for} className="way">
+              <div className="way__title">{swap.for}</div>
+              <p className="way__detail">{swap.use}</p>
+              <span className="way__source">
+                For {line} · {swap.source}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="button-quiet" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Put a recipe on one or more of the next seven days. */
+function PlanDays({ recipe, today, onClose, onToggle, onWeek }: { recipe: Recipe; today: string; onClose: () => void; onToggle: (day: string) => void; onWeek: () => void }) {
+  useEscape(onClose);
+  return (
+    <div className="sheet-back" onClick={onClose}>
+      <div className="sheet" role="dialog" aria-label="Plan it for a day" onClick={(event) => event.stopPropagation()}>
+        <h2 className="sheet__title">{recipe.title}</h2>
+        <div className="chip-grid" role="group" aria-label="Days">
+          {weekFrom(today).map((day) => (
+            <button key={day} type="button" className="chip" aria-pressed={Boolean(recipe.planned?.includes(day))} onClick={() => onToggle(day)}>
+              {dayLabel(day, today, true)}
+            </button>
+          ))}
+        </div>
+        <div className="button-row">
+          <button type="button" className="button-quiet" onClick={onWeek}>
+            This week
+          </button>
+          <button type="button" className="button-quiet" onClick={onClose}>
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );

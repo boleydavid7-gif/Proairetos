@@ -12,6 +12,8 @@ import { periodRange, type ReflectPeriod } from '../../core/reflections/periods'
 import { toLocalDate } from '../../core/scheduling/dates';
 import { useRuns } from '../../app/askesis/runs';
 import RunEntry from './RunEntry';
+import MealEntry from './MealEntry';
+import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
 import GentleLine from '../../components/ui/GentleLine';
@@ -112,9 +114,14 @@ export default function ReflectPage() {
   const ran = shows('askesis')
     ? (runs?.workouts ?? []).filter((entry) => entry.date >= toLocalDate(range.start) && entry.date < toLocalDate(range.end))
     : [];
+  // Meals cooked for someone, marked in SOMA, likewise.
+  const recipes = useRecipesFromSoma();
+  const cooked = shows('soma') ? cookedForBetween(recipes, toLocalDate(range.start), toLocalDate(range.end)) : [];
   const timeline = [
     ...(reflections ?? []).map((reflection) => ({ at: reflection.createdAt, reflection })),
     ...ran.map((run) => ({ at: run.createdAt, run })),
+    // A meal has a day, not a time: it sits at the end of its day.
+    ...cooked.map((meal) => ({ at: new Date(`${meal.day}T23:59:00`).toISOString(), meal })),
   ].sort((a, b) => b.at.localeCompare(a.at));
   const lastReview = all
     .filter((reflection) => reflection.promptKey === 'weekly-review')
@@ -170,7 +177,9 @@ export default function ReflectPage() {
           ) : (
             <ol className="timeline">
               {timeline.map((entry) =>
-                'run' in entry ? (
+                'meal' in entry ? (
+                  <MealEntry key={entry.meal.id} meal={entry.meal} showDay={period !== 'today'} />
+                ) : 'run' in entry ? (
                   <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />
                 ) : (
                   <TimelineEntry key={entry.reflection.id} reflection={entry.reflection} showDay={period !== 'today'} />

@@ -26,6 +26,18 @@ export type Settings = {
   usuallyHave: string[];
   /** Aisles the person chose for particular items. */
   aisleChoices: AisleChoices;
+  /** Cook mode reads each step aloud. */
+  readAloud: boolean;
+  /** Cook mode listens for "next" and "back". */
+  listen: boolean;
+  /** A moment before eating, offered after cooking; at most once a day. */
+  pauseBeforeEating: boolean;
+  /** The day it was last offered. */
+  pauseOfferedOn?: string;
+  /** "What fits your day", from the Proairetos schedule. */
+  fitsYourDay: boolean;
+  /** A thought on what is in season, on Home. */
+  seasons: boolean;
 };
 
 export const defaultSettings = (): Settings => ({
@@ -34,6 +46,11 @@ export const defaultSettings = (): Settings => ({
   waysToTry: true,
   usuallyHave: ['salt', 'black pepper', 'olive oil', 'water'],
   aisleChoices: {},
+  readAloud: false,
+  listen: false,
+  pauseBeforeEating: true,
+  fitsYourDay: true,
+  seasons: true,
 });
 
 /** When IndexedDB is unavailable, everything is kept for this visit only. */

@@ -2,8 +2,12 @@ import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { BasketIcon, BookIcon, LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
 import { dishScene, scene } from '../app/scenes';
-import { useRecipes, useSettings, useToday } from '../app/state';
-import { Brand, greeting, Hero } from '../app/ui';
+import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
+import { latitude, useBlocks } from '../app/proairetos';
+import { dayShape } from '../core/dayShape';
+import { inSeason, seasonalRecipes, SEASON_SOURCE } from '../core/seasons';
+import { plannedOn, weekFrom } from '../core/week';
+import { Brand, dayLabel, greeting, Hero } from '../app/ui';
 import { lineFor } from '../core/lines';
 import { minutesLabel, timeOf, withWhatIHave, type Recipe } from '../core/recipes';
 
@@ -27,6 +31,15 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const [have, setHave] = useState('');
   const hits = withWhatIHave(recipes, have).slice(0, 5);
   const favourites = recipes.filter((recipe) => recipe.favorite);
+  useGroceries();
+  const blocks = useBlocks(today);
+  const shape = settings.fitsYourDay ? dayShape(blocks, today, new Date()) : undefined;
+  const week = weekFrom(today)
+    .map((day) => ({ day, meals: plannedOn(recipes, day) }))
+    .filter((each) => each.meals.length > 0);
+  const produce = settings.seasons ? inSeason(new Date().getMonth(), latitude()) : [];
+  const seasonal = seasonalRecipes(recipes, produce).slice(0, 3);
+  const listDays = (days: string[]) => days.map((day) => dayLabel(day, today)).join(', ');
 
   return (
     <div className="home">
@@ -49,6 +62,19 @@ export default function HomePage({ nav }: { nav: Nav }) {
           <SearchIcon size={20} />
           <input aria-label="Search your recipes" placeholder="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
         </form>
+
+        {recipes.length > 0 && (
+          <button type="button" className="card card--link tonight-card" onClick={() => nav.go({ name: 'tonight', time: shape?.busyEvening ? 30 : undefined })}>
+            <span className="card__title">What can I make tonight?</span>
+            {shape?.today && <span className="muted">{shape.today}</span>}
+          </button>
+        )}
+        {shape && shape.lateDays.length >= 2 && recipes.length > 0 && (
+          <button type="button" className="card card--link" onClick={() => nav.go({ name: 'week', mark: recipes.some((recipe) => recipe.marks?.includes('ahead')) ? 'ahead' : undefined })}>
+            <span className="card__eyebrow">Late ones {listDays(shape.lateDays)}</span>
+            <span className="card__title">Cook once, eat twice?</span>
+          </button>
+        )}
 
         <div className="tiles">
           <button type="button" className="tile" onClick={() => nav.go({ name: 'import' })}>
@@ -108,6 +134,59 @@ export default function HomePage({ nav }: { nav: Nav }) {
                 ))}
               </ul>
             )}
+          </section>
+        )}
+
+        {recipes.length > 0 && (
+          <>
+            <div className="section-head">
+              <h2>This week</h2>
+              <button type="button" className="text-link" onClick={() => nav.go({ name: 'week' })}>
+                {week.length ? 'Open' : 'Plan a few'}
+              </button>
+            </div>
+            {week.length > 0 && (
+              <ul className="week week--small">
+                {week.map(({ day, meals }) => (
+                  <li key={day} className="week__day">
+                    <span className="week__when">{dayLabel(day, today)}</span>
+                    <span>
+                      {meals.map((meal, i) => (
+                        <button key={meal.id} type="button" className="text-link" onClick={() => nav.go({ name: 'recipe', id: meal.id })}>
+                          {meal.title}
+                          {i < meals.length - 1 ? ',' : ''}
+                        </button>
+                      ))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
+        {produce.length > 0 && (
+          <section className="season" aria-label="In season">
+            <p>
+              <span className="card__eyebrow">In season now</span> {produce.join(', ')}
+            </p>
+            {seasonal.length > 0 && (
+              <ul className="recipe-rows">
+                {seasonal.map(({ recipe, uses }) => (
+                  <li key={recipe.id}>
+                    <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
+                      <img src={recipe.image || dishScene(recipe.id)} alt="" />
+                      <span>
+                        <span className="recipe-row__title">{recipe.title}</span>
+                        <span className="recipe-row__meta">Uses {uses.join(', ')}</span>
+                      </span>
+                      <span />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <span className="way__source">{SEASON_SOURCE}</span>
           </section>
         )}
 

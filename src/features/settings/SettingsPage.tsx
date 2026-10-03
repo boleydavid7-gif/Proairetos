@@ -593,6 +593,16 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
       },
     ],
   },
+  {
+    group: 'SOMA',
+    parts: [
+      {
+        part: 'soma',
+        label: 'Meals',
+        detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.',
+      },
+    ],
+  },
 ];
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;

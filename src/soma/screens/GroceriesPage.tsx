@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { ShareIcon } from '../app/icons';
-import { newId, useGroceries } from '../app/state';
+import { newId, useGroceries, useToday } from '../app/state';
 import { Brand, Segmented, useUndo } from '../app/ui';
 import { aisles, type Aisle } from '../core/aisles';
-import { addToList, byAisle, byRecipe, listAsText, type GroceryItem } from '../core/groceries';
+import { addToList, byAisle, byRecipe, listAsText, onList, type GroceryItem } from '../core/groceries';
+import { boughtLabel, bringHome, kitchenByAge } from '../core/kitchen';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
 
 function Row({ item, onToggle, onMore }: { item: GroceryItem; onToggle: () => void; onMore: () => void }) {
@@ -32,6 +33,8 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   const [adding, setAdding] = useState('');
   const [open, setOpen] = useState<GroceryItem>();
   const [shared, setShared] = useState(false);
+  const [place, setPlace] = useState<'list' | 'kitchen'>('list');
+  const today = useToday();
   if (!items) return null;
 
   const change = (next: GroceryItem[], words?: string) => {
@@ -40,7 +43,8 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
     if (words) undo(words, () => void saveGroceries(before));
   };
   const toggle = (item: GroceryItem) => change(items.map((each) => (each.id === item.id ? { ...each, checked: !each.checked } : each)));
-  const ticked = items.filter((item) => item.checked);
+  const ticked = items.filter((item) => item.checked && onList(item));
+  const toBuy = items.filter(onList);
 
   const share = async () => {
     const text = listAsText(items);
@@ -59,6 +63,19 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
     <div className="page">
       <Brand />
       <h1 className="title">Groceries</h1>
+      <Segmented
+        label="Groceries"
+        value={place}
+        options={[
+          { id: 'list', label: 'To buy' },
+          { id: 'kitchen', label: 'In the kitchen' },
+        ]}
+        onChange={setPlace}
+      />
+      {place === 'kitchen' ? (
+        <Kitchen items={items} today={today} change={change} />
+      ) : (
+      <>
       <form
         className="add-row"
         onSubmit={(event) => {
@@ -74,7 +91,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         </button>
       </form>
 
-      {items.length === 0 ? (
+      {toBuy.length === 0 ? (
         <p className="muted">Nothing on the list. Add things here, or from a recipe’s ingredients.</p>
       ) : (
         <>
@@ -107,7 +124,15 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
               type="button"
               className="button-quiet"
               disabled={ticked.length === 0}
-              onClick={() => change(items.filter((item) => !item.checked), 'Ticked items cleared')}
+              onClick={() => change(bringHome(items, today), ticked.length === 1 ? 'Put away in the kitchen' : `${ticked.length} put away in the kitchen`)}
+            >
+              Put away
+            </button>
+            <button
+              type="button"
+              className="button-quiet"
+              disabled={ticked.length === 0}
+              onClick={() => change(items.filter((item) => !(item.checked && onList(item))), 'Ticked items cleared')}
             >
               Clear ticked
             </button>
@@ -121,6 +146,8 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
             </p>
           )}
         </>
+      )}
+      </>
       )}
 
       {open && (
@@ -182,5 +209,53 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** What is at home: added by hand or put away from the list; the longest there first, each with a plain fact. */
+function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string; change: (next: GroceryItem[], words?: string) => void }) {
+  const [adding, setAdding] = useState('');
+  const here = kitchenByAge(items);
+  return (
+    <>
+      <form
+        className="add-row"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!adding.trim()) return;
+          const added = addToList([], [{ line: adding.trim() }], loadSettings().aisleChoices, new Date().toISOString(), newId).map((item) => ({
+            ...item,
+            place: 'kitchen' as const,
+            boughtAt: today,
+          }));
+          change([...items, ...added]);
+          setAdding('');
+        }}
+      >
+        <input className="input" aria-label="Add to the kitchen" placeholder="Something at home: rice" value={adding} onChange={(event) => setAdding(event.target.value)} />
+        <button type="submit" className="button-quiet" disabled={!adding.trim()}>
+          Add
+        </button>
+      </form>
+      {here.length === 0 ? (
+        <p className="muted">Ticked groceries come here with Put away.</p>
+      ) : (
+        <ul className="check-list">
+          {here.map((item) => (
+            <li key={item.id} className="grocery-row">
+              <span className="check-row">
+                <span className="check-row__text">
+                  {item.name}
+                  <span className="check-row__amount">{boughtLabel(item.boughtAt, today)}</span>
+                </span>
+              </span>
+              <button type="button" className="text-link" onClick={() => change(items.filter((each) => each.id !== item.id), `${item.name} used up`)}>
+                Used up
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

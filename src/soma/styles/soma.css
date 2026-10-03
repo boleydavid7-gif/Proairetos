@@ -664,3 +664,176 @@
   line-height: 1.5;
   resize: vertical;
 }
+
+/* ---------- The kitchen companion ---------- */
+
+.chip--small {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.875rem;
+}
+
+.recipe-marks {
+  margin: 4px 0 10px;
+  gap: 6px;
+}
+
+.recipe-note {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 4px 0 10px;
+  padding: 10px 14px;
+  border: 0;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 12px 12px 0;
+  color: var(--text-soft);
+  font-family: var(--serif);
+  font-size: 1.05rem;
+}
+
+.timer-tray {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+.timer-tray .timer-chip {
+  margin-top: 0;
+}
+
+.tonight-card {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+.tonight-card .card__title {
+  color: var(--mint);
+}
+
+.week {
+  list-style: none;
+  margin: 8px 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.week__day {
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.week__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.week__meal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.week__title,
+.week__remove {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.week__title {
+  flex: 1;
+  text-align: left;
+  min-height: 44px;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--text);
+}
+.week__remove {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 1.3rem;
+}
+.week--small .week__day {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.week__when {
+  min-width: 4.5em;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.week--small .text-link {
+  margin-right: 6px;
+}
+
+.season {
+  margin: 16px 0;
+}
+.season p {
+  margin: 0 0 6px;
+  color: var(--text-soft);
+}
+.season .card__eyebrow {
+  display: block;
+}
+
+.swaps {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.cook__switches {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 4px 0;
+}
+.cook__step--small {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.pause-meal {
+  text-align: center;
+}
+.pause-meal__circle {
+  width: 140px;
+  height: 140px;
+  margin: 40px auto 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--mint-soft) 0%, transparent 70%);
+  border: 1px solid var(--mint);
+  animation: pause-meal 10s ease-in-out infinite;
+}
+.pause-meal__breath {
+  color: var(--text-soft);
+}
+@keyframes pause-meal {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pause-meal__circle {
+    animation: none;
+  }
+}

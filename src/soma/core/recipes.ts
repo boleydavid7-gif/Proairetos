@@ -25,9 +25,25 @@ export type Recipe = {
   favorite?: boolean;
   /** Days it was cooked (YYYY-MM-DD), newest last. */
   cooked?: string[];
+  /** Who it was cooked for, by day: { "2026-10-03": ["Mom"] }. */
+  cookedFor?: Record<string, string[]>;
+  /** The person's own marks (Quick, Comfort…), never the app's verdict. */
+  marks?: Mark[];
+  /** Days it is planned for (YYYY-MM-DD): the loose week. */
+  planned?: string[];
   createdAt: string;
   updatedAt: string;
 };
+
+export type Mark = 'quick' | 'comfort' | 'others' | 'ahead' | 'light';
+export const marks: { id: Mark; label: string }[] = [
+  { id: 'quick', label: 'Quick' },
+  { id: 'comfort', label: 'Comfort' },
+  { id: 'others', label: 'For others' },
+  { id: 'ahead', label: 'Make ahead' },
+  { id: 'light', label: 'Light' },
+];
+export const markLabel = (mark: Mark) => marks.find((each) => each.id === mark)?.label ?? mark;
 
 export type RecipeDraft = Omit<Recipe, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'tags'> & { notes?: string; tags?: string[] };
 
