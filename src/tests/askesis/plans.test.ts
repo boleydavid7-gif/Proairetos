@@ -1,6 +1,13 @@
+import { fromOldPlan } from '../../askesis/data/store';
+import { moreGradual } from '../../askesis/core/progress';
 import {
   aimWords,
   buildPath,
+  joinFor,
+  lastWeekOf,
+  ownPath,
+  placementFor,
+  suggestedLevel,
   joinWeekFor,
   weekAt,
   weekMinutes,
@@ -68,7 +75,8 @@ describe('paths toward an aim', () => {
   it('grows weekly time by under 10% over the busiest recent week, after the start', () => {
     for (const plan of paths) {
       const minutes = plan.weeks.map(weekMinutes);
-      for (let i = 10; i < plan.weeks.length; i += 1) {
+      const after = plan.weeks.findIndex((week) => week.stage !== 'Start');
+      for (let i = Math.max(1, after); i < plan.weeks.length; i += 1) {
         if (['Taper', 'Your aim'].includes(plan.weeks[i].stage)) continue;
         const before = Math.max(...minutes.slice(Math.max(0, i - 3), i));
         expect(minutes[i] / before, label(plan, i + 1)).toBeLessThanOrEqual(1.1);
@@ -130,7 +138,8 @@ describe('paths toward an aim', () => {
   it('never stalls: a path reaches its aim within a sensible number of weeks', () => {
     for (const plan of paths) {
       const most = plan.aim.kind === 'distance' && plan.aim.meters > 16000 ? 50 : 40;
-      expect(plan.weeks.length, plan.id).toBeLessThanOrEqual(plan.cycleFrom ? plan.cycleFrom + 4 : most);
+      const extra = plan.id.includes('-g') ? 5 : 0;
+      expect(plan.weeks.length, plan.id).toBeLessThanOrEqual(plan.cycleFrom ? plan.cycleFrom + 4 : most + extra);
     }
   });
 
@@ -193,5 +202,65 @@ describe('heart-rate numbers', () => {
     expect(heartRange('easy', { maxHr: 180, restingHr: 60 })).toEqual([132, 146]);
     expect(heartRange('easy', {})).toBeUndefined();
     expect(zoneRanges({ maxHr: 200 })[4]).toMatchObject({ low: 180, high: 200 });
+  });
+});
+
+describe('where to begin', () => {
+  it('suggests a level from the test, and the runner can choose another', () => {
+    expect(suggestedLevel({ walk: 'under10', run: 'none' })).toBe('beginner');
+    expect(suggestedLevel({ walk: 'over40', run: '15to30' })).toBe('beginner');
+    expect(suggestedLevel({ walk: 'over40', run: '30to60', weekly: 120 })).toBe('intermediate');
+    expect(suggestedLevel({ walk: 'over40', run: 'over60', weekly: 300 })).toBe('advanced');
+    expect(placementFor({ walk: 'under10', run: 'none' }, 'beginner')).toMatchObject({ walkFirst: true, gentler: true, startIndex: 0 });
+    expect(placementFor({ walk: 'over40', run: '5to15' }, 'beginner')).toMatchObject({ walkFirst: false, gentler: false, startIndex: 5 });
+    expect(placementFor({ walk: 'over40', run: 'over60', weekly: 300 }, 'advanced').weekly).toBe(300);
+  });
+
+  it('starts every level at its own week 1', () => {
+    const aim: Aim = { kind: 'distance', meters: 42195 };
+    for (const level of ['beginner', 'intermediate', 'advanced'] as const) {
+      const placement = placementFor({ walk: 'over40', run: level === 'beginner' ? 'none' : 'over60', weekly: 300 }, level);
+      const natural = buildPath({ aim, days: 4, walkFirst: placement.walkFirst, gentler: placement.gentler });
+      const join = joinFor(natural, placement);
+      const own = ownPath({ aim, days: 4, walkFirst: placement.walkFirst, gentler: placement.gentler, joinWeek: join, startedOn: '2026-10-05' });
+      expect(own.weeks[0].n).toBe(1);
+      expect(own.weeks[0].workouts).toEqual(natural.weeks[join - 1].workouts);
+      if (level === 'beginner') expect(own.weeks[0].stage).toBe('Start');
+      else expect(own.weeks[0].stage).not.toBe('Start');
+    }
+    const advanced = joinFor(buildPath({ aim, days: 4 }), placementFor({ walk: 'over40', run: 'over60', weekly: 300 }, 'advanced'));
+    const intermediate = joinFor(buildPath({ aim, days: 4 }), placementFor({ walk: 'over40', run: '30to60', weekly: 120 }, 'intermediate'));
+    expect(advanced).toBeGreaterThan(intermediate);
+    // Even running five hours a week, a marathon build keeps room for the long runs to grow.
+    const marathon = buildPath({ aim, days: 4 });
+    expect(lastWeekOf(marathon) - advanced + 1).toBeGreaterThanOrEqual(12);
+  });
+
+  it('puts two walking weeks first when walking is short, and a gentler start takes the bigger steps twice', () => {
+    const aim: Aim = { kind: 'distance', meters: 5000 };
+    const plain = buildPath({ aim, days: 3 });
+    const walking = buildPath({ aim, days: 3, walkFirst: true });
+    expect(walking.weeks.length).toBe(plain.weeks.length + 2);
+    expect(walking.weeks[0].workouts.every((w) => w.kind === 'walk')).toBe(true);
+    const gentle = buildPath({ aim, days: 3, gentler: true });
+    expect(gentle.weeks.filter((w) => w.stage === 'Start').length).toBe(15);
+  });
+});
+
+describe('taking it more gradually', () => {
+  it('keeps the runner on their week number and adds weeks', () => {
+    const state = { aim: { kind: 'distance', meters: 10000 } as Aim, days: 3, joinWeek: 1, startedOn: '2026-10-05', week: 6 };
+    const offer = moreGradual(state);
+    expect(offer?.addedWeeks).toBeGreaterThan(0);
+    const after = ownPath({ ...state, gentler: true, joinWeek: offer!.joinWeek });
+    expect(weekAt(after, 6).startIndex).toBe(weekAt(ownPath(state), 6).startIndex);
+    expect(moreGradual({ ...state, gentler: true })).toBeUndefined();
+    expect(moreGradual({ ...state, raceDate: '2027-03-01' })).toBeUndefined();
+  });
+
+  it('counts older plans from the runner’s own week 1', () => {
+    const migrated = fromOldPlan({ aim: { kind: 'distance', meters: 10000 }, days: 3, weekdays: [1, 3, 5], week: 14, joinWeek: 11, weekOf: '2026-10-05', moves: {}, startedOn: '2026-09-01' } as never);
+    expect(migrated.week).toBe(4);
+    expect(fromOldPlan(migrated).week).toBe(4);
   });
 });

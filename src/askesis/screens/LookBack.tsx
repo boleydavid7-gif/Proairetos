@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { compassService } from '../../app/services';
 import { addDays, mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { pathFor, startPlan, updatePlan } from '../app/state';
+import { startPlan, updatePlan } from '../app/state';
 import { useUndo } from '../app/ui';
 import type { LogEntry } from '../core/log';
 import { formatHours } from '../core/pace';
-import { aimWords, joinWeekFor, type Plan } from '../core/plans';
+import { aimWords, buildPath, joinWeekFor, type Plan } from '../core/plans';
 import type { PlanState } from '../data/store';
 
 /**
@@ -30,7 +30,7 @@ export default function LookBack({
   const [reached, setReached] = useState(false);
   const since = entries.filter((entry) => entry.date >= state.startedOn);
   const seconds = since.reduce((sum, entry) => sum + (entry.seconds ?? 0), 0);
-  const first = plan.weeks[Math.max(1, state.joinWeek) - 1]?.workouts.find((w) => w.kind !== 'walk');
+  const first = plan.weeks[0]?.workouts.find((w) => w.kind !== 'walk');
   const last = plan.weeks[plan.weeks.length - 1]?.workouts.find((w) => w.kind === 'race' || w.kind === 'long') ?? plan.weeks[plan.weeks.length - 1]?.workouts.at(-1);
   const monday = mondayOnOrBefore(today);
 
@@ -41,7 +41,7 @@ export default function LookBack({
   const keepRunning = () => {
     const before = state;
     const steady = { aim: { kind: 'steady' as const }, days: state.days };
-    const path = pathFor({ ...state, ...steady, raceDate: undefined, joinWeek: 1 });
+    const path = buildPath(steady);
     startPlan({ ...steady, weekdays: state.weekdays, week: joinWeekFor(path, weekly || 120) }, today, { goalId: state.goalId });
     undo('Keeping a steady rhythm', () => updatePlan(before));
   };
@@ -53,7 +53,7 @@ export default function LookBack({
       <ul className="look-back__facts">
         {first && (
           <li>
-            Where you began: week {state.joinWeek}, {first.summary.charAt(0).toLowerCase() + first.summary.slice(1)}.
+            Where you began: {first.summary.charAt(0).toLowerCase() + first.summary.slice(1)}.
           </li>
         )}
         {last && <li>The last week: {last.title.toLowerCase()}.</li>}

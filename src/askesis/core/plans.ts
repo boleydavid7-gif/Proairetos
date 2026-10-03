@@ -36,8 +36,10 @@ export type Aim =
 export type PathChoice = {
   aim: Aim;
   days: number;
-  /** Slower growth: about 5% a week instead of about 7.5%. */
+  /** Slower growth: about 5% a week instead of about 7.5%, and the walk-run weeks with the bigger steps taken twice. */
   gentler?: boolean;
+  /** Two weeks of walking before the first walk-run, for anyone who walks less than ten minutes at a time now. */
+  walkFirst?: boolean;
   /** A race or event on this date: the path counts back to it. */
   raceDate?: string;
   /** Needed with a date: the week joined and today's date. */
@@ -49,6 +51,8 @@ export type Stage = 'Start' | 'Base' | 'Build' | 'Hold' | 'Shape' | 'Taper' | 'Y
 
 export type PlanWeek = {
   n: number;
+  /** In the walk-run start: which of its ten steps this week is (0 for the walking weeks before it). */
+  startIndex?: number;
   stage: Stage;
   theme: string;
   easier: boolean;
@@ -246,33 +250,60 @@ function describeWalkRun(parts: Part[]): string {
   return `Run ${first.minutes} minutes without stopping`;
 }
 
-/** Weeks 1-10 of every path: walk-run to 30 minutes. Extra days are brisk walks. */
-function startWeeks(id: string, days: number): PlanWeek[] {
-  return beginnerWeeks.map(([theme, a, b, c], index) => {
-    const n = index + 1;
+/** Walk-run steps taken twice on a gentler path: the ones with the bigger jumps. */
+const gentlerTwice = new Set([3, 5, 6, 7, 8]);
+
+/** The walking weeks before the walk-run, when they are wanted: [theme, minutes of the three walks]. */
+const walkingWeeks: [string, number[]][] = [
+  ['Walking first', [10, 15, 15]],
+  ['Walking a little further', [15, 20, 25]],
+];
+
+/**
+ * The start of every path: walk-run to 30 minutes, in ten steps. Extra days
+ * are brisk walks. Walking weeks can come first, and a gentler path takes the
+ * bigger steps twice.
+ */
+function startWeeks(id: string, days: number, gentler = false, walkFirst = false): PlanWeek[] {
+  const walk = (minutes: number): Draft => ({
+    kind: 'walk',
+    title: 'Brisk walk',
+    summary: 'Easy aerobic time, no running',
+    parts: [step('walk', minutes)],
+  });
+  const plan: { theme: string; startIndex: number; sessions: Draft[]; easier: boolean }[] = [];
+  if (walkFirst)
+    for (const [theme, minutes] of walkingWeeks) plan.push({ theme, startIndex: 0, easier: false, sessions: minutes.map(walk) });
+  beginnerWeeks.forEach(([theme, a, b, c], index) => {
     const session = (parts: Part[]): Draft => ({
       kind: 'walk-run',
       title: parts.length === 1 && !('repeat' in parts[0]) ? 'Easy run' : 'Walk-run',
       summary: describeWalkRun(parts),
       parts: [step('walk', 5, 'Warm up'), ...parts, step('walk', 5, 'Cool down')],
     });
-    const walk = (minutes: number): Draft => ({
-      kind: 'walk',
-      title: 'Brisk walk',
-      summary: 'Easy aerobic time, no running',
-      parts: [step('walk', minutes)],
-    });
     const runs = [session(a), session(b), session(c)];
+    const startIndex = index + 1;
+    plan.push({ theme, startIndex, easier: startIndex === 4, sessions: runs });
+    if (gentler && gentlerTwice.has(startIndex)) plan.push({ theme: `${theme}, once more`, startIndex, easier: false, sessions: runs });
+  });
+  return plan.map(({ theme, startIndex, easier, sessions }, index) => {
+    const n = index + 1;
+    const fill = (minutes: number) => walk(minutes);
     const drafts: Draft[] =
-      days >= 6
-        ? [runs[0], walk(30), runs[1], walk(25), runs[2], walk(35)]
-        : days === 5
-          ? [runs[0], walk(30), runs[1], walk(25), runs[2]]
+      startIndex === 0
+        ? days >= 5
+          ? [...sessions, fill(20), fill(15)].slice(0, Math.min(days, 5))
           : days === 4
-            ? [runs[0], runs[1], walk(30), runs[2]]
-            : runs;
-    const stage: Stage = 'Start';
-    return { n, stage, theme, easier: n === 4, workouts: drafts.map((draft, i) => finish(id, n, i, draft)) };
+            ? [sessions[0], sessions[1], fill(15), sessions[2]]
+            : sessions
+        : days >= 6
+          ? [sessions[0], fill(30), sessions[1], fill(25), sessions[2], fill(35)]
+          : days === 5
+            ? [sessions[0], fill(30), sessions[1], fill(25), sessions[2]]
+            : days === 4
+              ? [sessions[0], sessions[1], fill(30), sessions[2]]
+              : sessions;
+    return { n, stage: 'Start' as Stage, startIndex, theme, easier, workouts: drafts.map((draft, i) => finish(id, n, i, draft)) };
   });
 }
 
@@ -493,7 +524,7 @@ function pathId(choice: PathChoice, growth: Growth): string {
   const aim = choice.aim;
   const what = aim.kind === 'time' ? `t${aim.minutes}` : aim.kind === 'distance' ? `d${Math.round(aim.meters)}` : 'steady';
   const fit = growth.limit !== undefined ? `-l${growth.limit}` : growth.hold ? `-h${growth.hold}` : '';
-  return `path-${what}-${choice.days}${choice.gentler ? '-g' : ''}${fit}`;
+  return `path-${what}-${choice.days}${choice.gentler ? '-g' : ''}${choice.walkFirst ? '-w' : ''}${fit}`;
 }
 
 /** The longest stretch of running without a walk, in minutes. */
@@ -505,11 +536,12 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   const days = Math.min(6, Math.max(3, Math.round(choice.days)));
   const aim = choice.aim;
   const id = pathId({ ...choice, days }, growth);
-  const weeks: PlanWeek[] = startWeeks(id, days);
+  const weeks: PlanWeek[] = startWeeks(id, days, choice.gentler, choice.walkFirst);
+  const firstLong = weeks.findIndex((week) => week.startIndex === 8);
 
   // Aims up to 30 minutes are met within the walk-run start.
   if (aim.kind === 'time' && aim.minutes <= 30) {
-    const end = Math.max(7, weeks.findIndex((week) => longestRun(week) >= aim.minutes));
+    const end = Math.max(firstLong, weeks.findIndex((week) => longestRun(week) >= aim.minutes));
     const kept = weeks.slice(0, end + 1);
     kept[end] = { ...kept[end], stage: 'Your aim', theme: aimWords(aim) };
     return { id, aim, days, weeks: kept, growthWeeks: 0 };
@@ -519,7 +551,7 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   const longAim = aim.kind === 'distance' && aim.meters >= 15000;
   const marathon = aim.kind === 'distance' && aim.meters >= 35000;
   const warmUp = longAim ? 15 : 10;
-  const startMinutes = weekMinutes(weeks[9]);
+  const startMinutes = weekMinutes(weeks[weeks.length - 1]);
   const need = needs(aim, days, startMinutes);
   const rate = choice.gentler ? 1.05 : 1.075;
   const extra = (strides: boolean) => ({
@@ -713,11 +745,16 @@ export function buildPath(choice: PathChoice): Plan {
   return { ...strip(generate(choice, { limit })), fit: 'shortened' };
 }
 
+/** The number of the last week listed. */
+export const lastWeekOf = (plan: Plan): number => plan.weeks.at(-1)?.n ?? 0;
+
 /** A week by its number; steady paths go round their rhythm after the last week. */
 export function weekAt(plan: Plan, n: number): PlanWeek {
-  if (n <= plan.weeks.length) return plan.weeks[Math.max(1, n) - 1];
+  const first = plan.weeks[0]?.n ?? 1;
+  const last = lastWeekOf(plan);
+  if (n <= last) return plan.weeks[Math.max(0, n - first)];
   if (plan.cycleFrom) {
-    const cycle = plan.weeks.slice(plan.cycleFrom - 1);
+    const cycle = plan.weeks.filter((week) => week.n >= plan.cycleFrom!);
     return { ...cycle[(n - plan.cycleFrom) % cycle.length], n };
   }
   return plan.weeks[plan.weeks.length - 1];
@@ -725,22 +762,134 @@ export function weekAt(plan: Plan, n: number): PlanWeek {
 
 /** Whether the path is finished at week n: its aim week is done and nothing follows. */
 export function isLastWeek(plan: Plan, n: number): boolean {
-  return !plan.cycleFrom && n >= plan.weeks.length;
+  return !plan.cycleFrom && n >= lastWeekOf(plan);
 }
 
 /**
- * Where someone joins, from how much they run now (minutes a week). Not yet
- * running: week 1. About 30 minutes at a time: the week after the start.
- * More: the week whose time is closest without going over.
+ * Where someone joins, from how much they run now (minutes a week): the
+ * growing week whose time is closest without going over.
  */
-export function joinWeekFor(plan: Plan, weeklyMinutes: number): number {
+export function joinWeekFor(plan: Plan, weeklyMinutes: number, longestRun?: number): number {
   if (weeklyMinutes <= 0) return 1;
   const growing = plan.weeks.filter((week) => week.stage === 'Base' || week.stage === 'Build' || week.stage === 'Hold' || week.stage === 'Keep going');
   // A short aim reached within the walk-run weeks: someone already running is at its end.
   if (growing.length === 0) return plan.weeks.length;
   let join = growing[0].n;
-  for (const week of growing) if (!week.easier && weekMinutes(week) <= weeklyMinutes * 1.05) join = week.n;
+  // The longest session matters too: a long run more than 15 minutes past what they run now is a week for later.
+  const reachable = (week: PlanWeek) =>
+    longestRun === undefined || Math.max(...week.workouts.map((workout) => totalMinutes(workout.parts))) <= longestRun + 15;
+  for (const week of growing) {
+    if (!reachable(week)) break;
+    if (!week.easier && weekMinutes(week) <= weeklyMinutes * 1.05) join = week.n;
+  }
   return join;
+}
+
+/** The first week after the walk-run start, or the last week when the aim is met within it. */
+export function firstAfterStart(plan: Plan): number {
+  return plan.weeks.find((week) => week.stage !== 'Start')?.n ?? lastWeekOf(plan);
+}
+
+/**
+ * The runner's own path: the full path toward the aim, seen from the week
+ * they joined at, which becomes their week 1. Ids stay as they are, so what
+ * was logged stays with its session.
+ */
+export function fromWeek(plan: Plan, joinWeek: number): Plan {
+  const shift = joinWeek - 1;
+  if (shift === 0) return plan;
+  return {
+    ...plan,
+    weeks: plan.weeks.filter((week) => week.n > shift).map((week) => ({ ...week, n: week.n - shift })),
+    cycleFrom: plan.cycleFrom ? Math.max(1, plan.cycleFrom - shift) : undefined,
+  };
+}
+
+export type OwnPath = Omit<PathChoice, 'joinWeek' | 'today'> & { joinWeek: number; startedOn: string };
+
+export function ownPath(state: OwnPath): Plan {
+  const natural = buildPath({
+    aim: state.aim,
+    days: state.days,
+    gentler: state.gentler,
+    walkFirst: state.walkFirst,
+    raceDate: state.raceDate,
+    joinWeek: Math.max(1, state.joinWeek),
+    today: state.startedOn,
+  });
+  return fromWeek(natural, state.joinWeek);
+}
+
+/** In the full path, the week that matches where the runner is in another one (same walk-run step, or the same weekly time). */
+export function matchingWeek(from: PlanWeek, to: Plan): number {
+  if (from.stage === 'Start' && from.startIndex !== undefined)
+    return to.weeks.find((week) => week.startIndex === from.startIndex)?.n ?? 1;
+  return Math.max(firstAfterStart(to), joinWeekFor(to, weekMinutes(from)));
+}
+
+// ---------- Where to begin ----------
+
+export type WalkNow = 'under10' | '10to20' | '20to40' | 'over40';
+export type RunNow = 'none' | 'under5' | '5to15' | '15to30' | '30to60' | 'over60';
+export type Level = 'beginner' | 'intermediate' | 'advanced';
+export type StartTest = { walk: WalkNow; run: RunNow; weekly?: number };
+
+export const walkChoices: { id: WalkNow; label: string }[] = [
+  { id: 'under10', label: 'Under 10 minutes' },
+  { id: '10to20', label: '10 to 20 minutes' },
+  { id: '20to40', label: '20 to 40 minutes' },
+  { id: 'over40', label: 'Over 40 minutes' },
+];
+
+export const runChoices: { id: RunNow; label: string; minutes: number }[] = [
+  { id: 'none', label: 'Not yet', minutes: 0 },
+  { id: 'under5', label: 'Under 5 minutes', minutes: 2 },
+  { id: '5to15', label: '5 to 15 minutes', minutes: 5 },
+  { id: '15to30', label: '15 to 30 minutes', minutes: 15 },
+  { id: '30to60', label: '30 minutes to an hour', minutes: 30 },
+  { id: 'over60', label: 'Over an hour', minutes: 60 },
+];
+
+/** A run time in minutes, as one of the answers. */
+export function runAnswerFor(minutes: number): RunNow {
+  if (minutes < 1) return 'none';
+  if (minutes < 5) return 'under5';
+  if (minutes < 15) return '5to15';
+  if (minutes < 30) return '15to30';
+  if (minutes < 60) return '30to60';
+  return 'over60';
+}
+
+/** The level the answers suggest; the runner can pick another. */
+export function suggestedLevel(test: StartTest): Level {
+  if (test.run === 'over60' && (test.weekly ?? 0) >= 240) return 'advanced';
+  if (test.run === '30to60' || test.run === 'over60') return 'intermediate';
+  return 'beginner';
+}
+
+/** Walk-run steps by how long someone runs now. */
+const startStepFor: Record<RunNow, number> = { none: 1, under5: 3, '5to15': 5, '15to30': 8, '30to60': 9, over60: 9 };
+
+export type Placement = { walkFirst: boolean; gentler: boolean; startIndex?: number; weekly?: number; longest?: number };
+
+/** What a level means for this runner: where week 1 begins, and whether walking comes first. */
+export function placementFor(test: StartTest, level: Level): Placement {
+  const short = test.walk === 'under10';
+  if (level === 'beginner') {
+    const walkFirst = short && test.run === 'none';
+    return { walkFirst, gentler: short || test.walk === '10to20', startIndex: walkFirst ? 0 : startStepFor[test.run] };
+  }
+  const weekly = Math.max(level === 'advanced' ? 180 : 60, test.weekly ?? (level === 'advanced' ? 240 : 120));
+  // About the longest run they do now, from the answer (the top of a range is not assumed).
+  const longest = test.run === 'over60' ? (level === 'advanced' ? 90 : 75) : test.run === '30to60' ? 45 : 30;
+  return { walkFirst: false, gentler: false, weekly, longest };
+}
+
+/** The week of the full path where a placement begins. */
+export function joinFor(plan: Plan, placement: Placement): number {
+  if (placement.startIndex !== undefined)
+    return plan.weeks.find((week) => week.startIndex === placement.startIndex)?.n ?? 1;
+  return Math.max(firstAfterStart(plan), joinWeekFor(plan, placement.weekly ?? 120, placement.longest));
 }
 
 /** The stages in order, each with its first and last week. */

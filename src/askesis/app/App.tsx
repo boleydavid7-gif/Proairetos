@@ -9,6 +9,7 @@ import LogPage from '../screens/LogPage';
 import EntryPage from '../screens/EntryPage';
 import MorePage from '../screens/MorePage';
 import MusicPage from '../screens/MusicPage';
+import TestPage from '../screens/TestPage';
 import WorkoutPage from '../screens/WorkoutPage';
 import GuidePage from '../screens/GuidePage';
 import WelcomePage from '../screens/WelcomePage';
@@ -27,6 +28,7 @@ export type Route =
   | { name: 'article'; id: string }
   | { name: 'zones' }
   | { name: 'music' }
+  | { name: 'test' }
   | { name: 'pace' }
   | { name: 'settings' }
   | { name: 'data' }
@@ -120,6 +122,8 @@ export default function App() {
         return <EntryPage nav={nav} route={route} plan={plan} />;
       case 'article':
         return <ArticlePage nav={nav} id={route.id} />;
+      case 'test':
+        return <TestPage nav={nav} />;
       case 'music':
         return <MusicPage nav={nav} />;
       case 'zones':
@@ -137,7 +141,7 @@ export default function App() {
     }
   })();
 
-  const showTabs = !['welcome', 'safety', 'guide'].includes(route.name) && !(route.name === 'plan' && route.first);
+  const showTabs = !['welcome', 'safety', 'guide', 'test'].includes(route.name) && !(route.name === 'plan' && route.first);
   return (
     <UndoProvider>
       <div className={`shell${showTabs ? ' shell--tabs' : ''}`}>

@@ -298,12 +298,26 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   week; time aims end on the week whose long run is the aim. A date counts
   back (`fit`: hold weeks or fewer growth weeks, never faster). Growth stops
   when the chosen days hold no more (4 building weeks without more time).
-  Setting an aim (`PlanPage`) is three steps: Where you are now (how long
-  they can run without stopping: not yet = week 1, a few minutes = 5,
-  10-15 = 7, 20-30 = 9; longer asks hours a week -> `joinWeekFor`, week 11+;
-  "Carry on from week N" when editing, walk-run weeks keep their number),
-  Where you want to be, Your plan (days, date, gentler). A time aim they can
+  Everyone begins at their own week 1: `ownPath` takes the full path from the
+  week they joined (`fromWeek`, ids kept so logs stay linked; `joinWeek` can
+  be below 1 after a change partway; `weekAt` finds weeks by number; older
+  plans migrate once, `numbering: 'own'`). Setting an aim (`PlanPage`) is three
+  steps: Where you are now (a test: how long they walk briskly and run at
+  once, weekly hours if 30+ min; `suggestedLevel` -> Beginner/Intermediate/
+  Advanced, changeable; `placementFor` + `joinFor` place week 1, using the
+  longest run too so long runs have room; or "Carry on from week N"; "Try a
+  test run" (`TestPage`: walk 5 min, run until you'd walk) fills the run
+  answer), Where you want to be, Your plan. Short walkers get two walking
+  weeks first (`walkFirst`); a gentler path also takes the bigger walk-run
+  steps twice (`startIndex` marks walk-run steps). A time aim they can
   already run says so. Keep explanation lines out of Askesis screens.
+  When a week is taken again (`PlanState.again`) or runs felt hard, the
+  new-week card offers "More gradually" (`moreGradual`: gentler path, same
+  week number, weeks added; not with a date).
+  The session screen: title, length, a session bar (`app/SessionBar`, also
+  small on Home and Train), plain lines (`sessionLines`: Run/Walk), Start,
+  then Log it / Lighter today, and Step by step, Why, Tips and the
+  intention folded below.
   Each new week reads the log (`core/progress.ts`, `suggestWeek`): walk-run
   weeks move on when most sessions were logged; later, a week run as written
   suggests the next, clearly more carries ahead to the furthest growing week

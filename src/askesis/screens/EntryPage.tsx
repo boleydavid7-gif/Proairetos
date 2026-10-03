@@ -8,7 +8,7 @@ import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import { layOut } from '../core/week';
 import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
 import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
-import type { Plan } from '../core/plans';
+import { weekAt, type Plan } from '../core/plans';
 import { tap } from '../../app/feel';
 import { deleteEntry, putEntry } from '../data/store';
 import { locate } from './WorkoutPage';
@@ -73,7 +73,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
   const open =
     !existing && !route.workoutId && plan && planState && entries && mondayOnOrBefore(date) === mondayOnOrBefore(today)
       ? layOut(
-          plan.weeks[Math.min(planState.week, plan.weeks.length) - 1],
+          weekAt(plan, planState.week),
           today,
           planState.weekdays,
           planState.moves,

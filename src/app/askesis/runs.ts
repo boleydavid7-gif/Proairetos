@@ -3,7 +3,7 @@ import type { LogEntry } from '../../askesis/core/log';
 import { activities } from '../../askesis/core/log';
 import { asToday } from '../../askesis/core/gentler';
 import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pace';
-import { buildPath, weekAt } from '../../askesis/core/plans';
+import { ownPath, weekAt } from '../../askesis/core/plans';
 import { layOut } from '../../askesis/core/week';
 import { addDays, atTime, mondayOnOrBefore as mondayOf, toLocalDate } from '../../core/scheduling/dates';
 import type { RunTime } from '../../core/notify/notices';
@@ -71,14 +71,7 @@ export function useRuns(): Runs | undefined {
 export function todaysRun(runs: Runs | undefined, today: string): Workout | undefined {
   const state = runs?.plan;
   if (!state) return undefined;
-  const plan = buildPath({
-    aim: state.aim,
-    days: state.days,
-    gentler: state.gentler,
-    raceDate: state.raceDate,
-    joinWeek: state.joinWeek,
-    today: state.startedOn,
-  });
+  const plan = ownPath(state);
   // A rest week the person chose: nothing planned.
   if (state.restWeek === mondayOf(today)) return undefined;
   const week = weekAt(plan, state.week);
@@ -96,14 +89,7 @@ export function todaysRun(runs: Runs | undefined, today: string): Workout | unde
 export function runTimes(runs: Runs, now: Date, until: Date): RunTime[] {
   const state = runs.plan;
   if (!state?.runAt) return [];
-  const plan = buildPath({
-    aim: state.aim,
-    days: state.days,
-    gentler: state.gentler,
-    raceDate: state.raceDate,
-    joinWeek: state.joinWeek,
-    today: state.startedOn,
-  });
+  const plan = ownPath(state);
   const today = toLocalDate(now);
   const thisMonday = mondayOf(today);
   const out: RunTime[] = [];

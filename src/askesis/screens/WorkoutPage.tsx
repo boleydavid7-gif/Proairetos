@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { ClockIcon, ListIcon, PulseIcon } from '../app/icons';
 import { kindScene, scene } from '../app/scenes';
 import { useEntries, useSettings, useToday } from '../app/state';
-import { BackLink, dayLabel, Hero, Segmented } from '../app/ui';
+import { BackLink, dayLabel, Hero } from '../app/ui';
+import SessionBar, { SessionKey } from '../app/SessionBar';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
 import { defaultWeekdays, examplePath, findWorkout, type Plan } from '../core/plans';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { intentionPrompt, raceDayLine } from '../core/stoic';
-import { isSet, lengthLabel, mainEffort, partLabel, totalMinutes, type Part } from '../core/workouts';
+import { isSet, lengthLabel, mainEffort, partLabel, sessionLines, totalMinutes, type Part } from '../core/workouts';
 import { heartRange } from '../core/zones';
 import type { PlanState } from '../data/store';
 import { asToday, canLighten } from '../core/gentler';
@@ -32,7 +32,6 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
   const settings = useSettings();
   const today = useToday();
   const entries = useEntries() ?? [];
-  const [tab, setTab] = useState<'tips' | 'why'>('why');
   const [intention, setIntention] = useState('');
   const found = locate(id, plan);
   if (!found)
@@ -51,6 +50,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
   const race = workout.kind === 'race';
   const mine = Boolean(plan && planState && found.plan.id === plan.id);
   const effort = mainEffort(workout.parts);
+  const weekday = weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]];
 
   return (
     <div className="workout">
@@ -59,25 +59,27 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
       </Hero>
       <div className="page page--under-hero">
         <h1 className="title">{workout.title}</h1>
-        {mine && planState?.why && <p className="own-words">“{planState.why}”</p>}
         <p className="muted">
-          Week {week.n} · {weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]]} ·{' '}
-          {week.stage}
+          {[!race && lengthLabel(totalMinutes(workout.parts)), weekday, `Week ${week.n}`].filter(Boolean).join(' · ')}
         </p>
+        {mine && planState?.why && <p className="own-words">“{planState.why}”</p>}
 
-        <ul className="facts">
-          {!race && (
-            <li>
-              <ClockIcon size={18} /> {lengthLabel(totalMinutes(workout.parts))}
-            </li>
-          )}
-          <li>
-            <PulseIcon size={18} /> {efforts[effort].name}: {efforts[effort].talk.toLowerCase()}
-          </li>
-          <li>
-            <ListIcon size={18} /> {workout.summary}
-          </li>
-        </ul>
+        {race ? (
+          <p className="card stoic-note">{raceDayLine}</p>
+        ) : (
+          <>
+            <SessionBar parts={workout.parts} />
+            <SessionKey parts={workout.parts} />
+            <ol className="session-lines">
+              {sessionLines(workout.parts).map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ol>
+            <p className="muted">
+              {efforts[effort].name}: {efforts[effort].talk.charAt(0).toLowerCase() + efforts[effort].talk.slice(1)}
+            </p>
+          </>
+        )}
 
         {done && (
           <button type="button" className="card card--link done-note" onClick={() => nav.go({ name: 'entry', id: done.id })}>
@@ -86,75 +88,65 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
           </button>
         )}
 
-        {race && <p className="card stoic-note">{raceDayLine}</p>}
+        <div className="session-start">
+          {!race && (
+            <button type="button" className="button-main" onClick={() => nav.go({ name: 'guide', id: workout.id, intention: intention.trim() || undefined })}>
+              Start
+            </button>
+          )}
+          <div className="link-row">
+            <button
+              type="button"
+              className={race ? 'button-main' : 'text-link'}
+              onClick={() => nav.go({ name: 'entry', workoutId: workout.id, intention: intention.trim() || undefined })}
+            >
+              {race ? 'Log your race' : 'Log it'}
+            </button>
+            {mine && !done && (lighter || canLighten(full)) && (
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => updatePlan({ lighter: lighter ? undefined : { date: today, workoutId: full.id } })}
+              >
+                {lighter ? 'Back to the full session' : 'Lighter today'}
+              </button>
+            )}
+          </div>
+          {lighter && <p className="hint">Just for today.</p>}
+        </div>
 
         {!race && (
-          <section className="card" aria-label="The session">
-            <h2 className="card__title card__title--small">The session</h2>
+          <details className="more-about">
+            <summary>Step by step</summary>
             <ol className="steps">
               {workout.parts.map((part, i) => (
                 <StepRow key={i} part={part} heart={settings} />
               ))}
             </ol>
-          </section>
+          </details>
         )}
-
-        <Segmented
-          label="About this session"
-          value={tab}
-          options={[
-            { id: 'why', label: 'Why it’s here' },
-            { id: 'tips', label: 'Tips' },
-          ]}
-          onChange={setTab}
-          small
-        />
-        <div className="card">
-          {tab === 'why' ? (
-            <p>{workout.why}</p>
-          ) : (
-            <ul className="tips">
-              {workout.tips.map((tip) => (
-                <li key={tip}>{tip}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <label className="field">
-          <span className="label">{intentionPrompt}</span>
+        <details className="more-about">
+          <summary>Why it’s here</summary>
+          <p>{workout.why}</p>
+        </details>
+        <details className="more-about">
+          <summary>Tips</summary>
+          <ul className="tips">
+            {workout.tips.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+        </details>
+        <details className="more-about">
+          <summary>{intentionPrompt}</summary>
           <input
             className="input"
+            aria-label={intentionPrompt}
             value={intention}
             placeholder="Optional. For example: an easy start."
             onChange={(event) => setIntention(event.target.value)}
           />
-        </label>
-
-        <div className="actions">
-          {!race && (
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'guide', id: workout.id, intention: intention.trim() || undefined })}>
-              Start with the guide
-            </button>
-          )}
-          <button
-            type="button"
-            className={race ? 'button-main' : 'button-quiet'}
-            onClick={() => nav.go({ name: 'entry', workoutId: workout.id, intention: intention.trim() || undefined })}
-          >
-            {race ? 'Log your race' : 'I did it on my own · Log it'}
-          </button>
-          {mine && !done && (lighter || canLighten(full)) && (
-            <button
-              type="button"
-              className="text-link lighter-link"
-              onClick={() => updatePlan({ lighter: lighter ? undefined : { date: today, workoutId: full.id } })}
-            >
-              {lighter ? 'Back to the full session' : 'Lighter today'}
-            </button>
-          )}
-        </div>
-        {lighter && <p className="hint">Just for today.</p>}
+        </details>
       </div>
     </div>
   );

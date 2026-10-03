@@ -4,7 +4,26 @@ import type { Nav } from '../app/App';
 import { pathFor, startPlan, useEntries, usePlanState, useSettings, useToday } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { inUnit, METERS } from '../core/pace';
-import { aimDistances, aimWords, buildPath, defaultWeekdays, joinWeekFor, weekAt, weekMinutes, type Aim, type Plan } from '../core/plans';
+import {
+  aimDistances,
+  aimWords,
+  buildPath,
+  defaultWeekdays,
+  fromWeek,
+  joinFor,
+  lastWeekOf,
+  matchingWeek,
+  placementFor,
+  runChoices,
+  suggestedLevel,
+  walkChoices,
+  weekAt,
+  type Aim,
+  type Level,
+  type RunNow,
+  type StartTest,
+  type WalkNow,
+} from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
 import GoalLink, { moveGoalTime } from './GoalLink';
 
@@ -13,44 +32,35 @@ const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 type Kind = Aim['kind'];
 type Step = 'now' | 'aim' | 'plan';
 
-/** How long someone can run without stopping today. */
-type Ability = 'carry' | 'none' | 'few' | 'ten' | 'twenty' | 'half' | 'hour';
-
-const abilities: {
-  id: Exclude<Ability, 'carry'>;
-  label: string;
-  minutes: number;
-  week?: number;
-}[] = [
-  { id: 'none', label: 'Not yet', minutes: 0, week: 1 },
-  { id: 'few', label: 'A few minutes', minutes: 3, week: 5 },
-  { id: 'ten', label: '10 to 15 minutes', minutes: 10, week: 7 },
-  { id: 'twenty', label: '20 to 30 minutes', minutes: 20, week: 9 },
-  { id: 'half', label: '30 minutes to an hour', minutes: 30 },
-  { id: 'hour', label: 'Over an hour', minutes: 60 },
-];
 const weeklyChoices = [60, 120, 180, 240, 300];
 const timeChoices = [20, 30, 45, 60, 90, 120];
+const levelNames: Record<Level, string> = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
 
 const sameAim = (a: Aim, b: Aim) => JSON.stringify(a) === JSON.stringify(b);
 const isKnown = (meters: number) => aimDistances.some((d) => Math.abs(d.meters - meters) < 5);
 
-/** The week someone joins a path at, from where they are now. */
-function joinFor(plan: Plan, ability: Ability, weekly: number, carryWeek: number, carryWeekly: number): number {
-  const last = plan.weeks.length;
-  if (ability === 'carry') {
-    // Still in the walk-run weeks: those are the same on every path, so the week stays.
-    if (carryWeek <= 10) return Math.min(last, carryWeek);
-    return Math.min(last, Math.max(11, joinWeekFor(plan, carryWeekly)));
+/** The answers so far, kept on the phone so a test run can come back to them. */
+const TEST_KEY = 'askesis:startTest';
+type Draft = { walk?: WalkNow; run?: RunNow };
+function readDraft(): Draft {
+  try {
+    return JSON.parse(localStorage.getItem(TEST_KEY) ?? '{}') as Draft;
+  } catch {
+    return {};
   }
-  const fixed = abilities.find((each) => each.id === ability)?.week;
-  if (fixed) return Math.min(last, fixed);
-  return Math.min(last, Math.max(11, joinWeekFor(plan, weekly)));
+}
+function writeDraft(draft: Draft) {
+  try {
+    localStorage.setItem(TEST_KEY, JSON.stringify(draft));
+  } catch {
+    // Only a convenience.
+  }
 }
 
 /**
- * Setting an aim in three steps: where the person is now, where they want to
- * be, and the plan between. The path is redrawn whenever any of it changes.
+ * Setting an aim in three steps: where the person is now (a short test that
+ * suggests a level), where they want to be, and the plan between. Every
+ * level begins at its own week 1.
  */
 export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) {
   const today = useToday();
@@ -70,9 +80,13 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
   const fromLog = Math.round(logged / 60 / 2);
   const nearestWeekly = weeklyChoices.reduce((best, each) => (Math.abs(each - fromLog) < Math.abs(best - fromLog) ? each : best));
 
+  const draft = useMemo(readDraft, []);
   const [step, setStep] = useState<Step>('now');
-  const [ability, setAbility] = useState<Ability | undefined>(current ? 'carry' : undefined);
+  const [carry, setCarry] = useState(Boolean(current) && !draft.run);
+  const [walkNow, setWalkNow] = useState<WalkNow | undefined>(draft.walk);
+  const [runNow, setRunNow] = useState<RunNow | undefined>(draft.run);
   const [weekly, setWeekly] = useState(fromLog >= 45 ? nearestWeekly : 120);
+  const [levelPick, setLevelPick] = useState<Level>();
 
   const [kind, setKind] = useState<Kind>(current?.aim.kind ?? 'time');
   const [minutes, setMinutes] = useState(current?.aim.kind === 'time' ? current.aim.minutes : 30);
@@ -87,9 +101,18 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
   const [dated, setDated] = useState(Boolean(current?.raceDate));
   const [raceDate, setRaceDate] = useState(current?.raceDate ?? addDays(today, 84));
-  const [gentler, setGentler] = useState(Boolean(current?.gentler));
+  const [gentlerPick, setGentlerPick] = useState<boolean | undefined>(current ? Boolean(current.gentler) : undefined);
   const [days, setDays] = useState(current?.days ?? 3);
   const [weekdays, setWeekdays] = useState<number[]>(current?.weekdays ?? defaultWeekdays(3));
+
+  const pickWalk = (walk: WalkNow) => {
+    setWalkNow(walk);
+    writeDraft({ walk, run: runNow });
+  };
+  const pickRun = (run: RunNow) => {
+    setRunNow(run);
+    writeDraft({ walk: walkNow, run });
+  };
 
   const aim: Aim =
     kind === 'steady'
@@ -103,32 +126,42 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
   const aimReady = aim.kind !== 'distance' || aim.meters >= 1000;
   const chosenDays = weekdays.length <= days ? weekdays : defaultWeekdays(days);
   const daysReady = chosenDays.length === days;
-  const running = ability === 'half' || ability === 'hour';
+  const runs = runNow === '30to60' || runNow === 'over60';
+
+  // The test: answers, the level they suggest, and what the chosen level means here.
+  const test: StartTest | undefined = walkNow && runNow ? { walk: walkNow, run: runNow, weekly: runs ? weekly : undefined } : undefined;
+  const suggested = test && suggestedLevel(test);
+  const level = levelPick ?? suggested;
+  const placement = test && level ? placementFor(test, level) : undefined;
+  const gentler = gentlerPick ?? Boolean(carry ? current?.gentler : placement?.gentler);
+  const walkFirst = carry ? Boolean(current?.walkFirst) : Boolean(placement?.walkFirst);
+  const tested = carry || Boolean(placement);
 
   const naturalPath = useMemo(
-    () => (aimReady ? buildPath({ aim, days, gentler }) : undefined),
-    [JSON.stringify(aim), days, gentler, aimReady],
+    () => (aimReady ? buildPath({ aim, days, gentler, walkFirst }) : undefined),
+    [JSON.stringify(aim), days, gentler, walkFirst, aimReady],
   );
-  const carryWeekly = useMemo(() => (current ? weekMinutes(weekAt(pathFor(current), current.week)) : 0), [current]);
-  const join = naturalPath && ability ? joinFor(naturalPath, ability, weekly, current?.week ?? 1, carryWeekly) : 1;
+  // The week of the full path where the runner is now, and the number they know it by.
+  const ownWeek = carry && current ? current.week : 1;
+  const nowWeek = useMemo(() => {
+    if (!naturalPath) return 1;
+    if (carry && current) return Math.max(1, matchingWeek(weekAt(pathFor(current), current.week), naturalPath));
+    return placement ? joinFor(naturalPath, placement) : 1;
+  }, [naturalPath, carry, current, JSON.stringify(placement)]);
   const path = aimReady
-    ? buildPath({
-        aim,
-        days,
-        gentler,
-        raceDate: dated ? raceDate : undefined,
-        joinWeek: join,
-        today,
-      })
+    ? fromWeek(
+        buildPath({ aim, days, gentler, walkFirst, raceDate: dated ? raceDate : undefined, joinWeek: nowWeek, today }),
+        nowWeek - ownWeek + 1,
+      )
     : undefined;
 
   // Someone who can already run as long as a time aim asks for is there.
-  const ableMinutes = abilities.find((each) => each.id === ability)?.minutes ?? 0;
-  const alreadyThere = aim.kind === 'time' && ability !== 'carry' && ableMinutes >= aim.minutes;
+  const ableMinutes = runChoices.find((each) => each.id === runNow)?.minutes ?? 0;
+  const alreadyThere = aim.kind === 'time' && !carry && ableMinutes >= aim.minutes;
 
   const unchanged = Boolean(
     current &&
-    ability === 'carry' &&
+    carry &&
     sameAim(current.aim, aim) &&
     Boolean(current.gentler) === gentler &&
     (current.raceDate ?? '') === (dated ? raceDate : '') &&
@@ -180,24 +213,28 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           aim,
           days,
           gentler,
+          walkFirst,
           raceDate: dated ? raceDate : undefined,
           weekdays: chosenDays,
-          week: join,
+          week: nowWeek,
+          ownWeek,
           aimWords: words,
         },
         today,
-        own,
+        carry && current ? { ...own, startWeeks: current.startWeeks, startedOn: current.startedOn } : own,
       );
       if (before) undo('A new path', () => savePlan(before));
     }
+    writeDraft({});
     if (first) {
       saveSettings({ ...settings, started: true });
       nav.swap({ name: 'home' });
     } else nav.back();
   };
 
-  const weeksToAim = path && !path.cycleFrom ? path.weeks.length - join + 1 : undefined;
-  const joinWeek = path ? weekAt(path, join) : undefined;
+  const weeksToAim = path && !path.cycleFrom ? lastWeekOf(path) - ownWeek + 1 : undefined;
+  const joinWeek = path ? weekAt(path, ownWeek) : undefined;
+  const firstSession = joinWeek?.workouts.find((workout) => workout.kind !== 'walk') ?? joinWeek?.workouts[0];
 
   if (step === 'now')
     return (
@@ -205,35 +242,81 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         {!first && <BackLink label="More" onBack={nav.back} />}
         <h1 className="title">Where you are now</h1>
 
-        <section className="field">
-          <h2 className="label">How long can you run without stopping?</h2>
-          <div className="choice-list" role="group" aria-label="How long can you run without stopping?">
-            {current && (
-              <button type="button" className="chip" aria-pressed={ability === 'carry'} onClick={() => setAbility('carry')}>
-                Carry on from week {current.week}
-              </button>
-            )}
-            {abilities.map((each) => (
-              <button key={each.id} type="button" className="chip" aria-pressed={ability === each.id} onClick={() => setAbility(each.id)}>
-                {each.label}
-              </button>
-            ))}
+        {current && (
+          <div className="choice-list" role="group" aria-label="Your path">
+            <button type="button" className="chip" aria-pressed={carry} onClick={() => setCarry(true)}>
+              Carry on from week {current.week}
+            </button>
+            <button type="button" className="chip" aria-pressed={!carry} onClick={() => setCarry(false)}>
+              Start again at week 1
+            </button>
           </div>
-        </section>
+        )}
 
-        {running && (
-          <section className="field">
-            <h2 className="label">Running each week, about</h2>
-            <div className="chip-row" role="group" aria-label="Running each week">
-              {weeklyChoices.map((each) => (
-                <button key={each} type="button" className="chip" aria-pressed={weekly === each} onClick={() => setWeekly(each)}>
-                  {each / 60}
-                  {each === 300 ? '+' : ''} {each === 60 ? 'hour' : 'hours'}
-                </button>
-              ))}
-            </div>
-            {fromLog >= 45 && <p className="hint">Your log: about {Math.round(fromLog / 6) / 10} h a week lately.</p>}
-          </section>
+        {!carry && (
+          <>
+            <section className="field">
+              <h2 className="label">How long can you walk briskly at once?</h2>
+              <div className="choice-list" role="group" aria-label="How long can you walk briskly at once?">
+                {walkChoices.map((each) => (
+                  <button key={each.id} type="button" className="chip" aria-pressed={walkNow === each.id} onClick={() => pickWalk(each.id)}>
+                    {each.label}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="field">
+              <h2 className="label">How long can you run without stopping?</h2>
+              <div className="choice-list" role="group" aria-label="How long can you run without stopping?">
+                {runChoices.map((each) => (
+                  <button key={each.id} type="button" className="chip" aria-pressed={runNow === each.id} onClick={() => pickRun(each.id)}>
+                    {each.label}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="text-link test-link" onClick={() => nav.go({ name: 'test' })}>
+                Not sure? Try a test run
+              </button>
+            </section>
+
+            {runs && (
+              <section className="field">
+                <h2 className="label">Running each week, about</h2>
+                <div className="chip-row" role="group" aria-label="Running each week">
+                  {weeklyChoices.map((each) => (
+                    <button key={each} type="button" className="chip" aria-pressed={weekly === each} onClick={() => setWeekly(each)}>
+                      {each / 60}
+                      {each === 300 ? '+' : ''} {each === 60 ? 'hour' : 'hours'}
+                    </button>
+                  ))}
+                </div>
+                {fromLog >= 45 && <p className="hint">Your log: about {Math.round(fromLog / 6) / 10} h a week lately.</p>}
+              </section>
+            )}
+
+            {suggested && level && (
+              <section className="card level" aria-label="Your level">
+                <span className="card__eyebrow">Suggested: {levelNames[suggested]}</span>
+                <div className="chip-row" role="group" aria-label="Level">
+                  {(Object.keys(levelNames) as Level[]).map((each) => (
+                    <button key={each} type="button" className="chip" aria-pressed={level === each} onClick={() => setLevelPick(each)}>
+                      {levelNames[each]}
+                    </button>
+                  ))}
+                </div>
+                <p className="muted">
+                  {level === 'beginner'
+                    ? placement?.walkFirst
+                      ? 'Two weeks of walking, then walk-run, building to 30 minutes of running.'
+                      : 'Walk-run, building to 30 minutes of running.'
+                    : level === 'intermediate'
+                      ? `Easy running from about ${(placement?.weekly ?? 120) / 60} hours a week, building week by week.`
+                      : `More running from about ${(placement?.weekly ?? 240) / 60} hours a week, and sharper sessions sooner.`}
+                </p>
+              </section>
+            )}
+          </>
         )}
 
         {first && (
@@ -251,7 +334,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           </section>
         )}
 
-        <button type="button" className="button-main" onClick={() => goTo('aim')} disabled={!ability}>
+        <button type="button" className="button-main" onClick={() => goTo('aim')} disabled={!tested}>
           Next
         </button>
       </div>
@@ -425,7 +508,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
       {kind !== 'steady' && (
         <div className="card switches">
-          <Switch on={gentler} label="Go gentler" detail="More weeks to the same place." onToggle={() => setGentler(!gentler)} />
+          <Switch on={gentler} label="Go gentler" detail="More weeks to the same place." onToggle={() => setGentlerPick(!gentler)} />
         </div>
       )}
 
@@ -455,8 +538,9 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           <section className="card path-summary" aria-label="Your path">
             <span className="card__eyebrow">Your path</span>
             <p>
-              Week {join}: {joinWeek.theme.charAt(0).toLowerCase() + joinWeek.theme.slice(1)}.
+              Week {ownWeek}: {joinWeek.theme.charAt(0).toLowerCase() + joinWeek.theme.slice(1)}.
             </p>
+            {firstSession && <p className="muted">First session: {firstSession.summary.charAt(0).toLowerCase() + firstSession.summary.slice(1)}.</p>}
             {path.cycleFrom ? (
               <p className="muted">Then a steady rhythm, gently varied.</p>
             ) : (

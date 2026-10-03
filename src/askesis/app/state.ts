@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { addDays, mondayOnOrBefore, parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 import { syncStatus, type SyncStatus } from '../../app/sync/syncController';
-import { buildPath, defaultWeekdays, type PathChoice, type Plan } from '../core/plans';
+import { buildPath, defaultWeekdays, fromWeek, lastWeekOf, ownPath, type PathChoice, type Plan } from '../core/plans';
 import type { LogEntry } from '../core/log';
 import { scheduleBetween } from '../data/proairetosSchedule';
 import {
@@ -38,20 +38,13 @@ export function usePlanState(): PlanState | undefined {
 
 /** The path from what is saved: same aim, days, pace and date give the same path. */
 export function pathFor(state: PlanState): Plan {
-  return buildPath({
-    aim: state.aim,
-    days: state.days,
-    gentler: state.gentler,
-    raceDate: state.raceDate,
-    joinWeek: state.joinWeek,
-    today: state.startedOn,
-  });
+  return ownPath(state);
 }
 
 export function usePlan(state: PlanState | undefined): Plan | undefined {
   return useMemo(
     () => (state ? pathFor(state) : undefined),
-    [JSON.stringify(state?.aim), state?.days, state?.gentler, state?.raceDate, state?.joinWeek, state?.startedOn],
+    [JSON.stringify(state?.aim), state?.days, state?.gentler, state?.walkFirst, state?.raceDate, state?.joinWeek, state?.startedOn],
   );
 }
 
@@ -92,26 +85,36 @@ export function useWeekSchedule(today: string, allowed: boolean): ScheduleOccurr
   return blocks;
 }
 
-export type PathStart = PathChoice & { weekdays?: number[]; week?: number; aimWords?: string };
+export type PathStart = PathChoice & { weekdays?: number[]; week?: number; ownWeek?: number; aimWords?: string };
 
-/** Begins a path: from the week chosen, on the days chosen. */
+/**
+ * Begins a path. `week` is the week of the full path where the runner is now;
+ * `ownWeek` is the number they know it by (1 for a new start, or the week
+ * they were on when carrying on with a changed aim).
+ */
 export function startPlan(choice: PathStart, today: string, keep: Partial<PlanState> = {}): void {
-  const join = Math.max(1, choice.week ?? 1);
   const days = Math.min(6, Math.max(3, choice.days));
-  const plan = buildPath({ ...choice, days, joinWeek: join, today });
+  const natural = buildPath({ ...choice, days, joinWeek: Math.max(1, choice.week ?? 1), today });
+  const now = Math.min(natural.weeks.length, Math.max(1, choice.week ?? 1));
+  const ownWeek = Math.max(1, choice.ownWeek ?? 1);
+  const joinWeek = now - ownWeek + 1;
+  const own = fromWeek(natural, joinWeek);
   savePlan({
+    startWeeks: own.cycleFrom ? undefined : lastWeekOf(own),
+    startedOn: today,
     ...keep,
     aim: choice.aim,
     aimWords: choice.aimWords?.trim() || undefined,
     days,
     gentler: choice.gentler || undefined,
+    walkFirst: choice.walkFirst || undefined,
     raceDate: choice.raceDate || undefined,
     weekdays: choice.weekdays?.length === days ? choice.weekdays : defaultWeekdays(days),
-    week: Math.min(plan.weeks.length, join),
-    joinWeek: Math.min(plan.weeks.length, join),
+    week: ownWeek,
+    joinWeek,
+    numbering: 'own',
     weekOf: mondayOnOrBefore(today),
     moves: {},
-    startedOn: today,
   });
 }
 

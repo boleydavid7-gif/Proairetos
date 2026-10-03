@@ -4,17 +4,18 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, ClockIcon, PulseIcon } from '../app/icons';
 import { kindScene, scene } from '../app/scenes';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
-import { Brand, dayLabel, greeting, Hero } from '../app/ui';
+import { Brand, dayLabel, greeting, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { aimWords, isLastWeek, weekAt, type Plan } from '../core/plans';
+import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
-import { stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
+import SessionBar from '../app/SessionBar';
+import { moreGradual, stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
 import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
-import type { PlanState } from '../data/store';
+import { savePlan, type PlanState } from '../data/store';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -23,6 +24,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const blocks = useWeekSchedule(today, settings.readSchedule);
   const [moving, setMoving] = useState<string>();
   const line = lineFor(today);
+  const undo = useUndo();
 
   const monday = mondayOnOrBefore(today);
   const dates = weekDates(today);
@@ -126,7 +128,20 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                       suggestion={suggestion}
                       dated={Boolean(planState.raceDate)}
                       reason={planState.why}
-                      onPick={(n) => updatePlan({ week: n, weekOf: monday, moves: {} })}
+                      onPick={(n) =>
+                        updatePlan({ week: n, weekOf: monday, moves: {}, again: n === planState.week ? (planState.again ?? 0) + 1 : 0 })
+                      }
+                      gradual={
+                        (suggestion.why === 'again' || suggestion.why === 'earlier') &&
+                        ((planState.again ?? 0) >= 1 || suggestion.reading.hard >= 2)
+                          ? moreGradual(planState)
+                          : undefined
+                      }
+                      onGradual={(joinWeek) => {
+                        const before = planState;
+                        updatePlan({ gentler: true, joinWeek, weekOf: monday, moves: {}, again: 0 });
+                        undo('A more gradual path', () => savePlan(before));
+                      }}
                     />
                   )
                 )}
@@ -171,6 +186,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     </span>
                     <ChevronIcon size={18} />
                   </button>
+                  {focus.workout.kind !== 'race' && <SessionBar parts={focus.workout.parts} small />}
                   {(planState.runAt || planState.place) && (
                     <p className="muted">{[planState.runAt && clock(planState.runAt), planState.place].filter(Boolean).join(' · ')}</p>
                   )}
@@ -294,6 +310,8 @@ function NewWeek({
   dated,
   reason: ownWhy,
   onPick,
+  gradual,
+  onGradual,
 }: {
   plan: Plan;
   current: number;
@@ -301,6 +319,8 @@ function NewWeek({
   dated: boolean;
   reason?: string;
   onPick: (week: number) => void;
+  gradual?: { joinWeek: number; addedWeeks?: number };
+  onGradual: (joinWeek: number) => void;
 }) {
   const { week, why, reading } = suggestion;
   const theme = weekAt(plan, week).theme;
@@ -320,7 +340,7 @@ function NewWeek({
   }[why];
   const left = weeksToAim(plan, week);
   const others = [current + 1, current].filter(
-    (n, i, all) => n !== week && all.indexOf(n) === i && (plan.cycleFrom || n <= plan.weeks.length),
+    (n, i, all) => n !== week && all.indexOf(n) === i && (plan.cycleFrom || n <= lastWeekOf(plan)),
   );
   return (
     <>
@@ -340,6 +360,17 @@ function NewWeek({
           </button>
         ))}
       </div>
+      {gradual && (
+        <div className="gradual">
+          <p className="muted">
+            Or take the rest more gradually: the bigger steps twice, a slower build
+            {gradual.addedWeeks ? `, about ${gradual.addedWeeks} more ${gradual.addedWeeks === 1 ? 'week' : 'weeks'} to your aim` : ''}.
+          </p>
+          <button type="button" className="button-quiet" onClick={() => onGradual(gradual.joinWeek)}>
+            More gradually
+          </button>
+        </div>
+      )}
     </>
   );
 }

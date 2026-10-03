@@ -3,7 +3,8 @@ import type { Nav } from '../app/App';
 import { CheckIcon, ChevronIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand } from '../app/ui';
-import { aimWords, defaultWeekdays, examplePath, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
+import SessionBar from '../app/SessionBar';
+import { aimWords, defaultWeekdays, examplePath, lastWeekOf, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
 import { howItFelt, runDays, stageBuilds, thenAndNow, weeksToAim } from '../core/progress';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
@@ -23,8 +24,8 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
   const shown = plan ?? examplePath();
   const current = plan && planState ? planState.week : undefined;
   // In a steady rhythm past the last listed week, the week shown is its place in the rhythm.
-  const currentListed = current && shown.cycleFrom && current > shown.weeks.length
-    ? shown.cycleFrom + ((current - shown.cycleFrom) % (shown.weeks.length - shown.cycleFrom + 1))
+  const currentListed = current && shown.cycleFrom && current > lastWeekOf(shown)
+    ? shown.cycleFrom + ((current - shown.cycleFrom) % (lastWeekOf(shown) - shown.cycleFrom + 1))
     : current;
   const [open, setOpen] = useState<number | undefined>(currentListed);
   const sessionDays = sessionWeekdays(planState ? planState.weekdays : defaultWeekdays(shown.days), shown.days);
@@ -58,6 +59,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
                   <span className="session-row__main">
                     <span className="session-row__title">{workout.title}</span>
                     <span className="session-row__summary">{workout.summary}</span>
+                    {workout.kind !== 'race' && <SessionBar parts={workout.parts} small />}
                   </span>
                   <span className="session-row__len">{workout.kind === 'race' ? '' : lengthLabel(totalMinutes(workout.parts))}</span>
                 </button>
@@ -80,7 +82,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
           <div className="progress__row">
             <span className="card__eyebrow">Started</span>
             <span>
-              Week {planState.joinWeek}, {shortDate(planState.startedOn)} · about {weeksToAim(plan, planState.joinWeek)} weeks to your aim
+              Week 1, {shortDate(planState.startedOn)} · about {planState.startWeeks ?? weeksToAim(plan, 1)} weeks to your aim
             </span>
           </div>
           <div className="progress__row">

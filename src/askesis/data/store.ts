@@ -21,10 +21,18 @@ export type PlanState = {
   days: number;
   /** Weekdays the person runs, 0 = Monday. */
   weekdays: number[];
-  /** The week of the path in use (1 is the first walk-run). */
+  /** The runner's own week: 1 is where they began, whatever their level. */
   week: number;
-  /** The week they joined the path at. */
+  /** The week of the full path that is their week 1 (lower than 1 after a path was made more gradual partway). */
   joinWeek: number;
+  /** Weeks are counted from the runner's own week 1 (older plans counted from the path's first week). */
+  numbering?: 'own';
+  /** Walking weeks before the walk-run. */
+  walkFirst?: boolean;
+  /** Weeks taken again in a row, so a more gradual path can be offered. */
+  again?: number;
+  /** About how many weeks to the aim when the path began. */
+  startWeeks?: number;
   /** The Monday that week began on, so a new calendar week can offer the next. */
   weekOf: string;
   /** Sessions moved to another day this week: workout id -> date. */
@@ -56,7 +64,12 @@ type OldPlanState = { level?: 'beginner' | 'intermediate' | 'advanced'; goal?: s
 
 /** Plans from before paths (a level and a goal) become the matching aim and point on the path. */
 export function fromOldPlan(record: Partial<PlanState> & OldPlanState): PlanState {
-  if (record.aim) return { joinWeek: 1, ...record } as PlanState;
+  if (record.aim) {
+    const state = { joinWeek: 1, ...record } as PlanState;
+    if (state.numbering === 'own') return state;
+    // Weeks used to count from the path's first week; now week 1 is where the runner began.
+    return { ...state, week: Math.max(1, state.week - state.joinWeek + 1), numbering: 'own' };
+  }
   const aim: Aim =
     record.level === 'intermediate'
       ? { kind: 'distance', meters: 10000 }
@@ -65,7 +78,7 @@ export function fromOldPlan(record: Partial<PlanState> & OldPlanState): PlanStat
         : { kind: 'time', minutes: 30 };
   const beginner = record.level === 'beginner' || !record.level;
   const { level: _l, goal: _g, ...rest } = record;
-  return { ...(rest as PlanState), aim, week: beginner ? record.week : 10 + record.week, joinWeek: beginner ? 1 : 11 };
+  return { ...(rest as PlanState), aim, week: record.week, joinWeek: beginner ? 1 : 11, numbering: 'own' };
 }
 
 export type Settings = {

@@ -1,6 +1,6 @@
 import { addDays } from '../../core/scheduling/dates';
 import type { LogEntry } from './log';
-import { weekAt, weekMinutes, type Plan, type PlanWeek } from './plans';
+import { buildPath, firstAfterStart, fromWeek, lastWeekOf, matchingWeek, ownPath, weekAt, weekMinutes, type OwnPath, type Plan, type PlanWeek } from './plans';
 import { totalMinutes } from './workouts';
 
 /**
@@ -76,7 +76,7 @@ function fits(week: PlanWeek, reading: Reading): boolean {
 export function suggestWeek(plan: Plan, current: number, entries: readonly LogEntry[], monday: string): Suggestion {
   const week = weekAt(plan, current);
   const reading = readLog(entries, week, monday);
-  const last = plan.cycleFrom ? Number.POSITIVE_INFINITY : plan.weeks.length;
+  const last = plan.cycleFrom ? Number.POSITIVE_INFINITY : lastWeekOf(plan);
   const next = Math.min(last, current + 1);
   const logged = reading.lastWeek > 0 || reading.sessionsDone > 0;
 
@@ -94,7 +94,8 @@ export function suggestWeek(plan: Plan, current: number, entries: readonly LogEn
   if (reading.lastWeek < asked * 0.7) {
     if (reading.busiest >= asked * 0.7) return { week: current, why: 'again', reading };
     let earlier = current;
-    for (let n = current - 1; n >= 11; n -= 1) {
+    const floor = Math.max(plan.weeks[0]?.n ?? 1, firstAfterStart(plan));
+    for (let n = current - 1; n >= floor; n -= 1) {
       earlier = n;
       if (fits(weekAt(plan, n), reading)) break;
     }
@@ -120,7 +121,23 @@ export function suggestWeek(plan: Plan, current: number, entries: readonly LogEn
 /** Weeks from a week to the aim, counting that week; undefined on a path that goes round. */
 export function weeksToAim(plan: Plan, week: number): number | undefined {
   if (plan.cycleFrom) return undefined;
-  return Math.max(1, plan.weeks.length - week + 1);
+  return Math.max(1, lastWeekOf(plan) - week + 1);
+}
+
+/**
+ * When a week has been taken again (or two runs felt hard), the rest of the
+ * path can go more gradually: the bigger walk-run steps twice, slower growth
+ * after. The runner keeps their week number; the path under it changes.
+ * Not with a date, which fixes how many weeks there are.
+ */
+export function moreGradual(state: OwnPath & { week: number }): { joinWeek: number; addedWeeks?: number } | undefined {
+  if (state.gentler || state.raceDate) return undefined;
+  const now = ownPath(state);
+  const natural = buildPath({ aim: state.aim, days: state.days, gentler: true, walkFirst: state.walkFirst });
+  const joinWeek = matchingWeek(weekAt(now, state.week), natural) - state.week + 1;
+  const after = fromWeek(natural, joinWeek);
+  if (now.cycleFrom || after.cycleFrom) return { joinWeek };
+  return { joinWeek, addedWeeks: Math.max(0, lastWeekOf(after) - lastWeekOf(now)) };
 }
 
 /** What each stage builds in the body, in plain words, for the moment a week is chosen. */

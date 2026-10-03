@@ -86,3 +86,32 @@ export function mainEffort(parts: readonly Part[]): Effort {
   // Any running at all makes it a run; walking is only the main effort of a walk.
   return byEffort.easy > 0 || byEffort.recovery > 0 ? 'easy' : 'walk';
 }
+
+const doing: Record<Effort, string> = {
+  walk: 'Walk',
+  recovery: 'Run very easy',
+  easy: 'Run',
+  steady: 'Run steady',
+  tempo: 'Run comfortably hard',
+  hard: 'Run hard',
+  stride: 'Stride',
+};
+
+/**
+ * The session in plain words, one line per part: "Walk 5 min",
+ * "Run 5 min, walk 2½ min, 3 times", "Walk 7½ min". Run and Walk, with the
+ * effort only where it is not easy.
+ */
+export function sessionLines(parts: readonly Part[]): string[] {
+  const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
+  const say = (item: Step, first: boolean) => {
+    const words = `${doing[item.effort]} ${lengthLabel(item.minutes)}`;
+    // Warm up, cool down and the like name the stretch first.
+    const named = item.note && !item.note.includes(' ') || item.note === 'Warm up' || item.note === 'Cool down' || item.note === 'Easy to finish';
+    const line = named ? `${item.note}: ${lower(words)}` : words;
+    return first ? line : lower(line);
+  };
+  return parts.map((part) =>
+    isSet(part) ? `${part.steps.map((item, i) => say(item, i === 0)).join(', ')}, ${part.repeat} times` : say(part, true),
+  );
+}
