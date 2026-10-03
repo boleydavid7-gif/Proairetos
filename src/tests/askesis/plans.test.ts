@@ -15,7 +15,9 @@ const aims: Aim[] = [
   { kind: 'time', minutes: 30 },
   { kind: 'time', minutes: 45 },
   { kind: 'time', minutes: 90 },
+  { kind: 'distance', meters: 1609.344 },
   { kind: 'distance', meters: 5000 },
+  { kind: 'distance', meters: 16093.44 },
   { kind: 'distance', meters: 8000 },
   { kind: 'distance', meters: 10000 },
   { kind: 'distance', meters: 21097.5 },
@@ -125,6 +127,13 @@ describe('paths toward an aim', () => {
     expect(Math.max(...fiveK.weeks.flatMap((week) => week.workouts.map((w) => totalMinutes(w.parts))))).toBeLessThanOrEqual(60);
   });
 
+  it('never stalls: a path reaches its aim within a sensible number of weeks', () => {
+    for (const plan of paths) {
+      const most = plan.aim.kind === 'distance' && plan.aim.meters > 16000 ? 50 : 40;
+      expect(plan.weeks.length, plan.id).toBeLessThanOrEqual(plan.cycleFrom ? plan.cycleFrom + 4 : most);
+    }
+  });
+
   it('takes longer when gentler', () => {
     const aim: Aim = { kind: 'distance', meters: 21097.5 };
     expect(buildPath({ aim, days: 4, gentler: true }).weeks.length).toBeGreaterThan(buildPath({ aim, days: 4 }).weeks.length);
@@ -169,7 +178,8 @@ describe('paths toward an aim', () => {
     expect(aimWords({ kind: 'distance', meters: 10000 })).toBe('Run a 10K');
     expect(aimWords({ kind: 'distance', meters: 21097.5 })).toBe('Run a half marathon');
     expect(aimWords({ kind: 'distance', meters: 8000 })).toBe('Run 8 km');
-    expect(aimWords({ kind: 'distance', meters: 8046.72 }, 'mi')).toBe('Run 5 mi');
+    expect(aimWords({ kind: 'distance', meters: 8046.72 }, 'mi')).toBe('Run 5 miles');
+    expect(aimWords({ kind: 'distance', meters: 12000 }, 'km')).toBe('Run 12 km');
   });
 });
 

@@ -14,7 +14,6 @@ export default function LearnPage({ nav }: { nav: Nav }) {
     <div className="page">
       <Brand />
       <h1 className="title">Learn</h1>
-      <p className="lead">Understand your body. Train with purpose. Every piece names its sources.</p>
       <Segmented
         label="Topic"
         value={filter}

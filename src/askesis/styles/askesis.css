@@ -735,6 +735,25 @@ input[type='date'].input {
   color: var(--text-soft);
 }
 
+.chip[aria-pressed='true'] {
+  background: var(--mint);
+  border-color: var(--mint);
+  color: var(--mint-ink);
+  font-weight: 600;
+}
+
+.choice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-list .chip {
+  min-height: 48px;
+  border-radius: 14px;
+  text-align: left;
+  padding: 0 16px;
+}
+
 /* ---------- Home ---------- */
 
 .focus {

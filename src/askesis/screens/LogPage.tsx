@@ -39,7 +39,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
         </button>
       </div>
       <h1 className="title">Progress</h1>
-      <p className="lead">See the work. What you did, as you wrote it.</p>
       <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
 
       <div className="tiles">
@@ -89,7 +88,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
         <h2 className="label">Workouts</h2>
         {entries && list.length === 0 && (
           <div className="empty">
-            <p className="muted">Nothing logged yet. After a workout, add it here: from your watch, or from memory.</p>
+            <p className="muted">Nothing logged yet.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>
               Log a workout
             </button>

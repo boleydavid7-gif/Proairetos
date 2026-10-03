@@ -3,7 +3,7 @@ import type { Nav } from '../app/App';
 import { CheckIcon, ChevronIcon } from '../app/icons';
 import { useSettings } from '../app/state';
 import { Brand } from '../app/ui';
-import { aimWords, defaultWeekdays, examplePath, stageLines, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
+import { aimWords, defaultWeekdays, examplePath, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
@@ -67,10 +67,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
     <div className="page">
       <Brand />
       <h1 className="title">Train</h1>
-      <p className="lead">
-        {plan ? `${planState?.aimWords ?? aimWords(plan.aim, settings.unit)}. ` : 'An example path: a 10K, three days a week. '}
-        One path, week by week. Every week is open; repeat any of them.
-      </p>
+      <p className="lead">{plan ? (planState?.aimWords ?? aimWords(plan.aim, settings.unit)) : 'An example: a 10K, three days a week.'}</p>
 
       {stagesOf(shown).map((stage) => (
         <section key={`${stage.stage}-${stage.from}`} className="stage" aria-label={stage.stage}>
@@ -80,11 +77,9 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
             </span>
           </div>
-          <p className="hint">{stageLines[stage.stage]}</p>
           <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
         </section>
       ))}
-      {shown.cycleFrom && <p className="hint">And then round again, for as long as you like.</p>}
 
       <button type="button" className={plan ? 'button-quiet' : 'button-main'} onClick={() => nav.go({ name: 'plan' })}>
         {plan ? 'Change your aim' : 'Set your aim'}

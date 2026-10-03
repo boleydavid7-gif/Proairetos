@@ -153,7 +153,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
             </button>
           )}
         </div>
-        {lighter && <p className="hint">Just for today. Tomorrow the plan is as it was; nothing is owed.</p>}
+        {lighter && <p className="hint">Just for today.</p>}
       </div>
     </div>
   );

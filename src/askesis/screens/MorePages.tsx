@@ -27,7 +27,6 @@ export function SafetyPage({ nav, first }: { nav: Nav; first?: boolean }) {
     <div className="page">
       <BackLink label="Back" onBack={nav.back} />
       <h1 className="title">Before you start</h1>
-      <p className="lead">A quick check, the same one fitness professionals use.</p>
       {note.sections.map((section) => (
         <section key={section.heading} className="card">
           <h2 className="card__title card__title--small">{section.heading}</h2>
@@ -63,7 +62,7 @@ export function ZonesPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Heart rate zones</h1>
-      <p className="lead">Optional. With these, each step in a session shows a heart-rate range beside the effort.</p>
+      <p className="lead">Optional.</p>
       <div className="three-fields">
         <label className="field">
           <span className="label">Age</span>
@@ -82,7 +81,7 @@ export function ZonesPage({ nav }: { nav: Nav }) {
         {max
           ? settings.maxHr
             ? `Using your maximum of ${max} bpm${settings.restingHr ? ' and your resting heart rate (heart-rate reserve)' : ''}.`
-            : `Estimated maximum ${max} bpm (208 − 0.7 × age). A maximum seen in a hard race or test is more accurate.`
+            : `Estimated maximum ${max} bpm (208 − 0.7 × age).`
           : 'Add your age, or a maximum heart rate you know.'}
       </p>
       {zones.length > 0 && (
@@ -179,7 +178,6 @@ export function PacePage({ nav }: { nav: Nav }) {
           </ul>
         </>
       )}
-      <p className="hint">The plans here go by effort, not pace. This is here for racing and for curiosity.</p>
     </div>
   );
 }
@@ -207,27 +205,25 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         />
       </section>
       <div className="card switches">
-        <Switch on={settings.voice} label="Spoken cues" detail="The guide says each step aloud. Your music keeps playing." onToggle={() => flip('voice')} />
-        <Switch on={settings.bells} label="Bells" detail="A soft bell as each step changes." onToggle={() => flip('bells')} />
-        <Switch on={settings.keepAwake} label="Keep the screen on" detail="During a guided session, so cues keep coming." onToggle={() => flip('keepAwake')} />
+        <Switch on={settings.voice} label="Spoken cues" detail="Your music keeps playing." onToggle={() => flip('voice')} />
+        <Switch on={settings.bells} label="Bells" onToggle={() => flip('bells')} />
+        <Switch on={settings.keepAwake} label="Keep the screen on" onToggle={() => flip('keepAwake')} />
         <Switch
           on={settings.readSchedule}
           label="Use my Proairetos schedule"
-          detail="Marks sessions the day after a night of work. Read on this phone only."
+          detail="Marks days after a night of work."
           onToggle={() => flip('readSchedule')}
         />
       </div>
       <h2 className="label">What’s included</h2>
       <div className="card switches">
-        <Switch on={settings.dailyLine} label="A line for the day" detail="From the Stoics, on Home." onToggle={() => flip('dailyLine')} />
+        <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => flip('dailyLine')} />
         <Switch
           on={settings.afterOffers}
           label="After a workout"
-          detail="A minute to cool down, and a line to keep in Reflect."
           onToggle={() => flip('afterOffers')}
         />
       </div>
-      <p className="hint">With the screen locked, a phone may pause the cues. They pick up again, on time, when you look.</p>
     </div>
   );
 }
@@ -278,17 +274,15 @@ export function DataPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">Your plan and workouts stay on this phone. When you are signed in to Proairetos, they also sync, sealed, with your account. A backup file is another way to keep them.</p>
+      <p className="lead">On this phone, and synced when signed in to Proairetos.</p>
       <div className="card">
         <h2 className="card__title card__title--small">Back up</h2>
-        <p className="muted">Your plan, settings and every workout, in one file.</p>
         <button type="button" className="button-quiet" onClick={() => void download()}>
           Save a backup file
         </button>
       </div>
       <div className="card">
         <h2 className="card__title card__title--small">Restore</h2>
-        <p className="muted">Workouts in the file join the ones here.</p>
         <input ref={file} type="file" accept="application/json,.json" hidden onChange={(event) => void read(event.target.files?.[0])} />
         {pending ? (
           <>
@@ -382,7 +376,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
           <li key={source}>{source}</li>
         ))}
       </ol>
-      <p className="hint">General training guidance, not medical advice. Photographs: landscapes chosen for Askesis.</p>
+      <p className="hint">General training guidance, not medical advice.</p>
       <a className="text-link" href="/privacy.html">
         Privacy
       </a>

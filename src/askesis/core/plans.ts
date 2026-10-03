@@ -77,19 +77,23 @@ export const stageLines: Record<Stage, string> = {
   'Keep going': 'A steady rhythm, gently varied, round and round.',
 };
 
-export const aimDistances: { name: string; meters: number }[] = [
-  { name: '5K', meters: 5000 },
-  { name: '10K', meters: 10000 },
-  { name: 'Half marathon', meters: 21097.5 },
-  { name: 'Marathon', meters: 42195 },
+export const aimDistances: { name: string; meters: number; words: string }[] = [
+  { name: '1 mile', meters: 1609.344, words: 'Run a mile' },
+  { name: '5K', meters: 5000, words: 'Run a 5K' },
+  { name: '5 miles', meters: 8046.72, words: 'Run 5 miles' },
+  { name: '10K', meters: 10000, words: 'Run a 10K' },
+  { name: '15K', meters: 15000, words: 'Run a 15K' },
+  { name: '10 miles', meters: 16093.44, words: 'Run 10 miles' },
+  { name: 'Half marathon', meters: 21097.5, words: 'Run a half marathon' },
+  { name: 'Marathon', meters: 42195, words: 'Run a marathon' },
 ];
 
 /** "Run 45 minutes without stopping", "Run a 10K", "Run 8 km", "Keep running, steadily". */
 export function aimWords(aim: Aim, unit: 'mi' | 'km' = 'km'): string {
   if (aim.kind === 'steady') return 'Keep running, steadily';
   if (aim.kind === 'time') return `Run ${aim.minutes} minutes without stopping`;
-  const known = aimDistances.find((each) => Math.abs(each.meters - aim.meters) < 50);
-  if (known) return known.name.length <= 3 ? `Run a ${known.name}` : `Run a ${known.name.toLowerCase()}`;
+  const known = aimDistances.find((each) => Math.abs(each.meters - aim.meters) < 5);
+  if (known) return known.words;
   const value = unit === 'mi' ? aim.meters / 1609.344 : aim.meters / 1000;
   return `Run ${Number(value.toFixed(1))} ${unit}`;
 }
@@ -604,9 +608,13 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   // Base and Build: weekly time grows by 5-8% a building week, every fourth week easier,
   // the long run by no more than ten minutes a week, until the aim's needs are met.
   const limit = growth.limit ?? 80;
+  // Building weeks in a row that laid out no more time than the one before: the days chosen hold no more.
+  let still = 0;
+  let laidOut = 0;
   for (let k = 1; k <= limit; k += 1) {
     // Distance aims build for at least eight weeks before sharpening, even when the time is already there.
-    if (level >= need.weekly - 2 && lastLong >= need.long && (!distance || k > 8)) break;
+    const enough = level >= need.weekly - 2 || still >= 2;
+    if (((enough && lastLong >= need.long) || still >= 4) && (!distance || k > 8)) break;
     const easier = k % 4 === 0;
     let target: number;
     if (easier) target = level * 0.8;
@@ -631,7 +639,12 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
           : 'Longer runs, a little more each week';
     addWeek(stage, theme, easier, target, longFor(k, easier, longMinutes), quality, Math.min(days, 3 + k));
     // The next week grows from the week as laid out, so rounding never piles up.
-    if (!easier) level = Math.min(level, weekMinutes(weeks[weeks.length - 1]));
+    if (!easier) {
+      const minutes = weekMinutes(weeks[weeks.length - 1]);
+      still = minutes <= laidOut ? still + 1 : 0;
+      laidOut = Math.max(laidOut, minutes);
+      level = Math.min(level, minutes);
+    }
     growthWeeks = k;
   }
 
@@ -734,7 +747,8 @@ export function isLastWeek(plan: Plan, n: number): boolean {
 export function joinWeekFor(plan: Plan, weeklyMinutes: number): number {
   if (weeklyMinutes <= 0) return 1;
   const growing = plan.weeks.filter((week) => week.stage === 'Base' || week.stage === 'Build' || week.stage === 'Hold' || week.stage === 'Keep going');
-  if (growing.length === 0) return Math.min(plan.weeks.length, 8);
+  // A short aim reached within the walk-run weeks: someone already running is at its end.
+  if (growing.length === 0) return plan.weeks.length;
   let join = growing[0].n;
   for (const week of growing) if (!week.easier && weekMinutes(week) <= weeklyMinutes * 1.05) join = week.n;
   return join;

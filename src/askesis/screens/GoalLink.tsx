@@ -66,12 +66,11 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
     <section className="card">
       <span className="card__eyebrow">In Proairetos, if you like</span>
       <h2 className="card__title card__title--small">Add it to Compass</h2>
-      <p className="muted">As something you are working toward, beside your values.</p>
       <input className="input" aria-label="The goal, in your words" value={words} onChange={(event) => setWords(event.target.value)} />
       <Switch
         on={protect}
         label="Make time for this"
-        detail="Protected time on your run days: notifications wait, and open time leaves it free."
+        detail="On your run days."
         onToggle={() => setProtect(!protect)}
       />
       {protect && (

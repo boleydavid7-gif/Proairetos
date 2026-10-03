@@ -128,7 +128,6 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
           <Switch
             on={linkOpen}
             label={`This is ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}`}
-            detail="Counts it as the session in your plan. Off for anything else."
             onToggle={() => setLinkOpen(!linkOpen)}
           />
         </div>
@@ -182,7 +181,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
           <span aria-hidden="true">:</span>
           <input className="input" inputMode="numeric" aria-label="Seconds" placeholder="00" value={s} onChange={(event) => setS(digits(event.target.value))} />
         </div>
-        <p className="hint">{pace ? `Pace ${formatPace(pace, unit)}, worked out from time and distance.` : 'With a time and distance, the pace works itself out.'}</p>
+        {pace && <p className="hint">Pace {formatPace(pace, unit)}</p>}
       </fieldset>
 
       <label className="field">

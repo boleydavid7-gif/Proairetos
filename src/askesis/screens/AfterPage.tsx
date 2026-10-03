@@ -32,7 +32,6 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
   return (
     <div className="page after">
       <h1 className="title">That’s recorded.</h1>
-      <p className="lead">Nothing else is needed. If you like:</p>
 
       {settings.afterOffers && (
         <>
@@ -42,7 +41,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
               <CoolDown onDone={() => setBreathing(false)} />
             ) : (
               <>
-                <p className="muted">Slow breaths, out longer than in, while your heart rate settles.</p>
+                <p className="muted">Slow breaths, out longer than in.</p>
                 <button type="button" className="button-quiet" onClick={() => setBreathing(true)}>
                   Breathe for a minute
                 </button>

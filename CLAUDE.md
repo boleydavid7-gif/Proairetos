@@ -296,8 +296,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   days are added one a week, every 4th week easier, the long run +10 min a
   week at most; distance aims build 8+ weeks, then Shape, Taper and the aim's
   week; time aims end on the week whose long run is the aim. A date counts
-  back (`fit`: hold weeks or fewer growth weeks, never faster). People join
-  where they are (`joinWeekFor`); `PlanState` keeps aim, own words, join
+  back (`fit`: hold weeks or fewer growth weeks, never faster). Growth stops
+  when the chosen days hold no more (4 building weeks without more time).
+  Setting an aim (`PlanPage`) is three steps: Where you are now (how long
+  they can run without stopping: not yet = week 1, a few minutes = 5,
+  10-15 = 7, 20-30 = 9; longer asks hours a week -> `joinWeekFor`, week 11+;
+  "Carry on from week N" when editing, walk-run weeks keep their number),
+  Where you want to be, Your plan (days, date, gentler). A time aim they can
+  already run says so. Keep explanation lines out of Askesis screens.
+  `PlanState` keeps aim, own words, join
   week, date, gentler; old level plans convert (`fromOldPlan`). Tests hold
   80 combinations to the science rules. Reaching the aim shows `LookBack`
   (facts from the log; new aim / just keep running / rest a week; mark the

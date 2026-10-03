@@ -72,7 +72,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         {resting && planState ? (
           <section className="card" aria-label="A week of rest">
             <h2 className="card__title">A week of rest.</h2>
-            <p className="muted">Nothing planned. Next week, what comes next is yours to choose.</p>
+            <p className="muted">Nothing planned.</p>
             <button type="button" className="button-quiet" onClick={() => updatePlan({ restWeek: undefined })}>
               Back to the plan this week
             </button>
@@ -80,7 +80,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         ) : !plan || !planState || !week ? (
           <section className="card">
             <h2 className="card__title">Set your aim</h2>
-            <p className="muted">A time, a distance, or just to keep running. The path starts where you are.</p>
+            <p className="muted">A time, a distance, or just to keep running.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
               Set your aim
             </button>
@@ -91,8 +91,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               <section className="card card--offer" aria-label="Coming back">
                 <h2 className="card__title">Good to see you.</h2>
                 <p className="muted">
-                  It has been {gapWords(comeBack.gapDays)} since your last workout. Fitness fades a little with time
-                  off, so starting again at week {comeBack.toWeek} eases you back in. Carrying on is fine too.
+                  It has been {gapWords(comeBack.gapDays)}. Week {comeBack.toWeek} is there to ease back in, or carry on.
                 </p>
                 <div className="button-row">
                   <button
@@ -206,7 +205,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                   )}
                 </>
               ) : (
-                <p className="muted">Nothing left this week. Rest is part of training.</p>
+                <p className="muted">Nothing left this week.</p>
               )}
             </section>
 

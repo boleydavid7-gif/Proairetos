@@ -41,7 +41,6 @@ export default function GratitudePage({ onBack }: { onBack: () => void }) {
         </span>
         <div>
           <h1 className="page-header__title">Grateful</h1>
-          <p className="page-header__subtitle">Small things count. Each one is kept in Reflect.</p>
         </div>
       </header>
 
