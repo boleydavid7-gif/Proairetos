@@ -73,6 +73,7 @@ function describeCounts(data: BackupData): string {
     n(counts.decisions, 'decision'),
     n(counts.values, 'value'),
     n(counts.schedulePatterns, 'schedule'),
+    ...(counts.attachments ? [n(counts.attachments, 'attachment')] : []),
     ...(counts.workouts ? [n(counts.workouts, 'workout')] : []),
     ...(counts.recipes ? [n(counts.recipes, 'recipe')] : []),
   ].join(', ');
@@ -98,8 +99,8 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for Proairetos, Askesis and SOMA, with all their settings. Keep it on your phone, in your own cloud storage, or
-        by email to yourself.
+        One file for Proairetos, Askesis and SOMA, with all their settings, photos, and files. Keep it on your phone, in your
+        own cloud storage, or by email to yourself.
       </p>
       <label className="plan-field">
         <span>Password (optional, recommended)</span>
