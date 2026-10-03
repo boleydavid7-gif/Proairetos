@@ -3,7 +3,9 @@ import type { Nav, Route } from '../app/App';
 import { FeltFace } from '../app/icons';
 import { newId, useEntries, usePlanState, useSettings, useToday } from '../app/state';
 import { asToday } from '../core/gentler';
-import { BackLink, Segmented, useUndo } from '../app/ui';
+import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
+import { mondayOnOrBefore } from '../../core/scheduling/dates';
+import { layOut } from '../core/week';
 import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
 import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
 import type { Plan } from '../core/plans';
@@ -66,7 +68,21 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
   const seconds = (Number(h) || 0) * 3600 + (Number(m) || 0) * 60 + (Number(s) || 0);
   const meters = parseDistance(distance, unit);
   const pace = meters && seconds ? paceOf(seconds, meters, unit) : undefined;
-  const title = existing?.workoutTitle ?? session?.workout.title;
+  // Logged from the Log tab on a day with a session still open: offer to count it as that session.
+  const [linkOpen, setLinkOpen] = useState(true);
+  const open =
+    !existing && !route.workoutId && plan && planState && entries && mondayOnOrBefore(date) === mondayOnOrBefore(today)
+      ? layOut(
+          plan.weeks[Math.min(planState.week, plan.weeks.length) - 1],
+          today,
+          planState.weekdays,
+          planState.moves,
+          entries.filter((entry) => entry.date >= mondayOnOrBefore(today)),
+        ).find((day) => day.date === date && !day.done)
+      : undefined;
+  const openWorkout = open && asToday(open.workout, planState?.lighter, today);
+  const linked = openWorkout && linkOpen ? openWorkout : undefined;
+  const title = existing?.workoutTitle ?? session?.workout.title ?? linked?.title;
 
   const switchUnit = (next: Unit) => {
     if (meters) setDistance((meters / METERS[next]).toFixed(2).replace(/\.?0+$/, ''));
@@ -87,7 +103,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       wentWell: wentWell.trim() || undefined,
       nextTime: nextTime.trim() || undefined,
       intention: existing?.intention ?? route.intention,
-      workoutId: existing?.workoutId ?? route.workoutId,
+      workoutId: existing?.workoutId ?? route.workoutId ?? linked?.id,
       workoutTitle: title,
     };
     await putEntry(entry);
@@ -106,7 +122,17 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
     <div className="page entry">
       <BackLink label="Back" onBack={nav.back} />
       <h1 className="title">{existing ? 'Your workout' : 'Log workout'}</h1>
-      {title && <p className="muted">{title}</p>}
+      {title && !openWorkout && <p className="muted">{title}</p>}
+      {openWorkout && (
+        <div className="card switches">
+          <Switch
+            on={linkOpen}
+            label={`This is ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}`}
+            detail="Counts it as the session in your plan. Off for anything else."
+            onToggle={() => setLinkOpen(!linkOpen)}
+          />
+        </div>
+      )}
 
       <Segmented
         label="Activity"
@@ -209,4 +235,9 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       )}
     </div>
   );
+}
+
+function dayWord(date: string, today: string): string {
+  if (date === today) return 'today';
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long' });
 }

@@ -314,7 +314,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   line off.
 - Askesis writes to Proairetos only when asked: "Add to Compass" on the plan
   page (`GoalLink`) makes a GOAL and, if chosen, weekly PROTECTED time on the
-  run days (`goalSchedule`), linked by `PlanState.goalId`.
+  run days (`goalSchedule`), linked by `PlanState.goalId`; changing the run
+  days moves that time too (`moveGoalTime`, with undo). Logging from the Log
+  tab on a day with an open session offers to count it as that session.
 - Proairetos reads Askesis (`app/askesis/runs.ts`, Today part `askesis` in
   What's included): today's session as a row on Today (`TodayRun`), runs in
   Done today and in the Reflect timeline (`RunEntry`).

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { compassService, scheduleService } from '../../app/services';
-import { goalSchedule, type Weekday } from '../../core/compass/goalTime';
+import { goalSchedule, readWeekly, type Weekday } from '../../core/compass/goalTime';
+import type { SchedulePattern } from '../../core/scheduling/types';
 import type { CompassStatement } from '../../core/compass/types';
 import { updatePlan, useToday } from '../app/state';
 import { Switch, useUndo } from '../app/ui';
@@ -91,4 +92,27 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
       </button>
     </section>
   );
+}
+
+const inputOf = (pattern: SchedulePattern) => {
+  const { name, kind, layout, anchorDate, segments, endDate, pauseWhenEnds, color, location } = pattern;
+  return structuredClone({ name, kind, layout, anchorDate, segments, endDate, pauseWhenEnds, color, location });
+};
+
+/**
+ * When the run days change, the goal's protected time moves with them (same
+ * hours). Returns a way to put it back, or nothing if there was nothing to move.
+ */
+export async function moveGoalTime(goalId: string | undefined, days: number[], today: string): Promise<(() => Promise<void>) | undefined> {
+  if (!goalId) return undefined;
+  const goal = (await compassService.statements()).find((each) => each.id === goalId);
+  const pattern = goal?.patternId ? await scheduleService.getPattern(goal.patternId) : null;
+  const weekly = pattern && readWeekly(pattern);
+  if (!goal || !pattern || !weekly) return undefined;
+  const before = inputOf(pattern);
+  const moved = goalSchedule(goal, { days: days as Weekday[], start: weekly.start, end: weekly.end }, today);
+  await scheduleService.updatePattern(pattern.id, { ...before, ...moved, color: pattern.color ?? moved.color });
+  return async () => {
+    await scheduleService.updatePattern(pattern.id, before);
+  };
 }

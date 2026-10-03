@@ -4,7 +4,7 @@ import { startPlan, usePlanState, useSettings, useToday } from '../app/state';
 import { BackLink, Segmented, useUndo } from '../app/ui';
 import { buildPlan, daysFor, defaultWeekdays, goals, goalsFor, levels, type Goal, type Level } from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
-import GoalLink from './GoalLink';
+import GoalLink, { moveGoalTime } from './GoalLink';
 
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -24,7 +24,9 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
   const goalChoice = goalsFor(level).includes(goal) ? goal : goalsFor(level)[0];
   const dayChoice = allowedDays.includes(days) ? days : allowedDays[0];
   const plan = buildPlan({ level, days: dayChoice, goal: goalChoice });
-  const chosenDays = weekdays.length === dayChoice ? weekdays : defaultWeekdays(dayChoice);
+  // The days exactly as picked; saving waits until there are as many as the plan has sessions.
+  const chosenDays = weekdays.length <= dayChoice ? weekdays : defaultWeekdays(dayChoice);
+  const daysReady = chosenDays.length === dayChoice;
   const same = current && current.level === level && current.goal === goalChoice && current.days === dayChoice;
 
   const pickLevel = (next: Level) => {
@@ -42,15 +44,23 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
   const toggleDay = (day: number) => {
     const has = chosenDays.includes(day);
     if (has) setWeekdays(chosenDays.filter((d) => d !== day));
-    else if (chosenDays.length < dayChoice) setWeekdays([...chosenDays, day].sort());
-    else setWeekdays([...chosenDays.slice(1), day].sort());
+    else if (chosenDays.length < dayChoice) setWeekdays([...chosenDays, day].sort((a, b) => a - b));
+    else setWeekdays([...chosenDays.slice(1), day].sort((a, b) => a - b));
   };
 
   const save = () => {
     const before = current;
     if (same && current) {
-      // Same plan: only the days change; the week stays.
+      // Same plan: only the days change; the week stays, and any time set aside for the goal follows.
       savePlan({ ...current, weekdays: chosenDays, moves: {} });
+      const changed = chosenDays.join() !== [...current.weekdays].sort((a, b) => a - b).join();
+      if (changed)
+        void moveGoalTime(current.goalId, chosenDays, today).then((putBack) =>
+          undo(putBack ? 'Run days and protected time moved' : 'Run days changed', () => {
+            savePlan(current);
+            void putBack?.();
+          }),
+        );
     } else {
       startPlan({ level, goal: goalChoice, days: dayChoice, weekdays: chosenDays, week }, today);
       if (before) undo('Plan changed', () => savePlan(before));
@@ -153,7 +163,12 @@ export default function PlanPage({ nav, first, level: openLevel }: { nav: Nav; f
 
       {!first && current && same && <GoalLink plan={current} />}
 
-      <button type="button" className="button-main" onClick={save}>
+      {!daysReady && (
+        <p className="hint" role="status">
+          Pick {dayChoice - chosenDays.length} more {dayChoice - chosenDays.length === 1 ? 'day' : 'days'}.
+        </p>
+      )}
+      <button type="button" className="button-main" onClick={save} disabled={!daysReady}>
         {first ? 'Begin' : same ? 'Keep these days' : `Start ${levels[level].name.toLowerCase()} plan`}
       </button>
     </div>

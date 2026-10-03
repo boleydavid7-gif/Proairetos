@@ -2002,3 +2002,9 @@ html[data-nav='back']::view-transition-new(root) {
 .hero__content .back-link {
   color: var(--on-photo);
 }
+
+.button-main:disabled,
+.button-quiet:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
