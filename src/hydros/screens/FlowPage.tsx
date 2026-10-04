@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings } from '../app/state';
-import { localDate, totalOz } from '../core/drinks';
-import { BoltIcon, CupIcon, MoonIcon, SunIcon } from '../app/icons';
+import { caffeine, kindLabel, localDate, sourceBreakdown, totalOz, type Drink } from '../core/drinks';
+import { CupIcon, DropIcon, MoonIcon, SunIcon, WaveIcon } from '../app/icons';
 import { ScreenHeader, Segmented } from '../app/ui';
 
 type Span = 'Day' | 'Week' | 'Month' | 'All Time';
@@ -14,8 +14,30 @@ export default function FlowPage({ nav }: { nav: Nav }) {
   const [span, setSpan] = useState<Span>('Day');
   const range = span === 'Day' ? days(7) : span === 'Week' ? days(28) : span === 'Month' ? days(90) : days(180);
   const values = useMemo(() => range.map((day) => totalOz(drinks.filter((drink) => localDate(new Date(drink.loggedAt)) === day))), [drinks, range.join(',')]);
+  const periodDrinks = useMemo(() => drinks.filter((drink) => range.includes(localDate(new Date(drink.loggedAt)))), [drinks, range.join(',')]);
+  const patterns = useMemo(() => buildPatterns(periodDrinks, range), [periodDrinks, range.join(',')]);
   const max = Math.max(settings.usualMaxOz, ...values, 1);
-  return <div className="hydros-screen"><ScreenHeader title="Your Flow" onBack={nav.back} /><Segmented items={['Day', 'Week', 'Month', 'All Time'] as const} selected={span} onSelect={setSpan} /><div className="flow-chart" aria-label="Hydration flow chart"><div className="flow-chart__grid"><span>{max} oz</span><span>{Math.round(max * .75)} oz</span><span>{Math.round(max * .5)} oz</span><span>0</span></div><div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className="flow-chart__bar" style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%` }} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'narrow' })}</small></div>)}</div></div><div className="flow-legend"><span><i className="is-cyan" /> Your intake</span><span><i className="is-dash" /> Your usual range</span></div><button type="button" className="pattern-card" onClick={() => nav.go({ name: 'patterns' })}><div className="hydros-section-title"><h2>Key Patterns</h2><span className="hydros-card-chevron" aria-hidden="true">›</span></div><Pattern icon={<SunIcon />} text="Higher hydration on work days." /><Pattern icon={<MoonIcon />} text="Afternoon dip is common." /><Pattern icon={<BoltIcon />} text="More water on training days." /><Pattern icon={<CupIcon />} text="Less caffeine after 3 PM correlates with better sleep." /></button></div>;
+  return <div className="hydros-screen"><ScreenHeader title="Your Flow" onBack={nav.back} /><Segmented items={['Day', 'Week', 'Month', 'All Time'] as const} selected={span} onSelect={setSpan} /><div className={`flow-chart${periodDrinks.length ? '' : ' is-empty'}`} aria-label="Hydration flow chart"><div className="flow-chart__grid"><span>{max} oz</span><span>{Math.round(max * .75)} oz</span><span>{Math.round(max * .5)} oz</span><span>0</span></div><div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className="flow-chart__bar" style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%` }} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'narrow' })}</small></div>)}</div></div><div className="flow-legend"><span><i className="is-cyan" /> Your intake</span><span><i className="is-dash" /> {periodDrinks.length ? 'Your usual range' : 'Set amount'}</span></div><section className="pattern-card"><div className="hydros-section-title"><h2>Key Patterns</h2></div>{patterns.length ? patterns.map((pattern) => <Pattern key={pattern.title} icon={pattern.icon} text={pattern.text} />) : <p className="pattern-empty">No drinks logged in this period.</p>}</section></div>;
 }
 
 function Pattern({ icon, text }: { icon: React.ReactNode; text: string }) { return <div className="pattern-row"><span>{icon}</span><p>{text}</p></div>; }
+
+function buildPatterns(drinks: Drink[], range: string[]): { title: string; text: string; icon: React.ReactNode }[] {
+  if (!drinks.length) return [];
+  const daysLogged = new Set(drinks.map((drink) => localDate(new Date(drink.loggedAt)))).size;
+  const sources = sourceBreakdown(drinks);
+  const source = sources[0];
+  const times = [
+    { label: 'Morning', count: drinks.filter((drink) => new Date(drink.loggedAt).getHours() < 12).length, icon: <SunIcon /> },
+    { label: 'Afternoon', count: drinks.filter((drink) => { const hour = new Date(drink.loggedAt).getHours(); return hour >= 12 && hour < 18; }).length, icon: <WaveIcon /> },
+    { label: 'Evening', count: drinks.filter((drink) => new Date(drink.loggedAt).getHours() >= 18).length, icon: <MoonIcon /> },
+  ].sort((a, b) => b.count - a.count);
+  const patterns: { title: string; text: string; icon: React.ReactNode }[] = [
+    { title: 'Days logged', text: `${daysLogged} of ${range.length} days`, icon: <DropIcon /> },
+    { title: 'Main source', text: `${kindLabel(source.kind)} · ${source.amountOz} oz`, icon: <DropIcon /> },
+  ];
+  if (times[0].count > 0) patterns.push({ title: 'Most logged time', text: `${times[0].label} · ${times[0].count} drinks`, icon: times[0].icon });
+  const caffeineMg = caffeine(drinks);
+  if (caffeineMg > 0) patterns.push({ title: 'Caffeine logged', text: `${caffeineMg} mg`, icon: <CupIcon /> });
+  return patterns;
+}

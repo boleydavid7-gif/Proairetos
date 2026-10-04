@@ -20,3 +20,9 @@
   Cache-Control: no-cache
 /oikonomia/index.html
   Cache-Control: no-cache
+/hydros/sw.js
+  Cache-Control: no-cache
+/hydros/
+  Cache-Control: no-cache
+/hydros/index.html
+  Cache-Control: no-cache

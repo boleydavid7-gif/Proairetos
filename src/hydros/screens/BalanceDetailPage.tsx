@@ -20,6 +20,7 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
   const settings = useSettings();
   const training = useTraining();
   const range = rangeForTraining(settings, training ?? { runDay: false, loggedRun: false });
+  const hasData = drinks.length > 0;
   const amount = totalOz(today);
   const morning = today.filter((drink) => new Date(drink.loggedAt).getHours() < 12).length;
   const afternoon = today.filter((drink) => {
@@ -27,21 +28,19 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
     return hour >= 12 && hour < 18;
   }).length;
   const evening = today.filter((drink) => new Date(drink.loggedAt).getHours() >= 18).length;
-  const dailyRows: [string, string][] = [
-    ['Today', `${amount} oz`],
-    ['Usual range', `${settings.usualMinOz}–${settings.usualMaxOz} oz`],
-    ['Run day range', training?.runDay ? `${range.min}–${range.max} oz` : 'No run today'],
-  ];
+  const dailyRows: [string, string][] = hasData
+    ? [['Today', `${amount} oz`], ['Usual range', `${settings.usualMinOz}–${settings.usualMaxOz} oz`], ['Run day range', training?.runDay ? `${range.min}–${range.max} oz` : 'No run today']]
+    : [['Today', `${amount} oz`], ['Amount', 'Set amount'], ['Run day range', 'Set amount']];
   const rhythmRows: [string, string][] = [['Morning', `${morning} drinks`], ['Afternoon', `${afternoon} drinks`], ['Evening', `${evening} drinks`]];
   const supportRows: [string, string][] = [
-    ['Range', `${range.min}–${range.max} oz today`],
-    ['Askesis', training?.runDay ? 'Run day range in use' : 'No run day adjustment'],
+    ['Amount', hasData ? `${range.min}–${range.max} oz today` : 'Set amount'],
+    ['Askesis', hasData && training?.runDay ? 'Run day range in use' : 'No adjustment'],
     ['Add', 'Log a drink from the Add tab'],
   ];
 
   let body: React.ReactNode;
   if (id === 'dailyBalance') {
-    body = <><Summary icon={<DropIcon />} value={`${amount} oz`} detail={`${range.min}–${range.max} oz range`} /><MetricCards rows={dailyRows} /><SourceRows drinks={today} mode="hydration" empty="No drinks logged today." /></>;
+    body = <><Summary icon={<DropIcon />} value={`${amount} oz`} detail={hasData ? `${range.min}–${range.max} oz range` : 'Set amount'} /><MetricCards rows={dailyRows} /><SourceRows drinks={today} mode="hydration" empty="No drinks logged today." /></>;
   } else if (id === 'caffeine') {
     body = <><Summary icon={<CupIcon />} value={`${caffeine(today)} mg`} detail="From today’s drinks" /><SourceRows drinks={today.filter((drink) => (drink.caffeineMg ?? 0) > 0)} mode="caffeine" empty="No caffeine logged today." /></>;
   } else if (id === 'electrolytes') {

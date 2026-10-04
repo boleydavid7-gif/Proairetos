@@ -126,6 +126,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-segmented button.is-selected { background: var(--cyan); color: var(--cyan-ink); font-weight: 500; }
 .flow-chart { position: relative; display: flex; height: 260px; margin-top: 26px; padding: 0 4px 26px 40px; }
 .flow-chart::before { content: ''; position: absolute; left: 40px; right: 3px; top: 31%; height: 35%; border-top: 1px dashed rgba(166,225,237,.35); border-bottom: 1px dashed rgba(166,225,237,.35); background: rgba(83,164,186,.06); }
+.flow-chart.is-empty::before { display: none; }
 .flow-chart__grid { position: absolute; left: 0; top: -7px; bottom: 28px; display: flex; flex-direction: column; justify-content: space-between; color: var(--muted); font-size: .64rem; }
 .flow-chart__bars { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(7,1fr); align-items: end; gap: 8px; width: 100%; height: 100%; }
 .flow-chart__bar-wrap { display: flex; height: 100%; flex-direction: column; justify-content: end; align-items: center; gap: 7px; color: var(--muted); font-size: .65rem; }
@@ -142,7 +143,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .pattern-row span { color: var(--cyan); }
 .pattern-row span svg { width: 21px; height: 21px; }
 .pattern-row p { font-size: .82rem; }
-.hydros-card-chevron { color: var(--muted); font-size: 1.8rem; line-height: 1; }
+.pattern-empty { padding: 14px 0 6px; color: var(--muted); font-size: .82rem; }
 
 .hydros-detail { gap: 14px; }
 .hydros-detail-summary { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 24px 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); text-align: center; }
