@@ -1,15 +1,14 @@
 import { FormEvent, useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon, CalendarIcon } from '../app/icons';
+import { ArrowLeftIcon } from '../app/icons';
 import { localDate, type BillFrequency } from '../core/bills';
-import { useBills, useSettings, useToday, newId } from '../app/state';
+import { useBills, useSettings, newId } from '../app/state';
 import { putBill } from '../data/store';
 import { PageTop, formatFrequency } from '../app/ui';
 
 export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
   const settings = useSettings();
   const bills = useBills();
-  const today = useToday();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState(() => {
@@ -69,10 +68,8 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
     <div className="page oiko-page">
       <PageTop>
         <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button>
-        <p className="label">{id ? 'Edit bill' : 'New bill'}</p>
       </PageTop>
       <h1 className="title">{id ? 'Change the details.' : 'What needs tending?'}</h1>
-      <p className="lead">Add it once. Oikonomia will carry its dates for you.</p>
 
       <form className="oiko-form" onSubmit={(event) => void save(event)}>
         <label className="field"><span className="field__label">Bill name</span><input className="input" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="Electric, rent, insurance" /></label>
@@ -84,14 +81,12 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
         <label className="field"><span className="field__label">Category <span className="muted">(optional)</span></span><input className="input" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Home, transport, care" /></label>
 
         <div className="oiko-form-card">
-          <label className="oiko-check-row"><span><strong>Autopay</strong><small>Mark it paid when you tend to it.</small></span><input type="checkbox" checked={autopay} onChange={(event) => setAutopay(event.target.checked)} /></label>
-          <label className="oiko-check-row"><span><strong>Remind me</strong><small>Keep a quiet reminder before the date.</small></span><select className="oiko-select" value={reminderDays} onChange={(event) => setReminderDays(event.target.value)}><option value="0">On the day</option><option value="1">1 day before</option><option value="3">3 days before</option><option value="7">1 week before</option></select></label>
-          <div className="oiko-calendar-confirm"><CalendarIcon size={19} /><span><strong>Added to your Oikonomia calendar</strong><small>{dueDate ? 'The next date is ' + dueDate : 'Choose a due date first.'}</small></span></div>
+          <label className="oiko-check-row"><span><strong>Autopay</strong><small>Paid automatically</small></span><input type="checkbox" checked={autopay} onChange={(event) => setAutopay(event.target.checked)} /></label>
+          <label className="oiko-check-row"><span><strong>Remind me</strong><small>Before the due date</small></span><select className="oiko-select" value={reminderDays} onChange={(event) => setReminderDays(event.target.value)}><option value="0">On the day</option><option value="1">1 day before</option><option value="3">3 days before</option><option value="7">1 week before</option></select></label>
         </div>
 
         {error && <p className="oiko-error" role="alert">{error}</p>}
         <button type="submit" className="button-main">{id ? 'Save changes' : 'Add bill'}</button>
-        <p className="fine">Today is {today}. You can change any detail later.</p>
       </form>
     </div>
   );

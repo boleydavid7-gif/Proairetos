@@ -70,6 +70,17 @@
   background: linear-gradient(180deg, rgba(13, 17, 16, 0.58) 0%, rgba(13, 17, 16, 0.08) 38%, rgba(13, 17, 16, 0.5) 74%, var(--bg) 100%);
 }
 
+.oiko-hero .home__title {
+  max-width: 22ch;
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  line-height: 1.08;
+}
+
+.oiko-hero .home__sub {
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
 .oikonomia .brand {
   color: var(--oiko-clay);
 }
@@ -105,21 +116,12 @@
   background: linear-gradient(145deg, var(--surface), var(--oiko-clay-soft));
 }
 
-.oiko-next-card__head,
 .oiko-section-head,
 .oiko-calendar-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.oiko-calendar-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--oiko-clay);
-  font-size: 0.78rem;
 }
 
 .oiko-next-card__bill {
@@ -495,7 +497,7 @@
 }
 
 .oiko-more-list .row,
-.oiko-family-links .row {
+.oiko-family-grid .row {
   position: relative;
 }
 
@@ -509,6 +511,40 @@
   width: 100%;
   opacity: 0;
   cursor: pointer;
+}
+
+.oiko-family-links {
+  gap: 8px;
+}
+
+.oiko-family-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.oiko-family-grid .row {
+  min-height: 92px;
+  padding: 12px;
+  grid-template-columns: 1fr;
+  align-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.oiko-family-grid .row__icon {
+  justify-content: flex-start;
+}
+
+.oiko-family-grid .row__text {
+  font-size: 0.9rem;
+}
+
+.oiko-family-grid .row__app {
+  width: 28px;
+  height: 28px;
 }
 
 .oiko-sync-note {
@@ -531,5 +567,9 @@
 
   .oiko-next-card__amount {
     font-size: 0.9rem;
+  }
+
+  .oiko-family-grid .row {
+    padding: 10px;
   }
 }

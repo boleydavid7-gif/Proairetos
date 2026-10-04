@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon, CalendarIcon, DownloadIcon } from '../app/icons';
-import { downloadBillCalendar } from '../core/calendar';
+import { ArrowLeftIcon } from '../app/icons';
 import { formatDate, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate } from '../core/bills';
 import { useBills } from '../app/state';
 import { PageTop } from '../app/ui';
@@ -28,12 +27,9 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
     <div className="page oiko-page">
       <PageTop>
         <div>
-          <p className="label">Oikonomia</p>
           <h1 className="title">Calendar</h1>
         </div>
-        <button type="button" className="round-button" aria-label="Save bills to a calendar file" onClick={() => downloadBillCalendar(bills)}><DownloadIcon size={21} /></button>
       </PageTop>
-      <p className="lead">Every recurring bill finds its place here.</p>
 
       <section className="card oiko-calendar-card" aria-label={formatMonth(month)}>
         <div className="oiko-calendar-head">
@@ -69,11 +65,6 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
         ))}
       </section>
 
-      <button type="button" className="card card--link oiko-calendar-export" onClick={() => downloadBillCalendar(bills)}>
-        <span className="card__eyebrow"><CalendarIcon size={15} /> Calendar file</span>
-        <span className="card__title card__title--small">Save these dates to Apple, Google, or Outlook.</span>
-        <span className="muted">Oikonomia will include the next year of recurring bills.</span>
-      </button>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { CalendarIcon, DownloadIcon, SettingsIcon } from '../app/icons';
-import { downloadBillCalendar } from '../core/calendar';
+import { DownloadIcon, SettingsIcon } from '../app/icons';
 import { useAccount, useBills } from '../app/state';
 import { exportAll, restore } from '../data/store';
 import { PageTop } from '../app/ui';
@@ -44,24 +43,24 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
 
   return (
     <div className="page oiko-page">
-      <PageTop><div><p className="label">Oikonomia</p><h1 className="title">More</h1></div></PageTop>
+      <PageTop><h1 className="title">More</h1></PageTop>
       <section className="oiko-more-list">
-        <button type="button" className="row" onClick={() => downloadBillCalendar(bills)}><span className="row__icon"><CalendarIcon size={21} /></span><span className="row__text"><strong>Save to your calendar</strong><small>Apple, Google, or Outlook · next year</small></span></button>
         <button type="button" className="row" onClick={() => void downloadBackup()}><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Back up your bills</strong><small>{bills.length} {bills.length === 1 ? 'bill' : 'bills'} on this device</small></span></button>
         <label className="row"><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Restore a backup</strong><small>Bring bills back from a JSON file</small></span><input className="oiko-file-input" type="file" accept="application/json,.json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.currentTarget.value = ''; }} /></label>
         <button type="button" className="row" onClick={() => window.location.assign('/settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and account</strong><small>Shared with Proairetos</small></span></button>
       </section>
 
       <section className="oiko-family-links">
-        <p className="label">The family</p>
-        <a className="row" href="/"><span className="row__text"><strong>Proairetos</strong><small>Your days, values, and reflections</small></span></a>
-        <a className="row" href="/askesis/"><span className="row__text"><strong>Askesis</strong><small>Running, from your first walk-run</small></span></a>
-        <a className="row" href="/soma/"><span className="row__text"><strong>SOMA</strong><small>Recipes, groceries, and simple food</small></span></a>
+        <p className="label">Family</p>
+        <div className="oiko-family-grid">
+          <a className="row" href="/"><span className="row__icon"><img className="row__app" src="/icons/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Proairetos</strong></span></a>
+          <a className="row" href="/askesis/"><span className="row__icon"><img className="row__app" src="/askesis/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Askesis</strong></span></a>
+          <a className="row" href="/soma/"><span className="row__icon"><img className="row__app" src="/soma/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>SOMA</strong></span></a>
+        </div>
       </section>
 
       {message && <p className="oiko-success" role="status">{message}</p>}
       {account.phase === 'ready' && <p className="oiko-sync-note">Synced with {account.email ?? 'your Proairetos account'}.</p>}
-      <p className="hint">When your Proairetos calendar feed is on, new Oikonomia dates update there after sync. A saved calendar file works without an account.</p>
       <button type="button" className="text-link" onClick={() => nav.go({ name: 'about' })}>About Oikonomia</button>
     </div>
   );

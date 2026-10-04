@@ -31,7 +31,6 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
     <div className="page oiko-page oiko-detail">
       <PageTop>
         <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Bills</button>
-        <span className="oiko-detail__menu">Oikonomia</span>
       </PageTop>
 
       <div className="oiko-detail__heading">
@@ -42,11 +41,11 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
 
       <section className="oiko-detail-card">
         <div className="oiko-detail-line"><CalendarIcon size={20} /><span><strong>{next ? 'Due ' + formatDate(next.date, 'long') : 'No future date'}</strong><small>{next ? relativeDue(next.date, today) : 'This one is complete'}</small></span></div>
-        <div className="oiko-detail-line"><RepeatIcon size={20} /><span><strong>{formatFrequency(bill.frequency)}</strong><small>Oikonomia carries the next date forward.</small></span></div>
+        <div className="oiko-detail-line"><RepeatIcon size={20} /><span><strong>{formatFrequency(bill.frequency)}</strong><small>Next date follows this schedule.</small></span></div>
         <div className="oiko-detail-line"><BellIcon size={20} /><span><strong>{bill.reminderDays === 0 ? 'On the due date' : bill.reminderDays + ' days before'}</strong><small>Reminder preference</small></span></div>
       </section>
 
-      <section className="oiko-calendar-confirm oiko-calendar-confirm--large"><CheckIcon size={22} /><span><strong>Added to your calendar</strong><small>Recurring dates will appear in Oikonomia and in the calendar file you save.</small></span></section>
+      <section className="oiko-calendar-confirm oiko-calendar-confirm--large"><CheckIcon size={22} /><span><strong>Added to calendar</strong><small>Recurring dates appear in Calendar.</small></span></section>
 
       <button type="button" className="button-main" onClick={() => void markPaid()}><CheckIcon size={19} /> Mark paid</button>
       <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit', id: bill.id })}>Change details</button>

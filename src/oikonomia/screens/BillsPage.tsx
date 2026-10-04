@@ -15,19 +15,16 @@ export default function BillsPage({ nav }: { nav: Nav }) {
     <div className="page oiko-page">
       <PageTop>
         <div>
-          <p className="label">Oikonomia</p>
-          <h1 className="title">Your bills</h1>
+          <h1 className="title">Bills</h1>
         </div>
         <button type="button" className="round-button" aria-label="Add a bill" onClick={() => nav.swap({ name: 'capture' })}><PlusIcon size={22} /></button>
       </PageTop>
-      <p className="lead">The things that keep a home moving.</p>
 
       {!bills ? (
         <p className="muted">Gathering what you keep here…</p>
       ) : ordered.length === 0 ? (
         <section className="card oiko-empty">
           <h2 className="card__title">Nothing here yet.</h2>
-          <p className="muted">Add a bill and its future dates will appear on your calendar.</p>
           <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>
         </section>
       ) : (

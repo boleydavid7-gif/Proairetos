@@ -1,5 +1,6 @@
 import { addMonths, monthCells, nextBills, occurrenceOnOrAfter, occurrencesBetween, type Bill } from '../../oikonomia/core/bills';
 import { billCalendarText } from '../../oikonomia/core/calendar';
+import { financeLineFor } from '../../oikonomia/core/lines';
 
 const bill = (change: Partial<Bill> = {}): Bill => ({
   id: 'electric',
@@ -46,5 +47,10 @@ describe('Oikonomia bill dates', () => {
 
   it('makes a six-week calendar grid', () => {
     expect(monthCells(new Date(2026, 9, 1, 12))).toHaveLength(42);
+  });
+
+  it('keeps one finance line for the day', () => {
+    expect(financeLineFor('2026-10-04')).toEqual(financeLineFor('2026-10-04'));
+    expect(financeLineFor('2026-10-04').source).toMatch(/Seneca|Epictetus/);
   });
 });
