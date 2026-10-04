@@ -54,20 +54,21 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
-.hydros-hero { position: relative; min-height: 590px; padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
+.hydros-hero { position: relative; min-height: 520px; padding: calc(env(safe-area-inset-top) + 24px) 28px 24px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
 .hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-sunset.webp') center 35% / cover; transform: scale(1.03); }
-.hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
+.hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .hydros-hero .hydros-brand { position: relative; }
-.hydros-home-head { display: flex; align-items: center; justify-content: space-between; }
+.hydros-home-head { position: absolute; top: calc(env(safe-area-inset-top) + 24px); right: 28px; z-index: 2; }
 .hydros-settings-button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(220, 249, 255, .28); border-radius: 50%; background: rgba(3, 28, 39, .48); color: #dcf9ff; }
-.hydros-hero__words { margin-top: 58px; }
-.hydros-hero__words p { margin: 0; font-size: 1.12rem; color: rgba(242,250,252,.83); }
-.hydros-hero__words h1 { margin: 5px 0 3px; font: 400 2.15rem/1.03 var(--serif); letter-spacing: .01em; }
+.hydros-hero__words { margin-top: 72px; }
+.hydros-hero__words p { display: block; margin: 0; font-size: 1.12rem; line-height: 1.14; color: rgba(242,250,252,.83); }
+.hydros-hero__words p strong { display: block; color: #f4fbfc; font-size: 1.08em; font-weight: 400; }
 .hydros-hero__words span { color: rgba(231,247,251,.72); font-size: .84rem; }
-.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: rgba(4,48,67,.43); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
-.hydros-orb__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hydros-orb__water { position: absolute; bottom: 0; left: -5%; right: -5%; background: linear-gradient(180deg, rgba(44,186,230,.22), rgba(5,72,100,.55)); border-radius: 50% 50% 0 0 / 7% 7% 0 0; transition: height .25s ease; }
-.hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 1; }
+.hydros-orb { width: min(68vw, 276px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; overflow: hidden; background: transparent; box-shadow: 0 15px 38px rgba(0,0,0,.36); }
+.hydros-orb__image { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.hydros-orb__water { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; overflow: hidden; border-radius: 0 0 50% 50% / 0 0 8% 8%; transition: height .25s ease; }
+.hydros-orb__water img { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: bottom; }
+.hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 3; }
 .hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
 .hydros-orb strong small { font: 400 1.3rem var(--sans); }
 .hydros-orb span { margin-top: 2px; font-size: .72rem; letter-spacing: .03em; }
