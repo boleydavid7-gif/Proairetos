@@ -339,3 +339,15 @@ optional server; see Sync and Reminders.
 - Supabase row-level security limits every row to its owner; tested against
   Postgres with a second user attempting to read, change, and forge rows.
 
+
+---
+
+## Family apps
+
+The family can hold small, focused companions beside Proairetos:
+
+- **Askesis** records gradual physical practice without streak pressure.
+- **SOMA** keeps food and groceries close to daily life.
+- **Oikonomia** keeps household bills and recurring obligations visible, with calendar dates generated from the person's own records.
+
+Each companion has its own name, mark, accent colour, and navigation while sharing the family's appearance setting, encrypted account sync, backup format, and privacy boundary. Oikonomia records bills and payments; it does not connect to bank accounts or infer financial health.

@@ -54,6 +54,17 @@ export default function MorePage({ nav }: { nav: Nav }) {
             </span>
           </a>
         </li>
+        <li>
+          <a className="row" href="/oikonomia/">
+            <span className="row__icon">
+              <img className="row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />
+            </span>
+            <span className="row__text">
+              <span>Oikonomia</span>
+              <span className="row__detail">Bills and household essentials</span>
+            </span>
+          </a>
+        </li>
       </ul>
       <figure className="more__foot">
         <img src={scene('olive-wall')} alt="" />

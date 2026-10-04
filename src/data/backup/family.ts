@@ -2,10 +2,10 @@ import { stores } from '../storage/indexeddb/database';
 
 /**
  * The other apps in the family, in the same backup as Proairetos: Askesis's
- * workouts and plan and SOMA's recipes and grocery list (all in the
- * Proairetos database), and the settings of all three, which
+ * workouts and plan, SOMA's recipes and grocery list, and Oikonomia's bills (all in the
+ * Proairetos database), and the settings of the family apps, which
  * live in this browser's storage. One file holds everything; whichever app
- * makes it, restoring it brings all three back.
+ * makes it, restoring it brings the family apps back.
  *
  * Left out on purpose: the sign-in session, things that are fetched again
  * (other calendars' events, the weather), drafts and running timers, the
@@ -15,11 +15,12 @@ import { stores } from '../storage/indexeddb/database';
 export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
+  oikonomia?: { bills: unknown[] };
   /** Settings by key, as stored. */
   settings?: Record<string, string>;
 };
 
-const PREFIXES = ['proairetos.', 'askesis:', 'soma:'];
+const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:'];
 const LEFT_OUT = new Set([
   'proairetos.auth',
   'proairetos.lastBackup',
@@ -114,6 +115,7 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
   if (proairetos) {
     out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
+    out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills) };
   }
   return out;
 }
@@ -127,6 +129,9 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
   if (proairetos && data.soma) {
     await replaceStore(proairetos, stores.somaRecipes, data.soma.recipes ?? []);
     await replaceStore(proairetos, stores.somaGroceries, data.soma.groceries ?? []);
+  }
+  if (proairetos && data.oikonomia) {
+    await replaceStore(proairetos, stores.oikonomiaBills, data.oikonomia.bills ?? []);
   }
   if (data.settings) restoreSettings(data.settings);
 }

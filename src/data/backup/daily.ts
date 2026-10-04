@@ -1,12 +1,12 @@
 /**
  * A copy of everything, made once a day on this phone, the last seven kept.
- * It is the same backup file as the one saved by hand (all three apps, their
+ * It is the same backup file as the one saved by hand (the family apps, their
  * settings), so any day can be restored. It guards against mistakes; sync
  * and a saved file guard against losing the phone.
  */
 export const DAILY_DB = 'proairetos-daily';
 export const KEEP_DAYS = 7;
-/** On by default; one switch for all three apps (they share this browser's storage). */
+/** On by default; one switch for the family apps (they share this browser's storage). */
 export const DAILY_SETTING = 'proairetos.dailyCopy';
 
 export type DailyCopy = { day: string; savedAt: string; text: string };
