@@ -24,4 +24,15 @@ startStore();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
 void startSync();
 
-if (import.meta.env.PROD && 'serviceWorker' in navigator) window.addEventListener('load', () => { void navigator.serviceWorker.register('/hydros/sw.js', { scope: '/hydros/' }).catch(() => undefined); });
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    try {
+      if (sessionStorage.getItem('hydros:worker-refresh')) return;
+      sessionStorage.setItem('hydros:worker-refresh', '1');
+      window.location.reload();
+    } catch {
+      window.location.reload();
+    }
+  });
+  window.addEventListener('load', () => { void navigator.serviceWorker.register('/hydros/sw.js', { scope: '/hydros/' }).then((registration) => registration.update()).catch(() => undefined); });
+}

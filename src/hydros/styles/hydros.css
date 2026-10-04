@@ -72,10 +72,8 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-orb em { margin-top: 4px; font-size: .7rem; font-style: normal; color: rgba(226,249,255,.78); }
 
 .hydros-content, .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
-.hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; }
-.hydros-screen::before, .hydros-add::before { content: ''; position: absolute; inset: 0; z-index: -2; background: url('../../assets/images/scenes/lake.webp') center 42% / cover; transform: scale(1.04); }
-.hydros-screen::after, .hydros-add::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(3, 19, 27, .62), rgba(3, 19, 27, .9) 78%, rgba(3, 19, 27, .96)); pointer-events: none; }
-:root.hydros[data-theme='light'] .hydros-screen::after, :root.hydros[data-theme='light'] .hydros-add::after { background: linear-gradient(180deg, rgba(234, 244, 245, .66), rgba(234, 244, 245, .92) 78%, rgba(234, 244, 245, .97)); }
+.hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/lake.webp') center 42% / cover; }
+:root.hydros[data-theme='light'] .hydros-screen, :root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .32), rgba(234, 244, 245, .72) 78%, rgba(234, 244, 245, .86)), url('../../assets/images/scenes/lake.webp') center 42% / cover; }
 .hydros-screen > *, .hydros-add > * { position: relative; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
