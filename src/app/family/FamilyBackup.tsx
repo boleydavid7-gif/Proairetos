@@ -5,7 +5,7 @@ import { backupService } from '../services';
 import { dayName, useDailyCopies } from './useDailyCopies';
 
 /**
- * The family's one backup, for Askesis, SOMA and Oikonomia's "Your data" pages. It is
+ * The family's one backup, for Askesis, SOMA, Oikonomia and HYDROS's "Your data" pages. It is
  * the same file Proairetos makes (Settings > Your data): every app's records
  * and settings. Making it here or there counts as the same last backup;
  * restoring it anywhere brings the family apps back.
@@ -17,6 +17,7 @@ function describe(data: BackupData): string {
   const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
   const parts = [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe'), n(counts.bills, 'bill')];
   if (counts.budgets > 0) parts.push(n(counts.budgets, 'budget'));
+  if (counts.drinks > 0) parts.push(n(counts.drinks, 'drink'));
   return parts.join(', ');
 }
 
@@ -69,7 +70,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
     <>
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
-        <p className="muted">Proairetos, Askesis, SOMA and Oikonomia, with their settings.</p>
+        <p className="muted">Proairetos, Askesis, SOMA, Oikonomia and HYDROS, with their settings.</p>
         <label className="field">
           <span className="label">Password, if you like</span>
           <input

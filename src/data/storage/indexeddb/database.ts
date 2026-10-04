@@ -8,7 +8,8 @@ export const DB_NAME = 'proairetos';
 // Version 8: somaRecipes, somaGroceries (SOMA, the recipe app, likewise).
 // Version 9: oikonomiaBills (Oikonomia, the household stewardship app).
 // Version 10: oikonomiaBudgets (monthly plans shared with Oikonomia).
-export const DB_VERSION = 10;
+// Version 11: hydrosDrinks (Hydros intake entries shared with the family).
+export const DB_VERSION = 11;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -28,6 +29,7 @@ export const stores = {
   somaGroceries: 'somaGroceries',
   oikonomiaBills: 'oikonomiaBills',
   oikonomiaBudgets: 'oikonomiaBudgets',
+  hydrosDrinks: 'hydrosDrinks',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -92,6 +94,9 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.oikonomiaBudgets)) {
         db.createObjectStore(stores.oikonomiaBudgets, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
+        db.createObjectStore(stores.hydrosDrinks, { keyPath: 'id' });
       }
     };
 

@@ -57,6 +57,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
           <a className="row" href="/"><span className="row__icon"><img className="row__app" src="/icons/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Proairetos</strong></span></a>
           <a className="row" href="/askesis/"><span className="row__icon"><img className="row__app" src="/askesis/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Askesis</strong></span></a>
           <a className="row" href="/soma/"><span className="row__icon"><img className="row__app" src="/soma/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>SOMA</strong></span></a>
+          <a className="row" href="/hydros/"><span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>HYDROS</strong></span></a>
         </div>
       </section>
 

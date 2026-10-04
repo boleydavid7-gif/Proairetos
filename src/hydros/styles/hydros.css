@@ -1,0 +1,152 @@
+/* HYDROS keeps the family's typography and calm spacing, with a deep-water palette. */
+:root.hydros {
+  --bg: #061219;
+  --surface: rgba(12, 42, 53, .82);
+  --surface-solid: #0d2c38;
+  --surface-2: #123b49;
+  --line: rgba(164, 222, 236, .16);
+  --text: #edf8fb;
+  --text-soft: #c0dbe2;
+  --muted: #86aab4;
+  --cyan: #3acaf5;
+  --cyan-soft: rgba(58, 202, 245, .17);
+  --cyan-ink: #03212a;
+  --tab-height: calc(70px + env(safe-area-inset-bottom));
+  --serif: 'EB Garamond', Georgia, serif;
+  --sans: Inter, system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+:root.hydros[data-theme='light'] {
+  --bg: #eaf4f5;
+  --surface: rgba(255, 255, 255, .84);
+  --surface-solid: #ffffff;
+  --surface-2: #d6e9ed;
+  --line: rgba(16, 77, 94, .17);
+  --text: #0c2b35;
+  --text-soft: #315662;
+  --muted: #5f7b84;
+  --cyan: #007eae;
+  --cyan-soft: rgba(0, 126, 174, .13);
+  --cyan-ink: #effbff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.hydros[data-theme='system'] { --bg: #eaf4f5; --surface: rgba(255,255,255,.84); --surface-solid: #fff; --surface-2: #d6e9ed; --line: rgba(16,77,94,.17); --text: #0c2b35; --text-soft: #315662; --muted: #5f7b84; --cyan: #007eae; --cyan-soft: rgba(0,126,174,.13); --cyan-ink: #effbff; color-scheme: light; }
+}
+
+html.hydros, body:has(.hydros-shell) { background: var(--bg); }
+body:has(.hydros-shell) { min-height: 100dvh; }
+.hydros-shell { width: 100%; max-width: 560px; min-height: 100dvh; margin: 0 auto; padding-bottom: calc(var(--tab-height) + 12px); background: var(--bg); overflow: hidden; }
+.hydros-page-enter { animation: hydros-in 260ms cubic-bezier(.2,.8,.2,1); }
+@keyframes hydros-in { from { opacity: 0; transform: translateY(6px); } }
+
+.hydros-brand { display: flex; align-items: center; gap: 10px; color: var(--cyan); }
+.hydros-brand--light { color: #45d5ff; }
+.hydros-brand__mark { width: 38px; height: 34px; display: inline-flex; flex-direction: column; justify-content: center; gap: 3px; transform: skewY(-8deg); }
+.hydros-brand__mark span { display: block; height: 4px; border: 2px solid currentColor; border-left: 0; border-radius: 0 100% 100% 0; }
+.hydros-brand__mark span:nth-child(1) { width: 22px; margin-left: 7px; }
+.hydros-brand__mark span:nth-child(2) { width: 31px; margin-left: 2px; }
+.hydros-brand__mark span:nth-child(3) { width: 25px; margin-left: 9px; }
+.hydros-brand__words { display: flex; flex-direction: column; line-height: 1.08; }
+.hydros-brand__name { letter-spacing: .25em; font-size: 1.02rem; font-weight: 500; }
+.hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
+.hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
+
+.hydros-hero { position: relative; min-height: 590px; padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
+.hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/lake.webp') center 35% / cover; transform: scale(1.03); }
+.hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
+.hydros-hero .hydros-brand { position: relative; }
+.hydros-hero__words { margin-top: 58px; }
+.hydros-hero__words p { margin: 0; font-size: 1.12rem; color: rgba(242,250,252,.83); }
+.hydros-hero__words h1 { margin: 5px 0 3px; font: 400 2.15rem/1.03 var(--serif); letter-spacing: .01em; }
+.hydros-hero__words span { color: rgba(231,247,251,.72); font-size: .84rem; }
+.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
+.hydros-orb::before { content: ''; position: absolute; left: 13%; right: 13%; top: 23%; height: 1px; background: rgba(232,254,255,.8); transform: rotate(-5deg); box-shadow: 0 8px 0 rgba(234,255,255,.3); }
+.hydros-orb__water { position: absolute; bottom: 0; left: -5%; right: -5%; background: linear-gradient(180deg, rgba(44,186,230,.58), rgba(5,72,100,.9)); border-radius: 50% 50% 0 0 / 7% 7% 0 0; transition: height .25s ease; }
+.hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 1; }
+.hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
+.hydros-orb strong small { font: 400 1.3rem var(--sans); }
+.hydros-orb span { margin-top: 2px; font-size: .72rem; letter-spacing: .03em; }
+.hydros-orb em { margin-top: 4px; font-size: .7rem; font-style: normal; color: rgba(226,249,255,.78); }
+
+.hydros-content, .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
+.hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
+.hydros-section-title button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
+.rhythm-card { display: grid; grid-template-columns: repeat(3,1fr); margin-top: 12px; padding: 16px 8px 14px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.rhythm-card__item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--muted); font-size: .76rem; }
+.rhythm-card__item svg { color: var(--muted); }
+.rhythm-card__item.is-active { color: var(--cyan); }
+.rhythm-card__item.is-active svg { color: var(--cyan); }
+.rhythm-card__item small { font-size: .68rem; }
+.hydros-note { display: flex; align-items: center; gap: 11px; margin-top: 12px; padding: 15px 16px; border-radius: 16px; background: var(--cyan-soft); color: var(--text-soft); font-size: .88rem; }
+.hydros-note svg { color: var(--cyan); flex: 0 0 auto; }
+.hydros-quote { margin: 28px 5px 0; padding: 0 10px; color: var(--text-soft); font: 400 1.42rem/1.15 var(--serif); text-align: center; }
+.hydros-quote cite { display: block; margin-top: 8px; color: var(--muted); font: .72rem var(--sans); font-style: normal; }
+
+.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
+:root.hydros[data-theme='light'] .hydros-tabs { background: rgba(234,244,245,.95); }
+.hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
+.hydros-tabs__item[aria-current='page'] { color: var(--cyan); }
+.hydros-tabs__item[aria-current='page'] svg { filter: drop-shadow(0 0 5px rgba(58,202,245,.55)); }
+
+.hydros-header { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; min-height: 56px; margin-bottom: 10px; }
+.hydros-header h1 { margin: 0; font: 400 1.35rem var(--serif); text-align: center; }
+.hydros-icon-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; background: none; color: var(--text); font-size: 2rem; font-weight: 300; }
+.hydros-header__action { display: block; }
+.hydros-add__image { min-height: 190px; margin: 0 -20px 22px; background: linear-gradient(180deg, rgba(3,23,31,.08), rgba(3,23,31,.8)), url('../../assets/images/scenes/lake.webp') center 56% / cover; border-radius: 0 0 22px 22px; }
+.drink-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.drink-types button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-height: 88px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text-soft); font-size: .74rem; }
+.drink-types button svg { color: var(--text-soft); }
+.drink-types button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); box-shadow: 0 0 18px rgba(58,202,245,.12); }
+.drink-types button.is-selected svg { color: var(--cyan); }
+.amount-picker { display: flex; align-items: center; justify-content: center; gap: 26px; margin-top: 21px; }
+.amount-picker button { display: grid; place-items: center; width: 47px; height: 47px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
+.amount-picker strong { min-width: 108px; color: var(--text); font: 400 2.4rem var(--serif); text-align: center; }
+.amount-picker strong small { font: .96rem var(--sans); color: var(--muted); }
+.amount-presets { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
+.amount-presets button { padding: 6px 11px; border: 1px solid transparent; border-radius: 16px; background: none; color: var(--muted); font-size: .74rem; }
+.amount-presets button.is-selected { border-color: var(--line); color: var(--cyan); background: var(--surface); }
+.hydros-time { display: flex; align-items: center; gap: 10px; min-height: 54px; margin-top: 18px; padding: 0 15px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--text-soft); }
+.hydros-time svg { color: var(--cyan); }
+.hydros-time span { flex: 1; }
+.hydros-time input { max-width: 164px; border: 0; outline: 0; background: none; color: var(--text); font-size: .87rem; }
+.hydros-save { width: 100%; min-height: 53px; margin-top: 14px; border: 0; border-radius: 28px; background: var(--cyan); color: var(--cyan-ink); font-weight: 600; }
+
+.hydros-screen { padding-top: calc(env(safe-area-inset-top) + 14px); }
+.hydros-segmented { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; padding: 3px; border-radius: 22px; background: var(--surface-2); }
+.hydros-segmented button { min-height: 35px; border: 0; border-radius: 18px; background: none; color: var(--muted); font-size: .72rem; }
+.hydros-segmented button.is-selected { background: var(--cyan); color: var(--cyan-ink); font-weight: 500; }
+.flow-chart { position: relative; display: flex; height: 260px; margin-top: 26px; padding: 0 4px 26px 40px; }
+.flow-chart::before { content: ''; position: absolute; left: 40px; right: 3px; top: 31%; height: 35%; border-top: 1px dashed rgba(166,225,237,.35); border-bottom: 1px dashed rgba(166,225,237,.35); background: rgba(83,164,186,.06); }
+.flow-chart__grid { position: absolute; left: 0; top: -7px; bottom: 28px; display: flex; flex-direction: column; justify-content: space-between; color: var(--muted); font-size: .64rem; }
+.flow-chart__bars { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(7,1fr); align-items: end; gap: 8px; width: 100%; height: 100%; }
+.flow-chart__bar-wrap { display: flex; height: 100%; flex-direction: column; justify-content: end; align-items: center; gap: 7px; color: var(--muted); font-size: .65rem; }
+.flow-chart__bar { width: min(26px, 70%); min-height: 3px; border-radius: 14px 14px 5px 5px; background: linear-gradient(180deg, #9cecff, var(--cyan)); box-shadow: 0 0 12px rgba(58,202,245,.32); }
+.flow-legend { display: flex; gap: 18px; margin: -10px 0 19px 41px; color: var(--text-soft); font-size: .7rem; }
+.flow-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.flow-legend i { width: 10px; height: 10px; display: inline-block; border-radius: 50%; background: var(--cyan); }
+.flow-legend i.is-dash { width: 14px; height: 0; border-top: 1px dashed var(--muted); border-radius: 0; background: none; }
+.pattern-card { padding: 17px 16px 10px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.pattern-card .hydros-section-title { margin-bottom: 4px; }
+.pattern-card .hydros-section-title h2 { font: 400 1.18rem var(--serif); }
+.pattern-card .hydros-section-title svg { color: var(--cyan); }
+.pattern-row { display: flex; align-items: center; gap: 13px; min-height: 51px; border-top: 1px solid rgba(164,222,236,.1); color: var(--text-soft); }
+.pattern-row span { color: var(--cyan); }
+.pattern-row span svg { width: 21px; height: 21px; }
+.pattern-row p { font-size: .82rem; }
+
+.balance-list { display: flex; flex-direction: column; gap: 9px; margin-top: 20px; }
+.balance-row { display: flex; align-items: center; gap: 13px; width: 100%; min-height: 80px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); color: var(--text); text-align: left; }
+.balance-row__icon { display: grid; place-items: center; width: 45px; height: 45px; flex: 0 0 auto; border-radius: 50%; background: var(--cyan-soft); color: var(--cyan); }
+.balance-row__words { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.balance-row__words strong { font-size: .84rem; font-weight: 500; }
+.balance-row__words b { font: 400 1.15rem/1.25 var(--serif); }
+.balance-row__words small { color: var(--muted); font-size: .69rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.balance-row__chevron { color: var(--muted); font-size: 1.7rem; font-weight: 300; }
+.hydros-add-float { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 18px; border: 1px solid var(--cyan); border-radius: 25px; background: var(--cyan-soft); color: var(--cyan); }
+
+@media (min-width: 560px) { .hydros-shell { box-shadow: 0 0 70px rgba(0,0,0,.25); } }
+@media (max-width: 370px) { .hydros-hero { padding-left: 20px; padding-right: 20px; } .hydros-hero__words h1 { font-size: 1.95rem; } .hydros-orb { width: 260px; } .flow-chart__bars { gap: 4px; } }

@@ -82,6 +82,13 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
             <ChevronIcon size={18} />
           </a>
         </li>
+        <li>
+          <a className="row" href="/hydros/">
+            <span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={26} height={26} /></span>
+            <span className="row__text"><span>HYDROS</span><span className="row__detail">Water, flow and balance</span></span>
+            <ChevronIcon size={18} />
+          </a>
+        </li>
       </ul>
       <figure className="more__foot">
         <img src={scene('starry-valley')} alt="" />

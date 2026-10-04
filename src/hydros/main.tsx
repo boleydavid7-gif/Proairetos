@@ -1,0 +1,27 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import '@fontsource/eb-garamond/latin-400.css';
+import '@fontsource/eb-garamond/latin-500.css';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+import '@fontsource/inter/latin-600.css';
+import '../askesis/styles/askesis.css';
+import './styles/hydros.css';
+import { applyAppearance } from '../app/appearance';
+import { startSync } from '../app/sync/syncController';
+import { startStore } from './data/store';
+import App from './app/App';
+
+function appearance() {
+  applyAppearance();
+  const dark = document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#061b25' : '#eaf4f5');
+}
+appearance();
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
+window.addEventListener('storage', appearance);
+startStore();
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
+void startSync();
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) window.addEventListener('load', () => { void navigator.serviceWorker.register('/hydros/sw.js', { scope: '/hydros/' }).catch(() => undefined); });

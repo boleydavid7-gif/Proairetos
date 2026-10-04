@@ -1060,6 +1060,12 @@ export default function SettingsPage() {
           value="Bills and household essentials"
           onClick={() => window.location.assign('/oikonomia/')}
         />
+        <Row
+          icon={<img className="settings-row__app" src="/hydros/icon.svg" alt="" width={26} height={26} />}
+          title="HYDROS"
+          value="Water, flow and balance"
+          onClick={() => window.location.assign('/hydros/')}
+        />
       </SettingsGroup>
 
       <SettingsGroup label="About">

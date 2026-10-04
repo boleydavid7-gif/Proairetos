@@ -2,7 +2,7 @@ import { stores } from '../storage/indexeddb/database';
 
 /**
  * The other apps in the family, in the same backup as Proairetos: Askesis's
- * workouts and plan, SOMA's recipes and grocery list, and Oikonomia's bills (all in the
+ * workouts and plan, SOMA's recipes and grocery list, Oikonomia's bills, and HYDROS's drinks (all in the
  * Proairetos database), and the settings of the family apps, which
  * live in this browser's storage. One file holds everything; whichever app
  * makes it, restoring it brings the family apps back.
@@ -16,11 +16,12 @@ export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
   oikonomia?: { bills: unknown[]; budgets?: unknown[] };
+  hydros?: { drinks: unknown[] };
   /** Settings by key, as stored. */
   settings?: Record<string, string>;
 };
 
-const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:'];
+const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:', 'hydros:'];
 const LEFT_OUT = new Set([
   'proairetos.auth',
   'proairetos.lastBackup',
@@ -116,6 +117,7 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
     out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
     out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills), budgets: await readAll(proairetos, stores.oikonomiaBudgets) };
+    out.hydros = { drinks: await readAll(proairetos, stores.hydrosDrinks) };
   }
   return out;
 }
@@ -136,5 +138,6 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
     // newer plans on this device alone.
     if (data.oikonomia.budgets !== undefined) await replaceStore(proairetos, stores.oikonomiaBudgets, data.oikonomia.budgets);
   }
+  if (proairetos && data.hydros) await replaceStore(proairetos, stores.hydrosDrinks, data.hydros.drinks ?? []);
   if (data.settings) restoreSettings(data.settings);
 }
