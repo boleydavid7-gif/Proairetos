@@ -202,6 +202,49 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-activity button { min-height: 38px; border: 1px solid var(--line); border-radius: 19px; background: none; color: var(--muted); font-size: .75rem; }
 .hydros-activity button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
 
+/* Settings follows the same quiet, grouped controls as the reference. */
+.hydros-settings { gap: 10px; padding-bottom: 30px; overflow-y: auto; background: linear-gradient(180deg, rgba(3, 19, 27, .18), rgba(3, 19, 27, .08)), var(--bg); }
+:root.hydros[data-theme='light'] .hydros-settings { background: linear-gradient(180deg, rgba(234, 244, 245, .18), rgba(234, 244, 245, .08)), var(--bg); }
+.hydros-settings-lede { margin: -4px 4px 3px; color: var(--muted); font-size: .78rem; }
+.hydros-settings-group { display: flex; flex-direction: column; gap: 6px; }
+.hydros-settings-group h2 { margin: 0 4px; color: var(--muted); font-size: .66rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+.hydros-settings-list { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: rgba(15, 48, 60, .52); }
+.hydros-settings-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 7px 12px; border: 0; border-bottom: 1px solid rgba(164,222,236,.1); background: transparent; color: var(--text); text-align: left; }
+.hydros-settings-row:last-child { border-bottom: 0; }
+.hydros-settings-row--button { cursor: pointer; }
+.hydros-settings-row--link { text-decoration: none; }
+.hydros-settings-row--static { cursor: default; }
+.hydros-settings-row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 24px; height: 24px; color: var(--cyan); }
+.hydros-settings-row__icon svg { width: 21px; height: 21px; }
+.hydros-settings-row__name { min-width: 0; flex: 1; font-size: .81rem; }
+.hydros-settings-row__input { width: 64px; padding: 2px 0; border: 0; outline: 0; background: transparent; color: var(--text-soft); font: inherit; text-align: right; }
+.hydros-settings-row__input::placeholder { color: var(--muted); }
+.hydros-settings-row > b { color: var(--text-soft); font-size: .74rem; font-weight: 400; }
+.hydros-settings-row select { max-width: 145px; border: 0; outline: 0; background: transparent; color: var(--text-soft); font: inherit; text-align: right; }
+.hydros-settings-row select:disabled { opacity: .48; }
+.hydros-settings-row__value { color: var(--text-soft); font-size: .76rem; text-align: right; }
+.hydros-settings-row__chevron { flex: 0 0 auto; color: var(--muted); font-size: 1.6rem; font-weight: 300; line-height: 1; }
+.hydros-switch { display: inline-flex; align-items: center; width: 43px; height: 25px; flex: 0 0 auto; padding: 3px; border-radius: 14px; background: rgba(157,193,202,.28); transition: background .2s ease; }
+.hydros-switch span { width: 19px; height: 19px; border-radius: 50%; background: #d3e7ea; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s ease; }
+.hydros-switch.is-on { justify-content: flex-end; background: var(--cyan); }
+.hydros-recommendation { display: flex; align-items: center; gap: 11px; margin: 8px; padding: 10px 10px; border: 1px solid rgba(74,204,245,.3); border-radius: 14px; background: rgba(34,154,192,.12); }
+.hydros-recommendation > svg { flex: 0 0 auto; color: var(--cyan); }
+.hydros-recommendation > div { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.hydros-recommendation span { color: var(--muted); font-size: .68rem; }
+.hydros-recommendation strong { font: 400 1.08rem/1.15 var(--serif); }
+.hydros-recommendation small { color: var(--text-soft); font-size: .68rem; line-height: 1.35; }
+.hydros-recommendation button { min-width: 46px; min-height: 32px; border: 1px solid var(--cyan); border-radius: 17px; background: transparent; color: var(--cyan); font-size: .72rem; }
+.hydros-unit-switch { display: grid; grid-template-columns: repeat(3, minmax(40px, 1fr)); overflow: hidden; border: 1px solid var(--line); border-radius: 17px; }
+.hydros-unit-switch button { min-height: 31px; padding: 0 10px; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font-size: .71rem; }
+.hydros-unit-switch button:first-child { border-left: 0; }
+.hydros-unit-switch button.is-selected { background: var(--cyan); color: var(--cyan-ink); }
+.hydros-settings-details summary { list-style: none; cursor: pointer; }
+.hydros-settings-details summary::-webkit-details-marker { display: none; }
+.hydros-time-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 11px 46px; color: var(--muted); font-size: .71rem; }
+.hydros-time-fields label { display: flex; align-items: center; gap: 6px; }
+.hydros-time-fields input { min-width: 0; padding: 5px 4px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--text-soft); font: inherit; }
+.hydros-settings-hint { margin: 0; padding: 7px 12px 10px 46px; color: var(--muted); font-size: .68rem; line-height: 1.35; }
+
 /* Keep Add Drink controls tied to the glass and rock landmarks in the wallpaper. */
 .hydros-add { padding: 0; }
 .hydros-add__stage { position: relative; height: calc(100dvh - var(--tab-height)); min-height: calc(100dvh - var(--tab-height)); overflow: hidden; }

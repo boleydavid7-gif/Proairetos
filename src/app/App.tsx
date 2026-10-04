@@ -23,14 +23,18 @@ import { notifications } from './notify/notifications';
 import { directionBetween, transition } from './transitions';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
-import { defaultRoute, type AppRoute } from './routes/routeTypes';
+import { defaultRoute, routePaths, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
 const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
+const routeFromLocation = (): AppRoute => {
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  return (Object.entries(routePaths).find(([, routePath]) => routePath === path)?.[0] as AppRoute | undefined) ?? defaultRoute;
+};
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
-  const [route, setRoute] = useState<AppRoute>(defaultRoute);
+  const [route, setRoute] = useState<AppRoute>(routeFromLocation);
   const current = useRef(route);
   current.current = route;
   // Every move between places slides the way it goes (see transitions.ts).

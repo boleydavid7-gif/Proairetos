@@ -17,6 +17,7 @@ export type DrinkSource = {
 };
 
 export type HydrosActivity = 'low' | 'moderate' | 'high';
+export type HydrosUnit = 'oz' | 'ml' | 'L';
 
 export type HydrosSettings = {
   goalOz: number;
@@ -25,16 +26,82 @@ export type HydrosSettings = {
   weightLb?: number;
   heightIn?: number;
   activity?: HydrosActivity;
+  useRecommendedRange?: boolean;
+  reminders?: boolean;
+  reminderIntervalMinutes?: number;
+  unit?: HydrosUnit;
 };
 
-export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80 });
+export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, unit: 'oz' });
 
-/** A transparent starting point for a personal amount recommendation. */
-export function recommendedGoalOz(settings: Pick<HydrosSettings, 'weightLb' | 'heightIn' | 'activity'>): number | undefined {
+/** An average diet contributes about one-fifth of daily water needs through food. */
+export const AVERAGE_FOOD_WATER_FRACTION = 0.2;
+
+type RecommendationProfile = Pick<HydrosSettings, 'weightLb' | 'heightIn' | 'activity'>;
+
+/**
+ * Returns the estimated total daily water need before separating food and drinks.
+ * The estimate is intentionally a starting point, not medical advice.
+ */
+export function recommendedTotalWaterOz(settings: RecommendationProfile): number | undefined {
   if (!Number.isFinite(settings.weightLb) || !Number.isFinite(settings.heightIn) || !settings.activity || settings.weightLb! <= 0 || settings.heightIn! <= 0) return undefined;
   const activityOz = settings.activity === 'high' ? 24 : settings.activity === 'moderate' ? 12 : 0;
   const heightAdjustment = Math.max(-6, Math.min(6, (settings.heightIn! - 66) * 0.25));
   return Math.round(Math.max(40, Math.min(180, settings.weightLb! * 0.5 + heightAdjustment + activityOz)));
+}
+
+export type WaterRecommendation = {
+  totalNeedOz: number;
+  foodWaterOz: number;
+  drinkGoalOz: number;
+};
+
+/** Splits the estimate into average food water and the amount to drink. */
+export function waterRecommendation(settings: RecommendationProfile): WaterRecommendation | undefined {
+  const totalNeedOz = recommendedTotalWaterOz(settings);
+  if (totalNeedOz === undefined) return undefined;
+  const foodWaterOz = Math.round(totalNeedOz * AVERAGE_FOOD_WATER_FRACTION);
+  return { totalNeedOz, foodWaterOz, drinkGoalOz: totalNeedOz - foodWaterOz };
+}
+
+/** The recommended daily amount to log as drinks, after average food water. */
+export function recommendedGoalOz(settings: RecommendationProfile): number | undefined {
+  return waterRecommendation(settings)?.drinkGoalOz;
+}
+
+/** The target shown to the person, optionally using the profile recommendation. */
+export function effectiveGoalOz(settings: HydrosSettings): number {
+  return settings.useRecommendedRange ? recommendedGoalOz(settings) ?? settings.goalOz : settings.goalOz;
+}
+
+const OUNCES_PER_ML = 1 / 29.5735;
+const OUNCES_PER_LITER = 33.814;
+
+export function unitLabel(unit: HydrosUnit = 'oz'): string {
+  return unit;
+}
+
+export function ouncesToUnit(ounces: number, unit: HydrosUnit = 'oz'): number {
+  if (unit === 'ml') return ounces / OUNCES_PER_ML;
+  if (unit === 'L') return ounces / OUNCES_PER_LITER;
+  return ounces;
+}
+
+export function unitToOunces(value: number, unit: HydrosUnit = 'oz'): number {
+  if (unit === 'ml') return value * OUNCES_PER_ML;
+  if (unit === 'L') return value * OUNCES_PER_LITER;
+  return value;
+}
+
+/** Formats a stored ounce value in the person's chosen measurement unit. */
+export function formatVolume(ounces: number, unit: HydrosUnit = 'oz'): string {
+  const value = ouncesToUnit(ounces, unit);
+  if (unit === 'L') return value.toFixed(1);
+  return String(Math.round(value));
+}
+
+export function volumeLabel(ounces: number, unit: HydrosUnit = 'oz'): string {
+  return `${formatVolume(ounces, unit)} ${unitLabel(unit)}`;
 }
 
 export const drinkKinds: { id: DrinkKind; label: string; caffeineMg: number }[] = [

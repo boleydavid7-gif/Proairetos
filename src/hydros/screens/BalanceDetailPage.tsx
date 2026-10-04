@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { BalanceDetailId, Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
-import { caffeine, kindLabel, sameDay, sourceBreakdown, totalOz, type Drink } from '../core/drinks';
+import { caffeine, effectiveGoalOz, kindLabel, sameDay, sourceBreakdown, totalOz, volumeLabel, type Drink } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { BalanceIcon, BoltIcon, CupIcon, DropIcon, WaveIcon } from '../app/icons';
 import { ScreenHeader } from '../app/ui';
@@ -20,6 +20,7 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
   const settings = useSettings();
   const training = useTraining();
   const range = rangeForTraining(settings, training ?? { runDay: false, loggedRun: false });
+  const unit = settings.unit ?? 'oz';
   const hasData = drinks.length > 0;
   const amount = totalOz(today);
   const morning = today.filter((drink) => new Date(drink.loggedAt).getHours() < 12).length;
@@ -29,18 +30,18 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
   }).length;
   const evening = today.filter((drink) => new Date(drink.loggedAt).getHours() >= 18).length;
   const dailyRows: [string, string][] = hasData
-    ? [['Today', `${amount} oz`], ['Usual range', `${settings.usualMinOz}–${settings.usualMaxOz} oz`], ['Run day range', training?.runDay ? `${range.min}–${range.max} oz` : 'No run today']]
-    : [['Today', `${amount} oz`], ['Amount', 'Set amount'], ['Run day range', 'Set amount']];
+    ? [['Today', volumeLabel(amount, unit)], ['Daily goal', volumeLabel(effectiveGoalOz(settings), unit)], ['Run day range', training?.runDay ? `${volumeLabel(range.min, unit)}–${volumeLabel(range.max, unit)}` : 'No run today']]
+    : [['Today', volumeLabel(amount, unit)], ['Amount', 'Set amount'], ['Run day range', 'Set amount']];
   const rhythmRows: [string, string][] = [['Morning', `${morning} drinks`], ['Afternoon', `${afternoon} drinks`], ['Evening', `${evening} drinks`]];
   const supportRows: [string, string][] = [
-    ['Amount', hasData ? `${range.min}–${range.max} oz today` : 'Set amount'],
+    ['Amount', hasData ? `${volumeLabel(range.min, unit)}–${volumeLabel(range.max, unit)} today` : 'Set amount'],
     ['Askesis', hasData && training?.runDay ? 'Run day range in use' : 'No adjustment'],
     ['Add', 'Log a drink from the Add tab'],
   ];
 
   let body: React.ReactNode;
   if (id === 'dailyBalance') {
-    body = <><Summary icon={<DropIcon />} value={`${amount} oz`} detail={hasData ? `${range.min}–${range.max} oz range` : 'Set amount'} /><MetricCards rows={dailyRows} /><SourceRows drinks={today} mode="hydration" empty="No drinks logged today." /></>;
+    body = <><Summary icon={<DropIcon />} value={volumeLabel(amount, unit)} detail={hasData ? `${volumeLabel(range.min, unit)}–${volumeLabel(range.max, unit)} range` : 'Set amount'} /><MetricCards rows={dailyRows} /><SourceRows drinks={today} mode="hydration" unit={unit} empty="No drinks logged today." /></>;
   } else if (id === 'caffeine') {
     body = <><Summary icon={<CupIcon />} value={`${caffeine(today)} mg`} detail="From today’s drinks" /><SourceRows drinks={today.filter((drink) => (drink.caffeineMg ?? 0) > 0)} mode="caffeine" empty="No caffeine logged today." /></>;
   } else if (id === 'electrolytes') {
@@ -66,7 +67,7 @@ function MetricCards({ rows }: { rows: [string, string][] }) {
   return <section className="hydros-metric-cards">{rows.map(([label, value]) => <div className="hydros-metric-card" key={label}><span>{label}</span><strong>{value}</strong></div>)}</section>;
 }
 
-function SourceRows({ drinks, mode, empty }: { drinks: Drink[]; mode: 'hydration' | 'caffeine' | 'electrolyte'; empty: string }) {
+function SourceRows({ drinks, mode, unit = 'oz', empty }: { drinks: Drink[]; mode: 'hydration' | 'caffeine' | 'electrolyte'; unit?: 'oz' | 'ml' | 'L'; empty: string }) {
   const sources = sourceBreakdown(drinks);
-  return <section className="hydros-source-list"><h2>Sources</h2>{sources.length ? sources.map((source) => <div className="hydros-source-row" key={source.kind}><span><strong>{kindLabel(source.kind)}</strong><small>{source.count} {source.count === 1 ? 'drink' : 'drinks'}</small></span><b>{mode === 'caffeine' ? `${source.caffeineMg} mg` : `${source.amountOz} oz`}</b></div>) : <p className="hydros-detail-empty">{empty}</p>}</section>;
+  return <section className="hydros-source-list"><h2>Sources</h2>{sources.length ? sources.map((source) => <div className="hydros-source-row" key={source.kind}><span><strong>{kindLabel(source.kind)}</strong><small>{source.count} {source.count === 1 ? 'drink' : 'drinks'}</small></span><b>{mode === 'caffeine' ? `${source.caffeineMg} mg` : volumeLabel(source.amountOz, unit)}</b></div>) : <p className="hydros-detail-empty">{empty}</p>}</section>;
 }

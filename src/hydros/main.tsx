@@ -10,6 +10,7 @@ import './styles/hydros.css';
 import { applyAppearance } from '../app/appearance';
 import { startSync } from '../app/sync/syncController';
 import { startStore } from './data/store';
+import { startHydrosReminders } from './data/reminders';
 import App from './app/App';
 
 function appearance() {
@@ -21,6 +22,7 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 startStore();
+startHydrosReminders();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
 void startSync();
 
