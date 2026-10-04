@@ -1,5 +1,5 @@
 import { rangeForTraining } from '../../hydros/data/training';
-import { greeting, totalOz, type Drink } from '../../hydros/core/drinks';
+import { greeting, sourceBreakdown, totalOz, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('adds a modest run-day range to the person’s usual range', () => {
@@ -16,5 +16,9 @@ describe('Hydros', () => {
     expect(totalOz(drinks)).toBe(20);
     expect(greeting(new Date('2026-10-04T08:00:00.000Z'))).toBe('Good morning');
     expect(greeting(new Date('2026-10-04T19:00:00.000Z'))).toBe('Good evening');
+    expect(sourceBreakdown(drinks)).toEqual([
+      { kind: 'water', count: 1, amountOz: 12, caffeineMg: 0 },
+      { kind: 'tea', count: 1, amountOz: 8, caffeineMg: 35 },
+    ]);
   });
 });

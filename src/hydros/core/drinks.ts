@@ -9,6 +9,13 @@ export type Drink = {
   createdAt: string;
 };
 
+export type DrinkSource = {
+  kind: DrinkKind;
+  count: number;
+  amountOz: number;
+  caffeineMg: number;
+};
+
 export type HydrosSettings = {
   goalOz: number;
   usualMinOz: number;
@@ -59,6 +66,19 @@ export function totalOz(drinks: readonly Drink[]): number {
 
 export function caffeine(drinks: readonly Drink[]): number {
   return drinks.reduce((sum, drink) => sum + (drink.caffeineMg ?? kindCaffeine(drink.kind)), 0);
+}
+
+/** Groups the day's entries so a total can always be traced back to drink types. */
+export function sourceBreakdown(drinks: readonly Drink[]): DrinkSource[] {
+  const grouped = new Map<DrinkKind, DrinkSource>();
+  for (const drink of drinks) {
+    const current = grouped.get(drink.kind) ?? { kind: drink.kind, count: 0, amountOz: 0, caffeineMg: 0 };
+    current.count += 1;
+    current.amountOz += drink.amountOz;
+    current.caffeineMg += drink.caffeineMg ?? kindCaffeine(drink.kind);
+    grouped.set(drink.kind, current);
+  }
+  return [...grouped.values()].sort((a, b) => b.amountOz - a.amountOz || a.kind.localeCompare(b.kind));
 }
 
 export function id(): string {
