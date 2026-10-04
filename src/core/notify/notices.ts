@@ -25,19 +25,35 @@ export type Notice = {
 };
 
 /** Minutes before a time; 0 is at the time itself. */
-export const remindChoices = [0, 5, 15, 30, 60, 1440] as const;
+export const remindChoices = [0, 5, 15, 30, 60, 90, 120, 1440] as const;
+
+/** Lead times used for calendar and schedule notifications. */
+export const noticeLeadChoices = [0, 5, 10, 15, 30, 60, 90, 120] as const;
+
+/** Keeps older saved settings from turning a "before" reminder into an after reminder. */
+export function normalizeLeadMinutes(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(120, Math.abs(Math.round(value!)));
+}
 
 export function remindLabel(minutes: number): string {
   if (minutes === 0) return 'At the time';
-  if (minutes < 60) return `${minutes} min before`;
+  if (minutes < 60) return `${minutes} minutes before`;
   if (minutes === 60) return '1 hour before';
   if (minutes % 1440 === 0) return minutes === 1440 ? '1 day before' : `${minutes / 1440} days before`;
   return `${minutes / 60} hours before`;
 }
 
+export function noticeLeadLabel(minutes: number): string {
+  if (minutes === 0) return 'At the start';
+  if (minutes < 60) return `${minutes} minutes before`;
+  return minutes === 60 ? '1 hour before' : `${minutes / 60} hours before`;
+}
+
 /** An item's reminders: as the person set them, or at the time if they never chose. */
 export function remindersOf(item: LifeItem): readonly number[] {
-  return item.remind ?? [0];
+  const values = item.remind ?? [0];
+  return [...new Set(values.filter(Number.isFinite).map((minutes) => Math.abs(Math.round(minutes))))].sort((a, b) => a - b);
 }
 
 export type NoticeSettings = {
@@ -155,11 +171,12 @@ export function noticesBetween(sources: Sources): Notice[] {
   }
 
   if (settings.calendars) {
+    const lead = normalizeLeadMinutes(settings.calendarLead, defaultNoticeSettings.calendarLead);
     for (const event of sources.events) {
       if (event.allDay) continue;
-      const at = new Date(event.start.getTime() - settings.calendarLead * 60_000);
+      const at = new Date(event.start.getTime() - lead * 60_000);
       timed(
-        `calendar:${event.key}:${settings.calendarLead}`,
+        `calendar:${event.key}:${lead}`,
         'calendar',
         at,
         event.start,
@@ -171,8 +188,9 @@ export function noticesBetween(sources: Sources): Notice[] {
   }
 
   if (settings.schedule) {
+    const lead = normalizeLeadMinutes(settings.scheduleLead, defaultNoticeSettings.scheduleLead);
     for (const block of sources.blocks) {
-      const at = new Date(block.start.getTime() - settings.scheduleLead * 60_000);
+      const at = new Date(block.start.getTime() - lead * 60_000);
       const name = block.label ? `${block.patternName} · ${block.label}` : block.patternName;
       timed(
         `schedule:${block.patternId}:${block.start.toISOString()}`,
