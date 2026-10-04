@@ -33,6 +33,9 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   rendering).
 - **More**: Usually have, Settings (daily line, ways to try it), Your data
   (backup file, restore, remove everything with undo), About and sources.
+- **Units**: Settings can show measured ingredients, cooking steps, grocery
+  amounts, and explicit oven temperatures in their original wording, metric,
+  or US units. The saved recipe always keeps the imported wording.
 - Data: the Proairetos database on the phone (stores `somaRecipes`,
   `somaGroceries`, DB 8), settings in localStorage. Synced, sealed, with the
   same account as Proairetos once the server has
@@ -90,6 +93,5 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
 - Pictures for recipes without one: a photo taken by the person, or an
   image made by an AI image service through the Worker (needs a key and has a
   cost per image; offered, never automatic).
-- Unit conversion (cups and grams, °F and °C).
 - AI help, only on a tap: images, tidying a pasted recipe, a draft from
   what is in the kitchen.

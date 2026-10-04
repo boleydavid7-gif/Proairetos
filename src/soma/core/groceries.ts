@@ -1,5 +1,5 @@
 import { aisleFor, type Aisle, type AisleChoices } from './aisles';
-import { formatAmount, itemKey, readIngredient } from './ingredients';
+import { convertAmountText, formatAmount, itemKey, readIngredient, type UnitSystem } from './ingredients';
 
 /**
  * The grocery list: one line per thing, whichever recipes it came from.
@@ -138,9 +138,9 @@ export function byRecipe(list: readonly GroceryItem[]): { title: string; items: 
 }
 
 /** The list as plain text, to share or paste anywhere. */
-export function listAsText(list: readonly GroceryItem[]): string {
+export function listAsText(list: readonly GroceryItem[], unitSystem: UnitSystem = 'original'): string {
   return byAisle(list.filter((item) => !item.checked && onList(item)))
-    .map(({ aisle, items }) => [aisle, ...items.map((item) => `- ${item.name}${item.amounts.length ? ` (${item.amounts.join(' + ')})` : ''}`)].join('\n'))
+    .map(({ aisle, items }) => [aisle, ...items.map((item) => `- ${item.name}${item.amounts.length ? ` (${item.amounts.map((amount) => convertAmountText(amount, item.name, unitSystem).trim()).join(' + ')})` : ''}`)].join('\n'))
     .join('\n\n');
 }
 

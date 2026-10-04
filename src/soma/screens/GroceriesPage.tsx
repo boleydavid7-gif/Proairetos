@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { ShareIcon } from '../app/icons';
-import { newId, useGroceries, useToday } from '../app/state';
+import { newId, useGroceries, useSettings, useToday } from '../app/state';
 import { Brand, Segmented, useUndo } from '../app/ui';
 import { aisles, type Aisle } from '../core/aisles';
 import { addToList, byAisle, byRecipe, listAsText, onList, type GroceryItem } from '../core/groceries';
 import { boughtLabel, bringHome, kitchenByAge } from '../core/kitchen';
+import { convertAmountText, type UnitSystem } from '../core/ingredients';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
 
-function Row({ item, onToggle, onMore }: { item: GroceryItem; onToggle: () => void; onMore: () => void }) {
+function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSystem: UnitSystem; onToggle: () => void; onMore: () => void }) {
   return (
     <li className="grocery-row">
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
         <span className="check-row__box">{item.checked ? '✓' : ''}</span>
         <span className="check-row__text">
           {item.name}
-          {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.join(' + ')}</span>}
+          {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, unitSystem)).join(' + ')}</span>}
         </span>
       </button>
       <button type="button" className="grocery-row__more" aria-label={`More for ${item.name}`} onClick={onMore}>
@@ -28,6 +29,7 @@ function Row({ item, onToggle, onMore }: { item: GroceryItem; onToggle: () => vo
 /** The grocery list, sorted by aisle (or by recipe). Ticked things wait at the bottom until cleared. */
 export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   const items = useGroceries();
+  const settings = useSettings();
   const undo = useUndo();
   const [view, setView] = useState<'aisle' | 'recipe'>('aisle');
   const [adding, setAdding] = useState('');
@@ -47,7 +49,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   const toBuy = items.filter(onList);
 
   const share = async () => {
-    const text = listAsText(items);
+    const text = listAsText(items, settings.units);
     try {
       if (navigator.share) await navigator.share({ title: 'Groceries', text });
       else {
@@ -113,7 +115,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
                 </div>
                 <ul className="check-list">
                   {group.items.map((item) => (
-                    <Row key={`${group.title}-${item.id}`} item={item} onToggle={() => toggle(item)} onMore={() => setOpen(item)} />
+                    <Row key={`${group.title}-${item.id}`} item={item} unitSystem={settings.units} onToggle={() => toggle(item)} onMore={() => setOpen(item)} />
                   ))}
                 </ul>
               </section>

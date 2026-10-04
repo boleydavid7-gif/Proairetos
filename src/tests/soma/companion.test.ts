@@ -117,17 +117,21 @@ describe('cooking aids', () => {
     expect(steps[2]).toBe('Add garlic (6 cloves) and 2 cup water.');
   });
 
-  it('scales measured amounts in steps but not times or heats', () => {
+  it('scales measured amounts and converts units without touching times', () => {
     expect(scaleStep('Add 2 cups stock and simmer 10 minutes at 350°F.', 1.5)).toBe('Add 3 cups stock and simmer 10 minutes at 350°F.');
     expect(scaleStep('Add 1/2 tsp salt.', 2)).toBe('Add 1 tsp salt.');
+    expect(scaleStep('Add 2 cups stock and simmer 10 minutes at 350°F.', 1, 'metric')).toBe('Add 480 ml stock and simmer 10 minutes at 177°C.');
   });
 
   it('finds oven heats and names timers', () => {
     expect(ovenHeats(['Heat the oven to 400°F.', 'Bake at 200 °C', 'Roast at 425 degrees'])).toEqual(['400°F', '200°C', '425°']);
+    expect(ovenHeats(['Heat the oven to 400°F.'], 'metric')).toEqual(['204°C']);
     expect(timerName('Rinse it. Simmer the rice for 18 minutes, covered.', '18 minutes')).toBe('Simmer the rice');
     expect(timerName('Fry the onion (1) for 5 minutes.', '5 minutes')).toBe('Fry the onion');
     expect(stepsWithAmounts(['Add 4 cups stock.'], ['4 cups vegetable stock'], 1)).toEqual(['Add 4 cups stock.']);
+    expect(stepsWithAmounts(['Add the rice.'], ['1 cup rice'], 1, 'metric')).toEqual(['Add the rice (240 ml).']);
     expect(gatherList(['# Base', '2 cups rice'], 2)).toEqual([{ heading: 'Base', line: '' }, { line: '4 cups rice' }]);
+    expect(gatherList(['2 cups rice'], 1, 'metric')).toEqual([{ line: '480 ml rice' }]);
   });
 });
 
