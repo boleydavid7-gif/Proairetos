@@ -143,6 +143,7 @@ describe('notices', () => {
     expect(privateNotice(notices[0], time).body).not.toMatch(/Dentist/);
     for (const notice of notices) expect(containsJudgmentLanguage(`${notice.title} ${notice.body}`)).toBe(false);
     expect(notices.find((n) => n.kind === 'day')?.body).toMatch(/^Nothing with a time today|Dentist/);
+    expect(remindLabel(90)).toBe('1 hour 30 minutes before');
     expect(remindLabel(120)).toBe('2 hours before');
     expect(remindLabel(1440)).toBe('1 day before');
   });

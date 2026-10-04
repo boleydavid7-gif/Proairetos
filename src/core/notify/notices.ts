@@ -41,13 +41,15 @@ export function remindLabel(minutes: number): string {
   if (minutes < 60) return `${minutes} minutes before`;
   if (minutes === 60) return '1 hour before';
   if (minutes % 1440 === 0) return minutes === 1440 ? '1 day before' : `${minutes / 1440} days before`;
-  return `${minutes / 60} hours before`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return `${hours} hour${hours === 1 ? '' : 's'}${remainder ? ` ${remainder} minutes` : ''} before`;
 }
 
 export function noticeLeadLabel(minutes: number): string {
   if (minutes === 0) return 'At the start';
   if (minutes < 60) return `${minutes} minutes before`;
-  return minutes === 60 ? '1 hour before' : `${minutes / 60} hours before`;
+  return remindLabel(minutes);
 }
 
 /** An item's reminders: as the person set them, or at the time if they never chose. */
