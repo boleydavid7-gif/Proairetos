@@ -297,6 +297,20 @@
   color: var(--mint);
 }
 
+.recipe-budget-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  margin: -2px 0 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.recipe-budget-hint strong {
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

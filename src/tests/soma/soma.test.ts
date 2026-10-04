@@ -1,6 +1,6 @@
 import { aisleFor } from '../../soma/core/aisles';
 import { addToList, byAisle, listAsText } from '../../soma/core/groceries';
-import { formatAmount, readIngredient, scaleLine } from '../../soma/core/ingredients';
+import { convertAmountText, convertLine, convertText, formatAmount, readIngredient, scaleLine } from '../../soma/core/ingredients';
 import { fromJsonLd, fromMeal, fromText, isoMinutes } from '../../soma/core/importRecipe';
 import { searchRecipes, withWhatIHave, type Recipe } from '../../soma/core/recipes';
 import { waysToTry } from '../../soma/core/tryIt';
@@ -24,6 +24,17 @@ describe('reading ingredients', () => {
     expect(scaleLine('A pinch of salt', 2)).toBe('A pinch of salt');
     expect(formatAmount(1 / 3)).toBe('⅓');
     expect(formatAmount(2.75)).toBe('2¾');
+  });
+
+  it('converts measured amounts without changing the saved wording', () => {
+    expect(convertLine('1 1/2 cups rolled oats, toasted', 'metric')).toBe('360 ml rolled oats, toasted');
+    expect(convertLine('500 g flour', 'us')).toBe('1.1 lb flour');
+    expect(convertLine('2-3 tbsp olive oil', 'metric')).toBe('30–45 ml olive oil');
+    expect(convertLine('3 cloves garlic', 'metric')).toBe('3 cloves garlic');
+    expect(convertAmountText('2 cups', 'rice', 'metric')).toBe('480 ml');
+    expect(convertText('Add 1 cup stock and 2 oz butter. Simmer 10 minutes at 350°F.', 'metric')).toBe('Add 240 ml stock and 57 g butter. Simmer 10 minutes at 177°C.');
+    expect(convertText('Bake at 180°C.', 'us')).toBe('Bake at 356°F.');
+    expect(convertText('Bake at 350F.', 'metric')).toBe('Bake at 177°C.');
   });
 });
 

@@ -3,10 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Three apps from one codebase: Proairetos at /, Askesis (training) at /askesis/, SOMA (recipes) at /soma/.
+  // Four apps from one codebase: Proairetos at /, Askesis at /askesis/, SOMA at /soma/, Oikonomia at /oikonomia/.
   build: {
     rollupOptions: {
-      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html' },
+      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html' },
     },
   },
   // When this copy was built, so Settings can say which build a phone is running.

@@ -11,7 +11,7 @@ import type { FamilyData } from './family';
 export const BACKUP_FORMAT = 'proairetos-backup';
 export const BACKUP_VERSION = 1;
 
-/** Proairetos's records, and (optional, so older backups still restore) Askesis, SOMA and every app's settings. */
+/** Proairetos's records, and (optional, so older backups still restore) the family apps and every app's settings. */
 export interface BackupData extends FamilyData {
   lifeItems: LifeItem[];
   itemEvents: ItemEvent[];
@@ -111,7 +111,11 @@ export function validateData(value: unknown): BackupData {
   const family = value as FamilyData;
   const lists = (part: unknown, keys: string[]) =>
     part === undefined || (isRecord(part) && keys.every((key) => part[key] === undefined || Array.isArray(part[key])));
-  if (!lists(family.askesis, ['workouts', 'plans']) || !lists(family.soma, ['recipes', 'groceries'])) {
+  if (
+    !lists(family.askesis, ['workouts', 'plans']) ||
+    !lists(family.soma, ['recipes', 'groceries']) ||
+    !lists(family.oikonomia, ['bills', 'budgets'])
+  ) {
     throw new BackupError('Some of the other apps’ records in this file are damaged.');
   }
   if (family.settings !== undefined && !isRecord(family.settings)) throw new BackupError('The settings in this file are damaged.');
@@ -135,7 +139,7 @@ export function parseBackupFile(text: string): BackupFile {
   return { ...(parsed as unknown as PlainBackup), data: validateData(parsed.data) };
 }
 
-export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes', number>;
+export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets', number>;
 
 export function countRecords(data: BackupData): RecordCounts {
   return {
@@ -143,5 +147,7 @@ export function countRecords(data: BackupData): RecordCounts {
     attachments: data.attachments?.length ?? 0,
     workouts: data.askesis?.workouts?.length ?? 0,
     recipes: data.soma?.recipes?.length ?? 0,
+    bills: data.oikonomia?.bills?.length ?? 0,
+    budgets: data.oikonomia?.budgets?.length ?? 0,
   } as RecordCounts;
 }

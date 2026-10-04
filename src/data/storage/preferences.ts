@@ -1,4 +1,4 @@
-import { defaultNoticeSettings, type NoticeSettings } from '../../core/notify/notices';
+import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
 import type { SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
@@ -509,7 +509,13 @@ const NOTIFY_KEY = 'proairetos.notify';
 
 /** What notifies, and how; device-only, like quiet hours. */
 export function loadNotify(): NoticeSettings {
-  return { ...defaultNoticeSettings, ...readJson<Partial<NoticeSettings>>(NOTIFY_KEY) };
+  const saved = readJson<Partial<NoticeSettings>>(NOTIFY_KEY) ?? {};
+  return {
+    ...defaultNoticeSettings,
+    ...saved,
+    calendarLead: normalizeLeadMinutes(saved.calendarLead, defaultNoticeSettings.calendarLead),
+    scheduleLead: normalizeLeadMinutes(saved.scheduleLead, defaultNoticeSettings.scheduleLead),
+  };
 }
 
 export function saveNotify(settings: NoticeSettings): void {

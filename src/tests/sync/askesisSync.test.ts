@@ -53,6 +53,16 @@ describe('Askesis records sync with the Proairetos account', () => {
     expect(await engine.sync()).toEqual({ pulled: 0, pushed: 1 });
     expect([...rows.keys()].sort()).toEqual(['askesisWorkouts:w1', 'lifeItems:a']);
   });
+
+  it('carries monthly Oikonomia plans with the family records', async () => {
+    const { remote } = server();
+    const phone = createMemoryLocalSyncStore();
+    const tablet = createMemoryLocalSyncStore();
+    await phone.put('oikonomiaBudgets', { id: '2026-10', month: '2026-10', currency: 'USD', totalCents: 250000, categoryLimits: { food: 70000 } });
+    await createSyncEngine({ local: phone, state: createMemorySyncStateStore(), remote, key }).sync();
+    await createSyncEngine({ local: tablet, state: createMemorySyncStateStore(), remote, key }).sync();
+    expect(await tablet.list('oikonomiaBudgets')).toEqual([{ id: '2026-10', month: '2026-10', currency: 'USD', totalCents: 250000, categoryLimits: { food: 70000 } }]);
+  });
 });
 
 describe('the shared database', () => {

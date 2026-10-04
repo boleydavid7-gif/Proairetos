@@ -143,7 +143,7 @@ function DailySection() {
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Keep a copy each day</span>
-          <span className="toggle-row__detail">On this device, the last seven days, for all three apps.</span>
+          <span className="toggle-row__detail">On this device, the last seven days, for the family apps.</span>
         </span>
       </button>
       {copies.length > 0 && (
@@ -163,7 +163,7 @@ function DailySection() {
       )}
       {chosen && (
         <div className="restore-preview">
-          <p className="sheet__hint">Everything currently on this device, in all three apps, will be replaced with {dayName(chosen)}’s copy.</p>
+          <p className="sheet__hint">Everything currently on this device, in the family apps, will be replaced with {dayName(chosen)}’s copy.</p>
           <div className="chip-row">
             <button type="button" className="chip" onClick={() => setChosen(null)}>
               Cancel
@@ -251,7 +251,7 @@ function ImportSection() {
     <section className="settings-card" aria-label="Restore">
       <h2 className="section-label">Restore from a backup</h2>
       <p className="section-description">
-        Replaces what is on this device, in all three apps, with the backup. Nothing changes until you confirm.
+        Replaces what is on this device, in the family apps, with the backup. Nothing changes until you confirm.
       </p>
       <input
         ref={input}
@@ -1053,6 +1053,12 @@ export default function SettingsPage() {
           title="SOMA"
           value="Recipes and groceries"
           onClick={() => window.location.assign('/soma/')}
+        />
+        <Row
+          icon={<img className="settings-row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />}
+          title="Oikonomia"
+          value="Bills and household essentials"
+          onClick={() => window.location.assign('/oikonomia/')}
         />
       </SettingsGroup>
 

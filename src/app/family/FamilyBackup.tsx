@@ -5,17 +5,19 @@ import { backupService } from '../services';
 import { dayName, useDailyCopies } from './useDailyCopies';
 
 /**
- * The family's one backup, for Askesis and SOMA's "Your data" pages. It is
+ * The family's one backup, for Askesis, SOMA and Oikonomia's "Your data" pages. It is
  * the same file Proairetos makes (Settings > Your data): every app's records
  * and settings. Making it here or there counts as the same last backup;
- * restoring it anywhere brings all three apps back.
+ * restoring it anywhere brings the family apps back.
  */
 const when = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
 function describe(data: BackupData): string {
   const counts = countRecords(data);
   const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
-  return [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe')].join(', ');
+  const parts = [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe'), n(counts.bills, 'bill')];
+  if (counts.budgets > 0) parts.push(n(counts.budgets, 'budget'));
+  return parts.join(', ');
 }
 
 /** `older`: reads a backup file this app made before there was one for all three; returns what it brought in, or undefined if it is not one. */
@@ -66,8 +68,8 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
   return (
     <>
       <section className="card family-backup" aria-label="Back up">
-        <h2 className="card__title card__title--small">One backup for all three apps</h2>
-        <p className="muted">Proairetos, Askesis and SOMA, with their settings.</p>
+        <h2 className="card__title card__title--small">One backup for the family</h2>
+        <p className="muted">Proairetos, Askesis, SOMA and Oikonomia, with their settings.</p>
         <label className="field">
           <span className="label">Password, if you like</span>
           <input
@@ -116,7 +118,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
             <p>
               From {when(ready.exportedAt)}: {describe(ready.data)}.
             </p>
-            <p className="muted">This replaces what is on this phone, in all three apps.</p>
+            <p className="muted">This replaces what is on this phone, in the family apps.</p>
             <button
               type="button"
               className="button-main"
@@ -175,7 +177,7 @@ function DailyCopies() {
       )}
       {chosen && (
         <>
-          <p className="muted">This replaces what is on this phone, in all three apps, with {dayName(chosen)}’s copy.</p>
+          <p className="muted">This replaces what is on this phone, in the family apps, with {dayName(chosen)}’s copy.</p>
           <button
             type="button"
             className="button-main"

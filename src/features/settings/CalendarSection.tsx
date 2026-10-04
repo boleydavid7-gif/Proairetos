@@ -67,7 +67,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
     <>
       <section className="settings-card" aria-label="What goes in your calendar">
         <p className="section-description">
-          Puts your schedule into Apple, Google, or Microsoft calendars. Choose what to include:
+          Puts your schedule and Oikonomia bills into Apple, Google, or Microsoft calendars. Choose what else to include:
         </p>
         {choices.map(({ key, label, hint }) => (
           <div key={key}>
