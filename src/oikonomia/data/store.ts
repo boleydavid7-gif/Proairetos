@@ -1,6 +1,7 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Bill } from '../core/bills';
+import { normalizeBudget, type BudgetPlan } from '../core/budget';
 
 const SETTINGS = 'oikonomia:settings';
 
@@ -51,6 +52,7 @@ export function storeVersion(): number {
 
 let database: Promise<IDBDatabase | undefined> | undefined;
 const memory = new Map<string, Bill>();
+const memoryBudgets = new Map<string, BudgetPlan>();
 
 function db(): Promise<IDBDatabase | undefined> {
   database ??= openDatabase().catch(() => undefined);
@@ -113,6 +115,45 @@ export async function deleteBill(id: string): Promise<void> {
   syncSoon();
 }
 
+export async function listBudgets(): Promise<BudgetPlan[]> {
+  const handle = await db();
+  if (!handle) return [...memoryBudgets.values()].map(normalizeBudget).filter((item): item is BudgetPlan => Boolean(item));
+  return new Promise<BudgetPlan[]>((resolve, reject) => {
+    const transaction = handle.transaction(stores.oikonomiaBudgets, 'readonly');
+    const request = transaction.objectStore(stores.oikonomiaBudgets).getAll() as IDBRequest<BudgetPlan[]>;
+    request.onsuccess = () => resolve(request.result.map(normalizeBudget).filter((item): item is BudgetPlan => Boolean(item)));
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getBudget(month: string): Promise<BudgetPlan | undefined> {
+  const handle = await db();
+  if (!handle) return normalizeBudget(memoryBudgets.get(month));
+  return new Promise<BudgetPlan | undefined>((resolve, reject) => {
+    const transaction = handle.transaction(stores.oikonomiaBudgets, 'readonly');
+    const request = transaction.objectStore(stores.oikonomiaBudgets).get(month) as IDBRequest<BudgetPlan | undefined>;
+    request.onsuccess = () => resolve(normalizeBudget(request.result));
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function putBudget(budget: BudgetPlan): Promise<void> {
+  const handle = await db();
+  if (!handle) {
+    memoryBudgets.set(budget.id, normalizeBudget(budget) ?? budget);
+  } else {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = handle.transaction(stores.oikonomiaBudgets, 'readwrite');
+      transaction.objectStore(stores.oikonomiaBudgets).put(normalizeBudget(budget) ?? budget);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  }
+  notify();
+  syncSoon();
+}
+
 export function saveSettings(next: Settings): void {
   try {
     localStorage.setItem(SETTINGS, JSON.stringify(next));
@@ -127,8 +168,8 @@ export async function startStore(): Promise<void> {
   onRemoteChanges(notify);
 }
 
-export async function exportAll(): Promise<{ app: 'oikonomia'; version: 1; exportedAt: string; settings: Settings; bills: Bill[] }> {
-  return { app: 'oikonomia', version: 1, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills() };
+export async function exportAll(): Promise<{ app: 'oikonomia'; version: 2; exportedAt: string; settings: Settings; bills: Bill[]; budgets: BudgetPlan[] }> {
+  return { app: 'oikonomia', version: 2, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills(), budgets: await listBudgets() };
 }
 
 export async function restore(file: unknown): Promise<number> {
@@ -142,6 +183,14 @@ export async function restore(file: unknown): Promise<number> {
     if (!value || typeof value !== 'object' || typeof (value as { id?: unknown }).id !== 'string') continue;
     await putBill(value as Bill);
     count += 1;
+  }
+  const budgets = (file as { budgets?: unknown }).budgets;
+  if (Array.isArray(budgets)) {
+    for (const value of budgets) {
+      if (!value || typeof value !== 'object' || typeof (value as { id?: unknown }).id !== 'string') continue;
+      await putBudget(value as BudgetPlan);
+      count += 1;
+    }
   }
   const settings = (file as { settings?: unknown }).settings;
   if (settings && typeof settings === 'object') saveSettings({ ...defaultSettings(), ...(settings as Partial<Settings>), started: true });

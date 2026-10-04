@@ -10,12 +10,14 @@ import CalendarPage from '../screens/CalendarPage';
 import CapturePage from '../screens/CapturePage';
 import MorePage from '../screens/MorePage';
 import BillPage from '../screens/BillPage';
+import BudgetPage from '../screens/BudgetPage';
 
 export type Route =
   | { name: 'welcome' }
   | { name: Tab }
   | { name: 'bill'; id: string }
   | { name: 'edit'; id: string }
+  | { name: 'budget' }
   | { name: 'about' };
 
 export type Nav = {
@@ -94,6 +96,8 @@ export default function App() {
         return <MorePage nav={nav} />;
       case 'bill':
         return <BillPage nav={nav} id={route.id} />;
+      case 'budget':
+        return <BudgetPage nav={nav} />;
       case 'about':
         return <MorePage nav={nav} about />;
     }

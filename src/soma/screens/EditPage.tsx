@@ -7,10 +7,17 @@ import { BackLink } from '../app/ui';
 import { splitSteps } from '../core/importRecipe';
 import { timeOf, type Recipe, type RecipeDraft } from '../core/recipes';
 import { putRecipe } from '../data/store';
+import { loadSettings as loadOikonomiaSettings } from '../../oikonomia/data/store';
 
 const numberOrUndefined = (text: string) => {
   const n = Number(text);
   return text.trim() && Number.isFinite(n) && n > 0 ? n : undefined;
+};
+
+const centsOrUndefined = (text: string) => {
+  if (!text.trim()) return undefined;
+  const n = Number(text);
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : undefined;
 };
 
 /** Writing a recipe in, or looking over one brought in before keeping it. */
@@ -19,12 +26,14 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
   const existing = id ? recipes?.find((each) => each.id === id) : undefined;
   const draft = useMemo<RecipeDraft | undefined>(() => (id ? undefined : takeDraft()), [id]);
   const start: Partial<Recipe> = existing ?? draft ?? {};
+  const estimatedCurrency = start.estimatedCostCurrency ?? loadOikonomiaSettings().currency;
   const [title, setTitle] = useState(start.title ?? '');
   const [source, setSource] = useState(start.source ?? '');
   const [url, setUrl] = useState(start.url ?? '');
   const [image, setImage] = useState(start.image);
   const [servings, setServings] = useState(start.servings ?? '');
   const [cook, setCook] = useState(String(timeOf(start) ?? ''));
+  const [estimatedCost, setEstimatedCost] = useState(start.estimatedCostCents === undefined ? '' : (start.estimatedCostCents / 100).toFixed(2));
   const [ingredients, setIngredients] = useState((start.ingredients ?? []).join('\n'));
   const [steps, setSteps] = useState((start.steps ?? []).join('\n\n'));
   const [tags, setTags] = useState((start.tags ?? []).join(', '));
@@ -35,6 +44,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
   const save = async () => {
     const now = new Date().toISOString();
     const total = numberOrUndefined(cook);
+    const cost = centsOrUndefined(estimatedCost);
     const sameTime = total === timeOf(start);
     const recipe: Recipe = {
       id: existing?.id ?? newId(),
@@ -43,6 +53,11 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
       notes: existing?.notes ?? draft?.notes ?? '',
       favorite: existing?.favorite,
       cooked: existing?.cooked,
+      cookedFor: existing?.cookedFor,
+      marks: existing?.marks,
+      planned: existing?.planned,
+      estimatedCostCents: cost,
+      estimatedCostCurrency: cost === undefined ? undefined : existing?.estimatedCostCurrency ?? loadOikonomiaSettings().currency,
       title: title.trim() || 'A recipe',
       source: source.trim() || undefined,
       url: url.trim() || undefined,
@@ -120,6 +135,11 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
           <input className="input" inputMode="numeric" value={cook} onChange={(event) => setCook(event.target.value)} placeholder="30" />
         </label>
       </div>
+
+      <label className="field">
+        <span className="label">Estimated cost <span className="muted">({estimatedCurrency})</span></span>
+        <input className="input" type="number" min="0" step="0.01" inputMode="decimal" value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} placeholder="0.00" />
+      </label>
 
       <label className="field">
         <span className="label">Ingredients, one per line</span>

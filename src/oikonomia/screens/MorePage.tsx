@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { DownloadIcon, SettingsIcon } from '../app/icons';
+import { DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
 import { useAccount, useBills } from '../app/state';
 import { exportAll, restore } from '../data/store';
 import { PageTop } from '../app/ui';
@@ -29,13 +29,13 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
     link.download = 'oikonomia-backup.json';
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage('A copy of your bills is ready.');
+    setMessage('A copy of your bills and monthly plans is ready.');
   }
 
   async function importBackup(file: File) {
     try {
       const count = await restore(JSON.parse(await file.text()));
-      setMessage(count + ' ' + (count === 1 ? 'bill' : 'bills') + ' brought back.');
+      setMessage(count + ' ' + (count === 1 ? 'record' : 'records') + ' brought back.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'That backup could not be read.');
     }
@@ -45,6 +45,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
     <div className="page oiko-page">
       <PageTop><h1 className="title">More</h1></PageTop>
       <section className="oiko-more-list">
+        <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Budget</strong><small>Plan bills and meals together</small></span></button>
         <button type="button" className="row" onClick={() => void downloadBackup()}><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Back up your bills</strong><small>{bills.length} {bills.length === 1 ? 'bill' : 'bills'} on this device</small></span></button>
         <label className="row"><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Restore a backup</strong><small>Bring bills back from a JSON file</small></span><input className="oiko-file-input" type="file" accept="application/json,.json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.currentTarget.value = ''; }} /></label>
         <button type="button" className="row" onClick={() => window.location.assign('/settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and account</strong><small>Shared with Proairetos</small></span></button>

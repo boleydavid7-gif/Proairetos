@@ -16,6 +16,9 @@ import { togglePlanned, weekFrom } from '../core/week';
 import { usePeople } from '../app/proairetos';
 import { waysToTry } from '../core/tryIt';
 import { deleteRecipe, loadSettings, putRecipe, saveGroceries } from '../data/store';
+import { listBills, getBudget, loadSettings as loadOikonomiaSettings } from '../../oikonomia/data/store';
+import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/core/budget';
+import { formatMoney } from '../../oikonomia/core/bills';
 
 type Tab = 'ingredients' | 'steps' | 'notes';
 
@@ -190,6 +193,11 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             <ServesIcon size={16} /> {recipe.servings}
           </span>
         )}
+        {recipe.estimatedCostCents !== undefined && (
+          <span>
+            Estimated cost · {formatMoney(recipe.estimatedCostCents, recipe.estimatedCostCurrency ?? loadOikonomiaSettings().currency)}
+          </span>
+        )}
         {recipe.url ? (
           <a href={recipe.url} target="_blank" rel="noreferrer">
             {recipe.source ?? 'Source'}
@@ -198,6 +206,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           recipe.source && <span>{recipe.source}</span>
         )}
       </div>
+      <RecipeBudgetHint recipe={recipe} recipes={recipes} />
       {copied && (
         <p className="hint" role="status">
           Copied, ready to paste.
@@ -478,6 +487,45 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe[] }) {
+  const [state, setState] = useState<{ currency: string; limit: number; remaining: number; label: string; mismatch?: boolean }>();
+  const mealCost = recipe.estimatedCostCents;
+  useEffect(() => {
+    if (mealCost === undefined) return;
+    let live = true;
+    const month = monthKey();
+    void Promise.all([listBills(), getBudget(month)]).then(([bills, budget]) => {
+      if (!live) return;
+      if (!budget) {
+        setState(undefined);
+        return;
+      }
+      const currency = budget.currency;
+      if (recipe.estimatedCostCurrency && recipe.estimatedCostCurrency !== currency) {
+        setState({ currency: recipe.estimatedCostCurrency, limit: 0, remaining: 0, label: 'Currency mismatch', mismatch: true });
+        return;
+      }
+      const totals = budgetTotals(bills, recipes, month, currency);
+      const comparison = recipeBudgetComparison(recipe, budget, totals);
+      setState(comparison ? { currency, limit: comparison.limitCents, remaining: comparison.remainingCents, label: comparison.label } : undefined);
+    });
+    return () => {
+      live = false;
+    };
+  }, [mealCost, recipe.id, recipe.planned?.join(','), recipes]);
+
+  if (mealCost === undefined) return null;
+  if (state?.mismatch) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, state.currency)} · Oikonomia uses another currency for this plan.</p>;
+  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)} · Set a monthly or food limit in Oikonomia to compare.</p>;
+  const after = state.remaining;
+  return (
+    <div className="recipe-budget-hint">
+      <span><strong>This meal</strong> {formatMoney(mealCost, state.currency)}</span>
+      <span><strong>{state.label}</strong> {formatMoney(state.limit, state.currency)} · {after >= 0 ? `${formatMoney(after, state.currency)} left after it` : `${formatMoney(Math.abs(after), state.currency)} over after it`}</span>
     </div>
   );
 }

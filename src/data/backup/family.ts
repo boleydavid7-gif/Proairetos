@@ -15,7 +15,7 @@ import { stores } from '../storage/indexeddb/database';
 export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
-  oikonomia?: { bills: unknown[] };
+  oikonomia?: { bills: unknown[]; budgets?: unknown[] };
   /** Settings by key, as stored. */
   settings?: Record<string, string>;
 };
@@ -115,7 +115,7 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
   if (proairetos) {
     out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
-    out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills) };
+    out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills), budgets: await readAll(proairetos, stores.oikonomiaBudgets) };
   }
   return out;
 }
@@ -132,6 +132,9 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
   }
   if (proairetos && data.oikonomia) {
     await replaceStore(proairetos, stores.oikonomiaBills, data.oikonomia.bills ?? []);
+    // Budgets were added after bills. An older family backup must leave any
+    // newer plans on this device alone.
+    if (data.oikonomia.budgets !== undefined) await replaceStore(proairetos, stores.oikonomiaBudgets, data.oikonomia.budgets);
   }
   if (data.settings) restoreSettings(data.settings);
 }

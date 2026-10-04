@@ -10,6 +10,7 @@ import {
 import type { LocalSyncStore, OutgoingRecord, RemoteRecord, RemoteStore } from '../../data/sync/types';
 import { createIndexedDbItemEventRepository, createIndexedDbLifeItemRepository } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import { openDatabase } from '../../data/storage/indexeddb/database';
+import { newBudget } from '../../oikonomia/core/budget';
 
 /** A stand-in for Supabase: assigns a sequence number on every write, like the real table. */
 function fakeServer() {
@@ -126,6 +127,38 @@ describe('sync engine', () => {
 });
 
 describe('sync with real local storage', () => {
+  it('carries monthly budgets between devices without exposing their contents on the server', async () => {
+    const { remote, rows } = fakeServer();
+    const phoneDb = openDatabase(new IDBFactory());
+    const tabletDb = openDatabase(new IDBFactory());
+    const phone = createIndexedDbLocalSyncStore(phoneDb);
+    const tablet = createIndexedDbLocalSyncStore(tabletDb);
+    const phoneEngine = createSyncEngine({ local: phone, state: createIndexedDbSyncStateStore(phoneDb), remote, key });
+    const tabletEngine = createSyncEngine({ local: tablet, state: createIndexedDbSyncStateStore(tabletDb), remote, key });
+    const budget = {
+      ...newBudget('2026-10', 'USD', '2026-10-01T00:00:00.000Z'),
+      totalCents: 250000,
+      categoryLimits: { ...newBudget('2026-10', 'USD').categoryLimits, food: 45000 },
+    };
+    await phone.put('oikonomiaBudgets', budget);
+
+    expect(await phoneEngine.sync()).toEqual({ pulled: 0, pushed: 1 });
+    const sealed = rows.get('oikonomiaBudgets:2026-10');
+    expect(sealed).toMatchObject({ collection: 'oikonomiaBudgets', id: '2026-10', deleted: false });
+    expect(sealed?.iv).toBeTruthy();
+    expect(sealed?.ciphertext).toBeTruthy();
+    expect(JSON.stringify(sealed)).not.toContain('categoryLimits');
+    expect(JSON.stringify(sealed)).not.toContain('totalCents');
+
+    expect(await tabletEngine.sync()).toEqual({ pulled: 1, pushed: 0 });
+    expect(await tablet.list('oikonomiaBudgets')).toEqual([budget]);
+    const changed = { ...budget, categoryLimits: { ...budget.categoryLimits, food: 50000 }, updatedAt: '2026-10-02T00:00:00.000Z' };
+    await tablet.put('oikonomiaBudgets', changed);
+    await tabletEngine.sync();
+    await phoneEngine.sync();
+    expect(await phone.list('oikonomiaBudgets')).toEqual([changed]);
+  });
+
   it('applies pulled records so the app’s repositories see them, events in order', async () => {
     const { remote } = fakeServer();
     const phone = device(remote);

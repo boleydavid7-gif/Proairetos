@@ -15,7 +15,9 @@ const when = (iso: string) => new Date(iso).toLocaleDateString(undefined, { mont
 function describe(data: BackupData): string {
   const counts = countRecords(data);
   const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
-  return [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe'), n(counts.bills, 'bill')].join(', ');
+  const parts = [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe'), n(counts.bills, 'bill')];
+  if (counts.budgets > 0) parts.push(n(counts.budgets, 'budget'));
+  return parts.join(', ');
 }
 
 /** `older`: reads a backup file this app made before there was one for all three; returns what it brought in, or undefined if it is not one. */

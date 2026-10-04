@@ -2,7 +2,8 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
 import { nextBills, formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, type Bill } from '../core/bills';
 import { financeLineFor } from '../core/lines';
-import { useBills, useToday } from '../app/state';
+import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
+import { budgetTotals, monthKey } from '../core/budget';
 import { Brand, greeting, Hero } from '../app/ui';
 
 function billRow(bill: Bill, date: string, nav: Nav, today: string) {
@@ -22,13 +23,18 @@ function billRow(bill: Bill, date: string, nav: Nav, today: string) {
 
 export default function HomePage({ nav }: { nav: Nav }) {
   const bills = useBills();
+  const settings = useSettings();
   const today = useToday();
   const line = financeLineFor(today);
   const all = bills ?? [];
+  const recipes = useSomaRecipes();
   const upcoming = nextBills(all, today, 8);
   const next = upcoming[0];
   const month = new Date();
   const bounds = monthBounds(month);
+  const currentMonth = monthKey(month);
+  const budget = useBudget(currentMonth);
+  const budgetSummary = budgetTotals(all, recipes, currentMonth, budget?.currency ?? settings.currency);
   const thisMonth = all
     .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
@@ -48,13 +54,20 @@ export default function HomePage({ nav }: { nav: Nav }) {
         {!bills ? (
           <section className="card"><p className="muted">Gathering what you keep here…</p></section>
         ) : all.length === 0 ? (
-          <section className="card oiko-empty">
-            <h2 className="card__title">What needs tending?</h2>
-            <p className="muted">Nothing here yet.</p>
-            <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
-              Add a bill
+          <>
+            <section className="card oiko-empty">
+              <h2 className="card__title">What needs tending?</h2>
+              <p className="muted">Nothing here yet.</p>
+              <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
+                Add a bill
+              </button>
+            </section>
+            <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
+              <span className="card__eyebrow">Monthly plan</span>
+              <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
+              <span className="muted">Bills and planned meals together <ChevronIcon size={17} /></span>
             </button>
-          </section>
+          </>
         ) : (
           <>
             {next && (
@@ -81,6 +94,11 @@ export default function HomePage({ nav }: { nav: Nav }) {
               ))}
               {thisMonth.length === 0 && <p className="muted">Nothing is scheduled for this month.</p>}
             </section>
+            <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
+              <span className="card__eyebrow">Monthly plan</span>
+              <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
+              <span className="muted">Bills and planned meals together <ChevronIcon size={17} /></span>
+            </button>
           </>
         )}
       </div>
