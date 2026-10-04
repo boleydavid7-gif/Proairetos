@@ -3,8 +3,9 @@ import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
 import { dateLabel, greeting, sameDay, totalOz } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
-import { DropIcon, MoonIcon, PlusIcon, SunIcon, WaveIcon } from '../app/icons';
+import { DropIcon, GearIcon, MoonIcon, PlusIcon, SunIcon, WaveIcon } from '../app/icons';
 import { Brand } from '../app/ui';
+import orbImage from '../../assets/images/scenes/hydros-orb.webp';
 
 const quote = 'The health of the body is the foundation of the good life.';
 
@@ -22,9 +23,9 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   return (
     <div className="hydros-home">
       <section className="hydros-hero hydros-hero--today">
-        <Brand light />
+        <div className="hydros-home-head"><Brand light /><button type="button" className="hydros-settings-button" aria-label="Settings" onClick={() => nav.go({ name: 'settings' })}><GearIcon size={21} /></button></div>
         <div className="hydros-hero__words"><p>{greeting()}</p><h1>Drink with measure.</h1><span>{dateLabel()}</span></div>
-        <div className="hydros-orb" aria-label={hasData ? `${amount} ounces of ${range.min} to ${range.max} ounces range` : 'Set amount'}><div className="hydros-orb__water" style={{ height: `${Math.max(13, percent)}%` }} /><strong>{amount}<small> oz</small></strong><span>{hasData ? (training?.runDay ? 'run day range' : 'of your usual range') : 'Set amount'}</span><em>{rangeText}</em></div>
+        <div className="hydros-orb" aria-label={hasData ? `${amount} ounces of ${range.min} to ${range.max} ounces range` : 'Set amount'}><img className="hydros-orb__image" src={orbImage} alt="" /><div className="hydros-orb__water" style={{ height: `${Math.max(13, percent)}%` }} /><strong>{amount}<small> oz</small></strong><span>{hasData ? (training?.runDay ? 'run day range' : 'of your usual range') : 'Set amount'}</span><em>{rangeText}</em></div>
       </section>
       <section className="hydros-content">
         <div className="hydros-section-title"><h2>Today’s rhythm</h2><button type="button" onClick={() => nav.go({ name: 'add' })} aria-label="Add drink"><PlusIcon size={20} /></button></div>

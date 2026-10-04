@@ -23,6 +23,7 @@ export const SunIcon = (props: IconProps) => icon(<><circle cx="12" cy="12" r="3
 export const MoonIcon = (props: IconProps) => icon(<path d="M19 15.5A7.5 7.5 0 0 1 8.5 5 7.5 7.5 0 1 0 19 15.5Z" />, props);
 export const WaveIcon = (props: IconProps) => icon(<><path d="M3 9c3-2 5-2 8 0s5 2 10 0M3 15c3-2 5-2 8 0s5 2 10 0" /></>, props);
 export const BalanceIcon = (props: IconProps) => icon(<><path d="M12 3v18M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7ZM17 7l-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8" /></>, props);
+export const GearIcon = (props: IconProps) => icon(<><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-2.5v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.5-1H6.5v-2.5h.1a1.7 1.7 0 0 0 1.5-1A1.7 1.7 0 0 0 7.8 8.6l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.1H15v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1V14h-.1a1.7 1.7 0 0 0-1.5 1Z" /></>, props);
 
 export const iconForKind = (kind: string, props: IconProps = {}) => {
   if (kind === 'coffee') return <CupIcon {...props} />;

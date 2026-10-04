@@ -16,13 +16,26 @@ export type DrinkSource = {
   caffeineMg: number;
 };
 
+export type HydrosActivity = 'low' | 'moderate' | 'high';
+
 export type HydrosSettings = {
   goalOz: number;
   usualMinOz: number;
   usualMaxOz: number;
+  weightLb?: number;
+  heightIn?: number;
+  activity?: HydrosActivity;
 };
 
-export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 72, usualMinOz: 60, usualMaxOz: 80 });
+export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80 });
+
+/** A transparent starting point for a personal amount recommendation. */
+export function recommendedGoalOz(settings: Pick<HydrosSettings, 'weightLb' | 'heightIn' | 'activity'>): number | undefined {
+  if (!Number.isFinite(settings.weightLb) || !Number.isFinite(settings.heightIn) || !settings.activity || settings.weightLb! <= 0 || settings.heightIn! <= 0) return undefined;
+  const activityOz = settings.activity === 'high' ? 24 : settings.activity === 'moderate' ? 12 : 0;
+  const heightAdjustment = Math.max(-6, Math.min(6, (settings.heightIn! - 66) * 0.25));
+  return Math.round(Math.max(40, Math.min(180, settings.weightLb! * 0.5 + heightAdjustment + activityOz)));
+}
 
 export const drinkKinds: { id: DrinkKind; label: string; caffeineMg: number }[] = [
   { id: 'water', label: 'Water', caffeineMg: 0 },

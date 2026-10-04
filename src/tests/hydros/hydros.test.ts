@@ -1,7 +1,12 @@
 import { rangeForTraining } from '../../hydros/data/training';
-import { greeting, sourceBreakdown, totalOz, type Drink } from '../../hydros/core/drinks';
+import { defaultHydrosSettings, greeting, recommendedGoalOz, sourceBreakdown, totalOz, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
+  it('starts with an 80 ounce daily amount', () => {
+    expect(defaultHydrosSettings().goalOz).toBe(80);
+    expect(recommendedGoalOz({ weightLb: 160, heightIn: 70, activity: 'moderate' })).toBe(93);
+  });
+
   it('adds a modest run-day range to the person’s usual range', () => {
     expect(rangeForTraining({ usualMinOz: 60, usualMaxOz: 80 }, { runDay: false, loggedRun: false })).toEqual({ min: 60, max: 80, extra: 0 });
     expect(rangeForTraining({ usualMinOz: 60, usualMaxOz: 80 }, { runDay: true, loggedRun: true, minutes: 35 })).toEqual({ min: 68, max: 88, extra: 8 });
