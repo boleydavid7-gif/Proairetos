@@ -9,7 +9,7 @@ import BalanceDetailPage from '../screens/BalanceDetailPage';
 import SettingsPage from '../screens/SettingsPage';
 
 export type BalanceDetailId = 'dailyBalance' | 'caffeine' | 'electrolytes' | 'rhythm' | 'support';
-export type Route = { name: Tab } | { name: 'balanceDetail'; id: BalanceDetailId } | { name: 'settings' };
+export type Route = { name: Tab } | { name: 'balanceDetail'; id: BalanceDetailId };
 export type Nav = { go: (route: Route) => void; swap: (route: Route) => void; back: () => void };
 const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).includes(name);
 
@@ -22,7 +22,7 @@ export default function App() {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
-  useEffect(() => { if (isTab(route.name)) setLastTab(route.name); window.scrollTo(0, 0); }, [route]);
+  useEffect(() => { if (isTab(route.name) && route.name !== 'settings') setLastTab(route.name); window.scrollTo(0, 0); }, [route]);
   const current = useRef(route); current.current = route;
   const directionTo = (next: Route): Direction => isTab(current.current.name) && isTab(next.name) ? directionAlong(tabNames, current.current.name, next.name) : 'forward';
   const go = useCallback((next: Route) => { history.pushState({ hydros: next }, ''); transition(directionTo(next), () => setRoute(next)); }, []);

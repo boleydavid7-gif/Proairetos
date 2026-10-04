@@ -1,4 +1,4 @@
-const CACHE = 'hydros-v5';
+const CACHE = 'hydros-v6';
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.add('/hydros/')).then(() => self.skipWaiting()));
 });
