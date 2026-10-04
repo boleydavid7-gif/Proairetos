@@ -62,9 +62,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-hero__words p strong { display: block; color: #f4fbfc; font-size: 1.08em; font-weight: 400; }
 .hydros-hero__words span { display: block; margin-top: 6px; color: rgba(231,247,251,.78); font-size: .95rem; }
 .hydros-orb { width: min(68vw, 276px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; overflow: hidden; background: transparent; box-shadow: 0 15px 38px rgba(0,0,0,.36); }
-.hydros-orb__image { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.hydros-orb__water { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; overflow: hidden; border-radius: 0 0 50% 50% / 0 0 8% 8%; transition: height .25s ease; }
-.hydros-orb__water img { display: block; width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: bottom; }
+.hydros-orb__well { position: absolute; z-index: 1; inset: 12%; overflow: hidden; border-radius: 50%; isolation: isolate; }
+.hydros-orb__water { position: absolute; right: 0; bottom: 0; left: 0; max-height: 100%; overflow: hidden; transition: height .25s ease; }
+.hydros-orb__water img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 3; }
 .hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
 .hydros-orb strong small { font: 400 1rem var(--sans); }
@@ -249,9 +249,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add { padding: 0; }
 .hydros-add__stage { position: relative; height: calc(100dvh - var(--tab-height)); min-height: calc(100dvh - var(--tab-height)); overflow: hidden; }
 .hydros-add__stage > .hydros-header { position: absolute; z-index: 4; top: calc(env(safe-area-inset-top) + 8px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); margin: 0; }
-.hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(116px, 18%, 166px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(100px, 14vh, 122px); gap: clamp(8px, 2vh, 16px); }
+.hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(104px, 17%, 154px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(92px, 13vh, 114px); gap: clamp(6px, 1.5vh, 12px); }
 .hydros-add__stage .drink-types button { position: relative; min-height: 0; height: 100%; border: 0; border-radius: 0; background: transparent; color: var(--text-soft); font-size: clamp(.69rem, 2.9vw, .8rem); }
-.hydros-add__stage .drink-types button { --type-circle: clamp(70px, 20vw, 90px); }
+.hydros-add__stage .drink-types button { --type-circle: clamp(66px, 18.5vw, 84px); }
 .hydros-add__stage .drink-types button::before { content: ''; position: absolute; z-index: 0; top: 0; left: 50%; width: var(--type-circle); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(164, 222, 236, .12); border-radius: 50%; background: rgba(16, 54, 67, .76); box-shadow: inset 0 1px 8px rgba(255,255,255,.04); }
 .hydros-add__stage .drink-types button > * { position: relative; z-index: 1; }
 .hydros-add__stage .drink-types button svg { position: absolute; top: calc((var(--type-circle) - 27px) / 2); left: 50%; width: 27px; height: 27px; padding: 0; margin: 0; transform: translateX(-50%); border: 0; background: transparent; box-shadow: none; color: var(--text-soft); }
@@ -259,17 +259,17 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button.is-selected { border: 0; background: transparent; color: var(--cyan); box-shadow: none; }
 .hydros-add__stage .drink-types button.is-selected::before { border-color: rgba(104, 224, 255, .9); background: var(--cyan); box-shadow: 0 0 20px rgba(58, 202, 245, .4); }
 .hydros-add__stage .drink-types button.is-selected svg { border: 0; background: transparent; box-shadow: none; color: #f4fdff; }
-.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 67%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
+.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 72%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; background: rgba(12, 54, 68, .84); }
 .hydros-add__stage .amount-picker strong { display: grid; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; place-items: center; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
-.hydros-add__stage .hydros-time { position: absolute; z-index: 3; top: 77%; right: 8%; left: 8%; margin: 0; background: rgba(12, 54, 68, .86); }
-.hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 88%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
+.hydros-add__stage .hydros-time { position: absolute; z-index: 3; top: 81%; right: 8%; left: 8%; margin: 0; background: rgba(12, 54, 68, .86); }
+.hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 90%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
 
 @media (max-height: 700px) {
   .hydros-add__stage > .drink-types { top: 17%; grid-auto-rows: 92px; }
-  .hydros-add__stage .amount-picker { top: 64%; }
-  .hydros-add__stage .hydros-time { top: 75%; }
-  .hydros-add__stage .hydros-save { top: 87%; }
+  .hydros-add__stage .amount-picker { top: 68%; }
+  .hydros-add__stage .hydros-time { top: 77%; }
+  .hydros-add__stage .hydros-save { top: 88%; }
 }
 
 @media (min-width: 560px) { .hydros-shell { box-shadow: 0 0 70px rgba(0,0,0,.25); } }
