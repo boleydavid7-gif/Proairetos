@@ -21,7 +21,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
     <div className="hydros-home">
       <section className="hydros-hero hydros-hero--today">
         <Brand light />
-        <div className="hydros-hero__words"><p>{greeting()}</p><h1>Notice your rhythm.</h1><span>{dateLabel()}</span></div>
+        <div className="hydros-hero__words"><p>{greeting()}</p><h1>Drink with measure.</h1><span>{dateLabel()}</span></div>
         <div className="hydros-orb" aria-label={`${amount} ounces of ${range.min} to ${range.max} ounces range`}><div className="hydros-orb__water" style={{ height: `${Math.max(13, percent)}%` }} /><strong>{amount}<small> oz</small></strong><span>{training?.runDay ? 'run day range' : 'of your usual range'}</span><em>{range.min} – {range.max} oz</em></div>
       </section>
       <section className="hydros-content">
