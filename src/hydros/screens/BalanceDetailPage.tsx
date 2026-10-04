@@ -41,7 +41,7 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
 
   let body: React.ReactNode;
   if (id === 'dailyBalance') {
-    body = <><Summary icon={<DropIcon />} value={`${amount} oz`} detail={`${range.min}–${range.max} oz range`} /><InfoRows rows={dailyRows} /><SourceRows drinks={today} mode="hydration" empty="No drinks logged today." /></>;
+    body = <><Summary icon={<DropIcon />} value={`${amount} oz`} detail={`${range.min}–${range.max} oz range`} /><MetricCards rows={dailyRows} /><SourceRows drinks={today} mode="hydration" empty="No drinks logged today." /></>;
   } else if (id === 'caffeine') {
     body = <><Summary icon={<CupIcon />} value={`${caffeine(today)} mg`} detail="From today’s drinks" /><SourceRows drinks={today.filter((drink) => (drink.caffeineMg ?? 0) > 0)} mode="caffeine" empty="No caffeine logged today." /></>;
   } else if (id === 'electrolytes') {
@@ -61,6 +61,10 @@ function Summary({ icon, value, detail }: { icon: React.ReactNode; value: string
 
 function InfoRows({ rows }: { rows: [string, string][] }) {
   return <section className="hydros-info-list">{rows.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</section>;
+}
+
+function MetricCards({ rows }: { rows: [string, string][] }) {
+  return <section className="hydros-metric-cards">{rows.map(([label, value]) => <div className="hydros-metric-card" key={label}><span>{label}</span><strong>{value}</strong></div>)}</section>;
 }
 
 function SourceRows({ drinks, mode, empty }: { drinks: Drink[]; mode: 'hydration' | 'caffeine' | 'electrolyte'; empty: string }) {
