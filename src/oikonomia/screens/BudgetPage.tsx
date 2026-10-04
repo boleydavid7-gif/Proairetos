@@ -8,6 +8,7 @@ import { putBudget } from '../data/store';
 import { PageTop } from '../app/ui';
 
 const amountText = (value: number) => (value ? (value / 100).toFixed(2) : '');
+const areaCategories = budgetCategories.filter(({ id }) => id !== 'food' && id !== 'utilities');
 
 export default function BudgetPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
@@ -31,7 +32,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     setDraft(saved ?? newBudget(month, settings.currency));
     const next = saved ?? newBudget(month, settings.currency);
     setTotalText(amountText(next.totalCents));
-    setCategoryText(Object.fromEntries(budgetCategories.map(({ id }) => [id, amountText(next.categoryLimits?.[id] ?? 0)])));
+    setCategoryText(Object.fromEntries(areaCategories.map(({ id }) => [id, amountText(next.categoryLimits?.[id] ?? 0)])));
   }, [month, saved, settings.currency, dirty]);
 
   const rawPlan = draft ?? saved ?? newBudget(month, settings.currency);
@@ -54,7 +55,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       return;
     }
     const categoryLimits = { ...plan.categoryLimits };
-    for (const { id } of budgetCategories) {
+    for (const { id } of areaCategories) {
       const value = moneyInputCents(categoryText[id] ?? '');
       if (value === undefined) {
         setMessage('Use amounts with up to two decimal places.');
@@ -91,6 +92,15 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
         <div className="oiko-budget-summary__bar" aria-hidden="true"><span style={{ width: `${limit ? Math.min(100, (totals.plannedCents / limit) * 100) : 0}%` }} /></div>
       </section>
 
+      <section className="oiko-budget-breakdown oiko-budget-main-lines" aria-label="Main budget">
+        <div className="oiko-section-head"><h2>Budget</h2></div>
+        <div className="oiko-budget-breakdown__row"><span>Bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
+        <div className="oiko-budget-breakdown__row"><span>Food</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
+        {totals.mealCents === 0 && <p className="hint">Add an estimated cost to a recipe in SOMA, then plan it for this month.</p>}
+        {totals.mealsWithoutEstimate > 0 && <p className="hint">{totals.mealsWithoutEstimate} planned {totals.mealsWithoutEstimate === 1 ? 'meal has' : 'meals have'} no estimate yet.</p>}
+        {totals.otherCurrencyCount > 0 && <p className="hint">Some scheduled amounts use another currency and are left out.</p>}
+      </section>
+
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>Your plan</h2><span className="muted">Optional</span></div>
         <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} placeholder="0.00" /></label>
@@ -100,22 +110,13 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>By area</h2><span className="muted">Planned / limit</span></div>
         <div className="oiko-budget-areas">
-          {budgetCategories.map(({ id, label }) => (
+          {areaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
               <span><strong>{label}</strong><small>{formatMoney(totals.byCategory[id], planCurrency)} planned</small></span>
               <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} placeholder="Limit" />
             </label>
           ))}
         </div>
-      </section>
-
-      <section className="oiko-budget-breakdown">
-        <div className="oiko-section-head"><h2>What is included</h2></div>
-        <div className="oiko-budget-breakdown__row"><span>Bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
-        <div className="oiko-budget-breakdown__row"><span>Planned meals</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
-        {totals.mealCents === 0 && <p className="hint">Add an estimated cost to a recipe in SOMA, then plan it for this month.</p>}
-        {totals.mealsWithoutEstimate > 0 && <p className="hint">{totals.mealsWithoutEstimate} planned {totals.mealsWithoutEstimate === 1 ? 'meal has' : 'meals have'} no estimate yet.</p>}
-        {totals.otherCurrencyCount > 0 && <p className="hint">Some scheduled amounts use another currency and are left out.</p>}
       </section>
 
       <button type="button" className="button-main" onClick={() => void save()}>Save monthly plan</button>
