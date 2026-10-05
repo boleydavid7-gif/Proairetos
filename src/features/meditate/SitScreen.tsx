@@ -23,23 +23,57 @@ function clock(seconds: number): string {
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
 }
 
+let voicesReady: Promise<SpeechSynthesisVoice[]> | undefined;
+let speechGeneration = 0;
+
+function speech(): SpeechSynthesis | undefined {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return undefined;
+  return window.speechSynthesis;
+}
+
+function voices(synth: SpeechSynthesis): Promise<SpeechSynthesisVoice[]> {
+  const existing = synth.getVoices();
+  if (existing.length) return Promise.resolve(existing);
+  voicesReady ??= new Promise((resolve) => {
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      synth.removeEventListener('voiceschanged', finish);
+      resolve(synth.getVoices());
+    };
+    synth.addEventListener('voiceschanged', finish);
+    window.setTimeout(finish, 600);
+  });
+  return voicesReady;
+}
+
 function speak(text: string): void {
-  try {
-    if (!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    const line = new SpeechSynthesisUtterance(text);
-    line.rate = 0.82;
-    line.pitch = 0.95;
-    line.volume = 0.9;
-    speechSynthesis.speak(line);
-  } catch {
-    // The words are on screen too.
-  }
+  const synth = speech();
+  if (!synth) return;
+  const generation = ++speechGeneration;
+  synth.cancel();
+  const line = new SpeechSynthesisUtterance(text);
+  line.rate = 0.82;
+  line.pitch = 0.95;
+  line.volume = 0.9;
+  line.lang = navigator.language || 'en-US';
+  void voices(synth).then((available) => {
+    if (generation !== speechGeneration) return;
+    const language = line.lang.toLowerCase().split('-')[0];
+    line.voice = available.find((voice) => voice.lang.toLowerCase().startsWith(language)) ?? available[0] ?? null;
+    synth.resume();
+    // Safari can discard speak() when it immediately follows cancel().
+    window.setTimeout(() => {
+      if (generation === speechGeneration) synth.speak(line);
+    }, 60);
+  });
 }
 
 function hush(): void {
+  speechGeneration += 1;
   try {
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    speech()?.cancel();
   } catch {
     // Nothing to stop.
   }

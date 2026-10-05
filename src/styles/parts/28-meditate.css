@@ -15,7 +15,7 @@
   --color-accent-strong: #f6d6a4;
   --color-accent-soft: rgba(240, 201, 142, 0.16);
   --color-accent-ink: #22180c;
-  --glass: rgba(14, 17, 22, 0.5);
+  --glass: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(8, 40, 52, 0.9));
   color: var(--color-text);
 }
 
@@ -363,10 +363,9 @@
   width: 3.5rem;
   height: 3.5rem;
   border: 1px solid var(--color-border);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   transition:
     border-color 200ms ease,
     background-color 200ms ease;
@@ -407,10 +406,9 @@
   gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   background: var(--glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 .meditate-options__lengths {
@@ -617,9 +615,8 @@
 
 .meditate-for__kinds .chip {
   flex: none;
+  border-top-color: rgba(255, 255, 255, 0.15);
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 /* Make it your own: folded until opened. */
@@ -788,12 +785,11 @@
   right: var(--space-4);
   min-height: 2.75rem;
   padding: 0 var(--space-4);
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-pill);
   background: var(--glass);
   color: var(--color-text);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .sit-screen__center {
@@ -860,11 +856,10 @@
   width: 4.25rem;
   height: 4.25rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   background: var(--glass);
   color: var(--color-text);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .sit-screen__paused {

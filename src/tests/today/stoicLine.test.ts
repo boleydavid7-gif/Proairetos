@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays } from '../../core/scheduling/dates';
-import { stoicLineFor, stoicLines } from '../../core/stoic/dailyLine';
+import { dailyLineFor, dailyLines, stoicLineFor, stoicLines } from '../../core/stoic/dailyLine';
 
 describe('daily Stoic line', () => {
   it('stays the same through a day', () => {
@@ -25,5 +25,14 @@ describe('ways to try the daily line', () => {
       expect(line.tryIt, line.text).toBeTruthy();
     }
     expect(stoicLines.length).toBeGreaterThan(10);
+  });
+});
+
+describe('Today’s wider daily line', () => {
+  it('rotates through Stoic, Buddhist, and mindfulness lines', () => {
+    expect(dailyLines.length).toBeGreaterThan(stoicLines.length);
+    const month = Array.from({ length: 90 }, (_, i) => dailyLineFor(addDays('2026-01-01', i)));
+    expect(month.some((line) => line.source?.includes('Dhammapada'))).toBe(true);
+    expect(month.some((line) => line.source?.includes('Thich Nhat Hanh') || line.source?.includes('Kabat-Zinn'))).toBe(true);
   });
 });

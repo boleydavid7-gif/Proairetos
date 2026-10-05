@@ -89,15 +89,45 @@ export const stoicLines: readonly StoicLine[] = baseLines.map((line) =>
   waysToTry[line.text] ? { ...line, tryIt: waysToTry[line.text] } : line,
 );
 
-/**
- * One line for a local date ('YYYY-MM-DD'). Scattered by a hash so the order
- * feels random, but steady through the day so it never flickers on a revisit.
- */
-export function stoicLineFor(date: string, lines: readonly StoicLine[] = stoicLines): StoicLine {
+const buddhistLines: readonly StoicLine[] = [
+  { text: 'All that we are is the result of what we have thought.', source: 'The Dhammapada, 1' },
+  { text: 'Better than a thousand hollow words is one word that brings peace.', source: 'The Dhammapada, 100' },
+  { text: 'No one saves us but ourselves. No one can and no one may.', source: 'The Dhammapada, 165' },
+  { text: 'As a bee gathers honey from a flower without harming its colour or fragrance, so the wise move through the world.', source: 'The Dhammapada, 49' },
+  { text: 'The mind is difficult to control and swift; training it is good.', source: 'The Dhammapada, 35' },
+  { text: 'Hatred does not cease by hatred, but only by love; this is the eternal law.', source: 'The Dhammapada, 5' },
+];
+
+const mindfulnessLines: readonly StoicLine[] = [
+  { text: 'The present moment is filled with joy and happiness. If you are attentive, you will see it.', source: 'Thich Nhat Hanh, Peace Is Every Step' },
+  { text: 'Wherever you go, there you are.', source: 'Jon Kabat-Zinn, Wherever You Go, There You Are' },
+  { text: 'The best way to capture moments is to pay attention.', source: 'Jon Kabat-Zinn' },
+  { text: 'Feelings come and go like clouds in a windy sky. Conscious breathing is my anchor.', source: 'Thich Nhat Hanh' },
+  { text: 'Drink your tea slowly and reverently, as if it is the axis on which the whole earth revolves.', source: 'Thich Nhat Hanh' },
+  { text: 'Be where you are; otherwise you will miss your life.', source: 'Buddha, attributed' },
+];
+
+/** The Today line draws from Stoic, Buddhist, and mindfulness traditions. */
+export const dailyLines: readonly StoicLine[] = [...stoicLines, ...buddhistLines, ...mindfulnessLines];
+
+function lineFor(date: string, lines: readonly StoicLine[]): StoicLine {
   let hash = 2166136261;
   for (const char of date) {
     hash ^= char.charCodeAt(0);
     hash = Math.imul(hash, 16777619);
   }
   return lines[(hash >>> 0) % lines.length];
+}
+
+/**
+ * One line for a local date ('YYYY-MM-DD'). Scattered by a hash so the order
+ * feels random, but steady through the day so it never flickers on a revisit.
+ */
+export function stoicLineFor(date: string, lines: readonly StoicLine[] = stoicLines): StoicLine {
+  return lineFor(date, lines);
+}
+
+/** One stable line for a local date, rotating through the wider family of practices. */
+export function dailyLineFor(date: string, lines: readonly StoicLine[] = dailyLines): StoicLine {
+  return lineFor(date, lines);
 }

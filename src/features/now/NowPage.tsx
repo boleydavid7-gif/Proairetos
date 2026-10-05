@@ -18,7 +18,7 @@ import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
-import { stoicLineFor } from '../../core/stoic/dailyLine';
+import { dailyLineFor } from '../../core/stoic/dailyLine';
 import {
   answeredPauseOffers,
   displayName,
@@ -86,7 +86,7 @@ export default function NowPage() {
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   // Today shows today; other days live in Days ahead.
   const date = today;
-  const line = stoicLineFor(date);
+  const line = dailyLineFor(date);
 
   const now = useNow();
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
