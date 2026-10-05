@@ -77,6 +77,7 @@
 .theoria-cover small { color: rgba(255,245,225,.7); font-family: var(--font-sans); font-size: 8px; }
 .theoria-shelf-card { padding: 23px 21px 20px; }
 .theoria-card-title, .theoria-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; }
+.theoria-section-actions { display: flex; align-items: center; gap: 14px; }
 .theoria-card-title h2, .theoria-section-heading h2 { margin: 7px 0 0; font: 500 23px var(--font-serif); }
 .theoria-card-title button, .theoria-section-heading button { border: 0; padding: 0; color: var(--theoria-violet); background: transparent; cursor: pointer; font-size: 10px; }
 .theoria-shelf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
@@ -135,7 +136,9 @@
 .theoria-modal label { display: block; margin-top: 14px; color: var(--theoria-muted); font-size: 10px; }
 .theoria-modal label span { color: var(--theoria-faint); }
 .theoria-modal input, .theoria-modal select { display: block; width: 100%; height: 40px; margin-top: 6px; padding: 0 11px; border: 1px solid var(--theoria-border); border-radius: 8px; outline: 0; color: var(--theoria-ink); background: #10182c; font-size: 12px; }
+.theoria-modal textarea { display: block; width: 100%; min-height: 106px; margin-top: 6px; padding: 11px; border: 1px solid var(--theoria-border); border-radius: 8px; outline: 0; resize: vertical; color: var(--theoria-ink); background: #10182c; font: 15px/1.45 var(--font-serif); }
 .theoria-modal input:focus, .theoria-modal select:focus { border-color: var(--theoria-violet); }
+.theoria-modal textarea:focus { border-color: var(--theoria-violet); }
 .theoria-modal input[type=file] { height: auto; padding: 11px; }
 .theoria-modal label small { display: block; margin-top: 6px; color: var(--theoria-faint); font-size: 10px; }
 .theoria-modal-actions { display: flex; justify-content: end; gap: 8px; margin-top: 24px; }

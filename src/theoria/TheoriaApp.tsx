@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
-import { addBook, listBooks, startStore, storeVersion, subscribe } from './data/store';
-import { featuredBooks, type TheoriaBook, type TheoriaProvider, type TheoriaSource } from './core/books';
+import { addBook, listBooks, putBook, startStore, storeVersion, subscribe } from './data/store';
+import { featuredBooks, newId, type TheoriaBook, type TheoriaProvider, type TheoriaSource } from './core/books';
 
 type View = 'library' | 'notes' | 'quotes' | 'connections';
+type InsightKind = 'highlight' | 'note';
 
 const nav: readonly { id: View; label: string; glyph: string }[] = [
   { id: 'library', label: 'Library', glyph: '▤' },
@@ -54,6 +55,7 @@ export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
+  const [captureOpen, setCaptureOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>();
   const [notice, setNotice] = useState('');
   const [sync, setSync] = useState<SyncStatus>(syncStatus.get());
@@ -97,6 +99,18 @@ export default function TheoriaApp() {
     toast(`${book.title} added to your shelf.`);
   };
 
+  const saveInsight = async (bookId: string, kind: InsightKind, text: string, location?: string) => {
+    const book = shelf.find((item) => item.id === bookId);
+    if (!book) return;
+    const now = new Date().toISOString();
+    const updated = kind === 'highlight'
+      ? { ...book, highlights: [...book.highlights, { id: newId(), text, location: location || undefined, createdAt: now }], updatedAt: now }
+      : { ...book, notes: [...book.notes, { id: newId(), body: text, createdAt: now }], updatedAt: now };
+    await putBook(updated);
+    setCaptureOpen(false);
+    toast(kind === 'highlight' ? 'Highlight saved.' : 'Note saved.');
+  };
+
   return (
     <div className="theoria-app">
       <aside className="theoria-sidebar">
@@ -112,7 +126,7 @@ export default function TheoriaApp() {
       <main className="theoria-main">
         <header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>THEORIA</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span><span className={`theoria-sync theoria-sync--${sync.phase}`}><i />{sync.phase === 'ready' ? 'Synced' : sync.phase === 'signed-out' ? 'On this device' : 'Preparing'}</span></header>
         <div className="theoria-page">
-          {view === 'library' && <LibraryView name={name} shelf={displayShelf} realShelf={shelf} selected={selected} onAdd={() => setAddOpen(true)} onOpen={openBook} onSelect={setSelectedId} onNotes={() => setView('notes')} />}
+          {view === 'library' && <LibraryView name={name} shelf={displayShelf} realShelf={shelf} selected={selected} onAdd={() => setAddOpen(true)} onOpen={openBook} onSelect={setSelectedId} onNotes={() => setView('notes')} onCapture={() => shelf.length ? setCaptureOpen(true) : setAddOpen(true)} />}
           {view === 'notes' && <NotesView notes={notes} shelf={shelf} onAdd={() => setAddOpen(true)} />}
           {view === 'quotes' && <QuotesView highlights={highlights} shelf={shelf} onAdd={() => setAddOpen(true)} />}
           {view === 'connections' && <ConnectionsView shelf={shelf} onAdd={() => setAddOpen(true)} />}
@@ -121,6 +135,7 @@ export default function TheoriaApp() {
 
       <nav className="theoria-bottom-nav"><TheoriaNav view={view} onView={setView} /></nav>
       {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} />}
+      {captureOpen && <InsightDialog shelf={shelf} onClose={() => setCaptureOpen(false)} onSave={saveInsight} />}
       {notice && <div className="theoria-toast" role="status">{notice}</div>}
     </div>
   );
@@ -134,14 +149,14 @@ function Cover({ book, index = 0 }: { book: TheoriaBook; index?: number }) {
   return book.coverUrl ? <img className="theoria-cover" src={book.coverUrl} alt={`${book.title} cover`} /> : <div className={`theoria-cover theoria-cover--${index % 4}`}><span>{book.title}</span><small>{book.author ?? 'Theoria edition'}</small></div>;
 }
 
-function LibraryView({ name, shelf, realShelf, selected, onAdd, onOpen, onSelect, onNotes }: { name: string; shelf: readonly TheoriaBook[]; realShelf: readonly TheoriaBook[]; selected: TheoriaBook; onAdd: () => void; onOpen: (book: TheoriaBook) => void; onSelect: (id: string) => void; onNotes: () => void }) {
+function LibraryView({ name, shelf, realShelf, selected, onAdd, onOpen, onSelect, onNotes, onCapture }: { name: string; shelf: readonly TheoriaBook[]; realShelf: readonly TheoriaBook[]; selected: TheoriaBook; onAdd: () => void; onOpen: (book: TheoriaBook) => void; onSelect: (id: string) => void; onNotes: () => void; onCapture: () => void }) {
   const isFeatured = selected.userId === 'featured';
   const quote = dailyQuote();
   return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>{greeting(name)}</h1><p>Read with attention. Keep the ideas that stay with you.</p></div><button type="button" className="theoria-add-button" onClick={onAdd}>＋ Add to shelf</button></div>
     <div className="theoria-library-grid"><article className="theoria-card theoria-continue"><div className="theoria-card-kicker">{isFeatured ? 'A place to begin' : 'Continue reading'} <span>↗</span></div><div className="theoria-continue-body"><div><h2>{selected.title}</h2><p className="theoria-author">{selected.author}</p><div className="theoria-progress"><span style={{ width: `${selected.progress}%` }} /></div><small>{selected.progress}% read</small><button type="button" className="theoria-primary-button" onClick={() => isFeatured ? onAdd() : onOpen(selected)}>{isFeatured ? 'Add to shelf' : 'Continue reading'} <span>→</span></button></div><Cover book={selected} index={0} /></div></article>
       <article className="theoria-card theoria-shelf-card"><div className="theoria-card-title"><div><p className="theoria-eyebrow">Your shelf</p><h2>{realShelf.length ? `${realShelf.length} ${realShelf.length === 1 ? 'source' : 'sources'}` : 'Make it yours'}</h2></div><button type="button" onClick={onAdd}>See all →</button></div><div className="theoria-shelf-grid">{shelf.slice(0, 4).map((book, index) => <button type="button" className={`theoria-shelf-item${book.id === selected.id ? ' is-selected' : ''}`} key={book.id} onClick={() => realShelf.includes(book) ? (onSelect(book.id), onOpen(book)) : onAdd()}><Cover book={book} index={index} /><strong>{book.title}</strong><small>{book.author}</small><span><i style={{ width: `${book.progress}%` }} /></span></button>)}</div></article></div>
     <article className="theoria-daily-quote"><div><p className="theoria-eyebrow">Today’s passage</p><span className="theoria-daily-quote-mark">“</span></div><div><p>{quote.quote}</p><small>{quote.source}</small></div><span className="theoria-daily-quote-date">{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</span></article>
-    <div className="theoria-section-heading"><div><p className="theoria-eyebrow">Recent insights</p><h2>What stayed with you.</h2></div><button type="button" onClick={onNotes}>See all →</button></div><div className="theoria-insight-grid">{insightExamples.map((item) => <article className={`theoria-insight theoria-insight--${item.color}`} key={item.quote}><span>“</span><div><p>{item.quote}</p><small>{item.source}</small></div><button type="button" aria-label="Open insight">…</button></article>)}</div>
+    <div className="theoria-section-heading"><div><p className="theoria-eyebrow">Recent insights</p><h2>What stayed with you.</h2></div><div className="theoria-section-actions"><button type="button" onClick={onCapture}>＋ Capture</button><button type="button" onClick={onNotes}>See all →</button></div></div><div className="theoria-insight-grid">{insightExamples.map((item) => <article className={`theoria-insight theoria-insight--${item.color}`} key={item.quote}><span>“</span><div><p>{item.quote}</p><small>{item.source}</small></div><button type="button" aria-label="Open insight">…</button></article>)}</div>
   </section>;
 }
 
@@ -159,6 +174,22 @@ function ConnectionsView({ shelf, onAdd }: { shelf: TheoriaBook[]; onAdd: () => 
 }
 
 type NewBookForm = { title: string; author: string; source: TheoriaSource; provider: TheoriaProvider; sourceUrl: string; fileName?: string };
+
+function InsightDialog({ shelf, onClose, onSave }: { shelf: readonly TheoriaBook[]; onClose: () => void; onSave: (bookId: string, kind: InsightKind, text: string, location?: string) => Promise<void> }) {
+  const [bookId, setBookId] = useState(shelf[0]?.id ?? '');
+  const [kind, setKind] = useState<InsightKind>('highlight');
+  const [text, setText] = useState('');
+  const [location, setLocation] = useState('');
+  const [saving, setSaving] = useState(false);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!bookId || !text.trim()) return;
+    setSaving(true);
+    await onSave(bookId, kind, text.trim(), location.trim());
+    setSaving(false);
+  };
+  return <div className="theoria-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form className="theoria-modal" onSubmit={submit}><button type="button" className="theoria-modal-close" onClick={onClose} aria-label="Close">×</button><p className="theoria-eyebrow">Keep an idea</p><h2>Capture what stayed.</h2><p className="theoria-modal-intro">Save a passage or your own thought beside the source it belongs to.</p><div className="theoria-source-tabs"><button type="button" className={kind === 'highlight' ? 'is-active' : ''} onClick={() => setKind('highlight')}>Highlight</button><button type="button" className={kind === 'note' ? 'is-active' : ''} onClick={() => setKind('note')}>Note</button></div><label>Source<select value={bookId} onChange={(event) => setBookId(event.target.value)}>{shelf.map((book) => <option value={book.id} key={book.id}>{book.title}</option>)}</select></label><label>{kind === 'highlight' ? 'Passage' : 'Your note'}<textarea value={text} onChange={(event) => setText(event.target.value)} placeholder={kind === 'highlight' ? 'A line worth returning to…' : 'What did this make you notice?'} autoFocus /></label>{kind === 'highlight' && <label>Location <span>optional</span><input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Chapter 2 or page 48" /></label>}<div className="theoria-modal-actions"><button type="button" className="theoria-secondary-button" onClick={onClose}>Cancel</button><button type="submit" className="theoria-primary-button" disabled={saving || !text.trim()}>{saving ? 'Saving…' : 'Save insight'}</button></div></form></div>;
+}
 
 function AddBookDialog({ onClose, onSave }: { onClose: () => void; onSave: (form: NewBookForm) => Promise<void> }) {
   const [source, setSource] = useState<TheoriaSource>('cloud');
