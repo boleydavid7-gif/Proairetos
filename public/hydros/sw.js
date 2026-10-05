@@ -1,5 +1,5 @@
 // Hydros service worker: keep the app usable offline without pinning users to an old shell.
-const CACHE = 'hydros-v29';
+const CACHE = 'hydros-v30';
 const SHELL = ['/hydros/', '/hydros/index.html', '/hydros/manifest.webmanifest', '/hydros/icon.svg', '/hydros/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

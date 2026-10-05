@@ -43,7 +43,6 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           <div className="hydros-orb__water" style={{ height: `${percent}%` }} />
           <strong>{formatVolume(amount, unit as HydrosUnit)}<small>/{formatVolume(goal, unit as HydrosUnit)} {unit}</small></strong>
           <span>{hasData ? 'of your daily goal' : 'Daily goal'}</span>
-          <em>{hasData ? `${formatVolume(range.min, unit as HydrosUnit)} – ${formatVolume(range.max, unit as HydrosUnit)} ${unit}` : `${formatVolume(goal, unit as HydrosUnit)} ${unit} goal`}</em>
         </div>
       </section>
 
