@@ -82,7 +82,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
 .hydros-section-title button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
-.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
+.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(3,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
 :root.hydros[data-theme='light'] .hydros-tabs { background: rgba(234,244,245,.95); }
 .hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
 .hydros-tabs__item[aria-current='page'] { color: var(--cyan); }
@@ -118,56 +118,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .flow-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .flow-legend i { width: 10px; height: 10px; display: inline-block; border-radius: 50%; background: var(--cyan); }
 .flow-legend i.is-dash { width: 14px; height: 0; border-top: 1px dashed var(--muted); border-radius: 0; background: none; }
-.pattern-card { display: block; width: 100%; padding: 17px 16px 10px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: inherit; text-align: left; }
-.pattern-card .hydros-section-title { margin-bottom: 4px; }
-.pattern-card .hydros-section-title h2 { font: 400 1.18rem var(--serif); }
-.pattern-card .hydros-section-title svg { color: var(--cyan); }
-.pattern-row { display: flex; align-items: center; gap: 13px; min-height: 51px; border-top: 1px solid rgba(164,222,236,.1); color: var(--text-soft); }
-.pattern-row span { color: var(--cyan); }
-.pattern-row span svg { width: 21px; height: 21px; }
-.pattern-row p { font-size: .82rem; }
 .pattern-empty { padding: 14px 0 6px; color: var(--muted); font-size: .82rem; }
-
-.hydros-detail { gap: 14px; }
-.hydros-detail-summary { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 24px 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); text-align: center; }
-.hydros-detail-summary .balance-row__icon { width: 58px; height: 58px; margin-bottom: 6px; }
-.hydros-detail-summary strong { font: 400 2.15rem/1.05 var(--serif); }
-.hydros-detail-summary small { color: var(--muted); font-size: .8rem; }
-.hydros-info-list { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
-.hydros-info-list > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 56px; padding: 10px 16px; border-bottom: 1px solid rgba(164,222,236,.1); }
-.hydros-info-list > div:last-child { border-bottom: 0; }
-.hydros-info-list span { color: var(--text-soft); font-size: .84rem; }
-.hydros-info-list strong { color: var(--text); font: 400 1.08rem var(--serif); text-align: right; }
-.hydros-detail-empty { padding: 18px 16px; color: var(--muted); font-size: .84rem; }
-.hydros-metric-cards { display: grid; gap: 9px; }
-.hydros-metric-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 61px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }
-.hydros-metric-card span { color: var(--text-soft); font-size: .84rem; }
-.hydros-metric-card strong { color: var(--text); font: 400 1.12rem var(--serif); text-align: right; }
-.hydros-source-list { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
-.hydros-source-list h2 { margin: 0; padding: 14px 16px 9px; color: var(--muted); font-size: .72rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
-.hydros-source-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 57px; padding: 9px 16px; border-top: 1px solid rgba(164,222,236,.1); }
-.hydros-source-row span { display: flex; flex-direction: column; gap: 2px; }
-.hydros-source-row strong { font-size: .86rem; font-weight: 500; }
-.hydros-source-row small { color: var(--muted); font-size: .7rem; }
-.hydros-source-row b { color: var(--text); font: 400 1.08rem var(--serif); }
-.pattern-detail-list { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 19px; background: var(--surface); }
-.pattern-detail-row { display: flex; align-items: center; gap: 14px; min-height: 87px; padding: 13px 16px; border-bottom: 1px solid rgba(164,222,236,.1); }
-.pattern-detail-row:last-child { border-bottom: 0; }
-.pattern-detail-row > span { color: var(--cyan); }
-.pattern-detail-row > span svg { width: 24px; height: 24px; }
-.pattern-detail-row strong { font-size: .86rem; font-weight: 500; }
-.pattern-detail-row p { margin-top: 3px; color: var(--text-soft); font-size: .8rem; }
-
-.balance-list { display: flex; flex-direction: column; gap: 9px; margin-top: 20px; }
-.balance-row { display: flex; align-items: center; gap: 13px; width: 100%; min-height: 80px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); color: var(--text); text-align: left; }
-.balance-row__icon { display: grid; place-items: center; width: 45px; height: 45px; flex: 0 0 auto; border-radius: 50%; background: var(--cyan-soft); color: var(--cyan); }
-.balance-row__words { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.balance-row__words strong { font-size: .84rem; font-weight: 500; }
-.balance-row__words b { font: 400 1.15rem/1.25 var(--serif); }
-.balance-row__words small { color: var(--muted); font-size: .69rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.balance-row__chevron { color: var(--muted); font-size: 1.7rem; font-weight: 300; }
-.hydros-add-float { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 18px; border: 1px solid var(--cyan); border-radius: 25px; background: var(--cyan-soft); color: var(--cyan); }
-.hydros-settings { gap: 16px; }
 
 /* Settings follows the same quiet, grouped controls as the reference. */
 .hydros-settings { gap: 10px; padding-bottom: 30px; overflow-y: auto; background: linear-gradient(180deg, rgba(3, 19, 27, .18), rgba(3, 19, 27, .08)), var(--bg); }
@@ -226,12 +177,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button.is-selected { border: 0; background: transparent; color: var(--cyan); box-shadow: none; }
 .hydros-add__stage .drink-types button.is-selected::before { border-color: rgba(104, 224, 255, .9); background: var(--cyan); box-shadow: 0 0 20px rgba(58, 202, 245, .4); }
 .hydros-add__stage .drink-types button.is-selected svg { border: 0; background: transparent; box-shadow: none; color: #f4fdff; }
-.hydros-other-menu { position: absolute; z-index: 5; top: 45%; right: 8%; left: 8%; padding: 10px; border: 1px solid rgba(164,222,236,.24); border-radius: 18px; background: rgba(4, 27, 37, .96); box-shadow: 0 12px 34px rgba(0,0,0,.35); }
-.hydros-other-menu__head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 8px; color: var(--text); font-size: .82rem; }
-.hydros-other-menu__head button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text-soft); }
-.hydros-other-menu__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-.hydros-other-menu__options button { min-height: 38px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 11px; background: rgba(16, 54, 67, .78); color: var(--text-soft); font-size: .72rem; }
-.hydros-other-menu__options button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
 .hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 79%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; background: rgba(12, 54, 68, .84); }
 .hydros-add__stage .amount-picker strong { display: flex; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
@@ -239,10 +184,46 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 @media (max-height: 700px) {
   .hydros-add__stage > .drink-types { top: 15%; grid-auto-rows: 88px; gap: 7px; }
-  .hydros-other-menu { top: 42%; }
   .hydros-add__stage .amount-picker { top: 72%; }
   .hydros-add__stage .hydros-save { top: 88%; }
 }
 
 @media (min-width: 560px) { .hydros-shell { box-shadow: 0 0 70px rgba(0,0,0,.25); } }
 @media (max-width: 370px) { .hydros-hero { padding-left: 20px; padding-right: 20px; } .hydros-hero__words h1 { font-size: 1.95rem; } .hydros-orb { width: 260px; } .flow-chart__bars { gap: 4px; } }
+
+.hydros-flow, .hydros-drink-profiles { overflow-y: auto; }
+.recent-entries { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; padding-bottom: 18px; }
+.recent-entries > .hydros-section-title { margin-bottom: 2px; }
+.recent-entries > .hydros-section-title > span { color: var(--muted); font-size: .72rem; }
+.recent-entry { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }
+.recent-entry__summary { display: flex; align-items: center; gap: 11px; min-height: 68px; padding: 9px 11px; }
+.recent-entry__icon { display: grid; flex: 0 0 auto; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--cyan-soft); color: var(--cyan); }
+.recent-entry__words { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.recent-entry__words strong { overflow: hidden; color: var(--text); font-size: .82rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.recent-entry__words small, .recent-entry__words em { overflow: hidden; color: var(--muted); font-size: .7rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.recent-entry__words em { color: var(--text-soft); font-size: .67rem; }
+.recent-entry__edit { display: grid; flex: 0 0 auto; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--cyan); }
+.recent-entry__editor { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 11px; border-top: 1px solid var(--line); background: rgba(4, 27, 37, .24); }
+.recent-entry__editor label { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--muted); font-size: .68rem; }
+.recent-entry__editor label > span { flex: 0 0 auto; }
+.recent-entry__editor input, .recent-entry__editor select { min-width: 0; width: 100%; padding: 6px 7px; border: 1px solid var(--line); border-radius: 8px; background: rgba(16, 54, 67, .7); color: var(--text-soft); font: inherit; }
+.recent-entry__editor label > b { flex: 0 0 auto; color: var(--text-soft); font-size: .67rem; font-weight: 400; }
+.recent-entry__actions { display: flex; grid-column: 1 / -1; align-items: center; gap: 7px; }
+.recent-entry__actions .hydros-save { min-height: 42px; margin: 0; }
+.recent-entry__cancel, .recent-entry__delete { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 42px; padding: 0 11px; border: 1px solid var(--line); border-radius: 21px; background: transparent; color: var(--text-soft); font-size: .72rem; }
+.recent-entry__delete { margin-left: auto; border-color: rgba(255, 133, 133, .4); color: #ffabab; }
+.hydros-profile-list { display: flex; flex-direction: column; gap: 8px; padding-bottom: 28px; }
+.hydros-profile-card { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: rgba(15, 48, 60, .52); }
+.hydros-profile-card summary { display: flex; align-items: center; gap: 10px; min-height: 57px; padding: 9px 12px; cursor: pointer; list-style: none; }
+.hydros-profile-card summary::-webkit-details-marker { display: none; }
+.hydros-profile-card__icon { display: grid; flex: 0 0 auto; place-items: center; width: 35px; height: 35px; border-radius: 50%; background: var(--cyan-soft); color: var(--cyan); }
+.hydros-profile-card__title { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.hydros-profile-card__title strong { overflow: hidden; color: var(--text); font-size: .82rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-profile-card__title small { overflow: hidden; color: var(--muted); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 12px 12px; border-top: 1px solid var(--line); }
+.hydros-profile-fields label { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--muted); font-size: .69rem; }
+.hydros-profile-fields label:first-child { grid-column: 1 / -1; }
+.hydros-profile-fields label span { flex: 0 0 auto; }
+.hydros-profile-fields input { min-width: 0; width: 100%; padding: 6px 7px; border: 1px solid var(--line); border-radius: 8px; background: rgba(16, 54, 67, .7); color: var(--text-soft); font: inherit; }
+.hydros-profile-fields b { flex: 0 0 auto; color: var(--text-soft); font-size: .67rem; font-weight: 400; }
+.hydros-profile-use { grid-column: 1 / -1; min-height: 42px; border: 0; border-radius: 21px; background: var(--cyan); color: var(--cyan-ink); font-weight: 600; }

@@ -3,14 +3,28 @@ export type DrinkKind = 'water' | 'coffee' | 'tea' | 'electrolyte' | 'sparkling'
 export type Drink = {
   id: string;
   kind: DrinkKind;
+  profileId?: string;
+  label?: string;
   amountOz: number;
   caffeineMg?: number;
+  electrolytesMg?: number;
+  sugarG?: number;
   loggedAt: string;
   createdAt: string;
 };
 
+export type HydrosDrinkProfile = {
+  id: string;
+  kind: DrinkKind;
+  label: string;
+  caffeineMg: number;
+  electrolytesMg: number;
+  sugarG: number;
+};
+
 export type DrinkSource = {
   kind: DrinkKind;
+  label?: string;
   count: number;
   amountOz: number;
   caffeineMg: number;
@@ -30,9 +44,52 @@ export type HydrosSettings = {
   reminders?: boolean;
   reminderIntervalMinutes?: number;
   unit?: HydrosUnit;
+  drinkProfiles?: HydrosDrinkProfile[];
 };
 
-export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, unit: 'oz' });
+export const defaultDrinkProfiles = (): HydrosDrinkProfile[] => [
+  { id: 'water', kind: 'water', label: 'Water', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
+  { id: 'coffee', kind: 'coffee', label: 'Coffee', caffeineMg: 95, electrolytesMg: 0, sugarG: 0 },
+  { id: 'tea', kind: 'tea', label: 'Tea', caffeineMg: 35, electrolytesMg: 0, sugarG: 0 },
+  { id: 'electrolyte', kind: 'electrolyte', label: 'Sports drink', caffeineMg: 0, electrolytesMg: 110, sugarG: 21 },
+  { id: 'sparkling', kind: 'sparkling', label: 'Sparkling', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
+  { id: 'other', kind: 'other', label: 'Other', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
+  { id: 'energy', kind: 'other', label: 'Energy drink', caffeineMg: 160, electrolytesMg: 0, sugarG: 27 },
+  { id: 'soda', kind: 'other', label: 'Soda', caffeineMg: 39, electrolytesMg: 0, sugarG: 39 },
+  { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24 },
+];
+
+function validNonNegative(value: unknown, fallback: number): number {
+  return Number.isFinite(value) && Number(value) >= 0 ? Math.round(Number(value) * 10) / 10 : fallback;
+}
+
+/** Keeps editable drink profiles compatible with older Hydros settings. */
+export function normalizeDrinkProfiles(value: unknown): HydrosDrinkProfile[] {
+  const defaults = defaultDrinkProfiles();
+  const saved = Array.isArray(value) ? value : [];
+  const byId = new Map(saved.filter((item): item is Partial<HydrosDrinkProfile> => Boolean(item && typeof item === 'object' && typeof (item as { id?: unknown }).id === 'string')).map((item) => [String(item.id), item]));
+  const normalize = (base: HydrosDrinkProfile, item?: Partial<HydrosDrinkProfile>): HydrosDrinkProfile => ({
+    ...base,
+    label: typeof item?.label === 'string' && item.label.trim() ? item.label.trim().slice(0, 40) : base.label,
+    caffeineMg: validNonNegative(item?.caffeineMg, base.caffeineMg),
+    electrolytesMg: validNonNegative(item?.electrolytesMg, base.electrolytesMg),
+    sugarG: validNonNegative(item?.sugarG, base.sugarG),
+  });
+  const profiles = defaults.map((base) => normalize(base, byId.get(base.id)));
+  for (const item of saved) {
+    if (!item || typeof item !== 'object') continue;
+    const id = String((item as { id?: unknown }).id ?? '');
+    if (!id || defaults.some((profile) => profile.id === id)) continue;
+    const kind = (item as { kind?: unknown }).kind;
+    if (kind !== 'water' && kind !== 'coffee' && kind !== 'tea' && kind !== 'electrolyte' && kind !== 'sparkling' && kind !== 'other') continue;
+    const label = String((item as { label?: unknown }).label ?? '').trim();
+    if (!label) continue;
+    profiles.push(normalize({ id, kind, label, caffeineMg: 0, electrolytesMg: 0, sugarG: 0 }, item as Partial<HydrosDrinkProfile>));
+  }
+  return profiles;
+}
+
+export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, unit: 'oz', drinkProfiles: defaultDrinkProfiles() });
 
 /** An average diet contributes about one-fifth of daily water needs through food. */
 export const AVERAGE_FOOD_WATER_FRACTION = 0.2;
@@ -156,13 +213,15 @@ export function caffeine(drinks: readonly Drink[]): number {
 
 /** Groups the day's entries so a total can always be traced back to drink types. */
 export function sourceBreakdown(drinks: readonly Drink[]): DrinkSource[] {
-  const grouped = new Map<DrinkKind, DrinkSource>();
+  const grouped = new Map<string, DrinkSource>();
   for (const drink of drinks) {
-    const current = grouped.get(drink.kind) ?? { kind: drink.kind, count: 0, amountOz: 0, caffeineMg: 0 };
+    const key = `${drink.kind}:${drink.profileId ?? drink.label ?? ''}`;
+    const current = grouped.get(key) ?? { kind: drink.kind, count: 0, amountOz: 0, caffeineMg: 0 };
+    if (drink.label && drink.label !== kindLabel(drink.kind)) current.label = drink.label;
     current.count += 1;
     current.amountOz += drink.amountOz;
     current.caffeineMg += drink.caffeineMg ?? kindCaffeine(drink.kind);
-    grouped.set(drink.kind, current);
+    grouped.set(key, current);
   }
   return [...grouped.values()].sort((a, b) => b.amountOz - a.amountOz || a.kind.localeCompare(b.kind));
 }

@@ -1,6 +1,6 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { AVERAGE_FOOD_WATER_FRACTION, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, totalOz, volumeLabel, waterRecommendation, type Drink } from '../../hydros/core/drinks';
+import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, totalOz, volumeLabel, waterRecommendation, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
@@ -57,5 +57,23 @@ describe('Hydros', () => {
   it('keeps the Hydros Stoic line stable through a day', () => {
     expect(hydrosQuoteFor('2026-10-05')).toBe(hydrosQuoteFor('2026-10-05'));
     expect(hydrosQuotes).toContain(hydrosQuoteFor('2026-10-05'));
+  });
+
+  it('ships editable drink profiles and preserves their values', () => {
+    expect(defaultDrinkProfiles().map((profile) => profile.id)).toEqual(['water', 'coffee', 'tea', 'electrolyte', 'sparkling', 'other', 'energy', 'soda', 'juice']);
+    const profiles = normalizeDrinkProfiles([{ id: 'coffee', kind: 'coffee', label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 }]);
+    expect(profiles.find((profile) => profile.id === 'coffee')).toMatchObject({ label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 });
+    expect(profiles.find((profile) => profile.id === 'energy')?.caffeineMg).toBe(160);
+  });
+
+  it('keeps custom drink labels separate in source breakdowns', () => {
+    const drinks: Drink[] = [
+      { id: 'a', kind: 'other', profileId: 'energy', label: 'Energy drink', amountOz: 12, caffeineMg: 160, loggedAt: '2026-10-04T09:00:00.000Z', createdAt: '2026-10-04T09:00:00.000Z' },
+      { id: 'b', kind: 'other', profileId: 'soda', label: 'Soda', amountOz: 12, caffeineMg: 39, loggedAt: '2026-10-04T10:00:00.000Z', createdAt: '2026-10-04T10:00:00.000Z' },
+    ];
+    expect(sourceBreakdown(drinks)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'other', label: 'Energy drink', amountOz: 12, caffeineMg: 160 }),
+      expect.objectContaining({ kind: 'other', label: 'Soda', amountOz: 12, caffeineMg: 39 }),
+    ]));
   });
 });

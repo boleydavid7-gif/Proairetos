@@ -10,7 +10,7 @@ import {
   type HydrosUnit,
 } from '../core/drinks';
 import { ScreenHeader } from '../app/ui';
-import { BalanceIcon, BoltIcon, ClockIcon, CupIcon, DropIcon, GearIcon, LeafIcon, MoreIcon, SunIcon, WaveIcon } from '../app/icons';
+import { BoltIcon, ClockIcon, CupIcon, DropIcon, GearIcon, LeafIcon, MoreIcon, ScaleIcon, SunIcon, WaveIcon } from '../app/icons';
 import { applyAppearance } from '../../app/appearance';
 import { loadAppearance, loadQuietHours, saveAppearance, saveQuietHours, type Appearance, type StoredQuietHours } from '../../data/storage/preferences';
 import { notifications } from '../../app/notify/notifications';
@@ -112,7 +112,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <p className="hydros-settings-lede">Customize Hydros to fit your life.</p>
 
       <SettingsGroup title="Profile">
-        <label className="hydros-settings-row"><Icon><BalanceIcon /></Icon><span className="hydros-settings-row__name">Weight</span><input className="hydros-settings-row__input" aria-label="Weight in pounds" type="number" inputMode="decimal" min="1" max="700" value={weight} onChange={(event) => { setWeight(event.target.value); updateProfile('weightLb', event.target.value); }} placeholder="—" /><b>lb</b></label>
+        <label className="hydros-settings-row"><Icon><ScaleIcon /></Icon><span className="hydros-settings-row__name">Weight</span><input className="hydros-settings-row__input" aria-label="Weight in pounds" type="number" inputMode="decimal" min="1" max="700" value={weight} onChange={(event) => { setWeight(event.target.value); updateProfile('weightLb', event.target.value); }} placeholder="—" /><b>lb</b></label>
         <label className="hydros-settings-row"><Icon><BoltIcon /></Icon><span className="hydros-settings-row__name">Height</span><input className="hydros-settings-row__input" aria-label="Height in inches" type="number" inputMode="decimal" min="1" max="100" value={height} onChange={(event) => { setHeight(event.target.value); updateProfile('heightIn', event.target.value); }} placeholder="—" /><b>in</b></label>
         <label className="hydros-settings-row"><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">Activity level</span><select aria-label="Activity level" value={activity} onChange={(event) => { const next = event.target.value as HydrosActivity; setActivity(next); updateSettings({ activity: next }); }}><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select><Chevron /></label>
       </SettingsGroup>

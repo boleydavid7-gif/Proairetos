@@ -17,12 +17,13 @@ export const BackIcon = (props: IconProps) => icon(<path d="m15 18-6-6 6-6" />, 
 export const CloseIcon = (props: IconProps) => icon(<><path d="m6 6 12 12M18 6 6 18" /></>, props);
 export const PlusIcon = (props: IconProps) => icon(<><path d="M12 5v14M5 12h14" /></>, props);
 export const MinusIcon = (props: IconProps) => icon(<path d="M5 12h14" />, props);
+export const PencilIcon = (props: IconProps) => icon(<><path d="m4 16.5-.8 3.3 3.3-.8L18.9 6.6a2.1 2.1 0 0 0-3-3L4 16.5Z" /><path d="m14.5 5.5 4 4" /></>, props);
 export const ClockIcon = (props: IconProps) => icon(<><circle cx="12" cy="12" r="8" /><path d="M12 7v5l3 2" /></>, props);
 export const ChartIcon = (props: IconProps) => icon(<><path d="M5 20V10M12 20V4M19 20v-7" /></>, props);
 export const SunIcon = (props: IconProps) => icon(<><circle cx="12" cy="12" r="3" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>, props);
 export const MoonIcon = (props: IconProps) => icon(<path d="M19 15.5A7.5 7.5 0 0 1 8.5 5 7.5 7.5 0 1 0 19 15.5Z" />, props);
 export const WaveIcon = (props: IconProps) => icon(<><path d="M3 9c3-2 5-2 8 0s5 2 10 0M3 15c3-2 5-2 8 0s5 2 10 0" /></>, props);
-export const BalanceIcon = (props: IconProps) => icon(<><path d="M12 3v18M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7ZM17 7l-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8" /></>, props);
+export const ScaleIcon = (props: IconProps) => icon(<><path d="M12 3v18M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7ZM17 7l-3 6a3 3 0 0 0 6 0l-3-6ZM8 21h8" /></>, props);
 export const GearIcon = (props: IconProps) => icon(<><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z" /><circle cx="12" cy="12" r="3" /></>, props);
 
 export const iconForKind = (kind: string, props: IconProps = {}) => {

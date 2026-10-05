@@ -4,12 +4,10 @@ import { tabNames, TabBar, type Tab } from './ui';
 import TodayPage from '../screens/TodayPage';
 import AddPage from '../screens/AddPage';
 import FlowPage from '../screens/FlowPage';
-import BalancePage from '../screens/BalancePage';
-import BalanceDetailPage from '../screens/BalanceDetailPage';
+import DrinkTypesPage from '../screens/DrinkTypesPage';
 import SettingsPage from '../screens/SettingsPage';
 
-export type BalanceDetailId = 'dailyBalance' | 'caffeine' | 'electrolytes' | 'rhythm' | 'support';
-export type Route = { name: Tab } | { name: 'balanceDetail'; id: BalanceDetailId } | { name: 'settings' };
+export type Route = { name: 'today' | 'flow' } | { name: 'add'; profileId?: string } | { name: 'drinkTypes'; returnTo?: 'add' } | { name: 'settings' };
 export type Nav = { go: (route: Route) => void; swap: (route: Route) => void; back: () => void };
 const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).includes(name);
 
@@ -29,6 +27,6 @@ export default function App() {
   const swap = useCallback((next: Route) => { history.replaceState({ hydros: next }, ''); transition(directionTo(next), () => setRoute(next)); }, []);
   const back = useCallback(() => history.length > 1 ? history.back() : swap({ name: lastTab }), [lastTab, swap]);
   const nav: Nav = { go, swap, back };
-  const page = route.name === 'today' ? <TodayPage nav={nav} /> : route.name === 'add' ? <AddPage nav={nav} /> : route.name === 'flow' ? <FlowPage nav={nav} /> : route.name === 'balance' ? <BalancePage nav={nav} /> : route.name === 'balanceDetail' ? <BalanceDetailPage nav={nav} id={route.id} /> : route.name === 'settings' ? <SettingsPage nav={nav} /> : <TodayPage nav={nav} />;
+  const page = route.name === 'today' ? <TodayPage nav={nav} /> : route.name === 'add' ? <AddPage nav={nav} profileId={route.profileId} /> : route.name === 'flow' ? <FlowPage nav={nav} /> : route.name === 'drinkTypes' ? <DrinkTypesPage nav={nav} returnTo={route.returnTo} /> : route.name === 'settings' ? <SettingsPage nav={nav} /> : <TodayPage nav={nav} />;
   return <div className="hydros-shell"><main key={route.name} className="hydros-page-enter">{page}</main><TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} /></div>;
 }

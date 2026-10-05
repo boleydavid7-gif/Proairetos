@@ -1,7 +1,7 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Drink, HydrosActivity, HydrosSettings, HydrosUnit } from '../core/drinks';
-import { defaultHydrosSettings } from '../core/drinks';
+import { defaultHydrosSettings, normalizeDrinkProfiles } from '../core/drinks';
 
 export type { HydrosSettings } from '../core/drinks';
 
@@ -85,6 +85,7 @@ export function loadSettings(): HydrosSettings {
       reminders: saved.reminders === true,
       reminderIntervalMinutes: Number.isFinite(saved.reminderIntervalMinutes) ? Math.max(15, Math.min(240, Math.round(Number(saved.reminderIntervalMinutes)))) : 120,
       unit: saved.unit === 'ml' || saved.unit === 'L' ? saved.unit as HydrosUnit : 'oz',
+      drinkProfiles: normalizeDrinkProfiles(saved.drinkProfiles),
     };
   } catch {
     return defaultHydrosSettings();

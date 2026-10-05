@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react';
-import { BalanceIcon, ChartIcon, DropIcon, PlusIcon } from './icons';
+import { ChartIcon, DropIcon, PlusIcon } from './icons';
 
-export type Tab = 'today' | 'add' | 'flow' | 'balance';
+export type Tab = 'today' | 'add' | 'flow';
 const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactNode }[] = [
   { id: 'today', label: 'Today', Icon: DropIcon },
   { id: 'add', label: 'Add', Icon: PlusIcon },
   { id: 'flow', label: 'Flow', Icon: ChartIcon },
-  { id: 'balance', label: 'Balance', Icon: BalanceIcon },
 ];
 export const tabNames = tabs.map((tab) => tab.id);
 
