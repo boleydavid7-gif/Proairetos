@@ -1,5 +1,5 @@
 import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
-import type { SessionId } from '../../core/meditate/sessions';
+import { sessions, type SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
@@ -488,7 +488,7 @@ export function saveAppearance(appearance: Appearance): void {
 const MEDITATE_KEY = 'proairetos.meditate';
 
 export type MeditateSettings = {
-  tab: 'sessions' | 'breathe' | 'sounds' | 'music';
+  tab: 'sessions' | 'breathe' | 'sounds' | 'music' | 'free';
   /** The session type chosen on Sessions. */
   session: SessionId;
   /** Which kind of sit the Sounds and Music tabs are choosing for. */
@@ -499,19 +499,48 @@ export type MeditateSettings = {
 
 const meditateDefaults: MeditateSettings = {
   tab: 'sessions',
-  session: 'guided',
-  soundsFor: 'guided',
+  session: sessions[0].id,
+  soundsFor: sessions[0].id,
   setups: {},
 };
 
+function isSessionId(value: unknown): value is SessionId {
+  return sessions.some((definition) => definition.id === value);
+}
+
+function isMeditateTab(value: unknown): value is MeditateSettings['tab'] {
+  return value === 'sessions' || value === 'breathe' || value === 'sounds' || value === 'music' || value === 'free';
+}
+
+function isSitKind(value: unknown): value is SitKind {
+  return value === 'breathe' || isSessionId(value);
+}
+
+function cleanMeditateSetups(value: unknown): MeditateSettings['setups'] {
+  if (!value || typeof value !== 'object') return {};
+  const source = value as Record<string, unknown>;
+  const cleaned: MeditateSettings['setups'] = {};
+  const kinds: readonly SitKind[] = [...sessions.map((definition) => definition.id), 'breathe'];
+  const keys: readonly (keyof SitSetup)[] = ['minutes', 'pace', 'counts', 'bells', 'breathSounds', 'sounds', 'music'];
+  for (const kind of kinds) {
+    const raw = source[kind];
+    if (!raw || typeof raw !== 'object') continue;
+    const setup = raw as Record<string, unknown>;
+    const next: Partial<SitSetup> = {};
+    for (const key of keys) if (key in setup) next[key] = setup[key] as never;
+    if (Object.keys(next).length) cleaned[kind] = next;
+  }
+  return cleaned;
+}
+
 export function loadMeditate(): MeditateSettings {
   const saved = readJson<Partial<MeditateSettings>>(MEDITATE_KEY) ?? {};
-  // Earlier versions kept other fields here; only these carry over.
+  const session = isSessionId(saved.session) ? saved.session : meditateDefaults.session;
   return {
-    tab: saved.tab ?? meditateDefaults.tab,
-    session: saved.session ?? meditateDefaults.session,
-    soundsFor: saved.soundsFor ?? saved.session ?? meditateDefaults.soundsFor,
-    setups: saved.setups ?? {},
+    tab: isMeditateTab(saved.tab) ? saved.tab : meditateDefaults.tab,
+    session,
+    soundsFor: isSitKind(saved.soundsFor) ? saved.soundsFor : session,
+    setups: cleanMeditateSetups(saved.setups),
   };
 }
 

@@ -158,14 +158,21 @@
 /* Tabs underlined, as in the mockup. */
 .meditate-tabs {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meditate-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .meditate-tabs__tab {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 2.75rem;
+  padding: 0 var(--space-2);
   border: 0;
   background: none;
   color: var(--color-text-muted);
@@ -431,6 +438,50 @@
   flex: 1;
   color: var(--color-text-muted);
   text-align: right;
+}
+
+.meditate-link-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.meditate-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 4.25rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.meditate-link:focus-visible,
+.meditate-link:hover {
+  border-color: rgba(240, 201, 142, 0.55);
+}
+
+.meditate-link__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.meditate-link__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.meditate-link__source,
+.meditate-link__detail {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
 }
 
 .meditate-start {
