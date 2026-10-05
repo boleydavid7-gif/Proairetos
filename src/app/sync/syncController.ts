@@ -34,8 +34,9 @@ import {
 } from '../services';
 import { reminderTimes } from './reminders';
 import { upcomingNotices } from '../notify/upcoming';
+import { hydrationNotices } from '../notify/hydrationSchedule';
 import { buildCalendarFile } from './calendarFile';
-import { loadCalendarFeed, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
+import { loadCalendarFeed, loadQuietHours, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
 
 export type SyncPhase =
   | 'unavailable' // not configured, or storage blocked
@@ -136,7 +137,9 @@ export function refreshReminders(): Promise<void> {
 async function updateReminders() {
   if (!userId || status.reminders !== 'on') return;
   // Only the times leave the device; the words are written here when the push arrives.
-  await replaceReminders(userId, await reminderTimes(await upcomingNotices()));
+  const notices = await upcomingNotices();
+  notices.push(...hydrationNotices(new Date(), loadQuietHours()));
+  await replaceReminders(userId, await reminderTimes(notices));
 }
 
 export async function syncNow(): Promise<SyncResult | null> {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import type { Nav } from '../app/App';
 import { useSettings, updateSettings } from '../app/state';
 import {
@@ -14,6 +14,7 @@ import { BoltIcon, ClockIcon, CupIcon, DropIcon, GearIcon, LeafIcon, MoreIcon, S
 import { applyAppearance } from '../../app/appearance';
 import { loadAppearance, loadQuietHours, saveAppearance, saveQuietHours, type Appearance, type StoredQuietHours } from '../../data/storage/preferences';
 import { notifications } from '../../app/notify/notifications';
+import { enableReminders, syncStatus } from '../../app/sync/syncController';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 
 const intervals = [60, 120, 180] as const;
@@ -49,7 +50,13 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
   const [permission, setPermission] = useState(() => notifications.permission());
   const [quiet, setQuiet] = useState<StoredQuietHours>(() => loadQuietHours());
   const [theme, setTheme] = useState<Appearance['theme']>(() => loadAppearance().theme);
+  const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const recommendation = useMemo(() => waterRecommendation({ weightLb: Number(weight), heightIn: Number(height), activity }), [weight, height, activity]);
+
+  useEffect(() => {
+    if (!reminders || sync.phase !== 'ready' || sync.reminders === 'on' || notifications.permission() !== 'granted') return;
+    void enableReminders().catch(() => undefined);
+  }, [reminders, sync.phase, sync.reminders]);
 
   const updateProfile = (field: 'weightLb' | 'heightIn', value: string) => {
     const parsed = Number(value);
@@ -89,6 +96,9 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
     try {
       const nextPermission = await notifications.ask();
       setPermission(nextPermission);
+      if (nextPermission === 'granted' && sync.phase === 'ready' && sync.reminders !== 'on') {
+        await enableReminders().catch(() => undefined);
+      }
       if (nextPermission === 'denied') {
         setReminders(false);
         updateSettings({ reminders: false });

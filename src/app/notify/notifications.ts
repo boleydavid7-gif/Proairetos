@@ -1,10 +1,10 @@
 import { privateNotice, type Notice, type NoticeSettings } from '../../core/notify/notices';
 import { loadNotify, loadQuietHours, saveNotify } from '../../data/storage/preferences';
-import { deliverAt } from '../../core/rhythm/quietHours';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { upcomingNotices } from './upcoming';
+import { hydrationNotices, setHydrationSchedule } from './hydrationSchedule';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -28,7 +28,6 @@ const listeners = new Set<() => void>();
 let timer: number | undefined;
 let pending: number | undefined;
 let upcoming: Notice[] = [];
-let hydration = { enabled: false, intervalMinutes: 120 };
 
 function supported(): boolean {
   return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
@@ -40,13 +39,6 @@ function runningInBrowser(): boolean {
 
 function notify(): void {
   for (const listener of listeners) listener();
-}
-
-function nextHydrationNotice(now = new Date()): Notice | undefined {
-  if (!hydration.enabled) return undefined;
-  const interval = Math.max(15, Math.min(240, Math.round(hydration.intervalMinutes))) * 60_000;
-  const due = deliverAt(new Date(now.getTime() + interval), loadQuietHours(), []);
-  return { key: `hydros:hydration:${due.toISOString()}`, kind: 'hydration', at: due, title: 'Hydros', body: 'A measured drink keeps the day in motion.', open: 'today' };
 }
 
 async function store(notices: readonly Notice[], details: boolean): Promise<void> {
@@ -105,9 +97,10 @@ function arm(): void {
     const details = loadNotify().details;
     for (const notice of due) await show(notice, details).catch(() => undefined);
     if (due.some((notice) => notice.kind === 'hydration')) {
-      const nextHydration = nextHydrationNotice(new Date());
-      if (nextHydration) upcoming.push(nextHydration);
-      upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
+      // Rebuild the horizon after a hydration reminder is delivered. This
+      // keeps the local cache and the closed-app schedule rolling forward.
+      void notifications.refresh();
+      return;
     }
     arm();
   }, wait);
@@ -148,7 +141,8 @@ export const notifications = {
 
   /** Adds Hydros' repeating drink reminder to the shared Proairetos scheduler. */
   setHydrationSchedule(next: { enabled: boolean; intervalMinutes: number }): void {
-    hydration = { enabled: next.enabled, intervalMinutes: next.intervalMinutes };
+    setHydrationSchedule(next);
+    void refreshReminders();
     notifications.refreshSoon();
   },
 
@@ -162,8 +156,7 @@ export const notifications = {
     if (!runningInBrowser()) return;
     const settings = loadNotify();
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
-    const hydrationNotice = nextHydrationNotice(new Date());
-    if (hydrationNotice) upcoming.push(hydrationNotice);
+    upcoming.push(...hydrationNotices(new Date(), loadQuietHours()));
     upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
     if (notifications.permission() === 'granted') arm();
