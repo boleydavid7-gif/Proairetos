@@ -71,6 +71,8 @@ export default function PraxisApp() {
   const recordedSession = useRef<number | undefined>(undefined);
   const clock = useClock(1000);
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
+  const [syncInitialized, setSyncInitialized] = useState(false);
+  const syncCycleSeen = useRef(false);
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
   const events = usePraxisEvents();
   const seeded = useRef(false);
@@ -81,14 +83,22 @@ export default function PraxisApp() {
   const quote = useMemo(() => quoteFor(clock), [localDateKey(clock)]);
 
   useEffect(() => {
-    void startSync();
+    let active = true;
+    void startSync().finally(() => {
+      if (active) setSyncInitialized(true);
+    });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    if (!items || seeded.current) return;
+    if (sync.syncing) syncCycleSeen.current = true;
+  }, [sync.syncing]);
+
+  useEffect(() => {
+    if (!items || seeded.current || !syncInitialized) return;
     // Let the first shared-store pull land before creating the starter plan;
     // this keeps two devices on the same account from seeding duplicates.
-    if (sync.phase === 'ready' && !sync.lastSyncedAt && navigator.onLine) return;
+    if (sync.phase === 'ready' && navigator.onLine && (sync.syncing || !syncCycleSeen.current)) return;
     seeded.current = true;
     if (tasks.length > 0) return;
     void Promise.all(
@@ -100,7 +110,7 @@ export default function PraxisApp() {
         }),
       ),
     );
-  }, [items, sync.lastSyncedAt, sync.phase, tasks.length]);
+  }, [items, syncInitialized, sync.phase, sync.syncing, tasks.length]);
 
   useEffect(() => {
     if (!session) return;
