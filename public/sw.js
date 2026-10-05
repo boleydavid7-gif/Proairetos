@@ -1,7 +1,7 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v13';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
+const CACHE = 'proairetos-v14';
+const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

@@ -26,3 +26,8 @@
   Cache-Control: no-cache
 /hydros/index.html
   Cache-Control: no-cache
+
+/praxis/manifest.webmanifest
+  Cache-Control: no-cache
+/praxis/index.html
+  Cache-Control: no-cache
