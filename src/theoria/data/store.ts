@@ -6,6 +6,7 @@ const USER_ID = 'local';
 const memory = new Map<string, TheoriaBook>();
 let opened: Promise<IDBDatabase | undefined> | undefined;
 let version = 0;
+let started = false;
 const listeners = new Set<() => void>();
 
 function db(): Promise<IDBDatabase | undefined> {
@@ -72,5 +73,7 @@ export async function removeBook(id: string): Promise<void> {
 }
 
 export async function startStore(): Promise<void> {
+  if (started) return;
+  started = true;
   onRemoteChanges(notify);
 }
