@@ -95,7 +95,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
 .hydros-section-title button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
-.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(3,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
+.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(3,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid rgba(255,255,255,.15); background: linear-gradient(180deg, rgba(15,23,42,.98), rgba(4,18,24,.98)); }
 :root.hydros[data-theme='light'] .hydros-tabs { background: rgba(234,244,245,.95); }
 .hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
 .hydros-tabs__item[aria-current='page'] { color: var(--cyan); }
@@ -121,10 +121,10 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-segmented button { min-height: 35px; border: 0; border-radius: 18px; background: none; color: var(--muted); font-size: .72rem; }
 .hydros-segmented button.is-selected { background: var(--cyan); color: var(--cyan-ink); font-weight: 500; }
 .hydros-flow .hydros-segmented { grid-template-columns: repeat(2, 1fr); }
-.flow-period { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding: 4px 6px; border: 1px solid rgba(226,249,255,.2); border-radius: 25px; background: linear-gradient(145deg, rgba(220,248,255,.14), rgba(12,54,68,.42)); box-shadow: inset 0 1px 8px rgba(255,255,255,.07), 0 5px 16px rgba(0,0,0,.14); backdrop-filter: blur(13px) saturate(1.15); -webkit-backdrop-filter: blur(13px) saturate(1.15); }
+.flow-period { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding: 4px 6px; border: 1px solid rgba(226,249,255,.2); border-top-color: rgba(255,255,255,.15); border-radius: 25px; background: linear-gradient(145deg, rgba(15,23,42,.92), rgba(8,40,52,.9)); box-shadow: inset 0 1px 8px rgba(255,255,255,.07), 0 5px 16px rgba(0,0,0,.14); }
 .flow-period strong { flex: 1; color: var(--text); font: 400 1.18rem var(--serif); text-align: center; }
-.flow-period__button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid rgba(226,249,255,.2); border-radius: 50%; background: rgba(220,248,255,.1); color: var(--cyan); font: 300 1.8rem/1 var(--sans); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.flow-chart-card { margin-top: 14px; padding: 8px 9px 1px; border: 1px solid rgba(226,249,255,.19); border-radius: 23px; background: linear-gradient(145deg, rgba(3,19,27,.64), rgba(12,54,68,.48)); box-shadow: inset 0 1px 10px rgba(255,255,255,.05), 0 10px 25px rgba(0,0,0,.16); backdrop-filter: blur(14px) saturate(1.08); -webkit-backdrop-filter: blur(14px) saturate(1.08); }
+.flow-period__button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid rgba(226,249,255,.2); border-top-color: rgba(255,255,255,.15); border-radius: 50%; background: rgba(15,23,42,.88); color: var(--cyan); font: 300 1.8rem/1 var(--sans); }
+.flow-chart-card { margin-top: 14px; padding: 8px 9px 1px; border: 1px solid rgba(226,249,255,.19); border-top-color: rgba(255,255,255,.15); border-radius: 23px; background: linear-gradient(145deg, rgba(15,23,42,.92), rgba(8,40,52,.9)); box-shadow: inset 0 1px 10px rgba(255,255,255,.05), 0 10px 25px rgba(0,0,0,.16); }
 .flow-chart-card .flow-chart { margin-top: 11px; }
 .flow-chart-card .flow-line-chart { margin-top: 5px; }
 .flow-chart-card .flow-legend { margin: -5px 0 12px 32px; }
@@ -199,7 +199,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(100px, 15%, 144px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(94px, 12.5vh, 110px); gap: clamp(8px, 1.3vh, 12px); }
 .hydros-add__stage .drink-types button { position: relative; min-height: 0; height: 100%; border: 0; border-radius: 0; background: transparent; color: var(--text-soft); font-size: clamp(.69rem, 2.9vw, .8rem); }
 .hydros-add__stage .drink-types button { --type-circle: clamp(70px, 19vw, 90px); }
-.hydros-add__stage .drink-types button::before { content: ''; position: absolute; z-index: 0; top: 0; left: 50%; width: var(--type-circle); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(226, 249, 255, .24); border-radius: 50%; background: linear-gradient(145deg, rgba(220, 248, 255, .22), rgba(44, 101, 122, .27)); box-shadow: inset 0 1px 10px rgba(255,255,255,.13), 0 5px 16px rgba(0,0,0,.12); backdrop-filter: blur(12px) saturate(1.18); -webkit-backdrop-filter: blur(12px) saturate(1.18); }
+.hydros-add__stage .drink-types button::before { content: ''; position: absolute; z-index: 0; top: 0; left: 50%; width: var(--type-circle); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(226, 249, 255, .24); border-top-color: rgba(255,255,255,.15); border-radius: 50%; background: linear-gradient(145deg, rgba(15,23,42,.9), rgba(8,40,52,.88)); box-shadow: inset 0 1px 10px rgba(255,255,255,.13), 0 5px 16px rgba(0,0,0,.12); }
 .hydros-add__stage .drink-types button > * { position: relative; z-index: 1; }
 .hydros-add__stage .drink-types button svg { position: absolute; top: calc((var(--type-circle) - 27px) / 2); left: 50%; width: 27px; height: 27px; padding: 0; margin: 0; transform: translateX(-50%); border: 0; background: transparent; box-shadow: none; color: var(--text-soft); }
 .hydros-add__stage .drink-types button span { position: absolute; top: calc(var(--type-circle) + 6px); right: 0; left: 0; margin: 0; }
@@ -207,7 +207,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button.is-selected::before { border-color: rgba(104, 224, 255, .9); background: var(--cyan); box-shadow: 0 0 20px rgba(58, 202, 245, .4); }
 .hydros-add__stage .drink-types button.is-selected svg { border: 0; background: transparent; box-shadow: none; color: #f4fdff; }
 .hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 79%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
-.hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; border-color: rgba(226,249,255,.24); background: linear-gradient(145deg, rgba(220,248,255,.2), rgba(12,54,68,.52)); box-shadow: inset 0 1px 8px rgba(255,255,255,.1), 0 5px 14px rgba(0,0,0,.14); backdrop-filter: blur(12px) saturate(1.15); -webkit-backdrop-filter: blur(12px) saturate(1.15); }
+.hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; border-color: rgba(226,249,255,.24); border-top-color: rgba(255,255,255,.15); background: linear-gradient(145deg, rgba(15,23,42,.9), rgba(8,40,52,.88)); box-shadow: inset 0 1px 8px rgba(255,255,255,.1), 0 5px 14px rgba(0,0,0,.14); }
 .hydros-add__stage .amount-picker strong { display: flex; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
 .hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 91%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
 
