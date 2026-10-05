@@ -33,5 +33,8 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     refreshing = true;
     window.location.reload();
   });
-  window.addEventListener('load', () => { void navigator.serviceWorker.register('/hydros/sw.js', { scope: '/hydros/' }).then((registration) => registration.update()).catch(() => undefined); });
+  window.addEventListener('load', () => {
+    const serviceWorkerUrl = `/hydros/sw.js?v=${encodeURIComponent(__BUILT_AT__)}`;
+    void navigator.serviceWorker.register(serviceWorkerUrl, { scope: '/hydros/' }).then((registration) => registration.update()).catch(() => undefined);
+  });
 }
