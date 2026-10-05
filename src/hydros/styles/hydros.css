@@ -54,7 +54,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
-.hydros-hero { position: relative; height: max(620px, calc(100dvh - var(--tab-height))); min-height: max(620px, calc(100dvh - var(--tab-height))); padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
+.hydros-hero { position: relative; height: max(620px, calc(100dvh - var(--tab-height))); min-height: max(620px, calc(100dvh - var(--tab-height))); display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
 .hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-sunset.webp') center 35% / cover; transform: scale(1.03); }
 .hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
 .hydros-hero .hydros-brand { position: relative; }
@@ -65,7 +65,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-hero__words > span { display: block; margin-top: 5px; padding-right: 7px; color: rgba(231,247,251,.88); font-size: .98rem; font-weight: 600; text-align: right; }
 .hydros-quote { max-width: 340px; margin: 16px auto 0; padding: 0 10px; color: rgba(244,251,252,.9); font: 400 1.03rem/1.18 var(--serif); text-align: center; text-shadow: 0 2px 7px rgba(0,0,0,.42); }
 .hydros-quote cite { display: block; margin-top: 7px; color: rgba(231,247,251,.72); font: .68rem var(--sans); font-style: normal; }
-.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
+.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: relative; left: auto; bottom: auto; transform: none; display: flex; flex: 0 0 auto; align-self: center; flex-direction: column; align-items: center; justify-content: center; margin: auto; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
 .hydros-orb__water { position: absolute; z-index: 1; right: -5%; bottom: 0; left: -5%; max-height: 100%; overflow: hidden; background: linear-gradient(180deg, rgba(44,186,230,.58), rgba(5,72,100,.9)); border-radius: 50% 50% 0 0 / 7% 7% 0 0; transition: height .25s ease; }
 .hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 3; }
 .hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
