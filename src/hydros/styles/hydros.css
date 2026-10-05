@@ -54,7 +54,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
-.hydros-hero { position: relative; min-height: 620px; padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
+.hydros-hero { position: relative; height: max(620px, calc(100dvh - var(--tab-height))); min-height: max(620px, calc(100dvh - var(--tab-height))); padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
 .hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-sunset.webp') center 35% / cover; transform: scale(1.03); }
 .hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
 .hydros-hero .hydros-brand { position: relative; }
