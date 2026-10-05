@@ -11,7 +11,7 @@ import type { LifeItem } from '../core/life-items/types';
 import { player, type PlayerState } from '../app/sound/player';
 import { soundEntry } from '../app/sound/soundscapes';
 import { GearIcon, BookIcon, BreatheIcon, CalendarIcon, CheckIcon, ClockIcon, MountainIcon, SproutIcon, StarIcon, SunIcon } from '../components/icons/Icons';
-import CompassRose from '../components/brand/CompassRose';
+import PraxisMark from '../components/brand/PraxisMark';
 import {
   dayMinutes,
   formatMinutes,
@@ -203,7 +203,7 @@ export default function PraxisApp() {
     <div className="praxis-app">
       <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
-          <span className="praxis-brand__mark"><CompassRose size={42} /></span>
+          <span className="praxis-brand__mark"><PraxisMark size={42} /></span>
           <span><strong>PRAXIS</strong><small>Deliberate study</small></span>
         </div>
         <p className="praxis-sidebar__label">Workspace</p>
