@@ -180,6 +180,41 @@ export function localDate(when: Date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Returns the local Sunday that begins the week containing the date. */
+export function startOfWeek(when: Date = new Date()): Date {
+  const date = new Date(when.getFullYear(), when.getMonth(), when.getDate());
+  date.setDate(date.getDate() - date.getDay());
+  return date;
+}
+
+export function weekDates(when: Date = new Date()): string[] {
+  const start = startOfWeek(when);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return localDate(date);
+  });
+}
+
+/** Sunday-based week number, with the first Sunday of the year beginning week 1. */
+export function weekNumber(when: Date = new Date()): number {
+  const start = startOfWeek(when);
+  const first = new Date(start.getFullYear(), 0, 1);
+  first.setDate(first.getDate() + ((7 - first.getDay()) % 7));
+  if (start < first) return weekNumber(new Date(start.getFullYear() - 1, 11, 31));
+  return Math.floor((start.getTime() - first.getTime()) / 86_400_000 / 7) + 1;
+}
+
+export function monthDates(when: Date = new Date()): string[] {
+  const first = new Date(when.getFullYear(), when.getMonth(), 1);
+  const count = new Date(when.getFullYear(), when.getMonth() + 1, 0).getDate();
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(first);
+    date.setDate(first.getDate() + index);
+    return localDate(date);
+  });
+}
+
 /** Value for a datetime-local input without accidentally shifting it to UTC. */
 export function localDateTimeInput(when: Date = new Date()): string {
   const offset = when.getTimezoneOffset();

@@ -1,6 +1,6 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, totalOz, volumeLabel, waterRecommendation, type Drink } from '../../hydros/core/drinks';
+import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, localDate, monthDates, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, startOfWeek, totalOz, volumeLabel, waterRecommendation, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
@@ -52,6 +52,20 @@ describe('Hydros', () => {
       { kind: 'water', count: 1, amountOz: 12, caffeineMg: 0 },
       { kind: 'tea', count: 1, amountOz: 8, caffeineMg: 35 },
     ]);
+  });
+
+  it('builds Sunday through Saturday weeks and yearly week labels', () => {
+    const date = new Date(2026, 9, 7);
+    expect(localDate(startOfWeek(date))).toBe('2026-10-04');
+    expect(weekDates(date)).toEqual(['2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10']);
+    expect(weekNumber(date)).toBe(40);
+  });
+
+  it('builds every day from the first through the last day of a month', () => {
+    const dates = monthDates(new Date(2026, 1, 10));
+    expect(dates).toHaveLength(28);
+    expect(dates[0]).toBe('2026-02-01');
+    expect(dates.at(-1)).toBe('2026-02-28');
   });
 
   it('keeps the Hydros Stoic line stable through a day', () => {
