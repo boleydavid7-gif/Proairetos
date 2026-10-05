@@ -80,7 +80,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 /* Give the glass orb a quiet edge and outer glow against the reflection. */
 .hydros-orb { border-color: rgba(235,252,255,.88); box-shadow: 0 0 0 1px rgba(255,255,255,.16), 0 0 22px rgba(220,250,255,.16), inset 0 0 24px rgba(203,247,255,.42), 0 15px 38px rgba(0,0,0,.36); }
-.hydros-orb::after { content: ''; position: absolute; z-index: 4; inset: 4px; border: 1px solid rgba(255,255,255,.28); border-radius: inherit; pointer-events: none; }
 
 /* Separate the amount label from its supporting range. */
 .hydros-orb span { margin-top: 8px; color: rgba(244,252,255,.9); font-size: .73rem; font-weight: 500; }
