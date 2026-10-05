@@ -183,7 +183,10 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
   useEffect(() => {
     if (!setup.breathSounds || !running || done) return;
     const ctx = audio();
-    const bus = gain(ctx, 1);
+    // Keep the recordings quiet beside spoken cues and any chosen soundscape.
+    // The source files are intentionally quiet; a unity-gain bus made them
+    // feel much closer than the original recordings.
+    const bus = gain(ctx, 0.45);
     bus.connect(ctx.destination);
     scheduled.current.clear();
     // Fetch the few files this pattern uses before the first one is due.
@@ -191,6 +194,11 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       const file = breathFile(step.kind);
       if (file) void buffer(file).catch(() => undefined);
     }
+    // The scheduler below looks ahead to the step after the one currently
+    // under way. Start the first cycle explicitly so every pattern begins
+    // with its inhale instead of making the first audible cue an exhale.
+    const firstFile = breathFile(pattern.steps[0]?.kind);
+    if (firstFile) void playOnce(firstFile, bus).catch(() => undefined);
     const id = window.setInterval(() => {
       const at = elapsed();
       let moment = breathAt(at, pattern);
