@@ -20,6 +20,19 @@ const insightExamples = [
   { quote: 'A calm mind is the highest form of strength.', source: 'Theoria notebook', color: 'lavender' },
 ];
 
+const dailyQuotes = [
+  { quote: 'The happiness of your life depends upon the quality of your thoughts.', source: 'Marcus Aurelius · Meditations' },
+  { quote: 'You yourself must strive. The Buddhas only point the way.', source: 'Dhammapada · 276' },
+  { quote: 'The roots of education are bitter, but the fruit is sweet.', source: 'Aristotle · Nicomachean Ethics' },
+  { quote: 'What we learn with pleasure we never forget.', source: 'Alfred Mercier' },
+  { quote: 'The mind is everything. What you think you become.', source: 'Dhammapada · 1' },
+];
+
+function dailyQuote(date = new Date()) {
+  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000);
+  return dailyQuotes[Math.abs(day) % dailyQuotes.length];
+}
+
 function useBooks(): TheoriaBook[] | undefined {
   const version = useSyncExternalStore(subscribe, storeVersion);
   const [books, setBooks] = useState<TheoriaBook[]>();
@@ -123,9 +136,11 @@ function Cover({ book, index = 0 }: { book: TheoriaBook; index?: number }) {
 
 function LibraryView({ name, shelf, realShelf, selected, onAdd, onOpen, onSelect, onNotes }: { name: string; shelf: readonly TheoriaBook[]; realShelf: readonly TheoriaBook[]; selected: TheoriaBook; onAdd: () => void; onOpen: (book: TheoriaBook) => void; onSelect: (id: string) => void; onNotes: () => void }) {
   const isFeatured = selected.userId === 'featured';
+  const quote = dailyQuote();
   return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>{greeting(name)}</h1><p>Read with attention. Keep the ideas that stay with you.</p></div><button type="button" className="theoria-add-button" onClick={onAdd}>＋ Add to shelf</button></div>
     <div className="theoria-library-grid"><article className="theoria-card theoria-continue"><div className="theoria-card-kicker">{isFeatured ? 'A place to begin' : 'Continue reading'} <span>↗</span></div><div className="theoria-continue-body"><div><h2>{selected.title}</h2><p className="theoria-author">{selected.author}</p><div className="theoria-progress"><span style={{ width: `${selected.progress}%` }} /></div><small>{selected.progress}% read</small><button type="button" className="theoria-primary-button" onClick={() => isFeatured ? onAdd() : onOpen(selected)}>{isFeatured ? 'Add to shelf' : 'Continue reading'} <span>→</span></button></div><Cover book={selected} index={0} /></div></article>
       <article className="theoria-card theoria-shelf-card"><div className="theoria-card-title"><div><p className="theoria-eyebrow">Your shelf</p><h2>{realShelf.length ? `${realShelf.length} ${realShelf.length === 1 ? 'source' : 'sources'}` : 'Make it yours'}</h2></div><button type="button" onClick={onAdd}>See all →</button></div><div className="theoria-shelf-grid">{shelf.slice(0, 4).map((book, index) => <button type="button" className={`theoria-shelf-item${book.id === selected.id ? ' is-selected' : ''}`} key={book.id} onClick={() => realShelf.includes(book) ? (onSelect(book.id), onOpen(book)) : onAdd()}><Cover book={book} index={index} /><strong>{book.title}</strong><small>{book.author}</small><span><i style={{ width: `${book.progress}%` }} /></span></button>)}</div></article></div>
+    <article className="theoria-daily-quote"><div><p className="theoria-eyebrow">Today’s passage</p><span className="theoria-daily-quote-mark">“</span></div><div><p>{quote.quote}</p><small>{quote.source}</small></div><span className="theoria-daily-quote-date">{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</span></article>
     <div className="theoria-section-heading"><div><p className="theoria-eyebrow">Recent insights</p><h2>What stayed with you.</h2></div><button type="button" onClick={onNotes}>See all →</button></div><div className="theoria-insight-grid">{insightExamples.map((item) => <article className={`theoria-insight theoria-insight--${item.color}`} key={item.quote}><span>“</span><div><p>{item.quote}</p><small>{item.source}</small></div><button type="button" aria-label="Open insight">…</button></article>)}</div>
   </section>;
 }
