@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { tap } from '../../app/feel';
 import { lifeService } from '../../app/services';
-import { CheckIcon, MoreIcon } from '../../components/icons/Icons';
+import { CheckIcon, MoreIcon, TrashIcon } from '../../components/icons/Icons';
 import type { LifeItem } from '../../core/life-items/types';
 
 /** One checklist row. Checking closes it with an undo; unchecking reopens it. */
-export default function CheckRow({ item, done, detail }: { item: LifeItem; done: boolean; detail?: string }) {
+export default function CheckRow({ item, done, detail, allowDelete = false }: { item: LifeItem; done: boolean; detail?: string; allowDelete?: boolean }) {
   const { openItem, offerUndo } = useOverlays();
   const [busy, setBusy] = useState(false);
 
@@ -16,6 +16,16 @@ export default function CheckRow({ item, done, detail }: { item: LifeItem; done:
     try {
       const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');
       if (!done) offerUndo(`Done: ${item.title}`, change.undo);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    setBusy(true);
+    try {
+      const deletion = await lifeService.deleteItem(item.id);
+      offerUndo(`Deleted: ${item.title}`, deletion.undo);
     } finally {
       setBusy(false);
     }
@@ -41,6 +51,11 @@ export default function CheckRow({ item, done, detail }: { item: LifeItem; done:
       <button type="button" className="check-row__more" aria-label={`More for ${item.title}`} onClick={() => openItem(item.id)}>
         <MoreIcon size={20} />
       </button>
+      {allowDelete && (
+        <button type="button" className="check-row__delete" aria-label={`Delete ${item.title}`} disabled={busy} onClick={() => void remove()}>
+          <TrashIcon size={18} />
+        </button>
+      )}
       {item.checklist && !done && (
         <ul className="check-lines">
           {item.checklist.map((line) => (

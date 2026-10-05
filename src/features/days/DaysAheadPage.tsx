@@ -19,6 +19,7 @@ import {
   PinIcon,
   PlusIcon,
   ShieldIcon,
+  TrashIcon,
 } from '../../components/icons/Icons';
 import { itemSpan } from '../../core/rhythm/openTime';
 import { addDays, atTime } from '../../core/scheduling/dates';
@@ -93,7 +94,7 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
  */
 export default function DaysAheadPage({ view }: { view: DaysView }) {
   const navigate = useNavigate();
-  const { openItem } = useOverlays();
+  const { openItem, offerUndo } = useOverlays();
   const { today, rangeOf } = usePersonalDay(useClock());
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
@@ -103,6 +104,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const [mode, setMode] = useState<CalendarMode>('week');
   const [adding, setAdding] = useState(false);
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
   const focusKey = opening.focusKey;
 
   const shape: 'list' | CalendarMode = view === 'list' ? 'list' : mode;
@@ -174,6 +176,33 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         date: entry.occurrence.date,
         blocks: [{ start: hhmm(entry.start), end: hhmm(entry.end), label: entry.occurrence.label, color: entry.occurrence.color }],
       });
+  };
+
+  const remove = async (entry: Timed) => {
+    if (removing === entry.key) return;
+    setRemoving(entry.key);
+    try {
+      if (entry.kind === 'item') {
+        const deletion = await lifeService.deleteItem(entry.item.id);
+        offerUndo(`Deleted: ${entry.item.title}`, deletion.undo);
+      } else if (entry.kind === 'shift') {
+        const deletion = await scheduleService.removeDay(entry.occurrence.patternId, entry.occurrence.date);
+        offerUndo(`Removed: ${entry.occurrence.patternName}`, deletion.undo);
+      } else {
+        const deletion = otherCalendars.removeEvent(entry.event.sourceId, entry.event.key);
+        offerUndo(`Removed from ${entry.event.source}`, deletion.undo);
+      }
+    } finally {
+      setRemoving(null);
+    }
+  };
+
+  const removeCalendarEvent = (event: { sourceId: string; key: string; source: string; title: string }) => {
+    if (removing === `event:${event.key}`) return;
+    setRemoving(`event:${event.key}`);
+    const deletion = otherCalendars.removeEvent(event.sourceId, event.key);
+    offerUndo(`Removed from ${event.source}`, deletion.undo);
+    setRemoving(null);
   };
 
   const hasPlan = (date: string) =>
@@ -279,7 +308,16 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               <ul className="days-list">
                 {allDay.map((entry) => (
                   <li key={entry.key} className="days-allday">
-                    All day · {entry.event.title}
+                    <span className="days-allday__text">All day · {entry.event.title}</span>
+                    <button
+                      type="button"
+                      className="days-allday__remove"
+                      aria-label={`Delete ${entry.event.title}`}
+                      disabled={removing === `event:${entry.event.key}`}
+                      onClick={() => removeCalendarEvent(entry.event)}
+                    >
+                      <TrashIcon size={18} />
+                    </button>
                   </li>
                 ))}
                 {timed.map((entry) => {
@@ -320,6 +358,18 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       ) : (
                         <div className="days-row__button">{body}</div>
                       )}
+                      <button
+                        type="button"
+                        className="days-row__remove"
+                        aria-label={`Delete ${look.title}`}
+                        disabled={removing === entry.key}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void remove(entry);
+                        }}
+                      >
+                        <TrashIcon size={18} />
+                      </button>
                     </li>
                   );
                 })}
@@ -331,7 +381,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     .join(', ')}
                 </a>
               )}
-              <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} />
+              <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} allowDelete />
             </section>
           );
         })}
@@ -373,23 +423,29 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       const layer = entry.kind === 'shift' ? 'block' : 'point';
                       const className = `cal-entry cal-entry--${layer} tag--${look.color ?? 'none'}${entry.key === focusKey ? ' cal-entry--focus' : ''}`;
                       const label = `${look.title}, ${formatTimeOf(entry.start)}`;
-                      return entry.kind === 'event' ? (
-                        <div key={entry.key} role="listitem" className={className} style={style} aria-label={label}>
-                          {look.title}
+                      const tappable = entry.kind !== 'event';
+                      return (
+                        <div key={entry.key} ref={markRef(entry.key)} role="listitem" className={className} style={style} aria-label={label}>
+                          {tappable ? (
+                            <button type="button" className="cal-entry__open" onClick={() => open(entry)}>
+                              {look.title}
+                            </button>
+                          ) : (
+                            <span>{look.title}</span>
+                          )}
+                          <button
+                            type="button"
+                            className="cal-entry__remove"
+                            aria-label={`Delete ${look.title}`}
+                            disabled={removing === entry.key}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void remove(entry);
+                            }}
+                          >
+                            <TrashIcon size={12} />
+                          </button>
                         </div>
-                      ) : (
-                        <button
-                          key={entry.key}
-                          ref={markRef(entry.key)}
-                          type="button"
-                          role="listitem"
-                          className={className}
-                          style={style}
-                          aria-label={label}
-                          onClick={() => open(entry)}
-                        >
-                          {look.title}
-                        </button>
                       );
                     })}
                   </div>
@@ -462,7 +518,16 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 <ul className="days-list">
                   {allDay.map((entry) => (
                     <li key={entry.key} className="days-allday">
-                      All day · {entry.event.title}
+                      <span className="days-allday__text">All day · {entry.event.title}</span>
+                      <button
+                        type="button"
+                        className="days-allday__remove"
+                        aria-label={`Delete ${entry.event.title}`}
+                        disabled={removing === `event:${entry.event.key}`}
+                        onClick={() => removeCalendarEvent(entry.event)}
+                      >
+                        <TrashIcon size={18} />
+                      </button>
                     </li>
                   ))}
                   {timed.map((entry) => {
@@ -501,11 +566,23 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         ) : (
                           <div className="days-row__button">{body}</div>
                         )}
+                        <button
+                          type="button"
+                          className="days-row__remove"
+                          aria-label={`Delete ${look.title}`}
+                          disabled={removing === entry.key}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void remove(entry);
+                          }}
+                        >
+                          <TrashIcon size={18} />
+                        </button>
                       </li>
                     );
                   })}
                 </ul>
-                <DayPlan date={start} today={today} items={data.items} range={rangeOf(start)} />
+                <DayPlan date={start} today={today} items={data.items} range={rangeOf(start)} allowDelete />
               </section>
             );
           })()}

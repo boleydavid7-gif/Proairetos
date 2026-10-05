@@ -92,6 +92,23 @@
   color: var(--color-text-faint);
 }
 
+.check-row__delete {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-faint);
+}
+
+.check-row__delete:hover,
+.check-row__delete:focus-visible {
+  color: var(--color-danger, #c98a7a);
+}
+
 .button-accent--wide {
   width: 100%;
   min-height: 3rem;

@@ -338,6 +338,22 @@ export type TodayPart =
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 
+// The set-aside link is useful to some people and distracting to others. It
+// is deliberately off until someone turns it on in Settings.
+const SHOW_NOT_FOR_ME_KEY = 'proairetos.showNotForMe';
+
+export function showNotForMe(): boolean {
+  return readJson<boolean>(SHOW_NOT_FOR_ME_KEY) ?? false;
+}
+
+export function showNotForMeSnapshot(): string {
+  return showNotForMe() ? 'on' : 'off';
+}
+
+export function setShowNotForMe(on: boolean): void {
+  writeJson(SHOW_NOT_FOR_ME_KEY, on);
+}
+
 /** A string snapshot, so screens can read it live without re-rendering forever. */
 export function todayHiddenSnapshot(): string {
   return (readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []).join(',');

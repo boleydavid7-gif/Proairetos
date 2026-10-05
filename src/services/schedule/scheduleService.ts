@@ -121,6 +121,32 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
       listeners.notify();
     },
 
+    /** Removes one occurrence for a date, preserving the earlier exception for undo. */
+    async removeDay(patternId: string, date: string): Promise<{ undo: () => Promise<void> }> {
+      const before = await exceptions.list(userId).then((all) => all.find((exception) => exception.patternId === patternId && exception.date === date));
+      const id = `${patternId}:${date}`;
+      const empty: ScheduleException = {
+        id,
+        userId,
+        patternId,
+        date,
+        blocks: [],
+        createdAt: context.now().toISOString(),
+      };
+      await exceptions.put(empty);
+      listeners.notify();
+      let undone = false;
+      return {
+        undo: async () => {
+          if (undone) return;
+          undone = true;
+          if (before) await exceptions.put(before);
+          else await exceptions.remove(id);
+          listeners.notify();
+        },
+      };
+    },
+
     async occurrencesBetween(from: Date, to: Date): Promise<ScheduleOccurrence[]> {
       const { patterns: all, exceptions: changes } = await load();
       return occurrencesBetween(all, changes, from, to);

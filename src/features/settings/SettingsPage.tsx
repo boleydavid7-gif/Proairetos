@@ -41,6 +41,8 @@ import {
   recordBackup,
   saveDaySettings,
   setDisplayName,
+  setShowNotForMe,
+  showNotForMe,
 } from '../../data/storage/preferences';
 import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
@@ -768,6 +770,7 @@ function TodaySection() {
 function OffersSection() {
   const [on, setOn] = useState(quietOffersOn);
   const [hidden, setHidden] = useState(hiddenOffers);
+  const [showSetAside, setShowSetAside] = useState(showNotForMe);
   return (
     <section className="settings-card" aria-label="Quiet offers">
       <h2 className="section-label">Quiet offers</h2>
@@ -786,6 +789,22 @@ function OffersSection() {
       >
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span>Offer practices now and then</span>
+      </button>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={showSetAside}
+        onClick={() => {
+          const next = !showSetAside;
+          setShowNotForMe(next);
+          setShowSetAside(next);
+        }}
+      >
+        <span className={`toggle-switch${showSetAside ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span className="toggle-row__text">
+          <span>Show “Not for me” on cards</span>
+          <span className="toggle-row__detail">A quiet way to set aside a part of Today.</span>
+        </span>
       </button>
       {hidden.length > 0 && (
         <button

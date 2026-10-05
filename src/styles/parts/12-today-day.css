@@ -364,6 +364,44 @@
   outline: 1px solid var(--tag);
 }
 
+.cal-entry__open {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.cal-entry__remove {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-ink-raised) 82%, transparent);
+  color: var(--color-text-faint);
+}
+
+.cal-entry__remove:hover,
+.cal-entry__remove:focus-visible {
+  color: var(--color-danger, #c98a7a);
+}
+
+.today-section--card {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(var(--color-bg-rgb), 0.4);
+}
+
 
 .timeline__detail--goal {
   color: var(--color-accent);
