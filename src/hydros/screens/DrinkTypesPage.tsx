@@ -49,7 +49,7 @@ function ProfileEditor({ profile, returnTo, onChange, onUse }: {
     <details className="hydros-profile-card" open={profile.id === 'other'}>
       <summary>
         <span className="hydros-profile-card__icon">{iconForProfile(profile)}</span>
-        <span className="hydros-profile-card__title"><strong>{profile.label}</strong><small>{profile.caffeineMg} mg caffeine · {profile.electrolytesMg} mg electrolytes</small></span>
+        <span className="hydros-profile-card__title"><strong>{profile.label}</strong><small>{Math.round(profile.hydrationCoefficient * 100)}% hydration credit · {profile.caffeineMg} mg caffeine</small></span>
         <span className="hydros-settings-row__chevron" aria-hidden="true">›</span>
       </summary>
       <div className="hydros-profile-fields">
@@ -57,6 +57,7 @@ function ProfileEditor({ profile, returnTo, onChange, onUse }: {
         <label><span>Caffeine</span><input type="number" min="0" step="1" inputMode="numeric" value={profile.caffeineMg} onChange={(event) => onChange(profile.id, { caffeineMg: Math.max(0, Number(event.target.value) || 0) })} /><b>mg</b></label>
         <label><span>Electrolytes</span><input type="number" min="0" step="1" inputMode="numeric" value={profile.electrolytesMg} onChange={(event) => onChange(profile.id, { electrolytesMg: Math.max(0, Number(event.target.value) || 0) })} /><b>mg</b></label>
         <label><span>Sugar</span><input type="number" min="0" step="1" inputMode="decimal" value={profile.sugarG} onChange={(event) => onChange(profile.id, { sugarG: Math.max(0, Number(event.target.value) || 0) })} /><b>g</b></label>
+        <label><span>Hydration credit</span><input type="number" min="0" max="100" step="1" inputMode="decimal" value={Math.round(profile.hydrationCoefficient * 100)} onChange={(event) => onChange(profile.id, { hydrationCoefficient: Math.max(0, Math.min(1, (Number(event.target.value) || 0) / 100)) })} /><b>%</b></label>
         {returnTo ? <button type="button" className="hydros-profile-use" onClick={() => onUse(profile)}>Use for this drink</button> : null}
       </div>
     </details>

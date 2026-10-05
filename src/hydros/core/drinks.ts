@@ -20,6 +20,8 @@ export type HydrosDrinkProfile = {
   caffeineMg: number;
   electrolytesMg: number;
   sugarG: number;
+  /** Fraction of the logged volume credited toward hydration (0–1). */
+  hydrationCoefficient: number;
 };
 
 export type DrinkSource = {
@@ -48,15 +50,15 @@ export type HydrosSettings = {
 };
 
 export const defaultDrinkProfiles = (): HydrosDrinkProfile[] => [
-  { id: 'water', kind: 'water', label: 'Water', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
-  { id: 'coffee', kind: 'coffee', label: 'Coffee', caffeineMg: 95, electrolytesMg: 0, sugarG: 0 },
-  { id: 'tea', kind: 'tea', label: 'Tea', caffeineMg: 35, electrolytesMg: 0, sugarG: 0 },
-  { id: 'electrolyte', kind: 'electrolyte', label: 'Sports drink', caffeineMg: 0, electrolytesMg: 110, sugarG: 21 },
-  { id: 'sparkling', kind: 'sparkling', label: 'Sparkling', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
-  { id: 'other', kind: 'other', label: 'Other', caffeineMg: 0, electrolytesMg: 0, sugarG: 0 },
-  { id: 'energy', kind: 'other', label: 'Energy drink', caffeineMg: 160, electrolytesMg: 0, sugarG: 27 },
-  { id: 'soda', kind: 'other', label: 'Soda', caffeineMg: 39, electrolytesMg: 0, sugarG: 39 },
-  { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24 },
+  { id: 'water', kind: 'water', label: 'Water', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
+  { id: 'coffee', kind: 'coffee', label: 'Coffee', caffeineMg: 95, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .8 },
+  { id: 'tea', kind: 'tea', label: 'Tea', caffeineMg: 35, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .9 },
+  { id: 'electrolyte', kind: 'electrolyte', label: 'Sports drink', caffeineMg: 0, electrolytesMg: 110, sugarG: 21, hydrationCoefficient: .9 },
+  { id: 'sparkling', kind: 'sparkling', label: 'Sparkling', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
+  { id: 'other', kind: 'other', label: 'Other', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .85 },
+  { id: 'energy', kind: 'other', label: 'Energy drink', caffeineMg: 160, electrolytesMg: 0, sugarG: 27, hydrationCoefficient: .7 },
+  { id: 'soda', kind: 'other', label: 'Soda', caffeineMg: 39, electrolytesMg: 0, sugarG: 39, hydrationCoefficient: .8 },
+  { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24, hydrationCoefficient: .85 },
 ];
 
 function validNonNegative(value: unknown, fallback: number): number {
@@ -74,6 +76,7 @@ export function normalizeDrinkProfiles(value: unknown): HydrosDrinkProfile[] {
     caffeineMg: validNonNegative(item?.caffeineMg, base.caffeineMg),
     electrolytesMg: validNonNegative(item?.electrolytesMg, base.electrolytesMg),
     sugarG: validNonNegative(item?.sugarG, base.sugarG),
+    hydrationCoefficient: Number.isFinite(item?.hydrationCoefficient) ? Math.max(0, Math.min(1, Number(item?.hydrationCoefficient))) : base.hydrationCoefficient,
   });
   const profiles = defaults.map((base) => normalize(base, byId.get(base.id)));
   for (const item of saved) {
@@ -84,7 +87,7 @@ export function normalizeDrinkProfiles(value: unknown): HydrosDrinkProfile[] {
     if (kind !== 'water' && kind !== 'coffee' && kind !== 'tea' && kind !== 'electrolyte' && kind !== 'sparkling' && kind !== 'other') continue;
     const label = String((item as { label?: unknown }).label ?? '').trim();
     if (!label) continue;
-    profiles.push(normalize({ id, kind, label, caffeineMg: 0, electrolytesMg: 0, sugarG: 0 }, item as Partial<HydrosDrinkProfile>));
+    profiles.push(normalize({ id, kind, label, caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .85 }, item as Partial<HydrosDrinkProfile>));
   }
   return profiles;
 }
@@ -240,6 +243,27 @@ export function sameDay(drink: Drink, date = new Date()): boolean {
 
 export function totalOz(drinks: readonly Drink[]): number {
   return drinks.reduce((sum, drink) => sum + drink.amountOz, 0);
+}
+
+/** Finds the saved profile for a drink, including older entries with only a label. */
+export function profileForDrink(drink: Drink, profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): HydrosDrinkProfile | undefined {
+  return profiles.find((profile) => profile.id === drink.profileId)
+    ?? profiles.find((profile) => profile.label.toLowerCase() === drink.label?.toLowerCase())
+    ?? profiles.find((profile) => profile.kind === drink.kind);
+}
+
+/** Returns the editable fraction of a drink credited toward hydration. */
+export function hydrationCoefficientFor(drink: Drink, profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): number {
+  return profileForDrink(drink, profiles)?.hydrationCoefficient ?? (drink.kind === 'water' || drink.kind === 'sparkling' ? 1 : .85);
+}
+
+export function hydrationEquivalentOz(drink: Drink, profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): number {
+  return drink.amountOz * hydrationCoefficientFor(drink, profiles);
+}
+
+/** Net water equivalent used for the daily total and Flow charts. */
+export function hydrationOz(drinks: readonly Drink[], profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): number {
+  return drinks.reduce((sum, drink) => sum + hydrationEquivalentOz(drink, profiles), 0);
 }
 
 export function caffeine(drinks: readonly Drink[]): number {

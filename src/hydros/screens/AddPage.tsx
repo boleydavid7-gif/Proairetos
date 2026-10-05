@@ -21,6 +21,7 @@ export default function AddPage({ nav, profileId }: { nav: Nav; profileId?: stri
     caffeineMg: item.caffeineMg,
     electrolytesMg: 0,
     sugarG: 0,
+    hydrationCoefficient: item.id === 'water' || item.id === 'sparkling' ? 1 : .85,
   };
   const save = async () => {
     const now = new Date().toISOString();

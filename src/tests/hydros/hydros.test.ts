@@ -1,6 +1,6 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, localDate, monthDates, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, startOfWeek, totalOz, volumeLabel, waterRecommendation, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
+import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, startOfWeek, totalOz, volumeLabel, waterRecommendation, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
@@ -78,6 +78,15 @@ describe('Hydros', () => {
     const profiles = normalizeDrinkProfiles([{ id: 'coffee', kind: 'coffee', label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 }]);
     expect(profiles.find((profile) => profile.id === 'coffee')).toMatchObject({ label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 });
     expect(profiles.find((profile) => profile.id === 'energy')?.caffeineMg).toBe(160);
+  });
+
+  it('credits beverage volume by its hydration coefficient', () => {
+    const profiles = defaultDrinkProfiles();
+    const energy: Drink = { id: 'energy-17', kind: 'other', profileId: 'energy', label: 'Energy drink', amountOz: 17, loggedAt: '2026-10-04T09:00:00.000Z', createdAt: '2026-10-04T09:00:00.000Z' };
+    const water: Drink = { id: 'water-8', kind: 'water', profileId: 'water', amountOz: 8, loggedAt: '2026-10-04T09:00:00.000Z', createdAt: '2026-10-04T09:00:00.000Z' };
+    expect(hydrationEquivalentOz(energy, profiles)).toBeCloseTo(11.9, 5);
+    expect(hydrationOz([water, energy], profiles)).toBeCloseTo(19.9, 5);
+    expect(hydrationEquivalentOz(water, profiles)).toBe(8);
   });
 
   it('keeps custom drink labels separate in source breakdowns', () => {

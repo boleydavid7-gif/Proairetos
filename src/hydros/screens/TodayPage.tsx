@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
-import { dateLabel, effectiveGoalOz, formatVolume, localDate, sameDay, totalOz, type HydrosUnit } from '../core/drinks';
+import { dateLabel, defaultDrinkProfiles, effectiveGoalOz, formatVolume, hydrationOz, localDate, sameDay, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon } from '../app/icons';
@@ -13,8 +13,9 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   const drinks = useDrinks() ?? [];
   const settings = useSettings();
   const training = useTraining();
+  const profiles = settings.drinkProfiles?.length ? settings.drinkProfiles : defaultDrinkProfiles();
   const today = useMemo(() => drinks.filter((drink) => sameDay(drink)), [drinks]);
-  const amount = totalOz(today);
+  const amount = hydrationOz(today, profiles);
   const unit = settings.unit ?? 'oz';
   const range = rangeForTraining(settings, training ?? { runDay: false, loggedRun: false });
   const goal = effectiveGoalOz(settings) + range.extra;
