@@ -7,7 +7,6 @@ export type StoicLine = {
 
 /** Short passages from the Stoics, in common public-domain translations. */
 const baseLines: readonly StoicLine[] = [
-  { text: 'You cannot control everything, but you can control your response.' },
   { text: 'Some things are within our power, while others are not.', source: 'Epictetus, Enchiridion 1' },
   { text: 'It is not things that disturb us, but our judgements about things.', source: 'Epictetus, Enchiridion 5' },
   { text: 'First say to yourself what you would be; and then do what you have to do.', source: 'Epictetus, Discourses 3.23' },
@@ -41,8 +40,6 @@ const baseLines: readonly StoicLine[] = [
 
 /** Keyed by the line's text, so the lines above stay easy to read. */
 const waysToTry: Readonly<Record<string, string>> = {
-  'You cannot control everything, but you can control your response.':
-    'When something goes sideways today, take one breath before you answer it.',
   'Some things are within our power, while others are not.':
     'Pick one thing on your mind and sort it: the part that is yours to act on, and the part that is not.',
   'It is not things that disturb us, but our judgements about things.':
