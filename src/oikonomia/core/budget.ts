@@ -23,14 +23,24 @@ export type BudgetPlan = {
   totalCents: number;
   /** Optional ceilings by area. */
   categoryLimits: Record<BudgetCategory, number>;
+  /** Flexible monthly costs that do not come from a bill or planned recipe. */
+  items: BudgetItem[];
   createdAt: string;
   updatedAt: string;
+};
+
+export type BudgetItem = {
+  id: string;
+  name: string;
+  amountCents: number;
+  category: BudgetCategory;
 };
 
 export type BudgetTotals = {
   plannedCents: number;
   billCents: number;
   mealCents: number;
+  itemCents: number;
   byCategory: Record<BudgetCategory, number>;
   mealsWithoutEstimate: number;
   otherCurrencyCount: number;
@@ -50,7 +60,7 @@ export function emptyLimits(): Record<BudgetCategory, number> {
 }
 
 export function newBudget(month: string, currency: string, now = new Date().toISOString()): BudgetPlan {
-  return { id: month, month, currency, totalCents: 0, categoryLimits: emptyLimits(), createdAt: now, updatedAt: now };
+  return { id: month, month, currency, totalCents: 0, categoryLimits: emptyLimits(), items: [], createdAt: now, updatedAt: now };
 }
 
 /** Money stays as text during editing; convert once when saving. Blank means no limit. */
@@ -69,10 +79,22 @@ export function normalizeBudget(value: unknown): BudgetPlan | undefined {
   const safeAmount = (amount: unknown) => typeof amount === 'number' && Number.isSafeInteger(amount) && amount >= 0 ? amount : 0;
   const limits = emptyLimits();
   for (const { id } of budgetCategories) limits[id] = safeAmount(input.categoryLimits?.[id]);
+  const items = Array.isArray(input.items)
+    ? (input.items as unknown[])
+        .filter((item): item is Partial<BudgetItem> => Boolean(item && typeof item === 'object'))
+        .filter((item) => typeof item.id === 'string' && typeof item.name === 'string' && item.name.trim().length > 0)
+        .map((item) => ({
+          id: item.id!,
+          name: item.name!.trim(),
+          amountCents: safeAmount(item.amountCents),
+          category: budgetCategory(item.category),
+        }))
+    : [];
   return {
     ...newBudget(input.month, typeof input.currency === 'string' && /^[A-Z]{3}$/.test(input.currency) ? input.currency : 'USD', ''),
     totalCents: safeAmount(input.totalCents),
     categoryLimits: limits,
+    items,
     createdAt: typeof input.createdAt === 'string' ? input.createdAt : '',
     updatedAt: typeof input.updatedAt === 'string' ? input.updatedAt : '',
   };
@@ -91,7 +113,13 @@ export function budgetCategory(category: string | undefined): BudgetCategory {
 }
 
 /** Projected costs for a month. This deliberately uses bills and planned meals, not bank data. */
-export function budgetTotals(bills: readonly Bill[], recipes: readonly Recipe[], month: string, currency?: string): BudgetTotals {
+export function budgetTotals(
+  bills: readonly Bill[],
+  recipes: readonly Recipe[],
+  month: string,
+  currency?: string,
+  items: readonly BudgetItem[] = [],
+): BudgetTotals {
   const bounds = monthBounds(monthDate(month));
   const byCategory = emptyLimits();
   let billCents = 0;
@@ -121,7 +149,13 @@ export function budgetTotals(bills: readonly Bill[], recipes: readonly Recipe[],
     mealCents += days.size * Math.max(0, recipe.estimatedCostCents);
   }
   byCategory.food += mealCents;
-  return { plannedCents: billCents + mealCents, billCents, mealCents, byCategory, mealsWithoutEstimate, otherCurrencyCount };
+  let itemCents = 0;
+  for (const item of items) {
+    const amount = Math.max(0, item.amountCents);
+    itemCents += amount;
+    byCategory[item.category] += amount;
+  }
+  return { plannedCents: billCents + mealCents + itemCents, billCents, mealCents, itemCents, byCategory, mealsWithoutEstimate, otherCurrencyCount };
 }
 
 /** Preview one meal without counting an already planned occurrence twice. */

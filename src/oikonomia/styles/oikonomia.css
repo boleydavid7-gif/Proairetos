@@ -212,6 +212,32 @@
   font-weight: 400;
 }
 
+.oiko-calendar-switch {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+
+.oiko-calendar-switch button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.oiko-calendar-switch button.is-active {
+  background: var(--oiko-clay-soft);
+  color: var(--oiko-clay);
+}
+
 .oiko-list {
   display: flex;
   flex-direction: column;
@@ -683,6 +709,52 @@
   text-align: right;
 }
 
+.oiko-budget-items {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.oiko-budget-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.oiko-budget-item > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.oiko-budget-item small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.oiko-budget-item-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 140px auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.oiko-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.oiko-options .input {
+  max-width: 14rem;
+}
+
 .oiko-budget-breakdown__row:last-of-type {
   border-bottom: 0;
 }
@@ -706,5 +778,17 @@
 
   .oiko-family-grid .row {
     padding: 10px;
+  }
+
+  .oiko-budget-item-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .oiko-budget-item-form .field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .oiko-budget-item-form .button-quiet {
+    grid-column: 1 / -1;
   }
 }

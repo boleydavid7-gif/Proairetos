@@ -9,10 +9,12 @@ export type Settings = {
   started: boolean;
   currency: string;
   calendarNotice: boolean;
+  /** JavaScript weekday number used as the first day of Oikonomia's plan week. */
+  planWeekStart: number;
 };
 
 export function defaultSettings(): Settings {
-  return { started: false, currency: 'USD', calendarNotice: true };
+  return { started: false, currency: 'USD', calendarNotice: true, planWeekStart: 1 };
 }
 
 function readSettings(): Partial<Settings> {
@@ -31,6 +33,7 @@ export function loadSettings(): Settings {
     started: saved.started === true,
     currency: typeof saved.currency === 'string' && saved.currency.length === 3 ? saved.currency : 'USD',
     calendarNotice: saved.calendarNotice !== false,
+    planWeekStart: typeof saved.planWeekStart === 'number' && Number.isInteger(saved.planWeekStart) && saved.planWeekStart >= 0 && saved.planWeekStart <= 6 ? saved.planWeekStart : 1,
   };
 }
 

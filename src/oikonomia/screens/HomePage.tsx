@@ -34,7 +34,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const bounds = monthBounds(month);
   const currentMonth = monthKey(month);
   const budget = useBudget(currentMonth);
-  const budgetSummary = budgetTotals(all, recipes, currentMonth, budget?.currency ?? settings.currency);
+  const budgetSummary = budgetTotals(all, recipes, currentMonth, budget?.currency ?? settings.currency, budget?.items ?? []);
   const thisMonth = all
     .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
@@ -97,7 +97,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
               <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
-              <span className="muted">Bills and planned meals together <ChevronIcon size={17} /></span>
+              <span className="muted"><ChevronIcon size={17} /></span>
             </button>
           </>
         )}

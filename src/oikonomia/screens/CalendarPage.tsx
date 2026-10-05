@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon } from '../app/icons';
-import { formatDate, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate } from '../core/bills';
-import { useBills } from '../app/state';
+import { formatDate, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate, weekBounds } from '../core/bills';
+import { useBills, useSettings } from '../app/state';
 import { PageTop } from '../app/ui';
 
 function ArrowRightIcon({ size = 22 }: { size?: number }) {
@@ -11,16 +11,21 @@ function ArrowRightIcon({ size = 22 }: { size?: number }) {
 
 export default function CalendarPage({ nav }: { nav: Nav }) {
   const bills = useBills() ?? [];
+  const settings = useSettings();
   const today = localDate();
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12));
+  const [range, setRange] = useState<'month' | 'week'>('month');
   const cells = monthCells(month);
   const bounds = monthBounds(month);
-  const occurrences = bills.flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until));
+  const monthOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until));
+  const week = weekBounds(today, settings.planWeekStart);
+  const weekOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, week.from, week.until));
+  const occurrences = range === 'month' ? monthOccurrences : weekOccurrences;
   const byDate = useMemo(() => {
-    const map = new Map<string, typeof occurrences>();
-    occurrences.forEach((occurrence) => map.set(occurrence.date, [...(map.get(occurrence.date) ?? []), occurrence]));
+    const map = new Map<string, typeof monthOccurrences>();
+    monthOccurrences.forEach((occurrence) => map.set(occurrence.date, [...(map.get(occurrence.date) ?? []), occurrence]));
     return map;
-  }, [occurrences]);
+  }, [monthOccurrences]);
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
@@ -30,6 +35,11 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
           <h1 className="title">Calendar</h1>
         </div>
       </PageTop>
+
+      <div className="oiko-calendar-switch" role="group" aria-label="Calendar range">
+        <button type="button" className={range === 'month' ? 'is-active' : ''} aria-pressed={range === 'month'} onClick={() => setRange('month')}>Due this month</button>
+        <button type="button" className={range === 'week' ? 'is-active' : ''} aria-pressed={range === 'week'} onClick={() => setRange('week')}>Due this week</button>
+      </div>
 
       <section className="card oiko-calendar-card" aria-label={formatMonth(month)}>
         <div className="oiko-calendar-head">
@@ -55,8 +65,8 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
       </section>
 
       <section className="oiko-calendar-list">
-        <div className="oiko-section-head"><h2>Due this month</h2><span className="muted">{occurrences.length} {occurrences.length === 1 ? 'bill' : 'bills'}</span></div>
-        {occurrences.length === 0 ? <p className="muted">Nothing is scheduled for this month.</p> : occurrences.map((occurrence) => (
+        <div className="oiko-section-head"><h2>{range === 'month' ? 'Due this month' : 'Due this week'}</h2><span className="muted">{occurrences.length} {occurrences.length === 1 ? 'bill' : 'bills'}</span></div>
+        {occurrences.length === 0 ? <p className="muted">Nothing is scheduled for this {range}.</p> : occurrences.map((occurrence) => (
           <button type="button" className="oiko-calendar-entry" key={occurrence.bill.id + occurrence.date} onClick={() => nav.go({ name: 'bill', id: occurrence.bill.id })}>
             <span className="oiko-calendar-entry__date">{formatDate(occurrence.date)}</span>
             <span><strong>{occurrence.bill.name}</strong><small>{occurrence.bill.frequency}</small></span>

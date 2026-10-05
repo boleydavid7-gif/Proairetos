@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
-import { useAccount, useBills } from '../app/state';
-import { exportAll, restore } from '../data/store';
+import { useAccount, useBills, useSettings } from '../app/state';
+import { exportAll, loadSettings, restore, saveSettings } from '../data/store';
 import { PageTop } from '../app/ui';
 
 export default function MorePage({ nav, about = false }: { nav: Nav; about?: boolean }) {
   const bills = useBills() ?? [];
   const account = useAccount();
+  const settings = useSettings();
   const [message, setMessage] = useState('');
 
   if (about) {
@@ -45,10 +46,24 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
     <div className="page oiko-page">
       <PageTop><h1 className="title">More</h1></PageTop>
       <section className="oiko-more-list">
-        <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Budget</strong><small>Plan bills and meals together</small></span></button>
+        <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Budget</strong><small>Set your monthly allowance</small></span></button>
         <button type="button" className="row" onClick={() => void downloadBackup()}><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Back up your bills</strong><small>{bills.length} {bills.length === 1 ? 'bill' : 'bills'} on this device</small></span></button>
         <label className="row"><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Restore a backup</strong><small>Bring bills back from a JSON file</small></span><input className="oiko-file-input" type="file" accept="application/json,.json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.currentTarget.value = ''; }} /></label>
         <button type="button" className="row" onClick={() => window.location.assign('/settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and account</strong><small>Shared with Proairetos</small></span></button>
+      </section>
+
+      <section className="oiko-options">
+        <p className="label">Options</p>
+        <label className="field">
+          <span className="field__label">Plan week starts</span>
+          <select
+            className="input"
+            value={settings.planWeekStart}
+            onChange={(event) => saveSettings({ ...loadSettings(), planWeekStart: Number(event.target.value) })}
+          >
+            {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => <option key={day} value={index}>{day}</option>)}
+          </select>
+        </label>
       </section>
 
       <section className="oiko-family-links">

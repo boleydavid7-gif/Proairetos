@@ -43,6 +43,14 @@ describe('Oikonomia monthly planning', () => {
     expect(totals.plannedCents).toBe(125850);
   });
 
+  it('adds monthly budget items to the plan total and area', () => {
+    const item = { id: 'childcare', name: 'Childcare', amountCents: 45000, category: 'other' as const };
+    const totals = budgetTotals([], [], '2026-10', 'USD', [item]);
+    expect(totals.itemCents).toBe(45000);
+    expect(totals.byCategory.other).toBe(45000);
+    expect(totals.plannedCents).toBe(45000);
+  });
+
   it('does not mix another currency into the plan', () => {
     expect(budgetTotals([bill({ currency: 'CAD' })], [], '2026-10', 'USD').plannedCents).toBe(0);
   });
@@ -63,6 +71,9 @@ describe('Oikonomia monthly planning', () => {
     expect(moneyInputCents('1.2')).toBe(120);
     expect(moneyInputCents('1.234')).toBeUndefined();
     expect(normalizeBudget({ id: '2026-10', month: '2026-10', totalCents: 250000 })?.categoryLimits).toEqual(emptyLimits());
+    expect(normalizeBudget({ id: '2026-10', month: '2026-10', items: [{ id: 'x', name: 'Childcare', amountCents: 45000, category: 'other' }] })?.items).toEqual([
+      { id: 'x', name: 'Childcare', amountCents: 45000, category: 'other' },
+    ]);
   });
 
   it('does not double count a meal already planned in the month', () => {

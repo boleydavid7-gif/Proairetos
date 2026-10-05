@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ChevronIcon, WalletIcon } from '../app/icons';
-import { useBills, useBudget, useSettings, useSomaRecipes } from '../app/state';
+import { newId, useBills, useBudget, useSettings, useSomaRecipes } from '../app/state';
 import { formatMoney, nextMonth } from '../core/bills';
-import { budgetCategories, budgetTotals, emptyLimits, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, type BudgetPlan } from '../core/budget';
+import { budgetCategories, budgetTotals, emptyLimits, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, type BudgetCategory, type BudgetPlan } from '../core/budget';
 import { putBudget } from '../data/store';
 import { PageTop } from '../app/ui';
 
@@ -19,6 +19,9 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   const [draft, setDraft] = useState<BudgetPlan>();
   const [totalText, setTotalText] = useState('');
   const [categoryText, setCategoryText] = useState<Record<string, string>>({});
+  const [itemName, setItemName] = useState('');
+  const [itemAmountText, setItemAmountText] = useState('');
+  const [itemCategory, setItemCategory] = useState<BudgetCategory>('other');
   const [message, setMessage] = useState('');
   const [dirty, setDirty] = useState(false);
 
@@ -33,6 +36,9 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     const next = saved ?? newBudget(month, settings.currency);
     setTotalText(amountText(next.totalCents));
     setCategoryText(Object.fromEntries(areaCategories.map(({ id }) => [id, amountText(next.categoryLimits?.[id] ?? 0)])));
+    setItemName('');
+    setItemAmountText('');
+    setItemCategory('other');
   }, [month, saved, settings.currency, dirty]);
 
   const rawPlan = draft ?? saved ?? newBudget(month, settings.currency);
@@ -40,14 +46,40 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     ...rawPlan,
     totalCents: Number.isFinite(rawPlan.totalCents) && rawPlan.totalCents >= 0 ? rawPlan.totalCents : 0,
     categoryLimits: { ...emptyLimits(), ...(rawPlan.categoryLimits ?? {}) },
+    items: rawPlan.items ?? [],
   };
   const planCurrency = plan.currency || settings.currency;
-  const totals = useMemo(() => budgetTotals(bills, recipes, month, planCurrency), [bills, recipes, month, planCurrency]);
+  const totals = useMemo(() => budgetTotals(bills, recipes, month, planCurrency, plan.items), [bills, recipes, month, planCurrency, plan.items]);
   const limit = plan.totalCents;
   const remaining = limit - totals.plannedCents;
   const monthDateValue = monthDate(month);
 
   const changeMonth = (amount: number) => setMonth(monthKey(nextMonth(monthDateValue, amount)));
+  const changeItems = (items: BudgetPlan['items']) => {
+    setDirty(true);
+    setDraft({ ...plan, items });
+  };
+
+  function addItem() {
+    const name = itemName.trim();
+    const amountCents = moneyInputCents(itemAmountText);
+    if (!name) {
+      setMessage('Name the budget item first.');
+      return;
+    }
+    if (amountCents === undefined || amountCents === 0) {
+      setMessage('Use an amount with up to two decimal places.');
+      return;
+    }
+    changeItems([...plan.items, { id: newId(), name, amountCents, category: itemCategory }]);
+    setItemName('');
+    setItemAmountText('');
+    setMessage('Budget item added.');
+  }
+
+  function removeItem(id: string) {
+    changeItems(plan.items.filter((item) => item.id !== id));
+  }
   async function save() {
     const totalCents = moneyInputCents(totalText);
     if (totalCents === undefined) {
@@ -86,9 +118,8 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       </div>
 
       <section className="card oiko-budget-summary">
-        <span className="card__eyebrow">Planned so far</span>
         <strong className="oiko-budget-summary__amount">{formatMoney(totals.plannedCents, planCurrency)}</strong>
-        <p className="muted">{limit > 0 ? `${formatMoney(Math.abs(remaining), planCurrency)} ${remaining >= 0 ? 'left in your plan' : 'over your plan'}.` : 'Set a monthly amount below to give this month a shape.'}</p>
+        {limit > 0 && <p className="muted">{formatMoney(Math.abs(remaining), planCurrency)} {remaining >= 0 ? 'left' : 'over'}</p>}
         <div className="oiko-budget-summary__bar" aria-hidden="true"><span style={{ width: `${limit ? Math.min(100, (totals.plannedCents / limit) * 100) : 0}%` }} /></div>
       </section>
 
@@ -96,15 +127,33 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
         <div className="oiko-section-head"><h2>Budget</h2></div>
         <div className="oiko-budget-breakdown__row"><span>Bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
         <div className="oiko-budget-breakdown__row"><span>Food</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
-        {totals.mealCents === 0 && <p className="hint">Add an estimated cost to a recipe in SOMA, then plan it for this month.</p>}
-        {totals.mealsWithoutEstimate > 0 && <p className="hint">{totals.mealsWithoutEstimate} planned {totals.mealsWithoutEstimate === 1 ? 'meal has' : 'meals have'} no estimate yet.</p>}
-        {totals.otherCurrencyCount > 0 && <p className="hint">Some scheduled amounts use another currency and are left out.</p>}
+        <div className="oiko-budget-breakdown__row"><span>Budget items</span><strong>{formatMoney(totals.itemCents, planCurrency)}</strong></div>
       </section>
 
       <section className="oiko-budget-section">
-        <div className="oiko-section-head"><h2>Your plan</h2><span className="muted">Optional</span></div>
+        <div className="oiko-section-head"><h2>Your plan</h2></div>
         <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} placeholder="0.00" /></label>
-        <p className="hint">Bills are projected from their schedules. Meals come from recipes you plan in SOMA.</p>
+      </section>
+
+      <section className="oiko-budget-section">
+        <div className="oiko-section-head"><h2>Budget items</h2></div>
+        {plan.items.length > 0 && (
+          <div className="oiko-budget-items">
+            {plan.items.map((item) => (
+              <div className="oiko-budget-item" key={item.id}>
+                <span><strong>{item.name}</strong><small>{budgetCategories.find(({ id }) => id === item.category)?.label ?? 'Other'}</small></span>
+                <strong>{formatMoney(item.amountCents, planCurrency)}</strong>
+                <button type="button" className="text-link" onClick={() => removeItem(item.id)}>Remove</button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="oiko-budget-item-form">
+          <label className="field"><span className="field__label">Name</span><input className="input" value={itemName} onChange={(event) => setItemName(event.target.value)} placeholder="Childcare" /></label>
+          <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={itemAmountText} onChange={(event) => setItemAmountText(event.target.value)} placeholder="0.00" /></label>
+          <label className="field"><span className="field__label">Area</span><select className="input" value={itemCategory} onChange={(event) => setItemCategory(event.target.value as BudgetCategory)}>{budgetCategories.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}</select></label>
+          <button type="button" className="button-quiet" onClick={addItem}>Add item</button>
+        </div>
       </section>
 
       <section className="oiko-budget-section">

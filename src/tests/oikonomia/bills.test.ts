@@ -1,4 +1,4 @@
-import { addMonths, monthCells, nextBills, occurrenceOnOrAfter, occurrencesBetween, type Bill } from '../../oikonomia/core/bills';
+import { addMonths, monthCells, nextBills, occurrenceOnOrAfter, occurrencesBetween, weekBounds, type Bill } from '../../oikonomia/core/bills';
 import { billCalendarText } from '../../oikonomia/core/calendar';
 import { financeLineFor } from '../../oikonomia/core/lines';
 
@@ -47,6 +47,11 @@ describe('Oikonomia bill dates', () => {
 
   it('makes a six-week calendar grid', () => {
     expect(monthCells(new Date(2026, 9, 1, 12))).toHaveLength(42);
+  });
+
+  it('uses the selected first day for the plan week', () => {
+    expect(weekBounds('2026-10-05', 1)).toEqual({ from: '2026-10-05', until: '2026-10-11' });
+    expect(weekBounds('2026-10-05', 3)).toEqual({ from: '2026-09-30', until: '2026-10-06' });
   });
 
   it('keeps one finance line for the day', () => {

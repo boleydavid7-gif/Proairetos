@@ -110,6 +110,14 @@ export function monthBounds(month: Date): { from: string; until: string } {
   return { from: localDate(new Date(year, index, 1, 12)), until: localDate(new Date(year, index + 1, 0, 12)) };
 }
 
+/** The seven-day planning window containing a date, using the chosen first day. */
+export function weekBounds(day: string, weekStartsOn = 1): { from: string; until: string } {
+  const start = ((Math.trunc(weekStartsOn) % 7) + 7) % 7;
+  const offset = (parseDate(day).getDay() - start + 7) % 7;
+  const from = addDays(day, -offset);
+  return { from, until: addDays(from, 6) };
+}
+
 export function monthCells(month: Date): string[] {
   const first = new Date(month.getFullYear(), month.getMonth(), 1, 12);
   const mondayOffset = (first.getDay() + 6) % 7;
