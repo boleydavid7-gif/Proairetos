@@ -86,6 +86,9 @@ export default function PraxisApp() {
 
   useEffect(() => {
     if (!items || seeded.current) return;
+    // Let the first shared-store pull land before creating the starter plan;
+    // this keeps two devices on the same account from seeding duplicates.
+    if (sync.phase === 'ready' && !sync.lastSyncedAt && navigator.onLine) return;
     seeded.current = true;
     if (tasks.length > 0) return;
     void Promise.all(
@@ -97,7 +100,7 @@ export default function PraxisApp() {
         }),
       ),
     );
-  }, [items, tasks.length]);
+  }, [items, sync.lastSyncedAt, sync.phase, tasks.length]);
 
   useEffect(() => {
     if (!session) return;
