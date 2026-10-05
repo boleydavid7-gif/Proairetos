@@ -53,7 +53,7 @@ function speak(text: string): void {
   if (!synth) return;
   const generation = ++speechGeneration;
   synth.cancel();
-  const line = new SpeechSynthesisUtterance(text);
+  const line = new window.SpeechSynthesisUtterance(text);
   line.rate = 0.82;
   line.pitch = 0.95;
   line.volume = 0.9;
@@ -68,6 +68,24 @@ function speak(text: string): void {
       if (generation === speechGeneration) synth.speak(line);
     }, 60);
   });
+}
+
+/** Unlocks speech from the Start tap; iPhone Safari can ignore later timer-only calls otherwise. */
+export function primeSpeech(): void {
+  const synth = speech();
+  if (!synth) return;
+  speechGeneration += 1;
+  try {
+    synth.cancel();
+    synth.resume();
+    const warmup = new window.SpeechSynthesisUtterance(' ');
+    warmup.volume = 0;
+    warmup.rate = 10;
+    synth.speak(warmup);
+    window.setTimeout(() => synth.cancel(), 120);
+  } catch {
+    // Spoken cues remain visible if this browser does not expose speech output.
+  }
 }
 
 function hush(): void {

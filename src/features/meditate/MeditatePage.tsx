@@ -27,7 +27,7 @@ import { breatheLengths, isChanged, setupFor, type SitKind, type SitSetup } from
 import { loadMeditate, saveMeditate, type MeditateSettings } from '../../data/storage/preferences';
 import lake from '../../assets/images/scenes/lake.webp';
 import BreathCircle from './BreathCircle';
-import SitScreen, { type SitPlan } from './SitScreen';
+import SitScreen, { primeSpeech, type SitPlan } from './SitScreen';
 import { soundIcons } from './soundIcons';
 
 const tabs: { id: MeditateSettings['tab']; label: string }[] = [
@@ -118,6 +118,7 @@ export default function MeditatePage() {
   const start = (kind: SitKind) => {
     const setup = setupOf(kind);
     wakeAudio();
+    if (setup.speak) primeSpeech();
     player.startSit([...setup.sounds, ...(setup.music ? [setup.music] : [])]);
     setSitting({ kind, setup });
     window.setTimeout(letGo, 1000);
@@ -143,7 +144,6 @@ export default function MeditatePage() {
       </header>
       <div className="meditate-page__hero">
         <h1 className="meditate-page__title">Take a breath</h1>
-        <p className="meditate-page__subtitle">Nothing to get right.</p>
       </div>
 
       <div className="meditate-tabs" role="tablist" aria-label="Meditate">
