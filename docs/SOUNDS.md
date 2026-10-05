@@ -1,4 +1,4 @@
-# Sounds in Meditate
+# Sounds in Meditate and Praxis
 
 Every sound is a real recording. Files live in `public/sounds/` as MP3
 (VBR around 130 kbps; every browser plays it), loudness-matched. Nature sounds were cut to a minute

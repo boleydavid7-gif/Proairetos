@@ -1,5 +1,5 @@
 /**
- * Sounds and music for Meditate: real recordings, kept in public/sounds as
+ * Shared sounds and music for the family apps: real recordings, kept in public/sounds as
  * seamless loops (see docs/SOUNDS.md for where each comes from). Sounds
  * loop without a seam; music plays a whole piece and begins again.
  */

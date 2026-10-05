@@ -8,6 +8,8 @@ import { loadFocusSession, saveFocusSession } from '../data/storage/preferences'
 import { focusedMinutes, formatClockDown, isFinished, pause, remainingMs, resume, startSession, type FocusSession } from '../core/focus/session';
 import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
+import { player, type PlayerState } from '../app/sound/player';
+import { soundEntry } from '../app/sound/soundscapes';
 import { GearIcon, BookIcon, BreatheIcon, CalendarIcon, CheckIcon, ClockIcon, MountainIcon, SproutIcon, StarIcon, SunIcon } from '../components/icons/Icons';
 import CompassRose from '../components/brand/CompassRose';
 import {
@@ -28,6 +30,8 @@ const DEFAULT_TASKS = [
   { title: 'Read and take notes', minutes: 50 },
   { title: 'Review one idea', minutes: 25 },
 ] as const;
+
+const PRAXIS_SOUND_IDS = ['forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
 
 const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
   { id: 'today', label: 'Today', icon: SunIcon },
@@ -65,12 +69,19 @@ export default function PraxisApp() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>();
   const [minutes, setMinutes] = useState(25);
   const [adjustOpen, setAdjustOpen] = useState(false);
-  const [sound, setSound] = useState('Forest');
+  const [sound, setSound] = useState(() => {
+    try {
+      return localStorage.getItem('proairetos.praxisSound') ?? 'forest';
+    } catch {
+      return 'forest';
+    }
+  });
   const [notice, setNotice] = useState('');
   const noticeTimer = useRef<number | undefined>(undefined);
   const recordedSession = useRef<number | undefined>(undefined);
   const clock = useClock(1000);
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
+  const soundState = useSyncExternalStore(player.subscribe, player.state);
   const [syncInitialized, setSyncInitialized] = useState(false);
   const syncCycleSeen = useRef(false);
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
@@ -117,6 +128,14 @@ export default function PraxisApp() {
     saveFocusSession(session);
   }, [session]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('proairetos.praxisSound', sound);
+    } catch {
+      // Sound selection is still available for this visit when storage is blocked.
+    }
+  }, [sound]);
+
   const toast = useCallback((message: string) => {
     setNotice(message);
     window.clearTimeout(noticeTimer.current);
@@ -134,6 +153,7 @@ export default function PraxisApp() {
           app: 'praxis',
         });
       }
+      player.stop(0.6);
       setSession(null);
       saveFocusSession(null);
       toast(actual > 0 ? 'Session recorded.' : 'Session closed.');
@@ -152,7 +172,13 @@ export default function PraxisApp() {
       if (finished) {
         void finishSession(session, clock.getTime());
       } else {
-        setSession(session.pausedAt ? resume(session, clock.getTime()) : pause(session, clock.getTime()));
+        if (session.pausedAt) {
+          setSession(resume(session, clock.getTime()));
+          player.startSit([sound]);
+        } else {
+          setSession(pause(session, clock.getTime()));
+          player.stop(0.6);
+        }
       }
       return;
     }
@@ -160,6 +186,7 @@ export default function PraxisApp() {
     const next = startSession(clock.getTime(), minutes, { id: selectedTask.id, title: selectedTask.title });
     recordedSession.current = undefined;
     setSession(next);
+    player.startSit([sound]);
     toast('Focus session started.');
   };
 
@@ -215,7 +242,18 @@ export default function PraxisApp() {
           )}
           {view === 'sessions' && <SessionsView events={focusEvents} items={items ?? []} />}
           {view === 'stats' && <StatsView events={focusEvents} stats={stats} now={clock} />}
-          {view === 'sounds' && <SoundsView sound={sound} onSound={(next) => { setSound(next); toast(`${next} selected.`); }} />}
+          {view === 'sounds' && <SoundsView sound={sound} soundState={soundState} sessionActive={Boolean(session)} onSound={(next) => {
+            setSound(next);
+            const entry = soundEntry(next);
+            const isPlaying = soundState.preview === next;
+            if (isPlaying) {
+              player.stopPreview();
+              toast('Preview stopped.');
+            } else {
+              player.preview(next);
+              toast(`${entry?.title ?? 'Sound'} previewing.`);
+            }
+          }} />}
           {view === 'settings' && <SettingsView sync={sync} />}
         </div>
       </main>
@@ -292,9 +330,15 @@ function StatsView({ events, stats, now }: { events: ItemEvent[]; stats: ReturnT
   return <section className="praxis-view"><div className="praxis-page-heading"><div><p className="praxis-eyebrow">Measure your time</p><h1>Stats.</h1><p className="praxis-subtitle">See the shape of your study without turning it into a verdict.</p></div></div><div className="praxis-stats-grid"><article className="praxis-card praxis-wide-card"><div className="praxis-card-heading"><div><p className="praxis-eyebrow">This week</p><h2>{formatMinutes(stats.thisWeekMinutes)} of study</h2></div></div><div className="praxis-chart">{days.map((day) => <div className="praxis-bar-group" key={localDateKey(day.date)}><div className="praxis-bar" style={{ height: `${Math.max(6, (day.minutes / max) * 100)}%` }} /><span>{new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(day.date).slice(0, 2)}</span></div>)}</div></article><div className="praxis-stat-stack"><div className="praxis-stat-card"><span>Sessions completed</span><strong>{stats.sessionCount}</strong></div><div className="praxis-stat-card"><span>Average timer completion</span><strong>{stats.averageCompletion}%</strong></div></div></div></section>;
 }
 
-function SoundsView({ sound, onSound }: { sound: string; onSound: (sound: string) => void }) {
-  const options = ['Forest', 'Rain', 'Waves', 'Café', 'White noise', 'Silence'];
-  return <section className="praxis-view"><div className="praxis-page-heading"><div><p className="praxis-eyebrow">Set the atmosphere</p><h1>Sounds.</h1><p className="praxis-subtitle">Choose a quiet background for the next block.</p></div><span className="praxis-ready-pill"><i />{sound} selected</span></div><article className="praxis-card praxis-wide-card"><div className="praxis-sound-grid">{options.map((option, index) => <button type="button" key={option} className={`praxis-sound${sound === option ? ' is-selected' : ''}`} onClick={() => onSound(option)}><span className={`praxis-sound-art praxis-sound-art--${index}`} /><strong>{option}</strong><small>{sound === option ? 'Selected' : 'Choose sound'}</small></button>)}</div></article></section>;
+function SoundsView({ sound, soundState, sessionActive, onSound }: { sound: string; soundState: PlayerState; sessionActive: boolean; onSound: (sound: string) => void }) {
+  const options = PRAXIS_SOUND_IDS.map((id) => soundEntry(id)).filter((entry): entry is NonNullable<ReturnType<typeof soundEntry>> => Boolean(entry));
+  const selected = soundEntry(sound);
+  return <section className="praxis-view"><div className="praxis-page-heading"><div><p className="praxis-eyebrow">Set the atmosphere</p><h1>Sounds.</h1><p className="praxis-subtitle">Choose a quiet background for the next block.</p></div><span className="praxis-ready-pill"><i />{selected?.title ?? 'Forest'} selected</span></div><article className="praxis-card praxis-wide-card"><p className="praxis-sound-note">Royalty-free field recordings from the shared Proairetos sound bank. Tap one to preview it; the selected sound loops during a study block.</p><div className="praxis-sound-grid">{options.map((option, index) => {
+    const isPreviewing = soundState.preview === option.id || soundState.playing.includes(option.id);
+    const isLoading = soundState.loading.includes(option.id);
+    const hasProblem = soundState.problem === option.id;
+    return <button type="button" key={option.id} className={`praxis-sound${sound === option.id ? ' is-selected' : ''}${isPreviewing ? ' is-playing' : ''}`} onClick={() => onSound(option.id)} disabled={sessionActive} aria-pressed={sound === option.id}><span className={`praxis-sound-art praxis-sound-art--${index % 6}`} /> <strong>{option.title}</strong><small>{isLoading ? 'Loading…' : hasProblem ? 'Unavailable' : isPreviewing ? 'Playing preview' : sound === option.id ? 'Selected · tap to preview' : option.line}</small></button>;
+  })}</div>{sessionActive && <p className="praxis-sound-note praxis-sound-note--bottom">Pause the study block before changing its sound.</p>}</article></section>;
 }
 
 function SettingsView({ sync }: { sync: ReturnType<typeof syncStatus.get> }) {

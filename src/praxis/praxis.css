@@ -117,7 +117,9 @@
 .praxis-stat-card strong { margin-top: 15px; font: 500 34px var(--font-serif); }
 .praxis-sound-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
 .praxis-sound { padding: 12px; border: 1px solid var(--color-border); border-radius: 14px; color: inherit; background: rgba(255,255,255,.035); cursor: pointer; text-align: left; }
+.praxis-sound:disabled { cursor: default; opacity: .58; }
 .praxis-sound.is-selected { border-color: rgba(201,162,116,.65); background: var(--color-accent-soft); }
+.praxis-sound.is-playing { box-shadow: 0 0 0 2px rgba(201,162,116,.22); }
 .praxis-sound-art { display: block; height: 64px; margin-bottom: 11px; border-radius: 9px; background: radial-gradient(circle at 70% 25%, rgba(201,162,116,.6), transparent 20%), linear-gradient(145deg,#2c5148,#10251e); }
 .praxis-sound-art--1 { background: radial-gradient(circle at 25% 30%, rgba(159,196,197,.55), transparent 18%), linear-gradient(145deg,#274451,#0f2524); }
 .praxis-sound-art--2 { background: radial-gradient(circle at 70% 70%, rgba(132,170,199,.5), transparent 23%), linear-gradient(145deg,#183a48,#0d2525); }
@@ -127,6 +129,8 @@
 .praxis-sound strong, .praxis-sound small { display: block; }
 .praxis-sound strong { font-size: 12px; }
 .praxis-sound small { margin-top: 4px; color: var(--color-text-faint); font-size: 10px; }
+.praxis-sound-note { margin: 0 0 18px; color: var(--color-text-muted); font-size: 11px; line-height: 1.5; }
+.praxis-sound-note--bottom { margin: 16px 0 0; }
 .praxis-account-row { display: flex; align-items: center; gap: 11px; padding: 4px 0 20px; }
 .praxis-account-row strong, .praxis-account-row small { display: block; }
 .praxis-account-row strong { font-size: 13px; }
