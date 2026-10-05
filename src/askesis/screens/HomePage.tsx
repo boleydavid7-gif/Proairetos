@@ -66,7 +66,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         <div className="home__words">
           <p className="home__greeting">{greeting()}</p>
           <h1 className="home__title">One run at a time.</h1>
-          <p className="home__sub">Small, steady effort, repeated.</p>
         </div>
       </Hero>
 
