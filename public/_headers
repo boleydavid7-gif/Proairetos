@@ -31,3 +31,7 @@
   Cache-Control: no-cache
 /praxis/index.html
   Cache-Control: no-cache
+/theoria/manifest.webmanifest
+  Cache-Control: no-cache
+/theoria/index.html
+  Cache-Control: no-cache

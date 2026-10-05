@@ -3,7 +3,7 @@ import { handleRecipeRequest } from './recipeProxy';
 
 type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> } };
 
-/** Serves the app's files; /api/calendar passes calendar files through; /api/recipe reads a recipe page for SOMA. */
+/** Serves the family apps; /api/calendar and /api/recipe pass through their small server helpers. */
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -14,6 +14,11 @@ export default {
       const praxisUrl = new URL(request.url);
       praxisUrl.pathname = '/praxis/';
       return env.ASSETS.fetch(new Request(praxisUrl, request));
+    }
+    if (url.pathname === '/theoria') {
+      const theoriaUrl = new URL(request.url);
+      theoriaUrl.pathname = '/theoria/';
+      return env.ASSETS.fetch(new Request(theoriaUrl, request));
     }
     return env.ASSETS.fetch(request);
   },

@@ -1,0 +1,177 @@
+:root {
+  --theoria-bg: #0b1020;
+  --theoria-surface: #121a2e;
+  --theoria-surface-2: #18213a;
+  --theoria-ink: #f2e7d4;
+  --theoria-muted: #a7aac1;
+  --theoria-faint: #747a99;
+  --theoria-parchment: #f0e3ce;
+  --theoria-parchment-2: #e2d1b8;
+  --theoria-violet: #b6a3d4;
+  --theoria-violet-strong: #d8c9ef;
+  --theoria-brass: #c8a66b;
+  --theoria-border: rgba(205, 194, 222, .16);
+}
+
+.theoria-app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); color: var(--theoria-ink); background: radial-gradient(circle at 72% -12%, rgba(70, 72, 118, .35), transparent 32rem), radial-gradient(circle at 5% 78%, rgba(104, 71, 115, .16), transparent 27rem), var(--theoria-bg); }
+.theoria-sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 25px 15px 22px; border-right: 1px solid var(--theoria-border); background: rgba(11, 16, 32, .82); }
+.theoria-family-link { align-self: flex-start; color: var(--theoria-faint); font-size: 9px; letter-spacing: .16em; text-decoration: none; }
+.theoria-family-link small { margin-left: 4px; letter-spacing: 0; }
+.theoria-brand { display: flex; align-items: center; gap: 10px; padding: 29px 9px 36px; }
+.theoria-brand strong { display: block; font: 600 19px/1 var(--font-serif); letter-spacing: .2em; }
+.theoria-brand small { display: block; margin-top: 7px; color: var(--theoria-faint); font-size: 9px; letter-spacing: .08em; }
+.theoria-sidebar-label, .theoria-eyebrow { margin: 0; color: var(--theoria-faint); font-size: 10px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
+.theoria-sidebar-label { padding: 0 12px 10px; }
+.theoria-nav-list { display: grid; gap: 5px; }
+.theoria-nav-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 11px; color: var(--theoria-muted); background: transparent; cursor: pointer; text-align: left; }
+.theoria-nav-list button:hover { color: var(--theoria-ink); background: rgba(255,255,255,.045); }
+.theoria-nav-list button.is-active { border-color: rgba(182,163,212,.3); color: var(--theoria-violet-strong); background: rgba(182,163,212,.13); }
+.theoria-nav-list button span { width: 19px; color: var(--theoria-violet); font-size: 18px; line-height: 1; text-align: center; }
+.theoria-nav-list button small { font-size: 12px; font-weight: 600; }
+.theoria-sidebar-spacer { flex: 1; }
+.theoria-sidebar-note { display: flex; gap: 9px; padding: 14px; border: 1px solid var(--theoria-border); border-radius: 14px; background: rgba(255,255,255,.035); }
+.theoria-sidebar-note > span:first-child { color: var(--theoria-brass); }
+.theoria-sidebar-note strong, .theoria-sidebar-note small { display: block; }
+.theoria-sidebar-note strong { font: 500 15px var(--font-serif); }
+.theoria-sidebar-note small { margin-top: 4px; color: var(--theoria-faint); font-size: 10px; line-height: 1.4; }
+.theoria-person { display: flex; align-items: center; gap: 9px; padding: 18px 9px 0; color: var(--theoria-muted); font-size: 11px; }
+.theoria-person span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #1b1930; background: var(--theoria-violet); font-size: 11px; font-weight: 700; }
+
+.theoria-main { min-width: 0; padding: 23px clamp(18px, 4vw, 61px) 48px; }
+.theoria-topbar { max-width: 1180px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin: 0 auto 43px; color: var(--theoria-muted); }
+.theoria-mobile-brand { display: none; align-items: center; gap: 8px; color: var(--theoria-ink); text-decoration: none; }
+.theoria-mobile-brand span { font: 600 13px var(--font-serif); letter-spacing: .17em; }
+.theoria-date { font-size: 12px; text-align: center; }
+.theoria-sync { display: flex; align-items: center; justify-content: end; gap: 7px; font-size: 10px; }
+.theoria-sync i { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: var(--theoria-faint); }
+.theoria-sync--ready i { background: #a9c3ac; }
+.theoria-sync--signed-out i, .theoria-sync--locked i, .theoria-sync--needs-setup i { background: var(--theoria-brass); }
+.theoria-page { max-width: 1180px; margin: 0 auto; }
+.theoria-heading { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-bottom: 28px; }
+.theoria-heading h1 { margin: 8px 0 0; font: 500 clamp(36px, 4vw, 49px)/1 var(--font-serif); letter-spacing: -.025em; }
+.theoria-heading p:not(.theoria-eyebrow) { max-width: 450px; margin: 10px 0 0; color: var(--theoria-muted); font-size: 13px; line-height: 1.55; }
+.theoria-add-button { min-height: 40px; padding: 0 15px; border: 1px solid rgba(182,163,212,.36); border-radius: 10px; color: var(--theoria-violet-strong); background: rgba(182,163,212,.1); cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.theoria-add-button:hover { background: rgba(182,163,212,.17); }
+.theoria-library-grid { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(320px, .82fr); gap: 16px; }
+.theoria-card { border: 1px solid var(--theoria-border); border-radius: 21px; background: linear-gradient(145deg, rgba(27, 38, 65, .9), rgba(17, 25, 45, .95)); box-shadow: 0 24px 65px rgba(0,0,0,.2); }
+.theoria-continue { min-height: 337px; padding: 23px 25px; background: radial-gradient(circle at 83% 20%, rgba(201,166,107,.11), transparent 14rem), linear-gradient(145deg, rgba(25, 36, 62, .94), rgba(16, 23, 42, .97)); }
+.theoria-card-kicker { display: flex; justify-content: space-between; color: var(--theoria-faint); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
+.theoria-card-kicker span { color: var(--theoria-violet); font-size: 15px; }
+.theoria-continue-body { display: grid; grid-template-columns: 1fr 121px; align-items: center; gap: 19px; min-height: 267px; }
+.theoria-continue h2 { margin: 0; font: 500 clamp(29px, 3vw, 40px)/1.08 var(--font-serif); }
+.theoria-author { margin: 9px 0 24px; color: var(--theoria-muted); font-size: 13px; }
+.theoria-progress { width: 100%; max-width: 220px; height: 4px; overflow: hidden; border-radius: 5px; background: rgba(255,255,255,.14); }
+.theoria-progress span { display: block; height: 100%; border-radius: inherit; background: var(--theoria-violet); }
+.theoria-continue > div > div > small { display: block; margin-top: 8px; color: var(--theoria-faint); font-size: 10px; }
+.theoria-primary-button, .theoria-secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 11px; min-height: 40px; padding: 0 15px; border: 0; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.theoria-primary-button { color: #171529; background: var(--theoria-parchment); box-shadow: 0 10px 24px rgba(240,227,206,.11); }
+.theoria-primary-button:hover { background: #fff3df; }
+.theoria-continue .theoria-primary-button { margin-top: 18px; }
+.theoria-cover { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.theoria-continue-body > .theoria-cover { width: 121px; height: 167px; box-shadow: 10px 13px 24px rgba(0,0,0,.25); }
+.theoria-cover:not(img) { display: flex; flex-direction: column; justify-content: space-between; padding: 12px 10px; color: #f6ead5; background: linear-gradient(145deg, #424f72, #202943); font-family: var(--font-serif); }
+.theoria-cover--1 { background: linear-gradient(145deg, #756d81, #302e4d) !important; }
+.theoria-cover--2 { background: linear-gradient(145deg, #75624d, #34324b) !important; }
+.theoria-cover--3 { background: linear-gradient(145deg, #506477, #28364a) !important; }
+.theoria-cover span { font-size: 14px; line-height: 1.05; }
+.theoria-cover small { color: rgba(255,245,225,.7); font-family: var(--font-sans); font-size: 8px; }
+.theoria-shelf-card { padding: 23px 21px 20px; }
+.theoria-card-title, .theoria-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; }
+.theoria-card-title h2, .theoria-section-heading h2 { margin: 7px 0 0; font: 500 23px var(--font-serif); }
+.theoria-card-title button, .theoria-section-heading button { border: 0; padding: 0; color: var(--theoria-violet); background: transparent; cursor: pointer; font-size: 10px; }
+.theoria-shelf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+.theoria-shelf-item { display: flex; min-width: 0; flex-direction: column; padding: 0; border: 1px solid transparent; color: inherit; background: transparent; cursor: pointer; text-align: left; }
+.theoria-shelf-item.is-selected { border-color: rgba(182,163,212,.48); border-radius: 8px; }
+.theoria-shelf-item .theoria-cover { height: 112px; border-radius: 6px; }
+.theoria-shelf-item strong, .theoria-shelf-item small { overflow: hidden; margin-top: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.theoria-shelf-item strong { font: 500 11px var(--font-serif); }
+.theoria-shelf-item small { color: var(--theoria-muted); font-size: 9px; }
+.theoria-shelf-item > span { height: 3px; display: block; margin-top: 9px; overflow: hidden; border-radius: 4px; background: rgba(255,255,255,.13); }
+.theoria-shelf-item > span i { display: block; height: 100%; background: var(--theoria-violet); }
+.theoria-section-heading { margin: 27px 0 15px; }
+.theoria-insight-grid { display: grid; gap: 10px; }
+.theoria-insight { display: grid; grid-template-columns: 27px minmax(0,1fr) 20px; align-items: center; gap: 12px; padding: 15px 16px; border: 1px solid var(--theoria-border); border-radius: 14px; background: rgba(20, 29, 51, .75); }
+.theoria-insight > span { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; color: #26233b; background: var(--theoria-violet); font: 500 23px var(--font-serif); }
+.theoria-insight--brass > span { background: var(--theoria-brass); }
+.theoria-insight--lavender > span { background: #d0c7e0; }
+.theoria-insight p { margin: 0; font: 500 16px/1.25 var(--font-serif); }
+.theoria-insight small { display: block; margin-top: 5px; color: var(--theoria-muted); font-size: 10px; }
+.theoria-insight button, .theoria-note-card button { border: 0; color: var(--theoria-faint); background: transparent; cursor: pointer; font-size: 17px; }
+
+.theoria-notes-list, .theoria-quote-list { display: grid; gap: 10px; max-width: 820px; }
+.theoria-note-card, .theoria-quote-card { display: grid; grid-template-columns: 24px minmax(0,1fr) 20px; align-items: start; gap: 12px; padding: 19px; border: 1px solid var(--theoria-border); border-radius: 15px; background: rgba(20, 29, 51, .75); }
+.theoria-note-card > span { color: var(--theoria-violet); font-size: 20px; }
+.theoria-note-card p { margin: 0; font: 500 17px/1.35 var(--font-serif); }
+.theoria-note-card small, .theoria-quote-card small { display: block; margin-top: 8px; color: var(--theoria-muted); font-size: 10px; }
+.theoria-empty-card { display: grid; justify-items: start; max-width: 520px; padding: 36px; border: 1px solid var(--theoria-border); border-radius: 18px; background: rgba(20, 29, 51, .75); }
+.theoria-empty-card h2 { margin: 20px 0 0; font: 500 27px var(--font-serif); }
+.theoria-empty-card p { max-width: 370px; margin: 9px 0 22px; color: var(--theoria-muted); font-size: 13px; line-height: 1.55; }
+.theoria-big-quote { color: var(--theoria-violet); font: 500 62px/1 var(--font-serif); }
+.theoria-quote-card { display: block; position: relative; padding: 26px 30px; background: linear-gradient(110deg, rgba(182,163,212,.15), rgba(20,29,51,.78)); }
+.theoria-quote-card p { margin: 0; font: italic 22px/1.4 var(--font-serif); }
+.theoria-quote-card button { margin-top: 20px; padding: 8px 12px; border: 1px solid rgba(182,163,212,.35); border-radius: 8px; color: var(--theoria-violet-strong); background: rgba(182,163,212,.08); cursor: pointer; font-size: 10px; }
+.theoria-muted-line, .theoria-notes-foot { color: var(--theoria-faint); font-size: 11px; }
+.theoria-connections { position: relative; min-height: 510px; overflow: hidden; background: radial-gradient(circle at 50% 48%, rgba(182,163,212,.12), transparent 15rem), #111a30; }
+.theoria-connection-core { position: absolute; top: 50%; left: 50%; z-index: 2; display: grid; width: 116px; height: 116px; place-items: center; transform: translate(-50%, -50%); border: 1px solid rgba(216,201,239,.6); border-radius: 50%; color: var(--theoria-violet-strong); background: #37315d; font: 500 16px/1.1 var(--font-serif); text-align: center; }
+.theoria-connection-lines { position: absolute; top: 50%; left: 50%; width: 425px; height: 300px; transform: translate(-50%, -50%); background: linear-gradient(28deg, transparent 49.6%, rgba(182,163,212,.4) 50%, transparent 50.5%), linear-gradient(153deg, transparent 49.6%, rgba(182,163,212,.4) 50%, transparent 50.5%), linear-gradient(90deg, transparent 49.6%, rgba(182,163,212,.4) 50%, transparent 50.5%), linear-gradient(0deg, transparent 49.6%, rgba(182,163,212,.4) 50%, transparent 50.5%); }
+.theoria-orbit { position: absolute; z-index: 3; display: grid; width: 104px; height: 104px; place-items: center; border: 1px solid rgba(216,201,239,.48); border-radius: 50%; color: var(--theoria-ink); background: #202a46; font: 500 14px var(--font-serif); text-align: center; }
+.theoria-orbit small { display: block; max-width: 80px; overflow: hidden; color: var(--theoria-muted); font: 9px var(--font-sans); text-overflow: ellipsis; white-space: nowrap; }
+.theoria-orbit--one { top: 12%; left: 15%; }.theoria-orbit--two { top: 14%; right: 15%; }.theoria-orbit--three { bottom: 22%; left: 18%; }.theoria-orbit--four { right: 17%; bottom: 21%; }
+.theoria-connections > .theoria-primary-button { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); }
+
+.theoria-modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(3, 5, 14, .72); backdrop-filter: blur(8px); }
+.theoria-modal { position: relative; width: min(480px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 29px; border: 1px solid var(--theoria-border); border-radius: 19px; background: #151f38; box-shadow: 0 25px 80px rgba(0,0,0,.4); }
+.theoria-modal h2 { margin: 8px 0 0; font: 500 29px var(--font-serif); }
+.theoria-modal-intro { margin: 9px 0 22px; color: var(--theoria-muted); font-size: 12px; line-height: 1.5; }
+.theoria-modal-close { position: absolute; top: 15px; right: 17px; border: 0; color: var(--theoria-muted); background: transparent; cursor: pointer; font-size: 23px; }
+.theoria-source-tabs { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 18px; }
+.theoria-source-tabs button { min-height: 33px; padding: 0 4px; border: 1px solid var(--theoria-border); border-radius: 7px; color: var(--theoria-muted); background: rgba(255,255,255,.03); cursor: pointer; font-size: 9px; }
+.theoria-source-tabs button.is-active { border-color: rgba(182,163,212,.62); color: var(--theoria-violet-strong); background: rgba(182,163,212,.14); }
+.theoria-modal label { display: block; margin-top: 14px; color: var(--theoria-muted); font-size: 10px; }
+.theoria-modal label span { color: var(--theoria-faint); }
+.theoria-modal input, .theoria-modal select { display: block; width: 100%; height: 40px; margin-top: 6px; padding: 0 11px; border: 1px solid var(--theoria-border); border-radius: 8px; outline: 0; color: var(--theoria-ink); background: #10182c; font-size: 12px; }
+.theoria-modal input:focus, .theoria-modal select:focus { border-color: var(--theoria-violet); }
+.theoria-modal input[type=file] { height: auto; padding: 11px; }
+.theoria-modal label small { display: block; margin-top: 6px; color: var(--theoria-faint); font-size: 10px; }
+.theoria-modal-actions { display: flex; justify-content: end; gap: 8px; margin-top: 24px; }
+.theoria-secondary-button { color: var(--theoria-muted); background: rgba(255,255,255,.05); }
+.theoria-secondary-button:hover { background: rgba(255,255,255,.09); }
+.theoria-primary-button:disabled { cursor: default; opacity: .45; }
+.theoria-toast { position: fixed; right: 20px; bottom: 20px; z-index: 12; padding: 11px 14px; border: 1px solid rgba(182,163,212,.35); border-radius: 9px; color: var(--theoria-ink); background: #252348; box-shadow: 0 13px 32px rgba(0,0,0,.3); font-size: 11px; }
+.theoria-bottom-nav { display: none; }
+
+@media (max-width: 900px) {
+  .theoria-app { display: block; }
+  .theoria-sidebar { display: none; }
+  .theoria-main { padding: calc(17px + env(safe-area-inset-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
+  .theoria-topbar { margin-bottom: 30px; }
+  .theoria-mobile-brand { display: flex; }
+  .theoria-date { display: none; }
+  .theoria-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 5; display: block; padding: 6px; border: 1px solid var(--theoria-border); border-radius: 16px; background: rgba(13, 20, 39, .93); box-shadow: 0 18px 45px rgba(0,0,0,.32); backdrop-filter: blur(15px); }
+  .theoria-bottom-nav .theoria-nav-list { grid-template-columns: repeat(4,1fr); }
+  .theoria-bottom-nav .theoria-nav-list button { display: grid; justify-items: center; gap: 4px; padding: 7px 3px; text-align: center; }
+  .theoria-bottom-nav .theoria-nav-list button small { font-size: 9px; }
+  .theoria-library-grid { grid-template-columns: 1fr; }
+  .theoria-continue { min-height: 390px; }
+  .theoria-connections { min-height: 470px; }
+}
+
+@media (max-width: 560px) {
+  .theoria-heading { display: block; }
+  .theoria-heading h1 { font-size: 37px; }
+  .theoria-add-button { margin-top: 18px; }
+  .theoria-continue { padding: 20px; }
+  .theoria-continue-body { grid-template-columns: minmax(0,1fr) 97px; gap: 11px; }
+  .theoria-continue-body > .theoria-cover { width: 97px; height: 139px; }
+  .theoria-shelf-card { padding: 20px 16px; }
+  .theoria-shelf-grid { gap: 6px; }
+  .theoria-shelf-item .theoria-cover { height: 90px; }
+  .theoria-shelf-item strong { font-size: 10px; }
+  .theoria-shelf-item small { font-size: 8px; }
+  .theoria-insight p { font-size: 14px; }
+  .theoria-connections { min-height: 420px; }
+  .theoria-connection-lines { width: 320px; }
+  .theoria-orbit { width: 87px; height: 87px; font-size: 12px; }
+  .theoria-orbit--one { left: 7%; }.theoria-orbit--two { right: 7%; }.theoria-orbit--three { left: 7%; }.theoria-orbit--four { right: 7%; }
+  .theoria-modal { padding: 24px 19px; }
+}

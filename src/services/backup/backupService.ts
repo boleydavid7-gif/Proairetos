@@ -105,7 +105,7 @@ export function createBackupService({ userId, context, repositories: r, family }
       for (const exception of mine(data.scheduleExceptions)) await r.scheduleExceptions.put(exception);
       for (const decision of mine(data.decisions)) await r.decisions.add(decision);
       for (const attachment of mine(data.attachments ?? [])) await r.attachments.add({ ...attachment, data: fromBase64(attachment.data) });
-      if (family) await family.restore({ askesis: data.askesis, soma: data.soma, oikonomia: data.oikonomia, settings: data.settings });
+      if (family) await family.restore({ askesis: data.askesis, soma: data.soma, oikonomia: data.oikonomia, hydros: data.hydros, theoria: data.theoria, settings: data.settings });
     },
   };
 }

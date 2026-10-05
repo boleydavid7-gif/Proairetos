@@ -9,7 +9,8 @@ export const DB_NAME = 'proairetos';
 // Version 9: oikonomiaBills (Oikonomia, the household stewardship app).
 // Version 10: oikonomiaBudgets (monthly plans shared with Oikonomia).
 // Version 11: hydrosDrinks (Hydros intake entries shared with the family).
-export const DB_VERSION = 11;
+// Version 12: theoriaBooks (Theoria's reading shelf and source links).
+export const DB_VERSION = 12;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -30,6 +31,7 @@ export const stores = {
   oikonomiaBills: 'oikonomiaBills',
   oikonomiaBudgets: 'oikonomiaBudgets',
   hydrosDrinks: 'hydrosDrinks',
+  theoriaBooks: 'theoriaBooks',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -97,6 +99,9 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
         db.createObjectStore(stores.hydrosDrinks, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.theoriaBooks)) {
+        db.createObjectStore(stores.theoriaBooks, { keyPath: 'id' }).createIndex('userId', 'userId');
       }
     };
 

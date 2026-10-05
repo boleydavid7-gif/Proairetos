@@ -1,7 +1,7 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v14';
-const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png'];
+const CACHE = 'proairetos-v15';
+const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png','/theoria/manifest.webmanifest','/theoria/icons/icon-192.png','/theoria/icons/icon-512.png','/theoria/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -32,7 +32,7 @@ async function cacheFirst(request) {
 
 // Plain pages that are not the app (privacy). They are cached as themselves,
 // never in place of the app page.
-const STATIC_PAGES = ['/privacy', '/privacy.html', '/praxis', '/praxis/'];
+const STATIC_PAGES = ['/privacy', '/privacy.html', '/praxis', '/praxis/', '/theoria', '/theoria/'];
 
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
