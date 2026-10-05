@@ -53,7 +53,7 @@ export default function CapturePage() {
 
   return (
     <div className="page">
-      <PageHeader title="Capture" subtitle="Get it out of your head. Sorting can wait." settings />
+      <PageHeader title="Capture" subtitle="Get it out of your head." settings />
 
       <div className="kind-list">
         {captureKinds.map(({ id, label, prompt, icon: Icon }) => (
