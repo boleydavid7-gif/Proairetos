@@ -1,4 +1,5 @@
 import { rangeForTraining } from '../../hydros/data/training';
+import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
 import { AVERAGE_FOOD_WATER_FRACTION, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, totalOz, volumeLabel, waterRecommendation, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
@@ -51,5 +52,10 @@ describe('Hydros', () => {
       { kind: 'water', count: 1, amountOz: 12, caffeineMg: 0 },
       { kind: 'tea', count: 1, amountOz: 8, caffeineMg: 35 },
     ]);
+  });
+
+  it('keeps the Hydros Stoic line stable through a day', () => {
+    expect(hydrosQuoteFor('2026-10-05')).toBe(hydrosQuoteFor('2026-10-05'));
+    expect(hydrosQuotes).toContain(hydrosQuoteFor('2026-10-05'));
   });
 });
