@@ -1,5 +1,6 @@
 import { privateNotice, type Notice, type NoticeSettings } from '../../core/notify/notices';
-import { loadNotify, saveNotify } from '../../data/storage/preferences';
+import { loadNotify, loadQuietHours, saveNotify } from '../../data/storage/preferences';
+import { deliverAt } from '../../core/rhythm/quietHours';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
@@ -27,6 +28,7 @@ const listeners = new Set<() => void>();
 let timer: number | undefined;
 let pending: number | undefined;
 let upcoming: Notice[] = [];
+let hydration = { enabled: false, intervalMinutes: 120 };
 
 function supported(): boolean {
   return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
@@ -34,6 +36,13 @@ function supported(): boolean {
 
 function notify(): void {
   for (const listener of listeners) listener();
+}
+
+function nextHydrationNotice(now = new Date()): Notice | undefined {
+  if (!hydration.enabled) return undefined;
+  const interval = Math.max(15, Math.min(240, Math.round(hydration.intervalMinutes))) * 60_000;
+  const due = deliverAt(new Date(now.getTime() + interval), loadQuietHours(), []);
+  return { key: `hydros:hydration:${due.toISOString()}`, kind: 'hydration', at: due, title: 'Hydros', body: 'A measured drink keeps the day in motion.', open: 'today' };
 }
 
 async function store(notices: readonly Notice[], details: boolean): Promise<void> {
@@ -91,6 +100,11 @@ function arm(): void {
     upcoming = upcoming.filter((notice) => notice.at.getTime() > now + 1000);
     const details = loadNotify().details;
     for (const notice of due) await show(notice, details).catch(() => undefined);
+    if (due.some((notice) => notice.kind === 'hydration')) {
+      const nextHydration = nextHydrationNotice(new Date());
+      if (nextHydration) upcoming.push(nextHydration);
+      upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
+    }
     arm();
   }, wait);
 }
@@ -125,6 +139,12 @@ export const notifications = {
     notifications.refreshSoon();
   },
 
+  /** Adds Hydros' repeating drink reminder to the shared Proairetos scheduler. */
+  setHydrationSchedule(next: { enabled: boolean; intervalMinutes: number }): void {
+    hydration = { enabled: next.enabled, intervalMinutes: next.intervalMinutes };
+    notifications.refreshSoon();
+  },
+
   /** The next few, for Settings to show what is coming and how it will read. */
   next(): readonly Notice[] {
     return upcoming;
@@ -135,6 +155,9 @@ export const notifications = {
     if (!supported()) return;
     const settings = loadNotify();
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
+    const hydrationNotice = nextHydrationNotice(new Date());
+    if (hydrationNotice) upcoming.push(hydrationNotice);
+    upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
     if (notifications.permission() === 'granted') arm();
     // The server learns only the times, if reminders are on with sync.

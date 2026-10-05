@@ -9,8 +9,8 @@ import '../askesis/styles/askesis.css';
 import './styles/hydros.css';
 import { applyAppearance } from '../app/appearance';
 import { startSync } from '../app/sync/syncController';
-import { startStore } from './data/store';
-import { startHydrosReminders } from './data/reminders';
+import { loadSettings, startStore } from './data/store';
+import { notifications } from '../app/notify/notifications';
 import App from './app/App';
 
 function appearance() {
@@ -22,7 +22,8 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 startStore();
-startHydrosReminders();
+notifications.setHydrationSchedule({ enabled: loadSettings().reminders === true, intervalMinutes: loadSettings().reminderIntervalMinutes ?? 120 });
+notifications.start();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
 void startSync();
 

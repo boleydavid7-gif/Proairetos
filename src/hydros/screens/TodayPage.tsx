@@ -3,7 +3,7 @@ import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
 import { dateLabel, effectiveGoalOz, formatVolume, greeting, sameDay, totalOz, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
-import { DropIcon, GearIcon, MoonIcon, PlusIcon, SunIcon, WaveIcon } from '../app/icons';
+import { GearIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { displayName } from '../../data/storage/preferences';
 
@@ -41,25 +41,6 @@ export default function TodayPage({ nav }: { nav: Nav }) {
         </div>
       </section>
 
-      <section className="hydros-content">
-        <div className="hydros-section-title">
-          <h2>Today’s rhythm</h2>
-          <button type="button" onClick={() => nav.go({ name: 'add' })} aria-label="Add drink"><PlusIcon size={20} /></button>
-        </div>
-        <div className="rhythm-card">
-          <Rhythm icon={<SunIcon size={21} />} label="Morning" active={today.some((drink) => new Date(drink.loggedAt).getHours() < 12)} />
-          <Rhythm icon={<WaveIcon size={22} />} label="Afternoon" active={today.some((drink) => { const hour = new Date(drink.loggedAt).getHours(); return hour >= 12 && hour < 18; })} />
-          <Rhythm icon={<MoonIcon size={21} />} label="Evening" active={today.some((drink) => new Date(drink.loggedAt).getHours() >= 18)} />
-        </div>
-        <div className="hydros-note">
-          <DropIcon size={24} />
-          <span>{hasData ? (training?.runDay ? `Run day · ${formatVolume(range.extra, unit as HydrosUnit)} ${unit} added.` : amount < range.min ? 'Below your range.' : amount > range.max ? 'Above your range.' : 'Within your range.') : 'Nothing logged yet.'}</span>
-        </div>
-      </section>
     </div>
   );
-}
-
-function Rhythm({ icon, label, active }: { icon: React.ReactNode; label: string; active: boolean }) {
-  return <div className={active ? 'rhythm-card__item is-active' : 'rhythm-card__item'}>{icon}<span>{label}</span><small>{active ? 'On track' : 'Open'}</small></div>;
 }

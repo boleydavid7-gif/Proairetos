@@ -80,6 +80,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
     if (!next) {
       setReminders(false);
       updateSettings({ reminders: false });
+      notifications.setHydrationSchedule({ enabled: false, intervalMinutes: interval });
       return;
     }
     const nextPermission = await notifications.ask();
@@ -87,12 +88,14 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
     const allowed = nextPermission === 'granted';
     setReminders(allowed);
     updateSettings({ reminders: allowed });
+    notifications.setHydrationSchedule({ enabled: allowed, intervalMinutes: interval });
   };
 
   const updateQuiet = (change: Partial<StoredQuietHours>) => {
     const next = { ...quiet, ...change };
     setQuiet(next);
     saveQuietHours(next);
+    notifications.refreshSoon();
   };
 
   return (
@@ -114,7 +117,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
 
       <SettingsGroup title="Reminders">
         <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={reminders} onClick={() => void toggleReminders()}><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminders</span><Switch on={reminders} /></button>
-        <label className="hydros-settings-row"><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminder times</span><select aria-label="Reminder interval" value={interval} onChange={(event) => { const next = Number(event.target.value); setInterval(next); updateSettings({ reminderIntervalMinutes: next }); }} disabled={!reminders}>{intervals.map((value) => <option value={value} key={value}>{intervalLabel(value)}</option>)}</select><Chevron /></label>
+        <label className="hydros-settings-row"><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminder times</span><select aria-label="Reminder interval" value={interval} onChange={(event) => { const next = Number(event.target.value); setInterval(next); updateSettings({ reminderIntervalMinutes: next }); notifications.setHydrationSchedule({ enabled: reminders, intervalMinutes: next }); }} disabled={!reminders}>{intervals.map((value) => <option value={value} key={value}>{intervalLabel(value)}</option>)}</select><Chevron /></label>
         <details className="hydros-settings-details"><summary className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">Quiet hours</span><span className="hydros-settings-row__value">{quiet.start} – {quiet.end}</span><Chevron /></summary><div className="hydros-time-fields"><label>From <input type="time" value={quiet.start} onChange={(event) => updateQuiet({ start: event.target.value })} /></label><label>Until <input type="time" value={quiet.end} onChange={(event) => updateQuiet({ end: event.target.value })} /></label></div></details>
         {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : null}
       </SettingsGroup>

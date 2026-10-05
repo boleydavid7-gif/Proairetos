@@ -65,7 +65,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-hero__words p strong { display: block; color: #f4fbfc; font-size: 1.9rem; line-height: 1.03; font-weight: 400; }
 .hydros-hero__words span { display: block; margin-top: 6px; color: rgba(231,247,251,.78); font-size: .92rem; }
 .hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
-.hydros-orb::before { content: ''; position: absolute; z-index: 2; left: 13%; right: 13%; top: 23%; height: 1px; background: rgba(232,254,255,.8); transform: rotate(-5deg); box-shadow: 0 8px 0 rgba(234,255,255,.3); }
 .hydros-orb__water { position: absolute; z-index: 1; right: -5%; bottom: 0; left: -5%; max-height: 100%; overflow: hidden; background: linear-gradient(180deg, rgba(44,186,230,.58), rgba(5,72,100,.9)); border-radius: 50% 50% 0 0 / 7% 7% 0 0; transition: height .25s ease; }
 .hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 3; }
 .hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
@@ -73,7 +72,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-orb span { margin-top: 2px; font-size: .72rem; letter-spacing: .03em; }
 .hydros-orb em { margin-top: 4px; color: rgba(226,249,255,.78); font-size: .7rem; font-style: normal; }
 
-.hydros-content, .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
+.hydros-screen, .hydros-add { padding: 8px 20px 30px; }
 .hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
 :root.hydros[data-theme='light'] .hydros-screen, :root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .32), rgba(234, 244, 245, .72) 78%, rgba(234, 244, 245, .86)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
 .hydros-add { height: calc(100dvh - var(--tab-height)); min-height: 0; padding: 0; background: linear-gradient(180deg, rgba(3, 19, 27, .20), rgba(3, 19, 27, .46) 74%, rgba(3, 19, 27, .68)), url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
@@ -82,14 +81,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
 .hydros-section-title button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
-.rhythm-card { display: grid; grid-template-columns: repeat(3,1fr); margin-top: 12px; padding: 16px 8px 14px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
-.rhythm-card__item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--muted); font-size: .76rem; }
-.rhythm-card__item svg { color: var(--muted); }
-.rhythm-card__item.is-active { color: var(--cyan); }
-.rhythm-card__item.is-active svg { color: var(--cyan); }
-.rhythm-card__item small { font-size: .68rem; }
-.hydros-note { display: flex; align-items: center; gap: 11px; margin-top: 12px; padding: 15px 16px; border-radius: 16px; background: var(--cyan-soft); color: var(--text-soft); font-size: .88rem; }
-.hydros-note svg { color: var(--cyan); flex: 0 0 auto; }
 .hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
 :root.hydros[data-theme='light'] .hydros-tabs { background: rgba(234,244,245,.95); }
 .hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
@@ -109,10 +100,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .amount-picker button { display: grid; place-items: center; width: 47px; height: 47px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
 .amount-picker strong { min-width: 108px; color: var(--text); font: 400 2.4rem var(--serif); text-align: center; }
 .amount-picker strong small { font: .96rem var(--sans); color: var(--muted); }
-.hydros-time { display: flex; align-items: center; gap: 10px; min-height: 54px; margin-top: 18px; padding: 0 15px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--text-soft); }
-.hydros-time svg { color: var(--cyan); }
-.hydros-time span { flex: 1; }
-.hydros-time input { max-width: 164px; border: 0; outline: 0; background: none; color: var(--text); font-size: .87rem; }
 .hydros-save { width: 100%; min-height: 53px; margin-top: 14px; border: 0; border-radius: 28px; background: var(--cyan); color: var(--cyan-ink); font-weight: 600; }
 
 .hydros-screen { padding-top: calc(env(safe-area-inset-top) + 14px); }
@@ -180,28 +167,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .balance-row__chevron { color: var(--muted); font-size: 1.7rem; font-weight: 300; }
 .hydros-add-float { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 18px; border: 1px solid var(--cyan); border-radius: 25px; background: var(--cyan-soft); color: var(--cyan); }
 .hydros-settings { gap: 16px; }
-.hydros-settings-card { padding: 20px 16px 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); }
-.hydros-settings-card h2 { margin: 0 0 14px; font: 400 1.35rem var(--serif); }
-.hydros-amount-input { display: flex; align-items: baseline; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.hydros-amount-input input { width: 100%; border: 0; outline: 0; background: none; color: var(--text); font: 400 2.8rem var(--serif); }
-.hydros-amount-input span { color: var(--muted); font-size: .9rem; }
-.hydros-choice-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 14px 0; }
-.hydros-choice-row button { min-height: 38px; border: 1px solid var(--line); border-radius: 20px; background: none; color: var(--muted); font-size: .74rem; }
-.hydros-choice-row button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
-.hydros-settings-recommendation { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 13px; border: 1px solid rgba(74, 204, 245, .3); border-radius: 15px; background: rgba(34, 154, 192, .12); }
-.hydros-settings-recommendation div { display: flex; flex-direction: column; gap: 3px; }
-.hydros-settings-recommendation span, .hydros-field-grid label > span, .hydros-activity > span { color: var(--muted); font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; }
-.hydros-settings-recommendation strong { font: 400 1.35rem var(--serif); }
-.hydros-settings-recommendation button { min-width: 53px; min-height: 34px; border: 1px solid var(--cyan); border-radius: 18px; background: transparent; color: var(--cyan); font-size: .75rem; }
-.hydros-field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.hydros-field-grid label { display: flex; flex-direction: column; gap: 7px; }
-.hydros-field-grid label > div { display: flex; align-items: baseline; gap: 7px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; }
-.hydros-field-grid input { width: 100%; min-width: 0; border: 0; outline: 0; background: none; color: var(--text); font-size: .95rem; }
-.hydros-field-grid b { color: var(--muted); font-size: .75rem; font-weight: 400; }
-.hydros-activity { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-.hydros-activity > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.hydros-activity button { min-height: 38px; border: 1px solid var(--line); border-radius: 19px; background: none; color: var(--muted); font-size: .75rem; }
-.hydros-activity button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
 
 /* Settings follows the same quiet, grouped controls as the reference. */
 .hydros-settings { gap: 10px; padding-bottom: 30px; overflow-y: auto; background: linear-gradient(180deg, rgba(3, 19, 27, .18), rgba(3, 19, 27, .08)), var(--bg); }
@@ -260,17 +225,21 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button.is-selected { border: 0; background: transparent; color: var(--cyan); box-shadow: none; }
 .hydros-add__stage .drink-types button.is-selected::before { border-color: rgba(104, 224, 255, .9); background: var(--cyan); box-shadow: 0 0 20px rgba(58, 202, 245, .4); }
 .hydros-add__stage .drink-types button.is-selected svg { border: 0; background: transparent; box-shadow: none; color: #f4fdff; }
-.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 78%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
+.hydros-other-menu { position: absolute; z-index: 5; top: 45%; right: 8%; left: 8%; padding: 10px; border: 1px solid rgba(164,222,236,.24); border-radius: 18px; background: rgba(4, 27, 37, .96); box-shadow: 0 12px 34px rgba(0,0,0,.35); }
+.hydros-other-menu__head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 8px; color: var(--text); font-size: .82rem; }
+.hydros-other-menu__head button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text-soft); }
+.hydros-other-menu__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.hydros-other-menu__options button { min-height: 38px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 11px; background: rgba(16, 54, 67, .78); color: var(--text-soft); font-size: .72rem; }
+.hydros-other-menu__options button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
+.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 82%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; background: rgba(12, 54, 68, .84); }
 .hydros-add__stage .amount-picker strong { display: flex; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
-.hydros-add__stage > .hydros-time { position: absolute; z-index: 3; top: 82%; right: 8%; left: 8%; margin: 0; border-color: rgba(164,222,236,.23); background: rgba(12, 54, 68, .88); }
-.hydros-add__stage > .hydros-time input { min-width: 0; max-width: 165px; }
 .hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 91%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
 
 @media (max-height: 700px) {
   .hydros-add__stage > .drink-types { top: 15%; grid-auto-rows: 88px; gap: 7px; }
-  .hydros-add__stage .amount-picker { top: 70%; }
-  .hydros-add__stage > .hydros-time { top: 78%; }
+  .hydros-other-menu { top: 42%; }
+  .hydros-add__stage .amount-picker { top: 74%; }
   .hydros-add__stage .hydros-save { top: 88%; }
 }
 

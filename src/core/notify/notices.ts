@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'hydration';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
