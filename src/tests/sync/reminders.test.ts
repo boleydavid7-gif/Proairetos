@@ -26,6 +26,17 @@ describe('reminder times', () => {
     expect(reminders.every((r) => /^[0-9a-f]{32}$/.test(r.id))).toBe(true);
     expect(JSON.stringify(reminders)).not.toMatch(/Secret|timed|waiting/);
   });
+
+  it('places a 30-minute item reminder before its start time', async () => {
+    const reminders = await upcomingReminders(
+      [item('before', { scheduledAt: new Date(2026, 9, 1, 16).toISOString(), remind: [30] })],
+      [],
+      now,
+    );
+
+    expect(reminders).toHaveLength(1);
+    expect(new Date(reminders[0].fire_at)).toEqual(new Date(2026, 9, 1, 15, 30));
+  });
 });
 
 describe('reminders and quiet hours', () => {

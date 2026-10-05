@@ -140,6 +140,9 @@ export const notifications = {
   setSettings(next: NoticeSettings): void {
     saveNotify(next);
     notify();
+    // Refresh the server schedule immediately so a changed lead time replaces
+    // any old pending row before it can fire at the wrong time.
+    void refreshReminders();
     notifications.refreshSoon();
   },
 

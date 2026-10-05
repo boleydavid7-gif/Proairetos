@@ -183,7 +183,10 @@ export async function removePushSubscription(endpoint: string): Promise<void> {
 /** Replaces upcoming reminder times. Only times and opaque ids are sent. */
 export async function replaceReminders(userId: string, reminders: { id: string; fire_at: string }[]): Promise<void> {
   const client = await supabase();
-  const { error: clearError } = await client.from('reminders').delete().is('sent_at', null).gte('fire_at', new Date().toISOString());
+  // Replace every pending row, including rows whose time has just passed. A
+  // previous lead-time setting may have left an old row scheduled after the
+  // event; keeping it lets the server deliver that stale notification later.
+  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).is('sent_at', null);
   if (clearError) throw new Error(clearError.message);
   if (reminders.length === 0) return;
   const { error } = await client
