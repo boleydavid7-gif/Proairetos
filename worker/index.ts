@@ -9,6 +9,12 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/api/calendar') return handleCalendarRequest(request);
     if (url.pathname === '/api/recipe') return handleRecipeRequest(request);
+    // Keep the sibling app reachable at the clean family URL without requiring a trailing slash.
+    if (url.pathname === '/praxis') {
+      const praxisUrl = new URL(request.url);
+      praxisUrl.pathname = '/praxis/';
+      return env.ASSETS.fetch(new Request(praxisUrl, request));
+    }
     return env.ASSETS.fetch(request);
   },
 };
