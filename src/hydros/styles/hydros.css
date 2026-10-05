@@ -75,8 +75,8 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
 .hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
 :root.hydros[data-theme='light'] .hydros-screen, :root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .32), rgba(234, 244, 245, .72) 78%, rgba(234, 244, 245, .86)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
-.hydros-add { height: calc(100dvh - var(--tab-height)); min-height: 0; padding: 0; background: linear-gradient(180deg, rgba(3, 19, 27, .20), rgba(3, 19, 27, .46) 74%, rgba(3, 19, 27, .68)), url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
-:root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .26), rgba(234, 244, 245, .58) 74%, rgba(234, 244, 245, .76)), url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
+.hydros-add { height: calc(100dvh - var(--tab-height)); min-height: 0; padding: 0; background: linear-gradient(180deg, rgba(3, 19, 27, .08), rgba(3, 19, 27, .30) 74%, rgba(3, 19, 27, .52)), url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
+:root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .18), rgba(234, 244, 245, .46) 74%, rgba(234, 244, 245, .68)), url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
 .hydros-screen > *, .hydros-add > * { position: relative; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
@@ -231,7 +231,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-other-menu__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .hydros-other-menu__options button { min-height: 38px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 11px; background: rgba(16, 54, 67, .78); color: var(--text-soft); font-size: .72rem; }
 .hydros-other-menu__options button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
-.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 82%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
+.hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 79%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; background: rgba(12, 54, 68, .84); }
 .hydros-add__stage .amount-picker strong { display: flex; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
 .hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 91%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
@@ -239,7 +239,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 @media (max-height: 700px) {
   .hydros-add__stage > .drink-types { top: 15%; grid-auto-rows: 88px; gap: 7px; }
   .hydros-other-menu { top: 42%; }
-  .hydros-add__stage .amount-picker { top: 74%; }
+  .hydros-add__stage .amount-picker { top: 72%; }
   .hydros-add__stage .hydros-save { top: 88%; }
 }
 

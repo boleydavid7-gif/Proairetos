@@ -34,6 +34,10 @@ function supported(): boolean {
   return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
 }
 
+function runningInBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+
 function notify(): void {
   for (const listener of listeners) listener();
 }
@@ -152,7 +156,7 @@ export const notifications = {
 
   /** Works out the next two weeks again, keeps them for the service worker, and resets the timer. */
   async refresh(): Promise<void> {
-    if (!supported()) return;
+    if (!runningInBrowser()) return;
     const settings = loadNotify();
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
     const hydrationNotice = nextHydrationNotice(new Date());
@@ -189,7 +193,7 @@ export const notifications = {
 
   /** Starts watching for changes; call once when the app opens. */
   start(): void {
-    if (!supported()) return;
+    if (!runningInBrowser()) return;
     for (const service of [lifeService, decisionService, scheduleService, otherCalendars])
       service.subscribe(() => notifications.refreshSoon());
     document.addEventListener('visibilitychange', () => {

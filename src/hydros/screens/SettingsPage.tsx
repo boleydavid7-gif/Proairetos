@@ -83,12 +83,20 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       notifications.setHydrationSchedule({ enabled: false, intervalMinutes: interval });
       return;
     }
-    const nextPermission = await notifications.ask();
-    setPermission(nextPermission);
-    const allowed = nextPermission === 'granted';
-    setReminders(allowed);
-    updateSettings({ reminders: allowed });
-    notifications.setHydrationSchedule({ enabled: allowed, intervalMinutes: interval });
+    setReminders(true);
+    updateSettings({ reminders: true });
+    notifications.setHydrationSchedule({ enabled: true, intervalMinutes: interval });
+    try {
+      const nextPermission = await notifications.ask();
+      setPermission(nextPermission);
+      if (nextPermission === 'denied') {
+        setReminders(false);
+        updateSettings({ reminders: false });
+        notifications.setHydrationSchedule({ enabled: false, intervalMinutes: interval });
+      }
+    } catch {
+      setPermission(notifications.permission());
+    }
   };
 
   const updateQuiet = (change: Partial<StoredQuietHours>) => {
@@ -119,7 +127,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
         <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={reminders} onClick={() => void toggleReminders()}><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminders</span><Switch on={reminders} /></button>
         <label className="hydros-settings-row"><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminder times</span><select aria-label="Reminder interval" value={interval} onChange={(event) => { const next = Number(event.target.value); setInterval(next); updateSettings({ reminderIntervalMinutes: next }); notifications.setHydrationSchedule({ enabled: reminders, intervalMinutes: next }); }} disabled={!reminders}>{intervals.map((value) => <option value={value} key={value}>{intervalLabel(value)}</option>)}</select><Chevron /></label>
         <details className="hydros-settings-details"><summary className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">Quiet hours</span><span className="hydros-settings-row__value">{quiet.start} – {quiet.end}</span><Chevron /></summary><div className="hydros-time-fields"><label>From <input type="time" value={quiet.start} onChange={(event) => updateQuiet({ start: event.target.value })} /></label><label>Until <input type="time" value={quiet.end} onChange={(event) => updateQuiet({ end: event.target.value })} /></label></div></details>
-        {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : null}
+        {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : permission === 'unsupported' && reminders ? <p className="hydros-settings-hint">Reminders are saved, but this browser cannot show notifications. Add Proairetos to your Home Screen to receive them.</p> : null}
       </SettingsGroup>
 
       <SettingsGroup title="Units"><div className="hydros-settings-row hydros-settings-row--static"><Icon><CupIcon /></Icon><span className="hydros-settings-row__name">Measurement units</span><div className="hydros-unit-switch">{(['oz', 'ml', 'L'] as HydrosUnit[]).map((value) => <button type="button" key={value} className={unit === value ? 'is-selected' : ''} onClick={() => chooseUnit(value)}>{value}</button>)}</div></div></SettingsGroup>

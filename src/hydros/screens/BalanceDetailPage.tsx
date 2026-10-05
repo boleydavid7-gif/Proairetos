@@ -9,7 +9,7 @@ import { ScreenHeader } from '../app/ui';
 const titles: Record<BalanceDetailId, string> = {
   dailyBalance: 'Daily Balance',
   caffeine: 'Caffeine',
-  electrolytes: 'Electrolytes',
+  electrolytes: 'Sports drinks',
   rhythm: 'Daily Rhythm',
   support: 'Support Tools',
 };
@@ -45,7 +45,7 @@ export default function BalanceDetailPage({ nav, id }: { nav: Nav; id: BalanceDe
   } else if (id === 'caffeine') {
     body = <><Summary icon={<CupIcon />} value={`${caffeine(today)} mg`} detail="From today’s drinks" /><SourceRows drinks={today.filter((drink) => (drink.caffeineMg ?? 0) > 0)} mode="caffeine" empty="No caffeine logged today." /></>;
   } else if (id === 'electrolytes') {
-    body = <><Summary icon={<BoltIcon />} value={`${today.filter((drink) => drink.kind === 'electrolyte').length}`} detail="electrolyte drinks today" /><SourceRows drinks={today.filter((drink) => drink.kind === 'electrolyte')} mode="electrolyte" empty="No electrolytes logged today." /></>;
+    body = <><Summary icon={<BoltIcon />} value={`${today.filter((drink) => drink.kind === 'electrolyte').length}`} detail="sports drinks today" /><SourceRows drinks={today.filter((drink) => drink.kind === 'electrolyte')} mode="electrolyte" empty="No sports drinks logged today." /></>;
   } else if (id === 'rhythm') {
     body = <><Summary icon={<WaveIcon />} value={`${today.length} drinks`} detail="Across the day" /><InfoRows rows={rhythmRows} /></>;
   } else {
