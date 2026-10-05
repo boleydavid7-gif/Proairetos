@@ -1,12 +1,13 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
-import { dateLabel, effectiveGoalOz, formatVolume, greeting, localDate, sameDay, totalOz, type HydrosUnit } from '../core/drinks';
+import { dateLabel, effectiveGoalOz, formatVolume, localDate, sameDay, totalOz, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { displayName, subscribePreferences } from '../../data/storage/preferences';
+import { greeting as proairetosGreeting } from '../../features/today/greeting';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
   const drinks = useDrinks() ?? [];
@@ -33,7 +34,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           </button>
         </div>
         <div className="hydros-hero__words">
-          <p>{greeting(todayDate)}{name ? `, ${name}` : ''}</p>
+          <p>{proairetosGreeting(todayDate, name)}</p>
           <span>{dateLabel(todayDate)}</span>
           <blockquote className="hydros-quote">“{quote.text}”<cite>— {quote.source}</cite></blockquote>
         </div>
