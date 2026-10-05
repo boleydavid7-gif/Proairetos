@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { drinkKinds, formatVolume, id, kindCaffeine, unitToOunces, type DrinkKind, type HydrosUnit } from '../core/drinks';
+import { drinkKinds, formatVolume, id, kindCaffeine, localDateTimeInput, unitToOunces, type DrinkKind, type HydrosUnit } from '../core/drinks';
 import { putDrink } from '../data/store';
-import { MinusIcon, PlusIcon, iconForKind } from '../app/icons';
+import { ClockIcon, MinusIcon, PlusIcon, iconForKind } from '../app/icons';
 import { ScreenHeader } from '../app/ui';
 import { useSettings } from '../app/state';
 
@@ -11,9 +11,10 @@ export default function AddPage({ nav }: { nav: Nav }) {
   const unit = settings.unit ?? 'oz';
   const [kind, setKind] = useState<DrinkKind>('water');
   const [amount, setAmount] = useState(12);
+  const [loggedAt, setLoggedAt] = useState(() => localDateTimeInput());
   const save = async () => {
-    const now = new Date().toISOString();
-    await putDrink({ id: id(), kind, amountOz: amount, caffeineMg: kindCaffeine(kind), loggedAt: now, createdAt: now });
+    const createdAt = new Date().toISOString();
+    await putDrink({ id: id(), kind, amountOz: amount, caffeineMg: kindCaffeine(kind), loggedAt: new Date(loggedAt).toISOString(), createdAt });
     nav.swap({ name: 'today' });
   };
   const step = unit === 'oz' ? 1 : unit === 'ml' ? unitToOunces(50, unit) : unitToOunces(.1, unit);
@@ -35,6 +36,11 @@ export default function AddPage({ nav }: { nav: Nav }) {
           <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
           <button type="button" aria-label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></button>
         </div>
+        <label className="hydros-time">
+          <ClockIcon size={20} />
+          <span>Time</span>
+          <input aria-label="Drink time" type="datetime-local" value={loggedAt} onChange={(event) => setLoggedAt(event.target.value)} />
+        </label>
         <button type="button" className="hydros-save" onClick={() => void save()}>Save Drink</button>
       </div>
     </div>

@@ -54,19 +54,24 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
-.hydros-hero { position: relative; min-height: 520px; padding: calc(env(safe-area-inset-top) + 24px) 28px 24px; color: #f4fbfc; isolation: isolate; overflow: visible; }
+.hydros-hero { position: relative; min-height: 590px; padding: calc(env(safe-area-inset-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
 .hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-sunset.webp') center 35% / cover; transform: scale(1.03); }
-.hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.hydros-hero__words { margin-top: 72px; }
-.hydros-hero__words p { display: block; margin: 0; font-size: 1.48rem; line-height: 1.12; color: rgba(242,250,252,.9); }
-.hydros-hero__words p strong { display: block; color: #f4fbfc; font-size: 1.08em; font-weight: 400; }
-.hydros-hero__words span { display: block; margin-top: 6px; color: rgba(231,247,251,.78); font-size: .95rem; }
-.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: -42px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
+.hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
+.hydros-hero .hydros-brand { position: relative; }
+.hydros-home-head { display: flex; align-items: center; justify-content: space-between; }
+.hydros-settings-button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(220, 249, 255, .28); border-radius: 50%; background: rgba(3, 28, 39, .48); color: #dcf9ff; }
+.hydros-hero__words { margin-top: 58px; }
+.hydros-hero__words p { margin: 0; font-size: 1.12rem; color: rgba(242,250,252,.83); }
+.hydros-hero__words p strong { display: block; color: #f4fbfc; font-size: 1.9rem; line-height: 1.03; font-weight: 400; }
+.hydros-hero__words span { display: block; margin-top: 6px; color: rgba(231,247,251,.78); font-size: .92rem; }
+.hydros-orb { width: min(72vw, 320px); aspect-ratio: 1; position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(195,242,255,.8); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 24%, rgba(244,255,255,.72), rgba(85,205,239,.23) 23%, rgba(4,48,67,.43) 68%, rgba(3,24,35,.72)); box-shadow: inset 0 0 24px rgba(203,247,255,.37), 0 15px 38px rgba(0,0,0,.36); }
 .hydros-orb::before { content: ''; position: absolute; z-index: 2; left: 13%; right: 13%; top: 23%; height: 1px; background: rgba(232,254,255,.8); transform: rotate(-5deg); box-shadow: 0 8px 0 rgba(234,255,255,.3); }
 .hydros-orb__water { position: absolute; z-index: 1; right: -5%; bottom: 0; left: -5%; max-height: 100%; overflow: hidden; background: linear-gradient(180deg, rgba(44,186,230,.58), rgba(5,72,100,.9)); border-radius: 50% 50% 0 0 / 7% 7% 0 0; transition: height .25s ease; }
 .hydros-orb strong, .hydros-orb span, .hydros-orb em { position: relative; z-index: 3; }
 .hydros-orb strong { font: 400 3.3rem/1 var(--serif); text-shadow: 0 2px 6px rgba(0,0,0,.44); }
-.hydros-orb strong small { font: 400 1rem var(--sans); }
+.hydros-orb strong small { font: 400 1.3rem var(--sans); }
+.hydros-orb span { margin-top: 2px; font-size: .72rem; letter-spacing: .03em; }
+.hydros-orb em { margin-top: 4px; color: rgba(226,249,255,.78); font-size: .7rem; font-style: normal; }
 
 .hydros-content, .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
 .hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
@@ -85,12 +90,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .rhythm-card__item small { font-size: .68rem; }
 .hydros-note { display: flex; align-items: center; gap: 11px; margin-top: 12px; padding: 15px 16px; border-radius: 16px; background: var(--cyan-soft); color: var(--text-soft); font-size: .88rem; }
 .hydros-note svg { color: var(--cyan); flex: 0 0 auto; }
-.hydros-quote { position: absolute; z-index: 3; right: 28px; bottom: 300px; left: 28px; max-width: 300px; margin: 0 auto; padding: 0 10px; color: rgba(244,251,252,.86); font: 400 1.06rem/1.18 var(--serif); text-align: center; text-shadow: 0 2px 7px rgba(0,0,0,.42); }
-.hydros-quote cite { display: block; margin-top: 7px; color: rgba(231,247,251,.7); font: .68rem var(--sans); font-style: normal; }
-
-.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(5,1fr); padding: 7px 6px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
+.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(4,18,24,.96); backdrop-filter: blur(14px); }
 :root.hydros[data-theme='light'] .hydros-tabs { background: rgba(234,244,245,.95); }
-.hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .68rem; }
+.hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
 .hydros-tabs__item[aria-current='page'] { color: var(--cyan); }
 .hydros-tabs__item[aria-current='page'] svg { filter: drop-shadow(0 0 5px rgba(58,202,245,.55)); }
 
@@ -261,11 +263,14 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 78%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; background: rgba(12, 54, 68, .84); }
 .hydros-add__stage .amount-picker strong { display: flex; min-width: 0; min-height: clamp(48px, 13vw, 62px); flex: 1 1 auto; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; border-radius: 31px; background: rgba(12, 54, 68, .84); font-size: clamp(2rem, 7.8vw, 2.55rem); }
-.hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 90%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
+.hydros-add__stage > .hydros-time { position: absolute; z-index: 3; top: 82%; right: 8%; left: 8%; margin: 0; border-color: rgba(164,222,236,.23); background: rgba(12, 54, 68, .88); }
+.hydros-add__stage > .hydros-time input { min-width: 0; max-width: 165px; }
+.hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 91%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
 
 @media (max-height: 700px) {
   .hydros-add__stage > .drink-types { top: 15%; grid-auto-rows: 88px; gap: 7px; }
-  .hydros-add__stage .amount-picker { top: 74%; }
+  .hydros-add__stage .amount-picker { top: 70%; }
+  .hydros-add__stage > .hydros-time { top: 78%; }
   .hydros-add__stage .hydros-save { top: 88%; }
 }
 
