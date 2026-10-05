@@ -5,8 +5,6 @@ import { dateLabel, effectiveGoalOz, formatVolume, greeting, sameDay, totalOz, t
 import { rangeForTraining } from '../data/training';
 import { hydrosLineFor } from '../core/lines';
 import { displayName } from '../../data/storage/preferences';
-import orbImage from '../../assets/images/scenes/hydros-orb.webp';
-import waterTexture from '../../assets/images/scenes/hydros-water.webp';
 
 
 export default function TodayPage({}: { nav: Nav }) {
@@ -27,10 +25,7 @@ export default function TodayPage({}: { nav: Nav }) {
         <div className="hydros-hero__words"><p>{greeting()}{name ? ',' : ''}{name ? <strong>{name}</strong> : null}</p><span>{dateLabel()}</span></div>
         <blockquote className="hydros-quote">“{quote.text}”<cite>— {quote.source}</cite></blockquote>
         <div className="hydros-orb" aria-label={`${formatVolume(amount, unit as HydrosUnit)} of ${formatVolume(goal, unit as HydrosUnit)} ${unit}`}>
-          <div className="hydros-orb__well">
-            <div className="hydros-orb__water" style={{ height: `${percent}%` }}><img src={waterTexture} alt="" /></div>
-          </div>
-          <img className="hydros-orb__image" src={orbImage} alt="" />
+          <div className="hydros-orb__water" style={{ height: `${percent}%` }} />
           <strong>{formatVolume(amount, unit as HydrosUnit)}<small>/{formatVolume(goal, unit as HydrosUnit)} {unit}</small></strong>
         </div>
       </section>
