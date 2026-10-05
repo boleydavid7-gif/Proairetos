@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v12';
+const CACHE = 'proairetos-v13';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
@@ -32,7 +32,7 @@ async function cacheFirst(request) {
 
 // Plain pages that are not the app (privacy). They are cached as themselves,
 // never in place of the app page.
-const STATIC_PAGES = ['/privacy', '/privacy.html'];
+const STATIC_PAGES = ['/privacy', '/privacy.html', '/praxis', '/praxis/'];
 
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
