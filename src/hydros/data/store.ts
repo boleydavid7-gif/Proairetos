@@ -37,9 +37,12 @@ async function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) =>
   return new Promise<T>((resolve, reject) => {
     const transaction = database.transaction(DRINKS, mode);
     const request = work(transaction.objectStore(DRINKS));
-    request.onsuccess = () => resolve(request.result);
+    let result: T;
+    request.onsuccess = () => { result = request.result; };
     request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => resolve(result);
     transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error ?? new Error('Hydros storage transaction was aborted.'));
   });
 }
 

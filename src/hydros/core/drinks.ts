@@ -123,6 +123,12 @@ export function localDate(when: Date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Value for a datetime-local input without accidentally shifting it to UTC. */
+export function localDateTimeInput(when: Date = new Date()): string {
+  const offset = when.getTimezoneOffset();
+  return new Date(when.getTime() - offset * 60_000).toISOString().slice(0, 16);
+}
+
 export function dateLabel(date: Date = new Date()): string {
   return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 }

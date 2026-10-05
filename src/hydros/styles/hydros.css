@@ -250,9 +250,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add { padding: 0; }
 .hydros-add__stage { position: relative; height: calc(100dvh - var(--tab-height)); min-height: calc(100dvh - var(--tab-height)); overflow: hidden; }
 .hydros-add__stage > .hydros-header { position: absolute; z-index: 4; top: calc(env(safe-area-inset-top) + 8px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); margin: 0; }
-.hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(104px, 17%, 154px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(92px, 13vh, 114px); gap: clamp(6px, 1.5vh, 12px); }
+.hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(100px, 15%, 144px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(94px, 12.5vh, 110px); gap: clamp(8px, 1.3vh, 12px); }
 .hydros-add__stage .drink-types button { position: relative; min-height: 0; height: 100%; border: 0; border-radius: 0; background: transparent; color: var(--text-soft); font-size: clamp(.69rem, 2.9vw, .8rem); }
-.hydros-add__stage .drink-types button { --type-circle: clamp(66px, 18.5vw, 84px); }
+.hydros-add__stage .drink-types button { --type-circle: clamp(70px, 19vw, 90px); }
 .hydros-add__stage .drink-types button::before { content: ''; position: absolute; z-index: 0; top: 0; left: 50%; width: var(--type-circle); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(164, 222, 236, .12); border-radius: 50%; background: rgba(16, 54, 67, .76); box-shadow: inset 0 1px 8px rgba(255,255,255,.04); }
 .hydros-add__stage .drink-types button > * { position: relative; z-index: 1; }
 .hydros-add__stage .drink-types button svg { position: absolute; top: calc((var(--type-circle) - 27px) / 2); left: 50%; width: 27px; height: 27px; padding: 0; margin: 0; transform: translateX(-50%); border: 0; background: transparent; box-shadow: none; color: var(--text-soft); }
@@ -267,7 +267,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .hydros-save { position: absolute; z-index: 3; top: 90%; right: 8%; left: 8%; width: auto; margin: 0; min-height: clamp(48px, 7vw, 56px); }
 
 @media (max-height: 700px) {
-  .hydros-add__stage > .drink-types { top: 17%; grid-auto-rows: 92px; }
+  .hydros-add__stage > .drink-types { top: 15%; grid-auto-rows: 88px; gap: 7px; }
   .hydros-add__stage .amount-picker { top: 68%; }
   .hydros-add__stage .hydros-time { top: 77%; }
   .hydros-add__stage .hydros-save { top: 88%; }

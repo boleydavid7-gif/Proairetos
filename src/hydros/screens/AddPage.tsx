@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { drinkKinds, formatVolume, id, kindCaffeine, unitToOunces, type DrinkKind, type HydrosUnit } from '../core/drinks';
+import { drinkKinds, formatVolume, id, kindCaffeine, localDateTimeInput, unitToOunces, type DrinkKind, type HydrosUnit } from '../core/drinks';
 import { putDrink } from '../data/store';
 import { ClockIcon, MinusIcon, PlusIcon, iconForKind } from '../app/icons';
 import { ScreenHeader } from '../app/ui';
@@ -11,9 +11,11 @@ export default function AddPage({ nav }: { nav: Nav }) {
   const unit = settings.unit ?? 'oz';
   const [kind, setKind] = useState<DrinkKind>('water');
   const [amount, setAmount] = useState(12);
-  const [loggedAt, setLoggedAt] = useState(() => new Date().toISOString().slice(0, 16));
+  const [loggedAt, setLoggedAt] = useState(() => localDateTimeInput());
   const save = async () => {
-    await putDrink({ id: id(), kind, amountOz: amount, caffeineMg: kindCaffeine(kind), loggedAt: new Date(loggedAt).toISOString(), createdAt: new Date().toISOString() });
+    const loggedDate = new Date(loggedAt);
+    const loggedIso = Number.isNaN(loggedDate.getTime()) ? new Date().toISOString() : loggedDate.toISOString();
+    await putDrink({ id: id(), kind, amountOz: amount, caffeineMg: kindCaffeine(kind), loggedAt: loggedIso, createdAt: new Date().toISOString() });
     nav.swap({ name: 'today' });
   };
   const step = unit === 'oz' ? 1 : unit === 'ml' ? unitToOunces(50, unit) : unitToOunces(.1, unit);
