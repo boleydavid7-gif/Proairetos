@@ -5,12 +5,12 @@ import TheoriaMark from '../components/brand/TheoriaMark';
 import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe } from './data/store';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
-import { BookDetailView, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
+import { BookDetailView, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingBuffer, inspectReadingFile } from './data/importers';
 import { removeBookFile, removeCoverFile, signedBookUrl, signedCoverUrl, uploadBookFile, uploadCoverFile } from './data/cloudStorage';
 import { lookupBookMetadata } from './data/metadata';
 
-type View = 'library' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search';
+type View = 'library' | 'shelf' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
 type NoteState = { current?: NotePageDraft & { id?: string } };
 
@@ -260,10 +260,11 @@ export default function TheoriaApp() {
   const changeTheme = (value: ReadingTheme) => { setTheme(value); localStorage.setItem('theoria:readingTheme', value); };
   const changeFont = (value: ReadingFont) => { setFont(value); localStorage.setItem('theoria:readingFont', value); };
 
-  return <div className={'theoria-app theoria-app--' + view} data-theoria-release="reader-controls">
+  return <div className={'theoria-app theoria-app--' + view}>
     <aside className="theoria-sidebar"><a href="/" className="theoria-family-link">PROAIRETOS <small>family</small></a><div className="theoria-brand"><TheoriaMark size={48} /><span><strong>THEORIA</strong></span></div><div className="theoria-sidebar-nav">{navGroups.map((group) => <TheoriaNav view={view} onView={chooseView} items={group.items} key={group.items[0].id} />)}</div><div className="theoria-sidebar-spacer" /><button type="button" className="theoria-person" onClick={() => setView('settings')}><span>{(name || 'R').slice(0, 1).toUpperCase()}</span>{name || 'Reader'}</button></aside>
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>THEORIA</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span><span className={'theoria-sync theoria-sync--' + sync.phase}><i />{sync.phase === 'ready' ? 'Synced' : sync.phase === 'signed-out' ? 'On this device' : 'Preparing'}</span></header><div className="theoria-page">
-      {view === 'library' && <LibraryHome name={name} shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onSearch={() => setView('search')} />}
+      {view === 'library' && <LibraryHome name={name} shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onContinue={(book) => void openReader(book)} onShelf={() => setView('shelf')} onSearch={() => setView('search')} />}
+      {view === 'shelf' && <ShelfPage shelf={shelf} onBack={() => setView('library')} onOpen={openBook} onAdd={() => setAddOpen(true)} />}
       {view === 'detail' && selected && <BookDetailView book={selected} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} />}
       {view === 'reader' && selected && <ReaderView book={selected} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
@@ -277,5 +278,5 @@ export default function TheoriaApp() {
 }
 
 function TheoriaNav({ view, onView, items }: { view: View; onView: (view: View) => void; items: readonly { id: View; label: string; glyph: string }[] }) {
-  return <div className="theoria-nav-list">{items.map((item) => <button type="button" key={item.id} className={view === item.id ? 'is-active' : ''} onClick={() => onView(item.id)}><span>{item.glyph}</span><small>{item.label}</small></button>)}</div>;
+  return <div className="theoria-nav-list">{items.map((item) => <button type="button" key={item.id} className={view === item.id || (item.id === 'library' && view === 'shelf') ? 'is-active' : ''} onClick={() => onView(item.id)}><span>{item.glyph}</span><small>{item.label}</small></button>)}</div>;
 }
