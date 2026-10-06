@@ -16,13 +16,14 @@ export const syncCollections = [
   'oikonomiaBudgets',
   'hydrosDrinks',
   'theoriaBooks',
+  'theoriaNotebooks',
 ] as const;
 
 /**
  * Collections a server may not accept yet (added by a later migration). If
  * pushing them is refused, they wait for the next sync and the rest goes on.
  */
-export const laterCollections: readonly string[] = ['askesisWorkouts', 'askesisPlans', 'somaRecipes', 'somaGroceries', 'oikonomiaBills', 'oikonomiaBudgets', 'hydrosDrinks', 'theoriaBooks'];
+export const laterCollections: readonly string[] = ['askesisWorkouts', 'askesisPlans', 'somaRecipes', 'somaGroceries', 'oikonomiaBills', 'oikonomiaBudgets', 'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks'];
 
 export type SyncCollection = (typeof syncCollections)[number];
 

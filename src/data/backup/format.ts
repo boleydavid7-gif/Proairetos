@@ -116,7 +116,7 @@ export function validateData(value: unknown): BackupData {
     !lists(family.soma, ['recipes', 'groceries']) ||
     !lists(family.oikonomia, ['bills', 'budgets']) ||
     !lists(family.hydros, ['drinks']) ||
-    !lists(family.theoria, ['books'])
+    !lists(family.theoria, ['books', 'notebooks'])
   ) {
     throw new BackupError('Some of the other apps’ records in this file are damaged.');
   }
@@ -141,7 +141,7 @@ export function parseBackupFile(text: string): BackupFile {
   return { ...(parsed as unknown as PlainBackup), data: validateData(parsed.data) };
 }
 
-export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets' | 'drinks' | 'books', number>;
+export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets' | 'drinks' | 'books' | 'notebooks', number>;
 
 export function countRecords(data: BackupData): RecordCounts {
   return {
@@ -153,5 +153,6 @@ export function countRecords(data: BackupData): RecordCounts {
     budgets: data.oikonomia?.budgets?.length ?? 0,
     drinks: data.hydros?.drinks?.length ?? 0,
     books: data.theoria?.books?.length ?? 0,
+    notebooks: data.theoria?.notebooks?.length ?? 0,
   } as RecordCounts;
 }

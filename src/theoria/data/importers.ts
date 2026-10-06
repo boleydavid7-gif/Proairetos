@@ -10,6 +10,7 @@ export type ImportedReading = {
   contentFormat: 'text' | 'markdown' | 'epub' | 'pdf';
   contentPreview?: string;
   chapters?: TheoriaChapter[];
+  coverFile?: File;
 };
 
 function extension(file: File): string {
@@ -43,7 +44,17 @@ function xmlText(document: Document, names: string[]): string | undefined {
 function htmlText(value: string): string {
   const document = new DOMParser().parseFromString(value, 'text/html');
   document.querySelectorAll('script,style,nav').forEach((node) => node.remove());
-  return cleanText(document.body.textContent ?? '');
+  const blocks = [...document.body.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote')]
+    .map((node) => cleanText(node.textContent ?? ''))
+    .filter(Boolean);
+  return (blocks.length ? blocks : [cleanText(document.body.textContent ?? '')]).join('\n\n').trim();
+}
+
+function htmlTitle(value: string, fallback: string): string {
+  const document = new DOMParser().parseFromString(value, 'text/html');
+  const node = document.querySelector('h1,h2,h3,title');
+  const title = cleanText(node?.textContent ?? '');
+  return title.slice(0, 120) || fallback;
 }
 
 async function inspectText(file: File, format: 'text' | 'markdown'): Promise<ImportedReading> {
@@ -73,12 +84,20 @@ async function inspectEpub(file: File): Promise<ImportedReading> {
     const entry = id ? manifest.get(id) : undefined;
     const archiveValue = entry && archive[entry.href];
     if (!entry || !archiveValue) return;
-    const text = htmlText(strFromU8(archiveValue));
+    const source = strFromU8(archiveValue);
+    const text = htmlText(source);
     if (!text) return;
-    const title = text.slice(0, 80) || `Chapter ${index + 1}`;
-    chapters.push({ id: id ?? `chapter-${index + 1}`, title, order: index + 1, location: entry.href });
+    const title = htmlTitle(source, `Chapter ${index + 1}`);
+    chapters.push({ id: id ?? `chapter-${index + 1}`, title, order: index + 1, location: entry.href, content: text });
     chapterText.push(text);
   });
+  const coverMeta = [...opfDocument.querySelectorAll('metadata meta')].find((meta) => meta.getAttribute('name')?.toLowerCase() === 'cover');
+  const coverId = coverMeta?.getAttribute('content') ?? [...manifest.keys()].find((id) => /cover/i.test(id));
+  const coverEntry = coverId ? manifest.get(coverId) : undefined;
+  const coverBytes = coverEntry ? archive[coverEntry.href] : undefined;
+  const coverFile = coverEntry && coverBytes
+    ? new File([coverBytes], `cover.${coverEntry.mediaType.split('/')[1] || 'jpg'}`, { type: coverEntry.mediaType || 'image/jpeg' })
+    : undefined;
   return {
     contentFormat: 'epub',
     title: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:title', 'title']) : undefined,
@@ -87,6 +106,7 @@ async function inspectEpub(file: File): Promise<ImportedReading> {
     language: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:language', 'language']) : undefined,
     chapters,
     contentPreview: chapterText.join('\n\n').slice(0, 18_000) || undefined,
+    coverFile,
   };
 }
 
@@ -97,4 +117,10 @@ export async function inspectReadingFile(file: File): Promise<ImportedReading> {
   if (kind === 'md') return inspectText(file, 'markdown');
   if (kind === 'epub') return inspectEpub(file);
   return { contentFormat: 'pdf' };
+}
+
+/** Reads a private cloud source after the app has received its signed URL. */
+export async function inspectReadingBuffer(buffer: ArrayBuffer, fileName: string, fileType = ''): Promise<ImportedReading> {
+  const file = new File([buffer], fileName, { type: fileType || (fileName.toLowerCase().endsWith('.epub') ? 'application/epub+zip' : 'text/plain') });
+  return inspectReadingFile(file);
 }

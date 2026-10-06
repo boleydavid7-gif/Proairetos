@@ -26,11 +26,31 @@ export async function uploadBookFile(bookId: string, file: File): Promise<{ path
   return { path };
 }
 
+export async function uploadCoverFile(bookId: string, file: File): Promise<{ path: string }> {
+  if (!isSyncConfigured) throw new Error('Cloud storage is not configured on this deployment.');
+  const user = await currentUser();
+  if (!user) throw new Error('Sign in to store a cover in the cloud.');
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
+  const path = `${user.id}/${bookId}/cover.${extension}`;
+  const { error } = await (await supabase()).storage.from(THEORIA_COVER_BUCKET).upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+  if (error) throw new Error(error.message);
+  return { path };
+}
+
 export async function signedBookUrl(path: string, expiresIn = 3600): Promise<string | undefined> {
   if (!isSyncConfigured) return undefined;
   const user = await currentUser();
   if (!user || !path.startsWith(`${user.id}/`)) return undefined;
   const { data, error } = await (await supabase()).storage.from(THEORIA_BOOK_BUCKET).createSignedUrl(path, expiresIn);
+  if (error) throw new Error(error.message);
+  return data.signedUrl;
+}
+
+export async function signedCoverUrl(path: string, expiresIn = 3600): Promise<string | undefined> {
+  if (!isSyncConfigured) return undefined;
+  const user = await currentUser();
+  if (!user || !path.startsWith(`${user.id}/`)) return undefined;
+  const { data, error } = await (await supabase()).storage.from(THEORIA_COVER_BUCKET).createSignedUrl(path, expiresIn);
   if (error) throw new Error(error.message);
   return data.signedUrl;
 }

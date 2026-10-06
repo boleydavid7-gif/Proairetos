@@ -1,9 +1,10 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
-import { makeBook, normalizeBook, type NewTheoriaBook, type TheoriaBook } from '../core/books';
+import { makeBook, makeNotebook, normalizeBook, normalizeNotebook, type NewTheoriaBook, type NewTheoriaNotebook, type TheoriaBook, type TheoriaNotebook } from '../core/books';
 
 const USER_ID = 'local';
 const memory = new Map<string, TheoriaBook>();
+const notebookMemory = new Map<string, TheoriaNotebook>();
 let opened: Promise<IDBDatabase | undefined> | undefined;
 let version = 0;
 let started = false;
@@ -19,12 +20,12 @@ function notify(): void {
   listeners.forEach((listener) => listener());
 }
 
-function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRequest<T>, storeName: string = stores.theoriaBooks): Promise<T> {
   return db().then((database) => {
     if (!database) throw new Error('No database');
     return new Promise<T>((resolve, reject) => {
-      const transaction = database.transaction(stores.theoriaBooks, mode);
-      const request = work(transaction.objectStore(stores.theoriaBooks));
+      const transaction = database.transaction(storeName, mode);
+      const request = work(transaction.objectStore(storeName));
       let result: T;
       request.onsuccess = () => { result = request.result; };
       request.onerror = () => reject(request.error);
@@ -52,9 +53,10 @@ export async function listBooks(): Promise<TheoriaBook[]> {
 }
 
 export async function putBook(book: TheoriaBook): Promise<void> {
+  const persisted = book.coverPath ? { ...book, coverUrl: undefined } : book;
   const database = await db();
-  if (!database) memory.set(book.id, book);
-  else await run('readwrite', (store) => store.put(book));
+  if (!database) memory.set(persisted.id, persisted);
+  else await run('readwrite', (store) => store.put(persisted));
   notify();
   syncSoon();
 }
@@ -69,6 +71,35 @@ export async function removeBook(id: string): Promise<void> {
   const database = await db();
   if (!database) memory.delete(id);
   else await run('readwrite', (store) => store.delete(id));
+  notify();
+  syncSoon();
+}
+
+export async function listNotebooks(): Promise<TheoriaNotebook[]> {
+  const database = await db();
+  if (!database) return [...notebookMemory.values()].filter((notebook) => notebook.userId === USER_ID).map(normalizeNotebook);
+  const records = await run('readonly', (store) => store.index('userId').getAll(USER_ID) as IDBRequest<TheoriaNotebook[]>, stores.theoriaNotebooks);
+  return records.map(normalizeNotebook);
+}
+
+export async function putNotebook(notebook: TheoriaNotebook): Promise<void> {
+  const database = await db();
+  if (!database) notebookMemory.set(notebook.id, notebook);
+  else await run('readwrite', (store) => store.put(notebook), stores.theoriaNotebooks);
+  notify();
+  syncSoon();
+}
+
+export async function addNotebook(input: NewTheoriaNotebook): Promise<TheoriaNotebook> {
+  const notebook = makeNotebook(USER_ID, input);
+  await putNotebook(notebook);
+  return notebook;
+}
+
+export async function removeNotebook(id: string): Promise<void> {
+  const database = await db();
+  if (!database) notebookMemory.delete(id);
+  else await run('readwrite', (store) => store.delete(id), stores.theoriaNotebooks);
   notify();
   syncSoon();
 }

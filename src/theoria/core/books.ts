@@ -6,13 +6,18 @@ export type ReadingTheme = 'paper' | 'night' | 'sepia';
 export type ReadingFont = 'serif' | 'sans' | 'dyslexia';
 export type ConnectionRelationship = 'related' | 'supports' | 'contradicts' | 'inspired' | 'expanded';
 
-export type TheoriaChapter = { id: string; title: string; order: number; location?: string };
+export type TheoriaChapter = { id: string; title: string; order: number; location?: string; content?: string };
+export type TheoriaReadingPosition = { chapterId?: string; paragraphIndex?: number; anchor?: string; updatedAt: string };
 export type TheoriaHighlight = { id: string; text: string; location?: string; chapter?: string; color?: 'gold' | 'blue' | 'purple' | 'green'; createdAt: string };
-export type TheoriaNote = { id: string; body: string; highlightId?: string; createdAt: string };
-export type TheoriaReflection = { id: string; content: string; highlightId?: string; createdAt: string };
-export type TheoriaBookmark = { id: string; location: string; label?: string; createdAt: string };
+export type TheoriaNote = { id: string; body: string; title?: string; highlightId?: string; chapter?: string; location?: string; createdAt: string; updatedAt?: string };
+export type TheoriaReflection = { id: string; content: string; title?: string; highlightId?: string; chapter?: string; location?: string; answers?: { stoodOut?: string; why?: string; challenge?: string; apply?: string; remember?: string }; createdAt: string; updatedAt?: string };
+export type TheoriaBookmark = { id: string; location: string; chapter?: string; label?: string; createdAt: string };
 export type TheoriaIdea = { id: string; title: string; description?: string; createdAt: string };
 export type TheoriaConnection = { id: string; sourceId: string; targetId: string; relationship: ConnectionRelationship; createdAt: string };
+
+export type TheoriaNotePage = { id: string; title: string; body: string; bookId?: string; chapterId?: string; highlightId?: string; createdAt: string; updatedAt: string };
+export type TheoriaNoteSection = { id: string; title: string; pages: TheoriaNotePage[] };
+export type TheoriaNotebook = { id: string; userId: string; title: string; sections: TheoriaNoteSection[]; createdAt: string; updatedAt: string };
 
 export type TheoriaBook = {
   id: string;
@@ -30,12 +35,14 @@ export type TheoriaBook = {
   contentFormat?: 'text' | 'markdown' | 'epub' | 'pdf';
   contentPreview?: string;
   coverUrl?: string;
+  coverPath?: string;
   publisher?: string;
   language?: string;
   publicationDate?: string;
   categories: TheoriaCategory[];
   progress: number;
   status: TheoriaStatus;
+  favorite?: boolean;
   chapters: TheoriaChapter[];
   highlights: TheoriaHighlight[];
   notes: TheoriaNote[];
@@ -44,12 +51,15 @@ export type TheoriaBook = {
   ideas: TheoriaIdea[];
   connections: TheoriaConnection[];
   readingLocation?: string;
+  readingPosition?: TheoriaReadingPosition;
   lastOpenedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
 
 export type NewTheoriaBook = Pick<TheoriaBook, 'title' | 'source'> & Partial<Omit<TheoriaBook, 'id' | 'userId' | 'title' | 'source' | 'createdAt' | 'updatedAt'>>;
+
+export type NewTheoriaNotebook = Pick<TheoriaNotebook, 'title'> & Partial<Pick<TheoriaNotebook, 'sections'>>;
 
 export function normalizeProgress(value: unknown): number {
   const progress = Number(value);
@@ -78,12 +88,12 @@ export function makeBook(userId: string, input: NewTheoriaBook, now = new Date()
   return {
     id: newId(), userId, title: input.title.trim() || 'Untitled reading', author: input.author?.trim() || undefined,
     description: input.description?.trim() || undefined, source: input.source, provider: input.provider,
-    sourceUrl: input.sourceUrl?.trim() || undefined, fileName: input.fileName, filePath: input.filePath, fileSize: input.fileSize, fileType: input.fileType, contentFormat: input.contentFormat, contentPreview: input.contentPreview, coverUrl: input.coverUrl,
+    sourceUrl: input.sourceUrl?.trim() || undefined, fileName: input.fileName, filePath: input.filePath, fileSize: input.fileSize, fileType: input.fileType, contentFormat: input.contentFormat, contentPreview: input.contentPreview, coverUrl: input.coverUrl, coverPath: input.coverPath,
     publisher: input.publisher, language: input.language ?? 'English', publicationDate: input.publicationDate,
-    categories: input.categories?.length ? input.categories : ['Personal'], progress: normalizeProgress(input.progress),
+    categories: input.categories?.length ? input.categories : ['Personal'], progress: normalizeProgress(input.progress), favorite: input.favorite ?? false,
     status: input.status ?? 'want_to_read', chapters: input.chapters ?? [], highlights: input.highlights ?? [], notes: input.notes ?? [],
     reflections: input.reflections ?? [], bookmarks: input.bookmarks ?? [], ideas: input.ideas ?? [], connections: input.connections ?? [],
-    readingLocation: input.readingLocation, lastOpenedAt: input.lastOpenedAt, createdAt: timestamp, updatedAt: timestamp,
+    readingLocation: input.readingLocation, readingPosition: input.readingPosition, lastOpenedAt: input.lastOpenedAt, createdAt: timestamp, updatedAt: timestamp,
   };
 }
 
@@ -100,6 +110,8 @@ export function normalizeBook(value: TheoriaBook): TheoriaBook {
     ideas: value.ideas ?? [],
     connections: value.connections ?? [],
     status: value.status === 'unread' ? 'want_to_read' : value.status ?? 'want_to_read',
+    favorite: value.favorite ?? false,
+    readingPosition: value.readingPosition,
   };
 }
 
@@ -107,9 +119,11 @@ export function newId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export const featuredBooks: readonly TheoriaBook[] = [
-  { id: 'featured-meditations', userId: 'featured', title: 'Meditations', author: 'Marcus Aurelius', source: 'manual', description: 'A series of personal writings by Marcus Aurelius, gathering thoughts on stoicism, self-discipline, and the nature of a good life.', publisher: 'N/A (Ancient text)', language: 'English', categories: ['Philosophy', 'Personal'], progress: 68, status: 'reading', chapters: [{ id: 'book-iii', title: 'Book III', order: 3, location: 'Book III · 12' }], highlights: [], notes: [], reflections: [], bookmarks: [], ideas: [], connections: [], createdAt: '', updatedAt: '', readingLocation: 'Book III · 12' },
-  { id: 'featured-republic', userId: 'featured', title: 'The Republic', author: 'Plato', source: 'manual', categories: ['Philosophy'], progress: 24, status: 'reading', chapters: [], highlights: [], notes: [], reflections: [], bookmarks: [], ideas: [], connections: [], createdAt: '', updatedAt: '' },
-  { id: 'featured-letters', userId: 'featured', title: 'Letters from a Stoic', author: 'Seneca', source: 'manual', categories: ['Philosophy'], progress: 42, status: 'reading', chapters: [], highlights: [], notes: [], reflections: [], bookmarks: [], ideas: [], connections: [], createdAt: '', updatedAt: '' },
-  { id: 'featured-walden', userId: 'featured', title: 'Walden', author: 'Henry David Thoreau', source: 'manual', categories: ['Personal', 'Philosophy'], progress: 12, status: 'want_to_read', chapters: [], highlights: [], notes: [], reflections: [], bookmarks: [], ideas: [], connections: [], createdAt: '', updatedAt: '' },
-];
+export function makeNotebook(userId: string, input: NewTheoriaNotebook, now = new Date()): TheoriaNotebook {
+  const timestamp = now.toISOString();
+  return { id: newId(), userId, title: input.title.trim() || 'Untitled notebook', sections: input.sections ?? [], createdAt: timestamp, updatedAt: timestamp };
+}
+
+export function normalizeNotebook(value: TheoriaNotebook): TheoriaNotebook {
+  return { ...value, sections: (value.sections ?? []).map((section) => ({ ...section, pages: (section.pages ?? []).map((page) => ({ ...page, body: page.body ?? '', title: page.title || 'Untitled page' })) })) };
+}

@@ -17,7 +17,7 @@ export type FamilyData = {
   soma?: { recipes: unknown[]; groceries: unknown[] };
   oikonomia?: { bills: unknown[]; budgets?: unknown[] };
   hydros?: { drinks: unknown[] };
-  theoria?: { books: unknown[] };
+  theoria?: { books: unknown[]; notebooks?: unknown[] };
   /** Settings by key, as stored. */
   settings?: Record<string, string>;
 };
@@ -119,7 +119,7 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
     out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills), budgets: await readAll(proairetos, stores.oikonomiaBudgets) };
     out.hydros = { drinks: await readAll(proairetos, stores.hydrosDrinks) };
-    out.theoria = { books: await readAll(proairetos, stores.theoriaBooks) };
+    out.theoria = { books: await readAll(proairetos, stores.theoriaBooks), notebooks: await readAll(proairetos, stores.theoriaNotebooks) };
   }
   return out;
 }
@@ -141,6 +141,9 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
     if (data.oikonomia.budgets !== undefined) await replaceStore(proairetos, stores.oikonomiaBudgets, data.oikonomia.budgets);
   }
   if (proairetos && data.hydros) await replaceStore(proairetos, stores.hydrosDrinks, data.hydros.drinks ?? []);
-  if (proairetos && data.theoria) await replaceStore(proairetos, stores.theoriaBooks, data.theoria.books ?? []);
+  if (proairetos && data.theoria) {
+    await replaceStore(proairetos, stores.theoriaBooks, data.theoria.books ?? []);
+    if (data.theoria.notebooks !== undefined) await replaceStore(proairetos, stores.theoriaNotebooks, data.theoria.notebooks);
+  }
   if (data.settings) restoreSettings(data.settings);
 }
