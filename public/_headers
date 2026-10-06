@@ -7,7 +7,6 @@
 /index.html
   Cache-Control: no-cache
 /
-  Cache-Control: no-cache
 /askesis/sw.js
   Cache-Control: no-cache
 /askesis/
@@ -17,8 +16,6 @@
 /oikonomia/sw.js
   Cache-Control: no-cache
 /oikonomia/
-  Cache-Control: no-cache
-/oikonomia/index.html
   Cache-Control: no-cache
 /hydros/sw.js
   Cache-Control: no-cache
@@ -32,6 +29,8 @@
 /praxis/index.html
   Cache-Control: no-cache
 /theoria/manifest.webmanifest
+  Cache-Control: no-cache
+/theoria/
   Cache-Control: no-cache
 /theoria/index.html
   Cache-Control: no-cache
