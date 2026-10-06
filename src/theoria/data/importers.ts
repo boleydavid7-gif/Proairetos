@@ -1,0 +1,100 @@
+import { strFromU8, unzipSync } from 'fflate';
+import { validateImportFile } from './cloudStorage';
+import type { TheoriaChapter } from '../core/books';
+
+export type ImportedReading = {
+  title?: string;
+  author?: string;
+  publisher?: string;
+  language?: string;
+  contentFormat: 'text' | 'markdown' | 'epub' | 'pdf';
+  contentPreview?: string;
+  chapters?: TheoriaChapter[];
+};
+
+function extension(file: File): string {
+  return file.name.split('.').pop()?.toLowerCase() ?? '';
+}
+
+function cleanText(value: string): string {
+  return value.replace(/\s+/g, ' ').replace(/\s([,.;!?])/g, '$1').trim();
+}
+
+function filePath(path: string): string {
+  const slash = path.lastIndexOf('/');
+  return slash < 0 ? '' : path.slice(0, slash + 1);
+}
+
+function resolvePath(base: string, target: string): string {
+  const parts = `${base}${target}`.split('/');
+  const out: string[] = [];
+  parts.forEach((part) => { if (!part || part === '.') return; if (part === '..') out.pop(); else out.push(part); });
+  return out.join('/');
+}
+
+function xmlText(document: Document, names: string[]): string | undefined {
+  for (const name of names) {
+    const node = document.querySelector(name) ?? document.getElementsByTagNameNS('*', name)[0];
+    if (node?.textContent?.trim()) return cleanText(node.textContent);
+  }
+  return undefined;
+}
+
+function htmlText(value: string): string {
+  const document = new DOMParser().parseFromString(value, 'text/html');
+  document.querySelectorAll('script,style,nav').forEach((node) => node.remove());
+  return cleanText(document.body.textContent ?? '');
+}
+
+async function inspectText(file: File, format: 'text' | 'markdown'): Promise<ImportedReading> {
+  const text = (await file.text()).replace(/\r\n/g, '\n').trim();
+  return { contentFormat: format, contentPreview: text.slice(0, 18_000) || undefined };
+}
+
+async function inspectEpub(file: File): Promise<ImportedReading> {
+  const archive = unzipSync(new Uint8Array(await file.arrayBuffer()));
+  const container = archive['META-INF/container.xml'];
+  if (!container) throw new Error('This EPUB is missing its container metadata.');
+  const containerDocument = new DOMParser().parseFromString(strFromU8(container), 'application/xml');
+  const rootfile = containerDocument.querySelector('rootfile')?.getAttribute('full-path');
+  if (!rootfile || !archive[rootfile]) throw new Error('This EPUB does not contain a readable package file.');
+  const opfDocument = new DOMParser().parseFromString(strFromU8(archive[rootfile]), 'application/xml');
+  const metadata = opfDocument.querySelector('metadata');
+  const manifest = new Map<string, { href: string; mediaType: string }>();
+  opfDocument.querySelectorAll('manifest item').forEach((item) => {
+    const id = item.getAttribute('id');
+    const href = item.getAttribute('href');
+    if (id && href) manifest.set(id, { href: resolvePath(filePath(rootfile), decodeURIComponent(href.split('#')[0])), mediaType: item.getAttribute('media-type') ?? '' });
+  });
+  const chapters: TheoriaChapter[] = [];
+  const chapterText: string[] = [];
+  opfDocument.querySelectorAll('spine itemref').forEach((item, index) => {
+    const id = item.getAttribute('idref');
+    const entry = id ? manifest.get(id) : undefined;
+    const archiveValue = entry && archive[entry.href];
+    if (!entry || !archiveValue) return;
+    const text = htmlText(strFromU8(archiveValue));
+    if (!text) return;
+    const title = text.slice(0, 80) || `Chapter ${index + 1}`;
+    chapters.push({ id: id ?? `chapter-${index + 1}`, title, order: index + 1, location: entry.href });
+    chapterText.push(text);
+  });
+  return {
+    contentFormat: 'epub',
+    title: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:title', 'title']) : undefined,
+    author: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:creator', 'creator']) : undefined,
+    publisher: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:publisher', 'publisher']) : undefined,
+    language: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:language', 'language']) : undefined,
+    chapters,
+    contentPreview: chapterText.join('\n\n').slice(0, 18_000) || undefined,
+  };
+}
+
+export async function inspectReadingFile(file: File): Promise<ImportedReading> {
+  validateImportFile(file);
+  const kind = extension(file);
+  if (kind === 'txt') return inspectText(file, 'text');
+  if (kind === 'md') return inspectText(file, 'markdown');
+  if (kind === 'epub') return inspectEpub(file);
+  return { contentFormat: 'pdf' };
+}

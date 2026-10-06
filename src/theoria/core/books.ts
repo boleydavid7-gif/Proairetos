@@ -27,6 +27,8 @@ export type TheoriaBook = {
   filePath?: string;
   fileSize?: number;
   fileType?: string;
+  contentFormat?: 'text' | 'markdown' | 'epub' | 'pdf';
+  contentPreview?: string;
   coverUrl?: string;
   publisher?: string;
   language?: string;
@@ -76,7 +78,7 @@ export function makeBook(userId: string, input: NewTheoriaBook, now = new Date()
   return {
     id: newId(), userId, title: input.title.trim() || 'Untitled reading', author: input.author?.trim() || undefined,
     description: input.description?.trim() || undefined, source: input.source, provider: input.provider,
-    sourceUrl: input.sourceUrl?.trim() || undefined, fileName: input.fileName, filePath: input.filePath, fileSize: input.fileSize, fileType: input.fileType, coverUrl: input.coverUrl,
+    sourceUrl: input.sourceUrl?.trim() || undefined, fileName: input.fileName, filePath: input.filePath, fileSize: input.fileSize, fileType: input.fileType, contentFormat: input.contentFormat, contentPreview: input.contentPreview, coverUrl: input.coverUrl,
     publisher: input.publisher, language: input.language ?? 'English', publicationDate: input.publicationDate,
     categories: input.categories?.length ? input.categories : ['Personal'], progress: normalizeProgress(input.progress),
     status: input.status ?? 'want_to_read', chapters: input.chapters ?? [], highlights: input.highlights ?? [], notes: input.notes ?? [],

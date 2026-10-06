@@ -7,6 +7,7 @@ import { featuredBooks, newId, type ReadingFont, type ReadingTheme, type Theoria
 import { AddBookDialog, InsightDialog, type InsightKind, type NewBookForm } from './components/dialogs';
 import { BookDetailView, ConnectionsPage, DailyWisdomPage, LibraryHome, NotesPage, ProfilePage, ReaderView, SearchPage, SettingsPage, StudyPathsPage, buildInsightItems } from './components/views';
 import { signedBookUrl, uploadBookFile } from './data/cloudStorage';
+import { inspectReadingFile } from './data/importers';
 
 type View = 'library' | 'read' | 'notes' | 'connections' | 'study-paths' | 'search' | 'profile' | 'settings' | 'detail' | 'reader' | 'daily';
 
@@ -71,7 +72,11 @@ export default function TheoriaApp() {
     toast(selected.fileName ? 'This file is only a shelf reference. Add a cloud link to open it.' : 'Add a source link to open this reading.');
   };
   const saveBook = async (input: NewBookForm) => {
-    const book = await addBook({ title: input.title, author: input.author, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
+    let imported: Awaited<ReturnType<typeof inspectReadingFile>> | undefined;
+    if (input.file) {
+      try { imported = await inspectReadingFile(input.file); } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); }
+    }
+    const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, publisher: imported?.publisher, language: imported?.language, chapters: imported?.chapters, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
     if (input.file) {
       try {
         const uploaded = await uploadBookFile(book.id, input.file);
