@@ -105,7 +105,7 @@ function ExportSection() {
         own cloud storage, or by email to yourself.
       </p>
       <label className="plan-field">
-        <span>Password (optional, recommended)</span>
+        <span>Password (recommended)</span>
         <input
           type="password"
           className="field-input"
@@ -582,7 +582,7 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     parts: [
       { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
       { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
-      { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, every step optional.' },
+      { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, at your own pace.' },
       { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
     ],
   },
@@ -614,7 +614,7 @@ const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as c
 const helpTopics: { title: string; body: string }[] = [
   {
     title: 'Capture first',
-    body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.',
+    body: 'Put anything in the capture box the moment it arrives. Sorting can wait.',
   },
   {
     title: 'Today',

@@ -22,7 +22,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
       detail: settings.music === 'mine' ? 'Songs here' : settings.music === 'other' ? 'Another app' : 'Songs for your sessions',
       route: { name: 'music' },
     },
-    { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Optional numbers for each effort', route: { name: 'zones' } },
+    { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Set zones for each effort', route: { name: 'zones' } },
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: 'Pace, time and distance', route: { name: 'pace' } },
     { icon: <ShieldIcon />, title: 'Before you start', detail: 'When to check with a doctor', route: { name: 'safety' } },
     { icon: <GearIcon />, title: 'Settings', detail: 'Units, voice, bells, screen', route: { name: 'settings' } },

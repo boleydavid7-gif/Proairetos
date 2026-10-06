@@ -62,7 +62,6 @@ export function ZonesPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Heart rate zones</h1>
-      <p className="lead">Optional.</p>
       <div className="three-fields">
         <label className="field">
           <span className="label">Age</span>

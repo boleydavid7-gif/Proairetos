@@ -78,7 +78,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
           <label className="field"><span className="field__label">Next due</span><input className="input" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label>
           <label className="field"><span className="field__label">Repeats</span><select className="input" value={frequency} onChange={(event) => setFrequency(event.target.value as BillFrequency)}>{(['once', 'weekly', 'monthly', 'quarterly', 'yearly'] as BillFrequency[]).map((value) => <option key={value} value={value}>{formatFrequency(value)}</option>)}</select></label>
         </div>
-        <label className="field"><span className="field__label">Category <span className="muted">(optional)</span></span><input className="input" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Home, transport, care" /></label>
+        <label className="field"><span className="field__label">Category</span><input className="input" value={category} onChange={(event) => setCategory(event.target.value)} placeholder="Home, transport, care" /></label>
 
         <div className="oiko-form-card">
           <label className="oiko-check-row"><span><strong>Autopay</strong><small>Paid automatically</small></span><input type="checkbox" checked={autopay} onChange={(event) => setAutopay(event.target.checked)} /></label>

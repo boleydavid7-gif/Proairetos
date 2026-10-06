@@ -3,7 +3,7 @@ export type OnboardingStep = {
   lines: string[];
   action: string;
   brand?: boolean;
-  /** The optional form for name, values, and shifts. */
+  /** The form for name, values, and shifts. */
   form?: boolean;
 };
 
@@ -26,7 +26,7 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     title: 'Make it yours',
-    lines: ['All optional. Everything can change later.'],
+    lines: ['Everything can change later.'],
     action: 'Begin',
     form: true,
   },

@@ -57,7 +57,7 @@ export default function DayChangeSheet({ target, onClose }: Props) {
             <input
               className="field-input"
               aria-label="Name for these hours"
-              placeholder="Name (optional)"
+              placeholder="Name"
               value={block.label ?? ''}
               onChange={(event) => setBlock({ ...block, label: event.target.value || undefined })}
             />

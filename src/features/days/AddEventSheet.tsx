@@ -144,11 +144,11 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
           <input
             className="field-input"
             aria-label="Where"
-            placeholder="Where (optional)"
+            placeholder="Where"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
           />
-          <span className="field-label">Colour (optional)</span>
+          <span className="field-label">Colour</span>
           <ColorChoice value={color} onChange={setColor} />
 
           <button type="button" className="text-link add-more" aria-expanded={more} onClick={() => setMore(!more)}>
@@ -156,7 +156,7 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
           </button>
           {more && (
             <>
-              <div className="chip-row" role="group" aria-label="Group (optional)">
+              <div className="chip-row" role="group" aria-label="Group">
                 {groups.map((option) => (
                   <button
                     key={option.id}

@@ -143,7 +143,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
             className="input"
             aria-label={intentionPrompt}
             value={intention}
-            placeholder="Optional. For example: an easy start."
+            placeholder="For example: an easy start."
             onChange={(event) => setIntention(event.target.value)}
           />
         </details>

@@ -134,7 +134,7 @@ function ValuesStep({ note, onNote }: { note: string; onNote: (note: string) => 
         className="field-input field-input--area"
         rows={4}
         aria-label="A note for the week"
-        placeholder="A few words for the week ahead (optional)"
+        placeholder="A few words for the week ahead"
         value={note}
         onChange={(event) => onNote(event.target.value)}
       />
@@ -142,7 +142,7 @@ function ValuesStep({ note, onNote }: { note: string; onNote: (note: string) => 
   );
 }
 
-/** An optional, guided weekly review. Every step can be skipped; nothing is scored. */
+/** A guided weekly review. Every step can be skipped; nothing is scored. */
 export default function WeeklyReview() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);

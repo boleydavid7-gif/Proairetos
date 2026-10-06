@@ -1,5 +1,5 @@
 /**
- * Optional prompts. The person always writes the reflection; these only
+ * Prompts for reflection. The person always writes the reflection; these only
  * offer a place to start. Self-distancing ("a friend") makes reflection
  * less likely to turn into rumination; the others follow Seneca's gentle
  * evening review.

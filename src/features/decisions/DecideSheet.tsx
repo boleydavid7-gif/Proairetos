@@ -119,7 +119,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
         </section>
 
         <label className="sheet__section">
-          <span className="sheet__label">Why (optional)</span>
+          <span className="sheet__label">Why</span>
           <textarea
             className="field-input field-input--area"
             rows={3}
@@ -131,7 +131,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
 
         <section className="sheet__section" aria-label="Expectation">
           <label className="plan-field">
-            <span className="sheet__label">What do you expect to happen? (optional)</span>
+            <span className="sheet__label">What do you expect to happen?</span>
             <input
               className="field-input"
               placeholder="Written now, before you know"

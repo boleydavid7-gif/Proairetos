@@ -208,7 +208,7 @@ export default function ReflectPage() {
         <MoreRow
           icon={<BookIcon size={22} />}
           title="Weekly review"
-          detail={`About 15 minutes, every step optional.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
+          detail={`About 15 minutes, at your own pace.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
           onClick={() => navigate('review')}
         />
         )}

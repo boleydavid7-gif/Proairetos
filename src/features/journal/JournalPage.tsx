@@ -17,7 +17,7 @@ import { weatherOptions } from '../reflect/weather';
 
 /**
  * A full page for writing. Every addition (a prompt, inner weather, values)
- * is optional. Leaving keeps the draft; Save is the only thing that stores it.
+ * can be left blank. Leaving keeps the draft; Save is the only thing that stores it.
  */
 export default function JournalPage() {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ export default function JournalPage() {
 
       <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
 
-      <div className="chip-row" role="group" aria-label="A place to start (optional)">
+      <div className="chip-row" role="group" aria-label="A place to start">
         {reflectionPrompts.map((prompt) => (
           <button
             key={prompt.key}
@@ -89,8 +89,8 @@ export default function JournalPage() {
         onChange={(event) => setBody(event.target.value)}
       />
 
-      <section className="stack-tight" aria-label="Inner weather (optional)">
-        <h2 className="section-label">Inner weather <span className="section-optional">optional</span></h2>
+      <section className="stack-tight" aria-label="Inner weather">
+        <h2 className="section-label">Inner weather</h2>
         <div className="weather-picker">
           {weatherOptions.map(({ id, label, icon: Icon }) => (
             <button

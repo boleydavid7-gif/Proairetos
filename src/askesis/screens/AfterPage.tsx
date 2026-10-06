@@ -57,7 +57,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
               <>
                 <label className="field">
                   <span className="hint">What was up to you in this run, and how did you meet it?</span>
-                  <input className="input" value={line} placeholder="Optional" onChange={(event) => setLine(event.target.value)} />
+                  <input className="input" value={line} placeholder="A line to keep" onChange={(event) => setLine(event.target.value)} />
                 </label>
                 <button type="button" className="button-quiet" disabled={!line.trim()} onClick={() => void keep()}>
                   Keep it in Reflect

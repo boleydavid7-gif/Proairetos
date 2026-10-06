@@ -155,7 +155,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
             id="distance"
             className="input"
             inputMode="decimal"
-            placeholder="Optional"
+            placeholder="e.g. 5"
             value={distance}
             onChange={(event) => setDistance(event.target.value)}
           />
@@ -186,7 +186,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
 
       <label className="field">
         <span className="label">Average heart rate</span>
-        <input className="input" inputMode="numeric" placeholder="Optional, bpm" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
+        <input className="input" inputMode="numeric" placeholder="bpm" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
       </label>
 
       <div className="field">

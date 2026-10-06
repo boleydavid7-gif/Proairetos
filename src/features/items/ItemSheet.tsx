@@ -72,7 +72,7 @@ function WaitingSection({ item }: { item: LifeItem }) {
           onChange={(event) => setCheckBack(event.target.value)}
         />
       </label>
-      <p className="sheet__hint">A check-back date brings it back to Today. It is optional.</p>
+      <p className="sheet__hint">A check-back date brings it back to Today.</p>
       <div className="chip-row">
         <button
           type="button"
@@ -162,7 +162,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   return (
     <section className="sheet__section control-split" aria-label="What is in your control">
       <p className="sheet__label">What is in your control</p>
-      <p className="sheet__hint">One thing per line. Optional, and only for you.</p>
+      <p className="sheet__hint">One thing per line, only for you.</p>
       <div className="control-split__columns">
         <label className="control-split__column">
           <span>In my control</span>
@@ -445,7 +445,7 @@ function WhenSection({ item }: { item: LifeItem }) {
           />
         </label>
         <label className="block-fields__time">
-          <span>Time (optional)</span>
+          <span>Time</span>
           <input
             type="time"
             className="field-input"
@@ -459,7 +459,7 @@ function WhenSection({ item }: { item: LifeItem }) {
       </div>
       {time && (
         <label className="block-fields__time when-until">
-          <span>Until (optional)</span>
+          <span>Until</span>
           <input
             type="time"
             className="field-input"

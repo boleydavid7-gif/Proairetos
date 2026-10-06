@@ -203,7 +203,7 @@ export default function TodayThree({ date, items }: Props) {
         </ol>
       ) : (
         <button type="button" className="path-empty" onClick={() => setPicking(true)}>
-          Pick up to three things from your list to walk through today. Optional.
+          Pick up to three things from your list to walk through today.
         </button>
       )}
       {picking && <Picker date={date} items={items} onClose={() => setPicking(false)} />}
