@@ -542,6 +542,15 @@
 .theoria-reflection-prompts { display: grid; gap: 4px; margin-top: 15px; }
 .theoria-reflection-prompts > p { margin: 0; }
 .theoria-reflection-prompts textarea { min-height: 58px; }
+.theoria-metadata-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.theoria-metadata-actions button { min-height: 38px; }
+.theoria-metadata-actions span { color: var(--theoria-violet-strong); font-size: 11px; }
+.theoria-form-error { margin: 9px 0 0; color: #f0a7a7; font-size: 12px; }
+.theoria-metadata-preview { display: flex; align-items: center; gap: 11px; margin-top: 14px; padding: 8px; border: 1px solid var(--theoria-border); border-radius: 10px; background: rgba(255,255,255,.03); }
+.theoria-metadata-preview img { width: 44px; height: 62px; border-radius: 5px; object-fit: cover; }
+.theoria-metadata-preview span { display: grid; gap: 4px; min-width: 0; }
+.theoria-metadata-preview strong { overflow: hidden; color: var(--theoria-ink); font: 500 15px var(--font-serif); text-overflow: ellipsis; white-space: nowrap; }
+.theoria-metadata-preview small { color: var(--theoria-muted); font-size: 10px; }
 
 @media (max-width: 900px) {
   .theoria-library-book { grid-template-columns: 52px minmax(0,1fr) auto; gap: 10px; }

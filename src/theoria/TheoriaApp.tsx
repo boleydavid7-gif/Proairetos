@@ -8,6 +8,7 @@ import { AddBookDialog, CaptureDialog, NotebookDialog, NotePageDialog, type Insi
 import { BookDetailView, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingBuffer, inspectReadingFile } from './data/importers';
 import { signedBookUrl, signedCoverUrl, uploadBookFile, uploadCoverFile } from './data/cloudStorage';
+import { lookupBookMetadata } from './data/metadata';
 
 type View = 'library' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
@@ -111,13 +112,16 @@ export default function TheoriaApp() {
     if (input.file) {
       try { imported = await inspectReadingFile(input.file); } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); return; }
     }
-    const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, publisher: imported?.publisher, language: imported?.language, chapters: imported?.chapters, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'upload' ? 'want_to_read' : input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
+    const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, coverUrl: input.coverUrl, publisher: imported?.publisher || input.publisher, language: imported?.language || input.language, publicationDate: input.publicationDate, chapters: imported?.chapters, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'upload' ? 'want_to_read' : input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
     let updated = book;
     if (input.file) {
       try { const uploaded = await uploadBookFile(book.id, input.file); updated = { ...updated, filePath: uploaded.path, updatedAt: new Date().toISOString() }; } catch (error) { toast(error instanceof Error ? error.message : 'The book was saved on this device.'); }
-      if (imported?.coverFile) {
-        try { const cover = await uploadCoverFile(book.id, imported.coverFile); updated = { ...updated, coverPath: cover.path, updatedAt: new Date().toISOString() }; } catch { /* A cover can be added later. */ }
+      const coverFile = imported?.coverFile ?? input.coverFile;
+      if (coverFile) {
+        try { const cover = await uploadCoverFile(book.id, coverFile); updated = { ...updated, coverPath: cover.path, updatedAt: new Date().toISOString() }; } catch { /* A cover can be added later. */ }
       }
+    } else if (input.coverFile) {
+      try { const cover = await uploadCoverFile(book.id, input.coverFile); updated = { ...updated, coverPath: cover.path, updatedAt: new Date().toISOString() }; } catch { /* A cover can be added later. */ }
     }
     if (updated !== book) await putBook(updated);
     setSelectedId(book.id);
@@ -228,7 +232,7 @@ export default function TheoriaApp() {
       {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} />}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', glyph: '▤' }, { id: 'reader', label: 'Reader', glyph: '◈' }, { id: 'notes', label: 'Notes', glyph: '✎' }, { id: 'reflections', label: 'Reflect', glyph: '✦' }, { id: 'settings', label: 'Settings', glyph: '⚙' }]} /></nav>
-    {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status">{notice}</div>}
+    {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} onLookup={lookupBookMetadata} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status">{notice}</div>}
   </div>;
 }
 
