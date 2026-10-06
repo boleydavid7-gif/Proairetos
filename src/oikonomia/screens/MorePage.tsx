@@ -4,6 +4,7 @@ import { DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
 import { useAccount, useBills, useSettings } from '../app/state';
 import { exportAll, loadSettings, restore, saveSettings } from '../data/store';
 import { PageTop } from '../app/ui';
+import AccountSection from '../../features/settings/AccountSection';
 
 export default function MorePage({ nav, about = false }: { nav: Nav; about?: boolean }) {
   const bills = useBills() ?? [];
@@ -78,6 +79,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
 
       {message && <p className="oiko-success" role="status">{message}</p>}
       {account.phase === 'ready' && <p className="oiko-sync-note">Synced with {account.email ?? 'your Proairetos account'}.</p>}
+      <AccountSection />
       <button type="button" className="text-link" onClick={() => nav.go({ name: 'about' })}>About Oikonomia</button>
     </div>
   );

@@ -12,6 +12,7 @@ import { player, type PlayerState } from '../app/sound/player';
 import { soundEntry } from '../app/sound/soundscapes';
 import { GearIcon, BookIcon, BreatheIcon, CalendarIcon, CheckIcon, ClockIcon, MountainIcon, SproutIcon, StarIcon, SunIcon } from '../components/icons/Icons';
 import PraxisMark from '../components/brand/PraxisMark';
+import AccountSection from '../features/settings/AccountSection';
 import {
   dayMinutes,
   formatMinutes,
@@ -342,5 +343,5 @@ function SoundsView({ sound, soundState, sessionActive, onSound }: { sound: stri
 }
 
 function SettingsView({ sync }: { sync: ReturnType<typeof syncStatus.get> }) {
-  return <section className="praxis-view"><div className="praxis-page-heading"><div><p className="praxis-eyebrow">One family of apps</p><h1>Settings.</h1><p className="praxis-subtitle">Praxis uses the same account and data layer as Proairetos.</p></div></div><article className="praxis-card praxis-wide-card"><div className="praxis-account-row"><span className={`praxis-sync-dot praxis-sync-dot--${sync.phase}`} /><span><strong>{syncLabel(sync.phase)}</strong><small>{sync.email ?? 'Your local records remain on this device.'}</small></span></div><a className="praxis-settings-link" href="/">Open Proairetos account and backups <span>↗</span></a></article></section>;
+  return <section className="praxis-view"><div className="praxis-page-heading"><div><p className="praxis-eyebrow">One family of apps</p><h1>Settings.</h1><p className="praxis-subtitle">Praxis uses the same account and data layer as Proairetos.</p></div></div><article className="praxis-card praxis-wide-card"><div className="praxis-account-row"><span className={`praxis-sync-dot praxis-sync-dot--${sync.phase}`} /><span><strong>{syncLabel(sync.phase)}</strong><small>{sync.email ?? 'Your local records remain on this device.'}</small></span></div><a className="praxis-settings-link" href="/">Open Proairetos account and backups <span>↗</span></a></article><AccountSection /></section>;
 }

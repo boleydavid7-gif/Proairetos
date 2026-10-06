@@ -16,6 +16,7 @@ import { loadAppearance, loadQuietHours, saveAppearance, saveQuietHours, type Ap
 import { notifications } from '../../app/notify/notifications';
 import { enableReminders, syncStatus } from '../../app/sync/syncController';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
+import AccountSection from '../../features/settings/AccountSection';
 
 const intervals = [60, 120, 180] as const;
 
@@ -147,6 +148,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <SettingsGroup title="Privacy"><a className="hydros-settings-row hydros-settings-row--link" href="/settings"><Icon><GearIcon /></Icon><span className="hydros-settings-row__name">Data &amp; privacy</span><Chevron /></a><a className="hydros-settings-row hydros-settings-row--link" href="/settings"><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">Backup &amp; sync</span><Chevron /></a></SettingsGroup>
 
       <SettingsGroup title="About"><div className="hydros-settings-row hydros-settings-row--static"><Icon><MoreIcon /></Icon><span className="hydros-settings-row__name">App version</span><span className="hydros-settings-row__value">1.0.0</span></div><a className="hydros-settings-row hydros-settings-row--link" href={FEEDBACK_EMAIL ? `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('Hydros help')}` : '/'}><Icon><LeafIcon /></Icon><span className="hydros-settings-row__name">Help &amp; support</span><Chevron /></a></SettingsGroup>
+      <AccountSection />
     </div>
   );
 }

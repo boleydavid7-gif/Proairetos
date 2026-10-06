@@ -7,6 +7,7 @@ import { BackLink, Brand, Segmented, Switch, useUndo } from '../app/ui';
 import { sources } from '../core/tryIt';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import AccountSection from '../../features/settings/AccountSection';
 import { deleteEverything, restore, saveSettings, type Backup } from '../data/store';
 
 export default function MorePage({ nav }: { nav: Nav }) {
@@ -156,6 +157,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.readAloud} label="Read steps aloud" onToggle={() => saveSettings({ ...settings, readAloud: !settings.readAloud })} />
       </div>
       <p className="hint">Theme and text size follow Proairetos (Settings, Appearance).</p>
+      <AccountSection />
     </div>
   );
 }

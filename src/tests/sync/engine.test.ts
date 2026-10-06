@@ -11,6 +11,7 @@ import type { LocalSyncStore, OutgoingRecord, RemoteRecord, RemoteStore } from '
 import { createIndexedDbItemEventRepository, createIndexedDbLifeItemRepository } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import { openDatabase } from '../../data/storage/indexeddb/database';
 import { newBudget } from '../../oikonomia/core/budget';
+import { makeBook } from '../../theoria/core/books';
 
 /** A stand-in for Supabase: assigns a sequence number on every write, like the real table. */
 function fakeServer() {
@@ -127,6 +128,33 @@ describe('sync engine', () => {
 });
 
 describe('sync with real local storage', () => {
+  it('syncs a full ebook and its reading position and annotations between devices', async () => {
+    const { remote, rows } = fakeServer();
+    const phoneDb = openDatabase(new IDBFactory());
+    const tabletDb = openDatabase(new IDBFactory());
+    const phone = createIndexedDbLocalSyncStore(phoneDb);
+    const tablet = createIndexedDbLocalSyncStore(tabletDb);
+    const phoneEngine = createSyncEngine({ local: phone, state: createIndexedDbSyncStateStore(phoneDb), remote, key });
+    const tabletEngine = createSyncEngine({ local: tablet, state: createIndexedDbSyncStateStore(tabletDb), remote, key });
+    const book = makeBook('local', {
+      title: 'A private reading', source: 'upload', contentFormat: 'epub', filePath: 'private/book.epub',
+      chapters: [{ id: 'chapter-1', title: 'Learning', order: 1, content: 'A passage to read slowly — 学ぶ.\n\n'.repeat(32_000) }],
+      progress: 42,
+      readingPosition: { chapterId: 'chapter-1', paragraphIndex: 123, anchor: 'chapter:chapter-1:paragraph:123', updatedAt: '2026-10-06T00:00:00.000Z' },
+      highlights: [{ id: 'highlight-1', text: 'A passage to read slowly', location: 'chapter:chapter-1:paragraph:123', createdAt: '2026-10-06T00:00:00.000Z' }],
+      reflections: [{ id: 'reflection-1', content: 'A personal understanding.', createdAt: '2026-10-06T00:00:00.000Z' }],
+    });
+    await phone.put('theoriaBooks', book);
+
+    expect(await phoneEngine.sync()).toEqual({ pulled: 0, pushed: 1 });
+    const uploaded = rows.get('theoriaBooks:' + book.id);
+    expect(uploaded?.ciphertext).toBeTruthy();
+    expect(JSON.stringify(uploaded)).not.toContain('A personal understanding.');
+    expect(await tabletEngine.sync()).toEqual({ pulled: 1, pushed: 0 });
+    expect(await tablet.list('theoriaBooks')).toEqual([JSON.parse(JSON.stringify(book))]);
+    expect(await phoneEngine.sync()).toEqual({ pulled: 0, pushed: 0 });
+  });
+
   it('carries monthly budgets between devices without exposing their contents on the server', async () => {
     const { remote, rows } = fakeServer();
     const phoneDb = openDatabase(new IDBFactory());
