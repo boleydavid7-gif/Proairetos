@@ -31,6 +31,6 @@
 /theoria/manifest.webmanifest
   Cache-Control: no-cache
 /theoria/
-  Cache-Control: no-cache
+  Cache-Control: no-store, no-cache, must-revalidate
 /theoria/index.html
-  Cache-Control: no-cache
+  Cache-Control: no-store, no-cache, must-revalidate
