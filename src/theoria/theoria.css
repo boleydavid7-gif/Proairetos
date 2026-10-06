@@ -636,7 +636,8 @@
 .theoria-back-button:active { transform: translateY(0) scale(.98); }
 .theoria-danger-button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 15px; border: 1px solid rgba(229,157,157,.35); border-radius: 9px; color: #efb4b4; background: rgba(155,62,62,.14); cursor: pointer; font-size: 11px; font-weight: 700; }
 .theoria-danger-button:hover:not(:disabled) { border-color: rgba(229,157,157,.62); background: rgba(155,62,62,.25); }
-.theoria-view, .theoria-detail-view, .theoria-reader { animation: theoria-view-in .42s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-view, .theoria-detail-view { animation: theoria-view-in .42s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-reader { animation: theoria-fade-in .42s ease both; }
 .theoria-modal-backdrop { animation: theoria-fade-in .2s ease both; }
 .theoria-modal { animation: theoria-modal-in .34s cubic-bezier(.22, .8, .28, 1) both; }
 .theoria-card, .theoria-empty-card, .theoria-loading-card, .theoria-error-card, .theoria-notebook-layout, .theoria-reflection-list { animation: theoria-rise-in .42s cubic-bezier(.22, .8, .28, 1) both; }
