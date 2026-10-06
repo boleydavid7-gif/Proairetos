@@ -1,6 +1,6 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
-import { makeBook, type NewTheoriaBook, type TheoriaBook } from '../core/books';
+import { makeBook, normalizeBook, type NewTheoriaBook, type TheoriaBook } from '../core/books';
 
 const USER_ID = 'local';
 const memory = new Map<string, TheoriaBook>();
@@ -46,8 +46,9 @@ export function storeVersion(): number {
 
 export async function listBooks(): Promise<TheoriaBook[]> {
   const database = await db();
-  if (!database) return [...memory.values()].filter((book) => book.userId === USER_ID);
-  return run('readonly', (store) => store.index('userId').getAll(USER_ID) as IDBRequest<TheoriaBook[]>);
+  if (!database) return [...memory.values()].filter((book) => book.userId === USER_ID).map(normalizeBook);
+  const records = await run('readonly', (store) => store.index('userId').getAll(USER_ID) as IDBRequest<TheoriaBook[]>);
+  return records.map(normalizeBook);
 }
 
 export async function putBook(book: TheoriaBook): Promise<void> {
