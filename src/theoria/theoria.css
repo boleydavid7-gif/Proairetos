@@ -232,7 +232,8 @@
 .theoria-detail-about > div span { color: var(--theoria-faint); font-size: 10px; }
 .theoria-detail-about > div strong { display: block; margin-top: 4px; color: var(--theoria-ink); font: 15px var(--font-serif); }
 .theoria-detail-list { max-width: none; }
-.theoria-app--reader { height: 100vh; min-height: 100vh; }
+.theoria-app--reader { height: 100vh; min-height: 100vh; overflow: hidden; }
+.theoria-app--reader .theoria-sidebar { box-sizing: border-box; }
 .theoria-app--reader .theoria-topbar { display: none; }
 .theoria-app--reader .theoria-main { box-sizing: border-box; height: 100vh; min-height: 0; overflow: hidden; }
 .theoria-app--reader .theoria-page { height: 100%; min-height: 0; }
@@ -424,7 +425,7 @@
   .theoria-detail-tabs::-webkit-scrollbar, .theoria-page-tabs::-webkit-scrollbar { display: none; }
   .theoria-detail-about { gap: 16px; padding: 14px 0; font-size: 12px; }
 
-  .theoria-app--reader { height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; }
+  .theoria-app--reader { height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
   .theoria-app--reader .theoria-main { height: 100vh; height: 100dvh; min-height: 0; padding-top: 0; padding-bottom: 0; }
   .theoria-app--reader .theoria-page { height: 100%; }
   .theoria-reader { --theoria-reader-header-height: 116px; --theoria-reader-top-offset: calc(env(safe-area-inset-top) + 14px); height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; margin: 0 -14px; padding: var(--theoria-reader-top-offset) 16px 0; }
