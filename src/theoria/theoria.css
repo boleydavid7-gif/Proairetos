@@ -238,7 +238,7 @@
 .theoria-reader--sepia { color: #44382c; background: #d9c19b; }
 .theoria-reader-font--sans .theoria-reader-page { font-family: var(--font-sans); }
 .theoria-reader-font--dyslexia .theoria-reader-page { font-family: Arial, sans-serif; letter-spacing: .025em; }
-.theoria-reader-header { position: sticky; top: 0; z-index: 8; display: grid; gap: 10px; min-height: var(--theoria-reader-header-height); padding: 14px 0 11px; border-bottom: 1px solid rgba(45,35,45,.16); background: #f0e3ce; box-shadow: 0 9px 20px rgba(42,35,45,.07); }
+.theoria-reader-header { position: sticky; top: 0; z-index: 8; display: grid; gap: 10px; min-height: var(--theoria-reader-header-height); box-sizing: border-box; padding: 14px 0 11px; border-bottom: 1px solid rgba(45,35,45,.16); background: #f0e3ce; box-shadow: 0 9px 20px rgba(42,35,45,.07); }
 .theoria-reader--night .theoria-reader-header { border-color: rgba(255,255,255,.15); background: #10172a; box-shadow: 0 9px 20px rgba(0,0,0,.16); }
 .theoria-reader--sepia .theoria-reader-header { background: #d9c19b; }
 .theoria-reader-header-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-width: 0; }
