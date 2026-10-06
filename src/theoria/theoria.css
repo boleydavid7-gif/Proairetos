@@ -335,3 +335,141 @@
   .theoria-wisdom-card { padding: 24px; }
   .theoria-wisdom-card p { font-size: 23px; }
 }
+
+/* Mobile reading workspace. */
+@media (max-width: 900px) {
+  .theoria-app,
+  .theoria-app * { box-sizing: border-box; }
+
+  html, body, #root { min-width: 0; max-width: 100%; overflow-x: hidden; }
+  .theoria-app { display: block; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+  .theoria-main { width: 100%; min-height: 100vh; min-height: 100dvh; padding: max(14px, calc(14px + env(safe-area-inset-top))) 14px calc(92px + env(safe-area-inset-bottom)); }
+  .theoria-topbar { width: 100%; min-height: 38px; margin: 0 0 22px; }
+  .theoria-mobile-brand { min-width: 0; }
+  .theoria-mobile-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .theoria-sync { min-width: 0; font-size: 9px; }
+  .theoria-page { width: 100%; max-width: none; }
+  .theoria-heading { display: block; margin-bottom: 18px; }
+  .theoria-heading h1 { font-size: 36px; line-height: 1.06; }
+  .theoria-heading p:not(.theoria-eyebrow) { margin-top: 8px; font-size: 12px; }
+  .theoria-heading-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 16px; }
+  .theoria-heading-actions .theoria-quiet-button,
+  .theoria-heading-actions .theoria-add-button { width: 100%; min-height: 44px; margin: 0; }
+  .theoria-library-grid { display: block; }
+  .theoria-library-grid > * { margin-bottom: 12px; }
+  .theoria-continue { min-height: 0; padding: 18px; border-radius: 18px; }
+  .theoria-continue-body { grid-template-columns: minmax(0, 1fr) 88px; gap: 12px; min-height: 0; padding-top: 24px; }
+  .theoria-continue h2 { font-size: 29px; }
+  .theoria-author { margin: 7px 0 12px; font-size: 12px; }
+  .theoria-book-location { margin: -5px 0 13px; font-size: 10px; }
+  .theoria-continue-body > .theoria-cover { width: 88px; height: 126px; }
+  .theoria-continue .theoria-primary-button { width: 100%; min-height: 44px; margin-top: 15px; padding-inline: 10px; }
+  .theoria-shelf-card { padding: 18px 14px 16px; border-radius: 18px; }
+  .theoria-card-title { align-items: center; }
+  .theoria-card-title h2 { font-size: 22px; }
+  .theoria-shelf-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 14px; }
+  .theoria-shelf-item { overflow: hidden; }
+  .theoria-shelf-item .theoria-cover { height: 105px; }
+  .theoria-shelf-item strong { margin-top: 6px; font-size: 10px; }
+  .theoria-shelf-item small { font-size: 8px; }
+  .theoria-daily-quote { grid-template-columns: 37px minmax(0, 1fr) auto; gap: 10px; margin-top: 12px; padding: 16px; border-radius: 15px; }
+  .theoria-daily-quote p { font-size: 16px; line-height: 1.3; }
+  .theoria-daily-quote-date { font-size: 9px; }
+  .theoria-section-heading { align-items: center; margin: 22px 0 10px; }
+  .theoria-section-heading h2 { font-size: 21px; }
+  .theoria-section-actions { flex-shrink: 0; gap: 9px; }
+  .theoria-section-actions button { font-size: 10px; }
+  .theoria-insight { grid-template-columns: 26px minmax(0, 1fr) 16px; gap: 9px; padding: 13px; }
+  .theoria-insight p { font-size: 14px; }
+  .theoria-home-empty { display: block; padding: 16px; }
+  .theoria-home-empty button { display: block; margin-top: 10px; }
+
+  .theoria-detail-view { width: 100%; max-width: none; }
+  .theoria-back-button { min-height: 34px; margin-bottom: 15px; }
+  .theoria-book-detail { grid-template-columns: 88px minmax(0, 1fr); gap: 15px; padding: 15px; border-radius: 17px; }
+  .theoria-detail-cover .theoria-cover { height: 128px; }
+  .theoria-detail-copy h1 { font-size: 29px; line-height: 1.05; }
+  .theoria-detail-author { font-size: 13px; }
+  .theoria-detail-description { max-height: 3.6em; overflow: hidden; margin: 12px 0; font-size: 11px; line-height: 1.5; }
+  .theoria-detail-actions { display: grid; gap: 7px; }
+  .theoria-detail-actions button { width: 100%; min-height: 40px; }
+  .theoria-detail-meta { gap: 10px; margin-top: 15px; }
+  .theoria-detail-meta strong { font-size: 17px; }
+  .theoria-detail-tabs, .theoria-page-tabs { overflow-x: auto; gap: 18px; margin: 18px 0 12px; scrollbar-width: none; white-space: nowrap; }
+  .theoria-detail-tabs::-webkit-scrollbar, .theoria-page-tabs::-webkit-scrollbar { display: none; }
+  .theoria-detail-about { gap: 16px; padding: 14px 0; font-size: 12px; }
+
+  .theoria-reader { min-height: 100vh; min-height: 100dvh; margin: calc(-1 * max(14px, calc(14px + env(safe-area-inset-top)))) -14px calc(-92px - env(safe-area-inset-bottom)); padding: 0 16px calc(92px + env(safe-area-inset-bottom)); }
+  .theoria-app--reader .theoria-main { padding-bottom: 0; }
+  .theoria-app--reader .theoria-bottom-nav { display: none; }
+  .theoria-reader-header { position: sticky; top: 0; z-index: 4; min-height: 58px; gap: 8px; background: inherit; }
+  .theoria-reader-header > div:nth-child(2) { min-width: 0; }
+  .theoria-reader-header strong { max-width: 150px; overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+  .theoria-reader-header small { font-size: 8px; }
+  .theoria-reader-header > div:last-child { gap: 7px; }
+  .theoria-reader-menu { top: 58px; right: 14px; left: 14px; width: auto; }
+  .theoria-reader-page { min-height: auto; padding: 34px 4px 55px; font-size: 18px; line-height: 1.75; }
+  .theoria-reader-page h1 { margin-bottom: 24px; font-size: 29px; line-height: 1.25; }
+  .theoria-reader-page blockquote { margin: 28px 0; padding: 10px 14px; font-size: 19px; }
+  .theoria-reader-footer { position: fixed; right: 16px; bottom: max(10px, calc(10px + env(safe-area-inset-bottom))); left: 16px; z-index: 5; max-width: none; padding: 10px 0; background: inherit; }
+  .theoria-reader-footer button:last-child { display: none; }
+
+  .theoria-notes-list, .theoria-quote-list { width: 100%; max-width: none; }
+  .theoria-note-card, .theoria-quote-card { padding: 14px; }
+  .theoria-note-card p { font-size: 15px; }
+  .theoria-quote-card p { font-size: 19px; }
+  .theoria-empty-card { width: 100%; max-width: none; padding: 24px; }
+  .theoria-connection-layout { display: block; }
+  .theoria-connections { min-height: 420px; border-radius: 18px; }
+  .theoria-connection-list { display: none; }
+  .theoria-connection-lines { width: min(320px, 92vw); }
+  .theoria-orbit { width: 87px; height: 87px; font-size: 12px; }
+  .theoria-orbit--one { left: 7%; }
+  .theoria-orbit--two { right: 7%; }
+  .theoria-orbit--three { left: 7%; }
+  .theoria-orbit--four { right: 7%; }
+  .theoria-path-grid { width: 100%; max-width: none; }
+  .theoria-path-card { grid-template-columns: 70px minmax(0, 1fr); gap: 13px; padding: 12px; }
+  .theoria-path-card .theoria-cover { height: 94px; }
+  .theoria-path-card h2 { font-size: 21px; }
+  .theoria-global-search { width: 100%; min-height: 48px; height: 48px; font-size: 15px; }
+  .theoria-search-results { width: 100%; max-width: none; }
+  .theoria-search-results button { grid-template-columns: 62px minmax(0, 1fr); gap: 8px; padding: 12px; }
+  .theoria-search-results small { grid-column: 2; }
+  .theoria-profile-card { align-items: flex-start; flex-wrap: wrap; width: 100%; padding: 17px; }
+  .theoria-profile-card button { width: 100%; margin-left: 0; text-align: left; }
+  .theoria-profile-grid { grid-template-columns: 1fr; width: 100%; max-width: none; }
+  .theoria-settings-list { width: 100%; max-width: none; }
+  .theoria-settings-list label, .theoria-settings-list button { min-height: 56px; padding-inline: 13px; }
+  .theoria-settings-list button small { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .theoria-daily-page { width: 100%; max-width: none; }
+  .theoria-daily-page h1 { margin-bottom: 20px; font-size: 36px; }
+  .theoria-wisdom-card { padding: 24px; }
+  .theoria-wisdom-card p { font-size: 23px; }
+
+  .theoria-bottom-nav { right: 8px; bottom: max(8px, calc(8px + env(safe-area-inset-bottom))); left: 8px; padding: 5px; border-radius: 15px; }
+  .theoria-bottom-nav .theoria-nav-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+  .theoria-bottom-nav .theoria-nav-list button { min-width: 0; min-height: 52px; gap: 3px; padding: 6px 2px; border-radius: 11px; }
+  .theoria-bottom-nav .theoria-nav-list button span { width: auto; font-size: 16px; }
+  .theoria-bottom-nav .theoria-nav-list button small { width: 100%; overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+
+  .theoria-modal-backdrop { align-items: end; padding: 12px; }
+  .theoria-modal { width: 100%; max-height: calc(100dvh - 24px); padding: 23px 18px calc(18px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; }
+  .theoria-modal h2 { font-size: 26px; }
+  .theoria-source-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .theoria-modal input, .theoria-modal select { min-height: 44px; height: 44px; }
+  .theoria-modal-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .theoria-modal-actions button { width: 100%; min-height: 44px; }
+  .theoria-toast { right: 14px; bottom: calc(82px + env(safe-area-inset-bottom)); left: 14px; text-align: center; }
+}
+
+@media (max-width: 380px) {
+  .theoria-main { padding-inline: 11px; }
+  .theoria-heading h1 { font-size: 32px; }
+  .theoria-continue-body { grid-template-columns: minmax(0, 1fr) 76px; }
+  .theoria-continue-body > .theoria-cover { width: 76px; height: 109px; }
+  .theoria-shelf-grid { gap: 5px; }
+  .theoria-shelf-item .theoria-cover { height: 91px; }
+  .theoria-bottom-nav { right: 5px; left: 5px; }
+  .theoria-bottom-nav .theoria-nav-list button small { font-size: 7px; }
+}
