@@ -89,11 +89,16 @@
 .theoria-shelf-item small { color: var(--theoria-muted); font-size: 9px; }
 .theoria-shelf-item > span { height: 3px; display: block; margin-top: 9px; overflow: hidden; border-radius: 4px; background: rgba(255,255,255,.13); }
 .theoria-shelf-item > span i { display: block; height: 100%; background: var(--theoria-violet); }
-.theoria-daily-quote { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; align-items: center; gap: 24px; margin-top: 17px; padding: 20px 22px; border: 1px solid rgba(200,166,107,.25); border-radius: 16px; background: linear-gradient(105deg, rgba(200,166,107,.13), rgba(20,29,51,.8)); }
-.theoria-daily-quote-mark { display: block; margin-top: 6px; color: var(--theoria-brass); font: 500 38px/0.6 var(--font-serif); }
-.theoria-daily-quote p { margin: 0; font: italic 20px/1.35 var(--font-serif); }
-.theoria-daily-quote small { display: block; margin-top: 7px; color: var(--theoria-muted); font-size: 10px; }
-.theoria-daily-quote-date { align-self: start; color: var(--theoria-faint); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.theoria-daily-quote { display: grid; grid-template-columns: minmax(130px, .34fr) minmax(0, 1fr) auto; align-items: start; gap: 22px; margin-top: 17px; padding: 22px; border: 1px solid rgba(200,166,107,.3); border-radius: 17px; background: linear-gradient(110deg, rgba(200,166,107,.16), rgba(20,29,51,.86)); box-shadow: 0 16px 42px rgba(0,0,0,.13); }
+.theoria-daily-quote-lead { display: flex; align-items: flex-start; gap: 10px; }
+.theoria-daily-quote-lead strong { display: block; margin-top: 5px; color: var(--theoria-ink); font: 500 16px/1.1 var(--font-serif); }
+.theoria-daily-quote-mark { display: block; color: var(--theoria-brass); font: 500 42px/.75 var(--font-serif); }
+.theoria-daily-quote-copy { min-width: 0; }
+.theoria-daily-quote-copy > p { margin: 0; font: italic 20px/1.38 var(--font-serif); }
+.theoria-daily-quote-copy > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 13px; margin-top: 11px; }
+.theoria-daily-quote-copy small { color: var(--theoria-muted); font-size: 10px; }
+.theoria-daily-quote-copy span { color: var(--theoria-brass); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.theoria-daily-quote-date { align-self: start; color: var(--theoria-faint); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
 .theoria-section-heading { margin: 27px 0 15px; }
 .theoria-insight-grid { display: grid; gap: 10px; }
 .theoria-insight { display: grid; grid-template-columns: 27px minmax(0,1fr) 20px; align-items: center; gap: 12px; padding: 15px 16px; border: 1px solid var(--theoria-border); border-radius: 14px; background: rgba(20, 29, 51, .75); }
@@ -176,9 +181,12 @@
   .theoria-shelf-item .theoria-cover { height: 90px; }
   .theoria-shelf-item strong { font-size: 10px; }
   .theoria-shelf-item small { font-size: 8px; }
-  .theoria-daily-quote { grid-template-columns: 48px minmax(0,1fr); gap: 12px; padding: 17px; }
-  .theoria-daily-quote p { font-size: 17px; }
-  .theoria-daily-quote-date { grid-column: 2; }
+  .theoria-daily-quote { grid-template-columns: 1fr; gap: 13px; padding: 18px; }
+  .theoria-daily-quote-lead { align-items: center; }
+  .theoria-daily-quote-lead strong { font-size: 15px; }
+  .theoria-daily-quote-mark { font-size: 36px; }
+  .theoria-daily-quote-copy > p { font-size: 17px; line-height: 1.4; }
+  .theoria-daily-quote-date { grid-column: auto; }
   .theoria-insight p { font-size: 14px; }
   .theoria-connections { min-height: 420px; }
   .theoria-connection-lines { width: 320px; }
@@ -224,19 +232,31 @@
 .theoria-detail-about > div span { color: var(--theoria-faint); font-size: 10px; }
 .theoria-detail-about > div strong { display: block; margin-top: 4px; color: var(--theoria-ink); font: 15px var(--font-serif); }
 .theoria-detail-list { max-width: none; }
-.theoria-reader { position: relative; min-height: calc(100vh - 80px); margin: -23px clamp(-61px, -4vw, -18px) -48px; padding: 0 clamp(18px, 11vw, 175px) 30px; color: #2a2430; background: #f0e3ce; }
+.theoria-app--reader .theoria-topbar { display: none; }
+.theoria-reader { --theoria-reader-header-height: 121px; position: relative; min-height: calc(100vh - 80px); margin: -23px clamp(-61px, -4vw, -18px) -48px; padding: 0 clamp(18px, 11vw, 175px) 30px; color: #2a2430; background: #f0e3ce; }
 .theoria-reader--night { color: #eee8e2; background: #10172a; }
 .theoria-reader--sepia { color: #44382c; background: #d9c19b; }
 .theoria-reader-font--sans .theoria-reader-page { font-family: var(--font-sans); }
 .theoria-reader-font--dyslexia .theoria-reader-page { font-family: Arial, sans-serif; letter-spacing: .025em; }
-.theoria-reader-header { display: flex; align-items: center; justify-content: space-between; gap: 17px; min-height: 70px; border-bottom: 1px solid rgba(45,35,45,.16); }
-.theoria-reader--night .theoria-reader-header { border-color: rgba(255,255,255,.15); }
-.theoria-reader-header > button, .theoria-reader-header > div:last-child button { border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 17px; }
-.theoria-reader-header > div:nth-child(2) { display: grid; justify-items: center; gap: 2px; }
-.theoria-reader-header strong { font: 500 16px var(--font-serif); }
-.theoria-reader-header small { color: inherit; opacity: .6; font-size: 9px; }
-.theoria-reader-header > div:last-child { display: flex; gap: 12px; }
-.theoria-reader-menu { position: absolute; top: 63px; right: clamp(18px, 11vw, 175px); z-index: 3; display: grid; gap: 10px; width: 230px; padding: 17px; border: 1px solid rgba(40,35,45,.18); border-radius: 11px; color: var(--theoria-ink); background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+.theoria-reader-header { position: sticky; top: 0; z-index: 8; display: grid; gap: 10px; min-height: var(--theoria-reader-header-height); padding: 14px 0 11px; border-bottom: 1px solid rgba(45,35,45,.16); background: #f0e3ce; box-shadow: 0 9px 20px rgba(42,35,45,.07); }
+.theoria-reader--night .theoria-reader-header { border-color: rgba(255,255,255,.15); background: #10172a; box-shadow: 0 9px 20px rgba(0,0,0,.16); }
+.theoria-reader--sepia .theoria-reader-header { background: #d9c19b; }
+.theoria-reader-header-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-width: 0; }
+.theoria-reader-back, .theoria-reader-bookmark { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 4px; border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 13px; }
+.theoria-reader-back span:first-child { font-size: 22px; line-height: 1; }
+.theoria-reader-bookmark { justify-content: end; }
+.theoria-reader-bookmark span:first-child { color: var(--theoria-brass); font-size: 21px; line-height: 1; }
+.theoria-reader-title { display: grid; min-width: 0; justify-items: center; gap: 3px; text-align: center; }
+.theoria-reader-title strong { max-width: min(45vw, 390px); overflow: hidden; font: 500 17px/1.1 var(--font-serif); text-overflow: ellipsis; white-space: nowrap; }
+.theoria-reader-title small { max-width: min(55vw, 450px); overflow: hidden; color: inherit; opacity: .62; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.theoria-reader-toolbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 5px; border: 1px solid rgba(45,35,45,.16); border-radius: 11px; background: rgba(255,255,255,.27); }
+.theoria-reader--night .theoria-reader-toolbar { border-color: rgba(255,255,255,.14); background: rgba(255,255,255,.05); }
+.theoria-reader-toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; border: 0; border-radius: 7px; color: inherit; background: transparent; cursor: pointer; font-size: 11px; }
+.theoria-reader-toolbar button:hover, .theoria-reader-toolbar button.is-active { color: #211b2a; background: rgba(200,166,107,.38); }
+.theoria-reader--night .theoria-reader-toolbar button:hover, .theoria-reader--night .theoria-reader-toolbar button.is-active { color: var(--theoria-ink); background: rgba(200,166,107,.2); }
+.theoria-reader-toolbar button span:first-child { color: var(--theoria-brass); font-size: 16px; line-height: 1; }
+.theoria-reader-toolbar button span:last-child { font-weight: 700; }
+.theoria-reader-menu { position: absolute; top: var(--theoria-reader-header-height); right: clamp(18px, 11vw, 175px); z-index: 7; display: grid; gap: 10px; width: 230px; padding: 17px; border: 1px solid rgba(40,35,45,.18); border-radius: 11px; color: var(--theoria-ink); background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
 .theoria-reader-menu label { display: grid; gap: 5px; color: var(--theoria-muted); font-size: 10px; }
 .theoria-reader-menu select { min-height: 34px; border: 1px solid var(--theoria-border); border-radius: 6px; color: var(--theoria-ink); background: #10182c; }
 .theoria-reader-menu > button { min-height: 35px; border: 1px solid rgba(182,163,212,.35); border-radius: 7px; color: var(--theoria-violet-strong); background: rgba(182,163,212,.1); cursor: pointer; font-size: 10px; }
@@ -399,16 +419,19 @@
   .theoria-detail-tabs::-webkit-scrollbar, .theoria-page-tabs::-webkit-scrollbar { display: none; }
   .theoria-detail-about { gap: 16px; padding: 14px 0; font-size: 12px; }
 
-  .theoria-reader { min-height: 100vh; min-height: 100dvh; margin: calc(-1 * max(14px, calc(14px + env(safe-area-inset-top)))) -14px calc(-92px - env(safe-area-inset-bottom)); padding: 0 16px calc(92px + env(safe-area-inset-bottom)); }
-  .theoria-app--reader .theoria-main { padding-bottom: 0; }
+  .theoria-reader { --theoria-reader-header-height: 116px; min-height: 100vh; min-height: 100dvh; margin: 0 -14px calc(-92px - env(safe-area-inset-bottom)); padding: 0 16px calc(92px + env(safe-area-inset-bottom)); }
+  .theoria-app--reader .theoria-main { padding-top: calc(17px + env(safe-area-inset-top)); padding-bottom: 0; }
   .theoria-app--reader .theoria-bottom-nav { display: none; }
-  .theoria-reader-header { position: sticky; top: 0; z-index: 4; min-height: 58px; gap: 8px; background: inherit; }
-  .theoria-reader-header > div:nth-child(2) { min-width: 0; }
-  .theoria-reader-header strong { max-width: 150px; overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-  .theoria-reader-header small { font-size: 8px; }
-  .theoria-reader-header > div:last-child { gap: 7px; }
-  .theoria-reader-menu { top: 58px; right: 14px; left: 14px; width: auto; }
-  .theoria-reader-page { min-height: auto; padding: 34px 4px 55px; font-size: 18px; line-height: 1.75; }
+  .theoria-reader-header { gap: 8px; padding: 12px 0 10px; }
+  .theoria-reader-header-top { gap: 7px; }
+  .theoria-reader-back, .theoria-reader-bookmark { min-height: 38px; font-size: 12px; }
+  .theoria-reader-title strong { max-width: 43vw; font-size: 14px; }
+  .theoria-reader-title small { max-width: 48vw; font-size: 8px; }
+  .theoria-reader-toolbar { gap: 4px; }
+  .theoria-reader-toolbar button { min-height: 35px; gap: 5px; font-size: 10px; }
+  .theoria-reader-toolbar button span:first-child { font-size: 15px; }
+  .theoria-reader-menu { top: var(--theoria-reader-header-height); right: 14px; left: 14px; width: auto; }
+  .theoria-reader-page { min-height: auto; padding: 29px 4px 55px; font-size: 18px; line-height: 1.75; }
   .theoria-reader-page h1 { margin-bottom: 24px; font-size: 29px; line-height: 1.25; }
   .theoria-reader-page blockquote { margin: 28px 0; padding: 10px 14px; font-size: 19px; }
   .theoria-reader-footer { position: fixed; right: 16px; bottom: max(10px, calc(10px + env(safe-area-inset-bottom))); left: 16px; z-index: 5; max-width: none; padding: 10px 0; background: inherit; }
@@ -499,10 +522,10 @@
 .theoria-bookmark-list article { display: grid; gap: 5px; padding: 15px; border: 1px solid var(--theoria-border); border-radius: 13px; background: rgba(20,29,51,.72); }
 .theoria-bookmark-list span, .theoria-bookmark-list small { color: var(--theoria-muted); font-size: 10px; }
 .theoria-bookmark-list strong { font: 500 17px var(--font-serif); }
-.theoria-reader-panel { position: absolute; top: 70px; right: clamp(18px, 11vw, 175px); left: clamp(18px, 11vw, 175px); z-index: 4; display: grid; gap: 5px; max-height: 70vh; overflow: auto; padding: 18px; border: 1px solid var(--theoria-border); border-radius: 13px; color: var(--theoria-ink); background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+.theoria-reader-panel { position: absolute; top: var(--theoria-reader-header-height); right: clamp(18px, 11vw, 175px); left: clamp(18px, 11vw, 175px); z-index: 7; display: grid; gap: 5px; max-height: 70vh; overflow: auto; padding: 18px; border: 1px solid var(--theoria-border); border-radius: 13px; color: var(--theoria-ink); background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
 .theoria-reader-panel button { padding: 10px; border: 0; border-radius: 7px; color: var(--theoria-muted); background: transparent; cursor: pointer; text-align: left; font-size: 12px; }
 .theoria-reader-panel button:hover, .theoria-reader-panel button.is-active { color: var(--theoria-ink); background: rgba(182,163,212,.14); }
-.theoria-reader-search { position: absolute; top: 71px; right: clamp(18px, 11vw, 175px); left: clamp(18px, 11vw, 175px); z-index: 4; padding: 12px; border: 1px solid var(--theoria-border); border-radius: 12px; background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+.theoria-reader-search { position: absolute; top: var(--theoria-reader-header-height); right: clamp(18px, 11vw, 175px); left: clamp(18px, 11vw, 175px); z-index: 7; padding: 12px; border: 1px solid var(--theoria-border); border-radius: 12px; background: #17213a; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
 .theoria-reader-search input { width: 100%; min-height: 40px; padding: 0 11px; border: 1px solid var(--theoria-border); border-radius: 8px; color: var(--theoria-ink); background: #10182c; }
 .theoria-reader-search > div { display: grid; gap: 4px; margin-top: 8px; }
 .theoria-reader-search button { padding: 8px; border: 0; color: var(--theoria-muted); background: transparent; cursor: pointer; text-align: left; font-size: 11px; }
@@ -556,7 +579,7 @@
   .theoria-library-book { grid-template-columns: 52px minmax(0,1fr) auto; gap: 10px; }
   .theoria-library-book .theoria-cover { height: 70px; }
   .theoria-recent-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .theoria-reader-panel, .theoria-reader-search { top: 58px; right: 14px; left: 14px; }
+  .theoria-reader-panel, .theoria-reader-search { top: var(--theoria-reader-header-height); right: 14px; left: 14px; }
   .theoria-reader-empty { padding: 75px 15px; }
   .theoria-selection-tools { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); left: 12px; justify-content: center; transform: none; }
   .theoria-selection-tools button { flex: 1; padding-inline: 5px; }
