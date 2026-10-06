@@ -513,6 +513,8 @@
 .theoria-loading-card, .theoria-error-card { padding: 25px; border: 1px solid var(--theoria-border); border-radius: 17px; color: var(--theoria-muted); background: rgba(20,29,51,.72); font-size: 14px; }
 .theoria-error-card p { margin: 0 0 14px; }
 .theoria-error-card button, .theoria-home-empty button, .theoria-detail-quick-actions button { border: 0; color: var(--theoria-violet-strong); background: transparent; cursor: pointer; font-size: 11px; font-weight: 700; }
+.theoria-category-row { padding-top: 2px; }
+.theoria-category-row button:hover, .theoria-category-row button:focus-visible { transform: none; }
 .theoria-category-row button.is-active { border-color: rgba(200,166,107,.65); color: var(--theoria-ink); background: rgba(200,166,107,.2); }
 .theoria-library-list { display: grid; gap: 8px; }
 .theoria-library-book { display: grid; grid-template-columns: 58px minmax(0,1fr) auto; align-items: center; gap: 14px; width: 100%; padding: 10px; border: 1px solid var(--theoria-border); border-radius: 13px; color: var(--theoria-ink); background: rgba(20,29,51,.72); cursor: pointer; text-align: left; }
