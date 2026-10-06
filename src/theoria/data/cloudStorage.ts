@@ -61,3 +61,10 @@ export async function removeBookFile(path: string): Promise<void> {
   if (!user || !path.startsWith(`${user.id}/`)) return;
   await (await supabase()).storage.from(THEORIA_BOOK_BUCKET).remove([path]);
 }
+
+export async function removeCoverFile(path: string): Promise<void> {
+  if (!isSyncConfigured) return;
+  const user = await currentUser();
+  if (!user || !path.startsWith(`${user.id}/`)) return;
+  await (await supabase()).storage.from(THEORIA_COVER_BUCKET).remove([path]);
+}

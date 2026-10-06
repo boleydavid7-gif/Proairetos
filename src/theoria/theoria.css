@@ -582,3 +582,52 @@
   .theoria-modal input[type='file'] { height: 48px; padding: 8px 10px; }
   .theoria-modal { max-height: calc(100dvh - 16px); }
 }
+
+.theoria-primary-button,
+.theoria-secondary-button,
+.theoria-danger-button,
+.theoria-add-button,
+.theoria-quiet-button,
+.theoria-back-button,
+.theoria-detail-tabs button,
+.theoria-source-tabs button,
+.theoria-category-row button,
+.theoria-library-book,
+.theoria-recent-book { transition: transform .2s ease, border-color .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease; }
+.theoria-primary-button:hover:not(:disabled),
+.theoria-secondary-button:hover:not(:disabled),
+.theoria-danger-button:hover:not(:disabled),
+.theoria-add-button:hover,
+.theoria-quiet-button:hover,
+.theoria-back-button:hover,
+.theoria-detail-tabs button:hover,
+.theoria-source-tabs button:hover,
+.theoria-category-row button:hover,
+.theoria-library-book:hover,
+.theoria-recent-book:hover { transform: translateY(-1px); }
+.theoria-primary-button:active:not(:disabled),
+.theoria-secondary-button:active:not(:disabled),
+.theoria-danger-button:active:not(:disabled),
+.theoria-add-button:active,
+.theoria-quiet-button:active,
+.theoria-back-button:active { transform: translateY(0) scale(.98); }
+.theoria-danger-button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 15px; border: 1px solid rgba(229,157,157,.35); border-radius: 9px; color: #efb4b4; background: rgba(155,62,62,.14); cursor: pointer; font-size: 11px; font-weight: 700; }
+.theoria-danger-button:hover:not(:disabled) { border-color: rgba(229,157,157,.62); background: rgba(155,62,62,.25); }
+.theoria-view, .theoria-detail-view, .theoria-reader { animation: theoria-view-in .42s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-modal-backdrop { animation: theoria-fade-in .2s ease both; }
+.theoria-modal { animation: theoria-modal-in .34s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-card, .theoria-empty-card, .theoria-loading-card, .theoria-error-card, .theoria-notebook-layout, .theoria-reflection-list { animation: theoria-rise-in .42s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-reader-page { backface-visibility: hidden; transform-origin: 0 50%; will-change: transform, opacity; }
+.theoria-reader-page--next { animation: theoria-page-turn-next .46s cubic-bezier(.22, .8, .28, 1) both; }
+.theoria-reader-page--previous { animation: theoria-page-turn-previous .46s cubic-bezier(.22, .8, .28, 1) both; }
+
+@keyframes theoria-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes theoria-view-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes theoria-rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes theoria-modal-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes theoria-page-turn-next { from { opacity: 0; transform: translateX(24px) rotateY(-2deg); } to { opacity: 1; transform: translateX(0) rotateY(0); } }
+@keyframes theoria-page-turn-previous { from { opacity: 0; transform: translateX(-24px) rotateY(2deg); } to { opacity: 1; transform: translateX(0) rotateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
-import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, startStore, storeVersion, subscribe } from './data/store';
+import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe } from './data/store';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
-import { AddBookDialog, CaptureDialog, NotebookDialog, NotePageDialog, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
+import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { BookDetailView, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingBuffer, inspectReadingFile } from './data/importers';
-import { signedBookUrl, signedCoverUrl, uploadBookFile, uploadCoverFile } from './data/cloudStorage';
+import { removeBookFile, removeCoverFile, signedBookUrl, signedCoverUrl, uploadBookFile, uploadCoverFile } from './data/cloudStorage';
 import { lookupBookMetadata } from './data/metadata';
 
 type View = 'library' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search';
@@ -50,6 +50,7 @@ export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
+  const [editBookOpen, setEditBookOpen] = useState(false);
   const [capture, setCapture] = useState<CaptureState>();
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [noteState, setNoteState] = useState<NoteState>();
@@ -106,6 +107,45 @@ export default function TheoriaApp() {
     if (!selected) return;
     await putBook({ ...selected, favorite: !selected.favorite, updatedAt: new Date().toISOString() });
     toast(selected.favorite ? 'Removed from favorites.' : 'Added to favorites.');
+  };
+  const refreshMetadata = async (book = selected) => {
+    if (!book) return;
+    try {
+      const metadata = await lookupBookMetadata(book.title, book.author);
+      let coverPath = book.coverPath;
+      let coverUrl = metadata.coverUrl ?? book.coverUrl;
+      if (metadata.coverFile) {
+        try {
+          const cover = await uploadCoverFile(book.id, metadata.coverFile);
+          if (book.coverPath && book.coverPath !== cover.path) await removeCoverFile(book.coverPath);
+          coverPath = cover.path;
+        } catch {
+          coverUrl = book.coverPath ? undefined : coverUrl;
+        }
+      }
+      await putBook({ ...book, title: metadata.title ?? book.title, author: metadata.author ?? book.author, description: metadata.description ?? book.description, publisher: metadata.publisher ?? book.publisher, language: metadata.language ?? book.language, publicationDate: metadata.publicationDate ?? book.publicationDate, coverUrl, coverPath, updatedAt: new Date().toISOString() });
+      toast('Book details refreshed.');
+    } catch (error) { toast(error instanceof Error ? error.message : 'Book details could not be refreshed.'); }
+  };
+  const saveBookDetails = async (draft: BookDetailsDraft) => {
+    if (!selected) return;
+    await putBook({ ...selected, title: draft.title, author: draft.author || undefined, description: draft.description || undefined, updatedAt: new Date().toISOString() });
+    setEditBookOpen(false);
+    toast('Book details saved.');
+  };
+  const removeSelectedBook = async () => {
+    if (!selected || !window.confirm(`Remove “${selected.title}” from your library?`)) return;
+    try {
+      if (selected.filePath) await removeBookFile(selected.filePath);
+      if (selected.coverPath) await removeCoverFile(selected.coverPath);
+    } catch {
+      toast('The book was removed from this device. Its cloud copy may remain.');
+    }
+    await removeBook(selected.id);
+    setSelectedId(undefined);
+    setEditBookOpen(false);
+    setView('library');
+    toast('Book removed from your library.');
   };
   const saveBook = async (input: NewBookForm) => {
     let imported: Awaited<ReturnType<typeof inspectReadingFile>> | undefined;
@@ -224,7 +264,7 @@ export default function TheoriaApp() {
     <aside className="theoria-sidebar"><a href="/" className="theoria-family-link">PROAIRETOS <small>family</small></a><div className="theoria-brand"><TheoriaMark size={48} /><span><strong>THEORIA</strong></span></div><div className="theoria-sidebar-nav">{navGroups.map((group) => <TheoriaNav view={view} onView={chooseView} items={group.items} key={group.items[0].id} />)}</div><div className="theoria-sidebar-spacer" /><button type="button" className="theoria-person" onClick={() => setView('settings')}><span>{(name || 'R').slice(0, 1).toUpperCase()}</span>{name || 'Reader'}</button></aside>
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>THEORIA</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span><span className={'theoria-sync theoria-sync--' + sync.phase}><i />{sync.phase === 'ready' ? 'Synced' : sync.phase === 'signed-out' ? 'On this device' : 'Preparing'}</span></header><div className="theoria-page">
       {view === 'library' && <LibraryHome name={name} shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onSearch={() => setView('search')} />}
-      {view === 'detail' && selected && <BookDetailView book={selected} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} />}
+      {view === 'detail' && selected && <BookDetailView book={selected} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} />}
       {view === 'reader' && selected && <ReaderView book={selected} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
@@ -232,7 +272,7 @@ export default function TheoriaApp() {
       {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} />}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', glyph: '▤' }, { id: 'reader', label: 'Reader', glyph: '◈' }, { id: 'notes', label: 'Notes', glyph: '✎' }, { id: 'reflections', label: 'Reflect', glyph: '✦' }, { id: 'settings', label: 'Settings', glyph: '⚙' }]} /></nav>
-    {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} onLookup={lookupBookMetadata} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status">{notice}</div>}
+    {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status">{notice}</div>}
   </div>;
 }
 
