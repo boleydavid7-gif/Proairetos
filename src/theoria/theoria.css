@@ -631,3 +631,37 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+.theoria-search-icon { display: inline-grid; width: 40px; height: 40px; place-items: center; padding: 0; border: 1px solid var(--theoria-border); border-radius: 10px; color: var(--theoria-violet-strong); background: rgba(182,163,212,.08); cursor: pointer; }
+.theoria-search-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 1.7; }
+.theoria-reflection-search { margin-bottom: 18px; }
+.theoria-account-panel { max-width: 720px; margin-top: 25px; padding: 20px; border: 1px solid var(--theoria-border); border-radius: 16px; background: rgba(20,29,51,.72); }
+.theoria-account-panel h2 { margin: 7px 0 0; font: 500 24px var(--font-serif); }
+.theoria-account-status { padding: 6px 9px; border: 1px solid var(--theoria-border); border-radius: 999px; color: var(--theoria-muted); font-size: 10px; }
+.theoria-account-status--ready { color: #b7d1ba; border-color: rgba(169,195,172,.35); }
+.theoria-account-status--signed-out, .theoria-account-status--locked, .theoria-account-status--needs-setup { color: var(--theoria-brass); }
+.theoria-account-form { display: grid; gap: 10px; margin-top: 18px; }
+.theoria-account-form input:not([type='checkbox']) { width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--theoria-border); border-radius: 9px; outline: 0; color: var(--theoria-ink); background: #10182c; font-size: 16px; }
+.theoria-account-form input:not([type='checkbox']):focus { border-color: var(--theoria-violet); }
+.theoria-account-form button { width: 100%; }
+.theoria-account-actions { display: flex; gap: 8px; }
+.theoria-account-actions button { flex: 1; }
+.theoria-account-note { margin: 0; color: var(--theoria-muted); font-size: 12px; line-height: 1.5; }
+.theoria-account-link { justify-self: start; padding: 2px 0; border: 0; color: var(--theoria-violet-strong); background: transparent; cursor: pointer; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.theoria-recovery-key { overflow: auto; padding: 12px; border: 1px solid rgba(200,166,107,.35); border-radius: 9px; color: var(--theoria-brass); background: rgba(200,166,107,.08); font: 600 15px/1.5 var(--font-sans); letter-spacing: .08em; text-align: center; }
+.theoria-check-label { display: flex; align-items: center; gap: 8px; color: var(--theoria-muted); font-size: 12px; }
+.theoria-check-label input { width: 17px; height: 17px; accent-color: var(--theoria-brass); }
+
+.theoria-reader-footer input[type='range'] { flex: 1 1 auto; min-width: 0; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; outline: 0; appearance: none; -webkit-appearance: none; cursor: pointer; touch-action: pan-x; }
+.theoria-reader-footer input[type='range']::-webkit-slider-runnable-track { height: 5px; border-radius: 999px; background: transparent; }
+.theoria-reader-footer input[type='range']::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -9.5px; border: 2px solid var(--theoria-brass); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 3px 10px rgba(0,0,0,.28); appearance: none; -webkit-appearance: none; }
+.theoria-reader-footer input[type='range']::-moz-range-track { height: 5px; border-radius: 999px; background: transparent; }
+.theoria-reader-footer input[type='range']::-moz-range-progress { height: 5px; border-radius: 999px; background: var(--theoria-brass); }
+.theoria-reader-footer input[type='range']::-moz-range-thumb { width: 20px; height: 20px; border: 2px solid var(--theoria-brass); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 3px 10px rgba(0,0,0,.28); }
+
+@media (max-width: 900px) {
+  .theoria-account-panel { width: 100%; padding: 17px; }
+  .theoria-reader-footer { gap: 8px; }
+  .theoria-reader-footer button { flex: 0 0 auto; min-width: 52px; padding: 0 2px; }
+  .theoria-reader-footer span { min-width: 34px; text-align: right; }
+}
