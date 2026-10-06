@@ -558,3 +558,18 @@
   .theoria-reflection-card { display: grid; gap: 12px; }
   .theoria-reflection-card > div:last-child { justify-content: flex-start; }
 }
+
+/* Keep mobile form controls at the browser's no-zoom threshold. */
+@media (max-width: 900px) {
+  html { -webkit-text-size-adjust: 100%; }
+  .theoria-modal input,
+  .theoria-modal select,
+  .theoria-modal textarea,
+  .theoria-reader-search input,
+  .theoria-global-search { font-size: 16px; }
+  .theoria-modal input,
+  .theoria-modal select { height: 48px; min-height: 48px; }
+  .theoria-modal textarea { min-height: 112px; line-height: 1.45; }
+  .theoria-modal input[type='file'] { height: 48px; padding: 8px 10px; }
+  .theoria-modal { max-height: calc(100dvh - 16px); }
+}
