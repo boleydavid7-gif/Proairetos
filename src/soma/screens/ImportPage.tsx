@@ -1,3 +1,4 @@
+import { apiUrl } from '../../app/apiBase';
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { holdDraft } from '../app/draft';
@@ -21,7 +22,7 @@ export default function ImportPage({ nav }: { nav: Nav }) {
     setBusy(true);
     setProblem(undefined);
     try {
-      const response = await fetch(`/api/recipe?url=${encodeURIComponent(address)}`);
+      const response = await fetch(apiUrl(`/api/recipe?url=${encodeURIComponent(address)}`));
       const body = (await response.json()) as { url?: string; blocks?: string[]; title?: string; image?: string; error?: string };
       if (!response.ok) throw new Error(body.error ?? 'That page could not be read.');
       const draft = fromJsonLd(body.blocks ?? [], body.url ?? address);
