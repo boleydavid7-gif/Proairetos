@@ -46,8 +46,9 @@ describe('Hydros', () => {
       { id: 'b', kind: 'tea', amountOz: 8, loggedAt: '2026-10-04T12:00:00.000Z', createdAt: '2026-10-04T12:00:00.000Z' },
     ];
     expect(totalOz(drinks)).toBe(20);
-    expect(greeting(new Date('2026-10-04T08:00:00.000Z'))).toBe('Good morning');
-    expect(greeting(new Date('2026-10-04T19:00:00.000Z'))).toBe('Good evening');
+    expect(greeting(new Date(2026, 9, 4, 8, 0))).toBe('Good morning');
+    expect(greeting(new Date(2026, 9, 4, 14, 0))).toBe('Good afternoon');
+    expect(greeting(new Date(2026, 9, 4, 19, 0))).toBe('Good evening');
     expect(sourceBreakdown(drinks)).toEqual([
       { kind: 'water', count: 1, amountOz: 12, caffeineMg: 0 },
       { kind: 'tea', count: 1, amountOz: 8, caffeineMg: 35 },

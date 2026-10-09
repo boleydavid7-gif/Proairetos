@@ -18,5 +18,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      # Dates and times must hold wherever the person is, not just in UTC.
+      - run: TZ=Pacific/Auckland npm test
+      - run: TZ=America/Los_Angeles npm test
       - run: npm run build
       - run: npx wrangler deploy --dry-run

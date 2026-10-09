@@ -94,8 +94,12 @@ export function loadSettings(): HydrosSettings {
 
 export function saveSettings(settings: HydrosSettings): void {
   try {
-    localStorage.setItem(SETTINGS, JSON.stringify(settings));
-    localStorage.setItem(SETTINGS_FORMAT, CURRENT_SETTINGS_FORMAT);
+    try {
+      localStorage.setItem(SETTINGS, JSON.stringify(settings));
+      localStorage.setItem(SETTINGS_FORMAT, CURRENT_SETTINGS_FORMAT);
+    } catch {
+      // Storage full or blocked: this lasts for this visit only.
+    }
   } catch {
     // The next render still has the in-memory setting.
   }

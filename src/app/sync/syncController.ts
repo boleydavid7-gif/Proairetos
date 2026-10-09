@@ -1,8 +1,11 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { KeyError, createKeys, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
+import { withDeviceRecords } from '../../data/sync/deviceRecords';
+import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
 import {
   calendarFeedUrl,
+  createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
   deleteCalendarFeed,
@@ -36,7 +39,15 @@ import { reminderTimes } from './reminders';
 import { upcomingNotices } from '../notify/upcoming';
 import { hydrationNotices } from '../notify/hydrationSchedule';
 import { buildCalendarFile } from './calendarFile';
-import { loadCalendarFeed, loadQuietHours, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
+import {
+  loadCalendarFeed,
+  loadQuietHours,
+  notifyPreferences,
+  saveCalendarFeed,
+  subscribePreferences,
+  type StoredFeedOptions,
+} from '../../data/storage/preferences';
+import { applyAppearance } from '../appearance';
 
 export type SyncPhase =
   | 'unavailable' // not configured, or storage blocked
@@ -54,6 +65,8 @@ export type SyncStatus = {
   reminders: 'unsupported' | 'off' | 'on' | 'blocked';
   /** Records the server did not accept yet (it needs the Askesis migration). */
   held?: number;
+  /** Things edited on two devices at once, where this device's version was kept. */
+  kept?: number;
 };
 
 const KEY_META = 'dataKey';
@@ -148,23 +161,35 @@ export async function syncNow(): Promise<SyncResult | null> {
   if (!db) return null;
   set({ syncing: true, error: undefined });
   try {
+    const base = createIndexedDbLocalSyncStore(Promise.resolve(db));
     const engine = createSyncEngine({
-      local: createIndexedDbLocalSyncStore(Promise.resolve(db)),
+      local: withDeviceRecords(base),
       state: (await localState())!,
       remote: createSupabaseRemoteStore(userId),
       key: dataKey,
     });
     const result = await engine.sync();
+    // The bytes of photos and files follow the records that describe them.
+    const files = await syncAttachmentFiles({
+      rawList: () => base.list('attachments'),
+      putWithBytes: (record) => base.put('attachments', record),
+      state: (await localState())!,
+      files: createSupabaseFileStore(),
+      key: dataKey,
+      userId,
+    }).catch(() => ({ fetched: 0, sent: 0 }));
     const lastSyncedAt = new Date().toISOString();
     await (await localState())!.setMeta(LAST_SYNC_META, lastSyncedAt);
-    if (result.pulled > 0) {
+    if (result.pulled > 0 || files.fetched > 0) {
       applyingRemote = true;
       refreshScreens();
+      applyAppearance();
+      notifyPreferences();
       applyingRemote = false;
     }
     await updateReminders().catch(() => undefined);
     await refreshCalendarFeed().catch(() => undefined);
-    set({ syncing: false, lastSyncedAt, held: result.held || undefined });
+    set({ syncing: false, lastSyncedAt, held: result.held || undefined, kept: result.kept || undefined });
     return result;
   } catch (error) {
     set({ syncing: false, error: error instanceof Error ? error.message : 'Sync could not finish. It will try again.' });
@@ -187,6 +212,12 @@ export async function startSync(): Promise<void> {
       changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
     });
   }
+  // Settings changed on this device travel too.
+  subscribePreferences(() => {
+    if (applyingRemote || status.phase !== 'ready') return;
+    window.clearTimeout(changeTimer);
+    changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
+  });
   window.setInterval(() => document.visibilityState === 'visible' && void syncNow(), AUTO_SYNC_MS);
   document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && void syncNow());
   window.addEventListener('online', () => void syncNow());

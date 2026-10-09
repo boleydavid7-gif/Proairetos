@@ -1,3 +1,4 @@
+import { filesBucket, type FileStore } from './attachmentFiles';
 import type { EmailOtpType, SupabaseClient, User } from '@supabase/supabase-js';
 import type { WrappedKey } from './keys';
 import type { OutgoingRecord, RemoteRecord, RemoteStore } from './types';
@@ -159,6 +160,27 @@ export function createSupabaseRemoteStore(userId: string): RemoteStore {
       if (records.length === 0) return;
       const rows = records.map((record) => ({ user_id: userId, ...record }));
       const { error } = await (await supabase()).from('records').upsert(rows, { onConflict: 'user_id,collection,id' });
+      if (error) throw new Error(error.message);
+    },
+  };
+}
+
+// ---------- Sealed files (photos and files kept with items) ----------
+
+export function createSupabaseFileStore(): FileStore {
+  const bucket = async () => (await supabase()).storage.from(filesBucket);
+  return {
+    async upload(path, bytes) {
+      const { error } = await (await bucket()).upload(path, bytes, { upsert: true, contentType: 'application/octet-stream' });
+      if (error) throw new Error(error.message);
+    },
+    async download(path) {
+      const { data, error } = await (await bucket()).download(path);
+      if (error || !data) return null;
+      return data.arrayBuffer();
+    },
+    async remove(paths) {
+      const { error } = await (await bucket()).remove(paths);
       if (error) throw new Error(error.message);
     },
   };

@@ -64,6 +64,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
   `--app-name`, wider `.shell--tabs`); SOMA centres its sheet; Hydros has its
   own block in `hydros.css`; Praxis and Theoria already had side navigation.
+- Sync carries two more kinds of record (migration `20261016000000_preferences_files_sync.sql`,
+  held in `laterCollections` until the server has it): `preferences` (every setting in browser
+  storage that `syncedSetting` allows, one record each; device-only ones such as the name, sign-in
+  and weather place stay home; on a fresh device the account's copy wins the first time) and
+  `attachments` (details as records, bytes sealed with `sealBytes` into the private
+  `proairetos-files` bucket by `attachmentFiles.ts`). Both are added around the database store in
+  `deviceRecords.ts`. Pulls start 200 numbers back (`OVERLAP`) because the server numbers a write
+  before it commits. A record edited on two devices keeps this device's version, and the Account
+  page says so (`SyncResult.kept`). CI also runs the tests in two non-UTC time zones.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;

@@ -22,7 +22,7 @@ export function markOnboarded(): void {
 
 const LOOK_AHEAD_KEY = 'proairetos.lookAheadSetAside';
 
-function localDayKey(day: Date): string {
+export function localDayKey(day: Date): string {
   return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
 }
 
@@ -60,6 +60,11 @@ const preferenceListeners = new Set<() => void>();
 export function subscribePreferences(listener: () => void): () => void {
   preferenceListeners.add(listener);
   return () => preferenceListeners.delete(listener);
+}
+
+/** Tells open screens that settings changed under them (sync brought new ones). */
+export function notifyPreferences(): void {
+  preferenceListeners.forEach((listener) => listener());
 }
 
 function writeJson(key: string, value: unknown): void {
