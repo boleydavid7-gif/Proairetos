@@ -1,3 +1,4 @@
+import { apiUrl } from '../apiBase';
 import type { TagColor } from '../../core/look/tagColors';
 import type { ExternalEvent } from '../../core/calendar/readIcs';
 import { createListeners } from '../../services/listeners';
@@ -103,7 +104,7 @@ async function fetchCalendar(url: string): Promise<string> {
   } catch {
     // Usually blocked by the service for web pages; the bridge handles it.
   }
-  const bridged = await fetch(`/api/calendar?url=${encodeURIComponent(https)}`);
+  const bridged = await fetch(apiUrl(`/api/calendar?url=${encodeURIComponent(https)}`));
   const text = await bridged.text();
   if (!bridged.ok) throw new Error(text || 'The calendar could not be read.');
   return text;

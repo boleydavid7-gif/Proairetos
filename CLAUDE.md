@@ -198,6 +198,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Design pass: from 62rem Today lays its cards in two columns (greeting, capture and done-today across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
 - Written about (Compass > People, open a person): items and reflections that mention their name as a whole word, newest first, up to five (`core/compass/mentions.ts`); reflections left out while the lock is on.
+- Phone apps (Capacitor, `capacitor.config.json`, `docs/NATIVE.md`): packages and scripts are in, native folders are not (made on the person's computer). `apiUrl` / `VITE_API_BASE` aims the calendar and recipe imports at the live site for those builds; the Worker answers `capacitor://localhost` and similar origins on those two routes. Not done: native reminders, universal links, widgets.
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer

@@ -8,3 +8,6 @@ dist-*
 .dev.vars
 preview.log
 *.log
+# Phone app projects are made on the person's computer (npx cap add ios / android).
+/ios
+/android
