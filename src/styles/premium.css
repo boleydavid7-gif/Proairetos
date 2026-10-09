@@ -199,3 +199,8 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
     background: var(--color-accent);
   }
 }
+
+/* Words that rest over Today's landscape get a soft shadow in dark, so they keep their edge on the bright mist. */
+.page--landscape > :not(.page-landscape) {
+  text-shadow: var(--hero-shadow);
+}

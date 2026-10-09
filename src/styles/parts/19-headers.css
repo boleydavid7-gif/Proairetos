@@ -115,7 +115,7 @@
   inset: 0;
   background-size: cover;
   background-position: center 62%;
-  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(var(--landscape-brightness)) contrast(1.05);
+  filter: saturate(1.05) brightness(0.8);
 }
 
 /*
@@ -180,7 +180,7 @@
 
 .page-hero__photo {
   background-size: cover;
-  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.74) contrast(1.05);
+  filter: saturate(1.05) brightness(0.78);
 }
 
 .page-hero--peaks .page-hero__photo {
