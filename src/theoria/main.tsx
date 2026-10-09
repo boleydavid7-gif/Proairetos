@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from '../app/ErrorBoundary';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/eb-garamond/latin-600.css';
@@ -17,6 +18,6 @@ window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <TheoriaApp />
+    <ErrorBoundary><TheoriaApp /></ErrorBoundary>
   </React.StrictMode>,
 );

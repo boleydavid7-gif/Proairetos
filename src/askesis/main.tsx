@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from '../app/ErrorBoundary';
 import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
@@ -31,7 +32,7 @@ void startStore()
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <App />
+        <ErrorBoundary><App /></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();

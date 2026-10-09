@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from '../app/ErrorBoundary';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
@@ -25,7 +26,7 @@ window.addEventListener('storage', appearance);
 startStore();
 notifications.setHydrationSchedule({ enabled: loadSettings().reminders === true, intervalMinutes: loadSettings().reminderIntervalMinutes ?? 120 });
 notifications.start();
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><App /></ErrorBoundary></React.StrictMode>);
 void startSync();
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

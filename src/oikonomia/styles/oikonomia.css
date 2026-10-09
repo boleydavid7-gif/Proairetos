@@ -792,3 +792,7 @@
     grid-column: 1 / -1;
   }
 }
+
+:root.oikonomia {
+  --app-name: 'OIKONOMIA';
+}

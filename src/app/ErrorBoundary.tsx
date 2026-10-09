@@ -1,6 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { backupService } from './services';
 
+// Self-contained styling: every app in the family uses this page, and not all share one stylesheet.
+const page = { display: 'grid', gap: 16, maxWidth: '28rem', margin: '18vh auto 0', padding: '0 24px', color: 'inherit' } as const;
+const button = { minHeight: 44, padding: '0 20px', borderRadius: 999, font: 'inherit', cursor: 'pointer' } as const;
+const primary = { ...button, border: 0, background: '#c9a274', color: '#14110d', fontWeight: 600 } as const;
+const quiet = { ...button, border: '1px solid currentColor', background: 'transparent', color: 'inherit' } as const;
+
 type State = { broken: boolean; saved: boolean };
 
 /**
@@ -37,14 +43,14 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
   render() {
     if (!this.state.broken) return this.props.children;
     return (
-      <main className="error-page" role="alert">
-        <h1>That did not open.</h1>
-        <p>What you have recorded is safe on this device. Reloading usually puts things right.</p>
-        <div className="error-page__actions">
-          <button type="button" className="button-accent" onClick={() => window.location.reload()}>
+      <main className="error-page" role="alert" style={page}>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif, var(--serif, Georgia, serif))', fontWeight: 500 }}>That did not open.</h1>
+        <p style={{ margin: 0, opacity: 0.75 }}>What you have recorded is safe on this device. Reloading usually puts things right.</p>
+        <div className="error-page__actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          <button type="button" style={primary} onClick={() => window.location.reload()}>
             Reload
           </button>
-          <button type="button" className="chip" onClick={this.saveCopy}>
+          <button type="button" style={quiet} onClick={this.saveCopy}>
             {this.state.saved ? 'Copy saved' : 'Save a copy first'}
           </button>
         </div>
