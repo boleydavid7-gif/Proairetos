@@ -52,7 +52,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
 
       <div className="page page--under-hero">
         {!bills ? (
-          <section className="card"><p className="muted">Gathering what you keep here…</p></section>
+          <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /></div>
         ) : all.length === 0 ? (
           <>
             <section className="card oiko-empty">

@@ -1,3 +1,4 @@
+import { tap } from '../../app/feel';
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { ShareIcon } from '../app/icons';
@@ -44,7 +45,10 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
     void saveGroceries(next);
     if (words) undo(words, () => void saveGroceries(before));
   };
-  const toggle = (item: GroceryItem) => change(items.map((each) => (each.id === item.id ? { ...each, checked: !each.checked } : each)));
+  const toggle = (item: GroceryItem) => {
+    if (!item.checked) tap();
+    change(items.map((each) => (each.id === item.id ? { ...each, checked: !each.checked } : each)));
+  };
   const ticked = items.filter((item) => item.checked && onList(item));
   const toBuy = items.filter(onList);
 

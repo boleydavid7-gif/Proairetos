@@ -13,6 +13,7 @@ import '@fontsource/inter/latin-600.css';
 // The family's shared look (from Askesis), then SOMA's own warmer colours.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
+import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';

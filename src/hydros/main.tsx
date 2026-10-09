@@ -8,6 +8,7 @@ import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import '../askesis/styles/askesis.css';
 import './styles/hydros.css';
+import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startSync } from '../app/sync/syncController';

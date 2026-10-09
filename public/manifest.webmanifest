@@ -42,5 +42,28 @@
       "text": "share_text",
       "url": "share_url"
     }
-  }
+  },
+  "screenshots": [
+    {
+      "src": "/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Proairetos"
+    },
+    {
+      "src": "/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Proairetos"
+    },
+    {
+      "src": "/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Proairetos"
+    }
+  ]
 }
