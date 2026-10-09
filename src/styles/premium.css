@@ -114,3 +114,12 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   .skeleton { animation: none; }
   .list-card--button:hover, .card--link:hover { transform: none; }
 }
+
+/* ---------- Wide photos ---------- */
+/* An element that carries a wide picture in --photo-wide shows it on a computer-sized screen. */
+
+@media (min-width: 62rem) {
+  [style*='--photo-wide'] {
+    background-image: var(--photo-wide) !important;
+  }
+}

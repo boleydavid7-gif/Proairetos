@@ -1,12 +1,16 @@
 import type { Nav } from '../app/App';
 import heroImage from '../../assets/images/scenes/valley.webp';
+import heroWide from '../../assets/images/scenes/valley-wide.webp';
 import { ArchMark } from '../app/icons';
 import { saveSettings, loadSettings } from '../data/store';
 
 export default function WelcomePage({ nav }: { nav: Nav }) {
   return (
     <div className="welcome">
-      <img className="welcome__image" src={heroImage} alt="" />
+      <picture>
+        <source media="(min-width: 62rem)" srcSet={heroWide} />
+        <img className="welcome__image" src={heroImage} alt="" />
+      </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">
         <ArchMark size={64} light />
