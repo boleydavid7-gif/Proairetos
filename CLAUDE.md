@@ -60,7 +60,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`styles/parts/30-desktop.css`, `data-route` on `.app-shell`); phones are
   unchanged. Keys 1-5 jump between the main pages and `/` opens search
   (`app/shortcuts.ts`), never while typing or in a dialog.
-- `app/ErrorBoundary.tsx` wraps the app: a calm page with Reload and
+- Desktop for the other apps: Askesis, SOMA and Oikonomia share one block at
+  the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
+  `--app-name`, wider `.shell--tabs`); SOMA centres its sheet; Hydros has its
+  own block in `hydros.css`; Praxis and Theoria already had side navigation.
+- `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;
   script-src is `'self'` (no inline scripts in any page).

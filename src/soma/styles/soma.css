@@ -851,3 +851,20 @@
     animation: none;
   }
 }
+
+:root.soma {
+  --app-name: 'SOMA';
+}
+
+@media (min-width: 62rem) {
+  .sheet-back {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sheet {
+    max-width: 36rem;
+    border-radius: 22px;
+    padding-bottom: 18px;
+  }
+}
