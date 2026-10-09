@@ -1,5 +1,7 @@
+import LockScreen from './lock/LockScreen';
+import { lock, lockedRoutes } from './lock/lock';
 import EdgeSwipe from './back/EdgeSwipe';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { startSync } from './sync/syncController';
 import { otherCalendars } from './calendars/otherCalendars';
 import { weather } from './weather/weather';
@@ -35,6 +37,8 @@ const routeFromLocation = (): AppRoute => {
 
 export default function App() {
   const [started, setStarted] = useState(hasOnboarded);
+  const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
+  useEffect(() => lock.watchAway(), []);
   const [route, setRoute] = useState<AppRoute>(routeFromLocation);
   const current = useRef(route);
   current.current = route;
@@ -89,14 +93,15 @@ export default function App() {
       <NoticeOpener />
       <AppShell route={route} onNavigate={go}>
       {route === 'today' && <NowPage />}
-      {route === 'reflect' && <ReflectPage />}
+      {locked && lockedRoutes.includes(route) && <LockScreen />}
+      {route === 'reflect' && !locked && <ReflectPage />}
       {route === 'capture' && <CapturePage />}
       {route === 'compass' && <CompassPage />}
       {route === 'schedule' && <ScheduleScreen />}
-      {route === 'review' && <WeeklyReview />}
+      {route === 'review' && !locked && <WeeklyReview />}
       {route === 'settings' && <SettingsPage />}
-      {route === 'journal' && <JournalPage />}
-      {route === 'insights' && <InsightsPage />}
+      {route === 'journal' && !locked && <JournalPage />}
+      {route === 'insights' && !locked && <InsightsPage />}
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       {route === 'meditate' && <MeditatePage />}

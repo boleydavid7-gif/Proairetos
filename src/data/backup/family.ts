@@ -31,6 +31,8 @@ const LEFT_OUT = new Set([
   'proairetos.weather.now',
   'proairetos.calendarFeed',
   'proairetos.journalDraft',
+  // The passcode belongs to this device only.
+  'proairetos.lock',
   'askesis:startTest',
 ]);
 

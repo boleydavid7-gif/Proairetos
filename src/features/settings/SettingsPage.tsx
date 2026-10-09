@@ -4,7 +4,8 @@ import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import { useBackHandler } from '../../app/back/backStack';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { lock } from '../../app/lock/lock';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
@@ -413,6 +414,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
 };
 
 type View =
+  | 'lock'
   | 'notifications'
   | 'import'
   | 'weather'
@@ -438,6 +440,7 @@ export function openSettingsAt(view: View): void {
 }
 
 const viewTitles: Record<View, string> = {
+  lock: 'Lock Reflect',
   notifications: 'Notifications',
   profile: 'Your name',
   day: 'When your day starts',
@@ -917,6 +920,105 @@ function lastCopyLabel(iso: string | null): string | undefined {
   return when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+/** A passcode for Reflect and Journal. Off until chosen; it only keeps casual eyes out. */
+function LockSection() {
+  const on = useSyncExternalStore(lock.subscribe, lock.isOn);
+  const [code, setCode] = useState('');
+  const [again, setAgain] = useState('');
+  const [current, setCurrent] = useState('');
+  const [message, setMessage] = useState('');
+  const digits = (value: string) => value.replace(/\D/g, '');
+
+  if (!on) {
+    return (
+      <form
+        className="settings-card"
+        aria-label="Lock Reflect"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (code !== again) return setMessage('The two do not match.');
+          try {
+            await lock.turnOn(code);
+            setCode('');
+            setAgain('');
+            setMessage('');
+          } catch (reason) {
+            setMessage(reason instanceof Error ? reason.message : 'Could not set the lock.');
+          }
+        }}
+      >
+        <p className="section-description">
+          Ask for a passcode before Reflect, Journal, Insights and the weekly review open, and keep Reflect writing out of
+          search. It locks again after the app has been out of sight for a minute. It keeps casual eyes out on this phone; it
+          is not encryption, and the passcode stays on this device.
+        </p>
+        <input
+          className="field-input"
+          type="password"
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={8}
+          aria-label="Choose a passcode"
+          placeholder="4 to 8 digits"
+          value={code}
+          onChange={(event) => setCode(digits(event.target.value))}
+        />
+        <input
+          className="field-input"
+          type="password"
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={8}
+          aria-label="Passcode again"
+          placeholder="Again"
+          value={again}
+          onChange={(event) => setAgain(digits(event.target.value))}
+        />
+        {message && <p className="sheet__hint" role="status">{message}</p>}
+        <button type="submit" className="chip chip--accent chip--wide" disabled={code.length < 4}>
+          Turn on the lock
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <section className="settings-card" aria-label="Lock Reflect">
+      <p className="section-description">The lock is on. Reflect and Journal ask for the passcode.</p>
+      <button type="button" className="chip chip--wide" onClick={() => lock.lockNow()}>
+        Lock now
+      </button>
+      <h2 className="section-label">Turn it off</h2>
+      <input
+        className="field-input"
+        type="password"
+        inputMode="numeric"
+        autoComplete="off"
+        maxLength={8}
+        aria-label="Current passcode"
+        placeholder="Your passcode"
+        value={current}
+        onChange={(event) => setCurrent(digits(event.target.value))}
+      />
+      {message && <p className="sheet__hint" role="status">{message}</p>}
+      <button
+        type="button"
+        className="chip chip--wide"
+        disabled={current.length < 4}
+        onClick={async () => {
+          if (await lock.check(current)) lock.turnOff();
+          else {
+            setMessage('That is not the passcode.');
+            setCurrent('');
+          }
+        }}
+      >
+        Turn off the lock
+      </button>
+    </section>
+  );
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -962,6 +1064,7 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'appearance' && <AppearanceSection />}
+        {view === 'lock' && <LockSection />}
         {view === 'help' && <HelpSection />}
         {view === 'calendars' && (
           <>
@@ -1077,6 +1180,12 @@ export default function SettingsPage() {
       </SettingsGroup>
 
       <SettingsGroup label="Your data">
+        <Row
+          icon={<ShieldIcon size={22} />}
+          title="Lock Reflect"
+          value={lock.isOn() ? 'On' : 'Off'}
+          onClick={() => setView('lock')}
+        />
         <Row
           icon={<CloudIcon size={22} />}
           title="Account and sync"
