@@ -15,9 +15,9 @@
 .page-header__title {
   margin: 0 0 var(--space-3);
   font-family: var(--font-serif);
-  font-size: 2.6rem;
+  font-size: 2.3rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.05;
 }
 
 .page-header__subtitle {

@@ -178,3 +178,24 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
     filter: brightness(0.74) saturate(1.05);
   }
 }
+
+/* ---------- The bar along the bottom ---------- */
+/* Labels a little larger, and the page you are on marked by a short line above it, not only by colour. */
+@media (max-width: 61.99rem) {
+  .app-shell .tab-bar__item {
+    position: relative;
+    font-size: 0.8rem;
+  }
+
+  .app-shell .tab-bar__item[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    top: -0.45rem;
+    left: 50%;
+    width: 1.6rem;
+    height: 2px;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    background: var(--color-accent);
+  }
+}
