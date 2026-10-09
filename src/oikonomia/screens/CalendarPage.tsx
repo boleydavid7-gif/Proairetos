@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon } from '../app/icons';
-import { formatDate, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate, weekBounds } from '../core/bills';
+import { formatDate, formatMonth, formatTotals, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate, stillToCome, weekBounds } from '../core/bills';
 import { useBills, useSettings } from '../app/state';
 import { PageTop } from '../app/ui';
 
@@ -66,6 +66,12 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
 
       <section className="oiko-calendar-list">
         <div className="oiko-section-head"><h2>{range === 'month' ? 'Due this month' : 'Due this week'}</h2><span className="muted">{occurrences.length} {occurrences.length === 1 ? 'bill' : 'bills'}</span></div>
+        {occurrences.length > 0 && (
+          <p className="oiko-total">
+            <strong>{formatTotals(occurrences)}</strong>
+            <span>{stillToCome(occurrences).length === occurrences.length ? 'in all' : stillToCome(occurrences).length === 0 ? 'in all, all paid' : `in all, ${formatTotals(stillToCome(occurrences))} still to come`}</span>
+          </p>
+        )}
         {occurrences.length === 0 ? <p className="muted">Nothing is scheduled for this {range}.</p> : occurrences.map((occurrence) => (
           <button type="button" className="oiko-calendar-entry" key={occurrence.bill.id + occurrence.date} onClick={() => nav.go({ name: 'bill', id: occurrence.bill.id })}>
             <span className="oiko-calendar-entry__date">{formatDate(occurrence.date)}</span>

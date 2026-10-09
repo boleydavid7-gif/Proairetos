@@ -153,3 +153,81 @@ export function paidForOccurrence(bill: Bill, date: string): BillPayment | undef
 export function nextMonth(month: Date, amount: number): Date {
   return new Date(month.getFullYear(), month.getMonth() + amount, 1, 12);
 }
+
+/** How many days before its next date a paid bill comes back into view: its reminder lead, at least a week. */
+export function returnWindow(bill: Bill): number {
+  return Math.max(bill.reminderDays, 7);
+}
+
+export type Standing = {
+  /** The date this bill is about now (the one to pay), or the last one it had. */
+  date: string;
+  /** Paid for that date, and not yet near its next one: it leaves the list until it cycles around. */
+  settled: boolean;
+  /** When it comes back, if it will. */
+  returnsOn?: string;
+  /** A one-time bill that is done. */
+  complete?: boolean;
+};
+
+const DAYS = 86_400_000;
+
+/**
+ * Where a bill stands today. A date with a payment recorded is settled; the bill leaves the list and
+ * returns once its next date is within `returnWindow` days. Nothing about a bill is ever called late.
+ */
+export function standing(bill: Bill, today = localDate()): Standing {
+  const current = occurrenceOnOrAfter(bill, today);
+  if (!current) return { date: bill.dueDate, settled: true, complete: true };
+  const window = returnWindow(bill);
+  const daysTo = (date: string) => Math.round((parseDate(date).getTime() - parseDate(today).getTime()) / DAYS);
+  if (paidForOccurrence(bill, current.date)) {
+    // Paid for the coming date: settled until the one after it is near.
+    const next = occurrenceOnOrAfter(bill, addDays(current.date, 1));
+    if (!next) return { date: current.date, settled: true, complete: true };
+    if (daysTo(next.date) <= window && !paidForOccurrence(bill, next.date)) return { date: next.date, settled: false };
+    return { date: current.date, settled: true, returnsOn: addDays(next.date, -window) };
+  }
+  // Paid for the date just gone, and the coming one is still far off: it stays away until it cycles around.
+  const before = occurrenceBefore(bill, current.date);
+  if (before && paidForOccurrence(bill, before) && daysTo(current.date) > window) {
+    return { date: before, settled: true, returnsOn: addDays(current.date, -window) };
+  }
+  return { date: current.date, settled: false };
+}
+
+/** The date of the bill's turn just before `date`, if it had one. */
+function occurrenceBefore(bill: Bill, date: string): string | undefined {
+  let last: string | undefined;
+  for (let i = 0; i < 500; i += 1) {
+    const day = occurrenceDate(bill, i);
+    if (day >= date) break;
+    last = day;
+    if (bill.frequency === 'once') break;
+  }
+  return last;
+}
+
+/** The bill with a payment recorded for `date` (replacing one already there). Pure; saving is up to the caller. */
+export function withPayment(bill: Bill, date: string, id: string, now = new Date()): Bill {
+  const existing = bill.payments.find((payment) => payment.date === date);
+  const payment = { id: existing?.id ?? id, date, amountCents: bill.amountCents, note: existing?.note };
+  return { ...bill, payments: [...bill.payments.filter((item) => item.date !== date), payment], updatedAt: now.toISOString() };
+}
+
+/** What a set of bill dates adds up to, one amount per currency. */
+export function totalsOf(occurrences: readonly BillOccurrence[]): { currency: string; cents: number }[] {
+  const sums = new Map<string, number>();
+  for (const { bill } of occurrences) sums.set(bill.currency, (sums.get(bill.currency) ?? 0) + bill.amountCents);
+  return [...sums].map(([currency, cents]) => ({ currency, cents }));
+}
+
+export function formatTotals(occurrences: readonly BillOccurrence[]): string {
+  return totalsOf(occurrences)
+    .map(({ currency, cents }) => formatMoney(cents, currency))
+    .join(' + ');
+}
+
+/** The dates in a set that have no payment recorded yet. */
+export const stillToCome = (occurrences: readonly BillOccurrence[]): BillOccurrence[] =>
+  occurrences.filter(({ bill, date }) => !paidForOccurrence(bill, date));

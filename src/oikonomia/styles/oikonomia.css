@@ -821,3 +821,97 @@
   color: var(--muted);
   font-weight: 400;
 }
+
+/* A bill row pulled to the left to mark it paid. */
+.oiko-swipe {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+.oiko-swipe__action {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-right: 22px;
+  background: var(--oiko-clay-soft, rgba(212, 149, 116, 0.18));
+  color: var(--text);
+  font-weight: 500;
+}
+
+.oiko-swipe__front {
+  position: relative;
+  background: var(--bg, var(--surface, #0f1315));
+  touch-action: pan-y;
+  transition: transform 180ms ease;
+  will-change: transform;
+}
+
+.oiko-swipe .oiko-bill-row {
+  border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oiko-swipe__front {
+    transition: none;
+  }
+}
+
+/* The totals beside "Due this month" and "Due this week". */
+.oiko-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 2px 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.oiko-total strong {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.oiko-total span {
+  color: var(--muted, var(--text-muted, inherit));
+  font-size: 0.9rem;
+}
+
+/* Paid bills wait here, folded, until they cycle around. */
+.oiko-settled {
+  margin-top: 18px;
+}
+
+.oiko-settled summary {
+  cursor: pointer;
+  color: var(--muted, inherit);
+}
+
+.oiko-toast {
+  white-space: nowrap;
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 84px);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 14px 10px 18px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.oiko-toast button {
+  border: 0;
+  background: none;
+  color: var(--oiko-clay, var(--accent, inherit));
+  font: inherit;
+  font-weight: 600;
+}
