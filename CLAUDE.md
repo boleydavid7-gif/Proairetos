@@ -254,10 +254,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,
   scripts of cues spread over 5-30 min, optionally read aloud by the phone's
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
-  circle, counts, and breath sounds from one clock; the circle is still
-  until a sit starts, then brightens on the in-breath and dims on the
-  out-breath via `--light`, smoothed in JS (~0.35 s lag) and drawn with
-  pre-blurred `screen`-blended layers so it reads as light; no moving dot).
+  circle, counts, and breath sounds from one clock; the circle is a plain
+  ring until a sit starts, then a soft glow gathers around it as the breath goes out
+  (`--glow` = 1 - size, smoothed in JS ~0.35 s lag, opacity-only layers blended with
+  `screen`) and eases away on the in-breath; the ring never changes size).
   Each kind of sit (five session types + breathing) has its own setup
   (`core/meditate/setup.ts`: length, words often/now and then/rarely/none,
   read aloud, circle pace, counts, bells, breath sounds, sounds, music);
