@@ -68,7 +68,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
     setAmount(value);
     const parsed = Number(value);
     if (!Number.isFinite(parsed) || parsed <= 0) return;
-    updateSettings({ goalOz: Math.max(1, Math.min(300, Math.round(unitToOunces(parsed, unit)))) });
+    updateSettings({ goalOz: Math.max(1, Math.min(300, Math.round(unitToOunces(parsed, unit)))), goalChosen: true });
   };
 
   const chooseUnit = (next: HydrosUnit) => {

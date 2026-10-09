@@ -796,3 +796,28 @@
 :root.oikonomia {
   --app-name: 'OIKONOMIA';
 }
+
+/* A long quote stays a quiet line at the top, not most of the screen. */
+:root.oikonomia .home__title {
+  font-size: clamp(1.35rem, 5.6vw, 1.9rem);
+  line-height: 1.22;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* The reminder choice has room to read in full. */
+.oiko-select {
+  width: 10.5rem;
+  max-width: 48%;
+}
+
+/* Days outside the month are dimmer in feel but still readable. */
+.oiko-calendar-day--outside {
+  opacity: 1;
+}
+.oiko-calendar-day--outside .oiko-calendar-day__number {
+  color: var(--muted);
+  font-weight: 400;
+}

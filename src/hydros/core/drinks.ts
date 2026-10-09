@@ -37,6 +37,8 @@ export type HydrosUnit = 'oz' | 'ml' | 'L';
 
 export type HydrosSettings = {
   goalOz: number;
+  /** True once the person has set their own daily amount; until then Today shows what was drunk without a target. */
+  goalChosen?: boolean;
   usualMinOz: number;
   usualMaxOz: number;
   weightLb?: number;

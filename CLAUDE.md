@@ -73,6 +73,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `deviceRecords.ts`. Pulls start 200 numbers back (`OVERLAP`) because the server numbers a write
   before it commits. A record edited on two devices keeps this device's version, and the Account
   page says so (`SyncResult.kept`). CI also runs the tests in two non-UTC time zones.
+- Praxis and Theoria's phone bar sits along the bottom edge like the family's others (drawn icons, no
+  text glyphs); Theoria fills a book's title and author from the file; Hydros shows what was drunk with
+  no target until the person chooses a daily amount (`goalChosen`).
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;

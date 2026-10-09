@@ -76,6 +76,7 @@ export function loadSettings(): HydrosSettings {
       ...defaultHydrosSettings(),
       ...saved,
       goalOz: legacyDefault ? defaultHydrosSettings().goalOz : Number.isFinite(saved.goalOz) ? Math.max(1, Number(saved.goalOz)) : defaultHydrosSettings().goalOz,
+      goalChosen: saved.goalChosen === true || (Number.isFinite(saved.goalOz) && saved.goalOz !== defaultHydrosSettings().goalOz),
       usualMinOz: Number.isFinite(saved.usualMinOz) ? Math.max(1, Number(saved.usualMinOz)) : defaultHydrosSettings().usualMinOz,
       usualMaxOz: Number.isFinite(saved.usualMaxOz) ? Math.max(1, Number(saved.usualMaxOz)) : defaultHydrosSettings().usualMaxOz,
       weightLb: Number.isFinite(saved.weightLb) && Number(saved.weightLb) > 0 ? Number(saved.weightLb) : undefined,
