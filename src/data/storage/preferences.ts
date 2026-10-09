@@ -339,7 +339,16 @@ export type TodayPart =
   // Runs from Askesis, the training app beside Proairetos.
   | 'askesis'
   // Meals from SOMA, the recipe app beside Proairetos.
-  | 'soma';
+  | 'soma'
+  // Facts from the other apps, shown on Today only if chosen: bills coming up (Oikonomia),
+  // what was drunk today (Hydros), and a book being read (Theoria).
+  | 'bills'
+  | 'water'
+  | 'reading';
+
+/** Parts that stay off until the person turns them on in Settings. */
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'water', 'reading'];
+const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 
@@ -361,12 +370,14 @@ export function setShowNotForMe(on: boolean): void {
 
 /** A string snapshot, so screens can read it live without re-rendering forever. */
 export function todayHiddenSnapshot(): string {
-  return (readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []).join(',');
+  const chosen = readJson<TodayPart[]>(TODAY_OPT_IN_KEY) ?? [];
+  const offByDefault = OPT_IN_PARTS.filter((part) => !chosen.includes(part));
+  return [...(readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []), ...offByDefault].join(',');
 }
 
+/** The parts the person set aside. (Parts that start off are not in this list until chosen and set aside again.) */
 export function todayHidden(): TodayPart[] {
-  const snapshot = todayHiddenSnapshot();
-  return snapshot ? (snapshot.split(',') as TodayPart[]) : [];
+  return readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? [];
 }
 
 /**
@@ -380,7 +391,14 @@ export function startLight(): void {
 }
 
 export function setTodayPartShown(part: TodayPart, shown: boolean): void {
-  const hidden = new Set(todayHidden());
+  if (OPT_IN_PARTS.includes(part)) {
+    const chosen = new Set(readJson<TodayPart[]>(TODAY_OPT_IN_KEY) ?? []);
+    if (shown) chosen.add(part);
+    else chosen.delete(part);
+    writeJson(TODAY_OPT_IN_KEY, [...chosen]);
+    return;
+  }
+  const hidden = new Set((readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []));
   if (shown) hidden.delete(part);
   else hidden.add(part);
   writeJson(TODAY_HIDDEN_KEY, [...hidden]);

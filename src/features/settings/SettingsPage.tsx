@@ -634,6 +634,14 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
       },
     ],
   },
+  {
+    group: 'Other apps, on Today',
+    parts: [
+      { part: 'bills', label: 'Bills coming up', detail: 'Bills in Oikonomia with a date in the next few days and no payment recorded.' },
+      { part: 'water', label: 'What was drunk', detail: 'The amount logged today in Hydros, once there is one. No target.' },
+      { part: 'reading', label: 'A book being read', detail: 'The book you most recently opened in Theoria.' },
+    ],
+  },
 ];
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
