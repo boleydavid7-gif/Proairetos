@@ -488,3 +488,56 @@
 .cal-entry.tag--none {
   --tag: var(--color-accent);
 }
+
+/* On a phone: the week is a strip of seven days, and the day chosen fills the screen. */
+.cal-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+}
+
+.cal-strip__day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 3.6rem;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cal-strip__day strong {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-text);
+}
+
+.cal-strip__day[aria-selected='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.cal-strip__day--today strong {
+  color: var(--color-accent);
+}
+
+.cal-strip__day i {
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.7;
+}
