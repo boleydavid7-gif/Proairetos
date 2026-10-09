@@ -21,7 +21,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       </PageTop>
 
       {!bills ? (
-        <p className="muted">Gathering what you keep here…</p>
+        <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /><div className="skeleton" /></div>
       ) : ordered.length === 0 ? (
         <section className="card oiko-empty">
           <h2 className="card__title">Nothing here yet.</h2>

@@ -76,6 +76,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Praxis and Theoria's phone bar sits along the bottom edge like the family's others (drawn icons, no
   text glyphs); Theoria fills a book's title and author from the file; Hydros shows what was drunk with
   no target until the person chooses a daily amount (`goalChosen`).
+- `src/styles/premium.css` is the shared finish for all seven apps (imported last in each `main.tsx`):
+  card depth tokens, balanced headings, tabular figures, selection and focus colour, grain over the
+  home photos (`.hero::before`), the `.skeleton` shimmer for waiting. Add new shared polish there, not
+  per app. `tap()` (Gentle taps) also fires on groceries ticked, bill paid, drink saved and a study start.
+  Each manifest carries real screenshots (`public/<app>/screenshots/`, webp) for the install prompt.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;

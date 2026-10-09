@@ -1,3 +1,4 @@
+import { tap } from '../app/feel';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
 import { useClock } from '../app/hooks/useClock';
 import { startSync, syncStatus, onRemoteChanges } from '../app/sync/syncController';
@@ -188,6 +189,7 @@ export default function PraxisApp() {
     recordedSession.current = undefined;
     setSession(next);
     player.startSit([sound]);
+    tap();
     toast('Focus session started.');
   };
 

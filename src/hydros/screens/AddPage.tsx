@@ -1,3 +1,4 @@
+import { tap } from '../../app/feel';
 import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { defaultDrinkProfiles, drinkKinds, formatVolume, id, unitToOunces, type HydrosDrinkProfile, type HydrosUnit } from '../core/drinks';
@@ -24,6 +25,7 @@ export default function AddPage({ nav, profileId }: { nav: Nav; profileId?: stri
     hydrationCoefficient: item.id === 'water' || item.id === 'sparkling' ? 1 : .85,
   };
   const save = async () => {
+    tap();
     const now = new Date().toISOString();
     await putDrink({
       id: id(),

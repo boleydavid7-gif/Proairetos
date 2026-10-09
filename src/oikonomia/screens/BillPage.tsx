@@ -1,3 +1,4 @@
+import { tap } from '../../app/feel';
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, BellIcon, CalendarIcon, CheckIcon, RepeatIcon, WalletIcon } from '../app/icons';
@@ -14,11 +15,12 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
 
   const next = useMemo(() => (found ? occurrenceOnOrAfter(found, today) : undefined), [found, today]);
 
-  if (!bills) return <div className="page oiko-page"><p className="muted">Gathering this bill…</p></div>;
+  if (!bills) return <div className="page oiko-page"><div className="skeleton-stack" role="status" aria-label="Gathering this bill"><div className="skeleton" /><div className="skeleton" /></div></div>;
   if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button></PageTop><h1 className="title">That bill is not here.</h1></div>;
   const bill = found;
 
   async function markPaid() {
+    tap();
     const date = next?.date ?? today;
     const existing = bill.payments.find((payment) => payment.date === date);
     const payment = { id: existing?.id ?? newId(), date, amountCents: bill.amountCents, note: existing?.note };
