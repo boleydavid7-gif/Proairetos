@@ -159,6 +159,41 @@ export default function NotificationsSection() {
           onToggle={() => update({ lookBacks: !settings.lookBacks })}
         />
         <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
+        <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
+          {settings.bellAt.map((at, index) => (
+            <span key={index} className="notify-bell">
+              <input
+                type="time"
+                className="field-input notify-select"
+                aria-label={`Bell time ${index + 1}`}
+                value={at}
+                onChange={(event) => {
+                  if (!event.target.value) return;
+                  update({ bellAt: settings.bellAt.map((t, i) => (i === index ? event.target.value : t)) });
+                }}
+              />
+              {settings.bellAt.length > 1 && (
+                <button
+                  type="button"
+                  className="text-link"
+                  aria-label={`Remove bell time ${index + 1}`}
+                  onClick={() => update({ bellAt: settings.bellAt.filter((_, i) => i !== index) })}
+                >
+                  Remove
+                </button>
+              )}
+            </span>
+          ))}
+          {settings.bellAt.length < 3 && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => update({ bellAt: [...settings.bellAt, '12:30'].sort() })}
+            >
+              Add a time
+            </button>
+          )}
+        </Switch>
         <Switch on={settings.day} label="A look at your day" onToggle={() => update({ day: !settings.day })}>
           <input
             type="time"

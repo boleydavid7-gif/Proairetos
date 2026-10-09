@@ -87,6 +87,17 @@ export function saveFocusSession(session: unknown): void {
   writeJson(FOCUS_KEY, session);
 }
 
+const FOCUS_BREATH_KEY = 'proairetos.focusBreath';
+
+/** Whether a focus session begins with one breath; off until chosen. */
+export function loadFocusBreath(): boolean {
+  return readJson<boolean>(FOCUS_BREATH_KEY) === true;
+}
+
+export function saveFocusBreath(on: boolean): void {
+  writeJson(FOCUS_BREATH_KEY, on);
+}
+
 const LAST_VISIT_KEY = 'proairetos.lastVisit';
 let previousVisit: Date | null | undefined;
 
@@ -576,6 +587,12 @@ export function saveMeditate(settings: MeditateSettings): void {
 
 const NOTIFY_KEY = 'proairetos.notify';
 
+/** Up to three "HH:MM" times, in order; the default pair if none are usable. */
+function bellTimes(saved: unknown): string[] {
+  const times = Array.isArray(saved) ? saved.filter((t): t is string => typeof t === 'string' && /^\d{2}:\d{2}$/.test(t)) : [];
+  return times.length ? [...new Set(times)].sort().slice(0, 3) : defaultNoticeSettings.bellAt;
+}
+
 /** What notifies, and how; device-only, like quiet hours. */
 export function loadNotify(): NoticeSettings {
   const saved = readJson<Partial<NoticeSettings>>(NOTIFY_KEY) ?? {};
@@ -584,6 +601,7 @@ export function loadNotify(): NoticeSettings {
     ...saved,
     calendarLead: normalizeLeadMinutes(saved.calendarLead, defaultNoticeSettings.calendarLead),
     scheduleLead: normalizeLeadMinutes(saved.scheduleLead, defaultNoticeSettings.scheduleLead),
+    bellAt: bellTimes(saved.bellAt),
   };
 }
 

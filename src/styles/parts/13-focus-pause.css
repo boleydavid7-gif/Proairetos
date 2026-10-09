@@ -332,3 +332,14 @@
 .pause-screen__end {
   margin-top: var(--space-5);
 }
+
+/* Setting a thought aside during focus. */
+.focus-park {
+  display: grid;
+  gap: var(--space-2);
+  width: min(100%, 22rem);
+}
+
+.focus-park__open {
+  min-height: 2.75rem;
+}
