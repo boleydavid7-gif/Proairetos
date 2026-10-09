@@ -639,6 +639,7 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     parts: [
       { part: 'bills', label: 'Bills coming up', detail: 'Bills in Oikonomia with a date in the next few days and no payment recorded.' },
       { part: 'water', label: 'What was drunk', detail: 'The amount logged today in Hydros, once there is one. No target.' },
+      { part: 'on-this-day', label: 'On this day', detail: 'Your own words from this day in an earlier year, when there are some.' },
       { part: 'reading', label: 'A book being read', detail: 'The book you most recently opened in Theoria.' },
     ],
   },

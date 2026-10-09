@@ -8,6 +8,7 @@ import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
 import TodayFamily from '../today/TodayFamily';
+import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -266,6 +267,7 @@ export default function NowPage() {
 
       {shows('askesis') && <TodayRun today={today} />}
       <TodayFamily today={today} />
+      <TodayOnThisDay today={today} />
 
       {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
 
