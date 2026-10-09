@@ -33,7 +33,9 @@ rule: **the system records life; it does not interpret life.**
 npm install
 npm run dev          # local dev server
 npm test             # vitest (300+ tests), includes the language guard
+npm run lint         # oxlint (correctness)
 npm run typecheck
+npm run check        # lint + typecheck + tests, as CI runs them
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 ```
@@ -51,6 +53,23 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `/assets` (unknown paths serve the app page).
 - The user deploys from `main`. Work on the session branch and push to
   both the branch and `main` once checks pass.
+
+## Desktop, safety and checks
+
+- From 62rem wide the tab bar becomes a left rail and sheets centre
+  (`styles/parts/30-desktop.css`, `data-route` on `.app-shell`); phones are
+  unchanged. Keys 1-5 jump between the main pages and `/` opens search
+  (`app/shortcuts.ts`), never while typing or in a dialog.
+- `app/ErrorBoundary.tsx` wraps the app: a calm page with Reload and
+  "Save a copy first" if a screen breaks.
+- `public/_headers` sets CSP and other security headers for every app;
+  script-src is `'self'` (no inline scripts in any page).
+- Worker bridges (`worker/safeFetch.ts`): redirects re-checked hop by hop,
+  bodies read only up to the limit, 30 requests a minute per visitor.
+- The build stamps `dist/sw.js` with the build time (no hand-bumped
+  cache number). `.github/workflows/ci.yml` runs lint, typecheck, tests,
+  build and a wrangler dry run on every pull request.
+- Component tests use `// @vitest-environment jsdom` in `src/tests/**/*.test.tsx`.
 
 ## Architecture map
 

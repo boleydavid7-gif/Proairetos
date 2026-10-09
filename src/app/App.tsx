@@ -21,6 +21,7 @@ import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
 import { notifications } from './notify/notifications';
 import { directionBetween, transition } from './transitions';
+import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, routePaths, type AppRoute } from './routes/routeTypes';
@@ -43,6 +44,7 @@ export default function App() {
     if (next === from) return;
     transition(directionBetween(from, next), () => setRoute(next));
   }, []);
+  useShortcuts(go);
   const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
   // Read once at start; kept until onboarding is done, if it is not yet.
   const [shared, setShared] = useState(takeShared);
