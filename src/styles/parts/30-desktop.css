@@ -188,3 +188,14 @@
     margin-top: var(--space-4);
   }
 }
+
+/* The command palette sits high on a computer screen, like a search bar. */
+@media (min-width: 62rem) {
+  .palette {
+    margin-top: 12svh;
+  }
+}
+
+.search-row--active {
+  background: var(--color-accent-soft);
+}
