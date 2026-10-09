@@ -5,11 +5,13 @@
  */
 export type Searchable = {
   id: string;
-  kind: 'item' | 'reflection' | 'decision' | 'statement';
+  kind: 'item' | 'reflection' | 'decision' | 'statement' | 'app';
   title: string;
   /** Other text that can match, each with a short name for where it came from. */
   fields: { name: string; text: string | undefined }[];
   at: string;
+  /** For a record kept in another app: where to open it. */
+  href?: string;
 };
 
 export type SearchHit = Searchable & { snippet?: string };
