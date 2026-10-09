@@ -22,7 +22,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
   const mode = useStorageMode();
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-route={route}>
       <main className="app-shell__content">
         <MovedNotice />
         {mode === 'memory' && (
@@ -37,6 +37,9 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
       </main>
 
       <nav className="tab-bar" aria-label="Main navigation">
+        <span className="tab-bar__brand" aria-hidden="true">
+          Proairetos
+        </span>
         {navigation.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
