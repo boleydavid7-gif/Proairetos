@@ -1,6 +1,6 @@
 import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
-import { formatDate, formatMoney, formatTotals, relativeDue, monthBounds, occurrencesBetween, standing, stillToCome, type Bill } from '../core/bills';
+import { formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
 import { usePayBill } from '../app/payBill';
 import { financeLineFor } from '../core/lines';
@@ -98,8 +98,8 @@ export default function HomePage({ nav }: { nav: Nav }) {
             </div>
             {thisMonth.length > 0 && (
               <p className="oiko-total">
-                <strong>{formatTotals(thisMonth)}</strong>
-                <span>{monthOpen.length === thisMonth.length ? 'in all' : monthOpen.length === 0 ? 'in all, all paid' : `in all, ${formatTotals(monthOpen)} still to come`}</span>
+                <strong>{remainingSummary(thisMonth).main}</strong>
+                <span>{remainingSummary(thisMonth).note}</span>
               </p>
             )}
             <section className="oiko-list" aria-label="Bills this month">

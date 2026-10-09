@@ -69,3 +69,20 @@ describe('totals', () => {
     expect(formatTotals([{ bill: rent, date: 'x' }, { bill: bill({ currency: 'EUR', amountCents: 2000 }), date: 'y' }])).toBe('$1,000.00 + €20.00');
   });
 });
+
+import { remainingSummary } from '../../oikonomia/core/bills';
+
+describe('what is left to pay', () => {
+  const rent = bill();
+  const paidPhone = withPayment(bill({ id: 'p', name: 'Phone', amountCents: 4550 }), '2026-11-05', 'x');
+
+  it('puts the unpaid amount first and the whole beside it', () => {
+    expect(remainingSummary([{ bill: rent, date: '2026-11-01' }, { bill: paidPhone, date: '2026-11-05' }])).toEqual({ main: '$1,000.00', note: 'left to pay, of $1,045.50' });
+  });
+
+  it('says so when nothing is paid or everything is', () => {
+    expect(remainingSummary([{ bill: rent, date: '2026-11-01' }])).toEqual({ main: '$1,000.00', note: 'left to pay' });
+    expect(remainingSummary([{ bill: paidPhone, date: '2026-11-05' }])).toEqual({ main: '$45.50', note: 'all paid' });
+    expect(remainingSummary([])).toEqual({ main: '', note: '' });
+  });
+});

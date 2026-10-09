@@ -231,3 +231,13 @@ export function formatTotals(occurrences: readonly BillOccurrence[]): string {
 /** The dates in a set that have no payment recorded yet. */
 export const stillToCome = (occurrences: readonly BillOccurrence[]): BillOccurrence[] =>
   occurrences.filter(({ bill, date }) => !paidForOccurrence(bill, date));
+
+/** What is left to pay, and the whole, for a set of bill dates, as text. */
+export function remainingSummary(occurrences: readonly BillOccurrence[]): { main: string; note: string } {
+  const open = stillToCome(occurrences);
+  const whole = formatTotals(occurrences);
+  if (occurrences.length === 0) return { main: '', note: '' };
+  if (open.length === 0) return { main: whole, note: 'all paid' };
+  if (open.length === occurrences.length) return { main: whole, note: 'left to pay' };
+  return { main: formatTotals(open), note: `left to pay, of ${whole}` };
+}
