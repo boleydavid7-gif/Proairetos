@@ -9,6 +9,7 @@ import type { SitKind, SitSetup } from '../../core/meditate/setup';
 import { PauseIcon, PlayIcon } from '../../components/icons/Icons';
 import BreathCircle from './BreathCircle';
 import lake from '../../assets/images/scenes/lake.webp';
+import lakeWide from '../../assets/images/scenes/lake-wide.webp';
 
 /** A sit about to begin: its kind and how the person set it up. */
 export type SitPlan = { kind: SitKind; setup: SitSetup };
@@ -163,7 +164,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
 
   return (
     <div className={`sit-screen${script?.fadeOut ? ' sit-screen--sleep' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="sit-screen__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
+      <div className="sit-screen__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})` } as React.CSSProperties} aria-hidden="true" />
       <button type="button" className="sit-screen__leave" onClick={leave}>
         {done ? 'Close' : 'End'}
       </button>

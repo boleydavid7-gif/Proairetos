@@ -47,6 +47,7 @@ import {
 } from '../../data/storage/preferences';
 import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
+import valleyWide from '../../assets/images/scenes/valley-wide.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import CalendarSection from './CalendarSection';
@@ -998,7 +999,7 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle="Your practice, your data." />
 
       <button type="button" className="profile-card" onClick={() => setView('profile')}>
-        <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
+        <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
         <span className="profile-card__text">
           <span className="profile-card__name">{name || 'Add your name'}</span>
           <span className="profile-card__detail">

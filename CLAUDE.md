@@ -84,6 +84,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   home photos (`.hero::before`), the `.skeleton` shimmer for waiting. Add new shared polish there, not
   per app. `tap()` (Gentle taps) also fires on groceries ticked, bill paid, drink saved and a study start.
   Each manifest carries real screenshots (`public/<app>/screenshots/`, webp) for the install prompt.
+- Wide photos (`valley-wide`, `lake-wide`, `forest-wide` in `assets/images/scenes/`, 1672×941) show on computer-sized screens:
+  an element sets `--photo-wide` inline and `premium.css` swaps it in from 62rem; Oikonomia's heroes use `<picture>`.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;

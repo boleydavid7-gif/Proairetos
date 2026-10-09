@@ -5,6 +5,8 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, reflectionService } from '../../app/services';
 import valley from '../../assets/images/scenes/valley.webp';
+import forestWide from '../../assets/images/scenes/forest-wide.webp';
+import type { CSSProperties } from 'react';
 import MicButton from '../../components/dictation/MicButton';
 import { ArrowLeftIcon, TagIcon } from '../../components/icons/Icons';
 import type { InnerWeather } from '../../core/reflections/types';
@@ -62,7 +64,7 @@ export default function JournalPage() {
         <span className="journal__date">{today}</span>
       </div>
 
-      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
+      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${forestWide})` } as CSSProperties} />
 
       <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
 
