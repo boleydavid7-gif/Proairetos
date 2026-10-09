@@ -665,3 +665,10 @@
   text-decoration: none;
   font-size: 0.95rem;
 }
+
+/* A to-do being carried over a day: that day gets a soft outline. */
+.days-day--over {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
