@@ -1,3 +1,4 @@
+import { promptText } from '../reflect/prompts';
 import { notifications } from '../../app/notify/notifications';
 import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
@@ -69,6 +70,15 @@ function download(text: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function downloadReadable(text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `proairetos-readable-${localDayKey(new Date())}.md`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function describeCounts(data: BackupData): string {
   const counts = countRecords(data);
   const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
@@ -131,6 +141,18 @@ function ExportSection() {
           ? `Last backup ${new Date(last).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}.`
           : 'No backup yet.'}
       </p>
+      <h2 className="section-label">A readable copy</h2>
+      <p className="section-description">
+        Your reflections, decisions, Compass and captures as a plain Markdown file you can open anywhere. It is not a
+        backup and has no password, so keep it somewhere private.
+      </p>
+      <button
+        type="button"
+        className="chip chip--wide"
+        onClick={async () => downloadReadable(await backupService.exportReadable(promptText))}
+      >
+        Download readable copy
+      </button>
     </section>
   );
 }
