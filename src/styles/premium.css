@@ -123,3 +123,47 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
     background-image: var(--photo-wide) !important;
   }
 }
+
+/* ---------- Light mode photos ---------- */
+/* The same places that show a landscape in dark show the morning one in light, left true to its colours. */
+
+:root[data-theme='light'] [style*='--photo-light'] {
+  background-image: var(--photo-light) !important;
+  filter: saturate(1.05) brightness(1.02);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] [style*='--photo-light'] {
+    background-image: var(--photo-light) !important;
+    filter: saturate(1.05) brightness(1.02);
+  }
+}
+
+@media (min-width: 62rem) {
+  :root[data-theme='light'] [style*='--photo-light-wide'] {
+    background-image: var(--photo-light-wide) !important;
+  }
+}
+
+@media (min-width: 62rem) and (prefers-color-scheme: light) {
+  :root[data-theme='system'] [style*='--photo-light-wide'] {
+    background-image: var(--photo-light-wide) !important;
+  }
+}
+
+/* ---------- Glass ---------- */
+/* Main cards in Proairetos are a little see-through, so a photo behind them shows softly. */
+
+.app-shell :is(.list-card, .item-card, .now-card, .intention, .settings-card, .settings-list, .profile-card,
+  .insight-card, .kind-tile, .statement, .goal, .person, .run-card, .date-card, .observations, .decision-note,
+  .timeline__entry, .three-item, .look-back, .sort-card, .add-reflection, .week-ahead__day, .composer) {
+  background: color-mix(in srgb, var(--color-surface) 74%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.app-shell .tab-bar {
+  background: rgba(var(--color-bar-rgb), 0.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
+}

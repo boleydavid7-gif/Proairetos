@@ -18,7 +18,7 @@
   --color-bar-rgb: 14, 17, 20;
   --hero-text: rgba(242, 236, 226, 0.82);
   --landscape-brightness: 0.78;
-  --landscape-scrim: 0.3;
+  --landscape-scrim: 0.58;
   --grabber: rgba(255, 255, 255, 0.18);
   --hero-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
   color-scheme: dark;
@@ -81,7 +81,7 @@
   --color-bar-rgb: 251, 246, 238;
   --hero-text: #5f554a;
   --landscape-brightness: 1.05;
-  --landscape-scrim: 0.7;
+  --landscape-scrim: 0.58;
   --grabber: rgba(43, 37, 31, 0.22);
   --hero-shadow: none;
   color-scheme: light;
@@ -112,7 +112,7 @@
     --color-bar-rgb: 251, 246, 238;
     --hero-text: #5f554a;
     --landscape-brightness: 1.05;
-  --landscape-scrim: 0.7;
+  --landscape-scrim: 0.58;
   --grabber: rgba(43, 37, 31, 0.22);
   --hero-shadow: none;
     color-scheme: light;
