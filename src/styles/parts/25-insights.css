@@ -118,3 +118,42 @@
   color: var(--color-text-muted);
   font-size: 0.75rem;
 }
+
+/* A year in your own words: folded until opened, then plain lines in the order they happened. */
+.year-words {
+  display: block;
+}
+
+.year-words__summary {
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.year-words__part {
+  margin-top: var(--space-4);
+}
+
+.year-words__title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.year-words__lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+  white-space: pre-line;
+}
+
+.year-words__day {
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+  margin-right: var(--space-2);
+}

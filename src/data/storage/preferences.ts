@@ -344,10 +344,12 @@ export type TodayPart =
   // what was drunk today (Hydros), and a book being read (Theoria).
   | 'bills'
   | 'water'
-  | 'reading';
+  | 'reading'
+  // What was written on this day in an earlier year; off until chosen.
+  | 'on-this-day';
 
 /** Parts that stay off until the person turns them on in Settings. */
-const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'water', 'reading'];
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'water', 'reading', 'on-this-day'];
 const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
