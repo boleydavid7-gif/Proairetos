@@ -205,7 +205,9 @@ export function weekNumber(when: Date = new Date()): number {
   const first = new Date(start.getFullYear(), 0, 1);
   first.setDate(first.getDate() + ((7 - first.getDay()) % 7));
   if (start < first) return weekNumber(new Date(start.getFullYear() - 1, 11, 31));
-  return Math.floor((start.getTime() - first.getTime()) / 86_400_000 / 7) + 1;
+  // Count whole calendar days from the dates themselves; clock changes make a local day 23 or 25 hours long.
+  const days = (Date.UTC(start.getFullYear(), start.getMonth(), start.getDate()) - Date.UTC(first.getFullYear(), first.getMonth(), first.getDate())) / 86_400_000;
+  return Math.floor(days / 7) + 1;
 }
 
 export function monthDates(when: Date = new Date()): string[] {

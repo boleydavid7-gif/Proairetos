@@ -1,3 +1,4 @@
+import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import { useBackHandler } from '../../app/back/backStack';
@@ -57,7 +58,7 @@ import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 
 function download(text: string) {
-  const date = new Date().toISOString().slice(0, 10);
+  const date = localDayKey(new Date());
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
   const link = document.createElement('a');
   link.href = url;

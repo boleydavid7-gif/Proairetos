@@ -188,7 +188,11 @@ export function loadSettings(): Settings {
 
 export function saveSettings(next: Settings): void {
   try {
-    localStorage.setItem(SETTINGS, JSON.stringify(next));
+    try {
+      localStorage.setItem(SETTINGS, JSON.stringify(next));
+    } catch {
+      // Storage full or blocked: this lasts for this visit only.
+    }
   } catch {
     // Kept for this visit only.
   }

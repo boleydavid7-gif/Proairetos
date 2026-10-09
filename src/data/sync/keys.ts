@@ -166,3 +166,28 @@ export async function openRecord<T>(key: CryptoKey, collection: string, id: stri
     throw new KeyError(`A synced record (${collection}) could not be opened with this key.`);
   }
 }
+
+/** Encrypts a file's bytes (a photo, say), bound to its name so it cannot be swapped for another. The result is iv + ciphertext. */
+export async function sealBytes(key: CryptoKey, label: string, bytes: ArrayBuffer): Promise<Uint8Array<ArrayBuffer>> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = new Uint8Array(
+    await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(label) }, key, bytes),
+  );
+  const out = new Uint8Array(iv.length + ciphertext.length);
+  out.set(iv, 0);
+  out.set(ciphertext, iv.length);
+  return out;
+}
+
+export async function openBytes(key: CryptoKey, label: string, sealed: ArrayBuffer): Promise<ArrayBuffer> {
+  try {
+    const all = new Uint8Array(sealed);
+    return await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: all.slice(0, 12), additionalData: new TextEncoder().encode(label) },
+      key,
+      all.slice(12),
+    );
+  } catch {
+    throw new KeyError(`A synced file (${label}) could not be opened with this key.`);
+  }
+}

@@ -1,3 +1,4 @@
+import { localDayKey } from '../../data/storage/preferences';
 import { useRef, useState } from 'react';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import { lastBackupDate, recordBackup } from '../../data/storage/preferences';
@@ -40,7 +41,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
       const url = URL.createObjectURL(new Blob([file], { type: 'application/json' }));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `proairetos-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `proairetos-backup-${localDayKey(new Date())}.json`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       recordBackup();

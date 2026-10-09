@@ -159,7 +159,11 @@ export async function putBudget(budget: BudgetPlan): Promise<void> {
 
 export function saveSettings(next: Settings): void {
   try {
-    localStorage.setItem(SETTINGS, JSON.stringify(next));
+    try {
+      localStorage.setItem(SETTINGS, JSON.stringify(next));
+    } catch {
+      // Storage full or blocked: this lasts for this visit only.
+    }
   } catch {
     // The app remains usable for this visit when storage is blocked.
   }

@@ -10,14 +10,18 @@ async function tx(db: Db, name: string, mode: IDBTransactionMode) {
 
 /** IndexedDB access beneath the repositories. Item events keep their write-order key. */
 export function createIndexedDbLocalSyncStore(db: Db): LocalSyncStore {
+  // Some synced collections (settings) are not database tables; they are added around this store (deviceRecords.ts).
+  const hasTable = async (collection: string) => (await db).objectStoreNames.contains(collection);
   return {
     async list(collection) {
+      if (!(await hasTable(collection))) return [];
       const { store } = await tx(db, collection, 'readonly');
       const records = await requestToPromise(store.getAll());
       return (records as (LocalRecord & { seq?: number })[]).map(({ seq: _seq, ...record }) => record as LocalRecord);
     },
 
     async put(collection, record) {
+      if (!(await hasTable(collection))) return;
       const { transaction, store } = await tx(db, collection, 'readwrite');
       if (collection === stores.itemEvents) {
         const existing = await requestToPromise(store.index('id').getKey(record.id));
@@ -29,6 +33,7 @@ export function createIndexedDbLocalSyncStore(db: Db): LocalSyncStore {
     },
 
     async remove(collection, id) {
+      if (!(await hasTable(collection))) return;
       const { transaction, store } = await tx(db, collection, 'readwrite');
       if (collection === stores.itemEvents) {
         const existing = await requestToPromise(store.index('id').getKey(id));
