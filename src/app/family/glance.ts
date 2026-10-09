@@ -1,4 +1,4 @@
-import { addDays, occurrencesBetween, paidForOccurrence, parseDate, type Bill } from '../../oikonomia/core/bills';
+import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, parseDate, type Bill } from '../../oikonomia/core/bills';
 import type { Drink } from '../../hydros/core/drinks';
 import type { TheoriaBook } from '../../theoria/core/books';
 
@@ -36,4 +36,19 @@ export function ouncesToday(drinks: readonly Pick<Drink, 'amountOz' | 'loggedAt'
 /** The book being read that was touched most recently, if any. */
 export function bookInProgress(books: readonly TheoriaBook[]): TheoriaBook | undefined {
   return books.filter((book) => book.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? b.updatedAt).localeCompare(a.lastOpenedAt ?? a.updatedAt))[0];
+}
+
+export type BillOnDay = { id: string; name: string; amount: string; paid: boolean };
+
+/** The bills with a date on one day, for the calendar. Read only; paid ones are marked, not hidden. */
+export function billsOn(bills: readonly Bill[], date: string): BillOnDay[] {
+  return bills
+    .flatMap((bill) => occurrencesBetween(bill, date, date).map((occurrence) => ({ bill, occurrence })))
+    .map(({ bill, occurrence }) => ({
+      id: bill.id,
+      name: bill.name,
+      amount: formatMoney(bill.amountCents, bill.currency),
+      paid: Boolean(paidForOccurrence(bill, occurrence.date)),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

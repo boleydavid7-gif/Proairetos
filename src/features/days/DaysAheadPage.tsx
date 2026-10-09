@@ -4,6 +4,9 @@ import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
+import { billsOn } from '../../app/family/glance';
+import { useStore } from '../../app/family/read';
+import type { Bill } from '../../oikonomia/core/bills';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -93,6 +96,24 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
  * there and lets the person add something with a day and time. Colours are
  * the person's own labels.
  */
+/** Bills with a date on one day: a quiet line each, opening Oikonomia. A paid one says so. */
+function BillLines({ lines }: { lines: { id: string; name: string; amount: string; paid: boolean }[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <>
+      {lines.map((line) => (
+        <a key={line.id} className="days-bills" href="/oikonomia/">
+          <ListIcon size={18} />
+          <span>
+            {line.name} · {line.amount}
+          </span>
+          {line.paid && <span className="days-bills__paid">paid</span>}
+        </a>
+      ))}
+    </>
+  );
+}
+
 export default function DaysAheadPage({ view }: { view: DaysView }) {
   const navigate = useNavigate();
   const { openItem, offerUndo } = useOverlays();
@@ -112,6 +133,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
   const recipes = useRecipesFromSoma();
+  const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
+  const billsFor = (date: string) => (shows('bill-dates') ? billsOn(bills, date) : []);
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -336,7 +359,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 {dayTitle(date, today)}
                 <span className="days-day__date">{formatLocalDay(date, { month: 'short', day: 'numeric' })}</span>
               </h2>
-              {timed.length === 0 && allDay.length === 0 && !hasPlan(date) && <p className="days-day__empty">Nothing set.</p>}
+              {timed.length === 0 && allDay.length === 0 && !hasPlan(date) && billsFor(date).length === 0 && <p className="days-day__empty">Nothing set.</p>}
               <ul className="days-list">
                 {allDay.map((entry) => (
                   <li key={entry.key} className="days-allday">
@@ -413,6 +436,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     .join(', ')}
                 </a>
               )}
+              <BillLines lines={billsFor(date)} />
               <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} allowDelete />
             </section>
           );
@@ -429,6 +453,20 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               </span>
             ))}
           </div>
+          {shows('bill-dates') && data.days.some(({ date }) => billsFor(date).length > 0) && (
+            <div className="cal-head cal-bills" style={{ ['--days' as string]: String(span) }}>
+              <span aria-hidden="true" />
+              {data.days.map(({ date }) => (
+                <span key={date} className="cal-bills__day">
+                  {billsFor(date).map((line) => (
+                    <a key={line.id} href="/oikonomia/" className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={`${line.name} · ${line.amount}${line.paid ? ' · paid' : ''}`}>
+                      {line.name}
+                    </a>
+                  ))}
+                </span>
+              ))}
+            </div>
+          )}
           <div ref={scroller} className="cal-scroll">
             <div className="cal-grid" style={{ height: 24 * HOUR_PX }}>
               <div className="cal-hours" aria-hidden="true">
@@ -503,6 +541,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 const looks = entries.flatMap((entry): { title: string; color?: string }[] =>
                   entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
                 );
+                for (const line of billsFor(date)) looks.push({ title: line.name, color: 'amber' });
                 const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
                 return (
                   <button
@@ -546,7 +585,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   <h2 className="month-day__title">{formatLocalDay(start, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</h2>
                   {count > 0 && <span className="month-day__count">{countLabel(count)}</span>}
                 </div>
-                {count === 0 && !hasPlan(start) && <p className="days-day__empty">Nothing set.</p>}
+                {count === 0 && !hasPlan(start) && billsFor(start).length === 0 && <p className="days-day__empty">Nothing set.</p>}
                 <ul className="days-list">
                   {allDay.map((entry) => (
                     <li key={entry.key} className="days-allday">
@@ -614,6 +653,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     );
                   })}
                 </ul>
+                <BillLines lines={billsFor(start)} />
                 <DayPlan date={start} today={today} items={data.items} range={rangeOf(start)} allowDelete />
               </section>
             );
