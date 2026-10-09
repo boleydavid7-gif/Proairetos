@@ -160,3 +160,31 @@
     max-width: 72rem;
   }
 }
+
+/* Settings: the list stays on the left and what it opens fills the right. */
+@media (min-width: 62rem) {
+  .app-shell[data-route='settings'] .app-shell__content {
+    max-width: 72rem;
+  }
+
+  .settings-split {
+    display: grid;
+    grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .settings-split__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    position: sticky;
+    top: var(--space-5);
+    max-height: calc(100svh - var(--space-5) * 2);
+    overflow-y: auto;
+  }
+
+  .settings-split__detail > * + * {
+    margin-top: var(--space-4);
+  }
+}

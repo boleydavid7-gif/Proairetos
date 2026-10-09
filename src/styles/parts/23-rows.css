@@ -98,3 +98,8 @@
 .run-entry__words {
   color: var(--color-text-muted);
 }
+
+/* The box that finds a setting by name. */
+.settings-find {
+  margin-bottom: var(--space-1);
+}
