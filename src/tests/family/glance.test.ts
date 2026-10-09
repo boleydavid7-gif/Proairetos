@@ -54,3 +54,16 @@ describe('parts that start off', () => {
     expect(todayHiddenSnapshot().split(',')).toContain('bills');
   });
 });
+
+import { billsOn } from '../../app/family/glance';
+
+describe('bills in the calendar', () => {
+  it('lists the bills with a date on one day, paid ones marked', () => {
+    const day = billsOn(
+      [bill({ name: 'Rent', dueDate: '2026-10-10' }), bill({ id: 'p', name: 'Phone', dueDate: '2026-09-10', payments: [{ date: '2026-10-10' } as never] }), bill({ id: 'x', name: 'Other', dueDate: '2026-10-11' })],
+      '2026-10-10',
+    );
+    expect(day.map((line) => [line.name, line.paid])).toEqual([['Phone', true], ['Rent', false]]);
+    expect(day[1].amount).toBe('$1.00');
+  });
+});

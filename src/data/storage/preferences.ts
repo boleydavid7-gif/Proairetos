@@ -340,6 +340,8 @@ export type TodayPart =
   | 'askesis'
   // Meals from SOMA, the recipe app beside Proairetos.
   | 'soma'
+  // Bill dates from Oikonomia in Days ahead.
+  | 'bill-dates'
   // Facts from the other apps, shown on Today only if chosen: bills coming up (Oikonomia),
   // what was drunk today (Hydros), and a book being read (Theoria).
   | 'bills'

@@ -635,6 +635,10 @@ const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; 
     ],
   },
   {
+    group: 'Oikonomia',
+    parts: [{ part: 'bill-dates', label: 'Bills', detail: 'Bill dates from Oikonomia in Days ahead, with the ones already paid marked.' }],
+  },
+  {
     group: 'Other apps, on Today',
     parts: [
       { part: 'bills', label: 'Bills coming up', detail: 'Bills in Oikonomia with a date in the next few days and no payment recorded.' },
