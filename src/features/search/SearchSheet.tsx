@@ -1,4 +1,5 @@
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useState, useSyncExternalStore } from 'react';
+import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -94,7 +95,9 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
   const deferred = useDeferredValue(query);
   const data = useServiceData(subscribeAll, gather);
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
-  const hits = data ? search(deferred, data.things) : [];
+  const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
+  // While the lock is on, what was written in Reflect stays out of search.
+  const hits = data ? search(deferred, data.things).filter((hit) => !(locked && hit.kind === 'reflection')) : [];
 
   return (
     <dialog
