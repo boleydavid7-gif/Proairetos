@@ -1,3 +1,4 @@
+import CommandPalette from './palette/CommandPalette';
 import LockScreen from './lock/LockScreen';
 import { lock, lockedRoutes } from './lock/lock';
 import EdgeSwipe from './back/EdgeSwipe';
@@ -48,7 +49,9 @@ export default function App() {
     if (next === from) return;
     transition(directionBetween(from, next), () => setRoute(next));
   }, []);
-  useShortcuts(go);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  useShortcuts(go, openPalette);
   const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
   // Read once at start; kept until onboarding is done, if it is not yet.
   const [shared, setShared] = useState(takeShared);
@@ -106,6 +109,7 @@ export default function App() {
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       {route === 'meditate' && <MeditatePage />}
       </AppShell>
+      {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
       {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}
     </OverlayProvider>
     </ReturnRouteContext.Provider>

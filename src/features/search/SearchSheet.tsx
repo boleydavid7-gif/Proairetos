@@ -1,4 +1,4 @@
-import { useDeferredValue, useState, useSyncExternalStore } from 'react';
+import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -90,7 +90,10 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
   const { dialog, panel, close } = useSheet();
   const { openItem, openDecision } = useOverlays();
   const navigate = useNavigate();
+  const field = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
+  // The sheet opens after this renders, so the field is focused once it is showing.
+  useEffect(() => field.current?.focus(), []);
   const [openEntry, setOpenEntry] = useState<string | null>(null);
   const deferred = useDeferredValue(query);
   const data = useServiceData(subscribeAll, gather);
@@ -113,13 +116,13 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
           Close
         </button>
         <input
+          ref={field}
           className="field-input field-input--large search-input"
           type="search"
           aria-label="Search"
           placeholder="Search what you wrote"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          autoFocus
         />
         {deferred.trim() && hits.length === 0 && <p className="empty-note">Nothing matches that.</p>}
         {!deferred.trim() && <p className="sheet__hint">Things you captured, reflections, decisions, and Compass. Only on this device.</p>}

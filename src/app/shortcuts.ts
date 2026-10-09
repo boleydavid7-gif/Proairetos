@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { navigation } from './navigation';
 import type { AppRoute } from './routes/routeTypes';
 
-export type ShortcutAction = { go: AppRoute } | { search: true };
+export type ShortcutAction = { go: AppRoute } | { search: true } | { palette: true };
 
 type KeyLike = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey' | 'target'> & { defaultPrevented?: boolean };
 
@@ -14,6 +14,10 @@ const typing = (target: EventTarget | null) => {
 
 /** What a key press means on a computer: 1-5 jump between the main pages, "/" opens search. Never while typing. */
 export function shortcutFor(event: KeyLike, dialogOpen = false): ShortcutAction | undefined {
+  // Ctrl or ⌘ and K opens the palette from anywhere, even while typing.
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k' && !event.defaultPrevented) {
+    return dialogOpen ? undefined : { palette: true };
+  }
   if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) return undefined;
   if (typing(event.target) || dialogOpen) return undefined;
   if (event.key === '/') return { search: true };
@@ -22,16 +26,17 @@ export function shortcutFor(event: KeyLike, dialogOpen = false): ShortcutAction 
   return undefined;
 }
 
-export function useShortcuts(go: (route: AppRoute) => void) {
+export function useShortcuts(go: (route: AppRoute) => void, openPalette?: () => void) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const action = shortcutFor(event, document.querySelector('dialog[open]') !== null);
       if (!action) return;
       event.preventDefault();
       if ('go' in action) go(action.go);
+      else if ('palette' in action) openPalette?.();
       else document.querySelector<HTMLButtonElement>('button[aria-label="Search"]')?.click();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go]);
+  }, [go, openPalette]);
 }
