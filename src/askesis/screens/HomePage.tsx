@@ -69,8 +69,9 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         </div>
       </Hero>
 
-      <div className="page page--under-hero">
+      <div className="page page--under-hero home-grid">
         {resting && planState ? (
+          <div className="home-top">
           <section className="card" aria-label="A week of rest">
             <h2 className="card__title">A week of rest.</h2>
             <p className="muted">Nothing planned.</p>
@@ -78,7 +79,9 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               Back to the plan this week
             </button>
           </section>
+          </div>
         ) : !plan || !planState || !week ? (
+          <div className="home-top">
           <section className="card">
             <h2 className="card__title">Set your aim</h2>
             <p className="muted">A time, a distance, or just to keep running.</p>
@@ -86,8 +89,10 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               Set your aim
             </button>
           </section>
+          </div>
         ) : (
           <>
+            <div className="home-top">
             {comeBack && (
               <section className="card card--offer" aria-label="Coming back">
                 <h2 className="card__title">Good to see you.</h2>
@@ -158,6 +163,9 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               </span>
             </button>
 
+            </div>
+
+            <div className="home-main">
             <section className="card" aria-label="Today’s focus">
               <span className="card__eyebrow">
                 {focus?.date === today ? 'Today’s focus' : focus ? `Next: ${dayLabel(focus.date, today)}` : 'This week'}
@@ -282,11 +290,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               ))}
               {days.length === 0 && <p className="muted">No sessions this week.</p>}
             </section>
+            </div>
           </>
         )}
 
         {settings.dailyLine && (
-          <figure className="daily-line">
+          <figure className="daily-line home-bottom">
             <blockquote>{line.text}</blockquote>
             <figcaption>{line.by}</figcaption>
           </figure>

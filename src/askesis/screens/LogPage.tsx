@@ -31,7 +31,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const tallest = Math.max(1, ...weeks.map((week) => (byDistance ? week.meters : week.seconds)));
 
   return (
-    <div className="page">
+    <div className="page log-page">
       <div className="page-top">
         <Brand />
         <button type="button" className="round-button" aria-label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>

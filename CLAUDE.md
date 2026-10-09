@@ -60,6 +60,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`styles/parts/30-desktop.css`, `data-route` on `.app-shell`); phones are
   unchanged. Keys 1-5 jump between the main pages and `/` opens search
   (`app/shortcuts.ts`), never while typing or in a dialog.
+- Askesis has a full desktop layout (`askesis/styles/desktop.css`, scoped to `:root.askesis`): wide banner and
+  two-column Home (`home-top/main/bottom` wrappers), article grid, Train with a sticky summary, Progress in
+  columns, two-column More, reading column for articles. Phones are unchanged.
 - Desktop for the other apps: Askesis, SOMA and Oikonomia share one block at
   the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
   `--app-name`, wider `.shell--tabs`); SOMA centres its sheet; Hydros has its

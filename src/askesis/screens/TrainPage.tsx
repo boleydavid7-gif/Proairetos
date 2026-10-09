@@ -72,7 +72,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
   };
 
   return (
-    <div className="page">
+    <div className="page train-page">
       <Brand />
       <h1 className="title">Train</h1>
       <p className="lead">{plan ? (planState?.aimWords ?? aimWords(plan.aim, settings.unit)) : 'An example: a 10K, three days a week.'}</p>
