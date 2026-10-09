@@ -189,6 +189,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `proairetos-daily` (`data/backup/daily.ts`, last 7 days, none when there is
   nothing to keep); switch `proairetos.dailyCopy` (on unless "false"); listed
   and restorable on every app's backup page (`useDailyCopies`).
+- Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer

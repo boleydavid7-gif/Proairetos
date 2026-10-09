@@ -1,4 +1,5 @@
 import type { DomainContext } from '../../core/context';
+import { readableExport } from '../../core/export/markdown';
 import { decryptBackup, encryptBackup } from '../../data/backup/crypto';
 import {
   BACKUP_FORMAT,
@@ -69,6 +70,18 @@ export function createBackupService({ userId, context, repositories: r, family }
 
   return {
     exportData,
+
+    /** The person's own words as plain Markdown, without photos, files or settings. */
+    async exportReadable(promptLabel?: (key: string | undefined) => string | undefined): Promise<string> {
+      const [lifeItems, reflections, values, statements, decisions] = await Promise.all([
+        r.items.list(userId),
+        r.reflections.list(userId),
+        r.values.list(userId),
+        r.statements.list(userId),
+        r.decisions.list(userId),
+      ]);
+      return readableExport({ lifeItems, reflections, values, statements, decisions }, { now: context.now(), promptLabel });
+    },
 
     /** A file's text, sealed with the password if one is given. */
     async exportFile(password?: string): Promise<string> {
