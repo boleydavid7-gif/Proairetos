@@ -27,6 +27,8 @@ import { freeGuidedMeditations } from '../../core/meditate/freeMeditations';
 import { loadMeditate, saveMeditate, type MeditateSettings } from '../../data/storage/preferences';
 import lake from '../../assets/images/scenes/lake.webp';
 import lakeWide from '../../assets/images/scenes/lake-wide.webp';
+import lakeLight from '../../assets/images/scenes/lake-light.webp';
+import lakeLightWide from '../../assets/images/scenes/lake-light-wide.webp';
 import BreathCircle from './BreathCircle';
 import SitScreen, { type SitPlan } from './SitScreen';
 import { soundIcons } from './soundIcons';
@@ -124,7 +126,7 @@ export default function MeditatePage() {
 
   return (
     <div className="page meditate-page">
-      <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})` } as React.CSSProperties} aria-hidden="true" />
+      <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
       <header className="meditate-page__top">
         <button type="button" className="meditate-page__back" onClick={() => navigate('reflect')}>
           <ArrowLeftIcon size={22} />

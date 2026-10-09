@@ -167,3 +167,14 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   backdrop-filter: blur(20px) saturate(1.2);
 }
+
+/* Meditate keeps light words over its photo, so the bright morning lake is toned down there. */
+:root[data-theme='light'] :is(.meditate-page__scene, .sit-screen__scene)[style*='--photo-light'] {
+  filter: brightness(0.74) saturate(1.05);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] :is(.meditate-page__scene, .sit-screen__scene)[style*='--photo-light'] {
+    filter: brightness(0.74) saturate(1.05);
+  }
+}
