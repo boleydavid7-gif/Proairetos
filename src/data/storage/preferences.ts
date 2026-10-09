@@ -342,16 +342,13 @@ export type TodayPart =
   | 'soma'
   // Bill dates from Oikonomia in Days ahead.
   | 'bill-dates'
-  // Facts from the other apps, shown on Today only if chosen: bills coming up (Oikonomia),
-  // what was drunk today (Hydros), and a book being read (Theoria).
+  // Bills coming up from Oikonomia, shown on Today only if chosen.
   | 'bills'
-  | 'water'
-  | 'reading'
   // What was written on this day in an earlier year; off until chosen.
   | 'on-this-day';
 
 /** Parts that stay off until the person turns them on in Settings. */
-const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'water', 'reading', 'on-this-day'];
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day'];
 const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
