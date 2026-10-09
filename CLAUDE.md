@@ -86,6 +86,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Each manifest carries real screenshots (`public/<app>/screenshots/`, webp) for the install prompt.
 - Photos in `assets/images/scenes/`: portrait `valley`, `lake`, `forest` (852×1846; forest is the Journal) and wide `valley-wide`, `lake-wide`, `forest-wide` (1672×941) which show on computer-sized screens:
   an element sets `--photo-wide` inline and `premium.css` swaps it in from 62rem; Oikonomia's heroes use `<picture>`.
+- Light mode shows the morning photo (`morning`, `morning-wide`) in the same places as dark's landscapes (Today's `Landscape`, Compass's `PageHero`, the Journal banner): those elements also set `--photo-light` / `--photo-light-wide` and `premium.css` swaps them in for light (and System when light), true to colour. Main cards in the Proairetos shell are glass (`color-mix` of the surface with a blur, list in `premium.css`); the tab bar is a little more see-through.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
 - `public/_headers` sets CSP and other security headers for every app;

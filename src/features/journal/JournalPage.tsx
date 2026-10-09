@@ -5,6 +5,8 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, reflectionService } from '../../app/services';
 import forest from '../../assets/images/scenes/forest.webp';
+import morning from '../../assets/images/scenes/morning.webp';
+import morningWide from '../../assets/images/scenes/morning-wide.webp';
 import forestWide from '../../assets/images/scenes/forest-wide.webp';
 import type { CSSProperties } from 'react';
 import MicButton from '../../components/dictation/MicButton';
@@ -64,7 +66,7 @@ export default function JournalPage() {
         <span className="journal__date">{today}</span>
       </div>
 
-      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${forest})`, '--photo-wide': `url(${forestWide})` } as CSSProperties} />
+      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${forest})`, '--photo-wide': `url(${forestWide})`, '--photo-light': `url(${morning})`, '--photo-light-wide': `url(${morningWide})` } as CSSProperties} />
 
       <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
 
