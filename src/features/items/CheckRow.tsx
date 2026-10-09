@@ -5,6 +5,9 @@ import { lifeService } from '../../app/services';
 import { CheckIcon, MoreIcon, TrashIcon } from '../../components/icons/Icons';
 import type { LifeItem } from '../../core/life-items/types';
 
+/** What a dragged to-do carries: its id. */
+export const DRAG_TYPE = 'application/x-proairetos-item';
+
 /** One checklist row. Checking closes it with an undo; unchecking reopens it. */
 export default function CheckRow({ item, done, detail, allowDelete = false }: { item: LifeItem; done: boolean; detail?: string; allowDelete?: boolean }) {
   const { openItem, offerUndo } = useOverlays();
@@ -32,7 +35,15 @@ export default function CheckRow({ item, done, detail, allowDelete = false }: { 
   }
 
   return (
-    <li className={`check-row${done ? ' check-row--done' : ''}`}>
+    <li
+      className={`check-row${done ? ' check-row--done' : ''}`}
+      // On a computer an open to-do can be picked up and dropped on another day in Days ahead.
+      draggable={!done && !item.checklist}
+      onDragStart={(event) => {
+        event.dataTransfer.setData(DRAG_TYPE, item.id);
+        event.dataTransfer.effectAllowed = 'move';
+      }}
+    >
       <button
         type="button"
         role="checkbox"

@@ -76,3 +76,18 @@ describe('subscribe links', () => {
     expect(links.outlook).toContain(`url=${encodeURIComponent('https://x.supabase.co/functions/v1/calendar-feed?token=abc')}`);
   });
 });
+
+describe('one event with a place and a note', () => {
+  it('carries them when there are some, and nothing extra when there are not', () => {
+    const now = new Date('2026-10-09T10:00:00Z');
+    const withBoth = buildIcs(
+      [{ uid: 'x', title: 'Dentist', start: new Date('2026-10-12T15:00:00Z'), end: new Date('2026-10-12T15:45:00Z'), location: 'Main St, Suite 4', notes: 'Bring the form' }],
+      { name: 'Dentist', now },
+    );
+    expect(withBoth).toContain('LOCATION:Main St\\, Suite 4');
+    expect(withBoth).toContain('DESCRIPTION:Bring the form');
+    const plain = buildIcs([{ uid: 'y', title: 'Walk', date: '2026-10-12' }], { name: 'Walk', now });
+    expect(plain).not.toContain('LOCATION');
+    expect(plain).not.toContain('DESCRIPTION');
+  });
+});

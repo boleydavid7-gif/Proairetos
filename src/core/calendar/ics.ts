@@ -11,6 +11,8 @@ export type CalendarEvent = {
   end?: Date;
   /** All-day event, local "YYYY-MM-DD". */
   date?: string;
+  location?: string;
+  notes?: string;
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -73,7 +75,10 @@ export function buildIcs(events: readonly CalendarEvent[], options: { name: stri
     } else {
       continue;
     }
-    lines.push(`SUMMARY:${escapeText(event.title)}`, 'TRANSP:OPAQUE', 'END:VEVENT');
+    lines.push(`SUMMARY:${escapeText(event.title)}`);
+    if (event.location?.trim()) lines.push(`LOCATION:${escapeText(event.location.trim())}`);
+    if (event.notes?.trim()) lines.push(`DESCRIPTION:${escapeText(event.notes.trim())}`);
+    lines.push('TRANSP:OPAQUE', 'END:VEVENT');
   }
   lines.push('END:VCALENDAR');
   return lines.map(foldLine).join('\r\n') + '\r\n';

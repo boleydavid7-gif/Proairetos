@@ -29,6 +29,7 @@ import { buildDayTimeline, dayTitle } from '../today/timeline';
 import { planFor } from '../plan/planView';
 import AddEventSheet from './AddEventSheet';
 import DayPlan from './DayPlan';
+import { DRAG_TYPE } from '../items/CheckRow';
 import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
 import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
@@ -95,6 +96,18 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
 export default function DaysAheadPage({ view }: { view: DaysView }) {
   const navigate = useNavigate();
   const { openItem, offerUndo } = useOverlays();
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+
+  /** A to-do dropped on another day moves there. Undo puts it back. */
+  async function moveItemToDay(id: string, date: string) {
+    const item = await lifeService.get(id);
+    if (!item || item.plannedFor === date || item.scheduledAt) return;
+    const was = item.plannedFor;
+    await lifeService.setPlannedFor(id, date);
+    offerUndo(`Moved “${item.title}” to ${formatLocalDay(date, { weekday: 'long' })}`, async () => {
+      await lifeService.setPlannedFor(id, was);
+    });
+  }
   const { today, rangeOf } = usePersonalDay(useClock());
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
@@ -299,7 +312,26 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
           const allDay = entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
           return (
-            <section key={date} className="days-day" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
+            <section
+              key={date}
+              className={`days-day${dropTarget === date ? ' days-day--over' : ''}`}
+              aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}
+              onDragOver={(event) => {
+                if (!event.dataTransfer.types.includes(DRAG_TYPE)) return;
+                event.preventDefault();
+                setDropTarget(date);
+              }}
+              onDragLeave={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropTarget((now) => (now === date ? null : now));
+              }}
+              onDrop={(event) => {
+                const id = event.dataTransfer.getData(DRAG_TYPE);
+                setDropTarget(null);
+                if (!id) return;
+                event.preventDefault();
+                void moveItemToDay(id, date);
+              }}
+            >
               <h2 className="days-day__title">
                 {dayTitle(date, today)}
                 <span className="days-day__date">{formatLocalDay(date, { month: 'short', day: 'numeric' })}</span>
