@@ -248,9 +248,74 @@
 }
 
 .days-calendar--week .cal-entry {
-  padding: 2px;
-  font-size: 0.6rem;
   overflow-wrap: anywhere;
+}
+
+/* The calendar sits on a soft glass panel, so the page's light shows through. */
+.days-calendar {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.days-calendar .cal-scroll {
+  max-height: 68svh;
+}
+
+/* A warm light at the top of the page, the colour of the photos. */
+.days-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.days-page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -3rem -2rem auto;
+  height: 22rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 116, 0.13), transparent 75%);
+  pointer-events: none;
+}
+
+/* On a computer the controls share one row: the dates, the view, and list or calendar. */
+@media (min-width: 62rem) {
+  .days-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .days-toolbar .segmented,
+  .days-page .days-toolbar .segmented--even {
+    display: inline-flex;
+    grid-template-columns: none;
+    width: auto;
+    margin: 0;
+  }
+
+  .days-toolbar .segmented__option {
+    min-height: 2.5rem;
+    padding: 0 var(--space-4);
+  }
+
+  .days-toolbar .days-stepper {
+    order: -1;
+    gap: var(--space-3);
+  }
+
+  .days-toolbar .days-stepper__range {
+    min-width: 11rem;
+    text-align: center;
+  }
+
+  .days-toolbar .days-back {
+    margin-left: auto;
+  }
 }
 
 /* ---------- Month ---------- */
@@ -718,4 +783,89 @@
 .cal-bills__chip--paid {
   opacity: 0.55;
   text-decoration: line-through;
+}
+
+/* ---------- Month, the larger look ---------- */
+
+.month__chips,
+.month__more {
+  display: none;
+}
+
+.month__day {
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.month__day--today .month__num {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+@media (hover: hover) {
+  .month__day:hover {
+    background: color-mix(in srgb, var(--color-surface-raised) 80%, transparent);
+  }
+}
+
+/* On a computer each day is roomy enough to name what is in it, in the person's colours. */
+@media (min-width: 62rem) {
+  .month__grid {
+    gap: 6px;
+  }
+
+  .month__day {
+    min-height: 6.6rem;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  }
+
+  .month__num {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+  }
+
+  .month__dots,
+  .month__count {
+    display: none;
+  }
+
+  .month__chips {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .month__chip {
+    overflow: hidden;
+    padding: 1px 6px;
+    border-left: 3px solid var(--tag, var(--color-accent));
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--tag, var(--color-accent)) 20%, transparent);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .month__more {
+    display: block;
+    padding-left: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+  }
+}
+
+.month__chip.tag--none,
+.month__dot.tag--none,
+.month__count.tag--none {
+  --tag: var(--color-accent);
 }
