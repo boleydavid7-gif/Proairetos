@@ -1,6 +1,8 @@
 import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
-import { nextBills, formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, type Bill } from '../core/bills';
+import { formatDate, formatMoney, formatTotals, relativeDue, monthBounds, occurrencesBetween, standing, stillToCome, type Bill } from '../core/bills';
+import SwipeRow from '../app/SwipeRow';
+import { usePayBill } from '../app/payBill';
 import { financeLineFor } from '../core/lines';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
@@ -28,8 +30,13 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const line = financeLineFor(today);
   const all = bills ?? [];
   const recipes = useSomaRecipes();
-  const upcoming = nextBills(all, today, 8);
-  const next = upcoming[0];
+  const { pay, toast } = usePayBill();
+  // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes round.
+  const next = all
+    .map((bill) => ({ bill, stand: standing(bill, today) }))
+    .filter(({ stand }) => !stand.settled)
+    .map(({ bill, stand }) => ({ bill, date: stand.date }))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name))[0];
   const month = new Date();
   const bounds = monthBounds(month);
   const currentMonth = monthKey(month);
@@ -38,6 +45,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const thisMonth = all
     .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
+  const monthOpen = stillToCome(thisMonth);
 
   return (
     <div className="home oiko-home">
@@ -88,11 +96,20 @@ export default function HomePage({ nav }: { nav: Nav }) {
               <h2>This month</h2>
               <button type="button" className="text-link" onClick={() => nav.swap({ name: 'calendar' })}>View calendar</button>
             </div>
+            {thisMonth.length > 0 && (
+              <p className="oiko-total">
+                <strong>{formatTotals(thisMonth)}</strong>
+                <span>{monthOpen.length === thisMonth.length ? 'in all' : monthOpen.length === 0 ? 'in all, all paid' : `in all, ${formatTotals(monthOpen)} still to come`}</span>
+              </p>
+            )}
             <section className="oiko-list" aria-label="Bills this month">
-              {thisMonth.slice(0, 8).map((occurrence) => (
-                <span key={occurrence.bill.id + occurrence.date}>{billRow(occurrence.bill, occurrence.date, nav, today)}</span>
+              {monthOpen.slice(0, 8).map((occurrence) => (
+                <SwipeRow key={occurrence.bill.id + occurrence.date} label="Paid" onSwipe={() => void pay(occurrence.bill, occurrence.date)}>
+                  {billRow(occurrence.bill, occurrence.date, nav, today)}
+                </SwipeRow>
               ))}
               {thisMonth.length === 0 && <p className="muted">Nothing is scheduled for this month.</p>}
+              {thisMonth.length > 0 && monthOpen.length === 0 && <p className="muted">Everything this month is paid.</p>}
             </section>
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
@@ -102,6 +119,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </>
         )}
       </div>
+      {toast}
     </div>
   );
 }
