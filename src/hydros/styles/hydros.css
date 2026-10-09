@@ -323,3 +323,5 @@ body:has(.hydros-shell) { min-height: 100dvh; }
     width: 100%;
   }
 }
+
+.hydros-orb__set { position: relative; z-index: 3; margin-top: 8px; padding: 6px 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; color: inherit; background: rgba(255,255,255,.08); font-size: .72rem; cursor: pointer; }

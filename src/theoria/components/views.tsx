@@ -1,3 +1,4 @@
+import { BulbIcon, PenIcon } from '../../components/icons/Icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { sourceLabel, statusLabel, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaChapter, type TheoriaHighlight, type TheoriaNote, type TheoriaNotebook, type TheoriaReflection } from '../core/books';
@@ -138,7 +139,7 @@ export function ReaderView({ book, theme, font, onTheme, onFont, onBack, onPosit
 }
 
 function InsightRow({ item }: { item: InsightItem }) {
-  return <article className={'theoria-insight theoria-insight--' + item.kind}><span>{item.kind === 'highlight' ? '“' : item.kind === 'note' ? '✎' : '✦'}</span><div><p>{item.text}</p><small>{item.book.title}{item.chapter ? ' · ' + item.chapter : ''}{item.location ? ' · ' + item.location : ''}</small></div></article>;
+  return <article className={'theoria-insight theoria-insight--' + item.kind}><span>{item.kind === 'highlight' ? '“' : item.kind === 'note' ? <PenIcon size={16} /> : <BulbIcon size={16} />}</span><div><p>{item.text}</p><small>{item.book.title}{item.chapter ? ' · ' + item.chapter : ''}{item.location ? ' · ' + item.location : ''}</small></div></article>;
 }
 
 export function NotesPage({ notebooks, shelf, loading, error, onNewNotebook, onNewPage, onEditPage, onDeletePage }: { notebooks: readonly TheoriaNotebook[]; shelf: readonly TheoriaBook[]; loading: boolean; error?: string; onNewNotebook: () => void; onNewPage: (notebookId: string, sectionId: string) => void; onEditPage: (notebookId: string, sectionId: string, pageId: string) => void; onDeletePage: (notebookId: string, sectionId: string, pageId: string) => void }) {

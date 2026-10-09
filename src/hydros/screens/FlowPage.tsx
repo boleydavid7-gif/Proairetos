@@ -70,7 +70,7 @@ export default function FlowPage({ nav }: { nav: Nav }) {
         : <MonthlyLineChart range={range} values={values} max={max} unit={unit} hasEntries={periodDrinks.length > 0} />}
       <div className="flow-legend"><span><i className="is-cyan" /> Net intake</span><span><i className="is-dash" /> {periodDrinks.length ? `Your ${unit} range` : 'Set amount'}</span></div>
     </div>
-    <section className="recent-entries"><div className="hydros-section-title"><h2>Recent entries</h2><span>{recent.length ? `Last ${recent.length}` : 'Nothing here yet'}</span></div>{recent.length ? recent.map((drink) => <RecentEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} editing={editingId === drink.id} draft={editingId === drink.id ? draft : undefined} onEdit={() => startEdit(drink)} onCancel={cancelEdit} onDelete={async () => { await removeDrink(drink.id); cancelEdit(); }} onSave={() => void saveEdit(drink)} onDraftChange={setDraft} />) : <p className="pattern-empty">No drinks logged yet.</p>}</section>
+    <section className="recent-entries"><div className="hydros-section-title"><h2>Recent entries</h2>{recent.length ? <span>{`Last ${recent.length}`}</span> : null}</div>{recent.length ? recent.map((drink) => <RecentEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} editing={editingId === drink.id} draft={editingId === drink.id ? draft : undefined} onEdit={() => startEdit(drink)} onCancel={cancelEdit} onDelete={async () => { await removeDrink(drink.id); cancelEdit(); }} onSave={() => void saveEdit(drink)} onDraftChange={setDraft} />) : <p className="pattern-empty">No drinks logged yet.</p>}</section>
   </div>;
 }
 

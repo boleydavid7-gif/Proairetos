@@ -724,3 +724,21 @@
   .theoria-reader-footer input[type='range']::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; }
   .theoria-reader-footer input[type='range']::-moz-range-thumb { width: 16px; height: 16px; }
 }
+
+/* A plain page edge, with no browser margin showing around the app. */
+html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
+
+.theoria-nav-list button span { display: inline-grid; place-items: center; font-size: 0; }
+.theoria-nav-list button span svg { display: block; }
+
+/* The file chooser matches the rest of the dialog. */
+.theoria-modal input[type='file'] { padding: 8px; border: 1px dashed var(--theoria-border); border-radius: 10px; color: var(--theoria-muted); background: rgba(255,255,255,.03); font-size: 13px; }
+.theoria-modal input[type='file']::file-selector-button { margin-right: 12px; padding: 8px 14px; border: 1px solid var(--theoria-border); border-radius: 999px; color: var(--theoria-ink); background: rgba(255,255,255,.07); font: inherit; font-weight: 600; cursor: pointer; }
+.theoria-modal input[type='file']::file-selector-button:hover { background: rgba(255,255,255,.12); }
+
+/* On a phone the bar sits along the bottom edge like the rest of the family's apps. */
+@media (max-width: 900px) {
+  .theoria-bottom-nav { right: 0; bottom: 0; left: 0; padding: 6px 6px max(6px, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--theoria-border); border-radius: 0; box-shadow: none; }
+  .theoria-bottom-nav .theoria-nav-list button { border-color: transparent; border-radius: 10px; }
+  .theoria-bottom-nav .theoria-nav-list button.is-active { background: transparent; }
+}

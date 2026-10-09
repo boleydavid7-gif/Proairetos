@@ -177,3 +177,12 @@
   .praxis-sound-grid { grid-template-columns: repeat(2,1fr); }
   .praxis-stat-stack { grid-template-columns: 1fr; }
 }
+
+/* On a phone the bar sits along the bottom edge like the rest of the family's apps, and messages sit above it. */
+@media (max-width: 900px) {
+  .praxis-bottom-nav { right: 0; bottom: 0; left: 0; padding: 6px 6px max(6px, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--color-border); border-radius: 0; box-shadow: none; }
+  .praxis-bottom-nav .praxis-nav-item { border-color: transparent; }
+  .praxis-bottom-nav .praxis-nav-item.is-active { background: transparent; }
+  .praxis-toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; text-align: center; }
+}
+html, body { margin: 0; }

@@ -39,11 +39,21 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           <span>{dateLabel(todayDate)}</span>
           <blockquote className="hydros-quote">“{quote.text}”<cite>— {quote.source}</cite></blockquote>
         </div>
-        <div className="hydros-orb" aria-label={`${formatVolume(amount, unit as HydrosUnit)} of ${formatVolume(goal, unit as HydrosUnit)} ${unit}`}>
-          <div className="hydros-orb__water" style={{ height: `${percent}%` }} />
-          <strong>{formatVolume(amount, unit as HydrosUnit)}<small>/{formatVolume(goal, unit as HydrosUnit)} {unit}</small></strong>
-          <span>{hasData ? 'of your daily goal' : 'Daily goal'}</span>
-        </div>
+        {settings.goalChosen ? (
+          <div className="hydros-orb" aria-label={`${formatVolume(amount, unit as HydrosUnit)} of ${formatVolume(goal, unit as HydrosUnit)} ${unit}`}>
+            <div className="hydros-orb__water" style={{ height: `${percent}%` }} />
+            <strong>{formatVolume(amount, unit as HydrosUnit)}<small>/{formatVolume(goal, unit as HydrosUnit)} {unit}</small></strong>
+            <span>{hasData ? 'of your daily goal' : 'Daily goal'}</span>
+          </div>
+        ) : (
+          // No amount has been chosen yet, so nothing is measured against a number the app made up.
+          <div className="hydros-orb" aria-label={`${formatVolume(amount, unit as HydrosUnit)} ${unit} today`}>
+            <div className="hydros-orb__water" style={{ height: amount > 0 ? '22%' : '0%' }} />
+            <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
+            <span>today</span>
+            <button type="button" className="hydros-orb__set" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button>
+          </div>
+        )}
       </section>
 
     </div>
