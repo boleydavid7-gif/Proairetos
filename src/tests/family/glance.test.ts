@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
-import { billsSoon, ouncesToday } from '../../app/family/glance';
+import { billsSoon } from '../../app/family/glance';
 import { setTodayPartShown, todayHiddenSnapshot } from '../../data/storage/preferences';
 import type { Bill } from '../../oikonomia/core/bills';
 
@@ -35,19 +35,11 @@ describe('bills coming up on Today', () => {
   });
 });
 
-describe('what was drunk today', () => {
-  it('adds only the local day asked for', () => {
-    const noon = new Date(2026, 9, 9, 12).toISOString();
-    const yesterday = new Date(2026, 9, 8, 12).toISOString();
-    expect(ouncesToday([{ amountOz: 8, loggedAt: noon }, { amountOz: 16, loggedAt: noon }, { amountOz: 40, loggedAt: yesterday }], '2026-10-09')).toBe(24);
-  });
-});
-
 describe('parts that start off', () => {
   beforeEach(() => localStorage.clear());
 
   it('stay off until chosen, and can be set aside again', () => {
-    expect(todayHiddenSnapshot().split(',')).toEqual(expect.arrayContaining(['bills', 'water', 'reading']));
+    expect(todayHiddenSnapshot().split(',')).toEqual(expect.arrayContaining(['bills', 'on-this-day']));
     setTodayPartShown('bills', true);
     expect(todayHiddenSnapshot().split(',')).not.toContain('bills');
     setTodayPartShown('bills', false);

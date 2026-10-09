@@ -24,6 +24,7 @@ import {
   MoonIcon,
   NoteIcon,
   PartlyCloudyIcon,
+  PenIcon,
   ShieldIcon,
   SunIcon,
 } from '../../components/icons/Icons';
@@ -452,7 +453,7 @@ const viewTitles: Record<View, string> = {
   appearance: 'Appearance',
   help: 'Help & feedback',
   sources: 'Where this comes from',
-  account: 'Account and sync',
+  account: 'Account',
   import: 'Bring things in',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -566,85 +567,74 @@ function daySummary(): string {
   return settings.followShifts ? 'With your schedule' : hourLabel(settings.startHour);
 }
 
-const todayParts: { part: TodayPart; label: string }[] = [
-  { part: 'line', label: 'The daily line' },
-  { part: 'look-ahead', label: 'Look ahead' },
-  { part: 'intention', label: 'Today’s intention' },
-  { part: 'path', label: 'Today’s path' },
-  { part: 'schedule-prompt', label: 'Add your schedule' },
-  { part: 'open-time', label: 'Open time' },
-  { part: 'capture', label: 'Capture line' },
-  { part: 'a-while-ago', label: 'From a while ago' },
-  { part: 'close-day', label: 'Close the day' },
-  { part: 'three-good-things', label: 'Three good things' },
-];
+type PartRow = { part: TodayPart; label: string; detail?: string; rare?: boolean };
 
-const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; detail: string }[] }[] = [
+/** What can be switched on or off, by the app it belongs to. Only what people are likely to want a say in. */
+const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] }[] = [
   {
-    group: 'Capture and planning',
-    parts: [
+    app: 'Proairetos',
+    sections: [
       {
-        part: 'brain-dump',
-        label: 'Empty your head',
-        detail: 'Write everything at once; it is split up for you to check.',
+        label: 'Today',
+        parts: [
+          { part: 'line', label: 'The daily line' },
+          { part: 'intention', label: 'Today’s intention' },
+          { part: 'path', label: 'Today’s path' },
+          { part: 'capture', label: 'Capture line' },
+          { part: 'close-day', label: 'Close the day' },
+          { part: 'three-good-things', label: 'Three good things' },
+          { part: 'on-this-day', label: 'On this day', detail: 'Your own words from this day in an earlier year, when there are some.' },
+          { part: 'open-time', label: 'Open time' },
+          { part: 'look-ahead', label: 'Look ahead', rare: true },
+          { part: 'schedule-prompt', label: 'Add your schedule', rare: true },
+          { part: 'a-while-ago', label: 'From a while ago', rare: true },
+        ],
       },
-      { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
-      { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
       {
-        part: 'energy',
-        label: 'Energy',
-        detail: 'Say how much energy you have; things you marked as light come first.',
+        label: 'Capture',
+        parts: [
+          { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once; it is split up for you to check.' },
+          { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
+          { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
+          { part: 'energy', label: 'Energy', detail: 'Say how much energy you have; things you marked as light come first.' },
+        ],
       },
-    ],
-  },
-  {
-    group: 'Compass',
-    parts: [
-      { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
-      { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
-      { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
-    ],
-  },
-  {
-    group: 'Reflect',
-    parts: [
-      { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
-      { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
-      { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, at your own pace.' },
-      { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
-    ],
-  },
-  {
-    group: 'Askesis',
-    parts: [
       {
-        part: 'askesis',
-        label: 'Runs',
-        detail: 'Today’s session from Askesis on Today; finished runs in Done today and Reflect.',
+        label: 'Compass',
+        parts: [
+          { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
+          { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
+          { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
+        ],
       },
-    ],
-  },
-  {
-    group: 'SOMA',
-    parts: [
       {
-        part: 'soma',
-        label: 'Meals',
-        detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.',
+        label: 'Reflect',
+        parts: [
+          { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
+          { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
+          { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, at your own pace.' },
+          { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
+        ],
       },
     ],
   },
   {
-    group: 'Oikonomia',
-    parts: [{ part: 'bill-dates', label: 'Bills', detail: 'Bill dates from Oikonomia in Days ahead, with the ones already paid marked.' }],
+    app: 'Askesis',
+    sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s session on Today; finished runs in Done today and Reflect.' }] }],
   },
   {
-    group: 'Other apps, on Today',
-    parts: [
-      { part: 'bills', label: 'Bills coming up', detail: 'Bills in Oikonomia with a date in the next few days and no payment recorded.' },
-      { part: 'water', label: 'What was drunk', detail: 'The amount logged today in Hydros, once there is one. No target.' },
-      { part: 'on-this-day', label: 'On this day', detail: 'Your own words from this day in an earlier year, when there are some.' },
-      { part: 'reading', label: 'A book being read', detail: 'The book you most recently opened in Theoria.' },
+    app: 'SOMA',
+    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.' }] }],
+  },
+  {
+    app: 'Oikonomia',
+    sections: [
+      {
+        parts: [
+          { part: 'bill-dates', label: 'Bills in Days ahead', detail: 'Bill dates in the list and the calendar, with the paid ones marked.' },
+          { part: 'bills', label: 'Bills coming up on Today', detail: 'Bills with a date in the next few days and no payment recorded.' },
+        ],
+      },
     ],
   },
 ];
@@ -762,43 +752,50 @@ function AppearanceSection() {
 
 function TodaySection() {
   const shows = useTodayParts();
+  const row = ({ part, label, detail }: PartRow) => (
+    <button
+      key={part}
+      type="button"
+      className="toggle-row"
+      aria-pressed={shows(part)}
+      onClick={() => setTodayPartShown(part, !shows(part))}
+    >
+      <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+      {detail ? (
+        <span className="toggle-row__text">
+          <span>{label}</span>
+          <span className="toggle-row__detail">{detail}</span>
+        </span>
+      ) : (
+        <span>{label}</span>
+      )}
+    </button>
+  );
   return (
     <section className="settings-card" aria-label="What’s included">
       <p className="section-description">
         Keep Proairetos as full or as bare as suits you. Switch anything off and it steps out of the way; switch it back
         on any time. Nothing you recorded is lost.
       </p>
-      <p className="sheet__label">On Today</p>
-      {todayParts.map(({ part, label }) => (
-        <button
-          key={part}
-          type="button"
-          className="toggle-row"
-          aria-pressed={shows(part)}
-          onClick={() => setTodayPartShown(part, !shows(part))}
-        >
-          <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-          <span>{label}</span>
-        </button>
-      ))}
-      {elsewhereParts.map(({ group, parts }) => (
-        <div key={group} className="stack-tight">
-          <p className="sheet__label">{group}</p>
-          {parts.map(({ part, label, detail }) => (
-            <button
-              key={part}
-              type="button"
-              className="toggle-row"
-              aria-pressed={shows(part)}
-              onClick={() => setTodayPartShown(part, !shows(part))}
-            >
-              <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-              <span className="toggle-row__text">
-                <span>{label}</span>
-                <span className="toggle-row__detail">{detail}</span>
-              </span>
-            </button>
-          ))}
+      {appParts.map(({ app, sections }) => (
+        <div key={app} className="stack-tight">
+          <h2 className="settings-group__label">{app}</h2>
+          {sections.map((section) => {
+            const main = section.parts.filter((entry) => !entry.rare);
+            const rare = section.parts.filter((entry) => entry.rare);
+            return (
+              <div key={section.label ?? app} className="stack-tight">
+                {section.label && <p className="sheet__label">{section.label}</p>}
+                {main.map(row)}
+                {rare.length > 0 && (
+                  <details className="sheet__more">
+                    <summary>A few more</summary>
+                    <div className="sheet__more-body">{rare.map(row)}</div>
+                  </details>
+                )}
+              </div>
+            );
+          })}
         </div>
       ))}
       <p className="sheet__hint">
@@ -1103,6 +1100,7 @@ export default function SettingsPage() {
         {view === 'weather' && <WeatherSection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
+        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'account' && <AccountSection />}
         {view === 'notifications' && <NotificationsSection />}
         {view === 'import' && <BringInSection />}
@@ -1178,7 +1176,7 @@ export default function SettingsPage() {
       ],
     },
     {
-      label: 'Notifications',
+      label: 'The app',
       entries: [
         {
           id: 'notifications',
@@ -1188,11 +1186,6 @@ export default function SettingsPage() {
           onClick: () => setView('notifications'),
           words: 'reminders quiet hours lock screen push',
         },
-      ],
-    },
-    {
-      label: 'The app',
-      entries: [
         { id: 'today', icon: <SunIcon size={22} />, title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers' },
         {
           id: 'appearance',
@@ -1205,7 +1198,7 @@ export default function SettingsPage() {
       ],
     },
     {
-      label: 'Your data',
+      label: 'Account and data',
       entries: [
         { id: 'lock', icon: <ShieldIcon size={22} />, title: 'Lock Reflect', value: lock.isOn() ? 'On' : 'Off', onClick: () => setView('lock'), words: 'passcode pin privacy journal' },
         { id: 'account', icon: <CloudIcon size={22} />, title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key' },
@@ -1219,6 +1212,7 @@ export default function SettingsPage() {
         },
         { id: 'import', icon: <InboxIcon size={22} />, title: 'Bring things in', value: 'From other apps', onClick: () => setView('import'), words: 'import todoist csv calendar google tasks' },
         { id: 'privacy', icon: <ShieldIcon size={22} />, title: 'Privacy', onClick: () => setView('privacy') },
+        { id: 'delete', icon: <span className="settings-row__danger">×</span>, title: 'Delete everything', onClick: () => setView('delete'), words: 'erase remove account data' },
       ],
     },
     {
@@ -1244,7 +1238,7 @@ export default function SettingsPage() {
   const matches = needle
     ? [
         ...groups.flatMap((group) => group.entries),
-        { id: 'delete', icon: <span className="settings-row__danger">×</span>, title: 'Delete everything', onClick: () => setView('delete'), words: 'erase remove account data' } as Entry,
+        { id: 'name', icon: <PenIcon size={22} />, title: 'Your name', onClick: () => setView('account'), words: 'profile greeting called' } as Entry,
       ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
     : [];
 
@@ -1274,7 +1268,7 @@ export default function SettingsPage() {
         </div>
       ) : (
         <>
-          <button type="button" className="profile-card" onClick={() => setView('profile')}>
+          <button type="button" className="profile-card" onClick={() => setView('account')}>
             <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
             <span className="profile-card__text">
               <span className="profile-card__name">{name || 'Add your name'}</span>
@@ -1297,13 +1291,6 @@ export default function SettingsPage() {
             <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
           </div>
 
-          <div className="settings-list settings-list--apart">
-            <Row
-              icon={<span className="settings-row__danger">×</span>}
-              title="Delete everything"
-              onClick={() => setView('delete')}
-            />
-          </div>
         </>
       )}
     </>
