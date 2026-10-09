@@ -269,7 +269,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
   circle, counts, and breath sounds from one clock; the circle is a plain
   ring until a sit starts, then a soft glow gathers around it as the breath goes out
-  (`--glow` = 1 - size, smoothed in JS ~0.35 s lag; the glow is box-shadows on circles the size of the ring, opacity only: a CSS blur on an SVG stroke is ignored on iPhones and showed as a hard band, so never use one) and eases away on the in-breath; the ring never changes size).
+  (`--glow` = 1 - size, the glow is box-shadows on circles the size of the ring, opacity only: a CSS blur on an SVG stroke is ignored on iPhones and showed as a hard band, so never use one) and eases away on the in-breath; the ring never changes size).
   Each kind of sit (five session types + breathing) has its own setup
   (`core/meditate/setup.ts`: length, words often/now and then/rarely/none,
   read aloud, circle pace, counts, bells, breath sounds, sounds, music);

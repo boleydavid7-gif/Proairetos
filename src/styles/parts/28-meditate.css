@@ -219,8 +219,8 @@
 /* ---------- The breathing circle ---------- */
 
 /*
- * --glow runs from 0 (a plain ring) to 1 (the breath fully out), smoothed in
- * BreathCircle. Only opacity changes, on layers drawn once, so phones draw it
+ * --glow runs from 0 (a plain ring) to 1 (the breath fully out), read straight from
+ * the breath clock in BreathCircle. Only opacity changes, on layers drawn once, so phones draw it
  * smoothly; `screen` blending adds light to the photo behind instead of
  * painting over it. The ring never changes size.
  */

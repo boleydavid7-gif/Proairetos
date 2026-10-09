@@ -2,17 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { breathAt, stepLabels, type BreathPattern } from '../../core/meditate/breathing';
 
 const RING = 132;
-/** How quickly the glow follows the breath, in seconds: it swells and settles, it never snaps. */
-const LAG = 0.35;
-/** Before a sit begins the ring is just a ring. */
-const RESTING = 0;
-
 /**
  * The breathing circle. A plain ring until a sit begins; then, as the breath
  * goes out, a soft glow gathers around the ring, and it eases away again on
  * the in-breath. Each frame reads `elapsed()`, the same clock as the counts
- * and the cues; the glow trails it by a moment, so it swells and settles
- * rather than switching. Nothing grows or moves.
+ * and the cues, and the glow is read straight from it, so it rises and falls
+ * exactly with the breath. Nothing grows or moves.
  */
 export default function BreathCircle({
   pattern,
@@ -37,15 +32,10 @@ export default function BreathCircle({
     if (!elapsed) return;
     let frame = 0;
     let last = '';
-    let glow = RESTING;
-    let then = performance.now();
-    const draw = (now: number) => {
+    const draw = () => {
       const moment = breathAt(elapsed(), pattern);
       // The glow is the breath's emptiness: none when full, its most when the breath is out.
-      const target = 1 - moment.size;
-      const step = Math.min(0.1, (now - then) / 1000);
-      then = now;
-      glow += (target - glow) * (1 - Math.exp(-step / LAG));
+      const glow = 1 - moment.size;
       // One number, 0 for a plain ring to 1 for the full glow; the CSS turns it into light.
       root.current?.style.setProperty('--glow', glow.toFixed(4));
       const key = `${moment.index}:${moment.count}:${moment.stepStart}`;
