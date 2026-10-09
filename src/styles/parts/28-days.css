@@ -869,3 +869,130 @@
 .month__count.tag--none {
   --tag: var(--color-accent);
 }
+
+/* On a phone the controls above the calendar are kept short, so the day gets the room. */
+@media (max-width: 61.99rem) {
+  .days-toolbar {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .days-toolbar .segmented__option {
+    min-height: 2.5rem;
+  }
+
+  .days-toolbar .days-stepper__step {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}
+
+/* ---------- A small month beside the week (computers) ---------- */
+
+.days-weekwrap {
+  display: block;
+}
+
+.days-aside {
+  display: none;
+}
+
+@media (min-width: 62rem) {
+  .app-shell[data-route='calendar'] .app-shell__content {
+    max-width: 76rem;
+  }
+
+  .days-weekwrap {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  .days-aside {
+    display: grid;
+    gap: var(--space-4);
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+.mini {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.mini__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.mini__title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.mini__steps {
+  display: flex;
+  gap: 2px;
+}
+
+.mini__steps button {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.mini__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  text-align: center;
+}
+
+.mini__dow {
+  color: var(--color-text-faint);
+  font-size: 0.68rem;
+  padding-bottom: 2px;
+}
+
+.mini__day {
+  height: 1.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini__day--in {
+  background: var(--color-accent-soft);
+  border-radius: 0;
+}
+
+.mini__day--today {
+  background: var(--color-accent);
+  border-radius: 50%;
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .mini__day:hover {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    border-radius: 50%;
+  }
+}

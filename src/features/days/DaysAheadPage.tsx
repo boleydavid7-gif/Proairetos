@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
 import { billsOn } from '../../app/family/glance';
+import MiniMonth from './MiniMonth';
 import { useStore } from '../../app/family/read';
 import type { Bill } from '../../oikonomia/core/bills';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -71,6 +72,15 @@ function daysBetweenInclusive(from: string, until: string): string[] {
 }
 
 const WEEK = 7;
+
+const NARROW = '(max-width: 47.99rem)';
+const isNarrow = () => typeof matchMedia === 'function' && matchMedia(NARROW).matches;
+function subscribeNarrow(notify: () => void) {
+  if (typeof matchMedia !== 'function') return () => undefined;
+  const query = matchMedia(NARROW);
+  query.addEventListener('change', notify);
+  return () => query.removeEventListener('change', notify);
+}
 const HOUR_PX = 44;
 
 const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
@@ -147,6 +157,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const [removing, setRemoving] = useState<string | null>(null);
   const focusKey = opening.focusKey;
 
+  const narrow = useSyncExternalStore(subscribeNarrow, isNarrow);
+  const [picked, setPicked] = useState<string | null>(null);
   const shape: 'list' | CalendarMode = view === 'list' ? 'list' : mode;
   const days =
     shape === 'month'
@@ -155,6 +167,9 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         ? daysBetweenInclusive(yearStart(start), `${start.slice(0, 4)}-12-31`)
         : Array.from({ length: WEEK }, (_, i) => addDays(start, i));
   const span = days.length;
+  // On a phone the week shows one day at a time, chosen from a strip along the top.
+  const focusDay = picked && days.includes(picked) ? picked : days.includes(nowDate) ? nowDate : days[0];
+  const swipeFrom = useRef<number | null>(null);
   const first = days[0];
   const data = useServiceData(
     subscribeAll,
@@ -192,8 +207,9 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
     if (view === 'list') target?.scrollIntoView({ block: 'center' });
     else if (scroller.current) {
       // Opens at the tapped entry, else just before the earliest thing shown, else the morning.
-      let earliest = 7;
-      for (const day of data?.days ?? []) {
+      // Today in view: open around the present time; otherwise the morning.
+      let earliest = (narrow ? focusDay === nowDate : days.includes(nowDate)) ? Math.max(6, nowMinutes / 60 - 1.5) : 7;
+      for (const day of (narrow ? data?.days.filter((d) => d.date === focusDay) : data?.days) ?? []) {
         const dayStart = atTime(day.date, '00:00').getTime();
         for (const entry of day.entries) {
           // A block carried over from the night before does not set where the day opens.
@@ -205,7 +221,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       scroller.current.scrollTop = Math.max(0, top);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.days[0]?.date, data?.days.length, view, mode]);
+  }, [data?.days[0]?.date, data?.days.length, view, mode, narrow, focusDay]);
 
   const open = (entry: Timed) => {
     if (entry.kind === 'item') openItem(entry.item.id);
@@ -449,20 +465,48 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         })}
 
       {shape === 'week' && data && (
-        <div className={`days-calendar${" days-calendar--week"}`} style={{ ['--days' as string]: String(span) }}>
-          <div className="cal-head" aria-hidden="true">
-            <span />
-            {data.days.map(({ date }) => (
-              <span key={date} className={date === nowDate ? 'cal-head__day cal-head__day--today' : 'cal-head__day'}>
-                {formatLocalDay(date, { weekday: 'narrow' })}
-                <strong>{formatLocalDay(date, { day: 'numeric' })}</strong>
-              </span>
-            ))}
-          </div>
-          {shows('bill-dates') && data.days.some(({ date }) => billsFor(date).length > 0) && (
-            <div className="cal-head cal-bills" style={{ ['--days' as string]: String(span) }}>
-              <span aria-hidden="true" />
+        <div className="days-weekwrap">
+        {!narrow && (
+          <aside className="days-aside">
+            <MiniMonth key={start.slice(0, 7)} shown={start} today={nowDate} onPick={setStart} />
+            <button type="button" className="chip chip--wide" onClick={() => setStart(today)}>
+              Today
+            </button>
+          </aside>
+        )}
+        <div className={`days-calendar${" days-calendar--week"}`} style={{ ['--days' as string]: String(narrow ? 1 : span) }}>
+          {narrow ? (
+            <div className="cal-strip" role="tablist" aria-label="Day">
               {data.days.map(({ date }) => (
+                <button
+                  key={date}
+                  type="button"
+                  role="tab"
+                  aria-selected={date === focusDay}
+                  className={`cal-strip__day${date === nowDate ? ' cal-strip__day--today' : ''}`}
+                  onClick={() => setPicked(date)}
+                >
+                  <span>{formatLocalDay(date, { weekday: 'narrow' })}</span>
+                  <strong>{formatLocalDay(date, { day: 'numeric' })}</strong>
+                  {data.days.find((day) => day.date === date)?.entries.some((entry) => entry.kind !== 'off') && <i aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="cal-head" aria-hidden="true">
+              <span />
+              {data.days.map(({ date }) => (
+                <span key={date} className={date === nowDate ? 'cal-head__day cal-head__day--today' : 'cal-head__day'}>
+                  {formatLocalDay(date, { weekday: 'narrow' })}
+                  <strong>{formatLocalDay(date, { day: 'numeric' })}</strong>
+                </span>
+              ))}
+            </div>
+          )}
+          {shows('bill-dates') && (narrow ? [focusDay] : data.days.map((day) => day.date)).some((date) => billsFor(date).length > 0) && (
+            <div className="cal-head cal-bills" style={{ ['--days' as string]: String(narrow ? 1 : span) }}>
+              <span aria-hidden="true" />
+              {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date }) => (
                 <span key={date} className="cal-bills__day">
                   {billsFor(date).map((line) => (
                     <a key={line.id} href="/oikonomia/" className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={`${line.name} · ${line.amount}${line.paid ? ' · paid' : ''}`}>
@@ -473,7 +517,27 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               ))}
             </div>
           )}
-          <div ref={scroller} className="cal-scroll">
+          <div
+            ref={scroller}
+            className="cal-scroll"
+            onTouchStart={(event) => {
+              swipeFrom.current = narrow ? event.touches[0].clientX : null;
+            }}
+            onTouchEnd={(event) => {
+              const from = swipeFrom.current;
+              swipeFrom.current = null;
+              if (from === null) return;
+              const across = event.changedTouches[0].clientX - from;
+              if (Math.abs(across) < 70) return;
+              const at = days.indexOf(focusDay) + (across < 0 ? 1 : -1);
+              if (at >= 0 && at < days.length) setPicked(days[at]);
+              else {
+                // Past the end of the week: on to the next or the one before.
+                setPicked(across < 0 ? addDays(days[0], WEEK) : addDays(days[0], -1));
+                move(across < 0 ? 1 : -1);
+              }
+            }}
+          >
             <div className="cal-grid" style={{ height: 24 * HOUR_PX }}>
               <div className="cal-hours" aria-hidden="true">
                 {Array.from({ length: 24 }, (_, hour) => (
@@ -482,7 +546,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   </span>
                 ))}
               </div>
-              {data.days.map(({ date, entries }) => {
+              {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date, entries }) => {
                 const dayStart = atTime(date, '00:00').getTime();
                 const dayEnd = atTime(addDays(date, 1), '00:00').getTime();
                 const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
@@ -534,6 +598,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               })}
             </div>
           </div>
+        </div>
         </div>
       )}
 
