@@ -25,7 +25,7 @@ import {
   TrashIcon,
 } from '../../components/icons/Icons';
 import { itemSpan } from '../../core/rhythm/openTime';
-import { addDays, atTime } from '../../core/scheduling/dates';
+import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
@@ -129,7 +129,11 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       await lifeService.setPlannedFor(id, was);
     });
   }
-  const { today, rangeOf } = usePersonalDay(useClock());
+  const clock = useClock();
+  const { today, rangeOf } = usePersonalDay(clock);
+  // The real calendar day and minute, for the line that marks now in the week.
+  const nowDate = toLocalDate(clock);
+  const nowMinutes = clock.getHours() * 60 + clock.getMinutes();
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
   const recipes = useRecipesFromSoma();
@@ -275,6 +279,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </span>
       </header>
 
+      <div className="days-toolbar">
       <div className="segmented" role="tablist" aria-label="View">
         <button type="button" role="tab" aria-selected={view === 'list'} className="segmented__option" onClick={() => { setDaysAheadOpening({ start }); navigate('plan'); }}>
           <ListIcon size={20} /> List
@@ -318,6 +323,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           Back to today
         </button>
       )}
+      </div>
 
       {view === 'list' && shows('sort-through') && toSort.length > 1 && (
         <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
@@ -447,7 +453,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           <div className="cal-head" aria-hidden="true">
             <span />
             {data.days.map(({ date }) => (
-              <span key={date} className={date === today ? 'cal-head__day cal-head__day--today' : 'cal-head__day'}>
+              <span key={date} className={date === nowDate ? 'cal-head__day cal-head__day--today' : 'cal-head__day'}>
                 {formatLocalDay(date, { weekday: 'narrow' })}
                 <strong>{formatLocalDay(date, { day: 'numeric' })}</strong>
               </span>
@@ -481,7 +487,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 const dayEnd = atTime(addDays(date, 1), '00:00').getTime();
                 const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
                 return (
-                  <div key={date} className="cal-col" role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
+                  <div key={date} className={`cal-col${date === nowDate ? ' cal-col--today' : ''}`} role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
+                    {date === nowDate && <div className="cal-now" style={{ top: (nowMinutes / 60) * HOUR_PX }} aria-hidden="true" />}
                     {timed.map((entry) => {
                       const look = entryLook(entry, data.patterns, data.sources, data.goals);
                       const from = Math.max(entry.start.getTime(), dayStart);
@@ -498,10 +505,14 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         <div key={entry.key} ref={markRef(entry.key)} role="listitem" className={className} style={style} aria-label={label}>
                           {tappable ? (
                             <button type="button" className="cal-entry__open" onClick={() => open(entry)}>
-                              {look.title}
+                              <span className="cal-entry__title">{look.title}</span>
+                              {until - from >= 40 * 60_000 && <span className="cal-entry__time">{formatTimeOf(entry.start)}</span>}
                             </button>
                           ) : (
-                            <span>{look.title}</span>
+                            <span className="cal-entry__open">
+                              <span className="cal-entry__title">{look.title}</span>
+                              {until - from >= 40 * 60_000 && <span className="cal-entry__time">{formatTimeOf(entry.start)}</span>}
+                            </span>
                           )}
                           <button
                             type="button"
@@ -554,6 +565,16 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     onClick={() => setStart(date)}
                   >
                     <span className="month__num">{Number(date.slice(8))}</span>
+                    {looks.length > 0 && !outside && (
+                      <span className="month__chips" aria-hidden="true">
+                        {looks.slice(0, 3).map((look, index) => (
+                          <span key={index} className={`month__chip tag--${look.color ?? 'none'}`}>
+                            {look.title}
+                          </span>
+                        ))}
+                        {looks.length > 3 && <span className="month__more">+{looks.length - 3} more</span>}
+                      </span>
+                    )}
                     {looks.length > 0 && (
                       <span className="month__dots" aria-hidden="true">
                         {looks.slice(0, 3).map((look, index) => (
