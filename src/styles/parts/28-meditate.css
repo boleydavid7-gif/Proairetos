@@ -239,43 +239,48 @@
   overflow: visible;
 }
 
-.breath-circle svg circle {
-  fill: none;
-}
-
 /* The plain ring: thin, steady, always there. */
 .breath-circle__ring {
+  fill: none;
   stroke: rgba(255, 244, 226, 0.78);
   stroke-width: 2;
 }
 
-/* A wide, soft light around the ring, the most of the glow. */
-.breath-circle__aura {
-  stroke: rgb(255, 205, 140);
-  stroke-width: 40;
-  filter: blur(22px);
-  mix-blend-mode: screen;
-  opacity: calc(var(--glow) * 0.5);
+/*
+ * The glow is built from box-shadows on circles the size of the ring (the ring is 82.5% of the box, so 8.75%
+ * in from each side). A shadow's softness is drawn by the browser itself, so it looks the same on a phone;
+ * a CSS blur on an SVG stroke does not, and showed there as a hard band. Only opacity changes.
+ */
+.breath-circle__glow,
+.breath-circle__lit {
+  position: absolute;
+  inset: 8.75%;
+  border-radius: 50%;
+  pointer-events: none;
   will-change: opacity;
 }
 
+/* A wide, soft light around the ring, and a touch inside it. */
+.breath-circle__glow--wide {
+  box-shadow:
+    0 0 64px 22px rgba(255, 190, 120, 0.42),
+    inset 0 0 48px 8px rgba(255, 190, 120, 0.2);
+  opacity: calc(var(--glow) * 0.9);
+}
+
 /* A closer glow hugging the ring. */
-.breath-circle__halo {
-  stroke: rgb(255, 214, 160);
-  stroke-width: 14;
-  filter: blur(7px);
-  mix-blend-mode: screen;
-  opacity: calc(var(--glow) * 0.85);
-  will-change: opacity;
+.breath-circle__glow--near {
+  box-shadow:
+    0 0 20px 5px rgba(255, 214, 160, 0.7),
+    inset 0 0 18px 3px rgba(255, 214, 160, 0.32);
+  opacity: calc(var(--glow) * 0.95);
 }
 
 /* The ring itself warms to light as the glow comes. */
 .breath-circle__lit {
-  stroke: rgb(255, 238, 208);
-  stroke-width: 3;
-  filter: drop-shadow(0 0 5px rgba(255, 200, 135, 0.9));
+  border: 2.5px solid rgb(255, 238, 208);
+  box-shadow: 0 0 10px 1px rgba(255, 200, 135, 0.85);
   opacity: calc(var(--glow) * 0.95);
-  will-change: opacity;
 }
 
 .breath-circle__label {

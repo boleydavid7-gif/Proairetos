@@ -269,8 +269,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
   circle, counts, and breath sounds from one clock; the circle is a plain
   ring until a sit starts, then a soft glow gathers around it as the breath goes out
-  (`--glow` = 1 - size, smoothed in JS ~0.35 s lag, opacity-only layers blended with
-  `screen`) and eases away on the in-breath; the ring never changes size).
+  (`--glow` = 1 - size, smoothed in JS ~0.35 s lag; the glow is box-shadows on circles the size of the ring, opacity only: a CSS blur on an SVG stroke is ignored on iPhones and showed as a hard band, so never use one) and eases away on the in-breath; the ring never changes size).
   Each kind of sit (five session types + breathing) has its own setup
   (`core/meditate/setup.ts`: length, words often/now and then/rarely/none,
   read aloud, circle pace, counts, bells, breath sounds, sounds, music);
@@ -494,6 +493,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   a moment before eating, cooked for (`Recipe.cookedFor`). Proairetos reads
   recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
   day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
+- Groceries take only things to buy (`isGrocery`, `cleanLine` in `soma/core/groceries.ts`): list numbering is taken off ("2. Black beans"); notes in brackets, rules (———), emoji or "Optional / Upgrade" titles, headings and cooking steps are left out. The Groceries page offers "Tidy the list" for lines saved before that.
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

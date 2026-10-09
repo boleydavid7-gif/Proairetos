@@ -187,3 +187,30 @@ describe('only groceries reach the grocery list', () => {
     expect(isGrocery('2 cups water')).toBe(false);
   });
 });
+
+describe('only real groceries reach the list', () => {
+  const kept = ['2. Black beans', '3. Chipotle chicken', '10. Hot sauce', '2 avocados', '½ lime', 'Salt', 'Cilantro', 'Diced onion', '1 can coconut water'];
+  const left = [
+    '(sauté sliced peppers + onions with salt, pepper, cumin)',
+    '———',
+    'Optional “Make It Amazing” Upgrades',
+    '🥑 Guacamole Upgrade',
+    'For the sauce:',
+    'Toppings',
+    'Sauté the sliced peppers and onions until soft',
+    '',
+  ];
+
+  it('keeps ingredients, even numbered ones', () => {
+    for (const line of kept) expect(isGrocery(line), line).toBe(true);
+  });
+
+  it('leaves out notes, rules, titles, headings and steps', () => {
+    for (const line of left) expect(isGrocery(line), line).toBe(false);
+  });
+
+  it('takes the list numbering off a line', () => {
+    const list = addToList([], [{ line: '2. Black beans' }, { line: '10) Hot sauce' }, { line: '———' }, { line: '🥑 Guacamole Upgrade' }], {}, '2026-10-09T10:00:00Z', (() => { let n = 0; return () => `id${++n}`; })());
+    expect(list.map((item) => item.name)).toEqual(['Black beans', 'Hot sauce']);
+  });
+});
