@@ -996,3 +996,53 @@
     border-radius: 50%;
   }
 }
+
+/* ---------- Year, the finish ---------- */
+
+.year__month {
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+@media (hover: hover) {
+  .year__month:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+}
+
+.year__name {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-1);
+}
+
+.year__days {
+  gap: 2px;
+}
+
+.year__day {
+  font-size: 0.68rem;
+}
+
+/* A day with something on it carries its colour; with none of its own, the gold. */
+.year__day--marked {
+  --tag: var(--color-accent);
+  background: color-mix(in srgb, var(--tag) 34%, transparent);
+}
+
+.year__day--today {
+  outline: 0;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+@media (min-width: 62rem) {
+  .year {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+}
