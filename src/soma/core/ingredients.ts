@@ -92,11 +92,21 @@ export function readIngredient(line: string): Ingredient {
     ingredient.amount = readNumber(amount[1]);
     if (amount[2]) ingredient.amountTo = readNumber(amount[2]);
     rest = rest.slice(amount[0].length);
-    const unit = units.find((each) => new RegExp(`^${each.replace(' ', '\\s')}\\.?(\\s|$)`, 'i').test(rest));
-    if (unit) {
-      ingredient.unit = unit;
-      rest = rest.slice(unit.length).replace(/^\.?\s*/, '');
-      rest = rest.replace(/^of\s+/i, '');
+    const takeUnit = () => {
+      const unit = units.find((each) => new RegExp(`^${each.replace(' ', '\\s')}\\.?(\\s|$)`, 'i').test(rest));
+      if (unit) {
+        ingredient.unit = unit;
+        rest = rest.slice(unit.length).replace(/^\.?\s*/, '');
+        rest = rest.replace(/^of\s+/i, '');
+      }
+    };
+    takeUnit();
+    // "1 (14-ounce) can chickpeas": the size in brackets is a note; the can is the unit.
+    const size = !ingredient.unit ? rest.match(/^\(([^)]*)\)\s*/) : null;
+    if (size) {
+      rest = rest.slice(size[0].length);
+      ingredient.note = `(${size[1]})`;
+      takeUnit();
     }
   }
   const noteAt = rest.search(/\s*(,|\(|;| - )/);

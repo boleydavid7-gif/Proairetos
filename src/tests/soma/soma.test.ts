@@ -1,5 +1,5 @@
 import { aisleFor } from '../../soma/core/aisles';
-import { addToList, byAisle, listAsText } from '../../soma/core/groceries';
+import { addToList, byAisle, isGrocery, listAsText } from '../../soma/core/groceries';
 import { convertAmountText, convertLine, convertText, formatAmount, readIngredient, scaleLine } from '../../soma/core/ingredients';
 import { fromJsonLd, fromMeal, fromText, isoMinutes } from '../../soma/core/importRecipe';
 import { searchRecipes, withWhatIHave, type Recipe } from '../../soma/core/recipes';
@@ -163,5 +163,27 @@ describe('amounts on the grocery list', () => {
   it('rounds up what is bought whole and writes units plainly', () => {
     const list = addToList([], [{ line: '3.75 cloves garlic' }, { line: '1.25 cup white rice' }, { line: '1.5 onions' }], {}, '', () => Math.random().toString());
     expect(list.map((item) => item.amounts[0])).toEqual(['4 cloves', '1¼ cups', '2']);
+  });
+});
+
+describe('only groceries reach the grocery list', () => {
+  const add = (lines: string[]) =>
+    addToList([], lines.map((line) => ({ line })), {}, '2026-10-09T00:00:00.000Z', (() => { let n = 0; return () => `id${(n += 1)}`; })());
+
+  it('leaves out headings, labels and plain water', () => {
+    const list = add(['# For the sauce', 'For the sauce:', 'Topping:', '2 cups cold water', 'Water', '3 cloves garlic, minced', '1 lb chicken thighs']);
+    expect(list.map((item) => item.name)).toEqual(['garlic', 'chicken thighs']);
+  });
+
+  it('reads a canned or boxed size as the unit, not part of the name', () => {
+    const list = add(['1 (14-ounce) can chickpeas, drained and rinsed']);
+    expect(list[0].name).toBe('chickpeas');
+    expect(list[0].amounts).toEqual(['1 can']);
+  });
+
+  it('keeps ordinary things, including ones with water in the name', () => {
+    expect(isGrocery('1 can coconut water')).toBe(true);
+    expect(isGrocery('Sparkling water')).toBe(true);
+    expect(isGrocery('2 cups water')).toBe(false);
   });
 });

@@ -6,7 +6,8 @@ import { dishScene } from '../app/scenes';
 import { newId, useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { startTimer, stopTimer, timeLeft, useTimers } from '../app/timers';
 import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
-import { addToList, usuallyHave } from '../core/groceries';
+import { addToList, isGrocery, usuallyHave } from '../core/groceries';
+import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { convertLine, scaleLine } from '../core/ingredients';
 import { headingText, isHeading, marks, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
 import { stepsWithAmounts, timerName } from '../core/cookAids';
@@ -469,6 +470,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       )}
       {picking && (
         <AddToGroceries
+          kitchen={kitchenNames(groceries)}
           lines={lines}
           sourceLines={sourceLines}
           onClose={() => setPicking(false)}
@@ -530,11 +532,11 @@ function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe
   );
 }
 
-/** Choose what to buy: everything starts chosen except what is usually at home. */
-function AddToGroceries({ lines, sourceLines, onClose, onAdd }: { lines: string[]; sourceLines: string[]; onClose: () => void; onAdd: (lines: string[]) => void }) {
+/** Choose what to buy: only things to buy are listed, and they start chosen except what is usually at home or already in the kitchen. */
+function AddToGroceries({ lines, sourceLines, kitchen, onClose, onAdd }: { lines: string[]; sourceLines: string[]; kitchen: string[]; onClose: () => void; onAdd: (lines: string[]) => void }) {
   const have = loadSettings().usuallyHave;
-  const items = lines.map((line, i) => ({ line, sourceLine: sourceLines[i] ?? line, i })).filter(({ line }) => !isHeading(line));
-  const [chosen, setChosen] = useState<Set<number>>(new Set(items.filter(({ line }) => !usuallyHave(line, have)).map(({ i }) => i)));
+  const items = lines.map((line, i) => ({ line, sourceLine: sourceLines[i] ?? line, i })).filter(({ line }) => !isHeading(line) && isGrocery(line));
+  const [chosen, setChosen] = useState<Set<number>>(new Set(items.filter(({ line }) => !usuallyHave(line, have) && usesFromKitchen([line], kitchen).length === 0).map(({ i }) => i)));
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);

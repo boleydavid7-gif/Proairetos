@@ -1,4 +1,5 @@
 import { aisleFor, type Aisle, type AisleChoices } from './aisles';
+import { isHeading } from './recipes';
 import { convertAmountText, formatAmount, itemKey, readIngredient, type UnitSystem } from './ingredients';
 
 /**
@@ -77,6 +78,23 @@ function amountText(line: string): string {
 
 const countable = new Set(['clove', 'can', 'tin', 'slice', 'head', 'bunch', 'stalk', 'sprig', 'stick', 'package', 'packet']);
 
+/** Plain water is not bought. */
+const WATER = /^(?:(?:cold|warm|hot|boiling|lukewarm|tap|filtered|ice|iced|cool|room[- ]temperature)\s+)*water$/i;
+
+/**
+ * Whether a recipe line is something to buy: not a section heading ("For the sauce:"), not plain water,
+ * not empty. Everything else in a recipe (steps, notes, headings) stays out of the grocery list.
+ */
+export function isGrocery(line: string): boolean {
+  const text = line.trim();
+  if (!text || isHeading(text)) return false;
+  // A lone label such as "For the sauce:" or "Topping" with a colon.
+  if (/^(for\s+(the\s+)?[^,]{1,40}|[A-Za-z ]{1,30}):$/.test(text)) return false;
+  const name = readIngredient(text).name.trim();
+  if (!name || WATER.test(name)) return false;
+  return true;
+}
+
 export function addToList(
   list: readonly GroceryItem[],
   lines: readonly NewLine[],
@@ -86,6 +104,7 @@ export function addToList(
 ): GroceryItem[] {
   const out = list.map((item) => ({ ...item }));
   for (const { line, recipe } of lines) {
+    if (!isGrocery(line)) continue;
     const { name } = amountOf(line);
     if (!name.trim()) continue;
     const key = itemKey(name);
