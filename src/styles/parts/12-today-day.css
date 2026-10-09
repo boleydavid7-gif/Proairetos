@@ -541,3 +541,46 @@
   background: var(--color-accent);
   opacity: 0.7;
 }
+
+/* An item that can be pulled: a hand cursor, a grip along its foot to stretch it, and a lift while moving. */
+@media (hover: hover) and (pointer: fine) {
+  .cal-entry--movable {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .cal-entry__grip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    cursor: ns-resize;
+  }
+
+  .cal-entry__grip::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-text-faint);
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: opacity 150ms ease;
+  }
+
+  .cal-entry--movable:hover .cal-entry__grip::after {
+    opacity: 0.8;
+  }
+}
+
+.cal-entry--dragging {
+  z-index: 6;
+  cursor: grabbing;
+  transition: none;
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.6);
+  outline: 1px solid var(--tag);
+}

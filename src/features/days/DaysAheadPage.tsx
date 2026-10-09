@@ -27,6 +27,8 @@ import {
 } from '../../components/icons/Icons';
 import { itemSpan } from '../../core/rhythm/openTime';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+import { lengthMinutes, resizedEnd, shiftedStart, snapMinutes, STEP_MINUTES } from '../../core/rhythm/dragMath';
+import type { LifeItem } from '../../core/life-items/types';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
@@ -170,6 +172,88 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   // On a phone the week shows one day at a time, chosen from a strip along the top.
   const focusDay = picked && days.includes(picked) ? picked : days.includes(nowDate) ? nowDate : days[0];
   const swipeFrom = useRef<number | null>(null);
+
+  // Moving and resizing a timed item in the week, with a mouse or pen. Steps of 15 minutes; one undo.
+  type Drag = { key: string; mode: 'move' | 'resize'; minutes: number; dx: number; date?: string };
+  const [drag, setDrag] = useState<Drag | null>(null);
+  const dragStart = useRef<{ key: string; mode: 'move' | 'resize'; x: number; y: number; item: LifeItem; date: string; started: boolean; cols: { date: string; left: number; right: number }[] } | null>(null);
+  const dragNow = useRef<Drag | null>(null);
+  const justDragged = useRef(false);
+
+  const beginDrag = (event: React.PointerEvent<HTMLElement>, key: string, item: LifeItem, date: string, mode: 'move' | 'resize') => {
+    if (event.pointerType === 'touch' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    if ((event.target as HTMLElement).closest('.cal-entry__remove')) return;
+    const cols = [...(scroller.current?.querySelectorAll<HTMLElement>('.cal-col') ?? [])].map((el) => {
+      const box = el.getBoundingClientRect();
+      return { date: el.dataset.date ?? '', left: box.left, right: box.right };
+    });
+    dragStart.current = { key, mode, x: event.clientX, y: event.clientY, item, date, started: false, cols };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    if (mode === 'resize') event.stopPropagation();
+  };
+  const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const from = dragStart.current;
+    if (!from) return;
+    const dx = event.clientX - from.x;
+    const dy = event.clientY - from.y;
+    if (!from.started) {
+      if (Math.hypot(dx, dy) < 6) return;
+      from.started = true;
+    }
+    const over = from.mode === 'move' ? from.cols.find((c) => event.clientX >= c.left && event.clientX < c.right)?.date : undefined;
+    const next: Drag = { key: from.key, mode: from.mode, minutes: snapMinutes(dy, HOUR_PX), dx: from.mode === 'move' ? dx : 0, date: over && over !== from.date ? over : undefined };
+    dragNow.current = next;
+    setDrag(next);
+  };
+  const endDrag = async (event: React.PointerEvent<HTMLElement>) => {
+    const from = dragStart.current;
+    const last = dragNow.current;
+    dragStart.current = null;
+    dragNow.current = null;
+    setDrag(null);
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (!from?.started || !last) return;
+    justDragged.current = true;
+    window.setTimeout(() => (justDragged.current = false), 0);
+    const item = from.item;
+    if (!item.scheduledAt) return;
+    if (from.mode === 'move') {
+      if (last.minutes === 0 && !last.date) return;
+      const next = shiftedStart(item.scheduledAt, last.minutes, last.date);
+      const before = { start: item.scheduledAt, end: item.endsAt };
+      await lifeService.schedule(item.id, next);
+      offerUndo(`Moved “${item.title}”`, async () => {
+        await lifeService.scheduleSpan(item.id, before.start as string, before.end);
+      });
+    } else {
+      if (last.minutes === 0) return;
+      const nextEnd = resizedEnd(item.scheduledAt, item.endsAt, item.plannedMinutes, last.minutes);
+      const before = item.endsAt;
+      await lifeService.scheduleSpan(item.id, item.scheduledAt, nextEnd);
+      offerUndo(`Changed the length of “${item.title}”`, async () => {
+        await lifeService.scheduleSpan(item.id, item.scheduledAt as string, before);
+      });
+    }
+  };
+  /** The same moves from the keyboard: Alt with the arrows moves by a step, Alt and Shift changes the length. */
+  const keyDrag = async (event: React.KeyboardEvent, item: LifeItem) => {
+    if (!event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') || !item.scheduledAt) return;
+    event.preventDefault();
+    const minutes = event.key === 'ArrowUp' ? -STEP_MINUTES : STEP_MINUTES;
+    if (event.shiftKey) {
+      const before = item.endsAt;
+      await lifeService.scheduleSpan(item.id, item.scheduledAt, resizedEnd(item.scheduledAt, item.endsAt, item.plannedMinutes, minutes));
+      offerUndo(`Changed the length of “${item.title}”`, async () => {
+        await lifeService.scheduleSpan(item.id, item.scheduledAt as string, before);
+      });
+    } else {
+      const before = { start: item.scheduledAt, end: item.endsAt };
+      await lifeService.schedule(item.id, shiftedStart(item.scheduledAt, minutes));
+      offerUndo(`Moved “${item.title}”`, async () => {
+        await lifeService.scheduleSpan(item.id, before.start, before.end);
+      });
+    }
+  };
   const first = days[0];
   const data = useServiceData(
     subscribeAll,
@@ -551,7 +635,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 const dayEnd = atTime(addDays(date, 1), '00:00').getTime();
                 const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
                 return (
-                  <div key={date} className={`cal-col${date === nowDate ? ' cal-col--today' : ''}`} role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
+                  <div key={date} className={`cal-col${date === nowDate ? ' cal-col--today' : ''}`} data-date={date} role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
                     {date === nowDate && <div className="cal-now" style={{ top: (nowMinutes / 60) * HOUR_PX }} aria-hidden="true" />}
                     {timed.map((entry) => {
                       const look = entryLook(entry, data.patterns, data.sources, data.goals);
@@ -562,21 +646,62 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         height: Math.max(((until - from) / 3_600_000) * HOUR_PX, 22),
                       };
                       const layer = entry.kind === 'shift' ? 'block' : 'point';
-                      const className = `cal-entry cal-entry--${layer} tag--${look.color ?? 'none'}${entry.key === focusKey ? ' cal-entry--focus' : ''}`;
+                      // A timed item (not one that repeats) can be pulled to another time or day, or stretched.
+                      const movable = entry.kind === 'item' && Boolean(entry.item.scheduledAt) && !entry.item.repeat;
+                      const dragged = drag && drag.key === entry.key ? drag : null;
+                      const shownStyle = dragged
+                        ? dragged.mode === 'move'
+                          ? { ...style, transform: `translate(${dragged.dx}px, ${(dragged.minutes / 60) * HOUR_PX}px)` }
+                          : { ...style, height: Math.max((style.height as number) + (dragged.minutes / 60) * HOUR_PX, (STEP_MINUTES / 60) * HOUR_PX) }
+                        : style;
+                      const className = `cal-entry cal-entry--${layer} tag--${look.color ?? 'none'}${entry.key === focusKey ? ' cal-entry--focus' : ''}${movable ? ' cal-entry--movable' : ''}${dragged ? ' cal-entry--dragging' : ''}`;
                       const label = `${look.title}, ${formatTimeOf(entry.start)}`;
                       const tappable = entry.kind !== 'event';
+                      const shownTime = dragged && movable && dragged.mode === 'move' ? formatTimeOf(new Date(shiftedStart(entry.item.scheduledAt as string, dragged.minutes))) : formatTimeOf(entry.start);
+                      const draggedLength = dragged && movable && dragged.mode === 'resize' ? ` · ${lengthMinutes(entry.item.scheduledAt as string, entry.item.endsAt, entry.item.plannedMinutes) + dragged.minutes} min` : '';
                       return (
-                        <div key={entry.key} ref={markRef(entry.key)} role="listitem" className={className} style={style} aria-label={label}>
+                        <div
+                          key={entry.key}
+                          ref={markRef(entry.key)}
+                          role="listitem"
+                          className={className}
+                          style={shownStyle}
+                          aria-label={label}
+                          onPointerDown={movable ? (event) => beginDrag(event, entry.key, entry.item, date, 'move') : undefined}
+                          onPointerMove={movable ? moveDrag : undefined}
+                          onPointerUp={movable ? (event) => void endDrag(event) : undefined}
+                          onPointerCancel={movable ? () => { dragStart.current = null; dragNow.current = null; setDrag(null); } : undefined}
+                        >
                           {tappable ? (
-                            <button type="button" className="cal-entry__open" onClick={() => open(entry)}>
+                            <button
+                              type="button"
+                              className="cal-entry__open"
+                              onClick={() => {
+                                if (justDragged.current) return;
+                                open(entry);
+                              }}
+                              onKeyDown={movable ? (event) => void keyDrag(event, entry.item) : undefined}
+                            >
                               <span className="cal-entry__title">{look.title}</span>
-                              {until - from >= 40 * 60_000 && <span className="cal-entry__time">{formatTimeOf(entry.start)}</span>}
+                              {(until - from >= 40 * 60_000 || dragged) && <span className="cal-entry__time">{shownTime}{draggedLength}</span>}
                             </button>
                           ) : (
                             <span className="cal-entry__open">
                               <span className="cal-entry__title">{look.title}</span>
                               {until - from >= 40 * 60_000 && <span className="cal-entry__time">{formatTimeOf(entry.start)}</span>}
                             </span>
+                          )}
+                          {movable && (
+                            <span
+                              className="cal-entry__grip"
+                              aria-hidden="true"
+                              onPointerDown={(event) => beginDrag(event, entry.key, entry.item, date, 'resize')}
+                              onPointerMove={moveDrag}
+                              onPointerUp={(event) => {
+                                event.stopPropagation();
+                                void endDrag(event);
+                              }}
+                            />
                           )}
                           <button
                             type="button"
