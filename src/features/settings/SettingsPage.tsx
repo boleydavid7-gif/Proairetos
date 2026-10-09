@@ -1,3 +1,4 @@
+import { notifications } from '../../app/notify/notifications';
 import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
@@ -886,6 +887,14 @@ function SourcesSection() {
   );
 }
 
+/** The last copy as a plain fact, or nothing when there has not been one. */
+function lastCopyLabel(iso: string | null): string | undefined {
+  if (!iso) return undefined;
+  const when = new Date(iso);
+  if (Number.isNaN(when.getTime())) return undefined;
+  return when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -1027,7 +1036,12 @@ export default function SettingsPage() {
       </SettingsGroup>
 
       <SettingsGroup label="Notifications">
-        <Row icon={<BellIcon size={22} />} title="Notifications" onClick={() => setView('notifications')} />
+        <Row
+          icon={<BellIcon size={22} />}
+          title="Notifications"
+          value={notifications.permission() === 'granted' ? 'On' : 'Off'}
+          onClick={() => setView('notifications')}
+        />
       </SettingsGroup>
 
       <SettingsGroup label="The app">
@@ -1047,7 +1061,12 @@ export default function SettingsPage() {
           value={syncLabel(status.phase)}
           onClick={() => setView('account')}
         />
-        <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
+        <Row
+          icon={<InboxIcon size={22} />}
+          title="Back up and restore"
+          value={lastCopyLabel(lastBackupDate())}
+          onClick={() => setView('backup')}
+        />
         <Row
           icon={<InboxIcon size={22} />}
           title="Bring things in"
@@ -1055,11 +1074,6 @@ export default function SettingsPage() {
           onClick={() => setView('import')}
         />
         <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
-        <Row
-          icon={<span className="settings-row__danger">×</span>}
-          title="Delete everything"
-          onClick={() => setView('delete')}
-        />
       </SettingsGroup>
 
       <SettingsGroup label="More apps">
@@ -1087,6 +1101,18 @@ export default function SettingsPage() {
           value="Water, flow and balance"
           onClick={() => window.location.assign('/hydros/')}
         />
+        <Row
+          icon={<img className="settings-row__app" src="/praxis/favicon.svg" alt="" width={26} height={26} />}
+          title="Praxis"
+          value="Study, on purpose"
+          onClick={() => window.location.assign('/praxis/')}
+        />
+        <Row
+          icon={<img className="settings-row__app" src="/theoria/favicon.svg" alt="" width={26} height={26} />}
+          title="Theoria"
+          value="Reading and ideas"
+          onClick={() => window.location.assign('/theoria/')}
+        />
       </SettingsGroup>
 
       <SettingsGroup label="About">
@@ -1096,6 +1122,14 @@ export default function SettingsPage() {
 
       <div className="settings-list">
         <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
+      </div>
+
+      <div className="settings-list settings-list--apart">
+        <Row
+          icon={<span className="settings-row__danger">×</span>}
+          title="Delete everything"
+          onClick={() => setView('delete')}
+        />
       </div>
     </div>
   );
