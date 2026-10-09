@@ -1019,6 +1019,15 @@ function LockSection() {
   );
 }
 
+const WIDE = '(min-width: 62rem)';
+const isWide = () => typeof matchMedia === 'function' && matchMedia(WIDE).matches;
+function subscribeWide(notify: () => void) {
+  if (typeof matchMedia !== 'function') return () => undefined;
+  const query = matchMedia(WIDE);
+  query.addEventListener('change', notify);
+  return () => query.removeEventListener('change', notify);
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -1031,6 +1040,7 @@ export default function SettingsPage() {
   const returnTo = useReturnRoute();
   const status = useSyncStatus();
   const { openSupport } = useOverlays();
+  const [find, setFind] = useState('');
   const [view, setView] = useState<View | null>(() => {
     const requested = requestedView;
     requestedView = null;
@@ -1046,13 +1056,16 @@ export default function SettingsPage() {
   // A detail page sits on top of the list, so back returns to the list first.
   useBackHandler(view !== null, () => setView(null));
 
-  if (view) {
-    return (
-      <div className="page">
-        <button type="button" className="back-link" onClick={() => setView(null)}>
-          <ArrowLeftIcon size={18} />
-          Settings
-        </button>
+  // On a wide screen the list stays beside the page it opens.
+  const wide = useSyncExternalStore(subscribeWide, isWide);
+  const detail = view ? (
+      <>
+        {!wide && (
+          <button type="button" className="back-link" onClick={() => setView(null)}>
+            <ArrowLeftIcon size={18} />
+            Settings
+          </button>
+        )}
         <PageHeader title={viewTitles[view]} />
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
@@ -1120,148 +1133,174 @@ export default function SettingsPage() {
           </section>
         )}
         {view === 'about' && <SourcesSection />}
-      </div>
-    );
-  }
+      </>
+  ) : null;
 
-  return (
-    <div className="page">
+  if (view && !wide) return <div className="page">{detail}</div>;
+
+  type Entry = { id: string; icon: ReactNode; title: string; value?: string; onClick: () => void; words?: string };
+  const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
+  const groups: { label: string; entries: Entry[] }[] = [
+    {
+      label: 'Your days',
+      entries: [
+        { id: 'schedule', icon: <CalendarIcon size={22} />, title: 'Your schedule', onClick: () => navigate('schedule'), words: 'work shifts study rotation' },
+        { id: 'day', icon: <MoonIcon size={22} />, title: 'Day starts', value: daySummary(), onClick: () => setView('day'), words: 'midnight turnover morning' },
+        {
+          id: 'calendars',
+          icon: <CalendarIcon size={22} />,
+          title: 'Calendars',
+          value: calendarSources().length ? String(calendarSources().length) : undefined,
+          onClick: () => setView('calendars'),
+          words: 'google outlook ics subscription feed',
+        },
+        {
+          id: 'weather',
+          icon: <PartlyCloudyIcon size={22} />,
+          title: 'Weather',
+          value: weatherSettings().on ? 'On' : 'Off',
+          onClick: () => setView('weather'),
+          words: 'sky place location',
+        },
+      ],
+    },
+    {
+      label: 'Notifications',
+      entries: [
+        {
+          id: 'notifications',
+          icon: <BellIcon size={22} />,
+          title: 'Notifications',
+          value: notifications.permission() === 'granted' ? 'On' : 'Off',
+          onClick: () => setView('notifications'),
+          words: 'reminders quiet hours lock screen push',
+        },
+      ],
+    },
+    {
+      label: 'The app',
+      entries: [
+        { id: 'today', icon: <SunIcon size={22} />, title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers' },
+        {
+          id: 'appearance',
+          icon: <MoonIcon size={22} />,
+          title: 'Appearance',
+          value: themeLabels[loadAppearance().theme],
+          onClick: () => setView('appearance'),
+          words: 'theme dark light text size gentle taps',
+        },
+      ],
+    },
+    {
+      label: 'Your data',
+      entries: [
+        { id: 'lock', icon: <ShieldIcon size={22} />, title: 'Lock Reflect', value: lock.isOn() ? 'On' : 'Off', onClick: () => setView('lock'), words: 'passcode pin privacy journal' },
+        { id: 'account', icon: <CloudIcon size={22} />, title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key' },
+        {
+          id: 'backup',
+          icon: <InboxIcon size={22} />,
+          title: 'Back up and restore',
+          value: lastCopyLabel(lastBackupDate()),
+          onClick: () => setView('backup'),
+          words: 'export download markdown readable daily copies restore file',
+        },
+        { id: 'import', icon: <InboxIcon size={22} />, title: 'Bring things in', value: 'From other apps', onClick: () => setView('import'), words: 'import todoist csv calendar google tasks' },
+        { id: 'privacy', icon: <ShieldIcon size={22} />, title: 'Privacy', onClick: () => setView('privacy') },
+      ],
+    },
+    {
+      label: 'More apps',
+      entries: [
+        { id: 'askesis', icon: app('/askesis/icon.svg'), title: 'Askesis', value: 'Running, step by step', onClick: () => window.location.assign('/askesis/'), words: 'running training' },
+        { id: 'soma', icon: app('/soma/icon.svg'), title: 'SOMA', value: 'Recipes and groceries', onClick: () => window.location.assign('/soma/'), words: 'recipes food cooking' },
+        { id: 'oikonomia', icon: app('/oikonomia/icon.svg'), title: 'Oikonomia', value: 'Bills and household essentials', onClick: () => window.location.assign('/oikonomia/'), words: 'money bills budget' },
+        { id: 'hydros', icon: app('/hydros/icon.svg'), title: 'HYDROS', value: 'Water, flow and balance', onClick: () => window.location.assign('/hydros/'), words: 'water drink' },
+        { id: 'praxis', icon: app('/praxis/favicon.svg'), title: 'Praxis', value: 'Study, on purpose', onClick: () => window.location.assign('/praxis/'), words: 'study focus' },
+        { id: 'theoria', icon: app('/theoria/favicon.svg'), title: 'Theoria', value: 'Reading and ideas', onClick: () => window.location.assign('/theoria/'), words: 'books reading' },
+      ],
+    },
+    {
+      label: 'About',
+      entries: [
+        { id: 'help', icon: <NoteIcon size={22} />, title: 'Help & feedback', onClick: () => setView('help') },
+        { id: 'about', icon: <BookIcon size={22} />, title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
+      ],
+    },
+  ];
+  const needle = find.trim().toLowerCase();
+  const matches = needle
+    ? [
+        ...groups.flatMap((group) => group.entries),
+        { id: 'delete', icon: <span className="settings-row__danger">×</span>, title: 'Delete everything', onClick: () => setView('delete'), words: 'erase remove account data' } as Entry,
+      ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
+    : [];
+
+  const list = (
+    <>
       <button type="button" className="back-link" onClick={() => navigate(returnTo)}>
         <ArrowLeftIcon size={18} />
         {tabLabels[returnTo] ?? 'Back'}
       </button>
       <PageHeader title="Settings" subtitle="Your practice, your data." />
 
-      <button type="button" className="profile-card" onClick={() => setView('profile')}>
-        <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
-        <span className="profile-card__text">
-          <span className="profile-card__name">{name || 'Add your name'}</span>
-          <span className="profile-card__detail">
-            {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
-          </span>
-        </span>
-        <ChevronRightIcon size={18} className="settings-row__chevron" />
-      </button>
+      <input
+        className="field-input settings-find"
+        type="search"
+        aria-label="Find a setting"
+        placeholder="Find a setting"
+        value={find}
+        onChange={(event) => setFind(event.target.value)}
+      />
 
-      <SettingsGroup label="Your days">
-        <Row icon={<CalendarIcon size={22} />} title="Your schedule" onClick={() => navigate('schedule')} />
-        <Row icon={<MoonIcon size={22} />} title="Day starts" value={daySummary()} onClick={() => setView('day')} />
-        <Row
-          icon={<CalendarIcon size={22} />}
-          title="Calendars"
-          value={calendarSources().length ? String(calendarSources().length) : undefined}
-          onClick={() => setView('calendars')}
-        />
-        <Row
-          icon={<PartlyCloudyIcon size={22} />}
-          title="Weather"
-          value={weatherSettings().on ? 'On' : 'Off'}
-          onClick={() => setView('weather')}
-        />
-      </SettingsGroup>
+      {needle ? (
+        <div className="settings-list">
+          {matches.length === 0 && <p className="empty-note">Nothing matches that.</p>}
+          {matches.map((entry) => (
+            <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+          ))}
+        </div>
+      ) : (
+        <>
+          <button type="button" className="profile-card" onClick={() => setView('profile')}>
+            <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
+            <span className="profile-card__text">
+              <span className="profile-card__name">{name || 'Add your name'}</span>
+              <span className="profile-card__detail">
+                {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
+              </span>
+            </span>
+            <ChevronRightIcon size={18} className="settings-row__chevron" />
+          </button>
 
-      <SettingsGroup label="Notifications">
-        <Row
-          icon={<BellIcon size={22} />}
-          title="Notifications"
-          value={notifications.permission() === 'granted' ? 'On' : 'Off'}
-          onClick={() => setView('notifications')}
-        />
-      </SettingsGroup>
+          {groups.map((group) => (
+            <SettingsGroup key={group.label} label={group.label}>
+              {group.entries.map((entry) => (
+                <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+              ))}
+            </SettingsGroup>
+          ))}
 
-      <SettingsGroup label="The app">
-        <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
-        <Row
-          icon={<MoonIcon size={22} />}
-          title="Appearance"
-          value={themeLabels[loadAppearance().theme]}
-          onClick={() => setView('appearance')}
-        />
-      </SettingsGroup>
+          <div className="settings-list">
+            <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
+          </div>
 
-      <SettingsGroup label="Your data">
-        <Row
-          icon={<ShieldIcon size={22} />}
-          title="Lock Reflect"
-          value={lock.isOn() ? 'On' : 'Off'}
-          onClick={() => setView('lock')}
-        />
-        <Row
-          icon={<CloudIcon size={22} />}
-          title="Account and sync"
-          value={syncLabel(status.phase)}
-          onClick={() => setView('account')}
-        />
-        <Row
-          icon={<InboxIcon size={22} />}
-          title="Back up and restore"
-          value={lastCopyLabel(lastBackupDate())}
-          onClick={() => setView('backup')}
-        />
-        <Row
-          icon={<InboxIcon size={22} />}
-          title="Bring things in"
-          value="From other apps"
-          onClick={() => setView('import')}
-        />
-        <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
-      </SettingsGroup>
+          <div className="settings-list settings-list--apart">
+            <Row
+              icon={<span className="settings-row__danger">×</span>}
+              title="Delete everything"
+              onClick={() => setView('delete')}
+            />
+          </div>
+        </>
+      )}
+    </>
+  );
 
-      <SettingsGroup label="More apps">
-        <Row
-          icon={<img className="settings-row__app" src="/askesis/icon.svg" alt="" width={26} height={26} />}
-          title="Askesis"
-          value="Running, step by step"
-          onClick={() => window.location.assign('/askesis/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/soma/icon.svg" alt="" width={26} height={26} />}
-          title="SOMA"
-          value="Recipes and groceries"
-          onClick={() => window.location.assign('/soma/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />}
-          title="Oikonomia"
-          value="Bills and household essentials"
-          onClick={() => window.location.assign('/oikonomia/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/hydros/icon.svg" alt="" width={26} height={26} />}
-          title="HYDROS"
-          value="Water, flow and balance"
-          onClick={() => window.location.assign('/hydros/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/praxis/favicon.svg" alt="" width={26} height={26} />}
-          title="Praxis"
-          value="Study, on purpose"
-          onClick={() => window.location.assign('/praxis/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/theoria/favicon.svg" alt="" width={26} height={26} />}
-          title="Theoria"
-          value="Reading and ideas"
-          onClick={() => window.location.assign('/theoria/')}
-        />
-      </SettingsGroup>
-
-      <SettingsGroup label="About">
-        <Row icon={<NoteIcon size={22} />} title="Help & feedback" onClick={() => setView('help')} />
-        <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
-      </SettingsGroup>
-
-      <div className="settings-list">
-        <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
-      </div>
-
-      <div className="settings-list settings-list--apart">
-        <Row
-          icon={<span className="settings-row__danger">×</span>}
-          title="Delete everything"
-          onClick={() => setView('delete')}
-        />
-      </div>
+  if (!wide) return <div className="page settings-page">{list}</div>;
+  return (
+    <div className="page settings-split">
+      <div className="settings-split__list">{list}</div>
+      <div className="settings-split__detail">{detail}</div>
     </div>
   );
 }

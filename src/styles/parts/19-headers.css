@@ -136,7 +136,8 @@
     rgba(var(--color-bg-rgb), 0.56) 26%,
     rgba(var(--color-bg-rgb), 0.42) 36%,
     rgba(var(--color-bg-rgb), var(--landscape-scrim)) 50%,
-    rgba(var(--color-bg-rgb), var(--landscape-scrim)) 100%
+    /* A little more toward the foot, where the last lines of Today rest on the photo. */
+    rgba(var(--color-bg-rgb), calc(var(--landscape-scrim) + 0.2)) 100%
   );
 }
 
