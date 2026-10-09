@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'hydration';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'hydration' | 'bell';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -72,6 +72,9 @@ export type NoticeSettings = {
   /** A short look at the day, at this time, if wanted. */
   day: boolean;
   dayAt: string;
+  /** A soft bell at times the person chooses, with one quiet line. */
+  bell: boolean;
+  bellAt: string[];
   /** Run days from Askesis, at the time the runner chose. */
   runs: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
@@ -88,6 +91,8 @@ export const defaultNoticeSettings: NoticeSettings = {
   lookBacks: true,
   day: false,
   dayAt: '08:00',
+  bell: false,
+  bellAt: ['10:30', '15:00'],
   runs: true,
   details: true,
 };
@@ -268,6 +273,21 @@ export function noticesBetween(sources: Sources): Notice[] {
           : 'Nothing with a time today.',
         open: 'today',
       });
+    }
+  }
+
+  if (settings.bell) {
+    for (let day = toLocalDate(now); atTime(day, '00:00') < until; day = addDays(day, 1)) {
+      for (const when of settings.bellAt) {
+        raw.push({
+          key: `bell:${day}:${when}`,
+          kind: 'bell',
+          at: atTime(day, when),
+          title: 'A moment',
+          body: 'Where is your attention?',
+          open: 'today',
+        });
+      }
     }
   }
 

@@ -95,7 +95,7 @@ describe('observations for a week', () => {
   });
 
   it('shows values only through items the person connected', () => {
-    expect(byKind.VALUES.detail).toBe('Courage: 2 items connected, 1 done');
+    expect(byKind.VALUES.detail).toBe('Courage: 2 items connected, 1 done, 1 h 25 min focused');
   });
 
   it('notes items moved more than once and long waits, without judging', () => {

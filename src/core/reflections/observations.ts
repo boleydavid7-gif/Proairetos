@@ -69,7 +69,11 @@ export function observePeriod({ range, now, items, events, decisions, values, oc
       const connected = items.filter((item) => item.valueIds?.includes(value.id));
       const finished = connected.filter((item) => doneInRange.has(item.id)).length;
       if (connected.length === 0) return null;
-      return `${value.name}: ${plural(connected.length, 'item')} connected${finished ? `, ${finished} done` : ''}`;
+      const linked = new Set(connected.map((item) => item.id));
+      const focused = focus
+        .filter((event) => linked.has(event.itemId))
+        .reduce((total, event) => total + Number(event.metadata?.minutes ?? 0), 0);
+      return `${value.name}: ${plural(connected.length, 'item')} connected${finished ? `, ${finished} done` : ''}${focused ? `, ${formatMinutes(focused)} focused` : ''}`;
     })
     .filter((line): line is string => line !== null);
   if (valueLines.length > 0) {
