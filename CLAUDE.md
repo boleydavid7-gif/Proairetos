@@ -264,7 +264,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   preferences keep only what changed. Sounds and Music tabs are switches
   ("Plays during" a chosen kind) plus a 20 s preview; nothing plays
   outside a sit except a preview. All
-  real recordings in `public/sounds/*.mp3` (sources and licences in
+  real recordings in `public/sounds/*.mp3` (ambient music by Holizna, CC0, alongside the classical pieces; sources and licences in
   `docs/SOUNDS.md`). `app/sound/`: `engine` (audio clock, iPhone media
   trick `wakeAudio`/`letGo`, recordings kept in Cache Storage
   `proairetos-sounds`; the service worker skips `/sounds/`), `soundscapes`
