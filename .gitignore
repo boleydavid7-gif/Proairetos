@@ -6,3 +6,5 @@ dist-*
 .env.local
 .env.*.local
 .dev.vars
+preview.log
+*.log

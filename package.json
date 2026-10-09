@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "oxlint src worker",
+    "check": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
     "@fontsource/eb-garamond": "^5.3.0",
@@ -20,10 +22,14 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "fake-indexeddb": "^6.2.5",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.87.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vitest": "^5.0.3",

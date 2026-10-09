@@ -160,3 +160,30 @@
     max-width: 72rem;
   }
 }
+
+/* ---------- When a screen stops working ---------- */
+
+.error-page {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 28rem;
+  margin: 18svh auto 0;
+  padding: 0 var(--space-5);
+}
+
+.error-page h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+}
+
+.error-page p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.error-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

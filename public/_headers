@@ -1,3 +1,11 @@
+# Safe defaults for every page and file.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(self), microphone=(self), payment=(), usb=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+
 # Always check for a new service worker and app shell, so new versions arrive promptly.
 # (Hashed files under /assets use Cloudflare's default revalidation. A year-long
 # "immutable" rule is unsafe here: an unknown path serves the app page, which must
