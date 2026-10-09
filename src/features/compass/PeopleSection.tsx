@@ -1,4 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useSyncExternalStore, type FormEvent } from 'react';
+import { lock } from '../../app/lock/lock';
+import { useServiceData } from '../../app/hooks/useServiceData';
+import { lifeService, reflectionService } from '../../app/services';
+import { mentionsOf } from '../../core/compass/mentions';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import { MAX_PEOPLE, type CompassStatement } from '../../core/compass/types';
@@ -8,6 +12,40 @@ import { dayLabel } from '../reflect/format';
 function touchLabel(iso: string): string {
   const label = dayLabel(iso);
   return label === 'Today' || label === 'Yesterday' ? label.toLowerCase() : label;
+}
+
+/** Where the name appears in what was written, once the person is opened. Reflections stay out while locked. */
+function Mentions({ name }: { name: string }) {
+  const { openItem } = useOverlays();
+  const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
+  const found = useServiceData(
+    (listener) => {
+      const off = [lifeService, reflectionService].map((service) => service.subscribe(listener));
+      return () => off.forEach((unsubscribe) => unsubscribe());
+    },
+    async () => mentionsOf(name, await lifeService.list(), locked ? [] : await reflectionService.all()),
+    [name, locked],
+  );
+  if (!found || found.length === 0) return null;
+  return (
+    <div className="person__mentions">
+      <p className="sheet__label">Written about</p>
+      <ul className="person__mention-list">
+        {found.map((mention) => (
+          <li key={mention.id}>
+            {mention.kind === 'item' ? (
+              <button type="button" className="text-link" onClick={() => openItem(mention.id)}>
+                {mention.text}
+              </button>
+            ) : (
+              <span className="person__mention-text">{mention.text}</span>
+            )}
+            <span className="person__mention-day">{dayLabel(mention.at)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function Person({ person }: { person: CompassStatement }) {
@@ -33,6 +71,7 @@ function Person({ person }: { person: CompassStatement }) {
             onChange={(event) => setNote(event.target.value)}
             onBlur={() => note !== (person.note ?? '') && compassService.updatePerson(person.id, { note })}
           />
+          <Mentions name={person.body} />
           <div className="chip-row">
             <button
               type="button"

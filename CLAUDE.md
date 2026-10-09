@@ -197,6 +197,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
 - Design pass: from 62rem Today lays its cards in two columns (greeting, capture and done-today across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
+- Written about (Compass > People, open a person): items and reflections that mention their name as a whole word, newest first, up to five (`core/compass/mentions.ts`); reflections left out while the lock is on.
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer
