@@ -5,7 +5,7 @@ import { ShareIcon } from '../app/icons';
 import { newId, useGroceries, useSettings, useToday } from '../app/state';
 import { Brand, Segmented, useUndo } from '../app/ui';
 import { aisles, type Aisle } from '../core/aisles';
-import { addToList, byAisle, byRecipe, listAsText, onList, type GroceryItem } from '../core/groceries';
+import { addToList, byAisle, byRecipe, cleanLine, isGrocery, listAsText, onList, type GroceryItem } from '../core/groceries';
 import { boughtLabel, bringHome, kitchenByAge } from '../core/kitchen';
 import { convertAmountText, type UnitSystem } from '../core/ingredients';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
@@ -51,6 +51,16 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   };
   const ticked = items.filter((item) => item.checked && onList(item));
   const toBuy = items.filter(onList);
+  // Lines saved before the list learned to tell groceries from notes: still there until tidied.
+  const untidy = toBuy.filter((item) => !isGrocery(item.name) || cleanLine(item.name) !== item.name);
+  const tidy = () =>
+    change(
+      items.flatMap((item) => {
+        if (!onList(item) || (isGrocery(item.name) && cleanLine(item.name) === item.name)) return [item];
+        return isGrocery(item.name) ? [{ ...item, name: cleanLine(item.name) }] : [];
+      }),
+      'List tidied',
+    );
 
   const share = async () => {
     const text = listAsText(items, settings.units);
@@ -96,6 +106,12 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
           Add
         </button>
       </form>
+
+      {untidy.length > 0 && (
+        <button type="button" className="button-quiet" onClick={tidy}>
+          Tidy the list ({untidy.length} {untidy.length === 1 ? 'line is' : 'lines are'} a note or numbered)
+        </button>
+      )}
 
       {toBuy.length === 0 ? (
         <p className="muted">Nothing on the list. Add things here, or from a recipe’s ingredients.</p>

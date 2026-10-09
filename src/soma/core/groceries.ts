@@ -81,15 +81,37 @@ const countable = new Set(['clove', 'can', 'tin', 'slice', 'head', 'bunch', 'sta
 /** Plain water is not bought. */
 const WATER = /^(?:(?:cold|warm|hot|boiling|lukewarm|tap|filtered|ice|iced|cool|room[- ]temperature)\s+)*water$/i;
 
+/** List numbering ("2. Black beans", "10) Hot sauce") is not a quantity; take it off before reading the line. */
+export function cleanLine(line: string): string {
+  return line.trim().replace(/^\d{1,2}[.)]\s+(?=\p{L})/u, '').replace(/^[-*•·]\s+/, '').trim();
+}
+
+/** Words that open a part of a recipe rather than something to buy. */
+const SECTION = /^(?:optional|extras?|upgrades?|toppings?|garnish(?:es)?|notes?|tips?|directions?|instructions?|steps?|method|serves|servings|yield|makes|to serve|for serving)(?!\p{L})/iu;
+/** Words that start a cooking step. */
+const STEP = /^(?:sauté|saute|mix|stir|add|heat|cook|bake|chop|slice|dice|combine|whisk|season|serve|top|toss|simmer|boil|fry|roast|grill|preheat|drain|rinse|spread|layer|fold|pour|blend|mash|marinate)(?!\p{L})/iu;
+
 /**
- * Whether a recipe line is something to buy: not a section heading ("For the sauce:"), not plain water,
- * not empty. Everything else in a recipe (steps, notes, headings) stays out of the grocery list.
+ * Whether a recipe line is something to buy. Not a section heading ("For the sauce:", "Optional upgrades"), a
+ * note in brackets, a separator line, an emoji title, a cooking step, plain water, or empty. Everything else
+ * in a recipe (steps, notes, headings) stays out of the grocery list.
  */
 export function isGrocery(line: string): boolean {
-  const text = line.trim();
+  const text = cleanLine(line);
   if (!text || isHeading(text)) return false;
+  // A note in brackets, or a rule drawn between parts.
+  if (/^[([].*[)\]]$/.test(text)) return false;
+  if (/^[\s\-–—_=*~•·.]+$/.test(text)) return false;
   // A lone label such as "For the sauce:" or "Topping" with a colon.
   if (/^(for\s+(the\s+)?[^,]{1,40}|[A-Za-z ]{1,30}):$/.test(text)) return false;
+  // A title that opens with a picture and carries no amount ("🥑 Guacamole Upgrade").
+  if (/^\p{Extended_Pictographic}/u.test(text) && !/\d|[¼½¾⅓⅔]/.test(text)) return false;
+  if (SECTION.test(text) && !/\d|[¼½¾⅓⅔]/.test(text)) return false;
+  if (/\bupgrades?\b/i.test(text) && !/\d|[¼½¾⅓⅔]/.test(text)) return false;
+  // A line in quotation marks that reads like a title.
+  if (/["“”].+["“”]/.test(text) && text.split(/\s+/).length > 3) return false;
+  // A step: starts with a cooking verb and runs on.
+  if (STEP.test(text) && text.split(/\s+/).length > 4) return false;
   const name = readIngredient(text).name.trim();
   if (!name || WATER.test(name)) return false;
   return true;
@@ -103,8 +125,9 @@ export function addToList(
   newId: () => string,
 ): GroceryItem[] {
   const out = list.map((item) => ({ ...item }));
-  for (const { line, recipe } of lines) {
-    if (!isGrocery(line)) continue;
+  for (const { line: raw, recipe } of lines) {
+    if (!isGrocery(raw)) continue;
+    const line = cleanLine(raw);
     const { name } = amountOf(line);
     if (!name.trim()) continue;
     const key = itemKey(name);

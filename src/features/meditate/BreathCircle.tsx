@@ -61,12 +61,13 @@ export default function BreathCircle({
 
   return (
     <div ref={root} className={`breath-circle${elapsed ? '' : ' breath-circle--still'}`}>
+      {/* The glow is soft shadow around a circle, not a blurred drawing: phones' browsers draw it the same. */}
+      <div className="breath-circle__glow breath-circle__glow--wide" aria-hidden="true" />
+      <div className="breath-circle__glow breath-circle__glow--near" aria-hidden="true" />
       <svg viewBox="0 0 320 320" aria-hidden="true">
-        <circle className="breath-circle__aura" cx="160" cy="160" r={RING} />
-        <circle className="breath-circle__halo" cx="160" cy="160" r={RING} />
         <circle className="breath-circle__ring" cx="160" cy="160" r={RING} />
-        <circle className="breath-circle__lit" cx="160" cy="160" r={RING} />
       </svg>
+      <div className="breath-circle__lit" aria-hidden="true" />
       {show !== 'none' && (
         <div className="breath-circle__label" aria-live="polite">
           {show === 'caption' ? (
