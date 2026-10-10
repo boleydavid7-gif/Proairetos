@@ -97,7 +97,7 @@ export default function MeditatePage() {
     const setups = { ...settings.setups };
     delete setups[kind];
     save({ ...settings, setups });
-    offerUndo(`${kindTitle(kind)} is back to how it came.`, async () => save(before));
+    offerUndo(`${kindTitle(kind)} reset`, async () => save(before));
   };
   const showTab = (tab: MeditateSettings['tab'], extra: Partial<MeditateSettings> = {}) =>
     transition(

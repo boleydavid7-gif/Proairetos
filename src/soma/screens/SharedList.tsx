@@ -93,7 +93,7 @@ export function SharedLists({ personal }: { personal: GroceryItem[] }) {
           </div>
         ) : (
           <>
-            <p className="muted">Sign in to join. Any account works, the same one as Proairetos if you have it.</p>
+            <p className="muted">Sign in to join.</p>
             <AccountCard app="SOMA" what="Your recipes and grocery list" waiting="Recipes" />
           </>
         )}
@@ -105,8 +105,8 @@ export function SharedLists({ personal }: { personal: GroceryItem[] }) {
   if (!list) {
     return (
       <section className="card" aria-label="Share a list">
-        <h2 className="card__title">A list for two</h2>
-        <p className="muted">Both of you add, tick and remove; it stays sealed with a key only the link carries.</p>
+        <h2 className="card__title">Share a list</h2>
+        <p className="muted">Anyone with the link can add, tick and remove. It’s encrypted end to end.</p>
         {signedIn ? (
           <form
             className="field"

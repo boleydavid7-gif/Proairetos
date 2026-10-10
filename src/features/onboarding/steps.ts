@@ -21,7 +21,7 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     title: 'Yours to choose',
-    lines: ['You decide what matters.', 'Proairetos keeps it in sight and never keeps score.'],
+    lines: ['You decide what matters.', 'No scores, no streaks.'],
     action: 'Continue',
   },
   {

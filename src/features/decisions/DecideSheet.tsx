@@ -133,7 +133,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
             <span className="sheet__label">What do you expect to happen?</span>
             <input
               className="field-input"
-              placeholder="Written now, before you know"
+              placeholder="What you expect to happen"
               value={expected}
               onChange={(event) => setExpected(event.target.value)}
             />

@@ -218,7 +218,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
           <input
             className="field-input"
             aria-label={`Why ${goal.body} matters`}
-            placeholder="Why it matters to you, if you like"
+            placeholder="Why it matters (optional)"
             value={note}
             maxLength={280}
             onChange={(event) => setNote(event.target.value)}

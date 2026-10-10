@@ -42,8 +42,8 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
     return (
       <div className="page oiko-page">
         <PageTop><button type="button" className="back-link" onClick={nav.back}>Back</button><p className="label">About</p></PageTop>
-        <h1 className="title">A place for what sustains you.</h1>
-        <p className="lead">Oikonomia means the care and management of a household. It keeps the essentials in view without turning them into a score.</p>
+        <h1 className="title">About Oikonomia</h1>
+        <p className="lead">Oikonomia is Greek for running a household: bills, subscriptions and the monthly plan, with their dates in view.</p>
       </div>
     );
   }

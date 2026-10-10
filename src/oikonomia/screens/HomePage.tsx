@@ -63,7 +63,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
         ) : all.length === 0 ? (
           <>
             <section className="card oiko-empty">
-              <h2 className="card__title">What needs tending?</h2>
+              <h2 className="card__title">Coming up</h2>
               <p className="muted">Nothing here yet.</p>
               <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
                 Add a bill

@@ -17,8 +17,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
         <p className="welcome__line">Real food. Simple choices.</p>
         <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
-          Your recipes in one place, a grocery list that sorts itself by aisle, and small ways to cook a little more simply when
-          you want them.
+          Your recipes in one place and a grocery list sorted by aisle.
         </p>
         <div className="welcome__actions">
           <button

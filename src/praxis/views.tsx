@@ -244,7 +244,7 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
         <p>What did you take from this?</p>
         {kept ? <a className="praxis-text-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a> : (
           <form onSubmit={(event) => { event.preventDefault(); if (!line.trim()) return; onKeepLine(line.trim()); setKept(true); }} className="praxis-add__row">
-            <input aria-label="One line to keep" placeholder="One line, if you like" value={line} onChange={(event) => setLine(event.target.value)} />
+            <input aria-label="One line to keep" placeholder="A note (optional)" value={line} onChange={(event) => setLine(event.target.value)} />
             <button type="submit" className="praxis-button praxis-button--quiet" disabled={!line.trim()}>Keep</button>
           </form>
         )}

@@ -161,7 +161,7 @@ export default function WeeklyReview() {
   if (finished) {
     return (
       <div className="page">
-        <PageHeader title="Review done" subtitle="That is the week looked at. Begin wherever you like." />
+        <PageHeader title="Review done" />
         <button type="button" className="chip chip--accent chip--wide" onClick={() => navigate('today')}>
           Go to Today
         </button>

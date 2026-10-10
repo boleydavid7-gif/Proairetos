@@ -73,7 +73,7 @@ export default function QuickSortSheet({
 
         {current ? (
           <>
-            <p className="sheet__hint">One at a time. Stop whenever you like.</p>
+            <p className="sheet__hint">One at a time.</p>
             <div className="sort-card">
               <p className="sort-card__title">{current.title}</p>
               <div className="chip-row" role="group" aria-label="Kind">

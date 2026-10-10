@@ -65,7 +65,7 @@ export default function ThinkThroughScreen({ from, onClose, onSupport }: Props) 
         {finished ? (
           <>
             <p className="practice__text">
-              {anything ? 'You looked at it from more than one side. That is the whole practice.' : 'Nothing written, and that is fine.'}
+              {anything ? 'You looked at it from more than one side. That is the whole practice.' : 'Nothing written.'}
             </p>
             {anything && smallStep && (
               <button type="button" className="toggle-row" aria-pressed={addStep} onClick={() => setAddStep(!addStep)}>

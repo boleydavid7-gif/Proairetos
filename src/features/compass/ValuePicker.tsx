@@ -32,7 +32,7 @@ export default function ValuePicker({ chosen, onDone }: Props) {
   return (
     <div className="picker">
       <p className="picker__hint">
-        Pick ones that ring true, or write your own.
+        Pick a few, or write your own.
       </p>
       <div className="stack-tight" role="group" aria-label="Values to choose from">
         {available.some((name) => stoicVirtues.includes(name)) && (

@@ -418,12 +418,12 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         )}
 
         <label className="field">
-          <span className="label">In your words, if you like</span>
+          <span className="label">Name it (optional)</span>
           <input className="input" value={words} placeholder={aimWords(aim, unit)} onChange={(event) => setWords(event.target.value)} />
         </label>
 
         <label className="field">
-          <span className="label">Why it matters to you, if you like</span>
+          <span className="label">Why it matters (optional)</span>
           <textarea
             className="input input--area"
             rows={2}
@@ -465,7 +465,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
       </section>
 
       <section className="field">
-        <h2 className="label">When and where, if you like</h2>
+        <h2 className="label">When and where (optional)</h2>
         <div className="input-pair">
           <input className="input" type="time" aria-label="Usual time" value={runAt} onChange={(event) => setRunAt(event.target.value)} />
           <input className="input" aria-label="Where" placeholder="Where" value={place} onChange={(event) => setPlace(event.target.value)} />
@@ -539,7 +539,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             </p>
             {firstSession && <p className="muted">First session: {firstSession.summary.charAt(0).toLowerCase() + firstSession.summary.slice(1)}.</p>}
             {path.cycleFrom ? (
-              <p className="muted">Then a steady rhythm, gently varied.</p>
+              <p className="muted">Then a steady rhythm.</p>
             ) : (
               weeksToAim !== undefined && (
                 <p className="muted">

@@ -46,7 +46,7 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
       ? await reflectionService.write({ body: lines.map((line) => `· ${line}`).join('\n'), promptKey: 'three-good-things', sky: weather.skyNow() })
       : null;
     setClosedDay(today);
-    offerUndo('The day is closed. Rest well.', async () => {
+    offerUndo('Day closed', async () => {
       for (const id of carried) await lifeService.pickForDay(id, today).catch(() => undefined);
       if (written) await reflectionService.remove(written.id);
       setClosedDay(null);
@@ -77,9 +77,7 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
                 <li key={entry.id}>{entry.title}</li>
               ))}
             </ul>
-          ) : (
-            <p className="sheet__hint">Nothing had to get done for today to count.</p>
-          )}
+          ) : null}
         </section>
 
         {openPicks.length > 0 && (

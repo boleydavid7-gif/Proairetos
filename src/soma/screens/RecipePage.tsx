@@ -437,7 +437,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                 {photoProblem}
               </p>
             )}
-            <span className="label">Cooked for, if you like</span>
+            <span className="label">Cooked for (optional)</span>
             <div className="chip-grid" role="group" aria-label="Cooked for">
               {[...new Set([...people, ...cookedFor])].map((name) => {
                 const on = cookedFor.includes(name);
@@ -479,7 +479,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               </button>
             </form>
             <label className="field">
-              <span className="label">How did you feel after? If you like</span>
+              <span className="label">How did you feel after? (optional)</span>
               <input className="input" value={afterLine} onChange={(event) => setAfterLine(event.target.value)} placeholder="Light and full of energy" />
             </label>
             <button

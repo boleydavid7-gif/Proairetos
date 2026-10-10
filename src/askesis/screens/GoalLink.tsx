@@ -64,9 +64,9 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
     );
   return (
     <section className="card">
-      <span className="card__eyebrow">In Proairetos, if you like</span>
+      <span className="card__eyebrow">In Proairetos (optional)</span>
       <h2 className="card__title card__title--small">Add it to Compass</h2>
-      <input className="input" aria-label="The goal, in your words" value={words} onChange={(event) => setWords(event.target.value)} />
+      <input className="input" aria-label="Goal" value={words} onChange={(event) => setWords(event.target.value)} />
       <Switch
         on={protect}
         label="Make time for this"

@@ -77,7 +77,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
       <PageTop>
         <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button>
       </PageTop>
-      <h1 className="title">{id ? 'Change the details.' : 'What needs tending?'}</h1>
+      <h1 className="title">{id ? 'Edit bill' : 'Add a bill'}</h1>
 
       <form className="oiko-form" onSubmit={(event) => void save(event)}>
         <label className="field"><span className="field__label">Bill name</span><input className="input" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="Electric, rent, insurance" /></label>

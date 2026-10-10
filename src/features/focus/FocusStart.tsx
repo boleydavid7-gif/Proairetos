@@ -81,7 +81,7 @@ export default function FocusStart({ target, onStart, onClose }: Props) {
           <span className={`toggle-switch${breath ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
           <span className="toggle-row__text">Begin with one breath</span>
         </button>
-        <p className="sheet__hint">Stop whenever you like.</p>
+        
       </div>
     </dialog>
   );

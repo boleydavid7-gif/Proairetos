@@ -587,7 +587,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
           { part: 'capture', label: 'Capture line' },
           { part: 'close-day', label: 'Close the day' },
           { part: 'three-good-things', label: 'Three good things' },
-          { part: 'on-this-day', label: 'On this day', detail: 'Your own words from this day in an earlier year, when there are some.' },
+          { part: 'on-this-day', label: 'On this day', detail: 'What you wrote on this date in past years.' },
           { part: 'open-time', label: 'Open time' },
           { part: 'look-ahead', label: 'Look ahead', rare: true },
           { part: 'schedule-prompt', label: 'Add your schedule', rare: true },
@@ -597,18 +597,18 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
       {
         label: 'Capture',
         parts: [
-          { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once; it is split up for you to check.' },
-          { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
-          { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
-          { part: 'energy', label: 'Energy', detail: 'Say how much energy you have; things you marked as light come first.' },
+          { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once, then check each item.' },
+          { part: 'sort-through', label: 'Sort through', detail: 'Go through unsorted items one at a time.' },
+          { part: 'gratitude', label: 'Grateful', detail: 'Things you’re grateful for, saved to Reflect.' },
+          { part: 'energy', label: 'Energy', detail: 'Set your energy for the day; light items show first.' },
         ],
       },
       {
         label: 'Compass',
         parts: [
-          { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
-          { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
-          { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
+          { part: 'goals', label: 'Goals', detail: 'What you’re working toward, with time set aside.' },
+          { part: 'people', label: 'People', detail: 'The people who matter to you.' },
+          { part: 'words', label: 'Words', detail: 'What’s worth getting up for, and what you’ve set aside.' },
         ],
       },
       {
@@ -616,15 +616,15 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
         parts: [
           { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
           { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
-          { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, at your own pace.' },
-          { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
+          { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes.' },
+          { part: 'decisions', label: 'Decisions', detail: 'Choices you wrote down, to look back on.' },
         ],
       },
     ],
   },
   {
     app: 'Askesis',
-    sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s session on Today; finished runs in Done today and Reflect.' }] }],
+    sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s run on Today; finished runs in Done today and Reflect.' }] }],
   },
   {
     app: 'SOMA',
@@ -636,11 +636,11 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'highlight', label: 'A highlight a day', detail: 'One passage you highlighted in Theoria, on Today, a different one each day.' }] }],
+    sections: [{ parts: [{ part: 'highlight', label: 'A highlight a day', detail: 'One of your Theoria highlights on Today, a different one each day.' }] }],
   },
   {
     app: 'HYDROS',
-    sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'While a work block is on, what you have drunk since it began and a way to log a glass.' }] }],
+    sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'During work, what you’ve drunk since it started, with a button to log a glass.' }] }],
   },
   {
     app: 'Oikonomia',
@@ -665,19 +665,19 @@ const helpTopics: { title: string; body: string }[] = [
   },
   {
     title: 'Today',
-    body: 'Your greeting, a line for the day, and only what you choose: an intention, up to three things for your path, your schedule. Tap the leaf for a lighter view.',
+    body: 'A greeting, a line for the day, and the parts you choose: an intention, up to three things, your schedule. Tap the leaf for a lighter view.',
   },
   {
     title: 'Days ahead',
-    body: 'Your coming days as a list or a calendar: what has a time, and what you planned for the day, grouped your way. A list can come back by itself, every week or on weekdays, fresh each time.',
+    body: 'Your coming days as a list or a calendar. A list can repeat every week or on weekdays.',
   },
   {
     title: 'Pause and practices',
-    body: 'Pause is a minute to arrive. From there, “Another way to pause” has a few short practices from Stoic and Buddhist traditions.',
+    body: 'A one-minute breathing pause. “Another way to pause” has a few short practices from Stoic and Buddhist traditions.',
   },
   {
     title: 'Reflect and Insights',
-    body: 'Write as much or as little as you like. Insights only counts what you recorded; it never draws conclusions.',
+    body: 'Insights counts what you recorded. It draws no conclusions.',
   },
   {
     title: 'Your data',
@@ -1139,8 +1139,7 @@ export default function SettingsPage() {
         {view === 'about' && (
           <section className="settings-card" aria-label="About">
             <p className="section-description">
-              Proairetos records your life; it does not interpret it. You choose what matters, and the app reflects it
-              back: no scores, no streaks, nothing ranked for you.
+              Proairetos records your life and leaves the meaning to you. No scores, no streaks, nothing ranked for you.
             </p>
             <p className="section-description">
               The name comes from Epictetus: prohairesis, the part of us that chooses how to respond.
@@ -1266,7 +1265,7 @@ export default function SettingsPage() {
         <ArrowLeftIcon size={18} />
         {tabLabels[returnTo] ?? 'Back'}
       </button>
-      <PageHeader title="Settings" subtitle="Your practice, your data." />
+      <PageHeader title="Settings" />
 
       <input
         className="field-input settings-find"

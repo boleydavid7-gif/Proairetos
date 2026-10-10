@@ -52,7 +52,7 @@ function HonourToday({ value }: { value: ChosenValue }) {
         <input
           id={`honour-${value.id}`}
           className="field-input"
-          placeholder="One small thing, if you like"
+          placeholder="One small thing"
           value={text}
           onChange={(event) => setText(event.target.value)}
         />
@@ -140,7 +140,7 @@ export default function CompassPage() {
 
   return (
     <div className="page">
-      <PageHero title="Compass" subtitle="Who are you practicing becoming?" focus="peaks" />
+      <PageHero title="Compass" focus="peaks" />
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
@@ -225,7 +225,7 @@ export default function CompassPage() {
           <StatementList
             type="REMEMBER"
             title="Worth getting up for"
-            description="Small things that make life worth living, in your words."
+            description="Small things that make life worth living."
             placeholder="First light on the river, a call with Sam…"
             statements={statements.filter((statement) => statement.type === 'REMEMBER')}
           />

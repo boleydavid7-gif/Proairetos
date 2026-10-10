@@ -129,7 +129,7 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
               <input
                 className="field-input"
                 aria-label="A thought to set aside"
-                placeholder="Write it down, then back to it"
+                placeholder="A thought to set aside"
                 maxLength={200}
                 value={thought}
                 onChange={(event) => setThought(event.target.value)}
@@ -150,7 +150,7 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
 
         {finished ? (
           <>
-            <p className="focus-screen__message">That stretch is done. Take a breath before the next thing.</p>
+            <p className="focus-screen__message">Time’s up.</p>
             <div className="focus-screen__actions">
               <button type="button" className="button-quiet" onClick={onAnother}>
                 Another round

@@ -24,6 +24,7 @@ rule: **the system records life; it does not interpret life.**
   demanding test case, not the target.
 - Never a chore: everything is offered, never asked twice; nothing
   piles up or needs catching up; one tap, under a minute.
+- Wording: short and functional, like Things, Todoist, Apple Reminders, Strava, Paprika, Kindle. Optional fields say "(optional)", not "if you like"; titles are names ("New highlight", "Add a book"), not sentences with a full stop; no reassurance lines ("nothing is counted", "whenever you like"), no "quietly", "gently" or poetic taglines outside the welcome screens.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 

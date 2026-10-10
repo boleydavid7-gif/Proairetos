@@ -163,7 +163,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   return (
     <section className="sheet__section control-split" aria-label="What is in your control">
       <p className="sheet__label">What is in your control</p>
-      <p className="sheet__hint">One thing per line, only for you.</p>
+      <p className="sheet__hint">One per line.</p>
       <div className="control-split__columns">
         <label className="control-split__column">
           <span>In my control</span>

@@ -76,7 +76,7 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
     const rest = sitting.slice(1);
     setSitting(rest.length ? rest : undefined);
     setShown(false);
-    if (!rest.length) say('That’s the cards for now', () => saveCards(before));
+    if (!rest.length) say('Done for now', () => saveCards(before));
   };
   const add = (event: FormEvent) => {
     event.preventDefault();
@@ -137,7 +137,7 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
             <button type="button" className="praxis-button" onClick={begin}>Look at them</button>
           </>
         ) : (
-          <p className="praxis-empty">{listed.length === 0 ? 'Write a question and its answer below; it comes back on the days that help it stay.' : next ? `The next ones come round on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
+          <p className="praxis-empty">{listed.length === 0 ? 'Add a question and its answer below.' : next ? `The next ones come round on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
         )}
       </article>
 

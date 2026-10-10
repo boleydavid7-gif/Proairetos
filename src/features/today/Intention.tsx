@@ -60,7 +60,7 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
             rows={2}
             autoFocus
             aria-label={label}
-            placeholder="How do you want to meet this day?"
+            placeholder="An intention for today"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
@@ -75,7 +75,7 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
         </form>
       ) : (
         <button type="button" className={`intention${current ? '' : ' intention--empty'}`} onClick={edit}>
-          <span className="intention__text">{current || 'How do you want to meet this day?'}</span>
+          <span className="intention__text">{current || 'An intention for today'}</span>
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
       )}

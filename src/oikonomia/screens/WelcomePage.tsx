@@ -19,8 +19,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
         <p className="welcome__line">Keep the essentials in view.</p>
         <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
-          A quiet place for the bills and subscriptions that sustain your life. Add them once, keep their dates in view, and let
-          your calendar carry the remembering.
+          Your bills and subscriptions in one place, with their dates and a reminder before each one.
         </p>
         <div className="welcome__actions">
           <button

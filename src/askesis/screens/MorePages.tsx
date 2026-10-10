@@ -207,7 +207,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.voice} label="Spoken cues" detail="Your music keeps playing." onToggle={() => flip('voice')} />
         <Switch on={settings.bells} label="Bells" onToggle={() => flip('bells')} />
         <Switch on={settings.keepAwake} label="Keep the screen on" onToggle={() => flip('keepAwake')} />
-        <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="Only the distance is kept." onToggle={() => flip('gps')} />
+        <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="Only the distance is saved." onToggle={() => flip('gps')} />
         <Switch
           on={settings.readSchedule}
           label="Use my Proairetos schedule"
@@ -289,18 +289,14 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">About Askesis</h1>
       <p>
-        <em>Askesis</em> (ἄσκησις) is the Stoics’ word for training: exercise, practice, repeated until it becomes part of
-        you. Epictetus used it for training the mind and the body alike. It sits beside Proairetos, their word for the
-        faculty of choice.
+        <em>Askesis</em> (ἄσκησις) is the Stoics’ word for training: practice, repeated. Epictetus used it for the mind and the body alike.
       </p>
       <p>
-        Like Proairetos, it records and never judges: no streaks, no scores, nothing to catch up on. The plans offer;
-        you choose.
+        No streaks, no scores, nothing to catch up on.
       </p>
       <h2 className="label">How your path is built</h2>
       <p>
-        One path, from your first walk-run onward, toward an aim you set: a time, a distance, or simply to keep running. You
-        join where you are, and the path goes only as far as your aim needs.
+        One plan toward an aim you set: a time, a distance, or to keep running. You start where you are.
       </p>
       <ul className="tips">
         <li>Mostly easy: hard running at a fifth of each week or less.</li>
@@ -308,7 +304,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
         <li>An easier week every fourth week.</li>
         <li>Threshold runs, 4 × 4 intervals and long runs in their classic forms.</li>
         <li>A taper before a distance aim, and counting back to a date if you give one.</li>
-        <li>Effort and time, never pace, so they work anywhere and for anyone.</li>
+        <li>Effort and time, not pace.</li>
       </ul>
       <h2 className="label">Sources</h2>
       <ol className="sources-list">

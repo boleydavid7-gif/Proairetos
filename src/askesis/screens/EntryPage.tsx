@@ -214,7 +214,7 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       </label>
 
       <details className="more-words" open={Boolean(wentWell || nextTime) || undefined}>
-        <summary>A few more words, if you like</summary>
+        <summary>Notes</summary>
         <label className="field">
           <span className="label">What went well?</span>
           <input className="input" value={wentWell} onChange={(event) => setWentWell(event.target.value)} />

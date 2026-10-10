@@ -177,8 +177,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">About SOMA</h1>
       <p>
-        Sōma is the Greek word for the body. SOMA keeps your recipes and your grocery list, and offers small ways to cook a little more
-        simply when you want them. It never counts calories, never scores food, and never calls any food good or bad.
+        Sōma is Greek for the body. Your recipes, a grocery list, and small ideas for cooking more simply. No calorie counts, and no food called good or bad.
       </p>
       <h2 className="label">Ways to try it draw on</h2>
       <ul className="tips">
@@ -190,8 +189,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <p className="muted">From TheMealDB (themealdb.com), a free and open collection of recipes.</p>
       <h2 className="label">Lines for the day</h2>
       <p className="muted">
-        Musonius Rufus, Lectures 18A and 18B (On Food); Epictetus, Enchiridion; Seneca, Letters. Lines marked “after” keep close to the
-        sense of the original.
+        Musonius Rufus, Lectures 18A and 18B (On Food); Epictetus, Enchiridion; Seneca, Letters. Lines marked “after” are paraphrased.
       </p>
       <p className="hint">General guidance on cooking, not medical or dietary advice.</p>
     </div>

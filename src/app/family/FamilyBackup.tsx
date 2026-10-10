@@ -73,7 +73,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
         <h2 className="card__title card__title--small">One backup for the family</h2>
         <p className="muted">All seven apps and their settings. Theoria’s books stay on the phone.</p>
         <label className="field">
-          <span className="label">Password, if you like</span>
+          <span className="label">Password (optional)</span>
           <input
             className="input"
             type="password"

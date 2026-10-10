@@ -15,8 +15,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
         <p className="welcome__line">Learn. Train. Endure.</p>
         <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
-          A gradual path from your first walk-run to a marathon, built on the science of endurance training. Askesis is
-          the Stoics’ word for training: practice, repeated.
+          A running plan from your first walk-run to a marathon, built on endurance research.
         </p>
         <div className="welcome__actions">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'safety', first: true })}>

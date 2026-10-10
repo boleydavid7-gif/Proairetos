@@ -65,7 +65,7 @@ function Person({ person }: { person: CompassStatement }) {
           <input
             className="field-input"
             aria-label={`A line about ${person.body}`}
-            placeholder="A line, if you like: why they matter, what you share"
+            placeholder="Note (optional)"
             value={note}
             maxLength={280}
             onChange={(event) => setNote(event.target.value)}

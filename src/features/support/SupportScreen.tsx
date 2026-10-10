@@ -49,8 +49,7 @@ export default function SupportScreen({ onClose }: { onClose: () => void }) {
           </li>
         </ul>
         <p className="sheet__hint">
-          Proairetos does not read what you write and cannot contact anyone for you. Reaching out is your choice, and a
-          brave one.
+          Proairetos does not read what you write and cannot contact anyone for you. Reaching out is your choice.
         </p>
         <button type="button" className="button-quiet" onClick={onClose}>
           Close

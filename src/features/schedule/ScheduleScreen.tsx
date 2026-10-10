@@ -69,7 +69,7 @@ export default function ScheduleScreen() {
     return (
       <div className="page">
         {back}
-        <PageHeader title="New schedule" subtitle="Start from a shape close to yours. Everything can be changed." />
+        <PageHeader title="New schedule" subtitle="Pick the one closest to yours. You can change anything." />
         <div className="stack-tight">
           {scheduleTemplates.map((template) => (
             <button
@@ -93,7 +93,7 @@ export default function ScheduleScreen() {
   return (
     <div className="page">
       {back}
-      <PageHeader title="Your schedule" subtitle="Work, study, care, and time you protect. It repeats on its own." />
+      <PageHeader title="Your schedule" subtitle="Work, study, care and protected time." />
 
       {patterns && patterns.length === 0 && (
         <div className="empty-state">

@@ -53,7 +53,7 @@ export default function LighterView({ items, today }: { items: LifeItem[]; today
         </section>
       ) : (
         <section className="lighter-next" aria-label="Next">
-          <p className="lighter-next__title">Nothing needs you right now.</p>
+          <p className="lighter-next__title">Nothing right now.</p>
           <GentleLine />
         </section>
       )}
