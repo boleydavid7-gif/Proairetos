@@ -996,3 +996,10 @@
   gap: 10px;
   margin-top: 18px;
 }
+
+/* On wide screens Home's photo shows the mountains and the light over the lake. */
+@media (min-width: 62rem) {
+  :root.soma .home .hero__image {
+    object-position: 50% 28%;
+  }
+}
