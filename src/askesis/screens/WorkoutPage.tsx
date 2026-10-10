@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { kindScene, scene } from '../app/scenes';
 import { useEntries, useSettings, useToday } from '../app/state';
-import { BackLink, dayLabel, Hero } from '../app/ui';
+import { BackLink, dayLabel } from '../app/ui';
 import SessionBar, { SessionKey } from '../app/SessionBar';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
@@ -54,21 +53,25 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
 
   return (
     <div className="workout">
-      <Hero image={scene(kindScene[workout.kind])}>
+      <div className="page">
         <BackLink label="Back" onBack={nav.back} />
-      </Hero>
-      <div className="page page--under-hero">
-        <h1 className="title">{workout.title}</h1>
-        <p className="muted">
-          {[!race && lengthLabel(totalMinutes(workout.parts)), weekday, `Week ${week.n}`].filter(Boolean).join(' · ')}
-        </p>
+        <header className={`session-head session-head--${race ? 'race' : effort}`}>
+          <p className="card__eyebrow">{[weekday, `Week ${week.n}`].filter(Boolean).join(' · ')}</p>
+          <h1 className="title">{workout.title}</h1>
+          {!race && (
+            <p className="session-head__length">
+              {lengthLabel(totalMinutes(workout.parts))}
+              <span className="session-head__effort">{efforts[effort].name}</span>
+            </p>
+          )}
+        </header>
         {mine && planState?.why && <p className="own-words">“{planState.why}”</p>}
 
         {race ? (
           <p className="card stoic-note">{raceDayLine}</p>
         ) : (
           <>
-            <SessionBar parts={workout.parts} />
+            <SessionBar parts={workout.parts} large />
             <SessionKey parts={workout.parts} />
             <ol className="session-lines">
               {sessionLines(workout.parts).map((line, i) => (

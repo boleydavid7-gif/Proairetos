@@ -1,6 +1,5 @@
 import type { Nav, Route } from '../app/App';
 import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon } from '../app/icons';
-import { scene } from '../app/scenes';
 import { Brand } from '../app/ui';
 import { useSettings } from '../app/state';
 import AccountCard from '../../app/family/AccountCard';
@@ -91,7 +90,6 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
         </li>
       </ul>
       <figure className="more__foot">
-        <img src={scene('starry-valley')} alt="" />
         <figcaption>
           <blockquote>“No great thing comes into being all at once.”</blockquote>
           <span>Epictetus</span>

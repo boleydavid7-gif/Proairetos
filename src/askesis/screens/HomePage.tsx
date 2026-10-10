@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { ChevronIcon, ClockIcon, PulseIcon } from '../app/icons';
-import { kindScene, scene } from '../app/scenes';
+import { ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
+import { scene } from '../app/scenes';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
 import { Brand, dayLabel, greeting, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
@@ -177,7 +177,16 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     className="focus"
                     onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
                   >
-                    <img className="focus__image" src={scene(kindScene[focus.workout.kind])} alt="" />
+                    <span className={`focus__length focus__length--${mainEffort(focus.workout.parts)}`} aria-hidden="true">
+                      {focus.workout.kind === 'race' ? (
+                        <Mark size={30} />
+                      ) : (
+                        <>
+                          <b>{Math.round(totalMinutes(focus.workout.parts))}</b>
+                          <small>min</small>
+                        </>
+                      )}
+                    </span>
                     <span className="focus__text">
                       <span className="focus__title">{focus.workout.title}</span>
                       <span className="focus__facts">

@@ -1,9 +1,9 @@
 import { flatten, type Part } from '../core/workouts';
 
 /** The session at a glance: one block per stretch, as long as it lasts, coloured by effort. */
-export default function SessionBar({ parts, small }: { parts: readonly Part[]; small?: boolean }) {
+export default function SessionBar({ parts, small, large }: { parts: readonly Part[]; small?: boolean; large?: boolean }) {
   return (
-    <div className={`session-bar${small ? ' session-bar--small' : ''}`} aria-hidden="true">
+    <div className={`session-bar${small ? ' session-bar--small' : ''}${large ? ' session-bar--large' : ''}`} aria-hidden="true">
       {flatten(parts).map((item, i) => (
         <span key={i} className={`session-bar__seg session-bar__seg--${item.effort}`} style={{ flexGrow: item.minutes }} />
       ))}

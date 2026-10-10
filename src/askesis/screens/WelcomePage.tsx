@@ -6,7 +6,7 @@ import { scene } from '../app/scenes';
 export default function WelcomePage({ nav }: { nav: Nav }) {
   return (
     <div className="welcome">
-      <img className="welcome__image" src={scene('alpine-dusk')} alt="" />
+      <img className="welcome__image" src={scene('sunset-lake')} alt="" />
       <div className="welcome__shade" />
       <div className="welcome__content">
         <Mark size={64} />

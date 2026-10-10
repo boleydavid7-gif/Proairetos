@@ -477,10 +477,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   phone in IndexedDB `askesis-music`, device only, not synced or backed up;
   played through the audio clock so it softens under each bell; shuffle; Next
   song in the guide), or Another app (session `ambient` to mix; screen on).
-- Photos: `src/askesis/assets/scenes/*.webp`. Home's hero is the owner's
-  `sunset-lake.webp` (1600 px); the others are cut from the owner's sheet (low
-  resolution). Learn has no pictures: a numbered table of contents by topic
-  and a text-first reading page (eyebrow, title, lead line, sections).
+- One photograph: the owner's `src/askesis/assets/scenes/sunset-lake.webp`
+  (1600 px) on Home's hero and Welcome. Everything else is drawn from the
+  session itself: the session page opens with day and week, title, length
+  large and the main effort, a soft light in that effort's colour
+  (`session-head--{effort}`) and a large session bar; Home's focus card shows
+  the length in a tinted badge (`focus__length`); More ends with the
+  Epictetus line alone. Learn is a numbered table of contents by topic and a
+  text-first reading page (eyebrow, title, lead line, sections).
 
 ## SOMA (recipes, same repository)
 
