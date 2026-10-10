@@ -86,6 +86,8 @@ export type Settings = {
   voice: boolean;
   bells: boolean;
   keepAwake: boolean;
+  /** Measure distance from the phone's location during a guided session (only the distance is kept). */
+  gps?: boolean;
   /** Read the Proairetos schedule on this device to mark days after nights. */
   readSchedule: boolean;
   age?: number;

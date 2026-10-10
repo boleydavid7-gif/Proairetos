@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { readActivityFile } from '../core/track';
+import { toLocalDate } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
@@ -21,6 +23,16 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const today = useToday();
   const entries = useEntries();
   const [period, setPeriod] = useState<Period>('week');
+  const file = useRef<HTMLInputElement>(null);
+  const [fileProblem, setFileProblem] = useState('');
+  // A run from a watch or another app's file: opened as a new entry to look over before saving.
+  const bringIn = async (chosen: File | undefined) => {
+    if (!chosen) return;
+    const read = readActivityFile(await chosen.text(), toLocalDate);
+    if (!read) return setFileProblem('That file has no run in it. A .gpx or .tcx file works.');
+    setFileProblem('');
+    nav.go({ name: 'entry', date: read.date, seconds: read.seconds, meters: read.meters, activity: read.activity });
+  };
   const unit = settings.unit;
   const list = [...(entries ?? [])].sort(newestFirst);
   const range = periodRange(period, today);
@@ -39,6 +51,11 @@ export default function LogPage({ nav }: { nav: Nav }) {
         </button>
       </div>
       <h1 className="title">Progress</h1>
+      <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
+      <button type="button" className="text-link" onClick={() => file.current?.click()}>
+        From a watch file
+      </button>
+      {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
       <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
 
       <div className="tiles">

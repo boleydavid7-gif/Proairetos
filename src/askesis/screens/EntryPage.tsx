@@ -52,6 +52,8 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       setM(String(Math.floor((seconds % 3600) / 60)));
       setS(String(Math.round(seconds % 60)).padStart(2, '0'));
     }
+    if (!existing && route.meters) setDistance(inUnit(route.meters, unit).toFixed(2).replace(/\.?0+$/, ''));
+    if (!existing && route.activity) setActivity(route.activity as Activity);
     if (existing) {
       setActivity(existing.activity);
       setDate(existing.date);

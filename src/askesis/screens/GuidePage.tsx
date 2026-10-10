@@ -16,6 +16,8 @@ import { flatten, lengthLabel } from '../core/workouts';
 import { heartRange } from '../core/zones';
 import { saveSettings } from '../data/store';
 import { locate } from './WorkoutPage';
+import { addFix, paused, type Track } from '../core/track';
+import { formatDistance } from '../core/pace';
 
 const clock = (seconds: number) => {
   const whole = Math.max(0, Math.ceil(seconds));
@@ -86,6 +88,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   const spokenIndex = useRef(-1);
   const minuteWarned = useRef(-1);
   const lock = useRef<{ release(): Promise<void> } | null>(null);
+  const [track, setTrack] = useState<Track>({ meters: 0 });
 
   const running = startedAt !== undefined && pausedAt === undefined && !finished;
   const elapsed = startedAt === undefined ? 0 : ((pausedAt ?? now) - startedAt - pausedFor) / 1000;
@@ -116,7 +119,8 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
 
   // Keep the screen on while running, if chosen.
   useEffect(() => {
-    if (!running || !settings.keepAwake) return;
+    // GPS in a web page stops when the screen locks, so it keeps the screen on too.
+    if (!running || !(settings.keepAwake || settings.gps)) return;
     const wakeLock = (navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } }).wakeLock;
     void wakeLock
       ?.request('screen')
@@ -126,7 +130,21 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       void lock.current?.release().catch(() => undefined);
       lock.current = null;
     };
-  }, [running, settings.keepAwake]);
+  }, [running, settings.keepAwake, settings.gps]);
+
+  // Distance from the phone's location, while running; a pause starts afresh from the next point.
+  useEffect(() => {
+    if (!running || !settings.gps || !navigator.geolocation) return;
+    const watch = navigator.geolocation.watchPosition(
+      (position) => setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy })),
+      () => undefined,
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
+    );
+    return () => {
+      navigator.geolocation.clearWatch(watch);
+      setTrack(paused);
+    };
+  }, [running, settings.gps]);
 
   // Cues: a bell and a few words as each step begins, and a minute's notice on long steps.
   useEffect(() => {
@@ -197,7 +215,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   };
   const end = () => {
     window.speechSynthesis?.cancel();
-    nav.swap({ name: 'entry', workoutId: found.workout.id, seconds: Math.round(elapsed), intention });
+    nav.swap({ name: 'entry', workoutId: found.workout.id, seconds: Math.round(elapsed), meters: track.meters >= 50 ? Math.round(track.meters) : undefined, intention });
   };
   const range = current ? heartRange(current.effort, settings) : undefined;
 
@@ -290,7 +308,10 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
                 {pausedAt ? <PlayIcon size={30} /> : <PauseIcon size={30} />}
               </button>
             )}
-            <span className="guide__side">{startedAt !== undefined && `${clock(elapsed)} in`}</span>
+            <span className="guide__side">
+              {startedAt !== undefined && `${clock(elapsed)} in`}
+              {startedAt !== undefined && settings.gps && <span className="guide__distance">{formatDistance(track.meters, settings.unit)}</span>}
+            </span>
           </div>
           {startedAt !== undefined && (
             <button type="button" className="button-quiet guide__end" onClick={end}>

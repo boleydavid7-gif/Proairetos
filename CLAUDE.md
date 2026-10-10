@@ -485,6 +485,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   phone in IndexedDB `askesis-music`, device only, not synced or backed up;
   played through the audio clock so it softens under each bell; shuffle; Next
   song in the guide), or Another app (session `ambient` to mix; screen on).
+- Distance (`core/track.ts`): More > Settings > "Distance by GPS" (`gps`, off until chosen) measures distance from the phone's location while the guide runs (`addFix`: rough fixes over 35 m set aside, standing still adds nothing, jumps faster than 10 m/s start afresh, a pause starts afresh; keeps the screen on, since web GPS stops when it locks); only the distance goes to the entry, never the points. Progress has "From a watch file": a GPX or TCX (`readActivityFile`: day, time, distance, run or walk; TCX lap totals trusted) opens a new entry to look over before saving.
 - One photograph: the owner's `src/askesis/assets/scenes/sunset-lake.webp`
   (1600 px) on Home's hero and Welcome. Everything else is drawn from the
   session itself: the session page opens with day and week, title, length

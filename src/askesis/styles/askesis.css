@@ -2632,3 +2632,7 @@ html[data-nav='back']::view-transition-new(root) {
 .session-head--hard { --tint: #b85d48; }
 .session-head--stride { --tint: #5f87a8; }
 .session-head--race { --tint: #b57d47; }
+
+/* Distance by GPS, under the time run so far. */
+.guide__side:has(.guide__distance) { flex-direction: column; gap: 2px; }
+.guide__distance { color: var(--text); font-weight: 600; }

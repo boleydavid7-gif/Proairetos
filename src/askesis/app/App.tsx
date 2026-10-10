@@ -24,7 +24,7 @@ export type Route =
   | { name: 'plan'; first?: boolean }
   | { name: 'workout'; id: string }
   | { name: 'guide'; id: string; intention?: string }
-  | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; intention?: string; date?: string }
+  | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; meters?: number; intention?: string; date?: string; activity?: 'run' | 'walk' | 'other' }
   | { name: 'article'; id: string }
   | { name: 'zones' }
   | { name: 'music' }

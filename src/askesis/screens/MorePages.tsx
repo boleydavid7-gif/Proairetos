@@ -185,7 +185,7 @@ export function PacePage({ nav }: { nav: Nav }) {
 
 export function SettingsPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
-  const flip = (key: 'voice' | 'bells' | 'keepAwake' | 'readSchedule' | 'afterOffers' | 'dailyLine') =>
+  const flip = (key: 'voice' | 'bells' | 'keepAwake' | 'gps' | 'readSchedule' | 'afterOffers' | 'dailyLine') =>
     saveSettings({ ...settings, [key]: !settings[key] });
   return (
     <div className="page">
@@ -207,6 +207,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.voice} label="Spoken cues" detail="Your music keeps playing." onToggle={() => flip('voice')} />
         <Switch on={settings.bells} label="Bells" onToggle={() => flip('bells')} />
         <Switch on={settings.keepAwake} label="Keep the screen on" onToggle={() => flip('keepAwake')} />
+        <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="Only the distance is kept." onToggle={() => flip('gps')} />
         <Switch
           on={settings.readSchedule}
           label="Use my Proairetos schedule"
