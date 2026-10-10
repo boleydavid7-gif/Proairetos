@@ -1,0 +1,48 @@
+{
+  "id": "/praxis/",
+  "name": "Praxis by Proairetos",
+  "short_name": "Praxis",
+  "description": "Deliberate study for a calmer mind.",
+  "start_url": "/praxis/",
+  "scope": "/praxis/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b201a",
+  "theme_color": "#0b201a",
+  "icons": [
+    {
+      "src": "/praxis/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/praxis/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/praxis/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/praxis/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Praxis"
+    },
+    {
+      "src": "/praxis/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Praxis"
+    }
+  ]
+}

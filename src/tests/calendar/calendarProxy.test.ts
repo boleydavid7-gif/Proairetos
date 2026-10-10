@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { handleCalendarRequest } from '../../../worker/calendarProxy';
+import { resetRateLimit } from '../../../worker/safeFetch';
 
 const ask = (url: string) => new Request(`https://proairetos.com/api/calendar?url=${encodeURIComponent(url)}`);
 const calendar = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n';
@@ -32,5 +33,45 @@ describe('calendar bridge', () => {
   it('refuses very large files', async () => {
     const fetchImpl = vi.fn(async () => new Response('x', { headers: { 'content-length': '9000000' } }));
     expect((await handleCalendarRequest(ask('https://example.com/a.ics'), fetchImpl as unknown as typeof fetch)).status).toBe(413);
+  });
+});
+
+describe('calendar bridge care', () => {
+  it('checks every redirect hop, not just the first address', async () => {
+    const fetchImpl = vi.fn(async () => new Response(null, { status: 302, headers: { location: 'https://10.0.0.1/a.ics' } }));
+    const response = await handleCalendarRequest(ask('https://example.com/a.ics'), fetchImpl as unknown as typeof fetch);
+    expect(response.status).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('follows a safe redirect', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 301, headers: { location: 'https://cal.example.org/b.ics' } }))
+      .mockResolvedValueOnce(new Response(calendar, { status: 200 }));
+    const response = await handleCalendarRequest(ask('https://example.com/a.ics'), fetchImpl as unknown as typeof fetch);
+    expect(response.status).toBe(200);
+  });
+
+  it('stops reading a body that runs past the limit even without a length header', async () => {
+    const big = new ReadableStream({
+      start(controller) {
+        for (let i = 0; i < 4; i += 1) controller.enqueue(new Uint8Array(1_000_000));
+        controller.close();
+      },
+    });
+    const fetchImpl = vi.fn(async () => new Response(big, { status: 200 }));
+    expect((await handleCalendarRequest(ask('https://example.com/a.ics'), fetchImpl as unknown as typeof fetch)).status).toBe(413);
+  });
+
+  it('slows a visitor who asks too often', async () => {
+    resetRateLimit();
+    const fetchImpl = vi.fn(async () => new Response(calendar, { status: 200 }));
+    let last = 200;
+    for (let i = 0; i < 35; i += 1) {
+      last = (await handleCalendarRequest(ask('https://example.com/a.ics'), fetchImpl as unknown as typeof fetch)).status;
+    }
+    expect(last).toBe(429);
+    resetRateLimit();
   });
 });

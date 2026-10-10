@@ -3,16 +3,17 @@ import type { Nav, Route } from '../app/App';
 import { BoxIcon, GearIcon, InfoIcon, JarIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { useSettings } from '../app/state';
-import { BackLink, Brand, Switch, useUndo } from '../app/ui';
+import { BackLink, Brand, Segmented, Switch, useUndo } from '../app/ui';
 import { sources } from '../core/tryIt';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import AccountSection from '../../features/settings/AccountSection';
 import { deleteEverything, restore, saveSettings, type Backup } from '../data/store';
 
 export default function MorePage({ nav }: { nav: Nav }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
     { icon: <JarIcon />, title: 'Usually have', detail: 'Left off the list when adding a recipe', route: { name: 'usually' } },
-    { icon: <GearIcon />, title: 'Settings', detail: 'Daily line, ways to try it', route: { name: 'settings' } },
+    { icon: <GearIcon />, title: 'Settings', detail: 'Units, daily line, ways to try it', route: { name: 'settings' } },
     { icon: <BoxIcon />, title: 'Your data', detail: 'Back up, restore, delete', route: { name: 'data' } },
     { icon: <InfoIcon />, title: 'About and sources', detail: 'The name, the guidance', route: { name: 'about' } },
   ];
@@ -52,6 +53,23 @@ export default function MorePage({ nav }: { nav: Nav }) {
               <span>Askesis</span>
               <span className="row__detail">Running, from your first walk-run</span>
             </span>
+          </a>
+        </li>
+        <li>
+          <a className="row" href="/oikonomia/">
+            <span className="row__icon">
+              <img className="row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />
+            </span>
+            <span className="row__text">
+              <span>Oikonomia</span>
+              <span className="row__detail">Bills and household essentials</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a className="row" href="/hydros/">
+            <span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={26} height={26} /></span>
+            <span className="row__text"><span>HYDROS</span><span className="row__detail">Water, flow and balance</span></span>
           </a>
         </li>
       </ul>
@@ -117,6 +135,20 @@ export function SettingsPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Settings</h1>
       <div className="card switches">
+        <div className="field">
+          <span className="label">Ingredient units</span>
+          <Segmented
+            label="Ingredient units"
+            value={settings.units}
+            options={[
+              { id: 'original', label: 'Original' },
+              { id: 'metric', label: 'Metric' },
+              { id: 'us', label: 'US' },
+            ]}
+            onChange={(units) => saveSettings({ ...settings, units })}
+          />
+          <p className="hint">Recipes stay in their original form. This changes the amounts shown while you read and cook.</p>
+        </div>
         <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />
         <Switch on={settings.fitsYourDay} label="Your day, from Proairetos" onToggle={() => saveSettings({ ...settings, fitsYourDay: !settings.fitsYourDay })} />
@@ -125,6 +157,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.readAloud} label="Read steps aloud" onToggle={() => saveSettings({ ...settings, readAloud: !settings.readAloud })} />
       </div>
       <p className="hint">Theme and text size follow Proairetos (Settings, Appearance).</p>
+      <AccountSection />
     </div>
   );
 }

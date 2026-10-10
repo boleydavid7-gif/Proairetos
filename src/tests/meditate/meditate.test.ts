@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { breathAt, breathPattern, breathPatterns, cycleSeconds, patternCounts } from '../../core/meditate/breathing';
-import { cueAt, sessionCues, sessionLengths, sessions } from '../../core/meditate/sessions';
+import { freeGuidedMeditations } from '../../core/meditate/freeMeditations';
+import { sessionLengths, sessions } from '../../core/meditate/sessions';
 import { defaultSetup, isChanged, setupFor } from '../../core/meditate/setup';
 import { containsJudgmentLanguage } from '../../core/rules/languageRules';
 
@@ -40,36 +41,21 @@ describe('breathing', () => {
 });
 
 describe('sessions', () => {
-  it('fits every cue inside the session, in order', () => {
+  it('keeps the built-in sits quiet and distinct', () => {
+    expect(sessions.map((script) => script.id)).toEqual(['mindfulness', 'sleep', 'focus', 'kindness']);
     for (const script of sessions) {
-      for (const minutes of sessionLengths) {
-        const cues = sessionCues(script, minutes);
-        expect(cues.length).toBeGreaterThanOrEqual(script.opening.length + script.closing.length);
-        for (let index = 1; index < cues.length; index++) expect(cues[index].at).toBeGreaterThan(cues[index - 1].at);
-        expect(cues[cues.length - 1].at).toBeLessThan(minutes * 60);
-      }
+      expect(sessionLengths).toContain(script.minutes);
+      expect(script.line.length).toBeGreaterThan(0);
     }
   });
 
-  it('spreads more of the middle into a longer sit', () => {
-    const guided = sessions[0];
-    expect(sessionCues(guided, 30).length).toBeGreaterThan(sessionCues(guided, 5).length);
-  });
-
-  it('shows the latest cue that has begun', () => {
-    const cues = [
-      { at: 3, text: 'a' },
-      { at: 20, text: 'b' },
-    ];
-    expect(cueAt(cues, 1)).toBeUndefined();
-    expect(cueAt(cues, 10)?.text).toBe('a');
-    expect(cueAt(cues, 25)?.text).toBe('b');
-  });
-
   it('uses calm words', () => {
-    for (const script of sessions)
-      for (const text of [script.line, ...script.opening, ...script.middle, ...script.closing])
-        expect(containsJudgmentLanguage(text)).toBe(false);
+    for (const script of sessions) expect(containsJudgmentLanguage(script.line)).toBe(false);
+  });
+
+  it('offers public libraries for recorded guidance', () => {
+    expect(freeGuidedMeditations.length).toBeGreaterThan(2);
+    for (const meditation of freeGuidedMeditations) expect(meditation.url).toMatch(/^https:\/\//);
   });
 });
 
@@ -81,18 +67,10 @@ describe('each kind of sit is the person own', () => {
   });
 
   it('keeps only what was changed, and knows when nothing was', () => {
-    expect(setupFor('guided', { minutes: 20 }).minutes).toBe(20);
-    expect(setupFor('guided', { minutes: 20 }).pace).toBe(defaultSetup('guided').pace);
-    expect(isChanged('guided', undefined)).toBe(false);
-    expect(isChanged('guided', { minutes: defaultSetup('guided').minutes })).toBe(false);
-    expect(isChanged('guided', { sounds: ['rain'] })).toBe(true);
-  });
-
-  it('spaces words by how often they are wanted, and none leaves it to the bells', () => {
-    const guided = sessions[0];
-    const often = sessionCues(guided, 10, 'often').length;
-    const rarely = sessionCues(guided, 10, 'rarely').length;
-    expect(often).toBeGreaterThan(rarely);
-    expect(sessionCues(guided, 30, 'none')).toEqual([]);
+    expect(setupFor('mindfulness', { minutes: 20 }).minutes).toBe(20);
+    expect(setupFor('mindfulness', { minutes: 20 }).pace).toBe(defaultSetup('mindfulness').pace);
+    expect(isChanged('mindfulness', undefined)).toBe(false);
+    expect(isChanged('mindfulness', { minutes: defaultSetup('mindfulness').minutes })).toBe(false);
+    expect(isChanged('mindfulness', { sounds: ['rain'] })).toBe(true);
   });
 });

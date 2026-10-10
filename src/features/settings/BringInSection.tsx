@@ -86,6 +86,7 @@ export default function BringInSection() {
         });
         added.push(item.id);
         if (row.scheduledAt) await lifeService.scheduleSpan(item.id, row.scheduledAt, row.endsAt);
+        if (row.done) await lifeService.setStatus(item.id, 'DONE');
       }
       offerUndo(added.length === 1 ? 'Brought in 1 thing' : `Brought in ${added.length} things`, async () => {
         for (const id of added) await lifeService.deleteItem(id);

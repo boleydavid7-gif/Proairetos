@@ -1,5 +1,5 @@
 /**
- * Sounds and music for Meditate: real recordings, kept in public/sounds as
+ * Shared sounds and music for the family apps: real recordings, kept in public/sounds as
  * seamless loops (see docs/SOUNDS.md for where each comes from). Sounds
  * loop without a seam; music plays a whole piece and begins again.
  */
@@ -46,6 +46,9 @@ export const soundCatalogue: readonly SoundEntry[] = [
   sound('wind', 'Wind', 'Wind rising and falling.', 'wind'),
   sound('chimes', 'Wind chimes', 'Chimes stirring in the air.', 'chimes'),
   sound('fan', 'Fan', 'A fan turning; even and steady.', 'fan'),
+  music('cosmic-waves', 'Cosmic waves', 'Slow, soft ambient music, by Holizna.', 'wave'),
+  music('stillness-one', 'Stillness I', 'Steady, quiet ambient music, by Holizna.', 'moon'),
+  music('stillness-two', 'Stillness II', 'Warm, slow ambient music, by Holizna.', 'wind'),
   music('beethoven', 'Beethoven: Adagio cantabile', 'From the Pathétique sonata. Piano.', 'keys'),
   music('mozart', 'Mozart: Andante cantabile', 'From the sonata K. 333. Piano.', 'keys'),
   music('schubert', 'Schubert: Andante sostenuto', 'From the sonata D. 960. Piano.', 'keys'),

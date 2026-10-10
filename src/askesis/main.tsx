@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from '../app/ErrorBoundary';
 import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
@@ -10,8 +11,13 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './styles/askesis.css';
+import '../styles/premium.css';
+import './styles/desktop.css';
+import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
+
+document.documentElement.classList.add('askesis');
 
 // The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar colour.
 function appearance() {
@@ -30,7 +36,7 @@ void startStore()
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <App />
+        <ErrorBoundary><App /></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();

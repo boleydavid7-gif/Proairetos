@@ -5,7 +5,7 @@ import { isValidRule, nextOccurrence, occurrenceOnOrAfter, type RepeatRule } fro
 import { toLocalDate } from '../scheduling/dates';
 import type { TagColor } from '../look/tagColors';
 import { kindFields, type ItemKind } from './kinds';
-import type { CaptureKind, ChecklistLine, ControlSplit, LifeItem, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
+import type { CaptureKind, ChecklistLine, ControlSplit, LifeItem, LifeItemApp, LifeItemSource, LifeItemStatus, LifeItemType, PlanGroup } from './types';
 
 /**
  * Every change to a life item goes through these commands. Each returns the
@@ -27,7 +27,9 @@ export class InvalidTransitionError extends Error {
 export type CaptureInput = {
   userId: string;
   title: string;
+  app?: LifeItemApp;
   type?: LifeItemType | null;
+  plannedMinutes?: number;
   source?: LifeItemSource;
   captureKind?: CaptureKind;
   planGroup?: PlanGroup;
@@ -63,8 +65,10 @@ export function captureItem(ctx: DomainContext, input: CaptureInput): ItemChange
   const item: LifeItem = {
     id: ctx.newId(),
     userId: input.userId,
+    ...(input.app ? { app: input.app } : {}),
     type: input.type ?? null,
     title,
+    ...(input.plannedMinutes && input.plannedMinutes > 0 ? { plannedMinutes: Math.round(input.plannedMinutes) } : {}),
     status: 'OPEN',
     important: input.important ?? false,
     source: input.source ?? 'CAPTURE',
@@ -296,11 +300,28 @@ export function setNextStep(ctx: DomainContext, item: LifeItem, step: string | u
 }
 
 /** Records time spent focusing on an item. Facts only: no targets, no streaks. */
-export function recordFocus(ctx: DomainContext, item: LifeItem, minutes: number): ItemChange {
+export type FocusRecordOptions = {
+  plannedMinutes?: number;
+  app?: LifeItemApp;
+};
+
+export function recordFocus(ctx: DomainContext, item: LifeItem, minutes: number, options: FocusRecordOptions = {}): ItemChange {
   const whole = Math.round(minutes);
   if (whole < 1) return { item, events: [] };
   const timestamp = ctx.now().toISOString();
-  return { item, events: [event(ctx, item.id, 'FOCUSED', timestamp, { metadata: { minutes: whole } })] };
+  const planned = options.plannedMinutes ?? item.plannedMinutes;
+  return {
+    item,
+    events: [
+      event(ctx, item.id, 'FOCUSED', timestamp, {
+        metadata: {
+          minutes: whole,
+          ...(planned && planned > 0 ? { plannedMinutes: Math.round(planned) } : {}),
+          ...(options.app ? { app: options.app } : {}),
+        },
+      }),
+    ],
+  };
 }
 
 /** Notes on a Thinking about item that a decision was made from it. */

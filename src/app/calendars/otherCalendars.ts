@@ -1,3 +1,4 @@
+import { apiUrl } from '../apiBase';
 import type { TagColor } from '../../core/look/tagColors';
 import type { ExternalEvent } from '../../core/calendar/readIcs';
 import { createListeners } from '../../services/listeners';
@@ -7,7 +8,9 @@ import type { ScheduleOccurrence } from '../../core/scheduling/types';
 /**
  * Calendars the person reads from elsewhere (Google, Apple, Outlook, or a
  * file). Read-only and kept on this device only: links and events are
- * never uploaded or synced, and nothing here writes back to them.
+ * never uploaded or synced, and nothing here writes back to them. A person
+ * can dismiss an imported event locally; that dismissal never alters the
+ * source calendar.
  */
 export type CalendarSource = {
   id: string;
@@ -34,6 +37,7 @@ export type CalendarEvent = ExternalEvent & { source: string; sourceId: string }
 
 const SOURCES_KEY = 'proairetos.otherCalendars';
 const eventsKey = (id: string) => `proairetos.otherCalendars.${id}`;
+const removedEventsKey = (id: string) => `proairetos.otherCalendars.${id}.removed`;
 const DAY = 86_400_000;
 /** Links refresh at most hourly; files keep a longer window since they never refresh. */
 const REFRESH_MS = 60 * 60_000;
@@ -73,6 +77,10 @@ function updateSource(id: string, changes: Partial<CalendarSource>) {
   saveSources(calendarSources().map((source) => (source.id === id ? { ...source, ...changes } : source)));
 }
 
+function removedEventKeys(id: string): string[] {
+  return read<string[]>(removedEventsKey(id), []);
+}
+
 async function parse(text: string, window: { back: number; ahead: number }): Promise<StoredEvent[]> {
   // The calendar reader loads only when someone uses this.
   const { readIcs } = await import('../../core/calendar/readIcs');
@@ -96,7 +104,7 @@ async function fetchCalendar(url: string): Promise<string> {
   } catch {
     // Usually blocked by the service for web pages; the bridge handles it.
   }
-  const bridged = await fetch(`/api/calendar?url=${encodeURIComponent(https)}`);
+  const bridged = await fetch(apiUrl(`/api/calendar?url=${encodeURIComponent(https)}`));
   const text = await bridged.text();
   if (!bridged.ok) throw new Error(text || 'The calendar could not be read.');
   return text;
@@ -151,6 +159,25 @@ export const otherCalendars = {
     updateSource(id, { color });
   },
 
+  /** Hides one imported occurrence on this device, with an undo for the row. */
+  removeEvent(sourceId: string, eventKey: string): { undo: () => Promise<void> } {
+    const before = removedEventKeys(sourceId);
+    const wasRemoved = before.includes(eventKey);
+    if (!wasRemoved) {
+      write(removedEventsKey(sourceId), [...before, eventKey]);
+      listeners.notify();
+    }
+    let undone = false;
+    return {
+      undo: async () => {
+        if (undone || wasRemoved) return;
+        undone = true;
+        write(removedEventsKey(sourceId), removedEventKeys(sourceId).filter((key) => key !== eventKey));
+        listeners.notify();
+      },
+    };
+  },
+
   /**
    * Timed events from calendars the person set to count, shaped like
    * schedule blocks, so the day's turnover, closing the day, and quiet
@@ -176,12 +203,15 @@ export const otherCalendars = {
   remove(id: string): { undo: () => Promise<void> } {
     const source = calendarSources().find((s) => s.id === id);
     const events = read<StoredEvent[]>(eventsKey(id), []);
+    const removed = removedEventKeys(id);
     saveSources(calendarSources().filter((s) => s.id !== id));
     write(eventsKey(id), null);
+    write(removedEventsKey(id), null);
     return {
       undo: async () => {
         if (!source || calendarSources().some((s) => s.id === id)) return;
         write(eventsKey(id), events);
+        if (removed.length > 0) write(removedEventsKey(id), removed);
         saveSources([...calendarSources(), source]);
       },
     };
@@ -192,13 +222,15 @@ export const otherCalendars = {
     return calendarSources()
       .filter((source) => source.shown)
       .flatMap((source) =>
-        read<StoredEvent[]>(eventsKey(source.id), []).map((event) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-          source: source.name,
-          sourceId: source.id,
-        })),
+        read<StoredEvent[]>(eventsKey(source.id), [])
+          .filter((event) => !removedEventKeys(source.id).includes(event.key))
+          .map((event) => ({
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end),
+            source: source.name,
+            sourceId: source.id,
+          })),
       )
       .filter((event) => event.start < end && event.end > start)
       .sort((a, b) => a.start.getTime() - b.start.getTime());

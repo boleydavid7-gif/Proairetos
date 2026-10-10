@@ -1,5 +1,8 @@
 import { directionAlong, transition } from '../../app/transitions';
 import lake from '../../assets/images/scenes/lake.webp';
+import lakeWide from '../../assets/images/scenes/lake-wide.webp';
+import lakeLight from '../../assets/images/scenes/lake-light.webp';
+import lakeLightWide from '../../assets/images/scenes/lake-light-wide.webp';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -133,7 +136,7 @@ export default function ReflectPage() {
 
       {shows('meditate') && (
         <button type="button" className="meditate-card" onClick={() => navigate('meditate')}>
-          <span className="meditate-card__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
+          <span className="meditate-card__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
           <span className="meditate-card__text">
             <span className="meditate-card__title">Meditate</span>
             <span className="meditate-card__detail">Sessions, breathing, sounds, and music.</span>
@@ -208,7 +211,7 @@ export default function ReflectPage() {
         <MoreRow
           icon={<BookIcon size={22} />}
           title="Weekly review"
-          detail={`About 15 minutes, every step optional.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
+          detail={`About 15 minutes, at your own pace.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
           onClick={() => navigate('review')}
         />
         )}

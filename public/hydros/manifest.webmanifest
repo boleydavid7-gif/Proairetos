@@ -1,0 +1,38 @@
+{
+  "name": "HYDROS by Proairetos",
+  "short_name": "HYDROS",
+  "start_url": "/hydros/",
+  "display": "standalone",
+  "background_color": "#061b25",
+  "theme_color": "#061b25",
+  "icons": [
+    {
+      "src": "/hydros/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/hydros/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Hydros"
+    },
+    {
+      "src": "/hydros/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Hydros"
+    },
+    {
+      "src": "/hydros/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Hydros"
+    }
+  ]
+}

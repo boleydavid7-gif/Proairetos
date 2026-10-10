@@ -37,7 +37,7 @@ import {
   type ItemChange,
   type StatusOptions,
 } from '../../core/life-items/commands';
-import type { ControlSplit, LifeItem, LifeItemStatus, LifeItemType, PlanGroup } from '../../core/life-items/types';
+import type { ControlSplit, LifeItem, LifeItemApp, LifeItemStatus, LifeItemType, PlanGroup } from '../../core/life-items/types';
 import type { ItemEventRepository } from '../../data/repositories/itemEventRepository';
 import type { LifeItemRepository } from '../../data/repositories/lifeItemRepository';
 import { createListeners } from '../listeners';
@@ -295,8 +295,8 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => recordDecision(context, item, decisionId));
     },
 
-    recordFocus(id: string, minutes: number) {
-      return apply(id, (item) => recordFocus(context, item, minutes));
+    recordFocus(id: string, minutes: number, options?: { plannedMinutes?: number; app?: LifeItemApp }) {
+      return apply(id, (item) => recordFocus(context, item, minutes, options));
     },
 
     /** Clears the times of several items at once, e.g. after time away. Each is recorded. */

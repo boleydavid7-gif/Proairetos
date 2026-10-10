@@ -3,6 +3,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import { defaultNoticeSettings, noticesBetween, privateNotice, remindLabel } from '../../core/notify/notices';
 import { defaultQuietHours } from '../../core/rhythm/quietHours';
 import { containsJudgmentLanguage } from '../../core/rules/languageRules';
+import type { ScheduleOccurrence } from '../../core/scheduling/types';
 
 const now = new Date(2026, 9, 1, 12, 0);
 const until = new Date(2026, 9, 15);
@@ -35,6 +36,17 @@ describe('notices', () => {
       ['16:00', 'Dentist', 'At 16:00 · Main Street'],
     ]);
     expect(notices[0].open).toBe('item:Dentist');
+  });
+
+  it('rings a mindful bell at the chosen times, one quiet line, and only when switched on', () => {
+    const on = { ...defaultNoticeSettings, bell: true, bellAt: ['10:30', '15:00'] };
+    const notices = noticesBetween({ ...base, items: [], settings: on, until: new Date(2026, 9, 3) });
+    expect(notices.map((n) => [time(n.at), n.kind, n.title, n.body, n.open])).toEqual([
+      ['15:00', 'bell', 'A moment', 'Where is your attention?', 'today'],
+      ['10:30', 'bell', 'A moment', 'Where is your attention?', 'today'],
+      ['15:00', 'bell', 'A moment', 'Where is your attention?', 'today'],
+    ]);
+    expect(noticesBetween({ ...base, items: [], settings: defaultNoticeSettings })).toEqual([]);
   });
 
   it('reminds of run days at the runner’s own time, and opens Askesis', () => {
@@ -80,6 +92,44 @@ describe('notices', () => {
     ]);
   });
 
+  it('puts schedule notices before the block, including a two-hour lead', () => {
+    const block: ScheduleOccurrence = {
+      patternId: 'days',
+      patternName: 'Days',
+      kind: 'COMMITTED',
+      date: '2026-10-02',
+      start: new Date(2026, 9, 2, 16),
+      end: new Date(2026, 9, 2, 22),
+      changed: false,
+    };
+    const notices = noticesBetween({
+      ...base,
+      items: [],
+      blocks: [block],
+      settings: { ...defaultNoticeSettings, schedule: true, scheduleLead: 120 },
+    });
+    expect(notices.map((n) => [time(n.at), n.body])).toEqual([['14:00', 'In 2 hours · 16:00 · until 22:00']]);
+  });
+
+  it('keeps a legacy negative lead before the start rather than after it', () => {
+    const block: ScheduleOccurrence = {
+      patternId: 'days',
+      patternName: 'Days',
+      kind: 'COMMITTED',
+      date: '2026-10-02',
+      start: new Date(2026, 9, 2, 16),
+      end: new Date(2026, 9, 2, 22),
+      changed: false,
+    };
+    const [notice] = noticesBetween({
+      ...base,
+      items: [],
+      blocks: [block],
+      settings: { ...defaultNoticeSettings, schedule: true, scheduleLead: -30 },
+    });
+    expect(time(notice.at)).toBe('15:30');
+  });
+
   it('holds a notice in quiet hours and words it for when it arrives', () => {
     const late = item('Late', { scheduledAt: new Date(2026, 9, 2, 7, 10).toISOString(), remind: [30] });
     const [notice] = noticesBetween({
@@ -104,6 +154,8 @@ describe('notices', () => {
     expect(privateNotice(notices[0], time).body).not.toMatch(/Dentist/);
     for (const notice of notices) expect(containsJudgmentLanguage(`${notice.title} ${notice.body}`)).toBe(false);
     expect(notices.find((n) => n.kind === 'day')?.body).toMatch(/^Nothing with a time today|Dentist/);
+    expect(remindLabel(90)).toBe('1 hour 30 minutes before');
+    expect(remindLabel(120)).toBe('2 hours before');
     expect(remindLabel(1440)).toBe('1 day before');
   });
 });

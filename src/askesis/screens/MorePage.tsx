@@ -22,7 +22,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
       detail: settings.music === 'mine' ? 'Songs here' : settings.music === 'other' ? 'Another app' : 'Songs for your sessions',
       route: { name: 'music' },
     },
-    { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Optional numbers for each effort', route: { name: 'zones' } },
+    { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Set zones for each effort', route: { name: 'zones' } },
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: 'Pace, time and distance', route: { name: 'pace' } },
     { icon: <ShieldIcon />, title: 'Before you start', detail: 'When to check with a doctor', route: { name: 'safety' } },
     { icon: <GearIcon />, title: 'Settings', detail: 'Units, voice, bells, screen', route: { name: 'settings' } },
@@ -67,6 +67,25 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
               <span>SOMA</span>
               <span className="row__detail">Recipes and groceries</span>
             </span>
+            <ChevronIcon size={18} />
+          </a>
+        </li>
+        <li>
+          <a className="row" href="/oikonomia/">
+            <span className="row__icon">
+              <img className="row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />
+            </span>
+            <span className="row__text">
+              <span>Oikonomia</span>
+              <span className="row__detail">Bills and household essentials</span>
+            </span>
+            <ChevronIcon size={18} />
+          </a>
+        </li>
+        <li>
+          <a className="row" href="/hydros/">
+            <span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={26} height={26} /></span>
+            <span className="row__text"><span>HYDROS</span><span className="row__detail">Water, flow and balance</span></span>
             <ChevronIcon size={18} />
           </a>
         </li>

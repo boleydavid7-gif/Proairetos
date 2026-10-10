@@ -11,6 +11,11 @@ import {
 } from './types';
 
 const PAGE = 500;
+// The server numbers a write before it commits, so a record committed a moment later can carry a lower number
+// than one already seen. Pulling a little before the last number seen catches those; records already held are skipped.
+const OVERLAP = 200;
+// Settings the first time a device syncs: what the account holds wins over what a fresh device wrote for itself.
+const ACCOUNT_FIRST: readonly string[] = ['preferences'];
 const CURSOR = 'cursor';
 
 /** Same content, same string: keys sorted at every level. */
@@ -32,7 +37,13 @@ export async function fingerprint(record: unknown): Promise<string> {
 
 const stateKey = (collection: SyncCollection, id: string) => `${collection}:${id}`;
 
-export type SyncResult = { pulled: number; pushed: number; held?: number };
+export type SyncResult = {
+  pulled: number;
+  pushed: number;
+  held?: number;
+  /** Records edited on two devices at once, where this device's version was kept. */
+  kept?: number;
+};
 
 /**
  * Local-first sync. The device stays the source of truth; the server holds
@@ -63,19 +74,23 @@ export function createSyncEngine(deps: {
     return records;
   }
 
-  async function pull(): Promise<number> {
+  async function pull(): Promise<{ applied: number; kept: number }> {
     let cursor = (await state.getMeta<number>(CURSOR)) ?? 0;
+    let after = Math.max(0, cursor - OVERLAP);
     let applied = 0;
+    let kept = 0;
     const known = await state.fingerprints();
     const current = await snapshot();
 
     for (;;) {
-      const page = await remote.pull(cursor, PAGE);
+      const page = await remote.pull(after, PAGE);
       for (const incoming of page) {
         const k = stateKey(incoming.collection, incoming.id);
         const here = current.get(k);
         const lastSynced = known.get(k);
-        const dirtyHere = here ? here.fp !== lastSynced : lastSynced !== undefined;
+        // A fresh device has no record of having synced these; for settings, the account's copy comes first.
+        const firstTime = lastSynced === undefined && ACCOUNT_FIRST.includes(incoming.collection);
+        const dirtyHere = firstTime ? false : here ? here.fp !== lastSynced : lastSynced !== undefined;
 
         if (!dirtyHere) {
           if (incoming.deleted) {
@@ -100,10 +115,24 @@ export function createSyncEngine(deps: {
             current.set(k, { collection: incoming.collection, record, fp });
           }
         }
+        if (dirtyHere && !incoming.deleted && incoming.iv && incoming.ciphertext && here) {
+          // Changed here and elsewhere. Here wins (and is pushed); say so when the other copy really differs.
+          try {
+            const other = await openRecord<LocalRecord>(key, incoming.collection, incoming.id, {
+              iv: incoming.iv,
+              ciphertext: incoming.ciphertext,
+            });
+            const otherPrint = await fingerprint(other);
+            if (otherPrint !== lastSynced && otherPrint !== here.fp) kept++;
+          } catch {
+            // An unreadable copy is not counted.
+          }
+        }
         cursor = Math.max(cursor, incoming.seq);
       }
+      if (page.length > 0) after = Math.max(after, page[page.length - 1].seq);
       await state.setMeta(CURSOR, cursor);
-      if (page.length < PAGE) return applied;
+      if (page.length < PAGE) return { applied, kept };
     }
   }
 
@@ -157,9 +186,9 @@ export function createSyncEngine(deps: {
     sync(): Promise<SyncResult> {
       running ??= (async () => {
         try {
-          const pulled = await pull();
+          const { applied: pulled, kept } = await pull();
           const { pushed, held } = await push();
-          return held ? { pulled, pushed, held } : { pulled, pushed };
+          return { pulled, pushed, ...(held ? { held } : {}), ...(kept ? { kept } : {}) };
         } finally {
           running = null;
         }

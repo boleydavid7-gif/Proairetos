@@ -277,26 +277,45 @@
 
 .cal-head {
   display: grid;
-  grid-template-columns: 2.75rem repeat(var(--days, 3), minmax(0, 1fr));
-  gap: 2px;
+  grid-template-columns: 3rem repeat(var(--days, 3), minmax(0, 1fr));
+  gap: 0;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
 .cal-head__day {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) 0;
 }
 
+/* The date sits in a small circle; today's is filled with gold. */
 .cal-head__day strong {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
   color: var(--color-text);
-  font-size: 1rem;
-  font-weight: normal;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.cal-head__day--today {
+  color: var(--color-accent);
 }
 
 .cal-head__day--today strong {
-  color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 
 .cal-scroll {
@@ -306,12 +325,17 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Hours are fine, faint lines; the day's own columns are told apart by a hairline between them. */
 .cal-grid {
   position: relative;
   display: grid;
-  grid-template-columns: 2.75rem repeat(var(--days, 3), minmax(0, 1fr));
-  gap: 2px;
-  background: repeating-linear-gradient(180deg, var(--color-border) 0 1px, transparent 1px 44px);
+  grid-template-columns: 3rem repeat(var(--days, 3), minmax(0, 1fr));
+  gap: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-border) 70%, transparent) 0 1px,
+    transparent 1px 44px
+  );
 }
 
 .cal-hours {
@@ -320,51 +344,243 @@
 
 .cal-hours span {
   position: absolute;
-  right: 0.3rem;
+  right: 0.5rem;
   transform: translateY(-50%);
   color: var(--color-text-faint);
-  font-size: 0.65rem;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .cal-col {
   position: relative;
+  border-left: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+
+.cal-col--today {
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+/* A thin gold line across today's column at the current time, with a dot at its start. */
+.cal-now {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--color-accent);
+  pointer-events: none;
+}
+
+.cal-now::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
 .cal-entry {
   position: absolute;
   display: flex;
   align-items: flex-start;
-  left: 0;
-  right: 0;
+  left: 3px;
+  right: 3px;
   overflow: hidden;
   min-height: 0;
-  padding: 2px 4px;
+  padding: 4px 7px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 8px;
   color: var(--color-text);
   font: inherit;
-  font-size: 0.7rem;
-  line-height: 1.2;
+  font-size: 0.78rem;
+  line-height: 1.25;
   text-align: left;
 }
 
 .cal-entry--block {
-  background: color-mix(in srgb, var(--tag) 20%, transparent);
-  border-left: 2px solid var(--tag);
+  background: color-mix(in srgb, var(--tag) 16%, transparent);
+  border-left: 3px solid var(--tag);
 }
 
 .cal-entry--point {
-  left: 22%;
+  left: 12%;
   z-index: 1;
-  background: color-mix(in srgb, var(--tag) 28%, var(--color-ink-raised));
-  border: 1px solid color-mix(in srgb, var(--tag) 60%, transparent);
+  background: color-mix(in srgb, var(--tag) 30%, var(--color-ink-raised));
+  border-left: 3px solid var(--tag);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.55);
 }
 
 .cal-entry--focus {
   outline: 1px solid var(--tag);
 }
 
+.cal-entry__open {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.cal-entry__title {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.cal-entry__time {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Delete shows only when pointing at an entry; every entry opens a sheet (or its list row) that can remove it. */
+.cal-entry__remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: none;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-ink-raised) 82%, transparent);
+  color: var(--color-text-faint);
+}
+
+@media (hover: hover) {
+  .cal-entry:hover .cal-entry__remove,
+  .cal-entry:focus-within .cal-entry__remove {
+    display: grid;
+  }
+}
+
+.cal-entry__remove:hover,
+.cal-entry__remove:focus-visible {
+  color: var(--color-danger, #c98a7a);
+}
+
+.today-section--card {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(var(--color-bg-rgb), 0.4);
+}
+
 
 .timeline__detail--goal {
   color: var(--color-accent);
+}
+
+/* Entries with no colour of their own take the app's gold, so nothing in the week is grey. */
+.cal-entry.tag--none {
+  --tag: var(--color-accent);
+}
+
+/* On a phone: the week is a strip of seven days, and the day chosen fills the screen. */
+.cal-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+}
+
+.cal-strip__day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 3.6rem;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cal-strip__day strong {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-text);
+}
+
+.cal-strip__day[aria-selected='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.cal-strip__day--today strong {
+  color: var(--color-accent);
+}
+
+.cal-strip__day i {
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.7;
+}
+
+/* An item that can be pulled: a hand cursor, a grip along its foot to stretch it, and a lift while moving. */
+@media (hover: hover) and (pointer: fine) {
+  .cal-entry--movable {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .cal-entry__grip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    cursor: ns-resize;
+  }
+
+  .cal-entry__grip::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-text-faint);
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: opacity 150ms ease;
+  }
+
+  .cal-entry--movable:hover .cal-entry__grip::after {
+    opacity: 0.8;
+  }
+}
+
+.cal-entry--dragging {
+  z-index: 6;
+  cursor: grabbing;
+  transition: none;
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.6);
+  outline: 1px solid var(--tag);
 }

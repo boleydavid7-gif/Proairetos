@@ -1,12 +1,9 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { notifications } from '../../app/notify/notifications';
 import { disableReminders, enableReminders, refreshReminders } from '../../app/sync/syncController';
-import type { NoticeSettings } from '../../core/notify/notices';
+import { noticeLeadChoices, noticeLeadLabel, type NoticeSettings } from '../../core/notify/notices';
 import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
-
-const calendarLeads = [0, 5, 10, 15, 30] as const;
-const scheduleLeads = [15, 30, 60] as const;
 
 const time = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -20,10 +17,6 @@ function when(date: Date): string {
       ? 'Tomorrow'
       : date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   return `${day}, ${time(date)}`;
-}
-
-function leadLabel(minutes: number): string {
-  return minutes === 0 ? 'At start' : minutes === 60 ? '1 hour' : `${minutes} min`;
 }
 
 /** One line: a switch, and beside it, while on, the one choice that goes with it. */
@@ -74,7 +67,7 @@ function Lead({
     >
       {choices.map((minutes) => (
         <option key={minutes} value={minutes}>
-          {leadLabel(minutes)}
+          {noticeLeadLabel(minutes)}
         </option>
       ))}
     </select>
@@ -129,6 +122,10 @@ export default function NotificationsSection() {
         </p>
       )}
 
+      <p className="sheet__hint notify-settings__intro">
+        Lead times are counted before something starts. Choose up to two hours ahead for a little more room.
+      </p>
+
       <div className="notify-list">
         <Switch on={settings.items} label="Things with a time" onToggle={() => update({ items: !settings.items })} />
         <Switch
@@ -137,17 +134,17 @@ export default function NotificationsSection() {
           onToggle={() => update({ calendars: !settings.calendars })}
         >
           <Lead
-            label="Before calendar events"
+            label="Minutes before calendar events"
             value={settings.calendarLead}
-            choices={calendarLeads}
+            choices={noticeLeadChoices}
             onChange={(calendarLead) => update({ calendarLead })}
           />
         </Switch>
         <Switch on={settings.schedule} label="Your schedule" onToggle={() => update({ schedule: !settings.schedule })}>
           <Lead
-            label="Before a block starts"
+            label="Minutes before your schedule starts"
             value={settings.scheduleLead}
-            choices={scheduleLeads}
+            choices={noticeLeadChoices}
             onChange={(scheduleLead) => update({ scheduleLead })}
           />
         </Switch>
@@ -162,6 +159,41 @@ export default function NotificationsSection() {
           onToggle={() => update({ lookBacks: !settings.lookBacks })}
         />
         <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
+        <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
+          {settings.bellAt.map((at, index) => (
+            <span key={index} className="notify-bell">
+              <input
+                type="time"
+                className="field-input notify-select"
+                aria-label={`Bell time ${index + 1}`}
+                value={at}
+                onChange={(event) => {
+                  if (!event.target.value) return;
+                  update({ bellAt: settings.bellAt.map((t, i) => (i === index ? event.target.value : t)) });
+                }}
+              />
+              {settings.bellAt.length > 1 && (
+                <button
+                  type="button"
+                  className="text-link"
+                  aria-label={`Remove bell time ${index + 1}`}
+                  onClick={() => update({ bellAt: settings.bellAt.filter((_, i) => i !== index) })}
+                >
+                  Remove
+                </button>
+              )}
+            </span>
+          ))}
+          {settings.bellAt.length < 3 && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => update({ bellAt: [...settings.bellAt, '12:30'].sort() })}
+            >
+              Add a time
+            </button>
+          )}
+        </Switch>
         <Switch on={settings.day} label="A look at your day" onToggle={() => update({ day: !settings.day })}>
           <input
             type="time"

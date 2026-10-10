@@ -5,7 +5,7 @@ import { reflectionService } from '../../app/services';
 import { BookmarkIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
 
-/** The person's own intention for a day, in their words. Optional. */
+/** The person's own intention for a day, in their words. */
 export default function Intention({ date, isToday }: { date: string; isToday: boolean }) {
   const { offerUndo } = useOverlays();
   // Wrapped, so "no intention yet" is told apart from "still loading".
@@ -75,7 +75,7 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
         </form>
       ) : (
         <button type="button" className={`intention${current ? '' : ' intention--empty'}`} onClick={edit}>
-          <span className="intention__text">{current || 'How do you want to meet this day? Optional.'}</span>
+          <span className="intention__text">{current || 'How do you want to meet this day?'}</span>
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
       )}

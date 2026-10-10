@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from '../app/ErrorBoundary';
 import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
@@ -12,6 +13,8 @@ import '@fontsource/inter/latin-600.css';
 // The family's shared look (from Askesis), then SOMA's own warmer colours.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
+import '../styles/premium.css';
+import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
 
@@ -32,7 +35,7 @@ void startStore()
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <App />
+        <ErrorBoundary><App /></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();

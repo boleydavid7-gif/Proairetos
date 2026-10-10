@@ -1,3 +1,4 @@
+import { filesBucket, type FileStore } from './attachmentFiles';
 import type { EmailOtpType, SupabaseClient, User } from '@supabase/supabase-js';
 import type { WrappedKey } from './keys';
 import type { OutgoingRecord, RemoteRecord, RemoteStore } from './types';
@@ -164,6 +165,27 @@ export function createSupabaseRemoteStore(userId: string): RemoteStore {
   };
 }
 
+// ---------- Sealed files (photos and files kept with items) ----------
+
+export function createSupabaseFileStore(): FileStore {
+  const bucket = async () => (await supabase()).storage.from(filesBucket);
+  return {
+    async upload(path, bytes) {
+      const { error } = await (await bucket()).upload(path, bytes, { upsert: true, contentType: 'application/octet-stream' });
+      if (error) throw new Error(error.message);
+    },
+    async download(path) {
+      const { data, error } = await (await bucket()).download(path);
+      if (error || !data) return null;
+      return data.arrayBuffer();
+    },
+    async remove(paths) {
+      const { error } = await (await bucket()).remove(paths);
+      if (error) throw new Error(error.message);
+    },
+  };
+}
+
 // ---------- Push subscriptions and reminder times ----------
 
 export async function savePushSubscription(subscription: PushSubscriptionJSON, userId: string): Promise<void> {
@@ -183,7 +205,10 @@ export async function removePushSubscription(endpoint: string): Promise<void> {
 /** Replaces upcoming reminder times. Only times and opaque ids are sent. */
 export async function replaceReminders(userId: string, reminders: { id: string; fire_at: string }[]): Promise<void> {
   const client = await supabase();
-  const { error: clearError } = await client.from('reminders').delete().is('sent_at', null).gte('fire_at', new Date().toISOString());
+  // Replace every pending row, including rows whose time has just passed. A
+  // previous lead-time setting may have left an old row scheduled after the
+  // event; keeping it lets the server deliver that stale notification later.
+  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).is('sent_at', null);
   if (clearError) throw new Error(clearError.message);
   if (reminders.length === 0) return;
   const { error } = await client

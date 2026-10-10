@@ -365,3 +365,17 @@
 a.quiet-row {
   text-decoration: none;
 }
+
+/* A quiet row that is a button (opens in place) looks like the link rows. */
+.quiet-row--button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+}
+
+.quiet-row__detail--full {
+  white-space: pre-line;
+}

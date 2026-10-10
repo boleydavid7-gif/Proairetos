@@ -48,3 +48,10 @@
 .chip-row[aria-label='Kind'] .chip {
   flex: none;
 }
+
+/* Bell times in Notifications. */
+.notify-bell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}

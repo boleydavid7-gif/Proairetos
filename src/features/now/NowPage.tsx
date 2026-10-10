@@ -7,6 +7,8 @@ import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
+import TodayFamily from '../today/TodayFamily';
+import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -18,7 +20,7 @@ import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
-import { stoicLineFor } from '../../core/stoic/dailyLine';
+import { dailyLineFor } from '../../core/stoic/dailyLine';
 import {
   answeredPauseOffers,
   displayName,
@@ -86,7 +88,7 @@ export default function NowPage() {
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   // Today shows today; other days live in Days ahead.
   const date = today;
-  const line = stoicLineFor(date);
+  const line = dailyLineFor(date);
 
   const now = useNow();
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
@@ -264,6 +266,8 @@ export default function NowPage() {
       )}
 
       {shows('askesis') && <TodayRun today={today} />}
+      <TodayFamily today={today} />
+      <TodayOnThisDay today={today} />
 
       {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
 

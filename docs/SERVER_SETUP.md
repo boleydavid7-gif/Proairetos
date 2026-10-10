@@ -251,3 +251,7 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 - **Delete everything** in Settings signs the device out first, so it clears
   only that device.
 - Keep using **Back up** now and then. It is independent of the server.
+
+## Settings and files sync (migration 20261016000000)
+
+Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets settings and photo/file details sync, and creates the private `proairetos-files` bucket (12 MB limit; files arrive already encrypted). Redeploy `delete-account` so it also clears a person's files: `supabase functions deploy delete-account`. Until the migration runs, these are held on the device and everything else syncs as before.

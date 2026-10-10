@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import AccountSection from '../../features/settings/AccountSection';
 import type { Nav } from '../app/App';
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
@@ -61,7 +62,6 @@ export function ZonesPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Heart rate zones</h1>
-      <p className="lead">Optional.</p>
       <div className="three-fields">
         <label className="field">
           <span className="label">Age</span>
@@ -223,6 +223,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
           onToggle={() => flip('afterOffers')}
         />
       </div>
+      <AccountSection />
     </div>
   );
 }

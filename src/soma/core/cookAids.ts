@@ -1,4 +1,4 @@
-import { formatAmount, itemKey, readIngredient, readNumber, scaleLine } from './ingredients';
+import { convertLine, convertText, formatAmount, itemKey, readIngredient, readNumber, scaleLine, type UnitSystem } from './ingredients';
 import { headingText, isHeading } from './recipes';
 
 /**
@@ -8,11 +8,12 @@ import { headingText, isHeading } from './recipes';
  */
 
 /** Oven heats a recipe names: "350°F", "180 °C", "400 degrees". */
-export function ovenHeats(steps: readonly string[]): string[] {
+export function ovenHeats(steps: readonly string[], unitSystem: UnitSystem = 'original'): string[] {
   const found = new Set<string>();
-  const pattern = /(\d{3})\s*(?:°\s*([FC])|degrees\s*([FC])?\b|º\s*([FC]))/gi;
+  const pattern = /(\d{2,3})\s*(?:°?\s*([FC])|degrees\s*([FC])?\b|º\s*([FC]))/gi;
   for (const step of steps) {
-    for (let match = pattern.exec(step); match; match = pattern.exec(step)) {
+    const shown = convertText(step, unitSystem);
+    for (let match = pattern.exec(shown); match; match = pattern.exec(shown)) {
       const scale = (match[2] ?? match[3] ?? match[4] ?? '').toUpperCase();
       found.add(`${match[1]}°${scale}`);
     }
@@ -29,8 +30,8 @@ function lookFor(name: string): string[] {
 }
 
 /** The amount part of a line, scaled: "1 cup" from "1 cup rice"; the note too when short ("1, diced"). */
-function amountOf(line: string, factor: number): string | undefined {
-  const scaled = scaleLine(line, factor);
+function amountOf(line: string, factor: number, unitSystem: UnitSystem): string | undefined {
+  const scaled = convertLine(scaleLine(line, factor), unitSystem);
   const read = readIngredient(scaled);
   if (read.amount === undefined) return undefined;
   const amount = scaled.slice(0, scaled.toLowerCase().indexOf(read.name.toLowerCase())).trim();
@@ -41,12 +42,12 @@ function amountOf(line: string, factor: number): string | undefined {
  * The step with amounts beside the first mention of each ingredient across
  * the steps: "Add the onion (1)". `seen` carries mentions between steps.
  */
-export function withAmounts(step: string, ingredients: readonly string[], factor: number, seen: Set<string>): string {
+export function withAmounts(step: string, ingredients: readonly string[], factor: number, seen: Set<string>, unitSystem: UnitSystem = 'original'): string {
   let out = step;
   for (const line of ingredients) {
     if (isHeading(line)) continue;
     const read = readIngredient(line);
-    const amount = amountOf(line, factor);
+    const amount = amountOf(line, factor, unitSystem);
     if (!amount) continue;
     const key = itemKey(read.name);
     if (seen.has(key)) continue;
@@ -66,29 +67,31 @@ export function withAmounts(step: string, ingredients: readonly string[], factor
 }
 
 /** Every step with amounts beside first mentions. */
-export function stepsWithAmounts(steps: readonly string[], ingredients: readonly string[], factor: number): string[] {
+export function stepsWithAmounts(steps: readonly string[], ingredients: readonly string[], factor: number, unitSystem: UnitSystem = 'original'): string[] {
   const seen = new Set<string>();
-  return steps.map((step) => (isHeading(step) ? step : withAmounts(scaleStep(step, factor), ingredients, factor, seen)));
+  return steps.map((step) => (isHeading(step) ? step : withAmounts(scaleStep(step, factor, unitSystem), ingredients, factor, seen, unitSystem)));
 }
 
-const MEASURES = 'cups?|tablespoons?|tbsp|teaspoons?|tsp|grams?|g|kg|ml|millilit(?:re|er)s?|lit(?:re|er)s?|l|ounces?|oz|pounds?|lbs?|pints?|quarts?';
+const MEASURES = 'fluid\\s+ounces?|fl\\s+oz|cups?|c|tablespoons?|tbsp|tbs|tb|teaspoons?|tsp|grams?|g|kilograms?|kg|millilit(?:re|er)s?|ml|lit(?:re|er)s?|l|ounces?|oz|pounds?|lbs?|pints?|quarts?';
 const MEASURED = new RegExp(
   String.raw`(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?\s*[¼½¾⅓⅔⅛]?|[¼½¾⅓⅔⅛])(\s*(?:${MEASURES})\b)`,
   'gi',
 );
 
 /** Measured amounts in a step ("add 2 cups of stock") scaled; times, heats and counts stay. */
-export function scaleStep(step: string, factor: number): string {
-  if (factor === 1) return step;
-  return step.replace(MEASURED, (whole, number: string, unit: string) => {
-    const value = readNumber(number);
-    return value === undefined ? whole : `${formatAmount(value * factor)}${/\s$/.test(number) ? ' ' : ''}${unit}`;
-  });
+export function scaleStep(step: string, factor: number, unitSystem: UnitSystem = 'original'): string {
+  const scaled = factor === 1
+    ? step
+    : step.replace(MEASURED, (whole, number: string, unit: string) => {
+        const value = readNumber(number);
+        return value === undefined ? whole : `${formatAmount(value * factor)}${/\s$/.test(number) ? ' ' : ''}${unit}`;
+      });
+  return convertText(scaled, unitSystem);
 }
 
 /** What to take out before starting: every ingredient, scaled, under its headings. */
-export function gatherList(ingredients: readonly string[], factor: number): { heading?: string; line: string }[] {
-  return ingredients.map((line) => (isHeading(line) ? { heading: headingText(line), line: '' } : { line: scaleLine(line, factor) }));
+export function gatherList(ingredients: readonly string[], factor: number, unitSystem: UnitSystem = 'original'): { heading?: string; line: string }[] {
+  return ingredients.map((line) => (isHeading(line) ? { heading: headingText(line), line: '' } : { line: convertLine(scaleLine(line, factor), unitSystem) }));
 }
 
 /** A short name for a timer, from its step: "Simmer the rice" from "Simmer the rice for 18 minutes, covered." */

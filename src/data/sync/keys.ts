@@ -13,7 +13,13 @@ const PBKDF2_ITERATIONS = 600_000;
 const RECOVERY_BYTES = 20; // 160 bits
 const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
-const toBase64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes));
+function toBase64(bytes: Uint8Array): string {
+  const chunks: string[] = [];
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    chunks.push(String.fromCharCode(...bytes.subarray(offset, offset + 0x8000)));
+  }
+  return btoa(chunks.join(''));
+}
 const fromBase64 = (text: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
 
 export interface WrappedKey {
@@ -158,5 +164,30 @@ export async function openRecord<T>(key: CryptoKey, collection: string, id: stri
     return JSON.parse(new TextDecoder().decode(plaintext)) as T;
   } catch {
     throw new KeyError(`A synced record (${collection}) could not be opened with this key.`);
+  }
+}
+
+/** Encrypts a file's bytes (a photo, say), bound to its name so it cannot be swapped for another. The result is iv + ciphertext. */
+export async function sealBytes(key: CryptoKey, label: string, bytes: ArrayBuffer): Promise<Uint8Array<ArrayBuffer>> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = new Uint8Array(
+    await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(label) }, key, bytes),
+  );
+  const out = new Uint8Array(iv.length + ciphertext.length);
+  out.set(iv, 0);
+  out.set(ciphertext, iv.length);
+  return out;
+}
+
+export async function openBytes(key: CryptoKey, label: string, sealed: ArrayBuffer): Promise<ArrayBuffer> {
+  try {
+    const all = new Uint8Array(sealed);
+    return await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: all.slice(0, 12), additionalData: new TextEncoder().encode(label) },
+      key,
+      all.slice(12),
+    );
+  } catch {
+    throw new KeyError(`A synced file (${label}) could not be opened with this key.`);
   }
 }

@@ -6,8 +6,9 @@ import { dishScene } from '../app/scenes';
 import { newId, useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { startTimer, stopTimer, timeLeft, useTimers } from '../app/timers';
 import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
-import { addToList, usuallyHave } from '../core/groceries';
-import { scaleLine } from '../core/ingredients';
+import { addToList, isGrocery, usuallyHave } from '../core/groceries';
+import { kitchenNames, usesFromKitchen } from '../core/kitchen';
+import { convertLine, scaleLine } from '../core/ingredients';
 import { headingText, isHeading, marks, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
 import { stepsWithAmounts, timerName } from '../core/cookAids';
 import { swapsFor } from '../core/swaps';
@@ -16,6 +17,9 @@ import { togglePlanned, weekFrom } from '../core/week';
 import { usePeople } from '../app/proairetos';
 import { waysToTry } from '../core/tryIt';
 import { deleteRecipe, loadSettings, putRecipe, saveGroceries } from '../data/store';
+import { listBills, getBudget, loadSettings as loadOikonomiaSettings } from '../../oikonomia/data/store';
+import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/core/budget';
+import { formatMoney } from '../../oikonomia/core/bills';
 
 type Tab = 'ingredients' | 'steps' | 'notes';
 
@@ -123,7 +127,8 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
     );
 
   const factor = base && serves ? serves / base : 1;
-  const lines = recipe.ingredients.map((line) => (isHeading(line) ? line : scaleLine(line, factor)));
+  const sourceLines = recipe.ingredients.map((line) => scaleLine(line, factor));
+  const lines = sourceLines.map((line) => (isHeading(line) ? line : convertLine(line, settings.units)));
   const save = (change: Partial<Recipe>) => putRecipe({ ...recipe, ...change, updatedAt: new Date().toISOString() });
   const time = minutesLabel(timeOf(recipe));
   const ways = settings.waysToTry ? waysToTry(recipe) : [];
@@ -189,6 +194,11 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             <ServesIcon size={16} /> {recipe.servings}
           </span>
         )}
+        {recipe.estimatedCostCents !== undefined && (
+          <span>
+            Estimated cost · {formatMoney(recipe.estimatedCostCents, recipe.estimatedCostCurrency ?? loadOikonomiaSettings().currency)}
+          </span>
+        )}
         {recipe.url ? (
           <a href={recipe.url} target="_blank" rel="noreferrer">
             {recipe.source ?? 'Source'}
@@ -197,6 +207,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           recipe.source && <span>{recipe.source}</span>
         )}
       </div>
+      <RecipeBudgetHint recipe={recipe} recipes={recipes} />
       {copied && (
         <p className="hint" role="status">
           Copied, ready to paste.
@@ -301,7 +312,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
       {tab === 'steps' && (
         <section aria-label="Steps">
-          <StepList steps={stepsWithAmounts(recipe.steps, recipe.ingredients, factor)} />
+          <StepList steps={stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units)} />
           {recipe.steps.length > 0 && (
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'cook', id: recipe.id, servings: serves })}>
               <PotIcon size={20} /> Cook, step by step
@@ -459,7 +470,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       )}
       {picking && (
         <AddToGroceries
+          kitchen={kitchenNames(groceries)}
           lines={lines}
+          sourceLines={sourceLines}
           onClose={() => setPicking(false)}
           onAdd={async (chosen) => {
             const before = groceries;
@@ -480,11 +493,50 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   );
 }
 
-/** Choose what to buy: everything starts chosen except what is usually at home. */
-function AddToGroceries({ lines, onClose, onAdd }: { lines: string[]; onClose: () => void; onAdd: (lines: string[]) => void }) {
+function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe[] }) {
+  const [state, setState] = useState<{ currency: string; limit: number; remaining: number; label: string; mismatch?: boolean }>();
+  const mealCost = recipe.estimatedCostCents;
+  useEffect(() => {
+    if (mealCost === undefined) return;
+    let live = true;
+    const month = monthKey();
+    void Promise.all([listBills(), getBudget(month)]).then(([bills, budget]) => {
+      if (!live) return;
+      if (!budget) {
+        setState(undefined);
+        return;
+      }
+      const currency = budget.currency;
+      if (recipe.estimatedCostCurrency && recipe.estimatedCostCurrency !== currency) {
+        setState({ currency: recipe.estimatedCostCurrency, limit: 0, remaining: 0, label: 'Currency mismatch', mismatch: true });
+        return;
+      }
+      const totals = budgetTotals(bills, recipes, month, currency);
+      const comparison = recipeBudgetComparison(recipe, budget, totals);
+      setState(comparison ? { currency, limit: comparison.limitCents, remaining: comparison.remainingCents, label: comparison.label } : undefined);
+    });
+    return () => {
+      live = false;
+    };
+  }, [mealCost, recipe.id, recipe.planned?.join(','), recipes]);
+
+  if (mealCost === undefined) return null;
+  if (state?.mismatch) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, state.currency)} · Oikonomia uses another currency for this plan.</p>;
+  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)} · Set a monthly or food limit in Oikonomia to compare.</p>;
+  const after = state.remaining;
+  return (
+    <div className="recipe-budget-hint">
+      <span><strong>This meal</strong> {formatMoney(mealCost, state.currency)}</span>
+      <span><strong>{state.label}</strong> {formatMoney(state.limit, state.currency)} · {after >= 0 ? `${formatMoney(after, state.currency)} left after it` : `${formatMoney(Math.abs(after), state.currency)} over after it`}</span>
+    </div>
+  );
+}
+
+/** Choose what to buy: only things to buy are listed, and they start chosen except what is usually at home or already in the kitchen. */
+function AddToGroceries({ lines, sourceLines, kitchen, onClose, onAdd }: { lines: string[]; sourceLines: string[]; kitchen: string[]; onClose: () => void; onAdd: (lines: string[]) => void }) {
   const have = loadSettings().usuallyHave;
-  const items = lines.map((line, i) => ({ line, i })).filter(({ line }) => !isHeading(line));
-  const [chosen, setChosen] = useState<Set<number>>(new Set(items.filter(({ line }) => !usuallyHave(line, have)).map(({ i }) => i)));
+  const items = lines.map((line, i) => ({ line, sourceLine: sourceLines[i] ?? line, i })).filter(({ line }) => !isHeading(line) && isGrocery(line));
+  const [chosen, setChosen] = useState<Set<number>>(new Set(items.filter(({ line }) => !usuallyHave(line, have) && usesFromKitchen([line], kitchen).length === 0).map(({ i }) => i)));
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -514,7 +566,7 @@ function AddToGroceries({ lines, onClose, onAdd }: { lines: string[]; onClose: (
             </li>
           ))}
         </ul>
-        <button type="button" className="button-main" disabled={chosen.size === 0} onClick={() => onAdd(items.filter(({ i }) => chosen.has(i)).map(({ line }) => line))}>
+        <button type="button" className="button-main" disabled={chosen.size === 0} onClick={() => onAdd(items.filter(({ i }) => chosen.has(i)).map(({ sourceLine }) => sourceLine))}>
           Add {chosen.size}
         </button>
         <button type="button" className="button-quiet" onClick={onClose}>

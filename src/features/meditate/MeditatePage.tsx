@@ -15,17 +15,20 @@ import {
   ClockIcon,
   HeartIcon,
   LeafIcon,
-  LotusIcon,
   MoonIcon,
   PlayIcon,
   StopIcon,
   TargetIcon,
 } from '../../components/icons/Icons';
 import { breathPattern, breathPatterns, patternCounts } from '../../core/meditate/breathing';
-import { session, sessionLengths, sessions, type Guidance, type SessionId } from '../../core/meditate/sessions';
+import { session, sessionLengths, sessions, type SessionId } from '../../core/meditate/sessions';
 import { breatheLengths, isChanged, setupFor, type SitKind, type SitSetup } from '../../core/meditate/setup';
+import { freeGuidedMeditations } from '../../core/meditate/freeMeditations';
 import { loadMeditate, saveMeditate, type MeditateSettings } from '../../data/storage/preferences';
 import lake from '../../assets/images/scenes/lake.webp';
+import lakeWide from '../../assets/images/scenes/lake-wide.webp';
+import lakeLight from '../../assets/images/scenes/lake-light.webp';
+import lakeLightWide from '../../assets/images/scenes/lake-light-wide.webp';
 import BreathCircle from './BreathCircle';
 import SitScreen, { type SitPlan } from './SitScreen';
 import { soundIcons } from './soundIcons';
@@ -35,21 +38,14 @@ const tabs: { id: MeditateSettings['tab']; label: string }[] = [
   { id: 'breathe', label: 'Breathe' },
   { id: 'sounds', label: 'Sounds' },
   { id: 'music', label: 'Music' },
+  { id: 'free', label: 'Free guided meditations' },
 ];
 
-const sessionIcons: Record<SessionId, typeof LotusIcon> = {
-  guided: LotusIcon,
+const sessionIcons: Record<SessionId, typeof LeafIcon> = {
   mindfulness: LeafIcon,
   sleep: MoonIcon,
   focus: TargetIcon,
   kindness: HeartIcon,
-};
-
-const guidanceLabels: Record<Guidance, string> = {
-  often: 'Often',
-  some: 'Now and then',
-  rarely: 'Rarely',
-  none: 'None',
 };
 
 function kindTitle(kind: SitKind): string {
@@ -71,10 +67,10 @@ function alongLine(setup: SitSetup): string {
 }
 
 /**
- * Meditate: a sit with a little guidance, or a breathing pattern. Each kind
- * of sit is the person's own to set up (length, words, sounds, music,
- * bells); the Sounds and Music tabs choose what plays when it begins, with
- * a preview to hear one first. Nothing about a sit is counted or kept.
+ * Meditate: a quiet sit or a breathing pattern. Each kind of sit is the
+ * person's own to set up (length, sounds, music, bells); the Sounds and
+ * Music tabs choose what plays when it begins, with a preview to hear one
+ * first. Nothing about a sit is counted or kept.
  */
 export default function MeditatePage() {
   const navigate = useNavigate();
@@ -130,7 +126,7 @@ export default function MeditatePage() {
 
   return (
     <div className="page meditate-page">
-      <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
+      <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
       <header className="meditate-page__top">
         <button type="button" className="meditate-page__back" onClick={() => navigate('reflect')}>
           <ArrowLeftIcon size={22} />
@@ -143,7 +139,6 @@ export default function MeditatePage() {
       </header>
       <div className="meditate-page__hero">
         <h1 className="meditate-page__title">Take a breath</h1>
-        <p className="meditate-page__subtitle">Nothing to get right.</p>
       </div>
 
       <div className="meditate-tabs" role="tablist" aria-label="Meditate">
@@ -209,6 +204,8 @@ export default function MeditatePage() {
           <p className="meditate-source">{script.source}</p>
         </section>
       )}
+
+      {settings.tab === 'free' && <FreeGuidedMeditations />}
 
       {settings.tab === 'breathe' && (
         <section className="meditate-panel vt-panel" aria-label="Breathe">
@@ -341,28 +338,6 @@ function Customize({
 
           {kind !== 'breathe' && (
             <>
-              <p className="sheet__label">Words</p>
-              <div className="chip-row" role="group" aria-label="How often words come">
-                {(Object.keys(guidanceLabels) as Guidance[]).map((guidance) => (
-                  <button
-                    key={guidance}
-                    type="button"
-                    className="chip"
-                    aria-pressed={setup.guidance === guidance}
-                    onClick={() => onChange({ guidance })}
-                  >
-                    {guidanceLabels[guidance]}
-                  </button>
-                ))}
-              </div>
-              {setup.guidance !== 'none' && (
-                <Switch
-                  on={setup.speak}
-                  label="Read them aloud"
-                  detail="In your phone’s own voice. They show on screen either way."
-                  onToggle={() => onChange({ speak: !setup.speak })}
-                />
-              )}
               <p className="sheet__label">The circle’s pace</p>
               <div className="chip-row" role="group" aria-label="The circle’s pace">
                 {breathPatterns.map((each) => (
@@ -415,6 +390,31 @@ function Customize({
         </div>
       )}
     </div>
+  );
+}
+
+function FreeGuidedMeditations() {
+  return (
+    <section className="meditate-panel meditate-panel--library vt-panel" aria-label="Free guided meditations">
+      <div className="meditate-link-list">
+        {freeGuidedMeditations.map((meditation) => (
+          <a
+            key={meditation.url}
+            className="meditate-link"
+            href={meditation.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="meditate-link__text">
+              <span className="meditate-link__title">{meditation.title}</span>
+              <span className="meditate-link__source">{meditation.source}</span>
+              <span className="meditate-link__detail">{meditation.detail}</span>
+            </span>
+            <ChevronRightIcon size={18} />
+          </a>
+        ))}
+      </div>
+    </section>
   );
 }
 

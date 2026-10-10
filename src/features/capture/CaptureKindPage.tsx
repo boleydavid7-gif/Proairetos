@@ -29,7 +29,7 @@ export const shelfTitles: Record<CaptureShelf, { title: string; line: string }> 
   CONCERN: { title: 'Concerns', line: 'What is on your mind. Some of it may be up to you.' },
   IDEA: { title: 'Ideas', line: 'For later, or for never. Both are fine.' },
   FEELING: { title: 'Feelings', line: 'Named, so they can be met.' },
-  UNSORTED: { title: 'Not sorted yet', line: 'Captured without a kind. Sort them when you like, or not at all.' },
+  UNSORTED: { title: 'Not sorted yet', line: 'This sits in not sorted until you’re ready.' },
 };
 
 const newestFirst = (a: LifeItem, b: LifeItem) => b.createdAt.localeCompare(a.createdAt);

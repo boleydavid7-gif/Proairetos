@@ -297,6 +297,20 @@
   color: var(--mint);
 }
 
+.recipe-budget-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  margin: -2px 0 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.recipe-budget-hint strong {
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -835,5 +849,22 @@
 @media (prefers-reduced-motion: reduce) {
   .pause-meal__circle {
     animation: none;
+  }
+}
+
+:root.soma {
+  --app-name: 'SOMA';
+}
+
+@media (min-width: 62rem) {
+  .sheet-back {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sheet {
+    max-width: 36rem;
+    border-radius: 22px;
+    padding-bottom: 18px;
   }
 }

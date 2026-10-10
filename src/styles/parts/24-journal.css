@@ -11,9 +11,17 @@
   margin-bottom: 0;
 }
 
+.journal__heading {
+  display: grid;
+  gap: var(--space-1);
+}
+
 .journal__date {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
+  margin: 0;
+  color: var(--color-accent-strong);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .journal__scene {
@@ -34,14 +42,16 @@
 
 .journal__input {
   width: 100%;
-  min-height: 12rem;
-  padding: var(--space-4);
+  min-height: 15rem;
+  padding: var(--space-5, 1.5rem) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  font-size: 1rem;
-  line-height: 1.6;
-  resize: vertical;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.85;
+  resize: none;
+  overflow: hidden;
 }
 
 .journal__input::placeholder {
@@ -51,13 +61,6 @@
 .journal__input:focus {
   outline: none;
   border-color: rgba(201, 162, 116, 0.5);
-}
-
-.section-optional {
-  margin-left: var(--space-2);
-  color: var(--color-text-faint);
-  font-size: 0.8rem;
-  font-weight: 400;
 }
 
 .weather-picker {
@@ -114,4 +117,64 @@
   flex: 1;
   min-height: 3rem;
   border-radius: var(--radius-md);
+}
+
+/* A place to start, and earlier pages, stay folded until wanted. */
+.journal__starts > summary,
+.journal__earlier > summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.journal__starts .chip-row {
+  margin-top: var(--space-2);
+}
+
+.journal__earlier {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.journal__month {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.journal__page {
+  border-top: 1px solid var(--color-border);
+}
+
+.journal__page > summary {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  min-height: 2.75rem;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+
+.journal__page-day {
+  flex: none;
+  min-width: 4.5rem;
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+.journal__page-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-serif);
+}
+
+.journal__page-body {
+  margin: 0 0 var(--space-3);
+  white-space: pre-wrap;
+  font-family: var(--font-serif);
+  line-height: 1.75;
 }

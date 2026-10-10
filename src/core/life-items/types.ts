@@ -28,6 +28,9 @@ export type LifeItemSource =
   | 'IMPORT'
   | 'ASSISTANT_CONFIRMED';
 
+/** A sibling app can tag the records it owns while sharing the family store. */
+export type LifeItemApp = 'praxis';
+
 /**
  * The Stoic dichotomy of control, written by the person for a Thinking
  * about item: what they can act on, and what they cannot.
@@ -40,8 +43,12 @@ export interface ControlSplit {
 export interface LifeItem {
   id: string;
   userId: string;
+  /** Optional owner app for shared family records. Omitted for Proairetos items. */
+  app?: LifeItemApp;
   type: LifeItemType | null;
   title: string;
+  /** Planned length for a focused block, when the item represents one. */
+  plannedMinutes?: number;
   notes?: string;
   status: LifeItemStatus;
   important: boolean;

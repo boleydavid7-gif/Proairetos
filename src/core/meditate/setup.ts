@@ -1,5 +1,5 @@
 import type { BreathPatternId } from './breathing';
-import { session, type Guidance, type SessionId } from './sessions';
+import { session, type SessionId } from './sessions';
 
 /**
  * How each kind of sit is set up. Every session type, and breathing, has
@@ -12,10 +12,6 @@ export type SitSetup = {
   minutes: number;
   /** The circle's pace (and, for breathing, the pattern followed). */
   pace: BreathPatternId;
-  /** How often words come during a session. */
-  guidance: Guidance;
-  /** Words read aloud by the phone's own voice. */
-  speak: boolean;
   /** "Breathe in, 4" in the circle; otherwise the time left. */
   counts: boolean;
   /** A bowl struck at the start and the end. */
@@ -34,8 +30,6 @@ export function defaultSetup(kind: SitKind): SitSetup {
     return {
       minutes: 3,
       pace: 'calm',
-      guidance: 'none',
-      speak: false,
       counts: true,
       bells: true,
       breathSounds: true,
@@ -47,8 +41,6 @@ export function defaultSetup(kind: SitKind): SitSetup {
   return {
     minutes: script.minutes,
     pace: script.pace,
-    guidance: kind === 'sleep' ? 'some' : 'often',
-    speak: true,
     counts: false,
     // A sleep sit ends by fading, without a bell to wake anyone.
     bells: !script.fadeOut,

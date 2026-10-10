@@ -12,7 +12,7 @@ export function useEnergy(date: string): Energy | undefined {
   return useSyncExternalStore(subscribePreferences, () => energyFor(date));
 }
 
-/** The person's own word for their energy today. Optional, for today only, and never guessed. */
+/** The person's own word for their energy today, for today only, and never guessed. */
 export default function EnergyChoice({ date }: { date: string }) {
   const energy = useEnergy(date);
   const shows = useTodayParts();
@@ -20,7 +20,7 @@ export default function EnergyChoice({ date }: { date: string }) {
   return (
     <div className="energy-choice">
       <span className="energy-choice__label">Energy today</span>
-      <div className="chip-row" role="group" aria-label="Energy today (optional)">
+      <div className="chip-row" role="group" aria-label="Energy today">
         {options.map((option) => (
           <button
             key={option.id}

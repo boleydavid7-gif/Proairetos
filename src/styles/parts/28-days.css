@@ -120,6 +120,8 @@
 }
 
 .days-row__button {
+  flex: 1;
+  min-width: 0;
   width: 100%;
   display: grid;
   grid-template-columns: 4.6rem auto 1fr auto;
@@ -133,6 +135,32 @@
   color: inherit;
   font: inherit;
   text-align: left;
+}
+
+.days-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+}
+
+.days-row__remove,
+.days-allday__remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-faint);
+}
+
+.days-row__remove:hover,
+.days-row__remove:focus-visible,
+.days-allday__remove:hover,
+.days-allday__remove:focus-visible {
+  color: var(--color-danger, #c98a7a);
 }
 
 .days-row--focus .days-row__button {
@@ -186,6 +214,25 @@
   color: var(--color-text-faint);
 }
 
+.days-allday {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.days-allday__text {
+  flex: 1;
+}
+
+.days-allday__remove {
+  width: 2.25rem;
+  min-height: 2.25rem;
+}
+
 .days-calendar {
   display: flex;
   flex-direction: column;
@@ -201,9 +248,74 @@
 }
 
 .days-calendar--week .cal-entry {
-  padding: 2px;
-  font-size: 0.6rem;
   overflow-wrap: anywhere;
+}
+
+/* The calendar sits on a soft glass panel, so the page's light shows through. */
+.days-calendar {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.days-calendar .cal-scroll {
+  max-height: 68svh;
+}
+
+/* A warm light at the top of the page, the colour of the photos. */
+.days-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.days-page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -3rem -2rem auto;
+  height: 22rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 116, 0.13), transparent 75%);
+  pointer-events: none;
+}
+
+/* On a computer the controls share one row: the dates, the view, and list or calendar. */
+@media (min-width: 62rem) {
+  .days-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .days-toolbar .segmented,
+  .days-page .days-toolbar .segmented--even {
+    display: inline-flex;
+    grid-template-columns: none;
+    width: auto;
+    margin: 0;
+  }
+
+  .days-toolbar .segmented__option {
+    min-height: 2.5rem;
+    padding: 0 var(--space-4);
+  }
+
+  .days-toolbar .days-stepper {
+    order: -1;
+    gap: var(--space-3);
+  }
+
+  .days-toolbar .days-stepper__range {
+    min-width: 11rem;
+    text-align: center;
+  }
+
+  .days-toolbar .days-back {
+    margin-left: auto;
+  }
 }
 
 /* ---------- Month ---------- */
@@ -617,4 +729,320 @@
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: 0.95rem;
+}
+
+/* A to-do being carried over a day: that day gets a soft outline. */
+.days-day--over {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+/* Bill dates from Oikonomia: a quiet line under the day, a small tag across the top of the week. */
+.days-bills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 2px 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.days-bills__paid {
+  margin-left: auto;
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}
+
+.cal-bills {
+  align-items: start;
+  margin-bottom: 4px;
+}
+
+.cal-bills__day {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cal-bills__chip {
+  overflow: hidden;
+  padding: 1px 4px;
+  border-radius: 6px;
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  font-size: 0.7rem;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-bills__chip--paid {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* ---------- Month, the larger look ---------- */
+
+.month__chips,
+.month__more {
+  display: none;
+}
+
+.month__day {
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.month__day--today .month__num {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+@media (hover: hover) {
+  .month__day:hover {
+    background: color-mix(in srgb, var(--color-surface-raised) 80%, transparent);
+  }
+}
+
+/* On a computer each day is roomy enough to name what is in it, in the person's colours. */
+@media (min-width: 62rem) {
+  .month__grid {
+    gap: 6px;
+  }
+
+  .month__day {
+    min-height: 6.6rem;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  }
+
+  .month__num {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+  }
+
+  .month__dots,
+  .month__count {
+    display: none;
+  }
+
+  .month__chips {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .month__chip {
+    overflow: hidden;
+    padding: 1px 6px;
+    border-left: 3px solid var(--tag, var(--color-accent));
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--tag, var(--color-accent)) 20%, transparent);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .month__more {
+    display: block;
+    padding-left: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+  }
+}
+
+.month__chip.tag--none,
+.month__dot.tag--none,
+.month__count.tag--none {
+  --tag: var(--color-accent);
+}
+
+/* On a phone the controls above the calendar are kept short, so the day gets the room. */
+@media (max-width: 61.99rem) {
+  .days-toolbar {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .days-toolbar .segmented__option {
+    min-height: 2.5rem;
+  }
+
+  .days-toolbar .days-stepper__step {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}
+
+/* ---------- A small month beside the week (computers) ---------- */
+
+.days-weekwrap {
+  display: block;
+}
+
+.days-aside {
+  display: none;
+}
+
+@media (min-width: 62rem) {
+  .app-shell[data-route='calendar'] .app-shell__content {
+    max-width: 76rem;
+  }
+
+  .days-weekwrap {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  .days-aside {
+    display: grid;
+    gap: var(--space-4);
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+.mini {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.mini__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.mini__title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.mini__steps {
+  display: flex;
+  gap: 2px;
+}
+
+.mini__steps button {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.mini__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  text-align: center;
+}
+
+.mini__dow {
+  color: var(--color-text-faint);
+  font-size: 0.68rem;
+  padding-bottom: 2px;
+}
+
+.mini__day {
+  height: 1.9rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini__day--in {
+  background: var(--color-accent-soft);
+  border-radius: 0;
+}
+
+.mini__day--today {
+  background: var(--color-accent);
+  border-radius: 50%;
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .mini__day:hover {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    border-radius: 50%;
+  }
+}
+
+/* ---------- Year, the finish ---------- */
+
+.year__month {
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+@media (hover: hover) {
+  .year__month:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+}
+
+.year__name {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-1);
+}
+
+.year__days {
+  gap: 2px;
+}
+
+.year__day {
+  font-size: 0.68rem;
+}
+
+/* A day with something on it carries its colour; with none of its own, the gold. */
+.year__day--marked {
+  --tag: var(--color-accent);
+  background: color-mix(in srgb, var(--tag) 34%, transparent);
+}
+
+.year__day--today {
+  outline: 0;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+@media (min-width: 62rem) {
+  .year {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
 }

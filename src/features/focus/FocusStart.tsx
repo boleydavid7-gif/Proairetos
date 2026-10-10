@@ -1,6 +1,7 @@
 import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
 import { focusDurations } from '../../core/focus/session';
+import { loadFocusBreath, saveFocusBreath } from '../../data/storage/preferences';
 import type { FocusTarget } from '../../app/overlays/OverlayContext';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export default function FocusStart({ target, onStart, onClose }: Props) {
   const { dialog, panel, close } = useSheet();
   const [custom, setCustom] = useState('');
+  const [breath, setBreath] = useState(loadFocusBreath);
 
 
   const start = (minutes: number) => {
@@ -65,6 +67,20 @@ export default function FocusStart({ target, onStart, onClose }: Props) {
             Start
           </button>
         </form>
+        <button
+          type="button"
+          className="toggle-row"
+          role="switch"
+          aria-checked={breath}
+          aria-pressed={breath}
+          onClick={() => {
+            saveFocusBreath(!breath);
+            setBreath(!breath);
+          }}
+        >
+          <span className={`toggle-switch${breath ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+          <span className="toggle-row__text">Begin with one breath</span>
+        </button>
         <p className="sheet__hint">Stop whenever you like. Nothing is counted against you.</p>
       </div>
     </dialog>

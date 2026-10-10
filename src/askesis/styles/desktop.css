@@ -1,0 +1,196 @@
+/*
+ * Askesis on a computer. From 62rem wide the pages stop being a phone column in the middle of the
+ * window and use the room: a wide banner, two-column Home, a grid of articles, a sticky plan summary
+ * beside the weeks, stats in a row. Everything is scoped to :root.askesis so SOMA and Oikonomia,
+ * which share the base styles, are untouched.
+ */
+
+@media (min-width: 62rem) {
+  :root.askesis .shell--tabs {
+    padding-bottom: 56px;
+  }
+
+  /* The rail already says Askesis; the small brand above each page would say it twice. */
+  :root.askesis .shell--tabs .page > .brand,
+  :root.askesis .shell--tabs .page > .page-top .brand {
+    display: none;
+  }
+
+  /* Pages with a picture across the top (Home, an article, a session) use the whole width; their text sits in a column. */
+  :root.askesis .shell--tabs .page-enter > :not(.page):not(.hero) {
+    max-width: none;
+    width: 100%;
+  }
+
+  :root.askesis .page--under-hero:not(.home-grid) {
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+
+  :root.askesis .shell--tabs .page {
+    max-width: 74rem;
+    padding-inline: 48px;
+  }
+
+  :root.askesis .shell--tabs .page {
+    padding-top: 40px;
+  }
+
+  :root.askesis .shell--tabs .page > .title {
+    font-size: 2.6rem;
+    margin-bottom: 4px;
+  }
+
+  :root.askesis .shell--tabs .page > .lead {
+    font-size: 1.1rem;
+    max-width: 44rem;
+  }
+
+  /* ---------- Home ---------- */
+
+  :root.askesis .home .hero--tall {
+    height: 340px;
+  }
+
+  :root.askesis .home .hero__content {
+    padding-inline: max(48px, calc((100% - 74rem) / 2 + 48px));
+    padding-top: 28px;
+    padding-bottom: 36px;
+  }
+
+  :root.askesis .home .hero__content .brand {
+    display: none;
+  }
+
+  :root.askesis .home .home__title {
+    font-size: clamp(2.8rem, 4vw, 3.8rem);
+    max-width: 30rem;
+  }
+
+  :root.askesis .home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    grid-template-areas:
+      'main top'
+      'main bottom';
+    grid-template-rows: auto 1fr;
+    column-gap: 36px;
+    row-gap: 20px;
+    align-items: start;
+    padding-top: 32px;
+  }
+
+  :root.askesis .home-top { grid-area: top; display: flex; flex-direction: column; gap: 16px; }
+  :root.askesis .home-main { grid-area: main; display: flex; flex-direction: column; gap: 20px; }
+  :root.askesis .home-bottom { grid-area: bottom; margin: 0; align-self: start; }
+
+  /* Today's session is the heart of the page: bigger picture, bigger type. */
+  :root.askesis .home-main .focus { gap: 20px; }
+  :root.askesis .home-main .focus__image { width: 132px; height: 132px; border-radius: 18px; }
+  :root.askesis .home-main .focus__title { font-size: 1.7rem; }
+
+  /* ---------- Learn ---------- */
+
+  :root.askesis .articles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  :root.askesis .article-row {
+    height: 100%;
+  }
+
+  /* Reading: a comfortable measure, a calmer scale. */
+  :root.askesis .reading > :not(.hero) {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+
+  :root.askesis .reading .reading__section p {
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+
+  :root.askesis .reading .title {
+    font-size: 2.8rem;
+  }
+
+  /* ---------- Train ---------- */
+
+  :root.askesis .train-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 23rem;
+    column-gap: 40px;
+    row-gap: 18px;
+    align-content: start;
+  }
+
+  :root.askesis .train-page > * { grid-column: 1; }
+  :root.askesis .train-page > .title,
+  :root.askesis .train-page > .lead { grid-column: 1 / -1; }
+  :root.askesis .train-page > .progress {
+    grid-column: 2;
+    grid-row: 3 / span 12;
+    position: sticky;
+    top: 28px;
+    align-self: start;
+  }
+  :root.askesis .train-page > .button-main,
+  :root.askesis .train-page > .button-quiet { justify-self: start; min-width: 16rem; }
+
+  /* ---------- Progress ---------- */
+
+  :root.askesis .log-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    column-gap: 40px;
+    row-gap: 20px;
+    align-content: start;
+  }
+
+  :root.askesis .log-page { position: relative; }
+  :root.askesis .log-page > .page-top { position: absolute; top: 44px; right: 48px; z-index: 1; }
+  :root.askesis .log-page > * { grid-column: 1 / -1; }
+  :root.askesis .log-page > .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  :root.askesis .log-page > .card { grid-column: 1; }
+  :root.askesis .log-page > .entries { grid-column: 2; grid-row: span 2; }
+  :root.askesis .log-page .bars { min-height: 220px; }
+
+  /* ---------- More and its pages ---------- */
+
+  :root.askesis .more .rows {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+  }
+
+  /* Questions and forms stay a readable width, with choices side by side. */
+  :root.askesis .page:has(> .choice-list),
+  :root.askesis .page.entry {
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+
+  :root.askesis .choice-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  :root.askesis .choice-list > * { flex: 0 1 auto; }
+
+  :root.askesis .shell--tabs .page:not(.home-grid):not(.train-page):not(.log-page):not(.more) {
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* Guide and other full-screen pages stay centred and calm. */
+  :root.askesis .shell:not(.shell--tabs) {
+    max-width: 52rem;
+  }
+}
+
+@media (min-width: 100rem) {
+  :root.askesis .articles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

@@ -1,3 +1,6 @@
+import { useSyncExternalStore } from 'react';
+import { showNotForMeSnapshot, subscribePreferences } from '../../data/storage/preferences';
+
 type Props = {
   text: string;
   onAccept: () => void;
@@ -8,15 +11,18 @@ type Props = {
 
 /** One line, offered once. Ignoring it is a complete answer. */
 export default function QuietOffer({ text, onAccept, onNotForMe, onDismiss }: Props) {
+  const showNotForMe = useSyncExternalStore(subscribePreferences, showNotForMeSnapshot, showNotForMeSnapshot);
   return (
     <div className="quiet-offer" role="status">
       <button type="button" className="quiet-offer__accept" onClick={onAccept}>
         {text}
       </button>
       <span className="quiet-offer__actions">
-        <button type="button" className="quiet-offer__quiet" onClick={onNotForMe}>
-          Not for me
-        </button>
+        {showNotForMe === 'on' && (
+          <button type="button" className="quiet-offer__quiet" onClick={onNotForMe}>
+            Not for me
+          </button>
+        )}
         <button type="button" className="quiet-offer__quiet" aria-label="Dismiss" onClick={onDismiss}>
           ×
         </button>

@@ -15,7 +15,7 @@
   --color-accent-strong: #f6d6a4;
   --color-accent-soft: rgba(240, 201, 142, 0.16);
   --color-accent-ink: #22180c;
-  --glass: rgba(14, 17, 22, 0.5);
+  --glass: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(8, 40, 52, 0.9));
   color: var(--color-text);
 }
 
@@ -158,14 +158,21 @@
 /* Tabs underlined, as in the mockup. */
 .meditate-tabs {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.meditate-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .meditate-tabs__tab {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 2.75rem;
+  padding: 0 var(--space-2);
   border: 0;
   background: none;
   color: var(--color-text-muted);
@@ -212,13 +219,13 @@
 /* ---------- The breathing circle ---------- */
 
 /*
- * --light runs from 0 (dim, after the out-breath) to 1 (the top of the
- * in-breath), smoothed in BreathCircle. Every layer is pre-blurred and only
- * its opacity and scale change, so phones draw it smoothly; `screen`
- * blending adds light to the photo behind instead of painting over it.
+ * --glow runs from 0 (a plain ring) to 1 (the breath fully out), read straight from
+ * the breath clock in BreathCircle. Only opacity changes, on layers drawn once, so phones draw it
+ * smoothly; `screen` blending adds light to the photo behind instead of
+ * painting over it. The ring never changes size.
  */
 .breath-circle {
-  --light: 0.18;
+  --glow: 0;
   position: relative;
   width: min(66vw, 16.5rem);
   aspect-ratio: 1;
@@ -232,80 +239,48 @@
   overflow: visible;
 }
 
-.breath-circle__spill,
-.breath-circle__bloom {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  will-change: opacity, transform;
-}
-
-.breath-circle__spill {
-  inset: -70%;
-  /* Falls off like real light: bright near the ring, then a long, even fade. */
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 220, 170, 0.3) 0%,
-    rgba(255, 210, 155, 0.26) 22%,
-    rgba(255, 198, 140, 0.17) 34%,
-    rgba(255, 188, 125, 0.09) 50%,
-    rgba(255, 180, 115, 0.04) 66%,
-    rgba(255, 175, 110, 0.012) 82%,
-    rgba(255, 175, 110, 0) 100%
-  );
-  opacity: calc(var(--light) * 0.95);
-  transform: scale(calc(0.9 + var(--light) * 0.14));
-}
-
-/* Where the ring sits (about 64% out), the light is strongest; it eases off on both sides. */
-.breath-circle__bloom {
-  inset: -14%;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 230, 190, 0) 38%,
-    rgba(255, 226, 182, 0.08) 50%,
-    rgba(255, 224, 178, 0.3) 62%,
-    rgba(255, 220, 172, 0.34) 65%,
-    rgba(255, 212, 160, 0.16) 74%,
-    rgba(255, 204, 150, 0.05) 86%,
-    rgba(255, 200, 145, 0) 100%
-  );
-  filter: blur(4px);
-  opacity: calc(0.1 + var(--light) * 0.9);
-  transform: scale(calc(0.98 + var(--light) * 0.04));
-}
-
-.breath-circle__veil {
-  fill: rgba(12, 16, 26, 0.14);
-}
-
-.breath-circle__core {
-  mix-blend-mode: screen;
-  opacity: calc(0.25 + var(--light) * 0.75);
-}
-
-.breath-circle__halo {
-  fill: none;
-  stroke: rgb(255, 214, 160);
-  stroke-width: 18;
-  filter: blur(9px);
-  mix-blend-mode: screen;
-  opacity: calc(0.1 + var(--light) * 0.75);
-}
-
-/* The ring itself warms towards white as it brightens. */
+/* The plain ring: thin, steady, always there. */
 .breath-circle__ring {
   fill: none;
-  stroke: rgb(255, 232, 196);
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 4px rgba(255, 196, 130, 0.8));
-  opacity: calc(0.55 + var(--light) * 0.45);
+  stroke: rgba(255, 244, 226, 0.78);
+  stroke-width: 2;
 }
 
-/* Before a sit: just the circle, softly lit, not moving. */
-.breath-circle--still {
-  --light: 0.18;
+/*
+ * The glow is built from box-shadows on circles the size of the ring (the ring is 82.5% of the box, so 8.75%
+ * in from each side). A shadow's softness is drawn by the browser itself, so it looks the same on a phone;
+ * a CSS blur on an SVG stroke does not, and showed there as a hard band. Only opacity changes.
+ */
+.breath-circle__glow,
+.breath-circle__lit {
+  position: absolute;
+  inset: 8.75%;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* A wide, soft light around the ring, and a touch inside it. */
+.breath-circle__glow--wide {
+  box-shadow:
+    0 0 64px 22px rgba(255, 190, 120, 0.42),
+    inset 0 0 48px 8px rgba(255, 190, 120, 0.2);
+  opacity: calc(var(--glow) * 0.9);
+}
+
+/* A closer glow hugging the ring. */
+.breath-circle__glow--near {
+  box-shadow:
+    0 0 20px 5px rgba(255, 214, 160, 0.7),
+    inset 0 0 18px 3px rgba(255, 214, 160, 0.32);
+  opacity: calc(var(--glow) * 0.95);
+}
+
+/* The ring itself warms to light as the glow comes. */
+.breath-circle__lit {
+  border: 2.5px solid rgb(255, 238, 208);
+  box-shadow: 0 0 10px 1px rgba(255, 200, 135, 0.85);
+  opacity: calc(var(--glow) * 0.95);
 }
 
 .breath-circle__label {
@@ -363,10 +338,9 @@
   width: 3.5rem;
   height: 3.5rem;
   border: 1px solid var(--color-border);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   transition:
     border-color 200ms ease,
     background-color 200ms ease;
@@ -407,10 +381,9 @@
   gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   background: var(--glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 .meditate-options__lengths {
@@ -433,6 +406,50 @@
   flex: 1;
   color: var(--color-text-muted);
   text-align: right;
+}
+
+.meditate-link-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.meditate-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 4.25rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.meditate-link:focus-visible,
+.meditate-link:hover {
+  border-color: rgba(240, 201, 142, 0.55);
+}
+
+.meditate-link__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.meditate-link__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+
+.meditate-link__source,
+.meditate-link__detail {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
 }
 
 .meditate-start {
@@ -617,9 +634,8 @@
 
 .meditate-for__kinds .chip {
   flex: none;
+  border-top-color: rgba(255, 255, 255, 0.15);
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 /* Make it your own: folded until opened. */
@@ -788,12 +804,11 @@
   right: var(--space-4);
   min-height: 2.75rem;
   padding: 0 var(--space-4);
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-pill);
   background: var(--glass);
   color: var(--color-text);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .sit-screen__center {
@@ -860,11 +875,10 @@
   width: 4.25rem;
   height: 4.25rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   background: var(--glass);
   color: var(--color-text);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .sit-screen__paused {

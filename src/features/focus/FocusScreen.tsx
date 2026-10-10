@@ -1,6 +1,7 @@
 import { useBackHandler } from '../../app/back/backStack';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useClock } from '../../app/hooks/useClock';
+import { lifeService } from '../../app/services';
 import {
   formatClockDown,
   isFinished,
@@ -31,6 +32,21 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
 
   const [wrappingUp, setWrappingUp] = useState(false);
   const [leftOff, setLeftOff] = useState('');
+  const [parking, setParking] = useState(false);
+  const [thought, setThought] = useState('');
+  const [parked, setParked] = useState(false);
+
+  // A stray thought goes to Capture, unsorted, so the stretch can carry on.
+  async function park(event: FormEvent) {
+    event.preventDefault();
+    const text = thought.trim();
+    if (!text) return;
+    await lifeService.add(text, undefined);
+    setThought('');
+    setParking(false);
+    setParked(true);
+    window.setTimeout(() => setParked(false), 2500);
+  }
 
   useEffect(() => {
     if (finished) navigator.vibrate?.(200);
@@ -106,6 +122,31 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
             )}
           </div>
         </div>
+
+        {!finished &&
+          (parking ? (
+            <form className="focus-park" onSubmit={park}>
+              <input
+                className="field-input"
+                aria-label="A thought to set aside"
+                placeholder="Write it down, then back to it"
+                maxLength={200}
+                value={thought}
+                onChange={(event) => setThought(event.target.value)}
+                ref={(el) => el?.focus()}
+              />
+              <button type="submit" className="button-accent" disabled={!thought.trim()}>
+                Set aside
+              </button>
+              <button type="button" className="button-quiet" onClick={() => setParking(false)}>
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <button type="button" className="text-link focus-park__open" onClick={() => setParking(true)}>
+              {parked ? 'Set aside in Capture' : 'Set a thought aside'}
+            </button>
+          ))}
 
         {finished ? (
           <>

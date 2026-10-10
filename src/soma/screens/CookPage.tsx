@@ -66,7 +66,7 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
 
   const base = servingsNumber(recipe?.servings);
   const factor = base && servings ? servings / base : 1;
-  const steps = recipe ? stepsWithAmounts(recipe.steps, recipe.ingredients, factor).filter((step) => !isHeading(step)) : [];
+  const steps = recipe ? stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units).filter((step) => !isHeading(step)) : [];
   const step = at >= 0 ? steps[at] : undefined;
 
   // Read each step aloud as it comes, when chosen.
@@ -120,7 +120,7 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
   }, [settings.listen]);
 
   if (!recipe) return null;
-  const heats = ovenHeats(recipe.steps);
+  const heats = ovenHeats(recipe.steps, settings.units);
   const finish = () => {
     const now = loadSettings();
     if (now.pauseBeforeEating && now.pauseOfferedOn !== today) {
@@ -150,7 +150,7 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
           {heats.length > 0 && <p className="cook__step cook__step--small">Heat the oven to {heats[0]}.</p>}
           <h2 className="label">Take out</h2>
           <ul className="check-list">
-            {gatherList(recipe.ingredients, factor).map((each, i) =>
+            {gatherList(recipe.ingredients, factor, settings.units).map((each, i) =>
               each.heading ? (
                 <li key={i} className="check-list__heading">
                   {each.heading}

@@ -1,6 +1,6 @@
 import { aisleFor } from '../../soma/core/aisles';
-import { addToList, byAisle, listAsText } from '../../soma/core/groceries';
-import { formatAmount, readIngredient, scaleLine } from '../../soma/core/ingredients';
+import { addToList, byAisle, isGrocery, listAsText } from '../../soma/core/groceries';
+import { convertAmountText, convertLine, convertText, formatAmount, readIngredient, scaleLine } from '../../soma/core/ingredients';
 import { fromJsonLd, fromMeal, fromText, isoMinutes } from '../../soma/core/importRecipe';
 import { searchRecipes, withWhatIHave, type Recipe } from '../../soma/core/recipes';
 import { waysToTry } from '../../soma/core/tryIt';
@@ -24,6 +24,17 @@ describe('reading ingredients', () => {
     expect(scaleLine('A pinch of salt', 2)).toBe('A pinch of salt');
     expect(formatAmount(1 / 3)).toBe('⅓');
     expect(formatAmount(2.75)).toBe('2¾');
+  });
+
+  it('converts measured amounts without changing the saved wording', () => {
+    expect(convertLine('1 1/2 cups rolled oats, toasted', 'metric')).toBe('360 ml rolled oats, toasted');
+    expect(convertLine('500 g flour', 'us')).toBe('1.1 lb flour');
+    expect(convertLine('2-3 tbsp olive oil', 'metric')).toBe('30–45 ml olive oil');
+    expect(convertLine('3 cloves garlic', 'metric')).toBe('3 cloves garlic');
+    expect(convertAmountText('2 cups', 'rice', 'metric')).toBe('480 ml');
+    expect(convertText('Add 1 cup stock and 2 oz butter. Simmer 10 minutes at 350°F.', 'metric')).toBe('Add 240 ml stock and 57 g butter. Simmer 10 minutes at 177°C.');
+    expect(convertText('Bake at 180°C.', 'us')).toBe('Bake at 356°F.');
+    expect(convertText('Bake at 350F.', 'metric')).toBe('Bake at 177°C.');
   });
 });
 
@@ -152,5 +163,54 @@ describe('amounts on the grocery list', () => {
   it('rounds up what is bought whole and writes units plainly', () => {
     const list = addToList([], [{ line: '3.75 cloves garlic' }, { line: '1.25 cup white rice' }, { line: '1.5 onions' }], {}, '', () => Math.random().toString());
     expect(list.map((item) => item.amounts[0])).toEqual(['4 cloves', '1¼ cups', '2']);
+  });
+});
+
+describe('only groceries reach the grocery list', () => {
+  const add = (lines: string[]) =>
+    addToList([], lines.map((line) => ({ line })), {}, '2026-10-09T00:00:00.000Z', (() => { let n = 0; return () => `id${(n += 1)}`; })());
+
+  it('leaves out headings, labels and plain water', () => {
+    const list = add(['# For the sauce', 'For the sauce:', 'Topping:', '2 cups cold water', 'Water', '3 cloves garlic, minced', '1 lb chicken thighs']);
+    expect(list.map((item) => item.name)).toEqual(['garlic', 'chicken thighs']);
+  });
+
+  it('reads a canned or boxed size as the unit, not part of the name', () => {
+    const list = add(['1 (14-ounce) can chickpeas, drained and rinsed']);
+    expect(list[0].name).toBe('chickpeas');
+    expect(list[0].amounts).toEqual(['1 can']);
+  });
+
+  it('keeps ordinary things, including ones with water in the name', () => {
+    expect(isGrocery('1 can coconut water')).toBe(true);
+    expect(isGrocery('Sparkling water')).toBe(true);
+    expect(isGrocery('2 cups water')).toBe(false);
+  });
+});
+
+describe('only real groceries reach the list', () => {
+  const kept = ['2. Black beans', '3. Chipotle chicken', '10. Hot sauce', '2 avocados', '½ lime', 'Salt', 'Cilantro', 'Diced onion', '1 can coconut water'];
+  const left = [
+    '(sauté sliced peppers + onions with salt, pepper, cumin)',
+    '———',
+    'Optional “Make It Amazing” Upgrades',
+    '🥑 Guacamole Upgrade',
+    'For the sauce:',
+    'Toppings',
+    'Sauté the sliced peppers and onions until soft',
+    '',
+  ];
+
+  it('keeps ingredients, even numbered ones', () => {
+    for (const line of kept) expect(isGrocery(line), line).toBe(true);
+  });
+
+  it('leaves out notes, rules, titles, headings and steps', () => {
+    for (const line of left) expect(isGrocery(line), line).toBe(false);
+  });
+
+  it('takes the list numbering off a line', () => {
+    const list = addToList([], [{ line: '2. Black beans' }, { line: '10) Hot sauce' }, { line: '———' }, { line: '🥑 Guacamole Upgrade' }], {}, '2026-10-09T10:00:00Z', (() => { let n = 0; return () => `id${++n}`; })());
+    expect(list.map((item) => item.name)).toEqual(['Black beans', 'Hot sauce']);
   });
 });

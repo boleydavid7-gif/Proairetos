@@ -7,7 +7,8 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { attachmentService, compassService, decisionService, lifeService } from '../../app/services';
 import Attachments from './attachments/Attachments';
-import { FeatherIcon, StarIcon } from '../../components/icons/Icons';
+import { CalendarIcon, FeatherIcon, StarIcon } from '../../components/icons/Icons';
+import { buildIcs } from '../../core/calendar/ics';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
 import { itemKinds, kindOf } from '../../core/life-items/kinds';
@@ -72,7 +73,7 @@ function WaitingSection({ item }: { item: LifeItem }) {
           onChange={(event) => setCheckBack(event.target.value)}
         />
       </label>
-      <p className="sheet__hint">A check-back date brings it back to Today. It is optional.</p>
+      <p className="sheet__hint">A check-back date brings it back to Today.</p>
       <div className="chip-row">
         <button
           type="button"
@@ -162,7 +163,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   return (
     <section className="sheet__section control-split" aria-label="What is in your control">
       <p className="sheet__label">What is in your control</p>
-      <p className="sheet__hint">One thing per line. Optional, and only for you.</p>
+      <p className="sheet__hint">One thing per line, only for you.</p>
       <div className="control-split__columns">
         <label className="control-split__column">
           <span>In my control</span>
@@ -445,7 +446,7 @@ function WhenSection({ item }: { item: LifeItem }) {
           />
         </label>
         <label className="block-fields__time">
-          <span>Time (optional)</span>
+          <span>Time</span>
           <input
             type="time"
             className="field-input"
@@ -459,7 +460,7 @@ function WhenSection({ item }: { item: LifeItem }) {
       </div>
       {time && (
         <label className="block-fields__time when-until">
-          <span>Until (optional)</span>
+          <span>Until</span>
           <input
             type="time"
             className="field-input"
@@ -657,6 +658,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
           <PlanSection item={item} />
 
+          {(item.scheduledAt || item.plannedFor) && <AddToCalendar item={item} />}
+
           {shows('goals') && <GoalSection item={item} />}
 
           <LookSection item={item} />
@@ -751,6 +754,30 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         )}
       </div>
     </>
+  );
+}
+
+/** One item as a file any calendar app opens: its day or its time, with where and a note if there are some. */
+function AddToCalendar({ item }: { item: LifeItem }) {
+  function download() {
+    const start = item.scheduledAt ? new Date(item.scheduledAt) : undefined;
+    const end = start ? (item.endsAt ? new Date(item.endsAt) : new Date(start.getTime() + (item.plannedMinutes ?? 30) * 60_000)) : undefined;
+    const text = buildIcs(
+      [{ uid: item.id, title: item.title, ...(start && end ? { start, end } : { date: item.plannedFor }), location: item.location, notes: item.notes }],
+      { name: item.title, now: new Date() },
+    );
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/calendar' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${item.title.replace(/[^\w -]+/g, '').trim().slice(0, 40) || 'item'}.ics`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return (
+    <button type="button" className="toggle-row" onClick={download}>
+      <CalendarIcon size={20} />
+      <span>Add to your calendar</span>
+    </button>
   );
 }
 

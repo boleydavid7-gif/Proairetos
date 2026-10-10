@@ -1,0 +1,41 @@
+/* The shared account surface used by every Proairetos family app. */
+.settings-card[aria-label='Account and sync'] {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+  padding: 20px;
+  border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.1)));
+  border-radius: var(--radius-md, 18px);
+  background: var(--surface, var(--color-surface, rgba(255,255,255,.04)));
+}
+
+.settings-card[aria-label='Account and sync'] .section-label { margin: 0; color: var(--text, var(--color-text, inherit)); font: 500 1.1rem/1.2 var(--serif, var(--font-serif, Georgia, serif)); }
+.settings-card[aria-label='Account and sync'] .section-description { margin: 0; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.7))); line-height: 1.5; }
+.settings-card[aria-label='Account and sync'] .stack-tight { display: flex; flex-direction: column; gap: 12px; }
+.settings-card[aria-label='Account and sync'] .inline-form { display: flex; gap: 8px; align-items: stretch; }
+.settings-card[aria-label='Account and sync'] .inline-form > .field-input { min-width: 0; flex: 1; }
+.settings-card[aria-label='Account and sync'] .field-input { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.14))); border-radius: 10px; outline: 0; color: var(--text, var(--color-text, inherit)); background: var(--surface-2, var(--color-surface-raised, rgba(0,0,0,.16))); font-size: 16px; }
+.settings-card[aria-label='Account and sync'] .field-input:focus { border-color: var(--mint, var(--color-accent-strong, #c9a274)); }
+.settings-card[aria-label='Account and sync'] .button-accent,
+.settings-card[aria-label='Account and sync'] .chip--wide { min-height: 48px; padding: 0 16px; border: 0; border-radius: 10px; color: var(--mint-ink, var(--color-accent-ink, #17120d)); background: var(--mint, var(--color-accent-strong, #d9b68a)); cursor: pointer; font-weight: 700; }
+.settings-card[aria-label='Account and sync'] .button-accent:disabled,
+.settings-card[aria-label='Account and sync'] .chip--wide:disabled { cursor: default; opacity: .5; }
+.settings-card[aria-label='Account and sync'] .button-quiet,
+.settings-card[aria-label='Account and sync'] .chip { min-height: 44px; padding: 0 14px; border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.14))); border-radius: 10px; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); background: transparent; cursor: pointer; }
+.settings-card[aria-label='Account and sync'] .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.settings-card[aria-label='Account and sync'] .text-link { align-self: flex-start; min-height: 40px; padding: 0; border: 0; color: var(--mint, var(--color-accent-strong, #d9b68a)); background: transparent; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.settings-card[aria-label='Account and sync'] .form-error { margin: 0; color: var(--danger, #e59a8a); font-size: .88rem; }
+.settings-card[aria-label='Account and sync'] .sheet__hint { margin: 0; color: var(--muted, var(--color-text-muted, rgba(255,255,255,.65))); font-size: .84rem; line-height: 1.45; }
+.settings-card[aria-label='Account and sync'] .recovery-key { margin: 0; padding: 14px; overflow-wrap: anywhere; border: 1px dashed var(--mint, var(--color-accent-strong, #d9b68a)); border-radius: 10px; color: var(--mint, var(--color-accent-strong, #d9b68a)); font: 600 1rem/1.6 ui-monospace, monospace; letter-spacing: .04em; user-select: all; }
+.settings-card[aria-label='Account and sync'] .toggle-check { display: flex; align-items: center; gap: 8px; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); }
+.settings-card[aria-label='Account and sync'] .toggle-check input { width: 18px; height: 18px; accent-color: var(--mint, var(--color-accent-strong, #d9b68a)); }
+.settings-card[aria-label='Account and sync'] .settings-sub { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line, var(--color-border, rgba(255,255,255,.1))); }
+.settings-card[aria-label='Account and sync'] .setup-check { color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); }
+.settings-card[aria-label='Account and sync'] .setup-check summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.settings-card[aria-label='Account and sync'] .setup-check ul { margin: 8px 0; padding-left: 18px; line-height: 1.7; }
+
+@media (max-width: 480px) {
+  .settings-card[aria-label='Account and sync'] .inline-form { display: grid; }
+  .settings-card[aria-label='Account and sync'] .inline-form .button-accent { width: 100%; }
+}

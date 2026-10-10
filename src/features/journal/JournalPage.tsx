@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, reflectionService } from '../../app/services';
-import valley from '../../assets/images/scenes/valley.webp';
+import forest from '../../assets/images/scenes/forest.webp';
+import morning from '../../assets/images/scenes/morning.webp';
+import morningWide from '../../assets/images/scenes/morning-wide.webp';
+import forestWide from '../../assets/images/scenes/forest-wide.webp';
+import type { CSSProperties } from 'react';
 import MicButton from '../../components/dictation/MicButton';
 import { ArrowLeftIcon, TagIcon } from '../../components/icons/Icons';
 import type { InnerWeather } from '../../core/reflections/types';
@@ -17,7 +21,7 @@ import { weatherOptions } from '../reflect/weather';
 
 /**
  * A full page for writing. Every addition (a prompt, inner weather, values)
- * is optional. Leaving keeps the draft; Save is the only thing that stores it.
+ * can be left blank. Leaving keeps the draft; Save is the only thing that stores it.
  */
 export default function JournalPage() {
   const navigate = useNavigate();
@@ -30,6 +34,37 @@ export default function JournalPage() {
   const [tagging, setTagging] = useState(valueIds.length > 0);
   const [saving, setSaving] = useState(false);
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
+  const everything = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
+  const field = useRef<HTMLTextAreaElement>(null);
+
+  // Earlier pages: only what was written here, newest first, grouped by month.
+  const months = useMemo(() => {
+    const starts = new Set<string | undefined>([undefined, ...reflectionPrompts.map((prompt) => prompt.key)]);
+    const pages = everything
+      .filter((entry) => entry.kind === 'FREE' && !entry.decisionId && starts.has(entry.promptKey) && entry.body.trim())
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const groups: { label: string; pages: typeof pages }[] = [];
+    for (const page of pages) {
+      const label = new Date(page.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      const last = groups[groups.length - 1];
+      if (last?.label === label) last.pages.push(page);
+      else groups.push({ label, pages: [page] });
+    }
+    return groups;
+  }, [everything]);
+
+  // The page opens ready to write (an effect, not autoFocus: the view mounts after a transition).
+  useEffect(() => {
+    field.current?.focus({ preventScroll: true });
+  }, []);
+
+  // The page grows with the writing.
+  useEffect(() => {
+    const el = field.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.max(el.scrollHeight, 240)}px`;
+  }, [body]);
 
   const leave = () => navigate('reflect');
   useBackHandler(true, leave);
@@ -49,7 +84,7 @@ export default function JournalPage() {
     leave();
   }
 
-  const today = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   const hasDraft = body.trim().length > 0;
 
   return (
@@ -59,38 +94,44 @@ export default function JournalPage() {
           <ArrowLeftIcon size={18} />
           {hasDraft ? 'Keep as draft' : 'Reflect'}
         </button>
-        <span className="journal__date">{today}</span>
       </div>
 
-      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
+      <div className="journal__scene" aria-hidden="true" style={{ backgroundImage: `url(${forest})`, '--photo-wide': `url(${forestWide})`, '--photo-light': `url(${morning})`, '--photo-light-wide': `url(${morningWide})` } as CSSProperties} />
 
-      <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
+      <header className="journal__heading">
+        <p className="journal__date">{today}</p>
+        <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
+      </header>
 
-      <div className="chip-row" role="group" aria-label="A place to start (optional)">
-        {reflectionPrompts.map((prompt) => (
-          <button
-            key={prompt.key}
-            type="button"
-            className="chip chip--prompt"
-            aria-pressed={promptKey === prompt.key}
-            onClick={() => setPromptKey(promptKey === prompt.key ? undefined : prompt.key)}
-          >
-            {prompt.text}
-          </button>
-        ))}
-      </div>
+      <details className="journal__starts" open={promptKey !== undefined}>
+        <summary>A place to start</summary>
+        <div className="chip-row" role="group" aria-label="A place to start">
+          {reflectionPrompts.map((prompt) => (
+            <button
+              key={prompt.key}
+              type="button"
+              className="chip chip--prompt"
+              aria-pressed={promptKey === prompt.key}
+              onClick={() => setPromptKey(promptKey === prompt.key ? undefined : prompt.key)}
+            >
+              {prompt.text}
+            </button>
+          ))}
+        </div>
+      </details>
 
       <textarea
+        ref={field}
         className="journal__input"
-        rows={9}
+        rows={8}
         placeholder="Write freely…"
         aria-label="Reflection"
         value={body}
         onChange={(event) => setBody(event.target.value)}
       />
 
-      <section className="stack-tight" aria-label="Inner weather (optional)">
-        <h2 className="section-label">Inner weather <span className="section-optional">optional</span></h2>
+      <section className="stack-tight" aria-label="Inner weather">
+        <h2 className="section-label">Inner weather</h2>
         <div className="weather-picker">
           {weatherOptions.map(({ id, label, icon: Icon }) => (
             <button
@@ -145,6 +186,28 @@ export default function JournalPage() {
           Save
         </button>
       </div>
+
+      {months.length > 0 && (
+        <details className="journal__earlier">
+          <summary>Earlier pages</summary>
+          {months.map((month) => (
+            <section key={month.label} className="journal__month" aria-label={month.label}>
+              <h2 className="section-label">{month.label}</h2>
+              {month.pages.map((page) => (
+                <details key={page.id} className="journal__page">
+                  <summary>
+                    <span className="journal__page-day">
+                      {new Date(page.createdAt).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}
+                    </span>
+                    <span className="journal__page-line">{page.body.trim().split('\n')[0]}</span>
+                  </summary>
+                  <p className="journal__page-body">{page.body.trim()}</p>
+                </details>
+              ))}
+            </section>
+          ))}
+        </details>
+      )}
     </div>
   );
 }

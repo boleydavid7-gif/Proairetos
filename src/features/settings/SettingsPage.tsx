@@ -1,7 +1,11 @@
+import { promptText } from '../reflect/prompts';
+import { notifications } from '../../app/notify/notifications';
+import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import { useBackHandler } from '../../app/back/backStack';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { lock } from '../../app/lock/lock';
 import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
@@ -20,6 +24,7 @@ import {
   MoonIcon,
   NoteIcon,
   PartlyCloudyIcon,
+  PenIcon,
   ShieldIcon,
   SunIcon,
 } from '../../components/icons/Icons';
@@ -41,9 +46,12 @@ import {
   recordBackup,
   saveDaySettings,
   setDisplayName,
+  setShowNotForMe,
+  showNotForMe,
 } from '../../data/storage/preferences';
 import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
+import valleyWide from '../../assets/images/scenes/valley-wide.webp';
 import { signOut, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import CalendarSection from './CalendarSection';
@@ -55,11 +63,20 @@ import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 
 function download(text: string) {
-  const date = new Date().toISOString().slice(0, 10);
+  const date = localDayKey(new Date());
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
   const link = document.createElement('a');
   link.href = url;
   link.download = `proairetos-backup-${date}.json`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadReadable(text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `proairetos-readable-${localDayKey(new Date())}.md`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -73,6 +90,7 @@ function describeCounts(data: BackupData): string {
     n(counts.decisions, 'decision'),
     n(counts.values, 'value'),
     n(counts.schedulePatterns, 'schedule'),
+    ...(counts.attachments ? [n(counts.attachments, 'attachment')] : []),
     ...(counts.workouts ? [n(counts.workouts, 'workout')] : []),
     ...(counts.recipes ? [n(counts.recipes, 'recipe')] : []),
   ].join(', ');
@@ -98,11 +116,11 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for Proairetos, Askesis and SOMA, with all their settings. Keep it on your phone, in your own cloud storage, or
-        by email to yourself.
+        One file for Proairetos, Askesis and SOMA, with all their settings, photos, and files. Keep it on your phone, in your
+        own cloud storage, or by email to yourself.
       </p>
       <label className="plan-field">
-        <span>Password (optional, recommended)</span>
+        <span>Password (recommended)</span>
         <input
           type="password"
           className="field-input"
@@ -125,6 +143,18 @@ function ExportSection() {
           ? `Last backup ${new Date(last).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}.`
           : 'No backup yet.'}
       </p>
+      <h2 className="section-label">A readable copy</h2>
+      <p className="section-description">
+        Your reflections, decisions, Compass and captures as a plain Markdown file you can open anywhere. It is not a
+        backup and has no password, so keep it somewhere private.
+      </p>
+      <button
+        type="button"
+        className="chip chip--wide"
+        onClick={async () => downloadReadable(await backupService.exportReadable(promptText))}
+      >
+        Download readable copy
+      </button>
     </section>
   );
 }
@@ -142,7 +172,7 @@ function DailySection() {
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Keep a copy each day</span>
-          <span className="toggle-row__detail">On this device, the last seven days, for all three apps.</span>
+          <span className="toggle-row__detail">On this device, the last seven days, for the family apps.</span>
         </span>
       </button>
       {copies.length > 0 && (
@@ -162,7 +192,7 @@ function DailySection() {
       )}
       {chosen && (
         <div className="restore-preview">
-          <p className="sheet__hint">Everything currently on this device, in all three apps, will be replaced with {dayName(chosen)}’s copy.</p>
+          <p className="sheet__hint">Everything currently on this device, in the family apps, will be replaced with {dayName(chosen)}’s copy.</p>
           <div className="chip-row">
             <button type="button" className="chip" onClick={() => setChosen(null)}>
               Cancel
@@ -250,7 +280,7 @@ function ImportSection() {
     <section className="settings-card" aria-label="Restore">
       <h2 className="section-label">Restore from a backup</h2>
       <p className="section-description">
-        Replaces what is on this device, in all three apps, with the backup. Nothing changes until you confirm.
+        Replaces what is on this device, in the family apps, with the backup. Nothing changes until you confirm.
       </p>
       <input
         ref={input}
@@ -385,6 +415,7 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
 };
 
 type View =
+  | 'lock'
   | 'notifications'
   | 'import'
   | 'weather'
@@ -410,6 +441,7 @@ export function openSettingsAt(view: View): void {
 }
 
 const viewTitles: Record<View, string> = {
+  lock: 'Lock Reflect',
   notifications: 'Notifications',
   profile: 'Your name',
   day: 'When your day starts',
@@ -421,7 +453,7 @@ const viewTitles: Record<View, string> = {
   appearance: 'Appearance',
   help: 'Help & feedback',
   sources: 'Where this comes from',
-  account: 'Account and sync',
+  account: 'Account',
   import: 'Bring things in',
   backup: 'Back up and restore',
   privacy: 'Privacy',
@@ -535,71 +567,73 @@ function daySummary(): string {
   return settings.followShifts ? 'With your schedule' : hourLabel(settings.startHour);
 }
 
-const todayParts: { part: TodayPart; label: string }[] = [
-  { part: 'line', label: 'The daily line' },
-  { part: 'look-ahead', label: 'Look ahead' },
-  { part: 'intention', label: 'Today’s intention' },
-  { part: 'path', label: 'Today’s path' },
-  { part: 'schedule-prompt', label: 'Add your schedule' },
-  { part: 'open-time', label: 'Open time' },
-  { part: 'capture', label: 'Capture line' },
-  { part: 'a-while-ago', label: 'From a while ago' },
-  { part: 'close-day', label: 'Close the day' },
-  { part: 'three-good-things', label: 'Three good things' },
-];
+type PartRow = { part: TodayPart; label: string; detail?: string; rare?: boolean };
 
-const elsewhereParts: { group: string; parts: { part: TodayPart; label: string; detail: string }[] }[] = [
+/** What can be switched on or off, by the app it belongs to. Only what people are likely to want a say in. */
+const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] }[] = [
   {
-    group: 'Capture and planning',
-    parts: [
+    app: 'Proairetos',
+    sections: [
       {
-        part: 'brain-dump',
-        label: 'Empty your head',
-        detail: 'Write everything at once; it is split up for you to check.',
+        label: 'Today',
+        parts: [
+          { part: 'line', label: 'The daily line' },
+          { part: 'intention', label: 'Today’s intention' },
+          { part: 'path', label: 'Today’s path' },
+          { part: 'capture', label: 'Capture line' },
+          { part: 'close-day', label: 'Close the day' },
+          { part: 'three-good-things', label: 'Three good things' },
+          { part: 'on-this-day', label: 'On this day', detail: 'Your own words from this day in an earlier year, when there are some.' },
+          { part: 'open-time', label: 'Open time' },
+          { part: 'look-ahead', label: 'Look ahead', rare: true },
+          { part: 'schedule-prompt', label: 'Add your schedule', rare: true },
+          { part: 'a-while-ago', label: 'From a while ago', rare: true },
+        ],
       },
-      { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
-      { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
       {
-        part: 'energy',
-        label: 'Energy',
-        detail: 'Say how much energy you have; things you marked as light come first.',
+        label: 'Capture',
+        parts: [
+          { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once; it is split up for you to check.' },
+          { part: 'sort-through', label: 'Sort through', detail: 'One thing at a time: today, later, or let it go.' },
+          { part: 'gratitude', label: 'Grateful', detail: 'Set down what you are grateful for; it is kept in Reflect.' },
+          { part: 'energy', label: 'Energy', detail: 'Say how much energy you have; things you marked as light come first.' },
+        ],
+      },
+      {
+        label: 'Compass',
+        parts: [
+          { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
+          { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
+          { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
+        ],
+      },
+      {
+        label: 'Reflect',
+        parts: [
+          { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
+          { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
+          { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, at your own pace.' },
+          { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
+        ],
       },
     ],
   },
   {
-    group: 'Compass',
-    parts: [
-      { part: 'goals', label: 'Goals', detail: 'What you are working toward, with time set aside if you like.' },
-      { part: 'people', label: 'People', detail: 'People who matter, kept in view.' },
-      { part: 'words', label: 'Words', detail: 'What is worth getting up for, and what you have put aside.' },
-    ],
+    app: 'Askesis',
+    sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s session on Today; finished runs in Done today and Reflect.' }] }],
   },
   {
-    group: 'Reflect',
-    parts: [
-      { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
-      { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
-      { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes, every step optional.' },
-      { part: 'decisions', label: 'Decisions', detail: 'Choices written down, to look back on.' },
-    ],
+    app: 'SOMA',
+    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.' }] }],
   },
   {
-    group: 'Askesis',
-    parts: [
+    app: 'Oikonomia',
+    sections: [
       {
-        part: 'askesis',
-        label: 'Runs',
-        detail: 'Today’s session from Askesis on Today; finished runs in Done today and Reflect.',
-      },
-    ],
-  },
-  {
-    group: 'SOMA',
-    parts: [
-      {
-        part: 'soma',
-        label: 'Meals',
-        detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.',
+        parts: [
+          { part: 'bill-dates', label: 'Bills in Days ahead', detail: 'Bill dates in the list and the calendar, with the paid ones marked.' },
+          { part: 'bills', label: 'Bills coming up on Today', detail: 'Bills with a date in the next few days and no payment recorded.' },
+        ],
       },
     ],
   },
@@ -611,7 +645,7 @@ const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as c
 const helpTopics: { title: string; body: string }[] = [
   {
     title: 'Capture first',
-    body: 'Put anything in the capture box the moment it arrives. Sorting is optional and can wait.',
+    body: 'Put anything in the capture box the moment it arrives. Sorting can wait.',
   },
   {
     title: 'Today',
@@ -718,43 +752,50 @@ function AppearanceSection() {
 
 function TodaySection() {
   const shows = useTodayParts();
+  const row = ({ part, label, detail }: PartRow) => (
+    <button
+      key={part}
+      type="button"
+      className="toggle-row"
+      aria-pressed={shows(part)}
+      onClick={() => setTodayPartShown(part, !shows(part))}
+    >
+      <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+      {detail ? (
+        <span className="toggle-row__text">
+          <span>{label}</span>
+          <span className="toggle-row__detail">{detail}</span>
+        </span>
+      ) : (
+        <span>{label}</span>
+      )}
+    </button>
+  );
   return (
     <section className="settings-card" aria-label="What’s included">
       <p className="section-description">
         Keep Proairetos as full or as bare as suits you. Switch anything off and it steps out of the way; switch it back
         on any time. Nothing you recorded is lost.
       </p>
-      <p className="sheet__label">On Today</p>
-      {todayParts.map(({ part, label }) => (
-        <button
-          key={part}
-          type="button"
-          className="toggle-row"
-          aria-pressed={shows(part)}
-          onClick={() => setTodayPartShown(part, !shows(part))}
-        >
-          <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-          <span>{label}</span>
-        </button>
-      ))}
-      {elsewhereParts.map(({ group, parts }) => (
-        <div key={group} className="stack-tight">
-          <p className="sheet__label">{group}</p>
-          {parts.map(({ part, label, detail }) => (
-            <button
-              key={part}
-              type="button"
-              className="toggle-row"
-              aria-pressed={shows(part)}
-              onClick={() => setTodayPartShown(part, !shows(part))}
-            >
-              <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-              <span className="toggle-row__text">
-                <span>{label}</span>
-                <span className="toggle-row__detail">{detail}</span>
-              </span>
-            </button>
-          ))}
+      {appParts.map(({ app, sections }) => (
+        <div key={app} className="stack-tight">
+          <h2 className="settings-group__label">{app}</h2>
+          {sections.map((section) => {
+            const main = section.parts.filter((entry) => !entry.rare);
+            const rare = section.parts.filter((entry) => entry.rare);
+            return (
+              <div key={section.label ?? app} className="stack-tight">
+                {section.label && <p className="sheet__label">{section.label}</p>}
+                {main.map(row)}
+                {rare.length > 0 && (
+                  <details className="sheet__more">
+                    <summary>A few more</summary>
+                    <div className="sheet__more-body">{rare.map(row)}</div>
+                  </details>
+                )}
+              </div>
+            );
+          })}
         </div>
       ))}
       <p className="sheet__hint">
@@ -767,6 +808,7 @@ function TodaySection() {
 function OffersSection() {
   const [on, setOn] = useState(quietOffersOn);
   const [hidden, setHidden] = useState(hiddenOffers);
+  const [showSetAside, setShowSetAside] = useState(showNotForMe);
   return (
     <section className="settings-card" aria-label="Quiet offers">
       <h2 className="section-label">Quiet offers</h2>
@@ -785,6 +827,22 @@ function OffersSection() {
       >
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span>Offer practices now and then</span>
+      </button>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={showSetAside}
+        onClick={() => {
+          const next = !showSetAside;
+          setShowNotForMe(next);
+          setShowSetAside(next);
+        }}
+      >
+        <span className={`toggle-switch${showSetAside ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span className="toggle-row__text">
+          <span>Show “Not for me” on cards</span>
+          <span className="toggle-row__detail">A quiet way to set aside a part of Today.</span>
+        </span>
       </button>
       {hidden.length > 0 && (
         <button
@@ -864,6 +922,122 @@ function SourcesSection() {
   );
 }
 
+/** The last copy as a plain fact, or nothing when there has not been one. */
+function lastCopyLabel(iso: string | null): string | undefined {
+  if (!iso) return undefined;
+  const when = new Date(iso);
+  if (Number.isNaN(when.getTime())) return undefined;
+  return when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+/** A passcode for Reflect and Journal. Off until chosen; it only keeps casual eyes out. */
+function LockSection() {
+  const on = useSyncExternalStore(lock.subscribe, lock.isOn);
+  const [code, setCode] = useState('');
+  const [again, setAgain] = useState('');
+  const [current, setCurrent] = useState('');
+  const [message, setMessage] = useState('');
+  const digits = (value: string) => value.replace(/\D/g, '');
+
+  if (!on) {
+    return (
+      <form
+        className="settings-card"
+        aria-label="Lock Reflect"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (code !== again) return setMessage('The two do not match.');
+          try {
+            await lock.turnOn(code);
+            setCode('');
+            setAgain('');
+            setMessage('');
+          } catch (reason) {
+            setMessage(reason instanceof Error ? reason.message : 'Could not set the lock.');
+          }
+        }}
+      >
+        <p className="section-description">
+          Ask for a passcode before Reflect, Journal, Insights and the weekly review open, and keep Reflect writing out of
+          search. It locks again after the app has been out of sight for a minute. It keeps casual eyes out on this phone; it
+          is not encryption, and the passcode stays on this device.
+        </p>
+        <input
+          className="field-input"
+          type="password"
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={8}
+          aria-label="Choose a passcode"
+          placeholder="4 to 8 digits"
+          value={code}
+          onChange={(event) => setCode(digits(event.target.value))}
+        />
+        <input
+          className="field-input"
+          type="password"
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={8}
+          aria-label="Passcode again"
+          placeholder="Again"
+          value={again}
+          onChange={(event) => setAgain(digits(event.target.value))}
+        />
+        {message && <p className="sheet__hint" role="status">{message}</p>}
+        <button type="submit" className="chip chip--accent chip--wide" disabled={code.length < 4}>
+          Turn on the lock
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <section className="settings-card" aria-label="Lock Reflect">
+      <p className="section-description">The lock is on. Reflect and Journal ask for the passcode.</p>
+      <button type="button" className="chip chip--wide" onClick={() => lock.lockNow()}>
+        Lock now
+      </button>
+      <h2 className="section-label">Turn it off</h2>
+      <input
+        className="field-input"
+        type="password"
+        inputMode="numeric"
+        autoComplete="off"
+        maxLength={8}
+        aria-label="Current passcode"
+        placeholder="Your passcode"
+        value={current}
+        onChange={(event) => setCurrent(digits(event.target.value))}
+      />
+      {message && <p className="sheet__hint" role="status">{message}</p>}
+      <button
+        type="button"
+        className="chip chip--wide"
+        disabled={current.length < 4}
+        onClick={async () => {
+          if (await lock.check(current)) lock.turnOff();
+          else {
+            setMessage('That is not the passcode.');
+            setCurrent('');
+          }
+        }}
+      >
+        Turn off the lock
+      </button>
+    </section>
+  );
+}
+
+const WIDE = '(min-width: 62rem)';
+const isWide = () => typeof matchMedia === 'function' && matchMedia(WIDE).matches;
+function subscribeWide(notify: () => void) {
+  if (typeof matchMedia !== 'function') return () => undefined;
+  const query = matchMedia(WIDE);
+  query.addEventListener('change', notify);
+  return () => query.removeEventListener('change', notify);
+}
+
 function syncLabel(phase: string): string {
   if (phase === 'ready') return 'On';
   if (phase === 'unavailable') return 'This device';
@@ -876,6 +1050,7 @@ export default function SettingsPage() {
   const returnTo = useReturnRoute();
   const status = useSyncStatus();
   const { openSupport } = useOverlays();
+  const [find, setFind] = useState('');
   const [view, setView] = useState<View | null>(() => {
     const requested = requestedView;
     requestedView = null;
@@ -891,13 +1066,16 @@ export default function SettingsPage() {
   // A detail page sits on top of the list, so back returns to the list first.
   useBackHandler(view !== null, () => setView(null));
 
-  if (view) {
-    return (
-      <div className="page">
-        <button type="button" className="back-link" onClick={() => setView(null)}>
-          <ArrowLeftIcon size={18} />
-          Settings
-        </button>
+  // On a wide screen the list stays beside the page it opens.
+  const wide = useSyncExternalStore(subscribeWide, isWide);
+  const detail = view ? (
+      <>
+        {!wide && (
+          <button type="button" className="back-link" onClick={() => setView(null)}>
+            <ArrowLeftIcon size={18} />
+            Settings
+          </button>
+        )}
         <PageHeader title={viewTitles[view]} />
         {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
@@ -909,6 +1087,7 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'appearance' && <AppearanceSection />}
+        {view === 'lock' && <LockSection />}
         {view === 'help' && <HelpSection />}
         {view === 'calendars' && (
           <>
@@ -921,6 +1100,7 @@ export default function SettingsPage() {
         {view === 'weather' && <WeatherSection />}
         {view === 'sources' && <SourcesSection />}
         {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
+        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'account' && <AccountSection />}
         {view === 'notifications' && <NotificationsSection />}
         {view === 'import' && <BringInSection />}
@@ -964,105 +1144,163 @@ export default function SettingsPage() {
           </section>
         )}
         {view === 'about' && <SourcesSection />}
-      </div>
-    );
-  }
+      </>
+  ) : null;
 
-  return (
-    <div className="page">
+  if (view && !wide) return <div className="page">{detail}</div>;
+
+  type Entry = { id: string; icon: ReactNode; title: string; value?: string; onClick: () => void; words?: string };
+  const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
+  const groups: { label: string; entries: Entry[] }[] = [
+    {
+      label: 'Your days',
+      entries: [
+        { id: 'schedule', icon: <CalendarIcon size={22} />, title: 'Your schedule', onClick: () => navigate('schedule'), words: 'work shifts study rotation' },
+        { id: 'day', icon: <MoonIcon size={22} />, title: 'Day starts', value: daySummary(), onClick: () => setView('day'), words: 'midnight turnover morning' },
+        {
+          id: 'calendars',
+          icon: <CalendarIcon size={22} />,
+          title: 'Calendars',
+          value: calendarSources().length ? String(calendarSources().length) : undefined,
+          onClick: () => setView('calendars'),
+          words: 'google outlook ics subscription feed',
+        },
+        {
+          id: 'weather',
+          icon: <PartlyCloudyIcon size={22} />,
+          title: 'Weather',
+          value: weatherSettings().on ? 'On' : 'Off',
+          onClick: () => setView('weather'),
+          words: 'sky place location',
+        },
+      ],
+    },
+    {
+      label: 'The app',
+      entries: [
+        {
+          id: 'notifications',
+          icon: <BellIcon size={22} />,
+          title: 'Notifications',
+          value: notifications.permission() === 'granted' ? 'On' : 'Off',
+          onClick: () => setView('notifications'),
+          words: 'reminders quiet hours lock screen push',
+        },
+        { id: 'today', icon: <SunIcon size={22} />, title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers' },
+        {
+          id: 'appearance',
+          icon: <MoonIcon size={22} />,
+          title: 'Appearance',
+          value: themeLabels[loadAppearance().theme],
+          onClick: () => setView('appearance'),
+          words: 'theme dark light text size gentle taps',
+        },
+      ],
+    },
+    {
+      label: 'Account and data',
+      entries: [
+        { id: 'lock', icon: <ShieldIcon size={22} />, title: 'Lock Reflect', value: lock.isOn() ? 'On' : 'Off', onClick: () => setView('lock'), words: 'passcode pin privacy journal' },
+        { id: 'account', icon: <CloudIcon size={22} />, title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key' },
+        {
+          id: 'backup',
+          icon: <InboxIcon size={22} />,
+          title: 'Back up and restore',
+          value: lastCopyLabel(lastBackupDate()),
+          onClick: () => setView('backup'),
+          words: 'export download markdown readable daily copies restore file',
+        },
+        { id: 'import', icon: <InboxIcon size={22} />, title: 'Bring things in', value: 'From other apps', onClick: () => setView('import'), words: 'import todoist csv calendar google tasks' },
+        { id: 'privacy', icon: <ShieldIcon size={22} />, title: 'Privacy', onClick: () => setView('privacy') },
+        { id: 'delete', icon: <span className="settings-row__danger">×</span>, title: 'Delete everything', onClick: () => setView('delete'), words: 'erase remove account data' },
+      ],
+    },
+    {
+      label: 'More apps',
+      entries: [
+        { id: 'askesis', icon: app('/askesis/icon.svg'), title: 'Askesis', value: 'Running, step by step', onClick: () => window.location.assign('/askesis/'), words: 'running training' },
+        { id: 'soma', icon: app('/soma/icon.svg'), title: 'SOMA', value: 'Recipes and groceries', onClick: () => window.location.assign('/soma/'), words: 'recipes food cooking' },
+        { id: 'oikonomia', icon: app('/oikonomia/icon.svg'), title: 'Oikonomia', value: 'Bills and household essentials', onClick: () => window.location.assign('/oikonomia/'), words: 'money bills budget' },
+        { id: 'hydros', icon: app('/hydros/icon.svg'), title: 'HYDROS', value: 'Water, flow and balance', onClick: () => window.location.assign('/hydros/'), words: 'water drink' },
+        { id: 'praxis', icon: app('/praxis/favicon.svg'), title: 'Praxis', value: 'Study, on purpose', onClick: () => window.location.assign('/praxis/'), words: 'study focus' },
+        { id: 'theoria', icon: app('/theoria/favicon.svg'), title: 'Theoria', value: 'Reading and ideas', onClick: () => window.location.assign('/theoria/'), words: 'books reading' },
+      ],
+    },
+    {
+      label: 'About',
+      entries: [
+        { id: 'help', icon: <NoteIcon size={22} />, title: 'Help & feedback', onClick: () => setView('help') },
+        { id: 'about', icon: <BookIcon size={22} />, title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
+      ],
+    },
+  ];
+  const needle = find.trim().toLowerCase();
+  const matches = needle
+    ? [
+        ...groups.flatMap((group) => group.entries),
+        { id: 'name', icon: <PenIcon size={22} />, title: 'Your name', onClick: () => setView('account'), words: 'profile greeting called' } as Entry,
+      ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
+    : [];
+
+  const list = (
+    <>
       <button type="button" className="back-link" onClick={() => navigate(returnTo)}>
         <ArrowLeftIcon size={18} />
         {tabLabels[returnTo] ?? 'Back'}
       </button>
       <PageHeader title="Settings" subtitle="Your practice, your data." />
 
-      <button type="button" className="profile-card" onClick={() => setView('profile')}>
-        <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})` }} />
-        <span className="profile-card__text">
-          <span className="profile-card__name">{name || 'Add your name'}</span>
-          <span className="profile-card__detail">
-            {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
-          </span>
-        </span>
-        <ChevronRightIcon size={18} className="settings-row__chevron" />
-      </button>
+      <input
+        className="field-input settings-find"
+        type="search"
+        aria-label="Find a setting"
+        placeholder="Find a setting"
+        value={find}
+        onChange={(event) => setFind(event.target.value)}
+      />
 
-      <SettingsGroup label="Your days">
-        <Row icon={<CalendarIcon size={22} />} title="Your schedule" onClick={() => navigate('schedule')} />
-        <Row icon={<MoonIcon size={22} />} title="Day starts" value={daySummary()} onClick={() => setView('day')} />
-        <Row
-          icon={<CalendarIcon size={22} />}
-          title="Calendars"
-          value={calendarSources().length ? String(calendarSources().length) : undefined}
-          onClick={() => setView('calendars')}
-        />
-        <Row
-          icon={<PartlyCloudyIcon size={22} />}
-          title="Weather"
-          value={weatherSettings().on ? 'On' : 'Off'}
-          onClick={() => setView('weather')}
-        />
-      </SettingsGroup>
+      {needle ? (
+        <div className="settings-list">
+          {matches.length === 0 && <p className="empty-note">Nothing matches that.</p>}
+          {matches.map((entry) => (
+            <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+          ))}
+        </div>
+      ) : (
+        <>
+          <button type="button" className="profile-card" onClick={() => setView('account')}>
+            <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
+            <span className="profile-card__text">
+              <span className="profile-card__name">{name || 'Add your name'}</span>
+              <span className="profile-card__detail">
+                {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
+              </span>
+            </span>
+            <ChevronRightIcon size={18} className="settings-row__chevron" />
+          </button>
 
-      <SettingsGroup label="Notifications">
-        <Row icon={<BellIcon size={22} />} title="Notifications" onClick={() => setView('notifications')} />
-      </SettingsGroup>
+          {groups.map((group) => (
+            <SettingsGroup key={group.label} label={group.label}>
+              {group.entries.map((entry) => (
+                <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+              ))}
+            </SettingsGroup>
+          ))}
 
-      <SettingsGroup label="The app">
-        <Row icon={<SunIcon size={22} />} title="What’s included" onClick={() => setView('today')} />
-        <Row
-          icon={<MoonIcon size={22} />}
-          title="Appearance"
-          value={themeLabels[loadAppearance().theme]}
-          onClick={() => setView('appearance')}
-        />
-      </SettingsGroup>
+          <div className="settings-list">
+            <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
+          </div>
 
-      <SettingsGroup label="Your data">
-        <Row
-          icon={<CloudIcon size={22} />}
-          title="Account and sync"
-          value={syncLabel(status.phase)}
-          onClick={() => setView('account')}
-        />
-        <Row icon={<InboxIcon size={22} />} title="Back up and restore" onClick={() => setView('backup')} />
-        <Row
-          icon={<InboxIcon size={22} />}
-          title="Bring things in"
-          value="From other apps"
-          onClick={() => setView('import')}
-        />
-        <Row icon={<ShieldIcon size={22} />} title="Privacy" onClick={() => setView('privacy')} />
-        <Row
-          icon={<span className="settings-row__danger">×</span>}
-          title="Delete everything"
-          onClick={() => setView('delete')}
-        />
-      </SettingsGroup>
+        </>
+      )}
+    </>
+  );
 
-      <SettingsGroup label="More apps">
-        <Row
-          icon={<img className="settings-row__app" src="/askesis/icon.svg" alt="" width={26} height={26} />}
-          title="Askesis"
-          value="Running, step by step"
-          onClick={() => window.location.assign('/askesis/')}
-        />
-        <Row
-          icon={<img className="settings-row__app" src="/soma/icon.svg" alt="" width={26} height={26} />}
-          title="SOMA"
-          value="Recipes and groceries"
-          onClick={() => window.location.assign('/soma/')}
-        />
-      </SettingsGroup>
-
-      <SettingsGroup label="About">
-        <Row icon={<NoteIcon size={22} />} title="Help & feedback" onClick={() => setView('help')} />
-        <Row icon={<BookIcon size={22} />} title="About Proairetos" onClick={() => setView('about')} />
-      </SettingsGroup>
-
-      <div className="settings-list">
-        <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
-      </div>
+  if (!wide) return <div className="page settings-page">{list}</div>;
+  return (
+    <div className="page settings-split">
+      <div className="settings-split__list">{list}</div>
+      <div className="settings-split__detail">{detail}</div>
     </div>
   );
 }

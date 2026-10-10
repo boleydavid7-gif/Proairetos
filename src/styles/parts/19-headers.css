@@ -115,7 +115,7 @@
   inset: 0;
   background-size: cover;
   background-position: center 62%;
-  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(var(--landscape-brightness)) contrast(1.05);
+  filter: saturate(1.05) brightness(0.8);
 }
 
 /*
@@ -136,7 +136,8 @@
     rgba(var(--color-bg-rgb), 0.56) 26%,
     rgba(var(--color-bg-rgb), 0.42) 36%,
     rgba(var(--color-bg-rgb), var(--landscape-scrim)) 50%,
-    rgba(var(--color-bg-rgb), var(--landscape-scrim)) 100%
+    /* A little more toward the foot, where the last lines of Today rest on the photo. */
+    rgba(var(--color-bg-rgb), calc(var(--landscape-scrim) + 0.2)) 100%
   );
 }
 
@@ -179,7 +180,7 @@
 
 .page-hero__photo {
   background-size: cover;
-  filter: grayscale(0.5) sepia(0.75) saturate(1.45) brightness(0.74) contrast(1.05);
+  filter: saturate(1.05) brightness(0.78);
 }
 
 .page-hero--peaks .page-hero__photo {

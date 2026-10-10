@@ -327,3 +327,23 @@ button.value-card__text:disabled {
 .compass-tabs {
   grid-template-columns: repeat(var(--tabs, 4), minmax(0, 1fr));
 }
+
+/* Where a person's name appears in what was written. */
+.person__mention-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.person__mention-text {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.person__mention-day {
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+}

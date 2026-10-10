@@ -1,9 +1,10 @@
 import { privateNotice, type Notice, type NoticeSettings } from '../../core/notify/notices';
-import { loadNotify, saveNotify } from '../../data/storage/preferences';
+import { loadNotify, loadQuietHours, saveNotify } from '../../data/storage/preferences';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { upcomingNotices } from './upcoming';
+import { hydrationNotices, setHydrationSchedule } from './hydrationSchedule';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -30,6 +31,10 @@ let upcoming: Notice[] = [];
 
 function supported(): boolean {
   return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
+}
+
+function runningInBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
 function notify(): void {
@@ -91,6 +96,12 @@ function arm(): void {
     upcoming = upcoming.filter((notice) => notice.at.getTime() > now + 1000);
     const details = loadNotify().details;
     for (const notice of due) await show(notice, details).catch(() => undefined);
+    if (due.some((notice) => notice.kind === 'hydration')) {
+      // Rebuild the horizon after a hydration reminder is delivered. This
+      // keeps the local cache and the closed-app schedule rolling forward.
+      void notifications.refresh();
+      return;
+    }
     arm();
   }, wait);
 }
@@ -122,6 +133,16 @@ export const notifications = {
   setSettings(next: NoticeSettings): void {
     saveNotify(next);
     notify();
+    // Refresh the server schedule immediately so a changed lead time replaces
+    // any old pending row before it can fire at the wrong time.
+    void refreshReminders();
+    notifications.refreshSoon();
+  },
+
+  /** Adds Hydros' repeating drink reminder to the shared Proairetos scheduler. */
+  setHydrationSchedule(next: { enabled: boolean; intervalMinutes: number }): void {
+    setHydrationSchedule(next);
+    void refreshReminders();
     notifications.refreshSoon();
   },
 
@@ -132,9 +153,11 @@ export const notifications = {
 
   /** Works out the next two weeks again, keeps them for the service worker, and resets the timer. */
   async refresh(): Promise<void> {
-    if (!supported()) return;
+    if (!runningInBrowser()) return;
     const settings = loadNotify();
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
+    upcoming.push(...hydrationNotices(new Date(), loadQuietHours()));
+    upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
     if (notifications.permission() === 'granted') arm();
     // The server learns only the times, if reminders are on with sync.
@@ -166,7 +189,7 @@ export const notifications = {
 
   /** Starts watching for changes; call once when the app opens. */
   start(): void {
-    if (!supported()) return;
+    if (!runningInBrowser()) return;
     for (const service of [lifeService, decisionService, scheduleService, otherCalendars])
       service.subscribe(() => notifications.refreshSoon());
     document.addEventListener('visibilitychange', () => {

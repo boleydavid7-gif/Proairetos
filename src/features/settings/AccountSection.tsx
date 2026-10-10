@@ -269,6 +269,12 @@ function Ready() {
             ? `Last synced ${new Date(status.lastSyncedAt).toLocaleString(undefined, { hour: 'numeric', minute: '2-digit', month: 'short', day: 'numeric' })}.`
             : 'Not synced yet.'}
       </p>
+      {status.kept ? (
+        <p className="section-description">
+          {status.kept === 1 ? 'One thing was' : `${status.kept} things were`} changed on two devices at the same time. The version on
+          this device was kept.
+        </p>
+      ) : null}
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
       <button type="button" className="chip chip--wide" disabled={status.syncing} onClick={() => void syncNow()}>
         Sync now

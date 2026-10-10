@@ -1,0 +1,193 @@
+import { BulbIcon, PenIcon } from '../../components/icons/Icons';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { sourceLabel, statusLabel, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaChapter, type TheoriaHighlight, type TheoriaNote, type TheoriaNotebook, type TheoriaReflection } from '../core/books';
+import TheoriaMark from '../../components/brand/TheoriaMark';
+import TheoriaAccountPanel from './account';
+
+export type InsightItem = { id: string; text: string; location?: string; chapter?: string; book: TheoriaBook; kind: 'highlight' | 'note' | 'reflection'; createdAt: string };
+export type ReaderSelection = { text: string; chapterId?: string; chapterTitle?: string; location: string };
+
+export function Cover({ book, index = 0 }: { book: TheoriaBook; index?: number }) {
+  return book.coverUrl
+    ? <img className="theoria-cover" src={book.coverUrl} alt={book.title + ' cover'} />
+    : <div className={'theoria-cover theoria-cover--' + (index % 4)} aria-label={book.title + ' cover'}><span>{book.title}</span><small>{book.author ?? 'Personal edition'}</small></div>;
+}
+
+const dailyQuotes = [
+  { quote: 'While we teach, we learn.', source: 'Seneca · Moral Letters 7.8', tradition: 'Stoic', focus: 'Learning' },
+  { quote: 'It is impossible for a man to learn what he thinks he already knows.', source: 'Epictetus · Discourses 2.17', tradition: 'Stoic', focus: 'Study' },
+  { quote: 'If you wish to improve, be content to appear clueless or stupid in extraneous matters.', source: 'Epictetus · Enchiridion 13', tradition: 'Stoic', focus: 'Begin again' },
+  { quote: 'No man was ever wise by chance.', source: 'Seneca · Moral Letters 76', tradition: 'Stoic', focus: 'Practice' },
+  { quote: 'Though a man recites many sacred texts, if he does not put them into practice, he has no share in the life of the ascetic.', source: 'Dhammapada 19', tradition: 'Buddhist', focus: 'Reading & practice' },
+  { quote: 'Though a man recites only a little of the sacred text, but puts it into practice, he is freed from suffering.', source: 'Dhammapada 20', tradition: 'Buddhist', focus: 'Reading & practice' },
+  { quote: 'Better than a thousand words without meaning is one meaningful word, which, having been heard, brings peace.', source: 'Dhammapada 100', tradition: 'Buddhist', focus: 'Meaning' },
+  { quote: 'You yourselves must strive; the Buddhas only point the way.', source: 'Dhammapada 276', tradition: 'Buddhist', focus: 'Learning' },
+];
+
+function dailyQuote(date = new Date()) {
+  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+  return dailyQuotes[Math.abs(day) % dailyQuotes.length];
+}
+
+function greeting(name: string): string {
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  return name ? hello + ', ' + name + '.' : hello + '.';
+}
+
+function dateLabel(value?: string): string {
+  if (!value) return 'Not opened yet';
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? 'Not opened yet' : new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+}
+
+function EmptyState({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
+  return <article className="theoria-empty-card"><TheoriaMark size={42} /><h2>{title}</h2><p>{body}</p><button type="button" className="theoria-primary-button" onClick={onAction}>{action}</button></article>;
+}
+
+export function LibraryHome({ name, shelf, loading, error, onAdd, onOpen, onContinue, onShelf, onSearch }: { name: string; shelf: readonly TheoriaBook[]; loading: boolean; error?: string; onAdd: () => void; onOpen: (book: TheoriaBook) => void; onContinue: (book: TheoriaBook) => void; onShelf: () => void; onSearch: () => void }) {
+  const current = shelf.filter((book) => book.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0];
+  const recent = shelf.filter((book) => book.lastOpenedAt).sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? '')).slice(0, 4);
+  const quote = dailyQuote();
+  if (loading) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Opening your library.</h1></div></div><div className="theoria-loading-card" aria-live="polite">Reading your private shelf…</div></section>;
+  if (error) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Your shelf could not open.</h1></div></div><div className="theoria-error-card" role="alert"><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload library</button></div></section>;
+  if (!shelf.length) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>{greeting(name)}</h1></div><button type="button" className="theoria-add-button" onClick={onAdd}>Add a book</button></div><EmptyState title="Your shelf is quiet." body="Import an EPUB or save a source link. Your reading position and annotations will stay with your account." action="Add your first book" onAction={onAdd} /></section>;
+  return <section className="theoria-view">
+    <div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>{greeting(name)}</h1></div><div className="theoria-heading-actions"><button type="button" className="theoria-quiet-button" onClick={onSearch}>Search</button><button type="button" className="theoria-add-button" onClick={onAdd}>Add a book</button></div></div>
+    {current ? <article className="theoria-card theoria-continue"><div className="theoria-card-kicker">Continue reading <span>{current.progress}%</span></div><div className="theoria-continue-body"><div><h2>{current.title}</h2><p className="theoria-author">{current.author ?? 'Unknown author'}</p><p className="theoria-book-location">{current.readingLocation ?? 'Ready for your next page'}</p><div className="theoria-progress"><span style={{ width: current.progress + '%' }} /></div><small>{dateLabel(current.lastOpenedAt)}</small><button type="button" className="theoria-primary-button" onClick={() => onContinue(current)}>Continue reading</button></div><Cover book={current} index={0} /></div></article> : <div className="theoria-home-empty"><p>Choose a book to begin reading.</p><button type="button" onClick={() => onContinue(shelf[0])}>Open your first book</button></div>}
+    <div className="theoria-section-heading"><div><p className="theoria-eyebrow">Your shelf</p><h2>{shelf.length} {shelf.length === 1 ? 'book' : 'books'}</h2></div><button type="button" onClick={onShelf}>View shelf</button></div>
+    {recent.length > 0 && <><div className="theoria-section-heading"><div><p className="theoria-eyebrow">Recently opened</p><h2>Return to a source.</h2></div></div><div className="theoria-recent-grid">{recent.map((book, index) => <button type="button" className="theoria-recent-book" key={book.id} onClick={() => onOpen(book)}><Cover book={book} index={index} /><span><strong>{book.title}</strong><small>{dateLabel(book.lastOpenedAt)}</small></span></button>)}</div></>}
+    <article className="theoria-daily-quote"><div className="theoria-daily-quote-lead"><span className="theoria-daily-quote-mark">“</span></div><div className="theoria-daily-quote-copy"><p>{quote.quote}</p><div><small>{quote.source}</small><span>{quote.tradition} · {quote.focus}</span></div></div><time className="theoria-daily-quote-date" dateTime={new Date().toISOString().slice(0, 10)}>{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</time></article>
+  </section>;
+}
+
+export function ShelfPage({ shelf, onBack, onOpen, onAdd }: { shelf: readonly TheoriaBook[]; onBack: () => void; onOpen: (book: TheoriaBook) => void; onAdd: () => void }) {
+  const [category, setCategory] = useState('All');
+  const categories = ['All', ...new Set(shelf.flatMap((book) => book.categories)), ...(shelf.some((book) => book.favorite) ? ['Favorites'] : [])];
+  const visible = category === 'All' ? shelf : category === 'Favorites' ? shelf.filter((book) => book.favorite) : shelf.filter((book) => book.categories.includes(category));
+  return <section className="theoria-view theoria-shelf-page"><button type="button" className="theoria-back-button" onClick={onBack}>Back to library</button><div className="theoria-heading"><div><p className="theoria-eyebrow">Shelf</p><h1>Your books.</h1></div><button type="button" className="theoria-add-button" onClick={onAdd}>Add a book</button></div>{shelf.length ? <><div className="theoria-category-row">{categories.map((item) => <button type="button" className={category === item ? 'is-active' : ''} key={item} onClick={() => setCategory(item)}>{item}</button>)}</div><div className="theoria-shelf-page-grid">{visible.map((book, index) => <button type="button" className="theoria-shelf-page-book" key={book.id} onClick={() => onOpen(book)}><Cover book={book} index={index} /><strong>{book.title}</strong><small>{book.author ?? 'Unknown author'}</small><span><i style={{ width: book.progress + '%' }} /></span></button>)}</div></> : <EmptyState title="Your shelf is quiet." body="Import an EPUB or save a source link to begin building your library." action="Add your first book" onAction={onAdd} />}</section>;
+}
+
+export function BookDetailView({ book, onBack, onRead, onExternal, onCapture, onToggleFavorite, onRefresh, onEdit, onRemove }: { book: TheoriaBook; onBack: () => void; onRead: () => void; onExternal: () => void; onCapture: (kind: 'highlight' | 'note' | 'reflection') => void; onToggleFavorite: () => void; onRefresh: () => Promise<void>; onEdit: () => void; onRemove: () => void }) {
+  const [tab, setTab] = useState<'overview' | 'highlights' | 'notes' | 'reflections' | 'bookmarks'>('overview');
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => { setRefreshing(true); try { await onRefresh(); } finally { setRefreshing(false); } };
+  return <section className="theoria-detail-view"><button type="button" className="theoria-back-button" onClick={onBack}>Back to library</button><div className="theoria-book-detail"><div className="theoria-detail-cover"><Cover book={book} index={1} /></div><div className="theoria-detail-copy"><p className="theoria-eyebrow">{statusLabel(book.status)} · {sourceLabel(book)}</p><h1>{book.title}</h1><p className="theoria-detail-author">{book.author ?? 'Unknown author'}</p><p className="theoria-detail-description">{book.description ?? 'No description saved for this book yet.'}</p><div className="theoria-progress"><span style={{ width: book.progress + '%' }} /></div><small className="theoria-detail-progress">{book.progress}% read · Last opened {dateLabel(book.lastOpenedAt)}</small><div className="theoria-detail-actions"><button type="button" className="theoria-primary-button" onClick={onRead}>Open reader</button><button type="button" className="theoria-secondary-button" onClick={onToggleFavorite}>{book.favorite ? 'Remove favorite' : 'Add to favorites'}</button><button type="button" className="theoria-secondary-button" onClick={() => void refresh()} disabled={refreshing}>{refreshing ? 'Refreshing…' : 'Refresh details'}</button><button type="button" className="theoria-secondary-button" onClick={onEdit}>Edit details</button>{(book.sourceUrl || book.filePath) && <button type="button" className="theoria-secondary-button" onClick={onExternal}>Open source</button>}<button type="button" className="theoria-danger-button" onClick={onRemove}>Remove book</button></div><div className="theoria-detail-meta"><span><strong>{book.highlights.length}</strong>Highlights</span><span><strong>{book.notes.length}</strong>Notes</span><span><strong>{book.reflections.length}</strong>Reflections</span><span><strong>{book.bookmarks.length}</strong>Bookmarks</span></div></div></div><div className="theoria-detail-tabs">{(['overview', 'highlights', 'notes', 'reflections', 'bookmarks'] as const).map((item) => <button type="button" key={item} className={tab === item ? 'is-active' : ''} onClick={() => setTab(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>{tab === 'overview' && <div className="theoria-detail-about"><p>{book.description ?? 'Add a description when you want to remember what this source holds for you.'}</p><div><span>Publisher <strong>{book.publisher ?? 'Not recorded'}</strong></span><span>Language <strong>{book.language ?? 'Not recorded'}</strong></span><span>Chapters <strong>{book.chapters.length || 'Not parsed'}</strong></span></div><div className="theoria-detail-quick-actions"><button type="button" onClick={() => onCapture('highlight')}>Add highlight</button><button type="button" onClick={() => onCapture('note')}>Add note</button><button type="button" onClick={() => onCapture('reflection')}>Write reflection</button></div></div>}{tab === 'highlights' && <DetailInsightList items={book.highlights.map((item) => ({ id: item.id, text: item.text, location: item.location, chapter: item.chapter, book, kind: 'highlight', createdAt: item.createdAt }))} empty="Highlights from this book will appear here." action="Add a highlight" onAction={() => onCapture('highlight')} />}{tab === 'notes' && <DetailInsightList items={book.notes.map((item) => ({ id: item.id, text: item.body, location: item.location, chapter: item.chapter, book, kind: 'note', createdAt: item.createdAt }))} empty="Notes beside this book will appear here." action="Add a note" onAction={() => onCapture('note')} />}{tab === 'reflections' && <DetailInsightList items={book.reflections.map((item) => ({ id: item.id, text: reflectionText(item), location: item.location, chapter: item.chapter, book, kind: 'reflection', createdAt: item.createdAt }))} empty="Reflections on this book will appear here." action="Write a reflection" onAction={() => onCapture('reflection')} />}{tab === 'bookmarks' && <BookmarkList book={book} />}</section>;
+}
+
+function DetailInsightList({ items, empty, action, onAction }: { items: InsightItem[]; empty: string; action: string; onAction: () => void }) {
+  return items.length ? <div className="theoria-insight-grid theoria-detail-list">{items.map((item) => <InsightRow item={item} key={item.id} />)}</div> : <div className="theoria-home-empty"><p>{empty}</p><button type="button" onClick={onAction}>{action}</button></div>;
+}
+
+function BookmarkList({ book }: { book: TheoriaBook }) {
+  return book.bookmarks.length ? <div className="theoria-bookmark-list">{book.bookmarks.map((bookmark) => <article key={bookmark.id}><span>Bookmark</span><strong>{bookmark.label || bookmark.chapter || 'Saved location'}</strong><small>{bookmark.location}</small></article>)}</div> : <div className="theoria-home-empty"><p>Bookmarks from this book will appear here.</p></div>;
+}
+
+function reflectionText(reflection: TheoriaReflection): string {
+  if (reflection.content.trim()) return reflection.content;
+  return Object.values(reflection.answers ?? {}).filter(Boolean).join(' ');
+}
+
+export function ReaderView({ book, theme, font, onTheme, onFont, onBack, onPosition, onHighlight, onCapture, onBookmark, onExternal, onLoadSource }: { book: TheoriaBook; theme: ReadingTheme; font: ReadingFont; onTheme: (theme: ReadingTheme) => void; onFont: (font: ReadingFont) => void; onBack: () => void; onPosition: (position: { chapterId?: string; paragraphIndex?: number; anchor?: string; progress?: number }) => void; onHighlight: (selection: ReaderSelection) => void; onCapture: (kind: 'note' | 'reflection', selection: ReaderSelection) => void; onBookmark: (chapterId: string | undefined, location: string) => void; onExternal: () => void; onLoadSource: () => Promise<void> }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<ReaderSelection>();
+  const [pageTurn, setPageTurn] = useState<'next' | 'previous'>('next');
+  const pageRef = useRef<HTMLElement>(null);
+  const readerScrollRef = useRef<HTMLDivElement>(null);
+  const chapters = useMemo(() => book.chapters.filter((chapter) => chapter.content?.trim()), [book.chapters]);
+  const fallbackChapter: TheoriaChapter = { id: 'source', title: 'Source text', order: 1, content: book.contentPreview };
+  const readable = chapters.length ? chapters : book.contentPreview ? [fallbackChapter] : [];
+  const initialChapter = readable.findIndex((chapter) => chapter.id === book.readingPosition?.chapterId);
+  const [chapterIndex, setChapterIndex] = useState(initialChapter >= 0 ? initialChapter : 0);
+  const [paragraphIndex, setParagraphIndex] = useState(book.readingPosition?.paragraphIndex ?? 0);
+  const chapter = readable[chapterIndex];
+  const paragraphs = (chapter?.content ?? '').split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  const progress = readable.length ? Math.round(((chapterIndex + (paragraphs.length ? paragraphIndex / paragraphs.length : 0)) / readable.length) * 100) : book.progress;
+  const searchMatches = query.trim() ? readable.flatMap((item, index) => (item.content ?? '').toLowerCase().includes(query.trim().toLowerCase()) ? [{ index, title: item.title }] : []) : [];
+  const setChapter = (index: number) => { const next = Math.max(0, Math.min(index, readable.length - 1)); setTocOpen(false); if (next === chapterIndex) { window.setTimeout(() => pageRef.current?.scrollIntoView({ block: 'start' }), 0); return; } setPageTurn(next > chapterIndex ? 'next' : 'previous'); setChapterIndex(next); setParagraphIndex(0); onPosition({ chapterId: readable[next]?.id, paragraphIndex: 0, anchor: 'chapter:' + readable[next]?.id, progress: Math.round((next / Math.max(readable.length, 1)) * 100) }); window.setTimeout(() => pageRef.current?.scrollIntoView({ block: 'start' }), 0); };
+  const seekTo = (value: number) => { if (!readable.length) return; const bounded = Math.max(0, Math.min(100, value)); const raw = (bounded / 100) * readable.length; const next = Math.min(readable.length - 1, Math.floor(raw)); const targetParagraphs = (readable[next]?.content ?? '').split(/\n{2,}/).map((part) => part.trim()).filter(Boolean); const fraction = next === readable.length - 1 ? 1 : raw - next; const targetParagraph = targetParagraphs.length ? Math.min(targetParagraphs.length - 1, Math.round(fraction * Math.max(targetParagraphs.length - 1, 0))) : 0; const anchor = 'chapter:' + readable[next]?.id + (targetParagraphs.length ? ':paragraph:' + targetParagraph : ''); setTocOpen(false); setPageTurn(next >= chapterIndex ? 'next' : 'previous'); setChapterIndex(next); setParagraphIndex(targetParagraph); onPosition({ chapterId: readable[next]?.id, paragraphIndex: targetParagraph, anchor, progress: bounded }); window.setTimeout(() => { const target = [...(pageRef.current?.querySelectorAll<HTMLElement>('[data-location]') ?? [])].find((item) => item.dataset.location === anchor); (target ?? pageRef.current)?.scrollIntoView({ block: 'start' }); }, 0); };
+  const handleSelection = () => { const range = window.getSelection(); const text = range?.toString().trim(); if (!text || !chapter) return; const node = range?.anchorNode?.parentElement?.closest('[data-location]'); const location = node?.getAttribute('data-location') ?? 'chapter:' + chapter.id; setSelected({ text, chapterId: chapter.id, chapterTitle: chapter.title, location }); };
+  useEffect(() => { if (book.readingPosition?.chapterId && readable.length) { const index = readable.findIndex((item) => item.id === book.readingPosition?.chapterId); if (index >= 0) setChapterIndex(index); setParagraphIndex(book.readingPosition?.paragraphIndex ?? 0); } }, [book.readingPosition?.chapterId, book.readingPosition?.paragraphIndex, readable]);
+  useEffect(() => { if (!book.readingPosition?.anchor) return; const target = pageRef.current?.querySelector<HTMLElement>('[data-location="' + book.readingPosition.anchor + '"]'); target?.scrollIntoView({ block: 'start' }); }, [book.readingPosition?.anchor, chapter?.id]);
+  useEffect(() => { const container = readerScrollRef.current; if (!container) return; const onScroll = () => { const element = pageRef.current; if (!element) return; const visibleTop = container.getBoundingClientRect().top + 24; const blocks = [...element.querySelectorAll<HTMLElement>('[data-location]')]; const nearest = blocks.find((block) => block.getBoundingClientRect().bottom > visibleTop); const nextParagraph = nearest ? Number(nearest.dataset.index ?? 0) : 0; setParagraphIndex(nextParagraph); onPosition({ chapterId: chapter?.id, paragraphIndex: nextParagraph, anchor: nearest?.dataset.location, progress: Math.round(((chapterIndex + (paragraphs.length ? nextParagraph / paragraphs.length : 0)) / Math.max(readable.length, 1)) * 100) }); }; container.addEventListener('scroll', onScroll, { passive: true }); return () => container.removeEventListener('scroll', onScroll); }, [chapter?.id, chapterIndex, onPosition, paragraphs.length, readable.length]);
+  return <section className={'theoria-reader theoria-reader--' + theme + ' theoria-reader-font--' + font}>
+    <header className="theoria-reader-header">
+      <div className="theoria-reader-header-top">
+        <button type="button" className="theoria-reader-back" onClick={onBack} aria-label="Back to book"><span aria-hidden="true">←</span><span>Back</span></button>
+        <div className="theoria-reader-title"><strong>{book.title}</strong><small>{book.author ?? 'Unknown author'}</small></div>
+        <button type="button" className="theoria-reader-bookmark" onClick={() => onBookmark(chapter?.id, 'chapter:' + chapter?.id)} aria-label="Bookmark this chapter"><span aria-hidden="true">◇</span><span>Bookmark</span></button>
+      </div>
+      <nav className="theoria-reader-toolbar" aria-label="Reader controls">
+        <button type="button" className={tocOpen ? 'is-active' : ''} onClick={() => setTocOpen((open) => !open)} aria-label="Table of contents"><span aria-hidden="true">☰</span><span>Contents</span></button>
+        <button type="button" className={searchOpen ? 'is-active' : ''} onClick={() => setSearchOpen((open) => !open)} aria-label="Search in book"><span aria-hidden="true">⌕</span><span>Search</span></button>
+        <button type="button" className={menuOpen ? 'is-active' : ''} onClick={() => setMenuOpen((open) => !open)} aria-label="Reading settings"><span aria-hidden="true">Aa</span><span>Type</span></button>
+      </nav>
+    </header>
+    {tocOpen && <aside className="theoria-reader-panel"><p className="theoria-eyebrow">Table of contents</p>{readable.length ? readable.map((item, index) => <button type="button" className={index === chapterIndex ? 'is-active' : ''} key={item.id} onClick={() => setChapter(index)}>{item.order}. {item.title}</button>) : <p>No chapters are available yet.</p>}</aside>}
+    {searchOpen && <div className="theoria-reader-search"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search this book" autoFocus />{query && <div>{searchMatches.length ? searchMatches.map((match) => <button type="button" key={match.index} onClick={() => setChapter(match.index)}>{match.title}</button>) : <span>No matches in this source.</span>}</div>}</div>}
+    {menuOpen && <div className="theoria-reader-menu"><p className="theoria-eyebrow">Reading settings</p><label>Theme <select value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label><label>Font <select value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Sans</option><option value="dyslexia">Dyslexia-friendly</option></select></label><button type="button" onClick={() => selected && onCapture('note', selected)} disabled={!selected}>Add note from selection</button></div>}
+    <div className="theoria-reader-scroll" ref={readerScrollRef}>
+      {!readable.length && <div className="theoria-reader-empty"><TheoriaMark size={42} /><h2>This book is ready when its source is available.</h2><p>Load the private EPUB or open the original source to begin reading.</p><button type="button" className="theoria-primary-button" onClick={() => void onLoadSource()}>Load book</button><button type="button" className="theoria-secondary-button" onClick={onExternal}>Open source</button></div>}
+      {readable.length > 0 && <article key={chapter?.id + '-' + pageTurn} className={'theoria-reader-page theoria-reader-page--' + pageTurn} ref={pageRef} onMouseUp={handleSelection} onTouchEnd={handleSelection}><p className="theoria-reader-chapter">{chapter?.title}</p>{paragraphs.map((paragraph, index) => <p key={chapter?.id + '-' + index} data-location={'chapter:' + chapter?.id + ':paragraph:' + index} data-index={index} className={book.highlights.some((item) => item.location === 'chapter:' + chapter?.id + ':paragraph:' + index) ? 'is-highlighted' : ''}>{paragraph}</p>)}{selected && <div className="theoria-selection-tools"><button type="button" onClick={() => { onHighlight(selected); setSelected(undefined); }}>Highlight</button><button type="button" onClick={() => onCapture('note', selected)}>Add note</button><button type="button" onClick={() => onCapture('reflection', selected)}>Reflect</button><button type="button" onClick={() => { onBookmark(selected.chapterId, selected.location); setSelected(undefined); }}>Bookmark</button></div>}</article>}
+    </div>
+    {readable.length > 0 && <footer className="theoria-reader-footer"><button type="button" onClick={() => setChapter(chapterIndex - 1)} disabled={chapterIndex === 0}>Previous</button><input type="range" min="0" max="100" value={progress} onChange={(event) => seekTo(Number(event.target.value))} style={{ background: `linear-gradient(to right, var(--theoria-brass) ${progress}%, rgba(255,255,255,.18) ${progress}%)` }} aria-label="Reading progress" aria-valuetext={progress + '%'} /><span>{progress}%</span><button type="button" onClick={() => setChapter(chapterIndex + 1)} disabled={chapterIndex >= readable.length - 1}>Next</button><button type="button" onClick={onExternal}>Open source</button></footer>}
+  </section>;
+}
+
+function InsightRow({ item }: { item: InsightItem }) {
+  return <article className={'theoria-insight theoria-insight--' + item.kind}><span>{item.kind === 'highlight' ? '“' : item.kind === 'note' ? <PenIcon size={16} /> : <BulbIcon size={16} />}</span><div><p>{item.text}</p><small>{item.book.title}{item.chapter ? ' · ' + item.chapter : ''}{item.location ? ' · ' + item.location : ''}</small></div></article>;
+}
+
+export function NotesPage({ notebooks, shelf, loading, error, onNewNotebook, onNewPage, onEditPage, onDeletePage }: { notebooks: readonly TheoriaNotebook[]; shelf: readonly TheoriaBook[]; loading: boolean; error?: string; onNewNotebook: () => void; onNewPage: (notebookId: string, sectionId: string) => void; onEditPage: (notebookId: string, sectionId: string, pageId: string) => void; onDeletePage: (notebookId: string, sectionId: string, pageId: string) => void }) {
+  const [activeId, setActiveId] = useState(notebooks[0]?.id);
+  const active = notebooks.find((notebook) => notebook.id === activeId) ?? notebooks[0];
+  useEffect(() => { if (!activeId && notebooks[0]) setActiveId(notebooks[0].id); }, [activeId, notebooks]);
+  if (loading) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Notes</p><h1>Opening your notebooks.</h1></div></div><div className="theoria-loading-card">Reading your private notes…</div></section>;
+  if (error) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Notes</p><h1>Your notes could not open.</h1></div></div><div className="theoria-error-card" role="alert"><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload notes</button></div></section>;
+  if (!notebooks.length) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Notes</p><h1>Build a place for ideas.</h1></div><button type="button" className="theoria-add-button" onClick={onNewNotebook}>New notebook</button></div><EmptyState title="No notebooks yet." body="Create a notebook for a book, a subject, or a question you want to return to." action="Create notebook" onAction={onNewNotebook} /></section>;
+  return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Notes</p><h1>Keep the margin.</h1></div><button type="button" className="theoria-add-button" onClick={onNewNotebook}>New notebook</button></div><div className="theoria-notebook-layout"><aside className="theoria-notebook-list"><p className="theoria-eyebrow">Notebooks</p>{notebooks.map((notebook) => <button type="button" className={notebook.id === active?.id ? 'is-active' : ''} key={notebook.id} onClick={() => setActiveId(notebook.id)}>{notebook.title}<small>{notebook.sections.reduce((count, section) => count + section.pages.length, 0)} pages</small></button>)}</aside><div className="theoria-notebook-content">{active?.sections.map((section) => <section className="theoria-note-section" key={section.id}><div className="theoria-section-heading"><div><p className="theoria-eyebrow">Section</p><h2>{section.title}</h2></div><button type="button" onClick={() => active && onNewPage(active.id, section.id)}>New page</button></div>{section.pages.length ? section.pages.map((page) => <article className="theoria-page-card" key={page.id}><button type="button" onClick={() => active && onEditPage(active.id, section.id, page.id)}><strong>{page.title}</strong><p>{page.body}</p><small>{page.bookId ? shelf.find((book) => book.id === page.bookId)?.title ?? 'Linked source' : 'Personal note'} · Updated {dateLabel(page.updatedAt)}</small></button><button type="button" className="theoria-icon-button" onClick={() => active && onDeletePage(active.id, section.id, page.id)} aria-label={'Delete ' + page.title}>Delete</button></article>) : <p className="theoria-muted-line">No pages in this section yet.</p>}</section>)}</div></div></section>;
+}
+
+export function ReflectionsPage({ reflections, onNew, onEdit, onDelete }: { reflections: readonly InsightItem[]; onNew: () => void; onEdit: (item: InsightItem) => void; onDelete: (item: InsightItem) => void }) {
+  const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const filtered = reflections.filter((item) => (item.text + ' ' + item.book.title).toLowerCase().includes(query.trim().toLowerCase()));
+  const toggleSearch = () => { if (searchOpen) setQuery(''); setSearchOpen((open) => !open); };
+  return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Reflections</p><h1>Keep what changed.</h1></div><div className="theoria-heading-actions"><button type="button" className="theoria-search-icon" onClick={toggleSearch} aria-label={searchOpen ? 'Close reflection search' : 'Search reflections'} aria-expanded={searchOpen}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg></button><button type="button" className="theoria-add-button" onClick={onNew}>Write reflection</button></div></div>{searchOpen && <input className="theoria-global-search theoria-reflection-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reflections" autoFocus />}{filtered.length ? <div className="theoria-reflection-list">{filtered.map((item) => <article className="theoria-reflection-card" key={item.id}><div><p className="theoria-eyebrow">{item.book.title}{item.chapter ? ' · ' + item.chapter : ''}</p><p>{item.text}</p><small>{dateLabel(item.createdAt)}{item.location ? ' · ' + item.location : ''}</small></div><div><button type="button" onClick={() => onEdit(item)}>Edit</button><button type="button" onClick={() => onDelete(item)}>Delete</button></div></article>)}</div> : <EmptyState title={query ? 'No reflections match.' : 'Your reflection library is empty.'} body={query ? 'Try another word or search a book title.' : 'Write beside a passage when you want to understand why it matters.'} action="Write a reflection" onAction={onNew} />}</section>;
+}
+
+export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: readonly TheoriaBook[]; notebooks: readonly TheoriaNotebook[]; reflections: readonly InsightItem[]; onOpen: (book: TheoriaBook) => void }) {
+  const [query, setQuery] = useState('');
+  const needle = query.trim().toLowerCase();
+  const results = useMemo(() => {
+    if (!needle) return [] as { kind: string; text: string; book?: TheoriaBook; detail?: string }[];
+    const found: { kind: string; text: string; book?: TheoriaBook; detail?: string }[] = [];
+    shelf.forEach((book) => { if ((book.title + ' ' + (book.author ?? '')).toLowerCase().includes(needle)) found.push({ kind: 'Book', text: book.title, detail: book.author, book }); book.chapters.forEach((chapter) => { if ((chapter.content ?? '').toLowerCase().includes(needle)) found.push({ kind: 'Book text', text: chapter.title, detail: book.title, book }); }); book.highlights.forEach((item) => { if (item.text.toLowerCase().includes(needle)) found.push({ kind: 'Highlight', text: item.text, detail: book.title, book }); }); book.notes.forEach((item) => { if (item.body.toLowerCase().includes(needle)) found.push({ kind: 'Note', text: item.body, detail: book.title, book }); }); });
+    notebooks.forEach((notebook) => notebook.sections.forEach((section) => section.pages.forEach((page) => { if ((page.title + ' ' + page.body).toLowerCase().includes(needle)) found.push({ kind: 'Notebook page', text: page.title, detail: notebook.title, book: page.bookId ? shelf.find((book) => book.id === page.bookId) : undefined }); })));
+    reflections.forEach((item) => { if (item.text.toLowerCase().includes(needle)) found.push({ kind: 'Reflection', text: item.text, detail: item.book.title, book: item.book }); });
+    return found.slice(0, 60);
+  }, [needle, notebooks, reflections, shelf]);
+  return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Search</p><h1>Find what you kept.</h1></div></div><input className="theoria-global-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search your library" autoFocus />{query && <div className="theoria-search-results">{results.length ? results.map((result, index) => <button type="button" key={result.kind + '-' + index} onClick={() => result.book && onOpen(result.book)}><span>{result.kind}</span><strong>{result.text}</strong><small>{result.detail}</small></button>) : <p>No saved material matches that search.</p>}</div>}</section>;
+}
+
+export function SettingsPage({ theme, font, onTheme, onFont }: { theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void }) {
+  return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Settings</p><h1>Make room for reading.</h1></div></div><div className="theoria-settings-list"><label><span>Reading theme</span><select value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label><label><span>Reading font</span><select value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Inter</option><option value="dyslexia">Dyslexia-friendly</option></select></label><article className="theoria-settings-copy"><p className="theoria-eyebrow">Privacy</p><h2>Your library stays yours.</h2><p>Books and annotations are kept in your private local library and encrypted account sync when you sign in.</p></article></div><TheoriaAccountPanel /></section>;
+}
+
+export function buildInsightItems(shelf: readonly TheoriaBook[]): { highlights: InsightItem[]; notes: InsightItem[]; reflections: InsightItem[] } {
+  const highlights: InsightItem[] = [];
+  const notes: InsightItem[] = [];
+  const reflections: InsightItem[] = [];
+  shelf.forEach((book) => {
+    book.highlights.forEach((item: TheoriaHighlight) => highlights.push({ id: item.id, text: item.text, location: item.location, chapter: item.chapter, book, kind: 'highlight', createdAt: item.createdAt }));
+    book.notes.forEach((item: TheoriaNote) => notes.push({ id: item.id, text: item.body, location: item.location, chapter: item.chapter, book, kind: 'note', createdAt: item.createdAt }));
+    book.reflections.forEach((item: TheoriaReflection) => reflections.push({ id: item.id, text: reflectionText(item), location: item.location, chapter: item.chapter, book, kind: 'reflection', createdAt: item.createdAt }));
+  });
+  return { highlights, notes, reflections };
+}
+
+export type ViewNode = ReactNode;

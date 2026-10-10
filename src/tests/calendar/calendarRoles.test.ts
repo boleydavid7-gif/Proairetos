@@ -61,4 +61,15 @@ describe('other calendars that count', () => {
     expect(closingFrom(dayRange('2026-10-01', blocks, follow), blocks)).toEqual(new Date(2026, 9, 2, 6));
     expect(deliverAt(new Date(2026, 9, 2, 14), defaultQuietHours, blocks)).toEqual(new Date(2026, 9, 2, 16));
   });
+
+  it('dismisses one imported event locally and can undo that dismissal', async () => {
+    const before = otherCalendars.eventsBetween(new Date(2026, 9, 1), new Date(2026, 9, 5));
+    expect(before.map((event) => event.key)).toContain('f1');
+
+    const deletion = otherCalendars.removeEvent('family', 'f1');
+    expect(otherCalendars.eventsBetween(new Date(2026, 9, 1), new Date(2026, 9, 5)).map((event) => event.key)).not.toContain('f1');
+
+    await deletion.undo();
+    expect(otherCalendars.eventsBetween(new Date(2026, 9, 1), new Date(2026, 9, 5)).map((event) => event.key)).toContain('f1');
+  });
 });

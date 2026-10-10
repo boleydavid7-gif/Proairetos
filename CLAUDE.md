@@ -33,7 +33,9 @@ rule: **the system records life; it does not interpret life.**
 npm install
 npm run dev          # local dev server
 npm test             # vitest (300+ tests), includes the language guard
+npm run lint         # oxlint (correctness)
 npm run typecheck
+npm run check        # lint + typecheck + tests, as CI runs them
 npm run build        # tsc + vite build into dist/
 npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 ```
@@ -51,6 +53,51 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `/assets` (unknown paths serve the app page).
 - The user deploys from `main`. Work on the session branch and push to
   both the branch and `main` once checks pass.
+
+## Desktop, safety and checks
+
+- From 62rem wide the tab bar becomes a left rail and sheets centre
+  (`styles/parts/30-desktop.css`, `data-route` on `.app-shell`); phones are
+  unchanged. Keys 1-5 jump between the main pages and `/` opens search
+  (`app/shortcuts.ts`), never while typing or in a dialog.
+- Askesis has a full desktop layout (`askesis/styles/desktop.css`, scoped to `:root.askesis`): wide banner and
+  two-column Home (`home-top/main/bottom` wrappers), article grid, Train with a sticky summary, Progress in
+  columns, two-column More, reading column for articles. Phones are unchanged.
+- Desktop for the other apps: Askesis, SOMA and Oikonomia share one block at
+  the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
+  `--app-name`, wider `.shell--tabs`); SOMA centres its sheet; Hydros has its
+  own block in `hydros.css`; Praxis and Theoria already had side navigation.
+- Sync carries two more kinds of record (migration `20261016000000_preferences_files_sync.sql`,
+  held in `laterCollections` until the server has it): `preferences` (every setting in browser
+  storage that `syncedSetting` allows, one record each; device-only ones such as the name, sign-in
+  and weather place stay home; on a fresh device the account's copy wins the first time) and
+  `attachments` (details as records, bytes sealed with `sealBytes` into the private
+  `proairetos-files` bucket by `attachmentFiles.ts`). Both are added around the database store in
+  `deviceRecords.ts`. Pulls start 200 numbers back (`OVERLAP`) because the server numbers a write
+  before it commits. A record edited on two devices keeps this device's version, and the Account
+  page says so (`SyncResult.kept`). CI also runs the tests in two non-UTC time zones.
+- Praxis and Theoria's phone bar sits along the bottom edge like the family's others (drawn icons, no
+  text glyphs); Theoria fills a book's title and author from the file; Hydros shows what was drunk with
+  no target until the person chooses a daily amount (`goalChosen`).
+- `src/styles/premium.css` is the shared finish for all seven apps (imported last in each `main.tsx`):
+  card depth tokens, balanced headings, tabular figures, selection and focus colour, grain over the
+  home photos (`.hero::before`), the `.skeleton` shimmer for waiting. Add new shared polish there, not
+  per app. `tap()` (Gentle taps) also fires on groceries ticked, bill paid, drink saved and a study start.
+  Each manifest carries real screenshots (`public/<app>/screenshots/`, webp) for the install prompt.
+- Dark Today (`Landscape`) and Compass's `PageHero` show `sunrise` / `sunrise-wide` (941×1672 / 1672×941, true colour, a light filter only; light mode keeps `morning`). Contrast was raised app-wide: brighter muted and faint text (8.6:1 and 6.8:1 on cards in dark), clearer card borders and surfaces, a soft text shadow over Today's landscape; axe finds no colour-contrast violations on the main pages.
+- Photos in `assets/images/scenes/`: portrait `valley`, `lake`, `forest` (852×1846; forest is the Journal) and wide `valley-wide`, `lake-wide`, `forest-wide` (1672×941) which show on computer-sized screens:
+  an element sets `--photo-wide` inline and `premium.css` swaps it in from 62rem; Oikonomia's heroes use `<picture>`.
+- Light mode shows the morning photo (`morning`, `morning-wide`) in the same places as dark's landscapes (Today's `Landscape`, Compass's `PageHero`, the Journal banner): those elements also set `--photo-light` / `--photo-light-wide` and `premium.css` swaps them in for light (and System when light), true to colour. Meditate (page, sit screen, Reflect's card) shows `lake-light` / `lake-light-wide` in light, toned down (`premium.css`) because its words stay light. Main cards in the Proairetos shell are glass (`color-mix` of the surface with a blur, list in `premium.css`); the tab bar is a little more see-through.
+- `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
+  "Save a copy first" if a screen breaks.
+- `public/_headers` sets CSP and other security headers for every app;
+  script-src is `'self'` (no inline scripts in any page).
+- Worker bridges (`worker/safeFetch.ts`): redirects re-checked hop by hop,
+  bodies read only up to the limit, 30 requests a minute per visitor.
+- The build stamps `dist/sw.js` with the build time (no hand-bumped
+  cache number). `.github/workflows/ci.yml` runs lint, typecheck, tests,
+  build and a wrangler dry run on every pull request.
+- Component tests use `// @vitest-environment jsdom` in `src/tests/**/*.test.tsx`.
 
 ## Architecture map
 
@@ -100,7 +147,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
   only counts what was recorded: no trends, conclusions, or advice.
   Settings is labelled groups of rows (`SettingsGroup`: Your days,
-  Notifications, The app, Your data, About; support row last) with
+  The app (Notifications, What's included, Appearance), Account and data (account and name, lock, back up, bring in, privacy, delete), More apps, About; support row last) with
   detail pages, under a profile card. Calendars holds both other
   calendars and the subscription; What's included holds Quiet offers;
   About holds sources; Values live only in Compass. The name (greeting
@@ -152,6 +199,22 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `?open=` (`app/family/opening.ts`): Askesis `workout:ID`, `entry:ID`, a
   tab; SOMA `recipe:ID`, `week`, `tonight`; Proairetos `day:today`,
   `reflect`, `compass`, `account`.
+- Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
+- Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
+- Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
+- Command palette (Ctrl or ⌘ + K, `app/palette/CommandPalette.tsx`, works while typing): go to any page, pause, focus, search, or write a thing down. Typed words become a "Write it down" row, read by `core/capture/quickAdd.ts` ("dentist friday 3pm 45 min": day, time, length; shown before Enter saves, with undo). Sheets focus their field in an effect, not `autoFocus` (the dialog opens after render).
+- The family on Today and in search (read only, `app/family/read.ts`, `glance.ts`, `features/today/TodayFamily`): Settings > What's included is organised by app (Proairetos: Today, Capture, Compass, Reflect; Askesis; SOMA; Oikonomia). Oikonomia's `bills` (bills coming up on Today, off until chosen, `OPT_IN_PARTS`, `proairetos.todayOptIn`) and `bill-dates` (in Days ahead, on). Hydros and Theoria are not offered on Today. Search also finds SOMA recipes, Theoria books (author, highlights, notes) and Oikonomia bills (`kind: 'app'`, opens that app).
+- Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
+- Design pass: from 62rem Today lays its cards in two columns (greeting, capture and done-today across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
+- Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
+- Written about (Compass > People, open a person): items and reflections that mention their name as a whole word, newest first, up to five (`core/compass/mentions.ts`); reflections left out while the lock is on.
+- Phone apps (Capacitor, `capacitor.config.json`, `docs/NATIVE.md`): packages and scripts are in, native folders are not (made on the person's computer). `apiUrl` / `VITE_API_BASE` aims the calendar and recipe imports at the live site for those builds; the Worker answers `capacitor://localhost` and similar origins on those two routes. Not done: native reminders, universal links, widgets.
+- Oikonomia bills: pull a bill row to the left (or press the left arrow on it) to mark it paid (`oikonomia/app/SwipeRow`, `payBill`, 7 seconds to undo). A paid bill leaves the Bills list, folded under "Paid, back when due", and comes back when its next date is within its reminder lead (at least 7 days) (`standing`, `returnWindow` in `core/bills.ts`). Home's This month, and Calendar's Due this month / Due this week, show the amount left to pay first, with the whole beside it (`remainingSummary`).
+- Bills in Days ahead (Settings > What's included > Oikonomia > Bills, part `bill-dates`, on by default): each bill date is a quiet line under its day in the list and the month's day panel, a small tag across the top of the week, and a dot on the month grid; paid ones are marked, not hidden (`billsOn` in `app/family/glance.ts`, read only, opens Oikonomia).
+- Calendar look (Days ahead): week columns have full-width rounded entries with a colour edge, title and time (no colour set = gold), a gold now-line and tinted column for today, dates in circles (today filled gold), faint hour lines and hairlines between days; delete shows only when pointing. Month, from 62rem, has roomy days with colour chips and "+n more"; phones keep dots. Toolbar is one row on computers (dates, List/Calendar, Week/Month/Year); the calendar sits on a glass panel under a warm light at the top of the page.
+- Calendar layout: from 62rem the week has a mini month beside it (`features/days/MiniMonth.tsx`: pick a day to bring its week in; the seven days on show are banded; Today button). Under 48rem the week shows one day at a time with a strip of the seven days on top, swipe sideways for the next day (past the end moves the week), and it opens near the current time when today is in view.
+- Week drag (computers, mouse or pen): a timed item that does not repeat can be pulled to another time or day, or stretched from a grip along its foot, in 15-minute steps (`core/rhythm/dragMath.ts`, handlers in `DaysAheadPage`); Alt with the up and down arrows moves it a step, Alt and Shift changes its length; each change offers undo. Shifts from the schedule and events from other calendars are not draggable. Year: four months across on computers, marked days in gold, today filled.
+- Focus and bell: Focus can begin with one breath (`FocusSettle`, switch in the start sheet, `proairetos.focusBreath`, off until chosen; the timer starts after it) and has "Set a thought aside" (an unsorted capture, no leaving the timer). Settings > Notifications has "A mindful bell" (`bell`, `bellAt`: up to three times, one line "Where is your attention?", opens Today, quiet hours hold it). The weekly review's values line adds focused minutes through connected items (plain facts).
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer
@@ -214,17 +277,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `assets/images/scenes/lake.webp`): Sessions (`core/meditate/sessions.ts`,
   scripts of cues spread over 5-30 min, optionally read aloud by the phone's
   speech voice), Breathe (`core/meditate/breathing.ts`, `breathAt` drives the
-  circle, counts, and breath sounds from one clock; the circle is still
-  until a sit starts, then brightens on the in-breath and dims on the
-  out-breath via `--light`, smoothed in JS (~0.35 s lag) and drawn with
-  pre-blurred `screen`-blended layers so it reads as light; no moving dot).
+  circle, counts, and breath sounds from one clock; the circle is a plain
+  ring until a sit starts, then a soft glow gathers around it as the breath goes out
+  (`--glow` = 1 - size, the glow is box-shadows on circles the size of the ring, opacity only: a CSS blur on an SVG stroke is ignored on iPhones and showed as a hard band, so never use one) and eases away on the in-breath; the ring never changes size).
   Each kind of sit (five session types + breathing) has its own setup
   (`core/meditate/setup.ts`: length, words often/now and then/rarely/none,
   read aloud, circle pace, counts, bells, breath sounds, sounds, music);
   preferences keep only what changed. Sounds and Music tabs are switches
   ("Plays during" a chosen kind) plus a 20 s preview; nothing plays
   outside a sit except a preview. All
-  real recordings in `public/sounds/*.mp3` (sources and licences in
+  real recordings in `public/sounds/*.mp3` (ambient music by Holizna, CC0, alongside the classical pieces; sources and licences in
   `docs/SOUNDS.md`). `app/sound/`: `engine` (audio clock, iPhone media
   trick `wakeAudio`/`letGo`, recordings kept in Cache Storage
   `proairetos-sounds`; the service worker skips `/sounds/`), `soundscapes`
@@ -441,6 +503,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   a moment before eating, cooked for (`Recipe.cookedFor`). Proairetos reads
   recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
   day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
+- Groceries take only things to buy (`isGrocery`, `cleanLine` in `soma/core/groceries.ts`): list numbering is taken off ("2. Black beans"); notes in brackets, rules (———), emoji or "Optional / Upgrade" titles, headings and cooking steps are left out. The Groceries page offers "Tidy the list" for lines saved before that.
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked
@@ -466,8 +529,8 @@ breathing space), decisions journal, Reflect (observations, prompts,
 weekly review), backup/restore/delete, deletions with undo, back
 navigation, offline PWA, encrypted sync + reminders (code complete).
 
-Paused by the user until the app is near complete: **server setup**.
-Supabase project and tables exist. Remaining steps are in
+Server setup is done by the user (sign-in and sync work live; check reminders
+with a real phone). Steps are in
 `docs/SERVER_SETUP.md` (Site URL, copy URL + publishable key, VAPID keys,
 Cloudflare build variables, deploy function, cron). Sign-in accepts the
 email's link (templates are locked on the free plan without custom SMTP).

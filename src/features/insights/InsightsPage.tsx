@@ -8,6 +8,7 @@ import PageHeader from '../../components/layout/PageHeader';
 import { gatherInsights, insightRange, previousRange, sideBySide, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
 import { captureKinds } from '../capture/captureKinds';
 import Observations from '../reflect/Observations';
+import YearInWordsCard from './YearInWordsCard';
 import { weatherOptions } from '../reflect/weather';
 
 const periods: { id: InsightPeriod; label: string }[] = [
@@ -208,6 +209,7 @@ export default function InsightsPage() {
           )}
 
           <Observations period={period} />
+          <YearInWordsCard />
         </>
       )}
     </div>

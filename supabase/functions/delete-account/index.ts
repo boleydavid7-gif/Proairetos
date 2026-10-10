@@ -1,7 +1,8 @@
 // Deletes the signed-in person's account and everything stored with it.
 // Every table references auth.users with "on delete cascade", so removing
 // the user removes their encrypted records, keys, push addresses, reminder
-// times, and calendar feed in one step. Other devices' sessions stop working,
+// times, and calendar feed in one step. Files kept with items are removed from
+// storage first. Other devices' sessions stop working,
 // so nothing can be uploaded again afterwards.
 //
 // Deploy: supabase functions deploy delete-account
@@ -24,6 +25,15 @@ Deno.serve(async (request) => {
   const jwt = (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
   const { data, error } = await admin.auth.getUser(jwt);
   if (error || !data.user) return new Response('Not signed in', { status: 401, headers: cors });
+
+  // Files kept with items live in storage, which a cascade does not reach: clear them first.
+  const folder = `${data.user.id}/attachments`;
+  for (;;) {
+    const { data: files } = await admin.storage.from('proairetos-files').list(folder, { limit: 100 });
+    if (!files || files.length === 0) break;
+    await admin.storage.from('proairetos-files').remove(files.map((file) => `${folder}/${file.name}`));
+    if (files.length < 100) break;
+  }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
   if (deleteError) return new Response('Could not delete. Try again.', { status: 500, headers: cors });

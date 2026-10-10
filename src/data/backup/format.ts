@@ -11,7 +11,7 @@ import type { FamilyData } from './family';
 export const BACKUP_FORMAT = 'proairetos-backup';
 export const BACKUP_VERSION = 1;
 
-/** Proairetos's records, and (optional, so older backups still restore) Askesis, SOMA and every app's settings. */
+/** Proairetos's records, and (optional, so older backups still restore) the family apps and every app's settings. */
 export interface BackupData extends FamilyData {
   lifeItems: LifeItem[];
   itemEvents: ItemEvent[];
@@ -67,6 +67,12 @@ export class BackupError extends Error {
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+const base64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+
+function base64Bytes(value: string): number {
+  const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0;
+  return (value.length / 4) * 3 - padding;
+}
 
 /** Checks shape before anything on the device is touched. */
 export function validateData(value: unknown): BackupData {
@@ -83,7 +89,21 @@ export function validateData(value: unknown): BackupData {
   if (value.attachments !== undefined) {
     if (!Array.isArray(value.attachments)) throw new BackupError('Some attachments in this file are damaged.');
     for (const record of value.attachments) {
-      if (!isRecord(record) || typeof record.id !== 'string' || typeof record.data !== 'string' || typeof record.itemId !== 'string') {
+      if (
+        !isRecord(record) ||
+        typeof record.id !== 'string' ||
+        typeof record.userId !== 'string' ||
+        typeof record.itemId !== 'string' ||
+        typeof record.name !== 'string' ||
+        typeof record.type !== 'string' ||
+        typeof record.size !== 'number' ||
+        !Number.isInteger(record.size) ||
+        record.size < 0 ||
+        typeof record.createdAt !== 'string' ||
+        typeof record.data !== 'string' ||
+        !base64.test(record.data) ||
+        base64Bytes(record.data) !== record.size
+      ) {
         throw new BackupError('Some attachments in this file are damaged.');
       }
     }
@@ -91,7 +111,13 @@ export function validateData(value: unknown): BackupData {
   const family = value as FamilyData;
   const lists = (part: unknown, keys: string[]) =>
     part === undefined || (isRecord(part) && keys.every((key) => part[key] === undefined || Array.isArray(part[key])));
-  if (!lists(family.askesis, ['workouts', 'plans']) || !lists(family.soma, ['recipes', 'groceries'])) {
+  if (
+    !lists(family.askesis, ['workouts', 'plans']) ||
+    !lists(family.soma, ['recipes', 'groceries']) ||
+    !lists(family.oikonomia, ['bills', 'budgets']) ||
+    !lists(family.hydros, ['drinks']) ||
+    !lists(family.theoria, ['books', 'notebooks'])
+  ) {
     throw new BackupError('Some of the other apps’ records in this file are damaged.');
   }
   if (family.settings !== undefined && !isRecord(family.settings)) throw new BackupError('The settings in this file are damaged.');
@@ -115,7 +141,7 @@ export function parseBackupFile(text: string): BackupFile {
   return { ...(parsed as unknown as PlainBackup), data: validateData(parsed.data) };
 }
 
-export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes', number>;
+export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets' | 'drinks' | 'books' | 'notebooks', number>;
 
 export function countRecords(data: BackupData): RecordCounts {
   return {
@@ -123,5 +149,10 @@ export function countRecords(data: BackupData): RecordCounts {
     attachments: data.attachments?.length ?? 0,
     workouts: data.askesis?.workouts?.length ?? 0,
     recipes: data.soma?.recipes?.length ?? 0,
+    bills: data.oikonomia?.bills?.length ?? 0,
+    budgets: data.oikonomia?.budgets?.length ?? 0,
+    drinks: data.hydros?.drinks?.length ?? 0,
+    books: data.theoria?.books?.length ?? 0,
+    notebooks: data.theoria?.notebooks?.length ?? 0,
   } as RecordCounts;
 }

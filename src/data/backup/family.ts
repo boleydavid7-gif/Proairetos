@@ -2,10 +2,10 @@ import { stores } from '../storage/indexeddb/database';
 
 /**
  * The other apps in the family, in the same backup as Proairetos: Askesis's
- * workouts and plan and SOMA's recipes and grocery list (all in the
- * Proairetos database), and the settings of all three, which
+ * workouts and plan, SOMA's recipes and grocery list, Oikonomia's bills, and HYDROS's drinks (all in the
+ * Proairetos database), and the settings of the family apps, which
  * live in this browser's storage. One file holds everything; whichever app
- * makes it, restoring it brings all three back.
+ * makes it, restoring it brings the family apps back.
  *
  * Left out on purpose: the sign-in session, things that are fetched again
  * (other calendars' events, the weather), drafts and running timers, the
@@ -15,11 +15,14 @@ import { stores } from '../storage/indexeddb/database';
 export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
+  oikonomia?: { bills: unknown[]; budgets?: unknown[] };
+  hydros?: { drinks: unknown[] };
+  theoria?: { books: unknown[]; notebooks?: unknown[] };
   /** Settings by key, as stored. */
   settings?: Record<string, string>;
 };
 
-const PREFIXES = ['proairetos.', 'askesis:', 'soma:'];
+const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:', 'hydros:'];
 const LEFT_OUT = new Set([
   'proairetos.auth',
   'proairetos.lastBackup',
@@ -28,6 +31,8 @@ const LEFT_OUT = new Set([
   'proairetos.weather.now',
   'proairetos.calendarFeed',
   'proairetos.journalDraft',
+  // The passcode belongs to this device only.
+  'proairetos.lock',
   'askesis:startTest',
 ]);
 
@@ -114,6 +119,9 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
   if (proairetos) {
     out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
+    out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills), budgets: await readAll(proairetos, stores.oikonomiaBudgets) };
+    out.hydros = { drinks: await readAll(proairetos, stores.hydrosDrinks) };
+    out.theoria = { books: await readAll(proairetos, stores.theoriaBooks), notebooks: await readAll(proairetos, stores.theoriaNotebooks) };
   }
   return out;
 }
@@ -127,6 +135,17 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
   if (proairetos && data.soma) {
     await replaceStore(proairetos, stores.somaRecipes, data.soma.recipes ?? []);
     await replaceStore(proairetos, stores.somaGroceries, data.soma.groceries ?? []);
+  }
+  if (proairetos && data.oikonomia) {
+    await replaceStore(proairetos, stores.oikonomiaBills, data.oikonomia.bills ?? []);
+    // Budgets were added after bills. An older family backup must leave any
+    // newer plans on this device alone.
+    if (data.oikonomia.budgets !== undefined) await replaceStore(proairetos, stores.oikonomiaBudgets, data.oikonomia.budgets);
+  }
+  if (proairetos && data.hydros) await replaceStore(proairetos, stores.hydrosDrinks, data.hydros.drinks ?? []);
+  if (proairetos && data.theoria) {
+    await replaceStore(proairetos, stores.theoriaBooks, data.theoria.books ?? []);
+    if (data.theoria.notebooks !== undefined) await replaceStore(proairetos, stores.theoriaNotebooks, data.theoria.notebooks);
   }
   if (data.settings) restoreSettings(data.settings);
 }

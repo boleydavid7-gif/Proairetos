@@ -1,5 +1,5 @@
-import { defaultNoticeSettings, type NoticeSettings } from '../../core/notify/notices';
-import type { SessionId } from '../../core/meditate/sessions';
+import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
+import { sessions, type SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
@@ -22,7 +22,7 @@ export function markOnboarded(): void {
 
 const LOOK_AHEAD_KEY = 'proairetos.lookAheadSetAside';
 
-function localDayKey(day: Date): string {
+export function localDayKey(day: Date): string {
   return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
 }
 
@@ -62,6 +62,11 @@ export function subscribePreferences(listener: () => void): () => void {
   return () => preferenceListeners.delete(listener);
 }
 
+/** Tells open screens that settings changed under them (sync brought new ones). */
+export function notifyPreferences(): void {
+  preferenceListeners.forEach((listener) => listener());
+}
+
 function writeJson(key: string, value: unknown): void {
   try {
     if (value === null) localStorage.removeItem(key);
@@ -80,6 +85,17 @@ export function loadFocusSession<T>(): T | null {
 
 export function saveFocusSession(session: unknown): void {
   writeJson(FOCUS_KEY, session);
+}
+
+const FOCUS_BREATH_KEY = 'proairetos.focusBreath';
+
+/** Whether a focus session begins with one breath; off until chosen. */
+export function loadFocusBreath(): boolean {
+  return readJson<boolean>(FOCUS_BREATH_KEY) === true;
+}
+
+export function saveFocusBreath(on: boolean): void {
+  writeJson(FOCUS_BREATH_KEY, on);
 }
 
 const LAST_VISIT_KEY = 'proairetos.lastVisit';
@@ -334,18 +350,46 @@ export type TodayPart =
   // Runs from Askesis, the training app beside Proairetos.
   | 'askesis'
   // Meals from SOMA, the recipe app beside Proairetos.
-  | 'soma';
+  | 'soma'
+  // Bill dates from Oikonomia in Days ahead.
+  | 'bill-dates'
+  // Bills coming up from Oikonomia, shown on Today only if chosen.
+  | 'bills'
+  // What was written on this day in an earlier year; off until chosen.
+  | 'on-this-day';
+
+/** Parts that stay off until the person turns them on in Settings. */
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day'];
+const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';
 
-/** A string snapshot, so screens can read it live without re-rendering forever. */
-export function todayHiddenSnapshot(): string {
-  return (readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []).join(',');
+// The set-aside link is useful to some people and distracting to others. It
+// is deliberately off until someone turns it on in Settings.
+const SHOW_NOT_FOR_ME_KEY = 'proairetos.showNotForMe';
+
+export function showNotForMe(): boolean {
+  return readJson<boolean>(SHOW_NOT_FOR_ME_KEY) ?? false;
 }
 
+export function showNotForMeSnapshot(): string {
+  return showNotForMe() ? 'on' : 'off';
+}
+
+export function setShowNotForMe(on: boolean): void {
+  writeJson(SHOW_NOT_FOR_ME_KEY, on);
+}
+
+/** A string snapshot, so screens can read it live without re-rendering forever. */
+export function todayHiddenSnapshot(): string {
+  const chosen = readJson<TodayPart[]>(TODAY_OPT_IN_KEY) ?? [];
+  const offByDefault = OPT_IN_PARTS.filter((part) => !chosen.includes(part));
+  return [...(readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []), ...offByDefault].join(',');
+}
+
+/** The parts the person set aside. (Parts that start off are not in this list until chosen and set aside again.) */
 export function todayHidden(): TodayPart[] {
-  const snapshot = todayHiddenSnapshot();
-  return snapshot ? (snapshot.split(',') as TodayPart[]) : [];
+  return readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? [];
 }
 
 /**
@@ -359,7 +403,14 @@ export function startLight(): void {
 }
 
 export function setTodayPartShown(part: TodayPart, shown: boolean): void {
-  const hidden = new Set(todayHidden());
+  if (OPT_IN_PARTS.includes(part)) {
+    const chosen = new Set(readJson<TodayPart[]>(TODAY_OPT_IN_KEY) ?? []);
+    if (shown) chosen.add(part);
+    else chosen.delete(part);
+    writeJson(TODAY_OPT_IN_KEY, [...chosen]);
+    return;
+  }
+  const hidden = new Set((readJson<TodayPart[]>(TODAY_HIDDEN_KEY) ?? []));
   if (shown) hidden.delete(part);
   else hidden.add(part);
   writeJson(TODAY_HIDDEN_KEY, [...hidden]);
@@ -472,7 +523,7 @@ export function saveAppearance(appearance: Appearance): void {
 const MEDITATE_KEY = 'proairetos.meditate';
 
 export type MeditateSettings = {
-  tab: 'sessions' | 'breathe' | 'sounds' | 'music';
+  tab: 'sessions' | 'breathe' | 'sounds' | 'music' | 'free';
   /** The session type chosen on Sessions. */
   session: SessionId;
   /** Which kind of sit the Sounds and Music tabs are choosing for. */
@@ -483,19 +534,48 @@ export type MeditateSettings = {
 
 const meditateDefaults: MeditateSettings = {
   tab: 'sessions',
-  session: 'guided',
-  soundsFor: 'guided',
+  session: sessions[0].id,
+  soundsFor: sessions[0].id,
   setups: {},
 };
 
+function isSessionId(value: unknown): value is SessionId {
+  return sessions.some((definition) => definition.id === value);
+}
+
+function isMeditateTab(value: unknown): value is MeditateSettings['tab'] {
+  return value === 'sessions' || value === 'breathe' || value === 'sounds' || value === 'music' || value === 'free';
+}
+
+function isSitKind(value: unknown): value is SitKind {
+  return value === 'breathe' || isSessionId(value);
+}
+
+function cleanMeditateSetups(value: unknown): MeditateSettings['setups'] {
+  if (!value || typeof value !== 'object') return {};
+  const source = value as Record<string, unknown>;
+  const cleaned: MeditateSettings['setups'] = {};
+  const kinds: readonly SitKind[] = [...sessions.map((definition) => definition.id), 'breathe'];
+  const keys: readonly (keyof SitSetup)[] = ['minutes', 'pace', 'counts', 'bells', 'breathSounds', 'sounds', 'music'];
+  for (const kind of kinds) {
+    const raw = source[kind];
+    if (!raw || typeof raw !== 'object') continue;
+    const setup = raw as Record<string, unknown>;
+    const next: Partial<SitSetup> = {};
+    for (const key of keys) if (key in setup) next[key] = setup[key] as never;
+    if (Object.keys(next).length) cleaned[kind] = next;
+  }
+  return cleaned;
+}
+
 export function loadMeditate(): MeditateSettings {
   const saved = readJson<Partial<MeditateSettings>>(MEDITATE_KEY) ?? {};
-  // Earlier versions kept other fields here; only these carry over.
+  const session = isSessionId(saved.session) ? saved.session : meditateDefaults.session;
   return {
-    tab: saved.tab ?? meditateDefaults.tab,
-    session: saved.session ?? meditateDefaults.session,
-    soundsFor: saved.soundsFor ?? saved.session ?? meditateDefaults.soundsFor,
-    setups: saved.setups ?? {},
+    tab: isMeditateTab(saved.tab) ? saved.tab : meditateDefaults.tab,
+    session,
+    soundsFor: isSitKind(saved.soundsFor) ? saved.soundsFor : session,
+    setups: cleanMeditateSetups(saved.setups),
   };
 }
 
@@ -507,9 +587,22 @@ export function saveMeditate(settings: MeditateSettings): void {
 
 const NOTIFY_KEY = 'proairetos.notify';
 
+/** Up to three "HH:MM" times, in order; the default pair if none are usable. */
+function bellTimes(saved: unknown): string[] {
+  const times = Array.isArray(saved) ? saved.filter((t): t is string => typeof t === 'string' && /^\d{2}:\d{2}$/.test(t)) : [];
+  return times.length ? [...new Set(times)].sort().slice(0, 3) : defaultNoticeSettings.bellAt;
+}
+
 /** What notifies, and how; device-only, like quiet hours. */
 export function loadNotify(): NoticeSettings {
-  return { ...defaultNoticeSettings, ...readJson<Partial<NoticeSettings>>(NOTIFY_KEY) };
+  const saved = readJson<Partial<NoticeSettings>>(NOTIFY_KEY) ?? {};
+  return {
+    ...defaultNoticeSettings,
+    ...saved,
+    calendarLead: normalizeLeadMinutes(saved.calendarLead, defaultNoticeSettings.calendarLead),
+    scheduleLead: normalizeLeadMinutes(saved.scheduleLead, defaultNoticeSettings.scheduleLead),
+    bellAt: bellTimes(saved.bellAt),
+  };
 }
 
 export function saveNotify(settings: NoticeSettings): void {

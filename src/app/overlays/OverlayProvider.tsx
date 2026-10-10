@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { focusedMinutes, pause, resume, startSession, type FocusSession } from '../../core/focus/session';
-import { loadFocusSession, saveFocusSession } from '../../data/storage/preferences';
+import { loadFocusBreath, loadFocusSession, saveFocusSession } from '../../data/storage/preferences';
 import DecideSheet, { type DecideFrom } from '../../features/decisions/DecideSheet';
 import DecisionSheet from '../../features/decisions/DecisionSheet';
 import FocusBar from '../../features/focus/FocusBar';
 import FocusScreen from '../../features/focus/FocusScreen';
+import FocusSettle from '../../features/focus/FocusSettle';
 import FocusStart from '../../features/focus/FocusStart';
 import ItemSheet from '../../features/items/ItemSheet';
 import PauseScreen from '../../features/pause/PauseScreen';
@@ -36,6 +37,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useFocusSession();
   // After a reload, a running session comes back as the small bar, not the full screen.
   const [focusVisible, setFocusVisible] = useState(false);
+  const [settling, setSettling] = useState<{ minutes: number; target?: FocusTarget } | null>(null);
   const [pausing, setPausing] = useState(false);
   // undefined: closed; null: the list; an id: that practice.
   const [practice, setPractice] = useState<PracticeId | null | undefined>(undefined);
@@ -107,8 +109,22 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
           onClose={() => setFocusStart(null)}
           onStart={(minutes) => {
             const target = focusStart.target;
+            if (loadFocusBreath()) {
+              setSettling({ minutes, target });
+              return;
+            }
             setSession(startSession(Date.now(), minutes, target));
             setFocusVisible(true);
+          }}
+        />
+      )}
+
+      {settling && (
+        <FocusSettle
+          onDone={() => {
+            setSession(startSession(Date.now(), settling.minutes, settling.target));
+            setFocusVisible(true);
+            setSettling(null);
           }}
         />
       )}

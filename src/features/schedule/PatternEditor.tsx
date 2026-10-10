@@ -118,7 +118,7 @@ function RunCard({
           <input
             className="field-input"
             aria-label={`${name} name`}
-            placeholder="Name (optional), e.g. Days or Nights"
+            placeholder="Name, e.g. Days or Nights"
             value={block.label ?? ''}
             onChange={(event) => onChange({ ...segment, blocks: [{ ...block, label: event.target.value }] })}
           />
@@ -275,7 +275,7 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
 
       <div className="stack-tight">
         <label className="field-label" htmlFor="schedule-location">
-          Where (optional)
+          Where
         </label>
         <input
           id="schedule-location"
@@ -284,7 +284,7 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           placeholder="A place, if it helps"
           onChange={(event) => set({ location: event.target.value || undefined })}
         />
-        <span className="field-label">Colour for the whole schedule (optional)</span>
+        <span className="field-label">Colour for the whole schedule</span>
         <ColorChoice value={draft.color} onChange={(color) => set({ color })} />
         <p className="sheet__hint">A shift with its own colour (in the cycle above) shows in that colour instead.</p>
       </div>
@@ -324,7 +324,7 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
       </label>
 
       <details className="stack-tight" open={Boolean(draft.endDate)}>
-        <summary className="section-label">Ends on a date (optional)</summary>
+        <summary className="section-label">Ends on a date</summary>
         <div className="field-row">
           <input
             type="date"

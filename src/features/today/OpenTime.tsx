@@ -92,7 +92,7 @@ export default function OpenTime({ stretches, items, today }: { stretches: Span[
   if (stretches.length === 0) return null;
 
   return (
-    <section className="today-section" aria-label="Open time">
+    <section className="today-section today-section--card" aria-label="Open time">
       <div className="section-heading">
         <h2 className="section-label">Open time</h2>
         <NotForMe part="open-time" />

@@ -3,7 +3,7 @@ import type { Nav } from '../app/App';
 import { dishScene } from '../app/scenes';
 import { newId, useGroceries, useRecipes, useToday } from '../app/state';
 import { BackLink, dayLabel, useUndo } from '../app/ui';
-import { addToList, usuallyHave } from '../core/groceries';
+import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { isHeading, marks, searchRecipes, type Mark, type Recipe } from '../core/recipes';
 import { plannedAhead, plannedOn, togglePlanned, weekFrom } from '../core/week';
@@ -30,7 +30,7 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
     const kitchen = kitchenNames(groceries);
     const lines = ahead.flatMap((recipe) =>
       recipe.ingredients
-        .filter((line) => !isHeading(line) && !usuallyHave(line, have) && usesFromKitchen([line], kitchen).length === 0)
+        .filter((line) => !isHeading(line) && isGrocery(line) && !usuallyHave(line, have) && usesFromKitchen([line], kitchen).length === 0)
         .map((line) => ({ line, recipe: { id: recipe.id, title: recipe.title } })),
     );
     const before = groceries;

@@ -31,6 +31,10 @@ export type Recipe = {
   marks?: Mark[];
   /** Days it is planned for (YYYY-MM-DD): the loose week. */
   planned?: string[];
+  /** A personal estimate for the whole recipe, in the Oikonomia currency. */
+  estimatedCostCents?: number;
+  /** Kept with the estimate so changing currency never reinterprets old amounts. */
+  estimatedCostCurrency?: string;
   createdAt: string;
   updatedAt: string;
 };

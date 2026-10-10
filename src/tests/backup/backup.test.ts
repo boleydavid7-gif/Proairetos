@@ -13,7 +13,8 @@ import {
 } from '../../data/repositories/indexeddb/indexedDbRepositories';
 import { openDatabase } from '../../data/storage/indexeddb/database';
 import type { Repositories } from '../../data/storage/deviceStorage';
-import { createBackupService } from '../../services/backup/backupService';
+import { createBackupService, type BackupServiceDeps } from '../../services/backup/backupService';
+import type { FamilyData } from '../../data/backup/family';
 import { createAttachmentService } from '../../services/attachments/attachmentService';
 import { createCompassService } from '../../services/compass/compassService';
 import { createDecisionService } from '../../services/decisions/decisionService';
@@ -22,7 +23,7 @@ import { createReflectionService } from '../../services/reflection/reflectionSer
 import { createScheduleService } from '../../services/schedule/scheduleService';
 import { testContext } from '../support/testContext';
 
-function device(userId = 'local') {
+function device(userId = 'local', family?: BackupServiceDeps['family']) {
   const db = openDatabase(new IDBFactory());
   const repositories: Repositories = {
     items: createIndexedDbLifeItemRepository(db),
@@ -37,7 +38,7 @@ function device(userId = 'local') {
   };
   const { context } = testContext();
   return {
-    backup: createBackupService({ userId, context, repositories }),
+    backup: createBackupService({ userId, context, repositories, family }),
     life: createLifeService({ userId, context, items: repositories.items, events: repositories.events }),
     compass: createCompassService({ userId, context, values: repositories.values, statements: repositories.statements }),
     reflections: createReflectionService({ userId, context, reflections: repositories.reflections }),
@@ -87,6 +88,18 @@ describe('backup', () => {
     expect(data.lifeItems[0].title).toBe('Call the clinic');
   }, 20_000);
 
+  it('seals a backup that contains a larger photo or file', async () => {
+    const d = device();
+    const item = await d.life.capture('Keep the scan');
+    await d.attachments.add(item.id, {
+      name: 'scan.jpg', type: 'image/jpeg', data: new Uint8Array(200_000).buffer,
+    });
+
+    const text = await d.backup.exportFile('large backup password');
+    const { data } = await d.backup.readFile(text, 'large backup password');
+    expect(data.attachments?.[0].size).toBe(200_000);
+  }, 20_000);
+
   it('rejects files that are not backups, damaged, or from a newer version', async () => {
     const { backup } = device();
     await expect(backup.readFile('not json')).rejects.toBeInstanceOf(BackupError);
@@ -94,6 +107,11 @@ describe('backup', () => {
     await expect(backup.readFile('{"format":"proairetos-backup","version":99}')).rejects.toThrow('newer version');
     const damaged = JSON.stringify({ format: 'proairetos-backup', version: 1, encrypted: false, data: { lifeItems: [{}] } });
     await expect(backup.readFile(damaged)).rejects.toBeInstanceOf(BackupError);
+    const valid = JSON.parse(await backup.exportFile()) as { data: Record<string, unknown> };
+    valid.data.attachments = [{ id: 'a', userId: 'u', itemId: 'i', name: 'scan.jpg', type: 'image/jpeg', size: 3, createdAt: '', data: 'not-base64' }];
+    await expect(backup.readFile(JSON.stringify({ format: 'proairetos-backup', version: 1, exportedAt: '', encrypted: false, data: valid.data }))).rejects.toThrow(
+      'attachments in this file are damaged',
+    );
   });
 
   it('replaces what was there, and claims records for this person', async () => {
@@ -105,6 +123,23 @@ describe('backup', () => {
     await here.life.capture('Already here');
     await here.backup.replaceAll((await here.backup.readFile(text)).data);
     expect((await here.life.list()).map((i) => i.title)).toEqual(['From another account']);
+  });
+
+  it('forwards bills and monthly budgets to the family restore when replacing a backup', async () => {
+    const restored: FamilyData[] = [];
+    const here = device('local', {
+      gather: async () => ({}),
+      restore: async (data) => { restored.push(data); },
+    });
+    const oikonomia = {
+      bills: [{ id: 'rent', name: 'Rent' }],
+      budgets: [{ id: '2026-10', month: '2026-10', totalCents: 250000 }],
+    };
+
+    await here.backup.replaceAll({ ...await here.backup.exportData(), oikonomia });
+
+    expect(restored).toHaveLength(1);
+    expect(restored[0].oikonomia).toEqual(oikonomia);
   });
 
   it('deletes everything', async () => {

@@ -8,7 +8,7 @@ import { planFor } from '../plan/planView';
  * back, grouped by the person's own marks. Things with a time are on the
  * day already, so they are not listed twice.
  */
-export default function DayPlan({ date, today, items, range }: { date: string; today: string; items: LifeItem[]; range?: { start: Date; end: Date } }) {
+export default function DayPlan({ date, today, items, range, allowDelete = false }: { date: string; today: string; items: LifeItem[]; range?: { start: Date; end: Date }; allowDelete?: boolean }) {
   const untimed = (item: LifeItem) => !item.scheduledAt || Boolean(item.checklist);
   const sections = planFor(date, today, items, range)
     .map((section) => ({ ...section, open: section.open.filter(untimed), done: section.done.filter(untimed) }))
@@ -27,11 +27,12 @@ export default function DayPlan({ date, today, items, range }: { date: string; t
                 key={item.id}
                 item={item}
                 done={false}
+                allowDelete={allowDelete}
                 detail={item.repeat && item.checklist ? `Comes back ${describeRule(item.repeat).toLowerCase()}` : undefined}
               />
             ))}
             {section.done.map((item) => (
-              <CheckRow key={item.id} item={item} done />
+              <CheckRow key={item.id} item={item} done allowDelete={allowDelete} />
             ))}
           </ul>
         </div>

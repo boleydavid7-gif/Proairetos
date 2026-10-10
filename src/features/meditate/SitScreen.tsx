@@ -4,11 +4,14 @@ import { audio, buffer, gain, letGo, playOnce, wakeAudio } from '../../app/sound
 import { player } from '../../app/sound/player';
 import { BELL_FILE } from '../../app/sound/soundscapes';
 import { breathAt, breathPattern, type BreathStepKind } from '../../core/meditate/breathing';
-import { cueAt, session, sessionCues } from '../../core/meditate/sessions';
+import { session } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
 import { PauseIcon, PlayIcon } from '../../components/icons/Icons';
 import BreathCircle from './BreathCircle';
 import lake from '../../assets/images/scenes/lake.webp';
+import lakeWide from '../../assets/images/scenes/lake-wide.webp';
+import lakeLight from '../../assets/images/scenes/lake-light.webp';
+import lakeLightWide from '../../assets/images/scenes/lake-light-wide.webp';
 
 /** A sit about to begin: its kind and how the person set it up. */
 export type SitPlan = { kind: SitKind; setup: SitSetup };
@@ -23,39 +26,16 @@ function clock(seconds: number): string {
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
 }
 
-function speak(text: string): void {
-  try {
-    if (!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    const line = new SpeechSynthesisUtterance(text);
-    line.rate = 0.82;
-    line.pitch = 0.95;
-    line.volume = 0.9;
-    speechSynthesis.speak(line);
-  } catch {
-    // The words are on screen too.
-  }
-}
-
-function hush(): void {
-  try {
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
-  } catch {
-    // Nothing to stop.
-  }
-}
-
 /**
  * A sit or a breathing round, full screen over the lake. One clock drives
- * the circle, the counts, the breath sounds, and the cues; pausing stops
- * them all together. Leaving early is always one tap, and nothing is kept.
+ * the circle, the counts, and the breath sounds; pausing stops them all
+ * together. Leaving early is always one tap, and nothing is kept.
  */
 export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: () => void }) {
   const { setup } = plan;
   const script = plan.kind === 'breathe' ? undefined : session(plan.kind);
   const pattern = breathPattern(setup.pace);
   const total = setup.minutes * 60;
-  const [cues] = useState(() => (script ? sessionCues(script, setup.minutes, setup.guidance) : []));
 
   // The clock: time banked before the last pause, plus time since resuming.
   const banked = useRef(0);
@@ -70,11 +50,9 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
 
   const effects = useRef<GainNode | null>(null);
   const scheduled = useRef(new Set<number>());
-  const spoken = useRef(-1);
   const faded = useRef(false);
 
   const leave = useCallback(() => {
-    hush();
     // A paused sit holds the whole audio clock; let other sounds carry on.
     void audio().resume();
     player.stop(2);
@@ -95,7 +73,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     const nav = navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } };
     if (!script?.fadeOut) nav.wakeLock?.request('screen').then((held) => (lock = held)).catch(() => undefined);
     return () => {
-      hush();
       void lock?.release().catch(() => undefined);
       const bus = effects.current;
       // Let the last bell ring out before letting go.
@@ -107,31 +84,27 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     // Runs once for the life of the screen.
   }, []);
 
-  // The ticking: time left, cues, the sleep fade, and the end.
+  // The ticking: time left, the sleep fade, and the end.
   useEffect(() => {
     const id = window.setInterval(() => {
       const seconds = elapsed();
       setNow(seconds);
-      if (script) {
-        const cue = cueAt(cues, seconds);
-        if (cue && cue.at !== spoken.current && running) {
-          spoken.current = cue.at;
-          if (setup.speak && seconds - cue.at < 3) speak(cue.text);
-        }
-        if (script.fadeOut && !faded.current && total - seconds <= 60) {
-          faded.current = true;
-          player.stop(Math.max(1, total - seconds));
-        }
+      if (script?.fadeOut && !faded.current && total - seconds <= 60) {
+        faded.current = true;
+        player.stop(Math.max(1, total - seconds));
       }
     }, 250);
     return () => window.clearInterval(id);
-  }, [elapsed, cues, script, setup, total, running]);
+  }, [elapsed, script, total]);
 
   // Breath sounds, a real breath, scheduled a little ahead on the audio clock.
   useEffect(() => {
     if (!setup.breathSounds || !running || done) return;
     const ctx = audio();
-    const bus = gain(ctx, 1);
+    // Keep the recordings quiet beside any chosen soundscape.
+    // The source files are intentionally quiet; a unity-gain bus made them
+    // feel much closer than the original recordings.
+    const bus = gain(ctx, 0.45);
     bus.connect(ctx.destination);
     scheduled.current.clear();
     // Fetch the few files this pattern uses before the first one is due.
@@ -139,6 +112,11 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       const file = breathFile(step.kind);
       if (file) void buffer(file).catch(() => undefined);
     }
+    // The scheduler below looks ahead to the step after the one currently
+    // under way. Start the first cycle explicitly so every pattern begins
+    // with its inhale instead of making the first audible cue an exhale.
+    const firstFile = breathFile(pattern.steps[0]?.kind);
+    if (firstFile) void playOnce(firstFile, bus).catch(() => undefined);
     const id = window.setInterval(() => {
       const at = elapsed();
       let moment = breathAt(at, pattern);
@@ -167,7 +145,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     if (!done) return;
     since.current = null;
     banked.current = total * 1000;
-    hush();
     if (setup.bells && effects.current) void playOnce(BELL_FILE, effects.current, 0.1).catch(() => undefined);
     player.stop(script?.fadeOut ? 2 : 8);
   }, [done, script, setup, total]);
@@ -176,7 +153,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     if (running) {
       banked.current += performance.now() - (since.current ?? performance.now());
       since.current = null;
-      hush();
       audio().suspend().catch(() => undefined);
     } else {
       since.current = performance.now();
@@ -186,12 +162,11 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
     setRunning(!running);
   }
 
-  const cue = script ? cueAt(cues, now) : undefined;
   const title = script ? script.title : pattern.title;
 
   return (
     <div className={`sit-screen${script?.fadeOut ? ' sit-screen--sleep' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="sit-screen__scene" style={{ backgroundImage: `url(${lake})` }} aria-hidden="true" />
+      <div className="sit-screen__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
       <button type="button" className="sit-screen__leave" onClick={leave}>
         {done ? 'Close' : 'End'}
       </button>
@@ -211,9 +186,6 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
           ) : (
             <BreathCircle pattern={pattern} elapsed={elapsed} show="caption" caption={clock(total - now)} />
           )}
-          <p className="sit-screen__cue" key={cue?.at ?? 'none'}>
-            {cue?.text ?? (plan.kind === 'breathe' ? 'Follow the circle. Breathe through the nose if that is easy.' : '')}
-          </p>
           <div className="sit-screen__controls">
             <span className="sit-screen__time">{setup.counts ? `${clock(total - now)} left` : ''}</span>
             <button

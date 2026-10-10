@@ -1,6 +1,7 @@
 import type { AisleChoices } from '../core/aisles';
 import type { GroceryItem } from '../core/groceries';
 import type { Recipe } from '../core/recipes';
+import type { UnitSystem } from '../core/ingredients';
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openSoma } from '../../data/backup/family';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
@@ -18,6 +19,8 @@ const SETTINGS = 'soma:settings';
 
 export type Settings = {
   started: boolean;
+  /** How measured ingredients are shown; recipes remain stored as imported. */
+  units: UnitSystem;
   /** The daily line on Home. */
   dailyLine: boolean;
   /** "Ways to try it" beside recipes. */
@@ -42,6 +45,7 @@ export type Settings = {
 
 export const defaultSettings = (): Settings => ({
   started: false,
+  units: 'original',
   dailyLine: true,
   waysToTry: true,
   usuallyHave: ['salt', 'black pepper', 'olive oil', 'water'],
@@ -177,7 +181,9 @@ export async function startStore(): Promise<void> {
 
 export function loadSettings(): Settings {
   try {
-    return { ...defaultSettings(), ...(JSON.parse(localStorage.getItem(SETTINGS) ?? '{}') as Partial<Settings>) };
+    const saved = JSON.parse(localStorage.getItem(SETTINGS) ?? '{}') as Partial<Settings>;
+    const units = saved.units === 'metric' || saved.units === 'us' || saved.units === 'original' ? saved.units : defaultSettings().units;
+    return { ...defaultSettings(), ...saved, units };
   } catch {
     return defaultSettings();
   }
@@ -185,7 +191,11 @@ export function loadSettings(): Settings {
 
 export function saveSettings(next: Settings): void {
   try {
-    localStorage.setItem(SETTINGS, JSON.stringify(next));
+    try {
+      localStorage.setItem(SETTINGS, JSON.stringify(next));
+    } catch {
+      // Storage full or blocked: this lasts for this visit only.
+    }
   } catch {
     // Kept for this visit only.
   }

@@ -6,7 +6,12 @@ export const DB_NAME = 'proairetos';
 // Version 7: askesisWorkouts, askesisPlans (Askesis, the training app, served
 // from the same address, keeps its records here so they sync with the account).
 // Version 8: somaRecipes, somaGroceries (SOMA, the recipe app, likewise).
-export const DB_VERSION = 8;
+// Version 9: oikonomiaBills (Oikonomia, the household stewardship app).
+// Version 10: oikonomiaBudgets (monthly plans shared with Oikonomia).
+// Version 11: hydrosDrinks (Hydros intake entries shared with the family).
+// Version 12: theoriaBooks (Theoria's reading shelf and source links).
+// Version 13: theoriaNotebooks (structured notes shared by Theoria devices).
+export const DB_VERSION = 13;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -24,6 +29,11 @@ export const stores = {
   askesisPlans: 'askesisPlans',
   somaRecipes: 'somaRecipes',
   somaGroceries: 'somaGroceries',
+  oikonomiaBills: 'oikonomiaBills',
+  oikonomiaBudgets: 'oikonomiaBudgets',
+  hydrosDrinks: 'hydrosDrinks',
+  theoriaBooks: 'theoriaBooks',
+  theoriaNotebooks: 'theoriaNotebooks',
 } as const;
 
 export type StoreName = (typeof stores)[keyof typeof stores];
@@ -82,6 +92,21 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.somaGroceries)) {
         db.createObjectStore(stores.somaGroceries, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.oikonomiaBills)) {
+        db.createObjectStore(stores.oikonomiaBills, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.oikonomiaBudgets)) {
+        db.createObjectStore(stores.oikonomiaBudgets, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
+        db.createObjectStore(stores.hydrosDrinks, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.theoriaBooks)) {
+        db.createObjectStore(stores.theoriaBooks, { keyPath: 'id' }).createIndex('userId', 'userId');
+      }
+      if (!db.objectStoreNames.contains(stores.theoriaNotebooks)) {
+        db.createObjectStore(stores.theoriaNotebooks, { keyPath: 'id' }).createIndex('userId', 'userId');
       }
     };
 
