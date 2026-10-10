@@ -60,6 +60,7 @@ export default function App() {
       const [kind, id] = open.split(':');
       if (kind === 'recipe' && id) go({ name: 'recipe', id });
       else if (kind === 'week' || kind === 'tonight') go({ name: kind });
+      else if (kind === 'list') swap({ name: 'groceries' });
       else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
     }
     return () => window.removeEventListener('popstate', onPop);

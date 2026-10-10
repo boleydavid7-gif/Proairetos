@@ -2,6 +2,7 @@ import type { Nav } from '../app/App';
 import { Leaf } from '../app/icons';
 import { scene } from '../app/scenes';
 import { loadSettings, saveSettings } from '../data/store';
+import { pendingInvite } from './SharedList';
 
 /** The first screen: what this is, and one way in. */
 export default function WelcomePage({ nav }: { nav: Nav }) {
@@ -25,7 +26,8 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
             className="button-main"
             onClick={() => {
               saveSettings({ ...loadSettings(), started: true });
-              nav.swap({ name: 'home' });
+              // Opened from a shared list's invite: straight to it.
+              nav.swap({ name: pendingInvite() ? 'groceries' : 'home' });
             }}
           >
             Get started

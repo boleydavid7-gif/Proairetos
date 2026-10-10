@@ -300,3 +300,11 @@ appear in Proairetos's account page and in every app's account card.
 
 On an iPhone Home Screen app, try it once: if the sign-in finishes in Safari instead of the app, use the email
 code there; it signs in the same account.
+
+## Shared grocery lists (migration 20261018000000)
+
+Run `supabase/migrations/20261018000000_shared_lists.sql` in the SQL editor. It adds shared lists for SOMA:
+a list's lines are sealed on the phone with the list's own key, which travels only inside the invite link
+(after the `#`, which is never sent to a server), so the server stores lines it cannot read. Only people who
+joined with the link can see or change a list, and anyone can leave. Nothing else needs deploying. Until it
+runs, SOMA's Shared view says the server is not set up yet.

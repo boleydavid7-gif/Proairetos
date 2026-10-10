@@ -533,6 +533,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Home shows a card that opens it. TheMealDB calls live in `app/mealdb.ts`.
   Produce photos are kept offline by `public/soma/sw.js` (`produce-photos`).
   "I cooked this" offers "Add a photo?" when a recipe has none.
+- Shared grocery list (Groceries > Shared; migration `20261018000000_shared_lists.sql`): `core/sharedList.ts` (invite link `/soma/?open=list:ID#k=KEY&n=NAME`, `readInvite`, pending changes laid over the server copy with `withPending`/`queue`), `data/sharedLists.ts` (lists in the synced setting `soma:sharedLists`; items cached in `somaShared.items.ID` with unsent changes in `somaShared.pending.ID`; each line sealed with the list's AES key, AD `soma-list:LIST:ITEM`; joining sends `joinProof` = SHA-256 of the key to `join_shared_list`; pulls every 15 s while visible). `screens/SharedList.tsx`: join card for an invite (kept in sessionStorage by `main.tsx`, which takes the key out of the address), make a list, add, tick, remove with undo, clear ticked, "Add my list to it", invite (share or copy), leave. Both people need an account (any; sign-in only, no passphrase needed for the list). The tables' row rules were checked on Postgres 16: strangers see nothing and cannot join without the proof.
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

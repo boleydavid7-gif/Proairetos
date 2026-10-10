@@ -17,6 +17,8 @@ import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { readInvite } from './core/sharedList';
+import { keepInvite } from './screens/SharedList';
 
 // The same theme and text size as Proairetos, with SOMA's own bar colour.
 function appearance() {
@@ -33,7 +35,13 @@ window.addEventListener('storage', appearance);
 void startStore()
   .catch(() => undefined)
   .then(() => {
-    ReactDOM.createRoot(document.getElementById('root')!).render(
+    // A shared list's invite: the key is after `#`, read here once and taken out of the address.
+const invite = readInvite(location.search, location.hash);
+if (invite) {
+  keepInvite(invite);
+  history.replaceState(history.state, '', location.pathname + location.search);
+}
+ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
         <ErrorBoundary><App /></ErrorBoundary>
       </React.StrictMode>,

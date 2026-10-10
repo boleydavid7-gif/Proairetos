@@ -9,6 +9,8 @@ import { addToList, byAisle, byRecipe, cleanLine, isGrocery, listAsText, onList,
 import { boughtLabel, bringHome, kitchenByAge } from '../core/kitchen';
 import { convertAmountText, type UnitSystem } from '../core/ingredients';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
+import { pendingInvite, SharedLists } from './SharedList';
+import { sharingAvailable } from '../data/sharedLists';
 
 function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSystem: UnitSystem; onToggle: () => void; onMore: () => void }) {
   return (
@@ -36,7 +38,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   const [adding, setAdding] = useState('');
   const [open, setOpen] = useState<GroceryItem>();
   const [shared, setShared] = useState(false);
-  const [place, setPlace] = useState<'list' | 'kitchen'>('list');
+  const [place, setPlace] = useState<'list' | 'kitchen' | 'shared'>(() => (pendingInvite() ? 'shared' : 'list'));
   const today = useToday();
   if (!items) return null;
 
@@ -85,10 +87,13 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         options={[
           { id: 'list', label: 'To buy' },
           { id: 'kitchen', label: 'In the kitchen' },
+          ...(sharingAvailable ? [{ id: 'shared' as const, label: 'Shared' }] : []),
         ]}
         onChange={setPlace}
       />
-      {place === 'kitchen' ? (
+      {place === 'shared' ? (
+        <SharedLists personal={items} />
+      ) : place === 'kitchen' ? (
         <Kitchen items={items} today={today} change={change} />
       ) : (
       <>
