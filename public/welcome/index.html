@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proairetos and its family</title>
+    <meta name="description" content="Seven calm apps for the days you choose: planning and reflection, running, food, bills, water, study and reading. On your phone, private, no scores." />
+    <meta property="og:title" content="Proairetos and its family" />
+    <meta property="og:description" content="Seven calm apps for the days you choose. Private, on your phone, no scores." />
+    <meta property="og:image" content="/screenshots/wide-1.webp" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c0e;
+        --card: #13171a;
+        --text: #f2ece2;
+        --muted: #b3ada3;
+        --accent: #c9a274;
+        --on-accent: #1a140d;
+        --border: rgba(255, 255, 255, 0.1);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          color-scheme: light;
+          --bg: #f6efe4;
+          --card: #fffaf2;
+          --text: #2b251f;
+          --muted: #5f5448;
+          --accent: #8a6a46;
+          --on-accent: #fffaf2;
+          --border: rgba(43, 37, 31, 0.14);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 17px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+      }
+      a { color: inherit; }
+      .wrap { max-width: 64rem; margin: 0 auto; padding: 0 16px; }
+      header { padding: 4.5rem 0 2.5rem; text-align: center; }
+      header img { width: 64px; height: 64px; border-radius: 16px; }
+      h1, h2, h3 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; line-height: 1.15; margin: 0; }
+      h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); margin-top: 1rem; }
+      .lead { max-width: 34rem; margin: 1rem auto 0; color: var(--muted); font-size: 1.1rem; }
+      .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 1.8rem; }
+      .button {
+        display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px;
+        border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid var(--border);
+      }
+      .button--main { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+      section { padding: 2.5rem 0; border-top: 1px solid var(--border); }
+      h2 { font-size: 2rem; margin-bottom: 1.2rem; }
+      .apps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+      .app {
+        display: grid; grid-template-rows: auto 1fr auto; gap: 12px; padding: 18px; border-radius: 20px;
+        background: var(--card); border: 1px solid var(--border);
+      }
+      .app__head { display: flex; align-items: center; gap: 12px; }
+      .app__head img { width: 44px; height: 44px; border-radius: 12px; }
+      .app__name { font-size: 1.35rem; }
+      .app p { margin: 0; color: var(--muted); }
+      .app__shot { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; object-position: top; border-radius: 14px; border: 1px solid var(--border); max-height: 22rem; }
+      .app .button { width: 100%; }
+      details { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
+      summary { cursor: pointer; padding: 16px 18px; font-weight: 600; min-height: 48px; }
+      details ol { margin: 0; padding: 0 18px 16px 40px; color: var(--muted); }
+      details li { margin: 6px 0; }
+      .notes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+      .notes p { margin: 0.3rem 0 0; color: var(--muted); }
+      .notes h3 { font-size: 1.3rem; }
+      footer { padding: 2rem 0 3rem; color: var(--muted); font-size: 0.95rem; border-top: 1px solid var(--border); }
+      footer a { margin-right: 18px; }
+    </style>
+  </head>
+  <body>
+    <header class="wrap">
+      <img src="/icons/icon-192.png" alt="" />
+      <h1>Proairetos and its family</h1>
+      <p class="lead">
+        Seven calm apps for the days you choose: what to do and what to remember, a run, a meal, the bills,
+        a glass of water, an hour of study, a book. They record your life; they never score it.
+      </p>
+      <div class="actions">
+        <a class="button button--main" href="/">Open Proairetos</a>
+        <a class="button" href="#install">Add to your Home Screen</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="wrap" aria-labelledby="apps">
+        <h2 id="apps">The apps</h2>
+        <ul class="apps">
+          <li class="app">
+            <div class="app__head"><img src="/icons/icon-192.png" alt="" /><h3 class="app__name">Proairetos</h3></div>
+            <p>Today, your days ahead, a place to set things down, and a quiet space to reflect. Works with any schedule, night shifts included.</p>
+            <img class="app__shot" src="/screenshots/narrow-1.webp" alt="Proairetos Today on a phone" />
+            <a class="button button--main" href="/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/askesis/icons/icon-192.png" alt="" /><h3 class="app__name">Askesis</h3></div>
+            <p>A gradual running path from your first walk-run toward an aim you set.</p>
+            <img class="app__shot" src="/askesis/screenshots/narrow-1.webp" alt="Askesis on a phone" />
+            <a class="button" href="/askesis/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/soma/icons/icon-192.png" alt="" /><h3 class="app__name">SOMA</h3></div>
+            <p>Your recipes in one place and a grocery list sorted by aisle. No calories, no good or bad food.</p>
+            <img class="app__shot" src="/soma/screenshots/narrow-1.webp" alt="SOMA on a phone" />
+            <a class="button" href="/soma/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/oikonomia/icons/icon-192.png" alt="" /><h3 class="app__name">Oikonomia</h3></div>
+            <p>Bills and subscriptions with their dates in view, and a reminder the day you choose.</p>
+            <img class="app__shot" src="/oikonomia/screenshots/narrow-1.webp" alt="Oikonomia on a phone" />
+            <a class="button" href="/oikonomia/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/hydros/icon.svg" alt="" /><h3 class="app__name">HYDROS</h3></div>
+            <p>What you drank today, one tap a glass, with reminders that keep to your waking hours or your work.</p>
+            <img class="app__shot" src="/hydros/screenshots/narrow-1.webp" alt="HYDROS on a phone" />
+            <a class="button" href="/hydros/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/praxis/icons/icon-192.png" alt="" /><h3 class="app__name">Praxis</h3></div>
+            <p>Study in blocks with a bell at the end, a break after, and a day to look at it again.</p>
+            <img class="app__shot" src="/praxis/screenshots/narrow-1.webp" alt="Praxis on a phone" />
+            <a class="button" href="/praxis/">Open</a>
+          </li>
+          <li class="app">
+            <div class="app__head"><img src="/theoria/icons/icon-192.png" alt="" /><h3 class="app__name">Theoria</h3></div>
+            <p>A quiet library: read your books and PDFs, keep highlights and notes, and come back to them.</p>
+            <img class="app__shot" src="/theoria/screenshots/narrow-1.webp" alt="Theoria on a phone" />
+            <a class="button" href="/theoria/">Open</a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="wrap" id="install" aria-labelledby="install-title">
+        <h2 id="install-title">Add them to your Home Screen</h2>
+        <details open>
+          <summary>iPhone and iPad (Safari)</summary>
+          <ol>
+            <li>Open the app above in Safari.</li>
+            <li>Tap the Share button, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
+            <li>Open it from the Home Screen. Each app is added on its own, and each keeps its own storage, so sign in once in each one you use.</li>
+            <li>For reminders, turn them on in Proairetos (Settings, Notifications). The other apps send theirs through it.</li>
+          </ol>
+        </details>
+        <details>
+          <summary>Android (Chrome)</summary>
+          <ol>
+            <li>Open the app above in Chrome.</li>
+            <li>Tap <strong>Install</strong> when it is offered, or the menu (⋮), then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+            <li>Long-press the icon for shortcuts, such as writing something down or logging a glass.</li>
+          </ol>
+        </details>
+        <details>
+          <summary>A computer (Chrome, Edge or Safari)</summary>
+          <ol>
+            <li>Open the app above.</li>
+            <li>In Chrome or Edge, choose the install icon in the address bar. In Safari on a Mac, choose File, then <strong>Add to Dock</strong>.</li>
+            <li>Press Ctrl or ⌘ and K in Proairetos to go anywhere or write something down.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="wrap" aria-labelledby="yours">
+        <h2 id="yours">Yours</h2>
+        <div class="notes">
+          <div>
+            <h3>On your phone first</h3>
+            <p>Everything works without an account and without a connection. Nothing is sent anywhere unless you turn on sync.</p>
+          </div>
+          <div>
+            <h3>Encrypted if you sync</h3>
+            <p>Sync seals what you write with a passphrase only you know before it leaves your phone. The server cannot read it.</p>
+          </div>
+          <div>
+            <h3>No scores</h3>
+            <p>No streaks, badges or rankings. The apps never decide what matters; you do.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <a href="/">Proairetos</a>
+      <a href="/privacy.html">Privacy</a>
+    </footer>
+  </body>
+</html>

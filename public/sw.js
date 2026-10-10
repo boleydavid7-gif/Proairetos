@@ -32,7 +32,7 @@ async function cacheFirst(request) {
 
 // Plain pages that are not the app (privacy). They are cached as themselves,
 // never in place of the app page.
-const STATIC_PAGES = ['/privacy', '/privacy.html', '/praxis', '/praxis/', '/theoria', '/theoria/'];
+const STATIC_PAGES = ['/privacy', '/privacy.html', '/welcome', '/welcome/', '/welcome/index.html', '/praxis', '/praxis/', '/theoria', '/theoria/'];
 
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;

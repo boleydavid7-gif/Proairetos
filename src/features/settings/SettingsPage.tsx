@@ -19,6 +19,7 @@ import {
   CalendarIcon,
   ChevronRightIcon,
   CloudIcon,
+  CompassIcon,
   HeartIcon,
   InboxIcon,
   MoonIcon,
@@ -1223,6 +1224,7 @@ export default function SettingsPage() {
         { id: 'hydros', icon: app('/hydros/icon.svg'), title: 'HYDROS', value: 'Water, flow and balance', onClick: () => window.location.assign('/hydros/'), words: 'water drink' },
         { id: 'praxis', icon: app('/praxis/favicon.svg'), title: 'Praxis', value: 'Study, on purpose', onClick: () => window.location.assign('/praxis/'), words: 'study focus' },
         { id: 'theoria', icon: app('/theoria/favicon.svg'), title: 'Theoria', value: 'Reading and ideas', onClick: () => window.location.assign('/theoria/'), words: 'books reading' },
+        { id: 'family-page', icon: <CompassIcon size={22} />, title: 'All the apps', value: 'And how to add them', onClick: () => window.location.assign('/welcome/'), words: 'install home screen add share family' },
       ],
     },
     {
