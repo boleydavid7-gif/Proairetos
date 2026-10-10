@@ -24,6 +24,10 @@ function useOpen() {
     } else if (open === 'reflect') navigate('reflect');
     else if (open === 'compass') navigate('compass');
     else if (open === 'settings') navigate('settings');
+    else if (open.startsWith('settings:')) {
+      openSettingsAt(open.slice(9) as Parameters<typeof openSettingsAt>[0]);
+      navigate('settings');
+    } else if (open === 'hydros') window.location.assign('/hydros/');
     else if (open === 'account') {
       openSettingsAt('account');
       navigate('settings');

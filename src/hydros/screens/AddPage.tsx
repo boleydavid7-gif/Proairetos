@@ -1,8 +1,7 @@
-import { tap } from '../../app/feel';
 import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { defaultDrinkProfiles, drinkKinds, formatVolume, id, unitToOunces, type HydrosDrinkProfile, type HydrosUnit } from '../core/drinks';
-import { putDrink } from '../data/store';
+import { defaultDrinkProfiles, drinkKinds, formatVolume, unitToOunces, type HydrosDrinkProfile, type HydrosUnit } from '../core/drinks';
+import { logDrink } from '../app/log';
 import { MinusIcon, PlusIcon, iconForKind } from '../app/icons';
 import { ScreenHeader } from '../app/ui';
 import { useSettings } from '../app/state';
@@ -22,23 +21,10 @@ export default function AddPage({ nav, profileId }: { nav: Nav; profileId?: stri
     caffeineMg: item.caffeineMg,
     electrolytesMg: 0,
     sugarG: 0,
-    hydrationCoefficient: item.id === 'water' || item.id === 'sparkling' ? 1 : .85,
+    hydrationCoefficient: 1,
   };
   const save = async () => {
-    tap();
-    const now = new Date().toISOString();
-    await putDrink({
-      id: id(),
-      kind: selectedProfile.kind,
-      profileId: selectedProfile.id,
-      label: selectedProfile.label,
-      amountOz: unitToOunces(amount, unit),
-      caffeineMg: selectedProfile.caffeineMg,
-      electrolytesMg: selectedProfile.electrolytesMg,
-      sugarG: selectedProfile.sugarG,
-      loggedAt: now,
-      createdAt: now,
-    });
+    await logDrink({ profileId: selectedProfile.id, amountOz: unitToOunces(amount, unit) }, profiles, unit);
     nav.swap({ name: 'today' });
   };
   const step = unit === 'oz' ? 1 : unit === 'ml' ? 50 : .1;
@@ -46,7 +32,7 @@ export default function AddPage({ nav, profileId }: { nav: Nav; profileId?: stri
   return (
     <div className="hydros-add">
       <div className="hydros-add__stage">
-        <ScreenHeader title="Add Drink" onBack={nav.back} />
+        <ScreenHeader title="Add a drink" onBack={nav.back} />
         <div className="drink-types">
           {drinkKinds.map((item) => (
             <button type="button" key={item.id} className={selectedProfile.kind === item.id && (item.id !== 'other' || selectedProfile.id === selectedProfileId) ? 'is-selected' : ''} onClick={() => item.id === 'other' ? nav.go({ name: 'drinkTypes', returnTo: 'add' }) : setSelectedProfileId(item.id)}>
@@ -60,7 +46,7 @@ export default function AddPage({ nav, profileId }: { nav: Nav; profileId?: stri
           <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
           <button type="button" aria-label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></button>
         </div>
-        <button type="button" className="hydros-save" onClick={() => void save()}>Save Drink</button>
+        <button type="button" className="hydros-save" onClick={() => void save()}>Save</button>
       </div>
     </div>
   );

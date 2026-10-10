@@ -15,6 +15,7 @@ import { startSync } from '../app/sync/syncController';
 import { loadSettings, startStore } from './data/store';
 import { notifications } from '../app/notify/notifications';
 import App from './app/App';
+import { startDailyCopies } from '../app/family/dailyCopy';
 
 function appearance() {
   applyAppearance();
@@ -25,10 +26,11 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 startStore();
-notifications.setHydrationSchedule({ enabled: loadSettings().reminders === true, intervalMinutes: loadSettings().reminderIntervalMinutes ?? 120 });
+notifications.setHydrationSchedule({ enabled: loadSettings().reminders === true, intervalMinutes: loadSettings().reminderIntervalMinutes ?? 120, when: loadSettings().reminderWhen });
 notifications.start();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><App /></ErrorBoundary></React.StrictMode>);
 void startSync();
+startDailyCopies();
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   let refreshing = false;

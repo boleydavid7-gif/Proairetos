@@ -1,14 +1,15 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Drink, HydrosActivity, HydrosSettings, HydrosUnit } from '../core/drinks';
-import { defaultHydrosSettings, normalizeDrinkProfiles } from '../core/drinks';
+import { defaultHydrosSettings, normalizeDrinkProfiles, normalizeGlasses, OLD_DEFAULT_CREDIT, type HydrosDrinkProfile } from '../core/drinks';
+import { notifications } from '../../app/notify/notifications';
 
 export type { HydrosSettings } from '../core/drinks';
 
 const DRINKS = stores.hydrosDrinks;
 const SETTINGS = 'hydros:settings';
 const SETTINGS_FORMAT = 'hydros:settings-format';
-const CURRENT_SETTINGS_FORMAT = '2';
+const CURRENT_SETTINGS_FORMAT = '3';
 const memory = new Map<string, Drink>();
 let opened: Promise<IDBDatabase | undefined> | undefined;
 let version = 0;
@@ -56,6 +57,8 @@ export async function putDrink(drink: Drink): Promise<void> {
   else memory.set(drink.id, drink);
   notify();
   syncSoon();
+  // Reminders count from the last drink, so they are worked out again.
+  notifications.refreshSoon();
 }
 
 export async function removeDrink(id: string): Promise<void> {
@@ -63,6 +66,7 @@ export async function removeDrink(id: string): Promise<void> {
   else memory.delete(id);
   notify();
   syncSoon();
+  notifications.refreshSoon();
 }
 
 export function loadSettings(): HydrosSettings {
@@ -71,7 +75,13 @@ export function loadSettings(): HydrosSettings {
     // The original Hydros default was 72 oz and there was no settings screen
     // to explicitly choose it. Treat that legacy value as the old default,
     // while preserving a deliberate 72 oz choice made in the new settings UI.
-    const legacyDefault = localStorage.getItem(SETTINGS_FORMAT) !== CURRENT_SETTINGS_FORMAT && saved.goalOz === 72;
+    const format = localStorage.getItem(SETTINGS_FORMAT);
+    const legacyDefault = format !== '2' && format !== CURRENT_SETTINGS_FORMAT && saved.goalOz === 72;
+    // Before format 3, drink types were saved whole with the old partial credit for coffee, tea and the rest.
+    // A type still at its old default now counts in full; one the person changed keeps their number.
+    const profiles = normalizeDrinkProfiles(saved.drinkProfiles).map((profile: HydrosDrinkProfile) =>
+      format !== CURRENT_SETTINGS_FORMAT && OLD_DEFAULT_CREDIT[profile.id] === profile.hydrationCoefficient ? { ...profile, hydrationCoefficient: 1 } : profile);
+    const unit = saved.unit === 'ml' || saved.unit === 'L' ? saved.unit as HydrosUnit : 'oz';
     return {
       ...defaultHydrosSettings(),
       ...saved,
@@ -85,8 +95,11 @@ export function loadSettings(): HydrosSettings {
       useRecommendedRange: saved.useRecommendedRange === true,
       reminders: saved.reminders === true,
       reminderIntervalMinutes: Number.isFinite(saved.reminderIntervalMinutes) ? Math.max(15, Math.min(240, Math.round(Number(saved.reminderIntervalMinutes)))) : 120,
-      unit: saved.unit === 'ml' || saved.unit === 'L' ? saved.unit as HydrosUnit : 'oz',
-      drinkProfiles: normalizeDrinkProfiles(saved.drinkProfiles),
+      reminderWhen: saved.reminderWhen === 'work' ? 'work' : 'waking',
+      runDayExtra: saved.runDayExtra !== false,
+      unit,
+      drinkProfiles: profiles,
+      glasses: normalizeGlasses(saved.glasses, unit),
     };
   } catch {
     return defaultHydrosSettings();

@@ -5,13 +5,14 @@ import { defaultQuietHours } from '../../core/rhythm/quietHours';
 const now = new Date(2026, 9, 5, 8, 0);
 
 describe('Hydros reminder schedule', () => {
-  it('builds a repeating two-week series', () => {
-    setHydrationSchedule({ enabled: true, intervalMinutes: 120 });
+  it('builds a two-week series through waking hours (7:00 to 22:00 when quiet hours are off)', () => {
+    setHydrationSchedule({ enabled: true, intervalMinutes: 120, when: 'waking' });
     const notices = hydrationNotices(now, { ...defaultQuietHours, on: false });
 
-    expect(notices.length).toBe(168);
-    expect(notices[0].at).toEqual(new Date(2026, 9, 5, 10, 0));
-    expect(notices[1].at).toEqual(new Date(2026, 9, 5, 12, 0));
+    expect(notices.length).toBe(98);
+    expect(notices[0].at).toEqual(new Date(2026, 9, 5, 9, 0));
+    expect(notices[1].at).toEqual(new Date(2026, 9, 5, 11, 0));
+    expect(notices.every((notice) => notice.at.getHours() >= 7 && notice.at.getHours() < 22)).toBe(true);
     expect(notices.at(-1)?.at.getTime()).toBeLessThanOrEqual(now.getTime() + 14 * 86_400_000);
   });
 

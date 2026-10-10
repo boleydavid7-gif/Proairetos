@@ -356,10 +356,12 @@ export type TodayPart =
   // Bills coming up from Oikonomia, shown on Today only if chosen.
   | 'bills'
   // What was written on this day in an earlier year; off until chosen.
-  | 'on-this-day';
+  | 'on-this-day'
+  // Water from HYDROS during a work block, shown on Today only if chosen.
+  | 'water';
 
 /** Parts that stay off until the person turns them on in Settings. */
-const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day'];
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water'];
 const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';

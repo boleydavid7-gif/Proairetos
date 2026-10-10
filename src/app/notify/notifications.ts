@@ -4,7 +4,8 @@ import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { upcomingNotices } from './upcoming';
-import { hydrationNotices, setHydrationSchedule } from './hydrationSchedule';
+import { hydrationNotices, hydrationWantsWork, setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
+import { readStore } from '../family/read';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -106,6 +107,19 @@ function arm(): void {
   }, wait);
 }
 
+/** Water reminders, with the last drink logged and (when chosen) the work blocks they keep to. */
+async function hydrationUpcoming(now: Date): Promise<Notice[]> {
+  const drinks = await readStore<{ loggedAt?: string }>('hydrosDrinks');
+  const last = drinks.map((drink) => drink.loggedAt ?? '').filter(Boolean).sort().pop();
+  let work: { start: Date; end: Date }[] = [];
+  if (hydrationWantsWork()) {
+    const until = new Date(now.getTime() + 15 * 86_400_000);
+    const from = new Date(now.getTime() - 86_400_000);
+    work = [...(await scheduleService.occurrencesBetween(from, until)), ...otherCalendars.blocksBetween(from, until)].filter((block) => block.kind === 'COMMITTED');
+  }
+  return hydrationNotices(now, loadQuietHours(), { lastDrinkAt: last ? new Date(last) : undefined, work });
+}
+
 export const notifications = {
   subscribe(listener: () => void): () => void {
     listeners.add(listener);
@@ -140,7 +154,7 @@ export const notifications = {
   },
 
   /** Adds Hydros' repeating drink reminder to the shared Proairetos scheduler. */
-  setHydrationSchedule(next: { enabled: boolean; intervalMinutes: number }): void {
+  setHydrationSchedule(next: HydrationSchedule): void {
     setHydrationSchedule(next);
     void refreshReminders();
     notifications.refreshSoon();
@@ -156,7 +170,7 @@ export const notifications = {
     if (!runningInBrowser()) return;
     const settings = loadNotify();
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
-    upcoming.push(...hydrationNotices(new Date(), loadQuietHours()));
+    upcoming.push(...(await hydrationUpcoming(new Date()).catch(() => [])));
     upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
     if (notifications.permission() === 'granted') arm();

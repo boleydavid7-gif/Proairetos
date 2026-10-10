@@ -129,8 +129,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .flow-chart-card .flow-line-chart { margin-top: 5px; }
 .flow-chart-card .flow-legend { margin: -5px 0 12px 32px; }
 .flow-chart { position: relative; display: flex; height: 260px; margin-top: 26px; padding: 0 4px 26px 40px; }
-.flow-chart::before { content: ''; position: absolute; left: 40px; right: 3px; top: 31%; height: 35%; border-top: 1px dashed rgba(166,225,237,.35); border-bottom: 1px dashed rgba(166,225,237,.35); background: rgba(83,164,186,.06); }
-.flow-chart.is-empty::before { display: none; }
+.flow-chart__goal { position: absolute; z-index: 2; left: 40px; right: 3px; height: 0; border-top: 1px dashed rgba(166,225,237,.6); pointer-events: none; }
 .flow-chart__grid { position: absolute; left: 0; top: -7px; bottom: 28px; display: flex; flex-direction: column; justify-content: space-between; color: var(--muted); font-size: .64rem; }
 .flow-chart__bars { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(7,1fr); align-items: end; gap: 8px; width: 100%; height: 100%; }
 .flow-chart__bar-wrap { display: flex; height: 100%; flex-direction: column; justify-content: end; align-items: center; gap: 7px; color: var(--muted); font-size: .65rem; }
@@ -325,3 +324,36 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 }
 
 .hydros-orb__set { position: relative; z-index: 3; margin-top: 8px; padding: 6px 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; color: inherit; background: rgba(255,255,255,.08); font-size: .72rem; cursor: pointer; }
+
+/* Today: usual glasses and "Same again" under the orb, today's drinks below. */
+.hydros-hero--today .hydros-orb { width: min(64vw, 290px, 36dvh); }
+.hydros-quick { position: relative; z-index: 2; display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.hydros-quick button { display: flex; flex: 1 1 0; min-width: 0; max-width: 140px; min-height: 52px; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 6px 14px; border: 1px solid rgba(195, 242, 255, .45); border-radius: 18px; background: rgba(4, 30, 42, .55); color: #f4fbfc; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.hydros-quick button strong { font-size: .84rem; font-weight: 600; }
+.hydros-quick button small { max-width: 100%; overflow: hidden; color: rgba(226, 249, 255, .82); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-quick button:active { transform: scale(.97); }
+.hydros-today-list { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 36px; }
+.hydros-today-list .hydros-section-title { align-items: baseline; }
+.hydros-today-list .hydros-section-title h2 { font: 400 1.28rem/1.15 var(--serif); }
+.hydros-caffeine { color: var(--text-soft); font-size: .74rem; }
+.hydros-orb em { font-style: normal; font-size: .7rem; }
+
+.hydros-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 14px); z-index: 20; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); padding: 10px 14px 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: 0 10px 30px rgba(0, 0, 0, .35); transform: translateX(-50%); white-space: nowrap; font-size: .84rem; }
+.hydros-toast button { border: 0; background: none; color: var(--cyan); font: inherit; font-weight: 600; }
+
+.flow-line-chart__goal { stroke: rgba(166, 225, 237, .6); stroke-width: 1; stroke-dasharray: 4 4; }
+.hydros-more { align-self: center; }
+
+/* Settings */
+.hydros-reference { display: flex; flex-direction: column; gap: 6px; margin: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--cyan-soft); }
+.hydros-reference > span { color: var(--muted); font-size: .68rem; }
+.hydros-reference__row { display: flex; align-items: center; gap: 10px; }
+.hydros-reference__row > span { display: flex; min-width: 0; flex: 1; flex-direction: column; }
+.hydros-reference__row strong { font: 400 1rem/1.2 var(--serif); }
+.hydros-reference__row small, .hydros-reference__source { color: var(--text-soft); font-size: .68rem; line-height: 1.35; }
+.hydros-reference__row button { min-width: 52px; min-height: 36px; border: 1px solid var(--cyan); border-radius: 999px; background: transparent; color: var(--cyan); font: inherit; font-size: .78rem; }
+.hydros-glass-row { display: grid; grid-template-columns: minmax(0, 1.2fr) 58px auto minmax(0, 1fr) 36px; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.hydros-glass-row input, .hydros-glass-row select { min-width: 0; width: 100%; min-height: 36px; padding: 4px 7px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: .8rem; }
+.hydros-glass-row b { color: var(--text-soft); font-size: .72rem; font-weight: 400; }
+.hydros-glass-row button { min-width: 36px; min-height: 36px; border: 0; background: none; color: var(--muted); font-size: 1.3rem; }
+.hydros-settings-group .account-card, .hydros-settings-group .card { margin: 0; }

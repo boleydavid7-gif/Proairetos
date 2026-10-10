@@ -34,5 +34,43 @@
       "form_factor": "wide",
       "label": "Hydros"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Log a glass",
+      "short_name": "A glass",
+      "url": "/hydros/?open=glass",
+      "icons": [
+        {
+          "src": "/hydros/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a drink",
+      "short_name": "Add",
+      "url": "/hydros/?open=add",
+      "icons": [
+        {
+          "src": "/hydros/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Your flow",
+      "short_name": "Flow",
+      "url": "/hydros/?open=flow",
+      "icons": [
+        {
+          "src": "/hydros/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

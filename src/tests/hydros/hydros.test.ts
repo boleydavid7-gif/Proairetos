@@ -1,31 +1,21 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { AVERAGE_FOOD_WATER_FRACTION, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, recommendedGoalOz, recommendedTotalWaterOz, sourceBreakdown, startOfWeek, totalOz, volumeLabel, waterRecommendation, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
+import { referenceAmounts, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, sourceBreakdown, startOfWeek, totalOz, volumeLabel, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
     expect(defaultHydrosSettings()).toMatchObject({ goalOz: 80, unit: 'oz', reminders: false, reminderIntervalMinutes: 120 });
-    expect(recommendedTotalWaterOz({ weightLb: 160, heightIn: 70, activity: 'moderate' })).toBe(93);
-    expect(recommendedGoalOz({ weightLb: 160, heightIn: 70, activity: 'moderate' })).toBe(74);
   });
 
-  it('separates average food water from the amount to drink', () => {
-    const recommendation = waterRecommendation({ weightLb: 160, heightIn: 70, activity: 'moderate' });
-    expect(recommendation).toEqual({ totalNeedOz: 93, foodWaterOz: 19, drinkGoalOz: 74 });
-    expect(recommendation?.foodWaterOz).toBe(Math.round(recommendation!.totalNeedOz * AVERAGE_FOOD_WATER_FRACTION));
-    expect(waterRecommendation({ weightLb: 160, heightIn: 70, activity: 'high' })).toMatchObject({ totalNeedOz: 105, drinkGoalOz: 84 });
+  it('offers published reference amounts, drinks being about four fifths of the whole', () => {
+    expect(referenceAmounts.map((reference) => [reference.label, reference.drinksOz, reference.totalOz])).toEqual([
+      ['Adult women', 74, 91],
+      ['Adult men', 101, 125],
+    ]);
   });
 
-  it('does not recommend without a complete positive profile', () => {
-    expect(waterRecommendation({ weightLb: 0, heightIn: 70, activity: 'moderate' })).toBeUndefined();
-    expect(waterRecommendation({ weightLb: 160, heightIn: undefined, activity: 'moderate' })).toBeUndefined();
-    expect(waterRecommendation({ weightLb: 160, heightIn: 70, activity: undefined })).toBeUndefined();
-  });
-
-  it('uses the selected target unless the profile recommendation is enabled', () => {
-    const profile = { goalOz: 80, usualMinOz: 60, usualMaxOz: 80, weightLb: 160, heightIn: 70, activity: 'moderate' as const };
-    expect(effectiveGoalOz(profile)).toBe(80);
-    expect(effectiveGoalOz({ ...profile, useRecommendedRange: true })).toBe(74);
+  it('uses the amount the person set', () => {
+    expect(effectiveGoalOz({ goalOz: 64, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: true })).toBe(64);
   });
 
   it('converts stored ounces into the selected display unit', () => {
@@ -85,8 +75,11 @@ describe('Hydros', () => {
     const profiles = defaultDrinkProfiles();
     const energy: Drink = { id: 'energy-17', kind: 'other', profileId: 'energy', label: 'Energy drink', amountOz: 17, loggedAt: '2026-10-04T09:00:00.000Z', createdAt: '2026-10-04T09:00:00.000Z' };
     const water: Drink = { id: 'water-8', kind: 'water', profileId: 'water', amountOz: 8, loggedAt: '2026-10-04T09:00:00.000Z', createdAt: '2026-10-04T09:00:00.000Z' };
-    expect(hydrationEquivalentOz(energy, profiles)).toBeCloseTo(11.9, 5);
-    expect(hydrationOz([water, energy], profiles)).toBeCloseTo(19.9, 5);
+    // Every drink counts in full unless the person changes it (Maughan 2016; Killer 2014).
+    expect(hydrationEquivalentOz(energy, profiles)).toBe(17);
+    expect(hydrationOz([water, energy], profiles)).toBe(25);
+    const lighter = profiles.map((profile) => (profile.id === 'energy' ? { ...profile, hydrationCoefficient: 0.7 } : profile));
+    expect(hydrationEquivalentOz(energy, lighter)).toBeCloseTo(11.9, 5);
     expect(hydrationEquivalentOz(water, profiles)).toBe(8);
   });
 

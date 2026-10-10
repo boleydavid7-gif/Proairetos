@@ -1,3 +1,6 @@
+import { personalDate, type DaySettings } from '../../core/rhythm/personalDay';
+import type { ScheduleOccurrence } from '../../core/scheduling/types';
+
 export type DrinkKind = 'water' | 'coffee' | 'tea' | 'electrolyte' | 'sparkling' | 'other';
 
 export type Drink = {
@@ -47,20 +50,36 @@ export type HydrosSettings = {
   useRecommendedRange?: boolean;
   reminders?: boolean;
   reminderIntervalMinutes?: number;
+  /** When reminders may come: any waking hour (outside quiet hours), or only during work blocks. */
+  reminderWhen?: 'waking' | 'work';
+  /** On a run day from Askesis, add a little to the daily amount (shown, and can be turned off). */
+  runDayExtra?: boolean;
   unit?: HydrosUnit;
   drinkProfiles?: HydrosDrinkProfile[];
+  /** The person's usual glasses and bottles, one tap each. */
+  glasses?: Glass[];
 };
+
+/** A glass or bottle the person uses often: one tap logs it. */
+export type Glass = { id: string; label: string; amountOz: number; profileId: string };
+
+/**
+ * Hydration credit. Coffee, tea, sparkling water, sports drinks, soda and similar drinks hydrate about as
+ * well as water at the amounts people drink them, so each counts in full unless the person changes it.
+ */
+export const HYDRATION_SOURCE =
+  'Maughan et al., A randomized trial to assess the potential of different beverages to affect hydration status (Am J Clin Nutr, 2016); Killer et al., No evidence of dehydration with moderate daily coffee intake (PLoS One, 2014)';
 
 export const defaultDrinkProfiles = (): HydrosDrinkProfile[] => [
   { id: 'water', kind: 'water', label: 'Water', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
-  { id: 'coffee', kind: 'coffee', label: 'Coffee', caffeineMg: 95, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .8 },
-  { id: 'tea', kind: 'tea', label: 'Tea', caffeineMg: 35, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .9 },
-  { id: 'electrolyte', kind: 'electrolyte', label: 'Sports drink', caffeineMg: 0, electrolytesMg: 110, sugarG: 21, hydrationCoefficient: .9 },
+  { id: 'coffee', kind: 'coffee', label: 'Coffee', caffeineMg: 95, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
+  { id: 'tea', kind: 'tea', label: 'Tea', caffeineMg: 35, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
+  { id: 'electrolyte', kind: 'electrolyte', label: 'Sports drink', caffeineMg: 0, electrolytesMg: 110, sugarG: 21, hydrationCoefficient: 1 },
   { id: 'sparkling', kind: 'sparkling', label: 'Sparkling', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
-  { id: 'other', kind: 'other', label: 'Other', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .85 },
-  { id: 'energy', kind: 'other', label: 'Energy drink', caffeineMg: 160, electrolytesMg: 0, sugarG: 27, hydrationCoefficient: .7 },
-  { id: 'soda', kind: 'other', label: 'Soda', caffeineMg: 39, electrolytesMg: 0, sugarG: 39, hydrationCoefficient: .8 },
-  { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24, hydrationCoefficient: .85 },
+  { id: 'other', kind: 'other', label: 'Other', caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 },
+  { id: 'energy', kind: 'other', label: 'Energy drink', caffeineMg: 160, electrolytesMg: 0, sugarG: 27, hydrationCoefficient: 1 },
+  { id: 'soda', kind: 'other', label: 'Soda', caffeineMg: 39, electrolytesMg: 0, sugarG: 39, hydrationCoefficient: 1 },
+  { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24, hydrationCoefficient: 1 },
 ];
 
 function validNonNegative(value: unknown, fallback: number): number {
@@ -89,51 +108,35 @@ export function normalizeDrinkProfiles(value: unknown): HydrosDrinkProfile[] {
     if (kind !== 'water' && kind !== 'coffee' && kind !== 'tea' && kind !== 'electrolyte' && kind !== 'sparkling' && kind !== 'other') continue;
     const label = String((item as { label?: unknown }).label ?? '').trim();
     if (!label) continue;
-    profiles.push(normalize({ id, kind, label, caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: .85 }, item as Partial<HydrosDrinkProfile>));
+    profiles.push(normalize({ id, kind, label, caffeineMg: 0, electrolytesMg: 0, sugarG: 0, hydrationCoefficient: 1 }, item as Partial<HydrosDrinkProfile>));
   }
   return profiles;
 }
 
-export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, unit: 'oz', drinkProfiles: defaultDrinkProfiles() });
+export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, reminderWhen: 'waking', runDayExtra: true, unit: 'oz', drinkProfiles: defaultDrinkProfiles() });
 
 /** An average diet contributes about one-fifth of daily water needs through food. */
 export const AVERAGE_FOOD_WATER_FRACTION = 0.2;
 
-type RecommendationProfile = Pick<HydrosSettings, 'weightLb' | 'heightIn' | 'activity'>;
+/** The defaults before drinks counted in full, so an untouched type can be brought up to date. */
+export const OLD_DEFAULT_CREDIT: Record<string, number> = { coffee: 0.8, tea: 0.9, electrolyte: 0.9, other: 0.85, energy: 0.7, soda: 0.8, juice: 0.85 };
+
+const LITER_OZ = 33.814;
+
+export const REFERENCE_SOURCE = 'National Academies, Dietary Reference Intakes for Water (2004); EFSA, Dietary reference values for water (2010)';
 
 /**
- * Returns the estimated total daily water need before separating food and drinks.
- * The estimate is intentionally a starting point, not medical advice.
+ * Published reference amounts for adults, as they are written: total water from all sources, and about
+ * how much of it comes from drinks (the rest from food). Offered, never chosen for the person.
  */
-export function recommendedTotalWaterOz(settings: RecommendationProfile): number | undefined {
-  if (!Number.isFinite(settings.weightLb) || !Number.isFinite(settings.heightIn) || !settings.activity || settings.weightLb! <= 0 || settings.heightIn! <= 0) return undefined;
-  const activityOz = settings.activity === 'high' ? 24 : settings.activity === 'moderate' ? 12 : 0;
-  const heightAdjustment = Math.max(-6, Math.min(6, (settings.heightIn! - 66) * 0.25));
-  return Math.round(Math.max(40, Math.min(180, settings.weightLb! * 0.5 + heightAdjustment + activityOz)));
-}
+export const referenceAmounts: readonly { id: string; label: string; totalOz: number; drinksOz: number }[] = [
+  { id: 'women', label: 'Adult women', totalOz: Math.round(2.7 * LITER_OZ), drinksOz: Math.round(2.2 * LITER_OZ) },
+  { id: 'men', label: 'Adult men', totalOz: Math.round(3.7 * LITER_OZ), drinksOz: Math.round(3.0 * LITER_OZ) },
+];
 
-export type WaterRecommendation = {
-  totalNeedOz: number;
-  foodWaterOz: number;
-  drinkGoalOz: number;
-};
-
-/** Splits the estimate into average food water and the amount to drink. */
-export function waterRecommendation(settings: RecommendationProfile): WaterRecommendation | undefined {
-  const totalNeedOz = recommendedTotalWaterOz(settings);
-  if (totalNeedOz === undefined) return undefined;
-  const foodWaterOz = Math.round(totalNeedOz * AVERAGE_FOOD_WATER_FRACTION);
-  return { totalNeedOz, foodWaterOz, drinkGoalOz: totalNeedOz - foodWaterOz };
-}
-
-/** The recommended daily amount to log as drinks, after average food water. */
-export function recommendedGoalOz(settings: RecommendationProfile): number | undefined {
-  return waterRecommendation(settings)?.drinkGoalOz;
-}
-
-/** The target shown to the person, optionally using the profile recommendation. */
+/** The daily amount shown, as the person set it. */
 export function effectiveGoalOz(settings: HydrosSettings): number {
-  return settings.useRecommendedRange ? recommendedGoalOz(settings) ?? settings.goalOz : settings.goalOz;
+  return settings.goalOz;
 }
 
 const OUNCES_PER_ML = 1 / 29.5735;
@@ -258,7 +261,7 @@ export function profileForDrink(drink: Drink, profiles: readonly HydrosDrinkProf
 
 /** Returns the editable fraction of a drink credited toward hydration. */
 export function hydrationCoefficientFor(drink: Drink, profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): number {
-  return profileForDrink(drink, profiles)?.hydrationCoefficient ?? (drink.kind === 'water' || drink.kind === 'sparkling' ? 1 : .85);
+  return profileForDrink(drink, profiles)?.hydrationCoefficient ?? 1;
 }
 
 export function hydrationEquivalentOz(drink: Drink, profiles: readonly HydrosDrinkProfile[] = defaultDrinkProfiles()): number {
@@ -291,4 +294,59 @@ export function sourceBreakdown(drinks: readonly Drink[]): DrinkSource[] {
 
 export function id(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
+/** Usual glasses to begin with, in round amounts of the person's unit. */
+export function defaultGlasses(unit: HydrosUnit = 'oz'): Glass[] {
+  const metric = unit !== 'oz';
+  return [
+    { id: 'glass', label: 'Glass', amountOz: metric ? unitToOunces(250, 'ml') : 8, profileId: 'water' },
+    { id: 'bottle', label: 'Bottle', amountOz: metric ? unitToOunces(500, 'ml') : 16, profileId: 'water' },
+  ];
+}
+
+export function normalizeGlasses(value: unknown, unit: HydrosUnit = 'oz'): Glass[] {
+  if (!Array.isArray(value)) return defaultGlasses(unit);
+  return value
+    .filter((item): item is Partial<Glass> => Boolean(item && typeof item === 'object'))
+    .filter((item) => typeof item.id === 'string' && typeof item.label === 'string' && item.label.trim() && Number.isFinite(item.amountOz) && Number(item.amountOz) > 0)
+    .map((item) => ({ id: item.id!, label: item.label!.trim().slice(0, 30), amountOz: Number(item.amountOz), profileId: typeof item.profileId === 'string' ? item.profileId : 'water' }))
+    .slice(0, 6);
+}
+
+/** A drink record for a glass or a repeat, at `when`, with its type's caffeine and the rest. */
+export function drinkFrom(source: { profileId: string; amountOz: number }, profiles: readonly HydrosDrinkProfile[], when = new Date()): Drink {
+  const profile = profiles.find((item) => item.id === source.profileId) ?? profiles[0] ?? defaultDrinkProfiles()[0];
+  const at = when.toISOString();
+  return {
+    id: id(),
+    kind: profile.kind,
+    profileId: profile.id,
+    label: profile.label,
+    amountOz: source.amountOz,
+    caffeineMg: profile.caffeineMg,
+    electrolytesMg: profile.electrolytesMg,
+    sugarG: profile.sugarG,
+    loggedAt: at,
+    createdAt: at,
+  };
+}
+
+/**
+ * The person's day a drink belongs to: the calendar date, unless their day has not turned over yet (a night
+ * shift and the wind-down after it stay with the day they began), as Proairetos counts it.
+ */
+export function drinkDay(drink: Drink, blocks: readonly ScheduleOccurrence[] = [], settings: DaySettings = { startHour: 0, followShifts: true }): string {
+  return personalDate(new Date(drink.loggedAt), blocks, settings);
+}
+
+export function drinksOnDay(drinks: readonly Drink[], day: string, blocks: readonly ScheduleOccurrence[] = [], settings?: DaySettings): Drink[] {
+  return drinks.filter((drink) => drinkDay(drink, blocks, settings) === day);
+}
+
+/** Caffeine as recorded: the total, and when the last drink with any was logged. Facts only. */
+export function caffeineFacts(drinks: readonly Drink[]): { mg: number; lastAt?: string } {
+  const withCaffeine = drinks.filter((drink) => (drink.caffeineMg ?? kindCaffeine(drink.kind)) > 0);
+  const lastAt = withCaffeine.map((drink) => drink.loggedAt).sort().pop();
+  return { mg: Math.round(caffeine(drinks)), lastAt };
 }

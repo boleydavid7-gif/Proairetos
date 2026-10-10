@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { useSettings, updateSettings } from '../app/state';
-import { defaultDrinkProfiles, type HydrosDrinkProfile } from '../core/drinks';
+import { defaultDrinkProfiles, HYDRATION_SOURCE, type HydrosDrinkProfile } from '../core/drinks';
 import { ScreenHeader } from '../app/ui';
 import { BoltIcon, CupIcon, DropIcon, LeafIcon, MoreIcon } from '../app/icons';
 
@@ -31,10 +31,11 @@ export default function DrinkTypesPage({ nav, returnTo }: { nav: Nav; returnTo?:
   return (
     <div className="hydros-screen hydros-drink-profiles">
       <ScreenHeader title="Drink types" onBack={nav.back} />
-      <p className="hydros-settings-lede">Set what each drink contributes before you add it.</p>
+
       <section className="hydros-profile-list" aria-label="Drink types">
         {profiles.map((profile) => <ProfileEditor key={profile.id} profile={profile} returnTo={returnTo} onChange={changeProfile} onUse={useProfile} />)}
       </section>
+      <p className="hydros-settings-lede">Counted means how much of a drink adds to the day; each counts in full unless you change it. {HYDRATION_SOURCE}.</p>
     </div>
   );
 }
@@ -49,7 +50,7 @@ function ProfileEditor({ profile, returnTo, onChange, onUse }: {
     <details className="hydros-profile-card" open={profile.id === 'other'}>
       <summary>
         <span className="hydros-profile-card__icon">{iconForProfile(profile)}</span>
-        <span className="hydros-profile-card__title"><strong>{profile.label}</strong><small>{Math.round(profile.hydrationCoefficient * 100)}% hydration credit · {profile.caffeineMg} mg caffeine</small></span>
+        <span className="hydros-profile-card__title"><strong>{profile.label}</strong><small>{Math.round(profile.hydrationCoefficient * 100)}% counted · {profile.caffeineMg} mg caffeine</small></span>
         <span className="hydros-settings-row__chevron" aria-hidden="true">›</span>
       </summary>
       <div className="hydros-profile-fields">
@@ -57,7 +58,7 @@ function ProfileEditor({ profile, returnTo, onChange, onUse }: {
         <label><span>Caffeine</span><input type="number" min="0" step="1" inputMode="numeric" value={profile.caffeineMg} onChange={(event) => onChange(profile.id, { caffeineMg: Math.max(0, Number(event.target.value) || 0) })} /><b>mg</b></label>
         <label><span>Electrolytes</span><input type="number" min="0" step="1" inputMode="numeric" value={profile.electrolytesMg} onChange={(event) => onChange(profile.id, { electrolytesMg: Math.max(0, Number(event.target.value) || 0) })} /><b>mg</b></label>
         <label><span>Sugar</span><input type="number" min="0" step="1" inputMode="decimal" value={profile.sugarG} onChange={(event) => onChange(profile.id, { sugarG: Math.max(0, Number(event.target.value) || 0) })} /><b>g</b></label>
-        <label><span>Hydration credit</span><input type="number" min="0" max="100" step="1" inputMode="decimal" value={Math.round(profile.hydrationCoefficient * 100)} onChange={(event) => onChange(profile.id, { hydrationCoefficient: Math.max(0, Math.min(1, (Number(event.target.value) || 0) / 100)) })} /><b>%</b></label>
+        <label><span>Counted</span><input type="number" min="0" max="100" step="1" inputMode="decimal" value={Math.round(profile.hydrationCoefficient * 100)} onChange={(event) => onChange(profile.id, { hydrationCoefficient: Math.max(0, Math.min(1, (Number(event.target.value) || 0) / 100)) })} /><b>%</b></label>
         {returnTo ? <button type="button" className="hydros-profile-use" onClick={() => onUse(profile)}>Use for this drink</button> : null}
       </div>
     </details>
