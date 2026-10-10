@@ -8,6 +8,7 @@ import { soundEntry } from '../app/sound/soundscapes';
 import { BookIcon, CheckIcon, ClockIcon, PenIcon } from '../components/icons/Icons';
 import AccountCard from '../app/family/AccountCard';
 import FamilyBackup from '../app/family/FamilyBackup';
+import FamilyApps from '../app/family/FamilyApps';
 import {
   clampMinutes,
   formatDay,
@@ -389,8 +390,11 @@ export function SettingsView({ notices, onNotices }: { notices: string; onNotice
           {notices === 'granted' ? <span className="praxis-muted">On</span> : notices === 'denied' ? <span className="praxis-muted">Blocked in the browser</span> : notices === 'unsupported' ? <span className="praxis-muted">Not on this browser</span> : <button type="button" className="praxis-button praxis-button--quiet" onClick={onNotices}>Allow</button>}
         </div>
       </article>
-      <AccountCard app="Praxis" what="Your blocks and the time on them" waiting="Blocks" />
-      <FamilyBackup />
+      <div className="family-surface">
+        <AccountCard app="Praxis" what="Your blocks and the time on them" waiting="Blocks" />
+        <FamilyBackup />
+        <FamilyApps current="praxis" />
+      </div>
     </section>
   );
 }

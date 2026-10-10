@@ -3,6 +3,7 @@ import { loadNotify, loadQuietHours, saveNotify } from '../../data/storage/prefe
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
+import { familyWorker } from './familyWorker';
 import { upcomingNotices } from './upcoming';
 import { hydrationNotices, hydrationWantsWork, setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
 import { readStore } from '../family/read';
@@ -61,7 +62,8 @@ async function store(notices: readonly Notice[], details: boolean): Promise<void
 async function show(notice: Notice, details: boolean): Promise<void> {
   if (notifications.permission() !== 'granted') return;
   const shown = details ? notice : privateNotice(notice);
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await familyWorker();
+  if (!registration) return;
   await registration.showNotification(shown.title, {
     body: shown.body,
     tag: notice.key,

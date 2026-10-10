@@ -39,3 +39,37 @@
   .settings-card[aria-label='Account and sync'] .inline-form { display: grid; }
   .settings-card[aria-label='Account and sync'] .inline-form .button-accent { width: 100%; }
 }
+
+/*
+ * The family account and backup cards in apps without the shared Proairetos/Askesis stylesheet (Praxis,
+ * Theoria): the same pieces, drawn from each app's own tokens, inside `.family-surface`.
+ */
+.family-surface, .family-surface * { box-sizing: border-box; }
+.family-surface { display: grid; gap: 14px; margin-top: 16px; color: var(--color-text, inherit); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
+.family-surface .card { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 16px; background: var(--color-surface, rgba(255,255,255,.04)); }
+.family-surface .card__title { margin: 0; font: 500 1.15rem/1.25 var(--font-serif, Georgia, serif); }
+.family-surface .label { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.family-surface .muted, .family-surface .hint, .family-surface .row__detail, .family-surface .switch-row__detail { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .86rem; line-height: 1.5; }
+.family-surface .field { display: grid; gap: 6px; }
+.family-surface .input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; outline: 0; color: inherit; background: rgba(0,0,0,.14); font: inherit; font-size: 16px; }
+.family-surface .input:focus-visible { border-color: var(--color-accent-strong, #c9a274); }
+.family-surface .button-main, .family-surface .button-quiet { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 16px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+.family-surface .button-main { border: 0; color: var(--color-accent-ink, #17120d); background: var(--color-accent-strong, #d9b68a); }
+.family-surface .button-quiet { border: 1px solid var(--color-border, rgba(255,255,255,.14)); color: inherit; background: transparent; }
+.family-surface .button-main:disabled, .family-surface .button-quiet:disabled { opacity: .5; cursor: default; }
+.family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, #d9b68a); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.family-surface .rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.family-surface .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; color: inherit; background: var(--color-surface, rgba(255,255,255,.04)); font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.family-surface .row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; }
+.family-surface .row__app { width: 32px; height: 32px; border-radius: 8px; }
+.family-surface .row__text { display: grid; min-width: 0; gap: 2px; }
+.family-surface .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; min-height: 56px; padding: 0; border: 0; color: inherit; background: none; font: inherit; text-align: left; cursor: pointer; }
+.family-surface .switch-row__text { display: grid; gap: 3px; }
+.family-surface .switch { position: relative; flex: 0 0 auto; width: 46px; height: 28px; border-radius: 999px; background: var(--color-border, rgba(255,255,255,.2)); transition: background .2s ease; }
+.family-surface .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .2s ease; }
+.family-surface .switch--on { background: var(--color-accent-strong, #d9b68a); }
+.family-surface .switch--on::after { transform: translateX(18px); }
+.family-surface .daily-copies { display: grid; gap: 10px; }
+
+.family-apps { display: grid; gap: 10px; margin-top: 18px; }
+.family-apps .label { margin: 0; }

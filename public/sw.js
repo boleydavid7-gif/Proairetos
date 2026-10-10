@@ -131,19 +131,36 @@ self.addEventListener('push', (event) => {
   event.waitUntil(showDue());
 });
 
-// A tap opens the app where the notice belongs: the item, the day, or Today.
+// A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; HYDROS, Praxis,
+// Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
+const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/'];
+
+function placeFor(open) {
+  if (open === 'hydros') return { app: '/hydros/', url: '/hydros/' };
+  if (open === 'praxis') return { app: '/praxis/', url: '/praxis/' };
+  if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
+  if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
+  return { app: '/', url: '/?open=' + encodeURIComponent(open) };
+}
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const open = (event.notification.data && event.notification.data.open) || 'today';
-  const target = '/?open=' + encodeURIComponent(open);
+  const place = placeFor(open);
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
-      const client = windows.find((each) => 'focus' in each);
-      if (client) {
+      const path = (client) => new URL(client.url).pathname;
+      const mine = windows.filter((client) =>
+        place.app === '/' ? !APPS.some((app) => path(client).startsWith(app)) : path(client).startsWith(place.app),
+      );
+      const client = mine.find((each) => 'focus' in each);
+      // Proairetos follows the message where it is; another app is simply brought forward.
+      if (client && place.app === '/') {
         client.postMessage({ type: 'open', open });
         return client.focus();
       }
-      return self.clients.openWindow(target);
+      if (client && place.url === place.app) return client.focus();
+      return self.clients.openWindow(place.url);
     }),
   );
 });

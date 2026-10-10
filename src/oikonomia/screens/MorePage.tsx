@@ -5,6 +5,7 @@ import { offerUndo } from '../app/undo';
 import { listBills, listBudgets, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
 import { PageTop } from '../app/ui';
 import AccountCard from '../../app/family/AccountCard';
+import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'CHF', 'SEK', 'NOK', 'DKK', 'JPY', 'INR', 'SGD', 'HKD', 'ZAR', 'MXN', 'BRL'];
@@ -90,15 +91,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
         />
       </section>
 
-      <section className="oiko-family-links">
-        <p className="label">Family</p>
-        <div className="oiko-family-grid">
-          <a className="row" href="/"><span className="row__icon"><img className="row__app" src="/icons/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Proairetos</strong></span></a>
-          <a className="row" href="/askesis/"><span className="row__icon"><img className="row__app" src="/askesis/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>Askesis</strong></span></a>
-          <a className="row" href="/soma/"><span className="row__icon"><img className="row__app" src="/soma/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>SOMA</strong></span></a>
-          <a className="row" href="/hydros/"><span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={28} height={28} /></span><span className="row__text"><strong>HYDROS</strong></span></a>
-        </div>
-      </section>
+<FamilyApps current="oikonomia" />
 
       <button type="button" className="text-link" onClick={() => nav.go({ name: 'about' })}>About Oikonomia</button>
     </div>

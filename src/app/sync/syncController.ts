@@ -1,4 +1,5 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
+import { familyWorker } from '../notify/familyWorker';
 import { KeyError, createKeys, openBytes, sealBytes, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
@@ -370,7 +371,8 @@ export async function enableReminders(): Promise<void> {
     set({ reminders: permission === 'denied' ? 'blocked' : 'off' });
     return;
   }
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await familyWorker();
+  if (!registration) throw new Error('Reminders are not available here.');
   const subscription =
     (await registration.pushManager.getSubscription()) ??
     (await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey() }));
@@ -385,7 +387,7 @@ export async function disableReminders(): Promise<void> {
   const endpoint = await st?.getMeta<string>(REMINDERS_META);
   if (endpoint) {
     await removePushSubscription(endpoint).catch(() => undefined);
-    const registration = await navigator.serviceWorker?.ready;
+    const registration = await familyWorker();
     await (await registration?.pushManager.getSubscription())?.unsubscribe();
     await st!.setMeta(REMINDERS_META, null);
   }

@@ -764,3 +764,7 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-view > .account-card, .theoria-view > .card { margin-top: 16px; }
 .theoria-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
 .theoria-check input { width: 20px; height: 20px; accent-color: var(--theoria-brass); }
+.theoria-settings-copy { display: grid; gap: 6px; padding: 16px 18px; border: 1px solid rgba(182,163,212,.2); border-radius: 12px; }
+.theoria-settings-copy p:not(.theoria-eyebrow) { margin: 0; font-family: var(--font-sans, Inter, sans-serif); font-size: 13px; line-height: 1.55; opacity: .85; }
+.theoria-modal-close { display: grid; place-items: center; width: 44px; height: 44px; top: 8px; right: 8px; }
+.theoria-mobile-brand, .theoria-family-link { min-height: 44px; display: inline-flex; align-items: center; }

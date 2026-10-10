@@ -25,15 +25,15 @@
   --line: rgba(16, 77, 94, .17);
   --text: #0c2b35;
   --text-soft: #315662;
-  --muted: #5f7b84;
-  --cyan: #007eae;
+  --muted: #4a646d;
+  --cyan: #006690;
   --cyan-soft: rgba(0, 126, 174, .13);
   --cyan-ink: #effbff;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: light) {
-  :root.hydros[data-theme='system'] { --bg: #eaf4f5; --surface: rgba(255,255,255,.84); --surface-solid: #fff; --surface-2: #d6e9ed; --line: rgba(16,77,94,.17); --text: #0c2b35; --text-soft: #315662; --muted: #5f7b84; --cyan: #007eae; --cyan-soft: rgba(0,126,174,.13); --cyan-ink: #effbff; color-scheme: light; }
+  :root.hydros[data-theme='system'] { --bg: #eaf4f5; --surface: rgba(255,255,255,.84); --surface-solid: #fff; --surface-2: #d6e9ed; --line: rgba(16,77,94,.17); --text: #0c2b35; --text-soft: #315662; --muted: #4a646d; --cyan: #006690; --cyan-soft: rgba(0,126,174,.13); --cyan-ink: #effbff; color-scheme: light; }
 }
 
 html.hydros, body:has(.hydros-shell) { background: var(--bg); }
@@ -357,3 +357,5 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-glass-row b { color: var(--text-soft); font-size: .72rem; font-weight: 400; }
 .hydros-glass-row button { min-width: 36px; min-height: 36px; border: 0; background: none; color: var(--muted); font-size: 1.3rem; }
 .hydros-settings-group .account-card, .hydros-settings-group .card { margin: 0; }
+
+.hydros-orb__set { min-height: 44px; padding: 6px 16px; }

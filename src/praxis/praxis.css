@@ -247,3 +247,5 @@ html, body { margin: 0; }
 .praxis-button--ready { min-height: 56px; padding: 0 34px; font-size: 14px; box-shadow: 0 0 0 6px rgba(201,162,116,.18), 0 12px 28px rgba(201,162,116,.22); animation: praxis-ready 2.4s ease-in-out infinite; }
 @keyframes praxis-ready { 50% { box-shadow: 0 0 0 11px rgba(201,162,116,.08), 0 12px 28px rgba(201,162,116,.22); } }
 @media (prefers-reduced-motion: reduce) { .praxis-button--ready { animation: none; } }
+/* Room to tap the family link without changing how it looks. */
+.praxis-family-link { align-items: center; min-height: 44px; }

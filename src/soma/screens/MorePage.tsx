@@ -6,6 +6,7 @@ import { useSettings } from '../app/state';
 import { BackLink, Brand, Segmented, Switch, useUndo } from '../app/ui';
 import { sources } from '../core/tryIt';
 import AccountCard from '../../app/family/AccountCard';
+import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import AccountSection from '../../features/settings/AccountSection';
 import { deleteEverything, restore, saveSettings, type Backup } from '../data/store';
@@ -33,46 +34,8 @@ export default function MorePage({ nav }: { nav: Nav }) {
             </button>
           </li>
         ))}
-        <li>
-          <a className="row" href="/">
-            <span className="row__icon">
-              <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>Proairetos</span>
-              <span className="row__detail">Your days, your values, your reflections</span>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/askesis/">
-            <span className="row__icon">
-              <img className="row__app" src="/askesis/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>Askesis</span>
-              <span className="row__detail">Running, from your first walk-run</span>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/oikonomia/">
-            <span className="row__icon">
-              <img className="row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>Oikonomia</span>
-              <span className="row__detail">Bills and household essentials</span>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/hydros/">
-            <span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={26} height={26} /></span>
-            <span className="row__text"><span>HYDROS</span><span className="row__detail">Water, flow and balance</span></span>
-          </a>
-        </li>
       </ul>
+      <FamilyApps current="soma" />
       <figure className="more__foot">
         <img src={scene('olive-wall')} alt="" />
         <figcaption>

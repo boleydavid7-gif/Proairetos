@@ -372,7 +372,7 @@ export default function PraxisApp() {
 
 function SyncDot() {
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
-  return <div className="praxis-topbar__person"><span className={`praxis-sync-dot praxis-sync-dot--${sync.phase}`} aria-label={sync.phase === 'ready' ? 'Synced' : 'On this device'} /></div>;
+  return <div className="praxis-topbar__person"><span className={`praxis-sync-dot praxis-sync-dot--${sync.phase}`} role="img" aria-label={sync.phase === 'ready' ? 'Synced' : 'On this device'} /></div>;
 }
 
 function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {

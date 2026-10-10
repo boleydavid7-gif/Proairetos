@@ -269,6 +269,8 @@
 .days-page {
   position: relative;
   isolation: isolate;
+  /* The light below reaches past the page's sides; it never makes the page scroll sideways. */
+  overflow-x: clip;
 }
 
 .days-page::before {

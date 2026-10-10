@@ -3,6 +3,7 @@ import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIc
 import { Brand } from '../app/ui';
 import { useSettings } from '../app/state';
 import AccountCard from '../../app/family/AccountCard';
+import FamilyApps from '../../app/family/FamilyApps';
 import { aimWords, type Plan } from '../core/plans';
 import type { ReactNode } from 'react';
 
@@ -45,50 +46,8 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
             </button>
           </li>
         ))}
-        <li>
-          <a className="row" href="/">
-            <span className="row__icon">
-              <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>Proairetos</span>
-              <span className="row__detail">Your days, your values, your reflections</span>
-            </span>
-            <ChevronIcon size={18} />
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/soma/">
-            <span className="row__icon">
-              <img className="row__app" src="/soma/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>SOMA</span>
-              <span className="row__detail">Recipes and groceries</span>
-            </span>
-            <ChevronIcon size={18} />
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/oikonomia/">
-            <span className="row__icon">
-              <img className="row__app" src="/oikonomia/icon.svg" alt="" width={26} height={26} />
-            </span>
-            <span className="row__text">
-              <span>Oikonomia</span>
-              <span className="row__detail">Bills and household essentials</span>
-            </span>
-            <ChevronIcon size={18} />
-          </a>
-        </li>
-        <li>
-          <a className="row" href="/hydros/">
-            <span className="row__icon"><img className="row__app" src="/hydros/icon.svg" alt="" width={26} height={26} /></span>
-            <span className="row__text"><span>HYDROS</span><span className="row__detail">Water, flow and balance</span></span>
-            <ChevronIcon size={18} />
-          </a>
-        </li>
       </ul>
+      <FamilyApps current="askesis" />
       <figure className="more__foot">
         <figcaption>
           <blockquote>“No great thing comes into being all at once.”</blockquote>

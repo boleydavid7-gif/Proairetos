@@ -49,5 +49,31 @@
       "form_factor": "wide",
       "label": "Oikonomia"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add a bill",
+      "short_name": "Add",
+      "url": "/oikonomia/?open=capture",
+      "icons": [
+        {
+          "src": "/oikonomia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Bills",
+      "short_name": "Bills",
+      "url": "/oikonomia/?open=bills",
+      "icons": [
+        {
+          "src": "/oikonomia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

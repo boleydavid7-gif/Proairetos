@@ -49,5 +49,31 @@
       "form_factor": "wide",
       "label": "Askesis"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "This week",
+      "short_name": "Week",
+      "url": "/askesis/?open=home",
+      "icons": [
+        {
+          "src": "/askesis/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Log a run",
+      "short_name": "Log",
+      "url": "/askesis/?open=log",
+      "icons": [
+        {
+          "src": "/askesis/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

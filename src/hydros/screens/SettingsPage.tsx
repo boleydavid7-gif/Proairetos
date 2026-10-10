@@ -21,6 +21,7 @@ import { notifications } from '../../app/notify/notifications';
 import { enableReminders, syncStatus } from '../../app/sync/syncController';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import FamilyApps from '../../app/family/FamilyApps';
 
 const intervals = [60, 90, 120, 180] as const;
 
@@ -180,6 +181,8 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
         <AccountCard app="HYDROS" what="What you drink and your settings" waiting="Drinks" />
         <FamilyBackup />
       </section>
+
+      <div className="family-surface"><FamilyApps current="hydros" /></div>
 
       <SettingsGroup title="More">
         <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Aprivacy"><Icon><GearIcon /></Icon><span className="hydros-settings-row__name">Privacy</span><Chevron /></a>

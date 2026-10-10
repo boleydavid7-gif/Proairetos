@@ -31,3 +31,11 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Text buttons beside a section's heading (Set, Edit, Make a decision): a full tap area, the same look. */
+.section-heading .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 4px;
+}
