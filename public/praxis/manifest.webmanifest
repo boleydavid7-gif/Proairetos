@@ -44,5 +44,31 @@
       "form_factor": "wide",
       "label": "Praxis"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start my next block",
+      "short_name": "Start",
+      "url": "/praxis/?open=start",
+      "icons": [
+        {
+          "src": "/praxis/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "short_name": "Sessions",
+      "url": "/praxis/?open=sessions",
+      "icons": [
+        {
+          "src": "/praxis/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

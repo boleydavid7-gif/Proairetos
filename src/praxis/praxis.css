@@ -186,3 +186,60 @@
   .praxis-toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; text-align: center; }
 }
 html, body { margin: 0; }
+
+/* Blocks: a row each, with change and done; editing opens below. */
+.praxis-task { display: block; }
+.praxis-task__row { display: grid; grid-template-columns: minmax(0,1fr) 32px 22px; align-items: center; gap: 6px; }
+.praxis-task-edit { width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; color: var(--color-text-faint); background: transparent; cursor: pointer; }
+.praxis-task-edit:hover { color: var(--color-text); }
+.praxis-block-form { display: grid; gap: 9px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border); }
+.praxis-block-form label { display: flex; align-items: center; gap: 8px; color: var(--color-text-muted); font-size: 11px; }
+.praxis-block-form label > span { flex: 0 0 96px; }
+.praxis-block-form input, .praxis-block-form select, .praxis-add input { min-width: 0; width: 100%; min-height: 38px; padding: 6px 9px; border: 1px solid var(--color-border); border-radius: 9px; color: var(--color-text); background: rgba(0,0,0,.14); font: inherit; font-size: 12px; }
+.praxis-block-form b { color: var(--color-text-faint); font-weight: 400; }
+.praxis-block-form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.praxis-text-link { padding: 6px 2px; border: 0; color: var(--color-text-muted); background: none; font: inherit; font-size: 11px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.praxis-remove { margin-left: auto; }
+.praxis-add { display: grid; gap: 8px; margin-top: 14px; }
+.praxis-add__row { display: grid; grid-template-columns: minmax(0,1fr) 64px auto; gap: 7px; align-items: center; }
+.praxis-after .praxis-add__row { grid-template-columns: minmax(0,1fr) auto; }
+.praxis-add__from { display: flex; flex-wrap: wrap; gap: 6px; }
+.praxis-add__from button, .praxis-chips button, .praxis-again__row > button:first-child { min-height: 36px; padding: 6px 12px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-text); background: var(--color-surface-soft); font: inherit; font-size: 11px; cursor: pointer; }
+.praxis-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.praxis-done { margin-top: 14px; color: var(--color-text-muted); font-size: 11px; }
+.praxis-done summary { cursor: pointer; padding: 6px 0; }
+.praxis-done .praxis-task { margin-top: 7px; }
+.praxis-again { display: grid; gap: 7px; margin-top: 16px; padding: 10px 12px; border: 1px solid rgba(201,162,116,.3); border-radius: 12px; }
+.praxis-again__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.praxis-adjust { flex-wrap: wrap; justify-content: center; }
+.praxis-adjust button { min-height: 34px; font-size: 11px; }
+.praxis-adjust__other { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 6px; color: var(--color-text-muted); font-size: 11px; }
+.praxis-adjust__other.is-selected { color: var(--color-accent-ink); background: var(--color-accent-strong); }
+.praxis-adjust__other input { width: 52px; min-height: 30px; padding: 2px 5px; border: 1px solid var(--color-border); border-radius: 6px; color: inherit; background: transparent; font: inherit; }
+.praxis-after { display: grid; gap: 16px; }
+.praxis-after h2 { margin: 0; }
+.praxis-after__part { display: grid; gap: 8px; }
+.praxis-after__part > p { margin: 0; color: var(--color-text-muted); font-size: 12px; }
+.praxis-muted { color: var(--color-text-faint); font-size: 11px; }
+.praxis-source { color: var(--color-text-faint); font-size: 10px; line-height: 1.5; }
+.praxis-source summary { cursor: pointer; }
+.praxis-day-group { display: grid; gap: 4px; margin-bottom: 12px; }
+.praxis-history-row button.praxis-history-duration { border: 1px solid var(--color-border); border-radius: 8px; padding: 6px 9px; color: var(--color-text); background: transparent; font: inherit; cursor: pointer; }
+.praxis-week-step { display: flex; gap: 6px; }
+.praxis-week-step button { width: 36px; height: 36px; border: 1px solid var(--color-border); border-radius: 50%; color: var(--color-text); background: transparent; font-size: 18px; cursor: pointer; }
+.praxis-week-step button:disabled { opacity: .35; cursor: default; }
+.praxis-bar-value { min-height: 12px; color: var(--color-text-muted); font-size: 9px; white-space: nowrap; }
+.praxis-bar--none { min-height: 1px; height: 1px; background: var(--color-border); }
+.praxis-bar-group span.is-today { color: var(--color-accent-strong); }
+.praxis-sound-art--none { background: linear-gradient(145deg, #13211e, #0b1513); border: 1px dashed var(--color-border); }
+.praxis-setting { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.praxis-setting > span:first-child { display: grid; gap: 4px; }
+.praxis-setting small { color: var(--color-text-faint); font-size: 11px; }
+.praxis-toast { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.praxis-toast button { border: 0; color: var(--color-accent-strong); background: none; font: inherit; font-weight: 700; cursor: pointer; }
+.praxis-view > .account-card, .praxis-view > .card { margin-top: 14px; }
+.praxis-add input, .praxis-block-form input, .praxis-block-form select, .praxis-adjust__other input { box-sizing: border-box; outline: none; }
+.praxis-add input:focus-visible, .praxis-block-form input:focus-visible, .praxis-block-form select:focus-visible { border-color: var(--color-accent-strong); }
+.praxis-add .praxis-button, .praxis-block-form .praxis-button { min-height: 38px; }
+.praxis-after input { box-sizing: border-box; min-width: 0; width: 100%; min-height: 38px; padding: 6px 9px; border: 1px solid var(--color-border); border-radius: 9px; outline: none; color: var(--color-text); background: rgba(0,0,0,.14); font: inherit; font-size: 12px; }
+.praxis-after input:focus-visible { border-color: var(--color-accent-strong); }

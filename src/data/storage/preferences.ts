@@ -358,7 +358,9 @@ export type TodayPart =
   // What was written on this day in an earlier year; off until chosen.
   | 'on-this-day'
   // Water from HYDROS during a work block, shown on Today only if chosen.
-  | 'water';
+  | 'water'
+  // Study from Praxis: in Done today and Reflect, and blocks to look at again on Today.
+  | 'praxis';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water'];

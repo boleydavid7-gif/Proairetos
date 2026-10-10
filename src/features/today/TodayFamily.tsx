@@ -6,6 +6,8 @@ import { ChevronRightIcon, ListIcon, RiverIcon } from '../../components/icons/Ic
 import NotForMe from './NotForMe';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 import { waterDuring } from '../../app/family/glance';
+import { lookAgainBy, useStudy } from '../../app/praxis/study';
+import { BookIcon } from '../../components/icons/Icons';
 
 /**
  * Bills with a date in the next few days and no payment recorded, only if the person switched them on in
@@ -65,6 +67,30 @@ export function TodayWater({ now, blocks }: { now: Date; blocks: readonly Schedu
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="water" />
+    </div>
+  );
+}
+
+/** A Praxis block the person set to look at again, on the day they chose. Opens Praxis. */
+export function TodayStudy({ today }: { today: string }) {
+  const shows = useTodayParts();
+  const study = useStudy(shows('praxis'));
+  if (!shows('praxis')) return null;
+  const again = lookAgainBy(study?.blocks ?? [], today);
+  if (again.length === 0) return null;
+  return (
+    <div className="quiet-row-wrap">
+      <a className="quiet-row" href="/praxis/">
+        <span className="quiet-row__icon" aria-hidden="true">
+          <BookIcon size={20} />
+        </span>
+        <span className="quiet-row__text">
+          <span>{again.map((block) => block.title).slice(0, 2).join(' · ')}</span>
+          <span className="quiet-row__detail">To look at again, in Praxis</span>
+        </span>
+        <ChevronRightIcon size={18} className="quiet-row__chevron" />
+      </a>
+      <NotForMe part="praxis" />
     </div>
   );
 }

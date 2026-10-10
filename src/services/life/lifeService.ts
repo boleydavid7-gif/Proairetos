@@ -2,6 +2,7 @@ import { kindFields, type ItemKind } from '../../core/life-items/kinds';
 import type { DomainContext } from '../../core/context';
 import type { ItemEvent } from '../../core/item-events/types';
 import {
+  setPlannedMinutes,
   captureItem,
   changeStatus,
   connectValue,
@@ -123,8 +124,53 @@ export function createLifeService({ userId, context, items, events }: LifeServic
     /** Tells screens to reload, e.g. after sync brought changes from another device. */
     refresh: listeners.notify,
 
+    /** The person's own items. Items a family app keeps for itself (Praxis study blocks) are left out. */
     async list(): Promise<LifeItem[]> {
+      return (await items.list(userId)).filter((item) => !item.app).map(present);
+    },
+
+    /** Everything, a family app's items included (goals count their steps from all of them). */
+    async listAll(): Promise<LifeItem[]> {
       return (await items.list(userId)).map(present);
+    },
+
+    /** One family app's own items. */
+    async listForApp(app: LifeItemApp): Promise<LifeItem[]> {
+      return (await items.list(userId)).filter((item) => item.app === app).map(present);
+    },
+
+    /** Changes the minutes of a recorded focus session (a correction), with an undo. */
+    changeFocus(event: ItemEvent, minutes: number): Promise<{ undo: Undo }> {
+      return serial(async () => {
+        const whole = Math.max(1, Math.round(minutes));
+        const changed: ItemEvent = { ...event, metadata: { ...event.metadata, minutes: whole } };
+        await events.remove([event.id]);
+        await events.append([changed]);
+        listeners.notify();
+        return {
+          undo: () =>
+            serial(async () => {
+              await events.remove([event.id]);
+              await events.append([event]);
+              listeners.notify();
+            }),
+        };
+      });
+    },
+
+    /** Removes one recorded focus session, with an undo that puts it back. */
+    removeFocus(event: ItemEvent): Promise<{ undo: Undo }> {
+      return serial(async () => {
+        await events.remove([event.id]);
+        listeners.notify();
+        return {
+          undo: () =>
+            serial(async () => {
+              await events.append([event]);
+              listeners.notify();
+            }),
+        };
+      });
     },
 
     async get(id: string): Promise<LifeItem | null> {
@@ -162,8 +208,9 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       });
     },
 
-    async historyForAll(): Promise<ItemEvent[]> {
-      const all = await items.list(userId);
+    /** The history of the person's own items; with `includeApps`, a family app's items too. */
+    async historyForAll(includeApps = false): Promise<ItemEvent[]> {
+      const all = (await items.list(userId)).filter((item) => includeApps || !item.app);
       return events.listForItems(all.map((item) => item.id));
     },
 
@@ -269,6 +316,10 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     setRemind(id: string, minutes: readonly number[] | undefined) {
       return apply(id, (item) => setRemind(context, item, minutes));
+    },
+
+    setPlannedMinutes(id: string, minutes: number | undefined) {
+      return apply(id, (item) => setPlannedMinutes(context, item, minutes));
     },
 
     setLight(id: string, light: boolean) {

@@ -2,6 +2,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { lifeService } from '../../app/services';
 import { runTitle, useRuns } from '../../app/askesis/runs';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { studyBetween, useStudy } from '../../app/praxis/study';
 
 const SHOWN = 6;
 
@@ -32,7 +33,11 @@ export default function DoneToday({ today, range }: { today: string; range: { st
   const ran = shows('askesis')
     ? (runs?.workouts ?? []).filter((entry) => entry.date === today).map((entry) => ({ id: entry.id, title: runTitle(entry, runs!.unit) }))
     : [];
-  const done = items && [...items, ...ran];
+  const study = useStudy(shows('praxis'));
+  const studied = shows('praxis')
+    ? studyBetween(study?.sessions ?? [], range.start, range.end).map((session) => ({ id: session.id, title: `${session.title} · ${session.minutes} min of study` }))
+    : [];
+  const done = items && [...items, ...ran, ...studied];
   if (!done || done.length === 0) return null;
 
   return (

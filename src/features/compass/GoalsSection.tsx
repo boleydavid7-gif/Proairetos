@@ -182,7 +182,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
   const [showAll, setShowAll] = useState(false);
   const record = useServiceData(
     subscribeItems,
-    async () => goalRecord(goal.id, await lifeService.list(), await lifeService.historyForAll()),
+    async () => goalRecord(goal.id, await lifeService.listAll(), await lifeService.historyForAll(true)),
     [goal.id],
   );
   const reached = Boolean(goal.reachedAt);

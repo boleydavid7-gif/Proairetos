@@ -209,6 +209,14 @@ export function setGoal(ctx: DomainContext, item: LifeItem, goalId: string | und
   return { item: touch(rest, timestamp, goalId ? { goalId } : {}), events: [] };
 }
 
+/** How long a study block is usually given, in whole minutes. */
+export function setPlannedMinutes(ctx: DomainContext, item: LifeItem, minutes: number | undefined): ItemChange {
+  const next = minutes && minutes > 0 ? Math.round(minutes) : undefined;
+  if (item.plannedMinutes === next) return { item, events: [] };
+  const { plannedMinutes: _previous, ...rest } = item;
+  return { item: touch(rest, ctx.now().toISOString(), next ? { plannedMinutes: next } : {}), events: [] };
+}
+
 export function setLight(ctx: DomainContext, item: LifeItem, light: boolean): ItemChange {
   if (Boolean(item.light) === light) return { item, events: [] };
   return { item: touch(item, ctx.now().toISOString(), { light: light || undefined }), events: [] };

@@ -16,6 +16,8 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import { useRuns } from '../../app/askesis/runs';
 import RunEntry from './RunEntry';
 import MealEntry from './MealEntry';
+import StudyEntry from './StudyEntry';
+import { studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
@@ -120,8 +122,12 @@ export default function ReflectPage() {
   // Meals cooked for someone, marked in SOMA, likewise.
   const recipes = useRecipesFromSoma();
   const cooked = shows('soma') ? cookedForBetween(recipes, toLocalDate(range.start), toLocalDate(range.end)) : [];
+  // Study recorded in Praxis, likewise.
+  const study = useStudy(shows('praxis'));
+  const studied = shows('praxis') ? studyBetween(study?.sessions ?? [], range.start, range.end) : [];
   const timeline = [
     ...(reflections ?? []).map((reflection) => ({ at: reflection.createdAt, reflection })),
+    ...studied.map((session) => ({ at: session.at, study: session })),
     ...ran.map((run) => ({ at: run.createdAt, run })),
     // A meal has a day, not a time: it sits at the end of its day.
     ...cooked.map((meal) => ({ at: new Date(`${meal.day}T23:59:00`).toISOString(), meal })),
@@ -180,7 +186,9 @@ export default function ReflectPage() {
           ) : (
             <ol className="timeline">
               {timeline.map((entry) =>
-                'meal' in entry ? (
+                'study' in entry ? (
+                  <StudyEntry key={entry.study.id} session={entry.study} showDay={period !== 'today'} />
+                ) : 'meal' in entry ? (
                   <MealEntry key={entry.meal.id} meal={entry.meal} showDay={period !== 'today'} />
                 ) : 'run' in entry ? (
                   <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />

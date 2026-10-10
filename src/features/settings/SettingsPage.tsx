@@ -627,6 +627,10 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.' }] }],
   },
   {
+    app: 'Praxis',
+    sections: [{ parts: [{ part: 'praxis', label: 'Study', detail: 'Study time in Done today and Reflect; a block you set to look at again, on Today.' }] }],
+  },
+  {
     app: 'HYDROS',
     sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'While a work block is on, what you have drunk since it began and a way to log a glass.' }] }],
   },
