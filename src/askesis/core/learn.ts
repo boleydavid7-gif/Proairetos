@@ -10,7 +10,6 @@ export type Article = {
   title: string;
   line: string;
   minutes: number;
-  scene: string;
   sections: { heading?: string; text: string }[];
   takeaway: string;
   sources: string[];
@@ -29,7 +28,6 @@ export const articles: Article[] = [
     title: 'The cardio fundamentals',
     line: 'What cardio is, and what it changes in the body.',
     minutes: 5,
-    scene: 'alpine-dusk',
     sections: [
       {
         heading: 'What is cardio?',
@@ -60,7 +58,6 @@ export const articles: Article[] = [
     title: 'Energy systems explained',
     line: 'Aerobic and anaerobic, and where threshold fits.',
     minutes: 6,
-    scene: 'misty-lake',
     sections: [
       {
         heading: 'Two ways to make energy',
@@ -87,7 +84,6 @@ export const articles: Article[] = [
     title: 'How hard is hard?',
     line: 'Effort by feel: the talk test and a 0 to 10 scale.',
     minutes: 4,
-    scene: 'cloud-sky',
     sections: [
       {
         heading: 'Effort, not pace',
@@ -115,7 +111,6 @@ export const articles: Article[] = [
     title: 'Heart rate zones',
     line: 'What the numbers mean, and how far to trust them.',
     minutes: 6,
-    scene: 'starry-valley',
     sections: [
       {
         heading: 'Maximum heart rate',
@@ -146,7 +141,6 @@ export const articles: Article[] = [
     title: 'Why easy is most of it',
     line: 'The 80/20 pattern of endurance training.',
     minutes: 5,
-    scene: 'lake-trail',
     sections: [
       {
         text: 'When researchers looked at how successful endurance athletes actually train, across running, rowing, cycling and skiing, a pattern kept appearing: about 80% of sessions at low intensity, and about 20% hard. Little time is spent in the middle.',
@@ -172,7 +166,6 @@ export const articles: Article[] = [
     title: 'Walk-run, and why it works',
     line: 'How walking breaks build up to running.',
     minutes: 4,
-    scene: 'forest-trail',
     sections: [
       {
         text: 'Running asks a lot of the legs: each step lands with two to three times your body weight. Walking breaks let the heart and lungs work steadily while muscles, tendons and bones get short recoveries.',
@@ -198,7 +191,6 @@ export const articles: Article[] = [
     title: 'Building up gradually',
     line: 'How fast to add more, and why easier weeks help.',
     minutes: 5,
-    scene: 'misty-forest',
     sections: [
       {
         heading: 'The 10% rule, and what research found',
@@ -230,7 +222,6 @@ export const articles: Article[] = [
     title: 'Threshold runs',
     line: 'Comfortably hard, and why it pays.',
     minutes: 4,
-    scene: 'dusk-sky',
     sections: [
       {
         text: 'Threshold, or tempo, running is the effort you could hold for about an hour in a race: comfortably hard, a few words at a time. Training at that effort pushes the lactate threshold higher, so a faster pace becomes sustainable.',
@@ -253,7 +244,6 @@ export const articles: Article[] = [
     title: 'Intervals and VO2 max',
     line: 'Why 4 x 4 minutes hard works.',
     minutes: 5,
-    scene: 'pink-lake',
     sections: [
       {
         text: 'VO2 max is the most oxygen your body can use in a minute. It sets the ceiling for endurance. Hard intervals raise it, because repeated efforts with recoveries let you spend more time near that ceiling than one continuous hard run could.',
@@ -279,7 +269,6 @@ export const articles: Article[] = [
     title: 'The long run',
     line: 'Time on your feet, and how to fuel it.',
     minutes: 5,
-    scene: 'forest-path',
     sections: [
       {
         text: 'The weekly long run builds endurance, trains the body to use fat for fuel, and strengthens the legs for longer distances. It is run easy: the length is the work.',
@@ -310,7 +299,6 @@ export const articles: Article[] = [
     title: 'Tapering before a race',
     line: 'Less running, kept sharp.',
     minutes: 4,
-    scene: 'dusk-sky',
     sections: [
       {
         text: 'Fitness builds during recovery. In the last two weeks before a race (three for a marathon), the plans cut weekly time by roughly half while keeping a few short, quick efforts.',
@@ -336,7 +324,6 @@ export const articles: Article[] = [
     title: 'Running form basics',
     line: 'A few cues, no overhaul.',
     minutes: 4,
-    scene: 'lake-trail',
     sections: [
       {
         text: 'There is no single correct way to run, and big changes to your natural stride can cause trouble of their own. A few simple cues help most people.',
@@ -359,7 +346,6 @@ export const articles: Article[] = [
     title: 'Rest is part of training',
     line: 'Sleep, easy days, and listening to tiredness.',
     minutes: 4,
-    scene: 'starry-valley',
     sections: [
       {
         text: 'Training is a stress; the body grows stronger while it recovers. Without enough recovery, tiredness can pile up into weeks of feeling flat.',
@@ -385,7 +371,6 @@ export const articles: Article[] = [
     title: 'Training around shifts',
     line: 'Nights, early starts, and changing schedules.',
     minutes: 4,
-    scene: 'cloud-sky',
     sections: [
       {
         text: 'Shift work, especially nights, cuts into sleep and shifts the body clock. Hard sessions after a night of work feel harder and recover slower.',
@@ -408,7 +393,6 @@ export const articles: Article[] = [
     title: 'Before you start',
     line: 'When to check with a doctor, and when to stop.',
     minutes: 3,
-    scene: 'misty-lake',
     sections: [
       {
         heading: 'Check with a doctor first if',

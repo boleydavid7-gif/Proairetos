@@ -61,7 +61,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
 
   return (
     <div className="home">
-      <Hero image={scene('lake-trail')} tall>
+      <Hero image={scene('sunset-lake')} tall>
         <Brand light />
         <div className="home__words">
           <p className="home__greeting">{greeting()}</p>

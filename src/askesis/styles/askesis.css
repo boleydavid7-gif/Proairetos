@@ -1485,59 +1485,98 @@ input[type='date'].input {
   align-items: center;
 }
 
-/* ---------- Learn ---------- */
+/* ---------- Learn: a table of contents, no pictures ---------- */
 
-.articles {
+.learn__topic {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.learn__heading {
+  margin: 10px 0 0;
+  font-weight: 500;
+}
+
+.contents {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
 }
 
-.article-row {
+.contents li + li {
+  border-top: 1px solid var(--line);
+}
+
+.contents__row {
   width: 100%;
-  padding: 8px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  min-height: 64px;
+  padding: 14px 14px 14px 12px;
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
-  gap: 12px;
+  grid-template-columns: 2.1rem minmax(0, 1fr) auto auto;
+  gap: 10px;
   align-items: center;
   text-align: left;
   color: var(--muted);
 }
 
-.article-row__image {
-  width: 84px;
-  height: 84px;
-  border-radius: 12px;
-  object-fit: cover;
+.contents__number {
+  align-self: start;
+  padding-top: 1px;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--mint);
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
-.article-row__text {
+.contents__text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
-.article-row__title {
+.contents__title {
+  font-family: var(--serif);
+  font-size: 1.22rem;
+  line-height: 1.2;
   color: var(--text);
-  font-weight: 500;
 }
 
-.article-row__line {
+.contents__line {
   font-size: 0.86rem;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
-.article-row__time {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.8rem;
+.contents__time {
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.reading__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.reading__head .title {
+  margin: 0;
+}
+
+.reading__lead {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  line-height: 1.4;
+  color: var(--text-soft);
 }
 
 .reading__section {
