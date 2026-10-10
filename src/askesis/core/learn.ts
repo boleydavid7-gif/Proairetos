@@ -286,7 +286,11 @@ export const articles: Article[] = [
       },
       {
         heading: 'How long',
-        text: 'In the plans the long run is about a third of the week. It tops out at 80 minutes for a 10K, two hours for a half marathon and three hours for a marathon: beyond that, the extra tiredness tends to outweigh the gains.',
+        text: 'In the plans the long run is about a third of the week, and no more than 40% of it (45% on three days), so the other days keep real running. It tops out at about 75 minutes for a 10K, two hours for a half marathon and two and a half hours for a marathon: beyond that, the extra tiredness tends to outweigh the gains.',
+      },
+      {
+        heading: 'How fast it grows',
+        text: 'A large study of 5,200 runners found that single runs more than about 10% longer than the longest of the past month came with more injuries, and the bigger the jump, the more. So the long run grows by about a tenth at a time (five minutes at least), and no other session goes past it.',
       },
       {
         heading: 'Fuel and drink',
@@ -297,6 +301,7 @@ export const articles: Article[] = [
     sources: [
       'Jeukendrup A. A step towards personalized sports nutrition: carbohydrate intake during exercise. Sports Med. 2014;44(Suppl 1):S25-S33.',
       "Daniels J. Daniels' Running Formula. 3rd ed. Human Kinetics; 2014.",
+      'Frandsen JSB, et al. How much running is too much? Identifying high-risk running sessions in a 5200-person cohort study. Br J Sports Med. 2025.',
     ],
   },
   {

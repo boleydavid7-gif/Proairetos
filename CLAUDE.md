@@ -378,8 +378,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   or their own), or steady (keep running; a 4-week rhythm that wraps, see
   `weekAt`). Weeks 1-10 are always the walk-run start; after that weekly
   time grows ~7.5% (5% gentler) toward what the aim needs (`needs`), running
-  days are added one a week, every 4th week easier, the long run +10 min a
-  week at most; distance aims build 8+ weeks, then Shape, Taper and the aim's
+  days are added one a week, every 4th week easier; no run more than ~10%
+  past the longest of the past four weeks (`nextLongest`, Frandsen 2025),
+  the long run within 40% of the week (45% on three days) and 150 min, at
+  most two harder sessions a week (a long run with steady or race effort
+  counts; `effortLong` alternates it with intervals on 5+ days); distance aims build 8+ weeks, then Shape, Taper and the aim's
   week; time aims end on the week whose long run is the aim. A date counts
   back (`fit`: hold weeks or fewer growth weeks, never faster). Growth stops
   when the chosen days hold no more (4 building weeks without more time).

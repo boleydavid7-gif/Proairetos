@@ -79,9 +79,43 @@ describe('paths toward an aim', () => {
       for (let i = Math.max(1, after); i < plan.weeks.length; i += 1) {
         if (['Taper', 'Your aim'].includes(plan.weeks[i].stage)) continue;
         const before = Math.max(...minutes.slice(Math.max(0, i - 3), i));
-        expect(minutes[i] / before, label(plan, i + 1)).toBeLessThanOrEqual(1.1);
+        // Sessions come in fives, so a small week can step half of five minutes past 10%.
+        expect(minutes[i], label(plan, i + 1)).toBeLessThanOrEqual(before * 1.1 + 2.5);
       }
     }
+  });
+
+  // Single runs much longer than the longest of the past month carry more injury risk (Frandsen et al., BJSM 2025).
+  it('never makes one run more than about 10% longer than the longest of the four weeks before', () => {
+    const running = (parts: Parameters<typeof flatten>[0]) => flatten(parts).filter((s) => s.effort !== 'walk').reduce((t, s) => t + s.minutes, 0);
+    for (const plan of paths) {
+      const longest = plan.weeks.map((week) => Math.max(...week.workouts.filter((w) => w.kind !== 'race').map((w) => running(w.parts))));
+      // The walk-run start is short bouts of running between walks; the rule holds from the first continuous running on.
+      for (let i = 1; i < plan.weeks.length; i += 1) {
+        if (plan.weeks[i].stage === 'Start') continue;
+        const before = Math.max(...longest.slice(Math.max(0, i - 4), i));
+        expect(longest[i], label(plan, i + 1)).toBeLessThanOrEqual(Math.max(before + 5, before * 1.1) + 0.01);
+      }
+    }
+  });
+
+  it('keeps the long run to about 40% of the week (45% on three days), and under two and a half hours', () => {
+    for (const plan of paths)
+      for (const week of plan.weeks) {
+        if (week.stage === 'Start' || week.stage === 'Your aim' || week.easier) continue;
+        const longest = Math.max(...week.workouts.map((w) => totalMinutes(w.parts)));
+        expect(longest, label(plan, week.n)).toBeLessThanOrEqual(150);
+        // About 40%: sessions come in fives, so a week can sit up to half of five minutes over.
+        expect(longest, label(plan, week.n)).toBeLessThanOrEqual(weekMinutes(week) * (plan.days <= 3 ? 0.45 : 0.4) + 2.5);
+      }
+  });
+
+  it('has no more than two harder sessions a week, a long run with race or steady effort counting as one', () => {
+    for (const plan of paths)
+      for (const week of plan.weeks) {
+        const harder = week.workouts.filter((w) => intenseMinutes(w.parts) > 0 || minutesByEffort(w.parts).steady > 0);
+        expect(harder.length, label(plan, week.n)).toBeLessThanOrEqual(2);
+      }
   });
 
   it('has an easier week regularly once it grows', () => {
@@ -129,16 +163,18 @@ describe('paths toward an aim', () => {
   it('keeps the long run within what the aim needs', () => {
     const marathon = buildPath({ aim: { kind: 'distance', meters: 42195 }, days: 5 });
     const longest = Math.max(...marathon.weeks.flatMap((week) => week.workouts.map((w) => totalMinutes(w.parts))));
-    expect(longest).toBeGreaterThanOrEqual(150);
-    expect(longest).toBeLessThanOrEqual(185);
+    expect(longest).toBeGreaterThanOrEqual(140);
+    expect(longest).toBeLessThanOrEqual(150);
     const fiveK = buildPath({ aim: { kind: 'distance', meters: 5000 }, days: 3 });
     expect(Math.max(...fiveK.weeks.flatMap((week) => week.workouts.map((w) => totalMinutes(w.parts))))).toBeLessThanOrEqual(60);
   });
 
   it('never stalls: a path reaches its aim within a sensible number of weeks', () => {
     for (const plan of paths) {
-      const most = plan.aim.kind === 'distance' && plan.aim.meters > 16000 ? 50 : 40;
-      const extra = plan.id.includes('-g') ? 5 : 0;
+      // Long aims (beyond 16 km, or 75 minutes and more without stopping) grow the long run 10% at a time, so take longer.
+      const long = (plan.aim.kind === 'distance' && plan.aim.meters > 16000) || (plan.aim.kind === 'time' && plan.aim.minutes >= 75);
+      const most = long ? 50 : 40;
+      const extra = plan.id.includes('-g') ? (long ? 10 : 5) : 0;
       expect(plan.weeks.length, plan.id).toBeLessThanOrEqual(plan.cycleFrom ? plan.cycleFrom + 4 : most + extra);
     }
   });

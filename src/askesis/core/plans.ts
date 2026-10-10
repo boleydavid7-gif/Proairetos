@@ -11,6 +11,11 @@ import { flatten, set, step, totalMinutes, type Part, type Workout, type Workout
  * - Gradual increases. Weekly time grows by under 10% from one building
  *   week to the next; large jumps in weekly running have been linked with
  *   more injuries in new runners (Nielsen et al., 2014).
+ * - Single runs grow slowly. No run more than about 10% past the longest of
+ *   the past four weeks (Frandsen et al., 2025); the long run stays within
+ *   about 40% of the week (45% on three days) and two and a half hours.
+ * - Two harder sessions a week at most, a long run with steady or race
+ *   effort counting as one.
  * - Easier weeks. Every fourth week drops by about a fifth so the body
  *   absorbs the work (the common practice of loading and unloading).
  * - Threshold and interval sessions follow the classic forms: cruise
@@ -426,11 +431,12 @@ function arrangeWeek(
   if (!longPlan.race) {
     const need = round5(Math.min(extra.easyMax, Math.max(extra.easyMin, each))) + Math.max(0, ...spread) + 10;
     if (need > longMinutes) {
-      longMinutes = Math.min(longPlan.cap, need);
+      // Never past about 40% of the week: the easy runs give way instead.
+      longMinutes = Math.max(longMinutes, Math.min(longPlan.cap, need, Math.floor((target * longShare(days) + 2.5) / 5) * 5));
       each = (target - longMinutes - qualityMinutes) / Math.max(1, easyCount);
     }
   }
-  const long = longPlan.make(longMinutes);
+  let long = longPlan.make(longMinutes);
   const longest = longPlan.race ? extra.easyMax : Math.min(extra.easyMax, totalMinutes(long.parts) - 10);
   let middle = round5(Math.min(extra.easyMax, Math.max(extra.easyMin, each)));
   middle = Math.min(middle, longest - Math.max(0, ...spread));
@@ -456,6 +462,12 @@ function arrangeWeek(
     });
     if (pick === undefined) break;
     easies[pick] = easyRun(lengths[pick] + delta);
+  }
+  // The long run within its share of the week as laid out (the other days may not have reached the target).
+  for (let guard = 0; guard < 4 && !longPlan.race; guard += 1) {
+    const most = Math.floor((sum() * longShare(days) + 2.5) / 5) * 5;
+    if (totalMinutes(long.parts) <= most) break;
+    long = longPlan.make(most);
   }
   // Harder days apart, the long run last.
   const [q1, q2] = quality;
@@ -494,20 +506,46 @@ function steadyRun(minutes: number): Draft {
 }
 
 /**
- * The long run and weekly time an aim calls for. Distances follow common
- * practice: about 45 minutes long and two hours a week for a 5K, up to
- * three hours long and five and a half a week for a marathon; anything in
- * between sits between them. A long run stays under about 45% of a week.
+ * The long run's share of a week, at most: about 40%, so the other days keep
+ * real running. On three days an even split is already a third each, so 45%.
  */
-function needs(aim: Aim, days: number, startMinutes: number): { long: number; weekly: number } {
-  const roomy = (long: number, weekly: number) => ({ long, weekly: Math.max(Math.min(weekly, days * 65), long / 0.45, startMinutes) });
+function longShare(days: number): number {
+  return days <= 3 ? 0.45 : 0.4;
+}
+/** No single run longer than this: past about two and a half hours, the risk grows faster than the gain (Daniels). */
+const LONGEST_RUN = 150;
+
+/**
+ * The longest a run may be, given the longest of the past four weeks: about
+ * 10% more (five minutes at least, as sessions are in fives). Single runs
+ * much longer than the longest of the past month carry more injury risk
+ * (Frandsen et al., Br J Sports Med 2025).
+ */
+export function nextLongest(longestRecent: number): number {
+  return Math.min(LONGEST_RUN, Math.max(longestRecent + 5, Math.floor((longestRecent * 1.1) / 5) * 5));
+}
+
+/**
+ * The long run and weekly time an aim calls for. Distances follow common
+ * practice: about 45 minutes long and two hours a week for a 5K, up to two
+ * and a half hours long for a marathon; anything in between sits between
+ * them. A long run stays under about 40% of a week, and within what the
+ * chosen days can hold beside it.
+ */
+function needs(aim: Aim, days: number, startMinutes: number, easyMax: number): { long: number; weekly: number } {
+  const roomy = (wanted: number, weekly: number) => {
+    // L <= 40% of (L + the other days at their longest).
+    const fits = Math.floor(((longShare(days) / (1 - longShare(days))) * (days - 1) * easyMax) / 5) * 5;
+    const long = Math.min(wanted, fits, LONGEST_RUN);
+    return { long, weekly: Math.max(Math.min(weekly, days * 65), long / longShare(days), startMinutes) };
+  };
   if (aim.kind === 'steady') return roomy(50, days * 40);
   if (aim.kind === 'time') return roomy(aim.minutes, aim.minutes / 0.33);
   const anchors: [number, number, number][] = [
     [5000, 45, 130],
     [10000, 75, 170],
     [21097.5, 120, 240],
-    [42195, 180, 330],
+    [42195, 150, 330],
   ];
   const m = Math.min(Math.max(aim.meters, 5000), 42195);
   let i = 0;
@@ -525,6 +563,28 @@ function pathId(choice: PathChoice, growth: Growth): string {
   const what = aim.kind === 'time' ? `t${aim.minutes}` : aim.kind === 'distance' ? `d${Math.round(aim.meters)}` : 'steady';
   const fit = growth.limit !== undefined ? `-l${growth.limit}` : growth.hold ? `-h${growth.hold}` : '';
   return `path-${what}-${choice.days}${choice.gentler ? '-g' : ''}${choice.walkFirst ? '-w' : ''}${fit}`;
+}
+
+/** The longest session of a week (of the kinds given), in minutes. */
+function longestOf(week: PlanWeek, kinds: WorkoutKind[]): number {
+  return Math.max(0, ...week.workouts.filter((w) => kinds.includes(w.kind)).map((w) => totalMinutes(w.parts)));
+}
+
+/** A harder session made to fit a length: fewer repeats (four at least, two for long blocks), then a shorter warm-up, in whole minutes. */
+function within(draft: Draft, maxMinutes: number): Draft {
+  let parts = [...draft.parts];
+  const at = parts.findIndex((part) => 'repeat' in part);
+  while (at >= 0 && totalMinutes(parts) > maxMinutes) {
+    const group = parts[at] as { repeat: number; steps: Part[] };
+    const blockMinutes = totalMinutes(group.steps);
+    if (group.repeat <= (blockMinutes >= 8 ? 2 : 4)) break;
+    parts[at] = { ...group, repeat: group.repeat - 1 } as Part;
+  }
+  const first = parts[0];
+  if (totalMinutes(parts) > maxMinutes && !('repeat' in first) && first.minutes > 10)
+    parts = [{ ...first, minutes: Math.max(10, first.minutes - Math.ceil(totalMinutes(parts) - maxMinutes)) }, ...parts.slice(1)];
+  const group = parts.find((part) => 'repeat' in part) as { repeat: number } | undefined;
+  return { ...draft, parts, summary: group ? draft.summary.replace(/^\d+ x/, `${group.repeat} x`) : draft.summary };
 }
 
 /** The longest stretch of running without a walk, in minutes. */
@@ -551,13 +611,20 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   const longAim = aim.kind === 'distance' && aim.meters >= 15000;
   const marathon = aim.kind === 'distance' && aim.meters >= 35000;
   const warmUp = longAim ? 15 : 10;
-  const startMinutes = weekMinutes(weeks[weeks.length - 1]);
-  const need = needs(aim, days, startMinutes);
+  // The first weeks after the start grow from the running done there (the walks around each walk-run are left out).
+  const lastStart = weeks[weeks.length - 1];
+  const startMinutes =
+    weekMinutes(lastStart) -
+    lastStart.workouts
+      .filter((w) => w.kind === 'walk-run')
+      .reduce((t, w) => t + flatten(w.parts).filter((s) => s.effort === 'walk').reduce((a, s) => a + s.minutes, 0), 0);
+  const easyMax = longAim || (aim.kind === 'time' && aim.minutes >= 60) ? 75 : 55;
+  const need = needs(aim, days, startMinutes, easyMax);
   const rate = choice.gentler ? 1.05 : 1.075;
   const extra = (strides: boolean) => ({
     strides,
     easyMin: 20,
-    easyMax: longAim ? 75 : 55,
+    easyMax,
     recovery: days >= 6,
   });
 
@@ -585,6 +652,8 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
     }
     return marathonBlocks[0];
   };
+  /** Race-effort blocks belong in long runs of an hour and a half or more, in weeks big enough for the smallest. */
+  const raceBlocksFit = (longMinutes: number) => longMinutes >= 90 && marathonBlocks[0][0] * marathonBlocks[0][1] <= level * 0.14;
 
   /** The largest step so far whose hard minutes fit the week's budget (under a fifth of the week, all told). */
   const fit = (steps: string[], upTo: number, budget: number) => {
@@ -593,13 +662,20 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
     return steps[0];
   };
 
+  /**
+   * Whether this week's long run carries steady or race effort. With five or
+   * more days toward a long aim, it does every other week, so the weeks with
+   * intervals keep a plain long run: two harder sessions a week at most.
+   */
+  const effortLong = (k: number, easier: boolean) => longAim && !easier && k > 4 && (days < 5 || k % 2 === 0);
+
   const qualityFor = (k: number, easier: boolean, target = level): Draft[] => {
     if (!distance) return easier || k % 2 === 1 ? [] : [steadyRun(Math.min(30, 10 + k * 2))];
     if (easier) return k >= 8 ? [tempo('2x8', warmUp)] : [];
     if (k <= 4) return k === 2 || k === 3 ? [hills(6 + k * 2, warmUp)] : [];
-    const both = days >= 5 && longAim;
+    const both = days >= 5 && longAim && !effortLong(k, easier);
     // Steady minutes in the long run count too: hard and steady together stay under about 28% of the week.
-    const longSteady = marathon && built >= 4 ? raceBlocks(built - 4).reduce((a, b) => a * b, 1) : longAim ? Math.min(30, level * 0.1) : 0;
+    const longSteady = !effortLong(k, easier) ? 0 : marathon && built >= 4 && raceBlocksFit(lastLong) ? raceBlocks(built - 4).reduce((a, b) => a * b, 1) : Math.min(30, level * 0.1);
     const budget = Math.max(12, Math.min(target * (both ? 0.09 : 0.17), target * 0.27 - longSteady));
     const quality = [tempo(fit(thresholdSteps, built, budget), warmUp)];
     if (both) quality.push(intervals(fit(intervalSteps, Math.floor(built / 2), budget), warmUp));
@@ -607,17 +683,17 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
     return quality;
   };
 
-  const longFor = (k: number, easier: boolean, minutes: number): LongPlan => {
-    const finishSteady = longAim && !easier && k > 4 ? round5(Math.min(30, 15 + built * 3, level * 0.1)) : 0;
+  const longFor = (k: number, easier: boolean, minutes: number, cap = need.long): LongPlan => {
+    const finishSteady = effortLong(k, easier) ? round5(Math.min(30, 15 + built * 3, level * 0.1)) : 0;
     return {
       minutes,
-      cap: Math.max(minutes, need.long),
+      cap: Math.max(minutes, Math.min(need.long, cap)),
       make: (m) => {
         if (aim.kind === 'time' && m >= aim.minutes) {
           const run = longRun(aim.minutes);
           return { ...run, title: aimWords(aim), summary: 'Easy, the whole way: your aim' };
         }
-        if (marathon && !easier && built >= 5) {
+        if (marathon && effortLong(k, easier) && built >= 5 && raceBlocksFit(m)) {
           const [repeat, length] = raceBlocks(built - 5);
           return racePaceLong(m, repeat, length);
         }
@@ -627,7 +703,7 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   };
 
   // Base and Build: weekly time grows by 5-8% a building week, every fourth week easier,
-  // the long run by no more than ten minutes a week, until the aim's needs are met.
+  // the long run by about a tenth (`nextLongest`), until the aim's needs are met.
   const limit = growth.limit ?? 80;
   // Building weeks in a row that laid out no more time than the one before: the days chosen hold no more.
   let still = 0;
@@ -643,12 +719,21 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
       level = Math.min(need.weekly, level * rate);
       target = level;
     }
+    const growTo = nextLongest(lastLong);
     const longMinutes = easier
       ? Math.max(30, lastLong - 15)
-      : Math.min(need.long, Math.max(lastLong, Math.min(lastLong + 10, target * 0.45)));
+      : Math.min(need.long, Math.max(lastLong, Math.min(growTo, Math.floor((target * longShare(days)) / 5) * 5)));
     if (!easier) lastLong = longMinutes;
     const stage: Stage = k <= 4 ? 'Base' : 'Build';
     const quality = qualityFor(k, easier, target);
+    // Two harder sessions, a long run and the shortest easy days must fit the week; if not, one harder session.
+    const runDays = Math.min(days, 3 + k);
+    const floor = (q: Draft[]) => q.reduce((t, d) => t + totalMinutes(d.parts), 0) + longMinutes + (runDays - 1 - q.length) * 20 + (days - runDays) * 30;
+    while (quality.length > 1 && floor(quality) > target) quality.pop();
+    // One harder session made shorter if the week still has no room for it.
+    if (quality.length && floor(quality) > target) quality[0] = within(quality[0], totalMinutes(quality[0].parts) - (floor(quality) - target));
+    // No harder session longer than the long run may grow to this week.
+    for (let i = 0; i < quality.length; i += 1) quality[i] = within(quality[i], Math.max(longMinutes, easier ? lastLong : growTo));
     const theme = easier
       ? 'An easier week'
       : stage === 'Base'
@@ -658,7 +743,9 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
             ? 'Threshold and intervals'
             : 'Threshold work, longer runs'
           : 'Longer runs, a little more each week';
-    addWeek(stage, theme, easier, target, longFor(k, easier, longMinutes), quality, Math.min(days, 3 + k));
+    addWeek(stage, theme, easier, target, longFor(k, easier, longMinutes, easier ? lastLong : growTo), quality, runDays);
+    // The long run as laid out (it may have grown to stay past the easy runs).
+    if (!easier) lastLong = Math.max(lastLong, longestOf(weeks[weeks.length - 1], ['long', 'race-pace']));
     // The next week grows from the week as laid out, so rounding never piles up.
     if (!easier) {
       const minutes = weekMinutes(weeks[weeks.length - 1]);
@@ -673,7 +760,7 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
   for (let h = 1; h <= (growth.hold ?? 0); h += 1) {
     const easier = h % 4 === 0;
     const target = easier ? level * 0.8 : level;
-    addWeek('Hold', easier ? 'An easier week' : 'Holding steady', easier, target, longFor(growthWeeks + h, easier, easier ? Math.max(30, lastLong - 15) : lastLong), qualityFor(growthWeeks + h, easier));
+    addWeek('Hold', easier ? 'An easier week' : 'Holding steady', easier, target, longFor(growthWeeks + h, easier, easier ? Math.max(30, lastLong - 15) : lastLong, lastLong), qualityFor(growthWeeks + h, easier));
   }
 
   if (aim.kind === 'time') {
@@ -694,22 +781,24 @@ function generate(choice: PathChoice, growth: Growth = {}): Plan & { growthWeeks
     const rhythm: [string, number, number, Draft[], boolean][] = [
       ['A steady week, with strides', 1, lastLong, [], false],
       ['A steady week, with a steady run', 1, lastLong - 5, [steadyRun(15)], false],
-      ['A little longer', 1.05, lastLong + 10, [], false],
+      ['A little longer', 1.05, nextLongest(lastLong), [], false],
       ['An easier week', 0.8, Math.max(30, lastLong - 15), [], true],
     ];
     for (const [theme, share, longMinutes, quality, easier] of rhythm)
-      addWeek('Keep going', theme, easier, level * share, { minutes: longMinutes, cap: longMinutes + 10, make: (m) => longRun(m) }, quality);
+      addWeek('Keep going', theme, easier, level * share, { minutes: longMinutes, cap: longMinutes, make: (m) => longRun(m) }, quality);
     return { id, aim, days, weeks, cycleFrom, growthWeeks };
   }
 
   // Shape: two sharper weeks at the level reached.
   for (const spec of ['5x3', '4x4']) {
     const quality = [intervals(spec, warmUp)];
-    if (days >= 5 && longAim) quality.push(tempo('25', warmUp));
     const long: LongPlan = {
       minutes: lastLong,
       cap: lastLong,
-      make: (m) => (marathon ? racePaceLong(m, ...raceBlocks(3)) : longRun(m, longAim ? 20 : 0, longAim ? 'About half-marathon effort' : undefined)),
+      make: (m) =>
+        marathon && raceBlocksFit(m)
+          ? racePaceLong(m, ...raceBlocks(3))
+          : longRun(m, longAim ? round5(Math.min(20, level * 0.1)) : 0, longAim && !marathon ? 'About half-marathon effort' : undefined),
     };
     addWeek('Shape', 'Sharper sessions', false, level, long, quality);
   }
