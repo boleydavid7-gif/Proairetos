@@ -6,7 +6,8 @@ import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { latitude, useBlocks } from '../app/proairetos';
 import { dayShape } from '../core/dayShape';
-import { inSeason, seasonalRecipes, SEASON_SOURCE } from '../core/seasons';
+import { inSeason, seasonal as seasonalNow, seasonalRecipes } from '../core/seasons';
+import { ProducePicture } from './SeasonPage';
 import { plannedOn, weekFrom } from '../core/week';
 import { Brand, dayLabel, greeting, Hero } from '../app/ui';
 import { lineFor } from '../core/lines';
@@ -37,7 +38,8 @@ export default function HomePage({ nav }: { nav: Nav }) {
     .map((day) => ({ day, meals: plannedOn(recipes, day) }))
     .filter((each) => each.meals.length > 0);
   const produce = settings.seasons ? inSeason(new Date().getMonth(), latitude()) : [];
-  const seasonal = seasonalRecipes(recipes, produce).slice(0, 3);
+  const seasonal = seasonalRecipes(recipes, produce);
+  const inSeasonNow = settings.seasons ? seasonalNow(new Date().getMonth(), latitude()) : [];
   const listDays = (days: string[]) => days.map((day) => dayLabel(day, today)).join(', ');
 
   return (
@@ -130,28 +132,16 @@ export default function HomePage({ nav }: { nav: Nav }) {
         )}
 
         {produce.length > 0 && (
-          <section className="season" aria-label="In season">
-            <p>
-              <span className="card__eyebrow">In season now</span> {produce.join(', ')}
-            </p>
-            {seasonal.length > 0 && (
-              <ul className="recipe-rows">
-                {seasonal.map(({ recipe, uses }) => (
-                  <li key={recipe.id}>
-                    <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
-                      <DishImage recipe={recipe} />
-                      <span>
-                        <span className="recipe-row__title">{recipe.title}</span>
-                        <span className="recipe-row__meta">Uses {uses.join(', ')}</span>
-                      </span>
-                      <span />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <span className="way__source">{SEASON_SOURCE}</span>
-          </section>
+          <button type="button" className="card card--link season-card" onClick={() => nav.go({ name: 'season' })}>
+            <span className="card__eyebrow">In season now</span>
+            <span className="season-card__pics" aria-hidden="true">
+              {inSeasonNow.slice(0, 5).map((item) => (
+                <ProducePicture key={item.id} item={item} />
+              ))}
+            </span>
+            <span className="season-card__names">{produce.slice(0, 6).join(', ')}</span>
+            {seasonal.length > 0 && <span className="muted">{seasonal.length === 1 ? `Used in your ${seasonal[0].recipe.title.toLowerCase()}` : `Used in ${seasonal.length} of your recipes`}</span>}
+          </button>
         )}
 
         <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'ideas' })}>

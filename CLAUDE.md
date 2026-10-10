@@ -519,6 +519,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Units (As written / Metric / US, recipe page and Settings): Metric weighs
   common dry things by `weightPerCup`; oven heats round to dial steps. No
   stand-in dish photos: `DishImage` (tinted card with the initial).
+- In season (`SeasonPage`, `ProducePage`, routes `season`, `produce`): ~45
+  items in `core/seasons.ts` with months, match words (whole word + plural,
+  `notAfter`), TheMealDB photo (fresh only) and lookup names, keeping notes;
+  Home shows a card that opens it. TheMealDB calls live in `app/mealdb.ts`.
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

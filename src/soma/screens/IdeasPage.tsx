@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
-import { holdDraft } from '../app/draft';
 import { SearchIcon } from '../app/icons';
 import { Brand } from '../app/ui';
-import { fromMeal, type Meal } from '../core/importRecipe';
-
-/** TheMealDB: a free, open collection of recipes (themealdb.com). Searches go to it directly; nothing about the person is sent. */
-const API = 'https://www.themealdb.com/api/json/v1/1/';
-
-type Found = { idMeal: string; strMeal: string; strMealThumb?: string; strCategory?: string; strArea?: string };
+import { ask, draftFrom, type Found } from '../app/mealdb';
 
 const shelves = ['Vegetarian', 'Vegan', 'Seafood', 'Chicken', 'Breakfast', 'Pasta', 'Side', 'Starter'];
-
-async function ask<T>(path: string): Promise<T> {
-  const response = await fetch(`${API}${path}`);
-  if (!response.ok) throw new Error('TheMealDB did not answer just now.');
-  return (await response.json()) as T;
-}
 
 export default function IdeasPage({ nav }: { nav: Nav }) {
   const [shelf, setShelf] = useState<string | undefined>('Vegetarian');
@@ -46,9 +34,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
   const open = async (meal: Found) => {
     setBusy(true);
     try {
-      const { meals } = await ask<{ meals: Meal[] | null }>(`lookup.php?i=${meal.idMeal}`);
-      if (!meals?.[0]) throw new Error('missing');
-      holdDraft(fromMeal(meals[0]));
+      await draftFrom(meal);
       nav.go({ name: 'edit' });
     } catch {
       setProblem('That recipe could not be opened just now.');

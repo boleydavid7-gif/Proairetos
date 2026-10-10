@@ -15,6 +15,7 @@ import CookPage from '../screens/CookPage';
 import TonightPage from '../screens/TonightPage';
 import WeekPage from '../screens/WeekPage';
 import PausePage from '../screens/PausePage';
+import SeasonPage, { ProducePage } from '../screens/SeasonPage';
 import type { Mark } from '../core/recipes';
 import type { TimeChoice } from '../core/tonight';
 import MorePage, { AboutPage, DataPage, SettingsPage, UsuallyPage } from '../screens/MorePage';
@@ -29,6 +30,8 @@ export type Route =
   | { name: 'tonight'; time?: TimeChoice }
   | { name: 'week'; mark?: Mark }
   | { name: 'pause'; id: string }
+  | { name: 'season' }
+  | { name: 'produce'; id: string }
   | { name: 'usually' }
   | { name: 'settings' }
   | { name: 'data' }
@@ -116,6 +119,10 @@ export default function App() {
         return <TonightPage nav={nav} time={route.time} />;
       case 'week':
         return <WeekPage nav={nav} mark={route.mark} />;
+      case 'season':
+        return <SeasonPage nav={nav} />;
+      case 'produce':
+        return <ProducePage nav={nav} id={route.id} />;
       case 'pause':
         return <PausePage nav={nav} id={route.id} />;
       case 'usually':

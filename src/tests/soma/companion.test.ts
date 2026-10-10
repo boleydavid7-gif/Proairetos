@@ -182,3 +182,35 @@ describe('Proairetos reading SOMA', async () => {
     expect(namesList(['A', 'B', 'C'])).toBe('A, B and C');
   });
 });
+
+describe('in season, as a page', async () => {
+  const { seasonal, comingNext, usesProduce, produceById, producePhoto } = await import('../../soma/core/seasons');
+  const { monthsLabel } = await import('../../soma/screens/SeasonPage');
+  it('lists the month by kind, turned round in the south', () => {
+    const october = seasonal(9).map((item) => item.id);
+    expect(october).toEqual(expect.arrayContaining(['pumpkin', 'squash', 'apples', 'kale']));
+    expect(october).not.toContain('strawberries');
+    expect(seasonal(9, -33).map((item) => item.id)).toEqual(expect.arrayContaining(['asparagus', 'peas']));
+    expect(comingNext(8).map((item) => item.id)).toEqual(expect.arrayContaining(['kale', 'cranberries', 'pomegranate']));
+    expect(comingNext(8).map((item) => item.id)).not.toContain('apples');
+  });
+
+  it('finds produce in recipes by whole word and plural, never inside another word', () => {
+    const r = (lines: string[]) => recipe({ title: 'X', ingredients: lines });
+    expect(usesProduce(r(['1 cup frozen peas']), produceById('peas')!)).toBe(true);
+    expect(usesProduce(r(['2 tbsp peanut butter', '1 can chickpeas']), produceById('peas')!)).toBe(false);
+    expect(usesProduce(r(['1 cup pearl barley']), produceById('pears')!)).toBe(false);
+    expect(usesProduce(r(['2 ripe pears']), produceById('pears')!)).toBe(true);
+    expect(usesProduce(r(['2 sweet potatoes']), produceById('potatoes')!)).toBe(false);
+    expect(usesProduce(r(['2 sweet potatoes']), produceById('sweet-potatoes')!)).toBe(true);
+    expect(usesProduce(r(['1 pint strawberries']), produceById('strawberries')!)).toBe(true);
+  });
+
+  it('says its months plainly, across the new year as one run', () => {
+    expect(monthsLabel([9, 10, 11, 12, 1, 2], false)).toBe('Sep – Feb');
+    expect(monthsLabel([3, 4, 5, 6, 9, 10, 11], false)).toBe('Mar – Jun, Sep – Nov');
+    expect(monthsLabel([3, 4, 5, 6], true)).toBe('Sep – Dec');
+    expect(producePhoto(produceById('squash')!)).toBe('https://www.themealdb.com/images/ingredients/Butternut%20Squash-Small.png');
+    expect(producePhoto(produceById('cauliflower')!)).toBeUndefined();
+  });
+});

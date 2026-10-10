@@ -107,6 +107,21 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   colour with its first letter (`app/DishImage.tsx`, `tintOf`); its page opens
   with a soft band in that colour instead of a photo.
 
+## In season
+
+- Home's In season card (a few photos, the month's names, how many of your
+  recipes use them) opens `SeasonPage`: the month's vegetables, fruit and herbs
+  as photo tiles (`core/seasons.ts` `produce`: ~45 items with months, words to
+  find them in recipes, TheMealDB photo name, a keeping note), and Coming next
+  month. South of the equator the months turn half a year round (weather place).
+- Each opens `ProducePage`: when it is at its best, Keeping it (after the USDA
+  FoodKeeper and common practice), Add to groceries, your recipes with it
+  (whole words and plurals; "pea" never finds peanut), and ideas from TheMealDB
+  (`app/mealdb.ts` `mealsWith`, opened as a draft to look over).
+- Photos are TheMealDB's ingredient pictures, loaded when shown; only fresh
+  ones (no jars or tins: chives and sweetcorn have none); offline or without
+  one, a soft card with the first letter.
+
 ## Next
 
 - A photo of a recipe card read on the phone (OCR, loaded only when used).

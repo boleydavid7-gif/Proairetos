@@ -1003,3 +1003,106 @@
     object-position: 50% 28%;
   }
 }
+
+/* ---------- In season ---------- */
+
+.produce-pic {
+  --tint: #6f9a78;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 12%, var(--surface)));
+  border: 1px solid color-mix(in srgb, var(--tint) 28%, transparent);
+  overflow: hidden;
+  flex: none;
+}
+.produce-pic--fruit { --tint: #c0754f; }
+.produce-pic--herb { --tint: #8f9548; }
+.produce-pic img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+.produce-pic__initial {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--tint);
+}
+.produce-pic--large {
+  width: 112px;
+  height: 112px;
+}
+.produce-pic--large .produce-pic__initial { font-size: 2.6rem; }
+
+.season-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.produce-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 14px 8px;
+}
+.produce-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+}
+.produce-tile__name {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+.season-next {
+  margin: 20px 0 6px;
+  color: var(--text-soft);
+}
+.season-next .card__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.produce-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 16px;
+}
+.produce-head .title {
+  margin: 0;
+}
+.produce-page > .button-quiet {
+  margin: 12px 0 4px;
+}
+
+/* Home's card: a few of the month's pictures, overlapping. */
+.season-card__pics {
+  display: flex;
+  margin: 8px 0 4px;
+}
+.season-card__pics .produce-pic {
+  width: 44px;
+  height: 44px;
+  margin-right: -8px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.season-card__pics .produce-pic__initial { font-size: 1.1rem; }
+.season-card__names {
+  color: var(--text-soft);
+}
