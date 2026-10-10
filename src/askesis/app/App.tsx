@@ -49,6 +49,8 @@ const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).inclu
  * One page at a time, kept in the browser's history so the phone's back
  * gesture and back button always lead somewhere sensible.
  */
+import { takeOpening } from '../../app/family/opening';
+
 export default function App() {
   const settings = useSettings();
   const planState = usePlanState();
@@ -64,6 +66,14 @@ export default function App() {
       transition('back', () => setRoute(next ?? { name: 'home' }));
     };
     window.addEventListener('popstate', onPop);
+    // Opened from Proairetos at a particular place: that page, with Home beneath it.
+    const open = takeOpening();
+    if (open && (settings.started || planState)) {
+      const [kind, id] = open.split(':');
+      if (kind === 'workout' && id) go({ name: 'workout', id });
+      else if (kind === 'entry' && id) go({ name: 'entry', id });
+      else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
+    }
     return () => window.removeEventListener('popstate', onPop);
     // Only once: the first page is already in history.
   }, []);

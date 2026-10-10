@@ -83,6 +83,9 @@ const notify = () => {
   listeners.forEach((listener) => listener());
 };
 
+// Settings changed in another open SOMA (or a restore elsewhere): read them again.
+if (typeof window !== 'undefined') window.addEventListener('storage', (event) => event.key?.startsWith('soma:') && notify());
+
 export function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);

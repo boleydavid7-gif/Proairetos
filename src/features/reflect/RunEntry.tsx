@@ -4,6 +4,7 @@ import { feelings } from '../../askesis/core/log';
 import type { Unit } from '../../askesis/core/pace';
 import { MountainIcon } from '../../components/icons/Icons';
 import { dayLabel } from './format';
+import { linkTo } from '../../app/family/opening';
 
 /** A run logged in Askesis, as written there. Opens Askesis to change it. */
 export default function RunEntry({ entry, unit, showDay }: { entry: LogEntry; unit: Unit; showDay: boolean }) {
@@ -23,7 +24,7 @@ export default function RunEntry({ entry, unit, showDay }: { entry: LogEntry; un
         <span className="timeline-entry__prompt">
           From Askesis{entry.felt ? ` · felt ${feelings[entry.felt].toLowerCase()}` : ''}
         </span>
-        <a className="timeline-entry__text run-entry__text" href="/askesis/">
+        <a className="timeline-entry__text run-entry__text" href={linkTo('askesis', `entry:${entry.id}`)}>
           {runTitle(entry, unit)}
           {words && <span className="run-entry__words">{words}</span>}
         </a>

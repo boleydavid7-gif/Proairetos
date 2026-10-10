@@ -143,6 +143,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `proairetos-daily` (`data/backup/daily.ts`, last 7 days, none when there is
   nothing to keep); switch `proairetos.dailyCopy` (on unless "false"); listed
   and restorable on every app's backup page (`useDailyCopies`).
+- Between the apps: one account. Where they share storage, signing in to
+  one signs in all; where they do not (each iPhone Home Screen app keeps
+  its own), Askesis and SOMA sign in and unlock in `app/family/AccountCard`
+  (first-time setup stays in Proairetos, `?open=account`). Open apps tell
+  each other about changes and sign-in over BroadcastChannel
+  `proairetos-family` (`tellFamily` in `syncController`). Links carry
+  `?open=` (`app/family/opening.ts`): Askesis `workout:ID`, `entry:ID`, a
+  tab; SOMA `recipe:ID`, `week`, `tonight`; Proairetos `day:today`,
+  `reflect`, `compass`, `account`.
 - Trust: Support screen (`features/support/`, crisis lines, reached from
   Settings and practices, never triggered by content); public
   `public/privacy.html`; `delete-account` function; backup offer

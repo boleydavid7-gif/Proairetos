@@ -46,7 +46,11 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
     <div className="page">
       <BackLink label="Home" onBack={nav.back} />
       <h1 className="title">What can I make tonight?</h1>
-      {shape?.today && <p className="muted">{shape.today}</p>}
+      {shape?.today && (
+        <a className="muted family-link" href="/?open=day%3Atoday">
+          {shape.today}
+        </a>
+      )}
 
       <Choice<TimeChoice>
         label="Time"

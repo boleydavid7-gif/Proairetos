@@ -1,6 +1,7 @@
 import { namesList, type CookedFor } from '../../app/soma/meals';
 import { LeafIcon } from '../../components/icons/Icons';
 import { dayLabel } from './format';
+import { linkTo } from '../../app/family/opening';
 
 /** A meal cooked for someone, as marked in SOMA. Opens SOMA. */
 export default function MealEntry({ meal, showDay }: { meal: CookedFor; showDay: boolean }) {
@@ -16,7 +17,7 @@ export default function MealEntry({ meal, showDay }: { meal: CookedFor; showDay:
           </div>
         )}
         <span className="timeline-entry__prompt">From SOMA</span>
-        <a className="timeline-entry__text run-entry__text" href="/soma/">
+        <a className="timeline-entry__text run-entry__text" href={linkTo('soma', `recipe:${meal.recipeId}`)}>
           Cooked for {namesList(meal.people)}
           <span className="run-entry__words">{meal.title}</span>
         </a>

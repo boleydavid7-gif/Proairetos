@@ -2,8 +2,13 @@ import { useEffect } from 'react';
 import { setDaysAheadOpening } from '../../features/days/daysAhead';
 import { useNavigate } from '../navigationContext';
 import { useOverlays } from '../overlays/OverlayContext';
+import { openSettingsAt } from '../../features/settings/SettingsPage';
 
-/** Where a tapped notification leads: `item:ID`, `day:YYYY-MM-DD`, `today`, `reflect`, or `askesis` (the training app). */
+/**
+ * Where a tapped notification, or a link from Askesis or SOMA, leads:
+ * `item:ID`, `day:YYYY-MM-DD` (or `day:today`), `today`, `reflect`,
+ * `compass`, `account` (Settings, sync), or `askesis` (the training app).
+ */
 function useOpen() {
   const navigate = useNavigate();
   const { openItem } = useOverlays();
@@ -12,10 +17,15 @@ function useOpen() {
       navigate('today');
       openItem(open.slice(5));
     } else if (open.startsWith('day:')) {
-      setDaysAheadOpening({ start: open.slice(4) });
+      const day = open.slice(4);
+      if (day !== 'today') setDaysAheadOpening({ start: day });
       navigate('plan');
     } else if (open === 'reflect') navigate('reflect');
-    else if (open === 'askesis') window.location.assign('/askesis/');
+    else if (open === 'compass') navigate('compass');
+    else if (open === 'account') {
+      openSettingsAt('account');
+      navigate('settings');
+    } else if (open === 'askesis') window.location.assign('/askesis/');
     else navigate('today');
   };
 }

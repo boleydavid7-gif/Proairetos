@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { takeOpening } from '../../app/family/opening';
 import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { useSettings } from './state';
 import { TabBar, tabNames, UndoProvider, type Tab } from './ui';
@@ -50,6 +51,14 @@ export default function App() {
       transition('back', () => setRoute(next ?? { name: 'home' }));
     };
     window.addEventListener('popstate', onPop);
+    // Opened from Proairetos at a particular place: that page, with Home beneath it.
+    const open = takeOpening();
+    if (open && settings.started) {
+      const [kind, id] = open.split(':');
+      if (kind === 'recipe' && id) go({ name: 'recipe', id });
+      else if (kind === 'week' || kind === 'tonight') go({ name: kind });
+      else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
+    }
     return () => window.removeEventListener('popstate', onPop);
     // Only once: the first page is already in history.
   }, []);

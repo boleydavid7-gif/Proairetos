@@ -111,6 +111,39 @@ async function resolvePhase(): Promise<void> {
 
 const remoteChanges = createListeners();
 
+/*
+ * The family, open side by side (Proairetos, Askesis, SOMA in tabs, or
+ * installed apps sharing this browser's storage): a change in one shows in
+ * the others at once, and so does signing in or out. Only "something
+ * changed" is said; each app reads the records itself.
+ */
+type FamilyNote = { kind: 'changed' | 'account' };
+const family: BroadcastChannel | null = typeof BroadcastChannel === 'function' ? new BroadcastChannel('proairetos-family') : null;
+let familyTimer: number | undefined;
+
+/** Tells the other open apps that records changed (shortly, once for a burst of writes). */
+export function tellFamily(kind: FamilyNote['kind'] = 'changed'): void {
+  if (!family) return;
+  if (kind === 'account') {
+    family.postMessage({ kind } satisfies FamilyNote);
+    return;
+  }
+  window.clearTimeout(familyTimer);
+  familyTimer = window.setTimeout(() => family.postMessage({ kind } satisfies FamilyNote), 300);
+}
+
+family?.addEventListener('message', (event: MessageEvent<FamilyNote>) => {
+  if (event.data?.kind === 'account') {
+    void resolvePhase().then(() => status.phase === 'ready' && void syncNow());
+    return;
+  }
+  if (event.data?.kind === 'changed') {
+    applyingRemote = true;
+    refreshScreens();
+    applyingRemote = false;
+  }
+});
+
 /** Told when a sync brought changes from elsewhere (Askesis listens to reload its own records). */
 export function onRemoteChanges(listener: () => void): () => void {
   return remoteChanges.subscribe(listener);
@@ -123,6 +156,7 @@ function refreshScreens() {
 
 /** Syncs shortly after things settle; for changes made outside the services (Askesis). */
 export function syncSoon(): void {
+  tellFamily();
   if (status.phase !== 'ready') return;
   window.clearTimeout(changeTimer);
   changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
@@ -158,6 +192,7 @@ export async function syncNow(): Promise<SyncResult | null> {
       applyingRemote = true;
       refreshScreens();
       applyingRemote = false;
+      tellFamily();
     }
     await updateReminders().catch(() => undefined);
     await refreshCalendarFeed().catch(() => undefined);
@@ -179,7 +214,9 @@ export async function startSync(): Promise<void> {
   // After any local change, sync shortly after things settle.
   for (const service of [lifeService, reflectionService, compassService, scheduleService, decisionService]) {
     service.subscribe(() => {
-      if (applyingRemote || status.phase !== 'ready') return;
+      if (applyingRemote) return;
+      tellFamily();
+      if (status.phase !== 'ready') return;
       window.clearTimeout(changeTimer);
       changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
     });
@@ -208,6 +245,7 @@ export async function confirmCode(email: string, codeOrLink: string): Promise<vo
   // Opening the link in this browser leaves tokens in the address; tidy it.
   if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);
   await resolvePhase();
+  tellFamily('account');
   if (status.phase === 'ready') void syncNow();
 }
 
@@ -229,6 +267,7 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
   set({ phase: 'ready' });
+  tellFamily('account');
   await syncNow();
 }
 
@@ -242,6 +281,7 @@ export async function unlock(secret: string, method: 'passphrase' | 'recovery'):
   await (await localState())!.setMeta(KEY_META, key);
   dataKey = key;
   set({ phase: 'ready' });
+  tellFamily('account');
   await syncNow();
 }
 
@@ -253,6 +293,7 @@ export async function signOut(): Promise<void> {
   dataKey = null;
   userId = null;
   set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: undefined });
+  tellFamily('account');
 }
 
 /**

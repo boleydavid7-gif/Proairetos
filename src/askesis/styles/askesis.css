@@ -2380,3 +2380,21 @@ html[data-nav='back']::view-transition-new(root) {
 .daily-copies [aria-pressed='true'] {
   color: var(--mint);
 }
+
+/* A quiet line that opens another app in the family. */
+.family-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.account__step {
+  margin-top: 8px;
+}
+.account__link {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}

@@ -4,6 +4,7 @@ import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
+import { linkTo } from '../../app/family/opening';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -325,7 +326,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 })}
               </ul>
               {shows('soma') && mealsOn(recipes, date).length > 0 && (
-                <a className="days-meals" href="/soma/">
+                <a className="days-meals" href={linkTo('soma', mealsOn(recipes, date).length === 1 ? `recipe:${mealsOn(recipes, date)[0].id}` : 'week')}>
                   <LeafIcon size={18} /> {mealsOn(recipes, date)
                     .map((meal) => meal.title)
                     .join(', ')}

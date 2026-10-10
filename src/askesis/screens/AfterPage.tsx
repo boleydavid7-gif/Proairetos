@@ -52,7 +52,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
           <section className="card">
             <h2 className="card__title card__title--small">One line to keep</h2>
             {kept ? (
-              <p className="muted">Kept in Reflect, in Proairetos.</p>
+              <a className="muted family-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a>
             ) : (
               <>
                 <label className="field">
