@@ -79,6 +79,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Praxis and Theoria's phone bar sits along the bottom edge like the family's others (drawn icons, no
   text glyphs); Theoria fills a book's title and author from the file; Hydros shows what was drunk with
   no target until the person chooses a daily amount (`goalChosen`).
+- Praxis stays a dark study room in either appearance, like Theoria (`praxis/main.tsx` sets `data-theme` dark after `applyAppearance`; text size still follows). On computers the rail names Askesis, SOMA, Oikonomia and HYDROS, so the name over their pages is hidden; welcome buttons stay 26rem wide.
 - `src/styles/premium.css` is the shared finish for all seven apps (imported last in each `main.tsx`):
   card depth tokens, balanced headings, tabular figures, selection and focus colour, grain over the
   home photos (`.hero::before`), the `.skeleton` shimmer for waiting. Add new shared polish there, not

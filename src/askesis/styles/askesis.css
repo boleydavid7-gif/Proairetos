@@ -2484,6 +2484,11 @@ html[data-nav='back']::view-transition-new(root) {
     max-width: none;
   }
 
+  .welcome__actions {
+    max-width: 26rem;
+    align-self: center;
+  }
+
   .shell--tabs {
     max-width: none;
     padding-left: var(--rail-width);
@@ -2499,6 +2504,11 @@ html[data-nav='back']::view-transition-new(root) {
 
   .shell--tabs .hero {
     height: 300px;
+  }
+
+  /* The rail already names the app, so the name over the page goes. */
+  .shell--tabs .brand {
+    display: none;
   }
 
   .shell--tabs .hero--tall {

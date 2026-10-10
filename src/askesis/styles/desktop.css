@@ -186,7 +186,7 @@
   }
 
   /* Guide and other full-screen pages stay centred and calm. */
-  :root.askesis .shell:not(.shell--tabs) {
+  :root.askesis .shell:not(.shell--tabs):not(:has(.welcome)) {
     max-width: 52rem;
   }
 }

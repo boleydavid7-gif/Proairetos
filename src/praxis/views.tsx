@@ -329,7 +329,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
               <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}>›</button>
             </div>
           </div>
-          <div className="praxis-chart">
+          <div className={total ? 'praxis-chart' : 'praxis-chart praxis-chart--empty'}>
             {days.map((day, index) => (
               <div className="praxis-bar-group" key={day}>
                 <small className="praxis-bar-value">{minutes[index] ? formatMinutes(minutes[index]) : ''}</small>

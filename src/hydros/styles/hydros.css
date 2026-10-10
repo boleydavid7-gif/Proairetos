@@ -264,6 +264,10 @@ body:has(.hydros-shell) { min-height: 100dvh; }
     --tab-height: 0px;
   }
 
+  /* The rail names the app; the words over the photo need only their own shadow. */
+  .hydros-home-head .hydros-brand { visibility: hidden; }
+  .hydros-hero__words::before { display: none; }
+
   .hydros-shell {
     max-width: none;
     padding-left: var(--rail-width);

@@ -16,8 +16,15 @@ import { startDailyCopies } from '../app/family/dailyCopy';
 import PraxisApp from './PraxisApp';
 import { notifications } from '../app/notify/notifications';
 
-applyAppearance();
-window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
+// Praxis is a dark study room in either appearance (like Theoria's library): the text size follows
+// Proairetos, the colours stay, so nothing goes dark on dark.
+const appearance = () => {
+  applyAppearance();
+  document.documentElement.dataset.theme = 'dark';
+};
+appearance();
+window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
+window.addEventListener('storage', appearance);
 startDailyCopies();
 notifications.start();
 
