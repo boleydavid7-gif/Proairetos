@@ -1,6 +1,6 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { familyWorker } from '../notify/familyWorker';
-import { KeyError, createKeys, openBytes, sealBytes, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
+import { KeyError, createKeys, openBytes, sealBytes, sealNoticeWords, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
@@ -18,6 +18,9 @@ import {
   isSyncConfigured,
   removePushSubscription,
   replaceReminders,
+  replaceSourceReminders,
+  hasPushSubscription,
+  OlderRemindersTable,
   saveWrappedKeys,
   savePushSubscription,
   sendSignInCode,
@@ -37,12 +40,13 @@ import {
   scheduleService,
 } from '../services';
 import { reminderTimes } from './reminders';
-import { upcomingNotices } from '../notify/upcoming';
-import { hydrationNotices } from '../notify/hydrationSchedule';
+import { hydrationUpcoming, upcomingNotices } from '../notify/upcoming';
+import { appAt, sourceOf, sourcesToWrite, wordsOf, type ReminderSource } from '../../core/notify/sources';
+import { privateNotice, type Notice } from '../../core/notify/notices';
 import { buildCalendarFile } from './calendarFile';
 import {
   loadCalendarFeed,
-  loadQuietHours,
+  loadNotify,
   notifyPreferences,
   saveCalendarFeed,
   subscribePreferences,
@@ -196,12 +200,53 @@ export function refreshReminders(): Promise<void> {
   return updateReminders().catch(() => undefined);
 }
 
+/** Whether this account takes reminders somewhere: here, or on a phone where another app of the family has them on. */
+let accountTakesReminders: boolean | undefined;
+
+async function remindersWanted(): Promise<boolean> {
+  if (status.reminders === 'on') return true;
+  accountTakesReminders ??= await hasPushSubscription().catch(() => false);
+  return accountTakesReminders;
+}
+
+const WRITTEN_KEY = 'proairetos.sync.reminderSources';
+
+function writtenBefore(): ReminderSource[] {
+  try {
+    return JSON.parse(localStorage.getItem(WRITTEN_KEY) ?? '[]') as ReminderSource[];
+  } catch {
+    return [];
+  }
+}
+
 async function updateReminders() {
-  if (!userId || status.reminders !== 'on') return;
-  // Only the times leave the device; the words are written here when the push arrives.
-  const notices = await upcomingNotices();
-  notices.push(...hydrationNotices(new Date(), loadQuietHours()));
-  await replaceReminders(userId, await reminderTimes(notices));
+  if (!userId || !dataKey || !(await remindersWanted())) return;
+  const now = new Date();
+  const notices: Notice[] = [...(await upcomingNotices(now)), ...(await hydrationUpcoming(now).catch(() => []))];
+  const app = appAt(location.pathname);
+  const sources = sourcesToWrite(app, notices, writtenBefore());
+  if (sources.length === 0) return;
+  const details = loadNotify().details;
+  const key = dataKey;
+  try {
+    for (const source of sources) {
+      const own = notices.filter((notice) => sourceOf(notice) === source);
+      const times = await reminderTimes(own);
+      const rows = await Promise.all(
+        own.map(async (notice, index) => ({
+          ...times[index],
+          // Only the times are readable by the server; the words travel sealed with the account key.
+          sealed: await sealNoticeWords(key, wordsOf(details ? notice : privateNotice(notice))),
+        })),
+      );
+      await replaceSourceReminders(userId, source, rows);
+    }
+    localStorage.setItem(WRITTEN_KEY, JSON.stringify([...new Set([...writtenBefore(), ...sources])]));
+  } catch (cause) {
+    // A server without the newer table keeps the old way: Proairetos alone writes every time it knows.
+    if (!(cause instanceof OlderRemindersTable)) throw cause;
+    if (app === 'proairetos' && status.reminders === 'on') await replaceReminders(userId, await reminderTimes(notices));
+  }
 }
 
 export async function syncNow(): Promise<SyncResult | null> {
@@ -371,6 +416,13 @@ export async function enableReminders(): Promise<void> {
     set({ reminders: permission === 'denied' ? 'blocked' : 'off' });
     return;
   }
+  // On an iPhone each Home Screen app is its own receiver: when another app of the family already takes this
+  // account's reminders, this one only writes its times there, so nothing arrives twice.
+  if (appAt(location.pathname) !== 'proairetos' && (await hasPushSubscription().catch(() => false))) {
+    accountTakesReminders = true;
+    await updateReminders();
+    return;
+  }
   const registration = await familyWorker();
   if (!registration) throw new Error('Reminders are not available here.');
   const subscription =
@@ -378,6 +430,7 @@ export async function enableReminders(): Promise<void> {
     (await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey() }));
   await savePushSubscription(subscription.toJSON(), userId);
   await (await localState())!.setMeta(REMINDERS_META, subscription.endpoint);
+  accountTakesReminders = true;
   set({ reminders: 'on' });
   await updateReminders();
 }
@@ -392,6 +445,7 @@ export async function disableReminders(): Promise<void> {
     await st!.setMeta(REMINDERS_META, null);
   }
   if (userId) await replaceReminders(userId, []).catch(() => undefined);
+  accountTakesReminders = undefined;
   set({ reminders: pushSupported() ? 'off' : 'unsupported' });
 }
 

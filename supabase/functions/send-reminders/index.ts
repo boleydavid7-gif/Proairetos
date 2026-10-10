@@ -1,5 +1,7 @@
-// Sends due reminders as empty pushes. The phone shows a private message
-// ("Something you chose is ready"); details stay end-to-end encrypted.
+// Sends due reminders as pushes. Each reminder's words were sealed on the device
+// with the account key; they ride along unread, and the phone opens them. Rows
+// without sealed words (older apps) still send an empty push, and the phone
+// shows what it stored itself.
 //
 // Runs on a schedule (see docs/SERVER_SETUP.md). Requires secrets:
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (e.g. mailto:you@example.com)
@@ -44,13 +46,19 @@ async function handle(request: Request): Promise<Response> {
   const now = new Date();
   const staleBefore = new Date(now.getTime() - STALE_AFTER_MINUTES * 60_000).toISOString();
 
-  const { data: due, error } = await supabase
-    .from('reminders')
-    .select('user_id, id')
-    .is('sent_at', null)
-    .lte('fire_at', now.toISOString())
-    .gte('fire_at', staleBefore)
-    .limit(500);
+  const dueRows = (columns: string) =>
+    supabase
+      .from('reminders')
+      .select(columns)
+      .is('sent_at', null)
+      .lte('fire_at', now.toISOString())
+      .gte('fire_at', staleBefore)
+      .limit(500);
+  type Row = { user_id: string; id: string; sealed?: string | null };
+  type Result = { data: Row[] | null; error: { message: string } | null };
+  let { data: due, error } = (await dueRows('user_id, id, sealed')) as unknown as Result;
+  // Before the reminder-sources migration there is no sealed column: send empty pushes as before.
+  if (error) ({ data: due, error } = (await dueRows('user_id, id')) as unknown as Result);
   if (error) return new Response(error.message, { status: 500 });
 
   // One push per person per run, however many reminders are due.
@@ -58,6 +66,16 @@ async function handle(request: Request): Promise<Response> {
   let sent = 0;
 
   for (const userId of people) {
+    // Sealed words for this person's due reminders, newest first, kept well under a push's size limit.
+    const sealed: string[] = [];
+    let size = 0;
+    for (const row of [...(due ?? [])].reverse()) {
+      if (row.user_id !== userId || !row.sealed) continue;
+      if (size + row.sealed.length > 3000) break;
+      sealed.push(row.sealed);
+      size += row.sealed.length + 3;
+    }
+    const payload = sealed.length > 0 ? JSON.stringify({ v: 1, n: sealed }) : null;
     const { data: subscriptions } = await supabase
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth')
@@ -67,7 +85,7 @@ async function handle(request: Request): Promise<Response> {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          null, // no payload: nothing readable leaves the server
+          payload, // sealed words only: nothing the server can read
           { TTL: 3600, urgency: 'normal' },
         );
         sent++;

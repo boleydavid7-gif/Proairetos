@@ -191,3 +191,15 @@ export async function openBytes(key: CryptoKey, label: string, sealed: ArrayBuff
     throw new KeyError(`A synced file (${label}) could not be opened with this key.`);
   }
 }
+
+/** A reminder's words, sealed for the push the server sends at its time (iv + ciphertext, base64). */
+export async function sealNoticeWords(key: CryptoKey, words: unknown): Promise<string> {
+  const sealed = await sealBytes(key, 'proairetos-notice', new TextEncoder().encode(JSON.stringify(words)).buffer as ArrayBuffer);
+  return toBase64(sealed);
+}
+
+export async function openNoticeWords<T>(key: CryptoKey, sealed: string): Promise<T> {
+  const bytes = fromBase64(sealed);
+  const plain = await openBytes(key, 'proairetos-notice', bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer);
+  return JSON.parse(new TextDecoder().decode(plain)) as T;
+}

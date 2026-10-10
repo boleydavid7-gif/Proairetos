@@ -217,6 +217,37 @@ export async function replaceReminders(userId: string, reminders: { id: string; 
   if (error) throw new Error(error.message);
 }
 
+/** Raised when the server has not yet had the reminder-sources migration; the caller falls back to the old way. */
+export class OlderRemindersTable extends Error {}
+
+/**
+ * Replaces one app's upcoming reminders, leaving the other apps' alone. Each row carries its words sealed
+ * with the account key (the server cannot read them) for the push to bring along.
+ */
+export async function replaceSourceReminders(
+  userId: string,
+  source: string,
+  reminders: { id: string; fire_at: string; sealed: string }[],
+): Promise<void> {
+  const client = await supabase();
+  const older = (error: { code?: string; message: string }) =>
+    error.code === '42703' || error.code === 'PGRST204' || /source|sealed/.test(error.message);
+  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).eq('source', source).is('sent_at', null);
+  if (clearError) throw older(clearError) ? new OlderRemindersTable(clearError.message) : new Error(clearError.message);
+  if (reminders.length === 0) return;
+  const { error } = await client
+    .from('reminders')
+    .upsert(reminders.map((r) => ({ ...r, source, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
+  if (error) throw older(error) ? new OlderRemindersTable(error.message) : new Error(error.message);
+}
+
+/** Whether any phone or computer on this account takes reminders, so apps without their own know to write theirs. */
+export async function hasPushSubscription(): Promise<boolean> {
+  const { data, error } = await (await supabase()).from('push_subscriptions').select('endpoint').limit(1);
+  if (error) return false;
+  return (data ?? []).length > 0;
+}
+
 // ---------- Calendar feed (optional, readable by choice) ----------
 
 /** The link calendar apps subscribe to. */

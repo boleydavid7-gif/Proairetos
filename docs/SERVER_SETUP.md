@@ -255,3 +255,19 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 ## Settings and files sync (migration 20261016000000)
 
 Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets settings and photo/file details sync, and creates the private `proairetos-files` bucket (12 MB limit; files arrive already encrypted). Redeploy `delete-account` so it also clears a person's files: `supabase functions deploy delete-account`. Until the migration runs, these are held on the device and everything else syncs as before.
+
+## Reminders from every app (migration 20261017000000)
+
+So reminders from HYDROS (water), Oikonomia (bills), Askesis (run days) and Praxis (the end of a study block)
+arrive with their own words on a phone where Proairetos is the app that receives pushes:
+
+1. In the SQL editor, run `supabase/migrations/20261017000000_reminder_sources.sql`. It gives each app its own
+   reminder rows (so one app never removes another's) and a column for the words, sealed on the phone with your
+   account key. The server passes them along and cannot read them.
+2. Redeploy the reminder function with the new code: **Edge Functions → send-reminders → Code**, paste
+   `supabase/functions/send-reminders/index.ts`, and deploy (or `supabase functions deploy send-reminders --no-verify-jwt`).
+   The cron job and keys stay as they are.
+3. Open each app you use once while signed in (Proairetos, HYDROS, Oikonomia, Askesis, Praxis), so each sends its
+   times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
+
+Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.

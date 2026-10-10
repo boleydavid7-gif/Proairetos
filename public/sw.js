@@ -94,15 +94,74 @@ async function readJson(cache, path, fallback) {
   }
 }
 
-async function showDue() {
+// Each app's own mark beside its reminders (HYDROS has only its drawn icon, so it shares Proairetos's).
+function iconFor(open) {
+  if (open === 'praxis') return '/praxis/icons/icon-192.png';
+  if (open === 'askesis') return '/askesis/icons/icon-192.png';
+  if (open && open.startsWith('oikonomia:')) return '/oikonomia/icons/icon-192.png';
+  return '/icons/icon-192.png';
+}
+
+// The account key, kept on this device by sync (database `proairetos`, store `syncMeta`), opens the words that
+// another app of the family sealed for this push. The server only ever carried them sealed.
+function accountKey() {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open('proairetos');
+      request.onerror = () => resolve(null);
+      request.onsuccess = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('syncMeta')) return resolve(null);
+        const get = db.transaction('syncMeta', 'readonly').objectStore('syncMeta').get('dataKey');
+        get.onsuccess = () => resolve((get.result && get.result.value) || null);
+        get.onerror = () => resolve(null);
+      };
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+async function openSealed(sealed) {
+  const key = await accountKey();
+  if (!key || !Array.isArray(sealed)) return [];
+  const opened = [];
+  for (const text of sealed) {
+    try {
+      const bytes = Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+      const plain = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: bytes.slice(0, 12), additionalData: new TextEncoder().encode('proairetos-notice') },
+        key,
+        bytes.slice(12),
+      );
+      const words = JSON.parse(new TextDecoder().decode(plain));
+      opened.push({ key: words.k, title: words.t, body: words.b, open: words.o, at: new Date().toISOString() });
+    } catch {
+      // Sealed with another key (signed in elsewhere since): the stored words below may still have it.
+    }
+  }
+  return opened;
+}
+
+async function showDue(sealed) {
   const cache = await caches.open(NOTIFY_CACHE);
   const upcoming = await readJson(cache, UPCOMING, []);
   const shown = new Set(await readJson(cache, SHOWN, []));
   const now = Date.now();
-  const due = upcoming.filter((notice) => {
+  const stored = upcoming.filter((notice) => {
     const at = Date.parse(notice.at);
-    return at <= now + 90_000 && at >= now - 60 * 60_000 && !shown.has(notice.key);
+    return at <= now + 90_000 && at >= now - 60 * 60_000;
   });
+  const due = [];
+  for (const notice of [...stored, ...(await openSealed(sealed))]) {
+    if (shown.has(notice.key) || due.some((each) => each.key === notice.key)) continue;
+    due.push(notice);
+  }
+  if (due.length === 0 && stored.length > 0) {
+    // The open app showed it already. A phone expects every push to show something, so show it again under
+    // the same tag, which replaces it rather than adding a second.
+    due.push(stored[stored.length - 1]);
+  }
   if (due.length === 0) {
     // Nothing found on the device (stored before an update, or cleared): still say something gentle.
     await self.registration.showNotification('Proairetos', {
@@ -116,7 +175,7 @@ async function showDue() {
   for (const notice of due) {
     await self.registration.showNotification(notice.title, {
       body: notice.body,
-      icon: '/icons/icon-192.png',
+      icon: iconFor(notice.open),
       badge: '/icons/icon-192.png',
       tag: notice.key,
       timestamp: Date.parse(notice.at),
@@ -127,8 +186,17 @@ async function showDue() {
   await cache.put(SHOWN, new Response(JSON.stringify([...shown].slice(-300)), { headers: { 'content-type': 'application/json' } }));
 }
 
+function sealedIn(event) {
+  try {
+    const payload = event.data ? event.data.json() : null;
+    return payload && payload.v === 1 ? payload.n : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 self.addEventListener('push', (event) => {
-  event.waitUntil(showDue());
+  event.waitUntil(showDue(sealedIn(event)));
 });
 
 // A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; HYDROS, Praxis,

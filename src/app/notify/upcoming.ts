@@ -9,6 +9,7 @@ import { loadFocusSession } from '../../data/storage/preferences';
 import type { FocusSession } from '../../core/focus/session';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
+import { hydrationNotices, hydrationWantsWork } from './hydrationSchedule';
 
 const HORIZON_DAYS = 14;
 
@@ -49,4 +50,17 @@ async function studyEnd(): Promise<{ key: string; at: Date; title: string } | un
   if (!block) return undefined;
   const at = new Date(session.startedAt + session.pausedMs + session.durationMs);
   return { key: `${session.startedAt}:${at.getTime()}`, at, title: session.itemTitle ?? block.title };
+}
+
+/** Water reminders, with the last drink logged and (when chosen) the work blocks they keep to. */
+export async function hydrationUpcoming(now: Date): Promise<Notice[]> {
+  const drinks = await readStore<{ loggedAt?: string }>('hydrosDrinks');
+  const last = drinks.map((drink) => drink.loggedAt ?? '').filter(Boolean).sort().pop();
+  let work: { start: Date; end: Date }[] = [];
+  if (hydrationWantsWork()) {
+    const until = new Date(now.getTime() + 15 * 86_400_000);
+    const from = new Date(now.getTime() - 86_400_000);
+    work = [...(await scheduleService.occurrencesBetween(from, until)), ...otherCalendars.blocksBetween(from, until)].filter((block) => block.kind === 'COMMITTED');
+  }
+  return hydrationNotices(now, loadQuietHours(), { lastDrinkAt: last ? new Date(last) : undefined, work });
 }

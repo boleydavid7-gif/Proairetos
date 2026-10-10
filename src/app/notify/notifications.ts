@@ -1,12 +1,11 @@
 import { privateNotice, type Notice, type NoticeSettings } from '../../core/notify/notices';
-import { loadNotify, loadQuietHours, saveNotify } from '../../data/storage/preferences';
+import { loadNotify, saveNotify } from '../../data/storage/preferences';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { familyWorker } from './familyWorker';
-import { upcomingNotices } from './upcoming';
-import { hydrationNotices, hydrationWantsWork, setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
-import { readStore } from '../family/read';
+import { hydrationUpcoming, upcomingNotices } from './upcoming';
+import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -107,19 +106,6 @@ function arm(): void {
     }
     arm();
   }, wait);
-}
-
-/** Water reminders, with the last drink logged and (when chosen) the work blocks they keep to. */
-async function hydrationUpcoming(now: Date): Promise<Notice[]> {
-  const drinks = await readStore<{ loggedAt?: string }>('hydrosDrinks');
-  const last = drinks.map((drink) => drink.loggedAt ?? '').filter(Boolean).sort().pop();
-  let work: { start: Date; end: Date }[] = [];
-  if (hydrationWantsWork()) {
-    const until = new Date(now.getTime() + 15 * 86_400_000);
-    const from = new Date(now.getTime() - 86_400_000);
-    work = [...(await scheduleService.occurrencesBetween(from, until)), ...otherCalendars.blocksBetween(from, until)].filter((block) => block.kind === 'COMMITTED');
-  }
-  return hydrationNotices(now, loadQuietHours(), { lastDrinkAt: last ? new Date(last) : undefined, work });
 }
 
 export const notifications = {
