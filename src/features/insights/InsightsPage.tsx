@@ -75,7 +75,7 @@ export default function InsightsPage() {
         <ArrowLeftIcon size={18} />
         Reflect
       </button>
-      <PageHeader title="Insights" subtitle="What you recorded, gathered in one place. What it means is yours to decide." />
+      <PageHeader title="Insights" subtitle="What you recorded, gathered in one place." />
 
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (
@@ -97,7 +97,7 @@ export default function InsightsPage() {
           <InsightCard icon={<SunIcon size={26} />} title="Inner weather you noted">
             {weatherTotal === 0 ? (
               <p className="insight-card__note">
-                None noted yet. When you write in the journal you can add one, if you like.
+                None noted yet.
               </p>
             ) : (
               <>

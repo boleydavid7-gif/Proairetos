@@ -319,7 +319,6 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
         />
         <span>
           Offer a one-minute pause when this ends
-          <span className="toggle-check__hint">A quiet moment to arrive before the next part of your day.</span>
         </span>
       </label>
 

@@ -65,7 +65,6 @@ export default function RepeatSection({ item }: { item: LifeItem }) {
           ))}
         </div>
       )}
-      {item.repeat && <p className="sheet__hint">If a time passes, it simply shows at the next one.</p>}
     </section>
   );
 }

@@ -53,7 +53,7 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
         <p className="sheet__title sheet__title--static">
           {formatTimeOf(stretch.start)} – {formatTimeOf(stretch.end)}
         </p>
-        <p className="sheet__hint">If you like, give one thing a time here. It shows on your day; nothing else moves.</p>
+        <p className="sheet__hint">Give one thing a time, if you like. Nothing else moves.</p>
 
         <label className="place-time">
           <span>At</span>

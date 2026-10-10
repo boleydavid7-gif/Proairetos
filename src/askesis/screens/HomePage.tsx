@@ -84,7 +84,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
           <div className="home-top">
           <section className="card">
             <h2 className="card__title">Set your aim</h2>
-            <p className="muted">A time, a distance, or just to keep running.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
               Set your aim
             </button>

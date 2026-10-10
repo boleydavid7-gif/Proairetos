@@ -68,8 +68,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         </button>
         <p className="sheet__title sheet__title--static">Today’s path</p>
         <p className="sheet__hint">
-          Up to three things from your list to walk through today. They sit on Today until the day ends; nothing carries
-          over.
+          Up to three things from your list, for today.
         </p>
         <p className="sheet__status">
           {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.

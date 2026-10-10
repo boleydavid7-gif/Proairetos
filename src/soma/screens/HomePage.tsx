@@ -147,7 +147,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
         <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'ideas' })}>
           <span className="card__eyebrow">Ideas</span>
           <span className="card__title">Find something new to cook</span>
-          <span className="muted">Recipes from TheMealDB, an open recipe collection.</span>
         </button>
 
         {settings.dailyLine && (

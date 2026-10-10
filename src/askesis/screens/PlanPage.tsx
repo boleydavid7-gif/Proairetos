@@ -417,8 +417,6 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           </section>
         )}
 
-        {kind === 'steady' && <p className="muted">A steady rhythm on your days, gently varied, for as long as you like.</p>}
-
         <label className="field">
           <span className="label">In your words, if you like</span>
           <input className="input" value={words} placeholder={aimWords(aim, unit)} onChange={(event) => setWords(event.target.value)} />
@@ -472,7 +470,6 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           <input className="input" type="time" aria-label="Usual time" value={runAt} onChange={(event) => setRunAt(event.target.value)} />
           <input className="input" aria-label="Where" placeholder="Where" value={place} onChange={(event) => setPlace(event.target.value)} />
         </div>
-        {runAt && <p className="hint">A reminder at this time comes through Proairetos notifications, when they are on.</p>}
       </section>
 
       <label className="field">

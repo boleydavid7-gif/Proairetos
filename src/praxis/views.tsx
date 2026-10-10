@@ -386,7 +386,7 @@ export function SettingsView({ notices, onNotices }: { notices: string; onNotice
       <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Praxis</p><h1>Settings</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-setting">
-          <span><strong>A notice when a block ends</strong><small>Through the family's reminders, so it comes with Praxis closed once reminders are set up on the server.</small></span>
+          <span><strong>A notice when a block ends</strong></span>
           {notices === 'granted' ? <span className="praxis-muted">On</span> : notices === 'denied' ? <span className="praxis-muted">Blocked in the browser</span> : notices === 'unsupported' ? <span className="praxis-muted">Not on this browser</span> : <button type="button" className="praxis-button praxis-button--quiet" onClick={onNotices}>Allow</button>}
         </div>
       </article>

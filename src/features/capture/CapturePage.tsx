@@ -109,7 +109,6 @@ export default function CapturePage() {
 
       <div className="stack-tight">
         <CaptureBar placeholder="Or anything at all" />
-        <p className="sheet__hint">Without a kind, it waits in Not sorted yet.</p>
       </div>
     </div>
   );

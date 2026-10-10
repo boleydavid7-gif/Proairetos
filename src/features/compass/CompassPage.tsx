@@ -193,7 +193,7 @@ export default function CompassPage() {
           <div className="empty-state empty-state--centered">
             <CompassRose size={80} tone="dark" />
             <p className="empty-state__title">Choose what matters.</p>
-            <p className="empty-state__detail">Up to five values. They are yours to choose and change.</p>
+            <p className="empty-state__detail">Up to five values.</p>
           </div>
         )}
 

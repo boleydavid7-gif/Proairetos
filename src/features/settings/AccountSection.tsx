@@ -280,8 +280,6 @@ function Ready() {
         Sync now
       </button>
 
-      <p className="sheet__hint">Notifications, including when the app is closed, are in Settings, Notifications.</p>
-
       {confirmingSignOut ? (
         <div className="chip-row">
           <button type="button" className="button-quiet" onClick={() => setConfirmingSignOut(false)}>

@@ -55,7 +55,7 @@ export default function LockScreen() {
         ) : (
           <div>
             <p className="sheet__hint">
-              The lock is only for privacy on this device, so it can be taken off. Your writing stays exactly as it is.
+              Your writing stays as it is.
             </p>
             <button type="button" className="chip" onClick={() => lock.turnOff()}>
               Remove the lock

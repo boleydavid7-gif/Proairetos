@@ -122,10 +122,6 @@ export default function NotificationsSection() {
         </p>
       )}
 
-      <p className="sheet__hint notify-settings__intro">
-        Lead times are counted before something starts. Choose up to two hours ahead for a little more room.
-      </p>
-
       <div className="notify-list">
         <Switch on={settings.items} label="Things with a time" onToggle={() => update({ items: !settings.items })} />
         <Switch

@@ -44,7 +44,6 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
         <PageTop><button type="button" className="back-link" onClick={nav.back}>Back</button><p className="label">About</p></PageTop>
         <h1 className="title">A place for what sustains you.</h1>
         <p className="lead">Oikonomia means the care and management of a household. It keeps the essentials in view without turning them into a score.</p>
-        <section className="card"><span className="card__eyebrow">The family</span><p className="muted">Proairetos helps you choose. Askesis helps you practice. SOMA helps you nourish yourself. Oikonomia helps you tend what makes daily life possible.</p></section>
       </div>
     );
   }

@@ -128,7 +128,7 @@ function ValuesStep({ note, onNote }: { note: string; onNote: (note: string) => 
           ))}
         </ul>
       ) : (
-        <p className="empty-note">No values chosen yet. You can add them in Compass whenever you like.</p>
+        <p className="empty-note">No values chosen yet.</p>
       )}
       <textarea
         className="field-input field-input--area"

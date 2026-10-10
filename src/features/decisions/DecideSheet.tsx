@@ -76,7 +76,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
 
         <section className="sheet__section" aria-label="Options">
           <p className="sheet__label">The options</p>
-          <p className="sheet__hint">Tap the circle next to the one you choose.</p>
           <ul className="option-list">
             {options.map((option, index) => (
               <li key={index} className="option-row">

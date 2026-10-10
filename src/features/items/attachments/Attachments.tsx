@@ -141,7 +141,6 @@ export default function Attachments({ itemId }: { itemId: string }) {
         picker
       )}
       {error && <p className="form-error">{error}</p>}
-      {attachments.length > 0 && <p className="sheet__hint">Kept on this device and in backups; not synced.</p>}
       {open && <Viewer attachment={open} onClose={() => setOpen(null)} />}
     </section>
   );

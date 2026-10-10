@@ -138,7 +138,7 @@ export default function ReflectPage() {
 
   return (
     <div className="page">
-      <PageHeader title="Reflect" subtitle="Look back, notice patterns, and return to what matters." settings />
+      <PageHeader title="Reflect" settings />
 
       {shows('meditate') && (
         <button type="button" className="meditate-card" onClick={() => navigate('meditate')}>

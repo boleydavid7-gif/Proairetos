@@ -154,8 +154,7 @@ export default function BringInSection() {
   return (
     <section className="settings-card" aria-label="Bring things in">
       <p className="section-description">
-        Bring things in from another app. You see everything first, and nothing is saved until you choose. It stays on
-        this device.
+        You see everything first; nothing is saved until you choose.
       </p>
       <ul className="import-sources">
         <li>

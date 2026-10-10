@@ -39,8 +39,7 @@ export default function WeatherSection() {
   return (
     <section className="settings-card" aria-label="Weather">
       <p className="section-description">
-        Shows the sky beside the date on Today, and quietly notes it with what you write in Reflect, so you can see a
-        sunny morning or a rainy evening when you look back.
+        Shows the sky beside the date on Today and notes it with what you write in Reflect.
       </p>
       <button type="button" className="toggle-row" aria-pressed={settings.on} onClick={() => update({ ...settings, on: !settings.on })}>
         <span className={`toggle-switch${settings.on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />

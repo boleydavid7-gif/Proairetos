@@ -86,7 +86,7 @@ export default function LookBack({
           Mark it reached in Compass
         </button>
       )}
-      {reached && <p className="hint">Marked reached in Compass, with today’s date.</p>}
+      {reached && <p className="hint">Marked reached in Compass.</p>}
     </section>
   );
 }

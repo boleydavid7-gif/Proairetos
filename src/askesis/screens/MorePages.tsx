@@ -294,7 +294,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       </p>
       <p>
         Like Proairetos, it records and never judges: no streaks, no scores, nothing to catch up on. The plans offer;
-        you choose. Everything stays on your phone.
+        you choose.
       </p>
       <h2 className="label">How your path is built</h2>
       <p>

@@ -430,7 +430,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
           <span className="quiet-row__text">
             <span>Sort through your list</span>
-            <span className="quiet-row__detail">One at a time: today, later, or let it go.</span>
           </span>
           <ChevronRightIcon size={18} className="quiet-row__chevron" />
         </button>

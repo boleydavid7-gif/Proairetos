@@ -20,7 +20,6 @@ export default function UnsortedPreview({ count, items, today }: Props) {
         <InboxIcon size={22} />
         <span className="quiet-row__text">
           <span>{`${count} not sorted yet`}</span>
-          <span className="quiet-row__detail">Sort through them, one at a time, whenever you like.</span>
         </span>
       </button>
       {sorting && <QuickSortSheet items={items} today={today} unsortedFirst onClose={() => setSorting(false)} />}

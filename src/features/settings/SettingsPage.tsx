@@ -116,8 +116,7 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for Proairetos, Askesis and SOMA, with all their settings, photos, and files. Keep it on your phone, in your
-        own cloud storage, or by email to yourself.
+        One file for all seven apps, with their settings, photos and files. Keep it somewhere off this phone.
       </p>
       <label className="plan-field">
         <span>Password (recommended)</span>
@@ -697,11 +696,7 @@ function HelpSection() {
         >
           Send feedback
         </a>
-      ) : (
-        <p className="sheet__hint">
-          Proairetos collects no usage data, so what people say is the only way it learns what helps.
-        </p>
-      )}
+      ) : null}
     </section>
   );
 }
@@ -743,9 +738,6 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
-      <p className="sheet__hint">
-        Text, spacing, and buttons all grow together. Your phone’s own text size is respected too.
-      </p>
       <button
         type="button"
         className="toggle-row"
@@ -755,7 +747,7 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
-          <span className="toggle-row__detail">A soft buzz when you tick something off, on phones that have one.</span>
+          <span className="toggle-row__detail">A soft buzz on phones that have one.</span>
         </span>
       </button>
     </section>
@@ -786,8 +778,7 @@ function TodaySection() {
   return (
     <section className="settings-card" aria-label="What’s included">
       <p className="section-description">
-        Keep Proairetos as full or as bare as suits you. Switch anything off and it steps out of the way; switch it back
-        on any time. Nothing you recorded is lost.
+        Switch anything off or back on at any time. Nothing you recorded is lost.
       </p>
       {appParts.map(({ app, sections }) => (
         <div key={app} className="stack-tight">
@@ -825,8 +816,7 @@ function OffersSection() {
     <section className="settings-card" aria-label="Quiet offers">
       <h2 className="section-label">Quiet offers</h2>
       <p className="section-description">
-        Now and then, at a natural moment, Proairetos offers a short practice: a minute with a feeling you just named,
-        for instance. At most one a day, and ignoring it is a complete answer.
+        Now and then, a short practice at a natural moment. At most one a day.
       </p>
       <button
         type="button"
@@ -853,7 +843,6 @@ function OffersSection() {
         <span className={`toggle-switch${showSetAside ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Show “Not for me” on cards</span>
-          <span className="toggle-row__detail">A quiet way to set aside a part of Today.</span>
         </span>
       </button>
       {hidden.length > 0 && (
@@ -917,8 +906,7 @@ function SourcesSection() {
     <section className="settings-card" aria-label="Where this comes from">
       <h2 className="section-label">Where this comes from</h2>
       <p className="section-description">
-        Proairetos borrows its practices from people who thought carefully about living well. The name is Epictetus’s
-        word for the part of us that chooses how to respond.
+        Proairetos borrows its practices from people who thought carefully about living well.
       </p>
       {sources.map((source) => (
         <div key={source.tradition} className="sources">
@@ -971,8 +959,7 @@ function LockSection() {
       >
         <p className="section-description">
           Ask for a passcode before Reflect, Journal, Insights and the weekly review open, and keep Reflect writing out of
-          search. It locks again after the app has been out of sight for a minute. It keeps casual eyes out on this phone; it
-          is not encryption, and the passcode stays on this device.
+          search. Privacy on this phone, not encryption.
         </p>
         <input
           className="field-input"

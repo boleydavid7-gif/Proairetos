@@ -196,7 +196,6 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
                       </button>
                     ))}
                   </div>
-                  <p className="sheet__hint">It shows on its days by itself, with every line unticked.</p>
                 </>
               )}
             </>

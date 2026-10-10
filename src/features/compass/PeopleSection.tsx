@@ -122,7 +122,6 @@ export default function PeopleSection({ people }: { people: CompassStatement[] }
     <section className="stack-tight" aria-label="People who matter">
       <div>
         <h2 className="section-label">People who matter</h2>
-        <p className="section-description">Kept here so they stay in view. Nothing is counted.</p>
       </div>
       {people.length > 0 && (
         <ul className="people">
