@@ -27,8 +27,10 @@ import {
   PartlyCloudyIcon,
   PenIcon,
   ShieldIcon,
+  StarIcon,
   SunIcon,
 } from '../../components/icons/Icons';
+import { whatsNew } from '../../app/whatsNew';
 import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import {
@@ -432,6 +434,7 @@ type View =
   | 'backup'
   | 'privacy'
   | 'delete'
+  | 'news'
   | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
@@ -458,6 +461,7 @@ const viewTitles: Record<View, string> = {
   backup: 'Back up and restore',
   privacy: 'Privacy',
   delete: 'Delete everything',
+  news: 'What’s new',
   about: 'About Proairetos',
 };
 
@@ -1144,6 +1148,18 @@ export default function SettingsPage() {
           </section>
         )}
         {view === 'about' && <SourcesSection />}
+        {view === 'news' && (
+          <section className="settings-card" aria-label="What’s new">
+            {whatsNew.map((entry) => (
+              <div key={entry.date} className="sources">
+                <p className="sheet__label">{new Date(`${entry.date}T12:00:00`).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                <ul className="whats-new">
+                  {entry.lines.map((line) => <li key={line} className="section-description">{line}</li>)}
+                </ul>
+              </div>
+            ))}
+          </section>
+        )}
       </>
   ) : null;
 
@@ -1231,6 +1247,7 @@ export default function SettingsPage() {
       label: 'About',
       entries: [
         { id: 'help', icon: <NoteIcon size={22} />, title: 'Help & feedback', onClick: () => setView('help') },
+        { id: 'news', icon: <StarIcon size={22} />, title: 'What’s new', onClick: () => setView('news'), words: 'changes updates new features' },
         { id: 'about', icon: <BookIcon size={22} />, title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
       ],
     },
