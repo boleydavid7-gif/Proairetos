@@ -742,3 +742,23 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
   .theoria-bottom-nav .theoria-nav-list button { border-color: transparent; border-radius: 10px; }
   .theoria-bottom-nav .theoria-nav-list button.is-active { background: transparent; }
 }
+
+/* Undo on the toast; removable highlights, notes and bookmarks; where a book is kept. */
+.theoria-toast { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.theoria-toast button, .theoria-text-button { padding: 6px 2px; border: 0; color: var(--theoria-brass); background: none; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.theoria-text-button { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.theoria-removable { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
+.theoria-bookmark-list article { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.theoria-detail-copy-state { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 14px; font-size: 12px; opacity: .85; }
+.theoria-settings-switch { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.theoria-settings-switch > span { display: grid; gap: 4px; }
+.theoria-settings-switch small { opacity: .75; font-size: 11px; line-height: 1.45; }
+.theoria-settings-switch input { width: 22px; height: 22px; flex: 0 0 auto; accent-color: var(--theoria-brass); }
+.theoria-file-button { position: relative; overflow: hidden; }
+.theoria-file-button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.theoria-pdf { display: grid; justify-items: center; gap: 12px; padding: 16px 12px 90px; }
+.theoria-pdf canvas { max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); background: #fff; }
+.theoria-pdf__turn { display: flex; align-items: center; gap: 14px; font-size: 12px; }
+.theoria-pdf__turn button { min-height: 40px; padding: 0 14px; border: 1px solid currentColor; border-radius: 9px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
+.theoria-pdf__turn button:disabled { opacity: .35; cursor: default; }
+.theoria-view > .account-card, .theoria-view > .card { margin-top: 16px; }

@@ -1,5 +1,5 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
-import { KeyError, createKeys, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
+import { KeyError, createKeys, openBytes, sealBytes, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
@@ -159,6 +159,20 @@ family?.addEventListener('message', (event: MessageEvent<FamilyNote>) => {
 });
 
 /** Told when a sync brought changes from elsewhere (Askesis listens to reload its own records). */
+/**
+ * For a family app's private file (a Theoria book): seals bytes with the account's key on this device, or
+ * opens bytes sealed that way. Null while the account is not ready here.
+ */
+export async function sealWithAccount(label: string, bytes: ArrayBuffer): Promise<{ sealed: Uint8Array<ArrayBuffer>; userId: string } | null> {
+  if (!dataKey || !userId) return null;
+  return { sealed: await sealBytes(dataKey, label, bytes), userId };
+}
+
+export async function openWithAccount(label: string, sealed: ArrayBuffer): Promise<ArrayBuffer | null> {
+  if (!dataKey) return null;
+  return openBytes(dataKey, label, sealed);
+}
+
 export function onRemoteChanges(listener: () => void): () => void {
   return remoteChanges.subscribe(listener);
 }

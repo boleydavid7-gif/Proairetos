@@ -42,5 +42,31 @@
       "form_factor": "wide",
       "label": "Theoria"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Continue reading",
+      "short_name": "Continue",
+      "url": "/theoria/?open=continue",
+      "icons": [
+        {
+          "src": "/theoria/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a book",
+      "short_name": "Add",
+      "url": "/theoria/?open=add",
+      "icons": [
+        {
+          "src": "/theoria/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

@@ -52,6 +52,13 @@ export type TheoriaBook = {
   connections: TheoriaConnection[];
   readingLocation?: string;
   readingPosition?: TheoriaReadingPosition;
+  /** The file and cover in `filePath` / `coverPath` are sealed with the account key (from this version on). */
+  sealed?: boolean;
+  coverSealed?: boolean;
+  /** A sealed copy of the file is kept in the account, by the person's choice. */
+  cloudCopy?: boolean;
+  /** For a PDF, its number of pages. */
+  pageCount?: number;
   lastOpenedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -93,7 +100,7 @@ export function makeBook(userId: string, input: NewTheoriaBook, now = new Date()
     categories: input.categories?.length ? input.categories : ['Personal'], progress: normalizeProgress(input.progress), favorite: input.favorite ?? false,
     status: input.status ?? 'want_to_read', chapters: input.chapters ?? [], highlights: input.highlights ?? [], notes: input.notes ?? [],
     reflections: input.reflections ?? [], bookmarks: input.bookmarks ?? [], ideas: input.ideas ?? [], connections: input.connections ?? [],
-    readingLocation: input.readingLocation, readingPosition: input.readingPosition, lastOpenedAt: input.lastOpenedAt, createdAt: timestamp, updatedAt: timestamp,
+    readingLocation: input.readingLocation, readingPosition: input.readingPosition, lastOpenedAt: input.lastOpenedAt, pageCount: input.pageCount, createdAt: timestamp, updatedAt: timestamp,
   };
 }
 

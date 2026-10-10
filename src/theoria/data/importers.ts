@@ -1,6 +1,8 @@
 import { strFromU8, unzipSync } from 'fflate';
 import { validateImportFile } from './cloudStorage';
 import type { TheoriaChapter } from '../core/books';
+import { splitText } from './files';
+import { pdfText } from './pdf';
 
 export type ImportedReading = {
   title?: string;
@@ -11,7 +13,11 @@ export type ImportedReading = {
   contentPreview?: string;
   chapters?: TheoriaChapter[];
   coverFile?: File;
+  pageCount?: number;
 };
+
+/** A few lines to recognise the book by; the whole text is kept on this device, never in the record. */
+export const PREVIEW_LENGTH = 600;
 
 function extension(file: File): string {
   return file.name.split('.').pop()?.toLowerCase() ?? '';
@@ -59,7 +65,7 @@ function htmlTitle(value: string, fallback: string): string {
 
 async function inspectText(file: File, format: 'text' | 'markdown'): Promise<ImportedReading> {
   const text = (await file.text()).replace(/\r\n/g, '\n').trim();
-  return { contentFormat: format, contentPreview: text.slice(0, 18_000) || undefined };
+  return { contentFormat: format, contentPreview: text.slice(0, PREVIEW_LENGTH) || undefined, chapters: splitText(text, format === 'markdown') };
 }
 
 async function inspectEpub(file: File): Promise<ImportedReading> {
@@ -105,7 +111,7 @@ async function inspectEpub(file: File): Promise<ImportedReading> {
     publisher: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:publisher', 'publisher']) : undefined,
     language: metadata ? xmlText(metadata.ownerDocument!, ['dc\\:language', 'language']) : undefined,
     chapters,
-    contentPreview: chapterText.join('\n\n').slice(0, 18_000) || undefined,
+    contentPreview: chapterText.join('\n\n').slice(0, PREVIEW_LENGTH) || undefined,
     coverFile,
   };
 }
@@ -116,7 +122,9 @@ export async function inspectReadingFile(file: File): Promise<ImportedReading> {
   if (kind === 'txt') return inspectText(file, 'text');
   if (kind === 'md') return inspectText(file, 'markdown');
   if (kind === 'epub') return inspectEpub(file);
-  return { contentFormat: 'pdf' };
+  const read = await pdfText(await file.arrayBuffer());
+  const preview = read.chapters.map((chapter) => chapter.content ?? '').join('\n\n').slice(0, PREVIEW_LENGTH);
+  return { contentFormat: 'pdf', title: read.title, author: read.author, chapters: read.chapters, pageCount: read.pageCount, contentPreview: preview || undefined };
 }
 
 /** Reads a private cloud source after the app has received its signed URL. */
