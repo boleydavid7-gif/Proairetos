@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { dishScene } from '../app/scenes';
+import DishImage from '../app/DishImage';
 import { newId, useGroceries, useRecipes, useToday } from '../app/state';
 import { BackLink, dayLabel, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
@@ -115,7 +115,7 @@ function PickRecipe({ recipes, title, startMark, onClose, onPick }: { recipes: R
           {shown.slice(0, 30).map((recipe) => (
             <li key={recipe.id}>
               <button type="button" className="recipe-row" onClick={() => onPick(recipe)}>
-                <img src={recipe.image || dishScene(recipe.id)} alt="" />
+                <DishImage recipe={recipe} />
                 <span>
                   <span className="recipe-row__title">{recipe.title}</span>
                 </span>

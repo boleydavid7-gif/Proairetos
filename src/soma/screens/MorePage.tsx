@@ -141,13 +141,13 @@ export function SettingsPage({ nav }: { nav: Nav }) {
             label="Ingredient units"
             value={settings.units}
             options={[
-              { id: 'original', label: 'Original' },
+              { id: 'original', label: 'As written' },
               { id: 'metric', label: 'Metric' },
               { id: 'us', label: 'US' },
             ]}
             onChange={(units) => saveSettings({ ...settings, units })}
           />
-          <p className="hint">Recipes stay in their original form. This changes the amounts shown while you read and cook.</p>
+          <p className="hint">Recipes stay as written. Metric weighs flour, sugar, butter, oats and rice in grams.</p>
         </div>
         <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />

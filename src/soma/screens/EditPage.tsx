@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { holdDraft, shrinkPhoto, takeDraft } from '../app/draft';
-import { dishScene } from '../app/scenes';
+import DishImage from '../app/DishImage';
 import { newId, useRecipes } from '../app/state';
 import { BackLink } from '../app/ui';
 import { splitSteps } from '../core/importRecipe';
@@ -98,7 +98,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
       <section className="field">
         <span className="label">Photo</span>
         <div className="photo-pick">
-          <img src={image || dishScene(existing?.id ?? 'new')} alt="" />
+          <DishImage recipe={{ id: existing?.id ?? 'new', title: title || 'A recipe', image }} />
           <label className="button-quiet">
             {image ? 'Change photo' : 'Add a photo'}
             <input

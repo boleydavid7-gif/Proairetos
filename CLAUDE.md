@@ -513,6 +513,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
   day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
 - Groceries take only things to buy (`isGrocery`, `cleanLine` in `soma/core/groceries.ts`): list numbering is taken off ("2. Black beans"); notes in brackets, rules (———), emoji or "Optional / Upgrade" titles, headings and cooking steps are left out. The Groceries page offers "Tidy the list" for lines saved before that.
+- Reading recipes: `readIngredient` takes "plus" amounts, can sizes, "juice
+  of", size words and uses into notes; `boughtAs` buys juice as fruit; ranges
+  merge at both ends; `fromText` reads part headings, Notes and labelled times.
+  Units (As written / Metric / US, recipe page and Settings): Metric weighs
+  common dry things by `weightPerCup`; oven heats round to dial steps. No
+  stand-in dish photos: `DishImage` (tinted card with the initial).
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

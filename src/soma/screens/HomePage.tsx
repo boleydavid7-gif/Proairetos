@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { BasketIcon, BookIcon, LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
-import { dishScene, scene } from '../app/scenes';
+import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
+import { scene } from '../app/scenes';
+import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { latitude, useBlocks } from '../app/proairetos';
 import { dayShape } from '../core/dayShape';
@@ -9,13 +10,13 @@ import { inSeason, seasonalRecipes, SEASON_SOURCE } from '../core/seasons';
 import { plannedOn, weekFrom } from '../core/week';
 import { Brand, dayLabel, greeting, Hero } from '../app/ui';
 import { lineFor } from '../core/lines';
-import { minutesLabel, timeOf, withWhatIHave, type Recipe } from '../core/recipes';
+import { minutesLabel, timeOf, type Recipe } from '../core/recipes';
 
 export function RecipeCard({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   const time = minutesLabel(timeOf(recipe));
   return (
     <button type="button" className="recipe-card" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
-      <img className="recipe-card__image" src={recipe.image || dishScene(recipe.id)} alt="" />
+      <DishImage className="recipe-card__image" recipe={recipe} />
       <span className="recipe-card__title">{recipe.title}</span>
       <span className="recipe-card__meta">{[time, recipe.tags[0]].filter(Boolean).join(' · ')}</span>
     </button>
@@ -28,8 +29,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const today = useToday();
   const line = lineFor(today);
   const [query, setQuery] = useState('');
-  const [have, setHave] = useState('');
-  const hits = withWhatIHave(recipes, have).slice(0, 5);
   const favourites = recipes.filter((recipe) => recipe.favorite);
   useGroceries();
   const blocks = useBlocks(today);
@@ -76,22 +75,12 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </button>
         )}
 
-        <div className="tiles">
-          <button type="button" className="tile" onClick={() => nav.go({ name: 'import' })}>
-            <LinkIcon size={26} />
-            <span className="tile__title">Import</span>
+        <div className="home-actions">
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'import' })}>
+            <LinkIcon size={20} /> Import
           </button>
-          <button type="button" className="tile" onClick={() => nav.go({ name: 'edit' })}>
-            <PlusIcon size={26} />
-            <span className="tile__title">Add</span>
-          </button>
-          <button type="button" className="tile" onClick={() => nav.swap({ name: 'recipes' })}>
-            <BookIcon size={26} />
-            <span className="tile__title">My recipes</span>
-          </button>
-          <button type="button" className="tile" onClick={() => nav.swap({ name: 'groceries' })}>
-            <BasketIcon size={26} />
-            <span className="tile__title">Groceries</span>
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit' })}>
+            <PlusIcon size={20} /> Add
           </button>
         </div>
 
@@ -111,31 +100,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </>
         )}
 
-        {recipes.length > 0 && (
-          <section className="field">
-            <div className="section-head">
-              <h2>What can I make with…</h2>
-            </div>
-            <input className="input" aria-label="What you have" placeholder="eggs, spinach, rice" value={have} onChange={(event) => setHave(event.target.value)} />
-            {have.trim() && (
-              <ul className="recipe-rows">
-                {hits.length === 0 && <li className="muted">None of your recipes use those yet.</li>}
-                {hits.map(({ recipe, uses }) => (
-                  <li key={recipe.id}>
-                    <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
-                      <img src={recipe.image || dishScene(recipe.id)} alt="" />
-                      <span>
-                        <span className="recipe-row__title">{recipe.title}</span>
-                        <span className="recipe-row__meta">Uses {uses.join(', ')}</span>
-                      </span>
-                      <span />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
 
         {recipes.length > 0 && (
           <>
@@ -175,7 +139,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
                 {seasonal.map(({ recipe, uses }) => (
                   <li key={recipe.id}>
                     <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
-                      <img src={recipe.image || dishScene(recipe.id)} alt="" />
+                      <DishImage recipe={recipe} />
                       <span>
                         <span className="recipe-row__title">{recipe.title}</span>
                         <span className="recipe-row__meta">Uses {uses.join(', ')}</span>

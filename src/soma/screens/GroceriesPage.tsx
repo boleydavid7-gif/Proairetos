@@ -141,27 +141,28 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
               </section>
             ),
           )}
-          <div className="button-row" style={{ marginTop: 16 }}>
-            <button
-              type="button"
-              className="button-quiet"
-              disabled={ticked.length === 0}
-              onClick={() => change(bringHome(items, today), ticked.length === 1 ? 'Put away in the kitchen' : `${ticked.length} put away in the kitchen`)}
-            >
-              Put away
-            </button>
-            <button
-              type="button"
-              className="button-quiet"
-              disabled={ticked.length === 0}
-              onClick={() => change(items.filter((item) => !(item.checked && onList(item))), 'Ticked items cleared')}
-            >
-              Clear ticked
-            </button>
-            <button type="button" className="button-quiet" onClick={() => void share()}>
-              <ShareIcon size={18} /> Share
-            </button>
-          </div>
+          {ticked.length > 0 && (
+            <div className="ticked-bar" role="group" aria-label="Ticked">
+              <span className="ticked-bar__count">{ticked.length} ticked</span>
+              <button
+                type="button"
+                className="button-main"
+                onClick={() => change(bringHome(items, today), ticked.length === 1 ? 'Put away in the kitchen' : `${ticked.length} put away in the kitchen`)}
+              >
+                Put away
+              </button>
+              <button
+                type="button"
+                className="button-quiet"
+                onClick={() => change(items.filter((item) => !(item.checked && onList(item))), 'Ticked items cleared')}
+              >
+                Clear
+              </button>
+            </div>
+          )}
+          <button type="button" className="text-link share-link" onClick={() => void share()}>
+            <ShareIcon size={18} /> Share the list
+          </button>
           {shared && (
             <p className="hint" role="status">
               Copied, ready to paste.

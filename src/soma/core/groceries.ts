@@ -29,11 +29,6 @@ export const inKitchen = (item: GroceryItem) => item.place === 'kitchen';
 
 export type NewLine = { line: string; recipe?: { id: string; title: string } };
 
-const amountOf = (line: string): { amount?: number; unit?: string; name: string } => {
-  const read = readIngredient(line);
-  return { amount: read.amount, unit: read.unit?.toLowerCase(), name: read.name };
-};
-
 const short = new Set(['tsp', 'tbsp', 'tbs', 'tb', 'g', 'kg', 'ml', 'l', 'oz', 'lb', 'lbs', 'c', 'fl oz']);
 /** "cups" and "cup" are one unit; short ones (tsp, g) stay as they are. */
 const singular = (unit: string) => (short.has(unit) ? unit : unit.replace(/(es|s)$/, (end) => (/(inch|dash|bunch)es$/.test(unit) ? '' : end === 'es' ? 'e' : '')));
@@ -44,7 +39,7 @@ function joinAmounts(amounts: string[], next: string): string[] {
   if (!next) return amounts;
   const parse = (text: string) => {
     const read = readIngredient(`${text} x`);
-    return { amount: read.amount, unit: singular(read.unit?.toLowerCase() ?? '') };
+    return { amount: read.amount, to: read.amountTo ?? read.amount, unit: singular(read.unit?.toLowerCase() ?? '') };
   };
   const add = parse(next);
   if (add.amount !== undefined) {
@@ -54,9 +49,11 @@ function joinAmounts(amounts: string[], next: string): string[] {
     });
     if (at >= 0) {
       const have = parse(amounts[at]);
-      const total = formatAmount((have.amount ?? 0) + add.amount);
+      const low = (have.amount ?? 0) + add.amount;
+      const high = (have.to ?? 0) + (add.to ?? 0);
+      const total = formatAmount(low) + (Math.abs(high - low) > 1e-9 ? `–${formatAmount(high)}` : '');
       const out = [...amounts];
-      out[at] = add.unit ? `${total} ${plural(add.unit, (have.amount ?? 0) + add.amount)}` : total;
+      out[at] = add.unit ? `${total} ${plural(add.unit, high)}` : total;
       return out;
     }
   }
@@ -117,6 +114,26 @@ export function isGrocery(line: string): boolean {
   return true;
 }
 
+/** About how much juice one fruit gives, in tablespoons (a lemon about 3, a lime about 2). */
+const JUICE_TBSP: Record<string, number> = { lemon: 3, lime: 2, orange: 6 };
+const TBSP_IN: Record<string, number> = { tsp: 1 / 3, teaspoon: 1 / 3, teaspoons: 1 / 3, tbsp: 1, tbs: 1, tablespoon: 1, tablespoons: 1, cup: 16, cups: 16, c: 16 };
+
+/**
+ * What to buy for a line: "1 tbsp lemon juice" and "Juice of 1 lemon" are both a lemon. Everything
+ * else is bought as written.
+ */
+export function boughtAs(line: string): { line: string; name: string; amount?: string } {
+  const read = readIngredient(line);
+  const juice = read.name.toLowerCase().match(/^(?:fresh(?:ly squeezed)?\s+)?(lemon|lime|orange)\s+juice$/);
+  if (juice) {
+    const fruit = juice[1];
+    const tbsp = read.amount !== undefined && read.unit ? (read.amountTo ?? read.amount) * (TBSP_IN[read.unit.toLowerCase()] ?? 0) : 0;
+    const count = tbsp > 0 ? Math.max(1, Math.ceil(tbsp / JUICE_TBSP[fruit] - 1e-9)) : undefined;
+    return { line, name: count && count > 1 ? `${fruit}s` : fruit, amount: count ? String(count) : '' };
+  }
+  return { line, name: read.name };
+}
+
 export function addToList(
   list: readonly GroceryItem[],
   lines: readonly NewLine[],
@@ -127,12 +144,12 @@ export function addToList(
   const out = list.map((item) => ({ ...item }));
   for (const { line: raw, recipe } of lines) {
     if (!isGrocery(raw)) continue;
-    const line = cleanLine(raw);
-    const { name } = amountOf(line);
+    const bought = boughtAs(cleanLine(raw));
+    const name = bought.name;
     if (!name.trim()) continue;
     const key = itemKey(name);
     const existing = out.find((item) => itemKey(item.name) === key && !item.checked && onList(item));
-    const amount = amountText(line);
+    const amount = bought.amount ?? amountText(bought.line);
     if (existing) {
       existing.amounts = joinAmounts(existing.amounts, amount);
       if (recipe && !existing.from.some((each) => each.id === recipe.id)) existing.from.push(recipe);

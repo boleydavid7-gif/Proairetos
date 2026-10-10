@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { reflectionService } from '../../app/services';
 import type { Nav } from '../app/App';
 import { ClockIcon, HeartIcon, PotIcon, ServesIcon, ShareIcon } from '../app/icons';
-import { dishScene } from '../app/scenes';
+import { tintOf } from '../app/DishImage';
 import { newId, useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { startTimer, stopTimer, timeLeft, useTimers } from '../app/timers';
 import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
@@ -16,7 +16,7 @@ import { recipeAsText } from '../core/share';
 import { togglePlanned, weekFrom } from '../core/week';
 import { usePeople } from '../app/proairetos';
 import { waysToTry } from '../core/tryIt';
-import { deleteRecipe, loadSettings, putRecipe, saveGroceries } from '../data/store';
+import { deleteRecipe, loadSettings, putRecipe, saveGroceries, saveSettings } from '../data/store';
 import { listBills, getBudget, loadSettings as loadOikonomiaSettings } from '../../oikonomia/data/store';
 import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/core/budget';
 import { formatMoney } from '../../oikonomia/core/bills';
@@ -156,11 +156,14 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
   return (
     <div className="page recipe">
-      <div className="recipe-hero">
-        <img src={recipe.image || dishScene(recipe.id)} alt="" />
+      {/* The recipe's own photo across the top; without one, a soft band in its colour. */}
+      <div className={`recipe-hero${recipe.image ? '' : ` recipe-hero--plain dish-card--${tintOf(recipe.id)}`}`}>
+        {recipe.image && <img src={recipe.image} alt="" />}
         <div className="recipe-hero__bar">
           <button type="button" className="round-button" onClick={nav.back} aria-label="Back">
-            ‹ Back
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
           </button>
           <span style={{ display: 'flex', gap: 8 }}>
             <button
@@ -271,6 +274,19 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               </span>
             </div>
           )}
+          <div className="units-row">
+            <Segmented
+              label="Units"
+              value={settings.units}
+              options={[
+                { id: 'original', label: 'As written' },
+                { id: 'metric', label: 'Metric' },
+                { id: 'us', label: 'US' },
+              ]}
+              onChange={(units) => saveSettings({ ...loadSettings(), units })}
+              small
+            />
+          </div>
           <ul className="check-list">
             {lines.map((line, i) =>
               isHeading(line) ? (
@@ -370,23 +386,23 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       )}
 
       <section className="field" aria-label="Cooked">
-        <div className="button-row">
-          <button type="button" className="button-quiet" onClick={() => setSheet('plan')}>
-            Plan it for a day
-          </button>
-        </div>
         {afterLine === undefined ? (
-          <button
-            type="button"
-            className="button-quiet"
-            onClick={() => {
-              void save({ cooked: [...(recipe.cooked ?? []).filter((day) => day !== today), today] });
-              setCookedFor(recipe.cookedFor?.[today] ?? []);
-              setAfterLine('');
-            }}
-          >
-            I cooked this
-          </button>
+          <div className="recipe-actions">
+            <button type="button" className="button-quiet" onClick={() => setSheet('plan')}>
+              Plan it
+            </button>
+            <button
+              type="button"
+              className="button-quiet"
+              onClick={() => {
+                void save({ cooked: [...(recipe.cooked ?? []).filter((day) => day !== today), today] });
+                setCookedFor(recipe.cookedFor?.[today] ?? []);
+                setAfterLine('');
+              }}
+            >
+              I cooked this
+            </button>
+          </div>
         ) : (
           <div className="card">
             <p>That’s recorded.</p>

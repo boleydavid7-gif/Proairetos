@@ -868,3 +868,131 @@
     padding-bottom: 18px;
   }
 }
+
+.units-row {
+  margin: 4px 0 8px;
+}
+
+/* ---------- A recipe without a photo: its colour and first letter ---------- */
+
+.dish-card--sage { --dish: #6f9a78; }
+.dish-card--olive { --dish: #8f9548; }
+.dish-card--terracotta { --dish: #c0754f; }
+.dish-card--wheat { --dish: #c9a35a; }
+.dish-card--plum { --dish: #9a6a8a; }
+.dish-card--sea { --dish: #5f8d9b; }
+
+.dish-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--dish) 34%, transparent), transparent 70%),
+    color-mix(in srgb, var(--dish) 16%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--dish) 26%, transparent);
+  color: var(--dish);
+}
+
+.dish-card__initial {
+  font-family: var(--serif);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.dish-card__leaf {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  opacity: 0.55;
+  display: flex;
+}
+
+.recipe-card__image.dish-card {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+}
+
+.recipe-row .dish-card {
+  width: 76px;
+  height: 64px;
+  border-radius: 12px;
+}
+.recipe-row .dish-card__initial { font-size: 1.6rem; }
+.recipe-row .dish-card__leaf { display: none; }
+
+.photo-pick .dish-card {
+  width: 88px;
+  height: 72px;
+  border-radius: 12px;
+}
+.photo-pick .dish-card__leaf { display: none; }
+
+/* Without a photo the top of the recipe is a soft band, with the buttons on it. */
+.recipe-hero--plain {
+  height: calc(76px + env(safe-area-inset-top, 0px));
+  border: 0;
+  background: radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--dish) 30%, transparent), transparent 75%);
+}
+.recipe-hero--plain .round-button {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.recipe-hero--plain .round-button[aria-pressed='true'] {
+  color: #d9735a;
+}
+
+/* Ticked groceries: one calm row, only while something is ticked. */
+.ticked-bar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.ticked-bar__count {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.ticked-bar .button-main,
+.ticked-bar .button-quiet {
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+.share-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 8px;
+}
+
+/* Home's two ways to bring a recipe in. */
+.home-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.home-actions .button-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Plan it and I cooked this, side by side under the recipe. */
+.recipe-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}

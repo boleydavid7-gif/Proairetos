@@ -21,12 +21,17 @@ export function ovenHeats(steps: readonly string[], unitSystem: UnitSystem = 'or
   return [...found];
 }
 
-/** The word to look for in a step: "onion" for "1 large yellow onion, diced". */
+/** Words that describe rather than name ("ground" cumin, "boneless" chicken). */
+const DESCRIBING = new Set(
+  'ground fresh dried plain whole red green yellow white black brown sweet baby extra virgin unsalted salted low fat light dark hot cold chopped minced boneless skinless firm soft raw cooked canned frozen smoked sea kosher heavy double single sour greek granulated powdered all-purpose plain-flour'.split(' '),
+);
+
+/** The words to look for in a step: "onion" for "1 large yellow onion"; "chicken" or "breast" for "chicken breast". */
 function lookFor(name: string): string[] {
   const key = itemKey(name);
   const words = key.split(' ').filter((word) => word.length > 2);
-  const last = words.at(-1);
-  return [...new Set([key, last].filter((word): word is string => Boolean(word && word.length > 2)))];
+  const first = words.find((word) => !DESCRIBING.has(word));
+  return [...new Set([key, words.at(-1), first].filter((word): word is string => Boolean(word && word.length > 2)))];
 }
 
 /** The amount part of a line, scaled: "1 cup" from "1 cup rice"; the note too when short ("1, diced"). */
@@ -55,8 +60,9 @@ export function withAmounts(step: string, ingredients: readonly string[], factor
       const match = new RegExp(`\\b(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(e?s)?\\b(?![^(]*\\))`, 'i').exec(out);
       if (match) {
         seen.add(key);
-        // The step already gives an amount ("4 cups stock"): leave it as written.
-        if (/\d[^.;,]{0,14}$/.test(out.slice(Math.max(0, match.index - 16), match.index))) break;
+        // The step already gives an amount ("4 cups stock"): leave it as written. Amounts added here do not count.
+        const before = out.slice(0, match.index).replace(/\s*\([^)]*\)/g, '');
+        if (/\d[^.;,]{0,14}$/.test(before.slice(-16))) break;
         const end = match.index + match[0].length;
         out = `${out.slice(0, end)} (${amount})${out.slice(end)}`;
         break;

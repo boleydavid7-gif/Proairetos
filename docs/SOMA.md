@@ -86,6 +86,27 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   recipes that use it; south of the equator when the weather place is.
 - **Share** a recipe as text (the paste import reads it back).
 
+## Reading recipes well
+
+- Ingredient lines (`core/ingredients.ts` `readIngredient`): "½ cup plus 2 tbsp
+  flour" is flour; "1 can (15 oz) beans" keeps the size as a note; "Juice of 1
+  lemon" is a lemon; size words (large, medium) and uses ("to taste", "for
+  garnish") become notes; units agree with amounts when scaled ("2 cups").
+- Groceries (`boughtAs`): lemon, lime and orange juice are bought as the fruit
+  (about 3, 2 and 6 tbsp each); ranges add at both ends ("3–4 cups"); tofu and
+  tempeh sit with produce.
+- Pasted recipes (`fromText`): "For the sauce:" lines become headings, a Notes
+  section goes to notes, "Prep 20 min | Cook 30 min" fills the times
+  (`labelledMinutes`).
+- Units: As written, Metric or US, on the recipe page and in Settings. Metric
+  weighs flour, sugar, butter, oats, rice, cocoa, nuts, cheese and yogurt in
+  grams (`weightPerCup`, after King Arthur Baking's weight chart); US measures
+  those grams in cups to the nearest quarter. Oven heats round to the dial
+  (350°F is 180°C).
+- No stand-in pictures: a recipe without its own photo shows a card in its
+  colour with its first letter (`app/DishImage.tsx`, `tintOf`); its page opens
+  with a soft band in that colour instead of a photo.
+
 ## Next
 
 - A photo of a recipe card read on the phone (OCR, loaded only when used).

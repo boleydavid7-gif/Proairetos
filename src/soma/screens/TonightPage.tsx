@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { dishScene } from '../app/scenes';
+import DishImage from '../app/DishImage';
 import { energyToday, useBlocks } from '../app/proairetos';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { BackLink } from '../app/ui';
@@ -39,7 +39,13 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
   const [useKitchen, setUseKitchen] = useState(true);
   const [round, setRound] = useState(0);
 
-  const fits = tonight(recipes, { time, energy, leaning, kitchen: useKitchen ? kitchen : [] }, today);
+  // Anything else at hand, typed here ("eggs, spinach"), counts like the kitchen list.
+  const [also, setAlso] = useState('');
+  const typed = also
+    .split(/[,\n]+/)
+    .map((each) => each.trim())
+    .filter(Boolean);
+  const fits = tonight(recipes, { time, energy, leaning, kitchen: [...(useKitchen ? kitchen : []), ...typed] }, today);
   const shown = threeFrom(fits, round);
 
   return (
@@ -89,6 +95,10 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
           <span className={`switch${useKitchen ? ' switch--on' : ''}`} aria-hidden="true" />
         </button>
       )}
+      <label className="field">
+        <span className="label">Anything else you have?</span>
+        <input className="input" placeholder="eggs, spinach, rice" value={also} onChange={(event) => (setAlso(event.target.value), setRound(0))} />
+      </label>
 
       {recipes.length === 0 ? (
         <p className="muted">Your recipes will show here once you keep some.</p>
@@ -99,7 +109,7 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
           {shown.map(({ recipe, facts }) => (
             <li key={recipe.id}>
               <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
-                <img src={recipe.image || dishScene(recipe.id)} alt="" />
+                <DishImage recipe={recipe} />
                 <span>
                   <span className="recipe-row__title">{recipe.title}</span>
                   <span className="recipe-row__meta">{facts.join(' · ')}</span>

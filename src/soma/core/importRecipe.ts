@@ -158,6 +158,22 @@ export function splitSteps(text: string): string[] {
 }
 
 const ingredientsHeading = /^(ingredients?|you will need|what you need)\s*:?$/i;
+const notesHeading = /^(notes?|tips?|cook'?s notes?|recipe notes?|storage|to store|make ahead)\s*:?$/i;
+/** A part of a list: "For the marinade:", "Sauce:", "To serve". */
+const partHeading = /^(?:for\s+(?:the\s+)?[^\d,.]{2,40}|[A-Z][A-Za-z' ]{1,30}):?$/;
+const isPart = (line: string) => partHeading.test(line) && (line.endsWith(':') || /^for\s/i.test(line)) && !/\d/.test(line);
+
+/** "Prep 20 min", "Cook: 1 hr 10 mins", "Total time 45 minutes" anywhere in the text, as minutes. */
+export function labelledMinutes(text: string, label: 'prep' | 'cook' | 'total'): number | undefined {
+  const match = text.match(new RegExp(String.raw`\b${label}(?:ing)?(?:\s+time)?\s*:?\s*((?:\d+(?:[.,]\d+)?\s*(?:h(?:ou)?rs?|h|min(?:ute)?s?|m)\b\s*(?:and\s+)?){1,2})`, 'i'));
+  if (!match) return undefined;
+  let minutes = 0;
+  for (const part of match[1].matchAll(/(\d+(?:[.,]\d+)?)\s*(h(?:ou)?rs?|h|min(?:ute)?s?|m)\b/gi)) {
+    const value = Number(part[1].replace(',', '.'));
+    minutes += /^h/i.test(part[2]) ? value * 60 : value;
+  }
+  return minutes > 0 ? Math.round(minutes) : undefined;
+}
 const stepsHeading = /^(instructions?|method|directions?|steps|preparation|how to make( it)?)\s*:?$/i;
 const looksLikeIngredient = (line: string) =>
   /^[-•*]?\s*(\d|[¼½¾⅓⅔⅛]|a\s|an\s|one\s|pinch|handful|salt|pepper)/i.test(line) && line.length < 90;
@@ -172,8 +188,10 @@ export function fromText(text: string): RecipeDraft {
   const title = lines[0] && !ingredientsHeading.test(lines[0]) ? lines.shift()! : 'A recipe';
   const ingredients: string[] = [];
   const steps: string[] = [];
-  let into: 'ingredients' | 'steps' | undefined;
+  const notes: string[] = [];
+  let into: 'ingredients' | 'steps' | 'notes' | undefined;
   for (const line of lines) {
+    // "Serves 4 | Prep 20 min | Cook 30 min": read below, not kept as a line.
     if (/^(serves|servings|yield|makes|prep|cook|total)( time)?\s*:?\s*\d/i.test(line)) continue;
     if (ingredientsHeading.test(line)) {
       into = 'ingredients';
@@ -183,10 +201,26 @@ export function fromText(text: string): RecipeDraft {
       into = 'steps';
       continue;
     }
+    if (notesHeading.test(line)) {
+      into = 'notes';
+      continue;
+    }
+    if (into === 'notes') {
+      notes.push(line);
+      continue;
+    }
+    // "For the marinade:" opens a part of the list (or of the steps).
+    if (isPart(line) && into !== undefined) {
+      (into === 'ingredients' ? ingredients : steps).push(`# ${line.replace(/:$/, '').trim()}`);
+      continue;
+    }
     const target = into ?? (looksLikeIngredient(line) ? 'ingredients' : 'steps');
     if (target === 'ingredients') ingredients.push(line.replace(/^[-•*]\s*/, ''));
     else steps.push(...splitSteps(line));
   }
   const servings = text.match(/(?:serves|servings|yield)\s*:?\s*(\d+(?:\s*(?:-|to)\s*\d+)?)/i)?.[1];
-  return { title, ingredients, steps, servings };
+  const prepMinutes = labelledMinutes(text, 'prep');
+  const cookMinutes = labelledMinutes(text, 'cook');
+  const totalMinutes = labelledMinutes(text, 'total') ?? (prepMinutes || cookMinutes ? (prepMinutes ?? 0) + (cookMinutes ?? 0) : undefined);
+  return { title, ingredients, steps, servings, prepMinutes, cookMinutes, totalMinutes, notes: notes.join('\n') || undefined };
 }

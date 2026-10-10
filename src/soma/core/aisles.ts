@@ -11,6 +11,11 @@ export const aisles: Aisle[] = ['Produce', 'Meat & fish', 'Dairy & eggs', 'Baker
 const rules: [string, Aisle][] = [
   // Phrases that would otherwise land in the wrong place.
   ['frozen', 'Frozen'],
+  // Tofu and tempeh sit in the chilled part of produce in most shops.
+  ['tofu', 'Produce'],
+  ['tempeh', 'Produce'],
+  ['lemon', 'Produce'],
+  ['lime', 'Produce'],
   ['salt and pepper', 'Spices'],
   ['rolled oats', 'Pantry'],
   ['pearl', 'Pantry'],
