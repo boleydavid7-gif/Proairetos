@@ -254,7 +254,7 @@
 .theoria-reader-title { display: grid; min-width: 0; justify-items: center; gap: 3px; text-align: center; }
 .theoria-reader-title strong { max-width: min(45vw, 390px); overflow: hidden; font: 500 17px/1.1 var(--font-serif); text-overflow: ellipsis; white-space: nowrap; }
 .theoria-reader-title small { max-width: min(55vw, 450px); overflow: hidden; color: inherit; opacity: .62; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.theoria-reader-toolbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 5px; border: 1px solid rgba(45,35,45,.16); border-radius: 11px; background: rgba(255,255,255,.27); }
+.theoria-reader-toolbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); grid-auto-flow: column; gap: 7px; padding: 5px; border: 1px solid rgba(45,35,45,.16); border-radius: 11px; background: rgba(255,255,255,.27); }
 .theoria-reader--night .theoria-reader-toolbar { border-color: rgba(255,255,255,.14); background: rgba(255,255,255,.05); }
 .theoria-reader-toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; border: 0; border-radius: 7px; color: inherit; background: transparent; cursor: pointer; font-size: 13px; }
 .theoria-reader-toolbar button:hover, .theoria-reader-toolbar button.is-active { color: #211b2a; background: rgba(200,166,107,.38); }
@@ -768,3 +768,20 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-settings-copy p:not(.theoria-eyebrow) { margin: 0; font-family: var(--font-sans, Inter, sans-serif); font-size: 13px; line-height: 1.55; opacity: .85; }
 .theoria-modal-close { display: grid; place-items: center; width: 44px; height: 44px; top: 8px; right: 8px; }
 .theoria-mobile-brand, .theoria-family-link { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* Bring in highlights: the whole row opens the file chooser. */
+.theoria-settings-file { position: relative; cursor: pointer; }
+.theoria-settings-file input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.theoria-settings-file .theoria-add-button { flex: none; pointer-events: none; }
+
+/* Look up a word: a small card over the foot of the page. */
+.theoria-lookup { position: sticky; bottom: 12px; margin: 16px 0 0; padding: 16px 44px 14px 18px; border-radius: 16px; background: var(--color-surface-raised, #1b2033); border: 1px solid var(--color-border, rgba(255,255,255,.12)); box-shadow: 0 12px 30px rgba(0,0,0,.35); color: var(--color-text, #f2ece2); font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
+.theoria-lookup h3 { margin: 0 0 6px; font-family: 'EB Garamond', Georgia, serif; font-size: 22px; font-weight: 500; }
+.theoria-lookup h3 small { font-family: Inter, system-ui, sans-serif; font-size: 13px; opacity: .7; }
+.theoria-lookup ol { margin: 0; padding-left: 20px; }
+.theoria-lookup li { margin: 4px 0; }
+.theoria-lookup em { opacity: .7; }
+.theoria-lookup .theoria-modal-close { position: absolute; top: 8px; right: 8px; }
+.theoria-lookup-source { margin: 10px 0 0; font-size: 12px; opacity: .65; }
+/* Read aloud: the paragraph being read. */
+.theoria-reader-page p.is-reading { background: color-mix(in srgb, currentColor 8%, transparent); border-radius: 8px; box-shadow: -10px 0 0 color-mix(in srgb, currentColor 8%, transparent), 10px 0 0 color-mix(in srgb, currentColor 8%, transparent); }

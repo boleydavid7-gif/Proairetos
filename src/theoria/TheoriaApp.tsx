@@ -3,7 +3,8 @@ import { BookIcon, BookmarkIcon, BulbIcon, GearIcon, PenIcon } from '../componen
 import { startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
-import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe } from './data/store';
+import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe, USER_ID } from './data/store';
+import { addImported, readHighlightsFile } from './core/clippings';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
@@ -180,6 +181,23 @@ export default function TheoriaApp() {
     window.setTimeout(() => { if (!undone) void forgetCloudCopy(book); }, 8000);
     toast(`${book.title} removed`, () => { undone = true; void putAll(kept).then(() => putBook(book)); });
   };
+  // Highlights from a Kindle's clippings file or a Readwise export, onto the shelf, with undo.
+  const bringInHighlights = async (file: File) => {
+    const imported = readHighlightsFile(await file.text(), file.name);
+    const { changed, added, count } = addImported(shelf, imported, USER_ID);
+    if (count === 0 && changed.length === 0 && added.length === 0) {
+      toast(imported.length ? 'Those highlights are already here.' : 'That file has no highlights in it. A Kindle’s My Clippings.txt or a Readwise CSV works.');
+      return;
+    }
+    const before = shelf.filter((book) => changed.some((each) => each.id === book.id));
+    for (const book of [...changed, ...added]) await putBook(book);
+    const books = added.length ? ` and ${added.length} ${added.length === 1 ? 'book' : 'books'}` : '';
+    toast(`${count} ${count === 1 ? 'highlight' : 'highlights'}${books} brought in.`, () => {
+      for (const book of before) void putBook(book);
+      for (const book of added) void removeBook(book.id);
+    });
+  };
+
   const saveBook = async (input: NewBookForm) => {
     let imported: Awaited<ReturnType<typeof inspectReadingFile>> | undefined;
     if (input.file) {
@@ -327,7 +345,7 @@ export default function TheoriaApp() {
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
-      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} />}
+      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} />}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
     {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}

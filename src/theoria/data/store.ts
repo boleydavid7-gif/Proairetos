@@ -2,7 +2,7 @@ import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import { makeBook, makeNotebook, normalizeBook, normalizeNotebook, type NewTheoriaBook, type NewTheoriaNotebook, type TheoriaBook, type TheoriaNotebook } from '../core/books';
 
-const USER_ID = 'local';
+export const USER_ID = 'local';
 const memory = new Map<string, TheoriaBook>();
 const notebookMemory = new Map<string, TheoriaNotebook>();
 let opened: Promise<IDBDatabase | undefined> | undefined;
