@@ -59,6 +59,18 @@
       ]
     },
     {
+      "name": "Look at my cards",
+      "short_name": "Cards",
+      "url": "/praxis/?open=cards",
+      "icons": [
+        {
+          "src": "/praxis/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
       "name": "Sessions",
       "short_name": "Sessions",
       "url": "/praxis/?open=sessions",

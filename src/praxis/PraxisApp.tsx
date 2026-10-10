@@ -11,7 +11,8 @@ import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
 import { player } from '../app/sound/player';
 import { wakeAudio } from '../app/sound/engine';
-import { GearIcon, CalendarIcon, MountainIcon, BreatheIcon, SunIcon } from '../components/icons/Icons';
+import { GearIcon, CalendarIcon, MountainIcon, BreatheIcon, SunIcon, ChecklistIcon } from '../components/icons/Icons';
+import { CardsView } from './CardsView';
 import PraxisMark from '../components/brand/PraxisMark';
 import { readStore } from '../app/family/read';
 import { takeOpening } from '../app/family/opening';
@@ -22,10 +23,11 @@ import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
 import { SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
 
-type View = 'today' | 'sessions' | 'time' | 'sounds' | 'settings';
+type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings';
 
 const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
   { id: 'today', label: 'Today', icon: SunIcon },
+  { id: 'cards', label: 'Cards', icon: ChecklistIcon },
   { id: 'sessions', label: 'Sessions', icon: CalendarIcon },
   { id: 'time', label: 'Time', icon: MountainIcon },
   { id: 'sounds', label: 'Sounds', icon: BreatheIcon },
@@ -55,7 +57,7 @@ const notifyPermission = (): string => notifications.permission();
 const opening = takeOpening();
 
 export default function PraxisApp() {
-  const [view, setView] = useState<View>(() => (opening && ['sessions', 'time', 'sounds', 'settings'].includes(opening) ? (opening as View) : 'today'));
+  const [view, setView] = useState<View>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings'].includes(opening) ? (opening as View) : 'today'));
   const [name] = useState(displayName);
   const [session, setSession] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
   const [selectedId, setSelectedId] = useState<string | undefined>();
@@ -341,6 +343,7 @@ export default function PraxisApp() {
               onRemove={async (event) => { const { undo } = await lifeService.removeFocus(event); say('Session removed', () => void undo()); }}
             />
           )}
+          {view === 'cards' && <CardsView blocks={blocks} today={today} say={say} />}
           {view === 'time' && <TimeView events={focusEvents} titles={titles} today={today} dayAt={dayAt} />}
           {view === 'sounds' && <SoundsView sound={sound} soundState={soundState} onSound={chooseSound} />}
           {view === 'settings' && (

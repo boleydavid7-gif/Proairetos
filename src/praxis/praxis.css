@@ -148,7 +148,7 @@
   .praxis-main { padding: calc(17px + env(safe-area-inset-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
   .praxis-topbar { margin-bottom: 30px; }
   .praxis-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 4; display: block; padding: 6px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(11, 29, 24, .91); box-shadow: 0 18px 45px rgba(0,0,0,.28); backdrop-filter: blur(15px); }
-  .praxis-bottom-nav .praxis-nav-list { grid-template-columns: repeat(5,1fr); }
+  .praxis-bottom-nav .praxis-nav-list { grid-template-columns: repeat(6,1fr); }
   .praxis-bottom-nav .praxis-nav-item { display: grid; justify-items: center; gap: 4px; padding: 7px 3px; }
   .praxis-bottom-nav .praxis-nav-item span { font-size: 11px; }
   .praxis-today-grid, .praxis-stats-grid { grid-template-columns: 1fr; }
@@ -250,3 +250,20 @@ html, body { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .praxis-button--ready { animation: none; } }
 /* Room to tap the family link without changing how it looks. */
 .praxis-family-link { align-items: center; min-height: 44px; }
+
+/* Cards: one at a time, the answer behind a tap. */
+.praxis-recall { display: grid; gap: 14px; padding: 22px; }
+.praxis-recall h2 { margin: 0; font-family: var(--font-display, 'EB Garamond', Georgia, serif); font-weight: 500; font-size: 24px; line-height: 1.25; }
+.praxis-recall__back { margin: 0; padding: 14px 16px; border-radius: 14px; background: var(--color-surface-soft); color: var(--color-text); font-size: 17px; line-height: 1.5; white-space: pre-wrap; }
+.praxis-recall__answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.praxis-text-button { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-text-muted); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.praxis-card-form { display: grid; gap: 12px; padding: 20px; }
+.praxis-card-form label { display: grid; gap: 6px; color: var(--color-text-muted); font-size: 13px; }
+.praxis-card-form input, .praxis-card-form textarea { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-soft); color: var(--color-text); font: inherit; font-size: 16px; }
+.praxis-card-form .praxis-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.praxis-card-list { display: grid; gap: 2px; margin: 8px 0 0; padding: 0; list-style: none; }
+.praxis-card-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--color-border); }
+.praxis-card-list span { display: grid; gap: 2px; min-width: 0; }
+.praxis-card-list small { color: var(--color-text-muted); font-size: 13px; overflow-wrap: anywhere; }
+.praxis-chips button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-text); background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+.praxis-wide-card.praxis-card:has(> .praxis-text-button:only-child) { padding: 6px 20px; }
