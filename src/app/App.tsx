@@ -37,7 +37,14 @@ const routeFromLocation = (): AppRoute => {
 };
 
 export default function App() {
-  const [started, setStarted] = useState(hasOnboarded);
+  // Coming back from signing in (Google, Apple or the email's link) goes straight to the account, past the welcome.
+  const [started, setStarted] = useState(() => {
+    if (hasOnboarded()) return true;
+    if (new URLSearchParams(location.search).get('open') !== 'account') return false;
+    markOnboarded();
+    startLight();
+    return true;
+  });
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
   useEffect(() => lock.watchAway(), []);
   const [route, setRoute] = useState<AppRoute>(routeFromLocation);

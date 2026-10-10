@@ -204,3 +204,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 .page--landscape > :not(.page-landscape) {
   text-shadow: var(--hero-shadow);
 }
+
+/* Continue with Google / Apple, above the email box when the site has them on. */
+.provider-buttons { display: grid; gap: 8px; margin-bottom: 14px; }
+.provider-buttons button { width: 100%; min-height: 48px; }

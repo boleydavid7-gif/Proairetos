@@ -115,6 +115,7 @@ export default function TheoriaApp() {
     opened.current = true;
     const open = takeOpening();
     if (open === 'add') setAddOpen(true);
+    if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
     if (open === 'continue') {
       const book = shelf.filter((item) => item.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0] ?? shelf[0];

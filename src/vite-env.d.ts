@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL?: string;
   readonly VITE_SUPABASE_ANON_KEY?: string;
   readonly VITE_VAPID_PUBLIC_KEY?: string;
+  readonly VITE_SIGN_IN_WITH?: string;
   /** Set only for the phone apps: the live site's address, no trailing slash. */
   readonly VITE_API_BASE?: string;
 }

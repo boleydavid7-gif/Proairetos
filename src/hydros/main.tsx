@@ -34,8 +34,11 @@ startDailyCopies();
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   let refreshing = false;
+  // Reload only when a newer worker replaces one already in charge; the first install needs no reload (and a
+  // reload then would lose a `?open=` link or a sign-in coming back).
+  const hadController = Boolean(navigator.serviceWorker.controller);
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
+    if (refreshing || !hadController) return;
     refreshing = true;
     window.location.reload();
   });

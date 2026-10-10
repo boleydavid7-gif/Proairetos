@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { ProviderButtons } from './ProviderButtons';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
 
@@ -94,6 +95,7 @@ function SignIn() {
     );
   return (
     <div className="card account__step">
+      {!sent && <ProviderButtons className="button-quiet" />}
       {!sent ? (
         <form
           className="field"

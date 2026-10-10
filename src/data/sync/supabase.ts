@@ -16,6 +16,20 @@ export const syncConfig = {
 
 export const isSyncConfigured = Boolean(syncConfig.url && syncConfig.anonKey);
 
+export type SignInProvider = 'google' | 'apple';
+
+/** The sign-in services turned on for this site (VITE_SIGN_IN_WITH, e.g. "google,apple"); none unless set. */
+export const signInProviders: SignInProvider[] = String(import.meta.env.VITE_SIGN_IN_WITH ?? '')
+  .split(',')
+  .map((each) => each.trim().toLowerCase())
+  .filter((each): each is SignInProvider => each === 'google' || each === 'apple');
+
+/** Leaves for Google or Apple, which send the person back to `returnTo` signed in. */
+export async function signInWithProvider(provider: SignInProvider, returnTo: string): Promise<void> {
+  const { error } = await (await supabase()).auth.signInWithOAuth({ provider, options: { redirectTo: returnTo } });
+  if (error) throw new Error(error.message);
+}
+
 let client: Promise<SupabaseClient> | null = null;
 
 /** Loaded only when sync is configured, so the app stays small without it. */

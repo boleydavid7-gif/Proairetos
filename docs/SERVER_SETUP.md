@@ -271,3 +271,32 @@ arrive with their own words on a phone where Proairetos is the app that receives
    times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
 
 Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.
+
+## Sign in with Google or Apple (optional)
+
+The email code keeps working either way. Your passphrase still unlocks your data after any sign-in: Google
+or Apple only proves who you are; they never see what you write.
+
+**First, in Supabase:** Authentication → URL Configuration → Redirect URLs → add `https://proairetos.com/**`.
+
+**Google** (free):
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project, then **APIs & Services →
+   OAuth consent screen** (External; app name Proairetos; your email). Publish it.
+2. **Credentials → Create credentials → OAuth client ID → Web application.** Under *Authorized redirect URIs*
+   add `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`.
+3. Copy the Client ID and Client secret into Supabase: **Authentication → Sign In / Providers → Google**, turn it on, save.
+
+**Apple** (needs the Apple Developer Program):
+1. In Certificates, Identifiers & Profiles, make an **App ID** with *Sign in with Apple*, then a **Services ID**
+   (for example `com.proairetos.web`) with *Sign in with Apple* configured: domain `YOUR_PROJECT_REF.supabase.co`,
+   return URL `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`.
+2. Make a **Key** with *Sign in with Apple*, download the `.p8` file.
+3. In Supabase, **Authentication → Sign In / Providers → Apple**: Services ID as the client ID, and the secret
+   made from the key (Supabase's Apple page has a generator; the secret lasts six months, so renew it).
+
+**Then show the buttons:** in Cloudflare (Workers → proairetos → Settings → Variables and secrets, *build*
+variables), add `VITE_SIGN_IN_WITH` with `google`, `apple` or `google,apple`, and deploy again. The buttons
+appear in Proairetos's account page and in every app's account card.
+
+On an iPhone Home Screen app, try it once: if the sign-in finishes in Safari instead of the app, use the email
+code there; it signs in the same account.

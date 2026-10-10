@@ -24,6 +24,8 @@ import {
   saveWrappedKeys,
   savePushSubscription,
   sendSignInCode,
+  signInWithProvider,
+  type SignInProvider,
   signOutRemote,
   syncConfig,
   verifySignInCode,
@@ -114,6 +116,8 @@ async function remindersPhase(): Promise<SyncStatus['reminders']> {
 async function resolvePhase(): Promise<void> {
   if (!isSyncConfigured || !(await localState())) return set({ phase: 'unavailable' });
   const user = await currentUser().catch(() => null);
+  // Back from Google or Apple (or the email's link opened here): the tokens are read; tidy the address.
+  if (/access_token|refresh_token|error_description/.test(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
   if (!user) {
     userId = null;
     return set({ phase: 'signed-out', email: undefined });
@@ -329,6 +333,15 @@ export const syncStatus = {
 
 export async function requestCode(email: string): Promise<void> {
   await sendSignInCode(email.trim());
+}
+
+/** Where each app shows its account card, so a sign-in with Google or Apple comes back to it. */
+const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', praxis: 'settings', theoria: 'settings' };
+
+export async function signInWith(provider: SignInProvider): Promise<void> {
+  const app = appAt(location.pathname);
+  const path = app === 'proairetos' ? '/' : `/${app}/`;
+  await signInWithProvider(provider, `${location.origin}${path}?open=${ACCOUNT_PAGE[app]}`);
 }
 
 /** Accepts either the 6-digit code or the sign-in link from the email. */

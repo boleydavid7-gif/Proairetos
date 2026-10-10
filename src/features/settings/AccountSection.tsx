@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
+import { ProviderButtons } from '../../app/family/ProviderButtons';
 import {
   confirmCode,
   requestCode,
@@ -43,6 +44,7 @@ function SignIn() {
       <p className="section-description">
         Sign in to keep your data in sync across your devices. It is encrypted on this phone before it is uploaded.
       </p>
+      {!sent && <ProviderButtons className="chip chip--wide" />}
       {!sent ? (
         <form
           className="inline-form"
