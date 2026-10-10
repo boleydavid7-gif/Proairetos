@@ -34,7 +34,7 @@ export function cents(text: string): number | undefined {
 /** Dates as statements write them; day-first or month-first is decided from the whole column. */
 function dateReader(samples: string[]): (text: string) => string | undefined {
   const slashed = samples.map((text) => text.trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/)).filter(Boolean) as RegExpMatchArray[];
-  const dayFirst = slashed.some((match) => Number(match[1]) > 12) || (!slashed.some((match) => Number(match[2]) > 12) && !/^en-US/.test(globalThis.navigator?.language ?? 'en-US'));
+  const dayFirst = slashed.some((match) => Number(match[1]) > 12) || (!slashed.some((match) => Number(match[2]) > 12) && !(globalThis.navigator?.language ?? 'en-US').startsWith('en-US'));
   return (text) => {
     const trimmed = text.trim();
     const iso = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
