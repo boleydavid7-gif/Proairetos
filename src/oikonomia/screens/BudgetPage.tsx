@@ -132,7 +132,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       </section>
 
       <section className="oiko-budget-breakdown oiko-budget-main-lines" aria-label="Main budget">
-        <div className="oiko-section-head"><h2>Budget</h2></div>
+        <div className="oiko-section-head"><h2>Budget</h2><button type="button" className="text-link" onClick={() => nav.go({ name: 'spent' })}>What was spent</button></div>
         <div className="oiko-budget-breakdown__row"><span>Bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
         <div className="oiko-budget-breakdown__row"><span>Food</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
         <div className="oiko-budget-breakdown__row"><span>Budget items</span><strong>{formatMoney(totals.itemCents, planCurrency)}</strong></div>

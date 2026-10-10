@@ -13,6 +13,7 @@ import CapturePage from '../screens/CapturePage';
 import MorePage from '../screens/MorePage';
 import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
+import SpentPage from '../screens/SpentPage';
 
 export type Route =
   | { name: 'welcome' }
@@ -20,6 +21,7 @@ export type Route =
   | { name: 'bill'; id: string }
   | { name: 'edit'; id: string }
   | { name: 'budget' }
+  | { name: 'spent' }
   | { name: 'about' };
 
 export type Nav = {
@@ -106,6 +108,8 @@ export default function App() {
         return <BillPage nav={nav} id={route.id} />;
       case 'budget':
         return <BudgetPage nav={nav} />;
+      case 'spent':
+        return <SpentPage nav={nav} />;
       case 'about':
         return <MorePage nav={nav} about />;
     }

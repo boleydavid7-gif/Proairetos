@@ -55,6 +55,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
 
       <section className="oiko-more-list">
         <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Monthly plan</strong><small>What the month holds, by area</small></span></button>
+        <button type="button" className="row" onClick={() => nav.go({ name: 'spent' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Spent</strong><small>From your statements, by area</small></span></button>
         <button type="button" className="row" onClick={() => window.location.assign('/?open=settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and reminders</strong><small>Shared with Proairetos</small></span></button>
       </section>
 
