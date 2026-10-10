@@ -1,16 +1,41 @@
-import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
-import { useAccount, useBills, useSettings } from '../app/state';
-import { exportAll, loadSettings, restore, saveSettings } from '../data/store';
+import { SettingsIcon, WalletIcon } from '../app/icons';
+import { useSettings } from '../app/state';
+import { offerUndo } from '../app/undo';
+import { listBills, listBudgets, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
 import { PageTop } from '../app/ui';
-import AccountSection from '../../features/settings/AccountSection';
+import AccountCard from '../../app/family/AccountCard';
+import FamilyBackup from '../../app/family/FamilyBackup';
+
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'CHF', 'SEK', 'NOK', 'DKK', 'JPY', 'INR', 'SGD', 'HKD', 'ZAR', 'MXN', 'BRL'];
+
+function currencyName(code: string): string {
+  try {
+    return new Intl.DisplayNames(undefined, { type: 'currency' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/** Bills and monthly plans in the old currency move to the new one; the amounts stay as written. */
+async function changeCurrency(next: string): Promise<void> {
+  const settings = loadSettings();
+  const from = settings.currency;
+  if (next === from) return;
+  const bills = (await listBills()).filter((bill) => bill.currency === from);
+  const budgets = (await listBudgets()).filter((budget) => budget.currency === from);
+  saveSettings({ ...settings, currency: next });
+  for (const bill of bills) await putBill({ ...bill, currency: next });
+  for (const budget of budgets) await putBudget({ ...budget, currency: next });
+  offerUndo(`Amounts now in ${next}`, async () => {
+    saveSettings({ ...loadSettings(), currency: from });
+    for (const bill of bills) await putBill(bill);
+    for (const budget of budgets) await putBudget(budget);
+  });
+}
 
 export default function MorePage({ nav, about = false }: { nav: Nav; about?: boolean }) {
-  const bills = useBills() ?? [];
-  const account = useAccount();
   const settings = useSettings();
-  const [message, setMessage] = useState('');
 
   if (about) {
     return (
@@ -23,40 +48,26 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
     );
   }
 
-  async function downloadBackup() {
-    const file = await exportAll();
-    const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'oikonomia-backup.json';
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage('A copy of your bills and monthly plans is ready.');
-  }
-
-  async function importBackup(file: File) {
-    try {
-      const count = await restore(JSON.parse(await file.text()));
-      setMessage(count + ' ' + (count === 1 ? 'record' : 'records') + ' brought back.');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'That backup could not be read.');
-    }
-  }
-
   return (
     <div className="page oiko-page">
       <PageTop><h1 className="title">More</h1></PageTop>
+      <AccountCard app="Oikonomia" what="Your bills and monthly plans" waiting="Bills" />
+
       <section className="oiko-more-list">
-        <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Budget</strong><small>Set your monthly allowance</small></span></button>
-        <button type="button" className="row" onClick={() => void downloadBackup()}><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Back up your bills</strong><small>{bills.length} {bills.length === 1 ? 'bill' : 'bills'} on this device</small></span></button>
-        <label className="row"><span className="row__icon"><DownloadIcon size={21} /></span><span className="row__text"><strong>Restore a backup</strong><small>Bring bills back from a JSON file</small></span><input className="oiko-file-input" type="file" accept="application/json,.json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.currentTarget.value = ''; }} /></label>
-        <button type="button" className="row" onClick={() => window.location.assign('/settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and account</strong><small>Shared with Proairetos</small></span></button>
+        <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Monthly plan</strong><small>What the month holds, by area</small></span></button>
+        <button type="button" className="row" onClick={() => window.location.assign('/?open=settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and reminders</strong><small>Shared with Proairetos</small></span></button>
       </section>
 
       <section className="oiko-options">
         <p className="label">Options</p>
         <label className="field">
-          <span className="field__label">Plan week starts</span>
+          <span className="field__label">Currency</span>
+          <select className="input" value={settings.currency} onChange={(event) => void changeCurrency(event.target.value)}>
+            {[...new Set([settings.currency, ...CURRENCIES])].map((code) => <option key={code} value={code}>{currencyName(code)} ({code})</option>)}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field__label">Week starts</span>
           <select
             className="input"
             value={settings.planWeekStart}
@@ -65,6 +76,18 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
             {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => <option key={day} value={index}>{day}</option>)}
           </select>
         </label>
+      </section>
+
+      <section className="oiko-data">
+        <p className="label">Your data</p>
+        <FamilyBackup
+          older={async (text: string) => {
+            const file = JSON.parse(text) as { app?: unknown };
+            if (file.app !== 'oikonomia') return undefined;
+            const count = await restore(file);
+            return count === 1 ? 'One record brought in from an older Oikonomia backup.' : `${count} records brought in from an older Oikonomia backup.`;
+          }}
+        />
       </section>
 
       <section className="oiko-family-links">
@@ -77,9 +100,6 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
         </div>
       </section>
 
-      {message && <p className="oiko-success" role="status">{message}</p>}
-      {account.phase === 'ready' && <p className="oiko-sync-note">Synced with {account.email ?? 'your Proairetos account'}.</p>}
-      <AccountSection />
       <button type="button" className="text-link" onClick={() => nav.go({ name: 'about' })}>About Oikonomia</button>
     </div>
   );

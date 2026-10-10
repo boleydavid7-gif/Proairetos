@@ -1,32 +1,31 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon } from '../app/icons';
-import { formatDate, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, localDate, remainingSummary, weekBounds } from '../core/bills';
-import { useBills, useSettings } from '../app/state';
-import { PageTop } from '../app/ui';
+import { ArrowLeftIcon, ArrowRightIcon } from '../app/icons';
+import { amountFor, formatDate, formatMoney, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, paidForOccurrence, remainingSummary, weekBounds, weekdayLabels, type BillOccurrence } from '../core/bills';
+import { useBills, useSettings, useToday } from '../app/state';
+import { formatFrequency, PageTop } from '../app/ui';
 
-function ArrowRightIcon({ size = 22 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m10 5 7 7-7 7" /></svg>;
-}
+const byDay = (a: BillOccurrence, b: BillOccurrence) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name);
 
 export default function CalendarPage({ nav }: { nav: Nav }) {
   const bills = useBills() ?? [];
   const settings = useSettings();
-  const today = localDate();
+  const today = useToday();
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12));
   const [range, setRange] = useState<'month' | 'week'>('month');
-  const cells = monthCells(month);
+  const cells = monthCells(month, settings.planWeekStart);
   const bounds = monthBounds(month);
-  const monthOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until));
+  const monthOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until)).sort(byDay);
   const week = weekBounds(today, settings.planWeekStart);
-  const weekOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, week.from, week.until));
+  const weekOccurrences = bills.flatMap((bill) => occurrencesBetween(bill, week.from, week.until)).sort(byDay);
   const occurrences = range === 'month' ? monthOccurrences : weekOccurrences;
   const byDate = useMemo(() => {
     const map = new Map<string, typeof monthOccurrences>();
     monthOccurrences.forEach((occurrence) => map.set(occurrence.date, [...(map.get(occurrence.date) ?? []), occurrence]));
     return map;
   }, [monthOccurrences]);
-  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const labels = weekdayLabels(settings.planWeekStart);
+  const summary = remainingSummary(occurrences, today);
 
   return (
     <div className="page oiko-page">
@@ -56,7 +55,7 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
               <div key={date} className={'oiko-calendar-day' + (!inMonth ? ' oiko-calendar-day--outside' : '') + (date === today ? ' oiko-calendar-day--today' : '')}>
                 <span className="oiko-calendar-day__number">{Number(date.slice(-2))}</span>
                 <span className="oiko-calendar-day__events">
-                  {entries.slice(0, 3).map((entry) => <button type="button" key={entry.bill.id + entry.date} title={entry.bill.name + ' · ' + formatDate(entry.date)} onClick={() => nav.go({ name: 'bill', id: entry.bill.id })}>{entry.bill.name.slice(0, 9)}</button>)}
+                  {entries.slice(0, 3).map((entry) => <button type="button" key={entry.bill.id + entry.date} title={entry.bill.name + ' · ' + formatDate(entry.date)} className={paidForOccurrence(entry.bill, entry.date, today) ? 'is-paid' : undefined} onClick={() => nav.go({ name: 'bill', id: entry.bill.id })}>{entry.bill.name}</button>)}
                 </span>
               </div>
             );
@@ -68,15 +67,15 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
         <div className="oiko-section-head"><h2>{range === 'month' ? 'Due this month' : 'Due this week'}</h2><span className="muted">{occurrences.length} {occurrences.length === 1 ? 'bill' : 'bills'}</span></div>
         {occurrences.length > 0 && (
           <p className="oiko-total">
-            <strong>{remainingSummary(occurrences).main}</strong>
-            <span>{remainingSummary(occurrences).note}</span>
+            <strong>{summary.main}</strong>
+            <span>{summary.note}</span>
           </p>
         )}
         {occurrences.length === 0 ? <p className="muted">Nothing is scheduled for this {range}.</p> : occurrences.map((occurrence) => (
           <button type="button" className="oiko-calendar-entry" key={occurrence.bill.id + occurrence.date} onClick={() => nav.go({ name: 'bill', id: occurrence.bill.id })}>
             <span className="oiko-calendar-entry__date">{formatDate(occurrence.date)}</span>
-            <span><strong>{occurrence.bill.name}</strong><small>{occurrence.bill.frequency}</small></span>
-            <span className="oiko-calendar-entry__amount">{new Intl.NumberFormat(undefined, { style: 'currency', currency: occurrence.bill.currency }).format(occurrence.bill.amountCents / 100)}</span>
+            <span><strong>{occurrence.bill.name}</strong><small>{formatFrequency(occurrence.bill.frequency)}{paidForOccurrence(occurrence.bill, occurrence.date, today) ? ' · paid' : ''}</small></span>
+            <span className="oiko-calendar-entry__amount">{formatMoney(amountFor(occurrence.bill, occurrence.date, today), occurrence.bill.currency)}</span>
           </button>
         ))}
       </section>

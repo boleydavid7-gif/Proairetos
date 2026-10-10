@@ -2,14 +2,13 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, PlusIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, standing, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
-import { usePayBill } from '../app/payBill';
+import { payBill } from '../app/payBill';
 import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
 
 export default function BillsPage({ nav }: { nav: Nav }) {
   const bills = useBills();
   const today = useToday();
-  const { pay, toast } = usePayBill();
   const stands = new Map((bills ?? []).map((bill) => [bill.id, standing(bill, today)]));
   const byDate = (a: Bill, b: Bill) => (stands.get(a.id)?.date ?? '').localeCompare(stands.get(b.id)?.date ?? '');
   const ordered = (bills ?? []).filter((bill) => !stands.get(bill.id)?.settled).sort(byDate);
@@ -41,12 +40,12 @@ export default function BillsPage({ nav }: { nav: Nav }) {
               {ordered.map((bill) => {
                 const stand = stands.get(bill.id)!;
                 return (
-                  <SwipeRow key={bill.id} label="Paid" onSwipe={() => void pay(bill, stand.date)}>
+                  <SwipeRow key={bill.id} label="Paid" onSwipe={() => void payBill(bill, stand.date)}>
                     <button type="button" className="oiko-bill-row" onClick={() => nav.go({ name: 'bill', id: bill.id })}>
                       <span className="oiko-bill-row__mark" aria-hidden="true" />
                       <span className="oiko-bill-row__main">
                         <span className="oiko-bill-row__name">{bill.name}</span>
-                        <span className="oiko-bill-row__detail">{relativeDue(stand.date, today)}</span>
+                        <span className="oiko-bill-row__detail">{relativeDue(stand.date, today)}{bill.autopay ? ' · autopay' : ''}</span>
                       </span>
                       <span className="oiko-bill-row__date">{formatDate(stand.date)}</span>
                       <span className="oiko-bill-row__amount">{formatMoney(bill.amountCents, bill.currency)}</span>
@@ -59,7 +58,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
           )}
           {settled.length > 0 && (
             <details className="oiko-settled">
-              <summary>Paid, back when due ({settled.length})</summary>
+              <summary>{settled.some((bill) => bill.endedOn) ? 'Paid, or no more dates' : 'Paid, back when due'} ({settled.length})</summary>
               <section className="oiko-list" aria-label="Paid bills">
                 {settled.map((bill) => {
                   const stand = stands.get(bill.id)!;
@@ -69,7 +68,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
                       <span className="oiko-bill-row__main">
                         <span className="oiko-bill-row__name">{bill.name}</span>
                         <span className="oiko-bill-row__detail">
-                          {stand.complete ? 'One time · paid' : stand.returnsOn ? `Back ${formatDate(stand.returnsOn)}` : 'Paid'}
+                          {stand.complete ? (bill.endedOn ? 'No more dates' : 'One time · paid') : stand.returnsOn ? `Back ${formatDate(stand.returnsOn)}` : 'Paid'}
                         </span>
                       </span>
                       <span className="oiko-bill-row__date">{formatDate(stand.date)}</span>
@@ -83,7 +82,6 @@ export default function BillsPage({ nav }: { nav: Nav }) {
           )}
         </>
       )}
-      {toast}
     </div>
   );
 }

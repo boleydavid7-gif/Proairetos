@@ -159,6 +159,7 @@ export default function NotificationsSection() {
           onToggle={() => update({ lookBacks: !settings.lookBacks })}
         />
         <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
+        <Switch on={settings.bills} label="Bills, from Oikonomia" onToggle={() => update({ bills: !settings.bills })} />
         <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
           {settings.bellAt.map((at, index) => (
             <span key={index} className="notify-bell">

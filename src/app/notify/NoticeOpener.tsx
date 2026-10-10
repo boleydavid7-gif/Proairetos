@@ -3,11 +3,12 @@ import { setDaysAheadOpening } from '../../features/days/daysAhead';
 import { useNavigate } from '../navigationContext';
 import { useOverlays } from '../overlays/OverlayContext';
 import { openSettingsAt } from '../../features/settings/SettingsPage';
+import { linkTo } from '../family/opening';
 
 /**
  * Where a tapped notification, or a link from Askesis or SOMA, leads:
  * `item:ID`, `day:YYYY-MM-DD` (or `day:today`), `today`, `reflect`,
- * `compass`, `account` (Settings, sync), or `askesis` (the training app).
+ * `compass`, `account` (Settings, sync), `askesis` (the training app), or `oikonomia:bill:ID`.
  */
 function useOpen() {
   const navigate = useNavigate();
@@ -22,10 +23,12 @@ function useOpen() {
       navigate('plan');
     } else if (open === 'reflect') navigate('reflect');
     else if (open === 'compass') navigate('compass');
+    else if (open === 'settings') navigate('settings');
     else if (open === 'account') {
       openSettingsAt('account');
       navigate('settings');
     } else if (open === 'askesis') window.location.assign('/askesis/');
+    else if (open.startsWith('oikonomia:')) window.location.assign(linkTo('oikonomia', open.slice(10)));
     else navigate('today');
   };
 }

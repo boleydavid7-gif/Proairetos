@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon, ChevronIcon, WalletIcon } from '../app/icons';
+import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
+import { offerUndo } from '../app/undo';
 import { newId, useBills, useBudget, useSettings, useSomaRecipes } from '../app/state';
 import { formatMoney, nextMonth } from '../core/bills';
 import { budgetCategories, budgetTotals, emptyLimits, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, type BudgetCategory, type BudgetPlan } from '../core/budget';
@@ -56,8 +57,9 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
 
   const changeMonth = (amount: number) => setMonth(monthKey(nextMonth(monthDateValue, amount)));
   const changeItems = (items: BudgetPlan['items']) => {
-    setDirty(true);
-    setDraft({ ...plan, items });
+    const next = { ...plan, items };
+    setDraft(next);
+    void keep(next);
   };
 
   function addItem() {
@@ -74,13 +76,18 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     changeItems([...plan.items, { id: newId(), name, amountCents, category: itemCategory }]);
     setItemName('');
     setItemAmountText('');
-    setMessage('Budget item added.');
+    setMessage('');
   }
 
   function removeItem(id: string) {
-    changeItems(plan.items.filter((item) => item.id !== id));
+    const before = plan.items;
+    const gone = before.find((item) => item.id === id);
+    changeItems(before.filter((item) => item.id !== id));
+    offerUndo(`${gone?.name ?? 'Item'} removed`, () => changeItems(before));
   }
-  async function save() {
+
+  /** Saved as it changes: the amounts when a box is left, items when added or removed. */
+  async function keep(base: BudgetPlan = plan) {
     const totalCents = moneyInputCents(totalText);
     if (totalCents === undefined) {
       setMessage('Use an amount with up to two decimal places.');
@@ -95,8 +102,9 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       }
       categoryLimits[id] = value;
     }
-    await putBudget({ ...plan, totalCents, categoryLimits, month, id: month, currency: planCurrency, updatedAt: new Date().toISOString() });
-    setMessage('Monthly plan saved.');
+    setMessage('');
+    setDirty(false);
+    await putBudget({ ...base, totalCents, categoryLimits, month, id: month, currency: planCurrency, updatedAt: new Date().toISOString() });
   }
 
   return (
@@ -112,14 +120,14 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           <h1 className="title">{formatMonthKey(month)}</h1>
         </div>
         <div className="oiko-budget__switch">
-          <button type="button" className="round-button" aria-label="Previous month" onClick={() => changeMonth(-1)}>‹</button>
-          <button type="button" className="round-button" aria-label="Next month" onClick={() => changeMonth(1)}><ChevronIcon size={18} /></button>
+          <button type="button" className="round-button" aria-label="Previous month" onClick={() => changeMonth(-1)}><ArrowLeftIcon size={18} /></button>
+          <button type="button" className="round-button" aria-label="Next month" onClick={() => changeMonth(1)}><ArrowRightIcon size={18} /></button>
         </div>
       </div>
 
       <section className="card oiko-budget-summary">
         <strong className="oiko-budget-summary__amount">{formatMoney(totals.plannedCents, planCurrency)}</strong>
-        {limit > 0 && <p className="muted">{formatMoney(Math.abs(remaining), planCurrency)} {remaining >= 0 ? 'left' : 'over'}</p>}
+        {limit > 0 && <p className="muted">{formatMoney(Math.abs(remaining), planCurrency)} {remaining >= 0 ? 'left in the plan' : 'more than the plan'}</p>}
         <div className="oiko-budget-summary__bar" aria-hidden="true"><span style={{ width: `${limit ? Math.min(100, (totals.plannedCents / limit) * 100) : 0}%` }} /></div>
       </section>
 
@@ -132,7 +140,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
 
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>Your plan</h2></div>
-        <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} placeholder="0.00" /></label>
+        <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} placeholder="0.00" /></label>
       </section>
 
       <section className="oiko-budget-section">
@@ -162,14 +170,13 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           {areaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
               <span><strong>{label}</strong><small>{formatMoney(totals.byCategory[id], planCurrency)} planned</small></span>
-              <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} placeholder="Limit" />
+              <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} onBlur={() => void keep()} placeholder="Limit" />
             </label>
           ))}
         </div>
       </section>
 
-      <button type="button" className="button-main" onClick={() => void save()}>Save monthly plan</button>
-      {message && <p className="oiko-success" role="status">{message}</p>}
+      {message && <p className="oiko-error" role="alert">{message}</p>}
     </div>
   );
 }

@@ -915,3 +915,82 @@
   font: inherit;
   font-weight: 600;
 }
+
+/* Monthly plan card: the arrow sits at the right, not on a line of its own. */
+.oiko-budget-home {
+  position: relative;
+  padding-right: 48px;
+}
+
+.oiko-budget-home > .muted {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+}
+
+/* Calendar: whole names, cut by the cell; paid ones quieter. */
+.oiko-calendar-day {
+  min-width: 0;
+}
+
+.oiko-calendar-day__events,
+.oiko-calendar-day__events button {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.oiko-calendar-day__events button.is-paid {
+  opacity: 0.55;
+}
+
+.oiko-history-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* Bill page */
+.oiko-pay {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr);
+  align-items: end;
+  gap: 10px;
+}
+
+.oiko-pay .field {
+  margin: 0;
+}
+
+.oiko-detail .button-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.oiko-history-row small {
+  color: var(--muted);
+}
+
+.oiko-note {
+  white-space: pre-wrap;
+}
+
+.oiko-detail__end {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.oiko-notes {
+  min-height: 84px;
+  resize: vertical;
+  font: inherit;
+}
+
+.oiko-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

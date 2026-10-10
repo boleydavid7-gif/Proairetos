@@ -15,4 +15,4 @@ export function takeOpening(): string | null {
 }
 
 /** A link into one of the family's apps at a given place. */
-export const linkTo = (app: '' | 'askesis' | 'soma', open?: string) => `/${app ? `${app}/` : ''}${open ? `?open=${encodeURIComponent(open)}` : ''}`;
+export const linkTo = (app: '' | 'askesis' | 'soma' | 'oikonomia', open?: string) => `/${app ? `${app}/` : ''}${open ? `?open=${encodeURIComponent(open)}` : ''}`;

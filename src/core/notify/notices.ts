@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'hydration' | 'bell';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'hydration' | 'bell';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -77,6 +77,8 @@ export type NoticeSettings = {
   bellAt: string[];
   /** Run days from Askesis, at the time the runner chose. */
   runs: boolean;
+  /** Bills from Oikonomia, on the morning each bill's own reminder asks for. */
+  bills: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -94,6 +96,7 @@ export const defaultNoticeSettings: NoticeSettings = {
   bell: false,
   bellAt: ['10:30', '15:00'],
   runs: true,
+  bills: true,
   details: true,
 };
 
@@ -109,6 +112,8 @@ type Sources = {
   holding?: readonly ScheduleOccurrence[];
   /** Sessions on run days, at the runner's own time (from Askesis). */
   runs?: readonly RunTime[];
+  /** Bill reminders (from Oikonomia), by day. */
+  bills?: readonly BillTime[];
   settings: NoticeSettings;
   quiet?: QuietHours;
   now: Date;
@@ -117,6 +122,8 @@ type Sources = {
 };
 
 export type RunTime = { key: string; at: Date; title: string; place?: string };
+
+export type BillTime = { key: string; day: string; billId: string; title: string; body: string };
 
 const defaultTime = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -213,6 +220,19 @@ export function noticesBetween(sources: Sources): Notice[] {
 
   if (settings.runs) {
     for (const run of sources.runs ?? []) timed(`run:${run.key}`, 'run', run.at, run.at, run.title, [run.place], 'askesis');
+  }
+
+  if (settings.bills) {
+    for (const bill of sources.bills ?? []) {
+      raw.push({
+        key: `bill:${bill.key}`,
+        kind: 'bill',
+        at: atTime(bill.day, MORNING),
+        title: bill.title,
+        body: bill.body,
+        open: `oikonomia:bill:${bill.billId}`,
+      });
+    }
   }
 
   if (settings.checkBacks) {

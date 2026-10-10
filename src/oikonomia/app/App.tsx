@@ -3,6 +3,8 @@ import { startSync } from '../../app/sync/syncController';
 import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { useSettings } from './state';
 import { TabBar, tabNames, type Tab } from './ui';
+import { UndoToast } from './undo';
+import { takeOpening } from '../../app/family/opening';
 import WelcomePage from '../screens/WelcomePage';
 import HomePage from '../screens/HomePage';
 import BillsPage from '../screens/BillsPage';
@@ -30,7 +32,13 @@ const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).inclu
 
 export default function App() {
   const settings = useSettings();
-  const [route, setRoute] = useState<Route>(() => (settings.started ? { name: 'today' } : { name: 'welcome' }));
+  const [route, setRoute] = useState<Route>(() => {
+    // A link from another app or a reminder: `bill:ID`, or a tab.
+    const opening = takeOpening();
+    if (opening?.startsWith('bill:')) return { name: 'bill', id: opening.slice(5) };
+    if (opening && (tabNames as string[]).includes(opening)) return { name: opening as Tab };
+    return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
+  });
   const [lastTab, setLastTab] = useState<Tab>('today');
 
   useEffect(() => {
@@ -109,6 +117,7 @@ export default function App() {
       <main key={JSON.stringify(route)} className="page-enter">
         {page}
       </main>
+      <UndoToast />
       {showTabs && <TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} />}
     </div>
   );

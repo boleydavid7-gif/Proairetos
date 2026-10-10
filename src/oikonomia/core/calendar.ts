@@ -17,12 +17,12 @@ export function billCalendarText(bills: readonly Bill[], from = localDate()): st
   return buildIcs(events, { name: 'Oikonomia', now: new Date() });
 }
 
-export function downloadBillCalendar(bills: readonly Bill[]): void {
+export function downloadBillCalendar(bills: readonly Bill[], name = 'oikonomia-bills'): void {
   const text = billCalendarText(bills);
   const url = URL.createObjectURL(new Blob([text], { type: 'text/calendar' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'oikonomia-bills.ics';
+  link.download = name + '.ics';
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

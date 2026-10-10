@@ -2,7 +2,7 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
-import { usePayBill } from '../app/payBill';
+import { payBill } from '../app/payBill';
 import { financeLineFor } from '../core/lines';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
@@ -30,7 +30,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const line = financeLineFor(today);
   const all = bills ?? [];
   const recipes = useSomaRecipes();
-  const { pay, toast } = usePayBill();
   // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes round.
   const next = all
     .map((bill) => ({ bill, stand: standing(bill, today) }))
@@ -45,7 +44,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const thisMonth = all
     .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
-  const monthOpen = stillToCome(thisMonth);
+  const monthOpen = stillToCome(thisMonth, today);
 
   return (
     <div className="home oiko-home">
@@ -84,7 +83,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
                   <span className="oiko-bill-emblem"><RepeatIcon size={20} /></span>
                   <span className="oiko-next-card__words">
                     <strong>{next.bill.name}</strong>
-                    <span>{relativeDue(next.date, today)} · {formatDate(next.date)}</span>
+                    <span>{next.date < today ? relativeDue(next.date, today) : `${relativeDue(next.date, today)} · ${formatDate(next.date)}`}</span>
                   </span>
                   <span className="oiko-next-card__amount">{formatMoney(next.bill.amountCents, next.bill.currency)}</span>
                   <ChevronIcon size={18} />
@@ -98,18 +97,18 @@ export default function HomePage({ nav }: { nav: Nav }) {
             </div>
             {thisMonth.length > 0 && (
               <p className="oiko-total">
-                <strong>{remainingSummary(thisMonth).main}</strong>
-                <span>{remainingSummary(thisMonth).note}</span>
+                <strong>{remainingSummary(thisMonth, today).main}</strong>
+                <span>{remainingSummary(thisMonth, today).note}</span>
               </p>
             )}
             <section className="oiko-list" aria-label="Bills this month">
               {monthOpen.slice(0, 8).map((occurrence) => (
-                <SwipeRow key={occurrence.bill.id + occurrence.date} label="Paid" onSwipe={() => void pay(occurrence.bill, occurrence.date)}>
+                <SwipeRow key={occurrence.bill.id + occurrence.date} label="Paid" onSwipe={() => void payBill(occurrence.bill, occurrence.date)}>
                   {billRow(occurrence.bill, occurrence.date, nav, today)}
                 </SwipeRow>
               ))}
               {thisMonth.length === 0 && <p className="muted">Nothing is scheduled for this month.</p>}
-              {thisMonth.length > 0 && monthOpen.length === 0 && <p className="muted">Everything this month is paid.</p>}
+              {thisMonth.length > 0 && monthOpen.length === 0 && <p className="muted">Nothing left to pay this month.</p>}
             </section>
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
@@ -119,7 +118,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </>
         )}
       </div>
-      {toast}
     </div>
   );
 }
