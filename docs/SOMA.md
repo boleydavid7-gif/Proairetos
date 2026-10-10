@@ -118,9 +118,13 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   FoodKeeper and common practice), Add to groceries, your recipes with it
   (whole words and plurals; "pea" never finds peanut), and ideas from TheMealDB
   (`app/mealdb.ts` `mealsWith`, opened as a draft to look over).
-- Photos are TheMealDB's ingredient pictures, loaded when shown; only fresh
-  ones (no jars or tins: chives and sweetcorn have none); offline or without
-  one, a soft card with the first letter.
+- Photos are TheMealDB's ingredient pictures (they allow CORS), loaded when
+  shown and kept by the service worker in Cache Storage `produce-photos`
+  (kept across app updates), so they show offline once seen; only fresh ones
+  (no jars or tins: chives and sweetcorn have none); without one, a soft card
+  with the first letter.
+- After "I cooked this", a recipe without a photo offers "Add a photo?" (the
+  camera; shrunk to 1200 px, with undo); it replaces the letter card.
 
 ## Next
 

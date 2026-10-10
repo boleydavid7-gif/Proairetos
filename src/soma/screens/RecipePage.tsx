@@ -3,6 +3,7 @@ import { reflectionService } from '../../app/services';
 import type { Nav } from '../app/App';
 import { ClockIcon, HeartIcon, PotIcon, ServesIcon, ShareIcon } from '../app/icons';
 import { tintOf } from '../app/DishImage';
+import { shrinkPhoto } from '../app/draft';
 import { newId, useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { startTimer, stopTimer, timeLeft, useTimers } from '../app/timers';
 import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
@@ -109,6 +110,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const [otherName, setOtherName] = useState('');
   const [sheet, setSheet] = useState<'swaps' | 'plan'>();
   const [copied, setCopied] = useState(false);
+  const [photoProblem, setPhotoProblem] = useState<string>();
   const people = usePeople();
   useTimers();
 
@@ -406,6 +408,35 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         ) : (
           <div className="card">
             <p>That’s recorded.</p>
+            {/* The dish as it came out: the recipe's own photo from now on, in place of its letter card. */}
+            {!recipe.image && (
+              <label className="button-quiet cooked-photo">
+                Add a photo?
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  hidden
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = '';
+                    if (!file) return;
+                    try {
+                      const image = await shrinkPhoto(file);
+                      await save({ image });
+                      undo('Photo added', () => void putRecipe({ ...recipe, image: undefined, updatedAt: new Date().toISOString() }));
+                    } catch {
+                      setPhotoProblem('That photo could not be read. Another one may work.');
+                    }
+                  }}
+                />
+              </label>
+            )}
+            {photoProblem && (
+              <p className="hint" role="status">
+                {photoProblem}
+              </p>
+            )}
             <span className="label">Cooked for, if you like</span>
             <div className="chip-grid" role="group" aria-label="Cooked for">
               {[...new Set([...people, ...cookedFor])].map((name) => {

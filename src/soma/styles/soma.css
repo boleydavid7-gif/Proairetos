@@ -1106,3 +1106,11 @@
 .season-card__names {
   color: var(--text-soft);
 }
+
+.cooked-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 10px;
+  cursor: pointer;
+}

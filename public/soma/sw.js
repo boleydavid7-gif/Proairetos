@@ -1,6 +1,8 @@
 // SOMA service worker: lets the app open and work without a connection.
 // Scoped to /soma/. Recipes live in IndexedDB on the device; this only caches the app.
 const CACHE = 'soma-v1';
+// Photos of produce from TheMealDB, kept once seen so In season shows them offline. Kept across app updates.
+const PHOTOS = 'produce-photos';
 const SHELL = ['/soma/', '/soma/manifest.webmanifest', '/soma/icon.svg', '/soma/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
@@ -29,6 +31,19 @@ async function cacheFirst(request) {
   return response;
 }
 
+async function keptPhoto(request) {
+  const cache = await caches.open(PHOTOS);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch {
+    return Response.error();
+  }
+}
+
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
@@ -46,6 +61,10 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
+  if (url.hostname === 'www.themealdb.com' && url.pathname.startsWith('/images/ingredients/')) {
+    event.respondWith(keptPhoto(request));
+    return;
+  }
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {

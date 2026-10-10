@@ -523,6 +523,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   items in `core/seasons.ts` with months, match words (whole word + plural,
   `notAfter`), TheMealDB photo (fresh only) and lookup names, keeping notes;
   Home shows a card that opens it. TheMealDB calls live in `app/mealdb.ts`.
+  Produce photos are kept offline by `public/soma/sw.js` (`produce-photos`).
+  "I cooked this" offers "Add a photo?" when a recipe has none.
 - The language guard covers it: no `loading="lazy"` (write images without it).
 
 ## Testing approach that has worked

@@ -46,7 +46,7 @@ export function ProducePicture({ item, large = false }: { item: Produce; large?:
   const src = producePhoto(item, large ? 'large' : 'small');
   return (
     <span className={`produce-pic produce-pic--${item.kind}${large ? ' produce-pic--large' : ''}`} aria-hidden="true">
-      {src && !broken ? <img src={src} alt="" onError={() => setBroken(true)} /> : <span className="produce-pic__initial">{item.name.charAt(0)}</span>}
+      {src && !broken ? <img src={src} alt="" crossOrigin="anonymous" onError={() => setBroken(true)} /> : <span className="produce-pic__initial">{item.name.charAt(0)}</span>}
     </span>
   );
 }
