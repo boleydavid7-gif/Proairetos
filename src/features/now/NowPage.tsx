@@ -7,7 +7,7 @@ import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
-import TodayFamily, { TodayStudy, TodayWater } from '../today/TodayFamily';
+import TodayFamily, { TodayHighlight, TodayStudy, TodayWater } from '../today/TodayFamily';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -268,6 +268,7 @@ export default function NowPage() {
       {shows('askesis') && <TodayRun today={today} />}
       <TodayWater now={clock} blocks={blocks} />
       <TodayStudy today={today} />
+      <TodayHighlight today={today} />
       <TodayFamily today={today} />
       <TodayOnThisDay today={today} />
 

@@ -360,10 +360,12 @@ export type TodayPart =
   // Water from HYDROS during a work block, shown on Today only if chosen.
   | 'water'
   // Study from Praxis: in Done today and Reflect, and blocks to look at again on Today.
-  | 'praxis';
+  | 'praxis'
+  // One highlight a day from Theoria, shown on Today only if chosen.
+  | 'highlight';
 
 /** Parts that stay off until the person turns them on in Settings. */
-const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water'];
+const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];
 const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';

@@ -209,6 +209,19 @@ export default function PraxisApp() {
   // Start begins the timer, the sound and the end bell together.
   const [ready, setReady] = useState(opening === 'start');
 
+  // From Theoria's "Read for a while": the book as a block (made once, 20 minutes), ready to start.
+  const fromTheoria = useRef(false);
+  useEffect(() => {
+    if (fromTheoria.current || !items || !opening?.startsWith('read:')) return;
+    fromTheoria.current = true;
+    const title = `Read: ${opening.slice(5).trim()}`.slice(0, 80);
+    const existing = items.find((block) => block.title === title && block.status !== 'DONE');
+    void (existing ? Promise.resolve(existing) : lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 })).then((block) => {
+      setSelectedId(block.id);
+      setReady(true);
+    });
+  }, [items]);
+
   const toggle = async (block: LifeItem) => {
     const change = await lifeService.setStatus(block.id, block.status === 'DONE' ? 'OPEN' : 'DONE');
     say(block.status === 'DONE' ? `${block.title} is back` : `${block.title} done`, () => void change.undo());

@@ -762,3 +762,5 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-pdf__turn button { min-height: 40px; padding: 0 14px; border: 1px solid currentColor; border-radius: 9px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
 .theoria-pdf__turn button:disabled { opacity: .35; cursor: default; }
 .theoria-view > .account-card, .theoria-view > .card { margin-top: 16px; }
+.theoria-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
+.theoria-check input { width: 20px; height: 20px; accent-color: var(--theoria-brass); }

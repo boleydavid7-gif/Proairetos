@@ -13,6 +13,8 @@ import { coverSource, dropCloudCopy, fetchCopy, forgetCloudCopy, keepFile, keepL
 import { outline, putAll, putCover, takeAll } from './data/files';
 import type { TheoriaChapter } from './core/books';
 import { takeOpening } from '../app/family/opening';
+import { reflectionService } from '../app/services';
+import { downloadBookNotes } from './core/export';
 
 type View = 'library' | 'shelf' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
@@ -113,6 +115,7 @@ export default function TheoriaApp() {
     opened.current = true;
     const open = takeOpening();
     if (open === 'add') setAddOpen(true);
+    if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
     if (open === 'continue') {
       const book = shelf.filter((item) => item.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0] ?? shelf[0];
       if (book) void openReader(book);
@@ -257,6 +260,11 @@ export default function TheoriaApp() {
       const next = { id: draft.id ?? newId(), content: draft.text, location: draft.location, chapter: draft.chapter, answers: draft.answers, highlightId: undefined, createdAt: draft.id ? (book.reflections.find((item) => item.id === draft.id)?.createdAt ?? now) : now, updatedAt: now };
       const reflections = draft.id ? book.reflections.map((item) => item.id === draft.id ? next : item) : [...book.reflections, next];
       await putBook({ ...book, reflections, updatedAt: now });
+      if (draft.toReflect) {
+        // One line in Proairetos Reflect, if the person asked: their words, with the book's name.
+        const words = [draft.text, ...Object.values(draft.answers ?? {})].map((part) => part?.trim()).filter(Boolean).join(' · ');
+        if (words) await reflectionService.write({ body: `${book.title}: ${words}`, kind: 'FREE', promptKey: 'after-reading' });
+      }
     }
     setCapture(undefined);
     toast(kind === 'highlight' ? 'Highlight saved.' : kind === 'note' ? 'Note saved.' : 'Reflection saved.');
@@ -313,7 +321,7 @@ export default function TheoriaApp() {
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>THEORIA</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span><span className={'theoria-sync theoria-sync--' + sync.phase}><i />{syncWords}</span></header><div className="theoria-page">
       {view === 'library' && <LibraryHome name={name} shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onContinue={(book) => void openReader(book)} onShelf={() => setView('shelf')} onSearch={() => setView('search')} />}
       {view === 'shelf' && <ShelfPage shelf={shelf} onBack={() => setView('library')} onOpen={openBook} onAdd={() => setAddOpen(true)} />}
-      {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} />}
+      {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onExport={() => downloadBookNotes(selected)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} />}
       {view === 'reader' && readerBook && <ReaderView book={readerBook} pdf={readerText?.bookId === readerBook.id ? readerText.pdf : undefined} loadingText={readerText?.loading} onChooseFile={(file) => void chooseFile(file)} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}

@@ -584,3 +584,6 @@
   box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.6);
   outline: 1px solid var(--tag);
 }
+
+/* A highlight from Theoria on Today: the person's passage, in the reading face. */
+.quiet-row__quote { font-family: var(--font-serif, serif); font-style: italic; line-height: 1.4; }
