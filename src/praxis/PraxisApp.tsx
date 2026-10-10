@@ -17,7 +17,9 @@ import { readStore } from '../app/family/read';
 import { takeOpening } from '../app/family/opening';
 import { useDays } from '../app/family/personalDays';
 import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
-import { bellWaiting, cancelBell, endNotice, scheduleBell } from './bell';
+import { bellWaiting, cancelBell, scheduleBell } from './bell';
+import { notifications } from '../app/notify/notifications';
+import { enableReminders } from '../app/sync/syncController';
 import { SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
 
 type View = 'today' | 'sessions' | 'time' | 'sounds' | 'settings';
@@ -47,9 +49,7 @@ function usePraxisEvents(): ItemEvent[] | undefined {
   return local;
 }
 
-function notifyPermission(): string {
-  return typeof Notification === 'undefined' ? 'unsupported' : Notification.permission;
-}
+const notifyPermission = (): string => notifications.permission();
 
 /** Where a link or shortcut asks to begin: `start` (the next block), or a page. */
 const opening = takeOpening();
@@ -109,6 +109,8 @@ export default function PraxisApp() {
 
   useEffect(() => {
     saveFocusSession(session);
+    // The end of a running block is one of the family's reminders, so it arrives even with Praxis closed.
+    notifications.refreshSoon();
   }, [session]);
 
   useEffect(() => {
@@ -165,7 +167,6 @@ export default function PraxisApp() {
   const finished = session ? isFinished(session, clock.getTime()) : false;
   useEffect(() => {
     if (session && finished) {
-      endNotice('Praxis', `${session.itemTitle ?? 'The block'}: time is up.`);
       void finishSession(session, clock.getTime());
     }
   }, [clock, finished, finishSession, session]);
@@ -173,13 +174,13 @@ export default function PraxisApp() {
   const restLeft = rest ? Math.max(0, rest.endsAt - clock.getTime()) : 0;
   useEffect(() => {
     if (rest && restLeft === 0) {
-      endNotice('Praxis', 'The break is over.');
       setRest(null);
     }
   }, [rest, restLeft]);
 
   const start = (block = selected) => {
     if (!block) return;
+    setReady(false);
     setAfter(null);
     setRest(null);
     const next = startSession(Date.now(), minutes, { id: block.id, title: block.title });
@@ -204,14 +205,9 @@ export default function PraxisApp() {
     }
   };
 
-  // A shortcut to start the next block: the timer starts; sound follows the first tap if the phone holds it back.
-  const started = useRef(false);
-  useEffect(() => {
-    if (started.current || opening !== 'start' || session || !selected) return;
-    started.current = true;
-    start(selected);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected?.id]);
+  // A shortcut to start the next block opens it ready: phones only allow sound from a tap, so one tap on
+  // Start begins the timer, the sound and the end bell together.
+  const [ready, setReady] = useState(opening === 'start');
 
   const toggle = async (block: LifeItem) => {
     const change = await lifeService.setStatus(block.id, block.status === 'DONE' ? 'OPEN' : 'DONE');
@@ -293,6 +289,7 @@ export default function PraxisApp() {
           {view === 'today' && (
             <TodayView
               greeting={greeting(name, clock)}
+              ready={ready && !session}
               today={today}
               blocks={blocks}
               selected={selected}
@@ -337,8 +334,12 @@ export default function PraxisApp() {
             <SettingsView
               notices={permission}
               onNotices={() => {
-                if (typeof Notification === 'undefined') return;
-                void Notification.requestPermission().then(() => setPermission(notifyPermission()));
+                void notifications.ask().then(async (answer) => {
+                  setPermission(answer);
+                  // With sync on, the server is told the times too, so the notice comes with Praxis closed.
+                  const sync = syncStatus.get();
+                  if (answer === 'granted' && sync.phase === 'ready' && sync.reminders !== 'on') await enableReminders().catch(() => undefined);
+                });
               }}
             />
           )}

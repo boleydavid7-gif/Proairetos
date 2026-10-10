@@ -35,6 +35,8 @@ export type Break = { endsAt: number; minutes: number };
 
 type TodayProps = {
   greeting: string;
+  /** Opened from "Start my next block": the Start button waits for the one tap phones need for sound. */
+  ready?: boolean;
   today: string;
   blocks: LifeItem[];
   selected?: LifeItem;
@@ -69,6 +71,9 @@ export function TodayView(props: TodayProps) {
   const open = blocks.filter((block) => block.status !== 'DONE');
   const done = blocks.filter((block) => block.status === 'DONE');
   const again = open.filter((block) => block.plannedFor && block.plannedFor <= today);
+  const startButton = (node: HTMLButtonElement | null) => {
+    if (node && props.ready) node.scrollIntoView({ block: 'center' });
+  };
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   return (
     <section className="praxis-view praxis-today-view">
@@ -95,7 +100,7 @@ export function TodayView(props: TodayProps) {
                 ) : (
                   <>
                     <div className="praxis-focus-actions">
-                      <button type="button" className="praxis-button praxis-button--primary" onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start'}</button>
+                      <button type="button" ref={startButton} className={`praxis-button praxis-button--primary${props.ready ? ' praxis-button--ready' : ''}`} onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start'}</button>
                       {session && <button type="button" className="praxis-button praxis-button--quiet" onClick={props.onStop}>Stop here</button>}
                     </div>
                     {!session && selected && <LengthPicker minutes={minutes} onMinutes={props.onMinutes} />}
@@ -380,7 +385,7 @@ export function SettingsView({ notices, onNotices }: { notices: string; onNotice
       <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Praxis</p><h1>Settings</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-setting">
-          <span><strong>A notice when a block ends</strong><small>The bell rings either way; a notice helps when the page is out of sight.</small></span>
+          <span><strong>A notice when a block ends</strong><small>Through the family's reminders, so it comes with Praxis closed once reminders are set up on the server.</small></span>
           {notices === 'granted' ? <span className="praxis-muted">On</span> : notices === 'denied' ? <span className="praxis-muted">Blocked in the browser</span> : notices === 'unsupported' ? <span className="praxis-muted">Not on this browser</span> : <button type="button" className="praxis-button praxis-button--quiet" onClick={onNotices}>Allow</button>}
         </div>
       </article>

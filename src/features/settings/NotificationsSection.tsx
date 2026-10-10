@@ -160,6 +160,7 @@ export default function NotificationsSection() {
         />
         <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
         <Switch on={settings.bills} label="Bills, from Oikonomia" onToggle={() => update({ bills: !settings.bills })} />
+        <Switch on={settings.study} label="End of a study block, from Praxis" onToggle={() => update({ study: !settings.study })} />
         <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
           {settings.bellAt.map((at, index) => (
             <span key={index} className="notify-bell">

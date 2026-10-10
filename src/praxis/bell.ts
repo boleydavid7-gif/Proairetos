@@ -43,13 +43,3 @@ export async function scheduleBell(seconds: number, times = 2): Promise<void> {
     scheduled.push(source);
   }
 }
-
-/** A notice when the time is up, if the person allowed notifications and the page is out of sight. */
-export function endNotice(title: string, body: string): void {
-  try {
-    if (typeof Notification === 'undefined' || Notification.permission !== 'granted' || document.visibilityState === 'visible') return;
-    new Notification(title, { body, icon: '/praxis/favicon.svg', tag: 'praxis-end' });
-  } catch {
-    // Some browsers only show notices from a service worker; the bell still rings.
-  }
-}

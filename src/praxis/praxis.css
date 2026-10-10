@@ -243,3 +243,7 @@ html, body { margin: 0; }
 .praxis-add .praxis-button, .praxis-block-form .praxis-button { min-height: 38px; }
 .praxis-after input { box-sizing: border-box; min-width: 0; width: 100%; min-height: 38px; padding: 6px 9px; border: 1px solid var(--color-border); border-radius: 9px; outline: none; color: var(--color-text); background: rgba(0,0,0,.14); font: inherit; font-size: 12px; }
 .praxis-after input:focus-visible { border-color: var(--color-accent-strong); }
+/* Opened from "Start my next block": one tap starts it. */
+.praxis-button--ready { min-height: 56px; padding: 0 34px; font-size: 14px; box-shadow: 0 0 0 6px rgba(201,162,116,.18), 0 12px 28px rgba(201,162,116,.22); animation: praxis-ready 2.4s ease-in-out infinite; }
+@keyframes praxis-ready { 50% { box-shadow: 0 0 0 11px rgba(201,162,116,.08), 0 12px 28px rgba(201,162,116,.22); } }
+@media (prefers-reduced-motion: reduce) { .praxis-button--ready { animation: none; } }

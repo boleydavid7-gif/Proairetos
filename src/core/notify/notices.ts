@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'hydration' | 'bell';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -79,6 +79,8 @@ export type NoticeSettings = {
   runs: boolean;
   /** Bills from Oikonomia, on the morning each bill's own reminder asks for. */
   bills: boolean;
+  /** The end of a study block running in Praxis. */
+  study: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -97,6 +99,7 @@ export const defaultNoticeSettings: NoticeSettings = {
   bellAt: ['10:30', '15:00'],
   runs: true,
   bills: true,
+  study: true,
   details: true,
 };
 
@@ -114,6 +117,8 @@ type Sources = {
   runs?: readonly RunTime[];
   /** Bill reminders (from Oikonomia), by day. */
   bills?: readonly BillTime[];
+  /** The end of the study block running now, if any (from Praxis). */
+  study?: StudyEnd;
   settings: NoticeSettings;
   quiet?: QuietHours;
   now: Date;
@@ -122,6 +127,8 @@ type Sources = {
 };
 
 export type RunTime = { key: string; at: Date; title: string; place?: string };
+
+export type StudyEnd = { key: string; at: Date; title: string };
 
 export type BillTime = { key: string; day: string; billId: string; title: string; body: string };
 
@@ -222,6 +229,11 @@ export function noticesBetween(sources: Sources): Notice[] {
     for (const run of sources.runs ?? []) timed(`run:${run.key}`, 'run', run.at, run.at, run.title, [run.place], 'askesis');
   }
 
+  if (settings.study && sources.study) {
+    // Said as it is when it arrives; never held by quiet hours, since the person started the block.
+    raw.push({ key: `study:${sources.study.key}`, kind: 'study', at: sources.study.at, title: sources.study.title, body: 'Time is up.', open: 'praxis' });
+  }
+
   if (settings.bills) {
     for (const bill of sources.bills ?? []) {
       raw.push({
@@ -313,7 +325,7 @@ export function noticesBetween(sources: Sources): Notice[] {
 
   // Quiet hours and protected time hold a notice until they end; the wording follows.
   const held = raw.map(({ starts, extra, ...notice }) => {
-    if (!sources.quiet) return notice;
+    if (!sources.quiet || notice.kind === 'study') return notice;
     const at = deliverAt(notice.at, sources.quiet, sources.holding ?? sources.blocks);
     if (at.getTime() === notice.at.getTime()) return notice;
     return { ...notice, at, body: starts ? word(at, starts, extra ?? []) : notice.body };

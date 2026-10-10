@@ -51,3 +51,21 @@ describe('Praxis time, as recorded', () => {
     expect(findJudgmentLanguage(source)).toEqual([]);
   });
 });
+
+import { defaultNoticeSettings, noticesBetween } from '../../core/notify/notices';
+
+describe('the end of a study block', () => {
+  const base = { items: [], decisions: [], events: [], blocks: [], now: new Date(2026, 9, 10, 23), until: new Date(2026, 9, 12) };
+  const study = { key: 's', at: new Date(2026, 9, 10, 23, 25), title: 'Anatomy chapter 4' };
+
+  it('is a notice at the end, opening Praxis, even in quiet hours', () => {
+    const quiet = { on: true, start: '22:00', end: '07:00', duringProtected: true };
+    const notices = noticesBetween({ ...base, study, quiet, settings: defaultNoticeSettings });
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ kind: 'study', title: 'Anatomy chapter 4', body: 'Time is up.', open: 'praxis', at: study.at });
+  });
+
+  it('can be switched off', () => {
+    expect(noticesBetween({ ...base, study, settings: { ...defaultNoticeSettings, study: false } })).toEqual([]);
+  });
+});

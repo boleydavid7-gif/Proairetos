@@ -36,7 +36,8 @@ const STATIC_PAGES = ['/privacy', '/privacy.html', '/praxis', '/praxis/', '/theo
 
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
-  const key = STATIC_PAGES.includes(path) ? request : '/index.html';
+  // By path, so /praxis/?open=start still finds the page offline.
+  const key = STATIC_PAGES.includes(path) ? path : '/index.html';
   try {
     const response = await fetch(request);
     if (response.ok) {

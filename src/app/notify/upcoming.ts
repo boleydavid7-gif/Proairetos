@@ -5,6 +5,8 @@ import { readStore } from '../family/read';
 import { billReminders } from '../../oikonomia/core/reminders';
 import type { Bill } from '../../oikonomia/core/bills';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
+import { loadFocusSession } from '../../data/storage/preferences';
+import type { FocusSession } from '../../core/focus/session';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 
@@ -13,12 +15,13 @@ const HORIZON_DAYS = 14;
 /** Everything due in the next two weeks, from what is on this device. */
 export async function upcomingNotices(now = new Date(), settings: NoticeSettings = loadNotify()): Promise<Notice[]> {
   const until = new Date(now.getTime() + HORIZON_DAYS * 86_400_000);
-  const [items, decisions, own, runs, bills] = await Promise.all([
+  const [items, decisions, own, runs, bills, study] = await Promise.all([
     lifeService.list(),
     decisionService.list(),
     scheduleService.occurrencesBetween(now, until),
     settings.runs ? readRuns() : undefined,
     settings.bills ? readStore<Bill>('oikonomiaBills') : [],
+    settings.study ? studyEnd() : undefined,
   ]);
   const today = toLocalDate(now);
   return noticesBetween({
@@ -29,9 +32,21 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     holding: [...own, ...otherCalendars.blocksBetween(now, until)],
     runs: runs ? runTimes(runs, now, until) : [],
     bills: billReminders(bills, today, addDays(today, HORIZON_DAYS)),
+    study,
     settings,
     quiet: loadQuietHours(),
     now,
     until,
   });
+}
+
+/** When the Praxis block running now ends (none while paused, or for Proairetos's own focus timer). */
+async function studyEnd(): Promise<{ key: string; at: Date; title: string } | undefined> {
+  const session = loadFocusSession<FocusSession>();
+  if (!session?.itemId || session.pausedAt) return undefined;
+  const blocks = await lifeService.listForApp('praxis');
+  const block = blocks.find((each) => each.id === session.itemId);
+  if (!block) return undefined;
+  const at = new Date(session.startedAt + session.pausedMs + session.durationMs);
+  return { key: `${session.startedAt}:${at.getTime()}`, at, title: session.itemTitle ?? block.title };
 }
