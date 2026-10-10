@@ -12,8 +12,8 @@ const lines: readonly FinanceLine[] = [
     source: 'Seneca, Letters 16',
   },
   {
-    text: 'Wealth consists in having few wants.',
-    source: 'After Epictetus',
+    text: 'Wealth consists not in having great possessions, but in having few wants.',
+    source: 'Epictetus, attributed',
   },
 ];
 

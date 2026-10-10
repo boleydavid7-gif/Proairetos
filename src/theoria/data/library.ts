@@ -37,7 +37,7 @@ export async function coverSource(book: TheoriaBook): Promise<string | undefined
 /** Sends a sealed copy of the file (and cover) to the account; returns the record to save. */
 export async function makeCloudCopy(book: TheoriaBook): Promise<TheoriaBook> {
   const file = await getFile(book.id);
-  if (!file) throw new Error('The file is not on this device, so there is nothing to copy.');
+  if (!file) throw new Error('The file isn’t on this device.');
   const filePath = await uploadSealed('book', book.id, file.blob);
   let next: TheoriaBook = { ...book, filePath, sealed: true, cloudCopy: true, updatedAt: new Date().toISOString() };
   const cover = await getCover(book.id);

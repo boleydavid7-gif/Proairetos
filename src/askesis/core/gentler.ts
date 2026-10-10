@@ -21,7 +21,7 @@ export function canLighten(workout: Workout): boolean {
 }
 
 export function lighterVersion(workout: Workout): Workout {
-  const why = 'A lighter version of this session, for today. Some days call for less; tomorrow the plan carries on as it was.';
+  const why = 'A lighter version of this session, for today only.';
   if (workout.kind === 'walk-run') {
     // Fewer repeats, or half the continuous run, with the same warm-up and cool-down.
     const parts: Part[] = workout.parts.map((part) => {
@@ -39,7 +39,7 @@ export function lighterVersion(workout: Workout): Workout {
     summary: 'Shorter and easy, just for today',
     parts: [step('easy', minutes)],
     why,
-    tips: ['Easy enough to talk the whole way.', 'Walking some of it is fine.', 'Tomorrow the plan is as it was.'],
+    tips: ['Easy enough to talk the whole way.', 'Walking some of it is fine.'],
   };
 }
 

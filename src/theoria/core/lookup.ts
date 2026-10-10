@@ -36,6 +36,6 @@ export function readMeaning(answer: unknown, most = 4): Meaning | undefined {
 export async function lookUp(word: string, fetcher: typeof fetch = fetch): Promise<Meaning | undefined> {
   const response = await fetcher(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
   if (response.status === 404) return undefined;
-  if (!response.ok) throw new Error('The dictionary did not answer. Try again in a moment.');
+  if (!response.ok) throw new Error('Couldn’t reach the dictionary. Try again.');
   return readMeaning(await response.json());
 }

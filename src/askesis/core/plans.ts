@@ -115,8 +115,8 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     why: 'Alternating running and walking lets your heart, muscles and tendons adapt together. The running grows a little each week until 30 minutes arrives without strain.',
     tips: [
       'Run slowly enough to talk. Slower than you think is fine.',
-      'The walks are part of the plan, not a pause from it.',
-      'Repeat a week whenever you like.',
+      'The walks are part of the plan.',
+      'You can repeat any week.',
     ],
   },
   easy: {
@@ -132,7 +132,7 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     tips: [
       'About 20 seconds each, building smoothly to quick, then easing off.',
       'Fast, never a sprint. Stay tall and relaxed.',
-      'Walk or jog gently until you feel fully recovered.',
+      'Walk or jog easy until you’ve recovered.',
     ],
   },
   long: {
@@ -180,11 +180,11 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     tips: ['Brisk enough to warm up, easy enough to chat.', 'Any route, any shoes.'],
   },
   race: {
-    why: 'The day you trained for. The work is done; today is for running it.',
+    why: 'The day you trained for.',
     tips: [
       'Start slower than feels right. The second half is where a race is decided.',
       'Nothing new on the day: the same shoes, breakfast and drinks you trained with.',
-      'Warm up gently with a few strides.',
+      'Warm up with a few strides.',
     ],
   },
 };

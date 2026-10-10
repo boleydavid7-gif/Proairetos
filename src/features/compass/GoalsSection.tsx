@@ -352,7 +352,7 @@ export default function GoalsSection({ goals }: { goals: CompassStatement[] }) {
     <section className="stack-tight" aria-label="Working toward">
       <div>
         <h2 className="section-label">Working toward</h2>
-        <p className="section-description">Something you are building, in your words.</p>
+        
       </div>
       {current.length > 0 && (
         <ul className="goals">

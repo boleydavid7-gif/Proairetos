@@ -256,7 +256,7 @@ export function noticesBetween(sources: Sources): Notice[] {
         kind: 'check-back',
         at: atTime(day, MORNING),
         title: item.title,
-        body: 'The day you chose to check back on this.',
+        body: 'Check back today.',
         open: `item:${item.id}`,
       });
     }
@@ -271,7 +271,7 @@ export function noticesBetween(sources: Sources): Notice[] {
         kind: 'look-back',
         at: atTime(day, MORNING),
         title: decision.question,
-        body: 'The day you chose to look back on this decision.',
+        body: 'Look back on this decision.',
         open: 'reflect',
       });
     }
@@ -337,5 +337,5 @@ export function noticesBetween(sources: Sources): Notice[] {
 
 /** What the lock screen shows when the person keeps details private. */
 export function privateNotice(notice: Notice, time: (date: Date) => string = defaultTime): Notice {
-  return { ...notice, title: 'Proairetos', body: `Something you chose, at ${time(notice.at)}.` };
+  return { ...notice, title: 'Proairetos', body: `Reminder · ${time(notice.at)}` };
 }

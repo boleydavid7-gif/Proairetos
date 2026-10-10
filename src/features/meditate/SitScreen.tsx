@@ -172,8 +172,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
       </button>
       {done ? (
         <div className="sit-screen__center sit-screen__center--done">
-          <p className="sit-screen__title">{script?.fadeOut ? 'Rest well.' : 'Welcome back.'}</p>
-          <p className="sit-screen__cue">Take your time before you move on.</p>
+          <p className="sit-screen__title">{script?.fadeOut ? 'Sleep well.' : 'That’s the session.'}</p>
           <button type="button" className="button-accent sit-screen__done" onClick={leave}>
             Done
           </button>

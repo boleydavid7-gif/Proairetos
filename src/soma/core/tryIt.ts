@@ -32,7 +32,7 @@ const rules: Rule[] = [
     id: 'brown-rice',
     when: (text) => has(text, 'white rice', 'jasmine rice', 'basmati') || (/\brice\b/.test(text) && !has(text, 'brown rice', 'wild rice', 'rice vinegar', 'rice noodle')),
     title: 'Brown rice, or half and half',
-    detail: 'Whole grains keep their fibre. Half brown, half white is a gentle start.',
+    detail: 'Whole grains keep their fibre. Half brown, half white is an easy start.',
     source: 'plate',
   },
   {

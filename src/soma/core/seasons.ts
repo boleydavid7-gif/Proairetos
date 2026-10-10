@@ -6,8 +6,8 @@ import type { Recipe } from './recipes';
  * Guide. A thought for the month, never a rule. Each has a short note on
  * keeping it, after the USDA FoodKeeper and common kitchen practice.
  */
-export const SEASON_SOURCE = 'After the USDA SNAP-Ed Seasonal Produce Guide';
-export const KEEPING_SOURCE = 'After the USDA FoodKeeper and common kitchen practice';
+export const SEASON_SOURCE = 'Based on the USDA SNAP-Ed Seasonal Produce Guide';
+export const KEEPING_SOURCE = 'Based on the USDA FoodKeeper and common kitchen practice';
 
 export type ProduceKind = 'vegetable' | 'fruit' | 'herb';
 

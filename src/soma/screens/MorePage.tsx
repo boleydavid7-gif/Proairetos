@@ -189,7 +189,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <p className="muted">From TheMealDB (themealdb.com), a free and open collection of recipes.</p>
       <h2 className="label">Lines for the day</h2>
       <p className="muted">
-        Musonius Rufus, Lectures 18A and 18B (On Food); Epictetus, Enchiridion; Seneca, Letters. Lines marked “after” are paraphrased.
+        Musonius Rufus, Lecture 18A; Epictetus, Enchiridion; Seneca, Letters; Epicurus, Letter to Menoeceus; Cicero, Tusculan Disputations.
       </p>
       <p className="hint">General guidance on cooking, not medical or dietary advice.</p>
     </div>

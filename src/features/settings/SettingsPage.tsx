@@ -1120,16 +1120,14 @@ export default function SettingsPage() {
           <section className="settings-card" aria-label="Privacy">
             <p className="section-description">
               {mode === 'device'
-                ? 'Everything is stored on this device. If you turn on sync, it is encrypted here before anything is uploaded, so the server only ever holds locked data.'
+                ? 'Everything is stored on this device. With sync on, it’s encrypted here before upload, so the server can’t read it.'
                 : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
             </p>
             <p className="section-description">
-              What you write is never analyzed, scored, or sent anywhere to be read. Notifications are written on this
-              device; the server only ever learns when one is due.
+              What you write is never analyzed or scored. Reminder text is encrypted too; the server only knows when each is due.
             </p>
             <p className="section-description">
-              Dictation, if you use it, is the one exception: your phone maker’s speech service (Apple or Google) turns
-              your speech into text, as your keyboard’s microphone does. It asks before the first use.
+              Dictation uses your phone’s speech service (Apple or Google), like your keyboard’s microphone.
             </p>
             <a className="text-link" href="/privacy" target="_blank" rel="noreferrer">
               Read the full privacy page

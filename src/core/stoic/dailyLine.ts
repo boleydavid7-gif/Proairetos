@@ -55,9 +55,9 @@ const waysToTry: Readonly<Record<string, string>> = {
   'While we are postponing, life speeds by.':
     'Do the smallest first step of something you have been meaning to begin.',
   'Begin at once to live, and count each separate day as a separate life.':
-    'Let yesterday be finished. Treat this day as a fresh start, complete in itself.',
+    'Treat today as complete in itself.',
   'It is not that we have a short time to live, but that we waste a lot of it.':
-    'Notice one stretch of time today that went somewhere you did not choose. No judgement, just notice.',
+    'Notice one stretch of time today that went somewhere you didn’t choose.',
   'Associate with those who will make a better person of you.':
     'Reach out to one person who brings out your best: a message is enough.',
   'A well-ordered mind can stop just where it is and pass some time in its own company.':

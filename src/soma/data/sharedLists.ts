@@ -102,7 +102,7 @@ export async function openItem(list: SharedList, id: string, sealed: string): Pr
 
 async function me(): Promise<string> {
   const { data } = await (await supabase()).auth.getUser();
-  if (!data.user) throw new Error('Sign in first: a shared list lives in your account.');
+  if (!data.user) throw new Error('Sign in to use shared lists.');
   return data.user.id;
 }
 

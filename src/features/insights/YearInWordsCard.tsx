@@ -48,7 +48,7 @@ export default function YearInWordsCard() {
 
   return (
     <details className="insight-card year-words">
-      <summary className="year-words__summary">A year in your own words</summary>
+      <summary className="year-words__summary">Your year in writing</summary>
       {years.length > 1 && (
         <div className="chip-row" role="group" aria-label="Year">
           {years.map((option) => (

@@ -165,7 +165,7 @@ async function showDue(sealed) {
   if (due.length === 0) {
     // Nothing found on the device (stored before an update, or cleared): still say something gentle.
     await self.registration.showNotification('Proairetos', {
-      body: 'Something you chose is ready.',
+      body: 'You have a reminder.',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: 'proairetos-reminder',

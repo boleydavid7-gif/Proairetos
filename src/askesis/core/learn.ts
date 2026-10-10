@@ -179,7 +179,7 @@ export const articles: Article[] = [
         text: 'If a week felt hard, repeating it is part of how the plan works. Bodies adapt at different speeds, and the plan waits.',
       },
     ],
-    takeaway: 'Walking is not a break from the plan. It is the plan, at the start.',
+    takeaway: 'At the start, the walking is part of the plan.',
     sources: [
       'NHS. Couch to 5K: week by week. nhs.uk.',
       'Nielsen RO, et al. Excessive progression in weekly running distance and risk of running-related injuries. J Orthop Sports Phys Ther. 2014;44(10):739-747.',
@@ -359,7 +359,7 @@ export const articles: Article[] = [
         text: 'Adults generally need 7 or more hours a night. Sleep is when much of the repair happens.',
       },
     ],
-    takeaway: 'An easy day or a day off is part of the plan, never a step away from it.',
+    takeaway: 'Easy days and days off are part of the plan.',
     sources: [
       'Meeusen R, et al. Prevention, diagnosis, and treatment of the overtraining syndrome. Med Sci Sports Exerc. 2013;45(1):186-205.',
       'Watson NF, et al. Recommended amount of sleep for a healthy adult. Sleep. 2015;38(6):843-844.',

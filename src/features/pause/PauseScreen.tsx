@@ -31,7 +31,7 @@ export default function PauseScreen({ onClose, onAnotherWay }: Props) {
     return (
       <div className="pause-screen" role="dialog" aria-modal="true" aria-label="Pause">
         <div className="pause-screen__center">
-          <p className="pause-screen__title">A moment to arrive</p>
+          <p className="pause-screen__title">Pause</p>
           <div className="mini-segmented mini-segmented--wide" role="group" aria-label="How long">
             {([1, 3] as const).map((minutes) => (
               <button

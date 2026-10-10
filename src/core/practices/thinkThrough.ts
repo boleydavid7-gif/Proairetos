@@ -20,7 +20,7 @@ export const thinkSteps: readonly ThinkStep[] = [
   {
     id: 'otherwise',
     question: 'What else could be true?',
-    hint: 'Not to argue with yourself; only to see it from another side.',
+    hint: 'Another way to see it.',
     angles: [
       'What would you say to a friend who thought this?',
       'What would you notice if you looked at it a week from now?',
@@ -28,8 +28,8 @@ export const thinkSteps: readonly ThinkStep[] = [
       'Is there a kinder way to put it that is still honest?',
     ],
   },
-  { id: 'upToYou', question: 'What part of this is up to you?', hint: 'Your own choices and responses. The rest can be set down.' },
-  { id: 'step', question: 'One small step, if there is one.', hint: 'Something you could do. It can go on your list.' },
+  { id: 'upToYou', question: 'What part of this is up to you?', hint: 'Your choices and how you respond.' },
+  { id: 'step', question: 'One small step', hint: 'Something you could do. It can go on your list.' },
 ];
 
 export type ThinkAnswers = Partial<Record<ThinkStepId, string>>;

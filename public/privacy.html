@@ -47,14 +47,12 @@
     <main>
       <h1>Privacy</h1>
       <p class="lead">
-        Proairetos is a place to put your life down for a moment. What you write is yours: it stays on your device,
-        it is never read by anyone else, and it is never sold or used for advertising.
+        This covers all seven apps: Proairetos, Askesis, SOMA, Oikonomia, HYDROS, Praxis and Theoria. What you add stays on your device. It is never read by anyone else, sold, or used for advertising.
       </p>
 
       <h2>What stays on your device</h2>
       <p>
-        Everything you add (things you capture, plans, reflections, decisions, values, schedules) is stored in your
-        browser on your device. You do not need an account. Proairetos has no analytics, no advertising, and no
+        Everything you add (tasks, plans, reflections, runs, recipes, bills, drinks, study time, books and highlights) is stored in your browser on your device. You do not need an account. Proairetos has no analytics, no advertising, and no
         trackers, and its fonts ship with the app, so no font service sees your visits.
       </p>
 
@@ -64,15 +62,28 @@
         with a key the server never has. The server cannot read your items, notes, reflections, or schedule.
       </p>
       <p>
-        The server can see: your email address (to sign you in); how many records you have, their rough sizes and
+        The server can see: your email address (to sign you in; with Google or Apple sign-in, the address they share); how many records you have, their rough sizes and
         kinds, and when they changed; the times reminders are due; and the address each of your devices uses for
         notifications.
       </p>
 
       <h2>Reminders</h2>
       <p>
-        Notifications arrive empty. They say only “Something you chose is ready”; the details appear once the app
-        opens on your device.
+        Your phone works out what to remind you of. The server holds only when each reminder is due and its words, encrypted with your key, so it cannot read them. Your phone opens them when the reminder arrives.
+      </p>
+
+      <h2>A shared grocery list (only if you make or join one)</h2>
+      <p>
+        Each line is encrypted with the list’s own key, which travels only inside the invite link. The server stores
+        the lines without being able to read them, and only people who joined with the link can see the list.
+      </p>
+
+      <h2>Other things that reach the internet, only when you use them</h2>
+      <p>
+        Looking up a word in Theoria sends only that word to the Free Dictionary API. Recipe ideas come from
+        TheMealDB, and a recipe link you bring in passes through proairetos.com without being stored. Distance by GPS
+        in Askesis stays on your phone: only the distance is saved, never where you ran. A bank statement you bring
+        into Oikonomia is read on your phone, and only money out is kept.
       </p>
 
       <h2>Calendar link (only if you turn it on)</h2>
