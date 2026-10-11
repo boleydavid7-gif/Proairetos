@@ -715,4 +715,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   with only Proairetos) and `together.mjs` (everything added; reads, writes on request, search, notices, live updates,
   removing an app, appearance). A bill added after its lead day is reminded on the due day (`billReminders`).
   `openSettingsAt` ignores unknown views.
+- Printing (`app/family/PrintSheet.tsx`, `print.css`): `PrintSheet` (Back, Print, the page's chips, then a white sheet with
+  title, the name and date), `PrintPart`, `PrintTable` (scrolls sideways on a phone). On paper only the sheet prints
+  (`:has()` hides everything that neither holds it nor sits in it). Therapeia route `print` (Medicines > Print, `?open=print`:
+  current medicines, health card, latest readings and the next visit's unasked questions as chips); Ktema route `print`
+  (Things > Print the list, `?open=print`: by category, one kind or all, upkeep as a chip).
 

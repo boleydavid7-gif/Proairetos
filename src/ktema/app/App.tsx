@@ -10,9 +10,10 @@ import ThingsPage from '../screens/ThingsPage';
 import ThingPage from '../screens/ThingPage';
 import UpkeepPage from '../screens/UpkeepPage';
 import MorePage from '../screens/MorePage';
+import PrintPage from '../screens/PrintPage';
 
 export type Tab = 'today' | 'things' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string } | { name: 'print' };
 export type KtemaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -23,11 +24,12 @@ const tabs: readonly TabDef<Tab>[] = [
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // From a notice, a shortcut or another app: `add`, `thing:ID`, `upkeep:ID`, or a tab.
+  // From a notice, a shortcut or another app: `add`, `thing:ID`, `upkeep:ID`, `print`, or a tab.
   const opening = takeOpening();
   if (opening === 'add') return { name: 'thing' };
   if (opening?.startsWith('thing:')) return { name: 'thing', id: opening.slice(6) };
   if (opening?.startsWith('upkeep:')) return { name: 'upkeep', id: opening.slice(7) };
+  if (opening === 'print') return { name: 'print' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
@@ -53,6 +55,8 @@ export default function App() {
         return <UpkeepPage nav={nav} id={route.id} thingId={route.thingId} idea={route.idea} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'print':
+        return <PrintPage nav={nav} />;
     }
   })();
 

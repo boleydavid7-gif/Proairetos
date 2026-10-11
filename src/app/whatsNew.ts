@@ -33,6 +33,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Soma: each recipe shows its Nutri-Score (A to E) and what is in a serving, worked out from its ingredients with USDA nutrient data: the grade, calories and where they come from, and each nutrient beside a day’s reference. Switch it off in More.',
       'Every app opens sooner: each one now loads only its own pages at first, and Proairetos brings in Settings, Journal, Insights and Meditate in the background once it is open.',
       'Settings: on a phone, Notifications and the other pages inside Settings open again.',
+      'Therapeia: print your medicines on one sheet, with the health card, latest readings and questions for the next visit if you choose.',
+      'Ktema: print the list of things (makes, models, serials, prices, warranties), all or one kind, with upkeep if you choose.',
     ],
   },
   {

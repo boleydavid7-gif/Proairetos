@@ -1,0 +1,193 @@
+/* A sheet made for paper (PrintSheet): white on screen in either appearance, and alone on the printed page. */
+
+.print-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.print-bar .button-main {
+  width: auto;
+  flex: 0 0 auto;
+  padding-inline: 1.5rem;
+}
+
+.print-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.print-scroll {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+}
+
+.print-sheet {
+  --ink: #1f2124;
+  --ink-soft: #55595f;
+  --rule: #d9d6cf;
+  background: #fff;
+  color: var(--ink);
+  padding: 1.75rem 1.5rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.12);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  min-width: min(100%, 34rem);
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.print-sheet__head {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.print-sheet__head h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.print-sheet__head p {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+}
+
+.print-part {
+  margin-top: 1.25rem;
+  break-inside: avoid;
+}
+
+.print-part h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.print-part p,
+.print-part li {
+  margin: 0.15rem 0;
+  color: var(--ink);
+}
+
+.print-part ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.print-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.print-facts dt {
+  color: var(--ink-soft);
+}
+
+.print-facts dd {
+  margin: 0;
+}
+
+.print-table-wrap {
+  overflow-x: auto;
+}
+
+.print-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-table th,
+.print-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.4rem 0.6rem 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.print-table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--ink);
+  white-space: nowrap;
+}
+
+.print-table tbody th {
+  font-weight: 600;
+}
+
+.print-table tr {
+  break-inside: avoid;
+}
+
+.print-note {
+  margin-top: 1.5rem;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Everything that neither holds the sheet nor sits in it is left off; what holds it lays flat. */
+  body *:not(:has(.print-sheet)):not(.print-sheet):not(.print-sheet *) {
+    display: none !important;
+  }
+
+  body *:has(.print-sheet) {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  body *:has(.print-sheet)::before,
+  body *:has(.print-sheet)::after {
+    display: none !important;
+  }
+
+  .print-table-wrap {
+    overflow: visible;
+  }
+
+  .print-sheet {
+    max-width: none;
+    min-width: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    font-size: 10.5pt;
+  }
+}

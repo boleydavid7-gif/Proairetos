@@ -1,5 +1,5 @@
 import { Empty, say } from '../../app/family/shell';
-import { PillIcon, PlusIcon, ShareIcon } from '../../app/family/icons';
+import { PillIcon, PlusIcon, PrintIcon, ShareIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
@@ -65,6 +65,7 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
       {current.length > 0 && (
         <div className="button-row">
           <button type="button" className="button-quiet" onClick={() => void share()}><ShareIcon size={18} />Share the list</button>
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'print' })}><PrintIcon size={18} />Print</button>
           {kept.length > 0 && <button type="button" className="chip" aria-pressed={withReadings} onClick={() => setWithReadings(!withReadings)}>With latest readings</button>}
         </div>
       )}

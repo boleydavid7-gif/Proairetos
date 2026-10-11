@@ -148,6 +148,13 @@ export const CheckIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const PrintIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M7 9V3.5h10V9M7 17.5H5.5A1.5 1.5 0 0 1 4 16v-5.5A1.5 1.5 0 0 1 5.5 9h13a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 1-1.5 1.5H17" />
+    <rect x="7" y="14" width="10" height="6.5" rx="0.5" />
+  </Icon>
+);
+
 export const ShareIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M12 15V4M8 7.5 12 3.5l4 4M6 11v8a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19v-8" />

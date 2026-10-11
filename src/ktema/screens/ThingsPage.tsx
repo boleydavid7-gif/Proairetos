@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BoxIcon, PlusIcon } from '../../app/family/icons';
+import { BoxIcon, PlusIcon, PrintIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
@@ -39,6 +39,11 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
         );
       })}
       {text && !found.length && <p className="muted">Nothing matches.</p>}
+      {all.length > 0 && (
+        <div className="button-row">
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'print' })}><PrintIcon size={18} />Print the list</button>
+        </div>
+      )}
     </div>
   );
 }
