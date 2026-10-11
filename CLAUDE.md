@@ -525,8 +525,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `fda-nutrient-database`; `scripts/nutrition/foods.mjs` maps words to foods), and computes the 2017
   Nutri-Score for general foods on the raw weight. Herbs, spices and "to taste" lines are left out; with
   fewer than two lines read, or under three in four of those with an amount, no grade is shown, only what
-  was read. Tab Nutrition on the recipe (`app/Nutrition.tsx`), a badge under the title, the letter on
-  recipe cards. Ways to try it (`core/tryIt.ts`) are optional, sourced, kept only as the person's notes.
+  was read. Tab Nutrition on the recipe (`app/Nutrition.tsx`: grade card with its word and the A-E strip;
+  kcal for a serving with the energy split from protein, carbohydrate and fat (dataviz categorical slots 1-3,
+  validated for Soma's light and dark surfaces, labelled); each nutrient with a meter against EU reference
+  intakes, fibre against EFSA's 25 g), a badge under the title, the letter on recipe cards. Ways to try it (`core/tryIt.ts`) are optional, sourced, kept only as the person's notes.
 - Recipes and groceries in the Proairetos database (DB 8 stores
   `somaRecipes`, `somaGroceries`; `data/store.ts`), synced like Askesis
   (`laterCollections` until migration `20261010000000_soma_sync.sql`; the

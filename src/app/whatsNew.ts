@@ -30,7 +30,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Each app stands on its own: links to another app show only when that app is added.',
       'Therapeia: set your usual bedtime and hours of sleep there when Diaita is not added.',
       'Oikonomia: a bill added after its reminder day is reminded on the day it is due.',
-      'Soma: each recipe shows its Nutri-Score (A to E) and what is in a serving, worked out from its ingredients with USDA nutrient data. Switch it off in More.',
+      'Soma: each recipe shows its Nutri-Score (A to E) and what is in a serving, worked out from its ingredients with USDA nutrient data: the grade, calories and where they come from, and each nutrient beside a day’s reference. Switch it off in More.',
     ],
   },
   {
