@@ -106,6 +106,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   cache number). `.github/workflows/ci.yml` runs lint, typecheck, tests,
   build and a wrangler dry run on every pull request.
 - Component tests use `// @vitest-environment jsdom` in `src/tests/**/*.test.tsx`.
+- Startup weight: no app's first chunk may pull in other apps' code. `notifications.refresh()` and
+  `updateReminders` import `app/notify/upcoming` (which reads every app) only when they run. Proairetos's
+  pages away from the five tabs (Onboarding, Schedule, Review, Settings, Journal, Insights, Meditate) come
+  from `app/laterPages.tsx` (`use()` on a tracked import, fetched in the background 2.5 s after start, so
+  view transitions never show an empty page); other screens ask Settings for a page through
+  `features/settings/settingsViews.ts` (`openSettingsAt`), never by importing `SettingsPage`. The word
+  guard bans "lazy", so React's `lazy` is not used.
 
 ## Architecture map
 

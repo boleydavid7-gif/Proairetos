@@ -31,6 +31,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Therapeia: set your usual bedtime and hours of sleep there when Diaita is not added.',
       'Oikonomia: a bill added after its reminder day is reminded on the day it is due.',
       'Soma: each recipe shows its Nutri-Score (A to E) and what is in a serving, worked out from its ingredients with USDA nutrient data: the grade, calories and where they come from, and each nutrient beside a day’s reference. Switch it off in More.',
+      'Every app opens sooner: each one now loads only its own pages at first, and Proairetos brings in Settings, Journal, Insights and Meditate in the background once it is open.',
+      'Settings: on a phone, Notifications and the other pages inside Settings open again.',
     ],
   },
   {

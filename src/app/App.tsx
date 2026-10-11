@@ -2,24 +2,18 @@ import CommandPalette from './palette/CommandPalette';
 import LockScreen from './lock/LockScreen';
 import { lock, lockedRoutes } from './lock/lock';
 import EdgeSwipe from './back/EdgeSwipe';
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { startSync } from './sync/syncController';
 import { otherCalendars } from './calendars/otherCalendars';
 import { weather } from './weather/weather';
-import OnboardingPage from '../features/onboarding/OnboardingPage';
 import NowPage from '../features/now/NowPage';
 import CapturePage from '../features/capture/CapturePage';
 import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
-import ScheduleScreen from '../features/schedule/ScheduleScreen';
-import WeeklyReview from '../features/review/WeeklyReview';
-import SettingsPage from '../features/settings/SettingsPage';
-import JournalPage from '../features/journal/JournalPage';
-import InsightsPage from '../features/insights/InsightsPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
-import MeditatePage from '../features/meditate/MeditatePage';
 import SharedSheet from '../features/share/SharedSheet';
 import { takeShared } from '../features/share/shared';
+import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview } from './laterPages';
 import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
 import { notifications } from './notify/notifications';
@@ -47,6 +41,7 @@ export default function App() {
   });
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
   useEffect(() => lock.watchAway(), []);
+  useEffect(() => laterPages(), []);
   const [route, setRoute] = useState<AppRoute>(routeFromLocation);
   const current = useRef(route);
   current.current = route;
@@ -84,6 +79,7 @@ export default function App() {
 
   if (!started) {
     return (
+      <Suspense fallback={null}>
       <OnboardingPage
         onGetStarted={(next) => {
           markOnboarded();
@@ -92,6 +88,7 @@ export default function App() {
           setStarted(true);
         }}
       />
+      </Suspense>
     );
   }
 
@@ -102,6 +99,7 @@ export default function App() {
     <OverlayProvider>
       <NoticeOpener />
       <AppShell route={route} onNavigate={go}>
+      <Suspense fallback={null}>
       {route === 'today' && <NowPage />}
       {locked && lockedRoutes.includes(route) && <LockScreen />}
       {route === 'reflect' && !locked && <ReflectPage />}
@@ -115,6 +113,7 @@ export default function App() {
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       {route === 'meditate' && <MeditatePage />}
+      </Suspense>
       </AppShell>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
       {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}

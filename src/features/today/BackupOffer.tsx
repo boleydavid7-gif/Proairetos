@@ -4,7 +4,7 @@ import { syncStatus } from '../../app/sync/syncController';
 import QuietOffer from '../../components/ui/QuietOffer';
 import { backupWorthOffering } from '../../core/rhythm/backupOffer';
 import { hideOffer, lastBackupDate, takeOffer } from '../../data/storage/preferences';
-import { openSettingsAt } from '../settings/SettingsPage';
+import { openSettingsAt } from '../settings/settingsViews';
 
 /** Now and then, without sync, a quiet offer to save a backup. One of the day's offers at most. */
 export default function BackupOffer({ today, recordCount }: { today: string; recordCount: number }) {

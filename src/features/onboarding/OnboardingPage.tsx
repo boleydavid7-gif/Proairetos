@@ -6,7 +6,7 @@ import StepDots from './components/StepDots';
 import { onboardingSteps } from './steps';
 import HomeScreen from './components/HomeScreen';
 import MoreApps from './components/MoreApps';
-import { openSettingsAt } from '../settings/SettingsPage';
+import { openSettingsAt } from '../settings/settingsViews';
 import MakeItYours, { type Choices } from './components/MakeItYours';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { compassService } from '../../app/services';

@@ -47,7 +47,6 @@ import {
   scheduleService,
 } from '../services';
 import { reminderTimes } from './reminders';
-import { hydrationUpcoming, upcomingNotices } from '../notify/upcoming';
 import { appAt, sourceOf, sourcesToWrite, wordsOf, type ReminderSource } from '../../core/notify/sources';
 import { privateNotice, type Notice } from '../../core/notify/notices';
 import { buildCalendarFile } from './calendarFile';
@@ -233,6 +232,7 @@ function writtenBefore(): ReminderSource[] {
 async function updateReminders() {
   if (!userId || !dataKey || !(await remindersWanted())) return;
   const now = new Date();
+  const { hydrationUpcoming, upcomingNotices } = await import('../notify/upcoming');
   const notices: Notice[] = [...(await upcomingNotices(now)), ...(await hydrationUpcoming(now).catch(() => []))];
   const app = appAt(location.pathname);
   const sources = sourcesToWrite(app, notices, writtenBefore());

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '../../app/navigationContext';
-import { openSettingsAt } from '../../features/settings/SettingsPage';
+import { openSettingsAt } from '../../features/settings/settingsViews';
 import { useSheet } from '../ui/useSheet';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps } from '../../app/family/added';

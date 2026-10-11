@@ -4,7 +4,6 @@ import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { familyWorker } from './familyWorker';
-import { hydrationUpcoming, upcomingNotices } from './upcoming';
 import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
 
 /**
@@ -157,6 +156,8 @@ export const notifications = {
   async refresh(): Promise<void> {
     if (!runningInBrowser()) return;
     const settings = loadNotify();
+    // Loaded when needed: it reads every app's records, and no app needs that to open.
+    const { hydrationUpcoming, upcomingNotices } = await import('./upcoming');
     upcoming = await upcomingNotices(new Date(), settings).catch(() => []);
     upcoming.push(...(await hydrationUpcoming(new Date()).catch(() => [])));
     upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));

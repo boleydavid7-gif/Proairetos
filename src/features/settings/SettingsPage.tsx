@@ -1,4 +1,5 @@
 import StoreSection from './StoreSection';
+import { takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
 import { promptText } from '../reflect/prompts';
@@ -417,58 +418,6 @@ const tabLabels: Partial<Record<AppRoute, string>> = {
   calendar: 'Days ahead',
   capture: 'Capture',
   compass: 'Compass',
-};
-
-type View =
-  | 'lock'
-  | 'notifications'
-  | 'import'
-  | 'weather'
-  | 'calendars'
-  | 'help'
-  | 'appearance'
-  | 'today'
-  | 'offers'
-  | 'sources'
-  | 'calendar'
-  | 'day'
-  | 'profile'
-  | 'account'
-  | 'backup'
-  | 'privacy'
-  | 'delete'
-  | 'news'
-  | 'store'
-  | 'about';
-
-// Another screen can ask Settings to open straight onto one page (say, from a backup offer).
-let requestedView: View | null = null;
-export function openSettingsAt(view: View): void {
-  // A link can carry any word; one that names no page opens the list instead of an empty page.
-  requestedView = view in viewTitles ? view : null;
-}
-
-const viewTitles: Record<View, string> = {
-  lock: 'Lock Reflect',
-  notifications: 'Notifications',
-  profile: 'Your name',
-  day: 'When your day starts',
-  calendar: 'Share to your calendar',
-  calendars: 'Calendars',
-  weather: 'Weather',
-  offers: 'Quiet offers',
-  today: 'What’s included',
-  appearance: 'Appearance',
-  help: 'Help & feedback',
-  sources: 'Where this comes from',
-  account: 'Account',
-  import: 'Bring things in',
-  backup: 'Back up and restore',
-  privacy: 'Privacy',
-  delete: 'Delete everything',
-  news: 'What’s new',
-  store: 'Store',
-  about: 'About Proairetos',
 };
 
 /** A few related rows under a small heading. */
@@ -1095,9 +1044,7 @@ export default function SettingsPage() {
   const { openSupport } = useOverlays();
   const [find, setFind] = useState('');
   const [view, setView] = useState<View | null>(() => {
-    const requested = requestedView;
-    requestedView = null;
-    return requested;
+    return takeRequestedView();
   });
   // Re-read after the name page closes.
   const name = view === null ? displayName() : '';
@@ -1111,6 +1058,8 @@ export default function SettingsPage() {
 
   // On a wide screen the list stays beside the page it opens.
   const wide = useSyncExternalStore(subscribeWide, isWide);
+  // Every hook stays above the early return below.
+  const added = useAddedApps();
   const detail = view ? (
       <>
         {!wide && (
@@ -1204,7 +1153,6 @@ export default function SettingsPage() {
 
   type Entry = { id: string; icon: ReactNode; title: string; value?: string; onClick: () => void; words?: string };
   const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
-  const added = useAddedApps();
   const groups: { label: string; entries: Entry[] }[] = [
     {
       label: 'Your days',

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { setDaysAheadOpening } from '../../features/days/daysAhead';
 import { useNavigate } from '../navigationContext';
 import { useOverlays } from '../overlays/OverlayContext';
-import { openSettingsAt } from '../../features/settings/SettingsPage';
+import { openSettingsAt } from '../../features/settings/settingsViews';
 import { linkTo } from '../family/opening';
 
 /**
