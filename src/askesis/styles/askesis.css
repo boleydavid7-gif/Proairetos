@@ -2272,9 +2272,9 @@ html[data-nav='back']::view-transition-new(root) {
   --text: #17201c;
   --text-soft: #34413b;
   --muted: #5b6863;
-  --mint: #2f8a63;
+  --mint: #24724f;
   --mint-ink: #ffffff;
-  --mint-soft: rgba(47, 138, 99, 0.1);
+  --mint-soft: rgba(36, 114, 79, 0.1);
   --bar: rgba(247, 248, 244, 0.95);
   --placeholder: #8a958f;
   --glow-top: #dcebe2;
@@ -2291,9 +2291,9 @@ html[data-nav='back']::view-transition-new(root) {
     --text: #17201c;
     --text-soft: #34413b;
     --muted: #5b6863;
-    --mint: #2f8a63;
+    --mint: #24724f;
     --mint-ink: #ffffff;
-    --mint-soft: rgba(47, 138, 99, 0.1);
+    --mint-soft: rgba(36, 114, 79, 0.1);
     --bar: rgba(247, 248, 244, 0.95);
     --placeholder: #8a958f;
     --glow-top: #dcebe2;
@@ -2636,3 +2636,33 @@ html[data-nav='back']::view-transition-new(root) {
 /* Distance by GPS, under the time run so far. */
 .guide__side:has(.guide__distance) { flex-direction: column; gap: 2px; }
 .guide__distance { color: var(--text); font-weight: 600; }
+
+/* A logged workout, as written down (EntryPage's view). */
+.entry-view__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.entry-view__felt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--text);
+}
+
+.entry-view__words {
+  display: grid;
+  gap: 12px;
+}
+
+.entry-view__words p {
+  margin: 0;
+  color: var(--text);
+}
+
+.entry-view__words .label {
+  display: block;
+  margin-bottom: 2px;
+}

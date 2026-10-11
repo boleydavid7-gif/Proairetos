@@ -1,7 +1,7 @@
 import { tap } from '../../app/feel';
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { ShareIcon } from '../app/icons';
+import { ShareIcon, BasketIcon } from '../app/icons';
 import { newId, useGroceries, useSettings, useToday } from '../app/state';
 import { Brand, Segmented, useUndo } from '../app/ui';
 import { aisles, type Aisle } from '../core/aisles';
@@ -11,10 +11,12 @@ import { convertAmountText, type UnitSystem } from '../core/ingredients';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
 import { pendingInvite, SharedLists } from './SharedList';
 import { sharingAvailable } from '../data/sharedLists';
+import Empty from '../../app/family/Empty';
+import SwipeItem from '../../app/family/SwipeItem';
 
 function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSystem: UnitSystem; onToggle: () => void; onMore: () => void }) {
   return (
-    <li className="grocery-row">
+    <SwipeItem className="grocery-row" label="Got it" off={item.checked} onSwipe={onToggle}>
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
         <span className="check-row__box">{item.checked ? '✓' : ''}</span>
         <span className="check-row__text">
@@ -25,7 +27,7 @@ function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSy
       <button type="button" className="grocery-row__more" aria-label={`More for ${item.name}`} onClick={onMore}>
         ⋯
       </button>
-    </li>
+    </SwipeItem>
   );
 }
 
@@ -119,7 +121,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
       )}
 
       {toBuy.length === 0 ? (
-        <p className="muted">Nothing on the list. Add things here, or from a recipe’s ingredients.</p>
+        <Empty icon={<BasketIcon size={26} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
       ) : (
         <>
           <Segmented

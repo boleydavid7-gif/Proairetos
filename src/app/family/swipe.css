@@ -1,0 +1,47 @@
+/* Rows pulled to the left to mark them (SwipeItem). */
+.swipe {
+  position: relative;
+  overflow: hidden;
+  list-style: none;
+}
+
+.swipe + .swipe,
+.swipe + .chore,
+.chore + .swipe {
+  border-top: 1px solid var(--line);
+}
+
+.swipe__action {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-right: 22px;
+  background: var(--mint-soft);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.swipe__front {
+  position: relative;
+  background: var(--surface);
+  touch-action: pan-y;
+  transition: transform 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe__front {
+    transition: none;
+  }
+}
+
+/* Rows on the page itself (Soma groceries) carry their own lines and the page behind them. */
+.check-list .swipe__front {
+  background: var(--bg);
+}
+
+.check-list .swipe + .swipe {
+  border-top: 0;
+}

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
+import { ColumnChart } from '../../app/family/charts';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon, ArrowRightIcon } from '../app/icons';
+import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
 import { newId, useBudget, useSettings } from '../app/state';
 import { PageTop } from '../app/ui';
@@ -8,6 +9,7 @@ import { formatMoney } from '../core/bills';
 import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory } from '../core/budget';
 import { byArea, guessArea, newLines, readStatement, type Spent } from '../core/statements';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
+import Empty from '../../app/family/Empty';
 
 const areaName = (area: BudgetCategory) => budgetCategories.find((each) => each.id === area)?.label ?? 'Other';
 const shiftMonth = (month: string, by: number) => {
@@ -110,13 +112,26 @@ export default function SpentPage({ nav }: { nav: Nav }) {
       {problem && <p className="form-error" role="alert">{problem}</p>}
 
       {lines.length === 0 ? (
-        <p className="muted">Nothing for {formatMonthKey(month)} yet. Bring in a CSV from your bank or card; only money out is kept.</p>
+        <Empty icon={<WalletIcon size={26} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card; only money out is kept." />
       ) : (
         <>
           <section className="card oiko-budget-summary">
             <strong className="oiko-budget-summary__amount">{formatMoney(total, currency)}</strong>
             <p className="muted">went out in {lines.length} {lines.length === 1 ? 'line' : 'lines'}</p>
           </section>
+          <ColumnChart
+            title={`Spent each month (${currency})`}
+            days={[-5, -4, -3, -2, -1, 0].map((by) => {
+              const key = shiftMonth(month, by);
+              const kept = by === 0 ? lines : spentIn(key);
+              const date = monthDate(key);
+              return {
+                label: date.toLocaleDateString(undefined, { month: 'short' }),
+                long: formatMonthKey(key),
+                value: kept.length ? Math.round(kept.reduce((sum, line) => sum + line.amountCents, 0) / 100) : undefined,
+              };
+            })}
+          />
           <section className="oiko-budget-breakdown" aria-label="By area">
             <div className="oiko-section-head"><h2>By area</h2></div>
             {byArea(lines).map(({ area, cents }) => (

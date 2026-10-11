@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { CheckIcon } from './icons';
+import './swipe.css';
 
 const REVEAL = 96;
 const COMMIT = 0.38;

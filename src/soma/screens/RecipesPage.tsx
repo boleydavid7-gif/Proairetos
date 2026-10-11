@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { SearchIcon } from '../app/icons';
+import { SearchIcon, BookIcon } from '../app/icons';
 import { useRecipes } from '../app/state';
 import { Brand } from '../app/ui';
 import { searchRecipes } from '../core/recipes';
 import { RecipeCard } from './HomePage';
+import Empty from '../../app/family/Empty';
 
 export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: string }) {
   const recipes = useRecipes();
@@ -34,8 +35,7 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
         </div>
       )}
       {recipes && recipes.length === 0 ? (
-        <div className="empty">
-          <p className="muted">Nothing here yet. Bring in a recipe from a link, paste one, or write your own.</p>
+        <Empty icon={<BookIcon size={26} />} title="No recipes yet" line="Bring one in from a link, paste one, or write your own.">
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'import' })}>
               Import
@@ -44,7 +44,7 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
               Add
             </button>
           </div>
-        </div>
+        </Empty>
       ) : (
         <>
           {shown.length === 0 && recipes && <p className="muted">Nothing matches that.</p>}

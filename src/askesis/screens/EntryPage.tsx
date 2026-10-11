@@ -7,7 +7,7 @@ import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import { layOut } from '../core/week';
 import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
-import { formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
+import { formatDistance, formatDuration, formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
 import { weekAt, type Plan } from '../core/plans';
 import { tap } from '../../app/feel';
 import { deleteEntry, putEntry } from '../data/store';
@@ -15,16 +15,10 @@ import { locate } from './WorkoutPage';
 
 const digits = (text: string) => text.replace(/[^\d]/g, '').slice(0, 2);
 
-/**
- * Logging a workout by hand: from a watch, or from memory. Only the date is
- * needed; everything else can be left blank. Opening an earlier entry edits it.
- */
-export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan }) {
+function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan; existing?: LogEntry; onDone?: () => void }) {
   const settings = useSettings();
   const today = useToday();
   const entries = useEntries();
-  const undo = useUndo();
-  const existing = route.id ? entries?.find((entry) => entry.id === route.id) : undefined;
   const planState = usePlanState();
   const located = route.workoutId ? locate(route.workoutId, plan) : undefined;
   const session = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
@@ -110,20 +104,14 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
     };
     await putEntry(entry);
     tap();
-    nav.swap(existing ? { name: 'log' } : { name: 'after', id: entry.id });
-  };
-
-  const remove = async () => {
-    if (!existing) return;
-    await deleteEntry(existing.id);
-    undo('Workout removed', () => void putEntry(existing));
-    nav.back();
+    if (existing && onDone) onDone();
+    else nav.swap({ name: 'after', id: entry.id });
   };
 
   return (
     <div className="page entry">
-      <BackLink label="Back" onBack={nav.back} />
-      <h1 className="title">{existing ? 'Your workout' : 'Log workout'}</h1>
+      <BackLink label={existing ? 'Cancel' : 'Back'} onBack={existing && onDone ? onDone : nav.back} />
+      <h1 className="title">{existing ? 'Edit workout' : 'Log workout'}</h1>
       {title && !openWorkout && <p className="muted">{title}</p>}
       {openWorkout && (
         <div className="card switches">
@@ -229,13 +217,76 @@ export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extra
       <button type="button" className="button-main" onClick={() => void save()}>
         Save workout
       </button>
-      {existing && (
-        <button type="button" className="button-quiet" onClick={() => void remove()}>
-          Remove this workout
-        </button>
-      )}
     </div>
   );
+}
+
+/** A logged workout as it was written down; Edit opens the form. */
+function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: () => void }) {
+  const settings = useSettings();
+  const undo = useUndo();
+  const unit = settings.unit;
+  const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
+  const tiles = [
+    entry.meters ? ['Distance', formatDistance(entry.meters, unit)] : undefined,
+    entry.seconds ? ['Time', formatDuration(entry.seconds)] : undefined,
+    pace ? ['Pace', formatPace(pace, unit)] : undefined,
+    entry.avgHr ? ['Heart rate', `${entry.avgHr} bpm`] : undefined,
+  ].filter((tile): tile is string[] => Boolean(tile));
+  const remove = async () => {
+    await deleteEntry(entry.id);
+    undo('Workout removed', () => void putEntry(entry));
+    nav.back();
+  };
+
+  return (
+    <div className="page entry">
+      <div className="entry-view__top">
+        <BackLink label="Back" onBack={nav.back} />
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+      <p className="label">{new Date(`${entry.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+      <h1 className="title">{entry.workoutTitle ?? activities[entry.activity]}</h1>
+      {entry.workoutTitle && <p className="muted">{activities[entry.activity]}</p>}
+      {tiles.length > 0 && (
+        <div className="tiles">
+          {tiles.map(([label, value]) => (
+            <div key={label} className="tile">
+              <span className="tile__label">{label}</span>
+              <span className="tile__value">{value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {entry.felt && (
+        <p className="entry-view__felt"><FeltFace felt={entry.felt} size={26} /> {feelings[entry.felt]}</p>
+      )}
+      {(entry.notes || entry.wentWell || entry.nextTime || entry.intention) && (
+        <section className="card entry-view__words">
+          {entry.intention && <p><span className="label">Before you started</span>{entry.intention}</p>}
+          {entry.notes && <p><span className="label">Notes</span>{entry.notes}</p>}
+          {entry.wentWell && <p><span className="label">What went well</span>{entry.wentWell}</p>}
+          {entry.nextTime && <p><span className="label">Next time</span>{entry.nextTime}</p>}
+        </section>
+      )}
+      <button type="button" className="button-quiet" onClick={() => void remove()}>
+        Remove this workout
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Logging a workout by hand: from a watch, or from memory. Only the date is needed; everything else can be left
+ * blank. An earlier entry opens as it was written down, with Edit.
+ */
+export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan }) {
+  const entries = useEntries();
+  const existing = route.id ? entries?.find((entry) => entry.id === route.id) : undefined;
+  const [editing, setEditing] = useState(false);
+  if (route.id && !entries) return null;
+  if (existing && !editing) return <EntryView nav={nav} entry={existing} onEdit={() => setEditing(true)} />;
+  return <EntryForm key={existing?.id ?? 'new'} nav={nav} route={route} plan={plan} existing={existing} onDone={() => setEditing(false)} />;
 }
 
 function dayWord(date: string, today: string): string {

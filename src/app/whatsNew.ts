@@ -23,6 +23,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Notifications in Settings are grouped by app, showing only the apps you added.',
       'Soma and Hydros, like every app in the family, are now written with one capital.',
       'The name you give Proairetos greets you in every app, and travels with your account.',
+      'Askesis: weekly chart with each value on tap, and a logged workout opens as a page with Edit.',
+      'Oikonomia: what went out each month, as a chart on Spent.',
+      'Soma: pull a grocery line to the left to tick it.',
+      'Clearer empty lists in Askesis, Soma and Oikonomia, and darker green text in light mode.',
     ],
   },
   {

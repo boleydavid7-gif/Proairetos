@@ -687,4 +687,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
   "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store).
+- Premium round for the older apps: Askesis Progress and Oikonomia Spent use the shared `ColumnChart` (8 weeks; six
+  months); Askesis entries open as `EntryView` with Edit (`EntryForm`); Soma groceries swipe to tick. `SwipeItem` and
+  `Empty` (`app/family/Empty.tsx`, class `.list-empty`; `.empty` is Askesis's older style) carry their own CSS
+  (`swipe.css`, `empty.css`) so any app can use them. Askesis light `--mint` is `#24724f` (5.3:1 as text, 5.8:1 under
+  white). Praxis's Time bars and Hydros's Flow keep their own drawn charts.
 

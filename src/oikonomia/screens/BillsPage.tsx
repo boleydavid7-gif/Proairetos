@@ -1,10 +1,11 @@
 import type { Nav } from '../app/App';
-import { ChevronIcon, PlusIcon } from '../app/icons';
+import { ChevronIcon, PlusIcon, BillsIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, standing, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
 import { payBill } from '../app/payBill';
 import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
+import Empty from '../../app/family/Empty';
 
 export default function BillsPage({ nav }: { nav: Nav }) {
   const bills = useBills();
@@ -27,10 +28,9 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       {!bills ? (
         <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /><div className="skeleton" /></div>
       ) : ordered.length === 0 && settled.length === 0 ? (
-        <section className="card oiko-empty">
-          <h2 className="card__title">Nothing here yet.</h2>
+        <Empty icon={<BillsIcon size={26} />} title="No bills yet" line="Bills, subscriptions and anything that comes round, with their dates.">
           <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>
-        </section>
+        </Empty>
       ) : (
         <>
           {ordered.length === 0 ? (

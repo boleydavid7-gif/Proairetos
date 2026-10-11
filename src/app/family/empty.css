@@ -1,0 +1,40 @@
+/* An empty list (Empty.tsx; .empty is an older Askesis style). */
+.list-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 34px 20px 30px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.list-empty__mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
+.list-empty .button-main,
+.list-empty .button-quiet {
+  margin-top: 10px;
+}
+
+.list-empty__title {
+  margin: 0;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.list-empty__line {
+  margin: 0;
+  max-width: 22rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}

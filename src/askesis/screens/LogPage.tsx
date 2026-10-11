@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
+import { ColumnChart } from '../../app/family/charts';
 import { readActivityFile } from '../core/track';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { ChevronIcon, PlusIcon } from '../app/icons';
+import { ChevronIcon, LogIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand, dayLabel, Segmented } from '../app/ui';
 import { activities, feelings, newestFirst, periodRange, totalsBetween, weeklyTotals, type Period } from '../core/log';
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
+import Empty from '../../app/family/Empty';
 
 const periods: { id: Period; label: string }[] = [
   { id: 'week', label: 'Week' },
@@ -40,7 +42,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const before = range.before && totalsBetween(list, range.before.from, range.before.to);
   const weeks = weeklyTotals(list, 8, today);
   const byDistance = weeks.some((week) => week.meters > 0);
-  const tallest = Math.max(1, ...weeks.map((week) => (byDistance ? week.meters : week.seconds)));
 
   return (
     <div className="page log-page">
@@ -85,31 +86,26 @@ export default function LogPage({ nav }: { nav: Nav }) {
         </p>
       )}
 
-      <section className="card" aria-label="Each week">
-        <h2 className="card__title card__title--small">{byDistance ? 'Distance' : 'Time'}, each week</h2>
-        <div className="bars" role="img" aria-label={`${byDistance ? 'Distance' : 'Time'} for each of the last eight weeks`}>
-          {weeks.map((week) => {
-            const value = byDistance ? week.meters : week.seconds;
-            return (
-              <div key={week.from} className="bars__col">
-                <span className="bars__value">{value ? (byDistance ? inUnit(week.meters, unit).toFixed(0) : Math.round(week.seconds / 60)) : ''}</span>
-                <span className="bars__bar" style={{ height: `${Math.max(2, (value / tallest) * 100)}%` }} />
-                <span className="bars__label">{new Date(`${week.from}T12:00:00`).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <ColumnChart
+        title={byDistance ? `Distance (${unit}), each week` : 'Minutes, each week'}
+        days={weeks.map((week) => {
+          const start = new Date(`${week.from}T12:00:00`);
+          return {
+            label: start.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
+            long: `Week of ${start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`,
+            value: byDistance ? Math.round(inUnit(week.meters, unit) * 10) / 10 : Math.round(week.seconds / 60),
+          };
+        })}
+      />
 
       <section aria-label="Workouts" className="entries">
         <h2 className="label">Workouts</h2>
         {entries && list.length === 0 && (
-          <div className="empty">
-            <p className="muted">Nothing logged yet.</p>
+          <Empty icon={<LogIcon size={26} />} title="Nothing logged yet" line="Runs, walks and anything else, with time and distance.">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>
               Log a workout
             </button>
-          </div>
+          </Empty>
         )}
         {list.map((entry) => {
           const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
