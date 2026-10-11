@@ -21,7 +21,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
   return (
     <div className="page more">
       <Brand />
-      <AccountCard app="SOMA" what="Your recipes and grocery list" waiting="Recipes" />
+      <AccountCard app="Soma" what="Your recipes and grocery list" waiting="Recipes" />
       <ul className="rows">
         {rows.map((row) => (
           <li key={row.title}>
@@ -137,7 +137,7 @@ export function DataPage({ nav }: { nav: Nav }) {
           const file = JSON.parse(text) as Backup;
           if (file.app !== 'soma') return undefined;
           const count = await restore(file);
-          return count === 1 ? 'One recipe brought in from an older SOMA backup.' : `${count} recipes brought in from an older SOMA backup.`;
+          return count === 1 ? 'One recipe brought in from an older Soma backup.' : `${count} recipes brought in from an older Soma backup.`;
         }}
       />
       <div className="card">
@@ -175,7 +175,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
   return (
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
-      <h1 className="title">About SOMA</h1>
+      <h1 className="title">About Soma</h1>
       <p>
         Sōma is Greek for the body. Your recipes, a grocery list, and small ideas for cooking more simply. No calorie counts, and no food called good or bad.
       </p>

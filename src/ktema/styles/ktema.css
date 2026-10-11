@@ -1,7 +1,7 @@
 /* Ktema's colours: field gold and olive. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.ktema {
-  --app-name: 'KTEMA';
+  --app-name: 'Ktema';
   color-scheme: dark;
   --bg: #12130f;
   --surface: #1a1b16;

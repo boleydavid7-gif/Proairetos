@@ -1,7 +1,7 @@
 /*
  * Askesis on a computer. From 62rem wide the pages stop being a phone column in the middle of the
  * window and use the room: a wide banner, two-column Home, a grid of articles, a sticky plan summary
- * beside the weeks, stats in a row. Everything is scoped to :root.askesis so SOMA and Oikonomia,
+ * beside the weeks, stats in a row. Everything is scoped to :root.askesis so Soma and Oikonomia,
  * which share the base styles, are untouched.
  */
 

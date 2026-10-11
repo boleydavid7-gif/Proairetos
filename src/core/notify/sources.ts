@@ -2,7 +2,7 @@ import type { Notice } from './notices';
 
 /**
  * Every app in the family keeps its own reminder rows on the server, so one app refreshing its times never
- * takes away another's. On an iPhone each Home Screen app has its own storage: HYDROS knows the water times,
+ * takes away another's. On an iPhone each Home Screen app has its own storage: Hydros knows the water times,
  * Oikonomia the bills, Praxis the block that is running. Each writes what it owns; Proairetos also writes the
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
@@ -48,7 +48,7 @@ export function appAt(pathname: string): FamilyApp {
 
 /**
  * The sources this app writes. An app always writes its own (an empty list clears it). Proairetos also writes
- * Askesis, Oikonomia and HYDROS when it has something of theirs, or wrote theirs before (so a last bill removed
+ * Askesis, Oikonomia and Hydros when it has something of theirs, or wrote theirs before (so a last bill removed
  * is cleared too). The block running in Praxis is known only where it runs, so only Praxis writes it.
  */
 export function sourcesToWrite(

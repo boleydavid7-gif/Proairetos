@@ -6,7 +6,7 @@ import { openSettingsAt } from '../../features/settings/SettingsPage';
 import { linkTo } from '../family/opening';
 
 /**
- * Where a tapped notification, or a link from Askesis or SOMA, leads:
+ * Where a tapped notification, or a link from Askesis or Soma, leads:
  * `item:ID`, `day:YYYY-MM-DD` (or `day:today`), `today`, `reflect`,
  * `compass`, `account` (Settings, sync), `askesis` (the training app), or `oikonomia:bill:ID`.
  */

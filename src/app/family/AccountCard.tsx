@@ -9,7 +9,7 @@ const message = (error: unknown) => (error instanceof Error ? error.message : 'S
  * The account is Proairetos's, shared by the family. Where the apps share
  * this browser's storage, signing in to one signs in all three. Where they
  * do not (each app added to an iPhone's Home Screen keeps its own), Askesis
- * and SOMA sign in here with the same email and passphrase, and the three
+ * and Soma sign in here with the same email and passphrase, and the three
  * meet through sync. Setting sync up the first time stays in Proairetos,
  * where the recovery key is shown.
  */

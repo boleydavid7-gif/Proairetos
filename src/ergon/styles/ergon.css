@@ -1,7 +1,7 @@
 /* Ergon's colours: sage and slate. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.ergon {
-  --app-name: 'ERGON';
+  --app-name: 'Ergon';
   color-scheme: dark;
   --bg: #0e1112;
   --surface: #161b1c;

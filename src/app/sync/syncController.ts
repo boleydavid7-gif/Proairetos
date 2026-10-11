@@ -142,7 +142,7 @@ async function resolvePhase(): Promise<void> {
 const remoteChanges = createListeners();
 
 /*
- * The family, open side by side (Proairetos, Askesis, SOMA in tabs, or
+ * The family, open side by side (Proairetos, Askesis, Soma in tabs, or
  * installed apps sharing this browser's storage): a change in one shows in
  * the others at once, and so does signing in or out. Only "something
  * changed" is said; each app reads the records itself.

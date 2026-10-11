@@ -94,7 +94,7 @@ async function readJson(cache, path, fallback) {
   }
 }
 
-// Each app's own mark beside its reminders (HYDROS has only its drawn icon, so it shares Proairetos's).
+// Each app's own mark beside its reminders (Hydros has only its drawn icon, so it shares Proairetos's).
 function iconFor(open) {
   for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema']) if (open === app || (open && open.startsWith(app + ':'))) return '/' + app + '/icons/icon-192.png';
   if (open === 'praxis') return '/praxis/icons/icon-192.png';
@@ -200,7 +200,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(showDue(sealedIn(event)));
 });
 
-// A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; HYDROS, Praxis,
+// A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; Hydros, Praxis,
 // Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
 const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/', '/therapeia/', '/dynamis/', '/ktema/'];
 

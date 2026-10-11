@@ -349,7 +349,7 @@ export type TodayPart =
   | 'three-good-things'
   // Runs from Askesis, the training app beside Proairetos.
   | 'askesis'
-  // Meals from SOMA, the recipe app beside Proairetos.
+  // Meals from Soma, the recipe app beside Proairetos.
   | 'soma'
   // Bill dates from Oikonomia in Days ahead.
   | 'bill-dates'
@@ -357,7 +357,7 @@ export type TodayPart =
   | 'bills'
   // What was written on this day in an earlier year; off until chosen.
   | 'on-this-day'
-  // Water from HYDROS during a work block, shown on Today only if chosen.
+  // Water from Hydros during a work block, shown on Today only if chosen.
   | 'water'
   // Study from Praxis: in Done today and Reflect, and blocks to look at again on Today.
   | 'praxis'

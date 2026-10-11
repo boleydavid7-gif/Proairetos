@@ -5,7 +5,7 @@ import { deviceDatabase } from '../services';
 import { onRemoteChanges } from '../sync/syncController';
 
 /**
- * SOMA, the recipe app, keeps its recipes in this same database. Proairetos
+ * Soma, the recipe app, keeps its recipes in this same database. Proairetos
  * only reads them: meals planned for a day show in Days ahead, and meals
  * cooked for someone show in Reflect.
  */

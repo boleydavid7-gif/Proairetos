@@ -11,7 +11,7 @@ import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
-// The family's shared look (from Askesis), then SOMA's own warmer colours.
+// The family's shared look (from Askesis), then Soma's own warmer colours.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
 import '../styles/premium.css';
@@ -22,7 +22,7 @@ import AddedOnly from '../app/family/AddedOnly';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
-// The same theme and text size as Proairetos, with SOMA's own bar colour.
+// The same theme and text size as Proairetos, with Soma's own bar colour.
 function appearance() {
   applyAppearance();
   const theme = document.documentElement.dataset.theme;
@@ -33,7 +33,7 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 
-// Storage first (anything from the first SOMA moves into the shared database), then the same sign-in and sync as Proairetos.
+// Storage first (anything from the first Soma moves into the shared database), then the same sign-in and sync as Proairetos.
 void startStore()
   .catch(() => undefined)
   .then(() => {

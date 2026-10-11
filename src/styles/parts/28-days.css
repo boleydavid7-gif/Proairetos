@@ -721,7 +721,7 @@
   background: linear-gradient(90deg, color-mix(in srgb, var(--tag) 14%, transparent), var(--color-surface) 60%);
 }
 
-/* Meals planned in SOMA, one quiet line under the day. */
+/* Meals planned in Soma, one quiet line under the day. */
 .days-meals {
   display: flex;
   align-items: center;

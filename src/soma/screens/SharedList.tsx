@@ -94,7 +94,7 @@ export function SharedLists({ personal }: { personal: GroceryItem[] }) {
         ) : (
           <>
             <p className="muted">Sign in to join.</p>
-            <AccountCard app="SOMA" what="Your recipes and grocery list" waiting="Recipes" />
+            <AccountCard app="Soma" what="Your recipes and grocery list" waiting="Recipes" />
           </>
         )}
         {error && <p className="form-error" role="alert">{error}</p>}
@@ -122,7 +122,7 @@ export function SharedLists({ personal }: { personal: GroceryItem[] }) {
             </button>
           </form>
         ) : (
-          <AccountCard app="SOMA" what="Your recipes and grocery list" waiting="Recipes" />
+          <AccountCard app="Soma" what="Your recipes and grocery list" waiting="Recipes" />
         )}
         {error && <p className="form-error" role="alert">{error}</p>}
       </section>
@@ -190,7 +190,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
   const invite = async () => {
     const link = inviteLink(location.origin, list);
     try {
-      if (navigator.share) await navigator.share({ title: list.name, text: `Our grocery list in SOMA: ${link}` });
+      if (navigator.share) await navigator.share({ title: list.name, text: `Our grocery list in Soma: ${link}` });
       else {
         await navigator.clipboard.writeText(link);
         setCopied(true);

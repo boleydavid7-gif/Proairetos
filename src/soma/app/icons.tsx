@@ -21,7 +21,7 @@ function Icon({ size = 22, className, children }: IconProps & { children: ReactN
   );
 }
 
-/** The SOMA mark: a sprig of leaves, as on the welcome screen. */
+/** The Soma mark: a sprig of leaves, as on the welcome screen. */
 export function Leaf({ size = 30, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" fill={color}>

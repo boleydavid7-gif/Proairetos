@@ -10,7 +10,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <div className="welcome__shade" />
       <div className="welcome__content">
         <Mark size={64} />
-        <h1 className="welcome__name">ASKESIS</h1>
+        <h1 className="welcome__name">Askesis</h1>
         <p className="welcome__by">by Proairetos</p>
         <p className="welcome__line">Learn. Train. Endure.</p>
         <span className="welcome__rule" aria-hidden="true" />
@@ -19,7 +19,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
         </p>
         <div className="welcome__actions">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'safety', first: true })}>
-            Get started
+            Begin
           </button>
           <p className="fine">Everything stays on this phone.</p>
         </div>

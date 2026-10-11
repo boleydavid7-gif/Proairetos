@@ -1,7 +1,7 @@
 import { createSharedLists, joinProof, sharingAvailable } from '../../app/family/sharedLists';
 import type { SharedItem } from '../core/sharedList';
 
-/** SOMA's shared grocery lists: the family's sealed shared lists, with SOMA's own keys and label. */
+/** Soma's shared grocery lists: the family's sealed shared lists, with Soma's own keys and label. */
 const lists = createSharedLists<SharedItem>({
   listsKey: 'soma:sharedLists',
   cachePrefix: 'somaShared',

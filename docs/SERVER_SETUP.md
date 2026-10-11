@@ -28,8 +28,8 @@ VAPID **private** key in Cloudflare or in this repository.
 5. And with `supabase/migrations/20261003000000_askesis_sync.sql`, so Askesis
    (the training app) can sync its workouts and plan with the same account.
    Until it runs, Askesis keeps them on the phone and Proairetos syncs as usual.
-6. And with `supabase/migrations/20261010000000_soma_sync.sql`, so SOMA
-   (recipes) syncs its recipes and grocery list too. Until it runs, SOMA keeps
+6. And with `supabase/migrations/20261010000000_soma_sync.sql`, so Soma
+   (recipes) syncs its recipes and grocery list too. Until it runs, Soma keeps
    them on the phone.
 
 This creates four tables, each locked so a person can only ever reach their
@@ -258,7 +258,7 @@ Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets set
 
 ## Reminders from every app (migration 20261017000000)
 
-So reminders from HYDROS (water), Oikonomia (bills), Askesis (run days), Praxis (the end of a study block),
+So reminders from Hydros (water), Oikonomia (bills), Askesis (run days), Praxis (the end of a study block),
 Diaita (wind down, nap), Philia (birthdays, keeping in touch) and Ergon (chores)
 arrive with their own words on a phone where Proairetos is the app that receives pushes:
 
@@ -268,14 +268,14 @@ arrive with their own words on a phone where Proairetos is the app that receives
 2. Redeploy the reminder function with the new code: **Edge Functions → send-reminders → Code**, paste
    `supabase/functions/send-reminders/index.ts`, and deploy (or `supabase functions deploy send-reminders --no-verify-jwt`).
    The cron job and keys stay as they are.
-3. Open each app you use once while signed in (Proairetos, HYDROS, Oikonomia, Askesis, Praxis, Diaita, Philia, Ergon), so each sends its
+3. Open each app you use once while signed in (Proairetos, Hydros, Oikonomia, Askesis, Praxis, Diaita, Philia, Ergon), so each sends its
    times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
 
 Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.
 
 ## Shared lists and households (migration 20261018000000)
 
-Run `supabase/migrations/20261018000000_shared_lists.sql`. It makes SOMA's shared grocery list and Ergon's
+Run `supabase/migrations/20261018000000_shared_lists.sql`. It makes Soma's shared grocery list and Ergon's
 shared household work: every line or chore is sealed on the phone with that list's own key, which travels only
 in the invite link, so the server stores them without being able to read them. Both people need to be signed in
 (any account; no passphrase needed for a shared list). Nothing else changes.
@@ -328,8 +328,8 @@ code there; it signs in the same account.
 
 ## Shared grocery lists (migration 20261018000000)
 
-Run `supabase/migrations/20261018000000_shared_lists.sql` in the SQL editor. It adds shared lists for SOMA:
+Run `supabase/migrations/20261018000000_shared_lists.sql` in the SQL editor. It adds shared lists for Soma:
 a list's lines are sealed on the phone with the list's own key, which travels only inside the invite link
 (after the `#`, which is never sent to a server), so the server stores lines it cannot read. Only people who
 joined with the link can see or change a list, and anyone can leave. Nothing else needs deploying. Until it
-runs, SOMA's Shared view says the server is not set up yet.
+runs, Soma's Shared view says the server is not set up yet.

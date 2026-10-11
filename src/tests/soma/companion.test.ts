@@ -173,7 +173,7 @@ describe('sharing', () => {
   });
 });
 
-describe('Proairetos reading SOMA', async () => {
+describe('Proairetos reading Soma', async () => {
   const { mealsOn, cookedForBetween, namesList } = await import('../../app/soma/meals');
   it('lists planned meals and meals cooked for someone', () => {
     const soup = recipe({ title: 'Soup', planned: ['2026-10-04'], cookedFor: { '2026-10-02': ['Mom', 'Sam'], '2026-09-01': ['Ali'] } });

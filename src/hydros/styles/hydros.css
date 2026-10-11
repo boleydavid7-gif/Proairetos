@@ -1,4 +1,4 @@
-/* HYDROS keeps the family's typography and calm spacing, with a deep-water palette. */
+/* Hydros keeps the family's typography and calm spacing, with a deep-water palette. */
 :root.hydros {
   --bg: #061219;
   --surface: rgba(12, 42, 53, .82);
@@ -50,7 +50,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand__mark span:nth-child(2) { width: 31px; margin-left: 2px; }
 .hydros-brand__mark span:nth-child(3) { width: 25px; margin-left: 9px; }
 .hydros-brand__words { display: flex; flex-direction: column; line-height: 1.08; }
-.hydros-brand__name { letter-spacing: .25em; font-size: 1.02rem; font-weight: 500; }
+.hydros-brand__name { letter-spacing: .02em; font-size: 1.02rem; font-weight: 600; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
@@ -290,11 +290,11 @@ body:has(.hydros-shell) { min-height: 100dvh; }
   }
 
   .hydros-tabs::before {
-    content: 'HYDROS';
+    content: 'Hydros';
     margin: 0 0 22px 12px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    letter-spacing: 0.28em;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: var(--cyan);
   }
 

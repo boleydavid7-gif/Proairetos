@@ -1,4 +1,4 @@
-/* SOMA: the family's look (askesis.css) in warmer colours: cream and olive in
+/* Soma: the family's look (askesis.css) in warmer colours: cream and olive in
    light, deep forest in dark. Follows Proairetos's Appearance setting. */
 
 :root.soma {
@@ -853,7 +853,7 @@
 }
 
 :root.soma {
-  --app-name: 'SOMA';
+  --app-name: 'Soma';
 }
 
 @media (min-width: 62rem) {

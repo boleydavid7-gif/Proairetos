@@ -1,6 +1,6 @@
 /**
  * Proairetos's service worker (scope /) is the one that shows notices, answers a tap on one, and receives
- * push. Some apps of the family have their own worker for their pages (HYDROS, Askesis, SOMA, Oikonomia);
+ * push. Some apps of the family have their own worker for their pages (Hydros, Askesis, Soma, Oikonomia);
  * notices and push must still go through this one, or a push would arrive at a worker that cannot show it.
  */
 export async function familyWorker(): Promise<ServiceWorkerRegistration | undefined> {

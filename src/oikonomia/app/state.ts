@@ -43,7 +43,7 @@ export function useBudget(month: string): BudgetPlan | null {
   return budget;
 }
 
-/** Read SOMA's planned meals when the shared family database changes or becomes visible. */
+/** Read Soma's planned meals when the shared family database changes or becomes visible. */
 export function useSomaRecipes(): Recipe[] {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   useEffect(() => {

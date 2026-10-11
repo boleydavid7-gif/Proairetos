@@ -12,7 +12,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <div className="welcome__shade" />
       <div className="welcome__content">
         <Leaf size={64} color="#f1ece2" />
-        <h1 className="welcome__name">SOMA</h1>
+        <h1 className="welcome__name">Soma</h1>
         <p className="welcome__by">by Proairetos</p>
         <p className="welcome__line">Real food. Simple choices.</p>
         <span className="welcome__rule" aria-hidden="true" />
@@ -29,7 +29,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
               nav.swap({ name: pendingInvite() ? 'groceries' : 'home' });
             }}
           >
-            Get started
+            Begin
           </button>
           <p className="fine">Everything stays on this phone.</p>
         </div>

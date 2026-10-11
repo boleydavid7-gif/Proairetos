@@ -5,7 +5,7 @@ export const DB_NAME = 'proairetos';
 // Version 6: attachments (photos and files kept with items, device only).
 // Version 7: askesisWorkouts, askesisPlans (Askesis, the training app, served
 // from the same address, keeps its records here so they sync with the account).
-// Version 8: somaRecipes, somaGroceries (SOMA, the recipe app, likewise).
+// Version 8: somaRecipes, somaGroceries (Soma, the recipe app, likewise).
 // Version 9: oikonomiaBills (Oikonomia, the household stewardship app).
 // Version 10: oikonomiaBudgets (monthly plans shared with Oikonomia).
 // Version 11: hydrosDrinks (Hydros intake entries shared with the family).
@@ -112,7 +112,7 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
 
     request.onsuccess = () => {
       const db = request.result;
-      // Proairetos, Askesis and SOMA share this database; a newer one opening in the other app
+      // Proairetos, Askesis and Soma share this database; a newer one opening in the other app
       // gets the way cleared, and this page reloads to pick up the new version.
       db.onversionchange = () => {
         db.close();

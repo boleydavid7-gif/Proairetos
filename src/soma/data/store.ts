@@ -7,7 +7,7 @@ import { openSoma } from '../../data/backup/family';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 
 /*
- * SOMA keeps recipes and the grocery list in the Proairetos database on this
+ * Soma keeps recipes and the grocery list in the Proairetos database on this
  * phone (stores somaRecipes, somaGroceries), so they sync, sealed, with the
  * same account as Proairetos and Askesis. A few settings live in
  * localStorage. Nothing else leaves the phone except a recipe page read
@@ -87,7 +87,7 @@ const notify = () => {
   listeners.forEach((listener) => listener());
 };
 
-// Settings changed in another open SOMA (or a restore elsewhere): read them again.
+// Settings changed in another open Soma (or a restore elsewhere): read them again.
 if (typeof window !== 'undefined') window.addEventListener('storage', (event) => event.key?.startsWith('soma:') && notify());
 
 export function subscribe(listener: () => void): () => void {
@@ -151,7 +151,7 @@ export async function saveGroceries(items: readonly GroceryItem[]): Promise<void
 
 // ---------- Start ----------
 
-/** The first SOMA kept its own database; anything there moves into the shared one, once. */
+/** The first Soma kept its own database; anything there moves into the shared one, once. */
 async function moveFromOldDatabase(): Promise<void> {
   const exists = await indexedDB.databases?.().then((all) => all.some((each) => each.name === 'soma')).catch(() => true);
   if (exists === false) return;
@@ -212,7 +212,7 @@ export async function backup(): Promise<Backup> {
 
 /** Brings recipes from a backup in beside the ones here; the same recipe keeps the newer copy. */
 export async function restore(file: Backup): Promise<number> {
-  if (file.app !== 'soma' || !Array.isArray(file.recipes)) throw new Error('That is not a SOMA backup.');
+  if (file.app !== 'soma' || !Array.isArray(file.recipes)) throw new Error('That is not a Soma backup.');
   const here = new Map((await listRecipes()).map((recipe) => [recipe.id, recipe]));
   let count = 0;
   for (const recipe of file.recipes) {

@@ -169,7 +169,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
           <label className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">When</span><select aria-label="When" value={when} onChange={(event) => { const next = event.target.value === 'work' ? 'work' : 'waking'; updateSettings({ reminderWhen: next }); schedule({ when: next }); }}><option value="waking">Waking hours</option><option value="work">During work</option></select><Chevron /></label>
           <details className="hydros-settings-details"><summary className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">Quiet hours</span><span className="hydros-settings-row__value">{quiet.start} – {quiet.end}</span><Chevron /></summary><div className="hydros-time-fields"><label>From <input type="time" value={quiet.start} onChange={(event) => updateQuiet({ start: event.target.value })} /></label><label>Until <input type="time" value={quiet.end} onChange={(event) => updateQuiet({ end: event.target.value })} /></label></div></details>
         </>}
-        {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : permission === 'unsupported' && reminders ? <p className="hydros-settings-hint">This browser cannot show notifications. Add HYDROS to your Home Screen to receive them.</p> : null}
+        {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : permission === 'unsupported' && reminders ? <p className="hydros-settings-hint">This browser cannot show notifications. Add Hydros to your Home Screen to receive them.</p> : null}
       </SettingsGroup>
 
       <SettingsGroup title="Units"><div className="hydros-settings-row hydros-settings-row--static"><Icon><CupIcon /></Icon><span className="hydros-settings-row__name">Measurement units</span><div className="hydros-unit-switch">{(['oz', 'ml', 'L'] as HydrosUnit[]).map((value) => <button type="button" key={value} className={unit === value ? 'is-selected' : ''} onClick={() => chooseUnit(value)}>{value}</button>)}</div></div></SettingsGroup>
@@ -178,7 +178,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
 
       <section className="hydros-settings-group" aria-label="Your data">
         <h2>Your data</h2>
-        <AccountCard app="HYDROS" what="What you drink and your settings" waiting="Drinks" />
+        <AccountCard app="Hydros" what="What you drink and your settings" waiting="Drinks" />
         <FamilyBackup />
       </section>
 

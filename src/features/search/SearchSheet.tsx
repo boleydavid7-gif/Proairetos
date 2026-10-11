@@ -93,7 +93,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
   }
   // What the other apps hold, read only, so one search finds it all.
   for (const recipe of isAdded('soma') ? recipes : []) {
-    labels.set(recipe.id, 'Recipe in SOMA');
+    labels.set(recipe.id, 'Recipe in Soma');
     things.push({
       id: recipe.id,
       kind: 'app',

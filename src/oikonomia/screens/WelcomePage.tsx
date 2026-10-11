@@ -14,7 +14,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <div className="welcome__shade" />
       <div className="welcome__content">
         <ArchMark size={64} light />
-        <h1 className="welcome__name">OIKONOMIA</h1>
+        <h1 className="welcome__name">Oikonomia</h1>
         <p className="welcome__by">by Proairetos</p>
         <p className="welcome__line">Keep the essentials in view.</p>
         <span className="welcome__rule" aria-hidden="true" />

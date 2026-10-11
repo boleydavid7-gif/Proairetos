@@ -47,8 +47,8 @@ export default function TodayFamily({ today }: { today: string }) {
 type DrinkRecord = { amountOz?: number; loggedAt?: string };
 
 /**
- * During a work block, if the person chose it: what they have logged in HYDROS since the block began, and a
- * way to log their usual glass (it opens HYDROS, which keeps the record). Facts only.
+ * During a work block, if the person chose it: what they have logged in Hydros since the block began, and a
+ * way to log their usual glass (it opens Hydros, which keeps the record). Facts only.
  */
 export function TodayWater({ now, blocks }: { now: Date; blocks: readonly ScheduleOccurrence[] }) {
   const shows = useTodayParts();
@@ -64,7 +64,7 @@ export function TodayWater({ now, blocks }: { now: Date; blocks: readonly Schedu
         </span>
         <span className="quiet-row__text">
           <span>{water.line}</span>
-          <span className="quiet-row__detail">Log a glass in HYDROS</span>
+          <span className="quiet-row__detail">Log a glass in Hydros</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>

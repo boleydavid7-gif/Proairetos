@@ -14,8 +14,8 @@
 .praxis-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 34px; }
 .praxis-brand__mark { width: 42px; height: 42px; display: grid; place-items: center; }
 .praxis-brand__mark svg { width: 42px; height: 42px; }
-.praxis-brand strong { display: block; font: 600 20px/1 var(--font-serif); letter-spacing: .16em; }
-.praxis-brand small { display: block; margin-top: 6px; color: var(--color-text-faint); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+.praxis-brand strong { display: block; font: 600 22px/1 var(--font-serif); letter-spacing: .02em; }
+.praxis-brand small { display: block; margin-top: 6px; color: var(--color-text-faint); font-size: 12px; }
 .praxis-sidebar__label, .praxis-eyebrow { margin: 0; color: var(--color-text-faint); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
 .praxis-sidebar__label { padding: 0 12px 10px; }
 .praxis-nav-list { display: grid; gap: 4px; }
@@ -35,7 +35,7 @@
 .praxis-main { min-width: 0; padding: 22px clamp(18px, 4vw, 60px) 44px; }
 .praxis-topbar { max-width: 1180px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin: 0 auto 42px; color: var(--color-text-muted); }
 .praxis-family-link { display: inline-flex; align-items: baseline; gap: 6px; width: max-content; color: var(--color-text-faint); text-decoration: none; }
-.praxis-family-link span { font-size: 12px; letter-spacing: .14em; }
+.praxis-family-link span { font-size: 12px; letter-spacing: .02em; }
 .praxis-family-link small { font-size: 12px; }
 .praxis-topbar__date { color: var(--color-text-muted); font-size: 14px; text-align: center; }
 .praxis-topbar__person { display: flex; align-items: center; justify-content: end; gap: 8px; font-size: 13px; }

@@ -4,6 +4,8 @@ import { disableReminders, enableReminders, refreshReminders } from '../../app/s
 import { noticeLeadChoices, noticeLeadLabel, type NoticeSettings } from '../../core/notify/notices';
 import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
+import { useAddedApps, type AddOn } from '../../app/family/added';
+import { familyApps } from '../../app/family/FamilyApps';
 
 const time = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -74,6 +76,34 @@ function Lead({
   );
 }
 
+type AppSwitch = 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep';
+
+/** Each added app's own notices, under its name. Hydros keeps its reminders in its own settings. */
+const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
+  { id: 'askesis', switches: [['runs', 'Run days']] },
+  { id: 'oikonomia', switches: [['bills', 'Bills']] },
+  { id: 'hydros', switches: [], elsewhere: '/hydros/?open=settings' },
+  { id: 'praxis', switches: [['study', 'End of a study block']] },
+  { id: 'diaita', switches: [['rhythm', 'Sleep and naps']] },
+  { id: 'philia', switches: [['people', 'Birthdays and keeping in touch']] },
+  { id: 'ergon', switches: [['chores', 'Chores']] },
+  { id: 'therapeia', switches: [['medicines', 'Medicines and visits']] },
+  { id: 'dynamis', switches: [['training', 'Training days']] },
+  { id: 'ktema', switches: [['upkeep', 'Upkeep and warranties']] },
+];
+
+function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {
+  return (
+    <div className="notify-group">
+      <h3 className="settings-group__label notify-group__label">
+        {icon && <img src={icon} alt="" width={18} height={18} />}
+        {label}
+      </h3>
+      <div className="notify-list">{children}</div>
+    </div>
+  );
+}
+
 /**
  * Settings > Notifications: what notifies, and when it waits. Every notice
  * is written on this device; only its time ever leaves it.
@@ -84,6 +114,7 @@ export default function NotificationsSection() {
   const [settings, setSettings] = useState(notifications.settings);
   const [quiet, setQuiet] = useState(loadQuietHours);
   const [error, setError] = useState('');
+  const added = useAddedApps();
   const permission = notifications.permission();
   const upcoming = notifications.next();
   const update = (next: Partial<NoticeSettings>) => {
@@ -122,7 +153,7 @@ export default function NotificationsSection() {
         </p>
       )}
 
-      <div className="notify-list">
+      <NotifyGroup label="Proairetos">
         <Switch on={settings.items} label="Things with a time" onToggle={() => update({ items: !settings.items })} />
         <Switch
           on={settings.calendars}
@@ -154,15 +185,6 @@ export default function NotificationsSection() {
           label="Decisions to look back on"
           onToggle={() => update({ lookBacks: !settings.lookBacks })}
         />
-        <Switch on={settings.runs} label="Run days, from Askesis" onToggle={() => update({ runs: !settings.runs })} />
-        <Switch on={settings.bills} label="Bills, from Oikonomia" onToggle={() => update({ bills: !settings.bills })} />
-        <Switch on={settings.study} label="End of a study block, from Praxis" onToggle={() => update({ study: !settings.study })} />
-        <Switch on={settings.rhythm} label="Sleep and naps, from Diaita" onToggle={() => update({ rhythm: !settings.rhythm })} />
-        <Switch on={settings.people} label="Birthdays, from Philia" onToggle={() => update({ people: !settings.people })} />
-        <Switch on={settings.chores} label="Chores, from Ergon" onToggle={() => update({ chores: !settings.chores })} />
-        <Switch on={settings.medicines} label="Medicines and visits, from Therapeia" onToggle={() => update({ medicines: !settings.medicines })} />
-        <Switch on={settings.training} label="Training days, from Dynamis" onToggle={() => update({ training: !settings.training })} />
-        <Switch on={settings.upkeep} label="Upkeep and warranties, from Ktema" onToggle={() => update({ upkeep: !settings.upkeep })} />
         <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
           {settings.bellAt.map((at, index) => (
             <span key={index} className="notify-bell">
@@ -207,9 +229,25 @@ export default function NotificationsSection() {
             onChange={(event) => event.target.value && update({ dayAt: event.target.value })}
           />
         </Switch>
-      </div>
+      </NotifyGroup>
 
-      <div className="notify-list">
+      {APP_NOTICES.filter((app) => added.includes(app.id)).map((app) => {
+        const family = familyApps.find((each) => each.id === app.id);
+        return (
+          <NotifyGroup key={app.id} label={family?.name ?? app.id} icon={family?.icon}>
+            {app.switches.map(([key, label]) => (
+              <Switch key={key} on={settings[key]} label={label} onToggle={() => update({ [key]: !settings[key] })} />
+            ))}
+            {app.elsewhere && (
+              <a className="text-link notify-elsewhere" href={app.elsewhere}>
+                Set in {family?.name ?? app.id}
+              </a>
+            )}
+          </NotifyGroup>
+        );
+      })}
+
+      <NotifyGroup label="How they arrive">
         <Switch on={quiet.on} label="Quiet hours" below onToggle={() => updateQuiet({ ...quiet, on: !quiet.on })}>
           <input
             type="time"
@@ -250,7 +288,7 @@ export default function NotificationsSection() {
           />
         )}
         {error && <p className="form-error">{error}</p>}
-      </div>
+      </NotifyGroup>
 
       <details className="notify-coming">
         <summary>Coming up</summary>

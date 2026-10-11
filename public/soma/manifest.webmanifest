@@ -1,7 +1,7 @@
 {
   "id": "/soma/",
-  "name": "SOMA by Proairetos",
-  "short_name": "SOMA",
+  "name": "Soma by Proairetos",
+  "short_name": "Soma",
   "description": "Your recipes, your groceries, simple food with care.",
   "start_url": "/soma/",
   "scope": "/soma/",
@@ -33,14 +33,14 @@
       "sizes": "780x1688",
       "type": "image/webp",
       "form_factor": "narrow",
-      "label": "SOMA"
+      "label": "Soma"
     },
     {
       "src": "/soma/screenshots/wide-1.webp",
       "sizes": "1280x800",
       "type": "image/webp",
       "form_factor": "wide",
-      "label": "SOMA"
+      "label": "Soma"
     }
   ],
   "shortcuts": [

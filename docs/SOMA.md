@@ -1,4 +1,4 @@
-# SOMA by Proairetos
+# Soma by Proairetos
 
 A recipe manager that keeps the Proairetos way with food: it records, it
 never judges. No calories, no scores, no "good" or "bad" food. Served at
@@ -42,7 +42,7 @@ never judges. No calories, no scores, no "good" or "bad" food. Served at
   `20261010000000_soma_sync.sql`. The first version's `soma` database moves
   over once and is deleted. Photos from the phone are shrunk to 1200 px and
   kept with the recipe. In the family backup and the daily copies.
-- Look: the family's components (askesis.css) with SOMA's warm tokens
+- Look: the family's components (askesis.css) with Soma's warm tokens
   (`styles/soma.css`): cream and olive in light, forest in dark, following
   Proairetos's Appearance. Photos cut from the owner's sheet
   (`src/soma/assets/scenes`, low resolution; replace with originals). Icon:

@@ -18,7 +18,7 @@ export function promptText(key: string | undefined): string | undefined {
   if (key === 'worth-it') return 'What made today worth it';
   if (key === 'think-it-through') return 'Thought it through';
   if (key === 'after-run') return 'After a run, in Askesis';
-  if (key === 'after-meal') return 'After a meal, in SOMA';
+  if (key === 'after-meal') return 'After a meal, in Soma';
   if (key === 'after-strength') return 'After strength training, in Dynamis';
   if (key === 'gratitude') return 'Grateful for';
   if (key === 'three-good-things') return 'Three good things';

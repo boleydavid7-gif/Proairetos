@@ -35,7 +35,7 @@ export function Brand({ light = false }: { light?: boolean }) {
     <div className={`brand${light ? ' brand--light' : ''}`}>
       <Mark size={30} />
       <span className="brand__words">
-        <span className="brand__name">ASKESIS</span>
+        <span className="brand__name">Askesis</span>
         <span className="brand__by">by Proairetos</span>
       </span>
     </div>

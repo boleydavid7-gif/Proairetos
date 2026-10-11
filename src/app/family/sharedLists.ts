@@ -4,7 +4,7 @@ import { isSyncConfigured, supabase } from '../../data/sync/supabase';
  * Lists shared with other people, sealed on the phone with each list's own key (migration
  * 20261018000000_shared_lists.sql). The key travels only in the invite link, after `#`. The lists this person
  * has are a setting (synced and backed up like any setting); each list's items are cached on this phone with
- * any changes not yet sent, so a list works offline and catches up when it can. SOMA's grocery lists and
+ * any changes not yet sent, so a list works offline and catches up when it can. Soma's grocery lists and
  * Ergon's households both use this, each with its own storage keys and sealing label.
  */
 export type SharedListRef = { id: string; key: string; name: string; joinedAt: string };

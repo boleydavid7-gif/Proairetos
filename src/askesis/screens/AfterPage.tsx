@@ -65,7 +65,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
               </>
             )}
           </section>
-          <a className="button-quiet family-link" href="/hydros/?open=add%3Awater">Log a drink in HYDROS</a>
+          <a className="button-quiet family-link" href="/hydros/?open=add%3Awater">Log a drink in Hydros</a>
           <button
             type="button"
             className="text-link"

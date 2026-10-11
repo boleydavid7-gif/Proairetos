@@ -6,7 +6,7 @@ import { backupService } from '../services';
 import { dayName, useDailyCopies } from './useDailyCopies';
 
 /**
- * The family's one backup, for Askesis, SOMA, Oikonomia and HYDROS's "Your data" pages. It is
+ * The family's one backup, for Askesis, Soma, Oikonomia and Hydros's "Your data" pages. It is
  * the same file Proairetos makes (Settings > Your data): every app's records
  * and settings. Making it here or there counts as the same last backup;
  * restoring it anywhere brings the family apps back.

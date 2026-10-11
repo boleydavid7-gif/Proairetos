@@ -119,7 +119,7 @@ export default function ReflectPage() {
   const ran = shows('askesis')
     ? (runs?.workouts ?? []).filter((entry) => entry.date >= toLocalDate(range.start) && entry.date < toLocalDate(range.end))
     : [];
-  // Meals cooked for someone, marked in SOMA, likewise.
+  // Meals cooked for someone, marked in Soma, likewise.
   const recipes = useRecipesFromSoma();
   const cooked = shows('soma') ? cookedForBetween(recipes, toLocalDate(range.start), toLocalDate(range.end)) : [];
   // Study recorded in Praxis, likewise.

@@ -44,7 +44,7 @@ describe('one backup for the family', () => {
     expect(settingsSnapshot()).toEqual({ 'proairetos.quietHours': '{"start":"22:00"}', 'soma:settings': '{"dailyLine":false}' });
   });
 
-  it('carries Askesis and SOMA records and settings from one phone to another', async () => {
+  it('carries Askesis and Soma records and settings from one phone to another', async () => {
     const fromFactory = new IDBFactory();
     const from = await openDatabase(fromFactory);
     await put(from, stores.askesisWorkouts, { id: 'w1', date: '2026-10-05' });

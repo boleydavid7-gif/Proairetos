@@ -632,8 +632,8 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s run on Today; finished runs in Done today and Reflect.' }] }],
   },
   {
-    app: 'SOMA',
-    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in SOMA in Days ahead; meals cooked for someone in Reflect.' }] }],
+    app: 'Soma',
+    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in Soma in Days ahead; meals cooked for someone in Reflect.' }] }],
   },
   {
     app: 'Praxis',
@@ -675,7 +675,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep', detail: 'Upkeep whose day has come.' }] }],
   },
   {
-    app: 'HYDROS',
+    app: 'Hydros',
     sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'During work, what you’ve drunk since it started, with a button to log a glass.' }] }],
   },
   {

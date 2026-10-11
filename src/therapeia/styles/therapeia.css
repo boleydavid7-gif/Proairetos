@@ -1,7 +1,7 @@
 /* Therapeia's colours: night blue and pale sky. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.therapeia {
-  --app-name: 'THERAPEIA';
+  --app-name: 'Therapeia';
   color-scheme: dark;
   --bg: #10141a;
   --surface: #171c24;

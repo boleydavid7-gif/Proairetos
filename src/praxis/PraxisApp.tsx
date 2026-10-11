@@ -286,7 +286,7 @@ export default function PraxisApp() {
       <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
           <span className="praxis-brand__mark"><PraxisMark size={42} /></span>
-          <span><strong>PRAXIS</strong><small>Deliberate study</small></span>
+          <span><strong>Praxis</strong><small>by Proairetos</small></span>
         </div>
         <PraxisNav view={view} onView={setView} />
         <div className="praxis-sidebar__spacer" />
@@ -295,7 +295,7 @@ export default function PraxisApp() {
 
       <main className="praxis-main">
         <header className="praxis-topbar">
-          <a className="praxis-family-link" href="/" aria-label="Open Proairetos"><span>PROAIRETOS</span><small>family</small></a>
+          <a className="praxis-family-link" href="/" aria-label="Open Proairetos"><span>Proairetos</span><small>family</small></a>
           <div className="praxis-topbar__date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(clock)}</div>
           <SyncDot />
         </header>

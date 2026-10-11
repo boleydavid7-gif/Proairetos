@@ -1,6 +1,6 @@
 import { headingText, isHeading, minutesLabel, timeOf, type Recipe } from './recipes';
 
-/** A recipe as plain text, in the shape SOMA's paste import reads back (Ingredients, then Steps). */
+/** A recipe as plain text, in the shape Soma's paste import reads back (Ingredients, then Steps). */
 export function recipeAsText(recipe: Recipe): string {
   const time = minutesLabel(timeOf(recipe));
   const lines = [

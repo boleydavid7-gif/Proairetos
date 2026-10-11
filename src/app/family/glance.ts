@@ -36,7 +36,7 @@ export function billsOn(bills: readonly Bill[], date: string): BillOnDay[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The unit HYDROS shows amounts in (its own setting, read only). */
+/** The unit Hydros shows amounts in (its own setting, read only). */
 function hydrosUnit(): 'oz' | 'ml' | 'L' {
   try {
     const unit = (JSON.parse(localStorage.getItem('hydros:settings') ?? '{}') as { unit?: unknown }).unit;
@@ -53,7 +53,7 @@ function volume(ounces: number, unit: 'oz' | 'ml' | 'L'): string {
 }
 
 /**
- * While a work block is on: what was logged in HYDROS since it began, and when the last drink was. Nothing
+ * While a work block is on: what was logged in Hydros since it began, and when the last drink was. Nothing
  * when no work block is on.
  */
 export function waterDuring(

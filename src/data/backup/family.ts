@@ -2,7 +2,7 @@ import { stores } from '../storage/indexeddb/database';
 
 /**
  * The other apps in the family, in the same backup as Proairetos: Askesis's
- * workouts and plan, SOMA's recipes and grocery list, Oikonomia's bills, and HYDROS's drinks (all in the
+ * workouts and plan, Soma's recipes and grocery list, Oikonomia's bills, and Hydros's drinks (all in the
  * Proairetos database), and the settings of the family apps, which
  * live in this browser's storage. One file holds everything; whichever app
  * makes it, restoring it brings the family apps back.
@@ -83,7 +83,7 @@ function done(tx: IDBTransaction): Promise<void> {
   });
 }
 
-/** The first SOMA's own database (before its records moved into the Proairetos database). */
+/** The first Soma's own database (before its records moved into the Proairetos database). */
 export function openSoma(factory: IDBFactory = indexedDB): Promise<IDBDatabase | undefined> {
   return new Promise((resolve) => {
     try {

@@ -13,7 +13,7 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'Proairetos',
     lines: ['Clarity today.', 'A steadier tomorrow.'],
-    action: 'Get Started',
+    action: 'Get started',
     brand: true,
   },
   {

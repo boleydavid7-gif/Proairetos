@@ -20,6 +20,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Pull a row to the left to mark it: doses, chores, upkeep, keeping in touch.',
       'Therapeia and Ktema start with adding the first medicine or thing.',
       'Getting started now shows how to add Proairetos to your Home Screen, and the other apps with how to add them.',
+      'Notifications in Settings are grouped by app, showing only the apps you added.',
+      'Soma and Hydros, like every app in the family, are now written with one capital.',
     ],
   },
   {
@@ -41,10 +43,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-10',
     lines: [
-      'Reminders from HYDROS, Oikonomia, Askesis and Praxis arrive with their own words, through Proairetos.',
+      'Reminders from Hydros, Oikonomia, Askesis and Praxis arrive with their own words, through Proairetos.',
       'A front page for the family, with how to add each app to your Home Screen (Settings, More apps, All the apps).',
       'Sign in with Google or Apple, when the site has it turned on.',
-      'SOMA: a grocery list two people share, sealed so only the two of you can read it.',
+      'Soma: a grocery list two people share, sealed so only the two of you can read it.',
       'Askesis: distance by GPS during a session, and runs from a watch’s GPX or TCX file.',
       'Theoria: bring in Kindle and Readwise highlights, look up a word, and listen to a chapter read aloud.',
       'Praxis: cards to look at again, on the days that help them stay.',
