@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../app/ErrorBoundary';
@@ -13,7 +14,7 @@ import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
-import { markAdded } from '../app/family/added';
+import AddedOnly from '../app/family/AddedOnly';
 import PraxisApp from './PraxisApp';
 import { notifications } from '../app/notify/notifications';
 
@@ -27,7 +28,6 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 startDailyCopies();
-markAdded('praxis');
 notifications.start();
 
 // Proairetos's own service worker (scope /) keeps Praxis's page for offline use and shows the notice when a
@@ -41,6 +41,6 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ErrorBoundary><PraxisApp /></ErrorBoundary>
+    <ErrorBoundary><AddedOnly app="praxis"><PraxisApp /></AddedOnly></ErrorBoundary>
   </React.StrictMode>,
 );

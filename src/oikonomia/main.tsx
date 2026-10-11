@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../app/ErrorBoundary';
@@ -5,7 +6,7 @@ import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
 import { startDailyCopies } from '../app/family/dailyCopy';
-import { markAdded } from '../app/family/added';
+import AddedOnly from '../app/family/AddedOnly';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
@@ -35,12 +36,11 @@ void startStore()
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <ErrorBoundary><App /></ErrorBoundary>
+        <ErrorBoundary><AddedOnly app="oikonomia"><App /></AddedOnly></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();
     startDailyCopies();
-    markAdded('oikonomia');
   });
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

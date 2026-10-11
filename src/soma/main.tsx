@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../app/ErrorBoundary';
@@ -17,7 +18,7 @@ import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
-import { markAdded } from '../app/family/added';
+import AddedOnly from '../app/family/AddedOnly';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
@@ -44,12 +45,11 @@ if (invite) {
 }
 ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <ErrorBoundary><App /></ErrorBoundary>
+        <ErrorBoundary><AddedOnly app="soma"><App /></AddedOnly></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();
     startDailyCopies();
-    markAdded('soma');
   });
 
 // Its own service worker, scoped to /soma/, so it installs and opens offline as its own app.

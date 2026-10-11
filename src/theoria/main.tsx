@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../app/ErrorBoundary';
@@ -14,12 +15,11 @@ import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import TheoriaApp from './TheoriaApp';
 import { startDailyCopies } from '../app/family/dailyCopy';
-import { markAdded } from '../app/family/added';
+import AddedOnly from '../app/family/AddedOnly';
 
 applyAppearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
 startDailyCopies();
-markAdded('theoria');
 
 // Proairetos's own service worker (scope /) keeps Theoria's page for offline use; registered here too, since
 // each Home Screen app on an iPhone keeps its own storage.
@@ -31,6 +31,6 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ErrorBoundary><TheoriaApp /></ErrorBoundary>
+    <ErrorBoundary><AddedOnly app="theoria"><TheoriaApp /></AddedOnly></ErrorBoundary>
   </React.StrictMode>,
 );

@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';

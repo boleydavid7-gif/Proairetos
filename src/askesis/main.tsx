@@ -1,3 +1,4 @@
+import '../app/family/decideAdded';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../app/ErrorBoundary';
@@ -16,7 +17,7 @@ import './styles/desktop.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
-import { markAdded } from '../app/family/added';
+import AddedOnly from '../app/family/AddedOnly';
 
 document.documentElement.classList.add('askesis');
 
@@ -37,12 +38,11 @@ void startStore()
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(
       <React.StrictMode>
-        <ErrorBoundary><App /></ErrorBoundary>
+        <ErrorBoundary><AddedOnly app="askesis"><App /></AddedOnly></ErrorBoundary>
       </React.StrictMode>,
     );
     void startSync();
     startDailyCopies();
-    markAdded('askesis');
   });
 
 // Its own service worker, scoped to /askesis/, so it installs and opens offline as its own app.

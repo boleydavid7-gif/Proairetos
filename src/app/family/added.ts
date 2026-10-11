@@ -4,7 +4,7 @@ import type { FamilyApp } from './FamilyApps';
 /*
  * Proairetos is the main app; the others are added from its Store. What is added is one setting, synced and
  * backed up like the rest. An app that is not added stays out of Proairetos's Today, Days ahead, notifications
- * and search; its records are kept as they are. Opening an app adds it, so nothing someone uses ever vanishes.
+ * and search; its records are kept as they are, and the app itself shows Add until it is added again.
  */
 
 export type AddOn = Exclude<FamilyApp, 'proairetos'>;
@@ -99,11 +99,6 @@ export function addApp(app: AddOn): void {
 
 export function removeApp(app: AddOn): void {
   write({ added: addedApps().filter((each) => each !== app) });
-}
-
-/** Called when an app opens: using it is adding it. */
-export function markAdded(app: AddOn): void {
-  addApp(app);
 }
 
 export function subscribeAdded(listener: () => void): () => void {

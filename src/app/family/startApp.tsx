@@ -4,7 +4,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import { applyAppearance } from '../appearance';
 import { startSync } from '../sync/syncController';
 import { startDailyCopies } from './dailyCopy';
-import { markAdded } from './added';
+import AddedOnly from './AddedOnly';
 import { notifications } from '../notify/notifications';
 
 /**
@@ -26,13 +26,14 @@ export function startApp(app: 'diaita' | 'philia' | 'ergon', App: ComponentType,
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <ErrorBoundary>
-        <App />
+        <AddedOnly app={app}>
+          <App />
+        </AddedOnly>
       </ErrorBoundary>
     </React.StrictMode>,
   );
   void startSync();
   startDailyCopies();
-  markAdded(app);
   notifications.start();
 
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {

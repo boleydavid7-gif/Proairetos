@@ -1,0 +1,86 @@
+/* The page an app shows while it is not added to Proairetos. Self-styled: it stands in for any app. */
+
+.added-only {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  color: var(--ink);
+  background:
+    radial-gradient(110% 60% at 50% 0%, color-mix(in srgb, var(--accent-app) 28%, transparent), transparent 70%),
+    var(--ground);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  text-align: center;
+}
+
+.added-only__card {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.added-only__logo {
+  border-radius: 22px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.3);
+}
+
+.added-only__name {
+  margin: 14px 0 0;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 2.6rem;
+  line-height: 1.05;
+}
+
+.added-only__by {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+
+.added-only__line {
+  margin: 18px 0 0;
+  font-size: 1.1rem;
+}
+
+.added-only__about {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.added-only__add {
+  margin-top: 22px;
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent-app);
+  color: var(--ground);
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.added-only__add:focus-visible,
+.added-only__store:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.added-only__store {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
