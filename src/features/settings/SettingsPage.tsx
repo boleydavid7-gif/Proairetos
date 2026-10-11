@@ -1,3 +1,6 @@
+import StoreSection from './StoreSection';
+import { familyApps } from '../../app/family/FamilyApps';
+import { useAddedApps, type AddOn } from '../../app/family/added';
 import { promptText } from '../reflect/prompts';
 import { notifications } from '../../app/notify/notifications';
 import { localDayKey } from '../../data/storage/preferences';
@@ -435,6 +438,7 @@ type View =
   | 'privacy'
   | 'delete'
   | 'news'
+  | 'store'
   | 'about';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
@@ -462,6 +466,7 @@ const viewTitles: Record<View, string> = {
   privacy: 'Privacy',
   delete: 'Delete everything',
   news: 'What’s new',
+  store: 'Store',
   about: 'About Proairetos',
 };
 
@@ -780,6 +785,7 @@ function AppearanceSection() {
 
 function TodaySection() {
   const shows = useTodayParts();
+  const addedNow = useAddedApps();
   const row = ({ part, label, detail }: PartRow) => (
     <button
       key={part}
@@ -804,7 +810,7 @@ function TodaySection() {
       <p className="section-description">
         Switch anything off or back on at any time. Nothing you recorded is lost.
       </p>
-      {appParts.map(({ app, sections }) => (
+      {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).map(({ app, sections }) => (
         <div key={app} className="stack-tight">
           <h2 className="settings-group__label">{app}</h2>
           {sections.map((section) => {
@@ -1164,6 +1170,7 @@ export default function SettingsPage() {
           </section>
         )}
         {view === 'about' && <SourcesSection />}
+        {view === 'store' && <StoreSection />}
         {view === 'news' && (
           <section className="settings-card" aria-label="What’s new">
             {whatsNew.map((entry) => (
@@ -1183,6 +1190,7 @@ export default function SettingsPage() {
 
   type Entry = { id: string; icon: ReactNode; title: string; value?: string; onClick: () => void; words?: string };
   const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
+  const added = useAddedApps();
   const groups: { label: string; entries: Entry[] }[] = [
     {
       label: 'Your days',
@@ -1248,18 +1256,12 @@ export default function SettingsPage() {
       ],
     },
     {
-      label: 'More apps',
+      label: 'Apps',
       entries: [
-        { id: 'askesis', icon: app('/askesis/icon.svg'), title: 'Askesis', value: 'Running, step by step', onClick: () => window.location.assign('/askesis/'), words: 'running training' },
-        { id: 'soma', icon: app('/soma/icon.svg'), title: 'SOMA', value: 'Recipes and groceries', onClick: () => window.location.assign('/soma/'), words: 'recipes food cooking' },
-        { id: 'oikonomia', icon: app('/oikonomia/icon.svg'), title: 'Oikonomia', value: 'Bills and household essentials', onClick: () => window.location.assign('/oikonomia/'), words: 'money bills budget' },
-        { id: 'hydros', icon: app('/hydros/icon.svg'), title: 'HYDROS', value: 'Water, flow and balance', onClick: () => window.location.assign('/hydros/'), words: 'water drink' },
-        { id: 'praxis', icon: app('/praxis/favicon.svg'), title: 'Praxis', value: 'Study, on purpose', onClick: () => window.location.assign('/praxis/'), words: 'study focus' },
-        { id: 'theoria', icon: app('/theoria/favicon.svg'), title: 'Theoria', value: 'Reading and ideas', onClick: () => window.location.assign('/theoria/'), words: 'books reading' },
-        { id: 'diaita', icon: app('/diaita/icon.svg'), title: 'Diaita', value: 'Sleep and meals around your schedule', onClick: () => window.location.assign('/diaita/'), words: 'sleep nap caffeine meals night shift rhythm' },
-        { id: 'philia', icon: app('/philia/icon.svg'), title: 'Philia', value: 'Birthdays and the people in your life', onClick: () => window.location.assign('/philia/'), words: 'people birthdays friends family gifts' },
-        { id: 'ergon', icon: app('/ergon/icon.svg'), title: 'Ergon', value: 'Household chores, shared', onClick: () => window.location.assign('/ergon/'), words: 'chores cleaning household rota' },
-        { id: 'family-page', icon: <CompassIcon size={22} />, title: 'All the apps', value: 'And how to add them', onClick: () => window.location.assign('/welcome/'), words: 'install home screen add share family' },
+        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon running recipes bills water study reading sleep people chores' },
+        ...familyApps
+          .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
+          .map((each) => ({ id: each.id, icon: app(each.icon), title: each.name, value: each.line, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),
       ],
     },
     {

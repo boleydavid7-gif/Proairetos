@@ -13,6 +13,7 @@ import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { markAdded } from '../app/family/added';
 import PraxisApp from './PraxisApp';
 import { notifications } from '../app/notify/notifications';
 
@@ -26,6 +27,7 @@ appearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
 startDailyCopies();
+markAdded('praxis');
 notifications.start();
 
 // Proairetos's own service worker (scope /) keeps Praxis's page for offline use and shows the notice when a

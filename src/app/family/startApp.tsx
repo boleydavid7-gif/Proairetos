@@ -4,6 +4,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import { applyAppearance } from '../appearance';
 import { startSync } from '../sync/syncController';
 import { startDailyCopies } from './dailyCopy';
+import { markAdded } from './added';
 import { notifications } from '../notify/notifications';
 
 /**
@@ -31,6 +32,7 @@ export function startApp(app: 'diaita' | 'philia' | 'ergon', App: ComponentType,
   );
   void startSync();
   startDailyCopies();
+  markAdded(app);
   notifications.start();
 
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {

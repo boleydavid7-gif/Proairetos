@@ -12,6 +12,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Ergon: a reminder time for a single chore.',
       'Philia: a name changed in Compass carries over.',
       'Sign in the other apps from Proairetos with a one-time pass: Settings, Account, Sign in other apps.',
+      'The Store: add the other apps to Proairetos (Settings, Apps, Store, or the grid beside the gear). Apps you already use stay added.',
     ],
   },
   {

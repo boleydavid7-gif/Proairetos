@@ -1,4 +1,5 @@
 import { people } from '../../philia/app/state';
+import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
 import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
@@ -89,7 +90,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     things.push({ id: statement.id, kind: 'statement', title: statement.body, fields: [{ name: 'Note', text: statement.note }], at: statement.createdAt });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const recipe of recipes) {
+  for (const recipe of isAdded('soma') ? recipes : []) {
     labels.set(recipe.id, 'Recipe in SOMA');
     things.push({
       id: recipe.id,
@@ -104,7 +105,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
       at: recipe.createdAt ?? '',
     });
   }
-  for (const book of books) {
+  for (const book of isAdded('theoria') ? books : []) {
     labels.set(book.id, 'Book in Theoria');
     things.push({
       id: book.id,
@@ -119,11 +120,11 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
       at: book.updatedAt,
     });
   }
-  for (const bill of bills) {
+  for (const bill of isAdded('oikonomia') ? bills : []) {
     labels.set(bill.id, 'Bill in Oikonomia');
     things.push({ id: bill.id, kind: 'app', href: '/oikonomia/', title: bill.name, fields: [{ name: 'Notes', text: bill.notes }], at: bill.createdAt });
   }
-  for (const person of people.list()) {
+  for (const person of isAdded('philia') ? people.list() : []) {
     labels.set(person.id, 'Person in Philia');
     things.push({
       id: person.id,
@@ -139,7 +140,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
       at: person.createdAt,
     });
   }
-  for (const chore of allChores()) {
+  for (const chore of isAdded('ergon') ? allChores() : []) {
     labels.set(chore.id, 'Chore in Ergon');
     things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
   }

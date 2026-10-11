@@ -17,6 +17,7 @@ import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { markAdded } from '../app/family/added';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
@@ -48,6 +49,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     );
     void startSync();
     startDailyCopies();
+    markAdded('soma');
   });
 
 // Its own service worker, scoped to /soma/, so it installs and opens offline as its own app.

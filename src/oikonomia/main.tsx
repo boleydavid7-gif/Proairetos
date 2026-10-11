@@ -5,6 +5,7 @@ import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { markAdded } from '../app/family/added';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
@@ -39,6 +40,7 @@ void startStore()
     );
     void startSync();
     startDailyCopies();
+    markAdded('oikonomia');
   });
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

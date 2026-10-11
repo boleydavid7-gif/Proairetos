@@ -16,6 +16,7 @@ import { loadSettings, startStore } from './data/store';
 import { notifications } from '../app/notify/notifications';
 import App from './app/App';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { markAdded } from '../app/family/added';
 
 function appearance() {
   applyAppearance();
@@ -31,6 +32,7 @@ notifications.start();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><App /></ErrorBoundary></React.StrictMode>);
 void startSync();
 startDailyCopies();
+markAdded('hydros');
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   let refreshing = false;

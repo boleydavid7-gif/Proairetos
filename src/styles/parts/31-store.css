@@ -1,0 +1,131 @@
+/* The Store (Settings) and the app grid beside the gear. */
+
+.store {
+  display: grid;
+  gap: 18px;
+}
+
+.store__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+
+.store__app {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+}
+
+.store__head {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.store__icon {
+  border-radius: 12px;
+}
+
+.store__name {
+  margin: 0;
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 500;
+  font-size: 1.3rem;
+}
+
+.store__line,
+.store__about {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.store__about {
+  font-size: 0.95rem;
+}
+
+.store__price {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.store__shot {
+  width: 100%;
+  max-height: 14rem;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.store__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.store__button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+
+.apps-grid {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 14px 8px;
+}
+
+.apps-grid__app {
+  width: 100%;
+  min-height: 96px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.apps-grid__app img {
+  border-radius: 14px;
+}
+
+.apps-grid__store {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1.5px dashed var(--color-border);
+  font-size: 1.6rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 62rem) {
+  .store__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

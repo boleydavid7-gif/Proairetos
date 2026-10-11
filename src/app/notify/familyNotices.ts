@@ -9,6 +9,7 @@ import { choreNotices } from '../../ergon/core/notices';
 import { allChores, settings as ergonSettings } from '../../ergon/app/state';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
+import { isAdded } from '../family/added';
 
 /** Diaita, Philia and Ergon's notices, from what they keep on this device (Proairetos sends them all). */
 export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
@@ -17,7 +18,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const notices: Notice[] = [];
 
   const diaita = diaitaSettings.load();
-  if (diaita.started) {
+  if (diaita.started && isAdded('diaita')) {
     const from = new Date(now.getTime() - 2 * 86_400_000);
     const blocks = [...(await scheduleService.occurrencesBetween(from, until)), ...otherCalendars.blocksBetween(from, until)].map((block) => ({
       start: block.start,
@@ -30,10 +31,10 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   }
 
   const everyone = people.list();
-  if (everyone.length) notices.push(...peopleNotices(everyone, philiaSettings.load().notices, today, horizon));
+  if (everyone.length && isAdded('philia')) notices.push(...peopleNotices(everyone, philiaSettings.load().notices, today, horizon));
 
   const chores = allChores();
-  if (chores.length) {
+  if (chores.length && isAdded('ergon')) {
     const ergon = ergonSettings.load();
     notices.push(...choreNotices(chores, ergon.notices, ergon.me || undefined, today, horizon));
   }

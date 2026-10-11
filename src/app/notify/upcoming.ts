@@ -11,6 +11,7 @@ import { otherCalendars } from '../calendars/otherCalendars';
 import { decisionService, lifeService, scheduleService } from '../services';
 import { hydrationNotices, hydrationWantsWork } from './hydrationSchedule';
 import { familyNotices } from './familyNotices';
+import { isAdded } from '../family/added';
 
 const HORIZON_DAYS = 14;
 
@@ -21,9 +22,9 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     lifeService.list(),
     decisionService.list(),
     scheduleService.occurrencesBetween(now, until),
-    settings.runs ? readRuns() : undefined,
-    settings.bills ? readStore<Bill>('oikonomiaBills') : [],
-    settings.study ? studyEnd() : undefined,
+    settings.runs && isAdded('askesis') ? readRuns() : undefined,
+    settings.bills && isAdded('oikonomia') ? readStore<Bill>('oikonomiaBills') : [],
+    settings.study && isAdded('praxis') ? studyEnd() : undefined,
     settings.rhythm || settings.people || settings.chores ? familyNotices(now, until).catch(() => []) : [],
   ]);
   const today = toLocalDate(now);
@@ -57,6 +58,7 @@ async function studyEnd(): Promise<{ key: string; at: Date; title: string } | un
 
 /** Water reminders, with the last drink logged and (when chosen) the work blocks they keep to. */
 export async function hydrationUpcoming(now: Date): Promise<Notice[]> {
+  if (!isAdded('hydros')) return [];
   const drinks = await readStore<{ loggedAt?: string }>('hydrosDrinks');
   const last = drinks.map((drink) => drink.loggedAt ?? '').filter(Boolean).sort().pop();
   let work: { start: Date; end: Date }[] = [];

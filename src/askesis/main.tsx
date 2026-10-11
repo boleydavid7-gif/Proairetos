@@ -16,6 +16,7 @@ import './styles/desktop.css';
 import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { markAdded } from '../app/family/added';
 
 document.documentElement.classList.add('askesis');
 
@@ -41,6 +42,7 @@ void startStore()
     );
     void startSync();
     startDailyCopies();
+    markAdded('askesis');
   });
 
 // Its own service worker, scoped to /askesis/, so it installs and opens offline as its own app.
