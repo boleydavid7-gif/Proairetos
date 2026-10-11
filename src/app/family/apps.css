@@ -332,7 +332,7 @@
   font-size: 1.4rem;
 }
 
-.person-row {
+.row.person-row {
   grid-template-columns: 44px minmax(0, 1fr) auto;
 }
 
@@ -342,8 +342,9 @@
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 }
 
-.coming-up__card {
+.card.coming-up__card {
   display: grid;
+  text-align: left;
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
@@ -394,10 +395,14 @@
 
 .add-line .input {
   flex: 1;
+  width: auto;
+  min-width: 0;
 }
 
 .add-line .button-quiet {
   flex: none;
+  width: auto;
+  padding-inline: 18px;
 }
 
 /* ---------- Ergon ---------- */
@@ -462,4 +467,21 @@
   font-weight: 600;
   margin-left: 6px;
   vertical-align: 1px;
+}
+
+.philia-gift > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:root:is(.diaita, .philia, .ergon) .home__words {
+  margin-top: auto;
+}
+
+.section-head .button-main {
+  width: auto;
+  flex: none;
+  min-height: 44px;
+  padding-inline: 20px;
 }

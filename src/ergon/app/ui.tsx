@@ -10,7 +10,7 @@ export function done(chore: Chore, today: string): void {
   offerUndo(`${chore.name} done`, () => putChore(chore));
 }
 
-export function ChoreRow({ chore, today, onOpen }: { chore: Chore; today: string; onOpen: () => void }) {
+export function ChoreRow({ chore, today, onOpen, room = true }: { chore: Chore; today: string; onOpen: () => void; room?: boolean }) {
   const day = nextDay(chore);
   return (
     <li className="chore">
@@ -22,17 +22,17 @@ export function ChoreRow({ chore, today, onOpen }: { chore: Chore; today: string
           {chore.name}
           {chore.who && <span className="who-chip">{chore.who}</span>}
         </span>
-        <small>{[chore.room, repeatText(chore.repeat)].filter(Boolean).join(' · ')}</small>
+        <small>{[room ? chore.room : undefined, repeatText(chore.repeat)].filter(Boolean).join(' · ')}</small>
       </button>
       <span className="chore__when">{day ? dayText(day, today) : ''}</span>
     </li>
   );
 }
 
-export function ChoreList({ chores, today, onOpen }: { chores: readonly Chore[]; today: string; onOpen: (chore: Chore) => void }) {
+export function ChoreList({ chores, today, onOpen, room = true }: { chores: readonly Chore[]; today: string; onOpen: (chore: Chore) => void; room?: boolean }) {
   return (
     <ul className="chore-list">
-      {chores.map((chore) => <ChoreRow key={chore.id} chore={chore} today={today} onOpen={() => onOpen(chore)} />)}
+      {chores.map((chore) => <ChoreRow key={chore.id} chore={chore} today={today} onOpen={() => onOpen(chore)} room={room} />)}
     </ul>
   );
 }

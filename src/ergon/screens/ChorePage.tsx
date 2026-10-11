@@ -11,7 +11,7 @@ type Kind = Repeat['kind'];
 const KINDS: { id: Kind; label: string }[] = [
   { id: 'days', label: 'Days' },
   { id: 'weeks', label: 'Weeks' },
-  { id: 'weekdays', label: 'Weekdays' },
+  { id: 'weekdays', label: 'Days of the week' },
   { id: 'monthly', label: 'Monthly' },
   { id: 'once', label: 'Once' },
 ];
@@ -125,7 +125,13 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
 
       <fieldset className="field">
         <legend className="field__label">Repeats</legend>
-        <Segmented label="Repeats" value={kind} options={KINDS} onChange={setKind} small />
+        <div className="chip-row" role="group" aria-label="Repeats">
+          {KINDS.map((option) => (
+            <button key={option.id} type="button" className="chip" aria-pressed={kind === option.id} onClick={() => setKind(option.id)}>
+              {option.label}
+            </button>
+          ))}
+        </div>
         {(kind === 'days' || kind === 'weeks') && (
           <div className="stepper">
             <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(1, every - 1))}>−</button>

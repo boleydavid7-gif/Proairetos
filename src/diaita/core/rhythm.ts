@@ -272,3 +272,9 @@ export function clock(date: Date): string {
 export function timeText(date: Date): string {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
+
+/** A stored "HH:MM" shown as the phone shows times. */
+export function clockText(hhmm: string): string {
+  const [hours, minutes] = hhmm.split(':').map(Number);
+  return timeText(new Date(2000, 0, 1, hours, minutes));
+}

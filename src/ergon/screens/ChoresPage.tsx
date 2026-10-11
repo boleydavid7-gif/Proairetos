@@ -26,7 +26,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
       {ordered.map(([room, chores]) => (
         <section key={room} className="chore-group">
           <p className="label">{room}</p>
-          <ChoreList chores={chores} today={today} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} />
+          <ChoreList chores={chores} today={today} room={room === 'Anywhere'} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} />
         </section>
       ))}
       {all.length > 0 && (

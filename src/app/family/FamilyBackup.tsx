@@ -71,7 +71,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
     <>
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
-        <p className="muted">All seven apps and their settings. Theoria’s books stay on the phone.</p>
+        <p className="muted">All ten apps and their settings. Theoria’s books stay on the phone.</p>
         <label className="field">
           <span className="label">Password (optional)</span>
           <input

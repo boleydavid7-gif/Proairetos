@@ -81,7 +81,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   text glyphs); Theoria fills a book's title and author from the file; Hydros shows what was drunk with
   no target until the person chooses a daily amount (`goalChosen`).
 - Praxis stays a dark study room in either appearance, like Theoria (`praxis/main.tsx` sets `data-theme` dark after `applyAppearance`; text size still follows). On computers the rail names Askesis, SOMA, Oikonomia and HYDROS, so the name over their pages is hidden; welcome buttons stay 26rem wide.
-- `src/styles/premium.css` is the shared finish for all seven apps (imported last in each `main.tsx`):
+- `src/styles/premium.css` is the shared finish for all ten apps (imported last in each `main.tsx`):
   card depth tokens, balanced headings, tabular figures, selection and focus colour, grain over the
   home photos (`.hero::before`), the `.skeleton` shimmer for waiting. Add new shared polish there, not
   per app. `tap()` (Gentle taps) also fires on groceries ticked, bill paid, drink saved and a study start.
@@ -91,8 +91,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   an element sets `--photo-wide` inline and `premium.css` swaps it in from 62rem; Oikonomia's heroes use `<picture>`.
 - Light mode shows the morning photo (`morning`, `morning-wide`) in the same places as dark's landscapes (Today's `Landscape`, Compass's `PageHero`, the Journal banner): those elements also set `--photo-light` / `--photo-light-wide` and `premium.css` swaps them in for light (and System when light), true to colour. Meditate (page, sit screen, Reflect's card) shows `lake-light` / `lake-light-wide` in light, toned down (`premium.css`) because its words stay light. Main cards in the Proairetos shell are glass (`color-mix` of the surface with a blur, list in `premium.css`); the tab bar is a little more see-through.
 - Notices and push always go through Proairetos's `/sw.js` (scope /), whatever app is open (`app/notify/familyWorker.ts`, used by `notifications.show` and `enableReminders`): HYDROS, Askesis, SOMA and Oikonomia have their own workers for their pages, which cannot show a push. A tap goes to the app the notice belongs to (`placeFor` in `sw.js`). The family list is one component in every app (`app/family/FamilyApps.tsx`); apps without the shared stylesheet (Praxis, Theoria, HYDROS) wrap the account card, backup card and list in `.family-surface` (styles in `app/family/account.css`). Theoria's settings (`theoria:`) are in backups and sync. Every app's manifest has shortcuts.
-- Reminders from every app (migration `20261017000000_reminder_sources.sql`, function redeploy): server rows carry a `source` (proairetos, askesis, oikonomia, hydros, praxis; `core/notify/sources.ts`) and `sealed` words (`sealNoticeWords`, account key, AD `proairetos-notice`). `updateReminders` in `syncController` writes only the sources this app owns (`sourcesToWrite`: each app its own; Proairetos also Askesis/Oikonomia/HYDROS when it holds their data or wrote them before; Praxis's running block only from Praxis), replacing that source alone (`replaceSourceReminders`), whenever the account has a push subscription anywhere (`hasPushSubscription`). `send-reminders` sends the sealed words as the payload (`{v:1,n:[...]}`); `sw.js` opens them with the `dataKey` from IndexedDB `proairetos`/`syncMeta` and shows each app's own words and icon, falling back to its stored notices or the gentle generic line. Apps other than Proairetos do not create a second push subscription when the account already has one (no double notices on iPhone). Without the migration, Proairetos keeps the old replace-all.
-- Front page `public/welcome/index.html` (served at `/welcome/`, static, no script): the seven apps with their screenshots, how to add each to the Home Screen (iPhone, Android, computer), and the privacy promises. Linked from Settings > More apps ("All the apps") and the privacy page; `sw.js` keeps it in `STATIC_PAGES` so it is never cached as the app.
+- Reminders from every app (migration `20261017000000_reminder_sources.sql`, function redeploy): server rows carry a `source` (proairetos, askesis, oikonomia, hydros, praxis, diaita, philia, ergon; `core/notify/sources.ts`) and `sealed` words (`sealNoticeWords`, account key, AD `proairetos-notice`). `updateReminders` in `syncController` writes only the sources this app owns (`sourcesToWrite`: each app its own; Proairetos also Askesis/Oikonomia/HYDROS when it holds their data or wrote them before; Praxis's running block only from Praxis), replacing that source alone (`replaceSourceReminders`), whenever the account has a push subscription anywhere (`hasPushSubscription`). `send-reminders` sends the sealed words as the payload (`{v:1,n:[...]}`); `sw.js` opens them with the `dataKey` from IndexedDB `proairetos`/`syncMeta` and shows each app's own words and icon, falling back to its stored notices or the gentle generic line. Apps other than Proairetos do not create a second push subscription when the account already has one (no double notices on iPhone). Without the migration, Proairetos keeps the old replace-all.
+- Front page `public/welcome/index.html` (served at `/welcome/`, static, no script): the ten apps with their screenshots, how to add each to the Home Screen (iPhone, Android, computer), and the privacy promises. Linked from Settings > More apps ("All the apps") and the privacy page; `sw.js` keeps it in `STATIC_PAGES` so it is never cached as the app.
 - Sign in with Google or Apple (optional, `VITE_SIGN_IN_WITH`=`google,apple`, providers set up in Supabase per docs/SERVER_SETUP.md): `ProviderButtons` (`app/family/ProviderButtons.tsx`) above the email code in Proairetos's AccountSection and every family AccountCard; `signInWith` returns to that app's account page (`?open=account|more|settings`); `resolvePhase` tidies the tokens from the address; Proairetos skips the welcome when opened with `?open=account`. The passphrase still unlocks the data. HYDROS reloads on a new worker only when one was already in charge (a first install kept losing `?open=`).
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
@@ -578,3 +578,43 @@ without it. Not yet tested against a live Supabase.
 
 Not yet verified on a real phone: swipe gestures, fonts (EB Garamond and
 Inter, bundled via @fontsource), real Supabase emails and push delivery.
+
+## Diaita, Philia and Ergon (same repository)
+
+- Three more apps at `/diaita/`, `/philia/`, `/ergon/` (`<app>/index.html` -> `src/<app>/`, own manifest with
+  shortcuts, icons, screenshots and `sw.js` in `public/<app>/`; Proairetos's `sw.js` skips them). They share a
+  lighter shell: `app/family/startApp.tsx` (appearance, sync, daily copies, `notifications.start()`, worker),
+  `app/family/shell.tsx` (`stored` settings, `collection` = one localStorage key per record so sync carries each
+  on its own, `useRoutes` with back, `TabBar`, `Brand`, `Welcome`, `Shell`, `offerUndo`/`say` + `UndoBar`
+  `.family-toast`), `app/family/icons.tsx` (line icons, `AppMark`), `app/family/apps.css` (shared pieces) and
+  `askesis.css`, with colours on `:root.<app>` in `src/<app>/styles/`. Records live in browser storage under
+  `diaita:`, `philia:`, `ergon:` (backed up, synced as `preferences`).
+- Diaita (`core/rhythm.ts`, tests): `planBetween` turns the Proairetos schedule (COMMITTED blocks; a night is a
+  block running through 03:00) into sleep, wake, wind-down, last caffeine (`cutoffHours`, Drake 2013), nap
+  before a first night (90 min ending an hour before leaving, Ruggiero 2014), bright light in the first half of
+  a night and sunglasses home when another night follows (Smith/Eastman 2009), main meal before and small
+  snacks 00:00-06:00 on nights (Chellappa 2021), a short sleep after the last night, earlier bed before an
+  early start, later after a late finish. Every line can open its source; Settings (More) holds bedtime, sleep
+  hours, travel, getting ready, cutoff, wind-down, Light and Meals switches. Grouped by the person's day
+  (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
+  and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources.
+  Notices kind `rhythm` (`core/notices.ts`: wind down, nap on; last caffeine off), not held by quiet hours.
+- Philia (`core/people.ts`, tests): people (`philia:person:ID`) with birthday (year optional, 29 Feb on the
+  28th), other yearly dates, who they are, Remember lines, gift ideas (mark given), times together, and an
+  optional keep-in-touch rhythm that, when it comes round, says only how long it has been (`sinceText`).
+  Home: Coming up (30 days), Keep in touch, Times together. More: bring in Compass people (`fromCompass`),
+  reminder choices (dates on the day or days before, keep in touch, time). Notices kind `person`, opening
+  `philia:person:ID`. `?open=person:ID|add|people`.
+- Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
+  week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
+  late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;
+  who did what in 30 days as plain counts. One shared household per person through `createSharedLists`
+  (`ergon:households`, cache `ergonShared`, AD `ergon-list`; invite `/ergon/?open=home:ID#k=KEY&n=NAME`, read in
+  `main.tsx`); sharing moves this phone's chores in, leaving keeps a copy. Notices kind `chore`: one per day
+  naming that day's chores, optional "Only mine" (More: your name here).
+- In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
+  from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
+  `app/notify/familyNotices.ts`); What's included parts `diaita` (tonight's sleep on Today), `birthdays`
+  (next week on Today) and `birthday-dates` (Days ahead lines beside bills, `birthdaysOn` in `glance.ts`),
+  `chores` (chores whose day came on Today) in `features/today/TodayNewFamily.tsx`; search finds people and
+  chores.

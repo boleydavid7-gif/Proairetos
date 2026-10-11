@@ -8,7 +8,7 @@ import photoWide from '../../assets/images/scenes/sunrise-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { Timeline, span } from '../app/ui';
-import { DAY_NAMES, QUALITY_NAMES, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, type SleepQuality } from '../core/rhythm';
+import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, type SleepQuality } from '../core/rhythm';
 
 const ENERGY: { id: Energy; label: string }[] = [
   { id: 'full', label: 'Plenty' },
@@ -59,7 +59,7 @@ function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string
         <button type="button" className="diaita-checkin__kept" onClick={() => nav.go({ name: 'log', date })}>
           <span className="card__eyebrow">Last night</span>
           <strong>{hoursText(sleptMinutes(kept))}</strong>
-          <span className="muted">{kept.bed}–{kept.up}{kept.how ? ` · ${QUALITY_NAMES[kept.how]}` : ''}</span>
+          <span className="muted">{clockText(kept.bed)}–{clockText(kept.up)}{kept.how ? ` · ${QUALITY_NAMES[kept.how]}` : ''}</span>
           <ChevronIcon size={18} />
         </button>
         {energyRow}

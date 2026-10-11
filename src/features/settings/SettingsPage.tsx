@@ -119,7 +119,7 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for all seven apps, with their settings, photos and files. Keep it somewhere off this phone.
+        One file for all ten apps, with their settings, photos and files. Keep it somewhere off this phone.
       </p>
       <label className="plan-field">
         <span>Password (recommended)</span>

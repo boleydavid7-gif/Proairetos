@@ -5,7 +5,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
 import { sleeps } from '../app/state';
 import { weekdayText } from '../app/ui';
-import { QUALITY_NAMES, hoursText, sleepFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
+import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
 
 type Kept = SleepRecord & { id: string };
 
@@ -118,7 +118,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
                     <span className="row__icon diaita-night__hours">{hoursText(sleptMinutes(record)).replace(' min', 'm').replace(' h', 'h')}</span>
                     <span className="row__text">
                       <span>{weekdayText(record.date, today)}</span>
-                      <span className="row__detail">{record.bed}–{record.up}{record.how ? ` · ${QUALITY_NAMES[record.how]}` : ''}{record.note ? ` · ${record.note}` : ''}</span>
+                      <span className="row__detail">{clockText(record.bed)}–{clockText(record.up)}{record.how ? ` · ${QUALITY_NAMES[record.how]}` : ''}{record.note ? ` · ${record.note}` : ''}</span>
                     </span>
                   </button>
                 </li>

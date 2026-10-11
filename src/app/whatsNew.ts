@@ -1,6 +1,15 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-11',
+    lines: [
+      'Diaita: sleep, naps, light, caffeine and meals planned around your schedule, with a sleep log.',
+      'Philia: birthdays, things to remember, gift ideas and times together with the people in your life.',
+      'Ergon: household chores that come round, with turns, shared with the people you live with.',
+      'Today, Days ahead and search show what these keep, each one switchable in What’s included.',
+    ],
+  },
+  {
     date: '2026-10-10',
     lines: [
       'Reminders from HYDROS, Oikonomia, Askesis and Praxis arrive with their own words, through Proairetos.',
