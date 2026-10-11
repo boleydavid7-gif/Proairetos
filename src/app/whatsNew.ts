@@ -19,6 +19,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Philia: a photo for someone, kept on this phone.',
       'Pull a row to the left to mark it: doses, chores, upkeep, keeping in touch.',
       'Therapeia and Ktema start with adding the first medicine or thing.',
+      'Getting started now shows how to add Proairetos to your Home Screen, and the other apps with how to add them.',
     ],
   },
   {

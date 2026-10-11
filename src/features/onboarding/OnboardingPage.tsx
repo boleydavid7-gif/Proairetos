@@ -4,6 +4,9 @@ import { ArrowLeftIcon } from '../../components/icons/Icons';
 import OnboardingLayout from './components/OnboardingLayout';
 import StepDots from './components/StepDots';
 import { onboardingSteps } from './steps';
+import HomeScreen from './components/HomeScreen';
+import MoreApps from './components/MoreApps';
+import { openSettingsAt } from '../settings/SettingsPage';
 import MakeItYours, { type Choices } from './components/MakeItYours';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { compassService } from '../../app/services';
@@ -48,8 +51,8 @@ export default function OnboardingPage({ onGetStarted }: Props) {
         </button>
       </div>
 
-      <section className={`onboarding-hero${step.form ? ' onboarding-hero--form' : ''}`} aria-live="polite" key={index}>
-        {!step.form && <CompassRose size={76} tone="light" />}
+      <section className={`onboarding-hero${step.form || step.panel ? ' onboarding-hero--form' : ''}`} aria-live="polite" key={index}>
+        {!step.form && !step.panel && <CompassRose size={76} tone="light" />}
         {step.brand ? (
           <h1 className="onboarding-hero__brand">{step.title}</h1>
         ) : (
@@ -61,6 +64,15 @@ export default function OnboardingPage({ onGetStarted }: Props) {
           ))}
         </p>
         {step.form && <MakeItYours choices={choices} onChange={setChoices} />}
+        {step.panel === 'home-screen' && <HomeScreen />}
+        {step.panel === 'apps' && (
+          <MoreApps
+            onStore={() => {
+              openSettingsAt('store');
+              onGetStarted('settings');
+            }}
+          />
+        )}
       </section>
 
       <div className="onboarding-actions">
