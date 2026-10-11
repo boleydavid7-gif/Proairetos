@@ -1,6 +1,16 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-12',
+    lines: [
+      'Therapeia: medicines at the times you set, or after waking and before sleep on any schedule; refills, visits with your questions, a health card and a list to share.',
+      'Dynamis: strength sessions built from the research, every set logged, a little more offered when you are ready; short mobility routines with a bell.',
+      'Ktema: warranties, models, serial numbers and documents, and upkeep that comes round by date or by mileage.',
+      'A daily line in Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema, Stoic and Buddhist in turn, on each one\u2019s subject.',
+      'Philia: call, message or email someone from their page.',
+    ],
+  },
+  {
     date: '2026-10-11',
     lines: [
       'Diaita: sleep, naps, light, caffeine and meals planned around your schedule, with a sleep log.',

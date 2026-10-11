@@ -12,6 +12,8 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
   const existing = id ? people.get(id) : undefined;
   const [name, setName] = useState(existing?.name ?? '');
   const [relation, setRelation] = useState(existing?.relation ?? '');
+  const [phone, setPhone] = useState(existing?.phone ?? '');
+  const [email, setEmail] = useState(existing?.email ?? '');
   const [birthday, setBirthday] = useState<Parts>(dateParts(existing?.birthday) ?? empty);
   const [dates, setDates] = useState<{ id: string; label: string; parts: Parts }[]>(
     (existing?.dates ?? []).map((each) => ({ id: each.id, label: each.label, parts: dateParts(each.date) ?? empty })),
@@ -27,6 +29,8 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
       ...base,
       name: name.trim(),
       relation: relation.trim() || undefined,
+      phone: phone.trim() || undefined,
+      email: email.trim() || undefined,
       birthday: datePartsToText(birthday),
       dates: dates
         .map((each) => ({ id: each.id, label: each.label.trim() || 'Date', date: datePartsToText(each.parts) }))
@@ -54,6 +58,16 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
         <span className="field__label">Who they are (optional)</span>
         <input className="input" placeholder="Sister, friend, neighbour" value={relation} onChange={(event) => setRelation(event.target.value)} />
       </label>
+      <div className="input-row">
+        <label className="field">
+          <span className="field__label">Phone (optional)</span>
+          <input className="input" type="tel" inputMode="tel" autoComplete="off" value={phone} onChange={(event) => setPhone(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="field__label">Email (optional)</span>
+          <input className="input" type="email" inputMode="email" autoComplete="off" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </label>
+      </div>
       <DateFields label="Birthday (optional)" value={birthday} onChange={setBirthday} />
 
       {dates.map((each, index) => (

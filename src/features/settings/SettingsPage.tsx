@@ -122,7 +122,7 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for all ten apps, with their settings, photos and files. Keep it somewhere off this phone.
+        One file for all the apps, with their settings, photos and files. Keep it somewhere off this phone.
       </p>
       <label className="plan-field">
         <span>Password (recommended)</span>
@@ -661,6 +661,18 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   {
     app: 'Ergon',
     sections: [{ parts: [{ part: 'chores', label: 'Chores', detail: 'Chores whose day has come.' }] }],
+  },
+  {
+    app: 'Therapeia',
+    sections: [{ parts: [{ part: 'medicines', label: 'Medicines', detail: 'Today’s doses not yet marked, and a visit today.' }] }],
+  },
+  {
+    app: 'Dynamis',
+    sections: [{ parts: [{ part: 'training', label: 'Training days', detail: 'The session waiting on a planned day.' }] }],
+  },
+  {
+    app: 'Ktema',
+    sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep', detail: 'Upkeep whose day has come.' }] }],
   },
   {
     app: 'HYDROS',
@@ -1258,7 +1270,7 @@ export default function SettingsPage() {
     {
       label: 'Apps',
       entries: [
-        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon running recipes bills water study reading sleep people chores' },
+        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema running recipes bills water study reading sleep people chores medicines strength upkeep warranty' },
         ...familyApps
           .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
           .map((each) => ({ id: each.id, icon: app(each.icon), title: each.name, value: each.line, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),

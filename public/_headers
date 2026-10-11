@@ -69,3 +69,30 @@
   Cache-Control: no-cache
 /ergon/manifest.webmanifest
   Cache-Control: no-cache
+
+/therapeia/sw.js
+  Cache-Control: no-cache
+/therapeia/
+  Cache-Control: no-cache
+/therapeia/index.html
+  Cache-Control: no-cache
+/therapeia/manifest.webmanifest
+  Cache-Control: no-cache
+
+/dynamis/sw.js
+  Cache-Control: no-cache
+/dynamis/
+  Cache-Control: no-cache
+/dynamis/index.html
+  Cache-Control: no-cache
+/dynamis/manifest.webmanifest
+  Cache-Control: no-cache
+
+/ktema/sw.js
+  Cache-Control: no-cache
+/ktema/
+  Cache-Control: no-cache
+/ktema/index.html
+  Cache-Control: no-cache
+/ktema/manifest.webmanifest
+  Cache-Control: no-cache

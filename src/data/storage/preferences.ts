@@ -369,7 +369,13 @@ export type TodayPart =
   | 'birthdays'
   | 'birthday-dates'
   // Chores from Ergon whose day has come, on Today.
-  | 'chores';
+  | 'chores'
+  // Today's doses not yet marked, from Therapeia.
+  | 'medicines'
+  // A training day's session, from Dynamis.
+  | 'training'
+  // Upkeep whose day has come, from Ktema.
+  | 'upkeep';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];

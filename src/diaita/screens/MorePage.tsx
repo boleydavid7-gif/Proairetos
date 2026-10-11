@@ -1,4 +1,5 @@
 import AccountCard from '../../app/family/AccountCard';
+import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import { BookIcon, SettingsIcon } from '../../app/family/icons';
@@ -61,6 +62,10 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <NumberField label="Last caffeine before sleep" value={current.cutoffHours} min={0} max={12} step={1} unit="h" onChange={(cutoffHours) => change({ cutoffHours })} />
           <NumberField label="Wind-down" value={current.windDownMinutes} min={0} max={120} step={15} unit="min" onChange={(windDownMinutes) => change({ windDownMinutes })} />
         </div>
+      </section>
+
+      <section className="card switches">
+        <DailyLineSwitch app="diaita" />
       </section>
 
       <section className="card switches">

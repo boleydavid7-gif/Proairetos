@@ -1,4 +1,5 @@
 import AccountCard from '../../app/family/AccountCard';
+import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import { ChevronIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
@@ -42,6 +43,10 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
           <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder="For Mine and for who did what" />
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
+      </section>
+
+      <section className="card switches">
+        <DailyLineSwitch app="ergon" />
       </section>
 
       <section className="card switches">

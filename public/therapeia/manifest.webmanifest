@@ -1,0 +1,56 @@
+{
+  "id": "/therapeia/",
+  "name": "Therapeia by Proairetos",
+  "short_name": "Therapeia",
+  "description": "Medicines at the times you set or around your sleep, refills and appointments.",
+  "start_url": "/therapeia/",
+  "scope": "/therapeia/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10141a",
+  "theme_color": "#10141a",
+  "icons": [
+    {
+      "src": "/therapeia/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/therapeia/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/therapeia/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "url": "/therapeia/?open=today",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a medicine",
+      "short_name": "Add",
+      "url": "/therapeia/?open=add",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

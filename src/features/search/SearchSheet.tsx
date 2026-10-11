@@ -1,6 +1,8 @@
 import { people } from '../../philia/app/state';
 import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
+import { appointments as therapeiaVisits, medicines as therapeiaMedicines } from '../../therapeia/app/state';
+import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
@@ -143,6 +145,22 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
   for (const chore of isAdded('ergon') ? allChores() : []) {
     labels.set(chore.id, 'Chore in Ergon');
     things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
+  }
+  for (const medicine of isAdded('therapeia') ? therapeiaMedicines.list() : []) {
+    labels.set(medicine.id, 'Medicine in Therapeia');
+    things.push({ id: medicine.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`medicine:${medicine.id}`)}`, title: medicine.name, fields: [{ name: 'Dose', text: medicine.dose }, { name: 'Note', text: medicine.note }], at: medicine.createdAt });
+  }
+  for (const visit of isAdded('therapeia') ? therapeiaVisits.list() : []) {
+    labels.set(visit.id, 'Visit in Therapeia');
+    things.push({ id: visit.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`visit:${visit.id}`)}`, title: visit.with, fields: [{ name: 'Where', text: visit.where }, { name: 'Notes', text: visit.notes }, { name: 'To ask', text: visit.questions.map((each) => each.text).join('\n') }], at: visit.createdAt });
+  }
+  for (const thing of isAdded('ktema') ? ktemaThings.list() : []) {
+    labels.set(thing.id, 'In Ktema');
+    things.push({ id: thing.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`thing:${thing.id}`)}`, title: thing.name, fields: [{ name: 'Make', text: [thing.make, thing.model].filter(Boolean).join(' ') }, { name: 'Serial', text: thing.serial }, { name: 'Where', text: thing.place }, { name: 'Note', text: thing.note }], at: thing.createdAt });
+  }
+  for (const upkeep of isAdded('ktema') ? ktemaUpkeeps.list() : []) {
+    labels.set(upkeep.id, 'Upkeep in Ktema');
+    things.push({ id: upkeep.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`upkeep:${upkeep.id}`)}`, title: upkeep.name, fields: [{ name: 'Note', text: upkeep.note }], at: upkeep.createdAt });
   }
   return { things, labels };
 }

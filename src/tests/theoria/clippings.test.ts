@@ -1,3 +1,4 @@
+import { toLocalDate } from '../../core/scheduling/dates';
 import { describe, expect, it } from 'vitest';
 import { addImported, fromKindleClippings, fromReadwiseCsv, readHighlightsFile } from '../../theoria/core/clippings';
 import { makeBook } from '../../theoria/core/books';
@@ -32,7 +33,8 @@ describe('highlights from elsewhere', () => {
       ['Letters from a Stoic', 'Seneca', 1],
     ]);
     expect(books[0].highlights[0]).toMatchObject({ text: 'You have power over your mind, not outside events.', note: 'Read this again in the morning.', location: 'Location 180-182' });
-    expect(books[0].highlights[0].at?.slice(0, 10)).toBe('2024-03-04');
+    // The moment is kept as an instant; the day it was made is the local one.
+    expect(toLocalDate(new Date(books[0].highlights[0].at!))).toBe('2024-03-04');
   });
 
   it('reads a Readwise export', () => {

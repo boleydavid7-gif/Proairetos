@@ -7,26 +7,36 @@ import { peopleNotices } from '../../philia/core/notices';
 import { people, settings as philiaSettings } from '../../philia/app/state';
 import { choreNotices } from '../../ergon/core/notices';
 import { allChores, settings as ergonSettings } from '../../ergon/app/state';
+import { careNotices } from '../../therapeia/core/notices';
+import { anchorsFrom } from '../../therapeia/core/medicines';
+import { appointments, medicines, settings as therapeiaSettings } from '../../therapeia/app/state';
+import { mainSleeps } from '../../diaita/core/rhythm';
+import { trainingNotices } from '../../dynamis/core/notices';
+import { nextSession } from '../../dynamis/core/plan';
+import { isSetup, plan as dynamisPlan, settings as dynamisSettings, workouts as dynamisWorkouts } from '../../dynamis/app/state';
+import { upkeepNotices } from '../../ktema/core/notices';
+import { settings as ktemaSettings, things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
 
-/** Diaita, Philia and Ergon's notices, from what they keep on this device (Proairetos sends them all). */
+/** The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema), from what they keep on this device (Proairetos sends them all). */
 export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const today = toLocalDate(now);
   const horizon = Math.ceil((until.getTime() - now.getTime()) / 86_400_000);
   const notices: Notice[] = [];
 
   const diaita = diaitaSettings.load();
-  if (diaita.started && isAdded('diaita')) {
-    const from = new Date(now.getTime() - 2 * 86_400_000);
-    const blocks = [...(await scheduleService.occurrencesBetween(from, until)), ...otherCalendars.blocksBetween(from, until)].map((block) => ({
+  const blocksFrom = new Date(now.getTime() - 2 * 86_400_000);
+  const blocks = async () =>
+    [...(await scheduleService.occurrencesBetween(blocksFrom, until)), ...otherCalendars.blocksBetween(blocksFrom, until)].map((block) => ({
       start: block.start,
       end: block.end,
       kind: block.kind,
       label: block.label || block.patternName,
     }));
-    const entries = planBetween(addDays(today, -1), addDays(today, horizon), blocks, diaita);
+  if (diaita.started && isAdded('diaita')) {
+    const entries = planBetween(addDays(today, -1), addDays(today, horizon), await blocks(), diaita);
     notices.push(...rhythmNotices(entries, diaita.notices, now, until));
   }
 
@@ -38,5 +48,22 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
     const ergon = ergonSettings.load();
     notices.push(...choreNotices(chores, ergon.notices, ergon.me || undefined, today, horizon));
   }
+
+  const meds = medicines.list();
+  const visits = appointments.list();
+  if ((meds.length || visits.length) && isAdded('therapeia')) {
+    // Times after waking and before sleep follow the schedule, as Diaita plans the person's sleep.
+    const anchors = anchorsFrom(mainSleeps(addDays(today, -2), addDays(today, horizon + 1), await blocks(), diaita));
+    notices.push(...careNotices(meds, visits, therapeiaSettings.load().notices, now, until, anchors));
+  }
+
+  const training = dynamisPlan.load();
+  if (isSetup(training) && dynamisSettings.load().reminders && isAdded('dynamis')) {
+    notices.push(...trainingNotices(training, true, nextSession(training, dynamisWorkouts.list()).name, today, horizon, now));
+  }
+
+  const upkeep = ktemaUpkeeps.list();
+  const owned = ktemaThings.list();
+  if ((upkeep.length || owned.length) && isAdded('ktema')) notices.push(...upkeepNotices(upkeep, owned, ktemaSettings.load().notices, today, horizon, now));
   return notices;
 }

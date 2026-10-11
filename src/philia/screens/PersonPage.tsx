@@ -55,6 +55,14 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         </div>
       </div>
 
+      {(person.phone || person.email) && (
+        <div className="chip-row philia-contact">
+          {person.phone && <a className="chip" href={`tel:${person.phone.replace(/[^\d+]/g, '')}`}>Call</a>}
+          {person.phone && <a className="chip" href={`sms:${person.phone.replace(/[^\d+]/g, '')}`}>Message</a>}
+          {person.email && <a className="chip" href={`mailto:${person.email.trim()}`}>Email</a>}
+        </div>
+      )}
+
       {(person.birthday || (person.dates ?? []).length > 0) && (
         <section className="card">
           {person.birthday && birthdayNext && (

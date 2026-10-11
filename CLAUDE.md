@@ -630,3 +630,39 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   (next week on Today) and `birthday-dates` (Days ahead lines beside bills, `birthdaysOn` in `glance.ts`),
   `chores` (chores whose day came on Today) in `features/today/TodayNewFamily.tsx`; search finds people and
   chores.
+
+## Therapeia, Dynamis and Ktema (same repository)
+
+- Three more apps at `/therapeia/`, `/dynamis/`, `/ktema/`, on the newer apps' shell (`startApp`, `shell.tsx`), wired like
+  Diaita, Philia and Ergon (manifests, icons, `sw.js`, `_headers`, Proairetos `sw.js` skips them, `ADD_ONS`, backup
+  prefixes `therapeia:`, `dynamis:`, `ktema:`, reminder sources of the same names, `ACCOUNT_PAGE`). Drawn scenes by
+  `scripts/scenes/more-apps.mjs` (`therapeia` misty blue lake, `dynamis` amber peaks, `ktema` barn in golden fields).
+- Therapeia (`core/medicines.ts`, tests): medicines with dose times at a clock time, after waking or before sleep
+  (`DoseTime`); waking and sleep come from Diaita's `mainSleeps` around the Proairetos schedule (`anchorsFrom`, Diaita's
+  settings or its defaults), so doses follow nights. Days daily / weekdays / every N; a course end; as needed with the
+  person's own spacing (`spacedFrom`, said plainly, never advised); supply counted down by doses marked
+  (`supplyLeft`, `refillDay` lead days before running out, `refill`). Marks are Taken / Skip with undo; unmarked doses
+  pass with their day. Visits with questions to tick and notes. Health card (allergies, conditions, contact) and "Share
+  the list" (`listText`). Notices (`core/notices.ts`): doses kind `dose` (not held by quiet hours; names only if
+  "Names on the lock screen"), refills and visits kind `care`. Welcome and More say it gives no medical advice.
+- Dynamis (`core/library.ts`, `core/plan.ts`, `core/mobility.ts`, tests, sources in `SOURCES` / `WHY`, shown on "How the
+  plan is built"): full-body A/B sessions on 2-3 days or upper/lower on 4, each major group twice a week (ACSM 2026,
+  Schoenfeld 2016); 2 sets to begin, one more offered after six sessions up to the aim's full number (`setsOffer`,
+  Schoenfeld 2017 volume); reps by aim (Lopez 2021); stop 1-3 reps short (Robinson 2024, Helms 2016); when every set
+  reaches the top, about 5% more (2-10%, ACSM 2009, `nextWeight`) or the next bodyweight ladder step is offered, never
+  applied; longer rest for big lifts (Schoenfeld 2016); after 14+ days away a ~10% lighter start is offered. Places:
+  gym, home with dumbbells, no equipment (ladders in `LADDERS`); "Do instead" swaps an exercise (`alternatives`,
+  `Setup.swaps`). The live session (`SessionPage`) keeps a device-only draft (`dynamisDraft`, not synced), rests on the
+  audio clock (`praxis/bell.ts`), and saves a `Workout`. Mobility routines with a guided timer and bell
+  (Thomas 2018, Afonso 2021). Training-day notices kind `training` (off until chosen).
+- Ktema (`core/things.ts`, tests): things (category incl. Documents, place, make, model, serial with Copy, bought,
+  price, store, warranty or renewal date with 1/2/3/5-year picks, manual link, odometer readings) and upkeep every N
+  days/weeks/months/years, or by distance for a car, whichever first (`nextDue`, estimated from readings); days that
+  came read "Since Tue", never late; Ideas chips with "Common times; the manual has the ones for yours." Notices kind
+  `upkeep` (one per day, and a month before a warranty or document ends).
+- Daily lines (`app/family/dailyLines.ts`, `DailyLine.tsx`): Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema each
+  show one line a day at the foot of their first page, Stoic and Buddhist days in turn, with translator or
+  "(paraphrase)"; a "Daily line" switch in each More (`proairetos.dailyLines`). Keep banned words out of quotes.
+- In Proairetos: What's included parts `medicines`, `training`, `upkeep` (`TodayNewFamily.tsx`); Notifications
+  switches `medicines`, `training`, `upkeep`; search finds medicines, visits, things and upkeep.
+- Philia people may have a phone and email (Call, Message, Email on their page).

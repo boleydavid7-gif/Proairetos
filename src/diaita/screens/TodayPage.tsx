@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, ChevronIcon } from '../../app/family/icons';
 import { energyFor, setEnergy, subscribePreferences, type Energy } from '../../data/storage/preferences';
@@ -144,12 +145,13 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
 
         {(hour >= 4 || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
 
-        <div className="diaita-section-head">
+        <div className="section-head">
           <h2>Today</h2>
           <button type="button" className="text-link" onClick={() => nav.swap({ name: 'week' })}>Week</button>
         </div>
         <Timeline entries={todays} now={now} />
         <a className="text-link diaita-schedule-link" href="/?open=settings:day">Your schedule in Proairetos</a>
+        <DailyLine app="diaita" />
       </div>
     </div>
   );

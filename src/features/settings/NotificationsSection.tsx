@@ -160,6 +160,9 @@ export default function NotificationsSection() {
         <Switch on={settings.rhythm} label="Sleep and naps, from Diaita" onToggle={() => update({ rhythm: !settings.rhythm })} />
         <Switch on={settings.people} label="Birthdays, from Philia" onToggle={() => update({ people: !settings.people })} />
         <Switch on={settings.chores} label="Chores, from Ergon" onToggle={() => update({ chores: !settings.chores })} />
+        <Switch on={settings.medicines} label="Medicines and visits, from Therapeia" onToggle={() => update({ medicines: !settings.medicines })} />
+        <Switch on={settings.training} label="Training days, from Dynamis" onToggle={() => update({ training: !settings.training })} />
+        <Switch on={settings.upkeep} label="Upkeep and warranties, from Ktema" onToggle={() => update({ upkeep: !settings.upkeep })} />
         <Switch on={settings.bell} label="A mindful bell" below onToggle={() => update({ bell: !settings.bell })}>
           {settings.bellAt.map((at, index) => (
             <span key={index} className="notify-bell">

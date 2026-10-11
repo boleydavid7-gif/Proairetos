@@ -19,6 +19,9 @@ export type Person = {
   /** Anniversaries and other dates that come round each year. */
   dates?: PersonDate[];
   relation?: string;
+  /** To call or message them from their page (optional). */
+  phone?: string;
+  email?: string;
   notes: Line[];
   gifts: Gift[];
   times: TimeTogether[];

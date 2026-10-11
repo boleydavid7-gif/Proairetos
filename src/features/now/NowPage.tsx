@@ -8,7 +8,7 @@ import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
 import TodayFamily, { TodayHighlight, TodayStudy, TodayWater } from '../today/TodayFamily';
-import { TodayBirthdays, TodayChores, TodayRhythm } from '../today/TodayNewFamily';
+import { TodayBirthdays, TodayChores, TodayMedicines, TodayRhythm, TodayTraining, TodayUpkeep } from '../today/TodayNewFamily';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -274,6 +274,9 @@ export default function NowPage() {
       <TodayRhythm now={clock} today={today} blocks={blocks} />
       <TodayBirthdays today={today} />
       <TodayChores today={today} />
+      <TodayMedicines />
+      <TodayTraining today={today} />
+      <TodayUpkeep today={today} />
       <TodayOnThisDay today={today} />
 
       {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}

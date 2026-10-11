@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-/* Line icons shared by Diaita, Philia and Ergon (24 grid, 1.7 stroke, like the family's others). */
+/* Line icons shared by the newer apps (24 grid, 1.7 stroke, like the family's others). */
 
 export type IconProps = { size?: number; className?: string };
 
@@ -161,8 +161,56 @@ export const SettingsIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const PillIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-45 12 12)" />
+    <path d="m9.5 9.5 5 5" />
+  </Icon>
+);
+
+export const VisitIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="4" y="5.5" width="16" height="15" rx="2" />
+    <path d="M8 3.5v4M16 3.5v4M4 10h16M12 12.5v5M9.5 15h5" />
+  </Icon>
+);
+
+export const WeightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 12h18M6.5 8v8M17.5 8v8M4 9.5v5M20 9.5v5" />
+  </Icon>
+);
+
+export const StretchIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="4.8" r="1.8" />
+    <path d="M5 9.5 12 8l7 1.5M12 8v6l-4 6M12 14l4 6" />
+  </Icon>
+);
+
+export const HistoryIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5" />
+    <path d="M4 4.5v4h4M12 8v4.5l3 2" />
+  </Icon>
+);
+
+export const KeyIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="8" cy="12" r="3.5" />
+    <path d="M11.5 12H21M18 12v3M15 12v2" />
+  </Icon>
+);
+
+export const BoxIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m12 3.5 8 4v9l-8 4-8-4v-9z" />
+    <path d="m4 7.5 8 4 8-4M12 11.5v9" />
+  </Icon>
+);
+
 /** Each app's mark: a simple drawn sign in a round. */
-export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon'; size?: number; light?: boolean }) {
+export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema'; size?: number; light?: boolean }) {
   const color = light ? '#f3eee4' : 'currentColor';
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ color }} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -177,6 +225,25 @@ export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'ph
         <>
           <circle cx="18" cy="24" r="10" />
           <circle cx="30" cy="24" r="10" />
+        </>
+      )}
+      {app === 'therapeia' && (
+        <g transform="rotate(-45 24 24)">
+          <rect x="11" y="18" width="26" height="12" rx="6" />
+          <path d="M24 18v12h7a6 6 0 0 0 0-12z" fill="currentColor" stroke="none" opacity="0.9" />
+        </g>
+      )}
+      {app === 'dynamis' && (
+        <>
+          <path d="M16.5 24.5 15 17q-.6-4.5 4-4.5h10q4.6 0 4 4.5l-1.5 7.5" />
+          <path d="M24 19a10 10 0 0 1 7.7 16.5H16.3A10 10 0 0 1 24 19z" fill="currentColor" stroke="none" opacity="0.9" />
+          <path d="M14 37.5h20" />
+        </>
+      )}
+      {app === 'ktema' && (
+        <>
+          <circle cx="17" cy="24" r="7" />
+          <path d="M24 24h15M34 24v5M29.5 24v3.5" />
         </>
       )}
       {app === 'ergon' && (

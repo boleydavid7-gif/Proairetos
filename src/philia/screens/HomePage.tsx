@@ -1,4 +1,5 @@
 import { Brand, offerUndo } from '../../app/family/shell';
+import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photo from '../../assets/images/scenes/philia.webp';
@@ -113,6 +114,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
             )}
           </>
         )}
+        <DailyLine app="philia" />
       </div>
     </div>
   );

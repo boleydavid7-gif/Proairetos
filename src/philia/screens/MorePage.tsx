@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DailyLineSwitch } from '../../app/family/DailyLine';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
@@ -62,6 +63,10 @@ export default function MorePage({ nav: _nav }: { nav: PhiliaNav }) {
           <button type="button" className="button-quiet" onClick={bringIn}>Bring in</button>
         </section>
       )}
+
+      <section className="card switches">
+        <DailyLineSwitch app="philia" />
+      </section>
 
       <section className="card switches">
         <p className="label diaita-switches-label">Reminders</p>

@@ -1,0 +1,61 @@
+/* Ktema's colours: field gold and olive. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.ktema {
+  --app-name: 'KTEMA';
+  color-scheme: dark;
+  --bg: #12130f;
+  --surface: #1a1b16;
+  --surface-2: #22241d;
+  --line: #31332a;
+  --text: #efece2;
+  --text-soft: #d2cfc2;
+  --muted: #a3a091;
+  --mint: #c7b37a;
+  --mint-soft: color-mix(in srgb, #c7b37a 14%, transparent);
+  --mint-ink: #211c0b;
+  --bar: rgba(18,19,15,0.95);
+  --placeholder: #807d70;
+  --glow-top: #1f2117;
+  --switch-off: #3a3c31;
+  --accent: #c7b37a;
+}
+
+:root.ktema[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f1efe8;
+  --surface: #fbfaf6;
+  --surface-2: #e4e1d6;
+  --line: #d8d4c6;
+  --text: #25241d;
+  --text-soft: #47453b;
+  --muted: #5e5b4e;
+  --mint: #7a6526;
+  --mint-soft: color-mix(in srgb, #7a6526 14%, transparent);
+  --mint-ink: #ffffff;
+  --bar: rgba(243,241,234,0.96);
+  --placeholder: #8f8b7d;
+  --glow-top: #e5e0cd;
+  --switch-off: #d0ccbd;
+  --accent: #7a6526;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.ktema[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f1efe8;
+    --surface: #fbfaf6;
+    --surface-2: #e4e1d6;
+    --line: #d8d4c6;
+    --text: #25241d;
+    --text-soft: #47453b;
+    --muted: #5e5b4e;
+    --mint: #7a6526;
+    --mint-soft: color-mix(in srgb, #7a6526 14%, transparent);
+    --mint-ink: #ffffff;
+    --bar: rgba(243,241,234,0.96);
+    --placeholder: #8f8b7d;
+    --glow-top: #e5e0cd;
+    --switch-off: #d0ccbd;
+    --accent: #7a6526;
+  }
+}

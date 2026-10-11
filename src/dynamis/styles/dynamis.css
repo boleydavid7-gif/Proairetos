@@ -1,0 +1,248 @@
+/* Dynamis's colours: iron and amber. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.dynamis {
+  --app-name: 'DYNAMIS';
+  color-scheme: dark;
+  --bg: #141110;
+  --surface: #1c1816;
+  --surface-2: #241f1c;
+  --line: #352d28;
+  --text: #f2ebe4;
+  --text-soft: #d6ccc2;
+  --muted: #a69a8f;
+  --mint: #e0a36b;
+  --mint-soft: color-mix(in srgb, #e0a36b 14%, transparent);
+  --mint-ink: #26170a;
+  --bar: rgba(20,17,16,0.95);
+  --placeholder: #847a70;
+  --glow-top: #241b16;
+  --switch-off: #3d3430;
+  --accent: #e0a36b;
+}
+
+:root.dynamis[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3efea;
+  --surface: #fcfaf8;
+  --surface-2: #e8e1d9;
+  --line: #ddd3c8;
+  --text: #2a221d;
+  --text-soft: #4d4239;
+  --muted: #65584d;
+  --mint: #9a5a22;
+  --mint-soft: color-mix(in srgb, #9a5a22 14%, transparent);
+  --mint-ink: #ffffff;
+  --bar: rgba(245,241,236,0.96);
+  --placeholder: #968a7f;
+  --glow-top: #ece2d6;
+  --switch-off: #d6cbbf;
+  --accent: #9a5a22;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.dynamis[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f3efea;
+    --surface: #fcfaf8;
+    --surface-2: #e8e1d9;
+    --line: #ddd3c8;
+    --text: #2a221d;
+    --text-soft: #4d4239;
+    --muted: #65584d;
+    --mint: #9a5a22;
+    --mint-soft: color-mix(in srgb, #9a5a22 14%, transparent);
+    --mint-ink: #ffffff;
+    --bar: rgba(245,241,236,0.96);
+    --placeholder: #968a7f;
+    --glow-top: #ece2d6;
+    --switch-off: #d6cbbf;
+    --accent: #9a5a22;
+  }
+}
+
+/* The planned days of this week: a quiet row, done days ticked. */
+.dynamis-week {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dynamis-week__day {
+  flex: 1;
+  max-width: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.dynamis-week__day.is-today {
+  border-color: var(--mint);
+  color: var(--text);
+}
+
+.dynamis-week__day.is-done svg {
+  color: var(--mint);
+}
+
+.dynamis-week__dot {
+  width: 8px;
+  height: 8px;
+  margin: 4px 0;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+/* The rest between sets stays in view at the top while scrolling. */
+.dynamis-rest {
+  position: sticky;
+  top: max(8px, env(safe-area-inset-top));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--mint);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+.dynamis-rest strong {
+  flex: 1;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.dynamis-exercise__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.dynamis-exercise__head .muted {
+  font-size: 0.9rem;
+}
+
+.dynamis-ready {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--mint-soft);
+  color: var(--text);
+}
+
+.dynamis-how summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--text-soft);
+}
+
+.dynamis-how ul {
+  margin: 0 0 6px;
+  padding-left: 1.1rem;
+  color: var(--text-soft);
+}
+
+.dynamis-sets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.dynamis-set {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dynamis-set__number {
+  width: 1.4rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dynamis-set__field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dynamis-set__field .input {
+  min-width: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dynamis-set.is-done .input {
+  border-color: var(--mint);
+}
+
+.dynamis-then {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.dynamis-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 10px;
+}
+
+.dynamis-steps li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dynamis-guide__now {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.dynamis-guide__time {
+  margin: 8px 0;
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--mint);
+  font-variant-numeric: tabular-nums;
+}
+
+.dynamis-why {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 16px;
+}
+
+.dynamis-why p {
+  margin: 0;
+}

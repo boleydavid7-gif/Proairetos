@@ -107,6 +107,15 @@
   background: linear-gradient(180deg, rgba(10, 12, 14, 0.55) 0%, rgba(10, 12, 14, 0.06) 40%, rgba(10, 12, 14, 0.5) 76%, var(--bg) 100%);
 }
 
+/* Words over the picture stay light in either appearance, with a soft shadow where the picture fades into the page. */
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema) .hero .home__sub {
+  color: rgb(255 255 255 / 0.88);
+}
+
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema) .hero .home__words {
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.45);
+}
+
 .remove-link {
   align-self: center;
   color: var(--danger, #e39b89);
@@ -415,6 +424,11 @@
   padding: 8px 14px;
 }
 
+/* A row with nothing to tick (a list to open, an as-needed medicine): the words take the room. */
+.chore:not(:has(> .tick)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .chore + .chore {
   border-top: 1px solid var(--line);
 }
@@ -459,6 +473,7 @@
 
 .who-chip {
   display: inline-block;
+  white-space: nowrap;
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--mint-soft);
@@ -475,7 +490,7 @@
   gap: 4px;
 }
 
-:root:is(.diaita, .philia, .ergon) .home__words {
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema) .home__words {
   margin-top: auto;
 }
 

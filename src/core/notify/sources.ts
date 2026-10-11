@@ -6,10 +6,10 @@ import type { Notice } from './notices';
  * Oikonomia the bills, Praxis the block that is running. Each writes what it owns; Proairetos also writes the
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
-export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'praxis' | 'diaita' | 'philia' | 'ergon';
+export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema';
 export type FamilyApp = ReminderSource | 'soma' | 'theoria';
 
-export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'praxis', 'diaita', 'philia', 'ergon'];
+export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema'];
 
 export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
   switch (notice.kind) {
@@ -27,6 +27,13 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
       return 'philia';
     case 'chore':
       return 'ergon';
+    case 'dose':
+    case 'care':
+      return 'therapeia';
+    case 'training':
+      return 'dynamis';
+    case 'upkeep':
+      return 'ktema';
     default:
       return 'proairetos';
   }
@@ -35,7 +42,7 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
 /** Which app this page is, from its address. */
 export function appAt(pathname: string): FamilyApp {
   const first = pathname.split('/').filter(Boolean)[0];
-  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon'];
+  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema'];
   return apps.find((app) => app === first) ?? 'proairetos';
 }
 
@@ -52,7 +59,7 @@ export function sourcesToWrite(
   if (app === 'soma' || app === 'theoria') return [];
   if (app !== 'proairetos') return [app];
   const present = new Set(notices.map(sourceOf));
-  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
+  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
   return ['proairetos', ...others];
 }
 

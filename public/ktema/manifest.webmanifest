@@ -1,0 +1,56 @@
+{
+  "id": "/ktema/",
+  "name": "Ktema by Proairetos",
+  "short_name": "Ktema",
+  "description": "Warranties, manuals and upkeep for your home, car and belongings.",
+  "start_url": "/ktema/",
+  "scope": "/ktema/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12130f",
+  "theme_color": "#12130f",
+  "icons": [
+    {
+      "src": "/ktema/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/ktema/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/ktema/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Coming up",
+      "short_name": "Coming up",
+      "url": "/ktema/?open=today",
+      "icons": [
+        {
+          "src": "/ktema/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a thing",
+      "short_name": "Add",
+      "url": "/ktema/?open=add",
+      "icons": [
+        {
+          "src": "/ktema/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

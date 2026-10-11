@@ -10,6 +10,13 @@ import { people } from '../../philia/app/state';
 import { comingUp, whenText } from '../../philia/core/people';
 import { grouped } from '../../ergon/core/chores';
 import { useChores } from '../../ergon/app/state';
+import { addDays as nextDay, toLocalDate } from '../../core/scheduling/dates';
+import { appointments, medicines, useAnchors } from '../../therapeia/app/state';
+import { dosesOn, isCurrent } from '../../therapeia/core/medicines';
+import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
+import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
+import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
+import { grouped as upkeepGrouped } from '../../ktema/core/things';
 import NotForMe from './NotForMe';
 
 function QuietLink({ href, icon, line, detail, part }: { href: string; icon: React.ReactNode; line: string; detail: string; part: Parameters<typeof NotForMe>[0]['part'] }) {
@@ -87,4 +94,43 @@ export function TodayChores({ today }: { today: string }) {
       part="chores"
     />
   );
+}
+
+const clock = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
+/** Today's doses not yet marked, and a visit today, from Therapeia. Opens Therapeia. */
+export function TodayMedicines() {
+  const shows = useTodayParts();
+  const all = medicines.use();
+  const visits = appointments.use();
+  const calendarToday = toLocalDate(new Date());
+  const { anchors, dayAt } = useAnchors(nextDay(calendarToday, -1), nextDay(calendarToday, 1));
+  if (!shows('medicines')) return null;
+  const day = dayAt(new Date());
+  const open = dosesOn(all.filter((medicine) => isCurrent(medicine, day)), day, anchors).filter((dose) => !dose.taken);
+  const visit = visits.find((each) => each.at.slice(0, 10) === calendarToday);
+  if (!open.length && !visit) return null;
+  const line = [...open.slice(0, 3).map((dose) => `${dose.medicine.name} ${clock(dose.at)}`), visit ? `${visit.with} ${clock(new Date(visit.at))}` : undefined].filter(Boolean).join(' · ');
+  return <QuietLink href="/therapeia/" icon={<ListIcon size={20} />} line={line} detail={open.length > 3 ? `And ${open.length - 3} more in Therapeia` : 'Therapeia'} part="medicines" />;
+}
+
+/** On a planned training day, the session waiting, from Dynamis. Opens it. */
+export function TodayTraining({ today }: { today: string }) {
+  const shows = useTodayParts();
+  const setup = dynamisPlan.use();
+  const done = dynamisWorkouts.use();
+  if (!shows('training') || !isSetup(setup) || !isTrainingDay(setup, today) || done.some((workout) => workout.date === today)) return null;
+  const session = nextSession(setup, done);
+  return <QuietLink href="/dynamis/?open=session" icon={<ListIcon size={20} />} line={session.name} detail={`About ${sessionMinutes(targetsFor(setup, session, done))} min · Dynamis`} part="training" />;
+}
+
+/** Upkeep whose day has come, from Ktema. Opens Ktema. */
+export function TodayUpkeep({ today }: { today: string }) {
+  const shows = useTodayParts();
+  const list = ktemaUpkeeps.use();
+  const owned = ktemaThings.use();
+  if (!shows('upkeep')) return null;
+  const now = upkeepGrouped(list, owned, today).now;
+  if (!now.length) return null;
+  return <QuietLink href="/ktema/" icon={<ListIcon size={20} />} line={now.slice(0, 3).map((each) => each.upkeep.name).join(' · ')} detail={now.length > 3 ? `And ${now.length - 3} more in Ktema` : 'Ktema'} part="upkeep" />;
 }

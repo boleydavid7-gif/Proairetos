@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -87,6 +87,12 @@ export type NoticeSettings = {
   people: boolean;
   /** Chores from Ergon, as chosen there. */
   chores: boolean;
+  /** Medicines, refills and appointments from Therapeia, as chosen there. */
+  medicines: boolean;
+  /** Training days from Dynamis, as chosen there. */
+  training: boolean;
+  /** Upkeep and warranties from Ktema, as chosen there. */
+  upkeep: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -109,6 +115,9 @@ export const defaultNoticeSettings: NoticeSettings = {
   rhythm: true,
   people: true,
   chores: true,
+  medicines: true,
+  training: true,
+  upkeep: true,
   details: true,
 };
 
@@ -128,7 +137,7 @@ type Sources = {
   bills?: readonly BillTime[];
   /** The end of the study block running now, if any (from Praxis). */
   study?: StudyEnd;
-  /** Notices worked out by Diaita, Philia and Ergon, each switched on or off here by its kind. */
+  /** Notices worked out by the newer apps, each switched on or off here by its kind. */
   family?: readonly Notice[];
   settings: NoticeSettings;
   quiet?: QuietHours;
@@ -246,8 +255,16 @@ export function noticesBetween(sources: Sources): Notice[] {
   }
 
   for (const notice of sources.family ?? []) {
-    const on = notice.kind === 'rhythm' ? settings.rhythm : notice.kind === 'person' ? settings.people : notice.kind === 'chore' ? settings.chores : false;
-    if (on) raw.push(notice);
+    const on: Partial<Record<NoticeKind, boolean>> = {
+      rhythm: settings.rhythm,
+      person: settings.people,
+      chore: settings.chores,
+      dose: settings.medicines,
+      care: settings.medicines,
+      training: settings.training,
+      upkeep: settings.upkeep,
+    };
+    if (on[notice.kind]) raw.push(notice);
   }
 
   if (settings.bills) {
@@ -342,7 +359,7 @@ export function noticesBetween(sources: Sources): Notice[] {
   // Quiet hours and protected time hold a notice until they end; the wording follows.
   const held = raw.map(({ starts, extra, ...notice }) => {
     // A block the person started, and the plan around their sleep, are said at their own time.
-    if (!sources.quiet || notice.kind === 'study' || notice.kind === 'rhythm') return notice;
+    if (!sources.quiet || notice.kind === 'study' || notice.kind === 'rhythm' || notice.kind === 'dose') return notice;
     const at = deliverAt(notice.at, sources.quiet, sources.holding ?? sources.blocks);
     if (at.getTime() === notice.at.getTime()) return notice;
     return { ...notice, at, body: starts ? word(at, starts, extra ?? []) : notice.body };

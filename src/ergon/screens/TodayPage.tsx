@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
@@ -97,6 +98,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
             )}
           </>
         )}
+        <DailyLine app="ergon" />
       </div>
     </div>
   );
