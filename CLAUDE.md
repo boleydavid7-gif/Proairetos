@@ -587,7 +587,7 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `app/family/shell.tsx` (`stored` settings, `collection` = one localStorage key per record so sync carries each
   on its own, `useRoutes` with back, `TabBar`, `Brand`, `Welcome`, `Shell`, `offerUndo`/`say` + `UndoBar`
   `.family-toast`), `app/family/icons.tsx` (line icons, `AppMark`), `app/family/apps.css` (shared pieces) and
-  `askesis.css`, with colours on `:root.<app>` in `src/<app>/styles/`. Records live in browser storage under
+  `askesis.css`, with colours on `:root.<app>` in `src/<app>/styles/`. Each has its own drawn scene in `assets/images/scenes/` (`diaita`: night sky turning to dawn; `philia`: two trees by a warm lake; `ergon`: a house with a lit window in a sage valley; each also `-wide`, 852×1846 / 1672×941), on its welcome and home hero. Records live in browser storage under
   `diaita:`, `philia:`, `ergon:` (backed up, synced as `preferences`).
 - Diaita (`core/rhythm.ts`, tests): `planBetween` turns the Proairetos schedule (COMMITTED blocks; a night is a
   block running through 03:00) into sleep, wake, wind-down, last caffeine (`cutoffHours`, Drake 2013), nap

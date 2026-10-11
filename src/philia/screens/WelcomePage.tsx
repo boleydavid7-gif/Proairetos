@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/morning.webp';
-import photoWide from '../../assets/images/scenes/morning-wide.webp';
+import photo from '../../assets/images/scenes/philia.webp';
+import photoWide from '../../assets/images/scenes/philia-wide.webp';
 import type { PhiliaNav } from '../app/App';
 import { settings } from '../app/state';
 

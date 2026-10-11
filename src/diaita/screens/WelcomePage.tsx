@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/sunrise.webp';
-import photoWide from '../../assets/images/scenes/sunrise-wide.webp';
+import photo from '../../assets/images/scenes/diaita.webp';
+import photoWide from '../../assets/images/scenes/diaita-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { settings } from '../app/state';
 

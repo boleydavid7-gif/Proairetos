@@ -1,8 +1,8 @@
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
-import photo from '../../assets/images/scenes/morning.webp';
-import photoWide from '../../assets/images/scenes/morning-wide.webp';
+import photo from '../../assets/images/scenes/philia.webp';
+import photoWide from '../../assets/images/scenes/philia-wide.webp';
 import type { PhiliaNav } from '../app/App';
 import { people } from '../app/state';
 import { Initials } from '../app/ui';
