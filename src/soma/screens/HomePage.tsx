@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { recipeNutrition } from '../core/nutrition';
 import type { Nav } from '../app/App';
 import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
 import { scene } from '../app/scenes';
@@ -16,9 +17,12 @@ import { Greeting } from '../../app/family/greeting';
 
 export function RecipeCard({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   const time = minutesLabel(timeOf(recipe));
+  const rated = useSettings().healthRating;
+  const grade = useMemo(() => (rated ? recipeNutrition(recipe.ingredients).grade : undefined), [rated, recipe.ingredients]);
   return (
     <button type="button" className="recipe-card" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
       <DishImage className="recipe-card__image" recipe={recipe} />
+      {grade && <span className={`recipe-card__grade nutri--${grade}`} aria-label={`Nutri-Score ${grade}`}>{grade}</span>}
       <span className="recipe-card__title">{recipe.title}</span>
       <span className="recipe-card__meta">{[time, recipe.tags[0]].filter(Boolean).join(' · ')}</span>
     </button>

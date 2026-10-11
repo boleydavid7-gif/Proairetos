@@ -6,7 +6,7 @@ import type { Recipe } from './recipes';
  * Ways to try a recipe: small, optional changes drawn from public health
  * guidance, each with its source. Offered beside a recipe, never applied by
  * themselves; keeping one writes it into the recipe's notes as the
- * person's own variation. No calories, no scores, no "good" or "bad" food.
+ * person's own variation. (The recipe's Nutri-Score lives in nutrition.ts.)
  */
 export type TryIt = { id: string; title: string; detail: string; source: string };
 

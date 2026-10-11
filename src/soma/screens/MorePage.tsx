@@ -114,6 +114,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         </div>
         <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />
+        <Switch on={settings.healthRating} label="Nutri-Score and nutrition" onToggle={() => saveSettings({ ...settings, healthRating: !settings.healthRating })} />
         <Switch on={settings.fitsYourDay} label="Your day, from Proairetos" onToggle={() => saveSettings({ ...settings, fitsYourDay: !settings.fitsYourDay })} />
         <Switch on={settings.seasons} label="In season" onToggle={() => saveSettings({ ...settings, seasons: !settings.seasons })} />
         <Switch on={settings.pauseBeforeEating} label="A moment before eating" onToggle={() => saveSettings({ ...settings, pauseBeforeEating: !settings.pauseBeforeEating })} />
@@ -177,7 +178,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">About Soma</h1>
       <p>
-        Sōma is Greek for the body. Your recipes, a grocery list, and small ideas for cooking more simply. No calorie counts, and no food called good or bad.
+        Sōma is Greek for the body. Your recipes, a grocery list, and small ideas for cooking more simply. Each recipe shows its Nutri-Score and what is in a serving, worked out from its ingredients.
       </p>
       <h2 className="label">Ways to try it draw on</h2>
       <ul className="tips">

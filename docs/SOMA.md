@@ -1,7 +1,8 @@
 # Soma by Proairetos
 
-A recipe manager that keeps the Proairetos way with food: it records, it
-never judges. No calories, no scores, no "good" or "bad" food. Served at
+A recipe manager. Each recipe shows its Nutri-Score (A to E) and what is in a
+serving, worked out from its ingredients with USDA SR28 nutrients (the owner's
+choice: informative, sourced, switchable in More). Served at
 `/soma/` from this repository (`soma/index.html` -> `src/soma/`).
 
 ## Built (first version)

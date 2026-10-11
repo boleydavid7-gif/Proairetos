@@ -10,6 +10,8 @@ import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { convertLine, scaleLine } from '../core/ingredients';
+import { NutriBadge, NutritionPanel } from '../app/Nutrition';
+import { recipeNutrition } from '../core/nutrition';
 import { headingText, isHeading, marks, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
 import { stepsWithAmounts, timerName } from '../core/cookAids';
 import { swapsFor } from '../core/swaps';
@@ -23,7 +25,7 @@ import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/
 import { formatMoney } from '../../oikonomia/core/bills';
 import { isAdded } from '../../app/family/added';
 
-type Tab = 'ingredients' | 'steps' | 'notes';
+type Tab = 'ingredients' | 'steps' | 'nutrition' | 'notes';
 
 export function StepTimers({ step }: { step: string }) {
   const timers = useTimers();
@@ -130,6 +132,8 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
     );
 
   const factor = base && serves ? serves / base : 1;
+  // Worked out from the recipe as written (not as scaled), so a serving stays a serving.
+  const nutrition = recipeNutrition(recipe.ingredients);
   const sourceLines = recipe.ingredients.map((line) => scaleLine(line, factor));
   const lines = sourceLines.map((line) => (isHeading(line) ? line : convertLine(line, settings.units)));
   const save = (change: Partial<Recipe>) => putRecipe({ ...recipe, ...change, updatedAt: new Date().toISOString() });
@@ -214,6 +218,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         )}
       </div>
       <RecipeBudgetHint recipe={recipe} recipes={recipes} />
+      {settings.healthRating && nutrition.grade && <NutriBadge grade={nutrition.grade} onClick={() => setTab('nutrition')} />}
       {copied && (
         <p className="hint" role="status">
           Copied, ready to paste.
@@ -256,9 +261,11 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         options={[
           { id: 'ingredients', label: 'Ingredients' },
           { id: 'steps', label: 'Steps' },
+          ...(settings.healthRating ? [{ id: 'nutrition' as const, label: 'Nutrition' }] : []),
           { id: 'notes', label: 'Notes' },
         ]}
         onChange={setTab}
+        small={settings.healthRating}
       />
 
       {tab === 'ingredients' && (
@@ -339,6 +346,8 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           )}
         </section>
       )}
+
+      {tab === 'nutrition' && settings.healthRating && <NutritionPanel nutrition={nutrition} servings={servingsNumber(recipe.servings)} />}
 
       {tab === 'notes' && (
         <section aria-label="Notes">

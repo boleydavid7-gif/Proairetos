@@ -41,6 +41,8 @@ export type Settings = {
   fitsYourDay: boolean;
   /** A thought on what is in season, on Home. */
   seasons: boolean;
+  /** Nutri-Score and nutrients on each recipe. */
+  healthRating: boolean;
 };
 
 export const defaultSettings = (): Settings => ({
@@ -55,6 +57,7 @@ export const defaultSettings = (): Settings => ({
   pauseBeforeEating: true,
   fitsYourDay: true,
   seasons: true,
+  healthRating: true,
 });
 
 /** When IndexedDB is unavailable, everything is kept for this visit only. */
