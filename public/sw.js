@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   // Askesis, the training app, has its own service worker and cache.
-  if (url.origin === self.location.origin && (url.pathname.startsWith('/askesis') || url.pathname.startsWith('/soma'))) return;
+  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon)(\/|$)/.test(url.pathname)) return;
 
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
@@ -96,6 +96,7 @@ async function readJson(cache, path, fallback) {
 
 // Each app's own mark beside its reminders (HYDROS has only its drawn icon, so it shares Proairetos's).
 function iconFor(open) {
+  for (const app of ['diaita', 'philia', 'ergon']) if (open === app || (open && open.startsWith(app + ':'))) return '/' + app + '/icons/icon-192.png';
   if (open === 'praxis') return '/praxis/icons/icon-192.png';
   if (open === 'askesis') return '/askesis/icons/icon-192.png';
   if (open && open.startsWith('oikonomia:')) return '/oikonomia/icons/icon-192.png';
@@ -201,13 +202,17 @@ self.addEventListener('push', (event) => {
 
 // A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; HYDROS, Praxis,
 // Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
-const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/'];
+const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/'];
 
 function placeFor(open) {
   if (open === 'hydros') return { app: '/hydros/', url: '/hydros/' };
   if (open === 'praxis') return { app: '/praxis/', url: '/praxis/' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
+  for (const app of ['diaita', 'philia', 'ergon']) {
+    if (open === app) return { app: '/' + app + '/', url: '/' + app + '/' };
+    if (open.startsWith(app + ':')) return { app: '/' + app + '/', url: '/' + app + '/?open=' + encodeURIComponent(open.slice(app.length + 1)) };
+  }
   return { app: '/', url: '/?open=' + encodeURIComponent(open) };
 }
 

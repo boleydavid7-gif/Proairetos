@@ -212,3 +212,13 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 /* What's new: plain lines with a little room. */
 .whats-new { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 12px; }
 .whats-new li { line-height: 1.55; }
+
+/* The undo bar in the newer family apps (Diaita, Philia, Ergon): above the tab bar, or bottom right on computers. */
+.family-toast {
+  position: fixed; left: 50%; bottom: calc(var(--tab-height, 64px) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+  transform: translateX(-50%); display: flex; align-items: center; gap: 16px; max-width: calc(100vw - 32px);
+  padding: 10px 10px 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22); font-size: 0.95rem;
+}
+.family-toast button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--mint-soft); color: var(--mint); font: inherit; font-weight: 600; cursor: pointer; }
+@media (min-width: 62rem) { .family-toast { left: auto; right: 28px; bottom: 28px; transform: none; } }

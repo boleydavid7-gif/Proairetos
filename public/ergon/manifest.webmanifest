@@ -1,0 +1,79 @@
+{
+  "id": "/ergon/",
+  "name": "Ergon by Proairetos",
+  "short_name": "Ergon",
+  "description": "Household chores that come round, shared with the people you live with.",
+  "start_url": "/ergon/",
+  "scope": "/ergon/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1112",
+  "theme_color": "#0e1112",
+  "icons": [
+    {
+      "src": "/ergon/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/ergon/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/ergon/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/ergon/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Ergon"
+    },
+    {
+      "src": "/ergon/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Ergon"
+    },
+    {
+      "src": "/ergon/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Ergon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add a chore",
+      "short_name": "Add",
+      "url": "/ergon/?open=add",
+      "icons": [
+        {
+          "src": "/ergon/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Chores",
+      "short_name": "Chores",
+      "url": "/ergon/?open=chores",
+      "icons": [
+        {
+          "src": "/ergon/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

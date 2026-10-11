@@ -1,0 +1,61 @@
+/* Philia's colours: warm rose and clay. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.philia {
+  --app-name: 'PHILIA';
+  color-scheme: dark;
+  --bg: #120f10;
+  --surface: #1b1617;
+  --surface-2: #241d1f;
+  --line: #352b2d;
+  --text: #f0e8e4;
+  --text-soft: #d6cac4;
+  --muted: #a5978f;
+  --mint: #e39a8f;
+  --mint-ink: #2a120e;
+  --mint-soft: color-mix(in srgb, #e39a8f 14%, transparent);
+  --bar: rgba(18,15,16,0.95);
+  --placeholder: #857873;
+  --glow-top: #2a1e1f;
+  --switch-off: #3d3133;
+  --accent: #e39a8f;
+}
+
+:root.philia[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6efea;
+  --surface: #fffaf6;
+  --surface-2: #efe3dc;
+  --line: #e4d5cc;
+  --text: #2e2422;
+  --text-soft: #574743;
+  --muted: #6c5b56;
+  --mint: #9e4438;
+  --mint-ink: #fffaf6;
+  --mint-soft: color-mix(in srgb, #9e4438 14%, transparent);
+  --bar: rgba(248,242,238,0.96);
+  --placeholder: #a08f88;
+  --glow-top: #eedcd2;
+  --switch-off: #dccbc2;
+  --accent: #9e4438;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.philia[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f6efea;
+    --surface: #fffaf6;
+    --surface-2: #efe3dc;
+    --line: #e4d5cc;
+    --text: #2e2422;
+    --text-soft: #574743;
+    --muted: #6c5b56;
+    --mint: #9e4438;
+    --mint-ink: #fffaf6;
+    --mint-soft: color-mix(in srgb, #9e4438 14%, transparent);
+    --bar: rgba(248,242,238,0.96);
+    --placeholder: #a08f88;
+    --glow-top: #eedcd2;
+    --switch-off: #dccbc2;
+    --accent: #9e4438;
+  }
+}

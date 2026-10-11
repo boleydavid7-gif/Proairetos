@@ -639,6 +639,25 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'highlight', label: 'A highlight a day', detail: 'One of your Theoria highlights on Today, a different one each day.' }] }],
   },
   {
+    app: 'Diaita',
+    sections: [{ parts: [{ part: 'diaita', label: 'Tonight’s sleep', detail: 'When to sleep tonight, and a nap or last caffeine before it.' }] }],
+  },
+  {
+    app: 'Philia',
+    sections: [
+      {
+        parts: [
+          { part: 'birthdays', label: 'Birthdays on Today', detail: 'Birthdays and dates in the next week.' },
+          { part: 'birthday-dates', label: 'Birthdays in Days ahead', detail: 'On their day in the list and the calendar.' },
+        ],
+      },
+    ],
+  },
+  {
+    app: 'Ergon',
+    sections: [{ parts: [{ part: 'chores', label: 'Chores', detail: 'Chores whose day has come.' }] }],
+  },
+  {
     app: 'HYDROS',
     sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'During work, what you’ve drunk since it started, with a button to log a glass.' }] }],
   },
@@ -1237,6 +1256,9 @@ export default function SettingsPage() {
         { id: 'hydros', icon: app('/hydros/icon.svg'), title: 'HYDROS', value: 'Water, flow and balance', onClick: () => window.location.assign('/hydros/'), words: 'water drink' },
         { id: 'praxis', icon: app('/praxis/favicon.svg'), title: 'Praxis', value: 'Study, on purpose', onClick: () => window.location.assign('/praxis/'), words: 'study focus' },
         { id: 'theoria', icon: app('/theoria/favicon.svg'), title: 'Theoria', value: 'Reading and ideas', onClick: () => window.location.assign('/theoria/'), words: 'books reading' },
+        { id: 'diaita', icon: app('/diaita/icon.svg'), title: 'Diaita', value: 'Sleep and meals around your schedule', onClick: () => window.location.assign('/diaita/'), words: 'sleep nap caffeine meals night shift rhythm' },
+        { id: 'philia', icon: app('/philia/icon.svg'), title: 'Philia', value: 'Birthdays and the people in your life', onClick: () => window.location.assign('/philia/'), words: 'people birthdays friends family gifts' },
+        { id: 'ergon', icon: app('/ergon/icon.svg'), title: 'Ergon', value: 'Household chores, shared', onClick: () => window.location.assign('/ergon/'), words: 'chores cleaning household rota' },
         { id: 'family-page', icon: <CompassIcon size={22} />, title: 'All the apps', value: 'And how to add them', onClick: () => window.location.assign('/welcome/'), words: 'install home screen add share family' },
       ],
     },

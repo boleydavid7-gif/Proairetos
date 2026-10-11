@@ -336,7 +336,7 @@ export async function requestCode(email: string): Promise<void> {
 }
 
 /** Where each app shows its account card, so a sign-in with Google or Apple comes back to it. */
-const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', praxis: 'settings', theoria: 'settings' };
+const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', praxis: 'settings', theoria: 'settings', diaita: 'more', philia: 'more', ergon: 'more' };
 
 export async function signInWith(provider: SignInProvider): Promise<void> {
   const app = appAt(location.pathname);

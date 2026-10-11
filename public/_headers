@@ -42,3 +42,30 @@
   Cache-Control: no-store, no-cache, must-revalidate
 /theoria/index.html
   Cache-Control: no-store, no-cache, must-revalidate
+
+/diaita/sw.js
+  Cache-Control: no-cache
+/diaita/
+  Cache-Control: no-cache
+/diaita/index.html
+  Cache-Control: no-cache
+/diaita/manifest.webmanifest
+  Cache-Control: no-cache
+
+/philia/sw.js
+  Cache-Control: no-cache
+/philia/
+  Cache-Control: no-cache
+/philia/index.html
+  Cache-Control: no-cache
+/philia/manifest.webmanifest
+  Cache-Control: no-cache
+
+/ergon/sw.js
+  Cache-Control: no-cache
+/ergon/
+  Cache-Control: no-cache
+/ergon/index.html
+  Cache-Control: no-cache
+/ergon/manifest.webmanifest
+  Cache-Control: no-cache

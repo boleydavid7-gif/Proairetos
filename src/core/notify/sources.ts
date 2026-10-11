@@ -6,10 +6,10 @@ import type { Notice } from './notices';
  * Oikonomia the bills, Praxis the block that is running. Each writes what it owns; Proairetos also writes the
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
-export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'praxis';
+export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'praxis' | 'diaita' | 'philia' | 'ergon';
 export type FamilyApp = ReminderSource | 'soma' | 'theoria';
 
-export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'praxis'];
+export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'praxis', 'diaita', 'philia', 'ergon'];
 
 export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
   switch (notice.kind) {
@@ -21,6 +21,12 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
       return 'hydros';
     case 'study':
       return 'praxis';
+    case 'rhythm':
+      return 'diaita';
+    case 'person':
+      return 'philia';
+    case 'chore':
+      return 'ergon';
     default:
       return 'proairetos';
   }
@@ -29,7 +35,7 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
 /** Which app this page is, from its address. */
 export function appAt(pathname: string): FamilyApp {
   const first = pathname.split('/').filter(Boolean)[0];
-  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria'];
+  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon'];
   return apps.find((app) => app === first) ?? 'proairetos';
 }
 
@@ -46,7 +52,7 @@ export function sourcesToWrite(
   if (app === 'soma' || app === 'theoria') return [];
   if (app !== 'proairetos') return [app];
   const present = new Set(notices.map(sourceOf));
-  const others = (['askesis', 'oikonomia', 'hydros'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
+  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
   return ['proairetos', ...others];
 }
 

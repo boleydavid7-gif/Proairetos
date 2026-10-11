@@ -21,10 +21,10 @@ const stampServiceWorker = () => ({
 
 export default defineConfig({
   plugins: [react(), stampServiceWorker()],
-  // Seven apps from one codebase: Proairetos at /, Askesis at /askesis/, SOMA at /soma/, Oikonomia at /oikonomia/, Hydros at /hydros/, Praxis at /praxis/, Theoria at /theoria/.
+  // Ten apps from one codebase: Proairetos at /, Askesis at /askesis/, SOMA at /soma/, Oikonomia at /oikonomia/, Hydros at /hydros/, Praxis at /praxis/, Theoria at /theoria/, Diaita at /diaita/, Philia at /philia/, Ergon at /ergon/.
   build: {
     rollupOptions: {
-      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html', hydros: 'hydros/index.html', praxis: 'praxis/index.html', theoria: 'theoria/index.html' },
+      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html', hydros: 'hydros/index.html', praxis: 'praxis/index.html', theoria: 'theoria/index.html', diaita: 'diaita/index.html', philia: 'philia/index.html', ergon: 'ergon/index.html' },
     },
   },
   // When this copy was built, so Settings can say which build a phone is running.

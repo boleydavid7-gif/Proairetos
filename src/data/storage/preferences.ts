@@ -362,7 +362,14 @@ export type TodayPart =
   // Study from Praxis: in Done today and Reflect, and blocks to look at again on Today.
   | 'praxis'
   // One highlight a day from Theoria, shown on Today only if chosen.
-  | 'highlight';
+  | 'highlight'
+  // Tonight's sleep from Diaita, on Today once Diaita is in use.
+  | 'diaita'
+  // Birthdays from Philia: coming up on Today, and on their day in Days ahead.
+  | 'birthdays'
+  | 'birthday-dates'
+  // Chores from Ergon whose day has come, on Today.
+  | 'chores';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];

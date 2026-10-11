@@ -1,0 +1,465 @@
+/* Pieces Diaita, Philia and Ergon share, on top of askesis.css. Each app sets its colours on :root.<app>. */
+
+.family-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.family-unit .input {
+  min-width: 0;
+}
+
+.family-unit span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.input-row > .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.field__label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+}
+
+.button-main svg,
+.button-quiet svg {
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+
+.page-top .back-link svg {
+  margin-right: 2px;
+}
+
+.list-row {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  color: var(--text);
+}
+
+.list-row__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.list-row__text small,
+.list-row__aside {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.list-row__aside {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tick {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--mint);
+}
+
+.tick:hover {
+  border-color: var(--mint);
+}
+
+.tick[aria-pressed='true'] {
+  background: var(--mint);
+  border-color: var(--mint);
+  color: var(--mint-ink);
+}
+
+.hero-shade-soft .hero__shade {
+  background: linear-gradient(180deg, rgba(10, 12, 14, 0.55) 0%, rgba(10, 12, 14, 0.06) 40%, rgba(10, 12, 14, 0.5) 76%, var(--bg) 100%);
+}
+
+.remove-link {
+  align-self: center;
+  color: var(--danger, #e39b89);
+}
+
+/* ---------- Diaita ---------- */
+
+.diaita-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.diaita-entry + .diaita-entry {
+  border-top: 1px solid var(--line);
+}
+
+.diaita-entry__main {
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 14px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  display: grid;
+  grid-template-columns: 6.6rem 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.diaita-entry__main:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.diaita-entry__time {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaita-entry__icon {
+  color: var(--mint);
+  display: grid;
+  place-items: center;
+}
+
+.diaita-entry--work .diaita-entry__icon,
+.diaita-entry--wake .diaita-entry__icon {
+  color: var(--text-soft);
+}
+
+.diaita-entry--sleep .diaita-entry__icon,
+.diaita-entry--nap .diaita-entry__icon,
+.diaita-entry--dark .diaita-entry__icon {
+  color: color-mix(in srgb, var(--mint) 55%, #8aa4d6);
+}
+
+.diaita-entry__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.diaita-entry__text strong {
+  font-weight: 500;
+}
+
+.diaita-entry__text small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.diaita-entry--past .diaita-entry__main {
+  opacity: 0.55;
+}
+
+.diaita-entry--next {
+  box-shadow: inset 3px 0 0 var(--mint);
+}
+
+.diaita-entry__source {
+  margin: 0;
+  padding: 0 14px 12px calc(6.6rem + 28px + 34px);
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.diaita-next {
+  gap: 2px;
+}
+
+.diaita-next__title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.diaita-checkin__kept {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'eyebrow chevron' 'hours chevron' 'times chevron';
+  gap: 2px 12px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.diaita-checkin__kept .card__eyebrow { grid-area: eyebrow; }
+.diaita-checkin__kept strong { grid-area: hours; font-family: var(--serif); font-size: 1.6rem; font-weight: 400; }
+.diaita-checkin__kept .muted { grid-area: times; }
+.diaita-checkin__kept svg { grid-area: chevron; color: var(--muted); }
+
+.diaita-schedule-link {
+  align-self: center;
+}
+
+.diaita-week {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.diaita-day {
+  gap: 6px;
+}
+
+.diaita-day__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 18px;
+  gap: 10px;
+  align-items: center;
+}
+
+.diaita-day__kind {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.diaita-day--off .diaita-day__kind {
+  background: var(--surface-2);
+  color: var(--text-soft);
+}
+
+.diaita-day__head svg {
+  color: var(--muted);
+}
+
+.diaita-day__lines {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaita-night__hours {
+  width: auto;
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--mint);
+}
+
+.diaita-night {
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+}
+
+.diaita-switches-label {
+  padding-top: 12px;
+}
+
+.diaita-source {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (min-width: 62rem) {
+  .diaita-week {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Philia ---------- */
+
+.person-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.initials {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.initials--large {
+  width: 64px;
+  height: 64px;
+  font-size: 1.4rem;
+}
+
+.person-row {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+}
+
+.coming-up {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+}
+
+.coming-up__card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.coming-up__when {
+  color: var(--mint);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.notes-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.note-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.note-line small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.note-line button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+
+.add-line {
+  display: flex;
+  gap: 8px;
+}
+
+.add-line .input {
+  flex: 1;
+}
+
+.add-line .button-quiet {
+  flex: none;
+}
+
+/* ---------- Ergon ---------- */
+
+.chore {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 14px;
+}
+
+.chore + .chore {
+  border-top: 1px solid var(--line);
+}
+
+.chore__open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chore__open small {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.chore__when {
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.chore-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.chore-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.who-chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-left: 6px;
+  vertical-align: 1px;
+}

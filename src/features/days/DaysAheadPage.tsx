@@ -5,7 +5,8 @@ import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
 import { linkTo } from '../../app/family/opening';
-import { billsOn } from '../../app/family/glance';
+import { billsOn, birthdaysOn } from '../../app/family/glance';
+import { people } from '../../philia/app/state';
 import MiniMonth from './MiniMonth';
 import { useStore } from '../../app/family/read';
 import type { Bill } from '../../oikonomia/core/bills';
@@ -110,15 +111,17 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
  * the person's own labels.
  */
 /** Bills with a date on one day: a quiet line each, opening Oikonomia. A paid one says so. */
-function BillLines({ lines }: { lines: { id: string; name: string; amount: string; paid: boolean }[] }) {
+type FamilyLine = { id: string; name: string; amount?: string; paid?: boolean; href: string; color: string };
+
+function BillLines({ lines }: { lines: FamilyLine[] }) {
   if (lines.length === 0) return null;
   return (
     <>
       {lines.map((line) => (
-        <a key={line.id} className="days-bills" href="/oikonomia/">
+        <a key={line.id} className="days-bills" href={line.href}>
           <ListIcon size={18} />
           <span>
-            {line.name} · {line.amount}
+            {line.amount ? `${line.name} · ${line.amount}` : line.name}
           </span>
           {line.paid && <span className="days-bills__paid">paid</span>}
         </a>
@@ -151,7 +154,12 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const shows = useTodayParts();
   const recipes = useRecipesFromSoma();
   const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
-  const billsFor = (date: string) => (shows('bill-dates') ? billsOn(bills, date) : []);
+  const everyone = people.use();
+  // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
+  const billsFor = (date: string): FamilyLine[] => [
+    ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: '/oikonomia/', color: 'amber' })) : []),
+    ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
+  ];
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -587,13 +595,13 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               ))}
             </div>
           )}
-          {shows('bill-dates') && (narrow ? [focusDay] : data.days.map((day) => day.date)).some((date) => billsFor(date).length > 0) && (
+          {(narrow ? [focusDay] : data.days.map((day) => day.date)).some((date) => billsFor(date).length > 0) && (
             <div className="cal-head cal-bills" style={{ ['--days' as string]: String(narrow ? 1 : span) }}>
               <span aria-hidden="true" />
               {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date }) => (
                 <span key={date} className="cal-bills__day">
                   {billsFor(date).map((line) => (
-                    <a key={line.id} href="/oikonomia/" className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={`${line.name} · ${line.amount}${line.paid ? ' · paid' : ''}`}>
+                    <a key={line.id} href={line.href} className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={[line.name, line.amount, line.paid ? 'paid' : ''].filter(Boolean).join(' · ')}>
                       {line.name}
                     </a>
                   ))}
@@ -742,7 +750,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 const looks = entries.flatMap((entry): { title: string; color?: string }[] =>
                   entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
                 );
-                for (const line of billsFor(date)) looks.push({ title: line.name, color: 'amber' });
+                for (const line of billsFor(date)) looks.push({ title: line.name, color: line.color });
                 const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
                 return (
                   <button

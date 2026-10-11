@@ -1,0 +1,61 @@
+/* Diaita's colours: dusk blue with lamp amber. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.diaita {
+  --app-name: 'DIAITA';
+  color-scheme: dark;
+  --bg: #0e1014;
+  --surface: #161a20;
+  --surface-2: #1d222a;
+  --line: #2a303a;
+  --text: #ece8e1;
+  --text-soft: #cdc7bd;
+  --muted: #9d9b97;
+  --mint: #e2b26e;
+  --mint-ink: #241a0b;
+  --mint-soft: color-mix(in srgb, #e2b26e 14%, transparent);
+  --bar: rgba(14,16,20,0.95);
+  --placeholder: #7c7f86;
+  --glow-top: #1c2230;
+  --switch-off: #343a44;
+  --accent: #e2b26e;
+}
+
+:root.diaita[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f1eee8;
+  --surface: #fbf9f5;
+  --surface-2: #e8e2d7;
+  --line: #ddd5c8;
+  --text: #26231f;
+  --text-soft: #4d463e;
+  --muted: #645d55;
+  --mint: #87561a;
+  --mint-ink: #fffaf2;
+  --mint-soft: color-mix(in srgb, #87561a 14%, transparent);
+  --bar: rgba(244,241,235,0.96);
+  --placeholder: #9a9186;
+  --glow-top: #e6ddcf;
+  --switch-off: #d6cdc0;
+  --accent: #87561a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.diaita[data-theme='system'] {
+    color-scheme: light;
+    --bg: #f1eee8;
+    --surface: #fbf9f5;
+    --surface-2: #e8e2d7;
+    --line: #ddd5c8;
+    --text: #26231f;
+    --text-soft: #4d463e;
+    --muted: #645d55;
+    --mint: #87561a;
+    --mint-ink: #fffaf2;
+    --mint-soft: color-mix(in srgb, #87561a 14%, transparent);
+    --bar: rgba(244,241,235,0.96);
+    --placeholder: #9a9186;
+    --glow-top: #e6ddcf;
+    --switch-off: #d6cdc0;
+    --accent: #87561a;
+  }
+}

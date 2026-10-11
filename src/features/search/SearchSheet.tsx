@@ -1,3 +1,5 @@
+import { people } from '../../philia/app/state';
+import { allChores } from '../../ergon/app/state';
 import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
@@ -120,6 +122,26 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
   for (const bill of bills) {
     labels.set(bill.id, 'Bill in Oikonomia');
     things.push({ id: bill.id, kind: 'app', href: '/oikonomia/', title: bill.name, fields: [{ name: 'Notes', text: bill.notes }], at: bill.createdAt });
+  }
+  for (const person of people.list()) {
+    labels.set(person.id, 'Person in Philia');
+    things.push({
+      id: person.id,
+      kind: 'app',
+      href: `/philia/?open=${encodeURIComponent(`person:${person.id}`)}`,
+      title: person.name,
+      fields: [
+        { name: 'Who', text: person.relation },
+        { name: 'Remember', text: person.notes.map((note) => note.text).join('\n') },
+        { name: 'Gift ideas', text: person.gifts.map((gift) => gift.text).join('\n') },
+        { name: 'Times together', text: person.times.map((time) => time.text).join('\n') },
+      ],
+      at: person.createdAt,
+    });
+  }
+  for (const chore of allChores()) {
+    labels.set(chore.id, 'Chore in Ergon');
+    things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
   }
   return { things, labels };
 }
