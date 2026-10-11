@@ -6,7 +6,8 @@ import { payBill } from '../app/payBill';
 import { financeLineFor } from '../core/lines';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
-import { Brand, greeting, Hero } from '../app/ui';
+import { Brand, Hero } from '../app/ui';
+import { Greeting } from '../../app/family/greeting';
 
 function billRow(bill: Bill, date: string, nav: Nav, today: string) {
   return (
@@ -51,7 +52,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting">{greeting()}</p>
+          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">“{line.text}”</h1>
           <p className="home__sub">{line.source}</p>
         </div>

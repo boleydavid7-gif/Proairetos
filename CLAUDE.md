@@ -70,8 +70,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   own block in `hydros.css`; Praxis and Theoria already had side navigation.
 - Sync carries two more kinds of record (migration `20261016000000_preferences_files_sync.sql`,
   held in `laterCollections` until the server has it): `preferences` (every setting in browser
-  storage that `syncedSetting` allows, one record each; device-only ones such as the name, sign-in
-  and weather place stay home; on a fresh device the account's copy wins the first time) and
+  storage that `syncedSetting` allows, one record each; device-only ones such as sign-in
+  and the weather place stay home; on a fresh device the account's copy wins the first time) and
   `attachments` (details as records, bytes sealed with `sealBytes` into the private
   `proairetos-files` bucket by `attachmentFiles.ts`). Both are added around the database store in
   `deviceRecords.ts`. Pulls start 200 numbers back (`OVERLAP`) because the server numbers a write
@@ -158,8 +158,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   The app (Notifications, What's included, Appearance), Account and data (account and name, lock, back up, bring in, privacy, delete), Apps (Store and the added apps), About; support row last) with
   detail pages, under a profile card. Calendars holds both other
   calendars and the subscription; What's included holds Quiet offers;
-  About holds sources; Values live only in Compass. The name (greeting
-  on Today) is a device-only preference.
+  About holds sources; Values live only in Compass. The name
+  (`proairetos.displayName`) syncs as a setting and greets in every app (`app/family/greeting.tsx` `Greeting`);
+  Ergon's own name falls back to it (`myName`).
 - Practices are woven in, never a feature: `core/practices/practices.ts`
   (short steps + credited source), shown by `features/pause/PracticeScreen`.
   Pause ends with "Another way to pause"; a Feeling capture may get a
@@ -321,7 +322,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   it sounded wrong). `SitScreen` is portalled to body.
   Nothing about a sit is recorded.
 - Notifications (Settings > Notifications, `features/settings/NotificationsSection`:
-  one plain list of switches, a lead or time beside a switch only while
+  switches grouped by app (Proairetos, then each added app with its icon, `APP_NOTICES`; Hydros links to its own settings),
+  then How they arrive; a lead or time beside a switch only while
   it is on, Coming up folded; keep explanations out of it):
   written on the device. `core/notify/notices.ts` (`noticesBetween`: timed
   items by their `remind` minutes, absent = at the time, [] = none; other

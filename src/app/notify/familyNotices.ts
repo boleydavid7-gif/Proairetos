@@ -6,7 +6,7 @@ import { settings as diaitaSettings } from '../../diaita/app/state';
 import { peopleNotices } from '../../philia/core/notices';
 import { people, settings as philiaSettings } from '../../philia/app/state';
 import { choreNotices } from '../../ergon/core/notices';
-import { allChores, settings as ergonSettings } from '../../ergon/app/state';
+import { allChores, myName as ergonName, settings as ergonSettings } from '../../ergon/app/state';
 import { careNotices } from '../../therapeia/core/notices';
 import { anchorsFrom } from '../../therapeia/core/medicines';
 import { appointments, medicines, settings as therapeiaSettings } from '../../therapeia/app/state';
@@ -46,7 +46,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const chores = allChores();
   if (chores.length && isAdded('ergon')) {
     const ergon = ergonSettings.load();
-    notices.push(...choreNotices(chores, ergon.notices, ergon.me || undefined, today, horizon));
+    notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon));
   }
 
   const meds = medicines.list();

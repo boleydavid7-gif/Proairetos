@@ -7,16 +7,11 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import photo from '../../assets/images/scenes/ergon.webp';
 import photoWide from '../../assets/images/scenes/ergon-wide.webp';
 import type { ErgonNav } from '../app/App';
-import { newId, putChore, removeChore, settings, useChores, useHome } from '../app/state';
+import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
 import { ChoreList } from '../app/ui';
 import { IDEAS, grouped, type Chore } from '../core/chores';
+import { Greeting } from '../../app/family/greeting';
 
-function greeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export function Ideas({ chores }: { chores: readonly Chore[] }) {
   const today = toLocalDate(new Date());
@@ -48,8 +43,9 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const home = useHome();
   const today = toLocalDate(new Date());
   const [whose, setWhose] = useState<'mine' | 'all'>('all');
-  const mineOnly = whose === 'mine' && current.me;
-  const shown = mineOnly ? all.filter((chore) => !chore.who || chore.who === current.me) : all;
+  const me = myName(current);
+  const mineOnly = whose === 'mine' && me;
+  const shown = mineOnly ? all.filter((chore) => !chore.who || chore.who === me) : all;
   const groups = grouped(shown, today);
   const open = (chore: Chore) => nav.go({ name: 'chore', id: chore.id });
 
@@ -64,7 +60,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         <div className="hero__content">
           <Brand name="Ergon" mark={<AppMark app="ergon" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting">{greeting()}</p>
+            <p className="home__greeting"><Greeting /></p>
             <h1 className="home__title">{groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} today`}</h1>
             <p className="home__sub">{home ? home.name : 'Chores'}</p>
           </div>
@@ -72,8 +68,8 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
       </div>
 
       <div className="page page--under-hero">
-        {current.me && home && (
-          <Segmented label="Whose" value={whose} options={[{ id: 'all', label: 'Everyone' }, { id: 'mine', label: current.me }]} onChange={setWhose} small />
+        {me && home && (
+          <Segmented label="Whose" value={whose} options={[{ id: 'all', label: 'Everyone' }, { id: 'mine', label: me }]} onChange={setWhose} small />
         )}
 
         {all.length === 0 ? (

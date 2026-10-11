@@ -187,13 +187,14 @@ export function saveJournalDraft(draft: JournalDraft | null): void {
 
 const NAME_KEY = 'proairetos.displayName';
 
-/** The name the person chose to be greeted by, if any. Kept on this device only. */
+/** The name the person chose to be greeted by, if any. Travels with the account, so every app greets with it. */
 export function displayName(): string {
   return readJson<string>(NAME_KEY) ?? '';
 }
 
 export function setDisplayName(name: string): void {
   writeJson(NAME_KEY, name.trim() || null);
+  notifyPreferences();
 }
 
 // ---------- When a day turns over ----------

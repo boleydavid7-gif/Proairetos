@@ -62,7 +62,7 @@ describe('settings travel with the account', () => {
     await phone.sync();
     await laptop.sync();
     expect(laptopStorage.getItem('proairetos.quietHours')).toBe('{"from":"22:00"}');
-    expect(laptopStorage.getItem('proairetos.displayName')).toBeNull();
+    expect(laptopStorage.getItem('proairetos.displayName')).toBe('"Ada"');
     expect(laptopStorage.getItem('proairetos.auth')).toBeNull();
   });
 
@@ -98,7 +98,8 @@ describe('settings travel with the account', () => {
   it('knows which settings are the device\'s own', () => {
     expect(syncedSetting('proairetos.quietHours')).toBe(true);
     expect(syncedSetting('askesis:settings')).toBe(true);
-    for (const own of ['proairetos.auth', 'proairetos.displayName', 'proairetos.weather.now', 'proairetos.otherCalendars.work', 'proairetos.onboarded']) {
+    expect(syncedSetting('proairetos.displayName')).toBe(true);
+    for (const own of ['proairetos.auth', 'proairetos.weather.now', 'proairetos.otherCalendars.work', 'proairetos.onboarded']) {
       expect(syncedSetting(own)).toBe(false);
     }
   });

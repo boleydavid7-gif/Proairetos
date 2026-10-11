@@ -11,13 +11,8 @@ import { ROUTINES, routineMinutes, weekMobility } from '../core/mobility';
 import { useStore } from '../../app/family/read';
 import { useAddedApps } from '../../app/family/added';
 import { fromRunDays, isTrainingDay, nextSession, sessionMinutes, setsOffer, targetsFor, weekDays } from '../core/plan';
+import { Greeting } from '../../app/family/greeting';
 
-function greeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export default function TodayPage({ nav }: { nav: DynamisNav }) {
   const current = plan.use();
@@ -130,7 +125,7 @@ function Hero({ title, sub }: { title: string; sub: string }) {
       <div className="hero__content">
         <Brand name="Dynamis" mark={<AppMark app="dynamis" size={30} light />} light />
         <div className="home__words">
-          <p className="home__greeting">{greeting()}</p>
+          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">{title}</h1>
           <p className="home__sub">{sub}</p>
         </div>

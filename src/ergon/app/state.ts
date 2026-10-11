@@ -4,8 +4,14 @@ import { createSharedLists, joinProof, sharingAvailable, type SharedListRef } fr
 import { notifications } from '../../app/notify/notifications';
 import { defaultChoreNotices, type ChoreNoticeChoices } from '../core/notices';
 import type { Chore } from '../core/chores';
+import { displayName } from '../../data/storage/preferences';
 
 export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices };
+
+/** The name used for Mine and for who did what: the one given here, else the name set in Proairetos. */
+export function myName(current: ErgonSettings = settings.load()): string {
+  return current.me.trim() || displayName();
+}
 
 export const settings = stored<ErgonSettings>('ergon:settings', () => ({ started: false, me: '', notices: { ...defaultChoreNotices } }));
 

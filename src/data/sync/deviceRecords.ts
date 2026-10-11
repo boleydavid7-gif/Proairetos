@@ -6,7 +6,6 @@ import type { LocalRecord, LocalSyncStore, SyncCollection } from './types';
  * how loud sound is, whether this device has been through the welcome, what it has cached.
  */
 const THIS_DEVICE_ONLY = new Set([
-  'proairetos.displayName',
   'proairetos.onboarded',
   'proairetos.soundVolume',
   'proairetos.praxisSound',

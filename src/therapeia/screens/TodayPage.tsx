@@ -9,13 +9,8 @@ import type { TherapeiaNav } from '../app/App';
 import { appointments, medicines, useAnchors } from '../app/state';
 import { at, DoseRow, dayWord, takeOneNow } from '../app/ui';
 import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments } from '../core/medicines';
+import { Greeting } from '../../app/family/greeting';
 
-function greeting(now: Date): string {
-  const hour = now.getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
   const now = useNow();
@@ -42,7 +37,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
         <div className="hero__content">
           <Brand name="Therapeia" mark={<AppMark app="therapeia" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting">{greeting(now)}</p>
+            <p className="home__greeting"><Greeting now={now} /></p>
             <h1 className="home__title">{next ? next.medicine.name : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
             <p className="home__sub">{next ? `${at(next.at)}${next.medicine.dose ? ` · ${next.medicine.dose}` : ''}` : 'Medicines'}</p>
           </div>

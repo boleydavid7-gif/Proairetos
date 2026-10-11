@@ -7,14 +7,15 @@ import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { settings, useChores, useHome, type ErgonSettings } from '../app/state';
+import { settings, useChores, useHome, type ErgonSettings, myName } from '../app/state';
 import { namesIn, whoDidWhat } from '../core/chores';
+import { displayName } from '../../data/storage/preferences';
 
 export default function MorePage({ nav }: { nav: ErgonNav }) {
   const current = settings.use();
   const home = useHome();
   const chores = useChores();
-  const names = namesIn(chores, [current.me]);
+  const names = namesIn(chores, [myName(current)]);
   const facts = whoDidWhat(chores, toLocalDate(new Date()));
   const change = (patch: Partial<ErgonSettings>) => {
     settings.save({ ...settings.load(), ...patch });
@@ -40,7 +41,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder="For Mine and for who did what" />
+          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and for who did what"} />
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
       </section>
@@ -52,7 +53,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <section className="card switches">
         <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.on} label="Chores" onToggle={() => notice({ on: !current.notices.on })} />
-        {current.notices.on && current.me && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
+        {current.notices.on && myName(current) && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
         {current.notices.on && (
           <label className="field philia-at">
             <span className="field__label">At</span>

@@ -3,7 +3,7 @@ import { offerUndo } from '../../app/family/shell';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { findChore, newId, putChore, removeChore, settings, useChores } from '../app/state';
+import { findChore, newId, putChore, removeChore, settings, useChores, myName } from '../app/state';
 import { done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, weekdayName, type Chore, type Repeat } from '../core/chores';
@@ -21,7 +21,7 @@ const WEEK = [1, 2, 3, 4, 5, 6, 0];
 function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void }) {
   const all = useChores();
   const today = toLocalDate(new Date());
-  const me = settings.use().me;
+  const me = myName(settings.use());
   const [name, setName] = useState(existing?.name ?? '');
   const [room, setRoom] = useState(existing?.room ?? '');
   const [kind, setKind] = useState<Kind>(existing?.repeat.kind ?? 'weeks');

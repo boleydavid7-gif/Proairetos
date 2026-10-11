@@ -3,11 +3,11 @@ import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
 import { dayText, markDone, nextDay, repeatText, type Chore } from '../core/chores';
-import { putChore, settings } from './state';
+import { myName, putChore } from './state';
 
 export function done(chore: Chore, today: string): void {
   tap();
-  putChore(markDone(chore, today, settings.load().me || chore.who));
+  putChore(markDone(chore, today, myName() || chore.who));
   offerUndo(`${chore.name} done`, () => putChore(chore));
 }
 

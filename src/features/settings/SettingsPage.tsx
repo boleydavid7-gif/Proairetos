@@ -58,7 +58,7 @@ import {
 import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
 import valleyWide from '../../assets/images/scenes/valley-wide.webp';
-import { signOut, syncStatus } from '../../app/sync/syncController';
+import { signOut, syncSoon, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import CalendarSection from './CalendarSection';
 import OtherCalendarsSection from './OtherCalendarsSection';
@@ -500,10 +500,11 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
       onSubmit={(event) => {
         event.preventDefault();
         setDisplayName(name);
+        syncSoon();
         onDone();
       }}
     >
-      <p className="section-description">Used only to greet you on Today. It stays on this device.</p>
+      <p className="section-description">Greets you in every app.</p>
       <input
         className="field-input"
         autoFocus
@@ -1324,7 +1325,7 @@ export default function SettingsPage() {
             <span className="profile-card__text">
               <span className="profile-card__name">{name || 'Add your name'}</span>
               <span className="profile-card__detail">
-                {status.email ?? (name ? 'On this device' : 'So Today can greet you')}
+                {status.email ?? (name ? 'Greets you in every app' : 'So the apps can greet you')}
               </span>
             </span>
             <ChevronRightIcon size={18} className="settings-row__chevron" />

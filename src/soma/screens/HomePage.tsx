@@ -9,9 +9,10 @@ import { dayShape } from '../core/dayShape';
 import { inSeason, seasonal as seasonalNow, seasonalRecipes } from '../core/seasons';
 import { ProducePicture } from './SeasonPage';
 import { plannedOn, weekFrom } from '../core/week';
-import { Brand, dayLabel, greeting, Hero } from '../app/ui';
+import { Brand, dayLabel, Hero } from '../app/ui';
 import { lineFor } from '../core/lines';
 import { minutesLabel, timeOf, type Recipe } from '../core/recipes';
+import { Greeting } from '../../app/family/greeting';
 
 export function RecipeCard({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   const time = minutesLabel(timeOf(recipe));
@@ -47,7 +48,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero image={scene('lake-produce')} tall>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting">{greeting()}</p>
+          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">Simple food, with care.</h1>
           <p className="home__sub">Cook what nourishes you.</p>
         </div>

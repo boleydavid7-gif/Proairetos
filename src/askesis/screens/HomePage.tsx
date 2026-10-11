@@ -4,7 +4,7 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
-import { Brand, dayLabel, greeting, Hero, useUndo } from '../app/ui';
+import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
 import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
@@ -16,6 +16,7 @@ import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
+import { Greeting } from '../../app/family/greeting';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -64,7 +65,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
       <Hero image={scene('sunset-lake')} tall>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting">{greeting()}</p>
+          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">One run at a time.</h1>
         </div>
       </Hero>

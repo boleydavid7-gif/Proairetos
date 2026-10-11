@@ -22,6 +22,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Getting started now shows how to add Proairetos to your Home Screen, and the other apps with how to add them.',
       'Notifications in Settings are grouped by app, showing only the apps you added.',
       'Soma and Hydros, like every app in the family, are now written with one capital.',
+      'The name you give Proairetos greets you in every app, and travels with your account.',
     ],
   },
   {

@@ -10,6 +10,7 @@ import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { Timeline, span } from '../app/ui';
 import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, type SleepQuality } from '../core/rhythm';
+import { Greeting } from '../../app/family/greeting';
 
 const ENERGY: { id: Energy; label: string }[] = [
   { id: 'full', label: 'Plenty' },
@@ -26,13 +27,6 @@ export function useNow(): Date {
   return now;
 }
 
-function greeting(now: Date): string {
-  const hour = now.getHours();
-  if (hour < 5) return 'Good night';
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string; up: string }; nav: DiaitaNav }) {
   const kept = sleeps.use().find((record) => record.id === date);
@@ -127,7 +121,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
         <div className="hero__content">
           <Brand name="Diaita" mark={<AppMark app="diaita" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting">{greeting(now)}</p>
+            <p className="home__greeting"><Greeting now={now} /></p>
             <h1 className="home__title">{DAY_NAMES[kind]}</h1>
             <p className="home__sub">{work.length ? work.map((entry) => `${entry.title} ${span(entry)}`).join(' · ') : 'No work today'}</p>
           </div>

@@ -8,13 +8,8 @@ import type { KtemaNav } from '../app/App';
 import { newId, putUpkeep, settings, things, upkeeps } from '../app/state';
 import { UpkeepRow } from '../app/ui';
 import { IDEAS, IDEAS_NOTE, grouped, warrantiesEnding, warrantyText, type Upkeep } from '../core/things';
+import { Greeting } from '../../app/family/greeting';
 
-function greeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 export function Ideas({ list, few = false }: { list: readonly Upkeep[]; few?: boolean }) {
   const unit = settings.use().distance;
@@ -59,7 +54,7 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
         <div className="hero__content">
           <Brand name="Ktema" mark={<AppMark app="ktema" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting">{greeting()}</p>
+            <p className="home__greeting"><Greeting /></p>
             <h1 className="home__title">{groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].upkeep.name : `${groups.now.length} to look after`}</h1>
             <p className="home__sub">Home, car and belongings</p>
           </div>
