@@ -5,6 +5,7 @@ import photo from '../../assets/images/scenes/dynamis.webp';
 import photoWide from '../../assets/images/scenes/dynamis-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
+import ExerciseFigure from '../app/ExerciseFigure';
 import { draft, isSetup, mobility, plan, savePlan, workouts } from '../app/state';
 import { ROUTINES, routineMinutes, weekMobility } from '../core/mobility';
 import { useStore } from '../../app/family/read';
@@ -59,8 +60,8 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
           <h2 className="card__title">{session.name}</h2>
           <ul className="notes-list">
             {targets.map((target) => (
-              <li key={target.exercise} className="note-line">
-                <span>{target.name}</span>
+              <li key={target.exercise} className="note-line dynamis-line">
+                <span className="dynamis-line__name"><ExerciseFigure id={target.exercise} step={target.step} size={40} still />{target.name}</span>
                 <span className="muted">{target.sets} × {target.range[0]}–{target.range[1]}{target.measure === 'seconds' ? ' s' : ''}{target.ready ? ' · ready for more' : ''}</span>
               </li>
             ))}

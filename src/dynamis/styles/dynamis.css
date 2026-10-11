@@ -257,3 +257,42 @@
   margin: 0;
   text-align: left;
 }
+
+/* Exercise figures: the body in the text colour, what it holds in the accent. */
+.dynamis-figure {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+  color: var(--text);
+}
+
+.dynamis-figure .fig-accent {
+  color: var(--mint);
+}
+
+.dynamis-exercise__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dynamis-exercise__top .dynamis-figure svg {
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.dynamis-exercise__top .dynamis-exercise__head {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dynamis-line__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dynamis-line__name .dynamis-figure {
+  opacity: 0.85;
+}

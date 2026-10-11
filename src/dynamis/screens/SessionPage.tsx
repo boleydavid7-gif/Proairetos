@@ -7,6 +7,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
 import { draft, isSetup, newId, plan, savePlan, workouts, type Draft, type DraftSet } from '../app/state';
 import { alternatives } from '../core/library';
+import ExerciseFigure from '../app/ExerciseFigure';
 import { awayDays, warmUp, lighterWeight, nextSession, sessionsFor, setsText, targetsFor, type Felt, type Target, type Workout } from '../core/plan';
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
@@ -148,9 +149,12 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
         const sets = setsOf(target.exercise);
         return (
           <section key={target.exercise} className="card dynamis-exercise">
-            <div className="dynamis-exercise__head">
-              <h2 className="card__title">{target.name}</h2>
-              <span className="muted">{target.range[0]}–{target.range[1]}{target.measure === 'seconds' ? ' s' : ' reps'} · rest {clock(target.rest)}</span>
+            <div className="dynamis-exercise__top">
+              <ExerciseFigure id={target.exercise} step={target.step} size={92} />
+              <div className="dynamis-exercise__head">
+                <h2 className="card__title">{target.name}</h2>
+                <span className="muted">{target.range[0]}–{target.range[1]}{target.measure === 'seconds' ? ' s' : ' reps'} · rest {clock(target.rest)}</span>
+              </div>
             </div>
             {target.last && <p className="fine">Last time: {setsText(target.last, setup.unit, target.measure)}</p>}
             {warmUp(target, setup.unit).length > 0 && !sets.some((set) => set.done) && (
