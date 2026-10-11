@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
@@ -19,16 +20,19 @@ export default function StoreSection() {
           const isAdded = added.includes(id);
           return (
             <li key={app.id} className="store__app">
+              <div
+                className="store__banner"
+                style={app.tint ? ({ '--ground': app.tint.ground, '--accent-app': app.tint.accent, '--ink': app.tint.ink } as CSSProperties) : undefined}
+              >
+                <img className="store__logo" src={app.icon} alt="" width={64} height={64} />
+                <h2 className="store__name">{app.name}</h2>
+                <p className="store__by">by Proairetos</p>
+              </div>
               <div className="store__head">
-                <img className="store__icon" src={app.icon} alt="" width={48} height={48} />
-                <div className="store__words">
-                  <h2 className="store__name">{app.name}</h2>
-                  <p className="store__line">{app.line}</p>
-                </div>
+                <p className="store__line">{app.line}</p>
                 <span className="store__price">{isAdded ? 'Added' : 'Free'}</span>
               </div>
               {app.about && <p className="store__about">{app.about}</p>}
-              {app.shot && <img className="store__shot" src={app.shot} alt={`${app.name} on a phone`} />}
               <div className="store__actions">
                 {isAdded ? (
                   <>
