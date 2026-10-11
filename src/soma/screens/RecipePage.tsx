@@ -21,6 +21,7 @@ import { deleteRecipe, loadSettings, putRecipe, saveGroceries, saveSettings } fr
 import { listBills, getBudget, loadSettings as loadOikonomiaSettings } from '../../oikonomia/data/store';
 import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/core/budget';
 import { formatMoney } from '../../oikonomia/core/bills';
+import { isAdded } from '../../app/family/added';
 
 type Tab = 'ingredients' | 'steps' | 'notes';
 
@@ -544,7 +545,7 @@ function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe
   const [state, setState] = useState<{ currency: string; limit: number; remaining: number; label: string; mismatch?: boolean }>();
   const mealCost = recipe.estimatedCostCents;
   useEffect(() => {
-    if (mealCost === undefined) return;
+    if (mealCost === undefined || !isAdded('oikonomia')) return;
     let live = true;
     const month = monthKey();
     void Promise.all([listBills(), getBudget(month)]).then(([bills, budget]) => {
@@ -569,7 +570,7 @@ function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe
 
   if (mealCost === undefined) return null;
   if (state?.mismatch) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, state.currency)} · Oikonomia uses another currency for this plan.</p>;
-  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)} · Set a monthly or food limit in Oikonomia to compare.</p>;
+  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)}{isAdded('oikonomia') ? ' · Set a monthly or food limit in Oikonomia to compare.' : ''}</p>;
   const after = state.remaining;
   return (
     <div className="recipe-budget-hint">

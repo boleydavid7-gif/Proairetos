@@ -27,6 +27,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Oikonomia: what went out each month, as a chart on Spent.',
       'Soma: pull a grocery line to the left to tick it.',
       'Clearer empty lists in Askesis, Soma and Oikonomia, and darker green text in light mode.',
+      'Each app stands on its own: links to another app show only when that app is added.',
+      'Therapeia: set your usual bedtime and hours of sleep there when Diaita is not added.',
+      'Oikonomia: a bill added after its reminder day is reminded on the day it is due.',
     ],
   },
   {

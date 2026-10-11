@@ -444,7 +444,8 @@ type View =
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
 export function openSettingsAt(view: View): void {
-  requestedView = view;
+  // A link can carry any word; one that names no page opens the list instead of an empty page.
+  requestedView = view in viewTitles ? view : null;
 }
 
 const viewTitles: Record<View, string> = {

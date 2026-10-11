@@ -4,6 +4,7 @@ import { countRecords, parseBackupFile, type BackupData } from '../../data/backu
 import { lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { backupService } from '../services';
 import { dayName, useDailyCopies } from './useDailyCopies';
+import { useAddedApps } from './added';
 
 /**
  * The family's one backup, for Askesis, Soma, Oikonomia and Hydros's "Your data" pages. It is
@@ -16,15 +17,17 @@ const when = (iso: string) => new Date(iso).toLocaleDateString(undefined, { mont
 function describe(data: BackupData): string {
   const counts = countRecords(data);
   const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
-  const parts = [n(counts.lifeItems, 'item'), n(counts.reflections, 'reflection'), n(counts.workouts, 'workout'), n(counts.recipes, 'recipe'), n(counts.bills, 'bill')];
-  if (counts.budgets > 0) parts.push(n(counts.budgets, 'budget'));
-  if (counts.drinks > 0) parts.push(n(counts.drinks, 'drink'));
-  return parts.join(', ');
+  // Only what the file holds: someone without Soma never reads "0 recipes".
+  const parts = ([[counts.lifeItems, 'item'], [counts.reflections, 'reflection'], [counts.workouts, 'workout'], [counts.recipes, 'recipe'], [counts.bills, 'bill'], [counts.budgets, 'budget'], [counts.drinks, 'drink']] as const)
+    .filter(([count]) => count > 0)
+    .map(([count, word]) => n(count, word));
+  return parts.join(', ') || 'Settings only';
 }
 
 /** `older`: reads a backup file this app made before there was one for all three; returns what it brought in, or undefined if it is not one. */
 export default function FamilyBackup({ older }: { older?: (text: string) => Promise<string | undefined> }) {
   const [password, setPassword] = useState('');
+  const added = useAddedApps();
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState(() => lastBackupDate());
   const input = useRef<HTMLInputElement>(null);
@@ -71,7 +74,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
     <>
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
-        <p className="muted">All the apps and their settings. Theoria’s books stay on the phone.</p>
+        <p className="muted">All the apps and their settings.{added.includes('theoria') ? ' Theoria’s books stay on the phone.' : ''}</p>
         <label className="field">
           <span className="label">Password (optional)</span>
           <input

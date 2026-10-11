@@ -7,6 +7,8 @@ import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { TherapeiaNav } from '../app/App';
 import { settings, type TherapeiaSettings } from '../app/state';
+import { settings as diaitaSettings } from '../../diaita/app/state';
+import { useAddedApps } from '../../app/family/added';
 
 const LEADS = [
   { minutes: 30, label: '30 minutes before' },
@@ -17,6 +19,13 @@ const LEADS = [
 
 export default function MorePage({ nav: _nav }: { nav: TherapeiaNav }) {
   const current = settings.use();
+  const rhythm = diaitaSettings.use();
+  const diaitaAdded = useAddedApps().includes('diaita');
+  // The same usual bedtime Diaita keeps, so the two never disagree when both are added.
+  const sleepChange = (patch: Partial<typeof rhythm>) => {
+    diaitaSettings.save({ ...diaitaSettings.load(), ...patch });
+    notifications.refreshSoon();
+  };
   const notice = (patch: Partial<TherapeiaSettings['notices']>) => {
     settings.save({ ...settings.load(), notices: { ...current.notices, ...patch } });
     notifications.refreshSoon();
@@ -71,13 +80,34 @@ export default function MorePage({ nav: _nav }: { nav: TherapeiaNav }) {
             <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
-        <li>
-          <a className="row" href="/diaita/">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Waking and sleep</span><span className="row__detail">From your schedule, as Diaita plans it</span></span>
-          </a>
-        </li>
+        {diaitaAdded && (
+          <li>
+            <a className="row" href="/diaita/?open=more">
+              <span className="row__icon"><SettingsIcon size={21} /></span>
+              <span className="row__text"><span>Waking and sleep</span><span className="row__detail">Set in Diaita</span></span>
+            </a>
+          </li>
+        )}
       </ul>
+
+      {!diaitaAdded && (
+        <section className="card">
+          <h2 className="card__title card__title--small">Waking and sleep</h2>
+          <div className="input-row">
+            <label className="field">
+              <span className="field__label">Usual bedtime</span>
+              <input className="input" type="time" value={rhythm.bedtime} onChange={(event) => event.target.value && sleepChange({ bedtime: event.target.value })} />
+            </label>
+            <label className="field">
+              <span className="field__label">Hours of sleep</span>
+              <select className="input" value={rhythm.sleepHours} onChange={(event) => sleepChange({ sleepHours: Number(event.target.value) })}>
+                {[5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((hours) => <option key={hours} value={hours}>{hours}</option>)}
+              </select>
+            </label>
+          </div>
+          <p className="fine">Doses after waking and before sleep follow these, and your work schedule in Proairetos.</p>
+        </section>
+      )}
 
       <p className="fine">Follow the directions you were given. Therapeia reminds and records; it gives no medical advice.</p>
 

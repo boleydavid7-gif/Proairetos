@@ -1,6 +1,7 @@
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Drink } from '../core/drinks';
 import { localDate } from '../core/drinks';
+import { isAdded } from '../../app/family/added';
 
 type TrainingPlan = { weekdays?: unknown; weekOf?: unknown; moves?: unknown };
 type TrainingEntry = { date?: unknown; activity?: unknown; seconds?: unknown; workoutId?: unknown };
@@ -26,6 +27,7 @@ async function all<T>(store: string): Promise<T[]> {
 
 /** Reads the shared Askesis records without copying them into Hydros. */
 export async function trainingToday(date = new Date()): Promise<TrainingToday> {
+  if (!isAdded('askesis')) return { runDay: false, loggedRun: false };
   const today = localDate(date);
   const weekday = (date.getDay() + 6) % 7;
   const plans = await all<TrainingPlan>(stores.askesisPlans);

@@ -692,4 +692,11 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `Empty` (`app/family/Empty.tsx`, class `.list-empty`; `.empty` is Askesis's older style) carry their own CSS
   (`swipe.css`, `empty.css`) so any app can use them. Askesis light `--mint` is `#24724f` (5.3:1 as text, 5.8:1 under
   white). Praxis's Time bars and Hydros's Flow keep their own drawn charts.
+- Each app stands alone: a link, offer or mention of another app shows only when that app is added (`isAdded` /
+  `useAddedApps`: Askesis's Hydros link, Hydros's run-day addition, Theoria's Praxis link, Praxis's Theoria books, Soma's
+  Oikonomia budget hint, the backup card's Theoria line, Therapeia's waking and sleep, which it sets itself when Diaita is
+  not added, writing Diaita's same setting). `scripts/family-check/` holds two browser checks: `alone.mjs` (each app
+  with only Proairetos) and `together.mjs` (everything added; reads, writes on request, search, notices, live updates,
+  removing an app, appearance). A bill added after its lead day is reminded on the due day (`billReminders`).
+  `openSettingsAt` ignores unknown views.
 

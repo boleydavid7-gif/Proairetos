@@ -14,15 +14,17 @@ export function billReminders(bills: readonly Bill[], from: string, until: strin
   for (const bill of bills) {
     const lead = Math.min(LONGEST_LEAD, Math.max(0, Math.round(bill.reminderDays) || 0));
     for (const { date } of occurrencesBetween(bill, from, addDays(until, lead))) {
-      const day = addDays(date, -lead);
+      let day = addDays(date, -lead);
+      // Added or changed after its lead day: reminded on the day itself instead of not at all.
+      if (day < from && date >= from) day = date;
       if (day < from || day > until) continue;
       if (paidForOccurrence(bill, date, day)) continue;
       const when =
-        lead === 0
+        day === date
           ? 'Due today'
           : 'Due ' + new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).format(parseDate(date));
       out.push({
-        key: `${bill.id}:${date}:${lead}`,
+        key: `${bill.id}:${date}:${day === date ? 0 : lead}`,
         day,
         billId: bill.id,
         title: `${bill.name} · ${formatMoney(bill.amountCents, bill.currency)}`,

@@ -5,6 +5,7 @@ import type { Nav } from '../app/App';
 import { useEntries, useSettings } from '../app/state';
 import { useUndo } from '../app/ui';
 import { saveSettings } from '../data/store';
+import { isAdded } from '../../app/family/added';
 
 const MINUTE = 60;
 
@@ -65,7 +66,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
               </>
             )}
           </section>
-          <a className="button-quiet family-link" href="/hydros/?open=add%3Awater">Log a drink in Hydros</a>
+          {isAdded('hydros') && <a className="button-quiet family-link" href="/hydros/?open=add%3Awater">Log a drink in Hydros</a>}
           <button
             type="button"
             className="text-link"

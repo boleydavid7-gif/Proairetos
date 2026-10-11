@@ -22,6 +22,7 @@ import { enableReminders, syncStatus } from '../../app/sync/syncController';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import FamilyApps from '../../app/family/FamilyApps';
+import { isAdded } from '../../app/family/added';
 
 const intervals = [60, 90, 120, 180] as const;
 
@@ -145,7 +146,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
           <small className="hydros-reference__source">{REFERENCE_SOURCE}. Heat, effort, pregnancy and health change it.</small>
         </div>
         {settings.goalChosen && <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={clearGoal}><Icon><MoreIcon /></Icon><span className="hydros-settings-row__name">No daily amount</span><Chevron /></button>}
-        <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">A little more on run days, from Askesis</span><Switch on={settings.runDayExtra !== false} /></button>
+        {isAdded('askesis') && <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">A little more on run days, from Askesis</span><Switch on={settings.runDayExtra !== false} /></button>}
       </SettingsGroup>
 
       <SettingsGroup title="Your glasses">

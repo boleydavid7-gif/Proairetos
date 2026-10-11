@@ -22,6 +22,7 @@ import { bellWaiting, cancelBell, scheduleBell } from './bell';
 import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
 import { SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
+import { isAdded } from '../app/family/added';
 
 type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings';
 
@@ -97,6 +98,7 @@ export default function PraxisApp() {
 
   // Books being read in Theoria, offered as study blocks.
   useEffect(() => {
+    if (!isAdded('theoria')) return;
     void readStore<{ title?: string; status?: string }>('theoriaBooks').then((books) =>
       setReading(books.filter((book) => book.status === 'reading' && book.title).map((book) => book.title!)),
     );

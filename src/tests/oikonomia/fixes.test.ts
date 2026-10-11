@@ -124,4 +124,10 @@ describe('bill reminders', () => {
     expect(notices[0].at.getHours()).toBe(9);
     expect(noticesBetween({ items: [], decisions: [], events: [], blocks: [], bills: reminders, settings: { ...defaultNoticeSettings, bills: false }, now: new Date(2026, 9, 10, 8), until: new Date(2026, 9, 24) })).toHaveLength(0);
   });
+
+  it('come on the due day itself when the bill was added after its lead day', () => {
+    const phone = bill({ id: 'p', name: 'Phone', amountCents: 4500, dueDate: '2026-10-13', reminderDays: 3 });
+    const reminders = billReminders([phone], '2026-10-12', '2026-10-20');
+    expect(reminders.map((r) => [r.day, r.body])).toEqual([['2026-10-13', 'Due today']]);
+  });
 });
