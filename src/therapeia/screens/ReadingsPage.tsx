@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
+import { LineChart } from '../../app/family/charts';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { newId, readings } from '../app/state';
 import { KINDS, facts, series, valueText, type Reading, type ReadingKind } from '../core/readings';
@@ -99,6 +100,15 @@ export default function ReadingsPage() {
             <span className="card__eyebrow">{group.name}</span>
             <h2 className="card__title">{valueText(group.latest)}</h2>
             <p className="muted">{when(group.latest.at)}</p>
+            <LineChart
+              title={group.latest.kind === 'blood-pressure' ? 'Blood pressure' : `${group.name}${group.latest.unit ? `, ${group.latest.unit}` : ''}`}
+              unit={group.latest.unit}
+              series={group.latest.kind === 'blood-pressure' ? [{ name: 'Upper' }, { name: 'Lower' }] : [{ name: group.name }]}
+              points={group.readings
+                .filter((reading) => reading.unit === group.latest.unit)
+                .slice(0, 60)
+                .map((reading) => ({ at: new Date(reading.at).getTime(), values: reading.kind === 'blood-pressure' ? [reading.value, reading.value2] : [reading.value], label: when(reading.at) }))}
+            />
             {sums && <p className="fine">Last 30 days: {sums.count} readings · lowest {sums.lowest} · highest {sums.highest} · average {sums.average}</p>}
             {group.latest.note && <p className="muted">{group.latest.note}</p>}
             <ul className="reading-list">

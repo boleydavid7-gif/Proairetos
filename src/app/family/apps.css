@@ -505,3 +505,119 @@
   min-height: 44px;
   padding-inline: 20px;
 }
+
+/* ---------- A thing's own page: a head with its mark, then its details as label and value ---------- */
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detail-head .title {
+  margin: 0;
+}
+
+.detail-head p {
+  margin: 4px 0 0;
+}
+
+.detail-head__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: var(--surface-2);
+}
+
+.detail-list {
+  margin: 0;
+  padding: 4px 16px;
+  display: grid;
+  grid-template-columns: minmax(5.5rem, max-content) minmax(0, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.detail-list dt,
+.detail-list dd {
+  margin: 0;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.detail-list dt {
+  padding-right: 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.detail-list dd {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.detail-list dt:first-of-type,
+.detail-list dt:first-of-type + dd {
+  border-top: 0;
+}
+
+.detail-list dd button {
+  margin-left: 8px;
+}
+
+/* Pill look choices (Therapeia). */
+.pill-choices,
+.pill-colours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill-choice {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.pill-choice[aria-pressed='true'] {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.pill-colour {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  outline: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.pill-colour--small {
+  width: 26px;
+  height: 26px;
+}
+
+.pill-colour[aria-pressed='true'] {
+  outline: 2px solid var(--text);
+}
+
+.chore__open .pill-mark,
+.chore__name .pill-mark {
+  flex: none;
+}
+
+.chore__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { LineChart } from '../../app/family/charts';
 import type { DynamisNav } from '../app/App';
 import { isSetup, mobility, plan, workouts } from '../app/state';
 import { ROUTINES } from '../core/mobility';
@@ -12,6 +14,18 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
   const unit: Unit = isSetup(setup) ? setup.unit : 'kg';
   const sorted = [...all].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
   const exercises = [...new Set(all.flatMap((workout) => workout.exercises.map((each) => each.exercise)))];
+  // Over time: the heaviest set of each session, or the most reps for one done without weight.
+  const tracked = exercises.filter((id) => all.filter((workout) => workout.exercises.some((each) => each.exercise === id && each.sets.length)).length >= 2);
+  const [chosen, setChosen] = useState<string>();
+  const shown = chosen && tracked.includes(chosen) ? chosen : tracked[0];
+  const series = shown
+    ? all
+        .flatMap((workout) => workout.exercises.filter((each) => each.exercise === shown && each.sets.length).map((log) => ({ date: workout.date, log })))
+        .map(({ date, log }) => {
+          const weights = log.sets.map((set) => set.weight).filter((value): value is number => value !== undefined);
+          return { at: new Date(`${date}T12:00`).getTime(), values: [weights.length ? Math.max(...weights) : Math.max(...log.sets.map((set) => set.reps))], weighted: weights.length > 0, name: log.name };
+        })
+    : [];
 
   return (
     <div className="page dynamis-page">
@@ -29,6 +43,23 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
             </li>
           ))}
         </ul>
+      )}
+
+      {tracked.length > 0 && shown && (
+        <section className="card">
+          <h2 className="card__title card__title--small">Over time</h2>
+          {tracked.length > 1 && (
+            <div className="chip-row" role="group" aria-label="Exercise">
+              {tracked.map((id) => <button key={id} type="button" className="chip" aria-pressed={shown === id} onClick={() => setChosen(id)}>{exerciseFacts(all, id).latest?.log.name ?? id}</button>)}
+            </div>
+          )}
+          <LineChart
+            title={series[0]?.weighted ? `Heaviest set, ${unit}` : 'Most reps in a set'}
+            unit={series[0]?.weighted ? unit : ''}
+            series={[{ name: series[0]?.name ?? '' }]}
+            points={series.map(({ at, values }) => ({ at, values }))}
+          />
+        </section>
       )}
 
       {exercises.length > 0 && (

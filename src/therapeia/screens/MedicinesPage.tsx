@@ -4,6 +4,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
 import { medicines, readings, settings } from '../app/state';
+import PillMark from '../app/PillMark';
 import { latestLines } from '../core/readings';
 import { daysLeft, daysText, isCurrent, listText, timeText, type Medicine } from '../core/medicines';
 
@@ -13,7 +14,7 @@ function MedicineRow({ medicine, onOpen }: { medicine: Medicine; onOpen: () => v
   return (
     <li className="chore">
       <button type="button" className="chore__open" onClick={onOpen}>
-        <span>{medicine.name}{medicine.dose ? <span className="who-chip">{medicine.dose}</span> : null}</span>
+        <span className="chore__name"><PillMark look={medicine.look} size={22} />{medicine.name}{medicine.dose ? <span className="who-chip">{medicine.dose}</span> : null}</span>
         <small>{[when, medicine.times.length ? daysText(medicine.days) : undefined].filter(Boolean).join(' · ')}</small>
       </button>
       <span className="chore__when">{left !== undefined ? `${left} days left` : ''}</span>

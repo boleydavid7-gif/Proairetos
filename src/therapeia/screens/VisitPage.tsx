@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
-import { CheckIcon } from '../../app/family/icons';
+import { CheckIcon, VisitIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments, newId, putAppointment, removeAppointment } from '../app/state';
 import type { Appointment } from '../core/medicines';
 
-export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
-  const all = appointments.use();
-  const existing = id ? all.find((visit) => visit.id === id) : undefined;
+function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointment; onDone: () => void }) {
   const [who, setWho] = useState(existing?.with ?? '');
   const [day, setDay] = useState(existing?.at.slice(0, 10) ?? addDays(toLocalDate(new Date()), 7));
   const [time, setTime] = useState(existing?.at.slice(11, 16) ?? '10:00');
@@ -20,15 +18,6 @@ export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string 
   useEffect(() => {
     if (!id) whoField.current?.focus();
   }, []);
-
-  if (id && !existing) {
-    return (
-      <div className="page therapeia-page">
-        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
-      </div>
-    );
-  }
 
   const build = (patch: Partial<Appointment> = {}): Appointment => ({
     ...(existing ?? { id: newId(), createdAt: new Date().toISOString() }),
@@ -42,7 +31,7 @@ export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string 
   const save = () => {
     putAppointment(build());
     if (existing) offerUndo('Saved', () => putAppointment(existing));
-    nav.back();
+    onDone();
   };
   // Questions tick off as they are asked, saved at once on a visit already kept.
   const changeQuestions = (next: Appointment['questions']) => {
@@ -53,8 +42,8 @@ export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string 
   return (
     <div className="page therapeia-page">
       <div className="page-top section-head">
-        <button type="button" className="back-link" onClick={nav.back}>Cancel</button>
-        <p className="label">{existing ? 'Visit' : 'Add a visit'}</p>
+        <button type="button" className="back-link" onClick={onDone}>Cancel</button>
+        <p className="label">{existing ? 'Edit' : 'Add a visit'}</p>
         <button type="button" className="text-link" disabled={!who.trim()} onClick={save}>Save</button>
       </div>
 
@@ -118,13 +107,78 @@ export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string 
 
       <button type="button" className="button-main" disabled={!who.trim()} onClick={save}>Save</button>
 
-      {existing && (
-        <button type="button" className="text-link remove-link" onClick={() => {
-          removeAppointment(existing.id);
-          offerUndo(`${existing.with} removed`, () => putAppointment(existing));
-          nav.back();
-        }}>Remove</button>
-      )}
     </div>
   );
+}
+
+function VisitView({ nav, visit, onEdit }: { nav: TherapeiaNav; visit: Appointment; onEdit: () => void }) {
+  const when = new Date(visit.at);
+  const tick = (id: string) => putAppointment({ ...visit, questions: visit.questions.map((each) => (each.id === id ? { ...each, asked: !each.asked } : each)) });
+  return (
+    <div className="page therapeia-page">
+      <div className="page-top section-head">
+        <button type="button" className="back-link" onClick={nav.back}>Back</button>
+        <p className="label">Visit</p>
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+      <div className="detail-head">
+        <span className="detail-head__mark"><VisitIcon size={30} /></span>
+        <div>
+          <h1 className="title">{visit.with}</h1>
+          <p className="muted">{when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}, {when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</p>
+        </div>
+      </div>
+      {visit.where && (
+        <dl className="detail-list">
+          <dt>Where</dt>
+          <dd>{visit.where}</dd>
+        </dl>
+      )}
+      <section className="card">
+        <h2 className="card__title card__title--small">To ask</h2>
+        {visit.questions.length ? (
+          <ul className="chore-list">
+            {visit.questions.map((each) => (
+              <li key={each.id} className="chore">
+                <button type="button" className="tick" aria-pressed={Boolean(each.asked)} aria-label={`${each.text}: asked`} onClick={() => tick(each.id)}>
+                  <CheckIcon size={20} />
+                </button>
+                <span className="chore__open"><span>{each.text}</span></span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <button type="button" className="button-quiet" onClick={onEdit}>Add a question</button>
+        )}
+      </section>
+      {visit.notes ? (
+        <section className="card">
+          <h2 className="card__title card__title--small">Notes</h2>
+          <p className="visit-notes">{visit.notes}</p>
+        </section>
+      ) : (
+        <button type="button" className="text-link" onClick={onEdit}>Write notes</button>
+      )}
+      <button type="button" className="text-link remove-link" onClick={() => {
+        removeAppointment(visit.id);
+        offerUndo(`${visit.with} removed`, () => putAppointment(visit));
+        nav.back();
+      }}>Remove</button>
+    </div>
+  );
+}
+
+export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
+  const existing = appointments.use().find((visit) => visit.id === id);
+  const [editing, setEditing] = useState(!id);
+  if (id && !existing) {
+    return (
+      <div className="page therapeia-page">
+        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
+        <p className="muted">Not found on this phone.</p>
+      </div>
+    );
+  }
+  if (existing && !editing) return <VisitView nav={nav} visit={existing} onEdit={() => setEditing(true)} />;
+  return <VisitForm key={existing?.id ?? 'new'} id={id} existing={existing} onDone={() => (existing ? setEditing(false) : nav.back())} />;
 }

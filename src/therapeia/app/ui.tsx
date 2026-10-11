@@ -3,6 +3,7 @@ import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import { skip, take, takeNow, unmark, type Dose, type Medicine } from '../core/medicines';
 import { putMedicine } from './state';
+import PillMark from './PillMark';
 
 export const at = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -48,7 +49,7 @@ export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
         <CheckIcon size={20} />
       </button>
       <button type="button" className="chore__open" onClick={onOpen}>
-        <span>{dose.medicine.name}</span>
+        <span className="chore__name"><PillMark look={dose.medicine.look} size={22} />{dose.medicine.name}</span>
         <small>{[dose.medicine.dose, dose.medicine.how].filter(Boolean).join(' · ') || dose.label}</small>
       </button>
       <span className="chore__when">

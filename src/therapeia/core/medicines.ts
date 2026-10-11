@@ -31,9 +31,27 @@ export type Supply = {
   lead: number;
 };
 
+export const PILL_SHAPES = ['round', 'oval', 'capsule', 'liquid', 'drops', 'inhaler', 'patch', 'injection'] as const;
+export type PillShape = (typeof PILL_SHAPES)[number];
+export const PILL_COLORS: Record<string, string> = {
+  white: '#f1efe9',
+  cream: '#e8dcbc',
+  yellow: '#e6c54a',
+  orange: '#e3954a',
+  pink: '#e9a2b6',
+  red: '#c9504a',
+  purple: '#a58ad0',
+  blue: '#6a9ad8',
+  green: '#6fb08a',
+  brown: '#9a6f4e',
+};
+/** How the medicine looks, so it is known at a glance. */
+export type PillLook = { shape: PillShape; color: string; color2?: string };
+
 export type Medicine = {
   id: string;
   name: string;
+  look?: PillLook;
   /** As written on the label: "1 tablet", "10 mg", "2 puffs". */
   dose?: string;
   /** "With food", "Not with milk". */

@@ -118,3 +118,8 @@
 .reading-list__remove {
   font-size: 0.85rem;
 }
+
+.visit-notes {
+  margin: 0;
+  white-space: pre-wrap;
+}

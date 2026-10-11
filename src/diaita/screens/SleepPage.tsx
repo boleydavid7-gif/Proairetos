@@ -5,6 +5,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
 import { sleeps } from '../app/state';
 import { weekdayText } from '../app/ui';
+import { ColumnChart } from '../../app/family/charts';
 import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
 
 type Kept = SleepRecord & { id: string };
@@ -107,6 +108,20 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               <div className="tile"><span className="tile__label">Nights logged</span><span className="tile__value">{facts.nights}</span></div>
             </div>
           )}
+          <ColumnChart
+            title="Hours slept, last 14 nights"
+            unit="h"
+            days={Array.from({ length: 14 }, (_, index) => {
+              const date = addDays(today, index - 13);
+              const record = all.find((each) => each.date === date);
+              const day = new Date(`${date}T12:00`);
+              return {
+                label: day.toLocaleDateString(undefined, { weekday: 'narrow' }),
+                long: day.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
+                value: record ? Math.round((sleptMinutes(record) / 60) * 10) / 10 : undefined,
+              };
+            })}
+          />
           <button type="button" className="button-main diaita-add" onClick={() => setEditing(true)}><PlusIcon size={18} />Add a night</button>
           {all.length === 0 ? (
             <p className="muted">No nights logged yet.</p>

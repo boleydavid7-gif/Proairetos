@@ -4,7 +4,8 @@ import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { medicines, newId, putMedicine, removeMedicine } from '../app/state';
-import { WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
+import PillMark from '../app/PillMark';
+import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const OFFSETS = [0, 15, 30, 60, 120];
@@ -36,9 +37,7 @@ function TimeEditor({ time, onChange, onRemove }: { time: DoseTime; onChange: (n
   );
 }
 
-export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
-  const all = medicines.use();
-  const existing = id ? all.find((medicine) => medicine.id === id) : undefined;
+function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medicine; onDone: () => void }) {
   const today = toLocalDate(new Date());
   const [name, setName] = useState(existing?.name ?? '');
   const [dose, setDose] = useState(existing?.dose ?? '');
@@ -56,20 +55,11 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
   const [perDose, setPerDose] = useState(existing?.supply ? String(existing.supply.perDose) : '1');
   const [lead, setLead] = useState(existing?.supply?.lead ?? 7);
   const [note, setNote] = useState(existing?.note ?? '');
-  const [refillCount, setRefillCount] = useState('');
+  const [look, setLook] = useState<PillLook | undefined>(existing?.look);
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!id) nameField.current?.focus();
   }, []);
-
-  if (id && !existing) {
-    return (
-      <div className="page therapeia-page">
-        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
-      </div>
-    );
-  }
 
   const days = (): DoseDays => (daysKind === 'weekdays' ? { kind: 'weekdays', days: weekdays.length ? weekdays : [new Date().getDay()] } : daysKind === 'every' ? { kind: 'every', every: Math.max(2, every) } : { kind: 'daily' });
   const valid = name.trim() && (times.length > 0 || asNeeded);
@@ -97,20 +87,19 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
       gapHours: asNeeded && Number(gap) > 0 ? Number(gap) : undefined,
       supply,
       note: note.trim() || undefined,
+      look,
     };
     putMedicine(next);
     if (existing) offerUndo('Saved', () => putMedicine(existing));
-    nav.back();
+    onDone();
   };
 
-  const history = existing ? record(existing, today) : [];
-  const left = existing ? daysLeft(existing) : undefined;
 
   return (
     <div className="page therapeia-page">
       <div className="page-top section-head">
-        <button type="button" className="back-link" onClick={nav.back}>Cancel</button>
-        <p className="label">{existing ? 'Medicine' : 'Add a medicine'}</p>
+        <button type="button" className="back-link" onClick={onDone}>Cancel</button>
+        <p className="label">{existing ? 'Edit' : 'Add a medicine'}</p>
         <button type="button" className="text-link" disabled={!valid} onClick={save}>Save</button>
       </div>
 
@@ -128,6 +117,31 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
           <input className="input" value={how} onChange={(event) => setHow(event.target.value)} placeholder="With food" />
         </label>
       </div>
+
+      <fieldset className="field">
+        <legend className="field__label">Looks like (optional)</legend>
+        <div className="pill-choices" role="group" aria-label="Shape">
+          {PILL_SHAPES.map((shape) => (
+            <button key={shape} type="button" className="pill-choice" aria-pressed={look?.shape === shape} aria-label={shape} onClick={() => setLook(look?.shape === shape ? undefined : { shape, color: look?.color ?? 'white', color2: look?.color2 })}>
+              <PillMark look={{ shape, color: look?.color ?? 'white', color2: look?.color2 }} size={30} />
+            </button>
+          ))}
+        </div>
+        {look && (
+          <div className="pill-colours" role="group" aria-label="Colour">
+            {Object.entries(PILL_COLORS).map(([key, value]) => (
+              <button key={key} type="button" className="pill-colour" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
+            ))}
+          </div>
+        )}
+        {look && (look.shape === 'capsule' || look.shape === 'inhaler' || look.shape === 'patch' || look.shape === 'injection') && (
+          <div className="pill-colours" role="group" aria-label="Second colour">
+            {Object.entries(PILL_COLORS).map(([key, value]) => (
+              <button key={key} type="button" className="pill-colour pill-colour--small" style={{ background: value }} aria-label={`${key}, second colour`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
+            ))}
+          </div>
+        )}
+      </fieldset>
 
       <fieldset className="field">
         <legend className="field__label">Times</legend>
@@ -218,6 +232,42 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
 
       <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
 
+    </div>
+  );
+}
+
+function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; medicine: Medicine; onEdit: () => void }) {
+  const today = toLocalDate(new Date());
+  const [refillCount, setRefillCount] = useState('');
+  const history = record(existing, today);
+  const left = daysLeft(existing);
+  const when = [existing.times.length ? existing.times.map(timeText).join(', ') : undefined, existing.asNeeded ? `As needed${existing.gapHours ? `, ${existing.gapHours} h apart` : ''}` : undefined].filter(Boolean);
+  const dated = (date: string) => new Date(`${date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+
+  return (
+    <div className="page therapeia-page">
+      <div className="page-top section-head">
+        <button type="button" className="back-link" onClick={nav.back}>Back</button>
+        <p className="label">Medicine</p>
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+
+      <div className="detail-head">
+        <span className="detail-head__mark"><PillMark look={existing.look} size={56} /></span>
+        <div>
+          <h1 className="title">{existing.name}</h1>
+          <p className="muted">{[existing.dose, existing.how].filter(Boolean).join(' · ') || (isCurrent(existing, today) ? 'Taking now' : 'Not taking now')}</p>
+        </div>
+      </div>
+
+      <dl className="detail-list">
+        {when.length > 0 && <><dt>When</dt><dd>{when.join(' · ')}</dd></>}
+        {existing.times.length > 0 && <><dt>Days</dt><dd>{daysText(existing.days)}</dd></>}
+        <dt>From</dt><dd>{dated(existing.start)}{existing.end ? ` until ${dated(existing.end)}` : ''}</dd>
+        {existing.stopped && <><dt>Stopped</dt><dd>{dated(existing.stopped)}</dd></>}
+        {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
+      </dl>
+
       {existing?.supply && (
         <section className="card">
           <span className="card__eyebrow">{`${supplyLeft(existing)} left${left !== undefined && existing.times.length ? ` · about ${left} days` : ''}`}</span>
@@ -230,8 +280,7 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
               putMedicine(refill(existing, added, new Date()));
               offerUndo(`${added} added`, () => putMedicine(existing));
               setRefillCount('');
-              setCount(String((supplyLeft(existing) ?? 0) + added));
-            }}
+                          }}
           >
             <input className="input" inputMode="numeric" aria-label="How many came" placeholder="Refill: how many" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>
@@ -276,4 +325,19 @@ export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: stri
       )}
     </div>
   );
+}
+
+export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
+  const existing = medicines.use().find((medicine) => medicine.id === id);
+  const [editing, setEditing] = useState(!id);
+  if (id && !existing) {
+    return (
+      <div className="page therapeia-page">
+        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
+        <p className="muted">Not found on this phone.</p>
+      </div>
+    );
+  }
+  if (existing && !editing) return <MedicineView nav={nav} medicine={existing} onEdit={() => setEditing(true)} />;
+  return <MedicineForm key={existing?.id ?? 'new'} id={id} existing={existing} onDone={() => (existing ? setEditing(false) : nav.back())} />;
 }
