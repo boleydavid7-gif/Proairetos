@@ -3,6 +3,11 @@ import { offerUndo } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
 import { newId, putUpkeep, removeUpkeep, settings, things, upkeeps } from '../app/state';
+import { useAddedApps } from '../../app/family/added';
+import { Switch } from '../../askesis/app/ui';
+import { cents } from '../../oikonomia/core/statements';
+import { saveSpent, spentIn } from '../../oikonomia/data/spent';
+import type { BudgetCategory } from '../../oikonomia/core/budget';
 import { dayText, latestReading, markDone, nextDue, skip, type Every, type Upkeep } from '../core/things';
 
 const UNITS: Every['unit'][] = ['days', 'weeks', 'months', 'years'];
@@ -22,6 +27,8 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
   const [note, setNote] = useState(existing?.note ?? '');
   const [reading, setReading] = useState('');
   const [cost, setCost] = useState('');
+  const oikonomia = useAddedApps().includes('oikonomia');
+  const [toSpent, setToSpent] = useState(true);
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!id) nameField.current?.focus();
@@ -77,11 +84,26 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
               <input className="input" value={cost} onChange={(event) => setCost(event.target.value)} />
             </label>
           </div>
+          {oikonomia && cost.trim() && (
+            <Switch on={toSpent} label="Also in Oikonomia’s Spent" onToggle={() => setToSpent(!toSpent)} />
+          )}
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => {
               const value = Number(reading.replace(/[^\d.]/g, '')) || (existing.distance ? latest?.value : undefined);
               putUpkeep(markDone(existing, today, { ...(value ? { reading: value } : {}), ...(cost.trim() ? { cost: cost.trim() } : {}) }));
-              offerUndo(`${existing.name} done`, () => putUpkeep(existing));
+              // The cost can go into Oikonomia's Spent for the month, in the area that fits the thing.
+              const amount = cents(cost);
+              const month = today.slice(0, 7);
+              const spentBefore = spentIn(month);
+              const sent = oikonomia && toSpent && amount !== undefined && amount > 0;
+              if (sent) {
+                const area: BudgetCategory = thing?.category === 'Car' ? 'transport' : thing?.category === 'Tech' || thing?.category === 'Documents' ? 'other' : 'housing';
+                saveSpent(month, [...spentBefore, { id: newId(), date: today, description: [existing.name, thing?.name].filter(Boolean).join(' · '), amountCents: Math.abs(amount), area }]);
+              }
+              offerUndo(sent ? `${existing.name} done, cost in Oikonomia` : `${existing.name} done`, () => {
+                putUpkeep(existing);
+                if (sent) saveSpent(month, spentBefore);
+              });
               nav.back();
             }}>Done</button>
             {due.date <= today && (

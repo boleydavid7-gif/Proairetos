@@ -8,6 +8,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Ktema: warranties, models, serial numbers and documents, and upkeep that comes round by date or by mileage.',
       'A daily line in Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema, Stoic and Buddhist in turn, on each one\u2019s subject.',
       'Philia: call, message or email someone from their page.',
+      'Therapeia: readings (blood pressure, blood sugar, weight and more) with plain facts, and the latest in the shared list if you choose.',
+      'Dynamis: run days from Askesis in the week, optional warm-up sets, and a line to keep in Reflect after a session.',
+      'Ktema: receipts, photos and manuals on a thing, kept on this phone; an upkeep cost can go into Oikonomia’s Spent.',
+      'Diaita: a nap timer with a bell, 10 to 90 minutes.',
     ],
   },
   {

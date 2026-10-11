@@ -246,3 +246,14 @@
 .dynamis-why p {
   margin: 0;
 }
+
+.dynamis-week__what {
+  min-height: 1em;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.dynamis-exercise .fine {
+  margin: 0;
+  text-align: left;
+}

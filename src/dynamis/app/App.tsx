@@ -14,6 +14,7 @@ import MobilityPage from '../screens/MobilityPage';
 import GuidePage from '../screens/GuidePage';
 import MorePage from '../screens/MorePage';
 import WhyPage from '../screens/WhyPage';
+import AfterPage from '../screens/AfterPage';
 
 export type Tab = 'today' | 'log' | 'mobility' | 'more';
 export type Route =
@@ -23,7 +24,8 @@ export type Route =
   | { name: 'session' }
   | { name: 'workout'; id: string }
   | { name: 'guide'; routine: string }
-  | { name: 'why' };
+  | { name: 'why' }
+  | { name: 'after'; id: string };
 export type DynamisNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -73,6 +75,8 @@ export default function App() {
         return <MorePage nav={nav} />;
       case 'why':
         return <WhyPage nav={nav} />;
+      case 'after':
+        return <AfterPage nav={nav} id={route.id} />;
     }
   })();
 

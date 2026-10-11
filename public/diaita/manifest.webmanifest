@@ -74,6 +74,18 @@
           "type": "image/svg+xml"
         }
       ]
+    },
+    {
+      "name": "Nap timer",
+      "short_name": "Nap",
+      "url": "/diaita/?open=nap",
+      "icons": [
+        {
+          "src": "/diaita/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }

@@ -11,9 +11,10 @@ import SleepPage from '../screens/SleepPage';
 import MorePage from '../screens/MorePage';
 import DayPage from '../screens/DayPage';
 import SourcesPage from '../screens/SourcesPage';
+import NapPage from '../screens/NapPage';
 
 export type Tab = 'today' | 'week' | 'sleep' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' };
 export type DiaitaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -29,6 +30,7 @@ function firstRoute(): Route {
   const opening = takeOpening();
   if (opening?.startsWith('day:')) return { name: 'day', date: opening.slice(4) };
   if (opening === 'log') return { name: 'log' };
+  if (opening === 'nap') return { name: 'nap' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
@@ -58,6 +60,8 @@ export default function App() {
         return <DayPage nav={nav} date={route.date} />;
       case 'sources':
         return <SourcesPage nav={nav} />;
+      case 'nap':
+        return <NapPage nav={nav} />;
     }
   })();
 

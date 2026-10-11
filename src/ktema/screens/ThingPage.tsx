@@ -4,6 +4,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
 import { newId, putThing, removeThing, settings, things, upkeeps } from '../app/state';
 import { UpkeepRow } from '../app/ui';
+import ThingFiles from './ThingFiles';
 import { CATEGORIES, latestReading, nextDue, warrantyFrom, type Category, type Thing } from '../core/things';
 
 export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
@@ -120,6 +121,8 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
       <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
+
+      {existing && <ThingFiles thingId={existing.id} />}
 
       {existing && (existing.category === 'Car' || existing.readings?.length) && (
         <section className="card">

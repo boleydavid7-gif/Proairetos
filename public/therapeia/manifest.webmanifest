@@ -51,6 +51,18 @@
           "type": "image/svg+xml"
         }
       ]
+    },
+    {
+      "name": "Add a reading",
+      "short_name": "Reading",
+      "url": "/therapeia/?open=readings",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }

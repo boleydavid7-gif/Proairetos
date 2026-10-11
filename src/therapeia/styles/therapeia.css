@@ -84,3 +84,37 @@
 .dose__now {
   flex: none;
 }
+
+/* Earlier readings under the latest: value, when, remove. */
+.reading-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.reading-list li {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.reading-list .reading-list__latest {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 0;
+  padding-top: 0;
+}
+
+.reading-list__value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reading-list__remove {
+  font-size: 0.85rem;
+}

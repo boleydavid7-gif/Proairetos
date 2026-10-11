@@ -209,6 +209,19 @@ export const BoxIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const PulseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 12h4l2.5-6 4 12 2.5-6H21" />
+  </Icon>
+);
+
+export const TimerIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="13" r="7.5" />
+    <path d="M12 9v4l2.5 1.5M10 3h4" />
+  </Icon>
+);
+
 /** Each app's mark: a simple drawn sign in a round. */
 export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema'; size?: number; light?: boolean }) {
   const color = light ? '#f3eee4' : 'currentColor';

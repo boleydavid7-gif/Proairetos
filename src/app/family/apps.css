@@ -116,6 +116,11 @@
   text-shadow: 0 1px 10px rgb(0 0 0 / 0.45);
 }
 
+/* Fine print inside a card lines up with the card's words. */
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema) .card .fine {
+  text-align: left;
+}
+
 .remove-link {
   align-self: center;
   color: var(--danger, #e39b89);

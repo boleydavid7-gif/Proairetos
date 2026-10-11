@@ -7,7 +7,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
 import { draft, isSetup, newId, plan, savePlan, workouts, type Draft, type DraftSet } from '../app/state';
 import { alternatives } from '../core/library';
-import { awayDays, lighterWeight, nextSession, sessionsFor, setsText, targetsFor, type Felt, type Target, type Workout } from '../core/plan';
+import { awayDays, warmUp, lighterWeight, nextSession, sessionsFor, setsText, targetsFor, type Felt, type Target, type Workout } from '../core/plan';
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
 
@@ -112,7 +112,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
       savePlan(setup);
       draft.save({ current: kept });
     });
-    nav.swap({ name: 'today' });
+    nav.swap({ name: 'after', id: workout.id });
   };
 
   return (
@@ -153,6 +153,9 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
               <span className="muted">{target.range[0]}–{target.range[1]}{target.measure === 'seconds' ? ' s' : ' reps'} · rest {clock(target.rest)}</span>
             </div>
             {target.last && <p className="fine">Last time: {setsText(target.last, setup.unit, target.measure)}</p>}
+            {warmUp(target, setup.unit).length > 0 && !sets.some((set) => set.done) && (
+              <p className="fine">Warm-up (optional): {warmUp(target, setup.unit).map((set) => `${set.reps} × ${set.weight} ${setup.unit}`).join(', then ')}</p>
+            )}
             {target.ready && (
               <div className="dynamis-ready">
                 <span>{'weight' in target.ready ? `Ready for ${target.ready.weight} ${setup.unit}` : 'step' in target.ready ? `Ready for: ${target.ready.name}` : `Ready for ${target.ready.seconds} s`}</span>

@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { HomeIcon, MoreIcon, PillIcon, VisitIcon } from '../../app/family/icons';
+import { HomeIcon, MoreIcon, PillIcon, PulseIcon, VisitIcon } from '../../app/family/icons';
+import ReadingsPage from '../screens/ReadingsPage';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
@@ -12,13 +13,14 @@ import VisitsPage from '../screens/VisitsPage';
 import VisitPage from '../screens/VisitPage';
 import MorePage from '../screens/MorePage';
 
-export type Tab = 'today' | 'medicines' | 'visits' | 'more';
+export type Tab = 'today' | 'medicines' | 'readings' | 'visits' | 'more';
 export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string };
 export type TherapeiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'medicines', label: 'Medicines', Icon: PillIcon },
+  { id: 'readings', label: 'Readings', Icon: PulseIcon },
   { id: 'visits', label: 'Visits', Icon: VisitIcon },
   { id: 'more', label: 'More', Icon: MoreIcon },
 ];
@@ -52,6 +54,8 @@ export default function App() {
         return <MedicinesPage nav={nav} />;
       case 'medicine':
         return <MedicinePage nav={nav} id={route.id} />;
+      case 'readings':
+        return <ReadingsPage />;
       case 'visits':
         return <VisitsPage nav={nav} />;
       case 'visit':

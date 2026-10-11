@@ -147,7 +147,10 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
 
         <div className="section-head">
           <h2>Today</h2>
-          <button type="button" className="text-link" onClick={() => nav.swap({ name: 'week' })}>Week</button>
+          <span className="button-row">
+            <button type="button" className="text-link" onClick={() => nav.go({ name: 'nap' })}>Nap timer</button>
+            <button type="button" className="text-link" onClick={() => nav.swap({ name: 'week' })}>Week</button>
+          </span>
         </div>
         <Timeline entries={todays} now={now} />
         <a className="text-link diaita-schedule-link" href="/?open=settings:day">Your schedule in Proairetos</a>

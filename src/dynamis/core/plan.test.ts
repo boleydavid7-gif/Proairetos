@@ -141,3 +141,13 @@ describe('mobility', () => {
     expect(weekMobility([{ id: '1', date: '2026-10-05', routine: 'morning', minutes: 5, createdAt: '' }, { id: '2', date: '2026-10-05', routine: 'after', minutes: 6, createdAt: '' }], ['2026-10-05', '2026-10-06'])).toEqual({ days: 1, minutes: 11 });
   });
 });
+
+describe('warm-ups and run days', () => {
+  it('offers two warm-up sets for a big lift with weight, none otherwise', async () => {
+    const { warmUp, fromRunDays } = await import('./plan');
+    expect(warmUp({ exercise: 'back-squat', loaded: true, weight: 60, big: true }, 'kg')).toEqual([{ weight: 30, reps: 8 }, { weight: 45, reps: 4 }]);
+    expect(warmUp({ exercise: 'cable-row', loaded: true, weight: 40, big: false }, 'kg')).toEqual([]);
+    expect(warmUp({ exercise: 'goblet-squat', loaded: true, weight: 4, big: true }, 'kg')).toEqual([{ weight: 2, reps: 8 }]);
+    expect(fromRunDays([0, 2, 6])).toEqual([1, 3, 0]);
+  });
+});

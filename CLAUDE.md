@@ -666,3 +666,11 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
 - In Proairetos: What's included parts `medicines`, `training`, `upkeep` (`TodayNewFamily.tsx`); Notifications
   switches `medicines`, `training`, `upkeep`; search finds medicines, visits, things and upkeep.
 - Philia people may have a phone and email (Call, Message, Email on their page).
+- Second round: Therapeia readings (`core/readings.ts`: blood pressure, blood sugar, weight, temperature, heart rate,
+  oxygen, other by name; latest and 30-day lowest/highest/average as facts, no ranges; tab Readings, `?open=readings`,
+  "With latest readings" on the shared list). Dynamis: Askesis run days beside lifting days (read only, `askesisPlans`,
+  `fromRunDays`), optional warm-up sets for big lifts (`warmUp`), an after page (`AfterPage`: facts, a line kept in
+  Reflect with promptKey `after-strength`, mobility after training). Ktema: photos and files per thing in IndexedDB
+  `ktema-files` (device only, `data/files.ts`, `ThingFiles`, resized by `prepareFile`), and an upkeep cost can go into
+  Oikonomia's Spent for the month (area by category; undo takes both back). Diaita: nap timer (`NapPage`, `?open=nap`,
+  10/20/30 min from Brooks & Lack 2006, 90 min from Ruggiero 2014; bell on the audio clock; end kept in `diaitaNap`).

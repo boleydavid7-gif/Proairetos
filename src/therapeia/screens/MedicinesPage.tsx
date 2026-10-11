@@ -2,7 +2,9 @@ import { say } from '../../app/family/shell';
 import { PlusIcon, ShareIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
-import { medicines, settings } from '../app/state';
+import { useState } from 'react';
+import { medicines, readings, settings } from '../app/state';
+import { latestLines } from '../core/readings';
 import { daysLeft, daysText, isCurrent, listText, timeText, type Medicine } from '../core/medicines';
 
 function MedicineRow({ medicine, onOpen }: { medicine: Medicine; onOpen: () => void }) {
@@ -27,8 +29,10 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
   const before = byName.filter((medicine) => !isCurrent(medicine, today));
   const open = (medicine: Medicine) => nav.go({ name: 'medicine', id: medicine.id });
   const card = settings.use().card;
+  const kept = readings.use();
+  const [withReadings, setWithReadings] = useState(false);
   const share = async () => {
-    const text = listText(all, today, card);
+    const text = listText(all, today, card, withReadings ? latestLines(kept) : []);
     try {
       if (navigator.share) await navigator.share({ title: 'Medicines', text });
       else {
@@ -58,7 +62,10 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
         </section>
       )}
       {current.length > 0 && (
-        <button type="button" className="button-quiet" onClick={() => void share()}><ShareIcon size={18} />Share the list</button>
+        <div className="button-row">
+          <button type="button" className="button-quiet" onClick={() => void share()}><ShareIcon size={18} />Share the list</button>
+          {kept.length > 0 && <button type="button" className="chip" aria-pressed={withReadings} onClick={() => setWithReadings(!withReadings)}>With latest readings</button>}
+        </div>
       )}
       {before.length > 0 && (
         <>

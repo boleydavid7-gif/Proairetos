@@ -277,7 +277,7 @@ export function splitAppointments(all: readonly Appointment[], now: Date): { com
 export type HealthCard = { allergies?: string; conditions?: string; contact?: string };
 
 /** The medicines being taken, as plain text to share with a doctor or pharmacist. */
-export function listText(medicines: readonly Medicine[], today: string, card: HealthCard = {}): string {
+export function listText(medicines: readonly Medicine[], today: string, card: HealthCard = {}, readings: readonly string[] = []): string {
   const lines = medicines
     .filter((medicine) => isCurrent(medicine, today))
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -286,5 +286,5 @@ export function listText(medicines: readonly Medicine[], today: string, card: He
       return `- ${[medicine.name, medicine.dose].filter(Boolean).join(' ')}${medicine.how ? ` (${medicine.how})` : ''}${when ? `: ${when}` : ''}`;
     });
   const extra = [card.allergies ? `Allergies: ${card.allergies}` : undefined, card.conditions ? `Conditions: ${card.conditions}` : undefined, card.contact ? `Contact: ${card.contact}` : undefined].filter(Boolean);
-  return [`Medicines, ${parseLocalDate(today).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, ...lines, ...(extra.length ? ['', ...extra] : [])].join('\n');
+  return [`Medicines, ${parseLocalDate(today).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, ...lines, ...(extra.length ? ['', ...extra] : []), ...(readings.length ? ['', 'Latest readings', ...readings.map((line) => `- ${line}`)] : [])].join('\n');
 }

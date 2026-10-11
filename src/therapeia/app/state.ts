@@ -6,6 +6,7 @@ import { addDays } from '../../core/scheduling/dates';
 import { mainSleeps } from '../../diaita/core/rhythm';
 import { settings as diaitaSettings } from '../../diaita/app/state';
 import { anchorsFrom, type Anchors, type Appointment, type HealthCard, type Medicine } from '../core/medicines';
+import type { Reading } from '../core/readings';
 import { defaultCareNotices, type CareNoticeChoices } from '../core/notices';
 
 export type TherapeiaSettings = { started: boolean; notices: CareNoticeChoices; card: HealthCard };
@@ -13,6 +14,7 @@ export type TherapeiaSettings = { started: boolean; notices: CareNoticeChoices; 
 export const settings = stored<TherapeiaSettings>('therapeia:settings', () => ({ started: false, notices: { ...defaultCareNotices }, card: {} }));
 export const medicines = collection<Medicine>('therapeia:medicine:');
 export const appointments = collection<Appointment>('therapeia:visit:');
+export const readings = collection<Reading>('therapeia:reading:');
 
 export const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
 

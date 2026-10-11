@@ -158,6 +158,8 @@ export type Target = {
   sets: number;
   range: [number, number];
   rest: number;
+  /** A big lift, for warm-ups and longer rests. */
+  big: boolean;
   /** What was done last time. */
   last?: ExerciseLog;
   /** The weight to start from: last time's. */
@@ -194,6 +196,7 @@ export function targetsFor(setup: Setup, session: Session, workouts: readonly Wo
       sets: setup.sets,
       range: span,
       rest: restFor(setup.aim, about.big),
+      big: about.big,
       last,
       weight,
       ready,
@@ -254,3 +257,15 @@ export function setsText(log: ExerciseLog, unit: Unit, measure: 'reps' | 'second
 }
 
 export const exerciseName = (id: string) => EXERCISES[id]?.name ?? LADDERS[id]?.[0]?.name ?? id;
+
+/** Optional warm-up sets before a big lift with weight: about half for 8, then about three-quarters for 4. */
+export function warmUp(target: Pick<Target, 'exercise' | 'loaded' | 'weight'> & { big?: boolean }, unit: Unit): { weight: number; reps: number }[] {
+  if (!target.loaded || target.weight === undefined || !target.big) return [];
+  const step = weightStep(target.exercise, unit);
+  const at = (share: number) => Math.max(step, Math.round((target.weight! * share) / step) * step);
+  const sets = [{ weight: at(0.5), reps: 8 }, { weight: at(0.75), reps: 4 }];
+  return sets.filter((set, index) => set.weight < target.weight! && (index === 0 || set.weight > sets[0].weight));
+}
+
+/** Askesis's run days (Monday = 0 there) as JavaScript weekdays (Sunday = 0). */
+export const fromRunDays = (weekdays: readonly number[]) => weekdays.map((day) => (day + 1) % 7);
