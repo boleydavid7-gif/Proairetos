@@ -2,13 +2,13 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { SettingsIcon } from '../../app/family/icons';
+import { HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { KtemaNav } from '../app/App';
 import { settings, type KtemaSettings } from '../app/state';
 
-export default function MorePage({ nav: _nav }: { nav: KtemaNav }) {
+export default function MorePage({ nav }: { nav: KtemaNav }) {
   const current = settings.use();
   const change = (patch: Partial<KtemaSettings>) => {
     settings.save({ ...settings.load(), ...patch });
@@ -45,6 +45,12 @@ export default function MorePage({ nav: _nav }: { nav: KtemaNav }) {
       </section>
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
+            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__text"><span>Your year</span></span>
+          </button>
+        </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>

@@ -2,7 +2,7 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { BookIcon, ChevronIcon, SettingsIcon, WeightIcon } from '../../app/family/icons';
+import { BookIcon, ChevronIcon, HistoryIcon, SettingsIcon, WeightIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { DynamisNav } from '../app/App';
@@ -23,6 +23,12 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       <AccountCard app="Dynamis" what="Your sessions" waiting="Sessions" />
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
+            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__text"><span>Your year</span></span>
+          </button>
+        </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'plan' })}>
             <span className="row__icon"><WeightIcon size={21} /></span>

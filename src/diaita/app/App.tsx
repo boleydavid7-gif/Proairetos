@@ -9,12 +9,13 @@ import TodayPage from '../screens/TodayPage';
 import WeekPage from '../screens/WeekPage';
 import SleepPage from '../screens/SleepPage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 import DayPage from '../screens/DayPage';
 import SourcesPage from '../screens/SourcesPage';
 import NapPage from '../screens/NapPage';
 
 export type Tab = 'today' | 'week' | 'sleep' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' };
 export type DiaitaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -56,6 +57,8 @@ export default function App() {
         return <SleepPage nav={nav} adding={route.date ?? true} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'day':
         return <DayPage nav={nav} date={route.date} />;
       case 'sources':

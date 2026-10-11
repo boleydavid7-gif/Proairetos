@@ -2,7 +2,7 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { BookIcon, SettingsIcon } from '../../app/family/icons';
+import { BookIcon, HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { Switch } from '../../askesis/app/ui';
 import { notifications } from '../../app/notify/notifications';
 import type { DiaitaNav } from '../app/App';
@@ -81,6 +81,12 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
       </section>
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
+            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__text"><span>Your year</span></span>
+          </button>
+        </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'sources' })}>
             <span className="row__icon"><BookIcon size={21} /></span>

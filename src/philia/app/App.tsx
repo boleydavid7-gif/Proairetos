@@ -13,9 +13,10 @@ import PeoplePage from '../screens/PeoplePage';
 import PersonPage from '../screens/PersonPage';
 import EditPage from '../screens/EditPage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 
 export type Tab = 'home' | 'people' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'person'; id: string } | { name: 'edit'; id?: string };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'person'; id: string } | { name: 'edit'; id?: string } | { name: 'year' };
 export type PhiliaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -59,6 +60,8 @@ export default function App() {
         return <EditPage nav={nav} id={route.id} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
     }
   })();
 

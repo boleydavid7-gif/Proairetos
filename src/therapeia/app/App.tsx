@@ -12,10 +12,11 @@ import MedicinePage from '../screens/MedicinePage';
 import VisitsPage from '../screens/VisitsPage';
 import VisitPage from '../screens/VisitPage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 import PrintPage from '../screens/PrintPage';
 
 export type Tab = 'today' | 'medicines' | 'readings' | 'visits' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print' } | { name: 'year' };
 export type TherapeiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -64,6 +65,8 @@ export default function App() {
         return <VisitPage nav={nav} id={route.id} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'print':
         return <PrintPage nav={nav} />;
     }

@@ -10,10 +10,11 @@ import ThingsPage from '../screens/ThingsPage';
 import ThingPage from '../screens/ThingPage';
 import UpkeepPage from '../screens/UpkeepPage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 import PrintPage from '../screens/PrintPage';
 
 export type Tab = 'today' | 'things' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string } | { name: 'print' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string } | { name: 'print' } | { name: 'year' };
 export type KtemaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -55,6 +56,8 @@ export default function App() {
         return <UpkeepPage nav={nav} id={route.id} thingId={route.thingId} idea={route.idea} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'print':
         return <PrintPage nav={nav} />;
     }

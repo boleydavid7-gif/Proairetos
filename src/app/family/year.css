@@ -1,0 +1,64 @@
+/* Your year (YearPage): year chips, fact tiles, then lists. Colours come from each app's own tokens. */
+
+.year-page .title {
+  margin-bottom: 0.75rem;
+}
+
+.year-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.year-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+
+.year-fact {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: var(--surface, rgb(255 255 255 / 0.05));
+  border: 1px solid var(--line, rgb(255 255 255 / 0.1));
+}
+
+.year-fact dd {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--text, inherit);
+}
+
+.year-fact dt {
+  font-size: 0.85rem;
+  color: var(--text-soft, inherit);
+}
+
+.year-list ul {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.year-list li {
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--line, rgb(255 255 255 / 0.1));
+  color: var(--text, inherit);
+}
+
+.year-list li:first-child {
+  border-top: 0;
+}
+
+.year-empty {
+  margin-top: 1rem;
+}

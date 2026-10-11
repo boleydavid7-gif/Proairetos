@@ -13,6 +13,7 @@ import WorkoutPage from '../screens/WorkoutPage';
 import MobilityPage from '../screens/MobilityPage';
 import GuidePage from '../screens/GuidePage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 import WhyPage from '../screens/WhyPage';
 import AfterPage from '../screens/AfterPage';
 
@@ -25,7 +26,8 @@ export type Route =
   | { name: 'workout'; id: string }
   | { name: 'guide'; routine: string }
   | { name: 'why' }
-  | { name: 'after'; id: string };
+  | { name: 'after'; id: string }
+  | { name: 'year' };
 export type DynamisNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -73,6 +75,8 @@ export default function App() {
         return <GuidePage nav={nav} routine={route.routine} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'why':
         return <WhyPage nav={nav} />;
       case 'after':

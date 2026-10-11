@@ -5,7 +5,7 @@ import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import { readStore } from '../../app/family/read';
 import { offerUndo, say } from '../../app/family/shell';
-import { SettingsIcon } from '../../app/family/icons';
+import { HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { CompassStatement } from '../../core/compass/types';
@@ -28,7 +28,7 @@ function useCompassPeople() {
   return list;
 }
 
-export default function MorePage({ nav: _nav }: { nav: PhiliaNav }) {
+export default function MorePage({ nav }: { nav: PhiliaNav }) {
   const current = settings.use();
   const all = people.use();
   const waiting = fromCompass(all, useCompassPeople());
@@ -84,6 +84,12 @@ export default function MorePage({ nav: _nav }: { nav: PhiliaNav }) {
       </section>
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
+            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__text"><span>Your year</span></span>
+          </button>
+        </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>

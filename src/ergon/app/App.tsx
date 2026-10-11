@@ -10,9 +10,10 @@ import ChoresPage from '../screens/ChoresPage';
 import ChorePage from '../screens/ChorePage';
 import HouseholdPage, { pendingInvite } from '../screens/HouseholdPage';
 import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
 
 export type Tab = 'today' | 'chores' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'chore'; id?: string } | { name: 'household' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'chore'; id?: string } | { name: 'household' } | { name: 'year' };
 export type ErgonNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -53,6 +54,8 @@ export default function App() {
         return <HouseholdPage nav={nav} />;
       case 'more':
         return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
     }
   })();
 
