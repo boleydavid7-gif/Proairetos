@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { offerUndo } from '../../app/family/shell';
-import { BackIcon, PlusIcon } from '../../app/family/icons';
+import { Empty, offerUndo } from '../../app/family/shell';
+import { BackIcon, MoonIcon, PlusIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
 import { sleeps } from '../app/state';
@@ -124,7 +124,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
           />
           <button type="button" className="button-main diaita-add" onClick={() => setEditing(true)}><PlusIcon size={18} />Add a night</button>
           {all.length === 0 ? (
-            <p className="muted">No nights logged yet.</p>
+            <Empty icon={<MoonIcon size={26} />} title="No nights yet" line="Bed and up times, and how you slept (optional)." />
           ) : (
             <ul className="rows">
               {all.map((record) => (

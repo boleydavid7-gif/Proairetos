@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronIcon, PlusIcon } from '../../app/family/icons';
+import { ChevronIcon, PeopleIcon, PlusIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
 import type { PhiliaNav } from '../app/App';
 import { people } from '../app/state';
 import { Initials } from '../app/ui';
@@ -18,7 +19,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
       </div>
       {all.length > 6 && <input className="input" type="search" placeholder="Search" aria-label="Search people" value={query} onChange={(event) => setQuery(event.target.value)} />}
       {all.length === 0 ? (
-        <p className="muted">No one here yet.</p>
+        <Empty icon={<PeopleIcon size={26} />} title="No one here yet" line="Birthdays, things to remember, gift ideas." />
       ) : shown.length === 0 ? (
         <p className="muted">No one matches.</p>
       ) : (
@@ -26,7 +27,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
           {shown.map((person) => (
             <li key={person.id}>
               <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
-                <Initials name={person.name} />
+                <Initials name={person.name} id={person.id} />
                 <span className="row__text">
                   <span>{person.name}</span>
                   <span className="row__detail">{[person.relation, person.birthday && `Birthday ${dateText(person.birthday.slice(-5))}`].filter(Boolean).join(' · ')}</span>

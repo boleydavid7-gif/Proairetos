@@ -1,4 +1,5 @@
-import { PlusIcon } from '../../app/family/icons';
+import { PlusIcon, VisitIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments } from '../app/state';
@@ -32,7 +33,7 @@ export default function VisitsPage({ nav }: { nav: TherapeiaNav }) {
       {coming.length ? (
         <ul className="chore-list">{coming.map((visit) => <VisitRow key={visit.id} visit={visit} today={today} onOpen={() => nav.go({ name: 'visit', id: visit.id })} />)}</ul>
       ) : (
-        <p className="muted">Nothing coming up.</p>
+        <Empty icon={<VisitIcon size={26} />} title="Nothing coming up" line="Appointments, with the questions to ask." />
       )}
       {past.length > 0 && (
         <>

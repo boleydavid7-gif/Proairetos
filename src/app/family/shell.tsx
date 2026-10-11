@@ -325,3 +325,14 @@ export function Shell<T extends string>({ page, routeKey, tabs, current, onPick,
     </div>
   );
 }
+
+/** A list with nothing in it yet: its mark, a name, and one plain line on what goes there. */
+export function Empty({ icon, title, line }: { icon: ReactNode; title: string; line?: string }) {
+  return (
+    <div className="empty">
+      <span className="empty__mark" aria-hidden="true">{icon}</span>
+      <p className="empty__title">{title}</p>
+      {line && <p className="empty__line">{line}</p>}
+    </div>
+  );
+}

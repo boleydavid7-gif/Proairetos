@@ -7,6 +7,7 @@ import photoWide from '../../assets/images/scenes/philia-wide.webp';
 import type { PhiliaNav } from '../app/App';
 import { people } from '../app/state';
 import { Initials } from '../app/ui';
+import SwipeItem from '../../app/family/SwipeItem';
 import { comingUp, inTouchNow, shortDate, sinceText, turningText, whenText, type Person } from '../core/people';
 
 function greeting(): string {
@@ -67,7 +68,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
               <div className="coming-up">
                 {soon.slice(0, 8).map((entry) => (
                   <button key={entry.key} type="button" className="card card--link coming-up__card" onClick={() => nav.go({ name: 'person', id: entry.person.id })}>
-                    <Initials name={entry.person.name} />
+                    <Initials name={entry.person.name} id={entry.person.id} />
                     <span className="list-row__text">
                       <strong>{entry.person.name}</strong>
                       <small>{[entry.label, turningText(entry)].filter(Boolean).join(' · ')}</small>
@@ -83,14 +84,14 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                 <div className="section-head"><h2>Keep in touch</h2></div>
                 <ul className="rows">
                   {touch.map((person) => (
-                    <li key={person.id} className="person-touch">
+                    <SwipeItem key={person.id} className="person-touch" label="In touch" onSwipe={() => markInTouch(person, today)}>
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
-                        <Initials name={person.name} />
+                        <Initials name={person.name} id={person.id} />
                         <span className="row__text"><span>{person.name}</span><span className="row__detail">{sinceText(person.lastInTouch, today)}</span></span>
                         <ChevronIcon size={17} />
                       </button>
                       <button type="button" className="button-quiet person-touch__mark" onClick={() => markInTouch(person, today)}>In touch today</button>
-                    </li>
+                    </SwipeItem>
                   ))}
                 </ul>
               </>
@@ -103,7 +104,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                   {times.map(({ person, time }) => (
                     <li key={time.id}>
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
-                        <Initials name={person.name} />
+                        <Initials name={person.name} id={person.id} />
                         <span className="row__text"><span>{time.text}</span><span className="row__detail">{person.name} · {shortDate(time.date)}</span></span>
                         <ChevronIcon size={17} />
                       </button>

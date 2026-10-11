@@ -12,6 +12,13 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Dynamis: run days from Askesis in the week, optional warm-up sets, and a line to keep in Reflect after a session.',
       'Ktema: receipts, photos and manuals on a thing, kept on this phone; an upkeep cost can go into Oikonomia’s Spent.',
       'Diaita: a nap timer with a bell, 10 to 90 minutes.',
+      'Dynamis: a drawing of each exercise, moving during a session.',
+      'Charts for Therapeia readings, Dynamis lifts and Diaita sleep, with each value on hover or tap.',
+      'Medicines, visits, things, upkeep and chores open as a page first, with Edit for changes.',
+      'Therapeia: what a medicine looks like (shape and colour), beside its name.',
+      'Philia: a photo for someone, kept on this phone.',
+      'Pull a row to the left to mark it: doses, chores, upkeep, keeping in touch.',
+      'Therapeia and Ktema start with adding the first medicine or thing.',
     ],
   },
   {

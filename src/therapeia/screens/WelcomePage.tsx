@@ -18,6 +18,8 @@ export default function WelcomePage({ nav }: { nav: TherapeiaNav }) {
       onBegin={() => {
         settings.save({ ...settings.load(), started: true });
         nav.swap({ name: 'today' });
+        // The first step: a medicine to begin with. Cancel or Save lands on Today.
+        nav.go({ name: 'medicine' });
       }}
     />
   );

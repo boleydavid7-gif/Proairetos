@@ -1,4 +1,5 @@
-import { PlusIcon } from '../../app/family/icons';
+import { BroomIcon, PlusIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
 import { useChores } from '../app/state';
@@ -22,7 +23,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
         <h1 className="title">Chores</h1>
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>
       </div>
-      {all.length === 0 && <p className="muted">No chores yet.</p>}
+      {all.length === 0 && <Empty icon={<BroomIcon size={26} />} title="No chores yet" line="Each comes round on its own rhythm." />}
       {ordered.map(([room, chores]) => (
         <section key={room} className="chore-group">
           <p className="label">{room}</p>

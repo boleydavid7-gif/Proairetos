@@ -198,8 +198,14 @@
   font-size: 0.85rem;
 }
 
-.diaita-entry--past .diaita-entry__main {
-  opacity: 0.55;
+/* Passed lines step back in colour, not opacity, so they keep readable contrast. */
+.diaita-entry--past .diaita-entry__main,
+.diaita-entry--past .diaita-entry__main :is(strong, small, .diaita-entry__time) {
+  color: var(--muted);
+}
+
+.diaita-entry--past .diaita-entry__main svg {
+  opacity: 0.6;
 }
 
 .diaita-entry--next {
@@ -341,9 +347,64 @@
 }
 
 .initials--large {
-  width: 64px;
-  height: 64px;
-  font-size: 1.4rem;
+  width: 72px;
+  height: 72px;
+  font-size: 1.5rem;
+}
+
+.initials {
+  overflow: hidden;
+}
+
+.initials__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.person-photo {
+  position: relative;
+  flex: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.person-photo:focus-within {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+.person-photo::after {
+  content: '+';
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint);
+  color: var(--bg, #000);
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid var(--bg, #000);
+}
+
+.person-photo__remove {
+  min-height: 0;
+  padding: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .row.person-row {
@@ -620,4 +681,91 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.detail-list__with {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.detail-list__with .text-link {
+  min-height: 0;
+  padding: 0;
+}
+
+/* Rows pulled to the left to mark them (SwipeItem). */
+.swipe {
+  position: relative;
+  overflow: hidden;
+  list-style: none;
+}
+
+.swipe + .swipe,
+.swipe + .chore,
+.chore + .swipe {
+  border-top: 1px solid var(--line);
+}
+
+.swipe__action {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-right: 22px;
+  background: var(--mint-soft);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.swipe__front {
+  position: relative;
+  background: var(--surface);
+  touch-action: pan-y;
+  transition: transform 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe__front {
+    transition: none;
+  }
+}
+
+/* An empty list (Empty in shell.tsx). */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 34px 20px 30px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.empty__mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
+.empty__title {
+  margin: 0;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.empty__line {
+  margin: 0;
+  max-width: 22rem;
+  color: var(--muted);
+  font-size: 0.92rem;
 }

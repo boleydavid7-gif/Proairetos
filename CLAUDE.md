@@ -674,3 +674,10 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `ktema-files` (device only, `data/files.ts`, `ThingFiles`, resized by `prepareFile`), and an upkeep cost can go into
   Oikonomia's Spent for the month (area by category; undo takes both back). Diaita: nap timer (`NapPage`, `?open=nap`,
   10/20/30 min from Brooks & Lack 2006, 90 min from Ruggiero 2014; bell on the audio clock; end kept in `diaitaNap`).
+- Third round: Dynamis exercise figures (`core/figures.ts` point poses, `figureSvg.ts`, `app/ExerciseFigure.tsx`); shared
+  charts (`app/family/charts.tsx` LineChart / ColumnChart, `charts.css`: Therapeia readings, Dynamis Over time, Diaita sleep).
+  Medicines, visits, things, upkeep and chores open as a view (`detail-head`, `detail-list` in `apps.css`) with Edit
+  toggling the form (`<X>Form` / `<X>View` / wrapper). Therapeia `Medicine.look` (`PILL_SHAPES`, `PILL_COLORS`,
+  `app/PillMark.tsx`). Philia photos on the device only (`philia/data/photos.ts`, IndexedDB `philia-photos`, square
+  480px JPEG; `Initials` takes `id`). `app/family/SwipeItem.tsx`: pull left to mark a row (doses, chores, upkeep, keep in
+  touch; left arrow too). `Empty` in `shell.tsx` for empty lists. Therapeia and Ktema open their first form after Welcome.

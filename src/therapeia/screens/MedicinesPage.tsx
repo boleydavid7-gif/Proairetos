@@ -1,5 +1,5 @@
-import { say } from '../../app/family/shell';
-import { PlusIcon, ShareIcon } from '../../app/family/icons';
+import { Empty, say } from '../../app/family/shell';
+import { PillIcon, PlusIcon, ShareIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
@@ -54,7 +54,7 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
       {current.length ? (
         <ul className="chore-list">{current.map((medicine) => <MedicineRow key={medicine.id} medicine={medicine} onOpen={() => open(medicine)} />)}</ul>
       ) : (
-        <p className="muted">None yet.</p>
+        <Empty icon={<PillIcon size={26} />} title="No medicines yet" line="Each one with its times, so Today can list the doses." />
       )}
       {(card.allergies || card.conditions) && (
         <section className="card">

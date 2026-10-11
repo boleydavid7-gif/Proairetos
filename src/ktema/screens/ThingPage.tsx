@@ -5,14 +5,10 @@ import type { KtemaNav } from '../app/App';
 import { newId, putThing, removeThing, settings, things, upkeeps } from '../app/state';
 import { UpkeepRow } from '../app/ui';
 import ThingFiles from './ThingFiles';
-import { CATEGORIES, latestReading, nextDue, warrantyFrom, type Category, type Thing } from '../core/things';
+import { BoxIcon } from '../../app/family/icons';
+import { CATEGORIES, latestReading, nextDue, warrantyFrom, warrantyText, type Category, type Thing } from '../core/things';
 
-export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
-  const all = things.use();
-  const list = upkeeps.use();
-  const unit = settings.use().distance;
-  const existing = id ? all.find((thing) => thing.id === id) : undefined;
-  const today = toLocalDate(new Date());
+function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void }) {
   const [name, setName] = useState(existing?.name ?? '');
   const [category, setCategory] = useState<Category>(existing?.category ?? 'Appliance');
   const [place, setPlace] = useState(existing?.place ?? '');
@@ -25,20 +21,10 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
   const [warranty, setWarranty] = useState(existing?.warrantyUntil ?? '');
   const [link, setLink] = useState(existing?.link ?? '');
   const [note, setNote] = useState(existing?.note ?? '');
-  const [reading, setReading] = useState('');
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    if (!id) nameField.current?.focus();
+    if (!existing) nameField.current?.focus();
   }, []);
-
-  if (id && !existing) {
-    return (
-      <div className="page ktema-page">
-        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
-      </div>
-    );
-  }
 
   const build = (): Thing => ({
     ...(existing ?? { id: newId(), createdAt: new Date().toISOString() }),
@@ -58,17 +44,15 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
   const save = () => {
     putThing(build());
     if (existing) offerUndo('Saved', () => putThing(existing));
-    nav.back();
+    onDone();
   };
-  const its = existing ? list.filter((upkeep) => upkeep.thingId === existing.id) : [];
-  const latest = latestReading(existing);
   const safeLink = /^https?:\/\//i.test(link.trim()) ? link.trim() : undefined;
 
   return (
     <div className="page ktema-page">
       <div className="page-top section-head">
-        <button type="button" className="back-link" onClick={nav.back}>Cancel</button>
-        <p className="label">{existing ? 'Thing' : 'Add a thing'}</p>
+        <button type="button" className="back-link" onClick={onDone}>Cancel</button>
+        <p className="label">{existing ? 'Edit' : 'Add a thing'}</p>
         <button type="button" className="text-link" disabled={!name.trim()} onClick={save}>Save</button>
       </div>
 
@@ -122,9 +106,62 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 
-      {existing && <ThingFiles thingId={existing.id} />}
+    </div>
+  );
+}
 
-      {existing && (existing.category === 'Car' || existing.readings?.length) && (
+function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thing; onEdit: () => void }) {
+  const list = upkeeps.use();
+  const unit = settings.use().distance;
+  const today = toLocalDate(new Date());
+  const [reading, setReading] = useState('');
+  const its = list.filter((upkeep) => upkeep.thingId === existing.id);
+  const latest = latestReading(existing);
+  const safeLink = existing.link && /^https?:\/\//i.test(existing.link) ? existing.link : undefined;
+  const dated = (date: string) => new Date(`${date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  const makeModel = [existing.make, existing.model].filter(Boolean).join(' ');
+  const warranty = warrantyText(existing, today);
+
+  return (
+    <div className="page ktema-page">
+      <div className="page-top section-head">
+        <button type="button" className="back-link" onClick={nav.back}>Back</button>
+        <p className="label">Thing</p>
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+
+      <div className="detail-head">
+        <span className="detail-head__mark"><BoxIcon size={30} /></span>
+        <div>
+          <h1 className="title">{existing.name}</h1>
+          <p className="muted">{[existing.category === existing.name ? undefined : existing.category, existing.place].filter(Boolean).join(' · ')}</p>
+        </div>
+      </div>
+
+      {(makeModel || existing.serial || existing.boughtOn || existing.price || existing.store || warranty || safeLink || existing.note) && (
+        <dl className="detail-list">
+          {makeModel && <><dt>Make</dt><dd>{makeModel}</dd></>}
+          {existing.serial && (
+            <>
+              <dt>Serial</dt>
+              <dd className="detail-list__with">
+                <span>{existing.serial}</span>
+                <button type="button" className="text-link" onClick={() => void navigator.clipboard?.writeText(existing.serial!).then(() => say('Copied'), () => undefined)}>Copy</button>
+              </dd>
+            </>
+          )}
+          {existing.boughtOn && <><dt>Bought</dt><dd>{dated(existing.boughtOn)}</dd></>}
+          {existing.price && <><dt>Price</dt><dd>{existing.price}</dd></>}
+          {existing.store && <><dt>From</dt><dd>{existing.store}</dd></>}
+          {warranty && <><dt>{existing.category === 'Documents' ? 'Runs' : 'Warranty'}</dt><dd>{warranty.replace(/^Warranty /, '').replace(/^./, (first) => first.toUpperCase())}</dd></>}
+          {safeLink && <><dt>Link</dt><dd><a className="text-link" href={safeLink} target="_blank" rel="noreferrer noopener">Open</a></dd></>}
+          {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
+        </dl>
+      )}
+
+      <ThingFiles thingId={existing.id} />
+
+      {(existing.category === 'Car' || existing.readings?.length) && (
         <section className="card">
           <h2 className="card__title card__title--small">Odometer</h2>
           {latest && <p className="muted">{latest.value.toLocaleString()} {unit} · {new Date(`${latest.date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -142,27 +179,38 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
         </section>
       )}
 
-      {existing && (
-        <section>
-          <div className="section-head">
-            <h2>Upkeep</h2>
-            <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep', thingId: existing.id })}>Add</button>
-          </div>
-          {its.length ? (
-            <ul className="chore-list">{its.map((upkeep) => <UpkeepRow key={upkeep.id} upkeep={upkeep} due={nextDue(upkeep, existing)} thing={existing} today={today} onOpen={() => nav.go({ name: 'upkeep', id: upkeep.id })} />)}</ul>
-          ) : (
-            <p className="muted">None for this.</p>
-          )}
-        </section>
-      )}
+      <section>
+        <div className="section-head">
+          <h2>Upkeep</h2>
+          <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep', thingId: existing.id })}>Add</button>
+        </div>
+        {its.length ? (
+          <ul className="chore-list">{its.map((upkeep) => <UpkeepRow key={upkeep.id} upkeep={upkeep} due={nextDue(upkeep, existing)} thing={existing} today={today} onOpen={() => nav.go({ name: 'upkeep', id: upkeep.id })} />)}</ul>
+        ) : (
+          <p className="muted">None for this.</p>
+        )}
+      </section>
 
-      {existing && (
-        <button type="button" className="text-link remove-link" onClick={() => {
-          const putBack = removeThing(existing);
-          offerUndo(`${existing.name} removed`, putBack);
-          nav.back();
-        }}>Remove</button>
-      )}
+      <button type="button" className="text-link remove-link" onClick={() => {
+        const putBack = removeThing(existing);
+        offerUndo(`${existing.name} removed`, putBack);
+        nav.back();
+      }}>Remove</button>
     </div>
   );
+}
+
+export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
+  const existing = things.use().find((thing) => thing.id === id);
+  const [editing, setEditing] = useState(!id);
+  if (id && !existing) {
+    return (
+      <div className="page ktema-page">
+        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
+        <p className="muted">Not found on this phone.</p>
+      </div>
+    );
+  }
+  if (existing && !editing) return <ThingView nav={nav} thing={existing} onEdit={() => setEditing(true)} />;
+  return <ThingForm key={existing?.id ?? 'new'} existing={existing} onDone={() => (existing ? setEditing(false) : nav.back())} />;
 }

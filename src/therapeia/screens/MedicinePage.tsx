@@ -280,7 +280,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               putMedicine(refill(existing, added, new Date()));
               offerUndo(`${added} added`, () => putMedicine(existing));
               setRefillCount('');
-                          }}
+            }}
           >
             <input className="input" inputMode="numeric" aria-label="How many came" placeholder="Refill: how many" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>

@@ -5,7 +5,8 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
 import { findChore, newId, putChore, removeChore, settings, useChores } from '../app/state';
 import { done } from '../app/ui';
-import { ROOMS, dayText, namesIn, nextDay, skip, weekdayName, type Chore, type Repeat } from '../core/chores';
+import { BroomIcon } from '../../app/family/icons';
+import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, weekdayName, type Chore, type Repeat } from '../core/chores';
 
 type Kind = Repeat['kind'];
 const KINDS: { id: Kind; label: string }[] = [
@@ -17,9 +18,8 @@ const KINDS: { id: Kind; label: string }[] = [
 ];
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 
-export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
+function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void }) {
   const all = useChores();
-  const existing = id ? all.find((chore) => chore.id === id) ?? findChore(id) : undefined;
   const today = toLocalDate(new Date());
   const me = settings.use().me;
   const [name, setName] = useState(existing?.name ?? '');
@@ -37,17 +37,8 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
   const [remindAt, setRemindAt] = useState(existing?.remindAt ?? '');
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    if (!id) nameField.current?.focus();
+    if (!existing) nameField.current?.focus();
   }, []);
-
-  if (id && !existing) {
-    return (
-      <div className="page ergon-page">
-        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
-      </div>
-    );
-  }
 
   const names = namesIn(all, [me, ...rota]);
   const repeat = (): Repeat => {
@@ -80,40 +71,16 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
     };
     putChore(next);
     if (existing) offerUndo('Saved', () => putChore(existing));
-    nav.back();
+    onDone();
   };
-
-  const day = existing ? nextDay(existing) : undefined;
 
   return (
     <div className="page ergon-page">
       <div className="page-top section-head">
-        <button type="button" className="back-link" onClick={nav.back}>Cancel</button>
-        <p className="label">{existing ? 'Chore' : 'Add a chore'}</p>
+        <button type="button" className="back-link" onClick={onDone}>Cancel</button>
+        <p className="label">{existing ? 'Edit' : 'Add a chore'}</p>
         <button type="button" className="text-link" disabled={!name.trim()} onClick={save}>Save</button>
       </div>
-
-      {existing && day && (
-        <section className="card">
-          <span className="card__eyebrow">{dayText(day, today)}</span>
-          <div className="button-row">
-            <button type="button" className="button-main" onClick={() => { done(existing, today); nav.back(); }}>Done</button>
-            {day <= today && existing.repeat.kind !== 'once' && (
-              <button
-                type="button"
-                className="button-quiet"
-                onClick={() => {
-                  putChore(skip(existing, today));
-                  offerUndo(`${existing.name} skipped`, () => putChore(existing));
-                  nav.back();
-                }}
-              >
-                Skip this time
-              </button>
-            )}
-          </div>
-        </section>
-      )}
 
       <label className="field">
         <span className="field__label">Chore</span>
@@ -209,7 +176,62 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 
-      {existing && existing.history.length > 0 && (
+    </div>
+  );
+}
+
+function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Chore; onEdit: () => void }) {
+  const today = toLocalDate(new Date());
+  const day = nextDay(existing);
+  const who = existing.rota?.length ? `Taking turns: ${existing.rota.join(', ')}${existing.who ? ` (next ${existing.who})` : ''}` : existing.who;
+
+  return (
+    <div className="page ergon-page">
+      <div className="page-top section-head">
+        <button type="button" className="back-link" onClick={nav.back}>Back</button>
+        <p className="label">Chore</p>
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+
+      <div className="detail-head">
+        <span className="detail-head__mark"><BroomIcon size={30} /></span>
+        <div>
+          <h1 className="title">{existing.name}</h1>
+          <p className="muted">{[existing.room, repeatText(existing.repeat)].filter(Boolean).join(' · ')}</p>
+        </div>
+      </div>
+
+      {day && (
+        <section className="card">
+          <span className="card__eyebrow">{dayText(day, today)}</span>
+          <div className="button-row">
+            <button type="button" className="button-main" onClick={() => { done(existing, today); nav.back(); }}>Done</button>
+            {day <= today && existing.repeat.kind !== 'once' && (
+              <button
+                type="button"
+                className="button-quiet"
+                onClick={() => {
+                  putChore(skip(existing, today));
+                  offerUndo(`${existing.name} skipped`, () => putChore(existing));
+                  nav.back();
+                }}
+              >
+                Skip this time
+              </button>
+            )}
+          </div>
+        </section>
+      )}
+
+      {(who || existing.remindAt || existing.note) && (
+        <dl className="detail-list">
+          {who && <><dt>Who</dt><dd>{who}</dd></>}
+          {existing.remindAt && <><dt>Reminder</dt><dd>{existing.remindAt}</dd></>}
+          {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
+        </dl>
+      )}
+
+      {existing.history.length > 0 && (
         <section className="card">
           <h2 className="card__title card__title--small">Done</h2>
           <ul className="notes-list">
@@ -223,19 +245,33 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
         </section>
       )}
 
-      {existing && (
-        <button
-          type="button"
-          className="text-link remove-link"
-          onClick={() => {
-            removeChore(existing.id);
-            offerUndo(`${existing.name} removed`, () => putChore(existing));
-            nav.back();
-          }}
-        >
-          Remove
-        </button>
-      )}
+      <button
+        type="button"
+        className="text-link remove-link"
+        onClick={() => {
+          removeChore(existing.id);
+          offerUndo(`${existing.name} removed`, () => putChore(existing));
+          nav.back();
+        }}
+      >
+        Remove
+      </button>
     </div>
   );
+}
+
+export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
+  const all = useChores();
+  const existing = id ? all.find((chore) => chore.id === id) ?? findChore(id) : undefined;
+  const [editing, setEditing] = useState(!id);
+  if (id && !existing) {
+    return (
+      <div className="page ergon-page">
+        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
+        <p className="muted">Not found on this phone.</p>
+      </div>
+    );
+  }
+  if (existing && !editing) return <ChoreView nav={nav} chore={existing} onEdit={() => setEditing(true)} />;
+  return <ChoreForm key={existing?.id ?? 'new'} existing={existing} onDone={() => (existing ? setEditing(false) : nav.back())} />;
 }

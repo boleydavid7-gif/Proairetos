@@ -8,15 +8,14 @@ import { Switch } from '../../askesis/app/ui';
 import { cents } from '../../oikonomia/core/statements';
 import { saveSpent, spentIn } from '../../oikonomia/data/spent';
 import type { BudgetCategory } from '../../oikonomia/core/budget';
-import { dayText, latestReading, markDone, nextDue, skip, type Every, type Upkeep } from '../core/things';
+import { TimerIcon } from '../../app/family/icons';
+import { dayText, everyText, latestReading, markDone, nextDue, skip, type Every, type Upkeep } from '../core/things';
 
 const UNITS: Every['unit'][] = ['days', 'weeks', 'months', 'years'];
 
-export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: string; thingId?: string; idea?: string }) {
-  const list = upkeeps.use();
+function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?: string; onDone: () => void }) {
   const owned = things.use();
   const unit = settings.use().distance;
-  const existing = id ? list.find((upkeep) => upkeep.id === id) : undefined;
   const today = toLocalDate(new Date());
   const [name, setName] = useState(existing?.name ?? '');
   const [forThing, setForThing] = useState(existing?.thingId ?? thingId ?? '');
@@ -25,23 +24,10 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
   const [distance, setDistance] = useState(existing?.distance ? String(existing.distance) : '');
   const [start, setStart] = useState(existing?.start ?? today);
   const [note, setNote] = useState(existing?.note ?? '');
-  const [reading, setReading] = useState('');
-  const [cost, setCost] = useState('');
-  const oikonomia = useAddedApps().includes('oikonomia');
-  const [toSpent, setToSpent] = useState(true);
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    if (!id) nameField.current?.focus();
+    if (!existing) nameField.current?.focus();
   }, []);
-
-  if (id && !existing) {
-    return (
-      <div className="page ktema-page">
-        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
-      </div>
-    );
-  }
 
   const thing = owned.find((each) => each.id === forThing);
   const save = () => {
@@ -56,66 +42,16 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
     };
     putUpkeep(next);
     if (existing) offerUndo('Saved', () => putUpkeep(existing));
-    nav.back();
+    onDone();
   };
-  const due = existing ? nextDue(existing, thing) : undefined;
-  const latest = latestReading(thing);
 
   return (
     <div className="page ktema-page">
       <div className="page-top section-head">
-        <button type="button" className="back-link" onClick={nav.back}>Cancel</button>
-        <p className="label">{existing ? 'Upkeep' : 'Add upkeep'}</p>
+        <button type="button" className="back-link" onClick={onDone}>Cancel</button>
+        <p className="label">{existing ? 'Edit' : 'Add upkeep'}</p>
         <button type="button" className="text-link" disabled={!name.trim()} onClick={save}>Save</button>
       </div>
-
-      {existing && due && (
-        <section className="card">
-          <span className="card__eyebrow">{dayText(due.date, today)}{due.reading !== undefined ? ` · or at ${due.reading.toLocaleString()} ${unit}` : ''}</span>
-          <div className="input-row">
-            {existing.distance && (
-              <label className="field">
-                <span className="field__label">Reading (optional)</span>
-                <input className="input" inputMode="numeric" value={reading} placeholder={latest ? latest.value.toLocaleString() : unit} onChange={(event) => setReading(event.target.value)} />
-              </label>
-            )}
-            <label className="field">
-              <span className="field__label">Cost (optional)</span>
-              <input className="input" value={cost} onChange={(event) => setCost(event.target.value)} />
-            </label>
-          </div>
-          {oikonomia && cost.trim() && (
-            <Switch on={toSpent} label="Also in Oikonomia’s Spent" onToggle={() => setToSpent(!toSpent)} />
-          )}
-          <div className="button-row">
-            <button type="button" className="button-main" onClick={() => {
-              const value = Number(reading.replace(/[^\d.]/g, '')) || (existing.distance ? latest?.value : undefined);
-              putUpkeep(markDone(existing, today, { ...(value ? { reading: value } : {}), ...(cost.trim() ? { cost: cost.trim() } : {}) }));
-              // The cost can go into Oikonomia's Spent for the month, in the area that fits the thing.
-              const amount = cents(cost);
-              const month = today.slice(0, 7);
-              const spentBefore = spentIn(month);
-              const sent = oikonomia && toSpent && amount !== undefined && amount > 0;
-              if (sent) {
-                const area: BudgetCategory = thing?.category === 'Car' ? 'transport' : thing?.category === 'Tech' || thing?.category === 'Documents' ? 'other' : 'housing';
-                saveSpent(month, [...spentBefore, { id: newId(), date: today, description: [existing.name, thing?.name].filter(Boolean).join(' · '), amountCents: Math.abs(amount), area }]);
-              }
-              offerUndo(sent ? `${existing.name} done, cost in Oikonomia` : `${existing.name} done`, () => {
-                putUpkeep(existing);
-                if (sent) saveSpent(month, spentBefore);
-              });
-              nav.back();
-            }}>Done</button>
-            {due.date <= today && (
-              <button type="button" className="button-quiet" onClick={() => {
-                putUpkeep(skip(existing, today));
-                offerUndo(`${existing.name} skipped`, () => putUpkeep(existing));
-                nav.back();
-              }}>Skip this time</button>
-            )}
-          </div>
-        </section>
-      )}
 
       <label className="field">
         <span className="field__label">What</span>
@@ -155,7 +91,91 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 
-      {existing && existing.history.length > 0 && (
+    </div>
+  );
+}
+
+function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: Upkeep; onEdit: () => void }) {
+  const owned = things.use();
+  const unit = settings.use().distance;
+  const today = toLocalDate(new Date());
+  const [reading, setReading] = useState('');
+  const [cost, setCost] = useState('');
+  const oikonomia = useAddedApps().includes('oikonomia');
+  const [toSpent, setToSpent] = useState(true);
+  const thing = owned.find((each) => each.id === existing.thingId);
+  const due = nextDue(existing, thing);
+  const latest = latestReading(thing);
+
+  return (
+    <div className="page ktema-page">
+      <div className="page-top section-head">
+        <button type="button" className="back-link" onClick={nav.back}>Back</button>
+        <p className="label">Upkeep</p>
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+
+      <div className="detail-head">
+        <span className="detail-head__mark"><TimerIcon size={30} /></span>
+        <div>
+          <h1 className="title">{existing.name}</h1>
+          <p className="muted">{thing ? <button type="button" className="text-link" onClick={() => nav.go({ name: 'thing', id: thing.id })}>{thing.name}</button> : 'The home in general'}</p>
+        </div>
+      </div>
+
+      <section className="card">
+        <span className="card__eyebrow">{dayText(due.date, today)}{due.reading !== undefined ? ` · or at ${due.reading.toLocaleString()} ${unit}` : ''}</span>
+        <div className="input-row">
+          {existing.distance ? (
+            <label className="field">
+              <span className="field__label">Reading (optional)</span>
+              <input className="input" inputMode="numeric" value={reading} placeholder={latest ? latest.value.toLocaleString() : unit} onChange={(event) => setReading(event.target.value)} />
+            </label>
+          ) : null}
+          <label className="field">
+            <span className="field__label">Cost (optional)</span>
+            <input className="input" value={cost} onChange={(event) => setCost(event.target.value)} />
+          </label>
+        </div>
+        {oikonomia && cost.trim() && (
+          <Switch on={toSpent} label="Also in Oikonomia’s Spent" onToggle={() => setToSpent(!toSpent)} />
+        )}
+        <div className="button-row">
+          <button type="button" className="button-main" onClick={() => {
+            const value = Number(reading.replace(/[^\d.]/g, '')) || (existing.distance ? latest?.value : undefined);
+            putUpkeep(markDone(existing, today, { ...(value ? { reading: value } : {}), ...(cost.trim() ? { cost: cost.trim() } : {}) }));
+            // The cost can go into Oikonomia's Spent for the month, in the area that fits the thing.
+            const amount = cents(cost);
+            const month = today.slice(0, 7);
+            const spentBefore = spentIn(month);
+            const sent = oikonomia && toSpent && amount !== undefined && amount > 0;
+            if (sent) {
+              const area: BudgetCategory = thing?.category === 'Car' ? 'transport' : thing?.category === 'Tech' || thing?.category === 'Documents' ? 'other' : 'housing';
+              saveSpent(month, [...spentBefore, { id: newId(), date: today, description: [existing.name, thing?.name].filter(Boolean).join(' · '), amountCents: Math.abs(amount), area }]);
+            }
+            offerUndo(sent ? `${existing.name} done, cost in Oikonomia` : `${existing.name} done`, () => {
+              putUpkeep(existing);
+              if (sent) saveSpent(month, spentBefore);
+            });
+            nav.back();
+          }}>Done</button>
+          {due.date <= today && (
+            <button type="button" className="button-quiet" onClick={() => {
+              putUpkeep(skip(existing, today));
+              offerUndo(`${existing.name} skipped`, () => putUpkeep(existing));
+              nav.back();
+            }}>Skip this time</button>
+          )}
+        </div>
+      </section>
+
+
+      <dl className="detail-list">
+        <dt>Comes round</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
+        {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
+      </dl>
+
+      {existing.history.length > 0 && (
         <section className="card">
           <h2 className="card__title card__title--small">Done</h2>
           <ul className="notes-list">
@@ -169,13 +189,26 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
         </section>
       )}
 
-      {existing && (
-        <button type="button" className="text-link remove-link" onClick={() => {
-          removeUpkeep(existing.id);
-          offerUndo(`${existing.name} removed`, () => putUpkeep(existing));
-          nav.back();
-        }}>Remove</button>
-      )}
+      <button type="button" className="text-link remove-link" onClick={() => {
+        removeUpkeep(existing.id);
+        offerUndo(`${existing.name} removed`, () => putUpkeep(existing));
+        nav.back();
+      }}>Remove</button>
     </div>
   );
+}
+
+export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: string; thingId?: string; idea?: string }) {
+  const existing = upkeeps.use().find((upkeep) => upkeep.id === id);
+  const [editing, setEditing] = useState(!id);
+  if (id && !existing) {
+    return (
+      <div className="page ktema-page">
+        <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
+        <p className="muted">Not found on this phone.</p>
+      </div>
+    );
+  }
+  if (existing && !editing) return <UpkeepView nav={nav} upkeep={existing} onEdit={() => setEditing(true)} />;
+  return <UpkeepForm key={existing?.id ?? 'new'} existing={existing} thingId={thingId} onDone={() => (existing ? setEditing(false) : nav.back())} />;
 }

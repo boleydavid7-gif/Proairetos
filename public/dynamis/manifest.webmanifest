@@ -27,6 +27,29 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/dynamis/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Dynamis"
+    },
+    {
+      "src": "/dynamis/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Dynamis"
+    },
+    {
+      "src": "/dynamis/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Dynamis"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Today’s session",

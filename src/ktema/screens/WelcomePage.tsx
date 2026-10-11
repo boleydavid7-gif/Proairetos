@@ -17,6 +17,8 @@ export default function WelcomePage({ nav }: { nav: KtemaNav }) {
       onBegin={() => {
         settings.save({ ...settings.load(), started: true });
         nav.swap({ name: 'today' });
+        // The first step: a thing to begin with. Cancel or Save lands on Today.
+        nav.go({ name: 'thing' });
       }}
     />
   );

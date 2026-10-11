@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { offerUndo } from '../../app/family/shell';
+import { offerUndo, say } from '../../app/family/shell';
 import { BackIcon, CheckIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhiliaNav } from '../app/App';
@@ -7,6 +7,7 @@ import { newId, people } from '../app/state';
 import { AddLine, Initials } from '../app/ui';
 import { RHYTHMS, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
 import { markInTouch } from './HomePage';
+import { photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -21,6 +22,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
   const person = people.use().find((each) => each.id === id);
   const today = toLocalDate(new Date());
   const [timeDate, setTimeDate] = useState(today);
+  const photo = usePhoto(person?.id);
 
   if (!person) {
     return (
@@ -48,10 +50,33 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
       </div>
 
       <div className="person-head">
-        <Initials name={person.name} large />
+        <label className="person-photo" aria-label={photo ? 'Change photo' : 'Add a photo'}>
+          <Initials name={person.name} id={person.id} large />
+          <input type="file" accept="image/*" className="visually-hidden" onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (!file) return;
+            void (async () => {
+              const before = await photoFor(person.id);
+              try {
+                await putPhoto({ personId: person.id, ...(await squarePhoto(file)), at: new Date().toISOString() });
+              } catch {
+                say('That picture could not be read');
+                return;
+              }
+              offerUndo('Photo saved', () => void (before ? putPhoto(before) : removePhoto(person.id)));
+            })();
+          }} />
+        </label>
         <div>
           <h1 className="title">{person.name}</h1>
           {person.relation && <p className="muted">{person.relation}</p>}
+          {photo && (
+            <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
+              void removePhoto(person.id);
+              if (before) offerUndo('Photo removed', () => void putPhoto(before));
+            })}>Remove photo</button>
+          )}
         </div>
       </div>
 
@@ -165,7 +190,13 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         className="text-link remove-link"
         onClick={() => {
           people.remove(person.id);
-          offerUndo(`${person.name} removed`, () => people.put(person));
+          void photoFor(person.id).then((kept) => {
+            if (kept) void removePhoto(person.id);
+            offerUndo(`${person.name} removed`, () => {
+              people.put(person);
+              if (kept) void putPhoto(kept);
+            });
+          });
           nav.back();
         }}
       >

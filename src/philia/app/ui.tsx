@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { initials } from '../core/people';
+import { usePhoto } from '../data/photos';
 
-export function Initials({ name, large = false }: { name: string; large?: boolean }) {
-  return <span className={`initials${large ? ' initials--large' : ''}`} aria-hidden="true">{initials(name)}</span>;
+/** The person's photo when this phone has one, else their initials. */
+export function Initials({ name, id, large = false }: { name: string; id?: string; large?: boolean }) {
+  const photo = usePhoto(id);
+  return (
+    <span className={`initials${large ? ' initials--large' : ''}`} aria-hidden="true">
+      {photo ? <img className="initials__photo" src={photo} alt="" /> : initials(name)}
+    </span>
+  );
 }
 
 /** A field and a button that adds one line; Enter adds too. */

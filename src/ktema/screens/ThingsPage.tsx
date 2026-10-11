@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { PlusIcon } from '../../app/family/icons';
+import { BoxIcon, PlusIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
 import { things } from '../app/state';
@@ -17,7 +18,7 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add</button>
       </div>
       {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" placeholder="Find a thing, a model, a serial" value={text} onChange={(event) => setText(event.target.value)} />}
-      {all.length === 0 && <p className="muted">Appliances, the car, a laptop: what you would want the details of one day.</p>}
+      {all.length === 0 && <Empty icon={<BoxIcon size={26} />} title="No things yet" line="Appliances, the car, a laptop, documents: models, serials and warranties." />}
       {CATEGORIES.map((category) => {
         const inIt = found.filter((thing) => thing.category === category);
         if (!inIt.length) return null;

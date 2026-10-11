@@ -1,6 +1,7 @@
 import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
+import SwipeItem from '../../app/family/SwipeItem';
 import { dayText, markDone, nextDay, repeatText, type Chore } from '../core/chores';
 import { putChore, settings } from './state';
 
@@ -13,7 +14,7 @@ export function done(chore: Chore, today: string): void {
 export function ChoreRow({ chore, today, onOpen, room = true }: { chore: Chore; today: string; onOpen: () => void; room?: boolean }) {
   const day = nextDay(chore);
   return (
-    <li className="chore">
+    <SwipeItem className="chore" label="Done" onSwipe={() => done(chore, today)}>
       <button type="button" className="tick" aria-label={`${chore.name}: done`} onClick={() => done(chore, today)}>
         <CheckIcon size={20} />
       </button>
@@ -25,7 +26,7 @@ export function ChoreRow({ chore, today, onOpen, room = true }: { chore: Chore; 
         <small>{[room ? chore.room : undefined, repeatText(chore.repeat)].filter(Boolean).join(' · ')}</small>
       </button>
       <span className="chore__when">{day ? dayText(day, today) : ''}</span>
-    </li>
+    </SwipeItem>
   );
 }
 

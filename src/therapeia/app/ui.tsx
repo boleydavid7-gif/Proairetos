@@ -1,6 +1,7 @@
 import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
+import SwipeItem from '../../app/family/SwipeItem';
 import { skip, take, takeNow, unmark, type Dose, type Medicine } from '../core/medicines';
 import { putMedicine } from './state';
 import PillMark from './PillMark';
@@ -33,7 +34,7 @@ export function takeOneNow(medicine: Medicine): void {
 export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
   const marked = dose.taken;
   return (
-    <li className="chore dose">
+    <SwipeItem className="chore dose" label="Taken" off={Boolean(marked)} onSwipe={() => markTaken(dose)}>
       <button
         type="button"
         className="tick"
@@ -60,6 +61,6 @@ export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
           </button>
         )}
       </span>
-    </li>
+    </SwipeItem>
   );
 }
