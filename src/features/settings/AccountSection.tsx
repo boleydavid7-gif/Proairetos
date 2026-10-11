@@ -1,3 +1,4 @@
+import { SignInAnotherApp } from '../../app/family/SignInPass';
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
@@ -281,6 +282,7 @@ function Ready() {
       <button type="button" className="chip chip--wide" disabled={status.syncing} onClick={() => void syncNow()}>
         Sync now
       </button>
+      <SignInAnotherApp />
 
       {confirmingSignOut ? (
         <div className="chip-row">

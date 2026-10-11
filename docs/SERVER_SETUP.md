@@ -283,6 +283,20 @@ in the invite link, so the server stores them without being able to read them. B
 All three migrations above are safe to run again; running them in date order on a server that already has some
 of them does no harm.
 
+## Sign in other apps from Proairetos (migration 20261019000000)
+
+On an iPhone each Home Screen app keeps its own storage, so each would need its own sign-in. With this, Proairetos
+copies a one-time pass and the other app pastes it: signed in and unlocked, no email, no passphrase.
+
+1. In the SQL editor, run `supabase/migrations/20261019000000_sign_in_handoff.sql`.
+2. Deploy the new function: **Edge Functions → Deploy a new function → Via editor**, name it `sign-in-handoff`,
+   paste `supabase/functions/sign-in-handoff/index.ts`, deploy (or `supabase functions deploy sign-in-handoff`).
+   Keep JWT verification on.
+
+The function makes a one-time sign-in for the person asking (no email is sent). The data key travels in the pass
+sealed; the key that opens it waits on the server for two minutes and is given once, only to the same person
+after signing in.
+
 ## Sign in with Google or Apple (optional)
 
 The email code keeps working either way. Your passphrase still unlocks your data after any sign-in: Google

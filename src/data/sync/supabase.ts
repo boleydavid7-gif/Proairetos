@@ -312,3 +312,30 @@ export async function deleteRemoteAccount(): Promise<void> {
   const { error } = await client.functions.invoke('delete-account', { method: 'POST' });
   if (error) throw new Error('The account could not be deleted. Check your connection and try again.');
 }
+
+// ---------- Signing in another app of the family ----------
+
+/** A one-time sign-in for this person, made by the server without sending an email. */
+export async function requestHandoffToken(): Promise<string> {
+  const { data, error } = await (await supabase()).functions.invoke('sign-in-handoff', { method: 'POST' });
+  const token = (data as { token_hash?: string } | null)?.token_hash;
+  if (error || !token) throw new Error('Signing in another app is not set up on the server yet.');
+  return token;
+}
+
+export async function leaveHandoff(id: string, wrapKey: string): Promise<void> {
+  const { error } = await (await supabase()).from('sign_in_handoffs').insert({ id, wrap_key: wrapKey });
+  if (error) throw new Error(/relation|schema cache|sign_in_handoffs/.test(error.message) ? 'Signing in another app is not set up on the server yet.' : error.message);
+}
+
+export async function takeHandoff(id: string): Promise<string | null> {
+  const { data, error } = await (await supabase()).rpc('take_handoff', { handoff: id });
+  if (error) throw new Error(error.message);
+  return (data as string | null) ?? null;
+}
+
+export async function signInWithHandoffToken(tokenHash: string): Promise<User> {
+  const { data, error } = await (await supabase()).auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' });
+  if (error || !data.user) throw new Error('That pass has been used or is too old. Make a new one in Proairetos.');
+  return data.user;
+}

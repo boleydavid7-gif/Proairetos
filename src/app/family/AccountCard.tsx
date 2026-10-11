@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
 import { ProviderButtons } from './ProviderButtons';
+import { PasteFromProairetos } from './SignInPass';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
 
@@ -48,6 +49,7 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
           )}
         </div>
       </div>
+      {(account.phase === 'signed-out' || account.phase === 'locked') && <PasteFromProairetos className="button-main account__link" />}
       {account.phase === 'signed-out' && <SignIn />}
       {account.phase === 'locked' && <Unlock />}
       {account.phase === 'needs-setup' && (

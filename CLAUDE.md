@@ -206,6 +206,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `?open=` (`app/family/opening.ts`): Askesis `workout:ID`, `entry:ID`, a
   tab; SOMA `recipe:ID`, `week`, `tonight`; Proairetos `day:today`,
   `reflect`, `compass`, `account`.
+- Sign in other apps (iPhone Home Screen apps keep their own storage; migration `20261019000000_sign_in_handoff.sql`,
+  function `sign-in-handoff`): Proairetos's Account page has "Sign in other apps" (`app/family/SignInPass.tsx`): the
+  passphrase once (`enableHandoff` keeps an exportable copy of the data key in syncMeta `handoffKey`, device only,
+  cleared on sign-out, "Turn off"), then "Copy a sign-in pass" (`makeSignInPass`: a magic-link `token_hash` from the
+  function, no email sent; the data key sealed with a random wrap key, AD `proairetos-handoff:ID`, `data/sync/handoff.ts`;
+  the wrap key left in `sign_in_handoffs` for 2 minutes). Every family AccountCard has "Paste from Proairetos"
+  (`signInWithPass`: verifyOtp, `take_handoff` returns the wrap key once to the same user and deletes it, the key kept
+  is not exportable; the clipboard is cleared; falls back to pasting by hand).
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

@@ -11,6 +11,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita: later to bed the night before a first night shift.',
       'Ergon: a reminder time for a single chore.',
       'Philia: a name changed in Compass carries over.',
+      'Sign in the other apps from Proairetos with a one-time pass: Settings, Account, Sign in other apps.',
     ],
   },
   {

@@ -87,7 +87,7 @@ async function wrap(dataKey: CryptoKey, wrapping: CryptoKey, method: WrappedKey[
   return { method, salt: toBase64(salt), iterations, iv: toBase64(iv), wrapped: toBase64(wrapped) };
 }
 
-async function unwrap(envelope: WrappedKey, wrapping: CryptoKey): Promise<CryptoKey> {
+async function unwrap(envelope: WrappedKey, wrapping: CryptoKey, extractable = false): Promise<CryptoKey> {
   try {
     return await crypto.subtle.unwrapKey(
       'raw',
@@ -95,7 +95,7 @@ async function unwrap(envelope: WrappedKey, wrapping: CryptoKey): Promise<Crypto
       wrapping,
       { name: 'AES-GCM', iv: fromBase64(envelope.iv) },
       { name: 'AES-GCM', length: 256 },
-      false, // usable on this device, never exportable
+      extractable, // usable on this device; exportable only for the copy kept to sign in other apps
       ['encrypt', 'decrypt'],
     );
   } catch {
@@ -133,8 +133,8 @@ export async function createKeys(passphrase: string): Promise<KeySetup> {
   return { dataKey, passphraseWrap, recoveryWrap, recoveryKey: encodeRecovery(recovery) };
 }
 
-export async function unlockWithPassphrase(envelope: WrappedKey, passphrase: string): Promise<CryptoKey> {
-  return unwrap(envelope, await passphraseKey(passphrase, fromBase64(envelope.salt), envelope.iterations ?? PBKDF2_ITERATIONS));
+export async function unlockWithPassphrase(envelope: WrappedKey, passphrase: string, extractable = false): Promise<CryptoKey> {
+  return unwrap(envelope, await passphraseKey(passphrase, fromBase64(envelope.salt), envelope.iterations ?? PBKDF2_ITERATIONS), extractable);
 }
 
 export async function unlockWithRecoveryKey(envelope: WrappedKey, recoveryKey: string): Promise<CryptoKey> {
