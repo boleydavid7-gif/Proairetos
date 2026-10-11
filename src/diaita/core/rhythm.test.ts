@@ -46,6 +46,12 @@ describe('sleep', () => {
     expect(clock(sleep.start)).toBe('00:00');
   });
 
+  it('goes to bed two hours later the night before a first night', () => {
+    const before = mainSleeps('2026-10-04', '2026-10-04', nights, defaultRhythm).find((sleep) => sleep.after === 'evening' && sleep.start.getDate() === 5)!;
+    expect(clock(before.start)).toBe('00:30');
+    expect(clock(before.end)).toBe('08:00');
+  });
+
   it('sleeps after each night once home, and briefly after the last', () => {
     const sleeps = mainSleeps('2026-10-05', '2026-10-08', nights, defaultRhythm);
     const afterNights = sleeps.filter((sleep) => sleep.after !== 'evening');

@@ -258,7 +258,8 @@ Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets set
 
 ## Reminders from every app (migration 20261017000000)
 
-So reminders from HYDROS (water), Oikonomia (bills), Askesis (run days) and Praxis (the end of a study block)
+So reminders from HYDROS (water), Oikonomia (bills), Askesis (run days), Praxis (the end of a study block),
+Diaita (wind down, nap), Philia (birthdays, keeping in touch) and Ergon (chores)
 arrive with their own words on a phone where Proairetos is the app that receives pushes:
 
 1. In the SQL editor, run `supabase/migrations/20261017000000_reminder_sources.sql`. It gives each app its own
@@ -267,10 +268,20 @@ arrive with their own words on a phone where Proairetos is the app that receives
 2. Redeploy the reminder function with the new code: **Edge Functions → send-reminders → Code**, paste
    `supabase/functions/send-reminders/index.ts`, and deploy (or `supabase functions deploy send-reminders --no-verify-jwt`).
    The cron job and keys stay as they are.
-3. Open each app you use once while signed in (Proairetos, HYDROS, Oikonomia, Askesis, Praxis), so each sends its
+3. Open each app you use once while signed in (Proairetos, HYDROS, Oikonomia, Askesis, Praxis, Diaita, Philia, Ergon), so each sends its
    times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
 
 Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.
+
+## Shared lists and households (migration 20261018000000)
+
+Run `supabase/migrations/20261018000000_shared_lists.sql`. It makes SOMA's shared grocery list and Ergon's
+shared household work: every line or chore is sealed on the phone with that list's own key, which travels only
+in the invite link, so the server stores them without being able to read them. Both people need to be signed in
+(any account; no passphrase needed for a shared list). Nothing else changes.
+
+All three migrations above are safe to run again; running them in date order on a server that already has some
+of them does no harm.
 
 ## Sign in with Google or Apple (optional)
 

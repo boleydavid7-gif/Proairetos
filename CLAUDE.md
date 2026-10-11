@@ -594,7 +594,8 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   before a first night (90 min ending an hour before leaving, Ruggiero 2014), bright light in the first half of
   a night and sunglasses home when another night follows (Smith/Eastman 2009), main meal before and small
   snacks 00:00-06:00 on nights (Chellappa 2021), a short sleep after the last night, earlier bed before an
-  early start, later after a late finish. Every line can open its source; Settings (More) holds bedtime, sleep
+  early start, later after a late finish, two hours later the night before a first night (Smith/Eastman); an
+  evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight. Every line can open its source; Settings (More) holds bedtime, sleep
   hours, travel, getting ready, cutoff, wind-down, Light and Meals switches. Grouped by the person's day
   (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
   and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources.
@@ -604,14 +605,16 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   optional keep-in-touch rhythm that, when it comes round, says only how long it has been (`sinceText`).
   Home: Coming up (30 days), Keep in touch, Times together. More: bring in Compass people (`fromCompass`),
   reminder choices (dates on the day or days before, keep in touch, time). Notices kind `person`, opening
-  `philia:person:ID`. `?open=person:ID|add|people`.
+  `philia:person:ID`. People brought in keep `compassId`/`compassName`; a rename in Compass carries over on
+  opening Philia unless they were renamed in Philia since (`followCompass`). `?open=person:ID|add|people`.
 - Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
   week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
   late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;
   who did what in 30 days as plain counts. One shared household per person through `createSharedLists`
   (`ergon:households`, cache `ergonShared`, AD `ergon-list`; invite `/ergon/?open=home:ID#k=KEY&n=NAME`, read in
   `main.tsx`); sharing moves this phone's chores in, leaving keeps a copy. Notices kind `chore`: one per day
-  naming that day's chores, optional "Only mine" (More: your name here).
+  naming that day's chores at the usual time, or at a chore's own `remindAt` (optional, on the chore page);
+  optional "Only mine" (More: your name here).
 - In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
   from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
   `app/notify/familyNotices.ts`); What's included parts `diaita` (tonight's sleep on Today), `birthdays`

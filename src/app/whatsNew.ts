@@ -7,6 +7,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Philia: birthdays, things to remember, gift ideas and times together with the people in your life.',
       'Ergon: household chores that come round, with turns, shared with the people you live with.',
       'Today, Days ahead and search show what these keep, each one switchable in What’s included.',
+      'Every app’s pictures are now drawn scenes, in one style across the family.',
+      'Diaita: later to bed the night before a first night shift.',
+      'Ergon: a reminder time for a single chore.',
+      'Philia: a name changed in Compass carries over.',
     ],
   },
   {

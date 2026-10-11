@@ -25,8 +25,9 @@ export type Person = {
   /** Days between being in touch, if the person chose a rhythm. */
   keepInTouch?: number;
   lastInTouch?: string;
-  /** The Compass person this came from, if brought in. */
+  /** The Compass person this came from, if brought in, and the name it had there then. */
   compassId?: string;
+  compassName?: string;
   createdAt: string;
 };
 
@@ -174,4 +175,20 @@ export function matches(person: Person, query: string): boolean {
 
 export function shortDate(date: string): string {
   return parseLocalDate(date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: date.slice(0, 4) === String(new Date().getFullYear()) ? undefined : 'numeric' });
+}
+
+/**
+ * People brought in from Compass take a new name given there, unless they were renamed here since (then the
+ * name here is the person's own choice and stays).
+ */
+export function followCompass(people: readonly Person[], compass: readonly { id: string; body: string }[]): Person[] {
+  const byId = new Map(compass.map((each) => [each.id, each.body.trim()]));
+  const changed: Person[] = [];
+  for (const person of people) {
+    const there = person.compassId ? byId.get(person.compassId) : undefined;
+    if (!there || there === person.compassName) continue;
+    const untouched = person.compassName === undefined || person.name === person.compassName;
+    changed.push(untouched ? { ...person, name: there, compassName: there } : { ...person, compassName: there });
+  }
+  return changed;
 }

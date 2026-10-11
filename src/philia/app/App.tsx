@@ -3,7 +3,10 @@ import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
 import { HomeIcon, MoreIcon, PeopleIcon } from '../../app/family/icons';
-import { settings } from './state';
+import { people, settings } from './state';
+import { readStore } from '../../app/family/read';
+import type { CompassStatement } from '../../core/compass/types';
+import { followCompass } from '../core/people';
 import WelcomePage from '../screens/WelcomePage';
 import HomePage from '../screens/HomePage';
 import PeoplePage from '../screens/PeoplePage';
@@ -36,6 +39,10 @@ export default function App() {
 
   useEffect(() => {
     void startSync();
+    // Names changed in Compass carry over to the people brought in from there.
+    void readStore<CompassStatement>('statements').then((all) => {
+      for (const person of followCompass(people.list(), all.filter((each) => each.type === 'PERSON'))) people.put(person);
+    });
   }, []);
 
   const page = (() => {

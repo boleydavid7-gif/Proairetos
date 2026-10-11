@@ -57,9 +57,11 @@ export type Entry = {
   title: string;
   detail?: string;
   source?: SourceKey;
+  /** The day this belongs to when the clock alone would say otherwise (a bedtime after midnight). */
+  day?: string;
 };
 
-export type Sleep = { start: Date; end: Date; after: 'evening' | 'night' | 'last-night' };
+export type Sleep = { start: Date; end: Date; after: 'evening' | 'night' | 'last-night'; /** The day an evening's sleep belongs to, even after midnight. */ day?: string };
 
 export type DayKind = 'off' | 'day' | 'evening' | 'night' | 'after-nights';
 
@@ -129,6 +131,9 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
         start = new Date(Math.max(start.getTime(), later(block.end, settings.commuteMinutes + 30).getTime()));
       }
     }
+    // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
+    const firstNight = all.some((block) => startsOn(block, addDays(date, 1)) && isNight(block));
+    if (firstNight) start = later(start, 120);
     let end = later(start, length);
     // An early start: to bed earlier so the sleep is whole.
     const next = all.find((block) => block.start >= start && block.start.getTime() - start.getTime() < 18 * HOUR);
@@ -139,7 +144,7 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
         start = new Date(Math.max(later(upBy, -length).getTime(), later(start, -180).getTime()));
       }
     }
-    if (end > start) sleeps.push({ start, end, after: 'evening' });
+    if (end > start) sleeps.push({ start, end, after: 'evening', day: date });
   }
   return sleeps;
 }
@@ -157,16 +162,16 @@ export function planBetween(from: string, until: string, blocks: readonly WorkBl
   }
 
   for (const sleep of sleeps) {
-    add({ key: `sleep:${stamp(sleep.start)}`, kind: 'sleep', start: sleep.start, end: sleep.end, title: sleep.after === 'last-night' ? 'Short sleep' : 'Sleep', source: sleep.after === 'evening' ? 'sleep' : sleep.after === 'night' ? 'light' : 'hygiene' });
+    add({ key: `sleep:${stamp(sleep.start)}`, kind: 'sleep', start: sleep.start, end: sleep.end, day: sleep.day, title: sleep.after === 'last-night' ? 'Short sleep' : 'Sleep', source: sleep.after === 'evening' ? 'sleep' : sleep.after === 'night' ? 'light' : 'hygiene' });
     add({ key: `wake:${stamp(sleep.end)}`, kind: 'wake', start: sleep.end, title: 'Up' });
     if (settings.windDownMinutes > 0 && sleep.after === 'evening') {
-      add({ key: `wind:${stamp(sleep.start)}`, kind: 'wind-down', start: later(sleep.start, -settings.windDownMinutes), end: sleep.start, title: 'Wind down', detail: 'Dim lights, screens away', source: 'hygiene' });
+      add({ key: `wind:${stamp(sleep.start)}`, kind: 'wind-down', day: sleep.day, start: later(sleep.start, -settings.windDownMinutes), end: sleep.start, title: 'Wind down', detail: 'Dim lights, screens away', source: 'hygiene' });
     }
     if (settings.cutoffHours > 0) {
-      add({ key: `caffeine:${stamp(sleep.start)}`, kind: 'caffeine', start: later(sleep.start, -settings.cutoffHours * 60), title: 'Last caffeine', source: 'caffeine' });
+      add({ key: `caffeine:${stamp(sleep.start)}`, kind: 'caffeine', day: sleep.day, start: later(sleep.start, -settings.cutoffHours * 60), title: 'Last caffeine', source: 'caffeine' });
     }
     if (settings.meals && sleep.after === 'evening') {
-      add({ key: `meal:${stamp(sleep.start)}`, kind: 'meal', start: later(sleep.start, -180), title: 'Last big meal', source: 'hygiene' });
+      add({ key: `meal:${stamp(sleep.start)}`, kind: 'meal', day: sleep.day, start: later(sleep.start, -180), title: 'Last big meal', source: 'hygiene' });
     }
     if (settings.light && sleep.after !== 'night') {
       const wake = sleep.end;
@@ -214,7 +219,7 @@ const order = (kind: EntryKind) => ORDER.indexOf(kind);
 
 /** Entries for one day, by the day each belongs to (the person's day in the app; calendar days in tests). */
 export function entriesOn(date: string, entries: readonly Entry[], dayOf: (when: Date) => string = toLocalDate): Entry[] {
-  return entries.filter((entry) => dayOf(entry.start) === date);
+  return entries.filter((entry) => (entry.day ?? dayOf(entry.start)) === date);
 }
 
 // ---------- The sleep log ----------

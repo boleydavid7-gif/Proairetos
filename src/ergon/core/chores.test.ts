@@ -95,6 +95,12 @@ describe('notices', () => {
     expect(notices.map((n) => [n.title, n.body, n.at.getDate()])).toEqual([['2 chores', 'Bins out, Vacuum', 12]]);
   });
 
+  it('says a chore with its own time at that time', () => {
+    const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12', remindAt: '19:00' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12' })];
+    const notices = choreNotices(list, defaultChoreNotices, undefined, '2026-10-10', 14);
+    expect(notices.map((n) => [n.title, n.at.getHours()]).sort()).toEqual([['Bins out', 19], ['Vacuum', 9]]);
+  });
+
   it('can keep to one person', () => {
     const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12', who: 'Ana' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Ben' })];
     const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'Ana', '2026-10-10', 14);

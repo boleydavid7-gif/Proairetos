@@ -34,6 +34,7 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
   const [rota, setRota] = useState<string[]>(existing?.rota ?? []);
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState(existing?.note ?? '');
+  const [remindAt, setRemindAt] = useState(existing?.remindAt ?? '');
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!id) nameField.current?.focus();
@@ -75,6 +76,7 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
       who: turns ? (rotaNames?.includes(who) ? who : rotaNames?.[0]) : who.trim() || undefined,
       rota: rotaNames && rotaNames.length > 1 ? rotaNames : undefined,
       note: note.trim() || undefined,
+      remindAt: remindAt || undefined,
     };
     putChore(next);
     if (existing) offerUndo('Saved', () => putChore(existing));
@@ -196,6 +198,10 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
         )}
       </fieldset>
 
+      <label className="field">
+        <span className="field__label">Reminder time (optional)</span>
+        <input className="input" type="time" value={remindAt} onChange={(event) => setRemindAt(event.target.value)} />
+      </label>
       <label className="field">
         <span className="field__label">Note (optional)</span>
         <input className="input" value={note} onChange={(event) => setNote(event.target.value)} />

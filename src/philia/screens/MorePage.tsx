@@ -41,6 +41,7 @@ export default function MorePage({ nav: _nav }: { nav: PhiliaNav }) {
     const added = waiting.map((each) => ({
       ...newPerson(newId(), each.body, now),
       compassId: each.id,
+      compassName: each.body.trim(),
       lastInTouch: each.inTouchAt,
       notes: each.note ? [{ id: newId(), text: each.note, at: now.toISOString() }] : [],
     }));

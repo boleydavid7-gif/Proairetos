@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comingUp, dateParts, datePartsToText, fromCompass, inTouchNow, initials, matches, newPerson, nextOccurrence, sinceText, touchDate, turningText, whenText, type Person } from './people';
+import { followCompass, comingUp, dateParts, datePartsToText, fromCompass, inTouchNow, initials, matches, newPerson, nextOccurrence, sinceText, touchDate, turningText, whenText, type Person } from './people';
 import { peopleNotices, defaultPeopleNotices } from './notices';
 
 const now = new Date('2026-10-10T12:00:00');
@@ -90,5 +90,15 @@ describe('the rest', () => {
     const p = person({ name: 'Ana', gifts: [{ id: 'g', text: 'Pottery class', at: '' }] });
     expect(matches(p, 'ana pottery')).toBe(true);
     expect(matches(p, 'ana books')).toBe(false);
+  });
+});
+
+describe('following Compass', () => {
+  it('takes a new name from Compass unless renamed here', () => {
+    const kept = person({ id: 'a', name: 'Ana', compassId: 'c1', compassName: 'Ana' });
+    const renamed = person({ id: 'b', name: 'Benny', compassId: 'c2', compassName: 'Ben' });
+    const changed = followCompass([kept, renamed], [{ id: 'c1', body: 'Ana López' }, { id: 'c2', body: 'Benjamin' }]);
+    expect(changed.map((p) => [p.name, p.compassName])).toEqual([['Ana López', 'Ana López'], ['Benny', 'Benjamin']]);
+    expect(followCompass(changed, [{ id: 'c1', body: 'Ana López' }, { id: 'c2', body: 'Benjamin' }])).toEqual([]);
   });
 });

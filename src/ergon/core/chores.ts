@@ -33,6 +33,8 @@ export type Chore = {
   note?: string;
   /** Minutes it usually takes, if noted. */
   minutes?: number;
+  /** "HH:MM" for this chore's reminder, when it differs from the usual time. */
+  remindAt?: string;
   createdAt: string;
 };
 
