@@ -1,12 +1,8 @@
 import sunrise from '../../assets/images/scenes/sunrise.webp';
-import sunriseWide from '../../assets/images/scenes/sunrise-wide.webp';
 import morning from '../../assets/images/scenes/morning.webp';
-import morningWide from '../../assets/images/scenes/morning-wide.webp';
 import { directionAlong, transition } from '../../app/transitions';
 import lake from '../../assets/images/scenes/lake.webp';
-import lakeWide from '../../assets/images/scenes/lake-wide.webp';
 import lakeLight from '../../assets/images/scenes/lake-light.webp';
-import lakeLightWide from '../../assets/images/scenes/lake-light-wide.webp';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -25,7 +21,6 @@ import { studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
-import GentleLine from '../../components/ui/GentleLine';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
@@ -144,24 +139,26 @@ export default function ReflectPage() {
     <div className="page">
       <PageHeader title="Reflect" settings />
 
-      {shows('meditate') && (
-        <button type="button" className="meditate-card" onClick={() => navigate('meditate')}>
-          <span className="meditate-card__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
-          <span className="meditate-card__text">
-            <span className="meditate-card__title">Meditate</span>
-            <span className="meditate-card__detail">Sessions, breathing, sounds, and music.</span>
+      <div className="reflect-places">
+        {shows('meditate') && (
+          <button type="button" className="place-row" onClick={() => navigate('meditate')}>
+            <span className="place-row__thumb" style={{ backgroundImage: `url(${lake})`, '--photo-light': `url(${lakeLight})` } as React.CSSProperties} aria-hidden="true" />
+            <span className="place-row__text">
+              <span className="place-row__title">Meditate</span>
+              <span className="place-row__detail">Sessions, breathing, sounds and music</span>
+            </span>
+            <ChevronRightIcon size={18} className="place-row__chevron" />
+          </button>
+        )}
+        <button type="button" className="place-row" onClick={() => navigate('compass')}>
+          <span className="place-row__thumb place-row__thumb--compass" style={{ backgroundImage: `url(${sunrise})`, '--photo-light': `url(${morning})` } as React.CSSProperties} aria-hidden="true" />
+          <span className="place-row__text">
+            <span className="place-row__title">Compass</span>
+            <span className="place-row__detail">Values, goals, people and words</span>
           </span>
-          <ChevronRightIcon size={20} />
+          <ChevronRightIcon size={18} className="place-row__chevron" />
         </button>
-      )}
-      <button type="button" className="meditate-card meditate-card--compass" onClick={() => navigate('compass')}>
-        <span className="meditate-card__scene" style={{ backgroundImage: `url(${sunrise})`, '--photo-wide': `url(${sunriseWide})`, '--photo-light': `url(${morning})`, '--photo-light-wide': `url(${morningWide})` } as React.CSSProperties} aria-hidden="true" />
-        <span className="meditate-card__text">
-          <span className="meditate-card__title">Compass</span>
-          <span className="meditate-card__detail">Values, goals, people and words.</span>
-        </span>
-        <ChevronRightIcon size={20} />
-      </button>
+      </div>
 
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (
@@ -191,10 +188,7 @@ export default function ReflectPage() {
       {reflections && (
         <section key={period} className="vt-panel" aria-label="Your reflections">
           {timeline.length === 0 ? (
-            <>
-              <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
-              <GentleLine />
-            </>
+            <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
           ) : (
             <ol className="timeline">
               {timeline.map((entry) =>

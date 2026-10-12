@@ -294,3 +294,17 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
     --line: color-mix(in srgb, var(--text) 45%, transparent);
   }
 }
+
+/* ---------- One serif rule ---------- */
+/* The serif is for page titles, quotes and the person's own words (journal, values, goals, names). Card and section
+   headings use the sans, semibold, so a page has one display line rather than a serif on every box. */
+
+:is(.card__title, .section-head h2, .level-card__name, .focus__title, .stage__name, .contents__title,
+  .diaita-next__title, .empty-state__title, .days-day__title, .month-day__title, .practice-list__title,
+  .meditate-link__title, .family-surface .card__title, .look-ahead--invite .look-ahead__title) {
+  font-family: var(--font-sans, var(--sans, Inter, system-ui, sans-serif));
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}

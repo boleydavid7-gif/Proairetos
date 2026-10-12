@@ -4,7 +4,6 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { ArrowLeftIcon, StarIcon } from '../../components/icons/Icons';
-import GentleLine from '../../components/ui/GentleLine';
 import { dayLabel } from '../reflect/format';
 
 export const GRATITUDE = 'gratitude';
@@ -66,7 +65,6 @@ export default function GratitudePage({ onBack }: { onBack: () => void }) {
       {kept.length === 0 ? (
         <div className="empty-state">
           <p className="empty-state__title">Nothing here yet.</p>
-          <GentleLine />
         </div>
       ) : (
         <ul className="gratitude-list">

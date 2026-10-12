@@ -72,8 +72,6 @@
 
 .oiko-hero .home__title {
   max-width: 22ch;
-  font-size: clamp(2rem, 7vw, 2.6rem);
-  line-height: 1.08;
 }
 
 .oiko-hero .home__sub {
@@ -797,15 +795,7 @@
   --app-name: 'Oikonomia';
 }
 
-/* A long quote stays a quiet line at the top, not most of the screen. */
-:root.oikonomia .home__title {
-  font-size: clamp(1.35rem, 5.6vw, 1.9rem);
-  line-height: 1.22;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+
 
 /* The reminder choice has room to read in full. */
 .oiko-select {

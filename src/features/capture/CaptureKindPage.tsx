@@ -7,7 +7,6 @@ import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { ArrowLeftIcon, ChevronRightIcon, InboxIcon } from '../../components/icons/Icons';
-import GentleLine from '../../components/ui/GentleLine';
 import QuietOffer from '../../components/ui/QuietOffer';
 import { kindOf, type ItemKind } from '../../core/life-items/kinds';
 import type { LifeItem } from '../../core/life-items/types';
@@ -131,7 +130,6 @@ export default function CaptureKindPage({ shelf, onBack }: { shelf: CaptureShelf
       ) : (
         <div className="empty-state">
           <p className="empty-state__title">{closed.length > 0 ? 'All clear here.' : 'Nothing here yet.'}</p>
-          <GentleLine />
         </div>
       )}
       {sorting && <QuickSortSheet items={items} today={today} unsortedFirst onClose={() => setSorting(false)} />}

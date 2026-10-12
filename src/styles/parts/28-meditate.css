@@ -78,55 +78,64 @@
   text-shadow: var(--hero-shadow);
 }
 
-/* The way in, on Reflect: a window onto the lake. */
-.meditate-card {
-  position: relative;
+/* Meditate and Compass on Reflect: rows in one grouped list, each with a small picture of its scene. */
+.reflect-places {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.place-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 5.5rem;
-  padding: var(--space-4) var(--space-5);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  background: #11141a;
-  color: #f6eee2;
+  min-height: 4rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
   text-align: left;
-  isolation: isolate;
 }
 
-.meditate-card__scene {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
+.place-row + .place-row {
+  box-shadow: inset calc(var(--space-3) + 3rem + var(--space-3)) 0 0 var(--color-surface), inset 0 1px 0 var(--color-border);
+}
+
+.place-row__thumb {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
   background-size: cover;
   background-position: center 58%;
 }
 
-.meditate-card__scene::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(8, 10, 16, 0.75), rgba(8, 10, 16, 0.15));
+.place-row__thumb--compass {
+  background-position: center 30%;
 }
 
-.meditate-card__text {
+.place-row__text {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+  gap: 0.1rem;
 }
 
-.meditate-card__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+.place-row__title {
+  font-size: var(--text-md);
+  font-weight: 600;
 }
 
-.meditate-card__detail {
-  color: rgba(246, 238, 226, 0.8);
+.place-row__detail {
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
+
+.place-row__chevron {
+  color: var(--color-text-faint);
+}
+
 
 .meditate-page__actions {
   display: flex;
@@ -890,7 +899,4 @@
   min-width: 12rem;
 }
 
-/* Compass, opened from Reflect like Meditate: the peaks at sunrise. */
-.meditate-card--compass .meditate-card__scene {
-  background-position: center 30%;
-}
+

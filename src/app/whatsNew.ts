@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Home pages in every app lead with what you keep there, under a shorter picture; Meditate and Compass are rows on Reflect.',
       'Quieter pages: Capture’s kinds in one list, plainer section labels, solid cards, and no tagline under page titles.',
       'Each app’s own mark, on its welcome and at the top of its pages, now matches its new icon.',
       'New icons for all fourteen apps: each its own colour, so they are easy to tell apart on a Home Screen. On iPhone, an app already added shows its new icon once it is added again.',

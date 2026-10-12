@@ -194,8 +194,14 @@ p {
   overflow: hidden;
 }
 
+/* Home pages: a band of the app's scene, about a quarter of a phone's height, so the page's own content leads.
+   The full scene is for the welcome screen. */
 .hero--tall {
-  height: 360px;
+  height: clamp(208px, 28vh, 248px);
+}
+
+.hero--tall .hero__image {
+  object-position: center 42%;
 }
 
 .hero__image {
@@ -229,7 +235,7 @@ p {
   margin: 0;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: 2.6rem;
+  font-size: var(--text-4xl, 2.3rem);
   line-height: 1.04;
 }
 
