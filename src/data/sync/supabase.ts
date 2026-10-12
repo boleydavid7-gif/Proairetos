@@ -350,3 +350,61 @@ export async function signInWithHandoffToken(tokenHash: string): Promise<User> {
   if (error || !data.user) throw new Error('That pass has been used or is too old. Make a new one in Proairetos.');
   return data.user;
 }
+
+// ---------- Passkeys ----------
+
+export type PasskeyRow = {
+  credential_id: string;
+  public_key: string;
+  algorithm: number;
+  rp_id: string;
+  wrap: WrappedKey | null;
+  label: string | null;
+  created_at?: string;
+  last_used_at?: string | null;
+};
+
+const passkeysMissing = (message: string) =>
+  /relation|schema cache|passkeys/.test(message) ? 'Passkeys are not set up on the server yet.' : signInExpired(message);
+
+/** This person's passkeys (signed in). */
+export async function fetchPasskeys(): Promise<PasskeyRow[]> {
+  const { data, error } = await (await supabase())
+    .from('passkeys')
+    .select('credential_id, public_key, algorithm, rp_id, wrap, label, created_at, last_used_at')
+    .order('created_at');
+  if (error) throw new Error(passkeysMissing(error.message));
+  return (data ?? []) as PasskeyRow[];
+}
+
+export async function savePasskey(userId: string, row: PasskeyRow): Promise<void> {
+  const { error } = await (await supabase()).from('passkeys').insert({ ...row, user_id: userId });
+  if (error) throw new Error(passkeysMissing(error.message));
+}
+
+export async function deletePasskey(credentialId: string): Promise<void> {
+  const { error } = await (await supabase()).from('passkeys').delete().eq('credential_id', credentialId);
+  if (error) throw new Error(passkeysMissing(error.message));
+}
+
+async function passkeyFunction<T>(body: Record<string, unknown>): Promise<T> {
+  const { data, error } = await (await supabase()).functions.invoke('passkey-sign-in', { method: 'POST', body });
+  if (error || !data) {
+    const status = (error as { context?: Response } | null)?.context?.status;
+    throw new Error(status === 401 ? 'That passkey did not sign in. Try again, or sign in by email.' : 'Passkeys are not set up on the server yet.');
+  }
+  return data as T;
+}
+
+export function beginPasskeySignIn(): Promise<{ challenge: string }> {
+  return passkeyFunction({ step: 'begin' });
+}
+
+export function finishPasskeySignIn(answer: {
+  credentialId: string;
+  clientDataJSON: string;
+  authenticatorData: string;
+  signature: string;
+}): Promise<{ token_hash: string; wrap: WrappedKey | null }> {
+  return passkeyFunction({ step: 'finish', ...answer });
+}

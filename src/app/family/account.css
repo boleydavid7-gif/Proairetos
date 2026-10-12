@@ -78,3 +78,18 @@
 .family-surface .title { margin: 0; font: 500 2rem/1.15 var(--font-serif, Georgia, serif); }
 .family-surface .chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 999px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
 .family-surface .chip[aria-pressed='true'] { border-color: var(--color-accent-strong, #d9b68a); color: var(--color-accent-ink, #17120d); background: var(--color-accent-strong, #d9b68a); font-weight: 600; }
+
+/* "Add a passkey for next time" on the passphrase step, in every app's account card. */
+.check-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.check-line input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: currentColor;
+}

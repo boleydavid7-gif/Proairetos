@@ -10,6 +10,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261017000000_reminder_sources.sql`, then redeploy `send-reminders`: reminders from every app.
 - [ ] Migration `20261018000000_shared_lists.sql`: Soma's shared grocery list, Ergon's household, Phyton's shared plants.
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
+- [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (JWT verification off): passkeys
+      (steps in `docs/SERVER_SETUP.md`).
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
@@ -21,6 +23,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Fonts, and the sign-in emails.
 - [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).
 - [ ] Change passphrase (Account) and "Forgot your passphrase?" with the recovery key, once on your own account.
+- [ ] Passkeys: in Proairetos, Account > Add a passkey; then in another Home Screen app, Sign in with a passkey
+      (one Face ID should sign in and open your data).
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
 ## To look over

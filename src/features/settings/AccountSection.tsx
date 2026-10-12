@@ -3,6 +3,8 @@ import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
+import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn } from '../../app/family/Passkey';
+import { Passkeys } from './Passkeys';
 import {
   confirmCode,
   requestCode,
@@ -46,6 +48,7 @@ function SignIn() {
       <p className="section-description">
         Sign in to keep your data in sync across your devices. It is encrypted on this phone before it is uploaded.
       </p>
+      {!sent && <PasskeySignIn className="chip chip--wide" errorClass="form-error" />}
       {!sent && <ProviderButtons className="chip chip--wide" />}
       {!sent ? (
         <form
@@ -209,12 +212,15 @@ function Unlock() {
   const [secret, setSecret] = useState('');
   const [next, setNext] = useState('');
   const [again, setAgain] = useState('');
+  const [passkey, setPasskey] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const forgot = method === 'recovery';
   const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
 
   return (
+    <>
+    {!forgot && <PasskeyOpen className="chip chip--accent chip--wide" errorClass="form-error" />}
     <form
       className="stack-tight"
       onSubmit={async (event: FormEvent) => {
@@ -224,7 +230,8 @@ function Unlock() {
         try {
           // A forgotten passphrase: the recovery key proves it is you, and a new passphrase takes the old one's place.
           if (forgot) await changePassphrase(secret, 'recovery', next);
-          await unlock(secret, method);
+          // With a passkey chosen, the Ready page offers the one tap that makes it.
+          await unlock(secret, method, passkey && !forgot);
         } catch (cause) {
           setError(message(cause));
         } finally {
@@ -253,6 +260,7 @@ function Unlock() {
           {next && again && next !== again && <p className="form-error">The two passphrases do not match.</p>}
         </>
       )}
+      {!forgot && <AddPasskeyChoice checked={passkey} onChange={setPasskey} />}
       <button type="submit" className="chip chip--accent chip--wide" disabled={!ready || busy}>
         {busy ? 'Unlocking…' : forgot ? 'Save and unlock' : 'Unlock'}
       </button>
@@ -272,6 +280,7 @@ function Unlock() {
       {forgot && <p className="sheet__hint">Without the passphrase or the recovery key, synced data cannot be opened, by anyone. What is on this device stays.</p>}
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
+    </>
   );
 }
 
@@ -359,6 +368,7 @@ function Ready() {
       <button type="button" className="chip chip--wide" disabled={status.syncing} onClick={() => void syncNow()}>
         Sync now
       </button>
+      <Passkeys />
       <SignInAnotherApp />
       <ChangePassphrase />
 

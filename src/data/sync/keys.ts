@@ -23,7 +23,7 @@ function toBase64(bytes: Uint8Array): string {
 const fromBase64 = (text: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
 
 export interface WrappedKey {
-  method: 'passphrase' | 'recovery';
+  method: 'passphrase' | 'recovery' | 'passkey';
   salt: string;
   iterations?: number;
   iv: string;
@@ -100,7 +100,11 @@ async function unwrap(envelope: WrappedKey, wrapping: CryptoKey, extractable = f
     );
   } catch {
     throw new KeyError(
-      envelope.method === 'passphrase' ? 'That passphrase does not unlock your data.' : 'That recovery key does not unlock your data.',
+      envelope.method === 'passphrase'
+        ? 'That passphrase does not unlock your data.'
+        : envelope.method === 'passkey'
+          ? 'That passkey does not open your data. Use your passphrase.'
+          : 'That recovery key does not unlock your data.',
     );
   }
 }
@@ -215,4 +219,29 @@ export async function rewrapWithPassphrase(dataKey: CryptoKey, passphrase: strin
   }
   const salt = crypto.getRandomValues(new Uint8Array(16));
   return wrap(dataKey, await passphraseKey(passphrase, salt, PBKDF2_ITERATIONS), 'passphrase', salt, PBKDF2_ITERATIONS);
+}
+
+/*
+ * A passkey's own secret (WebAuthn PRF: 32 bytes the device gives only after Face ID, a fingerprint or the PIN, the
+ * same every time for that passkey and salt) wraps the data key too, so a passkey opens the data with nothing typed.
+ */
+async function passkeyWrappingKey(secret: Uint8Array<ArrayBuffer>, salt: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
+  const material = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'HKDF', hash: 'SHA-256', salt, info: new TextEncoder().encode('proairetos-passkey') },
+    material,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['wrapKey', 'unwrapKey'],
+  );
+}
+
+/** Wraps an exportable data key with a passkey's secret. */
+export async function wrapWithPasskey(dataKey: CryptoKey, secret: Uint8Array<ArrayBuffer>): Promise<WrappedKey> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return wrap(dataKey, await passkeyWrappingKey(secret, salt), 'passkey', salt);
+}
+
+export async function unlockWithPasskey(envelope: WrappedKey, secret: Uint8Array<ArrayBuffer>, extractable = false): Promise<CryptoKey> {
+  return unwrap(envelope, await passkeyWrappingKey(secret, fromBase64(envelope.salt)), extractable);
 }

@@ -1,6 +1,7 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { familyWorker } from '../notify/familyWorker';
-import { KeyError, createKeys, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
+import { KeyError, createKeys, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPasskey, unlockWithPassphrase, unlockWithRecoveryKey, wrapWithPasskey, type KeySetup } from '../../data/sync/keys';
+import { createPasskey, deviceLabel, passkeysHere, askForPasskey } from '../../data/sync/passkeys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
@@ -35,6 +36,12 @@ import {
   requestHandoffToken,
   signInWithHandoffToken,
   takeHandoff,
+  beginPasskeySignIn,
+  deletePasskey,
+  fetchPasskeys,
+  finishPasskeySignIn,
+  savePasskey,
+  type PasskeyRow,
 } from '../../data/sync/supabase';
 import { makePass, openKeyFromPass, readPass, sealKeyForPass } from '../../data/sync/handoff';
 import type { SyncStateStore } from '../../data/sync/types';
@@ -97,6 +104,8 @@ let state: SyncStateStore | null = null;
 let started = false;
 let changeTimer: number | undefined;
 let applyingRemote = false;
+/** An exportable data key, in memory only, between the passphrase and the tap that makes a passkey. */
+let passkeyKey: CryptoKey | null = null;
 
 function set(changes: Partial<SyncStatus>) {
   status = { ...status, ...changes };
@@ -386,13 +395,19 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
   await syncNow();
 }
 
-export async function unlock(secret: string, method: 'passphrase' | 'recovery'): Promise<void> {
+/** Opens the data with the passphrase or recovery key. `forPasskey`: keep what a passkey made next needs, in memory. */
+export async function unlock(secret: string, method: 'passphrase' | 'recovery', forPasskey = false): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
-  const key =
+  let key =
     method === 'passphrase'
-      ? await unlockWithPassphrase(wrapped.passphrase, secret)
-      : await unlockWithRecoveryKey(wrapped.recovery, secret);
+      ? await unlockWithPassphrase(wrapped.passphrase, secret, forPasskey)
+      : await unlockWithRecoveryKey(wrapped.recovery, secret, forPasskey);
+  if (forPasskey) {
+    passkeyKey = key;
+    // The copy kept on the device stays non-exportable.
+    key = await crypto.subtle.importKey('raw', await crypto.subtle.exportKey('raw', key), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
   await (await localState())!.setMeta(KEY_META, key);
   dataKey = key;
   set({ phase: 'ready' });
@@ -462,12 +477,133 @@ export async function signInWithPass(text: string): Promise<void> {
   await syncNow();
 }
 
+// ---------- Passkeys ----------
+
+/** Keeps an opened data key on this device and starts syncing. */
+async function keepKey(key: CryptoKey, email?: string): Promise<void> {
+  await (await localState())!.setMeta(KEY_META, key);
+  dataKey = key;
+  set({ phase: 'ready', ...(email ? { email } : {}) });
+  tellFamily('account');
+  await syncNow();
+}
+
+/** Whether passkeys can be offered here: a browser that has them, and sync set up. */
+export function passkeysAvailable(): boolean {
+  return isSyncConfigured && passkeysHere();
+}
+
+export type PasskeyEntry = { id: string; label: string; addedAt?: string; usedAt?: string; opens: boolean; row: PasskeyRow };
+
+/** This account's passkeys (signed in). */
+export async function listPasskeys(): Promise<PasskeyEntry[]> {
+  return (await fetchPasskeys()).map((row) => ({
+    id: row.credential_id,
+    label: row.label ?? 'Passkey',
+    addedAt: row.created_at,
+    usedAt: row.last_used_at ?? undefined,
+    opens: Boolean(row.wrap),
+    row,
+  }));
+}
+
+/*
+ * Safari lets a passkey be made or used only straight after a tap, so the slow parts come first: the passphrase is
+ * turned into an exportable key ahead (kept in memory only, until the passkey is made), and the sign-in challenge is
+ * fetched before the button is tapped.
+ */
+/** The passphrase, once, so the next tap can make a passkey that opens the data. */
+export async function preparePasskey(passphrase: string): Promise<void> {
+  const wrapped = await fetchWrappedKeys();
+  if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
+  passkeyKey = await unlockWithPassphrase(wrapped.passphrase, passphrase, true);
+}
+
+/** Whether a passkey can be made with one tap: the passphrase was just given, or this device keeps the copy for passes. */
+export async function passkeyReady(): Promise<boolean> {
+  return Boolean(passkeyKey ?? (await (await localState())?.getMeta<CryptoKey>(HANDOFF_META)));
+}
+
+/** Whether the passphrase was just given for a passkey (in memory, this page only). */
+export function passkeyWaiting(): boolean {
+  return Boolean(passkeyKey);
+}
+
+export function forgetPreparedPasskey(): void {
+  passkeyKey = null;
+}
+
+/**
+ * Makes a passkey on this device and keeps the data key wrapped with its own secret, so the passkey alone opens the
+ * data in any app. Call it straight from a tap. Returns whether the passkey opens the data too, or only signs in
+ * (devices that do not give the secret).
+ */
+export async function addPasskey(exclude: readonly string[]): Promise<boolean> {
+  if (!userId || status.phase !== 'ready') throw new Error('Sign in and open your data first.');
+  const made = await createPasskey({ id: userId, email: status.email ?? 'Proairetos' }, exclude);
+  const key = passkeyKey ?? (await (await localState())!.getMeta<CryptoKey>(HANDOFF_META));
+  const wrap = made.secret && key ? await wrapWithPasskey(key, made.secret) : null;
+  await savePasskey(userId, {
+    credential_id: made.credentialId,
+    public_key: made.publicKey,
+    algorithm: made.algorithm,
+    rp_id: made.rpId,
+    wrap,
+    label: deviceLabel(),
+  });
+  passkeyKey = null;
+  return Boolean(wrap);
+}
+
+export async function removePasskey(id: string): Promise<void> {
+  await deletePasskey(id);
+}
+
+/** Puts a removed passkey back (undo). */
+export async function restorePasskey(row: PasskeyRow): Promise<void> {
+  if (!userId) throw new Error('Sign in first.');
+  const { created_at: _created, last_used_at: _used, ...kept } = row;
+  await savePasskey(userId, kept);
+}
+
+/** A sign-in challenge from the server, fetched before the tap (good for two minutes). */
+export async function passkeyChallenge(): Promise<string> {
+  return (await beginPasskeySignIn()).challenge;
+}
+
+/** Signed out: a passkey signs in, and opens the data when it can. Call it straight from a tap. */
+export async function signInWithPasskey(challenge: string): Promise<void> {
+  const used = await askForPasskey({ challenge });
+  const { token_hash, wrap } = await finishPasskeySignIn(used);
+  const user = await signInWithHandoffToken(token_hash).catch(() => {
+    throw new Error('That passkey did not sign in. Try again, or sign in by email.');
+  });
+  userId = user.id;
+  if (wrap && used.secret) return keepKey(await unlockWithPasskey(wrap, used.secret), user.email);
+  await resolvePhase();
+  tellFamily('account');
+}
+
+/** Signed in: the passkeys that can open the data on this site. */
+export async function openingPasskeys(): Promise<PasskeyRow[]> {
+  return (await fetchPasskeys().catch(() => [])).filter((row) => row.wrap && row.rp_id === location.hostname);
+}
+
+/** Signed in, data not open here yet: one of those passkeys opens it. Call it straight from a tap. */
+export async function openDataWithPasskey(rows: readonly PasskeyRow[]): Promise<void> {
+  const used = await askForPasskey({ allow: rows.map((row) => row.credential_id) });
+  const row = rows.find((each) => each.credential_id === used.credentialId);
+  if (!row?.wrap || !used.secret) throw new Error('This passkey cannot open your data on this device. Use your passphrase.');
+  await keepKey(await unlockWithPasskey(row.wrap, used.secret));
+}
+
 /** Signs out and forgets the key on this device. Local data stays. */
 export async function signOut(): Promise<void> {
   await disableReminders().catch(() => undefined);
   await signOutRemote().catch(() => undefined);
   await (await localState())?.clear();
   dataKey = null;
+  passkeyKey = null;
   userId = null;
   set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: undefined });
   tellFamily('account');

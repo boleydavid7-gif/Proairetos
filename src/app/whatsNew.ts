@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Passkeys: add one in Account, then Face ID, a fingerprint or your device’s PIN signs in and opens your data in every app, with nothing to type. On the passphrase step, Add a passkey for next time.',
       'Forgot your passphrase? Unlock with your recovery key and choose a new one, in Proairetos and every app. Signed in, Account has Change passphrase.',
       'Today has From your apps: plants to check, chores, today’s doses, upkeep and a training day in one list. Tick one there and it is marked in its app, with undo.',
       'Your apps are on Proairetos’s bar (Apps, in place of the dots beside the gear), and every other app’s bar ends with Proairetos, to go back.',

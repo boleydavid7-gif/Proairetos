@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { changePassphrase, confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
@@ -50,9 +51,12 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
           )}
         </div>
       </div>
-      {(account.phase === 'signed-out' || account.phase === 'locked') && <PasteFromProairetos className="button-main account__link" />}
+      {account.phase === 'signed-out' && <PasskeySignIn className="button-main account__link" />}
+      {account.phase === 'locked' && <PasskeyOpen className="button-main account__link" />}
+      {(account.phase === 'signed-out' || account.phase === 'locked') && <PasteFromProairetos className="button-quiet account__link" />}
       {account.phase === 'signed-out' && <SignIn />}
       {account.phase === 'locked' && <Unlock />}
+      {account.phase === 'ready' && <MakePasskeyNow className="button-main account__link" quietClass="button-quiet account__link" />}
       {account.phase === 'needs-setup' && (
         <a className="button-quiet account__link" href="/?open=account">
           Open Proairetos
@@ -161,6 +165,7 @@ function Unlock() {
   const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
   const [next, setNext] = useState('');
   const [again, setAgain] = useState('');
+  const [passkey, setPasskey] = useState(false);
   const { busy, error, run } = useStep();
   const forgot = method === 'recovery';
   const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
@@ -172,7 +177,7 @@ function Unlock() {
         void run(async () => {
           // A forgotten passphrase: the recovery key proves it is you, and a new passphrase takes the old one's place.
           if (forgot) await changePassphrase(secret, 'recovery', next);
-          await unlock(secret, method);
+          await unlock(secret, method, passkey && !forgot);
         });
       }}
     >
@@ -194,6 +199,7 @@ function Unlock() {
           {next && again && next !== again && <p className="hint">The two passphrases do not match.</p>}
         </>
       )}
+      {!forgot && <AddPasskeyChoice checked={passkey} onChange={setPasskey} className="check-line" />}
       <button type="submit" className="button-main" disabled={!ready || busy}>
         {busy ? 'Opening…' : forgot ? 'Save and open my data' : 'Open my data'}
       </button>

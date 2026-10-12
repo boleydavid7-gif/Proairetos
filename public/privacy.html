@@ -86,6 +86,14 @@
         sign in, and then deleted. The server never sees your unlock key itself. Signing out removes the copy.
       </p>
 
+      <h2>Passkeys (only if you add one)</h2>
+      <p>
+        A passkey lives in your device's password manager (iCloud Keychain, Google Password Manager, Windows Hello).
+        The server keeps its public key, to check that a sign-in came from it, and your unlock key sealed with a secret
+        only the passkey gives on your device, after Face ID, a fingerprint or the device's PIN. The server cannot open
+        it. Removing a passkey in Account removes both.
+      </p>
+
       <h2>Other things that reach the internet, only when you use them</h2>
       <p>
         Looking up a word in Theoria sends only that word to the Free Dictionary API. Recipe ideas come from

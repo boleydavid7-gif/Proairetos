@@ -228,6 +228,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `rewrapWithPassphrase` wraps it under the new passphrase (fresh salt) and `savePassphraseWrap` replaces only `passphrase_wrap`
   in `user_keys` (RLS "own key" allows it), then it unlocks. Signed in, Account has "Change passphrase" (current one, new twice).
   Nothing encrypted changes, the recovery key keeps working, open devices stay open. Lost both: synced data cannot be opened.
+- Passkeys (migration `20261020000000_passkeys.sql`, function `passkey-sign-in` deployed `--no-verify-jwt`, verifier in
+  `supabase/functions/_shared/webauthn.ts` `checkAssertion`, ES256/RS256, tested from `src/tests/sync/passkeys.test.ts`):
+  a passkey (rp = the site, so every app) signs in and opens the data. `data/sync/passkeys.ts` (`createPasskey`,
+  `askForPasskey`, PRF with a fixed salt); the PRF secret wraps the data key (`wrapWithPasskey`, HKDF info
+  `proairetos-passkey`), kept in `passkeys.wrap` with the public key. Signing in: `passkeyChallenge` (fetched before the
+  tap), `signInWithPasskey` (function checks the signature, returns a magic-link `token_hash` and the wrap). Locked:
+  `openDataWithPasskey`. Safari allows WebAuthn only straight after a tap, so nothing slow runs before
+  `credentials.create/get`: the passphrase is turned into an exportable key first (`preparePasskey`, or `unlock(...,
+  forPasskey)` from "Add a passkey for next time"; memory only, `passkeyKey`), then `MakePasskeyNow` is the tap.
+  Without PRF a passkey only signs in ("signs in only"). UI: `app/family/Passkey.tsx` (every AccountCard and
+  Proairetos), list/add/remove with undo in `features/settings/Passkeys.tsx`.
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

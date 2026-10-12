@@ -297,6 +297,20 @@ The function makes a one-time sign-in for the person asking (no email is sent). 
 sealed; the key that opens it waits on the server for two minutes and is given once, only to the same person
 after signing in.
 
+## Passkeys (migration 20261020000000)
+
+Face ID, a fingerprint or the device's PIN signs in and opens the data in every app, with nothing typed. A passkey
+belongs to the site, so one added in any app works in all of them, including each iPhone Home Screen app.
+
+1. In the SQL editor, run `supabase/migrations/20261020000000_passkeys.sql`.
+2. Deploy the function with the CLI, since it uses a shared file (`supabase/functions/_shared/webauthn.ts`):
+   `supabase functions deploy passkey-sign-in --no-verify-jwt`.
+   In the dashboard editor instead: name it `passkey-sign-in`, paste `index.ts`, add a second file
+   `../_shared/webauthn.ts` with that file's contents (or paste its contents in place of the import), and turn
+   **Verify JWT** off: it is called before anyone is signed in and trusts only the passkey's signature.
+
+No secrets or build variables. Passkeys made on proairetos.com work only there (not on the old workers.dev address).
+
 ## Sign in with Google or Apple (optional)
 
 The email code keeps working either way. Your passphrase still unlocks your data after any sign-in: Google
