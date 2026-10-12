@@ -90,6 +90,8 @@ async function handle(request: Request): Promise<Response> {
   // One push per person per run, however many reminders are due.
   const people = [...new Set((due ?? []).map((row) => row.user_id))];
   let sent = 0;
+  // Each push the service refused, with its answer, so the reply in net._http_response says why nothing arrived.
+  const refused: { service: string; status?: number; answer: string }[] = [];
 
   for (const userId of people) {
     // Sealed words for this person's due reminders, newest first, kept well under a push's size limit.
@@ -118,6 +120,8 @@ async function handle(request: Request): Promise<Response> {
         sent++;
       } catch (cause) {
         const status = (cause as { statusCode?: number }).statusCode;
+        const answer = (cause as { body?: string }).body ?? (cause instanceof Error ? cause.message : String(cause));
+        refused.push({ service: new URL(sub.endpoint).host, status, answer: String(answer).slice(0, 200) });
         if (status === 404 || status === 410) {
           await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
         }
@@ -133,7 +137,7 @@ async function handle(request: Request): Promise<Response> {
   // Tidy up anything long past.
   await supabase.from('reminders').delete().lt('fire_at', new Date(now.getTime() - 7 * 86_400_000).toISOString());
 
-  return Response.json({ due: due?.length ?? 0, people: people.length, sent });
+  return Response.json({ due: due?.length ?? 0, people: people.length, sent, refused });
 }
 
 Deno.serve(async (request) => {

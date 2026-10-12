@@ -12,6 +12,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
 - [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (one file, named exactly that, Verify JWT off): passkeys
       (steps in `docs/SERVER_SETUP.md`).
+- [ ] Redeploy `send-reminders` again: its reply now lists any push a phone's service refused, and why (`refused` in `net._http_response`).
 - [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
       the site is ever not https://proairetos.com.
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
