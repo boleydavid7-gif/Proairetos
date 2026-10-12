@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
-import { BookIcon, BasketIcon, HomeIcon, Leaf, MoreIcon, SproutIcon } from './icons';
+import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
+import { BookIcon, BasketIcon, HomeIcon, MoreIcon, SproutIcon } from './icons';
 
 export { BackLink, Hero, Segmented, Switch, UndoProvider, useUndo, greeting, dayLabel } from '../../askesis/app/ui';
 
@@ -32,7 +33,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
 export function Brand({ light = false }: { light?: boolean }) {
   return (
     <div className={`brand${light ? ' brand--light' : ''}`}>
-      <Leaf size={30} />
+      <FamilyMark app="soma" size={30} color={light ? MARK_LIGHT : 'currentColor'} />
       <span className="brand__words">
         <span className="brand__name">Soma</span>
       </span>

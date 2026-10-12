@@ -1,3 +1,4 @@
+import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
 import type { ReactNode } from 'react';
 
 type IconProps = { size?: number; className?: string };
@@ -11,14 +12,7 @@ function Icon({ size = 22, className, children }: IconProps & { children: ReactN
 }
 
 export function ArchMark({ size = 30, light = false }: { size?: number; light?: boolean }) {
-  const color = light ? '#f3eee4' : 'currentColor';
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ color }}>
-      <path d="M9 27V21c0-6.6 5.4-12 12-12h6c6.6 0 12 5.4 12 12v6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M7 29h34M11 35h26" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <circle cx="35" cy="16" r="2.4" fill="currentColor" stroke="none" />
-    </svg>
-  );
+  return <FamilyMark app="oikonomia" size={size} color={light ? MARK_LIGHT : 'currentColor'} />;
 }
 
 export const HomeIcon = (p: IconProps) => (

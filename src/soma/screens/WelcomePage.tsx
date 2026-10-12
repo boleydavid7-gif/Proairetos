@@ -1,5 +1,5 @@
 import type { Nav } from '../app/App';
-import { Leaf } from '../app/icons';
+import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
 import { scene } from '../app/scenes';
 import { loadSettings, saveSettings } from '../data/store';
 import { pendingInvite } from './SharedList';
@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <img className="welcome__image" src={scene('sunset-valley')} alt="" />
       <div className="welcome__shade" />
       <div className="welcome__content">
-        <Leaf size={48} color="#f1ece2" />
+        <FamilyMark app="soma" size={48} color={MARK_LIGHT} />
         <h1 className="welcome__name">Soma</h1>
         <p className="welcome__about">
           Recipes, and a grocery list sorted by aisle.

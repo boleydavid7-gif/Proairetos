@@ -1,3 +1,4 @@
+import { FamilyMark, MARK_LIGHT, type FamilyApp } from './marks';
 import type { ReactNode } from 'react';
 
 /* Line icons shared by the newer apps (24 grid, 1.7 stroke, like the family's others). */
@@ -249,58 +250,7 @@ export const CameraIcon = (p: IconProps) => (
   </Icon>
 );
 
-/** Each app's mark: a simple drawn sign in a round. */
-export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton'; size?: number; light?: boolean }) {
-  const color = light ? '#f3eee4' : 'currentColor';
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ color }} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      {app === 'diaita' && (
-        <>
-          <circle cx="24" cy="24" r="15" />
-          <path d="M24 9a15 15 0 0 0 0 30" fill="currentColor" stroke="none" opacity="0.9" />
-          <path d="M24 15v9l6 4" />
-        </>
-      )}
-      {app === 'philia' && (
-        <>
-          <circle cx="18" cy="24" r="10" />
-          <circle cx="30" cy="24" r="10" />
-        </>
-      )}
-      {app === 'therapeia' && (
-        <g transform="rotate(-45 24 24)">
-          <rect x="11" y="18" width="26" height="12" rx="6" />
-          <path d="M24 18v12h7a6 6 0 0 0 0-12z" fill="currentColor" stroke="none" opacity="0.9" />
-        </g>
-      )}
-      {app === 'dynamis' && (
-        <>
-          <path d="M16.5 24.5 15 17q-.6-4.5 4-4.5h10q4.6 0 4 4.5l-1.5 7.5" />
-          <path d="M24 19a10 10 0 0 1 7.7 16.5H16.3A10 10 0 0 1 24 19z" fill="currentColor" stroke="none" opacity="0.9" />
-          <path d="M14 37.5h20" />
-        </>
-      )}
-      {app === 'ktema' && (
-        <>
-          <circle cx="17" cy="24" r="7" />
-          <path d="M24 24h15M34 24v5M29.5 24v3.5" />
-        </>
-      )}
-      {app === 'phyton' && (
-        <>
-          <path d="M15 29h18l-2.5 10h-13z" />
-          <path d="M24 29V17" />
-          <path d="M24 21c-1-5-5-7.5-10-7 0 5 4 7.5 10 7z" fill="currentColor" stroke="none" opacity="0.9" />
-          <path d="M24 18c1-5 5-7.5 10-7 0 5-4 7.5-10 7z" />
-        </>
-      )}
-      {app === 'ergon' && (
-        <>
-          <path d="M9 22 24 10l15 12" />
-          <path d="M13 19v17h22V19" />
-          <path d="m19 27 4 4 7-8" />
-        </>
-      )}
-    </svg>
-  );
+/** Each app's mark: its icon's symbol without the tile (`marks.tsx`), light over pictures, else the text colour. */
+export function AppMark({ app, size = 30, light = false }: { app: FamilyApp; size?: number; light?: boolean }) {
+  return <FamilyMark app={app} size={size} color={light ? MARK_LIGHT : 'currentColor'} />;
 }

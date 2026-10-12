@@ -1,3 +1,4 @@
+import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import { ChartIcon, DropIcon, PlusIcon } from './icons';
@@ -27,7 +28,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
 export function Brand({ light = false }: { light?: boolean }) {
   return (
     <div className={`hydros-brand${light ? ' hydros-brand--light' : ''}`}>
-      <span className="hydros-brand__mark" aria-hidden="true"><span /><span /><span /></span>
+      <FamilyMark app="hydros" size={32} color={light ? MARK_LIGHT : 'currentColor'} />
       <span className="hydros-brand__words"><span className="hydros-brand__name">Hydros</span></span>
     </div>
   );

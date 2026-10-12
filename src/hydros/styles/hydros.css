@@ -44,11 +44,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 .hydros-brand { display: flex; align-items: center; gap: 10px; color: var(--cyan); }
 .hydros-brand--light { color: #45d5ff; }
-.hydros-brand__mark { width: 38px; height: 34px; display: inline-flex; flex-direction: column; justify-content: center; gap: 3px; transform: skewY(-8deg); }
-.hydros-brand__mark span { display: block; height: 4px; border: 2px solid currentColor; border-left: 0; border-radius: 0 100% 100% 0; }
-.hydros-brand__mark span:nth-child(1) { width: 22px; margin-left: 7px; }
-.hydros-brand__mark span:nth-child(2) { width: 31px; margin-left: 2px; }
-.hydros-brand__mark span:nth-child(3) { width: 25px; margin-left: 9px; }
 .hydros-brand__words { display: flex; flex-direction: column; line-height: 1.08; }
 .hydros-brand__name { letter-spacing: .02em; font-size: 1.02rem; font-weight: 600; }
 .hydros-brand__by { color: var(--text-soft); font-size: .75rem; }
