@@ -314,6 +314,7 @@ async function syncHere(): Promise<SyncResult | null> {
       applyingRemote = false;
       tellFamily();
     }
+    await keepPushSubscription().catch(() => undefined);
     await updateReminders().catch(() => undefined);
     await refreshCalendarFeed().catch(() => undefined);
     set({ syncing: false, lastSyncedAt, held: result.held || undefined, kept: result.kept || undefined });
@@ -691,6 +692,26 @@ export async function enableReminders(): Promise<void> {
   accountTakesReminders = true;
   set({ reminders: 'on' });
   await updateReminders();
+}
+
+let subscriptionKept = false;
+
+/**
+ * Once a session, where reminders are on here: makes sure this device's push subscription still exists and the
+ * server still has it. A phone can drop or renew a subscription (an app reinstalled, an iPhone update), and the
+ * server forgets one that stopped answering; either way the device still said "on" while nothing could arrive.
+ */
+async function keepPushSubscription(): Promise<void> {
+  if (subscriptionKept || status.reminders !== 'on' || !userId || !pushSupported() || Notification.permission !== 'granted') return;
+  const registration = await familyWorker();
+  if (!registration) return;
+  const subscription =
+    (await registration.pushManager.getSubscription()) ??
+    (await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey() }));
+  await savePushSubscription(subscription.toJSON(), userId);
+  await (await localState())!.setMeta(REMINDERS_META, subscription.endpoint);
+  accountTakesReminders = true;
+  subscriptionKept = true;
 }
 
 export async function disableReminders(): Promise<void> {

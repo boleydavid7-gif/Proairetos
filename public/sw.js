@@ -218,7 +218,12 @@ function sealedIn(event) {
 self.addEventListener('push', (event) => {
   // A Declarative Web Push (Safari 18.4+) arrives with its own plain notice, shown by the phone if this worker shows
   // nothing; showDue shows the person's own words in its place.
-  event.waitUntil(showDue(sealedIn(event)));
+  event.waitUntil(
+    showDue(sealedIn(event)).catch(() =>
+      // A phone stops sending to a worker that shows nothing, so even a failure here shows the plain line.
+      self.registration.showNotification('Proairetos', { body: 'You have a reminder.', icon: '/icons/icon-192.png', tag: 'proairetos-reminder' }),
+    ),
+  );
 });
 
 // A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; Hydros, Praxis,

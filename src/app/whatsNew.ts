@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Reminders: each time the app syncs it checks that this phone can still receive them, and signs it up again if the phone or the server dropped it.',
       'Home pages in every app lead with what you keep there, under a shorter picture; Meditate and Compass are rows on Reflect.',
       'Quieter pages: Capture’s kinds in one list, plainer section labels, solid cards, and no tagline under page titles.',
       'Each app’s own mark, on its welcome and at the top of its pages, now matches its new icon.',
