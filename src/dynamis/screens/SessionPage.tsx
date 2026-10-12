@@ -1,3 +1,4 @@
+import { listeningHere, says, useListening } from '../../app/family/voice';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
@@ -11,6 +12,8 @@ import ExerciseFigure from '../app/ExerciseFigure';
 import { awayDays, warmUp, lighterWeight, nextSession, sessionsFor, setsText, targetsFor, type Felt, type Target, type Workout } from '../core/plan';
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
+
+const LISTEN_KEY = 'dynamisListen';
 
 function freshSets(target: Target, lighter: boolean, unit: 'kg' | 'lb'): DraftSet[] {
   return Array.from({ length: target.sets }, (_, index) => {
@@ -30,6 +33,16 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   const [felt, setFelt] = useState<Felt>();
   // Once finished or put aside, leaving the page never starts another session.
   const leaving = useRef(false);
+  // "Done" and "skip" said instead of tapped, when chosen (kept on this phone only).
+  const [listen, setListen] = useState(() => {
+    try {
+      return localStorage.getItem(LISTEN_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const onWords = useRef<(words: string) => void>(() => undefined);
+  useListening(listen, (words) => onWords.current(words), () => setListen(false));
 
   useEffect(() => {
     if (!restUntil) return;
@@ -83,6 +96,19 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
     void scheduleBell(target.rest, 1);
   };
 
+  onWords.current = (words) => {
+    if (says(words, 'done', 'finished', 'next')) {
+      // The first set not yet ticked, in the order of the page.
+      for (const target of targets) {
+        const index = setsOf(target.exercise).findIndex((set) => !set.done);
+        if (index >= 0) return tick(target, index);
+      }
+    } else if (says(words, 'skip') && restUntil) {
+      setRestUntil(undefined);
+      cancelBell();
+    }
+  };
+
   const finish = () => {
     leaving.current = true;
     const today = toLocalDate(new Date());
@@ -123,6 +149,27 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
         <p className="label">{session.name}</p>
         <button type="button" className="text-link" disabled={!anyDone} onClick={() => setFinishing(true)}>Finish</button>
       </div>
+
+      {listeningHere() && (
+        <div className="chip-row">
+          <button
+            type="button"
+            className="chip chip--small"
+            aria-pressed={listen}
+            onClick={() => {
+              const next = !listen;
+              setListen(next);
+              try {
+                localStorage.setItem(LISTEN_KEY, String(next));
+              } catch {
+                // Kept for this visit only.
+              }
+            }}
+          >
+            Say “done”
+          </button>
+        </div>
+      )}
 
       {resting > 0 && (
         <div className="dynamis-rest" role="timer" aria-live="off">

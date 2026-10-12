@@ -35,6 +35,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Home Screen app.
 - [ ] On a computer (Chrome or Edge, apps installed): right-click a .ics / bank .csv / .gpx / .pdf, Open with, and
       pick the app.
+- [ ] Soma Cook mode with "Say next or timer" on, and Dynamis with "Say done", on your iPhone (Safari asks once for the
+      microphone).
+- [ ] Restore a new backup file (it now ends in .json.gz) once, to see it come back.
+- [ ] On a computer with Chrome: Praxis Float the timer; a recipe in another language shows Translate.
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
 ## To look over

@@ -268,3 +268,10 @@ html, body { margin: 0; }
 .praxis-card-list small { color: var(--color-text-muted); font-size: 13px; overflow-wrap: anywhere; }
 .praxis-chips button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-text); background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
 .praxis-wide-card.praxis-card:has(> .praxis-text-button:only-child) { padding: 6px 20px; }
+
+/* "Float the timer" (computers with Document Picture-in-Picture). */
+.praxis-float {
+  display: block;
+  margin: 12px auto 0;
+  min-height: 44px;
+}

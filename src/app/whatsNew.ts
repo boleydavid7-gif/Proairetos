@@ -3,6 +3,13 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Moving between the apps cross-fades instead of going blank (Safari 18.2+, Chrome).',
+      'Soma Cook mode: say “timer” to start the step’s timer, beside “next”, “back” and “again”. Dynamis: say “done” to tick the next set and start the rest, “skip” to end the rest.',
+      'Backups save compressed, several times smaller; older backup files still restore.',
+      'With the apps open in several tabs or windows, one syncs at a time.',
+      'Praxis on a computer (Chrome, Edge): Float the timer keeps the running block in a small window on top, with Pause and Stop here.',
+      'On a computer with Chrome or Edge, another app’s page loads ahead when you point at it, so it opens at once.',
+      'Soma on a computer with Chrome: a recipe in another language can be translated on the computer itself, shown first, then kept with undo.',
       'Read from a photo: a medicine label in Therapeia, a rating plate in Ktema, a bill in Oikonomia. Read on your phone, shown to look over before it fills the form.',
       'Reminders on iPhone (iOS 18.4 and later) arrive even when the app cannot wake: the phone shows the app’s name first, then your own words when it can.',
       'Installed apps ask the browser to keep their data when the phone runs short of space.',

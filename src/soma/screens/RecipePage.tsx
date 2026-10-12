@@ -1,3 +1,4 @@
+import { TranslateRecipe } from '../app/TranslateRecipe';
 import { useEffect, useState } from 'react';
 import { useFoodChoices } from '../data/foodChoices';
 import { reflectionService } from '../../app/services';
@@ -195,6 +196,14 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       </div>
 
       <h1 className="title">{recipe.title}</h1>
+      <TranslateRecipe
+        recipe={recipe}
+        onKeep={(translated) => {
+          const before = recipe;
+          save(translated);
+          undo('Translation kept', () => void putRecipe({ ...before, updatedAt: new Date().toISOString() }));
+        }}
+      />
       <div className="recipe-meta">
         {time && (
           <span>

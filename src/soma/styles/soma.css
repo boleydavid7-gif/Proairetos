@@ -1542,3 +1542,13 @@ button.nutri-badge {
   display: flex;
   gap: 6px;
 }
+
+/* A recipe's translation, shown before it is kept (computers with Chrome's translator). */
+.translate-recipe {
+  margin: 8px 0 12px;
+}
+.translate-recipe__list {
+  margin: 8px 0;
+  padding-left: 1.3rem;
+  line-height: 1.5;
+}

@@ -1,3 +1,4 @@
+import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import { localDayKey } from '../../data/storage/preferences';
 import { useRef, useState } from 'react';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
@@ -40,13 +41,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
   const save = async () => {
     setBusy(true);
     try {
-      const file = await backupService.exportFile(password || undefined);
-      const url = URL.createObjectURL(new Blob([file], { type: 'application/json' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `proairetos-backup-${localDayKey(new Date())}.json`;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      await downloadBackup(await backupService.exportFile(password || undefined), localDayKey(new Date()));
       recordBackup();
       setLast(lastBackupDate());
     } finally {
@@ -58,7 +53,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
     setProblem(undefined);
     setReady(undefined);
     if (!file) return;
-    const content = await file.text();
+    const content = await backupText(file).catch(() => '');
     try {
       const parsed = parseBackupFile(content);
       setText(content);
@@ -96,7 +91,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
 
       <section className="card family-backup" aria-label="Restore">
         <h2 className="card__title card__title--small">Restore</h2>
-        <input ref={input} type="file" accept="application/json,.json" hidden aria-label="Backup file" onChange={(event) => void choose(event.target.files?.[0])} />
+        <input ref={input} type="file" accept={BACKUP_ACCEPT} hidden aria-label="Backup file" onChange={(event) => void choose(event.target.files?.[0])} />
         <button type="button" className="button-quiet" onClick={() => input.current?.click()}>
           Choose a backup file
         </button>

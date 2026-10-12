@@ -250,6 +250,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Theoria Add a book). Android extras (`app/family/deviceExtras.ts`, `DeviceExtras.tsx`, shown only where supported):
   `ScanBarcode` in Soma groceries (BarcodeDetector on a photo, name from Open Food Facts), `FromContacts` in Philia's
   person form, `WriteTag` (Web NFC, a URL record) on plant, chore and upkeep pages.
+- Modern web round 2: cross-document view transitions (`@view-transition` in `premium.css`, reduced motion off);
+  `app/family/voice.ts` (`useListening`, `says`) used by Soma Cook ("next/back/again/timer") and Dynamis's session
+  ("done" ticks the next set, "skip" ends the rest; switch kept in `dynamisListen`, device only); backups saved gzip
+  (`data/backup/packing.ts`: `downloadBackup`, `backupText` reads either, `BACKUP_ACCEPT`); `syncNow` runs under the
+  Web Lock `proairetos-sync` (one tab at a time); Praxis `FloatTimer.tsx` (Document Picture-in-Picture, portal into the
+  window); prefetch rules served by the Worker at `/api/speculation-rules` (`worker/speculation.ts`, header in
+  `_headers`, prefetch only, never prerender: the apps start sync and writes on load); Soma `app/translate.ts` +
+  `TranslateRecipe.tsx` (Chrome's Translator and LanguageDetector, shown before Keep it, undo).
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

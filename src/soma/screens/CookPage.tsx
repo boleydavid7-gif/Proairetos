@@ -6,18 +6,10 @@ import { gatherList, ovenHeats, stepsWithAmounts } from '../core/cookAids';
 import { isHeading, servingsNumber } from '../core/recipes';
 import { loadSettings, saveSettings } from '../data/store';
 import { StepTimers, TimerTray } from './RecipePage';
-
-type Recognition = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }>; resultIndex: number }) => void) | null;
-  onend: (() => void) | null;
-  start(): void;
-  stop(): void;
-};
-const Listener = (globalThis as unknown as { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition }).SpeechRecognition ??
-  (globalThis as unknown as { webkitSpeechRecognition?: new () => Recognition }).webkitSpeechRecognition;
+import { listeningHere, says, useListening } from '../../app/family/voice';
+import { startTimer, useTimers } from '../app/timers';
+import { timerName } from '../core/cookAids';
+import { timersIn } from '../core/recipes';
 
 function say(text: string) {
   try {
@@ -82,42 +74,18 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
     setAt((now) => Math.max(-1, Math.min(steps.length - 1, now + by)));
   };
 
-  // Listening for "next", "back" and "again", when chosen.
-  useEffect(() => {
-    if (!settings.listen || !Listener) return;
-    let stopped = false;
-    const ear = new Listener();
-    ear.continuous = true;
-    ear.interimResults = false;
-    ear.lang = navigator.language || 'en-US';
-    ear.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        const heard = event.results[i][0].transcript.toLowerCase();
-        if (/\bnext\b/.test(heard)) move.current(1);
-        else if (/\b(back|previous)\b/.test(heard)) move.current(-1);
-        else if (/\b(again|repeat)\b/.test(heard)) move.current('again');
-      }
-    };
-    // Phones stop listening now and then; start again while cooking.
-    ear.onend = () => {
-      if (!stopped) {
-        try {
-          ear.start();
-        } catch {
-          // Already listening.
-        }
-      }
-    };
-    try {
-      ear.start();
-    } catch {
-      // Listening refused.
+  // Listening for "next", "back", "again" and "timer", when chosen.
+  const timers = useTimers();
+  useListening(settings.listen, (words) => {
+    if (says(words, 'next')) move.current(1);
+    else if (says(words, 'back', 'previous')) move.current(-1);
+    else if (says(words, 'again', 'repeat')) move.current('again');
+    else if (says(words, 'timer') && step) {
+      // The step's first timer that is not running yet.
+      const first = timersIn(step).find(({ label }) => !timers.some((timer) => timer.label === label && !timer.done));
+      if (first) startTimer(first.label, first.minutes, timerName(step, first.label));
     }
-    return () => {
-      stopped = true;
-      ear.stop();
-    };
-  }, [settings.listen]);
+  });
 
   if (!recipe) return null;
   const heats = ovenHeats(recipe.steps, settings.units);
@@ -136,9 +104,9 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
         <button type="button" className="chip chip--small" aria-pressed={settings.readAloud} onClick={() => saveSettings({ ...loadSettings(), readAloud: !settings.readAloud })}>
           Read aloud
         </button>
-        {Listener && (
+        {listeningHere() && (
           <button type="button" className="chip chip--small" aria-pressed={settings.listen} onClick={() => saveSettings({ ...loadSettings(), listen: !settings.listen })}>
-            Say “next”
+            Say “next” or “timer”
           </button>
         )}
       </div>

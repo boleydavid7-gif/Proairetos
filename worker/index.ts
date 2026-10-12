@@ -1,6 +1,7 @@
 import { handleCalendarRequest } from './calendarProxy';
 import { handleRecipeRequest } from './recipeProxy';
 import { handlePlantRequest } from './plantProxy';
+import { speculationResponse } from './speculation';
 
 type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string };
 
@@ -24,6 +25,7 @@ export default {
       if (request.method === 'OPTIONS') return withCors(request, new Response(null, { status: 204, headers: { 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400' } }));
       return withCors(request, await (url.pathname === '/api/calendar' ? handleCalendarRequest(request) : handleRecipeRequest(request)));
     }
+    if (url.pathname === '/api/speculation-rules') return speculationResponse();
     // Phyton's photos, from its own pages only (POST, same origin).
     if (url.pathname === '/api/plant') {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();

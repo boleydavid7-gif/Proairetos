@@ -43,3 +43,15 @@ describe('the plant bridge', () => {
     expect(readMatches({ results: [{ score: 0.1 }] })).toEqual([]);
   });
 });
+
+describe('speculation rules', () => {
+  it('serves prefetch rules for the family apps with the type browsers require', async () => {
+    const { speculationResponse } = await import('../../../worker/speculation');
+    const response = speculationResponse();
+    expect(response.headers.get('content-type')).toBe('application/speculationrules+json');
+    const rules = await response.json();
+    expect(rules.prefetch[0].eagerness).toBe('moderate');
+    expect(JSON.stringify(rules)).toContain('/phyton/*');
+    expect(rules.prerender).toBeUndefined();
+  });
+});

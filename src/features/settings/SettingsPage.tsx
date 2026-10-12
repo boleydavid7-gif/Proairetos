@@ -1,3 +1,4 @@
+import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
 import { takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
@@ -70,13 +71,7 @@ import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 
 function download(text: string) {
-  const date = localDayKey(new Date());
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `proairetos-backup-${date}.json`;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return downloadBackup(text, localDayKey(new Date()));
 }
 
 function downloadReadable(text: string) {
@@ -245,7 +240,7 @@ function ImportSection() {
     setReady(null);
     setPassword('');
     if (!file) return;
-    const content = await file.text();
+    const content = await backupText(file).catch(() => '');
     try {
       const parsed = parseBackupFile(content);
       setText(content);
@@ -291,7 +286,7 @@ function ImportSection() {
       <input
         ref={input}
         type="file"
-        accept="application/json,.json"
+        accept={BACKUP_ACCEPT}
         className="visually-hidden"
         aria-label="Backup file"
         onChange={(event) => choose(event.target.files?.[0])}

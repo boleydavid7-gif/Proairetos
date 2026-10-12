@@ -270,7 +270,18 @@ async function updateReminders() {
   }
 }
 
+/**
+ * Syncs now. Where the family is open in several tabs or windows sharing storage, one syncs at a time (Web Locks):
+ * two at once could each send and pull the same records and race on the sync state.
+ */
 export async function syncNow(): Promise<SyncResult | null> {
+  if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
+  const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+  if (!locks?.request) return syncHere();
+  return locks.request('proairetos-sync', () => syncHere());
+}
+
+async function syncHere(): Promise<SyncResult | null> {
   if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
   const db = await deviceDatabase;
   if (!db) return null;

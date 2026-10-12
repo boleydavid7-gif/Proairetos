@@ -7,7 +7,8 @@ import { compassService, lifeService, reflectionService } from '../app/services'
 import { useServiceData } from '../app/hooks/useServiceData';
 import { displayName } from '../data/storage/preferences';
 import { loadFocusSession, saveFocusSession } from '../data/storage/preferences';
-import { focusedMinutes, isFinished, pause, remainingMs, resume, startSession, type FocusSession } from '../core/focus/session';
+import { focusedMinutes, formatClockDown, isFinished, pause, remainingMs, resume, startSession, type FocusSession } from '../core/focus/session';
+import { FloatTimer } from './FloatTimer';
 import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
 import { player } from '../app/sound/player';
@@ -335,6 +336,15 @@ export default function PraxisApp() {
               onLookAgain={(days) => void lookAgain(days)}
               onCloseAfter={() => setAfter(null)}
               onLookedAt={(block) => void lifeService.setPlannedFor(block.id, undefined)}
+            />
+          )}
+          {view === 'today' && session && !finished && (
+            <FloatTimer
+              time={formatClockDown(remaining)}
+              title={session.itemTitle ?? 'Study'}
+              paused={Boolean(session.pausedAt)}
+              onPause={startOrPause}
+              onStop={() => void finishSession(session, Date.now())}
             />
           )}
           {view === 'sessions' && (
