@@ -303,11 +303,10 @@ Face ID, a fingerprint or the device's PIN signs in and opens the data in every 
 belongs to the site, so one added in any app works in all of them, including each iPhone Home Screen app.
 
 1. In the SQL editor, run `supabase/migrations/20261020000000_passkeys.sql`.
-2. Deploy the function with the CLI, since it uses a shared file (`supabase/functions/_shared/webauthn.ts`):
-   `supabase functions deploy passkey-sign-in --no-verify-jwt`.
-   In the dashboard editor instead: name it `passkey-sign-in`, paste `index.ts`, add a second file
-   `../_shared/webauthn.ts` with that file's contents (or paste its contents in place of the import), and turn
-   **Verify JWT** off: it is called before anyone is signed in and trusts only the passkey's signature.
+2. Deploy the function: **Edge Functions → Deploy a new function → Via editor**, name it exactly `passkey-sign-in`,
+   paste `supabase/functions/passkey-sign-in/index.ts` (one file, nothing else needed), and turn **Verify JWT**
+   off: it is called before anyone is signed in and trusts only the passkey's signature. (Or
+   `supabase functions deploy passkey-sign-in --no-verify-jwt`.)
 
 No secrets or build variables. Passkeys made on proairetos.com work only there (not on the old workers.dev address).
 

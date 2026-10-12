@@ -229,7 +229,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   in `user_keys` (RLS "own key" allows it), then it unlocks. Signed in, Account has "Change passphrase" (current one, new twice).
   Nothing encrypted changes, the recovery key keeps working, open devices stay open. Lost both: synced data cannot be opened.
 - Passkeys (migration `20261020000000_passkeys.sql`, function `passkey-sign-in` deployed `--no-verify-jwt`, verifier in
-  `supabase/functions/_shared/webauthn.ts` `checkAssertion`, ES256/RS256, tested from `src/tests/sync/passkeys.test.ts`):
+  `supabase/functions/_shared/webauthn.ts` `checkAssertion`, copied into the function so it deploys as one file (a test keeps them equal), ES256/RS256, tested from `src/tests/sync/passkeys.test.ts`):
   a passkey (rp = the site, so every app) signs in and opens the data. `data/sync/passkeys.ts` (`createPasskey`,
   `askForPasskey`, PRF with a fixed salt); the PRF secret wraps the data key (`wrapWithPasskey`, HKDF info
   `proairetos-passkey`), kept in `passkeys.wrap` with the public key. Signing in: `passkeyChallenge` (fetched before the

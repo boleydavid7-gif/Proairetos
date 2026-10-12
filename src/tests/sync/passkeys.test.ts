@@ -94,3 +94,15 @@ describe('the data key under a passkey', () => {
     expect(deviceLabel('Mozilla/5.0 (Windows NT 10.0; Win64; x64)')).toBe('Windows');
   });
 });
+
+describe('the passkey-sign-in function', () => {
+  it('deploys alone: its signature check is the same as the shared one the tests check', async () => {
+    const { readFileSync } = await import('node:fs');
+    const shared = readFileSync('supabase/functions/_shared/webauthn.ts', 'utf8');
+    const fn = readFileSync('supabase/functions/passkey-sign-in/index.ts', 'utf8');
+    const body = shared.slice(shared.indexOf('export type StoredPasskey')).trim();
+    const copy = fn.slice(fn.indexOf('export type StoredPasskey'), fn.indexOf('// ---- End of copy ----')).trim();
+    expect(copy).toBe(body);
+    expect(fn).not.toMatch(/from '\.\.\/_shared/);
+  });
+});

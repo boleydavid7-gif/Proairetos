@@ -10,7 +10,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261017000000_reminder_sources.sql`, then redeploy `send-reminders`: reminders from every app.
 - [ ] Migration `20261018000000_shared_lists.sql`: Soma's shared grocery list, Ergon's household, Phyton's shared plants.
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
-- [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (JWT verification off): passkeys
+- [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (one file, named exactly that, Verify JWT off): passkeys
       (steps in `docs/SERVER_SETUP.md`).
 - [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
       the site is ever not https://proairetos.com.
