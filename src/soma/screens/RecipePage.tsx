@@ -349,7 +349,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         </section>
       )}
 
-      {tab === 'nutrition' && settings.healthRating && <NutritionPanel nutrition={nutrition} servings={servingsNumber(recipe.servings)} lines={recipe.ingredients} />}
+      {tab === 'nutrition' && settings.healthRating && <NutritionPanel nutrition={nutrition} servings={servingsNumber(recipe.servings)} lines={recipe.ingredients} onServings={(n) => save({ servings: String(n) })} />}
 
       {tab === 'notes' && (
         <section aria-label="Notes">

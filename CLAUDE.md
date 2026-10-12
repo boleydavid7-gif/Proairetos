@@ -543,7 +543,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   knobs, rashers, jars and "175g/6oz" (first measure kept). Checked against ~790 TheMealDB recipes: 84% graded. Tab Nutrition on the recipe (`app/Nutrition.tsx`: grade card with its word and the A-E strip;
   kcal for a serving with the energy split from protein, carbohydrate and fat (dataviz categorical slots 1-3,
   validated for Soma's light and dark surfaces, labelled); each nutrient with a meter against EU reference
-  intakes, fibre against EFSA's 25 g), a badge under the title, the letter on recipe cards. Ways to try it (`core/tryIt.ts`) are optional, sourced, kept only as the person's notes.
+  intakes, fibre against EFSA's 25 g), a badge under the title, the letter on recipe cards. Nutrients are for one serving: the recipe's own count, else `estimateServings` (about 600 kcal or 450 g a portion, 1-16), labelled "(estimated)" with −/+ and Keep (`.nutri-serves`, `onServings` saves `servings`). The lowest grade shows as F, not Nutri-Score's E (the owner's choice; `Grade`, `.nutri--F`). Ways to try it (`core/tryIt.ts`) are optional, sourced, kept only as the person's notes.
 - Recipes and groceries in the Proairetos database (DB 8 stores
   `somaRecipes`, `somaGroceries`; `data/store.ts`), synced like Askesis
   (`laterCollections` until migration `20261010000000_soma_sync.sql`; the

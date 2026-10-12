@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { foodFor, gramsOf, nutriScore, perServing, recipeNutrition } from '../../soma/core/nutrition';
+import { estimateServings, foodFor, gramsOf, nutriScore, perServing, recipeNutrition } from '../../soma/core/nutrition';
 import { readIngredient } from '../../soma/core/ingredients';
 
 const per100 = (over: Partial<Record<'kcal' | 'protein' | 'fat' | 'saturated' | 'carbs' | 'sugars' | 'fibre' | 'sodium', number>>) => ({ kcal: 0, protein: 0, fat: 0, saturated: 0, carbs: 0, sugars: 0, fibre: 0, sodium: 0, ...over });
@@ -12,10 +12,10 @@ describe('Nutri-Score (2023, general foods)', () => {
     expect(result.points).toBe(-7);
   });
 
-  it('gives a sweet, fatty, salty bake an E, and leaves protein out at 11 or more points against', () => {
+  it('gives a sweet, fatty, salty bake an F, and leaves protein out at 11 or more points against', () => {
     // Energy 2008 kJ: 5; sugars 30 g: 8; saturates 10 g: 9; salt 0.75 g: 3. N = 25. Fibre 2 g: 0. Protein not counted.
     const result = nutriScore(per100({ kcal: 480, sugars: 30, saturated: 10, sodium: 300, fibre: 2, protein: 9 }), 0);
-    expect(result).toMatchObject({ grade: 'E', points: 25, parts: { energy: 5, sugars: 8, saturated: 9, salt: 3, proteinCounted: false } });
+    expect(result).toMatchObject({ grade: 'F', points: 25, parts: { energy: 5, sugars: 8, saturated: 9, salt: 3, proteinCounted: false } });
   });
 
   it('places the grade boundaries as published', () => {
@@ -75,7 +75,7 @@ describe('a recipe', () => {
 
   it('rates a cake lower than the soup', () => {
     const cake = recipeNutrition(['2 cups flour', '1 1/2 cups sugar', '1 cup butter', '3 eggs', '1 cup milk']);
-    expect(cake.grade).toMatch(/[DE]/);
+    expect(cake.grade).toMatch(/[DF]/);
   });
 
   it('gives no grade when a large line could not be read, even with most lines read', () => {
@@ -93,9 +93,9 @@ describe('a recipe', () => {
 
   it('grades rich dishes as rich', () => {
     const alfredo = recipeNutrition(['1 lb fettuccine', '1/2 cup butter', '2 cups heavy cream', '2 cups grated parmesan', '3 cloves garlic, minced']);
-    expect(alfredo.grade).toMatch(/[DE]/);
+    expect(alfredo.grade).toMatch(/[DF]/);
     const macAndCheese = recipeNutrition(['1 lb elbow macaroni', '4 tablespoons butter', '1/4 cup flour', '3 cups whole milk', '4 cups shredded sharp cheddar cheese', '1 teaspoon salt']);
-    expect(macAndCheese.grade).toMatch(/[DE]/);
+    expect(macAndCheese.grade).toMatch(/[DF]/);
   });
 
   it('reads British measures: tblsp, knobs, rashers, both units, and lemon juice by the lemon', () => {
@@ -117,5 +117,14 @@ describe('a recipe', () => {
     const without = recipeNutrition(lines, { leaveOut: ['house sauce'] });
     expect(without.unread).toEqual([]);
     expect(without.grade).toBeDefined();
+  });
+
+  it('estimates servings when a recipe does not say: by energy for rich dishes, by weight for light ones', () => {
+    const soup = recipeNutrition(['1 cup dried lentils', '1 onion', '2 carrots', '6 cups vegetable broth', '1 can diced tomatoes', '2 tbsp olive oil']);
+    const alfredo = recipeNutrition(['1 lb fettuccine', '1/2 cup butter', '2 cups heavy cream', '2 cups grated parmesan']);
+    expect(estimateServings(soup)).toBe(Math.round(soup.grams / 450));
+    expect(estimateServings(alfredo)).toBe(Math.round(alfredo.total.kcal / 600));
+    expect(estimateServings({ total: { ...alfredo.total, kcal: 100 }, grams: 50 })).toBe(1);
+    expect(estimateServings({ total: { ...alfredo.total, kcal: 50000 }, grams: 100 })).toBe(16);
   });
 });

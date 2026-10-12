@@ -13,7 +13,8 @@ export const NUTRITION_SOURCE =
   'Nutrients: USDA National Nutrient Database for Standard Reference, Release 28. Nutri-Score: Santé publique France, updated algorithm for general foods (2023).';
 
 export type Nutrients = { kcal: number; protein: number; fat: number; saturated: number; carbs: number; sugars: number; fibre: number; sodium: number };
-export type Grade = 'A' | 'B' | 'C' | 'D' | 'E';
+/** Nutri-Score's five grades; its last, E, is shown as F (the owner's choice, like a school grade). */
+export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
 /** Each part of the score: points against (energy, sugars, saturated fat, salt) and for (protein, fibre, fruit and vegetables). */
 export type ScoreParts = { energy: number; sugars: number; saturated: number; salt: number; protein: number; fibre: number; fvl: number; proteinCounted: boolean };
 export type Nutrition = {
@@ -126,7 +127,7 @@ export function nutriScore(per100: Nutrients, fvlPercent: number, redMeat = fals
   // With 11 or more points against, protein no longer counts for the dish.
   const proteinCounted = negative < 11;
   const score = negative - fibre - fvl - (proteinCounted ? protein : 0);
-  const grade: Grade = score <= 0 ? 'A' : score <= 2 ? 'B' : score <= 10 ? 'C' : score <= 18 ? 'D' : 'E';
+  const grade: Grade = score <= 0 ? 'A' : score <= 2 ? 'B' : score <= 10 ? 'C' : score <= 18 ? 'D' : 'F';
   return { grade, points: score, parts: { ...against, protein, fibre, fvl, proteinCounted } };
 }
 
@@ -197,6 +198,17 @@ export function recipeNutrition(lines: readonly string[], choices: FoodChoices =
     Object.assign(result, nutriScore(per100, fvlPercent, redMeatGrams >= grams / 2));
   }
   return result;
+}
+
+/**
+ * How many a recipe likely serves, when it does not say: one portion for about 600 kcal (a main meal, close to a third
+ * of the 2000 kcal reference day), or for about 450 g, whichever gives more, so a light soup still makes bowls and a
+ * rich bake still makes slices. Between 1 and 16.
+ */
+export function estimateServings(nutrition: Pick<Nutrition, 'total' | 'grams'>): number {
+  const byEnergy = nutrition.total.kcal / 600;
+  const byWeight = nutrition.grams / 450;
+  return Math.min(16, Math.max(1, Math.round(Math.max(byEnergy, byWeight))));
 }
 
 /** Totals divided by servings, rounded for reading. Salt is sodium × 2.5. */

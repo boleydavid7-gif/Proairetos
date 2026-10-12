@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { choiceLine, choiceName, foodFor, gramsOf, NUTRITION_SOURCE, perServing, type Grade, type Nutrition, type ScoreParts } from '../core/nutrition';
+import { choiceLine, choiceName, estimateServings, foodFor, gramsOf, NUTRITION_SOURCE, perServing, type Grade, type Nutrition, type ScoreParts } from '../core/nutrition';
 import { FOODS } from '../core/nutritionTable';
 import { readIngredient } from '../core/ingredients';
 import { loadFoodChoices, saveFoodChoices, useFoodChoices } from '../data/foodChoices';
 
-const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'E'];
-const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', E: 'Least healthy' };
+const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'F'];
+const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', F: 'Least healthy' };
 
 /** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fibre is EFSA's adequate intake. */
 const REFERENCE = { kcal: 2000, protein: 50, fat: 70, saturated: 20, carbs: 260, sugars: 90, fibre: 25, salt: 6 };
@@ -24,7 +24,7 @@ function ScoreWorking({ parts, points }: { parts: ScoreParts; points: number }) 
         <li className="nutri-working__total"><span>Score</span><span>{points}</span></li>
       </ul>
       {!parts.proteinCounted && <p className="nutrition__line">With 11 or more points against, protein is not counted.</p>}
-      <p className="nutrition__line">A: 0 or less · B: 1 to 2 · C: 3 to 10 · D: 11 to 18 · E: 19 or more</p>
+      <p className="nutrition__line">A: 0 or less · B: 1 to 2 · C: 3 to 10 · D: 11 to 18 · F: 19 or more</p>
     </details>
   );
 }
@@ -138,7 +138,10 @@ const g = (value: number) => (value >= 10 ? `${Math.round(value)} g` : `${value}
 const percent = (value: number, of: number) => Math.round((value / of) * 100);
 
 /** The recipe's Nutri-Score, a serving at a glance, each nutrient beside a day's reference, and what was read. */
-export function NutritionPanel({ nutrition, servings, lines = [] }: { nutrition: Nutrition; servings?: number; lines?: readonly string[] }) {
+export function NutritionPanel({ nutrition, servings: stated, lines = [], onServings }: { nutrition: Nutrition; servings?: number; lines?: readonly string[]; onServings?: (servings: number) => void }) {
+  // A recipe that does not say how many it serves gets an estimate, shown as one, and changeable.
+  const estimated = stated ? undefined : nutrition.read.length ? estimateServings(nutrition) : undefined;
+  const servings = stated ?? estimated;
   const choices = useFoodChoices();
   const forget = (line: string) => {
     const current = loadFoodChoices();
@@ -166,6 +169,16 @@ export function NutritionPanel({ nutrition, servings, lines = [] }: { nutrition:
     { name: 'Salt', value: facts.salt, ref: REFERENCE.salt },
   ];
   const where = servings ? 'One serving' : 'The whole recipe';
+  const servingsControl = servings && onServings && (
+    <div className="nutri-serves">
+      <span>{estimated ? `Serves about ${servings} (estimated)` : `Serves ${servings}`}</span>
+      <span className="nutri-serves__step">
+        <button type="button" className="chip" aria-label="Fewer servings" disabled={servings <= 1} onClick={() => onServings(servings - 1)}>−</button>
+        <button type="button" className="chip" aria-label="More servings" onClick={() => onServings(servings + 1)}>+</button>
+        {estimated && <button type="button" className="chip" onClick={() => onServings(servings)}>Keep</button>}
+      </span>
+    </div>
+  );
 
   return (
     <section aria-label="Nutrition" className="nutrition">
@@ -178,7 +191,7 @@ export function NutritionPanel({ nutrition, servings, lines = [] }: { nutrition:
               <p className="nutri-hero__word">{WORDS[nutrition.grade]}</p>
             </div>
           </div>
-          <div className="nutri-scale" role="img" aria-label={`Nutri-Score ${nutrition.grade}, on a scale from A, healthiest, to E, least healthy`}>
+          <div className="nutri-scale" role="img" aria-label={`Nutri-Score ${nutrition.grade}, on a scale from A, healthiest, to F, least healthy`}>
             {GRADES.map((each) => (
               <span key={each} className={`nutri-scale__letter nutri--${each}${each === nutrition.grade ? ' is-this' : ''}`}>{each}</span>
             ))}
@@ -198,6 +211,7 @@ export function NutritionPanel({ nutrition, servings, lines = [] }: { nutrition:
         <>
           <div className="card nutri-energy">
             <p className="nutri-hero__eyebrow">{where}</p>
+            {servingsControl}
             <p className="nutri-energy__kcal">
               <strong>{facts.kcal}</strong> kcal
               <span className="nutri-energy__share">{percent(facts.kcal, REFERENCE.kcal)}% of a day</span>

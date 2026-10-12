@@ -1115,12 +1115,12 @@
   cursor: pointer;
 }
 
-/* Nutri-Score: the published colours, A to E. Dark letters on the light ones so each passes contrast. */
+/* Nutri-Score: the published colours, A to E (shown as F here). Dark letters on the light ones so each passes contrast. */
 .nutri--A { background: #038141; color: #ffffff; }
 .nutri--B { background: #85bb2f; color: #14210a; }
 .nutri--C { background: #fecb02; color: #2a2100; }
 .nutri--D { background: #ee8100; color: #241300; }
-.nutri--E { background: #e63e11; color: #1f0700; }
+.nutri--F { background: #e63e11; color: #1f0700; }
 
 .recipe-card {
   position: relative;
@@ -1525,4 +1525,20 @@ button.nutri-badge {
 .nutri-unread__pick {
   display: grid;
   gap: 8px;
+}
+
+/* Servings on the Nutrition tab: estimated when the recipe does not say, changeable. */
+.nutri-serves {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 2px 0 6px;
+  color: var(--text-soft);
+}
+
+.nutri-serves__step {
+  display: flex;
+  gap: 6px;
 }
