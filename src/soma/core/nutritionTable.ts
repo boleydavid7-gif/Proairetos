@@ -5,14 +5,17 @@
 export type Food = { key: string; ndb: string; match: RegExp; per100: readonly number[]; cup?: number; each?: number; fvl?: true };
 
 export const FOODS: readonly Food[] = [
-  { key: "olive oil", ndb: '04053', match: /\bolive oil\b/, per100: [884, 0, 100, 13.808, 0, 0, 0, 2], cup: 216, fvl: true }, // OIL,OLIVE,SALAD OR COOKING
-  { key: "rapeseed oil", ndb: '04582', match: /\b(?:canola|rapeseed) oil\b/, per100: [884, 0, 100, 7.365, 0, 0, 0, 0], cup: 224, fvl: true }, // OIL,CANOLA
-  { key: "walnut oil", ndb: '04528', match: /\bwalnut oil\b/, per100: [884, 0, 100, 9.1, 0, 0, 0, 0], cup: 218, fvl: true }, // OIL,WALNUT
+  { key: "olive oil", ndb: '04053', match: /\bolive oil\b/, per100: [884, 0, 100, 13.808, 0, 0, 0, 2], cup: 216 }, // OIL,OLIVE,SALAD OR COOKING
+  { key: "rapeseed oil", ndb: '04582', match: /\b(?:canola|rapeseed) oil\b/, per100: [884, 0, 100, 7.365, 0, 0, 0, 0], cup: 224 }, // OIL,CANOLA
+  { key: "walnut oil", ndb: '04528', match: /\bwalnut oil\b/, per100: [884, 0, 100, 9.1, 0, 0, 0, 0], cup: 218 }, // OIL,WALNUT
   { key: "sesame oil", ndb: '04058', match: /\bsesame oil\b/, per100: [884, 0, 100, 14.2, 0, 0, 0, 0], cup: 218 }, // OIL,SESAME,SALAD OR COOKING
   { key: "coconut oil", ndb: '04047', match: /\bcoconut oil\b/, per100: [892, 0, 99.06, 82.475, 0, 0, 0, 0], cup: 218 }, // OIL,COCNT
   { key: "vegetable oil", ndb: '04060', match: /\b(?:vegetable|sunflower|neutral|cooking) oil\b|^oil$/, per100: [884, 0, 100, 10.1, 0, 0, 0, 0], cup: 218 }, // OIL,SUNFLOWER,LINOLEIC (LESS THAN 60%)
   { key: "butter", ndb: '01145', match: /\bbutter\b(?! ?milk)(?!.*\b(?:peanut|almond|nut)\b)/, per100: [717, 0.85, 81.11, 50.489, 0.06, 0.06, 0, 11], cup: 227 }, // BUTTER,WITHOUT SALT
   { key: "ghee", ndb: '01003', match: /\bghee\b/, per100: [876, 0.28, 99.48, 61.924, 0, 0, 0, 2], cup: 205 }, // BUTTER OIL,ANHYDROUS
+  { key: "margarine", ndb: '04610', match: /\bmargarine\b/, per100: [717, 0.16, 80.71, 15.189, 0.7, 0, 0, 751], cup: 224 }, // MARGARINE,REG,80% FAT,COMP,STK,W/ SALT
+  { key: "shortening", ndb: '04031', match: /\bshortening\b/, per100: [884, 0, 100, 25, 0, 0, 0, 0], cup: 205 }, // SHORTENING,HOUSEHOLD,PARTIALLY HYDROG SOYBN -COTTONSEED
+  { key: "lard", ndb: '04002', match: /\blard\b/, per100: [902, 0, 100, 39.2, 0, 0, 0, 0], cup: 205 }, // LARD
   { key: "mayonnaise", ndb: '04025', match: /\bmayo(?:nnaise)?\b/, per100: [680, 0.96, 74.85, 11.703, 0.57, 0.57, 0, 635], cup: 221 }, // SALAD DRSNG,MAYO,REG
   { key: "egg", ndb: '01123', match: /\beggs?\b(?! noodles)/, per100: [143, 12.56, 9.51, 3.126, 0.72, 0.37, 0, 142], each: 50 }, // EGG,WHL,RAW,FRSH
   { key: "egg white", ndb: '01124', match: /\begg whites?\b/, per100: [52, 10.9, 0.17, 0, 0.73, 0.71, 0, 166], cup: 243, each: 33 }, // EGG,WHITE,RAW,FRESH
@@ -24,46 +27,64 @@ export const FOODS: readonly Food[] = [
   { key: "buttermilk", ndb: '01088', match: /\bbuttermilk\b/, per100: [40, 3.31, 0.88, 0.548, 4.79, 4.79, 0, 190], cup: 245 }, // MILK,BTTRMLK,FLUID,CULTURED,LOWFAT
   { key: "milk", ndb: '01079', match: /\bmilk\b/, per100: [50, 3.3, 1.98, 1.257, 4.8, 5.06, 0, 47], cup: 244 }, // MILK,RED FAT,FLUID,2% MILKFAT,W/ ADDED VIT A & VITAMIN D
   { key: "heavy cream", ndb: '01053', match: /\b(?:heavy|double|whipping) cream\b/, per100: [340, 2.84, 36.08, 23.032, 2.74, 2.92, 0, 27], cup: 120 }, // CREAM,FLUID,HVY WHIPPING
+  { key: "condensed milk", ndb: '01095', match: /\bcondensed milk\b/, per100: [321, 7.91, 8.7, 5.486, 54.4, 54.4, 0, 127], cup: 306 }, // MILK,CND,COND,SWTND
+  { key: "evaporated milk", ndb: '01291', match: /\bevaporated milk\b/, per100: [107, 6.67, 2, 1.204, 15.74, 6.67, 0, 100], cup: 252 }, // MILK,CND,EVAP,WO/ VIT A
+  { key: "half and half", ndb: '01049', match: /\bhalf[- ]and[- ]half\b/, per100: [123, 3.13, 10.39, 7.032, 4.73, 4.13, 0, 61], cup: 242 }, // CREAM,FLUID,HALF AND HALF
+  { key: "whipped cream", ndb: '01054', match: /\bwhipped (?:cream|topping)\b|\bcool whip\b/, per100: [257, 3.2, 22.22, 13.831, 12.49, 8, 0, 8], cup: 60 }, // CREAM,WHIPPED,CRM TOPPING,PRESSURIZED
+  { key: "ice cream", ndb: '19095', match: /\bice cream\b/, per100: [207, 3.5, 11, 6.79, 23.6, 21.22, 0.7, 80], cup: 132 }, // ICE CREAMS,VANILLA
   { key: "sour cream", ndb: '01056', match: /\bsour cream\b|\bcrème fraîche\b|\bcreme fraiche\b/, per100: [198, 2.44, 19.35, 10.14, 4.63, 3.41, 0, 31], cup: 192 }, // CREAM,SOUR,CULTURED
   { key: "cream", ndb: '01050', match: /\b(?:single |light )?cream\b(?! cheese)/, per100: [191, 2.96, 19.1, 10.176, 2.82, 3.67, 0, 72], cup: 240 }, // CREAM,FLUID,LT (COFFEE CRM OR TABLE CRM)
   { key: "cream cheese", ndb: '01017', match: /\bcream cheese\b/, per100: [350, 6.15, 34.44, 20.213, 5.52, 3.76, 0, 314], cup: 232 }, // CHEESE,CREAM
-  { key: "greek yogurt", ndb: '01256', match: /\bgreek yog(?:h)?urt\b/, per100: [59, 10.19, 0.39, 0.117, 3.6, 3.24, 0, 36] }, // YOGURT,GREEK,PLN,NONFAT
-  { key: "yogurt", ndb: '01116', match: /\byog(?:h)?urt\b/, per100: [61, 3.47, 3.25, 2.096, 4.66, 4.66, 0, 46] }, // YOGURT,PLN,WHL MILK,8 GRAMS PROT PER 8 OZ
+  { key: "greek yogurt", ndb: '01256', match: /\bgreek yog(?:h)?urt\b/, per100: [59, 10.19, 0.39, 0.117, 3.6, 3.24, 0, 36], cup: 245 }, // YOGURT,GREEK,PLN,NONFAT
+  { key: "yogurt", ndb: '01116', match: /\byog(?:h)?urt\b/, per100: [61, 3.47, 3.25, 2.096, 4.66, 4.66, 0, 46], cup: 245 }, // YOGURT,PLN,WHL MILK,8 GRAMS PROT PER 8 OZ
   { key: "parmesan", ndb: '01032', match: /\bparmesan\b|\bparmigiano\b|\bpecorino\b/, per100: [420, 28.42, 27.84, 15.371, 13.91, 0.07, 0, 1804], cup: 100 }, // CHEESE,PARMESAN,GRATED
+  { key: "american cheese", ndb: '01253', match: /\bamerican cheese\b|\bvelveeta\b|\bprocessed cheese\b/, per100: [371, 18.13, 31.79, 18.057, 3.7, 2.26, 0, 1671], cup: 113 }, // CHEESE,PAST PROCESS,AMERICAN,WO/ ADDED VITAMIN D
+  { key: "swiss cheese", ndb: '01040', match: /\bswiss\b|\bemmental\b/, per100: [393, 26.96, 30.99, 18.227, 1.44, 0, 0, 187], cup: 132 }, // CHEESE,SWISS
+  { key: "monterey jack", ndb: '01025', match: /\b(?:monterey|pepper) jack\b|\bjack cheese\b/, per100: [373, 24.48, 30.28, 19.066, 0.68, 0.5, 0, 600], cup: 132 }, // CHEESE,MONTEREY
+  { key: "provolone", ndb: '01035', match: /\bprovolone\b/, per100: [351, 25.58, 26.62, 17.078, 2.14, 0.56, 0, 876], cup: 132 }, // CHEESE,PROVOLONE
+  { key: "gruyere", ndb: '01023', match: /\bgruy[eè]re\b/, per100: [413, 29.81, 32.34, 18.913, 0.36, 0.36, 0, 714], cup: 108 }, // CHEESE,GRUYERE
+  { key: "blue cheese", ndb: '01004', match: /\bblue cheese\b|\bgorgonzola\b|\broquefort\b/, per100: [353, 21.4, 28.74, 18.669, 2.34, 0.5, 0, 1146], cup: 135 }, // CHEESE,BLUE
+  { key: "colby", ndb: '01011', match: /\bcolby\b|\bmexican (?:blend )?cheese\b/, per100: [394, 23.76, 32.11, 20.218, 2.57, 0.52, 0, 604], cup: 132 }, // CHEESE,COLBY
   { key: "mozzarella", ndb: '01026', match: /\bmozzarella\b/, per100: [300, 22.17, 22.35, 13.152, 2.19, 1.03, 0, 627], cup: 112 }, // CHEESE,MOZZARELLA,WHL MILK
   { key: "feta", ndb: '01019', match: /\bfeta\b/, per100: [264, 14.21, 21.28, 14.946, 4.09, 4.09, 0, 917], cup: 150 }, // CHEESE,FETA
   { key: "ricotta", ndb: '01036', match: /\bricotta\b/, per100: [174, 11.26, 12.98, 8.295, 3.04, 0.27, 0, 84], cup: 248 }, // CHEESE,RICOTTA,WHOLE MILK
-  { key: "goat cheese", ndb: '01159', match: /\bgoat(?:'s)? cheese\b|\bchèvre\b/, per100: [264, 18.52, 21.08, 14.575, 0, 0, 0, 459] }, // CHEESE,GOAT,SOFT TYPE
+  { key: "goat cheese", ndb: '01159', match: /\bgoat(?:'s)? cheese\b|\bchèvre\b/, per100: [264, 18.52, 21.08, 14.575, 0, 0, 0, 459], cup: 113 }, // CHEESE,GOAT,SOFT TYPE
   { key: "cottage cheese", ndb: '01012', match: /\bcottage cheese\b/, per100: [98, 11.12, 4.3, 1.718, 3.38, 2.67, 0, 364], cup: 210 }, // CHEESE,COTTAGE,CRMD,LRG OR SML CURD
   { key: "cheddar", ndb: '01009', match: /\bcheddar\b|\bcheese\b/, per100: [404, 22.87, 33.31, 18.867, 3.09, 0.48, 0, 653], cup: 132 }, // CHEESE,CHEDDAR
-  { key: "chicken breast", ndb: '05039', match: /\bchicken breasts?\b/, per100: [114, 23.2, 1.65, 0.44, 0, 0, 0, 68], each: 175 }, // CHICKEN,BROILERS OR FRYERS,LT MEAT,MEAT ONLY,RAW
-  { key: "chicken thigh", ndb: '05096', match: /\bchicken thighs?\b/, per100: [121, 19.66, 4.12, 1.097, 0, 0, 0, 95], each: 115 }, // CHICKEN,BROILERS OR FRYERS,DK MEAT,THIGH,MEAT ONLY,RAW
-  { key: "chicken", ndb: '05011', match: /\bchicken\b(?! (?:stock|broth))/, per100: [119, 21.39, 3.08, 0.79, 0, 0, 0, 77] }, // CHICKEN,BROILERS OR FRYERS,MEAT ONLY,RAW
-  { key: "turkey", ndb: '05305', match: /\bturkey\b/, per100: [148, 19.66, 7.66, 2.024, 0, 0, 0, 58] }, // GROUND TURKEY,RAW
-  { key: "ground beef", ndb: '23567', match: /\b(?:ground|minced) beef\b|\bbeef mince\b|\bhamburger\b/, per100: [215, 18.59, 15, 5.715, 0, 0, 0, 66] }, // BEEF,GROUND,85% LN MEAT / 15% FAT,RAW
-  { key: "beef", ndb: '13929', match: /\bbeef\b|\bsteak\b|\bbrisket\b/, per100: [201, 20.3, 12.71, 5.127, 0, 0, 0, 52] }, // BEEF,TOP SIRLOIN,STEAK,LN & FAT,1/8" FAT,ALL GRDS,RAW
-  { key: "pork", ndb: '10020', match: /\bpork\b/, per100: [198, 19.74, 12.58, 4.36, 0, 0, 0, 50] }, // PORK,FRSH,LOIN,WHL,LN&FAT,RAW
+  { key: "chicken breast", ndb: '05039', match: /\bchicken breasts?\b/, per100: [114, 23.2, 1.65, 0.44, 0, 0, 0, 68], cup: 140, each: 175 }, // CHICKEN,BROILERS OR FRYERS,LT MEAT,MEAT ONLY,RAW
+  { key: "chicken thigh", ndb: '05096', match: /\bchicken thighs?\b/, per100: [121, 19.66, 4.12, 1.097, 0, 0, 0, 95], cup: 140, each: 115 }, // CHICKEN,BROILERS OR FRYERS,DK MEAT,THIGH,MEAT ONLY,RAW
+  { key: "chicken", ndb: '05011', match: /\bchicken\b(?! (?:stock|broth))/, per100: [119, 21.39, 3.08, 0.79, 0, 0, 0, 77], cup: 140 }, // CHICKEN,BROILERS OR FRYERS,MEAT ONLY,RAW
+  { key: "turkey", ndb: '05305', match: /\bturkey\b/, per100: [148, 19.66, 7.66, 2.024, 0, 0, 0, 58], cup: 140 }, // GROUND TURKEY,RAW
+  { key: "ground beef", ndb: '23567', match: /\b(?:ground|minced) beef\b|\bbeef mince\b|\bhamburger\b/, per100: [215, 18.59, 15, 5.715, 0, 0, 0, 66], cup: 225 }, // BEEF,GROUND,85% LN MEAT / 15% FAT,RAW
+  { key: "beef", ndb: '13929', match: /\bbeef\b|\bsteak\b|\bbrisket\b/, per100: [201, 20.3, 12.71, 5.127, 0, 0, 0, 52], cup: 150 }, // BEEF,TOP SIRLOIN,STEAK,LN & FAT,1/8" FAT,ALL GRDS,RAW
+  { key: "pork", ndb: '10020', match: /\bpork\b/, per100: [198, 19.74, 12.58, 4.36, 0, 0, 0, 50], cup: 150 }, // PORK,FRSH,LOIN,WHL,LN&FAT,RAW
   { key: "bacon", ndb: '10123', match: /\bbacon\b|\bpancetta\b/, per100: [417, 12.62, 39.69, 13.296, 1.28, 1, 0, 662] }, // PORK,CURED,BACON,UNPREP
-  { key: "sausage", ndb: '07063', match: /\bsausages?\b|\bchorizo\b/, per100: [288, 15.39, 24.8, 7.57, 0.93, 0.93, 0, 739] }, // PORK SAUSAGE,LINK/PATTY,UNPREP
-  { key: "ham", ndb: '07029', match: /\bham\b|\bprosciutto\b/, per100: [163, 16.6, 8.6, 2.936, 3.83, 0, 1.3, 1143] }, // HAM,SLICED,REG (APPROX 11% FAT)
+  { key: "pepperoni", ndb: '07057', match: /\bpepperoni\b/, per100: [504, 19.25, 46.28, 17.708, 1.18, 0, 0, 1582], cup: 135 }, // PEPPERONI,BF & PORK,SLICED
+  { key: "salami", ndb: '07068', match: /\bsalami\b/, per100: [261, 12.6, 22.2, 9.865, 1.9, 1.5, 0, 1140], cup: 135 }, // SALAMI  CKD  BF
+  { key: "chorizo", ndb: '07019', match: /\bchorizo\b/, per100: [455, 24.1, 38.27, 14.38, 1.86, 0, 0, 1235], cup: 135 }, // CHORIZO,PORK AND BEEF
+  { key: "hot dogs", ndb: '07022', match: /\bhot ?dogs?\b|\bfrankfurters?\b|\bwieners?\b/, per100: [316, 11.16, 28.3, 10.979, 3.36, 1.31, 0, 992], each: 45 }, // FRANKFURTER,BF,UNHTD
+  { key: "italian sausage", ndb: '07036', match: /\bitalian sausages?\b/, per100: [346, 14.25, 31.33, 11.27, 0.65, 0, 0, 731], cup: 150, each: 85 }, // SAUSAGE,ITALIAN,PORK,RAW
+  { key: "ground pork", ndb: '10219', match: /\bground pork\b|\bpork mince\b|\bminced pork\b/, per100: [263, 16.88, 21.19, 7.87, 0, 0, 0, 56], cup: 225 }, // PORK,FRESH,GROUND,RAW
+  { key: "sausage", ndb: '07063', match: /\bsausages?\b|\bchorizo\b/, per100: [288, 15.39, 24.8, 7.57, 0.93, 0.93, 0, 739], cup: 150 }, // PORK SAUSAGE,LINK/PATTY,UNPREP
+  { key: "ham", ndb: '07029', match: /\bham\b|\bprosciutto\b/, per100: [163, 16.6, 8.6, 2.936, 3.83, 0, 1.3, 1143], cup: 140 }, // HAM,SLICED,REG (APPROX 11% FAT)
   { key: "lamb", ndb: '17001', match: /\blamb\b/, per100: [267, 16.88, 21.59, 9.47, 0, 0, 0, 58] }, // LAMB,DOM,COMP OF RTL CUTS,LN&FAT,1/4"FAT,CHOIC,RAW
-  { key: "salmon", ndb: '15236', match: /\bsalmon\b/, per100: [208, 20.42, 13.42, 3.05, 0, 0, 0, 59] }, // SALMON,ATLANTIC,FARMED,RAW
-  { key: "tuna", ndb: '15121', match: /\btuna\b/, per100: [86, 19.44, 0.96, 0.211, 0, 0, 0, 247] }, // FISH,TUNA,LT,CND IN H2O,DRND SOL
+  { key: "salmon", ndb: '15236', match: /\bsalmon\b/, per100: [208, 20.42, 13.42, 3.05, 0, 0, 0, 59], cup: 150 }, // SALMON,ATLANTIC,FARMED,RAW
+  { key: "tuna", ndb: '15121', match: /\btuna\b/, per100: [86, 19.44, 0.96, 0.211, 0, 0, 0, 247], cup: 150 }, // FISH,TUNA,LT,CND IN H2O,DRND SOL
   { key: "cod", ndb: '15015', match: /\bcod\b|\bwhite fish\b|\bhaddock\b|\bpollock\b|\btilapia\b/, per100: [82, 17.81, 0.67, 0.131, 0, 0, 0, 54] }, // COD,ATLANTIC,RAW
-  { key: "shrimp", ndb: '15270', match: /\bshrimps?\b|\bprawns?\b/, per100: [85, 20.1, 0.51, 0.101, 0, 0, 0, 119] }, // CRUSTACEANS,SHRIMP,RAW (NOT PREVIOUSLY FROZEN)
+  { key: "shrimp", ndb: '15270', match: /\bshrimps?\b|\bprawns?\b/, per100: [85, 20.1, 0.51, 0.101, 0, 0, 0, 119], cup: 145 }, // CRUSTACEANS,SHRIMP,RAW (NOT PREVIOUSLY FROZEN)
   { key: "anchovy", ndb: '15002', match: /\banchov(?:y|ies)\b/, per100: [210, 28.89, 9.71, 2.203, 0, 0, 0, 3668] }, // ANCHOVY,EUROPEAN,CND IN OIL,DRND SOL
   { key: "tofu", ndb: '16426', match: /\btofu\b/, per100: [144, 17.27, 8.72, 1.261, 2.78, 0, 2.3, 14], cup: 252 }, // TOFU,RAW,FIRM,PREP W/CA SULFATE
   { key: "tempeh", ndb: '16114', match: /\btempeh\b/, per100: [192, 20.29, 10.8, 2.539, 7.64, 0, 0, 9], cup: 166 }, // TEMPEH
   { key: "lentils", ndb: '16069', match: /\blentils?\b/, per100: [352, 24.63, 1.06, 0.154, 63.35, 2.03, 10.7, 6], cup: 192, fvl: true }, // LENTILS,RAW
   { key: "chickpeas", ndb: '16359', match: /\bchick ?peas?\b|\bgarbanzos?\b/, per100: [138, 7.04, 2.47, 0.213, 22.87, 4, 6.3, 212], cup: 152, fvl: true }, // CHICKPEAS,MATURE SEEDS,CND,DRND,RINSED IN TAP H2O
   { key: "black beans", ndb: '16316', match: /\bblack beans?\b/, per100: [91, 6.03, 0.29, 0.075, 16.55, 0.23, 6.9, 138], cup: 240, fvl: true }, // BEANS,BLACK,MATURE SEEDS,CND,LO NA
-  { key: "kidney beans", ndb: '16145', match: /\bkidney beans?\b/, per100: [124, 7.98, 1.05, 0.181, 21.49, 3.8, 5.5, 231], fvl: true }, // BEANS,KIDNEY,RED,MATURE SEEDS,CND,DRND SOL
+  { key: "kidney beans", ndb: '16145', match: /\bkidney beans?\b/, per100: [124, 7.98, 1.05, 0.181, 21.49, 3.8, 5.5, 231], cup: 184, fvl: true }, // BEANS,KIDNEY,RED,MATURE SEEDS,CND,DRND SOL
   { key: "white beans", ndb: '16051', match: /\b(?:white|cannellini|navy|butter|lima|pinto|borlotti|haricot) beans?\b/, per100: [114, 7.26, 0.29, 0.074, 21.2, 0.29, 4.8, 340], cup: 262, fvl: true }, // BEANS,WHITE,MATURE SEEDS,CND
   { key: "green beans", ndb: '11052', match: /\bgreen beans?\b|\bstring beans?\b|\bhabaricots verts\b/, per100: [31, 1.83, 0.22, 0.05, 6.97, 3.26, 2.7, 6], cup: 100, fvl: true }, // BEANS,SNAP,GREEN,RAW
   { key: "edamame", ndb: '11211', match: /\bedamame\b/, per100: [109, 11.22, 4.73, 0, 7.61, 2.48, 4.8, 6], cup: 118, fvl: true }, // EDAMAME,FRZ,UNPREP
   { key: "peas", ndb: '11312', match: /\b(?:green |garden |frozen )?peas\b(?!nut)/, per100: [77, 5.22, 0.4, 0.066, 13.62, 5, 4.5, 108], cup: 134, fvl: true }, // PEAS,GRN,FRZ,UNPREP
   { key: "split peas", ndb: '16085', match: /\bsplit peas\b/, per100: [352, 23.82, 1.16, 0.161, 63.74, 8, 25.5, 15], cup: 197, fvl: true }, // PEAS,GRN,SPLIT,MATURE SEEDS,RAW
-  { key: "beans", ndb: '16145', match: /\bbeans\b/, per100: [124, 7.98, 1.05, 0.181, 21.49, 3.8, 5.5, 231], fvl: true }, // BEANS,KIDNEY,RED,MATURE SEEDS,CND,DRND SOL
+  { key: "beans", ndb: '16145', match: /\bbeans\b/, per100: [124, 7.98, 1.05, 0.181, 21.49, 3.8, 5.5, 231], cup: 180, fvl: true }, // BEANS,KIDNEY,RED,MATURE SEEDS,CND,DRND SOL
   { key: "hummus", ndb: '16158', match: /\bhummus\b/, per100: [166, 7.9, 9.6, 1.437, 14.29, 0, 6, 379], cup: 240, fvl: true }, // HUMMUS,COMMERCIAL
   { key: "onion", ndb: '11282', match: /\b(?:red |white |yellow |brown |sweet )?onions?\b(?! powder)/, per100: [40, 1.1, 0.1, 0.042, 9.34, 4.24, 1.7, 4], cup: 160, each: 110, fvl: true }, // ONIONS,RAW
   { key: "spring onion", ndb: '11291', match: /\b(?:spring onions?|scallions?|green onions?)\b/, per100: [32, 1.83, 0.19, 0.032, 7.34, 2.33, 2.6, 16], cup: 100, each: 15, fvl: true }, // ONIONS,SPRING OR SCALLIONS (INCL TOPS&BULB),RAW
@@ -77,7 +98,7 @@ export const FOODS: readonly Food[] = [
   { key: "tomato", ndb: '11529', match: /\btomato(?:es)?\b/, per100: [18, 0.88, 0.2, 0.028, 3.89, 2.63, 1.2, 5], cup: 149, each: 123, fvl: true }, // TOMATOES,RED,RIPE,RAW,YEAR RND AVERAGE
   { key: "carrot", ndb: '11124', match: /\bcarrots?\b/, per100: [41, 0.93, 0.24, 0.037, 9.58, 4.74, 2.8, 69], cup: 128, each: 61, fvl: true }, // CARROTS,RAW
   { key: "celery", ndb: '11143', match: /\bcelery\b/, per100: [16, 0.69, 0.17, 0.042, 2.97, 1.34, 1.6, 80], cup: 101, each: 40, fvl: true }, // CELERY,RAW
-  { key: "bell pepper", ndb: '11821', match: /\b(?:bell |red |green |yellow |orange )?peppers?\b(?! flakes)(?!corns?)/, per100: [31, 0.99, 0.3, 0.027, 6.03, 4.2, 2.1, 4], cup: 149, each: 120, fvl: true }, // PEPPERS,SWT,RED,RAW
+  { key: "bell pepper", ndb: '11821', match: /(?<!(?:black|white|ground|cayenne|lemon|crushed|and) )\b(?:bell |red |green |yellow |orange )?peppers?\b(?! flakes)(?!corns?)/, per100: [31, 0.99, 0.3, 0.027, 6.03, 4.2, 2.1, 4], cup: 149, each: 120, fvl: true }, // PEPPERS,SWT,RED,RAW
   { key: "chili", ndb: '11979', match: /\bchil(?:i|li|e)s?\b(?! (?:powder|flakes|sauce))|\bjalapeños?\b|\bjalapenos?\b/, per100: [29, 0.91, 0.37, 0.092, 6.5, 4.12, 2.8, 3], cup: 90, each: 14, fvl: true }, // PEPPERS,JALAPENO,RAW
   { key: "potato", ndb: '11352', match: /\b(?:new |baby |russet |yukon gold |waxy |floury )?potato(?:es)?\b(?! starch)/, per100: [77, 2.05, 0.09, 0.025, 17.49, 0.82, 2.1, 6], cup: 150, each: 213, fvl: true }, // POTATOES,FLESH & SKN,RAW
   { key: "sweet potato", ndb: '11507', match: /\bsweet potato(?:es)?\b|\byams?\b/, per100: [86, 1.57, 0.05, 0.018, 20.12, 4.18, 3, 55], cup: 133, each: 130, fvl: true }, // SWEET POTATO,RAW,UNPREP
@@ -114,22 +135,22 @@ export const FOODS: readonly Food[] = [
   { key: "mango", ndb: '09176', match: /\bmangos?\b|\bmangoes\b/, per100: [60, 0.82, 0.38, 0.092, 14.98, 13.66, 1.6, 1], cup: 165, each: 336, fvl: true }, // MANGOS,RAW
   { key: "pineapple", ndb: '09266', match: /\bpineapple\b/, per100: [50, 0.54, 0.12, 0.009, 13.12, 9.85, 1.4, 1], cup: 165, fvl: true }, // PINEAPPLE,RAW,ALL VAR
   { key: "raisins", ndb: '09298', match: /\braisins\b|\bsultanas\b/, per100: [299, 3.07, 0.46, 0.058, 79.18, 59.19, 3.7, 11], cup: 165, fvl: true }, // RAISINS,SEEDLESS
-  { key: "dates", ndb: '09421', match: /\bdates\b/, per100: [277, 1.81, 0.15, 0, 74.97, 66.47, 6.7, 1], each: 24, fvl: true }, // DATES,MEDJOOL
-  { key: "peanut butter", ndb: '16398', match: /\bpeanut butter\b/, per100: [598, 22.21, 51.36, 10.325, 22.31, 10.49, 5, 17], cup: 256, fvl: true }, // PEANUT BUTTER,SMOOTH STYLE,WO/SALT
-  { key: "peanuts", ndb: '16087', match: /\bpeanuts\b/, per100: [567, 25.8, 49.24, 6.279, 16.13, 4.72, 8.5, 18], cup: 146, fvl: true }, // PEANUTS,ALL TYPES,RAW
-  { key: "almonds", ndb: '12061', match: /\balmonds?\b(?! (?:milk|flour))/, per100: [579, 21.15, 49.93, 3.802, 21.55, 4.35, 12.5, 1], cup: 143, fvl: true }, // ALMONDS
-  { key: "almond flour", ndb: '12062', match: /\balmond (?:flour|meal)\b|\bground almonds\b/, per100: [590, 21.4, 52.52, 3.953, 18.67, 4.63, 9.9, 19], cup: 145, fvl: true }, // ALMONDS,BLANCHED
-  { key: "walnuts", ndb: '12155', match: /\bwalnuts?\b/, per100: [654, 15.23, 65.21, 6.126, 13.71, 2.61, 6.7, 2], cup: 117, fvl: true }, // WALNUTS,ENGLISH
-  { key: "cashews", ndb: '12087', match: /\bcashews?\b/, per100: [553, 18.22, 43.85, 7.783, 30.19, 5.91, 3.3, 12], fvl: true }, // NUTS,CASHEW NUTS,RAW
-  { key: "pecans", ndb: '12142', match: /\bpecans?\b/, per100: [691, 9.17, 71.97, 6.18, 13.86, 3.97, 9.6, 0], cup: 109, fvl: true }, // PECANS
-  { key: "pine nuts", ndb: '12147', match: /\bpine nuts\b/, per100: [673, 13.69, 68.37, 4.899, 13.08, 3.59, 3.7, 2], cup: 135, fvl: true }, // NUTS,PINE NUTS,DRIED
-  { key: "hazelnuts", ndb: '12120', match: /\bhazelnuts\b/, per100: [628, 14.95, 60.75, 4.464, 16.7, 4.34, 9.7, 0], cup: 115, fvl: true }, // HAZELNUTS OR FILBERTS
+  { key: "dates", ndb: '09421', match: /\bdates\b/, per100: [277, 1.81, 0.15, 0, 74.97, 66.47, 6.7, 1], cup: 147, each: 24, fvl: true }, // DATES,MEDJOOL
+  { key: "peanut butter", ndb: '16398', match: /\bpeanut butter\b/, per100: [598, 22.21, 51.36, 10.325, 22.31, 10.49, 5, 17], cup: 256 }, // PEANUT BUTTER,SMOOTH STYLE,WO/SALT
+  { key: "peanuts", ndb: '16087', match: /\bpeanuts\b/, per100: [567, 25.8, 49.24, 6.279, 16.13, 4.72, 8.5, 18], cup: 146 }, // PEANUTS,ALL TYPES,RAW
+  { key: "almonds", ndb: '12061', match: /\balmonds?\b(?! (?:milk|flour))/, per100: [579, 21.15, 49.93, 3.802, 21.55, 4.35, 12.5, 1], cup: 143 }, // ALMONDS
+  { key: "almond flour", ndb: '12062', match: /\balmond (?:flour|meal)\b|\bground almonds\b/, per100: [590, 21.4, 52.52, 3.953, 18.67, 4.63, 9.9, 19], cup: 145 }, // ALMONDS,BLANCHED
+  { key: "walnuts", ndb: '12155', match: /\bwalnuts?\b/, per100: [654, 15.23, 65.21, 6.126, 13.71, 2.61, 6.7, 2], cup: 117 }, // WALNUTS,ENGLISH
+  { key: "cashews", ndb: '12087', match: /\bcashews?\b/, per100: [553, 18.22, 43.85, 7.783, 30.19, 5.91, 3.3, 12], cup: 137 }, // NUTS,CASHEW NUTS,RAW
+  { key: "pecans", ndb: '12142', match: /\bpecans?\b/, per100: [691, 9.17, 71.97, 6.18, 13.86, 3.97, 9.6, 0], cup: 109 }, // PECANS
+  { key: "pine nuts", ndb: '12147', match: /\bpine nuts\b/, per100: [673, 13.69, 68.37, 4.899, 13.08, 3.59, 3.7, 2], cup: 135 }, // NUTS,PINE NUTS,DRIED
+  { key: "hazelnuts", ndb: '12120', match: /\bhazelnuts\b/, per100: [628, 14.95, 60.75, 4.464, 16.7, 4.34, 9.7, 0], cup: 115 }, // HAZELNUTS OR FILBERTS
   { key: "sesame seeds", ndb: '12166', match: /\bsesame seeds?\b|\btahini\b/, per100: [595, 17, 53.76, 7.529, 21.19, 0.49, 9.3, 115], cup: 240 }, // SESAME BUTTER,TAHINI,FROM RSTD&TSTD KRNLS (MOST COMMON TYPE)
-  { key: "chia seeds", ndb: '12006', match: /\bchia\b/, per100: [486, 16.54, 30.74, 3.33, 42.12, 0, 34.4, 16] }, // CHIA SEEDS,DRIED
+  { key: "chia seeds", ndb: '12006', match: /\bchia\b/, per100: [486, 16.54, 30.74, 3.33, 42.12, 0, 34.4, 16], cup: 160 }, // CHIA SEEDS,DRIED
   { key: "flax seeds", ndb: '12220', match: /\bflax ?seeds?\b|\blinseeds?\b/, per100: [534, 18.29, 42.16, 3.663, 28.88, 1.55, 27.3, 30], cup: 165 }, // SEEDS,FLAXSEED
   { key: "pumpkin seeds", ndb: '12014', match: /\bpumpkin seeds\b|\bpepitas\b/, per100: [559, 30.23, 49.05, 8.659, 10.71, 1.4, 6, 7], cup: 129 }, // PUMPKIN&SQUASH SD KRNLS,DRIED
   { key: "sunflower seeds", ndb: '12036', match: /\bsunflower seeds\b/, per100: [584, 20.78, 51.46, 4.455, 20, 2.62, 8.6, 9], cup: 46 }, // SUNFLOWER SD KRNLS,DRIED
-  { key: "coconut", ndb: '12108', match: /\b(?:desiccated |shredded )?coconut\b(?! (?:milk|oil|cream))/, per100: [660, 6.88, 64.53, 57.218, 23.65, 7.35, 16.3, 37] }, // COCONUT MEAT,DRIED (DESICCATED),NOT SWTND
+  { key: "coconut", ndb: '12108', match: /\b(?:desiccated |shredded )?coconut\b(?! (?:milk|oil|cream))/, per100: [660, 6.88, 64.53, 57.218, 23.65, 7.35, 16.3, 37], cup: 80 }, // COCONUT MEAT,DRIED (DESICCATED),NOT SWTND
   { key: "brown rice", ndb: '20036', match: /\bbrown rice\b/, per100: [367, 7.54, 3.2, 0.591, 76.25, 0.66, 3.6, 5], cup: 185 }, // RICE,BROWN,LONG-GRAIN,RAW
   { key: "rice", ndb: '20044', match: /\brice\b(?! (?:vinegar|noodles|paper|flour))/, per100: [365, 7.13, 0.66, 0.18, 79.95, 0.12, 1.3, 5], cup: 185 }, // RICE,WHITE,LONG-GRAIN,REG,RAW,ENR
   { key: "rice noodles", ndb: '20133', match: /\brice noodles\b|\bvermicelli\b/, per100: [364, 5.95, 0.56, 0.153, 80.18, 0.12, 1.6, 182] }, // RICE NOODLES,DRY
@@ -139,25 +160,63 @@ export const FOODS: readonly Food[] = [
   { key: "barley", ndb: '20005', match: /\bbarley\b/, per100: [352, 9.91, 1.16, 0.244, 77.72, 0.8, 15.6, 9], cup: 200 }, // BARLEY,PEARLED,RAW
   { key: "oats", ndb: '08120', match: /\b(?:rolled |old[- ]fashioned |porridge |steel[- ]cut )?oats\b|\boatmeal\b/, per100: [379, 13.15, 6.52, 1.11, 67.7, 0.99, 10.1, 6], cup: 81 }, // CEREALS,OATS,REG & QUICK,NOT FORT,DRY
   { key: "whole wheat pasta", ndb: '20124', match: /\bwhole ?(?:wheat|meal) (?:pasta|spaghetti|penne)\b/, per100: [352, 13.87, 2.93, 0.428, 73.37, 2.74, 9.2, 6], cup: 91 }, // PASTA,WHOLE-WHEAT,DRY
-  { key: "pasta", ndb: '20120', match: /\bpasta\b|\bspaghetti\b|\bpenne\b|\bfusilli\b|\brigatoni\b|\bmacaroni\b|\blinguine\b|\btagliatelle\b|\borzo\b|\blasagne?\b|\bnoodles\b/, per100: [371, 13.04, 1.51, 0.277, 74.67, 2.67, 3.2, 6], cup: 91 }, // PASTA,DRY,ENR
-  { key: "whole wheat flour", ndb: '20649', match: /\bwhole ?(?:wheat|meal) flour\b/, per100: [332, 9.61, 1.95, 0.43, 74.48, 1.02, 13.1, 3] }, // WHEAT FLR,WHOLE-GRAIN,SOFT WHEAT
+  { key: "pasta", ndb: '20120', match: /\bpasta\b|\bspaghetti\b|\bpenne\b|\bfusilli\b|\brigatoni\b|\bmacaroni\b|\blinguine\b|\bfettuccine\b|\bfarfalle\b|\brotini\b|\bziti\b|\bpappardelle\b|\bbucatini\b|\bshells\b|\belbows?\b|\btagliatelle\b|\borzo\b|\blasagne?\b|\bnoodles\b/, per100: [371, 13.04, 1.51, 0.277, 74.67, 2.67, 3.2, 6], cup: 91 }, // PASTA,DRY,ENR
+  { key: "whole wheat flour", ndb: '20649', match: /\bwhole ?(?:wheat|meal) flour\b/, per100: [332, 9.61, 1.95, 0.43, 74.48, 1.02, 13.1, 3], cup: 120 }, // WHEAT FLR,WHOLE-GRAIN,SOFT WHEAT
   { key: "bread flour", ndb: '20083', match: /\bbread flour\b|\bstrong flour\b/, per100: [361, 11.98, 1.66, 0.244, 72.53, 0.31, 2.4, 2], cup: 137 }, // WHEAT FLR,WHITE,BREAD,ENR
   { key: "cornstarch", ndb: '20027', match: /\bcorn ?starch\b|\bcornflour\b/, per100: [381, 0.26, 0.05, 0.009, 91.27, 0, 0.9, 9], cup: 128 }, // CORNSTARCH
   { key: "cornmeal", ndb: '20020', match: /\bcorn ?meal\b|\bpolenta\b/, per100: [362, 8.12, 3.59, 0.505, 76.89, 0.64, 7.3, 35], cup: 122 }, // CORNMEAL,WHOLE-GRAIN,YEL
   { key: "flour", ndb: '20581', match: /\bflour\b/, per100: [364, 10.33, 0.98, 0.155, 76.31, 0.27, 2.7, 2], cup: 125 }, // WHEAT FLR,WHITE,ALL-PURPOSE,ENR,UNBLEACHED
   { key: "bread crumbs", ndb: '18079', match: /\b(?:bread ?crumbs|panko)\b/, per100: [395, 13.35, 5.3, 1.203, 71.98, 6.2, 4.5, 732], cup: 108 }, // BREAD CRUMBS,DRY,GRATED,PLN
+  { key: "corn tortilla", ndb: '18363', match: /\bcorn tortillas?\b/, per100: [218, 5.7, 2.85, 0.453, 44.64, 0.88, 6.3, 45], each: 26 }, // TORTILLAS,RTB OR -FRY,CORN
+  { key: "tortilla chips", ndb: '19056', match: /\btortilla chips\b|\bnachos?\b/, per100: [472, 7.1, 20.68, 2.811, 67.78, 0.78, 5.4, 328], cup: 26 }, // TORTILLA CHIPS,PLAIN
+  { key: "potato chips", ndb: '19809', match: /\bpotato chips\b|\bcrisps\b/, per100: [536, 7, 34.6, 5.43, 52.9, 0, 4.8, 594], cup: 20 }, // POTATO CHIPS,PLN,MADE W/PART HYDR SOYBN OIL,SALTED
+  { key: "graham crackers", ndb: '18173', match: /\bgraham crackers?\b/, per100: [430, 6.69, 10.6, 1.633, 77.66, 24.85, 3.4, 459], cup: 84 }, // COOKIES,GRAHAM CRACKERS,PLN OR HONEY (INCL CINN)
+  { key: "crackers", ndb: '18228', match: /\bsaltines?\b|\bcrackers\b|\britz\b/, per100: [418, 9.46, 8.64, 1.653, 74.05, 1.29, 2.8, 941], cup: 60 }, // CRACKERS,SALTINES (INCL OYSTER,SODA,SOUP)
+  { key: "puff pastry", ndb: '18337', match: /\bpuff pastry\b/, per100: [551, 7.3, 38.1, 9.643, 45.1, 0.74, 1.5, 249] }, // PUFF PASTRY,FRZ,RTB
+  { key: "phyllo", ndb: '18338', match: /\bphyllo\b|\bfilo\b/, per100: [299, 7.1, 6, 1.47, 52.6, 0.18, 1.9, 483] }, // PHYLLO DOUGH
+  { key: "pie crust", ndb: '18945', match: /\bpie (?:crust|shell|dough)\b|\bpastry (?:case|shell)\b/, per100: [468, 5.52, 28.74, 8.129, 46.79, 0, 1.4, 353] }, // PIE CRUST,DEEP DISH,FRZ,UNBAKED,MADE W/ ENR FLR
+  { key: "egg noodles", ndb: '20409', match: /\begg noodles\b/, per100: [384, 14.16, 4.44, 1.18, 71.27, 1.88, 3.3, 21], cup: 38 }, // NOODLES,EGG,DRY,UNENR
+  { key: "pita", ndb: '18041', match: /\bpitas?\b/, per100: [275, 9.1, 1.2, 0.166, 55.7, 1.3, 2.2, 536], each: 60 }, // BREAD,PITA,WHITE,ENRICHED
+  { key: "naan", ndb: '28307', match: /\bnaans?\b/, per100: [291, 9.62, 5.65, 1.393, 50.43, 3.55, 2.2, 465], each: 90 }, // BREAD,NAAN,PLN,COMMLY PREP,REFR
+  { key: "bagel", ndb: '18406', match: /\bbagels?\b/, per100: [275, 10.5, 1.6, 0.22, 53.4, 0, 2.3, 534], each: 105 }, // BAGELS,PLN,ENR,WO/CA PROP (INCL ONION,POPPY,SESAME)
+  { key: "buns", ndb: '18350', match: /\b(?:hamburger|burger|hot ?dog) buns?\b/, per100: [279, 9.77, 3.91, 0.842, 50.12, 7.28, 1.8, 494], each: 44 }, // ROLLS,HAMBURGER OR HOTDOG,PLN
+  { key: "french fries", ndb: '31031', match: /\b(?:french )?fries\b|\bchips \(fries\)/, per100: [193, 2.7, 10, 2.59, 22.95, 0.49, 2.3, 393], cup: 100 }, // POTATOES,FRENCH FR,CROSS CUT,FRZ,UNPREP
   { key: "tortilla", ndb: '18970', match: /\btortillas?\b|\bwraps?\b/, per100: [297, 8.01, 7.58, 1.225, 49.27, 2.66, 2.4, 742], each: 45 }, // TORTILLAS,RTB OR -FRY,FLR,SHELF STABLE
   { key: "whole wheat bread", ndb: '18075', match: /\bwhole ?(?:wheat|meal|grain) bread\b/, per100: [252, 12.45, 3.5, 0.722, 42.71, 4.34, 6, 455], each: 32 }, // BREAD,WHOLE-WHEAT,COMM. PREPARED
+  { key: "dough", ndb: '18069', match: /\b(?:pizza|bread) (?:dough|crust|base)\b/, per100: [266, 8.85, 3.33, 0.698, 49.42, 5.67, 2.7, 490] }, // BREAD,WHITE,COMMLY PREP (INCL SOFT BREAD CRUMBS)
   { key: "bread", ndb: '18069', match: /\bbread\b|\bbaguette\b|\bsourdough\b|\bciabatta\b|\bbuns?\b|\brolls\b/, per100: [266, 8.85, 3.33, 0.698, 49.42, 5.67, 2.7, 490], each: 29 }, // BREAD,WHITE,COMMLY PREP (INCL SOFT BREAD CRUMBS)
   { key: "brown sugar", ndb: '19334', match: /\bbrown sugar\b|\bdemerara\b|\bmuscovado\b/, per100: [380, 0.12, 0, 0, 98.09, 97.02, 0, 28], cup: 144 }, // SUGARS,BROWN
   { key: "powdered sugar", ndb: '19336', match: /\b(?:icing|powdered|confectioners'?) sugar\b/, per100: [389, 0, 0, 0, 99.77, 97.81, 0, 2], cup: 120 }, // SUGARS,POWDERED
   { key: "sugar", ndb: '19335', match: /\bsugar\b/, per100: [387, 0, 0, 0, 99.98, 99.8, 0, 1], cup: 202 }, // SUGARS,GRANULATED
   { key: "honey", ndb: '19296', match: /\bhoney\b/, per100: [304, 0.3, 0, 0, 82.4, 82.12, 0.2, 4], cup: 339 }, // HONEY
   { key: "maple syrup", ndb: '19353', match: /\bmaple syrup\b/, per100: [260, 0.04, 0.06, 0.007, 67.04, 60.46, 0, 12], cup: 320 }, // SYRUPS,MAPLE
-  { key: "chocolate", ndb: '19904', match: /\bchocolate\b|\bcacao\b/, per100: [598, 7.79, 42.63, 24.489, 45.9, 23.99, 10.9, 20] }, // CHOCOLATE,DK,70-85% CACAO SOL
+  { key: "chocolate chips", ndb: '19080', match: /\bchocolate chips?\b|\bchoc(?:olate)? chunks\b|\bsemi-?sweet chocolate\b/, per100: [480, 4.2, 30, 17.75, 63.9, 54.5, 5.9, 11], cup: 182 }, // CANDIES,SEMISWEET CHOC
+  { key: "milk chocolate", ndb: '19120', match: /\bmilk chocolate\b/, per100: [535, 7.65, 29.66, 18.509, 59.4, 51.5, 3.4, 79], cup: 170 }, // CANDIES,MILK CHOC
+  { key: "marshmallows", ndb: '19116', match: /\bmarshmallows?\b/, per100: [318, 1.8, 0.2, 0.056, 81.3, 57.56, 0.1, 80], cup: 50 }, // CANDIES,MARSHMALLOWS
+  { key: "corn syrup", ndb: '19350', match: /\bcorn syrup\b/, per100: [283, 0, 0.2, 0, 76.79, 76.77, 0, 62], cup: 341 }, // SYRUPS,CORN,LT
+  { key: "molasses", ndb: '19304', match: /\bmolasses\b/, per100: [290, 0, 0.1, 0.018, 74.73, 74.72, 0, 37], cup: 337 }, // MOLASSES
+  { key: "chocolate", ndb: '19904', match: /\bchocolate\b|\bcacao\b/, per100: [598, 7.79, 42.63, 24.489, 45.9, 23.99, 10.9, 20], cup: 170 }, // CHOCOLATE,DK,70-85% CACAO SOL
   { key: "cocoa", ndb: '19165', match: /\bcocoa\b/, per100: [228, 19.6, 13.7, 8.07, 57.9, 1.75, 37, 21], cup: 86 }, // COCOA,DRY PDR,UNSWTND
   { key: "jam", ndb: '19297', match: /\bjam\b|\bpreserves\b|\bmarmalade\b/, per100: [278, 0.37, 0.07, 0.01, 68.86, 48.5, 1.1, 32], cup: 320 }, // JAMS AND PRESERVES
-  { key: "stock", ndb: '06172', match: /\b(?:chicken|beef|vegetable|veg) (?:stock|broth)\b|\bstock\b|\bbroth\b/, per100: [36, 2.52, 1.2, 0.321, 3.53, 1.58, 0, 143], cup: 240 }, // SOUP,STOCK,CHICK,HOME-PREPARED
+  { key: "beef broth", ndb: '06475', match: /\bbeef (?:stock|broth|bouillon)\b/, per100: [3, 0.21, 0.08, 0.04, 0.25, 0.2, 0, 382], cup: 240 }, // SOUP,BF BROTH OR BOUILLON,PDR,PREP W/H2O
+  { key: "vegetable broth", ndb: '06700', match: /\b(?:vegetable|veg|veggie) (?:stock|broth)\b/, per100: [5, 0.24, 0.07, 0.028, 0.93, 0.55, 0, 296], cup: 221 }, // SOUP,VEG BROTH,READY TO SERVE
+  { key: "stock", ndb: '06480', match: /\b(?:chicken )?(?:stock|broth|bouillon)\b/, per100: [4, 0.28, 0.23, 0.057, 0.3, 0.29, 0, 401], cup: 241 }, // SOUP,CHICK BROTH OR BOUILLON,DRY,PREP W/ H2O
+  { key: "pasta sauce", ndb: '06931', match: /\b(?:pasta|marinara|spaghetti) sauce\b|\bmarinara\b/, per100: [50, 1.39, 1.61, 0.218, 7.43, 4.91, 1.8, 437], cup: 250 }, // SAUCE,PASTA,SPAGHETTI/MARINARA,RTS
+  { key: "pizza sauce", ndb: '06152', match: /\bpizza sauce\b/, per100: [54, 2.18, 1.15, 0.46, 8.66, 3.78, 2, 348], cup: 252 }, // SAUCE,PIZZA,CND,RTS
+  { key: "barbecue sauce", ndb: '06150', match: /\b(?:bbq|barbecue|barbeque) sauce\b/, per100: [172, 0.82, 0.63, 0.045, 40.77, 33.24, 0.9, 1027], cup: 272 }, // SAUCE,BARBECUE
+  { key: "ranch", ndb: '04639', match: /\branch\b/, per100: [430, 1.32, 44.54, 6.964, 5.9, 4.69, 0, 901], cup: 240 }, // SALAD DRSNG,RANCH DRSNG,REG
+  { key: "italian dressing", ndb: '04114', match: /\bitalian dressing\b/, per100: [240, 0.41, 21.12, 2.948, 12.12, 10.77, 0, 993], cup: 235 }, // SALAD DRSNG,ITALIAN DRSNG,COMM,REG
+  { key: "hoisin", ndb: '06175', match: /\bhoisin\b/, per100: [220, 3.31, 3.39, 0.568, 44.08, 27.26, 2.8, 1615], cup: 256 }, // SAUCE,HOISIN,RTS
+  { key: "teriyaki", ndb: '06112', match: /\bteriyaki\b/, per100: [89, 5.93, 0.02, 0, 15.56, 14.1, 0.1, 3833], cup: 288 }, // SAUCE,TERIYAKI,RTS
+  { key: "worcestershire", ndb: '06971', match: /\bworcestershire\b/, per100: [78, 0, 0, 0, 19.46, 10.03, 0, 980], cup: 272 }, // SAUCE,WORCESTERSHIRE
+  { key: "hot sauce", ndb: '06631', match: /\bsriracha\b|\bhot sauce\b/, per100: [93, 1.93, 0.93, 0, 19.16, 15.11, 2.2, 2124], cup: 312 }, // SAUCE,HOT CHILE,SRIRACHA
+  { key: "salsa", ndb: '06164', match: /\bsalsa\b/, per100: [29, 1.52, 0.17, 0.021, 6.64, 4.01, 1.9, 711], cup: 288, fvl: true }, // SAUCE,SALSA,RTS
+  { key: "cream of mushroom soup", ndb: '06043', match: /\bcream of mushroom\b/, per100: [79, 1.35, 5.3, 0.964, 6.8, 0.4, 0.7, 691], cup: 252 }, // SOUP,CRM OF MUSHROOM,CND,COND
+  { key: "cream of chicken soup", ndb: '06736', match: /\bcream of chicken\b/, per100: [99, 2.4, 6.5, 1.61, 7.7, 0, 0, 788], cup: 251 }, // SOUP,CRM OF CHICK,CND,COND,SINGLE BRAND
+  { key: "refried beans", ndb: '16103', match: /\brefried beans\b/, per100: [90, 4.98, 2.01, 0.631, 13.55, 0.54, 3.7, 370], cup: 238, fvl: true }, // REFRIED BNS,CND,TRADITIONAL STYLE (INCLUDES USDA COMMODITY)
+  { key: "pickles", ndb: '11937', match: /\bpickles?\b|\bgherkins?\b/, per100: [12, 0.5, 0.3, 0.079, 2.41, 1.07, 1, 809], cup: 143, fvl: true }, // PICKLES,CUCUMBER,DILL OR KOSHER DILL
+  { key: "sauerkraut", ndb: '11439', match: /\bsauerkraut\b/, per100: [19, 0.91, 0.14, 0.034, 4.28, 1.78, 2.9, 661], cup: 142, fvl: true }, // SAUERKRAUT,CND,SOL&LIQUIDS
+  { key: "applesauce", ndb: '09019', match: /\bapple ?sauce\b/, per100: [42, 0.17, 0.1, 0.008, 11.27, 9.39, 1.1, 2], cup: 244, fvl: true }, // APPLESAUCE,CND,UNSWTND,WO/ADDED VIT C (INCLUDES USDA COMMOD)
   { key: "soy sauce", ndb: '16123', match: /\bsoy sauce\b|\btamari\b|\bshoyu\b/, per100: [53, 8.14, 0.57, 0.073, 4.93, 0.4, 0.8, 5493], cup: 256 }, // SOY SAU MADE FROM SOY&WHEAT (SHOYU)
   { key: "fish sauce", ndb: '06179', match: /\bfish sauce\b/, per100: [35, 5.06, 0.01, 0.003, 3.64, 3.64, 0, 7851], cup: 288 }, // SAUCE,FISH,READY-TO-SERVE
   { key: "vinegar", ndb: '02048', match: /\bvinegar\b/, per100: [21, 0, 0, 0, 0.93, 0.4, 0, 5], cup: 238 }, // VINEGAR,CIDER

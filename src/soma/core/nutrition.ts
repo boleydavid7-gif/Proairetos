@@ -1,30 +1,35 @@
 /*
  * What is in a recipe and its Nutri-Score, from the ingredients as written. Nutrients per 100 g come from USDA SR28
  * (public domain, nutritionTable.ts) for the raw ingredients; amounts become grams by unit, by SR28's household
- * weights for cups and spoons, or by a usual weight for one ("2 onions"). Nutri-Score is computed with the published
- * 2017 algorithm (Santé publique France) for general foods, on the whole recipe's raw weight. Lines too small to
- * matter (salt to taste, a pinch of spice) are left out; lines that cannot be read are listed, and with too few read
- * no grade is given.
+ * weights for cups and spoons, or by a usual weight for one ("2 onions"). Nutri-Score is computed with the updated
+ * algorithm for general foods (Santé publique France, 2023), on the whole recipe's weight. Lines too small to matter
+ * (salt to taste, a pinch of spice) are left out; lines that cannot be read are listed, and when they could weigh
+ * more than a tenth of the dish no grade is given, since what was not read is often the richest part.
  */
 import { FOODS, type Food } from './nutritionTable';
 import { readIngredient, type Ingredient } from './ingredients';
 
 export const NUTRITION_SOURCE =
-  'Nutrients: USDA National Nutrient Database for Standard Reference, Release 28 (raw ingredients). Nutri-Score: Santé publique France, 2017 algorithm for general foods.';
+  'Nutrients: USDA National Nutrient Database for Standard Reference, Release 28. Nutri-Score: Santé publique France, updated algorithm for general foods (2023).';
 
 export type Nutrients = { kcal: number; protein: number; fat: number; saturated: number; carbs: number; sugars: number; fibre: number; sodium: number };
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'E';
+/** Each part of the score: points against (energy, sugars, saturated fat, salt) and for (protein, fibre, fruit and vegetables). */
+export type ScoreParts = { energy: number; sugars: number; saturated: number; salt: number; protein: number; fibre: number; fvl: number; proteinCounted: boolean };
 export type Nutrition = {
   /** Totals for the whole recipe. */
   total: Nutrients;
   grams: number;
-  /** Share of the weight that is fruit, vegetables, legumes, nuts and olive, rapeseed or walnut oil. */
+  /** Share of the weight that is fruit, vegetables and legumes. */
   fvlPercent: number;
   read: { line: string; food: string; grams: number }[];
   /** Lines with an amount that could not be read, as written. */
   unread: string[];
+  /** A rough weight for the lines not read, to know whether a grade would be fair. */
+  unreadGrams: number;
   grade?: Grade;
   points?: number;
+  parts?: ScoreParts;
 };
 
 const ZERO: Nutrients = { kcal: 0, protein: 0, fat: 0, saturated: 0, carbs: 0, sugars: 0, fibre: 0, sodium: 0 };
@@ -90,27 +95,53 @@ const add = (sum: Nutrients, per100: readonly number[], grams: number): Nutrient
 
 const points = (value: number, steps: readonly number[]) => steps.filter((step) => value > step).length;
 
-/** Nutri-Score 2017 for general foods, from nutrients per 100 g and the fruit, vegetable, legume and nut share. */
-export function nutriScore(per100: Nutrients, fvlPercent: number): { grade: Grade; points: number } {
+/**
+ * Nutri-Score for general foods, updated algorithm (Santé publique France, 2023), from nutrients per 100 g and the
+ * fruit, vegetable and legume share. Red meat dishes (red meat at least half the weight) count at most 2 protein points.
+ */
+export function nutriScore(per100: Nutrients, fvlPercent: number, redMeat = false): { grade: Grade; points: number; parts: ScoreParts } {
   const kj = per100.kcal * 4.184;
-  const negative =
-    points(kj, [335, 670, 1005, 1340, 1675, 2010, 2345, 2680, 3015, 3350]) +
-    points(per100.sugars, [4.5, 9, 13.5, 18, 22.5, 27, 31, 36, 40, 45]) +
-    points(per100.saturated, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) +
-    points(per100.sodium, [90, 180, 270, 360, 450, 540, 630, 720, 810, 900]);
+  const salt = (per100.sodium * 2.5) / 1000;
+  const against = {
+    energy: points(kj, [335, 670, 1005, 1340, 1675, 2010, 2345, 2680, 3015, 3350]),
+    sugars: points(per100.sugars, [3.4, 6.8, 10, 14, 17, 20, 24, 27, 31, 34, 37, 41, 44, 48, 51]),
+    saturated: points(per100.saturated, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+    salt: points(salt, [0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4]),
+  };
+  const negative = against.energy + against.sugars + against.saturated + against.salt;
   const fvl = fvlPercent > 80 ? 5 : fvlPercent > 60 ? 2 : fvlPercent > 40 ? 1 : 0;
-  const fibre = points(per100.fibre, [0.9, 1.9, 2.8, 3.7, 4.7]);
-  const protein = points(per100.protein, [1.6, 3.2, 4.8, 6.4, 8.0]);
-  const score = negative >= 11 && fvl < 5 ? negative - fibre - fvl : negative - fibre - fvl - protein;
-  const grade: Grade = score <= -1 ? 'A' : score <= 2 ? 'B' : score <= 10 ? 'C' : score <= 18 ? 'D' : 'E';
-  return { grade, points: score };
+  const fibre = points(per100.fibre, [3.0, 4.1, 5.2, 6.3, 7.4]);
+  const protein = Math.min(redMeat ? 2 : 7, points(per100.protein, [2.4, 4.8, 7.2, 9.6, 12, 14, 17]));
+  // With 11 or more points against, protein no longer counts for the dish.
+  const proteinCounted = negative < 11;
+  const score = negative - fibre - fvl - (proteinCounted ? protein : 0);
+  const grade: Grade = score <= 0 ? 'A' : score <= 2 ? 'B' : score <= 10 ? 'C' : score <= 18 ? 'D' : 'E';
+  return { grade, points: score, parts: { ...against, protein, fibre, fvl, proteinCounted } };
 }
+
+/** A rough weight for a line Soma could not read: enough to tell a teaspoon from a pound. */
+function roughGrams(ingredient: Ingredient): number {
+  const amount = ingredient.amount ?? 0;
+  const unit = ingredient.unit?.toLowerCase();
+  if (!amount) return 0;
+  if (unit && MASS[unit]) return amount * MASS[unit];
+  if (unit && VOLUME[unit]) return amount * VOLUME[unit] * 180;
+  if (unit && PINCH.test(unit)) return 0;
+  if (unit && CAN.test(unit)) return amount * 400;
+  if (unit === 'stick' || unit === 'sticks') return amount * 113;
+  if (unit && ONE.test(unit)) return amount * 20;
+  return amount * 100;
+}
+
+const RED_MEAT = new Set(['ground beef', 'beef', 'pork', 'ground pork', 'lamb', 'bacon', 'sausage', 'italian sausage', 'ham', 'pepperoni', 'salami', 'chorizo', 'hot dogs']);
 
 /** The recipe's nutrients and Nutri-Score from its ingredient lines. */
 export function recipeNutrition(lines: readonly string[]): Nutrition {
   let total = ZERO;
   let grams = 0;
   let fvlGrams = 0;
+  let redMeatGrams = 0;
+  let unreadGrams = 0;
   const read: Nutrition['read'] = [];
   const unread: string[] = [];
   for (const line of lines) {
@@ -124,18 +155,20 @@ export function recipeNutrition(lines: readonly string[]): Nutrition {
       total = add(total, food.per100, weight);
       grams += weight;
       if (food.fvl) fvlGrams += weight;
+      if (RED_MEAT.has(food.key)) redMeatGrams += weight;
       read.push({ line: text, food: food.key, grams: Math.round(weight) });
       continue;
     }
     if (NEGLIGIBLE.test(name) || SMALL.test(`${name} ${ingredient.note ?? ''}`) || (food && ingredient.amount === undefined)) continue;
     unread.push(text);
+    unreadGrams += roughGrams(ingredient);
   }
   const fvlPercent = grams ? (fvlGrams / grams) * 100 : 0;
-  const result: Nutrition = { total, grams, fvlPercent, read, unread };
-  // Rated only when most lines were read: at least two, and three in four of those with an amount.
-  if (read.length >= 2 && read.length / (read.length + unread.length) >= 0.75 && grams > 0) {
+  const result: Nutrition = { total, grams, fvlPercent, read, unread, unreadGrams: Math.round(unreadGrams) };
+  // Rated only when at least two lines were read and what was not read could weigh no more than a tenth of the dish.
+  if (read.length >= 2 && grams > 0 && unreadGrams <= (grams + unreadGrams) * 0.1) {
     const per100 = Object.fromEntries(Object.entries(total).map(([key, value]) => [key, (value / grams) * 100])) as Nutrients;
-    Object.assign(result, nutriScore(per100, fvlPercent));
+    Object.assign(result, nutriScore(per100, fvlPercent, redMeatGrams >= grams / 2));
   }
   return result;
 }

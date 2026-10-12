@@ -1,4 +1,4 @@
-import { NUTRITION_SOURCE, perServing, type Grade, type Nutrition } from '../core/nutrition';
+import { NUTRITION_SOURCE, perServing, type Grade, type Nutrition, type ScoreParts } from '../core/nutrition';
 
 const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'E'];
 const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', E: 'Least healthy' };
@@ -6,6 +6,24 @@ const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Midd
 /** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fibre is EFSA's adequate intake. */
 const REFERENCE = { kcal: 2000, protein: 50, fat: 70, saturated: 20, carbs: 260, sugars: 90, fibre: 25, salt: 6 };
 const REFERENCE_SOURCE = 'Day’s reference: EU reference intakes for an adult (Regulation 1169/2011); fibre, EFSA’s adequate intake of 25 g.';
+
+/** The points that make up the grade, per 100 g, as Nutri-Score adds them up. */
+function ScoreWorking({ parts, points }: { parts: ScoreParts; points: number }) {
+  const against: [string, number, number][] = [['Energy', parts.energy, 10], ['Sugars', parts.sugars, 15], ['Saturated fat', parts.saturated, 10], ['Salt', parts.salt, 20]];
+  const towards: [string, number, number, boolean][] = [['Protein', parts.protein, 7, parts.proteinCounted], ['Fibre', parts.fibre, 5, true], ['Fruit, vegetables, legumes', parts.fvl, 5, true]];
+  return (
+    <details className="nutri-working">
+      <summary>How it was worked out</summary>
+      <ul>
+        {against.map(([name, value, most]) => <li key={name}><span>{name}</span><span>+{value} <small>of {most}</small></span></li>)}
+        {towards.map(([name, value, most, counted]) => <li key={name}><span>{name}{counted ? '' : ' (not counted)'}</span><span>{counted && value ? `−${value}` : '0'} <small>of {most}</small></span></li>)}
+        <li className="nutri-working__total"><span>Score</span><span>{points}</span></li>
+      </ul>
+      {!parts.proteinCounted && <p className="nutrition__line">With 11 or more points against, protein is not counted.</p>}
+      <p className="nutrition__line">A: 0 or less · B: 1 to 2 · C: 3 to 10 · D: 11 to 18 · E: 19 or more</p>
+    </details>
+  );
+}
 
 /** The grade alone, small: beside a recipe's title. */
 export function NutriBadge({ grade, onClick }: { grade: Grade; onClick?: () => void }) {
@@ -66,6 +84,7 @@ export function NutritionPanel({ nutrition, servings }: { nutrition: Nutrition; 
             ))}
           </div>
           <div className="nutri-scale__ends" aria-hidden="true"><span>Healthiest</span><span>Least healthy</span></div>
+          {nutrition.parts && <ScoreWorking parts={nutrition.parts} points={nutrition.points ?? 0} />}
         </div>
       ) : (
         <div className="card nutri-hero">
@@ -115,7 +134,7 @@ export function NutritionPanel({ nutrition, servings }: { nutrition: Nutrition; 
                 );
               })}
             </ul>
-            <p className="fine">Fruit, vegetables, legumes and nuts: {Math.round(nutrition.fvlPercent)}% of the weight.</p>
+            <p className="fine">Fruit, vegetables, legumes: {Math.round(nutrition.fvlPercent)}% of the weight.</p>
           </div>
         </>
       )}

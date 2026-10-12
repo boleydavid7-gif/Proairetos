@@ -4,21 +4,31 @@ import { readIngredient } from '../../soma/core/ingredients';
 
 const per100 = (over: Partial<Record<'kcal' | 'protein' | 'fat' | 'saturated' | 'carbs' | 'sugars' | 'fibre' | 'sodium', number>>) => ({ kcal: 0, protein: 0, fat: 0, saturated: 0, carbs: 0, sugars: 0, fibre: 0, sodium: 0, ...over });
 
-describe('Nutri-Score (2017, general foods)', () => {
+describe('Nutri-Score (2023, general foods)', () => {
   it('gives a vegetable dish an A', () => {
-    // N = 0; P = fibre 3 + fruit and vegetables 5 + protein 1: -9.
-    expect(nutriScore(per100({ kcal: 50, sugars: 2, saturated: 0.5, sodium: 40, fibre: 3, protein: 2 }), 90)).toEqual({ grade: 'A', points: -9 });
+    // N = 0. P = fibre 4.5 (2) + fruit and vegetables 90% (5) + protein 2 g (0): -7.
+    const result = nutriScore(per100({ kcal: 50, sugars: 2, saturated: 0.5, sodium: 40, fibre: 4.5, protein: 2 }), 90);
+    expect(result.grade).toBe('A');
+    expect(result.points).toBe(-7);
   });
 
-  it('gives a sweet, fatty, salty bake an E, and leaves protein out above 11 negative points', () => {
-    // Energy 2008 kJ: 5; sugars 30: 6; saturates 10: 9; sodium 300: 3. N = 23. Fibre 2: 2. Protein not counted: 21.
-    expect(nutriScore(per100({ kcal: 480, sugars: 30, saturated: 10, sodium: 300, fibre: 2, protein: 9 }), 0)).toEqual({ grade: 'E', points: 21 });
+  it('gives a sweet, fatty, salty bake an E, and leaves protein out at 11 or more points against', () => {
+    // Energy 2008 kJ: 5; sugars 30 g: 8; saturates 10 g: 9; salt 0.75 g: 3. N = 25. Fibre 2 g: 0. Protein not counted.
+    const result = nutriScore(per100({ kcal: 480, sugars: 30, saturated: 10, sodium: 300, fibre: 2, protein: 9 }), 0);
+    expect(result).toMatchObject({ grade: 'E', points: 25, parts: { energy: 5, sugars: 8, saturated: 9, salt: 3, proteinCounted: false } });
   });
 
   it('places the grade boundaries as published', () => {
-    // 418 kJ is one energy point and nothing offsets it: 1, a B. Two more points of sugar: 3, a C.
-    expect(nutriScore(per100({ kcal: 100 }), 0)).toEqual({ grade: 'B', points: 1 });
-    expect(nutriScore(per100({ kcal: 100, sugars: 10 }), 0)).toEqual({ grade: 'C', points: 3 });
+    expect(nutriScore(per100({}), 0).grade).toBe('A');
+    // 418 kJ is one energy point and nothing offsets it: 1, a B. Sugar of 10 g adds two: 3, a C.
+    expect(nutriScore(per100({ kcal: 100 }), 0)).toMatchObject({ grade: 'B', points: 1 });
+    expect(nutriScore(per100({ kcal: 100, sugars: 10 }), 0)).toMatchObject({ grade: 'C', points: 3 });
+  });
+
+  it('counts at most 2 protein points for red meat', () => {
+    const steak = per100({ kcal: 250, saturated: 6, sodium: 60, protein: 20 });
+    expect(nutriScore(steak, 0).parts.protein).toBe(7);
+    expect(nutriScore(steak, 0, true).parts.protein).toBe(2);
   });
 });
 
@@ -45,7 +55,7 @@ describe('a recipe', () => {
   it('reads what it can, leaves out the small things, and rates it', () => {
     const result = recipeNutrition(soup);
     expect(result.unread).toEqual([]);
-    expect(result.read.map((each) => each.food)).toEqual(['lentils', 'onion', 'carrot', 'garlic', 'olive oil', 'stock']);
+    expect(result.read.map((each) => each.food)).toEqual(['lentils', 'onion', 'carrot', 'garlic', 'olive oil', 'vegetable broth']);
     expect(result.grade).toBeDefined();
     expect(['A', 'B']).toContain(result.grade);
   });
@@ -66,5 +76,25 @@ describe('a recipe', () => {
   it('rates a cake lower than the soup', () => {
     const cake = recipeNutrition(['2 cups flour', '1 1/2 cups sugar', '1 cup butter', '3 eggs', '1 cup milk']);
     expect(cake.grade).toMatch(/[DE]/);
+  });
+
+  it('gives no grade when a large line could not be read, even with most lines read', () => {
+    // Four small lines read; the unknown grain is most of the dish.
+    const result = recipeNutrition(['1 lb mystery grain', '1 onion', '1 carrot', '2 cloves garlic', '1 tbsp olive oil']);
+    expect(result.unread).toEqual(['1 lb mystery grain']);
+    expect(result.grade).toBeUndefined();
+  });
+
+  it('reads black pepper as a spice, not a bell pepper, and knows chocolate chips', () => {
+    expect(recipeNutrition(['1 tsp black pepper', '2 cups flour', '1 cup sugar']).read.map((each) => each.food)).toEqual(['flour', 'sugar']);
+    expect(foodFor(readIngredient('2 cups semi-sweet chocolate chips'))?.key).toBe('chocolate chips');
+    expect(foodFor(readIngredient('1 red bell pepper'))?.key).toBe('bell pepper');
+  });
+
+  it('grades rich dishes as rich', () => {
+    const alfredo = recipeNutrition(['1 lb fettuccine', '1/2 cup butter', '2 cups heavy cream', '2 cups grated parmesan', '3 cloves garlic, minced']);
+    expect(alfredo.grade).toMatch(/[DE]/);
+    const macAndCheese = recipeNutrition(['1 lb elbow macaroni', '4 tablespoons butter', '1/4 cup flour', '3 cups whole milk', '4 cups shredded sharp cheddar cheese', '1 teaspoon salt']);
+    expect(macAndCheese.grade).toMatch(/[DE]/);
   });
 });

@@ -1270,6 +1270,41 @@ button.nutri-badge {
   font-size: 0.78rem;
 }
 
+.nutri-working {
+  margin-top: 4px;
+}
+
+.nutri-working summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.nutri-working ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.nutri-working li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.nutri-working li small {
+  color: var(--text-soft);
+}
+
+.nutri-working__total {
+  font-weight: 600;
+}
+
 .nutrition__line {
   margin: 0;
   color: var(--text-soft);
