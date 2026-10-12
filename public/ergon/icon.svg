@@ -1,6 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0e1112"/>
-  <path d="M104 240 256 116l152 124" fill="none" stroke="#e9ece8" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M146 208v188h220V208" fill="none" stroke="#e9ece8" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="m200 300 40 40 76-84" fill="none" stroke="#8fc1b5" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="ergon-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#748c6c"/><stop offset="1" stop-color="#566d4f"/></linearGradient>
+    <radialGradient id="ergon-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <filter id="ergon-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.22"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#ergon-tile)"/>
+  <rect width="1024" height="1024" rx="229" fill="url(#ergon-light)"/>
+  <g filter="url(#ergon-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
+      <path d="M512 236 L792 486 H732 V770 H292 V486 H232Z" fill="#fbf6ec" stroke="#fbf6ec" stroke-width="20" stroke-linejoin="round"/>
+      <path d="M404 584 L486 664 L630 504" stroke="#4b5f45" stroke-width="58" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></g>
 </svg>

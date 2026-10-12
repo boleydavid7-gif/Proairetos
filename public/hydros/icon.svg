@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#061b25"/><path d="M10 36c7-5 13-5 20 0s13 5 24-2M10 45c7-5 13-5 20 0s13 5 24-2M18 23c7-7 14-9 23-5" fill="none" stroke="#36c9f4" stroke-width="4" stroke-linecap="round"/><path d="M39 13c3 3 6 6 6 10a6 6 0 0 1-12 0c0-4 3-7 6-10Z" fill="#a9edff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="hydros-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3592d4"/><stop offset="1" stop-color="#1b73b2"/></linearGradient>
+    <radialGradient id="hydros-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <filter id="hydros-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.22"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#hydros-tile)"/>
+  <rect width="1024" height="1024" rx="229" fill="url(#hydros-light)"/>
+  <g filter="url(#hydros-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
+      <path d="M512 230 C512 230 300 470 300 610 A212 212 0 0 0 724 610 C724 470 512 230 512 230Z" fill="#fbf6ec"/>
+      <path d="M396 600 C396 660 430 712 486 734" stroke="#9ac9e9" stroke-width="34" stroke-linecap="round" fill="none"/></g></g>
+</svg>

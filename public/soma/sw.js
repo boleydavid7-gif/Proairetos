@@ -1,6 +1,6 @@
 // Soma service worker: lets the app open and work without a connection.
 // Scoped to /soma/. Recipes live in IndexedDB on the device; this only caches the app.
-const CACHE = 'soma-v1';
+const CACHE = 'soma-v2';
 // Photos of produce from TheMealDB, kept once seen so In season shows them offline. Kept across app updates.
 const PHOTOS = 'produce-photos';
 const SHELL = ['/soma/', '/soma/manifest.webmanifest', '/soma/icon.svg', '/soma/icons/icon-192.png'];

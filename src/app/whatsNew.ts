@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'New icons for all fourteen apps: each its own colour, so they are easy to tell apart on a Home Screen. On iPhone, an app already added shows its new icon once it is added again.',
       'Today is calmer: one prompt at a time at the top, and the day’s line at the foot over the landscape.',
       'Every app’s welcome is shorter: its name, one line and Begin. Pages lead with what they hold (Recipes, This month, the week you are on).',
       'Sign in faster: tap the email field and your passkey shows in the keyboard’s suggestions.',

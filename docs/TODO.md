@@ -21,6 +21,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 ## On a real phone
 
 - [ ] Reminders arrive with the apps closed, and a tap opens the right app.
+- [ ] New icons: an app already on the iPhone Home Screen keeps its old icon until it is removed and added again
+  (back up first if that app is signed out; signed-in apps sync back). Android picks them up by itself over a few days.
 - [ ] Swipe gestures: edge swipe back, pulling a row to mark it.
 - [ ] Fonts, and the sign-in emails.
 - [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).

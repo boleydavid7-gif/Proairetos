@@ -1,13 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" rx="11" fill="#f3ede2"/>
-  <g transform="translate(6.5 6.2) scale(0.73)" fill="#2f5a3e">
-    <path d="M24 45 C24.6 36 24.6 24 24 10" fill="none" stroke="#2f5a3e" stroke-width="1.6" stroke-linecap="round"/>
-    <path d="M24 3 C19.6 8.5 19.6 14.6 24 19 C28.4 14.6 28.4 8.5 24 3 Z"/>
-    <path d="M23.4 21.5 C17.2 20.8 12.6 16.8 11 11 C17.2 11.2 22 15.2 23.4 21.5 Z"/>
-    <path d="M24.6 21.5 C30.8 20.8 35.4 16.8 37 11 C30.8 11.2 26 15.2 24.6 21.5 Z"/>
-    <path d="M23.6 31 C15.8 30.6 9.6 25.6 7.4 18.6 C15.4 18.8 21.8 23.6 23.6 31 Z"/>
-    <path d="M24.4 31 C32.2 30.6 38.4 25.6 40.6 18.6 C32.6 18.8 26.2 23.6 24.4 31 Z"/>
-    <path d="M23.8 39.5 C17.4 39.4 12.2 35.6 10.2 30.2 C16.6 30.2 21.8 33.8 23.8 39.5 Z"/>
-    <path d="M24.2 39.5 C30.6 39.4 35.8 35.6 37.8 30.2 C31.4 30.2 26.2 33.8 24.2 39.5 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="soma-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5ede0"/><stop offset="1" stop-color="#e7decd"/></linearGradient>
+    <radialGradient id="soma-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <filter id="soma-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#soma-tile)"/>
+  <rect width="1024" height="1024" rx="229" fill="url(#soma-light)"/>
+  <g filter="url(#soma-lift)"><g transform="translate(512 512) scale(1.08) translate(-512 -512)">
+      
+  <g transform="translate(560 520) scale(1.15)">
+    <path d="M0 0 C0 -60 6 -120 0 -190" stroke="#4a7244" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M0 -70 C-70 -70 -120 -110 -130 -170 C-70 -170 -14 -140 0 -70Z" fill="#5d8a55"/>
+    <path d="M2 -120 C70 -120 120 -160 128 -222 C66 -222 14 -192 2 -120Z" fill="#5d8a55"/>
   </g>
+      <path d="M268 520 H756 C756 650 650 760 512 760 C374 760 268 650 268 520Z" fill="#c4643c"/>
+      <path d="M268 520 H756 C756 548 750 574 740 598 H284 C274 574 268 548 268 520Z" fill="#a8502d"/>
+      <rect x="248" y="500" width="528" height="40" rx="20" fill="#d9784e"/></g></g>
 </svg>

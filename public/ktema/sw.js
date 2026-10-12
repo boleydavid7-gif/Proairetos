@@ -1,6 +1,6 @@
 // Ktema's app shell is scoped to /ktema/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'ktema-v1';
+const CACHE = 'ktema-v2';
 const SHELL = ['/ktema/', '/ktema/index.html', '/ktema/manifest.webmanifest', '/ktema/icon.svg', '/ktema/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

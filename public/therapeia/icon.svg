@@ -1,7 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#10141a"/>
-  <g transform="rotate(-45 256 256)">
-    <rect x="136" y="196" width="240" height="120" rx="60" fill="none" stroke="#e8edf4" stroke-width="26"/>
-    <path d="M256 209v94h60a47 47 0 0 0 0-94z" fill="#9cb8e0"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="therapeia-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5e7bc6"/><stop offset="1" stop-color="#415da5"/></linearGradient>
+    <radialGradient id="therapeia-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <filter id="therapeia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.22"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#therapeia-tile)"/>
+  <rect width="1024" height="1024" rx="229" fill="url(#therapeia-light)"/>
+  <g filter="url(#therapeia-lift)"><g transform="translate(512 512) scale(1.3) translate(-512 -512)">
+      <g transform="rotate(-45 512 512)">
+        <path d="M512 404 H402 A108 108 0 0 0 402 620 H512Z" fill="#fbf6ec"/>
+        <path d="M512 404 H622 A108 108 0 0 1 622 620 H512Z" fill="#aebde3"/>
+        <rect x="360" y="440" width="120" height="24" rx="12" fill="#ffffff" opacity=".9"/>
+      </g></g></g>
 </svg>
