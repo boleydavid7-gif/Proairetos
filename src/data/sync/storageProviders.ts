@@ -1,8 +1,8 @@
 import type { CloudFolder } from './folderRemote';
 
 /*
- * The person's own storage, each as a flat folder private to the app: Google Drive's app data folder, Dropbox's
- * app folder, OneDrive's app folder. Only sealed bytes are written; the file names say nothing about the content.
+ * The person's own storage, each as a flat "Proairetos" folder: in Google Drive (seen only by the app's own files,
+ * scope drive.file), inside the Dropbox app folder, inside the OneDrive app folder. Only sealed bytes are written; the file names say nothing about the content.
  */
 
 export type StorageProvider = 'google' | 'dropbox' | 'onedrive';
@@ -29,18 +29,40 @@ async function ok(response: Response, what: string): Promise<Response> {
 
 const bytesOf = async (response: Response) => new Uint8Array(await response.arrayBuffer());
 
-// ---------- Google Drive (app data folder, scope drive.appdata) ----------
+// ---------- Google Drive (a visible "Proairetos" folder, scope drive.file: only files the app made) ----------
 
 export function googleFolder(token: TokenSource): CloudFolder {
   const api = 'https://www.googleapis.com/drive/v3/files';
   const upload = 'https://www.googleapis.com/upload/drive/v3/files';
   let ids = new Map<string, string>();
+  let home: string | undefined;
+
+  async function folderId(): Promise<string> {
+    if (home) return home;
+    const query = new URLSearchParams({
+      q: "name = 'Proairetos' and mimeType = 'application/vnd.google-apps.folder' and trashed = false and 'root' in parents",
+      fields: 'files(id)',
+      pageSize: '1',
+    });
+    const found = (await (await ok(await authed(token, `${api}?${query}`), 'Reading Google Drive')).json()) as { files: { id: string }[] };
+    if (found.files[0]) return (home = found.files[0].id);
+    const made = await ok(
+      await authed(token, `${api}?fields=id`, {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Proairetos', mimeType: 'application/vnd.google-apps.folder' }),
+        headers: { 'content-type': 'application/json' },
+      }),
+      'Making the Proairetos folder in Google Drive',
+    );
+    return (home = ((await made.json()) as { id: string }).id);
+  }
 
   async function list() {
+    const parent = await folderId();
     const found: { name: string; version: string; id: string }[] = [];
     let page = '';
     do {
-      const query = new URLSearchParams({ spaces: 'appDataFolder', fields: 'nextPageToken,files(id,name,version)', pageSize: '1000' });
+      const query = new URLSearchParams({ q: `'${parent}' in parents and trashed = false`, fields: 'nextPageToken,files(id,name,version)', pageSize: '1000' });
       if (page) query.set('pageToken', page);
       const data = (await (await ok(await authed(token, `${api}?${query}`), 'Reading Google Drive')).json()) as {
         nextPageToken?: string;
@@ -74,7 +96,7 @@ export function googleFolder(token: TokenSource): CloudFolder {
         return;
       }
       const boundary = `proairetos${crypto.randomUUID().replace(/-/g, '')}`;
-      const head = `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, parents: ['appDataFolder'] })}\r\n--${boundary}\r\ncontent-type: application/octet-stream\r\n\r\n`;
+      const head = `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, parents: [await folderId()] })}\r\n--${boundary}\r\ncontent-type: application/octet-stream\r\n\r\n`;
       const body = new Blob([head, bytes, `\r\n--${boundary}--`]);
       const response = await ok(
         await authed(token, `${upload}?uploadType=multipart&fields=id`, { method: 'POST', body, headers: { 'content-type': `multipart/related; boundary=${boundary}` } }),
@@ -98,12 +120,17 @@ export function dropboxFolder(token: TokenSource): CloudFolder {
   const api = 'https://api.dropboxapi.com/2/files';
   const content = 'https://content.dropboxapi.com/2/files';
   const json = (body: unknown): RequestInit => ({ method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+  // Inside the app folder, in its own "Proairetos" folder (another app of the family may share the app folder).
+  const at = (name: string) => `/Proairetos/${name}`;
 
   return {
     async list() {
       const found: { name: string; version: string }[] = [];
       type Page = { entries: { '.tag': string; name: string; rev?: string }[]; cursor: string; has_more: boolean };
-      let page = (await (await ok(await authed(token, `${api}/list_folder`, json({ path: '', limit: 2000 })), 'Reading Dropbox')).json()) as Page;
+      const first = await authed(token, `${api}/list_folder`, json({ path: '/Proairetos', limit: 2000 }));
+      // Not made yet: nothing in it.
+      if (first.status === 409) return found;
+      let page = (await (await ok(first, 'Reading Dropbox')).json()) as Page;
       for (;;) {
         for (const entry of page.entries) if (entry['.tag'] === 'file') found.push({ name: entry.name, version: entry.rev ?? '' });
         if (!page.has_more) return found;
@@ -111,7 +138,7 @@ export function dropboxFolder(token: TokenSource): CloudFolder {
       }
     },
     async read(name) {
-      const response = await authed(token, `${content}/download`, { method: 'POST', headers: { 'dropbox-api-arg': JSON.stringify({ path: `/${name}` }) } });
+      const response = await authed(token, `${content}/download`, { method: 'POST', headers: { 'dropbox-api-arg': JSON.stringify({ path: at(name) }) } });
       if (response.status === 409) return null;
       return bytesOf(await ok(response, 'Reading Dropbox'));
     },
@@ -120,13 +147,13 @@ export function dropboxFolder(token: TokenSource): CloudFolder {
         await authed(token, `${content}/upload`, {
           method: 'POST',
           body: bytes,
-          headers: { 'content-type': 'application/octet-stream', 'dropbox-api-arg': JSON.stringify({ path: `/${name}`, mode: 'overwrite', mute: true }) },
+          headers: { 'content-type': 'application/octet-stream', 'dropbox-api-arg': JSON.stringify({ path: at(name), mode: 'overwrite', mute: true }) },
         }),
         'Saving to Dropbox',
       );
     },
     async remove(name) {
-      const response = await authed(token, `${api}/delete_v2`, json({ path: `/${name}` }));
+      const response = await authed(token, `${api}/delete_v2`, json({ path: at(name) }));
       if (response.status !== 409) await ok(response, 'Tidying Dropbox');
     },
   };
@@ -136,7 +163,16 @@ export function dropboxFolder(token: TokenSource): CloudFolder {
 
 export function onedriveFolder(token: TokenSource): CloudFolder {
   const root = 'https://graph.microsoft.com/v1.0/me/drive/special/approot';
-  const item = (name: string) => `${root}:/${encodeURIComponent(name)}:`;
+  // Inside the app folder, in its own "Proairetos" folder (another app of the family may share the app folder).
+  const item = (name: string) => `${root}:/Proairetos/${encodeURIComponent(name)}:`;
+  const makeFolder = async () => {
+    const response = await authed(token, `${root}/children`, {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Proairetos', folder: {}, '@microsoft.graph.conflictBehavior': 'fail' }),
+      headers: { 'content-type': 'application/json' },
+    });
+    if (response.status !== 409) await ok(response, 'Making the Proairetos folder in OneDrive');
+  };
   // A simple upload takes up to 4 MB; larger files go up in pieces (a multiple of 320 KiB each).
   const SIMPLE = 4_000_000;
   const PIECE = 320 * 1024 * 12;
@@ -144,7 +180,7 @@ export function onedriveFolder(token: TokenSource): CloudFolder {
   return {
     async list() {
       const found: { name: string; version: string }[] = [];
-      let next: string | undefined = `${root}/children?$select=name,eTag,file&$top=999`;
+      let next: string | undefined = `${root}:/Proairetos:/children?$select=name,eTag,file&$top=999`;
       while (next) {
         const response = await authed(token, next);
         // The app folder is made on first write; until then there is nothing in it.
@@ -162,9 +198,16 @@ export function onedriveFolder(token: TokenSource): CloudFolder {
     },
     async write(name, bytes) {
       if (bytes.byteLength <= SIMPLE) {
-        await ok(await authed(token, `${item(name)}/content`, { method: 'PUT', body: bytes, headers: { 'content-type': 'application/octet-stream' } }), 'Saving to OneDrive');
+        const put = () => authed(token, `${item(name)}/content`, { method: 'PUT', body: bytes, headers: { 'content-type': 'application/octet-stream' } });
+        let response = await put();
+        if (response.status === 404) {
+          await makeFolder();
+          response = await put();
+        }
+        await ok(response, 'Saving to OneDrive');
         return;
       }
+      await makeFolder();
       const session = (await (
         await ok(
           await authed(token, `${item(name)}/createUploadSession`, {

@@ -350,32 +350,29 @@ runs, Soma's Shared view says the server is not set up yet.
 ## Your own storage: Google Drive, Dropbox, OneDrive (optional, migration 20261021000000)
 
 People can choose to sync through their own Google Drive, Dropbox or OneDrive instead of Proairetos's server
-(Settings > Account > Where your data syncs). Records are sealed on the device first, as always. The choice shows
-only for the providers set up here. The return address for all three is exactly:
+(Settings > Account > Where your data syncs). Records are sealed on the device first, as always. Proairetos uses the
+same registrations as Noesis; each only needs Proairetos's return address added. It is exactly:
 
     https://proairetos.com/storage-connected/
 
-1. **SQL Editor**: run `supabase/migrations/20261021000000_storage_links.sql` (which storage, and its refresh token
-   sealed with the person's key).
-2. **Google Drive**: console.cloud.google.com, a project, APIs & Services:
-   - Library: enable **Google Drive API**.
-   - OAuth consent screen: External; add the scope `.../auth/drive.appdata` (a private app folder, not the person's
-     files); set Publishing status to **In production** (in Testing, sign-ins stop working after 7 days).
-   - Credentials > Create credentials > OAuth client ID > **Web application**; Authorized redirect URI: the address above.
-   - Cloudflare Worker secrets: `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET`.
-3. **Dropbox**: dropbox.com/developers/apps > Create app > Scoped access > **App folder**, any name:
-   - Permissions: `files.metadata.read`, `files.content.read`, `files.content.write`, then Submit.
-   - Settings: Redirect URIs: the address above. (Up to 500 people in Development; Apply for production later.)
-   - Cloudflare Worker secret: `DROPBOX_APP_KEY` (the App key). `DROPBOX_APP_SECRET` is optional.
-4. **OneDrive**: portal.azure.com > App registrations > New registration:
-   - Supported accounts: **any organizational directory and personal Microsoft accounts**.
-   - Redirect URI: platform **Web**, the address above.
-   - Certificates & secrets > New client secret (note when it expires; make a new one before then).
-   - API permissions > Microsoft Graph > Delegated: `Files.ReadWrite.AppFolder` and `offline_access`.
-   - Cloudflare Worker secrets: `ONEDRIVE_CLIENT_ID` (Application (client) ID), `ONEDRIVE_CLIENT_SECRET` (the secret's Value).
+1. **SQL Editor** (Proairetos's project): run `supabase/migrations/20261021000000_storage_links.sql`.
+2. **Google Drive**: console.cloud.google.com > Noesis's project > APIs & Services > Credentials > the OAuth client
+   (Web application) > Authorized redirect URIs > Add the address above > Save. Then in Cloudflare, add to the
+   **proairetos** Worker the same two values Noesis's Worker has, as type Secret: `GOOGLE_DRIVE_CLIENT_ID` and
+   `GOOGLE_DRIVE_CLIENT_SECRET`. (Same permission as Noesis, `drive.file`: a visible "Proairetos" folder, nothing else.)
+3. **Dropbox**: dropbox.com/developers/apps > Noesis's app > Settings > Redirect URIs > add the address above. Its app
+   key is already in `wrangler.jsonc`. Files go in a "Proairetos" folder inside the app folder, beside Noesis's.
+4. **OneDrive**: entra.microsoft.com (or portal.azure.com) > App registrations > Noesis's app > Authentication >
+   the **Single-page application** platform > Add URI > the address above > Save. Its client id is already in
+   `wrangler.jsonc`. Files go in a "Proairetos" folder inside the app folder.
 
-Cloudflare: Workers & Pages > the Worker > Settings > Variables and Secrets > Add, type **Secret**. Then redeploy
-(any push to `main`). `https://proairetos.com/api/storage` lists the providers that are ready.
+Push to `main` (any change) so the Worker picks up the secrets; `https://proairetos.com/api/storage` then lists the
+providers that are ready.
+
+OneDrive as a single-page registration keeps a connection for about a day without use; after that the Account page
+offers "Connect OneDrive again". To keep it longer: in the same registration add a **Web** platform with the address
+above, make a client secret, and add it to the proairetos Worker as `ONEDRIVE_CLIENT_SECRET` (Proairetos then trades
+through its Worker, like Google).
 
 Moving: the device that moves the account brings itself up to date first, then sends everything to the new place;
 after a move to someone's own storage, the sealed copy on Proairetos's server is removed. Other devices and apps follow

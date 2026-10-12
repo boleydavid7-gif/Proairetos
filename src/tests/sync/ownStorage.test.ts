@@ -1,5 +1,5 @@
 import { authorizeUrl } from '../../data/sync/storageLink';
-import { handleStorageRequest, storageProviders } from '../../../worker/storageToken';
+import { directProviders, handleStorageRequest, storageProviders } from '../../../worker/storageToken';
 import { resetRateLimit } from '../../../worker/safeFetch';
 
 const env = {
@@ -16,13 +16,17 @@ describe('your own storage', () => {
   beforeEach(() => resetRateLimit());
 
   it('offers only the providers set up in full', () => {
-    // OneDrive has no secret here, so it is not offered; Dropbox needs none.
-    expect(storageProviders(env)).toEqual({ google: 'g-id', dropbox: 'd-key' });
+    // Dropbox needs no secret; OneDrive without one is a single-page registration, traded by the browser itself.
+    expect(storageProviders(env)).toEqual({ google: 'g-id', dropbox: 'd-key', onedrive: 'o-id' });
+    expect(directProviders(env)).toEqual(['onedrive']);
+    expect(storageProviders({ ...env, GOOGLE_DRIVE_CLIENT_SECRET: undefined })).not.toHaveProperty('google');
+    // Noesis's names work too.
+    expect(storageProviders({ VITE_DROPBOX_APP_KEY: 'n-key' })).toEqual({ dropbox: 'n-key' });
   });
 
   it('asks each provider for one private folder, with PKCE', () => {
     const google = new URL(authorizeUrl('google', 'g-id', 'CH', 'ST', 'https://proairetos.com'));
-    expect(google.searchParams.get('scope')).toBe('https://www.googleapis.com/auth/drive.appdata');
+    expect(google.searchParams.get('scope')).toBe('https://www.googleapis.com/auth/drive.file');
     expect(google.searchParams.get('access_type')).toBe('offline');
     expect(google.searchParams.get('code_challenge_method')).toBe('S256');
     expect(google.searchParams.get('redirect_uri')).toBe('https://proairetos.com/storage-connected/');

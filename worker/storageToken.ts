@@ -7,6 +7,10 @@ import { tooOften } from './safeFetch';
  */
 
 export type StorageEnv = {
+  // The VITE_ names are the ones Noesis uses; either works, so one set of registrations serves both.
+  VITE_GOOGLE_DRIVE_CLIENT_ID?: string;
+  VITE_DROPBOX_APP_KEY?: string;
+  VITE_ONEDRIVE_CLIENT_ID?: string;
   GOOGLE_DRIVE_CLIENT_ID?: string;
   GOOGLE_DRIVE_CLIENT_SECRET?: string;
   DROPBOX_APP_KEY?: string;
@@ -31,11 +35,17 @@ function reply(status: number, body: unknown) {
 }
 
 function client(env: StorageEnv, provider: Provider): { id: string; secret?: string } | null {
-  const id = provider === 'google' ? env.GOOGLE_DRIVE_CLIENT_ID : provider === 'dropbox' ? env.DROPBOX_APP_KEY : env.ONEDRIVE_CLIENT_ID;
+  const id =
+    provider === 'google'
+      ? env.GOOGLE_DRIVE_CLIENT_ID || env.VITE_GOOGLE_DRIVE_CLIENT_ID
+      : provider === 'dropbox'
+        ? env.DROPBOX_APP_KEY || env.VITE_DROPBOX_APP_KEY
+        : env.ONEDRIVE_CLIENT_ID || env.VITE_ONEDRIVE_CLIENT_ID;
   const secret = provider === 'google' ? env.GOOGLE_DRIVE_CLIENT_SECRET : provider === 'dropbox' ? env.DROPBOX_APP_SECRET : env.ONEDRIVE_CLIENT_SECRET;
-  // Google and Microsoft need the secret for a web app; Dropbox works without one (PKCE alone).
-  if (!id || (!secret && provider !== 'dropbox')) return null;
-  return { id: id.trim(), secret: secret?.trim() };
+  // Google needs the secret for a web app. Dropbox works without one (PKCE alone). OneDrive without a secret is a
+  // "single-page application" registration: the browser trades its tokens itself (`direct`).
+  if (!id?.trim() || (!secret?.trim() && provider === 'google')) return null;
+  return { id: id.trim(), secret: secret?.trim() || undefined };
 }
 
 /** The providers set up on this site, with the public client ids the browser needs to start signing in. */
@@ -48,13 +58,19 @@ export function storageProviders(env: StorageEnv): Partial<Record<Provider, stri
   return found;
 }
 
+/** Providers whose tokens the browser asks for itself (Microsoft refuses a single-page app's tokens from a server). */
+export function directProviders(env: StorageEnv): Provider[] {
+  const onedrive = client(env, 'onedrive');
+  return onedrive && !onedrive.secret ? ['onedrive'] : [];
+}
+
 export const ONEDRIVE_SCOPE = 'Files.ReadWrite.AppFolder offline_access';
 
 export async function handleStorageRequest(request: Request, env: StorageEnv, fetchImpl: typeof fetch = fetch): Promise<Response> {
   const url = new URL(request.url);
   const origin = request.headers.get('origin');
   if (origin && origin !== url.origin) return reply(403, { error: 'Not allowed' });
-  if (request.method === 'GET') return reply(200, { providers: storageProviders(env) });
+  if (request.method === 'GET') return reply(200, { providers: storageProviders(env), direct: directProviders(env) });
   if (request.method !== 'POST') return reply(405, { error: 'Not allowed' });
   if (tooOften(request)) return reply(429, { error: 'Too many requests. Try again in a minute.' });
 
@@ -67,7 +83,7 @@ export async function handleStorageRequest(request: Request, env: StorageEnv, fe
   const provider = body.provider as Provider;
   if (!(provider in TOKEN_URL)) return reply(400, { error: 'Not understood.' });
   const known = client(env, provider);
-  if (!known) return reply(503, { error: 'This storage is not set up yet.' });
+  if (!known || directProviders(env).includes(provider)) return reply(503, { error: 'This storage is not set up yet.' });
 
   const form = new URLSearchParams({ client_id: known.id });
   if (known.secret) form.set('client_secret', known.secret);

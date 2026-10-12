@@ -82,7 +82,7 @@ export function StorageChoice() {
           <p className="section-description">
             {picked === 'proairetos'
               ? `Your data moves back to Proairetos's server. The files in ${now ? storageName(now) : 'your storage'} stay there until you remove them.`
-              : `Proairetos asks for one private folder in your ${storageName(picked)}. Your data moves there, locked on this phone first; the copy on Proairetos's server is removed. Every app and device follows.`}
+              : `Proairetos asks for its own folder in your ${storageName(picked)}. Your data moves there, locked on this phone first; the copy on Proairetos's server is removed. Every app and device follows.`}
           </p>
           <div className="chip-row">
             <button type="button" className="button-quiet" onClick={() => setPicked(undefined)}>
@@ -106,6 +106,12 @@ export function StorageChoice() {
             </button>
           </div>
         </>
+      )}
+      {now && now !== 'proairetos' && !picked && !busy && (
+        // A provider can stop accepting the connection (a changed password, or OneDrive after a day unused).
+        <button type="button" className="text-link" onClick={() => void run(() => connectStorage(now))}>
+          Connect {storageName(now)} again
+        </button>
       )}
       {busy && !picked && <p className="section-description">Moving your data…</p>}
       {note && (

@@ -3,7 +3,8 @@ import type { StorageProvider } from './storageProviders';
 /*
  * Connecting the person's own storage: they allow Proairetos one private folder in their Google Drive, Dropbox or
  * OneDrive (never the rest of their files), and come back to the account page with a code. PKCE keeps the code
- * useless to anyone else; the site's Worker adds the provider's secret to turn it into tokens.
+ * useless to anyone else; the site's Worker adds the provider's secret to turn it into tokens. A OneDrive registration
+ * made as a "single-page application" (as Noesis's is) has no secret: the browser trades with Microsoft itself.
  */
 
 // The same scope the Worker asks for when it refreshes a OneDrive token (worker/storageToken.ts).
@@ -13,15 +14,21 @@ const RETURN_PATH = '/storage-connected/';
 
 export type StorageTokens = { access: string; refresh?: string; expiresIn: number };
 
-let known: Promise<Partial<Record<StorageProvider, string>>> | null = null;
+type SiteStorage = { providers: Partial<Record<StorageProvider, string>>; direct: StorageProvider[] };
+
+let known: Promise<SiteStorage> | null = null;
+
+function siteStorage(): Promise<SiteStorage> {
+  known ??= fetch('/api/storage')
+    .then((response) => (response.ok ? (response.json() as Promise<Partial<SiteStorage>>) : {}))
+    .then((data: Partial<SiteStorage>) => ({ providers: data.providers ?? {}, direct: data.direct ?? [] }))
+    .catch(() => ({ providers: {}, direct: [] }));
+  return known;
+}
 
 /** The providers this site has set up, with their public client ids. None when the server has none. */
-export function storageProvidersHere(): Promise<Partial<Record<StorageProvider, string>>> {
-  known ??= fetch('/api/storage')
-    .then((response) => (response.ok ? (response.json() as Promise<{ providers?: Partial<Record<StorageProvider, string>> }>) : {}))
-    .then((data) => ('providers' in data ? (data.providers ?? {}) : {}))
-    .catch(() => ({}));
-  return known;
+export async function storageProvidersHere(): Promise<Partial<Record<StorageProvider, string>>> {
+  return (await siteStorage()).providers;
 }
 
 const base64Url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -33,7 +40,8 @@ export function authorizeUrl(provider: StorageProvider, clientId: string, challe
   if (provider === 'google') {
     return `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
       ...common,
-      scope: 'https://www.googleapis.com/auth/drive.appdata',
+      // Only the files Proairetos makes (its own folder), never the rest of the person's Drive.
+      scope: 'https://www.googleapis.com/auth/drive.file',
       access_type: 'offline',
       prompt: 'consent',
     })}`;
@@ -73,11 +81,37 @@ export async function finishConnect(params: URLSearchParams): Promise<{ provider
 }
 
 export async function askForTokens(body: { provider: StorageProvider; code?: string; verifier?: string; refresh?: string }): Promise<StorageTokens> {
+  const site = await siteStorage();
+  if (site.direct.includes(body.provider)) return askMicrosoft(site.providers[body.provider] ?? '', body);
   const response = await fetch('/api/storage', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
   const data = (await response.json().catch(() => ({}))) as Partial<StorageTokens> & { error?: string };
   if (response.status === 401) throw new StorageRefused(data.error ?? 'The storage did not accept this sign-in. Connect it again.');
   if (!response.ok || !data.access) throw new Error(data.error ?? 'The storage could not be reached. Try again.');
   return { access: data.access, refresh: data.refresh, expiresIn: data.expiresIn ?? 3600 };
+}
+
+/** A single-page OneDrive registration: Microsoft takes the trade only from the browser, with no secret. */
+async function askMicrosoft(clientId: string, body: { code?: string; verifier?: string; refresh?: string }): Promise<StorageTokens> {
+  const form = new URLSearchParams({ client_id: clientId, scope: ONEDRIVE_SCOPE });
+  if (body.refresh) {
+    form.set('grant_type', 'refresh_token');
+    form.set('refresh_token', body.refresh);
+  } else {
+    form.set('grant_type', 'authorization_code');
+    form.set('code', body.code ?? '');
+    form.set('code_verifier', body.verifier ?? '');
+    form.set('redirect_uri', `${location.origin}${RETURN_PATH}`);
+  }
+  let response: Response;
+  try {
+    response = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', { method: 'POST', body: form });
+  } catch {
+    throw new Error('OneDrive could not be reached. Try again.');
+  }
+  const data = (await response.json().catch(() => ({}))) as { access_token?: string; refresh_token?: string; expires_in?: number };
+  if (response.status === 400 || response.status === 401) throw new StorageRefused('OneDrive did not accept this sign-in. Connect it again.');
+  if (!response.ok || !data.access_token) throw new Error('OneDrive could not be reached. Try again.');
+  return { access: data.access_token, refresh: data.refresh_token, expiresIn: data.expires_in ?? 3600 };
 }
 
 /** The storage no longer accepts this connection (revoked, or the password changed): it needs connecting again. */
