@@ -35,19 +35,25 @@ export type Nutrition = {
 const ZERO: Nutrients = { kcal: 0, protein: 0, fat: 0, saturated: 0, carbs: 0, sugars: 0, fibre: 0, sodium: 0 };
 
 /** Herbs, spices and raising agents: too little to change the totals, so neither read nor counted against. */
-const NEGLIGIBLE = /\b(?:black pepper|white pepper|pepper(?:corns)?|ground pepper|cumin|paprika|oregano|basil|thyme|rosemary|parsley|cilantro|coriander|dill|mint|bay leaf|bay leaves|cinnamon|nutmeg|turmeric|chil(?:i|li|e) (?:flakes|powder)|red pepper flakes|cayenne|garlic powder|onion powder|vanilla|baking powder|baking soda|bicarbonate|yeast|zest|sage|cardamom|cloves? \(spice\)|ground cloves|allspice|saffron|curry powder|garam masala|five[- ]spice|chives|tarragon|herbs|spice|seasoning|smoked paprika|fennel seeds?|mustard seeds?|sesame oil for)\b/;
+const NEGLIGIBLE = /^cloves$|\b(?:black pepper|white pepper|pepper(?:corns)?|ground pepper|cumin|paprika|oregano|basil|thyme|rosemary|parsley|cilantro|coriander|dill|mint|bay leaf|bay leaves|cinnamon|nutmeg|star anise|caraway|marjoram|juniper|gelatine|gelatin|ground cloves?|cardamom|cardomom|savou?ry|achiote|annatto|bouquet garni|food colou?ring|pul biber|sumac|za'?atar|mixed spice|pickling spice|fenugreek|asafoetida|turmeric|chil(?:i|li|e) (?:flakes|powder)|red pepper flakes|cayenne|garlic powder|onion powder|vanilla|baking powder|baking soda|bicarbonate|yeast|zest|sage|cardamom|cloves? \(spice\)|ground cloves|allspice|saffron|curry powder|garam masala|five[- ]spice|chives|tarragon|herbs|spice|seasoning|smoked paprika|fennel seeds?|mustard seeds?|sesame oil for)\b/;
 const SMALL = /^(?:to taste|for (?:serving|garnish))$|\bto taste\b|\bfor garnish\b|\boptional\b/;
 
 const MASS: Record<string, number> = { g: 1, gram: 1, grams: 1, kg: 1000, kilogram: 1000, kilograms: 1000, oz: 28.35, ounce: 28.35, ounces: 28.35, lb: 453.6, lbs: 453.6, pound: 453.6, pounds: 453.6 };
 /** In US cups. */
 const VOLUME: Record<string, number> = {
-  cup: 1, cups: 1, c: 1, tbsp: 1 / 16, tbs: 1 / 16, tb: 1 / 16, tablespoon: 1 / 16, tablespoons: 1 / 16, tsp: 1 / 48, teaspoon: 1 / 48, teaspoons: 1 / 48,
-  ml: 1 / 236.6, millilitres: 1 / 236.6, milliliters: 1 / 236.6, l: 1000 / 236.6, litres: 1000 / 236.6, liters: 1000 / 236.6,
+  cup: 1, cups: 1, c: 1, tbsp: 1 / 16, tbsps: 1 / 16, tblsp: 1 / 16, tbls: 1 / 16, tbs: 1 / 16, tb: 1 / 16, tablespoon: 1 / 16, tablespoons: 1 / 16,
+  tsp: 1 / 48, tsps: 1 / 48, teaspoon: 1 / 48, teaspoons: 1 / 48,
+  ml: 1 / 236.6, millilitre: 1 / 236.6, milliliter: 1 / 236.6, millilitres: 1 / 236.6, milliliters: 1 / 236.6,
+  l: 1000 / 236.6, litre: 1000 / 236.6, liter: 1000 / 236.6, litres: 1000 / 236.6, liters: 1000 / 236.6,
   'fl oz': 1 / 8, 'fluid ounces': 1 / 8, pint: 2, pints: 2, quart: 4, quarts: 4,
 };
 const PINCH = /^(?:pinch|pinches|dash|dashes)$/;
 const CAN = /^(?:cans?|tins?)$/;
-const ONE = /^(?:cloves?|slices?|stalks?|sticks?)$/;
+const ONE = /^(?:cloves?|slices?|stalks?|sticks?|heads?|rashers?|strips?|sheets?|pieces?)$/;
+/** Small measures with no number of grams written: a knob of butter, a splash or drizzle of oil. */
+const SMALL_MEASURE: Record<string, number> = { knob: 10, knobs: 10, splash: 5, drizzle: 5, handful: 30, handfuls: 30 };
+/** When a known food has no usual weight for one, a slice is about this much. */
+const SLICE = 25;
 
 /** The food a recipe line names, if Soma knows it. Juice of a lemon or lime is the juice. */
 export function foodFor(ingredient: Ingredient): Food | undefined {
@@ -65,6 +71,8 @@ export function gramsOf(ingredient: Ingredient, food: Food): number | undefined 
   if (unit && MASS[unit]) return amount * MASS[unit];
   if (unit && VOLUME[unit]) return food.cup ? amount * VOLUME[unit] * food.cup : undefined;
   if (unit && PINCH.test(unit)) return amount * 0.4;
+  if (unit && SMALL_MEASURE[unit]) return amount * SMALL_MEASURE[unit];
+  if (unit === 'bunch' || unit === 'bunches') return amount * 100;
   if (unit && CAN.test(unit)) {
     // "1 (14-ounce) can": the size in brackets when there is one; else a usual can, drained for beans.
     // Beans and chickpeas are drained: about 60% of the can's weight.
@@ -74,7 +82,10 @@ export function gramsOf(ingredient: Ingredient, food: Food): number | undefined 
     return amount * 400 * drained;
   }
   if (unit === 'stick' || unit === 'sticks') return food.key === 'butter' ? amount * 113 : food.each ? amount * food.each : undefined;
-  if (unit && ONE.test(unit)) return food.each ? amount * food.each : undefined;
+  if (unit && ONE.test(unit)) return food.each ? amount * food.each : /^(?:slices?|rashers?|strips?)$/.test(unit) ? amount * SLICE : undefined;
+  // "Juice of 1 lemon": a lemon gives about 45 g of juice, a lime about 30 g.
+  if (!unit && food.key === 'lemon juice') return amount * 45;
+  if (!unit && food.key === 'lime juice') return amount * 30;
   if (!unit) return food.each ? amount * food.each : undefined;
   return undefined;
 }
@@ -127,16 +138,29 @@ function roughGrams(ingredient: Ingredient): number {
   if (unit && MASS[unit]) return amount * MASS[unit];
   if (unit && VOLUME[unit]) return amount * VOLUME[unit] * 180;
   if (unit && PINCH.test(unit)) return 0;
+  if (unit && SMALL_MEASURE[unit]) return amount * SMALL_MEASURE[unit];
   if (unit && CAN.test(unit)) return amount * 400;
   if (unit === 'stick' || unit === 'sticks') return amount * 113;
   if (unit && ONE.test(unit)) return amount * 20;
-  return amount * 100;
+  if (unit && /^(?:jars?|pots?|bottles?|bags?|box(?:es)?|packets?|packages?)$/.test(unit)) return amount * 400;
+  if (unit) return amount * 30;
+  return Math.min(amount, 12) * 100;
 }
 
 const RED_MEAT = new Set(['ground beef', 'beef', 'pork', 'ground pork', 'lamb', 'bacon', 'sausage', 'italian sausage', 'ham', 'pepperoni', 'salami', 'chorizo', 'hot dogs']);
 
+/**
+ * What the person told Soma about lines it could not read: which food a name is (for every recipe), how much one line
+ * weighs, and names to leave out (a garnish, "to serve").
+ */
+export type FoodChoices = { foods?: Record<string, string>; grams?: Record<string, number>; leaveOut?: string[] };
+
+/** The key a choice is kept under: the ingredient's name, or the whole line for a weight. */
+export const choiceName = (line: string) => readIngredient(line.trim()).name.toLowerCase().trim();
+export const choiceLine = (line: string) => line.trim().toLowerCase();
+
 /** The recipe's nutrients and Nutri-Score from its ingredient lines. */
-export function recipeNutrition(lines: readonly string[]): Nutrition {
+export function recipeNutrition(lines: readonly string[], choices: FoodChoices = {}): Nutrition {
   let total = ZERO;
   let grams = 0;
   let fvlGrams = 0;
@@ -149,8 +173,10 @@ export function recipeNutrition(lines: readonly string[]): Nutrition {
     if (!text || text.endsWith(':') || text.startsWith('#')) continue;
     const ingredient = readIngredient(text);
     const name = ingredient.name.toLowerCase();
-    const food = foodFor(ingredient);
-    const weight = food ? gramsOf(ingredient, food) : undefined;
+    if (choices.leaveOut?.includes(name.trim())) continue;
+    const chosen = choices.foods?.[name.trim()];
+    const food = (chosen && FOODS.find((each) => each.key === chosen)) || foodFor(ingredient);
+    const weight = food ? choices.grams?.[choiceLine(text)] ?? gramsOf(ingredient, food) : undefined;
     if (food && weight !== undefined && weight > 0) {
       total = add(total, food.per100, weight);
       grams += weight;
@@ -159,7 +185,7 @@ export function recipeNutrition(lines: readonly string[]): Nutrition {
       read.push({ line: text, food: food.key, grams: Math.round(weight) });
       continue;
     }
-    if (NEGLIGIBLE.test(name) || SMALL.test(`${name} ${ingredient.note ?? ''}`) || (food && ingredient.amount === undefined)) continue;
+    if (!chosen && (NEGLIGIBLE.test(name) || SMALL.test(`${name} ${ingredient.note ?? ''}`) || (food && ingredient.amount === undefined))) continue;
     unread.push(text);
     unreadGrams += roughGrams(ingredient);
   }

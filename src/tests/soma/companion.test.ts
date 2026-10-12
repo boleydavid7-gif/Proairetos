@@ -35,7 +35,7 @@ describe('the kitchen', () => {
     const ticked = list.map((item) => (item.name === 'lemons' ? { ...item, checked: true } : item));
     const after = bringHome(ticked, '2026-10-03');
     expect(kitchenNames(after)).toEqual(['lemons']);
-    expect(byAisle(after).flatMap((group) => group.items.map((item) => item.name))).toEqual(['bag spinach']);
+    expect(byAisle(after).flatMap((group) => group.items.map((item) => item.name))).toEqual(['spinach']);
     // Adding lemons again goes on the list, not onto the kitchen's lemons.
     const again = addToList(after, [{ line: '3 lemons' }], {}, 'now', ids);
     expect(again.filter((item) => item.name === 'lemons')).toHaveLength(2);

@@ -1,4 +1,8 @@
-import { NUTRITION_SOURCE, perServing, type Grade, type Nutrition, type ScoreParts } from '../core/nutrition';
+import { useState } from 'react';
+import { choiceLine, choiceName, foodFor, gramsOf, NUTRITION_SOURCE, perServing, type Grade, type Nutrition, type ScoreParts } from '../core/nutrition';
+import { FOODS } from '../core/nutritionTable';
+import { readIngredient } from '../core/ingredients';
+import { loadFoodChoices, saveFoodChoices, useFoodChoices } from '../data/foodChoices';
 
 const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'E'];
 const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', E: 'Least healthy' };
@@ -25,6 +29,93 @@ function ScoreWorking({ parts, points }: { parts: ScoreParts; points: number }) 
   );
 }
 
+const label = (key: string) => key.charAt(0).toUpperCase() + key.slice(1);
+
+/** One line Soma could not read: say which food it is (and its weight, if needed), or leave it out. */
+function UnreadLine({ line }: { line: string }) {
+  const [picking, setPicking] = useState(false);
+  const [find, setFind] = useState(() => choiceName(line));
+  const [chosen, setChosen] = useState<string>();
+  const [grams, setGrams] = useState('');
+  const name = choiceName(line);
+  const words = find.toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = FOODS.filter((food) => words.some((word) => food.key.includes(word) || food.match.test(word))).slice(0, 8);
+  const choose = (key: string) => {
+    const food = FOODS.find((each) => each.key === key)!;
+    const ingredient = readIngredient(line);
+    const current = loadFoodChoices();
+    if (gramsOf(ingredient, food) !== undefined) {
+      saveFoodChoices({ ...current, foods: { ...current.foods, [name]: key } });
+      setPicking(false);
+    } else setChosen(key);
+  };
+  const saveWeight = () => {
+    const value = Number(grams.replace(',', '.'));
+    if (!chosen || !(value > 0)) return;
+    const current = loadFoodChoices();
+    saveFoodChoices({ ...current, foods: { ...current.foods, [name]: chosen }, grams: { ...current.grams, [choiceLine(line)]: value } });
+    setPicking(false);
+  };
+  const leaveOut = () => {
+    const current = loadFoodChoices();
+    saveFoodChoices({ ...current, leaveOut: [...new Set([...(current.leaveOut ?? []), name])] });
+  };
+  return (
+    <li className="nutri-unread">
+      <span className="nutri-unread__line">{line}</span>
+      {!picking ? (
+        <span className="nutri-unread__actions">
+          <button type="button" className="chip" onClick={() => setPicking(true)}>Read as…</button>
+          <button type="button" className="chip" onClick={leaveOut}>Leave out</button>
+        </span>
+      ) : chosen ? (
+        <span className="nutri-unread__pick">
+          <label className="field"><span className="field__label">{label(chosen)}: about how many grams?</span>
+            <input className="input" inputMode="decimal" value={grams} onChange={(event) => setGrams(event.target.value)} autoFocus />
+          </label>
+          <span className="nutri-unread__actions">
+            <button type="button" className="chip" onClick={saveWeight}>Save</button>
+            <button type="button" className="chip" onClick={() => { setChosen(undefined); setPicking(false); }}>Cancel</button>
+          </span>
+        </span>
+      ) : (
+        <span className="nutri-unread__pick">
+          <input className="input" aria-label={`What is ${line}?`} value={find} onChange={(event) => setFind(event.target.value)} autoFocus />
+          <span className="nutri-unread__actions">
+            {matches.map((food) => <button key={food.key} type="button" className="chip" onClick={() => choose(food.key)}>{label(food.key)}</button>)}
+            {matches.length === 0 && <span className="muted">No food by that name.</span>}
+            <button type="button" className="chip" onClick={() => setPicking(false)}>Cancel</button>
+          </span>
+        </span>
+      )}
+    </li>
+  );
+}
+
+/** Lines the person left out of this recipe's numbers, each with a way to count it again. */
+function LeftOut({ lines }: { lines: readonly string[] }) {
+  const choices = useFoodChoices();
+  const out = lines.filter((line) => line.trim() && choices.leaveOut?.includes(choiceName(line)));
+  if (!out.length) return null;
+  const countAgain = (line: string) => {
+    const current = loadFoodChoices();
+    saveFoodChoices({ ...current, leaveOut: (current.leaveOut ?? []).filter((each) => each !== choiceName(line)) });
+  };
+  return (
+    <>
+      {out.map((line) => (
+        <li key={line} className="nutri-unread"><span className="nutri-unread__line muted">{line}</span><span className="nutri-unread__actions"><button type="button" className="chip" onClick={() => countAgain(line)}>Count it</button></span></li>
+      ))}
+    </>
+  );
+}
+
+/** Whether a food was chosen by hand for this line, so the list can offer to undo it. */
+function chosenFor(line: string, choices: ReturnType<typeof loadFoodChoices>): boolean {
+  const name = choiceName(line);
+  return Boolean(choices.foods?.[name]) && choices.foods?.[name] !== foodFor(readIngredient(line))?.key;
+}
+
 /** The grade alone, small: beside a recipe's title. */
 export function NutriBadge({ grade, onClick }: { grade: Grade; onClick?: () => void }) {
   const inner = (
@@ -47,7 +138,16 @@ const g = (value: number) => (value >= 10 ? `${Math.round(value)} g` : `${value}
 const percent = (value: number, of: number) => Math.round((value / of) * 100);
 
 /** The recipe's Nutri-Score, a serving at a glance, each nutrient beside a day's reference, and what was read. */
-export function NutritionPanel({ nutrition, servings }: { nutrition: Nutrition; servings?: number }) {
+export function NutritionPanel({ nutrition, servings, lines = [] }: { nutrition: Nutrition; servings?: number; lines?: readonly string[] }) {
+  const choices = useFoodChoices();
+  const forget = (line: string) => {
+    const current = loadFoodChoices();
+    const foods = { ...current.foods };
+    delete foods[choiceName(line)];
+    const grams = { ...current.grams };
+    delete grams[choiceLine(line)];
+    saveFoodChoices({ ...current, foods, grams });
+  };
   const facts = perServing(nutrition.total, servings ?? 1);
   // Where the energy comes from: protein and carbohydrate 4 kcal a gram, fat 9.
   const energy = [
@@ -89,7 +189,8 @@ export function NutritionPanel({ nutrition, servings }: { nutrition: Nutrition; 
       ) : (
         <div className="card nutri-hero">
           <p className="nutri-hero__eyebrow">Nutri-Score</p>
-          <p className="nutrition__line">Not enough of the ingredients could be read to grade this recipe.</p>
+          <p className="nutrition__line">{nutrition.unread.length ? 'Not graded: some ingredients were not read. Say what they are, or leave them out.' : 'Not enough of the ingredients could be read to grade this recipe.'}</p>
+          {nutrition.unread.length > 0 && <ul className="nutri-unread-list">{nutrition.unread.map((line) => <UnreadLine key={line} line={line} />)}</ul>}
         </div>
       )}
 
@@ -143,12 +244,18 @@ export function NutritionPanel({ nutrition, servings }: { nutrition: Nutrition; 
         <summary>From {nutrition.read.length} of {nutrition.read.length + nutrition.unread.length} ingredients</summary>
         <ul className="nutri-read">
           {nutrition.read.map((each) => (
-            <li key={each.line}><span>{each.line}</span><span className="muted">{each.grams} g</span></li>
-          ))}
-          {nutrition.unread.map((line) => (
-            <li key={line} className="is-unread"><span>{line}</span><span className="muted">Not read</span></li>
+            <li key={each.line}>
+              <span>{each.line}</span>
+              <span className="muted">{each.grams} g{chosenFor(each.line, choices) && <> · {label(each.food)} <button type="button" className="text-link" onClick={() => forget(each.line)}>Undo</button></>}</span>
+            </li>
           ))}
         </ul>
+        {(nutrition.unread.length > 0 || lines.length > 0) && (
+          <ul className="nutri-unread-list">
+            {nutrition.grade && nutrition.unread.map((line) => <UnreadLine key={line} line={line} />)}
+            <LeftOut lines={lines} />
+          </ul>
+        )}
         <p className="fine">Raw weights, before cooking. Herbs, spices and salt to taste are left out. {NUTRITION_SOURCE} {REFERENCE_SOURCE}</p>
       </details>
     </section>

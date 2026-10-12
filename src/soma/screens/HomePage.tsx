@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useFoodChoices } from '../data/foodChoices';
 import { recipeNutrition } from '../core/nutrition';
 import type { Nav } from '../app/App';
 import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
@@ -18,7 +19,8 @@ import { Greeting } from '../../app/family/greeting';
 export function RecipeCard({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   const time = minutesLabel(timeOf(recipe));
   const rated = useSettings().healthRating;
-  const grade = useMemo(() => (rated ? recipeNutrition(recipe.ingredients).grade : undefined), [rated, recipe.ingredients]);
+  const choices = useFoodChoices();
+  const grade = useMemo(() => (rated ? recipeNutrition(recipe.ingredients, choices).grade : undefined), [rated, recipe.ingredients, choices]);
   return (
     <button type="button" className="recipe-card" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
       <DishImage className="recipe-card__image" recipe={recipe} />

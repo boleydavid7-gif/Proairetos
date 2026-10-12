@@ -4,6 +4,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-10-12',
     lines: [
       'Soma: grades follow the updated Nutri-Score (2023), stricter on salt, sugar and red meat; Soma knows about 60 more foods from USDA data (sauces, cheeses, cured meats, chocolate chips, pastry, store broth); a recipe with a large line it cannot read is no longer graded; "How it was worked out" shows the points.',
+      'Soma: reads more recipes (British measures like tblsp, knobs, rashers and 175g/6oz, juice of a lemon, about 50 more foods); when a line still is not read, say what it is with Read as…, or Leave out, and Soma remembers for every recipe.',
       'Therapeia: medicines at the times you set, or after waking and before sleep on any schedule; refills, visits with your questions, a health card and a list to share.',
       'Dynamis: strength sessions built from the research, every set logged, a little more offered when you are ready; short mobility routines with a bell.',
       'Ktema: warranties, models, serial numbers and documents, and upkeep that comes round by date or by mileage.',

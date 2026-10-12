@@ -18,18 +18,22 @@ export type Ingredient = {
 const fractions: Record<string, number> = { '¼': 0.25, '½': 0.5, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3, '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875, '⅕': 0.2 };
 
 const units = [
-  'tablespoons', 'tablespoon', 'tbsp', 'tbs', 'tb',
-  'teaspoons', 'teaspoon', 'tsp',
+  'tablespoons', 'tablespoon', 'tbsps', 'tbsp', 'tblsp', 'tbls', 'tbs', 'tb',
+  'teaspoons', 'teaspoon', 'tsps', 'tsp',
   'cups', 'cup', 'c',
   'fluid ounces', 'fl oz', 'ounces', 'ounce', 'oz',
   'pounds', 'pound', 'lbs', 'lb',
   'grams', 'gram', 'g', 'kilograms', 'kilogram', 'kg',
-  'millilitres', 'milliliters', 'ml', 'litres', 'liters', 'l',
+  'millilitres', 'milliliters', 'millilitre', 'milliliter', 'ml', 'litres', 'liters', 'litre', 'liter', 'l',
   'pints', 'pint', 'quarts', 'quart',
   'cloves', 'clove', 'cans', 'can', 'tins', 'tin', 'packages', 'package', 'packets', 'packet',
   'pinch', 'pinches', 'dash', 'dashes', 'handful', 'handfuls', 'bunch', 'bunches',
+  'jars', 'jar', 'pots', 'pot', 'bottles', 'bottle', 'bags', 'bag', 'boxes', 'box', 'sheets', 'sheet', 'pieces', 'piece',
+  'knobs', 'knob', 'splash', 'drizzle', 'rashers', 'rasher', 'strips', 'strip',
   'slices', 'slice', 'sprigs', 'sprig', 'stalks', 'stalk', 'heads', 'head', 'sticks', 'stick', 'loaves', 'loaf',
 ];
+
+const DUAL = /^([\d.,½¼¾⅓⅔⅛]+\s*(?:g|kg|ml|l|oz|lb)\b)\s*\/\s*[\d.,½¼¾⅓⅔⅛]+\s*(?:fl\.?\s*oz|fl|oz|lb|g|ml|cups?)\b\.?/i;
 
 /** Size words, kept as a note so "2 medium sweet potatoes" is bought as sweet potatoes. */
 const SIZE = /^(?:extra[- ]large|large|medium|small|big|jumbo)\s+/i;
@@ -54,8 +58,8 @@ type ConvertibleUnit = {
 // 240 ml, rather than a long laboratory conversion). The source recipe is
 // never rewritten, so a person can always return to its original wording.
 const convertibleUnits: readonly ConvertibleUnit[] = [
-  { key: 'tsp', family: 'volume', factor: 5, aliases: ['tsp', 'teaspoon', 'teaspoons'] },
-  { key: 'tbsp', family: 'volume', factor: 15, aliases: ['tbsp', 'tbs', 'tb', 'tablespoon', 'tablespoons'] },
+  { key: 'tsp', family: 'volume', factor: 5, aliases: ['tsp', 'tsps', 'teaspoon', 'teaspoons'] },
+  { key: 'tbsp', family: 'volume', factor: 15, aliases: ['tbsp', 'tbsps', 'tblsp', 'tbls', 'tbs', 'tb', 'tablespoon', 'tablespoons'] },
   { key: 'cup', family: 'volume', factor: 240, aliases: ['c', 'cup', 'cups'] },
   { key: 'fl oz', family: 'volume', factor: 30, aliases: ['fl oz', 'fluid ounce', 'fluid ounces'] },
   { key: 'pint', family: 'volume', factor: 475, aliases: ['pint', 'pints'] },
@@ -92,7 +96,8 @@ export function readNumber(text: string): number | undefined {
 }
 
 export function readIngredient(line: string): Ingredient {
-  let rest = line.trim().replace(/^[-•*]\s*/, '');
+  // "175g/6oz flour", "350ml/12fl oz milk": the first measure is kept, the one after the slash left out.
+  let rest = line.trim().replace(/^[-•*]\s*/, '').replace(DUAL, '$1');
   const ingredient: Ingredient = { name: rest, line };
   // "Juice of 1 lemon": the lemon is what is bought; the juice is how it is used.
   const part = rest.match(PART_OF);

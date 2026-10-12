@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useFoodChoices } from '../data/foodChoices';
 import { reflectionService } from '../../app/services';
 import type { Nav } from '../app/App';
 import { ClockIcon, HeartIcon, PotIcon, ServesIcon, ShareIcon } from '../app/icons';
@@ -100,6 +101,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const recipe = recipes?.find((each) => each.id === id);
   const groceries = useGroceries() ?? [];
   const settings = useSettings();
+  const choices = useFoodChoices();
   const today = useToday();
   const undo = useUndo();
   const [tab, setTab] = useState<Tab>('ingredients');
@@ -133,7 +135,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
   const factor = base && serves ? serves / base : 1;
   // Worked out from the recipe as written (not as scaled), so a serving stays a serving.
-  const nutrition = recipeNutrition(recipe.ingredients);
+  const nutrition = recipeNutrition(recipe.ingredients, choices);
   const sourceLines = recipe.ingredients.map((line) => scaleLine(line, factor));
   const lines = sourceLines.map((line) => (isHeading(line) ? line : convertLine(line, settings.units)));
   const save = (change: Partial<Recipe>) => putRecipe({ ...recipe, ...change, updatedAt: new Date().toISOString() });
@@ -347,7 +349,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         </section>
       )}
 
-      {tab === 'nutrition' && settings.healthRating && <NutritionPanel nutrition={nutrition} servings={servingsNumber(recipe.servings)} />}
+      {tab === 'nutrition' && settings.healthRating && <NutritionPanel nutrition={nutrition} servings={servingsNumber(recipe.servings)} lines={recipe.ingredients} />}
 
       {tab === 'notes' && (
         <section aria-label="Notes">

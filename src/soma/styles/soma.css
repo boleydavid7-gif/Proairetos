@@ -1500,3 +1500,29 @@ button.nutri-badge {
 .nutri-read li.is-unread span:first-child {
   color: var(--text-soft);
 }
+
+
+/* Lines Soma could not read, with Read as… and Leave out. */
+.nutri-unread-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nutri-unread {
+  display: grid;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.nutri-unread__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nutri-unread__pick {
+  display: grid;
+  gap: 8px;
+}

@@ -97,4 +97,25 @@ describe('a recipe', () => {
     const macAndCheese = recipeNutrition(['1 lb elbow macaroni', '4 tablespoons butter', '1/4 cup flour', '3 cups whole milk', '4 cups shredded sharp cheddar cheese', '1 teaspoon salt']);
     expect(macAndCheese.grade).toMatch(/[DE]/);
   });
+
+  it('reads British measures: tblsp, knobs, rashers, both units, and lemon juice by the lemon', () => {
+    const result = recipeNutrition(['175g/6oz plain flour', '2 tblsp olive oil', '1 knob butter', '4 rashers bacon', 'Juice of 1 lemon', '400g tinned tomatos']);
+    expect(result.unread).toEqual([]);
+    expect(result.read.find((each) => each.food === 'flour')?.grams).toBe(175);
+    expect(result.read.find((each) => each.food === 'lemon juice')?.grams).toBe(45);
+    expect(result.read.find((each) => each.food === 'bacon')?.grams).toBe(100);
+  });
+
+  it('follows the person: a chosen food, a weight for one line, a line left out', () => {
+    const lines = ['2 cups rice', '1 jar house sauce', '1 lb chicken breast'];
+    const unknown = recipeNutrition(lines);
+    expect(unknown.grade).toBeUndefined();
+    const named = recipeNutrition(lines, { foods: { 'house sauce': 'pasta sauce' }, grams: { '1 jar house sauce': 400 } });
+    expect(named.unread).toEqual([]);
+    expect(named.read.find((each) => each.food === 'pasta sauce')?.grams).toBe(400);
+    expect(named.grade).toBeDefined();
+    const without = recipeNutrition(lines, { leaveOut: ['house sauce'] });
+    expect(without.unread).toEqual([]);
+    expect(without.grade).toBeDefined();
+  });
 });
