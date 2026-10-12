@@ -25,7 +25,7 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     settings.runs && isAdded('askesis') ? readRuns() : undefined,
     settings.bills && isAdded('oikonomia') ? readStore<Bill>('oikonomiaBills') : [],
     settings.study && isAdded('praxis') ? studyEnd() : undefined,
-    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep ? familyNotices(now, until).catch(() => []) : [],
+    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants ? familyNotices(now, until).catch(() => []) : [],
   ]);
   const today = toLocalDate(now);
   return noticesBetween({

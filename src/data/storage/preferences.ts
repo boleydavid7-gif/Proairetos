@@ -376,7 +376,9 @@ export type TodayPart =
   // A training day's session, from Dynamis.
   | 'training'
   // Upkeep whose day has come, from Ktema.
-  | 'upkeep';
+  | 'upkeep'
+  // Plants to check today, from Phyton.
+  | 'plants';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];

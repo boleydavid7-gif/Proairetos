@@ -626,6 +626,10 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep', detail: 'Upkeep whose day has come.' }] }],
   },
   {
+    app: 'Phyton',
+    sections: [{ parts: [{ part: 'plants', label: 'Plants', detail: 'Plants whose day to check has come.' }] }],
+  },
+  {
     app: 'Hydros',
     sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'During work, what you’ve drunk since it started, with a button to log a glass.' }] }],
   },
@@ -1220,7 +1224,7 @@ export default function SettingsPage() {
     {
       label: 'Apps',
       entries: [
-        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema running recipes bills water study reading sleep people chores medicines strength upkeep warranty' },
+        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema phyton running recipes bills water study reading sleep people chores medicines strength upkeep warranty plants garden' },
         ...familyApps
           .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
           .map((each) => ({ id: each.id, icon: app(each.icon), title: each.name, value: each.line, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),

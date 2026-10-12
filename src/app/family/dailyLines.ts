@@ -12,7 +12,7 @@ type Lines = { stoic: Line[]; buddhist: Line[] };
 const BUDDHARAKKHITA = 'tr. Acharya Buddharakkhita';
 const LONG = 'tr. George Long';
 
-export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema', Lines> = {
+export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton', Lines> = {
   diaita: {
     stoic: [
       { text: 'Indulge the body only so far as is needful for good health.', by: 'Seneca, Letters 8' },
@@ -95,6 +95,18 @@ export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynami
       { text: 'Contentment is the greatest wealth.', by: `The Buddha, Dhammapada 204 (${BUDDHARAKKHITA})` },
       { text: '"I have sons, I have wealth": thus the fool worries. Indeed, when he himself is not his own, whence are sons, whence is wealth?', by: `The Buddha, Dhammapada 62 (${BUDDHARAKKHITA})` },
       { text: 'The teaching is like a raft: for crossing over, not for holding on to.', by: 'After the Alagaddupama Sutta, MN 22 (paraphrase)' },
+    ],
+  },
+  phyton: {
+    stoic: [
+      { text: 'Nothing great is produced suddenly, since not even the grape or the fig is. Let it flower first, then put forth fruit, and then ripen.', by: `Epictetus, Discourses 1.15 (${LONG})` },
+      { text: 'Everything is fruit to me which thy seasons bring, O Nature.', by: `Marcus Aurelius, Meditations 4.23 (${LONG})` },
+      { text: 'An old man planting olive trees, for a shade he will never sit in, is not wasting his work.', by: 'After Seneca, Letters 86 (paraphrase)' },
+    ],
+    buddhist: [
+      { text: 'As a bee gathers honey from the flower without injuring its colour or fragrance, even so the sage goes on his alms-round in the village.', by: `The Buddha, Dhammapada 49 (${BUDDHARAKKHITA})` },
+      { text: 'Like a beautiful flower full of colour but without fragrance, even so, fruitless are the fair words of one who does not practise them.', by: `The Buddha, Dhammapada 51 (${BUDDHARAKKHITA})` },
+      { text: 'Seeds come to growth and increase when there is earth and there is water.', by: 'After the Bija Sutta, SN 22.54 (paraphrase)' },
     ],
   },
 };

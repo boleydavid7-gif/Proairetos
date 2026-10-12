@@ -1,0 +1,41 @@
+import { CameraIcon, LeafIcon, PlusIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
+import { toLocalDate } from '../../core/scheduling/dates';
+import type { PhytonNav } from '../app/App';
+import { settings, usePlants } from '../app/state';
+import { useRain } from '../app/rain';
+import { PlantList } from '../app/ui';
+import { nextCheck, type Plant } from '../core/plants';
+
+export default function PlantsPage({ nav }: { nav: PhytonNav }) {
+  const all = usePlants();
+  const current = settings.use();
+  const rain = useRain(current.rain);
+  const today = toLocalDate(new Date());
+  const places = new Map<string, Plant[]>();
+  const sorted = [...all].sort((a, b) => nextCheck(a, today, current.hemisphere, rain).localeCompare(nextCheck(b, today, current.hemisphere, rain)) || a.name.localeCompare(b.name));
+  for (const plant of sorted) {
+    const place = plant.place || 'Anywhere';
+    places.set(place, [...(places.get(place) ?? []), plant]);
+  }
+  const ordered = [...places].sort(([a], [b]) => (a === 'Anywhere' ? 1 : b === 'Anywhere' ? -1 : a.localeCompare(b)));
+
+  return (
+    <div className="page phyton-page">
+      <div className="page-top section-head">
+        <h1 className="title">Plants</h1>
+        <div className="button-row">
+          <button type="button" className="button-quiet" aria-label="Identify a plant" onClick={() => nav.go({ name: 'identify' })}><CameraIcon size={18} /></button>
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>
+        </div>
+      </div>
+      {all.length === 0 && <Empty icon={<LeafIcon size={26} />} title="No plants yet" line="Add one by its type, or identify it from a photo." />}
+      {ordered.map(([place, plants]) => (
+        <section key={place} className="chore-group">
+          <p className="label">{place}</p>
+          <PlantList plants={plants} today={today} place={place === 'Anywhere'} onOpen={(plant) => nav.go({ name: 'plant', id: plant.id })} />
+        </section>
+      ))}
+    </div>
+  );
+}

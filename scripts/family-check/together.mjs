@@ -17,7 +17,7 @@ const step = async (name, fn) => { try { await fn(); } catch (e) { ok(name, fals
 await go('/welcome/', 300);
 await p.evaluate(() => {
   localStorage.setItem('proairetos.onboarded', 'yes');
-  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema'] }));
+  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'] }));
   localStorage.setItem('proairetos.todayOptIn', JSON.stringify(['bills', 'water', 'highlight']));
 });
 

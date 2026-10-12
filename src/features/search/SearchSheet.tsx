@@ -3,6 +3,8 @@ import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
 import { appointments as therapeiaVisits, medicines as therapeiaMedicines } from '../../therapeia/app/state';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
+import { allPlants } from '../../phyton/app/state';
+import { speciesBy } from '../../phyton/core/species';
 import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
@@ -161,6 +163,11 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
   for (const upkeep of isAdded('ktema') ? ktemaUpkeeps.list() : []) {
     labels.set(upkeep.id, 'Upkeep in Ktema');
     things.push({ id: upkeep.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`upkeep:${upkeep.id}`)}`, title: upkeep.name, fields: [{ name: 'Note', text: upkeep.note }], at: upkeep.createdAt });
+  }
+  for (const plant of isAdded('phyton') ? allPlants() : []) {
+    labels.set(plant.id, 'Plant in Phyton');
+    const type = speciesBy(plant.species);
+    things.push({ id: plant.id, kind: 'app', href: `/phyton/?open=${encodeURIComponent(`plant:${plant.id}`)}`, title: plant.name, fields: [{ name: 'Type', text: [type?.name, plant.latin ?? type?.latin].filter(Boolean).join(' ') }, { name: 'Where', text: plant.place }, { name: 'Note', text: plant.note }], at: plant.createdAt });
   }
   return { things, labels };
 }

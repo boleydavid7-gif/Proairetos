@@ -1,0 +1,152 @@
+/* Phyton's colours: leaf green and moss. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.phyton {
+  --app-name: 'Phyton';
+  color-scheme: dark;
+  --bg: #0f1410;
+  --surface: #161d17;
+  --surface-2: #1d261e;
+  --line: #2a352b;
+  --text: #ecf0e6;
+  --text-soft: #cbd3c6;
+  --muted: #9ba596;
+  --mint: #9fc48a;
+  --mint-ink: #102010;
+  --mint-soft: color-mix(in srgb, #9fc48a 14%, transparent);
+  --bar: rgba(15,20,16,0.95);
+  --placeholder: #79847a;
+  --glow-top: #1b261c;
+  --switch-off: #323d33;
+  --accent: #9fc48a;
+}
+
+:root.phyton[data-theme='light'] {
+  color-scheme: light;
+  --bg: #eef2ea;
+  --surface: #fafcf7;
+  --surface-2: #e1e8dc;
+  --line: #d3dccd;
+  --text: #212a20;
+  --text-soft: #434f40;
+  --muted: #59665a;
+  --mint: #3a6b2c;
+  --mint-ink: #ffffff;
+  --mint-soft: color-mix(in srgb, #3a6b2c 14%, transparent);
+  --bar: rgba(239,243,235,0.96);
+  --placeholder: #8a9587;
+  --glow-top: #dfe8da;
+  --switch-off: #cbd5c6;
+  --accent: #3a6b2c;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.phyton[data-theme='system'] {
+    color-scheme: light;
+    --bg: #eef2ea;
+    --surface: #fafcf7;
+    --surface-2: #e1e8dc;
+    --line: #d3dccd;
+    --text: #212a20;
+    --text-soft: #434f40;
+    --muted: #59665a;
+    --mint: #3a6b2c;
+    --mint-ink: #ffffff;
+    --mint-soft: color-mix(in srgb, #3a6b2c 14%, transparent);
+    --bar: rgba(239,243,235,0.96);
+    --placeholder: #8a9587;
+    --glow-top: #dfe8da;
+    --switch-off: #cbd5c6;
+    --accent: #3a6b2c;
+  }
+}
+
+.plant-thumb {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+.plant-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.plant-row .chore__name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.plant-type {
+  margin: 0;
+}
+.plant-toxic {
+  font-weight: 600;
+}
+.identify-row {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.match-score {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  margin-inline-start: auto;
+  padding-inline: 0.5rem;
+}
+.shots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+.shot img {
+  width: 100%;
+  max-height: 16rem;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.plant-photos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+}
+.plant-photos li {
+  display: grid;
+  gap: 0.25rem;
+}
+.plant-photos img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.plant-photos__date {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.phyton-home .home__title {
+  text-wrap: balance;
+}
+.card .detail-list {
+  border: 0;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.phyton-page .row__text {
+  flex: 1;
+  min-width: 0;
+}
+.row.row--plain {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}

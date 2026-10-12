@@ -8,10 +8,10 @@ import AddedOnly from './AddedOnly';
 import { notifications } from '../notify/notifications';
 
 /**
- * How the newer apps (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema) open: their colours on the root, appearance shared with Proairetos, the app,
+ * How the newer apps (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton) open: their colours on the root, appearance shared with Proairetos, the app,
  * sync, daily copies, notices through Proairetos's scheduler, and their own worker for working offline.
  */
-export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema', App: ComponentType, colours: { light: string; dark: string }): void {
+export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton', App: ComponentType, colours: { light: string; dark: string }): void {
   document.documentElement.classList.add(app);
   const appearance = () => {
     applyAppearance();

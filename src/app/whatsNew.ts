@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Phyton, for plants: each one comes round to be checked, with Watered or Still moist; the days between follow what you actually do, stretch in winter, and rain counts for plants outside. About 85 plant types with light, water and whether they are toxic to cats and dogs; identify a plant from a photo; photos over time; share with the people you live with.',
       'Soma: grades follow the updated Nutri-Score (2023), stricter on salt, sugar and red meat; Soma knows about 60 more foods from USDA data (sauces, cheeses, cured meats, chocolate chips, pastry, store broth); a recipe with a large line it cannot read is no longer graded; "How it was worked out" shows the points.',
       'Soma: nutrition is for one serving; when a recipe does not say how many it serves, Soma estimates it (about 600 kcal or 450 g a portion), and − and + change it. The lowest grade now reads F.',
       'Soma: reads more recipes (British measures like tblsp, knobs, rashers and 175g/6oz, juice of a lemon, about 50 more foods); when a line still is not read, say what it is with Read as…, or Leave out, and Soma remembers for every recipe.',

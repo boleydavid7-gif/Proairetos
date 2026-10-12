@@ -229,8 +229,28 @@ export const TimerIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const LeafIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z" />
+    <path d="M5 19 13 11" />
+  </Icon>
+);
+
+export const DropIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z" />
+  </Icon>
+);
+
+export const CameraIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </Icon>
+);
+
 /** Each app's mark: a simple drawn sign in a round. */
-export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema'; size?: number; light?: boolean }) {
+export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton'; size?: number; light?: boolean }) {
   const color = light ? '#f3eee4' : 'currentColor';
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ color }} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -264,6 +284,14 @@ export function AppMark({ app, size = 30, light = false }: { app: 'diaita' | 'ph
         <>
           <circle cx="17" cy="24" r="7" />
           <path d="M24 24h15M34 24v5M29.5 24v3.5" />
+        </>
+      )}
+      {app === 'phyton' && (
+        <>
+          <path d="M15 29h18l-2.5 10h-13z" />
+          <path d="M24 29V17" />
+          <path d="M24 21c-1-5-5-7.5-10-7 0 5 4 7.5 10 7z" fill="currentColor" stroke="none" opacity="0.9" />
+          <path d="M24 18c1-5 5-7.5 10-7 0 5-4 7.5-10 7z" />
         </>
       )}
       {app === 'ergon' && (

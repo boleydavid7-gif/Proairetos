@@ -96,3 +96,12 @@
   Cache-Control: no-cache
 /ktema/manifest.webmanifest
   Cache-Control: no-cache
+
+/phyton/sw.js
+  Cache-Control: no-cache
+/phyton/
+  Cache-Control: no-cache
+/phyton/index.html
+  Cache-Control: no-cache
+/phyton/manifest.webmanifest
+  Cache-Control: no-cache

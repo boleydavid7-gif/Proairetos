@@ -735,3 +735,25 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Askesis, Soma and Oikonomia; from Flow in Hydros, Time in Praxis and Settings in Theoria (inside `.family-surface`,
   which now also styles `.chip`, `.title`, `.back-link`). Tests in `src/tests/year/`.
 
+
+## Phyton (plants, same repository)
+
+- Fourteenth app at `/phyton/`, on the newer apps' shell (`startApp`, `shell.tsx`), wired like Ktema everywhere (`ADD_ONS`, backup prefix
+  `phyton:`, reminder source `phyton` with notice kind `plant`, NoticeSettings `plants`, Today part `plants` (`TodayPlants`), search,
+  `ACCOUNT_PAGE`, `sw.js` paths, `_headers`, welcome and privacy pages). Scene by `scripts/scenes/phyton.mjs` (a glasshouse in a green valley).
+- `core/species.ts`: about 85 types (houseplants, succulents, herbs, vegetables, garden) with light, how dry before watering (`Dryness`),
+  starting days, humid, feed weeks, toxic to cats/dogs as the ASPCA lists it (undefined = not listed, said so); `findSpecies`,
+  `speciesForLatin` (exact Latin, else the one type of that genus). Sources in `CARE_SOURCE`.
+- `core/plants.ts`: a plant comes round to be **checked**, not watered on a day. Watered / Still moist (`stillMoist` waits 2-3 days,
+  `checkFrom`); `learnedEvery` = middle of the last five gaps between waterings (each taken back to summer length), once there are two;
+  `seasonFactor` 1.5 Dec-Feb, 1.25 Nov/Mar (by hemisphere, guessed from the time zone, changeable in More); rain of 5 mm+ counts for
+  `outside` plants (`app/rain.ts`, Open-Meteo daily rainfall, place device-only in `phytonDevice.*`, falls back to Proairetos's weather place);
+  feeds only Mar-Sep (`nextFeed`, `toFeed`). Never "late": "Since Tue". The record keeps 40 marks (a shared record is sealed under the
+  server's 4,000 characters); `tally` counts by year for Your year.
+- Identify (`screens/IdentifyPage.tsx`, `app/identify.ts`): up to three photos with the part shown, made small on the phone, POSTed to
+  `/api/plant` (`worker/plantProxy.ts`: same origin only, JPEG/PNG/WebP under 2 MB, rate limited, secret `PLANTNET_KEY`, Pl@ntNet
+  `v2/identify/all`, 404 = no match). Matches show the score; a match in the table says "Care notes", one by genus "Care as for X".
+  The first photo starts the plant's photos (`holdPhoto`).
+- Photos per plant on the device only (IndexedDB `phyton-photos`, `data/photos.ts`, 1200 px JPEG), removed after a plant's undo window.
+- Shared home like Ergon (`createSharedLists`, `phyton:homes`, AD `phyton-list`, invite `/phyton/?open=home:ID#k=KEY&n=NAME`, `screens/HomePage.tsx`).
+- Links: `?open=today|plants|more|add|identify|home|plant:ID`.

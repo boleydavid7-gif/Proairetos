@@ -9,7 +9,7 @@ import type { FamilyApp } from './FamilyApps';
 
 export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
-export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema'];
+export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 const KEY = 'proairetos.apps';
 
@@ -29,6 +29,7 @@ const TRACES: Record<AddOn, (key: string) => boolean> = {
   therapeia: (key) => key.startsWith('therapeia:'),
   dynamis: (key) => key.startsWith('dynamis:'),
   ktema: (key) => key.startsWith('ktema:'),
+  phyton: (key) => key.startsWith('phyton:'),
 };
 
 /** The apps with traces in these storage keys. */

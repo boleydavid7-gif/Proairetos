@@ -11,7 +11,7 @@ import type { ScheduleOccurrence } from '../scheduling/types';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep' | 'plant';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -93,6 +93,8 @@ export type NoticeSettings = {
   training: boolean;
   /** Upkeep and warranties from Ktema, as chosen there. */
   upkeep: boolean;
+  /** Plants to check and feed, from Phyton, as chosen there. */
+  plants: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -118,6 +120,7 @@ export const defaultNoticeSettings: NoticeSettings = {
   medicines: true,
   training: true,
   upkeep: true,
+  plants: true,
   details: true,
 };
 
@@ -263,6 +266,7 @@ export function noticesBetween(sources: Sources): Notice[] {
       care: settings.medicines,
       training: settings.training,
       upkeep: settings.upkeep,
+      plant: settings.plants,
     };
     if (on[notice.kind]) raw.push(notice);
   }

@@ -17,6 +17,8 @@ import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../..
 import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { grouped as upkeepGrouped } from '../../ktema/core/things';
+import { settings as phytonSettings, usePlants } from '../../phyton/app/state';
+import { grouped as plantsGrouped } from '../../phyton/core/plants';
 import NotForMe from './NotForMe';
 
 function QuietLink({ href, icon, line, detail, part }: { href: string; icon: React.ReactNode; line: string; detail: string; part: Parameters<typeof NotForMe>[0]['part'] }) {
@@ -133,4 +135,16 @@ export function TodayUpkeep({ today }: { today: string }) {
   const now = upkeepGrouped(list, owned, today).now;
   if (!now.length) return null;
   return <QuietLink href="/ktema/" icon={<ListIcon size={20} />} line={now.slice(0, 3).map((each) => each.upkeep.name).join(' · ')} detail={now.length > 3 ? `And ${now.length - 3} more in Ktema` : 'Ktema'} part="upkeep" />;
+}
+
+/** Plants whose day to check has come, from Phyton. Opens Phyton. */
+export function TodayPlants({ today }: { today: string }) {
+  const shows = useTodayParts();
+  const plants = usePlants();
+  const phyton = phytonSettings.use();
+  if (!shows('plants')) return null;
+  // Rain is left to Phyton itself; here a plant outside may show a day early.
+  const now = plantsGrouped(plants, today, phyton.hemisphere).now;
+  if (!now.length) return null;
+  return <QuietLink href="/phyton/" icon={<ListIcon size={20} />} line={now.slice(0, 3).map((plant) => plant.name).join(' · ')} detail={now.length > 3 ? `Check the soil · and ${now.length - 3} more in Phyton` : 'Check the soil · Phyton'} part="plants" />;
 }

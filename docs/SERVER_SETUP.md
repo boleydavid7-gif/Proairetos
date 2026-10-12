@@ -333,3 +333,12 @@ a list's lines are sealed on the phone with the list's own key, which travels on
 (after the `#`, which is never sent to a server), so the server stores lines it cannot read. Only people who
 joined with the link can see or change a list, and anyone can leave. Nothing else needs deploying. Until it
 runs, Soma's Shared view says the server is not set up yet.
+
+## Identifying plants in Phyton (optional)
+
+Phyton names a plant from a photo through Pl@ntNet. Without a key the app works as usual and Identify says it is not set up.
+
+1. Make a free account at https://my.plantnet.org, then copy your API key from its settings.
+2. In Cloudflare, open the Worker (proairetos) > Settings > Variables and Secrets > Add, type **Secret**, name `PLANTNET_KEY`, value the key. (Or from a computer: `npx wrangler secret put PLANTNET_KEY`.)
+
+The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.

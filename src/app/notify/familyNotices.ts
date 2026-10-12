@@ -16,11 +16,14 @@ import { nextSession } from '../../dynamis/core/plan';
 import { isSetup, plan as dynamisPlan, settings as dynamisSettings, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { upkeepNotices } from '../../ktema/core/notices';
 import { settings as ktemaSettings, things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
+import { plantNotices } from '../../phyton/core/notices';
+import { allPlants, myName as phytonName, settings as phytonSettings } from '../../phyton/app/state';
+import { rainNow } from '../../phyton/app/rain';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
 
-/** The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema), from what they keep on this device (Proairetos sends them all). */
+/** The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton), from what they keep on this device (Proairetos sends them all). */
 export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const today = toLocalDate(now);
   const horizon = Math.ceil((until.getTime() - now.getTime()) / 86_400_000);
@@ -65,5 +68,11 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const upkeep = ktemaUpkeeps.list();
   const owned = ktemaThings.list();
   if ((upkeep.length || owned.length) && isAdded('ktema')) notices.push(...upkeepNotices(upkeep, owned, ktemaSettings.load().notices, today, horizon, now));
+
+  const plants = allPlants();
+  if (plants.length && isAdded('phyton')) {
+    const phyton = phytonSettings.load();
+    notices.push(...plantNotices(plants, phyton.notices, phytonName(phyton) || undefined, today, horizon, now, phyton.hemisphere, phyton.rain ? rainNow() : {}));
+  }
   return notices;
 }
