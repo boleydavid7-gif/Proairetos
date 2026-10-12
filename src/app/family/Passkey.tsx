@@ -4,7 +4,9 @@ import type { PasskeyRow } from '../../data/sync/supabase';
 import {
   addPasskey,
   forgetPreparedPasskey,
+  letPasskeyOpen,
   listPasskeys,
+  onPasskeysChanged,
   openDataWithPasskey,
   openingPasskeys,
   passkeyChallenge,
@@ -94,7 +96,10 @@ export function PasskeySignIn({ className = 'button-main', errorClass = 'hint' }
 export function useOpeningPasskeys(): PasskeyRow[] | undefined {
   const [rows, setRows] = useState<PasskeyRow[] | undefined>(passkeysAvailable() ? undefined : []);
   useEffect(() => {
-    if (passkeysAvailable()) void openingPasskeys().then(setRows);
+    if (!passkeysAvailable()) return;
+    const read = () => void openingPasskeys().then(setRows);
+    read();
+    return onPasskeysChanged(read);
   }, []);
   return rows;
 }
@@ -133,11 +138,13 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
   const [waiting, setWaiting] = useState(passkeyWaiting());
   const [note, setNote] = useState('');
   const [exclude, setExclude] = useState<string[]>([]);
+  // A passkey just made that gives its secret only when used: the tap that asks for it.
+  const [finish, setFinish] = useState<string>();
   const { busy, error, run } = usePasskeyStep();
   useEffect(() => {
     if (waiting) void listPasskeys().then((rows) => setExclude(rows.map((each) => each.id)), () => undefined);
   }, [waiting]);
-  if (!waiting && !note) return null;
+  if (!waiting && !note && !finish) return null;
   return (
     <div className="passkey-now">
       {waiting && (
@@ -148,10 +155,11 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
             disabled={busy}
             onClick={() =>
               void run(async () => {
-                const opens = await addPasskey(exclude);
+                const added = await addPasskey(exclude);
                 setWaiting(false);
                 onDone?.();
-                setNote(opens ? 'Passkey added.' : 'Passkey added. It signs in; on this device your passphrase still opens your data.');
+                if (added.finish) setFinish(added.finish);
+                else setNote(added.opens ? 'Passkey added.' : 'Passkey added. It signs in; on this device your passphrase still opens your data.');
               })
             }
           >
@@ -163,6 +171,37 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
             onClick={() => {
               forgetPreparedPasskey();
               setWaiting(false);
+            }}
+          >
+            Not now
+          </button>
+        </>
+      )}
+      {finish && (
+        <>
+          <p className={noteClass}>One more Face ID lets this passkey open your data too.</p>
+          <button
+            type="button"
+            className={className}
+            disabled={busy}
+            onClick={() =>
+              void run(async () => {
+                const opens = await letPasskeyOpen(finish);
+                setFinish(undefined);
+                onDone?.();
+                setNote(opens ? 'Passkey added. It opens your data in every app.' : 'Passkey added. It signs in; on this device your passphrase still opens your data.');
+              })
+            }
+          >
+            {busy ? 'Asking…' : 'Continue'}
+          </button>
+          <button
+            type="button"
+            className={quietClass}
+            onClick={() => {
+              forgetPreparedPasskey();
+              setFinish(undefined);
+              setNote('Passkey added. It signs in; your passphrase still opens your data.');
             }}
           >
             Not now

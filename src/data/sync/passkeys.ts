@@ -61,6 +61,8 @@ export type NewPasskey = {
   rpId: string;
   /** Absent when this device's passkeys cannot give a secret (then the passkey signs in, and the passphrase opens). */
   secret?: Uint8Array<ArrayBuffer>;
+  /** No secret yet, but this device's passkeys can give one when used: one more tap asks for it. */
+  secretOnUse: boolean;
 };
 
 export async function createPasskey(user: { id: string; email: string }, exclude: readonly string[] = []): Promise<NewPasskey> {
@@ -87,11 +89,11 @@ export async function createPasskey(user: { id: string; email: string }, exclude
   const algorithm = response.getPublicKeyAlgorithm?.();
   if (!publicKey || (algorithm !== -7 && algorithm !== -257)) throw new Error('This device made a passkey of a kind Proairetos cannot use.');
   const credentialId = toBase64Url(new Uint8Array(credential.rawId));
-  let secret = prfSecret(credential);
+  const secret = prfSecret(credential);
   const prf = (credential.getClientExtensionResults() as PrfResults).prf;
-  // Some devices only give the secret when the passkey is used, not when it is made: ask once more.
-  if (!secret && prf?.enabled !== false) secret = (await askForPasskey({ allow: [credentialId] }).catch(() => undefined))?.secret;
-  return { credentialId, publicKey: toBase64Url(new Uint8Array(publicKey)), algorithm, rpId, secret };
+  // iPhones give the secret only when the passkey is used, not when it is made. Asking at once is refused (Safari
+  // allows a passkey only straight after a tap), so the caller offers one more tap for it.
+  return { credentialId, publicKey: toBase64Url(new Uint8Array(publicKey)), algorithm, rpId, secret, secretOnUse: !secret && prf?.enabled !== false };
 }
 
 export type UsedPasskey = {

@@ -157,6 +157,13 @@ async function resolvePhase(): Promise<void> {
 
 const remoteChanges = createListeners();
 
+/** Told when a passkey is added, removed or given what opens the data, so screens that offer one read them again. */
+const passkeyChanges = createListeners();
+
+export function onPasskeysChanged(listener: () => void): () => void {
+  return passkeyChanges.subscribe(listener);
+}
+
 /*
  * The family, open side by side (Proairetos, Askesis, Soma in tabs, or
  * installed apps sharing this browser's storage): a change in one shows in
@@ -426,7 +433,9 @@ export async function unlock(secret: string, method: 'passphrase' | 'recovery', 
       : await unlockWithRecoveryKey(wrapped.recovery, secret, exportable);
   if (finishing) {
     passkeyToFinish = null;
-    await savePasskeyWrap(finishing.credentialId, await wrapWithPasskey(key, finishing.secret)).catch(() => undefined);
+    await savePasskeyWrap(finishing.credentialId, await wrapWithPasskey(key, finishing.secret))
+      .then(() => passkeyChanges.notify())
+      .catch(() => undefined);
   }
   if (exportable) {
     if (forPasskey) passkeyKey = key;
@@ -563,7 +572,7 @@ export function forgetPreparedPasskey(): void {
  * data in any app. Call it straight from a tap. Returns whether the passkey opens the data too, or only signs in
  * (devices that do not give the secret).
  */
-export async function addPasskey(exclude: readonly string[]): Promise<boolean> {
+export async function addPasskey(exclude: readonly string[]): Promise<{ opens: boolean; finish?: string }> {
   if (!userId || status.phase !== 'ready') throw new Error('Sign in and open your data first.');
   const made = await createPasskey({ id: userId, email: status.email ?? 'Proairetos' }, exclude);
   const key = passkeyKey ?? (await (await localState())!.getMeta<CryptoKey>(HANDOFF_META));
@@ -576,12 +585,31 @@ export async function addPasskey(exclude: readonly string[]): Promise<boolean> {
     wrap,
     label: deviceLabel(),
   });
+  passkeyChanges.notify();
+  // One more tap asks the new passkey for its secret (`letPasskeyOpen`); the exportable key waits in memory till then.
+  if (!wrap && made.secretOnUse && key) return { opens: false, finish: made.credentialId };
   passkeyKey = null;
-  return Boolean(wrap);
+  return { opens: Boolean(wrap) };
+}
+
+/**
+ * A passkey that only signs in: once the passphrase was given (or this device keeps the copy for passes), one tap asks it
+ * for its secret and seals the data key for it. False when this device's passkey gives no secret. Call it from a tap.
+ */
+export async function letPasskeyOpen(credentialId: string): Promise<boolean> {
+  const key = passkeyKey ?? (await (await localState())?.getMeta<CryptoKey>(HANDOFF_META));
+  if (!key) throw new Error('Enter your passphrase first.');
+  const used = await askForPasskey({ allow: [credentialId] });
+  if (!used.secret) return false;
+  await savePasskeyWrap(credentialId, await wrapWithPasskey(key, used.secret));
+  passkeyKey = null;
+  passkeyChanges.notify();
+  return true;
 }
 
 export async function removePasskey(id: string): Promise<void> {
   await deletePasskey(id);
+  passkeyChanges.notify();
 }
 
 /** Puts a removed passkey back (undo). */
@@ -589,6 +617,7 @@ export async function restorePasskey(row: PasskeyRow): Promise<void> {
   if (!userId) throw new Error('Sign in first.');
   const { created_at: _created, last_used_at: _used, ...kept } = row;
   await savePasskey(userId, kept);
+  passkeyChanges.notify();
 }
 
 /** A sign-in challenge from the server, fetched before the tap (good for two minutes). */

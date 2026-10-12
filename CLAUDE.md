@@ -240,7 +240,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `credentials.create/get`: the passphrase is turned into an exportable key first (`preparePasskey`, or `unlock(...,
   forPasskey)` from "Add a passkey for next time"; memory only, `passkeyKey`), then `MakePasskeyNow` is the tap.
   Without PRF a passkey only signs in ("signs in only"); when such a passkey signs in and does give its secret, the next
-  passphrase unlock seals the data key for it (`passkeyToFinish`, `savePasskeyWrap`), so it opens the data from then on.
+  passphrase unlock seals the data key for it (`passkeyToFinish`, `savePasskeyWrap`), so it opens the data from then on. Settings > Account > Passkeys has "Let it open your data" on a sign-in-only passkey
+  (passphrase, then one tap, `letPasskeyOpen`); it says plainly when the device gives no secret.
+  iPhones give the PRF secret only when a passkey is used, not when made, and refuse a second ask without a tap: `createPasskey`
+  returns `secretOnUse`, `addPasskey` returns `finish`, and `MakePasskeyNow` / Passkeys offer the one more tap (Continue).
+  `onPasskeysChanged` lets screens re-read the list.
   With a passkey that opens the data (`useOpeningPasskeys`), unlock leads with "Open with a passkey" and the passphrase
   is behind "Use my passphrase"; "Sign in other apps" hides, and "Paste from Proairetos" moves into the sign-in step. UI: `app/family/Passkey.tsx` (every AccountCard and
   Proairetos), list/add/remove with undo in `features/settings/Passkeys.tsx`.
