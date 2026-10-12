@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { dayText, everyNow, feed, grouped, learnedEvery, nextCheck, nextFeed, seasonFactor, stillMoist, toFeed, water, wateredText, type Plant } from './plants';
 import { findSpecies, speciesForLatin, SPECIES } from './species';
 import { plantNotices, defaultPlantNotices } from './notices';
+import { frostTonight, hotDays, isAway } from './outdoors';
+import { sitterRows, sitterText } from './sitter';
 import { phytonYear } from './year';
 
 const plant = (patch: Partial<Plant> = {}): Plant => ({ id: 'p1', name: 'Pothos', species: 'pothos', every: 7, log: [], createdAt: '2026-06-01T10:00:00.000Z', ...patch });
@@ -120,5 +122,46 @@ describe('the year', () => {
     expect(phytonYear([p], 2026).facts[0]).toEqual({ label: 'Waterings', value: '120' });
     // Sealed with AES-GCM and base64: about 4/3 of the JSON, under the server's 4,000.
     expect(Math.ceil((JSON.stringify(p).length + 28) * 4 / 3)).toBeLessThan(4000);
+  });
+});
+
+describe('outside: frost, hot days and days away', () => {
+  it('brings a plant outside round a day sooner when a hot day comes first, never before today', () => {
+    const p = water(plant({ outside: true }), '2026-06-01');
+    expect(nextCheck(p, '2026-06-03', 'north', {}, ['2026-06-05'])).toBe('2026-06-07');
+    expect(nextCheck({ ...p, outside: false }, '2026-06-03', 'north', {}, ['2026-06-05'])).toBe('2026-06-08');
+    expect(nextCheck(p, '2026-06-08', 'north', {}, ['2026-06-08'])).toBe('2026-06-08');
+    expect(hotDays({ '2026-06-05': { min: 18, max: 31 }, '2026-06-06': { min: 15, max: 24 } })).toEqual(['2026-06-05']);
+  });
+
+  it('warns of frost tonight at 17:00, naming only the plants outside', () => {
+    const list = [plant({ id: 'a', name: 'Basil', outside: true, log: watered('2026-10-20') }), plant({ id: 'b', name: 'Pothos', log: watered('2026-10-20') })];
+    const forecast = { '2026-10-21': { min: 6, max: 12 }, '2026-10-22': { min: 1, max: 9 } };
+    expect(frostTonight(list, forecast, '2026-10-21')?.plants.map((each) => each.name)).toEqual(['Basil']);
+    const notices = plantNotices(list, defaultPlantNotices, undefined, '2026-10-21', 3, new Date(2026, 9, 21, 8), { forecast, unit: 'F' });
+    const frost = notices.find((each) => each.key.startsWith('phyton:frost'));
+    expect(frost).toMatchObject({ title: 'Frost tonight, 34 °F', body: 'Outside: Basil.' });
+    expect(frost?.at.getHours()).toBe(17);
+    expect(frostTonight([list[1]], forecast, '2026-10-21')).toBeUndefined();
+  });
+
+  it('says nothing while away and names what came round the day after', () => {
+    const list = [plant({ id: 'a', name: 'Fern', log: watered('2026-06-14') }), plant({ id: 'b', name: 'Cactus', every: 30, log: watered('2026-06-14') })];
+    const away = { from: '2026-06-19', to: '2026-06-24' };
+    const notices = plantNotices(list, defaultPlantNotices, undefined, '2026-06-18', 10, new Date(2026, 5, 18, 8), { away });
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ title: 'Back home', body: 'Check the soil: Fern.' });
+    expect(notices[0].at.getDate()).toBe(25);
+    expect(isAway(away, '2026-06-24')).toBe(true);
+    expect(isAway(away, '2026-06-25')).toBe(false);
+  });
+});
+
+describe('the sheet for whoever waters', () => {
+  it('lists each plant with how dry, how often this month, notes and pets', () => {
+    const rows = sitterRows([plant({ name: 'Lily', species: 'peace-lily', place: 'Bedroom', every: 5 }), plant({ id: 'b', name: 'Tomatoes', species: 'tomato', outside: true, every: 2, place: 'Balcony' })], '2026-07-01');
+    expect(rows[1]).toMatchObject({ name: 'Lily', place: 'Bedroom', often: 'About every 5 days', pets: 'Toxic to cats and dogs' });
+    expect(rows[0].often).toBe('About every 2 days, less after rain');
+    expect(sitterText(rows, { from: '2026-07-02', to: '2026-07-09' }, (day) => day)).toMatch(/^Plants, 2026-07-02 to 2026-07-09\n\nTomatoes \(Balcony, outside\)/);
   });
 });

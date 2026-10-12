@@ -150,3 +150,83 @@
 .row.row--plain {
   grid-template-columns: minmax(0, 1fr) auto auto;
 }
+
+.plant-note p {
+  margin: 0.25rem 0 0;
+}
+.plant-note--cold {
+  border-color: color-mix(in srgb, #7fb2e5 45%, var(--line));
+}
+.plant-note--hot {
+  border-color: color-mix(in srgb, #e5a35f 45%, var(--line));
+}
+.plant-room {
+  margin-bottom: 0.25rem;
+}
+.plant-room .label {
+  margin: 0;
+}
+.away-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.then-now {
+  margin: 0 0 1rem;
+}
+.then-now__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.then-now__one {
+  display: grid;
+  gap: 0.3rem;
+}
+.then-now__one img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.then-now figcaption {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+.plant-photos[aria-label] {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0.6rem;
+  padding-bottom: 0.25rem;
+}
+.plant-photos[aria-label] li {
+  flex: 0 0 7.5rem;
+  scroll-snap-align: start;
+}
+
+.sitter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sitter-list li {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+  break-inside: avoid;
+}
+.sitter-list h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+.sitter-list h2 span {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+.sitter-list p {
+  margin: 0.15rem 0 0;
+  line-height: 1.4;
+}
+.sitter-list__pets {
+  font-weight: 600;
+}

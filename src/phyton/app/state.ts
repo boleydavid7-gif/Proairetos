@@ -5,8 +5,10 @@ import { notifications } from '../../app/notify/notifications';
 import { displayName } from '../../data/storage/preferences';
 import { defaultPlantNotices, type PlantNoticeChoices } from '../core/notices';
 import type { Hemisphere, Plant } from '../core/plants';
+import type { Away } from '../core/outdoors';
 
-export type PhytonSettings = { started: boolean; me: string; notices: PlantNoticeChoices; hemisphere: Hemisphere; rain: boolean };
+/** `rain` is the switch for weather outside (rain, frost, hot days); the name stays for settings already kept. */
+export type PhytonSettings = { started: boolean; me: string; notices: PlantNoticeChoices; hemisphere: Hemisphere; rain: boolean; away?: Away };
 
 /** The name used for Mine and for who watered: the one given here, else the name set in Proairetos. */
 export function myName(current: PhytonSettings = settings.load()): string {

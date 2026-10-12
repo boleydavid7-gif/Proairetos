@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { CameraIcon, LeafIcon } from '../../app/family/icons';
 import { offerUndo, say } from '../../app/family/shell';
 import { Switch } from '../../askesis/app/ui';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { daysBetween, toLocalDate } from '../../core/scheduling/dates';
 import type { PhytonNav } from '../app/App';
 import { findPlant, myName, newId, putPlant, removePlant, settings, usePlants } from '../app/state';
-import { useRain } from '../app/rain';
+import { useForecast, useRain } from '../app/rain';
+import { hotDays } from '../core/outdoors';
 import { takeHeldPhoto } from '../app/identify';
 import { moist, PlantThumb, watered } from '../app/ui';
 import { dayText, everyNow, everyText, feed, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
@@ -142,14 +143,26 @@ function Photos({ plant }: { plant: Plant }) {
           if (file) void keepPhoto(plant.id, file).catch(() => say('That photo could not be read.'));
         }}
       />
-      {photos.length === 0 ? (
-        <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>
-      ) : (
-        <ul className="plant-photos">
+      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>}
+      {photos.length > 1 && (
+        <figure className="then-now">
+          <div className="then-now__pair">
+            {[photos[0], photos[photos.length - 1]].map(({ photo, url }, index) => (
+              <div key={photo.id} className="then-now__one">
+                <img src={url} alt={`${plant.name}, ${photo.date}`} />
+                <span className="plant-photos__date">{index === 0 ? 'Then' : 'Now'} · {photoDate(photo.date)}</span>
+              </div>
+            ))}
+          </div>
+          <figcaption className="muted">{apart(photos[0].photo.date, photos[photos.length - 1].photo.date)}</figcaption>
+        </figure>
+      )}
+      {photos.length > 0 && (
+        <ul className="plant-photos" aria-label="Every photo, newest first">
           {[...photos].reverse().map(({ photo, url }) => (
             <li key={photo.id}>
               <img src={url} alt={`${plant.name}, ${photo.date}`} />
-              <span className="plant-photos__date">{new Date(`${photo.date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <span className="plant-photos__date">{photoDate(photo.date)}</span>
               <button
                 type="button"
                 className="text-link"
@@ -169,12 +182,28 @@ function Photos({ plant }: { plant: Plant }) {
   );
 }
 
+const photoDate = (date: string) => new Date(`${date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+
+/** "3 weeks apart", "5 months apart", "1 year and 2 months apart"; same day says so. */
+export function apart(from: string, to: string): string {
+  const days = daysBetween(from, to);
+  if (days <= 0) return 'The same day';
+  if (days < 14) return `${days} ${days === 1 ? 'day' : 'days'} apart`;
+  if (days < 61) return `${Math.round(days / 7)} weeks apart`;
+  const months = Math.round(days / 30.44);
+  if (months < 12) return `${months} months apart`;
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return `${years} ${years === 1 ? 'year' : 'years'}${rest ? ` and ${rest} ${rest === 1 ? 'month' : 'months'}` : ''} apart`;
+}
+
 function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdit: () => void }) {
   const current = settings.use();
   const rain = useRain(current.rain);
+  const forecast = useForecast(current.rain);
   const today = toLocalDate(new Date());
   const type = speciesBy(plant.species);
-  const day = nextCheck(plant, today, current.hemisphere, rain);
+  const day = nextCheck(plant, today, current.hemisphere, rain, hotDays(forecast));
   const learned = learnedEvery(plant, current.hemisphere);
   const fedNext = nextFeed(plant, today, current.hemisphere);
   const me = myName(current) || plant.who;

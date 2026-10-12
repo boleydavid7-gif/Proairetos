@@ -9,7 +9,10 @@ import photo from '../../assets/images/scenes/phyton.webp';
 import photoWide from '../../assets/images/scenes/phyton-wide.webp';
 import type { PhytonNav } from '../app/App';
 import { myName, putPlant, settings, useHome, usePlants } from '../app/state';
-import { useRain } from '../app/rain';
+import { useForecast, useRain } from '../app/rain';
+import { weatherSettings } from '../../app/weather/weather';
+import { degrees, frostTonight, hotDays, hotToday, isAway } from '../core/outdoors';
+import { dayText as shortDay } from '../core/plants';
 import { PlantList } from '../app/ui';
 import { feed, grouped, toFeed, type Plant } from '../core/plants';
 
@@ -17,12 +20,21 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
   const all = usePlants();
   const current = settings.use();
   const rain = useRain(current.rain);
+  const forecast = useForecast(current.rain);
+  const unit = weatherSettings().unit;
   const home = useHome();
   const today = toLocalDate(new Date());
   const [whose, setWhose] = useState<'mine' | 'all'>('all');
   const me = myName(current);
   const shown = whose === 'mine' && me ? all.filter((plant) => !plant.who || plant.who === me) : all;
-  const groups = grouped(shown, today, current.hemisphere, rain);
+  const groups = grouped(shown, today, current.hemisphere, rain, hotDays(forecast));
+  const frost = frostTonight(all, forecast, today);
+  const hot = hotToday(all, forecast, today);
+  const away = current.away && current.away.to >= today ? current.away : undefined;
+  const when = (day: string) => {
+    const text = shortDay(day, today);
+    return text === 'Today' || text === 'Tomorrow' ? text.toLowerCase() : text;
+  };
   const feeding = toFeed(shown, today, current.hemisphere);
   const open = (plant: Plant) => nav.go({ name: 'plant', id: plant.id });
 
@@ -46,6 +58,28 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
 
       <div className="page page--under-hero">
         {me && home && <Segmented label="Whose" value={whose} options={[{ id: 'all', label: 'Everyone' }, { id: 'mine', label: me }]} onChange={setWhose} small />}
+
+        {away && (
+          <section className="card plant-note">
+            <span className="card__eyebrow">{isAway(away, today) ? 'Away' : 'Going away'}</span>
+            <p>{isAway(away, today) ? `Until ${when(away.to)}. Reminders wait until you’re back.` : `From ${when(away.from)} until ${when(away.to)}.`}</p>
+            <div className="button-row">
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'sitter' })}>Sheet for whoever waters</button>
+            </div>
+          </section>
+        )}
+        {frost && (
+          <section className="card plant-note plant-note--cold">
+            <span className="card__eyebrow">Frost tonight · {degrees(frost.min, unit)}</span>
+            <p>Outside: {frost.plants.map((plant) => plant.name).join(', ')}</p>
+          </section>
+        )}
+        {hot && (
+          <section className="card plant-note plant-note--hot">
+            <span className="card__eyebrow">Hot today · {degrees(hot.max, unit)}</span>
+            <p>Plants outside come round a day sooner: {hot.plants.map((plant) => plant.name).join(', ')}</p>
+          </section>
+        )}
 
         {all.length === 0 ? (
           <section className="card">

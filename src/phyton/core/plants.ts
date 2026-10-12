@@ -106,11 +106,16 @@ export function everyNow(plant: Plant, today: string, hemisphere: Hemisphere = '
   return Math.max(1, Math.round(learnedEvery(plant, hemisphere) * seasonFactor(today, hemisphere)));
 }
 
-/** The day to look at the plant: after the last watering by the days for this month, or a Still moist. */
-export function nextCheck(plant: Plant, today: string, hemisphere: Hemisphere = 'north', rain: Rain = {}): string {
+/**
+ * The day to look at the plant: after the last watering by the days for this month, or a Still moist. A hot day
+ * before then brings a plant outside round a day sooner (never before today).
+ */
+export function nextCheck(plant: Plant, today: string, hemisphere: Hemisphere = 'north', rain: Rain = {}, hot: readonly string[] = []): string {
   const last = lastWatered(plant, rain);
-  const due = last ? addDays(last, everyNow(plant, today, hemisphere)) : plant.start ?? plant.createdAt.slice(0, 10);
-  return plant.checkFrom && plant.checkFrom > due ? plant.checkFrom : due;
+  let due = last ? addDays(last, everyNow(plant, today, hemisphere)) : plant.start ?? plant.createdAt.slice(0, 10);
+  if (plant.checkFrom && plant.checkFrom > due) due = plant.checkFrom;
+  if (plant.outside && due > today && hot.some((day) => day >= today && day < due)) due = addDays(due, -1);
+  return due;
 }
 
 /** The next feed, in growing months only; undefined when not fed or out of season. */
@@ -158,8 +163,8 @@ export function repot(plant: Plant, today: string, by?: string): Plant {
 export type Grouped = { now: Plant[]; week: Plant[]; later: Plant[] };
 
 /** Plants to look at now (the day has come), then in the next seven days, then later. */
-export function grouped(plants: readonly Plant[], today: string, hemisphere: Hemisphere = 'north', rain: Rain = {}): Grouped {
-  const withDay = plants.map((plant) => ({ plant, day: nextCheck(plant, today, hemisphere, rain) }));
+export function grouped(plants: readonly Plant[], today: string, hemisphere: Hemisphere = 'north', rain: Rain = {}, hot: readonly string[] = []): Grouped {
+  const withDay = plants.map((plant) => ({ plant, day: nextCheck(plant, today, hemisphere, rain, hot) }));
   withDay.sort((a, b) => a.day.localeCompare(b.day) || a.plant.name.localeCompare(b.plant.name));
   const week = addDays(today, 7);
   return {

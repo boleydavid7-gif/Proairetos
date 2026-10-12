@@ -5,7 +5,8 @@ import SwipeItem from '../../app/family/SwipeItem';
 import { dayText, nextCheck, stillMoist, water, wateredText, type Plant } from '../core/plants';
 import { useLatestPhoto } from '../data/photos';
 import { myName, putPlant, settings } from './state';
-import { useRain } from './rain';
+import { useForecast, useRain } from './rain';
+import { hotDays } from '../core/outdoors';
 
 export function watered(plant: Plant, today: string): void {
   tap();
@@ -30,7 +31,8 @@ export function PlantThumb({ plant, size = 44 }: { plant: Plant; size?: number }
 export function PlantRow({ plant, today, onOpen, place = true }: { plant: Plant; today: string; onOpen: () => void; place?: boolean }) {
   const current = settings.use();
   const rain = useRain(current.rain);
-  const day = nextCheck(plant, today, current.hemisphere, rain);
+  const forecast = useForecast(current.rain);
+  const day = nextCheck(plant, today, current.hemisphere, rain, hotDays(forecast));
   return (
     <SwipeItem className="chore plant-row" label="Watered" onSwipe={() => watered(plant, today)}>
       <button type="button" className="tick" aria-label={`${plant.name}: watered`} onClick={() => watered(plant, today)}>
@@ -55,4 +57,12 @@ export function PlantList({ plants, today, onOpen, place = true }: { plants: rea
       {plants.map((plant) => <PlantRow key={plant.id} plant={plant} today={today} onOpen={() => onOpen(plant)} place={place} />)}
     </ul>
   );
+}
+
+/** Marks several plants watered at once (a room), with one undo for all. */
+export function wateredAll(plants: readonly Plant[], today: string, label: string): void {
+  tap();
+  const by = myName();
+  for (const plant of plants) putPlant(water(plant, today, by || plant.who));
+  offerUndo(`${label}: ${plants.length} watered`, () => plants.forEach((plant) => putPlant(plant)));
 }

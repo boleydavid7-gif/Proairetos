@@ -757,4 +757,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   The first photo starts the plant's photos (`holdPhoto`).
 - Photos per plant on the device only (IndexedDB `phyton-photos`, `data/photos.ts`, 1200 px JPEG), removed after a plant's undo window.
 - Shared home like Ergon (`createSharedLists`, `phyton:homes`, AD `phyton-list`, invite `/phyton/?open=home:ID#k=KEY&n=NAME`, `screens/HomePage.tsx`).
-- Links: `?open=today|plants|more|add|identify|home|plant:ID`.
+- Outside (`core/outdoors.ts`, switch "Weather outside" = setting `rain`): `app/rain.ts` also keeps the next three days' lows and highs
+  (`forecastNow`, `useForecast`); frost tonight (tomorrow's low at or under 2 °C) is a card on Today and a 17:00 notice naming the plants
+  outside; a hot day (30 °C+) brings plants outside round a day sooner (`nextCheck`'s `hot`), said on Today. °F follows Proairetos's weather unit.
+- Away (`settings.away`, More > Away): no plant notices on those days; the day after, one "Back home" notice names what came round
+  (`plantNotices` takes a `NoticeContext`). "Sheet for whoever waters" (route `sitter`, `?open=sitter`, `core/sitter.ts`): one block per
+  plant (how dry, about how often this month, notes, pets) to print or send as text.
+- Plants page: "Watered all" per place, one undo (`wateredAll`). A plant's photos: Then and now (first and latest, "7 months apart",
+  `apart`) and a sideways strip of every photo.
+- Links: `?open=today|plants|more|add|identify|home|sitter|plant:ID`.

@@ -14,6 +14,7 @@ import IdentifyPage from '../screens/IdentifyPage';
 import HomePage, { pendingInvite } from '../screens/HomePage';
 import MorePage from '../screens/MorePage';
 import YearScreen from '../screens/YearScreen';
+import SitterPage from '../screens/SitterPage';
 
 export type Tab = 'today' | 'plants' | 'more';
 export type Route =
@@ -23,7 +24,8 @@ export type Route =
   | { name: 'add' }
   | { name: 'identify'; plantId?: string }
   | { name: 'home' }
-  | { name: 'year' };
+  | { name: 'year' }
+  | { name: 'sitter' };
 export type PhytonNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -34,11 +36,12 @@ const tabs: readonly TabDef<Tab>[] = [
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // A notice, a shortcut, another app or an invite: `add`, `identify`, `home`, `plant:ID`, or a tab.
+  // A notice, a shortcut, another app or an invite: `add`, `identify`, `home`, `sitter`, `plant:ID`, or a tab.
   const opening = takeOpening();
   if (opening === 'home' || pendingInvite()) return { name: 'home' };
   if (opening === 'add') return { name: 'add' };
   if (opening === 'identify') return { name: 'identify' };
+  if (opening === 'sitter') return { name: 'sitter' };
   if (opening?.startsWith('plant:')) return { name: 'plant', id: opening.slice(6) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
@@ -72,6 +75,8 @@ export default function App() {
         return <MorePage nav={nav} />;
       case 'year':
         return <YearScreen nav={nav} />;
+      case 'sitter':
+        return <SitterPage nav={nav} />;
     }
   })();
 

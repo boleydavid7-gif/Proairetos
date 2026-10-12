@@ -4,7 +4,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhytonNav } from '../app/App';
 import { settings, usePlants } from '../app/state';
 import { useRain } from '../app/rain';
-import { PlantList } from '../app/ui';
+import { PlantList, wateredAll } from '../app/ui';
 import { nextCheck, type Plant } from '../core/plants';
 
 export default function PlantsPage({ nav }: { nav: PhytonNav }) {
@@ -32,7 +32,14 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
       {all.length === 0 && <Empty icon={<LeafIcon size={26} />} title="No plants yet" line="Add one by its type, or identify it from a photo." />}
       {ordered.map(([place, plants]) => (
         <section key={place} className="chore-group">
-          <p className="label">{place}</p>
+          <div className="section-head plant-room">
+            <p className="label">{place}</p>
+            {plants.length > 1 && (
+              <button type="button" className="text-link" onClick={() => wateredAll(plants, today, place === 'Anywhere' ? 'Plants' : place)}>
+                Watered all
+              </button>
+            )}
+          </div>
           <PlantList plants={plants} today={today} place={place === 'Anywhere'} onOpen={(plant) => nav.go({ name: 'plant', id: plant.id })} />
         </section>
       ))}

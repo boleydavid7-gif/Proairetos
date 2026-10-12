@@ -3,7 +3,9 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { ChevronIcon, HistoryIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
+import { ChevronIcon, HistoryIcon, PeopleIcon, PrintIcon, SettingsIcon } from '../../app/family/icons';
+import { offerUndo } from '../../app/family/shell';
+import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { notifications } from '../../app/notify/notifications';
 import { findPlace, placeFromDevice } from '../../app/weather/weather';
 import { Segmented, Switch } from '../../askesis/app/ui';
@@ -50,6 +52,54 @@ function RainPlace() {
       {error && <p className="form-error" role="alert">{error}</p>}
       <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometre, is sent; it stays on this phone.</p>
     </div>
+  );
+}
+
+function AwayCard({ nav }: { nav: PhytonNav }) {
+  const current = settings.use();
+  const today = toLocalDate(new Date());
+  const away = current.away && current.away.to >= today ? current.away : undefined;
+  const save = (next: PhytonSettings['away']) => {
+    settings.save({ ...settings.load(), away: next });
+    notifications.refreshSoon();
+  };
+  return (
+    <section className="card">
+      <h2 className="card__title card__title--small">Away</h2>
+      {away ? (
+        <>
+          <div className="away-dates">
+            <label className="field">
+              <span className="field__label">From</span>
+              <input className="input" type="date" value={away.from} onChange={(event) => event.target.value && save({ from: event.target.value, to: event.target.value > away.to ? event.target.value : away.to })} />
+            </label>
+            <label className="field">
+              <span className="field__label">Until</span>
+              <input className="input" type="date" min={away.from} value={away.to} onChange={(event) => event.target.value && save({ ...away, to: event.target.value < away.from ? away.from : event.target.value })} />
+            </label>
+          </div>
+          <p className="hint">Reminders wait; the day after, one names what came round.</p>
+          <div className="button-row">
+            <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'sitter' })}><PrintIcon size={18} />Sheet for whoever waters</button>
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => {
+                save(undefined);
+                offerUndo('Away dates cleared', () => save(away));
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="button-row">
+          <button type="button" className="button-quiet" onClick={() => save({ from: addDays(today, 1), to: addDays(today, 7) })}>Set dates</button>
+          <button type="button" className="text-link" onClick={() => nav.go({ name: 'sitter' })}>Sheet for whoever waters</button>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -100,8 +150,8 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <section className="card switches">
         <Switch
           on={current.rain}
-          label="Rain counts"
-          detail="For plants outside"
+          label="Weather outside"
+          detail="Rain counts as watering; frost and hot days are said"
           onToggle={() => {
             change({ rain: !current.rain });
             if (!current.rain) void refreshRain(true);
@@ -109,6 +159,8 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         />
         {current.rain && <RainPlace />}
       </section>
+
+      <AwayCard nav={nav} />
 
       <section className="card switches">
         <DailyLineSwitch app="phyton" />

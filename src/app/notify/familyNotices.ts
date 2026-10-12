@@ -18,7 +18,8 @@ import { upkeepNotices } from '../../ktema/core/notices';
 import { settings as ktemaSettings, things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { plantNotices } from '../../phyton/core/notices';
 import { allPlants, myName as phytonName, settings as phytonSettings } from '../../phyton/app/state';
-import { rainNow } from '../../phyton/app/rain';
+import { forecastNow, rainNow } from '../../phyton/app/rain';
+import { weatherSettings } from '../weather/weather';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
@@ -72,7 +73,15 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const plants = allPlants();
   if (plants.length && isAdded('phyton')) {
     const phyton = phytonSettings.load();
-    notices.push(...plantNotices(plants, phyton.notices, phytonName(phyton) || undefined, today, horizon, now, phyton.hemisphere, phyton.rain ? rainNow() : {}));
+    notices.push(
+      ...plantNotices(plants, phyton.notices, phytonName(phyton) || undefined, today, horizon, now, {
+        hemisphere: phyton.hemisphere,
+        rain: phyton.rain ? rainNow() : {},
+        forecast: phyton.rain ? forecastNow() : {},
+        unit: weatherSettings().unit,
+        away: phyton.away,
+      }),
+    );
   }
   return notices;
 }
