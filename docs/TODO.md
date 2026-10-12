@@ -20,6 +20,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Swipe gestures: edge swipe back, pulling a row to mark it.
 - [ ] Fonts, and the sign-in emails.
 - [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).
+- [ ] Change passphrase (Account) and "Forgot your passphrase?" with the recovery key, once on your own account.
+- [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
 ## To look over
 
