@@ -90,13 +90,18 @@ export function PasskeySignIn({ className = 'button-main', errorClass = 'hint' }
   );
 }
 
-/** Signed in, data not open here: open it with a passkey, when the account has one that can. */
-export function PasskeyOpen({ className = 'button-main', errorClass = 'hint' }: Look) {
-  const [rows, setRows] = useState<PasskeyRow[]>([]);
-  const { busy, error, run } = usePasskeyStep();
+/** The account's passkeys that open the data on this site; undefined while asking, [] when none or not here. */
+export function useOpeningPasskeys(): PasskeyRow[] | undefined {
+  const [rows, setRows] = useState<PasskeyRow[] | undefined>(passkeysAvailable() ? undefined : []);
   useEffect(() => {
     if (passkeysAvailable()) void openingPasskeys().then(setRows);
   }, []);
+  return rows;
+}
+
+/** Signed in, data not open here: open it with a passkey, when the account has one that can. */
+export function PasskeyOpen({ className = 'button-main', errorClass = 'hint', rows = [] }: Look & { rows?: readonly PasskeyRow[] }) {
+  const { busy, error, run } = usePasskeyStep();
   if (!rows.length) return null;
   return (
     <>

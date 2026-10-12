@@ -3,7 +3,7 @@ import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
-import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn, usePasskeyAutofill } from '../../app/family/Passkey';
+import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from '../../app/family/Passkey';
 import { Passkeys } from './Passkeys';
 import {
   confirmCode,
@@ -218,10 +218,23 @@ function Unlock() {
   const [error, setError] = useState('');
   const forgot = method === 'recovery';
   const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  // With a passkey that opens the data, it is the way in; the passphrase is one link away.
+  const opening = useOpeningPasskeys();
+  const [typing, setTyping] = useState(false);
+  if (opening === undefined) return null;
+  if (opening.length > 0 && !typing && !forgot) {
+    return (
+      <>
+        <PasskeyOpen rows={opening} className="chip chip--accent chip--wide" errorClass="form-error" />
+        <button type="button" className="text-link" onClick={() => setTyping(true)}>
+          Use my passphrase
+        </button>
+      </>
+    );
+  }
 
   return (
     <>
-    {!forgot && <PasskeyOpen className="chip chip--accent chip--wide" errorClass="form-error" />}
     <form
       className="stack-tight"
       onSubmit={async (event: FormEvent) => {
@@ -261,7 +274,7 @@ function Unlock() {
           {next && again && next !== again && <p className="form-error">The two passphrases do not match.</p>}
         </>
       )}
-      {!forgot && <AddPasskeyChoice checked={passkey} onChange={setPasskey} />}
+      {!forgot && !opening.length && <AddPasskeyChoice checked={passkey} onChange={setPasskey} />}
       <button type="submit" className="chip chip--accent chip--wide" disabled={!ready || busy}>
         {busy ? 'Unlocking…' : forgot ? 'Save and unlock' : 'Unlock'}
       </button>

@@ -41,6 +41,7 @@ import {
   fetchPasskeys,
   finishPasskeySignIn,
   savePasskey,
+  savePasskeyWrap,
   type PasskeyRow,
 } from '../../data/sync/supabase';
 import { makePass, openKeyFromPass, readPass, sealKeyForPass } from '../../data/sync/handoff';
@@ -106,6 +107,12 @@ let changeTimer: number | undefined;
 let applyingRemote = false;
 /** An exportable data key, in memory only, between the passphrase and the tap that makes a passkey. */
 let passkeyKey: CryptoKey | null = null;
+
+/**
+ * A passkey that just signed in and gave its secret, but has nothing sealed for it yet (made where the secret was not
+ * given). The passphrase that follows seals the data key for it, so next time the passkey alone opens the data.
+ */
+let passkeyToFinish: { credentialId: string; secret: Uint8Array<ArrayBuffer> } | null = null;
 
 function set(changes: Partial<SyncStatus>) {
   status = { ...status, ...changes };
@@ -411,12 +418,18 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
 export async function unlock(secret: string, method: 'passphrase' | 'recovery', forPasskey = false): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
+  const finishing = passkeyToFinish;
+  const exportable = forPasskey || Boolean(finishing);
   let key =
     method === 'passphrase'
-      ? await unlockWithPassphrase(wrapped.passphrase, secret, forPasskey)
-      : await unlockWithRecoveryKey(wrapped.recovery, secret, forPasskey);
-  if (forPasskey) {
-    passkeyKey = key;
+      ? await unlockWithPassphrase(wrapped.passphrase, secret, exportable)
+      : await unlockWithRecoveryKey(wrapped.recovery, secret, exportable);
+  if (finishing) {
+    passkeyToFinish = null;
+    await savePasskeyWrap(finishing.credentialId, await wrapWithPasskey(key, finishing.secret)).catch(() => undefined);
+  }
+  if (exportable) {
+    if (forPasskey) passkeyKey = key;
     // The copy kept on the device stays non-exportable.
     key = await crypto.subtle.importKey('raw', await crypto.subtle.exportKey('raw', key), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
   }
@@ -620,6 +633,7 @@ async function finishPasskeySignInHere(used: Awaited<ReturnType<typeof askForPas
   });
   userId = user.id;
   if (wrap && used.secret) return keepKey(await unlockWithPasskey(wrap, used.secret), user.email);
+  passkeyToFinish = !wrap && used.secret ? { credentialId: used.credentialId, secret: used.secret } : null;
   await resolvePhase();
   tellFamily('account');
 }
@@ -644,6 +658,7 @@ export async function signOut(): Promise<void> {
   await (await localState())?.clear();
   dataKey = null;
   passkeyKey = null;
+  passkeyToFinish = null;
   userId = null;
   set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: undefined });
   tellFamily('account');

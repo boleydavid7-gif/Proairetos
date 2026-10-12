@@ -382,6 +382,12 @@ export async function savePasskey(userId: string, row: PasskeyRow): Promise<void
   if (error) throw new Error(passkeysMissing(error.message));
 }
 
+/** Keeps the data key sealed for a passkey that until now only signed in. */
+export async function savePasskeyWrap(credentialId: string, wrap: WrappedKey): Promise<void> {
+  const { error } = await (await supabase()).from('passkeys').update({ wrap }).eq('credential_id', credentialId);
+  if (error) throw new Error(passkeysMissing(error.message));
+}
+
 export async function deletePasskey(credentialId: string): Promise<void> {
   const { error } = await (await supabase()).from('passkeys').delete().eq('credential_id', credentialId);
   if (error) throw new Error(passkeysMissing(error.message));

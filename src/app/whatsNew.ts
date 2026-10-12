@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Signing in is simpler: with a passkey, Face ID opens your data in every app, and the passphrase and sign-in pass step aside. A passkey that only signed in before is set to open your data the next time you enter your passphrase after it.',
       'Reminders: each time the app syncs it checks that this phone can still receive them, and signs it up again if the phone or the server dropped it.',
       'Home pages in every app lead with what you keep there, under a shorter picture; Meditate and Compass are rows on Reflect.',
       'Quieter pages: Capture’s kinds in one list, plainer section labels, solid cards, and no tagline under page titles.',

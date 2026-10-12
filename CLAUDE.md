@@ -239,7 +239,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `openDataWithPasskey`. Safari allows WebAuthn only straight after a tap, so nothing slow runs before
   `credentials.create/get`: the passphrase is turned into an exportable key first (`preparePasskey`, or `unlock(...,
   forPasskey)` from "Add a passkey for next time"; memory only, `passkeyKey`), then `MakePasskeyNow` is the tap.
-  Without PRF a passkey only signs in ("signs in only"). UI: `app/family/Passkey.tsx` (every AccountCard and
+  Without PRF a passkey only signs in ("signs in only"); when such a passkey signs in and does give its secret, the next
+  passphrase unlock seals the data key for it (`passkeyToFinish`, `savePasskeyWrap`), so it opens the data from then on.
+  With a passkey that opens the data (`useOpeningPasskeys`), unlock leads with "Open with a passkey" and the passphrase
+  is behind "Use my passphrase"; "Sign in other apps" hides, and "Paste from Proairetos" moves into the sign-in step. UI: `app/family/Passkey.tsx` (every AccountCard and
   Proairetos), list/add/remove with undo in `features/settings/Passkeys.tsx`.
 - Modern web round: Declarative Web Push (`send-reminders` adds `web_push: 8030`, the app's name, "You have a reminder."
   and `navigate` from `SITE_URL`, `mutable: true`, beside the sealed `n`; the SW still shows the person's words).

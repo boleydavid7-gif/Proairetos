@@ -1,6 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { changePassphrase, confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
-import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn, usePasskeyAutofill } from './Passkey';
+import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
@@ -52,8 +52,6 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
         </div>
       </div>
       {account.phase === 'signed-out' && <PasskeySignIn className="button-main account__link" />}
-      {account.phase === 'locked' && <PasskeyOpen className="button-main account__link" />}
-      {(account.phase === 'signed-out' || account.phase === 'locked') && <PasteFromProairetos className="button-quiet account__link" />}
       {account.phase === 'signed-out' && <SignIn />}
       {account.phase === 'locked' && <Unlock />}
       {account.phase === 'ready' && <MakePasskeyNow className="button-main account__link" quietClass="button-quiet account__link" />}
@@ -104,6 +102,7 @@ function SignIn() {
   return (
     <div className="card account__step">
       {!sent && <ProviderButtons className="button-quiet" />}
+      {!sent && <PasteFromProairetos className="button-quiet" />}
       {!sent ? (
         <form
           className="field"
@@ -175,7 +174,23 @@ function Unlock() {
   const { busy, error, run } = useStep();
   const forgot = method === 'recovery';
   const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  // A passkey that opens the data is the way in here too; the passphrase and a pass are one link away.
+  const opening = useOpeningPasskeys();
+  const [typing, setTyping] = useState(false);
+  if (opening === undefined) return null;
+  if (opening.length > 0 && !typing && !forgot) {
+    return (
+      <>
+        <PasskeyOpen rows={opening} className="button-main account__link" />
+        <button type="button" className="button-quiet account__link" onClick={() => setTyping(true)}>
+          Use my passphrase
+        </button>
+      </>
+    );
+  }
   return (
+    <>
+    {!opening.length && <PasteFromProairetos className="button-quiet account__link" />}
     <form
       className="card account__step field"
       onSubmit={(event: FormEvent) => {
@@ -205,7 +220,7 @@ function Unlock() {
           {next && again && next !== again && <p className="hint">The two passphrases do not match.</p>}
         </>
       )}
-      {!forgot && <AddPasskeyChoice checked={passkey} onChange={setPasskey} className="check-line" />}
+      {!forgot && !opening.length && <AddPasskeyChoice checked={passkey} onChange={setPasskey} className="check-line" />}
       <button type="submit" className="button-main" disabled={!ready || busy}>
         {busy ? 'Opening…' : forgot ? 'Save and open my data' : 'Open my data'}
       </button>
@@ -219,5 +234,6 @@ function Unlock() {
         </p>
       )}
     </form>
+    </>
   );
 }

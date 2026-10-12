@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { disableHandoff, enableHandoff, handoffReady, makeSignInPass, signInWithPass } from '../sync/syncController';
+import { useOpeningPasskeys } from './Passkey';
 
 /*
  * Signing in the family's other apps from Proairetos, for phones where each Home Screen app keeps its own
@@ -33,7 +34,9 @@ export function SignInAnotherApp() {
     }
   };
 
-  if (ready === undefined) return null;
+  // A passkey that opens the data works in every app of the family, so no pass is needed.
+  const opening = useOpeningPasskeys();
+  if (ready === undefined || opening === undefined || opening.length > 0) return null;
 
   if (!ready) {
     return (
