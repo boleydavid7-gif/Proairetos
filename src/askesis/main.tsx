@@ -18,6 +18,10 @@ import '../app/family/account.css';
 import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
+import { startLaunchFiles } from '../app/family/launchFiles';
+
+// Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
+startLaunchFiles();
 
 document.documentElement.classList.add('askesis');
 

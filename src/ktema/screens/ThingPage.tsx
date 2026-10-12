@@ -1,3 +1,5 @@
+import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
+import { thingFromText } from '../../core/ocr/labels';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo, say } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -70,6 +72,14 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         <span className="field__label">Where (optional)</span>
         <input className="input" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
       </label>
+      <ReadFromPhoto
+        label="Read the model and serial from a photo"
+        find={thingFromText}
+        onUse={(values) => {
+          if (values.model) setModel(values.model);
+          if (values.serial) setSerial(values.serial);
+        }}
+      />
       <div className="input-row">
         <label className="field"><span className="field__label">Make (optional)</span><input className="input" value={make} onChange={(event) => setMake(event.target.value)} /></label>
         <label className="field"><span className="field__label">Model (optional)</span><input className="input" value={model} onChange={(event) => setModel(event.target.value)} /></label>

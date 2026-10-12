@@ -1,3 +1,5 @@
+import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
+import { medicineFromText } from '../../core/ocr/labels';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import { Switch } from '../../askesis/app/ui';
@@ -103,6 +105,17 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
         <button type="button" className="text-link" disabled={!valid} onClick={save}>Save</button>
       </div>
 
+      {!existing && (
+        <ReadFromPhoto
+          label="Read the label"
+          find={medicineFromText}
+          onUse={(values) => {
+            if (values.name) setName(values.name);
+            if (values.dose) setDose(values.dose);
+            if (values.how) setHow(values.how);
+          }}
+        />
+      )}
       <label className="field">
         <span className="field__label">Name</span>
         <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="As on the label" autoCapitalize="words" />

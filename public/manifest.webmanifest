@@ -40,14 +40,26 @@
       "short_name": "Capture",
       "description": "Write something down",
       "url": "/capture",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Journal",
       "short_name": "Journal",
       "description": "Write in your journal",
       "url": "/journal",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "share_target": {
@@ -80,6 +92,16 @@
       "type": "image/webp",
       "form_factor": "wide",
       "label": "Proairetos"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/?open=settings:import",
+      "accept": {
+        "text/calendar": [
+          ".ics"
+        ]
+      }
     }
   ]
 }

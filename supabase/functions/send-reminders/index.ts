@@ -6,7 +6,12 @@
 // Runs on a schedule (see docs/SERVER_SETUP.md). Requires secrets:
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (e.g. mailto:you@example.com)
 //   CRON_SECRET (shared with the cron job, so only it can call this)
+// Optional: SITE_URL (default https://proairetos.com), where a tap goes on a phone that shows the push itself.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
+//
+// Each push is also a Declarative Web Push (Safari 18.4 and later): an iPhone shows its plain title and line
+// even when the service worker does not wake, and the service worker, when it does, replaces it with the
+// person's own words. Other browsers ignore that part.
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
@@ -33,6 +38,27 @@ function vapidProblem(): string | null {
   }
 }
 
+const APP_NAMES: Record<string, string> = {
+  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton',
+};
+
+/** The part an iPhone can show by itself: the app's name, a plain line, and where a tap goes. Nothing personal. */
+function declarative(source: string) {
+  const site = (secret('SITE_URL') || 'https://proairetos.com').replace(/\/+$/, '');
+  const app = APP_NAMES[source] ? source : 'proairetos';
+  return {
+    web_push: 8030,
+    notification: {
+      title: APP_NAMES[app],
+      body: 'You have a reminder.',
+      navigate: app === 'proairetos' ? `${site}/` : `${site}/${app}/`,
+      lang: 'en',
+    },
+    mutable: true,
+  };
+}
+
 // Late reminders older than this are dropped rather than sent hours later.
 const STALE_AFTER_MINUTES = 60;
 
@@ -54,10 +80,10 @@ async function handle(request: Request): Promise<Response> {
       .lte('fire_at', now.toISOString())
       .gte('fire_at', staleBefore)
       .limit(500);
-  type Row = { user_id: string; id: string; sealed?: string | null };
+  type Row = { user_id: string; id: string; sealed?: string | null; source?: string | null };
   type Result = { data: Row[] | null; error: { message: string } | null };
-  let { data: due, error } = (await dueRows('user_id, id, sealed')) as unknown as Result;
-  // Before the reminder-sources migration there is no sealed column: send empty pushes as before.
+  let { data: due, error } = (await dueRows('user_id, id, sealed, source')) as unknown as Result;
+  // Before the reminder-sources migration there is no sealed or source column: plain pushes as before.
   if (error) ({ data: due, error } = (await dueRows('user_id, id')) as unknown as Result);
   if (error) return new Response(error.message, { status: 500 });
 
@@ -75,7 +101,8 @@ async function handle(request: Request): Promise<Response> {
       sealed.push(row.sealed);
       size += row.sealed.length + 3;
     }
-    const payload = sealed.length > 0 ? JSON.stringify({ v: 1, n: sealed }) : null;
+    const source = (due ?? []).find((row) => row.user_id === userId)?.source ?? 'proairetos';
+    const payload = JSON.stringify({ ...declarative(source), v: 1, n: sealed });
     const { data: subscriptions } = await supabase
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth')
@@ -85,7 +112,7 @@ async function handle(request: Request): Promise<Response> {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          payload, // sealed words only: nothing the server can read
+          payload, // the app's name and sealed words: nothing the server can read
           { TTL: 3600, urgency: 'normal' },
         );
         sent++;

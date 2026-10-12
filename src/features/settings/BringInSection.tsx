@@ -1,3 +1,4 @@
+import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
@@ -56,6 +57,9 @@ export default function BringInSection() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+
+  // An .ics opened with Proairetos on a computer comes here.
+  useLaunchedFile(endsWith('.ics'), (file) => void file.text().then((text) => load(text, file.name)));
 
   async function load(text: string, fileName?: string) {
     setError('');

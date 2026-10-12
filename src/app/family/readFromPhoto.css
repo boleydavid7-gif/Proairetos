@@ -1,0 +1,99 @@
+/* "Read from a photo" on forms in any app; self-styled from the app's own colours. */
+.read-photo {
+  margin: 4px 0 12px;
+}
+.read-photo__start {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.read-photo__start:disabled {
+  opacity: 0.7;
+}
+.read-photo__panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 14px;
+}
+.read-photo__row {
+  display: grid;
+  grid-template-columns: auto 6.5rem 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.read-photo__row input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+}
+.read-photo__label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+.read-photo__value {
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.read-photo__note {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+.read-photo__all summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.read-photo__all pre {
+  margin: 0;
+  max-height: 12rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+.read-photo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.read-photo__quiet,
+.read-photo__use {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font: inherit;
+  cursor: pointer;
+}
+.read-photo__quiet {
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.read-photo__use {
+  border: 0;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  font-weight: 600;
+}

@@ -1,3 +1,4 @@
+import { ScanBarcode } from '../../app/family/DeviceExtras';
 import { tap } from '../../app/feel';
 import { useState } from 'react';
 import type { Nav } from '../app/App';
@@ -113,6 +114,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
           Add
         </button>
       </form>
+      <ScanBarcode onName={(name) => setAdding(name)} />
 
       {untidy.length > 0 && (
         <button type="button" className="button-quiet" onClick={tidy}>

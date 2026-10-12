@@ -1,3 +1,4 @@
+import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useRef, useState } from 'react';
 import { ColumnChart } from '../../app/family/charts';
 import { readActivityFile } from '../core/track';
@@ -28,6 +29,8 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const file = useRef<HTMLInputElement>(null);
   const [fileProblem, setFileProblem] = useState('');
   // A run from a watch or another app's file: opened as a new entry to look over before saving.
+  // A watch file opened with Askesis on a computer comes here.
+  useLaunchedFile(endsWith('.gpx', '.tcx'), (chosen) => void bringIn(chosen));
   const bringIn = async (chosen: File | undefined) => {
     if (!chosen) return;
     const read = readActivityFile(await chosen.text(), toLocalDate);

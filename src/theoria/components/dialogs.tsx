@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type React from 'react';
 import type { TheoriaBook, TheoriaProvider, TheoriaSource, TheoriaReflection, TheoriaNotebook } from '../core/books';
 import type { ReaderSelection } from './views';
@@ -10,7 +10,7 @@ export type InsightKind = 'highlight' | 'note' | 'reflection';
 export type InsightDraft = { id?: string; text: string; location?: string; chapter?: string; answers?: TheoriaReflection['answers']; toReflect?: boolean };
 export type NotePageDraft = { notebookId: string; sectionId: string; title: string; body: string; bookId?: string; chapterId?: string };
 
-export function AddBookDialog({ onClose, onSave, onLookup }: { onClose: () => void; onSave: (form: NewBookForm) => Promise<void>; onLookup: (title: string, author: string) => Promise<BookMetadata> }) {
+export function AddBookDialog({ onClose, onSave, onLookup, initialFile }: { onClose: () => void; onSave: (form: NewBookForm) => Promise<void>; onLookup: (title: string, author: string) => Promise<BookMetadata>; initialFile?: File }) {
   const [source, setSource] = useState<TheoriaSource>('upload');
   const [provider, setProvider] = useState<TheoriaProvider>('google-drive');
   const [title, setTitle] = useState('');
@@ -30,8 +30,12 @@ export function AddBookDialog({ onClose, onSave, onLookup }: { onClose: () => vo
   const [lookupError, setLookupError] = useState('');
   const [saving, setSaving] = useState(false);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); if (!title.trim() || (source === 'upload' && !file)) return; setSaving(true); try { await onSave({ title, author, description, source, provider, sourceUrl, fileName, file: source === 'upload' ? file : undefined, coverUrl, coverFile, publisher, language, publicationDate, categories: [category] }); } finally { setSaving(false); } };
-  const filePicked = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = event.target.files?.[0];
+  const filePicked = (event: React.ChangeEvent<HTMLInputElement>) => pick(event.target.files?.[0]);
+  // A book opened with Theoria on a computer arrives already chosen.
+  useEffect(() => {
+    if (initialFile) pick(initialFile);
+  }, [initialFile]);
+  function pick(picked: File | undefined) {
     if (!picked) return;
     setFileName(picked.name);
     setFile(picked);
@@ -44,7 +48,7 @@ export function AddBookDialog({ onClose, onSave, onLookup }: { onClose: () => vo
         if (found.author) setAuthor((current) => current || (found.author as string));
       })
       .catch(() => undefined);
-  };
+  }
   const findDetails = async () => { if (!title.trim()) return; setLookingUp(true); setLookupError(''); try { const metadata = await onLookup(title, author); setTitle(metadata.title ?? title); setAuthor(metadata.author ?? author); setDescription((current) => current.trim() || metadata.description || ''); setCoverUrl(metadata.coverUrl); setCoverFile(metadata.coverFile); setPublisher(metadata.publisher); setLanguage(metadata.language); setPublicationDate(metadata.publicationDate); setMetadataFound(true); } catch (error) { setLookupError(error instanceof Error ? error.message : 'Book details could not be found.'); } finally { setLookingUp(false); } };
   return <Modal onClose={onClose}><form className="theoria-modal" onSubmit={submit}><button type="button" className="theoria-modal-close" onClick={onClose} aria-label="Close">×</button><h2>Add a book</h2><div className="theoria-source-tabs">{(['upload', 'cloud', 'web', 'manual'] as const).map((kind) => <button type="button" key={kind} className={source === kind ? 'is-active' : ''} onClick={() => setSource(kind)}>{kind === 'upload' ? 'A file' : kind === 'cloud' ? 'Cloud link' : kind === 'web' ? 'Web article' : 'Manual'}</button>)}</div><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Book title" autoFocus /></label><label>Author <input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="Author name" /></label><div className="theoria-metadata-actions"><button type="button" className="theoria-secondary-button" onClick={() => void findDetails()} disabled={lookingUp || !title.trim()}>{lookingUp ? 'Finding details…' : 'Find cover & details'}</button>{metadataFound && <span>Details added</span>}</div>{lookupError && <p className="theoria-form-error" role="alert">{lookupError}</p>}{coverUrl && <div className="theoria-metadata-preview"><img src={coverUrl} alt="" /><span><strong>{title}</strong><small>{publisher ?? 'Cover found'}</small></span></div>}<label>Description <textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="A short description for your shelf" /></label><label>Collection<select value={category} onChange={(event) => setCategory(event.target.value)}>{['Philosophy', 'Science', 'Psychology', 'History', 'Leadership', 'Personal'].map((item) => <option value={item} key={item}>{item}</option>)}</select></label>{source === 'cloud' && <><label>Storage provider<select value={provider} onChange={(event) => setProvider(event.target.value as TheoriaProvider)}><option value="google-drive">Google Drive</option><option value="dropbox">Dropbox</option><option value="onedrive">OneDrive</option><option value="other">Other cloud storage</option></select></label><label>Share link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label></>}{source === 'web' && <label>Article link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}{source === 'upload' && <label>EPUB, PDF, TXT, or Markdown<input type="file" accept=".epub,.pdf,.txt,.md,text/plain,text/markdown,application/pdf,application/epub+zip" onChange={filePicked} />{fileName && <small>{fileName}</small>}</label>}{source === 'manual' && <label>Reading link <input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}<div className="theoria-modal-actions"><button type="button" className="theoria-secondary-button" onClick={onClose}>Cancel</button><button type="submit" className="theoria-primary-button" disabled={saving || !title.trim() || (source === 'upload' && !file)}>{saving ? 'Adding…' : 'Add to library'}</button></div></form></Modal>;
 }

@@ -67,7 +67,7 @@ self.addEventListener('fetch', (event) => {
   const sameOrigin = url.origin === self.location.origin;
   // /api/ answers are live (other calendars), never cached. Meditate keeps its
   // own recordings (music streams with range requests, which a cache answers badly).
-  if (sameOrigin && url.pathname !== '/sw.js' && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/sounds/')) {
+  if (sameOrigin && url.pathname !== '/sw.js' && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/sounds/') && !url.pathname.startsWith('/ocr/')) {
     event.respondWith(cacheFirst(request));
   }
 });
@@ -197,6 +197,8 @@ function sealedIn(event) {
 }
 
 self.addEventListener('push', (event) => {
+  // A Declarative Web Push (Safari 18.4+) arrives with its own plain notice, shown by the phone if this worker shows
+  // nothing; showDue shows the person's own words in its place.
   event.waitUntil(showDue(sealedIn(event)));
 });
 

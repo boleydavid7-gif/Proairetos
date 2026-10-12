@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const builtAt = new Date().toISOString();
 
@@ -19,8 +19,37 @@ const stampServiceWorker = () => ({
   },
 });
 
+/*
+ * Reading text from photos (Tesseract, on the device) needs its worker, its WebAssembly core and the English data from
+ * this site: served from node_modules while developing and copied into dist/ocr/ by a build. Nothing in the repository.
+ */
+const OCR_FILES: Record<string, string> = {
+  'worker.min.js': 'node_modules/tesseract.js/dist/worker.min.js',
+  'tesseract-core-simd-lstm.wasm.js': 'node_modules/tesseract.js-core/tesseract-core-simd-lstm.wasm.js',
+  'tesseract-core-relaxedsimd-lstm.wasm.js': 'node_modules/tesseract.js-core/tesseract-core-relaxedsimd-lstm.wasm.js',
+  'tesseract-core-lstm.wasm.js': 'node_modules/tesseract.js-core/tesseract-core-lstm.wasm.js',
+  'eng.traineddata.gz': 'node_modules/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz',
+};
+const ocrFiles = () => ({
+  name: 'ocr-files',
+  configureServer(server: { middlewares: { use: (handler: (req: { url?: string }, res: NodeJS.WritableStream & { setHeader: (k: string, v: string) => void }, next: () => void) => void) => void } }) {
+    server.middlewares.use((req, res, next) => {
+      const name = req.url?.match(/^\/ocr\/([^?]+)/)?.[1];
+      const file = name && OCR_FILES[name];
+      if (!file) return next();
+      res.setHeader('content-type', name.endsWith('.js') ? 'text/javascript' : 'application/octet-stream');
+      createReadStream(file).pipe(res);
+    });
+  },
+  closeBundle() {
+    if (!existsSync('dist')) return;
+    mkdirSync('dist/ocr', { recursive: true });
+    for (const [name, file] of Object.entries(OCR_FILES)) copyFileSync(file, `dist/ocr/${name}`);
+  },
+});
+
 export default defineConfig({
-  plugins: [react(), stampServiceWorker()],
+  plugins: [react(), stampServiceWorker(), ocrFiles()],
   // Fourteen apps from one codebase: Proairetos at /, Askesis at /askesis/, SOMA at /soma/, Oikonomia at /oikonomia/, Hydros at /hydros/, Praxis at /praxis/, Theoria at /theoria/, Diaita at /diaita/, Philia at /philia/, Ergon at /ergon/, Therapeia, Dynamis, Ktema and Phyton at theirs.
   build: {
     rollupOptions: {

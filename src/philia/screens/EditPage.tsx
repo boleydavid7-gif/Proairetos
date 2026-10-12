@@ -1,3 +1,4 @@
+import { FromContacts } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import type { PhiliaNav } from '../app/App';
@@ -50,6 +51,13 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
         <button type="button" className="text-link" disabled={!name.trim()} onClick={save}>Save</button>
       </div>
 
+      <FromContacts
+        onPick={(contact) => {
+          if (contact.name && !name.trim()) setName(contact.name);
+          if (contact.phone) setPhone(contact.phone);
+          if (contact.email) setEmail(contact.email);
+        }}
+      />
       <label className="field">
         <span className="field__label">Name</span>
         <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} autoComplete="off" />

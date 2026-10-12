@@ -40,6 +40,7 @@ export default function App() {
     // A link from another app or a reminder: `bill:ID`, or a tab.
     const opening = takeOpening();
     if (opening?.startsWith('bill:')) return { name: 'bill', id: opening.slice(5) };
+    if (opening === 'spent') return { name: 'spent' };
     if (opening && (tabNames as string[]).includes(opening)) return { name: opening as Tab };
     return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
   });

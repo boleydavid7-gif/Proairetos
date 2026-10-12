@@ -75,5 +75,15 @@
         }
       ]
     }
+  ],
+  "file_handlers": [
+    {
+      "action": "/oikonomia/?open=spent",
+      "accept": {
+        "text/csv": [
+          ".csv"
+        ]
+      }
+    }
   ]
 }

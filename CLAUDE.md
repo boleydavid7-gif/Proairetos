@@ -239,6 +239,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   forPasskey)` from "Add a passkey for next time"; memory only, `passkeyKey`), then `MakePasskeyNow` is the tap.
   Without PRF a passkey only signs in ("signs in only"). UI: `app/family/Passkey.tsx` (every AccountCard and
   Proairetos), list/add/remove with undo in `features/settings/Passkeys.tsx`.
+- Modern web round: Declarative Web Push (`send-reminders` adds `web_push: 8030`, the app's name, "You have a reminder."
+  and `navigate` from `SITE_URL`, `mutable: true`, beside the sealed `n`; the SW still shows the person's words).
+  `keepStorage()` in `dailyCopy.ts` asks `navigator.storage.persist()` from installed apps only. Read from a photo
+  (`app/family/ReadFromPhoto.tsx`, `ocr.ts`: Tesseract on the device, files from `/ocr/` copied by the `ocr-files` plugin in
+  `vite.config.ts` from node_modules, nothing in the repo; CSP has `'wasm-unsafe-eval'`; picks in `core/ocr/labels.ts`
+  `medicineFromText`, `thingFromText`, `billFromText`, tested) on Therapeia's Add a medicine, Ktema's thing form and
+  Oikonomia's bill form. File Handling (`file_handlers` in four manifests, `app/family/launchFiles.ts`
+  `startLaunchFiles` in their `main.tsx`, `useLaunchedFile` on BringInSection .ics, Spent .csv, Askesis Log .gpx/.tcx,
+  Theoria Add a book). Android extras (`app/family/deviceExtras.ts`, `DeviceExtras.tsx`, shown only where supported):
+  `ScanBarcode` in Soma groceries (BarcodeDetector on a photo, name from Open Food Facts), `FromContacts` in Philia's
+  person form, `WriteTag` (Web NFC, a URL record) on plant, chore and upkeep pages.
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

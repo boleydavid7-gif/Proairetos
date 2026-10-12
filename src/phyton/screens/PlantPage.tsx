@@ -1,3 +1,4 @@
+import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { CameraIcon, LeafIcon } from '../../app/family/icons';
 import { offerUndo, say } from '../../app/family/shell';
@@ -284,6 +285,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         </section>
       )}
 
+      <WriteTag path={`/phyton/?open=plant:${plant.id}`} />
       <button
         type="button"
         className="text-link remove-link"

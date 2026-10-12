@@ -1,3 +1,5 @@
+import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
+import { billFromText } from '../../core/ocr/labels';
 import { FormEvent, useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon } from '../app/icons';
@@ -80,6 +82,15 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
       <h1 className="title">{id ? 'Edit bill' : 'Add a bill'}</h1>
 
       <form className="oiko-form" onSubmit={(event) => void save(event)}>
+        <ReadFromPhoto
+          label="Read a bill from a photo"
+          find={billFromText}
+          onUse={(values) => {
+            if (values.name && !name.trim()) setName(values.name);
+            if (values.amount) setAmount(values.amount);
+            if (values.due) setDueDate(values.due);
+          }}
+        />
         <label className="field"><span className="field__label">Bill name</span><input className="input" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="Electric, rent, insurance" /></label>
         <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" /></label>
         <div className="oiko-form__pair">

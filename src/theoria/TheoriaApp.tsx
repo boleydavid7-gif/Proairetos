@@ -1,3 +1,4 @@
+import { endsWith, useLaunchedFile } from '../app/family/launchFiles';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import ProairetosTab from '../app/family/ProairetosTab';
 import YearPage from '../app/family/YearPage';
@@ -59,6 +60,12 @@ export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
+  const [launched, setLaunched] = useState<File>();
+  // A book opened with Theoria on a computer opens Add a book with the file chosen.
+  useLaunchedFile(endsWith('.epub', '.pdf', '.txt', '.md'), (file) => {
+    setLaunched(file);
+    setAddOpen(true);
+  });
   const [editBookOpen, setEditBookOpen] = useState(false);
   const [capture, setCapture] = useState<CaptureState>();
   const [notebookOpen, setNotebookOpen] = useState(false);
@@ -352,7 +359,7 @@ export default function TheoriaApp() {
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
-    {addOpen && <AddBookDialog onClose={() => setAddOpen(false)} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}
+    {addOpen && <AddBookDialog initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}
   </div>;
 }
 

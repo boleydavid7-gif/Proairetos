@@ -1,3 +1,4 @@
+import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import { Segmented } from '../../askesis/app/ui';
@@ -245,6 +246,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
         </section>
       )}
 
+      <WriteTag path={`/ergon/?open=chore:${existing.id}`} />
       <button
         type="button"
         className="text-link remove-link"

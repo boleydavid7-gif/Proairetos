@@ -68,5 +68,24 @@
         }
       ]
     }
+  ],
+  "file_handlers": [
+    {
+      "action": "/theoria/?open=add",
+      "accept": {
+        "application/epub+zip": [
+          ".epub"
+        ],
+        "application/pdf": [
+          ".pdf"
+        ],
+        "text/plain": [
+          ".txt"
+        ],
+        "text/markdown": [
+          ".md"
+        ]
+      }
+    }
   ]
 }

@@ -1,3 +1,4 @@
+import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -170,6 +171,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
       </section>
 
 
+      <WriteTag path={`/ktema/?open=upkeep:${existing.id}`} />
       <dl className="detail-list">
         <dt>Comes round</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
         {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}

@@ -12,6 +12,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
 - [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (JWT verification off): passkeys
       (steps in `docs/SERVER_SETUP.md`).
+- [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
+      the site is ever not https://proairetos.com.
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
@@ -25,6 +27,14 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Change passphrase (Account) and "Forgot your passphrase?" with the recovery key, once on your own account.
 - [ ] Passkeys: in Proairetos, Account > Add a passkey; then in another Home Screen app, Sign in with a passkey
       (one Face ID should sign in and open your data).
+- [ ] iPhone reminders after the redeploy: lock the phone with every app closed and wait for one.
+- [ ] Read from a photo: a real medicine box (Therapeia, Add a medicine > Read the label), an appliance plate
+      (Ktema), a paper bill (Oikonomia). The first use downloads about 7 MB.
+- [ ] Android only, if you have one: Scan a barcode (Soma groceries), From contacts (Philia), Write to an NFC tag
+      (a plant, chore or upkeep page; tags are cheap NTAG215 stickers). On iPhone the tag opens Safari, not the
+      Home Screen app.
+- [ ] On a computer (Chrome or Edge, apps installed): right-click a .ics / bank .csv / .gpx / .pdf, Open with, and
+      pick the app.
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
 ## To look over

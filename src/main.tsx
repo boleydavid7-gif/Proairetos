@@ -14,6 +14,10 @@ import './styles/premium.css';
 import './app/family/account.css';
 import { applyAppearance } from './app/appearance';
 import { startDailyCopies } from './app/family/dailyCopy';
+import { startLaunchFiles } from './app/family/launchFiles';
+
+// Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
+startLaunchFiles();
 
 // Theme and text size before the first paint, and again when the phone switches light or dark.
 applyAppearance();

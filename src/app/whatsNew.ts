@@ -3,6 +3,11 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Read from a photo: a medicine label in Therapeia, a rating plate in Ktema, a bill in Oikonomia. Read on your phone, shown to look over before it fills the form.',
+      'Reminders on iPhone (iOS 18.4 and later) arrive even when the app cannot wake: the phone shows the app’s name first, then your own words when it can.',
+      'Installed apps ask the browser to keep their data when the phone runs short of space.',
+      'On a computer (Chrome or Edge): open a calendar file with Proairetos, a bank CSV with Oikonomia, a watch file with Askesis or a book with Theoria.',
+      'On Android: scan a barcode into Soma’s groceries, fill a person in Philia from your contacts, and write an NFC tag for a plant, chore or upkeep that opens it with a touch.',
       'Passkeys: add one in Account, then Face ID, a fingerprint or your device’s PIN signs in and opens your data in every app, with nothing to type. On the passphrase step, Add a passkey for next time.',
       'Forgot your passphrase? Unlock with your recovery key and choose a new one, in Proairetos and every app. Signed in, Account has Change passphrase.',
       'Today has From your apps: plants to check, chores, today’s doses, upkeep and a training day in one list. Tick one there and it is marked in its app, with undo.',

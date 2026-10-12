@@ -1,3 +1,4 @@
+import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useRef, useState } from 'react';
 import { ColumnChart } from '../../app/family/charts';
 import type { Nav } from '../app/App';
@@ -33,6 +34,8 @@ export default function SpentPage({ nav }: { nav: Nav }) {
   const total = lines.reduce((sum, line) => sum + line.amountCents, 0);
   const planned = (area: BudgetCategory) => plan?.categoryLimits?.[area] ?? 0;
 
+  // A bank CSV opened with Oikonomia on a computer comes here.
+  useLaunchedFile(endsWith('.csv'), (chosen) => void bringIn(chosen));
   const bringIn = async (chosen?: File) => {
     if (!chosen) return;
     const read = readStatement(await chosen.text());
