@@ -5,6 +5,9 @@ import { createPasskey, deviceLabel, passkeysHere, askForPasskey } from '../../d
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
+import { connectReturn, finishConnect, startConnect, storageProvidersHere } from '../../data/sync/storageLink';
+import type { StorageProvider } from '../../data/sync/storageProviders';
+import { currentLink, forgetLink, holdAccess, keepLink, lastTarget, ownStorageFor, startAfresh, storageName, type StorageTarget } from './ownStorage';
 import {
   calendarFeedUrl,
   createSupabaseFileStore,
@@ -42,6 +45,8 @@ import {
   finishPasskeySignIn,
   savePasskey,
   savePasskeyWrap,
+  deleteStorageLink,
+  removeServerCopy,
   type PasskeyRow,
 } from '../../data/sync/supabase';
 import { makePass, openKeyFromPass, readPass, sealKeyForPass } from '../../data/sync/handoff';
@@ -302,19 +307,22 @@ async function syncHere(): Promise<SyncResult | null> {
   set({ syncing: true, error: undefined });
   try {
     const base = createIndexedDbLocalSyncStore(Promise.resolve(db));
+    // The person's own Google Drive, Dropbox or OneDrive, when they chose one; else Proairetos's server.
+    const own = await ownStorageFor(userId, dataKey, (await localState())!);
     const engine = createSyncEngine({
       local: withDeviceRecords(base),
       state: (await localState())!,
-      remote: createSupabaseRemoteStore(userId),
+      remote: own?.remote ?? createSupabaseRemoteStore(userId),
       key: dataKey,
     });
     const result = await engine.sync();
+    await own?.remote.finish();
     // The bytes of photos and files follow the records that describe them.
     const files = await syncAttachmentFiles({
       rawList: () => base.list('attachments'),
       putWithBytes: (record) => base.put('attachments', record),
       state: (await localState())!,
-      files: createSupabaseFileStore(),
+      files: own?.files ?? createSupabaseFileStore(),
       key: dataKey,
       userId,
     }).catch(() => ({ fetched: 0, sent: 0 }));
@@ -702,6 +710,64 @@ export async function deleteAccount(): Promise<void> {
   await deleteRemoteAccount();
   saveCalendarFeed({ ...loadCalendarFeed(), enabled: false });
   await signOut();
+}
+
+// ---------- Where the data syncs ----------
+
+export type { StorageTarget };
+export { storageName, storageProvidersHere, connectReturn };
+
+/** Where this account's records sync now. */
+export async function storageNow(): Promise<StorageTarget> {
+  if (!userId || !dataKey) return lastTarget((await localState())!);
+  return (await currentLink(userId, dataKey).catch(() => null))?.provider ?? (await lastTarget((await localState())!));
+}
+
+/** Leaves for the provider's page to allow Proairetos its folder; it comes back to the account page. From a tap. */
+export function connectStorage(provider: StorageProvider): Promise<void> {
+  return startConnect(provider);
+}
+
+/**
+ * Moves the account's records: brings this device up to date where they are now, keeps the new choice for the
+ * account, then sends everything this device has to the new place. After a move to the person's own storage, the
+ * sealed copy on Proairetos's server is removed. Other devices and apps follow on their next sync.
+ */
+async function moveStorage(target: StorageTarget, link?: { provider: StorageProvider; refresh: string }): Promise<void> {
+  if (!userId || !dataKey) throw new Error('Sign in and open your data first.');
+  const state = (await localState())!;
+  const from = await storageNow();
+  if (from !== target) {
+    await syncNow();
+    if (status.error) throw new Error(`Syncing with ${storageName(from)} first did not finish: ${status.error}`);
+  }
+  if (link) await keepLink(userId, dataKey, link);
+  else {
+    await deleteStorageLink(userId);
+    forgetLink(userId);
+  }
+  if (from === target) {
+    await syncNow();
+    return;
+  }
+  await startAfresh(state, target, true);
+  await syncNow();
+  if (status.error) throw new Error(status.error);
+  if (target !== 'proairetos') await removeServerCopy(userId).catch(() => undefined);
+}
+
+/** Back from the provider's page: connects it and moves the records there. */
+export async function finishStorageConnect(params: URLSearchParams): Promise<StorageProvider> {
+  const { provider, tokens } = await finishConnect(params);
+  if (!tokens.refresh) throw new Error(`${storageName(provider)} did not allow staying connected. Try again.`);
+  holdAccess(provider, tokens.access, tokens.expiresIn);
+  await moveStorage(provider, { provider, refresh: tokens.refresh });
+  return provider;
+}
+
+/** Back to Proairetos's server; the files in the person's own storage are left for them. */
+export function moveToProairetos(): Promise<void> {
+  return moveStorage('proairetos');
 }
 
 // ---------- Reminders ----------

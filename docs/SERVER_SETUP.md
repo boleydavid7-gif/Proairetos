@@ -347,6 +347,40 @@ a list's lines are sealed on the phone with the list's own key, which travels on
 joined with the link can see or change a list, and anyone can leave. Nothing else needs deploying. Until it
 runs, Soma's Shared view says the server is not set up yet.
 
+## Your own storage: Google Drive, Dropbox, OneDrive (optional, migration 20261021000000)
+
+People can choose to sync through their own Google Drive, Dropbox or OneDrive instead of Proairetos's server
+(Settings > Account > Where your data syncs). Records are sealed on the device first, as always. The choice shows
+only for the providers set up here. The return address for all three is exactly:
+
+    https://proairetos.com/storage-connected/
+
+1. **SQL Editor**: run `supabase/migrations/20261021000000_storage_links.sql` (which storage, and its refresh token
+   sealed with the person's key).
+2. **Google Drive**: console.cloud.google.com, a project, APIs & Services:
+   - Library: enable **Google Drive API**.
+   - OAuth consent screen: External; add the scope `.../auth/drive.appdata` (a private app folder, not the person's
+     files); set Publishing status to **In production** (in Testing, sign-ins stop working after 7 days).
+   - Credentials > Create credentials > OAuth client ID > **Web application**; Authorized redirect URI: the address above.
+   - Cloudflare Worker secrets: `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET`.
+3. **Dropbox**: dropbox.com/developers/apps > Create app > Scoped access > **App folder**, any name:
+   - Permissions: `files.metadata.read`, `files.content.read`, `files.content.write`, then Submit.
+   - Settings: Redirect URIs: the address above. (Up to 500 people in Development; Apply for production later.)
+   - Cloudflare Worker secret: `DROPBOX_APP_KEY` (the App key). `DROPBOX_APP_SECRET` is optional.
+4. **OneDrive**: portal.azure.com > App registrations > New registration:
+   - Supported accounts: **any organizational directory and personal Microsoft accounts**.
+   - Redirect URI: platform **Web**, the address above.
+   - Certificates & secrets > New client secret (note when it expires; make a new one before then).
+   - API permissions > Microsoft Graph > Delegated: `Files.ReadWrite.AppFolder` and `offline_access`.
+   - Cloudflare Worker secrets: `ONEDRIVE_CLIENT_ID` (Application (client) ID), `ONEDRIVE_CLIENT_SECRET` (the secret's Value).
+
+Cloudflare: Workers & Pages > the Worker > Settings > Variables and Secrets > Add, type **Secret**. Then redeploy
+(any push to `main`). `https://proairetos.com/api/storage` lists the providers that are ready.
+
+Moving: the device that moves the account brings itself up to date first, then sends everything to the new place;
+after a move to someone's own storage, the sealed copy on Proairetos's server is removed. Other devices and apps follow
+on their next sync. Sign-in, keys, reminders and shared lists stay on Proairetos's server either way.
+
 ## Identifying plants in Phyton (optional)
 
 Phyton names a plant from a photo through Pl@ntNet. Without a key the app works as usual and Identify says it is not set up.

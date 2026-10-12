@@ -7,7 +7,8 @@ export function takeOpening(): string | null {
   try {
     const params = new URLSearchParams(window.location.search);
     const open = params.get('open');
-    if (open) history.replaceState(history.state, '', window.location.pathname);
+    // The fragment stays: it can carry an answer for the page being opened (storage connected).
+    if (open) history.replaceState(history.state, '', window.location.pathname + window.location.hash);
     return open;
   } catch {
     return null;

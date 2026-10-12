@@ -5,6 +5,7 @@ import { syncConfig } from '../../data/sync/supabase';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
 import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from '../../app/family/Passkey';
 import { Passkeys } from './Passkeys';
+import { StorageChoice } from './StorageChoice';
 import {
   confirmCode,
   requestCode,
@@ -382,6 +383,7 @@ function Ready() {
       <button type="button" className="chip chip--wide" disabled={status.syncing} onClick={() => void syncNow()}>
         Sync now
       </button>
+      <StorageChoice />
       <Passkeys />
       <SignInAnotherApp />
       <ChangePassphrase />

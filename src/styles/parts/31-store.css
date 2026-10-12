@@ -202,3 +202,32 @@
   display: grid;
   gap: 8px;
 }
+
+/* Where the data syncs: one row each, the chosen one marked with a filled ring. */
+.storage-choice__row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.storage-choice__mark {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-text-muted);
+}
+.storage-choice__row[aria-checked='true'] .storage-choice__mark {
+  border-color: var(--color-accent, #d9b46a);
+  box-shadow: inset 0 0 0 4px var(--color-surface, #1b2027);
+  background: var(--color-accent, #d9b46a);
+}

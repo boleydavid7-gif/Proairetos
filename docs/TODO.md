@@ -15,6 +15,9 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Redeploy `send-reminders` again: its reply now lists any push a phone's service refused, and why (`refused` in `net._http_response`).
 - [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
       the site is ever not https://proairetos.com.
+- [ ] Your own storage (optional): migration `20261021000000_storage_links.sql`, then register Google Drive, Dropbox
+      and/or OneDrive and add their Worker secrets (steps in `docs/SERVER_SETUP.md`, "Your own storage"). Each one shows
+      in Settings > Account once its secrets are in.
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
@@ -24,6 +27,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Reminders arrive with the apps closed, and a tap opens the right app.
 - [ ] New icons: an app already on the iPhone Home Screen keeps its old icon until it is removed and added again
   (back up first if that app is signed out; signed-in apps sync back). Android picks them up by itself over a few days.
+- [ ] Your own storage: connect one, check every app follows (another device, an iPhone Home Screen app), then move
+      back, once on your own account (tested so far with a stand-in folder, not the real providers).
 - [ ] Swipe gestures: edge swipe back, pulling a row to mark it.
 - [ ] Fonts, and the sign-in emails.
 - [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).

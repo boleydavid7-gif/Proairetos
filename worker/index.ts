@@ -2,8 +2,9 @@ import { handleCalendarRequest } from './calendarProxy';
 import { handleRecipeRequest } from './recipeProxy';
 import { handlePlantRequest } from './plantProxy';
 import { speculationResponse } from './speculation';
+import { handleStorageRequest, type StorageEnv } from './storageToken';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string };
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -26,6 +27,8 @@ export default {
       return withCors(request, await (url.pathname === '/api/calendar' ? handleCalendarRequest(request) : handleRecipeRequest(request)));
     }
     if (url.pathname === '/api/speculation-rules') return speculationResponse();
+    // Bring your own storage: which providers are set up, and the sign-in step that needs their secrets.
+    if (url.pathname === '/api/storage') return handleStorageRequest(request, env);
     // Phyton's photos, from its own pages only (POST, same origin).
     if (url.pathname === '/api/plant') {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();

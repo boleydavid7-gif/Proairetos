@@ -211,6 +211,49 @@ export function createSupabaseFileStore(): FileStore {
   };
 }
 
+// ---------- Bring your own storage ----------
+
+/** Raised when the server has not yet had the storage-links migration: records sync through Proairetos's server. */
+export class NoStorageLinks extends Error {}
+
+export type StorageLinkRow = { provider: 'google' | 'dropbox' | 'onedrive'; sealed: { iv: string; ciphertext: string } };
+
+/** Which storage this account syncs through; null for Proairetos's own server. */
+export async function fetchStorageLink(): Promise<StorageLinkRow | null> {
+  const { data, error } = await (await supabase()).from('storage_links').select('provider, sealed').maybeSingle();
+  if (error) {
+    if (/relation|schema cache|storage_links/.test(error.message)) throw new NoStorageLinks(error.message);
+    throw new Error(error.message);
+  }
+  return (data as StorageLinkRow | null) ?? null;
+}
+
+export async function saveStorageLink(userId: string, link: StorageLinkRow): Promise<void> {
+  const { error } = await (await supabase())
+    .from('storage_links')
+    .upsert({ user_id: userId, ...link, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  if (error) throw new Error(/relation|schema cache/.test(error.message) ? 'Your own storage is not set up on the server yet.' : error.message);
+}
+
+export async function deleteStorageLink(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('storage_links').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+/** After moving to the person's own storage: the sealed copy on Proairetos's server goes. */
+export async function removeServerCopy(userId: string): Promise<void> {
+  const client = await supabase();
+  const { error } = await client.from('records').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+  const folder = `${userId}/attachments`;
+  for (;;) {
+    const { data } = await client.storage.from(filesBucket).list(folder, { limit: 100 });
+    if (!data?.length) return;
+    const { error: removeError } = await client.storage.from(filesBucket).remove(data.map((file) => `${folder}/${file.name}`));
+    if (removeError) return;
+  }
+}
+
 // ---------- Push subscriptions and reminder times ----------
 
 export async function savePushSubscription(subscription: PushSubscriptionJSON, userId: string): Promise<void> {

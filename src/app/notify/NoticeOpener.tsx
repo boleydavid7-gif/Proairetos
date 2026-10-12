@@ -45,7 +45,8 @@ export default function NoticeOpener() {
     const params = new URLSearchParams(window.location.search);
     const target = params.get('open');
     if (target) {
-      window.history.replaceState(null, '', window.location.pathname);
+      // The fragment stays: it can carry an answer for the page being opened (storage connected).
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash);
       open(target);
     }
     const onMessage = (event: MessageEvent) => {
