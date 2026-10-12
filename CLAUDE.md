@@ -602,7 +602,8 @@ weekly review), backup/restore/delete, deletions with undo, back
 navigation, offline PWA, encrypted sync + reminders (code complete).
 
 Server setup is done by the user (sign-in and sync work live; check reminders
-with a real phone). Steps are in
+with a real phone). The owner's open to-dos (server steps, phone checks, choices) are in `docs/TODO.md`;
+add to it when something ships that needs them, and tick off what they confirm. Steps are in
 `docs/SERVER_SETUP.md` (Site URL, copy URL + publishable key, VAPID keys,
 Cloudflare build variables, deploy function, cron). Sign-in accepts the
 email's link (templates are locked on the free plan without custom SMTP).
