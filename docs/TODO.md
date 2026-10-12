@@ -39,6 +39,9 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       microphone).
 - [ ] Restore a new backup file (it now ends in .json.gz) once, to see it come back.
 - [ ] On a computer with Chrome: Praxis Float the timer; a recipe in another language shows Translate.
+- [ ] iPhone: Gentle taps on (Settings > Appearance), tick something and flip a switch: a light tap (iOS 18+).
+- [ ] Once passkeys are set up: tap the email field on a signed-out app; your passkey shows above the keyboard.
+- [ ] Android, if you have one: share a photo into Ktema and Therapeia, a PDF into Theoria.
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
 ## To look over

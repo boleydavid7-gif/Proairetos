@@ -1,3 +1,4 @@
+import StorageFacts from './StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import { localDayKey } from '../../data/storage/preferences';
 import { useRef, useState } from 'react';
@@ -70,6 +71,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
         <p className="muted">All the apps and their settings.{added.includes('theoria') ? ' Theoria’s books stay on the phone.' : ''}</p>
+        <StorageFacts />
         <label className="field">
           <span className="label">Password (optional)</span>
           <input

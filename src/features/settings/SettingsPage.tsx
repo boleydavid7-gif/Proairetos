@@ -1,3 +1,4 @@
+import StorageFacts from '../../app/family/StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
 import { takeRequestedView, viewTitles, type View } from './settingsViews';
@@ -734,7 +735,7 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
-          <span className="toggle-row__detail">A soft buzz on phones that have one.</span>
+          <span className="toggle-row__detail">A light tap when you tick or switch something, on iPhone and Android.</span>
         </span>
       </button>
     </section>
@@ -1093,6 +1094,7 @@ export default function SettingsPage() {
         {view === 'import' && <BringInSection />}
         {view === 'backup' && (
           <>
+            <StorageFacts className="section-description" />
             <ExportSection />
             <DailySection />
             <ImportSection />

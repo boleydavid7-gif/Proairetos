@@ -21,10 +21,12 @@ export async function makeDailyCopy(): Promise<void> {
  * copies are not cleared without asking. Asked only from an installed app, where browsers grant it without a prompt
  * (Firefox would ask in a tab, and nothing here asks twice).
  */
-export async function keepStorage(): Promise<boolean> {
+export async function keepStorage(asked = false): Promise<boolean> {
   const storage = typeof navigator === 'undefined' ? undefined : navigator.storage;
   if (!storage?.persist || !storage.persisted) return false;
   if (await storage.persisted()) return true;
+  // Asked by the person (a tap): ask the browser whatever the display.
+  if (asked) return storage.persist().catch(() => false);
   const installed = window.matchMedia?.('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true;
   if (!installed) return false;
   return storage.persist().catch(() => false);

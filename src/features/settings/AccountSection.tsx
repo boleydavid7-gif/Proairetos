@@ -3,7 +3,7 @@ import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
-import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn } from '../../app/family/Passkey';
+import { AddPasskeyChoice, PasskeyOpen, PasskeySignIn, usePasskeyAutofill } from '../../app/family/Passkey';
 import { Passkeys } from './Passkeys';
 import {
   confirmCode,
@@ -30,6 +30,7 @@ function SignIn() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const autofillError = usePasskeyAutofill(!sent);
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -64,7 +65,7 @@ function SignIn() {
           <input
             type="email"
             className="field-input"
-            autoComplete="email"
+            autoComplete="email webauthn"
             aria-label="Email"
             placeholder="you@example.com"
             value={email}
@@ -107,7 +108,7 @@ function SignIn() {
           </button>
         </form>
       )}
-      {error && <p className="form-error" role="alert">{error}</p>}
+      {(error || autofillError) && <p className="form-error" role="alert">{error || autofillError}</p>}
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PasskeyCancelled } from '../../data/sync/passkeys';
+import { PasskeyCancelled, passkeyAutofillHere } from '../../data/sync/passkeys';
 import type { PasskeyRow } from '../../data/sync/supabase';
 import {
   addPasskey,
@@ -10,7 +10,9 @@ import {
   passkeyChallenge,
   passkeyWaiting,
   passkeysAvailable,
+  passkeyAutofill,
   signInWithPasskey,
+  stopPasskeyAutofill,
 } from '../sync/syncController';
 
 /*
@@ -174,4 +176,32 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
       )}
     </div>
   );
+}
+
+/**
+ * While a sign-in email field is on screen: this site's passkeys are offered in the keyboard's suggestions
+ * (the field needs autoComplete "email webauthn"). Picking one signs in. Re-armed before its challenge runs out.
+ * Returns an error to show, if signing in that way did not work.
+ */
+export function usePasskeyAutofill(active: boolean): string {
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (!active || !passkeysAvailable()) return;
+    let stopped = false;
+    const arm = () =>
+      void passkeyAutofillHere().then((here) => {
+        if (!here || stopped) return;
+        passkeyAutofill().catch((cause: unknown) => {
+          if (!stopped && !(cause instanceof PasskeyCancelled)) setError(message(cause));
+        });
+      });
+    arm();
+    const timer = window.setInterval(arm, CHALLENGE_MS);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      stopPasskeyAutofill();
+    };
+  }, [active]);
+  return error;
 }

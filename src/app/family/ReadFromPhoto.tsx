@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Found } from '../../core/ocr/labels';
 import { readPhotoText } from './ocr';
 import './readFromPhoto.css';
@@ -7,7 +7,7 @@ import './readFromPhoto.css';
  * "Read from a photo" on a form: a photo of a label, plate or bill is read on the phone, and what was found is shown
  * to look over (each value can be changed or left out) before it fills the form. Nothing is saved by this.
  */
-export function ReadFromPhoto({ find, onUse, label = 'Read from a photo' }: { find: (text: string) => Found[]; onUse: (values: Record<string, string>) => void; label?: string }) {
+export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initialFile }: { find: (text: string) => Found[]; onUse: (values: Record<string, string>) => void; label?: string; initialFile?: File }) {
   const input = useRef<HTMLInputElement>(null);
   const [reading, setReading] = useState<number>();
   const [text, setText] = useState<string>();
@@ -20,6 +20,23 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo' }: { fi
     setProblem('');
   };
 
+  const read = (file: File) => {
+    close();
+    setReading(0);
+    void readPhotoText(file, setReading)
+      .then((words) => {
+        setText(words);
+        setFound(find(words).map((each) => ({ ...each, use: true })));
+      })
+      .catch(() => setProblem('The photo could not be read here. Check the connection the first time (the reader is about 7 MB), then try again.'))
+      .finally(() => setReading(undefined));
+  };
+
+  // A photo shared into the app is read straight away.
+  useEffect(() => {
+    if (initialFile) read(initialFile);
+  }, [initialFile]);
+
   return (
     <div className="read-photo">
       <input
@@ -31,16 +48,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo' }: { fi
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = '';
-          if (!file) return;
-          close();
-          setReading(0);
-          void readPhotoText(file, setReading)
-            .then((read) => {
-              setText(read);
-              setFound(find(read).map((each) => ({ ...each, use: true })));
-            })
-            .catch(() => setProblem('The photo could not be read here. Check the connection the first time (the reader is about 7 MB), then try again.'))
-            .finally(() => setReading(undefined));
+          if (file) read(file);
         }}
       />
       {text === undefined && (

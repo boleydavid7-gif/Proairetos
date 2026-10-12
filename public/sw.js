@@ -50,8 +50,27 @@ async function networkFirst(request) {
   }
 }
 
+
+// Files shared into the app from another (Android, computers: the manifest's share_target). They wait in a cache
+// for the page, which takes them out on opening.
+function takeShare(event, app, open) {
+  event.respondWith((async () => {
+    try {
+      const form = await event.request.formData();
+      const cache = await caches.open('proairetos-share-inbox');
+      const files = form.getAll('files').filter((file) => typeof file === 'object');
+      await Promise.all(files.map((file, i) => cache.put(`/share-inbox/${app}/${Date.now()}-${i}`, new Response(file, { headers: { 'content-type': file.type || 'application/octet-stream', 'x-name': encodeURIComponent(file.name || 'shared') } }))));
+    } catch {
+      // Nothing readable was shared; the app opens as usual.
+    }
+    return Response.redirect(`/${app}/?open=${open}`, 303);
+  })());
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  // Theoria uses this worker: a book shared into it.
+  if (request.method === 'POST' && new URL(request.url).pathname === '/theoria/share') return takeShare(event, 'theoria', 'add');
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   // Askesis, the training app, has its own service worker and cache.

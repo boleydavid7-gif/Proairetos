@@ -258,6 +258,19 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   window); prefetch rules served by the Worker at `/api/speculation-rules` (`worker/speculation.ts`, header in
   `_headers`, prefetch only, never prerender: the apps start sync and writes on load); Soma `app/translate.ts` +
   `TranslateRecipe.tsx` (Chrome's Translator and LanguageDetector, shown before Keep it, undo).
+- Any-device round: passkey autofill (`usePasskeyAutofill` on the email fields, `autoComplete="email webauthn"`,
+  `passkeyAutofill`/`stopPasskeyAutofill` in `syncController`, conditional `askForPasskey`, quiet without the server);
+  `tap()` (`app/feel.ts`) uses `vibrate` or, on iPhone, flips a hidden `<input type=checkbox switch>` (Safari's own
+  haptic); `applyAppearance` adds one click listener so every `[role=switch]`, `.toggle-row`, `.switch-row` taps;
+  `useWakeLock` (`app/family/wakeLock.ts`) in Praxis (running, not paused) and Dynamis's session (not Diaita's nap:
+  light works against a nap); Praxis Media Session (title, play/pause) while a sound plays; `StorageFacts`
+  (`navigator.storage.estimate`, persisted, "Ask to keep it" = `keepStorage(true)`) on every backup page;
+  `prefers-reduced-transparency` / `prefers-contrast: more` at the end of `premium.css`; Web Share Target with files
+  (manifests of Ktema, Therapeia, Theoria; `takeShare` in their workers keeps files in Cache Storage
+  `proairetos-share-inbox`, `startLaunchFiles` hands them to `useLaunchedFile`; Ktema `SharedPage` route `shared`,
+  Therapeia reads a label photo at once via `ReadFromPhoto initialFile`); Phyton Periodic Background Sync
+  (`phyton/app/background.ts` leaves place, names, unit and known frost nights in Cache Storage
+  `proairetos-phyton-outside`; `public/phyton/sw.js` `checkFrost` asks Open-Meteo, 12:00-22:00, once a night).
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

@@ -1,3 +1,4 @@
+import { useLaunchedFile } from '../../app/family/launchFiles';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { medicineFromText } from '../../core/ocr/labels';
 import { useEffect, useRef, useState } from 'react';
@@ -62,6 +63,9 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
   useEffect(() => {
     if (!id) nameField.current?.focus();
   }, []);
+  // A photo shared into Therapeia (Android, computers) is read as a label here.
+  const [shared, setShared] = useState<File>();
+  useLaunchedFile((file) => file.type.startsWith('image/'), setShared);
 
   const days = (): DoseDays => (daysKind === 'weekdays' ? { kind: 'weekdays', days: weekdays.length ? weekdays : [new Date().getDay()] } : daysKind === 'every' ? { kind: 'every', every: Math.max(2, every) } : { kind: 'daily' });
   const valid = name.trim() && (times.length > 0 || asNeeded);
@@ -108,6 +112,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
       {!existing && (
         <ReadFromPhoto
           label="Read the label"
+          initialFile={shared}
           find={medicineFromText}
           onUse={(values) => {
             if (values.name) setName(values.name);

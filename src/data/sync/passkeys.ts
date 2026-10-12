@@ -12,6 +12,13 @@ export function passkeysHere(): boolean {
   return typeof window !== 'undefined' && window.isSecureContext && typeof window.PublicKeyCredential === 'function' && Boolean(navigator.credentials);
 }
 
+/** Whether this browser offers passkeys in the keyboard's suggestions on a sign-in field. */
+export async function passkeyAutofillHere(): Promise<boolean> {
+  if (!passkeysHere()) return false;
+  const check = (window.PublicKeyCredential as unknown as { isConditionalMediationAvailable?: () => Promise<boolean> }).isConditionalMediationAvailable;
+  return Boolean(await check?.().catch(() => false));
+}
+
 export class PasskeyCancelled extends Error {
   constructor() {
     super('The passkey was not used.');
@@ -96,9 +103,12 @@ export type UsedPasskey = {
 };
 
 /** Asks for a passkey: any of this site's (signing in), or one of those listed (opening the data while signed in). */
-export async function askForPasskey({ challenge, allow }: { challenge?: string; allow?: readonly string[] } = {}): Promise<UsedPasskey> {
+export async function askForPasskey({ challenge, allow, conditional, signal }: { challenge?: string; allow?: readonly string[]; conditional?: boolean; signal?: AbortSignal } = {}): Promise<UsedPasskey> {
   const credential = (await asked(
     navigator.credentials.get({
+      // Conditional: offered in the keyboard's suggestions when the email field is tapped, rather than asked.
+      ...(conditional ? { mediation: 'conditional' as CredentialMediationRequirement } : {}),
+      signal,
       publicKey: {
         rpId: location.hostname,
         challenge: challenge ? fromBase64Url(challenge) : crypto.getRandomValues(new Uint8Array(32)),

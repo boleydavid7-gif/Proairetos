@@ -1,6 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import { changePassphrase, confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
-import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn } from './Passkey';
+import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
@@ -94,6 +94,7 @@ function SignIn() {
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const { busy, error, run } = useStep();
+  const autofillError = usePasskeyAutofill(open && !sent);
   if (!open)
     return (
       <button type="button" className="button-quiet account__link" onClick={() => setOpen(true)}>
@@ -115,7 +116,7 @@ function SignIn() {
           }}
         >
           <span className="label">Your Proairetos email</span>
-          <input className="input" type="email" autoComplete="email" aria-label="Email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <input className="input" type="email" autoComplete="email webauthn" aria-label="Email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
           <button type="submit" className="button-main" disabled={!email.includes('@') || busy}>
             Send code
           </button>
@@ -151,6 +152,11 @@ function SignIn() {
       <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
         Cancel
       </button>
+      {autofillError && (
+        <p className="hint" role="alert">
+          {autofillError}
+        </p>
+      )}
       {error && (
         <p className="hint" role="alert">
           {error}

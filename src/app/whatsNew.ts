@@ -3,6 +3,14 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Sign in faster: tap the email field and your passkey shows in the keyboard’s suggestions.',
+      'Gentle taps now work on iPhone too (iOS 18 and later): a light tap when you tick or switch something.',
+      'The screen stays on while a Praxis block runs and through a Dynamis session.',
+      'Praxis: the block’s name, play and pause on the lock screen while a sound plays.',
+      'Back up shows how much the apps keep on this device, and whether the browser has agreed to keep it.',
+      'The apps follow your phone’s Reduce transparency (solid cards and bars) and Increase contrast (stronger words and edges).',
+      'Android and computers: share photos or a PDF into Ktema (Add to a thing), a label photo into Therapeia (read straight away), or a book into Theoria.',
+      'Android: with Phyton installed, frost tonight is checked in the background now and then, so the warning comes even if you have not opened it.',
       'Compass now opens from Reflect, beside Meditate; the bar has Today, Reflect, Days ahead, Capture and Apps.',
       'Moving between the apps cross-fades instead of going blank (Safari 18.2+, Chrome).',
       'Soma Cook mode: say “timer” to start the step’s timer, beside “next”, “back” and “again”. Dynamis: say “done” to tick the next set and start the rest, “skip” to end the rest.',

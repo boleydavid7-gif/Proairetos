@@ -1,3 +1,4 @@
+import { useWakeLock } from '../app/family/wakeLock';
 import { tap } from '../app/feel';
 import ProairetosTab from '../app/family/ProairetosTab';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
@@ -169,6 +170,8 @@ export default function PraxisApp() {
     [say, today],
   );
 
+  // The screen stays on while a block runs (not while paused).
+  useWakeLock(Boolean(session && !session.pausedAt));
   const remaining = session ? remainingMs(session, clock.getTime()) : 0;
   const finished = session ? isFinished(session, clock.getTime()) : false;
   useEffect(() => {
@@ -197,6 +200,33 @@ export default function PraxisApp() {
     tap();
   };
 
+  // On the lock screen and in the phone's media controls, while a block plays a sound: its name, play and pause.
+  const pauseFromLock = useRef(() => {});
+  useEffect(() => {
+    const media = 'mediaSession' in navigator ? navigator.mediaSession : undefined;
+    if (!media || !session || sound === 'none') return;
+    try {
+      media.metadata = new MediaMetadata({
+        title: session.itemTitle ?? 'Study',
+        artist: 'Praxis',
+        artwork: [{ src: '/praxis/icons/icon-512.png', sizes: '512x512', type: 'image/png' }],
+      });
+      media.playbackState = session.pausedAt ? 'paused' : 'playing';
+      media.setActionHandler('play', () => pauseFromLock.current());
+      media.setActionHandler('pause', () => pauseFromLock.current());
+    } catch {
+      // Not every browser shows media controls.
+    }
+    return () => {
+      try {
+        media.setActionHandler('play', null);
+        media.setActionHandler('pause', null);
+      } catch {
+        // Nothing was set.
+      }
+    };
+  }, [session?.startedAt, session?.pausedAt, session?.itemTitle, sound, soundState]);
+
   const startOrPause = () => {
     if (!session) return start();
     if (session.pausedAt) {
@@ -210,6 +240,7 @@ export default function PraxisApp() {
       cancelBell();
     }
   };
+  pauseFromLock.current = startOrPause;
 
   // A shortcut to start the next block opens it ready: phones only allow sound from a tap, so one tap on
   // Start begins the timer, the sound and the end bell together.

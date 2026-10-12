@@ -582,9 +582,37 @@ export async function passkeyChallenge(): Promise<string> {
   return (await beginPasskeySignIn()).challenge;
 }
 
+let autofill: AbortController | null = null;
+
+/** Stops offering a passkey in the keyboard's suggestions (before asking for one outright, or on leaving). */
+export function stopPasskeyAutofill(): void {
+  autofill?.abort();
+  autofill = null;
+}
+
+/**
+ * Offers this site's passkeys in the keyboard's suggestions on the email field; picking one signs in like the
+ * button. Resolves when signed in, or quietly when stopped.
+ */
+export async function passkeyAutofill(): Promise<void> {
+  stopPasskeyAutofill();
+  const controller = new AbortController();
+  autofill = controller;
+  // Nothing is offered while the server has no passkeys set up; the email sign-in is unaffected.
+  const challenge = await passkeyChallenge().catch(() => undefined);
+  if (!challenge || controller.signal.aborted) return;
+  const used = await askForPasskey({ challenge, conditional: true, signal: controller.signal });
+  if (autofill === controller) autofill = null;
+  await finishPasskeySignInHere(used);
+}
+
 /** Signed out: a passkey signs in, and opens the data when it can. Call it straight from a tap. */
 export async function signInWithPasskey(challenge: string): Promise<void> {
-  const used = await askForPasskey({ challenge });
+  stopPasskeyAutofill();
+  await finishPasskeySignInHere(await askForPasskey({ challenge }));
+}
+
+async function finishPasskeySignInHere(used: Awaited<ReturnType<typeof askForPasskey>>): Promise<void> {
   const { token_hash, wrap } = await finishPasskeySignIn(used);
   const user = await signInWithHandoffToken(token_hash).catch(() => {
     throw new Error('That passkey did not sign in. Try again, or sign in by email.');

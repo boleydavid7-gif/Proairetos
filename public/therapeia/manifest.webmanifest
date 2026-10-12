@@ -87,5 +87,20 @@
         }
       ]
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/therapeia/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/*"
+          ]
+        }
+      ]
+    }
+  }
 }

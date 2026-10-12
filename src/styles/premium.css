@@ -239,3 +239,46 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
     navigation: auto;
   }
 }
+
+/* ---------- The phone's own settings ----------
+   Reduce transparency (iPhone, Mac, Windows): no see-through glass; cards, bars and panels turn solid.
+   Increase contrast: muted and faint words as strong as the main text, clearer edges. Every app loads this file last. */
+
+@media (prefers-reduced-transparency: reduce) {
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .app-shell :is(.list-card, .item-card, .now-card, .intention, .settings-card, .settings-list, .profile-card,
+    .insight-card, .kind-tile, .statement, .goal, .person, .run-card, .date-card, .observations, .decision-note,
+    .timeline__entry, .three-item, .look-back, .sort-card, .add-reflection, .week-ahead__day, .composer),
+  .days-calendar {
+    background: var(--color-surface) !important;
+  }
+  .app-shell .tab-bar {
+    background: rgb(var(--color-bar-rgb)) !important;
+  }
+  .tab-bar {
+    background-color: var(--surface, var(--color-surface, #131a18)) !important;
+  }
+  .praxis-bottom-nav {
+    background: rgb(11, 29, 24) !important;
+  }
+  .theoria-bottom-nav {
+    background: rgb(13, 20, 39) !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  /* Repeated so it outweighs each app's own colours (:root.soma, :root[data-theme='light'] and the like). */
+  :root:root:root:root {
+    --color-text-muted: var(--color-text);
+    --color-text-faint: var(--color-text);
+    --color-border: color-mix(in srgb, var(--color-text) 45%, transparent);
+    --muted: var(--text);
+    --text-soft: var(--text);
+    --line: color-mix(in srgb, var(--text) 45%, transparent);
+  }
+}

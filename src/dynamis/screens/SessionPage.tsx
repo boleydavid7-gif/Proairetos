@@ -1,3 +1,4 @@
+import { useWakeLock } from '../../app/family/wakeLock';
 import { listeningHere, says, useListening } from '../../app/family/voice';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { tap } from '../../app/feel';
@@ -43,6 +44,8 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   });
   const onWords = useRef<(words: string) => void>(() => undefined);
   useListening(listen, (words) => onWords.current(words), () => setListen(false));
+  // The screen stays on through the session, for the rest timer and the next set.
+  useWakeLock(true);
 
   useEffect(() => {
     if (!restUntil) return;

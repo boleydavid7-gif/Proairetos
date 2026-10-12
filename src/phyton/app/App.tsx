@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
+import { shareOutsideWithWorker } from './background';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
 import { HomeIcon, LeafIcon, MoreIcon } from '../../app/family/icons';
-import { settings } from './state';
+import { settings, usePlants } from './state';
 import { refreshRain } from './rain';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
@@ -52,8 +53,15 @@ export default function App() {
 
   useEffect(() => {
     void startSync();
-    if (settings.load().rain) void refreshRain();
+    if (settings.load().rain) void refreshRain().finally(() => void shareOutsideWithWorker());
+    else void shareOutsideWithWorker();
   }, []);
+  // What the background frost check needs, kept current as plants and settings change.
+  const plantsNow = usePlants();
+  const current = settings.use();
+  useEffect(() => {
+    void shareOutsideWithWorker();
+  }, [plantsNow, current]);
 
   const page = (() => {
     switch (route.name) {
