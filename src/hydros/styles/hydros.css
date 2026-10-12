@@ -148,7 +148,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 :root.hydros[data-theme='light'] .hydros-settings { background: linear-gradient(180deg, rgba(234, 244, 245, .18), rgba(234, 244, 245, .08)), var(--bg); }
 .hydros-settings-lede { margin: -4px 4px 3px; color: var(--muted); font-size: .78rem; }
 .hydros-settings-group { display: flex; flex-direction: column; gap: 6px; }
-.hydros-settings-group h2 { margin: 0 4px; color: var(--muted); font-size: .66rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+.hydros-settings-group h2 { margin: 0 4px; color: var(--muted); font-size: var(--text-sm); font-weight: 500; letter-spacing: 0; text-transform: none; }
 .hydros-settings-list { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: rgba(15, 48, 60, .52); }
 .hydros-settings-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 7px 12px; border: 0; border-bottom: 1px solid rgba(164,222,236,.1); background: transparent; color: var(--text); text-align: left; }
 .hydros-settings-row:last-child { border-bottom: 0; }

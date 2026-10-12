@@ -144,10 +144,10 @@ img {
 
 .label {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted);
 }
 
@@ -278,8 +278,14 @@ p {
   gap: 10px;
 }
 
+.button-row {
+  flex-wrap: wrap;
+}
+
+/* Side by side while both labels fit on one line; otherwise each takes the row (never a label broken in two). */
 .button-row > * {
-  flex: 1;
+  flex: 1 1 auto;
+  white-space: nowrap;
 }
 
 .text-link {
@@ -356,9 +362,9 @@ p {
 }
 
 .card__eyebrow {
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted);
 }
 
@@ -1095,9 +1101,9 @@ input[type='date'].input {
 }
 
 .steps__repeat {
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--mint);
 }
 

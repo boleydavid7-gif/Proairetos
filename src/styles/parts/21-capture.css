@@ -1,22 +1,39 @@
 /* ---------- Capture: kinds above the free box ---------- */
 
+/* One grouped list, rows split by hairlines (like Reminders' lists), not a card per kind. */
 .kind-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
 }
 
 .kind-tile {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  min-height: 4rem;
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: 0;
   background: var(--color-surface);
   text-align: left;
-  transition: border-color 150ms ease, background 150ms ease;
+  transition: background 150ms ease;
+}
+
+/* The hairline starts after the icon, as grouped lists do. */
+.kind-tile + .kind-tile {
+  box-shadow: inset calc(var(--space-4) + 22px + var(--space-3)) 0 0 var(--color-surface), inset 0 1px 0 var(--color-border);
+}
+
+.kind-tile:active {
+  background: var(--color-surface-raised, var(--color-surface));
+}
+
+.kind-tile__prompt:empty {
+  display: none;
 }
 
 .kind-tile[aria-pressed='true'] {
@@ -67,9 +84,6 @@
 
 /* ---------- Empty your head (brain dump) ---------- */
 
-.kind-tile--dump {
-  border-style: dashed;
-}
 
 .dump-box {
   display: flex;
@@ -163,9 +177,6 @@
   overflow: hidden;
 }
 
-.kind-tile--unsorted {
-  border-style: dashed;
-}
 
 /* A kind's own page. */
 .capture-shelf__head {

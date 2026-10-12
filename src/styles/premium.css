@@ -164,15 +164,14 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   }
 }
 
-/* ---------- Glass ---------- */
-/* Main cards in Proairetos are a little see-through, so a photo behind them shows softly. */
+/* ---------- Surfaces ---------- */
+/* Main cards are solid: frosted glass on every card read as a template. Only the tab bar stays see-through,
+   as the phone's own bars are. */
 
 .app-shell :is(.list-card, .item-card, .now-card, .intention, .settings-card, .settings-list, .profile-card,
   .insight-card, .kind-tile, .statement, .goal, .person, .run-card, .date-card, .observations, .decision-note,
   .timeline__entry, .three-item, .look-back, .sort-card, .add-reflection, .week-ahead__day, .composer) {
-  background: color-mix(in srgb, var(--color-surface) 74%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
+  background: var(--color-surface);
 }
 
 .app-shell .tab-bar {

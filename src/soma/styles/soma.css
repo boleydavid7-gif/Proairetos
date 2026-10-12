@@ -341,10 +341,10 @@
 
 .check-list__heading {
   margin: 16px 0 4px;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted);
 }
 
@@ -421,10 +421,10 @@
 
 .step-list__heading {
   margin: 16px 0 0;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted);
 }
 
@@ -1102,7 +1102,9 @@
   margin-right: -8px;
   box-shadow: 0 0 0 2px var(--surface);
 }
-.season-card__pics .produce-pic__initial { font-size: 1.1rem; }
+/* Photos only: without a photo (offline) the names say it, rather than a row of initials. */
+.season-card__pics .produce-pic:has(.produce-pic__initial) { display: none; }
+.season-card__pics:not(:has(.produce-pic:not(:has(.produce-pic__initial)))) { display: none; }
 .season-card__names {
   color: var(--text-soft);
 }
@@ -1219,10 +1221,10 @@ button.nutri-badge {
 .nutri-hero__eyebrow {
   margin: 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .nutri-hero__word {

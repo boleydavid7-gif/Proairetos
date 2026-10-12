@@ -16,7 +16,7 @@
 .praxis-brand__mark svg { width: 42px; height: 42px; }
 .praxis-brand strong { display: block; font: 600 22px/1 var(--font-serif); letter-spacing: .02em; }
 .praxis-brand small { display: block; margin-top: 6px; color: var(--color-text-faint); font-size: 12px; }
-.praxis-sidebar__label, .praxis-eyebrow { margin: 0; color: var(--color-text-faint); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.praxis-sidebar__label, .praxis-eyebrow { margin: 0; color: var(--color-text-faint); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .praxis-sidebar__label { padding: 0 12px 10px; }
 .praxis-nav-list { display: grid; gap: 4px; }
 .praxis-nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 12px; color: var(--color-text-muted); background: transparent; cursor: pointer; text-align: left; transition: .2s ease; }
@@ -95,7 +95,7 @@
 .praxis-metric > span:last-child { color: var(--color-text-muted); font-size: 13px; }
 .praxis-quote { margin: 16px 0 0; padding: 22px 24px; border: 1px solid rgba(201,162,116,.18); border-radius: 16px; background: linear-gradient(100deg, rgba(201,162,116,.1), rgba(201,162,116,.025)); }
 .praxis-quote p { margin: 0; color: var(--color-text); font: italic 18px/1.45 var(--font-serif); }
-.praxis-quote cite { display: block; margin-top: 10px; color: var(--color-text-faint); font-size: 12px; font-style: normal; letter-spacing: .1em; text-transform: uppercase; }
+.praxis-quote cite { display: block; margin-top: 10px; color: var(--color-text-faint); font-size: var(--text-sm); font-style: normal; letter-spacing: 0; text-transform: none; }
 
 .praxis-wide-card { padding: 24px; }
 .praxis-history-row { display: grid; grid-template-columns: 38px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 15px 0; border-top: 1px solid var(--color-border); }

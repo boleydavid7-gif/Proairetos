@@ -379,7 +379,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       <header className="days-header">
         <div>
           <h1 className="page-header__title">Days ahead</h1>
-          <p className="page-header__subtitle">Your upcoming days at a glance</p>
         </div>
         <span className="days-header__actions">
           <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
@@ -473,7 +472,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 {dayTitle(date, today)}
                 <span className="days-day__date">{formatLocalDay(date, { month: 'short', day: 'numeric' })}</span>
               </h2>
-              {timed.length === 0 && allDay.length === 0 && !hasPlan(date) && billsFor(date).length === 0 && <p className="days-day__empty">Nothing set.</p>}
               <ul className="days-list">
                 {allDay.map((entry) => (
                   <li key={entry.key} className="days-allday">

@@ -48,7 +48,7 @@
 .family-surface { display: grid; gap: 14px; margin-top: 16px; color: var(--color-text, inherit); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
 .family-surface .card { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 16px; background: var(--color-surface, rgba(255,255,255,.04)); }
 .family-surface .card__title { margin: 0; font: 500 1.15rem/1.25 var(--font-serif, Georgia, serif); }
-.family-surface .label { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.family-surface .label { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .family-surface .muted, .family-surface .hint, .family-surface .row__detail, .family-surface .switch-row__detail { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .86rem; line-height: 1.5; }
 .family-surface .field { display: grid; gap: 6px; }
 .family-surface .input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; outline: 0; color: inherit; background: rgba(0,0,0,.14); font: inherit; font-size: 16px; }

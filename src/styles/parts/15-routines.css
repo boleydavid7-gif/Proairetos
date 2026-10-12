@@ -187,8 +187,8 @@
 .pause-screen__phase {
   margin: var(--space-5) 0 0;
   font-size: var(--text-sm);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--color-text-muted);
 }
 

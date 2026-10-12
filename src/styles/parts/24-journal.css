@@ -20,8 +20,8 @@
   margin: 0;
   color: var(--color-accent-strong);
   font-size: var(--text-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .journal__scene {

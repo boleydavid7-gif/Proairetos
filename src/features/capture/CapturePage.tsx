@@ -15,9 +15,10 @@ import { captureKinds } from './captureKinds';
 const newestFirst = (a: LifeItem, b: LifeItem) => b.createdAt.localeCompare(a.createdAt);
 
 /** Under a kind's name: what is there most recently, or its prompt when nothing is. */
-function glimpse(items: readonly LifeItem[], prompt: string): string {
+/** The newest titles under a kind, or nothing (no placeholder line when it is empty). */
+function glimpse(items: readonly LifeItem[]): string {
   const titles = items.slice(0, 2).map((item) => item.title);
-  return titles.length ? `${titles.join(' · ')}${items.length > 2 ? ' …' : ''}` : prompt;
+  return titles.length ? `${titles.join(' · ')}${items.length > 2 ? ' …' : ''}` : '';
 }
 
 /**
@@ -53,17 +54,17 @@ export default function CapturePage() {
 
   return (
     <div className="page">
-      <PageHeader title="Capture" subtitle="Get it out of your head." settings />
+      <PageHeader title="Capture" settings />
 
       <div className="kind-list">
-        {captureKinds.map(({ id, label, prompt, icon: Icon }) => (
+        {captureKinds.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" className="kind-tile" onClick={() => go(id)}>
             <span className="kind-tile__icon">
-              <Icon size={28} />
+              <Icon size={22} />
             </span>
             <span className="kind-tile__text">
               <span className="kind-tile__title">{label}</span>
-              <span className="kind-tile__prompt">{glimpse(openOn(id), prompt)}</span>
+              <span className="kind-tile__prompt">{glimpse(openOn(id))}</span>
             </span>
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
@@ -71,11 +72,11 @@ export default function CapturePage() {
         {shows('gratitude') && (
           <button type="button" className="kind-tile" onClick={() => openGrateful(true)}>
             <span className="kind-tile__icon">
-              <StarIcon size={28} />
+              <StarIcon size={22} />
             </span>
             <span className="kind-tile__text">
               <span className="kind-tile__title">Grateful</span>
-              <span className="kind-tile__prompt">{grateful[0]?.body ?? 'I’m grateful for…'}</span>
+              <span className="kind-tile__prompt">{grateful[0]?.body}</span>
             </span>
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
@@ -83,11 +84,11 @@ export default function CapturePage() {
         {unsorted.length > 0 && (
           <button type="button" className="kind-tile kind-tile--unsorted" onClick={() => go('UNSORTED')}>
             <span className="kind-tile__icon">
-              <InboxIcon size={28} />
+              <InboxIcon size={22} />
             </span>
             <span className="kind-tile__text">
               <span className="kind-tile__title">{shelfTitles.UNSORTED.title}</span>
-              <span className="kind-tile__prompt">{glimpse(unsorted, '')}</span>
+              <span className="kind-tile__prompt">{glimpse(unsorted)}</span>
             </span>
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>
@@ -95,11 +96,10 @@ export default function CapturePage() {
         {shows('brain-dump') && (
           <button type="button" className="kind-tile kind-tile--dump" onClick={() => setDumping(true)}>
             <span className="kind-tile__icon">
-              <InboxIcon size={28} />
+              <InboxIcon size={22} />
             </span>
             <span className="kind-tile__text">
               <span className="kind-tile__title">Empty your head</span>
-              <span className="kind-tile__prompt">Everything at once; it gets split up for you to check</span>
             </span>
             <ChevronRightIcon size={18} className="kind-tile__chevron" />
           </button>

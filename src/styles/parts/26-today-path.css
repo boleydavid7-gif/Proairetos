@@ -216,9 +216,9 @@
 
 .daily-line__label {
   color: var(--color-accent);
-  font-size: var(--text-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .a-while-ago {

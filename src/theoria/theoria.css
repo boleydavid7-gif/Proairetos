@@ -20,7 +20,7 @@
 .theoria-brand { display: flex; align-items: center; gap: 10px; padding: 29px 9px 36px; }
 .theoria-brand strong { display: block; font: 600 22px/1 var(--font-serif); letter-spacing: .02em; }
 .theoria-brand small { display: block; margin-top: 7px; color: var(--theoria-faint); font-size: 11px; letter-spacing: .08em; }
-.theoria-sidebar-label, .theoria-eyebrow { margin: 0; color: var(--theoria-faint); font-size: 12px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
+.theoria-sidebar-label, .theoria-eyebrow { margin: 0; color: var(--theoria-faint); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .theoria-sidebar-label { padding: 0 12px 10px; }
 .theoria-nav-list { display: grid; gap: 5px; }
 .theoria-nav-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 11px; color: var(--theoria-muted); background: transparent; cursor: pointer; text-align: left; }
@@ -55,7 +55,7 @@
 .theoria-library-grid { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(320px, .82fr); gap: 16px; }
 .theoria-card { border: 1px solid var(--theoria-border); border-radius: 21px; background: linear-gradient(145deg, rgba(27, 38, 65, .9), rgba(17, 25, 45, .95)); box-shadow: 0 24px 65px rgba(0,0,0,.2); }
 .theoria-continue { min-height: 337px; padding: 23px 25px; background: radial-gradient(circle at 83% 20%, rgba(201,166,107,.11), transparent 14rem), linear-gradient(145deg, rgba(25, 36, 62, .94), rgba(16, 23, 42, .97)); }
-.theoria-card-kicker { display: flex; justify-content: space-between; color: var(--theoria-faint); font-size: 12px; letter-spacing: .15em; text-transform: uppercase; }
+.theoria-card-kicker { display: flex; justify-content: space-between; color: var(--theoria-faint); font-size: var(--text-sm); letter-spacing: 0; text-transform: none; }
 .theoria-card-kicker span { color: var(--theoria-violet); font-size: 15px; }
 .theoria-continue-body { display: grid; grid-template-columns: 1fr 121px; align-items: center; gap: 19px; min-height: 267px; }
 .theoria-continue h2 { margin: 0; font: 500 clamp(29px, 3vw, 40px)/1.08 var(--font-serif); }
@@ -97,8 +97,8 @@
 .theoria-daily-quote-copy > p { margin: 0; font: italic 20px/1.38 var(--font-serif); }
 .theoria-daily-quote-copy > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 13px; margin-top: 11px; }
 .theoria-daily-quote-copy small { color: var(--theoria-muted); font-size: 12px; }
-.theoria-daily-quote-copy span { color: var(--theoria-brass); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
-.theoria-daily-quote-date { align-self: start; color: var(--theoria-faint); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.theoria-daily-quote-copy span { color: var(--theoria-brass); font-size: var(--text-sm); letter-spacing: 0; text-transform: none; }
+.theoria-daily-quote-date { align-self: start; color: var(--theoria-faint); font-size: var(--text-sm); letter-spacing: 0; text-transform: none; white-space: nowrap; }
 .theoria-section-heading { margin: 27px 0 15px; }
 .theoria-insight-grid { display: grid; gap: 10px; }
 .theoria-insight { display: grid; grid-template-columns: 27px minmax(0,1fr) 20px; align-items: center; gap: 12px; padding: 15px 16px; border: 1px solid var(--theoria-border); border-radius: 14px; background: rgba(20, 29, 51, .75); }

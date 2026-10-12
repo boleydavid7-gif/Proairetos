@@ -98,13 +98,13 @@ function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDa
   );
 }
 
-function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; title: string; detail: string; onClick: () => void }) {
+function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; title: string; detail?: string; onClick: () => void }) {
   return (
     <button type="button" className="settings-row" onClick={onClick}>
       <span className="settings-row__icon">{icon}</span>
       <span className="settings-row__text">
         <span>{title}</span>
-        <span className="settings-row__detail">{detail}</span>
+        {detail && <span className="settings-row__detail">{detail}</span>}
       </span>
       <ChevronRightIcon size={18} className="settings-row__chevron" />
     </button>
@@ -223,7 +223,6 @@ export default function ReflectPage() {
         <MoreRow
           icon={<BreatheIcon size={22} />}
           title="Insights"
-          detail="What you recorded, gathered by week and month."
           onClick={() => navigate('insights')}
         />
         )}

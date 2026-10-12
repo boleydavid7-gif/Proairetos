@@ -45,7 +45,7 @@ const SOUND_KEY = 'proairetos.praxisSound';
 function greeting(name: string, now: Date): string {
   const hour = now.getHours();
   const time = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  return name ? `${time}, ${name}.` : `${time}.`;
+  return name ? `${time}, ${name}` : time;
 }
 
 function usePraxisEvents(): ItemEvent[] | undefined {
@@ -330,7 +330,7 @@ export default function PraxisApp() {
 
       <main className="praxis-main">
         <header className="praxis-topbar">
-          <a className="praxis-family-link" href="/" aria-label="Open Proairetos"><span>Proairetos</span><small>family</small></a>
+          <a className="praxis-family-link" href="/" aria-label="Open Proairetos"><span>Proairetos</span></a>
           <div className="praxis-topbar__date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(clock)}</div>
           <SyncDot />
         </header>
