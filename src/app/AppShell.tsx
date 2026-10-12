@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import MovedNotice from './MovedNotice';
+import AppsTab from '../components/layout/AppsTab';
 import { navigation } from './navigation';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
@@ -52,6 +53,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
             <span>{label}</span>
           </button>
         ))}
+        <AppsTab />
       </nav>
     </div>
   );

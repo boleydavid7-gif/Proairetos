@@ -5,7 +5,7 @@ import { useSheet } from '../ui/useSheet';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps } from '../../app/family/added';
 
-function AppsIcon({ size = 22 }: { size?: number }) {
+export function AppsIcon({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true">
       {[5, 12, 19].flatMap((x) => [5, 12, 19].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.6} />))}
@@ -55,13 +55,14 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** The added apps and the Store, beside the gear. */
-export default function AppsButton() {
+/** Apps, the last place on the bar: the added apps and the Store, in a sheet. */
+export default function AppsTab() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className="header-action" aria-label="Your apps" onClick={() => setOpen(true)}>
-        <AppsIcon />
+      <button type="button" className="tab-bar__item" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <AppsIcon size={24} />
+        <span>Apps</span>
       </button>
       {open && <AppsSheet onClose={() => setOpen(false)} />}
     </>

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import ProairetosTab from '../../app/family/ProairetosTab';
 import { BackIcon, HomeIcon, LearnIcon, LogIcon, Mark, MoreIcon, TrainIcon } from './icons';
 
 export type Tab = 'home' | 'learn' | 'train' | 'log' | 'more';
@@ -26,6 +27,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
           <span>{label}</span>
         </button>
       ))}
+      <ProairetosTab />
     </nav>
   );
 }

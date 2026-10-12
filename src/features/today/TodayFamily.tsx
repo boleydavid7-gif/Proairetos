@@ -2,10 +2,8 @@ import type { Bill } from '../../oikonomia/core/bills';
 import { billsSoon } from '../../app/family/glance';
 import { useStore } from '../../app/family/read';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { ChevronRightIcon, ListIcon, RiverIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon, ListIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
-import type { ScheduleOccurrence } from '../../core/scheduling/types';
-import { waterDuring } from '../../app/family/glance';
 import { lookAgainBy, useStudy } from '../../app/praxis/study';
 import { highlightOfDay } from '../../theoria/core/export';
 import type { TheoriaBook } from '../../theoria/core/books';
@@ -40,35 +38,6 @@ export default function TodayFamily({ today }: { today: string }) {
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="bills" />
-    </div>
-  );
-}
-
-type DrinkRecord = { amountOz?: number; loggedAt?: string };
-
-/**
- * During a work block, if the person chose it: what they have logged in Hydros since the block began, and a
- * way to log their usual glass (it opens Hydros, which keeps the record). Facts only.
- */
-export function TodayWater({ now, blocks }: { now: Date; blocks: readonly ScheduleOccurrence[] }) {
-  const shows = useTodayParts();
-  const drinks = useStore<DrinkRecord>('hydrosDrinks', shows('water'));
-  if (!shows('water')) return null;
-  const water = waterDuring(drinks, blocks, now);
-  if (!water) return null;
-  return (
-    <div className="quiet-row-wrap">
-      <a className="quiet-row" href="/hydros/?open=glass">
-        <span className="quiet-row__icon" aria-hidden="true">
-          <RiverIcon size={20} />
-        </span>
-        <span className="quiet-row__text">
-          <span>{water.line}</span>
-          <span className="quiet-row__detail">Log a glass in Hydros</span>
-        </span>
-        <ChevronRightIcon size={18} className="quiet-row__chevron" />
-      </a>
-      <NotForMe part="water" />
     </div>
   );
 }

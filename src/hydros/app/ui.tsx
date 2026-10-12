@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import ProairetosTab from '../../app/family/ProairetosTab';
 import { ChartIcon, DropIcon, PlusIcon } from './icons';
 
 export type Tab = 'today' | 'add' | 'flow';
@@ -18,6 +19,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
           <span>{label}</span>
         </button>
       ))}
+      <ProairetosTab className="hydros-tabs__item" />
     </nav>
   );
 }

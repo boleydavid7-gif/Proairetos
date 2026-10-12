@@ -184,7 +184,8 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 @media (max-width: 61.99rem) {
   .app-shell .tab-bar__item {
     position: relative;
-    font-size: 0.8rem;
+    font-size: min(0.8rem, 3vw);
+    white-space: nowrap;
   }
 
   .app-shell .tab-bar__item[aria-current='page']::before {
@@ -222,3 +223,9 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 .family-toast button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--mint-soft); color: var(--mint); font: inherit; font-weight: 600; cursor: pointer; }
 @media (min-width: 62rem) { .family-toast { left: auto; right: 28px; bottom: 28px; transform: none; } }
+
+/* The way back to Proairetos on every other app's bar is a link; it looks like the places beside it. */
+.proairetos-tab {
+  text-decoration: none;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import ProairetosTab from './ProairetosTab';
 import { directionAlong, transition, type Direction } from '../transitions';
 import { onRemoteChanges, syncSoon } from '../sync/syncController';
 
@@ -255,6 +256,7 @@ export function TabBar<T extends string>({ tabs, current, onPick }: { tabs: read
           <span>{label}</span>
         </button>
       ))}
+      <ProairetosTab />
     </nav>
   );
 }

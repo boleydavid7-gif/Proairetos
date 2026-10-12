@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import ProairetosTab from '../../app/family/ProairetosTab';
 import { BookIcon, BasketIcon, HomeIcon, Leaf, MoreIcon, SproutIcon } from './icons';
 
 export { BackLink, Hero, Segmented, Switch, UndoProvider, useUndo, greeting, dayLabel } from '../../askesis/app/ui';
@@ -23,6 +24,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
           <span>{label}</span>
         </button>
       ))}
+      <ProairetosTab />
     </nav>
   );
 }

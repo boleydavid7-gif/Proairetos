@@ -630,10 +630,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'plants', label: 'Plants', detail: 'Plants whose day to check has come.' }] }],
   },
   {
-    app: 'Hydros',
-    sections: [{ parts: [{ part: 'water', label: 'Water during work', detail: 'During work, what you’ve drunk since it started, with a button to log a glass.' }] }],
-  },
-  {
     app: 'Oikonomia',
     sections: [
       {

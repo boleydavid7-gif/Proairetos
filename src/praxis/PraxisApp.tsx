@@ -1,4 +1,5 @@
 import { tap } from '../app/feel';
+import ProairetosTab from '../app/family/ProairetosTab';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useClock } from '../app/hooks/useClock';
 import { startSync, syncStatus, onRemoteChanges } from '../app/sync/syncController';
@@ -381,5 +382,5 @@ function SyncDot() {
 }
 
 function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {
-  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}</div>;
+  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<ProairetosTab className="praxis-nav-item" size={18} /></div>;
 }

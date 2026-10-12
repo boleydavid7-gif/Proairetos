@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import ProairetosTab from '../../app/family/ProairetosTab';
 import heroImage from '../../assets/images/scenes/valley.webp';
 import heroWide from '../../assets/images/scenes/valley-wide.webp';
 import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, MoreIcon, PlusIcon } from './icons';
@@ -24,6 +25,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
           <span>{label}</span>
         </button>
       ))}
+      <ProairetosTab />
     </nav>
   );
 }

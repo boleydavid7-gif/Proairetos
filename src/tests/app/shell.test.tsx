@@ -39,7 +39,9 @@ describe('main navigation', () => {
     render(<AppShell route="plan" onNavigate={onNavigate} />);
     const nav = screen.getByRole('navigation', { name: 'Main navigation' });
     const buttons = nav.querySelectorAll('button');
-    expect(buttons).toHaveLength(5);
+    // Five pages and Apps, which opens the added apps.
+    expect(buttons).toHaveLength(6);
+    expect(screen.getByRole('button', { name: 'Apps' }).getAttribute('aria-haspopup')).toBe('dialog');
     for (const button of buttons) expect((button.textContent ?? '').trim().length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Days ahead' }).getAttribute('aria-current')).toBe('page');
     fireEvent.click(screen.getByRole('button', { name: 'Compass' }));

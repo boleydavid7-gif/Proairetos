@@ -18,7 +18,7 @@ await go('/welcome/', 300);
 await p.evaluate(() => {
   localStorage.setItem('proairetos.onboarded', 'yes');
   localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'] }));
-  localStorage.setItem('proairetos.todayOptIn', JSON.stringify(['bills', 'water', 'highlight']));
+  localStorage.setItem('proairetos.todayOptIn', JSON.stringify(['bills', 'highlight']));
 });
 
 await step('Proairetos schedule', async () => {
@@ -43,13 +43,14 @@ await step('Diaita', async () => {
   await p.screenshot({ path: `${OUT}/diaita.png`, fullPage: true });
 });
 
-// Hydros: water logged during work shows on Proairetos Today
+// Hydros keeps water to itself: nothing about it on Proairetos Today; its bar leads back to Proairetos
 await step('Hydros', async () => {
   await go('/hydros/'); await begin();
   const glass = p.getByRole('button', { name: /^Glass/ }).first(); await glass.click(); await p.waitForTimeout(600);
+  ok('Hydros bar: way back to Proairetos', (await p.getByRole('link', { name: 'Proairetos', exact: true }).count()) > 0);
   await go('/');
-  const t = await text();
-  ok('Proairetos Today: water since work began (Hydros)', /since work|water|oz|ml/i.test(t) && /Hydros|drunk|since/i.test(t), (t.match(/[^\n]*(since|oz)[^\n]*/i) || [''])[0]);
+  ok('Proairetos Today: no water', !/Log a glass|since work began/i.test(await text()));
+  ok('Proairetos bar: Apps', (await p.getByRole('button', { name: 'Apps', exact: true }).count()) > 0);
 });
 
 // Therapeia: a dose later today on Proairetos Today

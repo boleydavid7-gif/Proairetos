@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Your apps are on Proairetos’s bar (Apps, in place of the dots beside the gear), and every other app’s bar ends with Proairetos, to go back.',
+      'Water stays in Hydros: Proairetos Today no longer shows it.',
       'Phyton: frost tonight and hot days for plants outside; away dates (reminders wait, one note the day after) and a sheet for whoever waters, to print or send; Watered all for a room; then and now photos.',
       'Phyton, for plants: each one comes round to be checked, with Watered or Still moist; the days between follow what you actually do, stretch in winter, and rain counts for plants outside. About 85 plant types with light, water and whether they are toxic to cats and dogs; identify a plant from a photo; photos over time; share with the people you live with.',
       'Soma: grades follow the updated Nutri-Score (2023), stricter on salt, sugar and red meat; Soma knows about 60 more foods from USDA data (sauces, cheeses, cured meats, chocolate chips, pastry, store broth); a recipe with a large line it cannot read is no longer graded; "How it was worked out" shows the points.',

@@ -161,7 +161,10 @@
   .theoria-mobile-brand { display: flex; }
   .theoria-date { display: none; }
   .theoria-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 5; display: block; padding: 6px; border: 1px solid var(--theoria-border); border-radius: 16px; background: rgba(13, 20, 39, .93); box-shadow: 0 18px 45px rgba(0,0,0,.32); backdrop-filter: blur(15px); }
-  .theoria-bottom-nav .theoria-nav-list { grid-template-columns: repeat(4,1fr); }
+  .theoria-bottom-nav .theoria-nav-list { grid-template-columns: repeat(6,1fr); }
+  .theoria-bottom-nav .theoria-proairetos { display: grid; justify-items: center; gap: 4px; padding: 7px 3px; border-radius: 11px; color: var(--theoria-muted); text-decoration: none; }
+  .theoria-bottom-nav .theoria-proairetos svg { color: var(--theoria-violet); }
+  .theoria-bottom-nav .theoria-proairetos span { font-size: 11px; font-weight: 600; }
   .theoria-bottom-nav .theoria-nav-list button { display: grid; justify-items: center; gap: 4px; padding: 7px 3px; text-align: center; }
   .theoria-bottom-nav .theoria-nav-list button small { font-size: 11px; }
   .theoria-library-grid { grid-template-columns: 1fr; }
@@ -785,3 +788,10 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-lookup-source { margin: 10px 0 0; font-size: 12px; opacity: .65; }
 /* Read aloud: the paragraph being read. */
 .theoria-reader-page p.is-reading { background: color-mix(in srgb, currentColor 8%, transparent); border-radius: 8px; box-shadow: -10px 0 0 color-mix(in srgb, currentColor 8%, transparent), 10px 0 0 color-mix(in srgb, currentColor 8%, transparent); }
+
+/* Six places on the phone bar: Theoria's five and the way back to Proairetos. */
+.theoria-bottom-nav .theoria-nav-list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.theoria-bottom-nav .theoria-proairetos { min-width: 0; min-height: 52px; align-content: center; }
+.theoria-bottom-nav .theoria-proairetos span { font-weight: 600; }
+.theoria-bottom-nav .theoria-proairetos span,
+.theoria-bottom-nav .theoria-nav-list button small { width: 100%; overflow: hidden; font-size: 10px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }

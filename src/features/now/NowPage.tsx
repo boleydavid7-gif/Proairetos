@@ -7,7 +7,7 @@ import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
-import TodayFamily, { TodayHighlight, TodayStudy, TodayWater } from '../today/TodayFamily';
+import TodayFamily, { TodayHighlight, TodayStudy } from '../today/TodayFamily';
 import { TodayBirthdays, TodayChores, TodayMedicines, TodayRhythm, TodayTraining, TodayUpkeep, TodayPlants } from '../today/TodayNewFamily';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -267,7 +267,6 @@ export default function NowPage() {
       )}
 
       {shows('askesis') && <TodayRun today={today} />}
-      <TodayWater now={clock} blocks={blocks} />
       <TodayStudy today={today} />
       <TodayHighlight today={today} />
       <TodayFamily today={today} />
