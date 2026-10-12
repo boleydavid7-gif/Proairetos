@@ -889,3 +889,8 @@
 .sit-screen__done {
   min-width: 12rem;
 }
+
+/* Compass, opened from Reflect like Meditate: the peaks at sunrise. */
+.meditate-card--compass .meditate-card__scene {
+  background-position: center 30%;
+}

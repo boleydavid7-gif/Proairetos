@@ -1,3 +1,7 @@
+import sunrise from '../../assets/images/scenes/sunrise.webp';
+import sunriseWide from '../../assets/images/scenes/sunrise-wide.webp';
+import morning from '../../assets/images/scenes/morning.webp';
+import morningWide from '../../assets/images/scenes/morning-wide.webp';
 import { directionAlong, transition } from '../../app/transitions';
 import lake from '../../assets/images/scenes/lake.webp';
 import lakeWide from '../../assets/images/scenes/lake-wide.webp';
@@ -150,6 +154,14 @@ export default function ReflectPage() {
           <ChevronRightIcon size={20} />
         </button>
       )}
+      <button type="button" className="meditate-card meditate-card--compass" onClick={() => navigate('compass')}>
+        <span className="meditate-card__scene" style={{ backgroundImage: `url(${sunrise})`, '--photo-wide': `url(${sunriseWide})`, '--photo-light': `url(${morning})`, '--photo-light-wide': `url(${morningWide})` } as React.CSSProperties} aria-hidden="true" />
+        <span className="meditate-card__text">
+          <span className="meditate-card__title">Compass</span>
+          <span className="meditate-card__detail">Values, goals, people and words.</span>
+        </span>
+        <ChevronRightIcon size={20} />
+      </button>
 
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (

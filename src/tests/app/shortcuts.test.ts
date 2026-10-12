@@ -5,11 +5,11 @@ const press = (key: string, extra: Record<string, unknown> = {}) =>
   ({ key, ctrlKey: false, metaKey: false, altKey: false, target: null, ...extra }) as Parameters<typeof shortcutFor>[0];
 
 describe('keyboard shortcuts', () => {
-  it('numbers jump between the five main pages', () => {
+  it('numbers jump between the four main pages', () => {
     expect(shortcutFor(press('1'))).toEqual({ go: 'today' });
     expect(shortcutFor(press('3'))).toEqual({ go: 'plan' });
-    expect(shortcutFor(press('5'))).toEqual({ go: 'compass' });
-    expect(shortcutFor(press('6'))).toBeUndefined();
+    expect(shortcutFor(press('4'))).toEqual({ go: 'capture' });
+    expect(shortcutFor(press('5'))).toBeUndefined();
     expect(shortcutFor(press('0'))).toBeUndefined();
   });
 

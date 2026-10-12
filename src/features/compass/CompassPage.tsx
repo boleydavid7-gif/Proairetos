@@ -1,3 +1,5 @@
+import { useBackHandler } from '../../app/back/backStack';
+import { useNavigate } from '../../app/navigationContext';
 import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
@@ -130,6 +132,9 @@ export default function CompassPage() {
   const [picking, setPicking] = useState(false);
   const [editing, setEditing] = useState(false);
   const shows = useTodayParts();
+  // Compass opens from Reflect; back (button, gesture, browser) returns there.
+  const navigate = useNavigate();
+  useBackHandler(true, () => navigate('reflect'));
   const tabs = compassTabs.filter((option) => option.id === 'values' || shows(option.id));
   const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
   // A tab set aside in Settings falls back to values.
@@ -140,7 +145,7 @@ export default function CompassPage() {
 
   return (
     <div className="page">
-      <PageHero title="Compass" focus="peaks" />
+      <PageHero title="Compass" focus="peaks" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>

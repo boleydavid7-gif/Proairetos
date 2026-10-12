@@ -50,7 +50,7 @@ export function transition(direction: Direction, update: () => void, scope: 'pag
 }
 
 /** The tabs in the bar, left to right; Days ahead's calendar sits just right of its list. */
-const order: readonly AppRoute[] = ['today', 'reflect', 'plan', 'calendar', 'capture', 'compass'];
+const order: readonly AppRoute[] = ['today', 'reflect', 'plan', 'calendar', 'capture'];
 
 /** Which way a move between routes goes: along the tab bar, or into and out of a page. */
 export function directionBetween(from: AppRoute, to: AppRoute): Direction {

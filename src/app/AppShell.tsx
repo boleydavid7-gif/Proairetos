@@ -46,7 +46,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
             key={id}
             type="button"
             className="tab-bar__item"
-            aria-current={id === route || (id === 'plan' && route === 'calendar') || (id === 'reflect' && route === 'meditate') ? 'page' : undefined}
+            aria-current={id === route || (id === 'plan' && route === 'calendar') || (id === 'reflect' && (route === 'meditate' || route === 'compass')) ? 'page' : undefined}
             onClick={() => onNavigate(id)}
           >
             <Icon size={24} />

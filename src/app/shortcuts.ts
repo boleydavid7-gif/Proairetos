@@ -12,7 +12,7 @@ const typing = (target: EventTarget | null) => {
   return /^(INPUT|TEXTAREA|SELECT)$/.test(element.tagName) || element.isContentEditable === true;
 };
 
-/** What a key press means on a computer: 1-5 jump between the main pages, "/" opens search. Never while typing. */
+/** What a key press means on a computer: 1-4 jump between the main pages, "/" opens search. Never while typing. */
 export function shortcutFor(event: KeyLike, dialogOpen = false): ShortcutAction | undefined {
   // Ctrl or ⌘ and K opens the palette from anywhere, even while typing.
   if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k' && !event.defaultPrevented) {

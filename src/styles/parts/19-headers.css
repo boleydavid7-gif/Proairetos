@@ -199,6 +199,8 @@
 .page-hero__actions {
   top: calc(var(--hero-top) - var(--space-2));
   right: var(--space-3);
+  display: flex;
+  align-items: center;
 }
 
 .page-hero__actions .header-action {
@@ -255,4 +257,22 @@
 /* Today has no day arrows, so its date lines up with the page. */
 .today-header .day-stepper {
   margin-left: 0;
+}
+
+/* A way back over the landscape (Compass, opened from Reflect). */
+.page-hero__back {
+  position: absolute;
+  top: calc(var(--hero-top) - var(--space-2));
+  left: calc(var(--space-5) - var(--space-2));
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.75rem;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-shadow: 0 1px 8px rgba(var(--color-bg-rgb), 0.6);
+  cursor: pointer;
 }

@@ -2,7 +2,7 @@ import { use, type ComponentType } from 'react';
 
 type Loaded<P> = { default: ComponentType<P> };
 
-// Pages away from the five tabs load when first opened, so the app opens sooner. Once it has settled,
+// Pages away from the main tabs load when first opened, so the app opens sooner. Once it has settled,
 // they are fetched in the background, so opening one later is as quick as before (no empty moment).
 function later<P extends object>(load: () => Promise<Loaded<P>>) {
   let fetched: Promise<Loaded<P>> | null = null;

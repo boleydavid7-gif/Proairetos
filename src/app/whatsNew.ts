@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Compass now opens from Reflect, beside Meditate; the bar has Today, Reflect, Days ahead, Capture and Apps.',
       'Moving between the apps cross-fades instead of going blank (Safari 18.2+, Chrome).',
       'Soma Cook mode: say “timer” to start the step’s timer, beside “next”, “back” and “again”. Dynamis: say “done” to tick the next set and start the rest, “skip” to end the rest.',
       'Backups save compressed, several times smaller; older backup files still restore.',

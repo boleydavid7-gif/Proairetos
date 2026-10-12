@@ -39,12 +39,18 @@ describe('main navigation', () => {
     render(<AppShell route="plan" onNavigate={onNavigate} />);
     const nav = screen.getByRole('navigation', { name: 'Main navigation' });
     const buttons = nav.querySelectorAll('button');
-    // Five pages and Apps, which opens the added apps.
-    expect(buttons).toHaveLength(6);
+    // Four pages and Apps, which opens the added apps; Compass and Meditate open from Reflect.
+    expect(buttons).toHaveLength(5);
+    expect(screen.queryByRole('button', { name: 'Compass' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Apps' }).getAttribute('aria-haspopup')).toBe('dialog');
     for (const button of buttons) expect((button.textContent ?? '').trim().length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Days ahead' }).getAttribute('aria-current')).toBe('page');
-    fireEvent.click(screen.getByRole('button', { name: 'Compass' }));
-    expect(onNavigate).toHaveBeenCalledWith('compass');
+    fireEvent.click(screen.getByRole('button', { name: 'Reflect' }));
+    expect(onNavigate).toHaveBeenCalledWith('reflect');
+  });
+
+  it('keeps Reflect marked while Compass is open', () => {
+    render(<AppShell route="compass" onNavigate={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Reflect' }).getAttribute('aria-current')).toBe('page');
   });
 });
