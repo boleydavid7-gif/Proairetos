@@ -73,3 +73,8 @@
 
 .family-apps { display: grid; gap: 10px; margin-top: 18px; }
 .family-apps .label { margin: 0; }
+.family-surface .page-top { display: flex; align-items: center; min-height: 44px; }
+.family-surface .back-link { min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, #d9b68a); background: none; font: inherit; cursor: pointer; }
+.family-surface .title { margin: 0; font: 500 2rem/1.15 var(--font-serif, Georgia, serif); }
+.family-surface .chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 999px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
+.family-surface .chip[aria-pressed='true'] { border-color: var(--color-accent-strong, #d9b68a); color: var(--color-accent-ink, #17120d); background: var(--color-accent-strong, #d9b68a); font-weight: 600; }

@@ -3,7 +3,7 @@ import { yearsOf, type Year } from '../../core/year/year';
 import './year.css';
 
 /**
- * Your year in one app: plain facts as tiles, then the lines behind them. Years with records are offered as chips;
+ * Your year in one app: plain facts as tiles, then the lines they come from. Years with records are offered as chips;
  * nothing is compared with another year.
  */
 export default function YearPage({ dates, build, onBack, className = '' }: { dates: readonly (string | undefined)[]; build: (year: number) => Year; onBack: () => void; className?: string }) {

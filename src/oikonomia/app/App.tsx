@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import YearScreen from '../screens/YearScreen';
 import { startSync } from '../../app/sync/syncController';
 import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { useSettings } from './state';
@@ -22,7 +23,8 @@ export type Route =
   | { name: 'edit'; id: string }
   | { name: 'budget' }
   | { name: 'spent' }
-  | { name: 'about' };
+  | { name: 'about' }
+  | { name: 'year' };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -112,6 +114,8 @@ export default function App() {
         return <SpentPage nav={nav} />;
       case 'about':
         return <MorePage nav={nav} about />;
+      case 'year':
+        return <YearScreen nav={nav} />;
     }
   })();
 

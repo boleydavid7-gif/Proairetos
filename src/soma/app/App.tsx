@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import YearScreen from '../screens/YearScreen';
 import { takeOpening } from '../../app/family/opening';
 import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { useSettings } from './state';
@@ -35,7 +36,8 @@ export type Route =
   | { name: 'usually' }
   | { name: 'settings' }
   | { name: 'data' }
-  | { name: 'about' };
+  | { name: 'about' }
+  | { name: 'year' };
 
 export type Nav = { go: (route: Route) => void; swap: (route: Route) => void; back: () => void };
 
@@ -134,6 +136,8 @@ export default function App() {
         return <DataPage nav={nav} />;
       case 'about':
         return <AboutPage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
     }
   })();
 

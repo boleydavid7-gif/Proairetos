@@ -1,6 +1,6 @@
 /**
  * A year in an app, as plain facts: how many, how much, and the lines the person wrote. Nothing compared, ranked
- * against a target or read into; a fact with nothing behind it is left out.
+ * against a target or read into; a fact of nothing is left out.
  */
 
 export type YearFact = { label: string; value: string };
@@ -31,7 +31,7 @@ export function durationText(minutes: number): string {
 
 export const countText = (n: number) => n.toLocaleString();
 
-/** Keeps a fact only when it has something behind it. */
+/** Keeps a fact only when it has a value. */
 export function facts(...pairs: [label: string, value: string | undefined | false][]): YearFact[] {
   return pairs.filter((pair): pair is [string, string] => Boolean(pair[1])).map(([label, value]) => ({ label, value }));
 }

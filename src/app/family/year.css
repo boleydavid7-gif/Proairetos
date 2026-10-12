@@ -25,8 +25,8 @@
   gap: 0.2rem;
   padding: 0.9rem 1rem;
   border-radius: 1rem;
-  background: var(--surface, rgb(255 255 255 / 0.05));
-  border: 1px solid var(--line, rgb(255 255 255 / 0.1));
+  background: var(--surface, var(--color-surface, rgb(255 255 255 / 0.05)));
+  border: 1px solid var(--line, var(--color-border, rgb(255 255 255 / 0.1)));
 }
 
 .year-fact dd {
@@ -35,12 +35,12 @@
   font-weight: 600;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
-  color: var(--text, inherit);
+  color: var(--text, var(--color-text, inherit));
 }
 
 .year-fact dt {
   font-size: 0.85rem;
-  color: var(--text-soft, inherit);
+  color: var(--text-soft, var(--color-text-muted, inherit));
 }
 
 .year-list ul {
@@ -51,8 +51,8 @@
 
 .year-list li {
   padding: 0.45rem 0;
-  border-top: 1px solid var(--line, rgb(255 255 255 / 0.1));
-  color: var(--text, inherit);
+  border-top: 1px solid var(--line, var(--color-border, rgb(255 255 255 / 0.1)));
+  color: var(--text, var(--color-text, inherit));
 }
 
 .year-list li:first-child {

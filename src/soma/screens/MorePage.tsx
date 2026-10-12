@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { HistoryIcon } from '../../app/family/icons';
 import type { Nav, Route } from '../app/App';
 import { BoxIcon, GearIcon, InfoIcon, JarIcon } from '../app/icons';
 import { scene } from '../app/scenes';
@@ -14,6 +15,7 @@ import { deleteEverything, restore, saveSettings, type Backup } from '../data/st
 export default function MorePage({ nav }: { nav: Nav }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
     { icon: <JarIcon />, title: 'Usually have', detail: 'Left off the list when adding a recipe', route: { name: 'usually' } },
+    { icon: <HistoryIcon size={22} />, title: 'Your year', detail: 'What you cooked, by year', route: { name: 'year' } },
     { icon: <GearIcon />, title: 'Settings', detail: 'Units, daily line, ways to try it', route: { name: 'settings' } },
     { icon: <BoxIcon />, title: 'Your data', detail: 'Back up, restore, delete', route: { name: 'data' } },
     { icon: <InfoIcon />, title: 'About and sources', detail: 'The name, the guidance', route: { name: 'about' } },

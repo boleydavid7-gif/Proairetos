@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
+import YearPage from '../../app/family/YearPage';
+import { hydrosYear } from '../core/year';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings } from '../app/state';
 import { useDays } from '../app/day';
 import DrinkEntry from '../app/DrinkEntry';
-import { defaultDrinkProfiles, effectiveGoalOz, formatVolume, hydrationOz, localDate, monthDates, startOfWeek, weekDates, weekNumber, type HydrosUnit } from '../core/drinks';
+import { defaultDrinkProfiles, drinkDay, effectiveGoalOz, formatVolume, hydrationOz, localDate, monthDates, startOfWeek, weekDates, weekNumber, type HydrosUnit } from '../core/drinks';
 import { ScreenHeader, Segmented } from '../app/ui';
 
 type Span = 'Week' | 'Month';
@@ -13,6 +15,7 @@ export default function FlowPage({ nav }: { nav: Nav }) {
   const drinks = useDrinks() ?? [];
   const settings = useSettings();
   const [span, setSpan] = useState<Span>('Week');
+  const [showYear, setShowYear] = useState(false);
   const [weekCursor, setWeekCursor] = useState(() => startOfWeek());
   const [monthCursor, setMonthCursor] = useState(() => {
     const now = new Date();
@@ -44,6 +47,7 @@ export default function FlowPage({ nav }: { nav: Nav }) {
     setMonthCursor(new Date(monthCursor.getFullYear(), monthCursor.getMonth() + direction, 1));
   };
 
+  if (showYear) return <div className="hydros-screen family-surface"><YearPage dates={drinks.map((drink) => drinkDay(drink))} build={(year) => hydrosYear(drinks, year, unit, (drink) => drinkDay(drink))} onBack={() => setShowYear(false)} /></div>;
   return <div className="hydros-screen hydros-flow">
     <ScreenHeader title="Your flow" onBack={nav.back} />
     <Segmented items={['Week', 'Month'] as const} selected={span} onSelect={(next) => { setSpan(next); setShown(PAGE); }} />
@@ -63,6 +67,7 @@ export default function FlowPage({ nav }: { nav: Nav }) {
       {periodDrinks.length ? periodDrinks.slice(0, shown).map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />) : <p className="pattern-empty">Nothing logged in this {span.toLowerCase()}.</p>}
       {periodDrinks.length > shown && <button type="button" className="recent-entry__cancel hydros-more" onClick={() => setShown(shown + PAGE)}>Show more</button>}
     </section>
+    <button type="button" className="recent-entry__cancel hydros-more" onClick={() => setShowYear(true)}>Your year</button>
   </div>;
 }
 

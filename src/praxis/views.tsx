@@ -9,6 +9,8 @@ import { BookIcon, CheckIcon, ClockIcon, PenIcon } from '../components/icons/Ico
 import AccountCard from '../app/family/AccountCard';
 import FamilyBackup from '../app/family/FamilyBackup';
 import FamilyApps from '../app/family/FamilyApps';
+import YearPage from '../app/family/YearPage';
+import { praxisYear } from './year';
 import {
   clampMinutes,
   formatDay,
@@ -21,6 +23,7 @@ import {
   minutesByDay,
   focusMinutes,
   sessionDay,
+  praxisFocusEvents,
   weekOf,
   addDaysKey,
   type DayAt,
@@ -317,6 +320,8 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
   const blocks = minutesByBlock(events, days, dayAt);
   const current = days.includes(today);
   const label = current ? 'This week' : `${formatDay(days[0])} to ${formatDay(days[6])}`;
+  const [showYear, setShowYear] = useState(false);
+  if (showYear) return <section className="praxis-view"><div className="family-surface"><YearPage dates={praxisFocusEvents(events).map((event) => sessionDay(event, dayAt))} build={(year) => praxisYear(events, titles, year, dayAt)} onBack={() => setShowYear(false)} /></div></section>;
   return (
     <section className="praxis-view">
       <div className="praxis-page-heading"><div><p className="praxis-eyebrow">As recorded</p><h1>Time</h1></div></div>
@@ -346,6 +351,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
           ))}
         </article>
       </div>
+      <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setShowYear(true)}>Your year</button>
     </section>
   );
 }

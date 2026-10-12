@@ -720,4 +720,10 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   (`:has()` hides everything that neither holds it nor sits in it). Therapeia route `print` (Medicines > Print, `?open=print`:
   current medicines, health card, latest readings and the next visit's unasked questions as chips); Ktema route `print`
   (Things > Print the list, `?open=print`: by category, one kind or all, upkeep as a chip).
+- Your year (`app/family/YearPage.tsx`, `year.css`, `core/year/year.ts`): each app has a pure `<app>Year(...)` in its core
+  (`core/year.ts`; Praxis `praxis/year.ts`) returning `{ facts, lists }` (counts, totals and the person's own lines; a fact
+  with nothing to show is left out; nothing compared or ranked against a target; Therapeia leaves doses out, Oikonomia
+  counts only payments recorded). Years with records are chips. Opened from More (`year` route) in the shell apps,
+  Askesis, Soma and Oikonomia; from Flow in Hydros, Time in Praxis and Settings in Theoria (inside `.family-surface`,
+  which now also styles `.chip`, `.title`, `.back-link`). Tests in `src/tests/year/`.
 

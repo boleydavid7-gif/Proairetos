@@ -35,6 +35,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Settings: on a phone, Notifications and the other pages inside Settings open again.',
       'Therapeia: print your medicines on one sheet, with the health card, latest readings and questions for the next visit if you choose.',
       'Ktema: print the list of things (makes, models, serials, prices, warranties), all or one kind, with upkeep if you choose.',
+      'Your year, in every app: plain facts of what you wrote down (runs, meals cooked, bills paid, drinks, study time, highlights, nights, times together, chores, visits, sessions, upkeep), with the lines they come from and any earlier year to choose.',
     ],
   },
   {

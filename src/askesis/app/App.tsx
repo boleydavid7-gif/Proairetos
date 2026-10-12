@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import YearScreen from '../screens/YearScreen';
 import { directionAlong, transition, type Direction } from '../../app/transitions';
 import { usePlan, usePlanState, useSettings } from './state';
 import { TabBar, UndoProvider, type Tab } from './ui';
@@ -33,7 +34,8 @@ export type Route =
   | { name: 'settings' }
   | { name: 'data' }
   | { name: 'about' }
-  | { name: 'after'; id: string };
+  | { name: 'after'; id: string }
+  | { name: 'year' };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -146,6 +148,8 @@ export default function App() {
         return <DataPage nav={nav} />;
       case 'about':
         return <AboutPage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'after':
         return <AfterPage nav={nav} id={route.id} />;
     }

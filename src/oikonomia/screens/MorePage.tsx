@@ -1,5 +1,6 @@
 import type { Nav } from '../app/App';
 import { SettingsIcon, WalletIcon } from '../app/icons';
+import { HistoryIcon } from '../../app/family/icons';
 import { useSettings } from '../app/state';
 import { offerUndo } from '../app/undo';
 import { listBills, listBudgets, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
@@ -56,6 +57,7 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
       <section className="oiko-more-list">
         <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Monthly plan</strong><small>What the month holds, by area</small></span></button>
         <button type="button" className="row" onClick={() => nav.go({ name: 'spent' })}><span className="row__icon"><WalletIcon size={21} /></span><span className="row__text"><strong>Spent</strong><small>From your statements, by area</small></span></button>
+        <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}><span className="row__icon"><HistoryIcon size={21} /></span><span className="row__text"><strong>Your year</strong><small>Paid and spent, by year</small></span></button>
         <button type="button" className="row" onClick={() => window.location.assign('/?open=settings')}><span className="row__icon"><SettingsIcon size={21} /></span><span className="row__text"><strong>Appearance and reminders</strong><small>Shared with Proairetos</small></span></button>
       </section>
 
