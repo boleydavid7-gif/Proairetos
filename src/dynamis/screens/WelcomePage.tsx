@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: DynamisNav }) {
       name="Dynamis"
       mark={<AppMark app="dynamis" size={44} light />}
       line="Strength and mobility."
-      about="Full-body sessions built from the research, at a gym, at home, or with no equipment. Every set logged, a little more offered when you are ready."
+      about="Full-body sessions at a gym, at home or with no equipment. Every set logged."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {

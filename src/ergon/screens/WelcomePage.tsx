@@ -10,8 +10,8 @@ export default function WelcomePage({ nav }: { nav: ErgonNav }) {
     <Welcome
       name="Ergon"
       mark={<AppMark app="ergon" size={44} light />}
-      line="Household chores that come round."
-      about="Each one counts from when it was last done. Share them with the people you live with."
+      line="Household chores."
+      about="Each one comes round from when it was last done. Share them with the people you live with."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {

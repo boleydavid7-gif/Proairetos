@@ -3,7 +3,6 @@ import { ChevronIcon, RepeatIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
 import { payBill } from '../app/payBill';
-import { financeLineFor } from '../core/lines';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
 import { Brand, Hero } from '../app/ui';
@@ -28,7 +27,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const bills = useBills();
   const settings = useSettings();
   const today = useToday();
-  const line = financeLineFor(today);
   const all = bills ?? [];
   const recipes = useSomaRecipes();
   // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes round.
@@ -53,8 +51,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
         <Brand light />
         <div className="home__words">
           <p className="home__greeting"><Greeting /></p>
-          <h1 className="home__title">“{line.text}”</h1>
-          <p className="home__sub">{line.source}</p>
+          <h1 className="home__title">This month</h1>
         </div>
       </Hero>
 

@@ -45,7 +45,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
     if (!this.state.broken) return this.props.children;
     return (
       <main className="error-page" role="alert" style={page}>
-        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif, var(--serif, Georgia, serif))', fontWeight: 500 }}>That did not open.</h1>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-serif, var(--serif, Georgia, serif))', fontWeight: 500 }}>That did not open</h1>
         <p style={{ margin: 0, opacity: 0.75 }}>What you have recorded is safe on this device. Reloading usually puts things right.</p>
         <div className="error-page__actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
           <button type="button" style={primary} onClick={() => window.location.reload()}>

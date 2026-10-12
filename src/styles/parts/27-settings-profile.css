@@ -31,13 +31,13 @@
 
 .profile-card__name {
   font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
 }
 
 .profile-card__detail {
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -92,7 +92,7 @@
 .calendar-link .field-input {
   flex: 1;
   min-width: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .calendar-buttons {
@@ -144,7 +144,7 @@
 
 .other-calendars__meta {
   color: var(--color-text-faint);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
 }
 
 .calendar-guides summary {
@@ -172,25 +172,25 @@
   flex: none;
   width: 6.5rem;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .calendar-events__text {
   display: flex;
   flex-direction: column;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .calendar-events__source,
 .timeline__source {
   color: var(--color-text-faint);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
 }
 
 .timeline__allday {
   padding: var(--space-2) 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .timeline__entry--event {
@@ -255,7 +255,7 @@
   gap: var(--space-2);
   margin: 0;
   color: var(--color-text);
-  font-size: 0.95rem;
+  font-size: var(--text-md);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -314,7 +314,7 @@
   min-height: 2.75rem;
   padding-block: 0;
   padding-inline: var(--space-2);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .notify-coming summary {
@@ -337,7 +337,7 @@
 .notify-upcoming li {
   display: flex;
   gap: var(--space-3);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .notify-upcoming__when {

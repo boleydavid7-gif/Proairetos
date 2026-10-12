@@ -36,7 +36,6 @@ export function Brand({ light = false }: { light?: boolean }) {
       <ArchMark size={30} light={light} />
       <span className="brand__words">
         <span className="brand__name">Oikonomia</span>
-        <span className="brand__by">by Proairetos</span>
       </span>
     </div>
   );

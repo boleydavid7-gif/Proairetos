@@ -24,7 +24,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
   }, [found?.amountCents]);
 
   if (!bills) return <div className="page oiko-page"><div className="skeleton-stack" role="status" aria-label="Gathering this bill"><div className="skeleton" /><div className="skeleton" /></div></div>;
-  if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button></PageTop><h1 className="title">That bill is not here.</h1></div>;
+  if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button></PageTop><h1 className="title">That bill is not here</h1></div>;
   const bill = found;
   const stand = standing(bill, today);
   const open = !stand.settled;

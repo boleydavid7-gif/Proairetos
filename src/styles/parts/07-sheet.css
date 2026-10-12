@@ -51,7 +51,7 @@
   border: 0;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .sheet__title {
@@ -62,7 +62,7 @@
   outline: none;
   background: transparent;
   font-family: var(--font-serif);
-  font-size: 1.75rem;
+  font-size: var(--text-2xl);
   line-height: 1.2;
 }
 
@@ -73,7 +73,7 @@
 .sheet__status {
   margin: calc(var(--space-3) * -1) 0 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .sheet__section {
@@ -85,13 +85,13 @@
 
 .sheet__label {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .sheet__hint {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-faint);
 }
 
@@ -101,7 +101,7 @@
   align-items: center;
   gap: var(--space-3);
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .field-input {
@@ -138,7 +138,7 @@
 
 .sheet__history summary {
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -149,7 +149,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 

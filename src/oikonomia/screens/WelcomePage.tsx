@@ -13,13 +13,10 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">
-        <ArchMark size={64} light />
+        <ArchMark size={48} light />
         <h1 className="welcome__name">Oikonomia</h1>
-        <p className="welcome__by">by Proairetos</p>
-        <p className="welcome__line">Keep the essentials in view.</p>
-        <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
-          Your bills and subscriptions in one place, with their dates and a reminder before each one.
+          Bills and subscriptions, with their dates and a reminder before each one.
         </p>
         <div className="welcome__actions">
           <button
@@ -32,7 +29,6 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
           >
             Begin
           </button>
-          <p className="fine">Your bills stay on this phone until you turn on sync.</p>
         </div>
       </div>
     </div>

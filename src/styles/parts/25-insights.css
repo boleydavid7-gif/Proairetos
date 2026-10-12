@@ -24,14 +24,14 @@
 
 .insight-card__title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
   font-weight: 500;
 }
 
 .insight-card__note {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .weather-counts {
@@ -56,7 +56,7 @@
 
 .weather-counts__n {
   color: var(--color-text);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .insight-counts {
@@ -70,7 +70,7 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-2);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .insight-counts dt {
@@ -86,7 +86,7 @@
   padding: 0;
   list-style: none;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -98,7 +98,7 @@
 .side-by-side {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -116,7 +116,7 @@
 
 .side-by-side thead th {
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 /* A year in your own words: folded until opened, then plain lines in the order they happened. */
@@ -127,7 +127,7 @@
 .year-words__summary {
   cursor: pointer;
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 .year-words__part {
@@ -137,7 +137,7 @@
 .year-words__title {
   margin: 0 0 var(--space-2);
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -154,6 +154,6 @@
 
 .year-words__day {
   color: var(--color-text-faint);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   margin-right: var(--space-2);
 }

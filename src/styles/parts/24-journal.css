@@ -19,7 +19,7 @@
 .journal__date {
   margin: 0;
   color: var(--color-accent-strong);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -36,7 +36,7 @@
 .journal__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   font-weight: 500;
 }
 
@@ -48,7 +48,7 @@
   border-radius: var(--radius-md);
   background: var(--color-surface);
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   line-height: 1.85;
   resize: none;
   overflow: hidden;
@@ -82,7 +82,7 @@
 }
 
 .weather-picker__option span {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   text-align: center;
 }
 
@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   cursor: pointer;
 }
 
@@ -162,7 +162,7 @@
   flex: none;
   min-width: 4.5rem;
   color: var(--color-text-faint);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .journal__page-line {

@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -88,7 +88,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
   color: var(--color-accent);
 }
 
@@ -97,7 +97,7 @@
 }
 
 .three-item__step {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-accent-strong);
 }
 
@@ -120,7 +120,7 @@
 
 .done-today summary {
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   margin-bottom: var(--space-2);
 }
@@ -148,7 +148,7 @@
 }
 
 .done-today__more {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .look-ahead__plan {
@@ -186,7 +186,7 @@
 
 .pause-screen__phase {
   margin: var(--space-5) 0 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -208,7 +208,7 @@
   min-height: auto;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   text-align: left;
 }
 
@@ -216,17 +216,17 @@
 .list-card__prompt {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--color-accent-strong);
 }
 
 .list-card__prompt {
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .picker__group {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-muted);
 }
@@ -240,5 +240,5 @@
 
 .pick-row__detail {
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }

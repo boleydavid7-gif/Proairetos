@@ -10,8 +10,8 @@ export default function WelcomePage({ nav }: { nav: PhytonNav }) {
     <Welcome
       name="Phyton"
       mark={<AppMark app="phyton" size={44} light />}
-      line="Your plants, and when to look at them."
-      about="Each plant comes round to be checked. Touch the soil, mark Watered or Still moist, and the days between follow what it needs."
+      line="Plants, and when to check them."
+      about="Touch the soil, mark Watered or Still moist, and the days between follow what each plant needs."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {

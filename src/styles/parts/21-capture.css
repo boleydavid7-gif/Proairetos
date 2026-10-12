@@ -37,12 +37,12 @@
 }
 
 .kind-tile__title {
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .kind-tile__prompt {
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .kind-tile__chevron {
@@ -61,7 +61,7 @@
 
 .check-row__detail {
   color: var(--color-text-faint);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   text-decoration: none;
 }
 
@@ -111,7 +111,7 @@
 
 .dump-row__remove {
   flex: none;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .dump-row__kinds {
@@ -134,7 +134,7 @@
 .sort-card__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.35rem;
+  font-size: var(--text-xl);
   text-align: left;
 }
 
@@ -146,7 +146,7 @@
   padding: 0;
   list-style: none;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .sort-choices {

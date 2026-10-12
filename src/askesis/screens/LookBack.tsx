@@ -49,7 +49,7 @@ export default function LookBack({
   return (
     <section className="card card--offer look-back" aria-label="Your aim">
       <span className="card__eyebrow">{state.aimWords ?? aimWords(plan.aim)}</span>
-      <h2 className="card__title">That was the week of your aim.</h2>
+      <h2 className="card__title">That was the week of your aim</h2>
       <ul className="look-back__facts">
         {first && (
           <li>

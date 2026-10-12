@@ -70,7 +70,7 @@
 
 .days-stepper__range {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .days-back {
@@ -93,21 +93,21 @@
   gap: var(--space-2);
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.45rem;
+  font-size: var(--text-xl);
   font-weight: normal;
 }
 
 .days-day__date {
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .days-day__empty,
 .days-allday {
   margin: 0;
   color: var(--color-text-faint);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .days-list {
@@ -173,7 +173,7 @@
   flex-direction: column;
   padding-right: var(--space-2);
   border-right: 1px solid var(--color-border);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -199,7 +199,7 @@
 }
 
 .days-row__title {
-  font-size: 1.05rem;
+  font-size: var(--text-md);
 }
 
 .days-row__where {
@@ -207,7 +207,7 @@
   align-items: center;
   gap: 0.3rem;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .days-row__chevron {
@@ -339,7 +339,7 @@
 
 .days-stepper__range {
   color: var(--color-text);
-  font-size: 1.05rem;
+  font-size: var(--text-md);
   font-weight: 600;
 }
 
@@ -358,7 +358,7 @@
 
 .month__head span {
   color: var(--color-text-muted);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   text-align: center;
 }
 
@@ -388,7 +388,7 @@
 }
 
 .month__num {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -423,7 +423,7 @@
 }
 
 .month__count strong {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 
@@ -447,7 +447,7 @@
 .month-day__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   font-weight: normal;
 }
 
@@ -456,7 +456,7 @@
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
   background: var(--color-surface);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .month-row .days-row__button {
@@ -468,7 +468,7 @@
   flex-wrap: wrap;
   gap: 0.2rem var(--space-4);
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 /* ---------- Year ---------- */
@@ -500,7 +500,7 @@
 
 .year__name {
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: var(--text-md);
 }
 
 .year__days {
@@ -537,7 +537,7 @@
 .day-plan__label {
   margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -565,7 +565,7 @@
 
 .toggle-row__detail {
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 /* ---------- Search ---------- */
@@ -598,17 +598,17 @@
 
 .search-row__label {
   color: var(--color-text-faint);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 .search-row__title {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .search-row__snippet,
 .search-row__full {
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .search-row__full {
@@ -641,7 +641,7 @@
   margin: 0;
   padding-left: 1.1rem;
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .import-sources strong {
@@ -730,7 +730,7 @@
   margin: 2px 0;
   color: var(--color-text-muted);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 /* A to-do being carried over a day: that day gets a soft outline. */
@@ -749,13 +749,13 @@
   margin: 2px 0;
   color: var(--color-text-muted);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .days-bills__paid {
   margin-left: auto;
   color: var(--color-text-faint);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .cal-bills {
@@ -776,7 +776,7 @@
   border-radius: 6px;
   background: var(--color-accent-soft);
   color: var(--color-text);
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -830,7 +830,7 @@
 
   .month__num {
     font-family: var(--font-serif);
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
   }
 
   .month__dots,
@@ -852,7 +852,7 @@
     border-left: 3px solid var(--tag, var(--color-accent));
     border-radius: 4px;
     background: color-mix(in srgb, var(--tag, var(--color-accent)) 20%, transparent);
-    font-size: 0.72rem;
+    font-size: var(--text-xs);
     line-height: 1.4;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -862,7 +862,7 @@
     display: block;
     padding-left: 6px;
     color: var(--color-text-muted);
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
   }
 }
 
@@ -937,7 +937,7 @@
 
 .mini__title {
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: var(--text-md);
 }
 
 .mini__steps {
@@ -965,7 +965,7 @@
 
 .mini__dow {
   color: var(--color-text-faint);
-  font-size: 0.68rem;
+  font-size: var(--text-xs);
   padding-bottom: 2px;
 }
 
@@ -976,7 +976,7 @@
   background: transparent;
   color: var(--color-text);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1017,7 +1017,7 @@
 }
 
 .year__name {
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
   margin-bottom: var(--space-1);
 }
 
@@ -1026,7 +1026,7 @@
 }
 
 .year__day {
-  font-size: 0.68rem;
+  font-size: var(--text-xs);
 }
 
 /* A day with something on it carries its colour; with none of its own, the gold. */

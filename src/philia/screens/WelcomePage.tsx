@@ -10,7 +10,7 @@ export default function WelcomePage({ nav }: { nav: PhiliaNav }) {
     <Welcome
       name="Philia"
       mark={<AppMark app="philia" size={44} light />}
-      line="The people in your life."
+      line="People and the dates that matter."
       about="Birthdays, things to remember, gift ideas and time together."
       photo={photo}
       photoWide={photoWide}

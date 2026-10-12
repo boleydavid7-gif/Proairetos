@@ -38,7 +38,6 @@ export function Brand({ light = false }: { light?: boolean }) {
       <Mark size={30} />
       <span className="brand__words">
         <span className="brand__name">Askesis</span>
-        <span className="brand__by">by Proairetos</span>
       </span>
     </div>
   );

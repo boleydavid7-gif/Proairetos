@@ -75,7 +75,7 @@ export default function InsightsPage() {
         <ArrowLeftIcon size={18} />
         Reflect
       </button>
-      <PageHeader title="Insights" subtitle="What you recorded, gathered in one place." />
+      <PageHeader title="Insights" />
 
       <div className="segmented" role="tablist" aria-label="Period">
         {periods.map((option) => (

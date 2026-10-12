@@ -321,7 +321,7 @@ export default function PraxisApp() {
       <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
           <span className="praxis-brand__mark"><PraxisMark size={42} /></span>
-          <span><strong>Praxis</strong><small>by Proairetos</small></span>
+          <span><strong>Praxis</strong></span>
         </div>
         <PraxisNav view={view} onView={setView} />
         <div className="praxis-sidebar__spacer" />

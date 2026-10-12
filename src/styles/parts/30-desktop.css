@@ -43,7 +43,7 @@
     display: block;
     margin: 0 0 var(--space-5) var(--space-3);
     font-family: var(--font-serif);
-    font-size: 1.6rem;
+    font-size: var(--text-2xl);
     letter-spacing: 0.01em;
     color: var(--color-text);
   }
@@ -55,7 +55,7 @@
     min-height: 3rem;
     padding: 0 var(--space-3);
     border-radius: var(--radius-sm);
-    font-size: 0.95rem;
+    font-size: var(--text-md);
     text-align: left;
     cursor: pointer;
   }
@@ -79,7 +79,7 @@
   }
 
   .tab-bar__item span {
-    font-size: 0.95rem;
+    font-size: var(--text-md);
   }
 
   /* Today's landscape fills the page beside the rail. */

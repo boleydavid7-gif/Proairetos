@@ -39,19 +39,19 @@
 .list-card__title {
   margin: 0;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .list-card__time {
   margin-left: var(--space-1);
   font-weight: 400;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-faint);
 }
 
 .list-card__detail {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   line-height: 1.4;
   color: var(--color-text-muted);
   display: -webkit-box;
@@ -95,11 +95,11 @@
 .item-card__title {
   margin: 0;
   font-weight: 500;
-  font-size: 1.02rem;
+  font-size: var(--text-md);
 }
 
 .item-card__meta {
   margin: 0.2rem 0 0;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }

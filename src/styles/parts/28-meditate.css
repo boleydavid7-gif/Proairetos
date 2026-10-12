@@ -74,7 +74,7 @@
   background: none;
   color: var(--color-text);
   font-family: var(--font-serif);
-  font-size: 1.45rem;
+  font-size: var(--text-xl);
   text-shadow: var(--hero-shadow);
 }
 
@@ -120,12 +120,12 @@
 
 .meditate-card__title {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
 }
 
 .meditate-card__detail {
   color: rgba(246, 238, 226, 0.8);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .meditate-page__actions {
@@ -176,7 +176,7 @@
   border: 0;
   background: none;
   color: var(--color-text-muted);
-  font-size: 1rem;
+  font-size: var(--text-md);
   text-shadow: var(--hero-shadow);
 }
 
@@ -298,14 +298,14 @@
 .breath-circle__step {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.75rem;
+  font-size: var(--text-2xl);
 }
 
 .breath-circle__count {
   margin: 0;
   color: var(--color-text-muted);
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
 }
 
@@ -328,7 +328,7 @@
   border: 0;
   background: none;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   text-shadow: var(--hero-shadow);
 }
 
@@ -443,13 +443,13 @@
 
 .meditate-link__title {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 .meditate-link__source,
 .meditate-link__detail {
   color: var(--color-text-muted);
-  font-size: 0.86rem;
+  font-size: var(--text-sm);
 }
 
 .meditate-start {
@@ -464,7 +464,7 @@
   border-radius: var(--radius-pill);
   background: linear-gradient(180deg, #f6d29b, #e8b978);
   color: var(--color-accent-ink);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 500;
   box-shadow: 0 10px 30px rgba(232, 185, 120, 0.28);
 }
@@ -476,7 +476,7 @@
   gap: var(--space-4);
   margin: calc(var(--space-2) * -1) 0 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .meditate-meta span {
@@ -488,7 +488,7 @@
 .meditate-source {
   margin: 0;
   color: var(--color-text-faint);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   text-align: center;
 }
 
@@ -528,13 +528,13 @@
 
 .breath-patterns__counts {
   color: var(--color-accent-strong);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
 .breath-patterns__line {
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 /* ---------- Sounds and music ---------- */
@@ -578,12 +578,12 @@
 }
 
 .sound-list__title {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .sound-list__line {
   color: var(--color-text-faint);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .sound-list__preview {
@@ -653,7 +653,7 @@
   border: 0;
   background: none;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .customize__chevron {
@@ -824,7 +824,7 @@
 .sit-screen__eyebrow {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-shadow: var(--hero-shadow);
@@ -833,7 +833,7 @@
 .sit-screen__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 2.2rem;
+  font-size: var(--text-4xl);
   text-shadow: var(--hero-shadow);
 }
 
@@ -842,7 +842,7 @@
   margin: 0;
   padding: 0 var(--space-3);
   font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   line-height: 1.45;
   text-shadow: 0 1px 14px rgba(0, 0, 0, 0.65);
   animation: cue-in 1.2s ease both;

@@ -32,7 +32,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
 
   return (
     <div className="page after">
-      <h1 className="title">That’s recorded.</h1>
+      <h1 className="title">That’s recorded</h1>
 
       {settings.afterOffers && (
         <>

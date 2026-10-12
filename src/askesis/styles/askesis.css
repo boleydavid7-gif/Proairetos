@@ -482,53 +482,44 @@ p {
 .welcome__shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(11, 15, 14, 0.8) 0%, rgba(11, 15, 14, 0.3) 45%, rgba(11, 15, 14, 0.85) 82%, var(--bg) 100%);
+  background: linear-gradient(180deg, rgba(11, 15, 14, 0.25) 0%, rgba(11, 15, 14, 0.05) 35%, rgba(11, 15, 14, 0.7) 65%, var(--bg) 100%);
 }
 
 .welcome__content {
   position: relative;
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 72px) 28px calc(env(safe-area-inset-bottom) + 28px);
+  padding: calc(env(safe-area-inset-top) + 48px) 28px calc(env(safe-area-inset-bottom) + 28px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
 }
 
 .welcome__name {
-  margin: 18px 0 0;
-  font-weight: 500;
-  font-size: 2.2rem;
-  letter-spacing: 0.03em;
-}
-
-.welcome__by {
-  margin: 0;
+  margin: 14px 0 0;
   font-family: var(--serif);
-  font-size: 1.35rem;
-  color: var(--text-soft);
+  font-weight: 500;
+  font-size: 2.6rem;
+  line-height: 1.05;
 }
 
 .welcome__line {
-  margin-top: 18px;
-  letter-spacing: 0.06em;
-  color: var(--text-soft);
-}
-
-.welcome__rule {
-  width: 36px;
-  height: 2px;
-  margin: 20px 0;
-  background: var(--mint);
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text);
 }
 
 .welcome__about {
-  max-width: 30ch;
+  margin: 0;
+  max-width: 34ch;
   color: var(--text-soft);
+  line-height: 1.5;
 }
 
 .welcome__actions {
-  margin-top: auto;
+  margin-top: 22px;
   width: 100%;
   display: flex;
   flex-direction: column;

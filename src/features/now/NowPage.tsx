@@ -195,8 +195,6 @@ export default function NowPage() {
           <SettingsButton />
         </div>
         <h1 className="page-header__title">{greeting(clock, name)}</h1>
-        {shows('line') && <DailyLine key={date} line={line} />}
-        <div className="today-header__rule" aria-hidden="true" />
         <div className="day-stepper">
           <span className="day-stepper__date">
             {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -282,12 +280,12 @@ export default function NowPage() {
         <OpenTime stretches={stretches} items={items} today={today} />
       )}
 
-      {patterns && patterns.length === 0 && shows('schedule-prompt') && (
+      {/* One setup prompt at a time: the schedule waits while another message is showing. */}
+      {!message && patterns && patterns.length === 0 && shows('schedule-prompt') && (
         <div className="quiet-row-wrap">
           <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
             <span className="quiet-row__text">
               <span>Add your schedule</span>
-              <span className="quiet-row__detail">Work, study, caring for someone, or time you protect.</span>
             </span>
             <ChevronRightIcon size={18} className="quiet-row__chevron" />
           </button>
@@ -310,6 +308,9 @@ export default function NowPage() {
       )}
 
       {now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
+
+      {/* The day's line sits at the foot, over the landscape: the day itself leads. */}
+      {shows('line') && <DailyLine key={date} line={line} />}
 
         </>
       )}

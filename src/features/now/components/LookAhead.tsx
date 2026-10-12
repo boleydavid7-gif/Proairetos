@@ -93,11 +93,11 @@ export default function LookAhead() {
       <section className="look-ahead look-ahead--invite" aria-label="Look ahead">
         <CompassRose size={44} tone="dark" />
         <div className="look-ahead__invite-text">
-          <p className="look-ahead__title">Keep what matters in sight</p>
-          <p className="look-ahead__detail">Choose your values in Compass and they will greet you here each day.</p>
+          <p className="look-ahead__title">Choose your values</p>
+          <p className="look-ahead__detail">They show here each day.</p>
           <div className="chip-row">
             <button type="button" className="chip chip--accent" onClick={() => navigate('compass')}>
-              Open Compass
+              Choose
             </button>
             <button type="button" className="button-quiet" onClick={setAside}>
               Not today

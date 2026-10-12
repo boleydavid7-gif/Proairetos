@@ -35,7 +35,6 @@ export function Brand({ light = false }: { light?: boolean }) {
       <Leaf size={30} />
       <span className="brand__words">
         <span className="brand__name">Soma</span>
-        <span className="brand__by">by Proairetos</span>
       </span>
     </div>
   );

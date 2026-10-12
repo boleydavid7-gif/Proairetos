@@ -55,8 +55,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
         <Brand light />
         <div className="home__words">
           <p className="home__greeting"><Greeting /></p>
-          <h1 className="home__title">Simple food, with care.</h1>
-          <p className="home__sub">Cook what nourishes you.</p>
+          <h1 className="home__title">Recipes</h1>
         </div>
       </Hero>
       <div className="page page--under-hero">

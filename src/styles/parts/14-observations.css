@@ -34,7 +34,7 @@
 }
 
 .observation__detail {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
   color: var(--color-text-muted);
   white-space: pre-line;
@@ -48,7 +48,7 @@
   border-radius: 50%;
   background: transparent;
   color: var(--color-text-faint);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 .observations__restore {
@@ -62,7 +62,7 @@
   border-radius: var(--radius-pill);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   line-height: 1.6;
 }
 
@@ -101,14 +101,14 @@
 
 .decision-choice__text {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   color: var(--color-accent-strong);
 }
 
 .decision-choice__others,
 .decision-reasons {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--color-text-muted);
 }
@@ -127,7 +127,7 @@
 }
 
 .decision-note time {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-faint);
 }
 

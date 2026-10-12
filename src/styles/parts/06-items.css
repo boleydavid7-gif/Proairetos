@@ -46,7 +46,7 @@
   cursor: pointer;
   list-style: none;
   margin-bottom: var(--space-3);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -74,6 +74,6 @@
 }
 
 .closed-list__meta {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--color-text-faint);
 }

@@ -26,7 +26,7 @@
 
 .mic-button__error {
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .journal__tool.mic-button {
@@ -53,7 +53,7 @@
   border: 0;
   background: transparent;
   color: var(--color-accent-strong);
-  font-size: 0.95rem;
+  font-size: var(--text-md);
   text-align: left;
 }
 
@@ -69,7 +69,7 @@
   border: 0;
   background: transparent;
   color: var(--color-text-faint);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .pause-screen__other {
@@ -84,7 +84,7 @@
   margin: 0;
   min-height: 7.5rem;
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
   line-height: 1.45;
   text-align: center;
 }
@@ -109,7 +109,7 @@
 .practice__source {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   text-align: center;
 }
@@ -138,12 +138,12 @@
 
 .practice-list__title {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 .practice-list__line {
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .close-day__done {
@@ -163,7 +163,7 @@
   margin: 0;
   padding-left: 1.1rem;
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -200,7 +200,7 @@
 .support__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 2rem;
+  font-size: var(--text-3xl);
   font-weight: 500;
   line-height: 1.15;
 }
@@ -239,18 +239,18 @@
 
 .support__place {
   color: var(--color-text-faint);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .support__name {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .support__how {
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin-bottom: var(--space-2);
 }
 
@@ -268,7 +268,7 @@ a.chip--accent {
 .think__question {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   line-height: 1.3;
   text-align: center;
 }
@@ -277,7 +277,7 @@ a.chip--accent {
   margin: 0;
   min-height: 2.6em;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-align: center;
 }
 
@@ -316,7 +316,7 @@ a.chip--accent {
 
 .gratitude-list__text {
   font-family: var(--font-display, 'EB Garamond', serif);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   line-height: 1.35;
 }
 
@@ -325,5 +325,5 @@ a.chip--accent {
   justify-content: space-between;
   align-items: center;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }

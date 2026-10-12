@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Today is calmer: one prompt at a time at the top, and the day’s line at the foot over the landscape.',
+      'Every app’s welcome is shorter: its name, one line and Begin. Pages lead with what they hold (Recipes, This month, the week you are on).',
       'Sign in faster: tap the email field and your passkey shows in the keyboard’s suggestions.',
       'Gentle taps now work on iPhone too (iOS 18 and later): a light tap when you tick or switch something.',
       'The screen stays on while a Praxis block runs and through a Dynamis session.',

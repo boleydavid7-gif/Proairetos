@@ -11,13 +11,10 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <img className="welcome__image" src={scene('sunset-valley')} alt="" />
       <div className="welcome__shade" />
       <div className="welcome__content">
-        <Leaf size={64} color="#f1ece2" />
+        <Leaf size={48} color="#f1ece2" />
         <h1 className="welcome__name">Soma</h1>
-        <p className="welcome__by">by Proairetos</p>
-        <p className="welcome__line">Real food. Simple choices.</p>
-        <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
-          Your recipes in one place and a grocery list sorted by aisle.
+          Recipes, and a grocery list sorted by aisle.
         </p>
         <div className="welcome__actions">
           <button
@@ -31,7 +28,6 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
           >
             Begin
           </button>
-          <p className="fine">Everything stays on this phone.</p>
         </div>
       </div>
     </div>

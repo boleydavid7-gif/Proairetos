@@ -48,14 +48,14 @@
   margin: 6px 0 0;
   font-family: var(--font-serif, Georgia, serif);
   font-weight: 500;
-  font-size: 1.7rem;
+  font-size: var(--text-2xl);
   line-height: 1.1;
   color: var(--ink);
 }
 
 .store__by {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--ink) 72%, transparent);
 }
@@ -78,7 +78,7 @@
 }
 
 .store__about {
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .store__price {
@@ -86,7 +86,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid var(--color-border);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -122,7 +122,7 @@
   background: none;
   color: inherit;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   display: flex;
   flex-direction: column;
@@ -142,7 +142,7 @@
   place-items: center;
   border-radius: 14px;
   border: 1.5px dashed var(--color-border);
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   color: var(--color-text-muted);
 }
 
@@ -195,7 +195,7 @@
 }
 .passkeys__detail {
   display: block;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 .passkey-now {

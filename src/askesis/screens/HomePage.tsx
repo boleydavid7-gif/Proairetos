@@ -66,7 +66,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         <Brand light />
         <div className="home__words">
           <p className="home__greeting"><Greeting /></p>
-          <h1 className="home__title">One run at a time.</h1>
+          <h1 className="home__title">{week ? `Week ${week.n}` : resting ? 'Rest week' : 'Askesis'}</h1>
         </div>
       </Hero>
 
@@ -74,7 +74,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         {resting && planState ? (
           <div className="home-top">
           <section className="card" aria-label="A week of rest">
-            <h2 className="card__title">A week of rest.</h2>
+            <h2 className="card__title">A week of rest</h2>
             <p className="muted">Nothing planned.</p>
             <button type="button" className="button-quiet" onClick={() => updatePlan({ restWeek: undefined })}>
               Back to the plan this week
@@ -95,7 +95,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             <div className="home-top">
             {comeBack && (
               <section className="card card--offer" aria-label="Coming back">
-                <h2 className="card__title">Good to see you.</h2>
+                <h2 className="card__title">Good to see you</h2>
                 <p className="muted">
                   It has been {gapWords(comeBack.gapDays)}. Week {comeBack.toWeek} is there to ease back in, or carry on.
                 </p>

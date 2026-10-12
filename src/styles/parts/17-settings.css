@@ -43,7 +43,7 @@
   border: 1px dashed rgba(201, 162, 116, 0.5);
   border-radius: var(--radius-sm);
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 1.05rem;
+  font-size: var(--text-md);
   letter-spacing: 0.04em;
   line-height: 1.6;
   word-break: break-all;
@@ -71,6 +71,6 @@
 .setup-check ul {
   margin: var(--space-2) 0;
   padding-left: var(--space-4);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.7;
 }

@@ -9,11 +9,8 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
       <img className="welcome__image" src={scene('sunset-lake')} alt="" />
       <div className="welcome__shade" />
       <div className="welcome__content">
-        <Mark size={64} />
+        <Mark size={48} />
         <h1 className="welcome__name">Askesis</h1>
-        <p className="welcome__by">by Proairetos</p>
-        <p className="welcome__line">Learn. Train. Endure.</p>
-        <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">
           A running plan from your first walk-run to a marathon, built on endurance research.
         </p>
@@ -21,7 +18,6 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'safety', first: true })}>
             Begin
           </button>
-          <p className="fine">Everything stays on this phone.</p>
         </div>
       </div>
     </div>

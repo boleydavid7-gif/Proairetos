@@ -20,12 +20,12 @@
 }
 
 .date-card__title {
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .date-card__date {
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .plan-section {
@@ -73,7 +73,7 @@
   border: 0;
   background: transparent;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .check-row--done .check-row__title {
@@ -113,11 +113,11 @@
   width: 100%;
   min-height: 3rem;
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .tab-bar__item span {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
 }
 
 .check-row {
@@ -139,7 +139,7 @@
   gap: var(--space-3);
   min-height: 2.25rem;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .check-lines__line--done span {

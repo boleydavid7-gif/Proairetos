@@ -27,7 +27,7 @@
 .look-ahead__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   color: var(--color-accent-strong);
 }
 
@@ -35,7 +35,7 @@
 .look-ahead__detail {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-md);
   line-height: 1.45;
 }
 
@@ -53,7 +53,7 @@
   border: 1px solid rgba(201, 162, 116, 0.35);
   border-radius: var(--radius-pill);
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: var(--text-md);
   color: var(--color-accent-strong);
 }
 
@@ -62,7 +62,7 @@
   padding-left: var(--space-3);
   border-left: 2px solid var(--color-accent);
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
   line-height: 1.35;
 }
 
@@ -73,7 +73,7 @@
 
 .look-ahead__label {
   margin: 0 0 var(--space-2);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .look-ahead__day time {
@@ -100,7 +100,7 @@
 
 .chip--value[aria-pressed='true'] {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .control-split__columns {
@@ -114,7 +114,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 

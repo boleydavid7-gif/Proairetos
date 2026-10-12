@@ -7,13 +7,13 @@
 }
 
 .section-count {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-faint);
 }
 
 .section-description {
   margin: 0.2rem 0 0;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -58,13 +58,13 @@
 
 .value-card__name {
   font-family: var(--font-serif);
-  font-size: 1.35rem;
+  font-size: var(--text-xl);
   line-height: 1.15;
   color: var(--color-text);
 }
 
 .value-card__detail {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -83,7 +83,7 @@
   border-radius: 50%;
   background: transparent;
   color: var(--color-text-faint);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   line-height: 1;
 }
 
@@ -100,7 +100,7 @@
 
 .statement__body {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   line-height: 1.35;
 }
 
@@ -116,7 +116,7 @@
 
 .picker__hint {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
@@ -131,7 +131,7 @@
 
 .form-error {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--color-accent-strong);
 }
 
@@ -153,7 +153,7 @@ button.value-card__text:disabled {
   gap: 0.15rem;
   margin-top: var(--space-2);
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
   animation: rise 260ms ease-out both;
 }
@@ -189,17 +189,17 @@ button.value-card__text:disabled {
 
 .person__name {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 .person__note {
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .person__touch {
   color: var(--color-text-faint);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
 }
 
 .person__more {
@@ -250,17 +250,17 @@ button.value-card__text:disabled {
 
 .goal__title {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 .goal__note {
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .goal__meta {
   color: var(--color-text-faint);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
 }
 
 .goal__more {
@@ -300,7 +300,7 @@ button.value-card__text:disabled {
 .goal__when {
   flex: none;
   color: var(--color-text-faint);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 .goal__main--colored {
@@ -321,7 +321,7 @@ button.value-card__text:disabled {
 .goal-time__next {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .compass-tabs {
@@ -340,10 +340,10 @@ button.value-card__text:disabled {
 .person__mention-text {
   display: block;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-md);
 }
 
 .person__mention-day {
   color: var(--color-text-faint);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }

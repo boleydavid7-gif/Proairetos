@@ -28,7 +28,7 @@ export function Brand({ light = false }: { light?: boolean }) {
   return (
     <div className={`hydros-brand${light ? ' hydros-brand--light' : ''}`}>
       <span className="hydros-brand__mark" aria-hidden="true"><span /><span /><span /></span>
-      <span className="hydros-brand__words"><span className="hydros-brand__name">Hydros</span><span className="hydros-brand__by">by Proairetos</span></span>
+      <span className="hydros-brand__words"><span className="hydros-brand__name">Hydros</span></span>
     </div>
   );
 }

@@ -267,13 +267,12 @@ export function Brand({ name, mark, light = false }: { name: string; mark: React
       {mark}
       <span className="brand__words">
         <span className="brand__name">{name}</span>
-        <span className="brand__by">by Proairetos</span>
       </span>
     </div>
   );
 }
 
-export function Welcome({ name, mark, line, about, photo, photoWide, onBegin, fine = 'Everything stays on this phone until you turn on sync.' }: {
+export function Welcome({ name, mark, line, about, photo, photoWide, onBegin, fine }: {
   name: string;
   mark: ReactNode;
   line: string;
@@ -293,15 +292,13 @@ export function Welcome({ name, mark, line, about, photo, photoWide, onBegin, fi
       <div className="welcome__content">
         {mark}
         <h1 className="welcome__name">{name}</h1>
-        <p className="welcome__by">by Proairetos</p>
         <p className="welcome__line">{line}</p>
-        <span className="welcome__rule" aria-hidden="true" />
         <p className="welcome__about">{about}</p>
         <div className="welcome__actions">
           <button type="button" className="button-main" onClick={onBegin}>
             Begin
           </button>
-          <p className="fine">{fine}</p>
+          {fine && <p className="fine">{fine}</p>}
         </div>
       </div>
     </div>

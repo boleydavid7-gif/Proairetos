@@ -38,7 +38,7 @@
   border: 0;
   background: transparent;
   color: var(--color-text-faint);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   transition: color 150ms ease;
 }
 
