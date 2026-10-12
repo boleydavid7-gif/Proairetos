@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Forgot your passphrase? Unlock with your recovery key and choose a new one, in Proairetos and every app. Signed in, Account has Change passphrase.',
       'Today has From your apps: plants to check, chores, today’s doses, upkeep and a training day in one list. Tick one there and it is marked in its app, with undo.',
       'Your apps are on Proairetos’s bar (Apps, in place of the dots beside the gear), and every other app’s bar ends with Proairetos, to go back.',
       'Water stays in Hydros: Proairetos Today no longer shows it.',

@@ -149,6 +149,17 @@ export async function saveWrappedKeys(userId: string, passphrase: WrappedKey, re
   if (error) throw new Error(signInExpired(error.message));
 }
 
+/** Replaces the passphrase wrap only (a new passphrase); the recovery wrap stays as it is. */
+export async function savePassphraseWrap(userId: string, passphrase: WrappedKey): Promise<void> {
+  const { data, error } = await (await supabase())
+    .from('user_keys')
+    .update({ passphrase_wrap: passphrase, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .select('user_id');
+  if (error) throw new Error(signInExpired(error.message));
+  if (!data?.length) throw new Error('The new passphrase was not saved. Sign in again and try once more.');
+}
+
 /** An RLS refusal here almost always means the sign-in did not reach the request. */
 function signInExpired(message: string): string {
   return /row-level security/i.test(message)

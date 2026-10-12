@@ -223,6 +223,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the wrap key left in `sign_in_handoffs` for 2 minutes). Every family AccountCard has "Paste from Proairetos"
   (`signInWithPass`: verifyOtp, `take_handoff` returns the wrap key once to the same user and deletes it, the key kept
   is not exportable; the clipboard is cleared; falls back to pasting by hand).
+- Passphrase: unlock offers "Forgot your passphrase?" (Proairetos `AccountSection` and every family `AccountCard`): the recovery
+  key plus a new passphrase twice; `changePassphrase(secret, 'recovery', next)` opens the data key exportable for that moment,
+  `rewrapWithPassphrase` wraps it under the new passphrase (fresh salt) and `savePassphraseWrap` replaces only `passphrase_wrap`
+  in `user_keys` (RLS "own key" allows it), then it unlocks. Signed in, Account has "Change passphrase" (current one, new twice).
+  Nothing encrypted changes, the recovery key keeps working, open devices stay open. Lost both: synced data cannot be opened.
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.

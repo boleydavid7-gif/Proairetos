@@ -13,6 +13,7 @@ import {
   syncNow,
   syncStatus,
   unlock,
+  changePassphrase,
 } from '../../app/sync/syncController';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
@@ -206,8 +207,12 @@ function SetUp() {
 function Unlock() {
   const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
   const [secret, setSecret] = useState('');
+  const [next, setNext] = useState('');
+  const [again, setAgain] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const forgot = method === 'recovery';
+  const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
 
   return (
     <form
@@ -217,6 +222,8 @@ function Unlock() {
         setBusy(true);
         setError('');
         try {
+          // A forgotten passphrase: the recovery key proves it is you, and a new passphrase takes the old one's place.
+          if (forgot) await changePassphrase(secret, 'recovery', next);
           await unlock(secret, method);
         } catch (cause) {
           setError(message(cause));
@@ -228,7 +235,7 @@ function Unlock() {
       <p className="section-description">
         {method === 'passphrase'
           ? 'Enter your passphrase to open your data on this device.'
-          : 'Enter the recovery key you wrote down when you set up sync.'}
+          : 'Enter the recovery key you wrote down when you set up sync, then choose a new passphrase.'}
       </p>
       <input
         type={method === 'passphrase' ? 'password' : 'text'}
@@ -238,8 +245,16 @@ function Unlock() {
         value={secret}
         onChange={(event) => setSecret(event.target.value)}
       />
-      <button type="submit" className="chip chip--accent chip--wide" disabled={!secret || busy}>
-        {busy ? 'Unlocking…' : 'Unlock'}
+      {forgot && (
+        <>
+          <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
+          <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="New passphrase again" value={again} onChange={(event) => setAgain(event.target.value)} />
+          {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
+          {next && again && next !== again && <p className="form-error">The two passphrases do not match.</p>}
+        </>
+      )}
+      <button type="submit" className="chip chip--accent chip--wide" disabled={!ready || busy}>
+        {busy ? 'Unlocking…' : forgot ? 'Save and unlock' : 'Unlock'}
       </button>
       <button
         type="button"
@@ -247,11 +262,73 @@ function Unlock() {
         onClick={() => {
           setMethod(method === 'passphrase' ? 'recovery' : 'passphrase');
           setSecret('');
+          setNext('');
+          setAgain('');
           setError('');
         }}
       >
-        {method === 'passphrase' ? 'Use my recovery key instead' : 'Use my passphrase instead'}
+        {method === 'passphrase' ? 'Forgot your passphrase?' : 'Use my passphrase instead'}
       </button>
+      {forgot && <p className="sheet__hint">Without the passphrase or the recovery key, synced data cannot be opened, by anyone. What is on this device stays.</p>}
+      {error && <p className="form-error" role="alert">{error}</p>}
+    </form>
+  );
+}
+
+/** A new passphrase while signed in: the current one, then the new one twice. Other open devices stay open. */
+function ChangePassphrase() {
+  const [open, setOpen] = useState(false);
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [again, setAgain] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
+
+  if (!open) {
+    return (
+      <>
+        <button type="button" className="text-link" onClick={() => (setOpen(true), setDone(false))}>
+          Change passphrase
+        </button>
+        {done && <p className="sheet__hint" role="status">Passphrase changed. Use the new one on your other devices.</p>}
+      </>
+    );
+  }
+  return (
+    <form
+      className="settings-sub stack-tight"
+      onSubmit={async (event: FormEvent) => {
+        event.preventDefault();
+        setBusy(true);
+        setError('');
+        try {
+          await changePassphrase(current, 'passphrase', next);
+          setOpen(false);
+          setDone(true);
+          setCurrent('');
+          setNext('');
+          setAgain('');
+        } catch (cause) {
+          setError(message(cause));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <p className="sheet__label">Change passphrase</p>
+      <input type="password" className="field-input" autoComplete="current-password" aria-label="Current passphrase" placeholder="Current passphrase" value={current} onChange={(event) => setCurrent(event.target.value)} />
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="New passphrase again" value={again} onChange={(event) => setAgain(event.target.value)} />
+      {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
+      {next && again && next !== again && <p className="form-error">The two passphrases do not match.</p>}
+      <div className="chip-row">
+        <button type="button" className="button-quiet" onClick={() => (setOpen(false), setError(''))}>Cancel</button>
+        <button type="submit" className="chip chip--accent" disabled={!current || next.length < MIN_PASSPHRASE_LENGTH || next !== again || busy}>
+          {busy ? 'Saving…' : 'Save'}
+        </button>
+      </div>
+      <p className="sheet__hint">Forgot the current one? Sign out, then use your recovery key to choose a new one.</p>
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
   );
@@ -283,6 +360,7 @@ function Ready() {
         Sync now
       </button>
       <SignInAnotherApp />
+      <ChangePassphrase />
 
       {confirmingSignOut ? (
         <div className="chip-row">

@@ -137,8 +137,8 @@ export async function unlockWithPassphrase(envelope: WrappedKey, passphrase: str
   return unwrap(envelope, await passphraseKey(passphrase, fromBase64(envelope.salt), envelope.iterations ?? PBKDF2_ITERATIONS), extractable);
 }
 
-export async function unlockWithRecoveryKey(envelope: WrappedKey, recoveryKey: string): Promise<CryptoKey> {
-  return unwrap(envelope, await recoveryWrappingKey(decodeRecovery(recoveryKey), fromBase64(envelope.salt)));
+export async function unlockWithRecoveryKey(envelope: WrappedKey, recoveryKey: string, extractable = false): Promise<CryptoKey> {
+  return unwrap(envelope, await recoveryWrappingKey(decodeRecovery(recoveryKey), fromBase64(envelope.salt)), extractable);
 }
 
 export type SealedRecord = { iv: string; ciphertext: string };
@@ -202,4 +202,17 @@ export async function openNoticeWords<T>(key: CryptoKey, sealed: string): Promis
   const bytes = fromBase64(sealed);
   const plain = await openBytes(key, 'proairetos-notice', bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer);
   return JSON.parse(new TextDecoder().decode(plain)) as T;
+}
+
+/**
+ * A new passphrase for the same data key: the key is opened with the old passphrase or the recovery key (exportable
+ * for this moment only) and wrapped again under the new passphrase, with a fresh salt. The recovery key keeps working;
+ * nothing that was encrypted changes.
+ */
+export async function rewrapWithPassphrase(dataKey: CryptoKey, passphrase: string): Promise<WrappedKey> {
+  if (passphrase.length < MIN_PASSPHRASE_LENGTH) {
+    throw new KeyError(`Use at least ${MIN_PASSPHRASE_LENGTH} characters. A few unrelated words work well.`);
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return wrap(dataKey, await passphraseKey(passphrase, salt, PBKDF2_ITERATIONS), 'passphrase', salt, PBKDF2_ITERATIONS);
 }

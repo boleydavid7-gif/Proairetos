@@ -1,6 +1,6 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { familyWorker } from '../notify/familyWorker';
-import { KeyError, createKeys, openBytes, sealBytes, sealNoticeWords, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
+import { KeyError, createKeys, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPassphrase, unlockWithRecoveryKey, type KeySetup } from '../../data/sync/keys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
@@ -22,6 +22,7 @@ import {
   hasPushSubscription,
   OlderRemindersTable,
   saveWrappedKeys,
+  savePassphraseWrap,
   savePushSubscription,
   sendSignInCode,
   signInWithProvider,
@@ -397,6 +398,21 @@ export async function unlock(secret: string, method: 'passphrase' | 'recovery'):
   set({ phase: 'ready' });
   tellFamily('account');
   await syncNow();
+}
+
+/**
+ * A new passphrase, proved by the current one or by the recovery key (for a forgotten passphrase). Every device
+ * that is already open stays open; the next device to unlock uses the new passphrase.
+ */
+export async function changePassphrase(secret: string, method: 'passphrase' | 'recovery', next: string): Promise<void> {
+  if (!userId) throw new Error('This device is not signed in any more. Sign in again first.');
+  const wrapped = await fetchWrappedKeys();
+  if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
+  const key =
+    method === 'passphrase'
+      ? await unlockWithPassphrase(wrapped.passphrase, secret, true)
+      : await unlockWithRecoveryKey(wrapped.recovery, secret, true);
+  await savePassphraseWrap(userId, await rewrapWithPassphrase(key, next));
 }
 
 // ---------- Signing in another app from Proairetos ----------

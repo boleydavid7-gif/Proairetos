@@ -2,12 +2,26 @@ import {
   KeyError,
   createKeys,
   openRecord,
+  rewrapWithPassphrase,
   sealRecord,
   unlockWithPassphrase,
   unlockWithRecoveryKey,
 } from '../../data/sync/keys';
 
 describe('end-to-end keys', () => {
+  it('takes a new passphrase from a forgotten one through the recovery key, keeping the data and the recovery key', async () => {
+    const setup = await createKeys('quiet river morning');
+    const sealed = await sealRecord(setup.dataKey, 'reflections', 'r1', { body: 'Still mine.' });
+    const opened = await unlockWithRecoveryKey(setup.recoveryWrap, setup.recoveryKey, true);
+    const newWrap = await rewrapWithPassphrase(opened, 'new morning light');
+
+    const byNew = await unlockWithPassphrase(newWrap, 'new morning light');
+    expect(await openRecord(byNew, 'reflections', 'r1', sealed)).toEqual({ body: 'Still mine.' });
+    await expect(unlockWithPassphrase(newWrap, 'quiet river morning')).rejects.toBeInstanceOf(KeyError);
+    expect(await openRecord(await unlockWithRecoveryKey(setup.recoveryWrap, setup.recoveryKey), 'reflections', 'r1', sealed)).toEqual({ body: 'Still mine.' });
+    await expect(rewrapWithPassphrase(opened, 'short')).rejects.toBeInstanceOf(KeyError);
+  }, 30_000);
+
   it('unlocks the same data key with the passphrase or the recovery key', async () => {
     const setup = await createKeys('quiet river morning');
     const sealed = await sealRecord(setup.dataKey, 'reflections', 'r1', { body: 'A private thought.' });

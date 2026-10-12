@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
-import { confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { changePassphrase, confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
 
@@ -158,30 +159,48 @@ function SignIn() {
 function Unlock() {
   const [secret, setSecret] = useState('');
   const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
+  const [next, setNext] = useState('');
+  const [again, setAgain] = useState('');
   const { busy, error, run } = useStep();
+  const forgot = method === 'recovery';
+  const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
   return (
     <form
       className="card account__step field"
       onSubmit={(event: FormEvent) => {
         event.preventDefault();
-        void run(() => unlock(secret, method));
+        void run(async () => {
+          // A forgotten passphrase: the recovery key proves it is you, and a new passphrase takes the old one's place.
+          if (forgot) await changePassphrase(secret, 'recovery', next);
+          await unlock(secret, method);
+        });
       }}
     >
-      <span className="label">{method === 'passphrase' ? 'Your sync passphrase' : 'Your recovery key'}</span>
+      <span className="label">{forgot ? 'Your recovery key' : 'Your sync passphrase'}</span>
       <input
         className="input"
-        type={method === 'passphrase' ? 'password' : 'text'}
-        autoComplete={method === 'passphrase' ? 'current-password' : 'off'}
-        aria-label={method === 'passphrase' ? 'Passphrase' : 'Recovery key'}
+        type={forgot ? 'text' : 'password'}
+        autoComplete={forgot ? 'off' : 'current-password'}
+        aria-label={forgot ? 'Recovery key' : 'Passphrase'}
         value={secret}
         onChange={(event) => setSecret(event.target.value)}
       />
-      <button type="submit" className="button-main" disabled={!secret || busy}>
-        {busy ? 'Opening…' : 'Open my data'}
+      {forgot && (
+        <>
+          <span className="label">New passphrase</span>
+          <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
+          <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
+          {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
+          {next && again && next !== again && <p className="hint">The two passphrases do not match.</p>}
+        </>
+      )}
+      <button type="submit" className="button-main" disabled={!ready || busy}>
+        {busy ? 'Opening…' : forgot ? 'Save and open my data' : 'Open my data'}
       </button>
-      <button type="button" className="button-quiet" onClick={() => (setMethod(method === 'passphrase' ? 'recovery' : 'passphrase'), setSecret(''))}>
-        {method === 'passphrase' ? 'Use the recovery key instead' : 'Use the passphrase instead'}
+      <button type="button" className="button-quiet" onClick={() => (setMethod(forgot ? 'passphrase' : 'recovery'), setSecret(''), setNext(''), setAgain(''))}>
+        {forgot ? 'Use the passphrase instead' : 'Forgot your passphrase?'}
       </button>
+      {forgot && <p className="hint">Without the passphrase or the recovery key, synced data cannot be opened, by anyone. What is on this device stays.</p>}
       {error && (
         <p className="hint" role="alert">
           {error}
