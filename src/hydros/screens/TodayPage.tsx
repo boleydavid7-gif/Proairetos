@@ -4,7 +4,7 @@ import { useDrinks, useSettings, useTraining } from '../app/state';
 import { useDays, useNow } from '../app/day';
 import { logDrink } from '../app/log';
 import DrinkEntry from '../app/DrinkEntry';
-import { caffeineFacts, dateLabel, defaultDrinkProfiles, effectiveGoalOz, formatVolume, hourLabel, hydrationOz, localDate, volumeLabel, type HydrosUnit } from '../core/drinks';
+import { caffeineFacts, dateLabel, defaultDrinkProfiles, effectiveGoalOz, formatVolume, hourLabel, hydrationOz, localDate, unitToOunces, volumeLabel, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon, PlusIcon } from '../app/icons';
@@ -35,6 +35,10 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   const last = drinks[0];
   const glasses = settings.glasses ?? [];
   const sameAsGlass = last && glasses.some((glass) => glass.profileId === last.profileId && Math.abs(glass.amountOz - last.amountOz) < 0.05);
+  const history = useMemo(() => profiles
+    .filter((profile) => profile.id.startsWith('custom-'))
+    .map((profile) => ({ profile, last: drinks.find((drink) => drink.profileId === profile.id) }))
+    .filter(({ last }) => Boolean(last)), [drinks, profiles]);
 
   return (
     <div className="hydros-home">
@@ -81,6 +85,20 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           )}
         </div>
       </section>
+
+      {history.length > 0 && (
+        <section className="hydros-history" aria-label="History">
+          <div className="hydros-section-title"><h2>History</h2></div>
+          <div className="hydros-history__items">
+            {history.map(({ profile, last: previous }) => (
+              <button type="button" key={profile.id} onClick={() => void logDrink({ profileId: profile.id, amountOz: previous?.amountOz ?? unitToOunces(12, unit) }, profiles, unit)}>
+                <strong>{profile.label}</strong>
+                <small>{volumeLabel(previous?.amountOz ?? unitToOunces(12, unit), unit)}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="hydros-today-list" aria-label="Today’s drinks">
         <div className="hydros-section-title">

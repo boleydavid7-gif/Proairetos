@@ -347,6 +347,14 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-today-list .hydros-section-title h2 { font: 400 1.28rem/1.15 var(--serif); }
 .hydros-caffeine { color: var(--text-soft); font-size: .74rem; }
 .hydros-orb em { font-style: normal; font-size: .7rem; }
+.hydros-history { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 0; }
+.hydros-history .hydros-section-title h2 { font: 400 1.28rem/1.15 var(--serif); }
+.hydros-history__items { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.hydros-history__items::-webkit-scrollbar { display: none; }
+.hydros-history__items button { display: flex; min-width: 126px; min-height: 54px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); color: var(--text); text-align: left; }
+.hydros-history__items button:active { transform: scale(.98); }
+.hydros-history__items strong { max-width: 100%; overflow: hidden; font-size: .79rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-history__items small { color: var(--muted); font-size: .69rem; }
 
 .hydros-toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 14px); z-index: 20; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); padding: 10px 14px 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); box-shadow: 0 10px 30px rgba(0, 0, 0, .35); transform: translateX(-50%); white-space: nowrap; font-size: .84rem; }
 .hydros-toast button { border: 0; background: none; color: var(--cyan); font: inherit; font-weight: 600; }
