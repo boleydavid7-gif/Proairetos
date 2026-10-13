@@ -1,6 +1,6 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { referenceAmounts, defaultDrinkProfiles, defaultHydrosSettings, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, sourceBreakdown, startOfWeek, totalOz, volumeLabel, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
+import { referenceAmounts, defaultDrinkProfiles, defaultHydrosSettings, drinkKinds, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, sourceBreakdown, startOfWeek, totalOz, volumeLabel, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
@@ -66,6 +66,7 @@ describe('Hydros', () => {
 
   it('ships editable drink profiles and preserves their values', () => {
     expect(defaultDrinkProfiles().map((profile) => profile.id)).toEqual(['water', 'coffee', 'tea', 'electrolyte', 'sparkling', 'other', 'energy', 'soda', 'juice']);
+    expect(drinkKinds.map((kind) => kind.id)).toEqual(['water', 'coffee', 'tea', 'electrolyte', 'sparkling']);
     const profiles = normalizeDrinkProfiles([{ id: 'coffee', kind: 'coffee', label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 }]);
     expect(profiles.find((profile) => profile.id === 'coffee')).toMatchObject({ label: 'Morning coffee', caffeineMg: 120, electrolytesMg: 4, sugarG: 2 });
     expect(profiles.find((profile) => profile.id === 'energy')?.caffeineMg).toBe(160);

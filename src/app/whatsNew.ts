@@ -6,6 +6,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita now has Wind down: choose a short routine from slow breathing, progressive muscle relaxation, a body scan and Park tomorrow, with spoken cues, sounds and a bell from Meditate.',
       'If you wake and cannot sleep, Diaita offers dim-light stimulus-control steps, ordinary-word pictures and optional sound, without a clock.',
       'Sleep now shows this week’s amount against the amount you chose, and how much your recorded bedtimes and wake times varied.',
+      'Hydros: Add a custom drink from Today, with its name and details. Each custom drink stays available for the next one; the old Other choice is gone from Add.',
     ],
   },
   {

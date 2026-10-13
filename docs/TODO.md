@@ -38,6 +38,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       (one Face ID should sign in and open your data).
 - [ ] iPhone reminders after the redeploy: lock the phone with every app closed and wait for one.
 - [ ] Diaita on a phone: try Wind down and Can’t sleep with the screen dimmed or locked, and check the bell, sound and spoken cues.
+- [ ] Hydros on a phone: add two custom drinks from Today and check both remain available in the list.
 - [ ] Read from a photo: a real medicine box (Therapeia, Add a medicine > Read the label), an appliance plate
       (Ktema), a paper bill (Oikonomia). The first use downloads about 7 MB.
 - [ ] Android only, if you have one: Scan a barcode (Soma groceries), From contacts (Philia), Write to an NFC tag

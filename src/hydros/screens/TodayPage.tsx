@@ -7,7 +7,7 @@ import DrinkEntry from '../app/DrinkEntry';
 import { caffeineFacts, dateLabel, defaultDrinkProfiles, effectiveGoalOz, formatVolume, hourLabel, hydrationOz, localDate, volumeLabel, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
-import { GearIcon } from '../app/icons';
+import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { displayName, subscribePreferences } from '../../data/storage/preferences';
 import { greeting as proairetosGreeting } from '../../features/today/greeting';
@@ -85,6 +85,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <section className="hydros-today-list" aria-label="Today’s drinks">
         <div className="hydros-section-title">
           <h2>Today</h2>
+          <button type="button" aria-label="Add a custom drink" onClick={() => nav.go({ name: 'add', custom: true })}><PlusIcon size={19} /></button>
           {caffeine.mg > 0 && <span className="hydros-caffeine">{caffeine.mg} mg caffeine{caffeine.lastAt ? ` · last ${hourLabel(caffeine.lastAt)}` : ''}</span>}
         </div>
         {all && todays.length === 0 && <p className="pattern-empty">Nothing logged yet.</p>}

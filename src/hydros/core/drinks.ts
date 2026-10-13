@@ -175,7 +175,6 @@ export const drinkKinds: { id: DrinkKind; label: string; caffeineMg: number }[] 
   { id: 'tea', label: 'Tea', caffeineMg: 35 },
   { id: 'electrolyte', label: 'Sports drink', caffeineMg: 0 },
   { id: 'sparkling', label: 'Sparkling', caffeineMg: 0 },
-  { id: 'other', label: 'Other', caffeineMg: 0 },
 ];
 
 export const kindLabel = (kind: DrinkKind) => drinkKinds.find((item) => item.id === kind)?.label ?? 'Other';
