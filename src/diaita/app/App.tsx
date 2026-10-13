@@ -13,9 +13,11 @@ import YearScreen from '../screens/YearScreen';
 import DayPage from '../screens/DayPage';
 import SourcesPage from '../screens/SourcesPage';
 import NapPage from '../screens/NapPage';
+import WindDownPage from '../screens/WindDownPage';
+import CantSleepPage from '../screens/CantSleepPage';
 
 export type Tab = 'today' | 'week' | 'sleep' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' } | { name: 'wind-down' } | { name: 'cant-sleep' };
 export type DiaitaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -27,11 +29,13 @@ const tabs: readonly TabDef<Tab>[] = [
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // A link from another app or a notice: `week`, `sleep`, `log`, `day:DATE`.
+  // A link from another app or a notice: `week`, `sleep`, `log`, `day:DATE`, or a bedtime screen.
   const opening = takeOpening();
   if (opening?.startsWith('day:')) return { name: 'day', date: opening.slice(4) };
   if (opening === 'log') return { name: 'log' };
   if (opening === 'nap') return { name: 'nap' };
+  if (opening === 'wind-down') return { name: 'wind-down' };
+  if (opening === 'cant-sleep') return { name: 'cant-sleep' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
@@ -65,6 +69,10 @@ export default function App() {
         return <SourcesPage nav={nav} />;
       case 'nap':
         return <NapPage nav={nav} />;
+      case 'wind-down':
+        return <WindDownPage nav={nav} />;
+      case 'cant-sleep':
+        return <CantSleepPage nav={nav} />;
     }
   })();
 

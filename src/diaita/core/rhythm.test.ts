@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { atTime } from '../../core/scheduling/dates';
-import { clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleptMinutes, type WorkBlock } from './rhythm';
+import { clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
 
 const block = (date: string, start: string, endDate: string, end: string, label = 'Work'): WorkBlock => ({ start: atTime(date, start), end: atTime(endDate, end), label });
 
@@ -125,5 +125,27 @@ describe('the sleep log', () => {
   it('offers the planned times for the check-in', () => {
     const plan = planBetween('2026-10-09', '2026-10-10', [], defaultRhythm);
     expect(plannedSleepInto('2026-10-10', plan)).toEqual({ bed: '22:30', up: '06:00' });
+  });
+
+  it('keeps amount and regularity as plain weekly facts', () => {
+    const records = [
+      { date: '2026-10-01', bed: '22:30', up: '06:30' },
+      { date: '2026-10-02', bed: '23:00', up: '07:00' },
+      { date: '2026-10-03', bed: '00:00', up: '07:30' },
+    ];
+    expect(sleepWeekFacts(records, 7.5)).toEqual({
+      nights: 3,
+      totalMinutes: 1_410,
+      chosenMinutes: 1_350,
+      bedSpreadMinutes: 90,
+      upSpreadMinutes: 60,
+    });
+  });
+
+  it('treats a bedtime around midnight as close together', () => {
+    expect(sleepWeekFacts([
+      { date: '2026-10-01', bed: '23:30', up: '07:00' },
+      { date: '2026-10-02', bed: '00:30', up: '07:00' },
+    ], 7.5)?.bedSpreadMinutes).toBe(60);
   });
 });

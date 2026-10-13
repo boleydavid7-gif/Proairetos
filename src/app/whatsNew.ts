@@ -1,6 +1,14 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-13',
+    lines: [
+      'Diaita now has Wind down: choose a short routine from slow breathing, progressive muscle relaxation, a body scan and Park tomorrow, with spoken cues, sounds and a bell from Meditate.',
+      'If you wake and cannot sleep, Diaita offers dim-light stimulus-control steps, ordinary-word pictures and optional sound, without a clock.',
+      'Sleep now shows this week’s amount against the amount you chose, and how much your recorded bedtimes and wake times varied.',
+    ],
+  },
+  {
     date: '2026-10-12',
     lines: [
       'Askesis: setting an aim is one list per question, with a check on your answer. Praxis: a calmer top and no timer until there is a block. Therapeia: the time on a medicine shows in full.',

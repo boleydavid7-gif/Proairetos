@@ -263,6 +263,36 @@ export function sleepFacts(records: readonly SleepRecord[]) {
   return { nights: records.length, averageMinutes: Math.round(total / records.length), marked };
 }
 
+/**
+ * Facts for one week of sleep: the amount written down and the smallest span
+ * containing the recorded bedtimes and wake times on a clock face.
+ */
+export function sleepWeekFacts(records: readonly SleepRecord[], chosenHours: number) {
+  if (records.length === 0) return undefined;
+  const totalMinutes = records.reduce((sum, record) => sum + sleptMinutes(record), 0);
+  const clockMinutes = (value: string): number => {
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  const clockSpread = (values: number[]): number => {
+    if (values.length < 2) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const around = [...sorted, ...sorted.map((value) => value + 24 * 60)];
+    let smallest = 24 * 60;
+    for (let start = 0; start < sorted.length; start += 1) {
+      smallest = Math.min(smallest, around[start + sorted.length - 1] - around[start]);
+    }
+    return smallest;
+  };
+  return {
+    nights: records.length,
+    totalMinutes,
+    chosenMinutes: Math.round(chosenHours * 60) * records.length,
+    bedSpreadMinutes: clockSpread(records.map((record) => clockMinutes(record.bed))),
+    upSpreadMinutes: clockSpread(records.map((record) => clockMinutes(record.up))),
+  };
+}
+
 /** What the plan expects for the sleep that ended on this day, as times for the check-in. */
 export function plannedSleepInto(date: string, entries: readonly Entry[]): { bed: string; up: string } | undefined {
   const sleep = entries.filter((entry) => entry.kind === 'sleep' && entry.end && toLocalDate(entry.end) === date).pop();

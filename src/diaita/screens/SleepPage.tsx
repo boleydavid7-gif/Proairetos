@@ -3,10 +3,10 @@ import { Empty, offerUndo } from '../../app/family/shell';
 import { BackIcon, MoonIcon, PlusIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
-import { sleeps } from '../app/state';
+import { settings, sleeps } from '../app/state';
 import { weekdayText } from '../app/ui';
 import { ColumnChart } from '../../app/family/charts';
-import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
+import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
 
 type Kept = SleepRecord & { id: string };
 
@@ -81,10 +81,12 @@ function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
 
 export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: string | true }) {
   const all = [...sleeps.use()].sort((a, b) => b.date.localeCompare(a.date));
+  const current = settings.use();
   const [editing, setEditing] = useState<string | true | undefined>(adding);
   const today = toLocalDate(new Date());
   const recent = all.filter((record) => record.date > addDays(today, -14));
   const facts = sleepFacts(recent);
+  const weekFacts = sleepWeekFacts(all.filter((record) => record.date > addDays(today, -7)), current.sleepHours);
   const editingRecord = typeof editing === 'string' ? all.find((record) => record.id === editing) : undefined;
   const done = () => (adding ? nav.back() : setEditing(undefined));
 
@@ -107,6 +109,20 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               <div className="tile"><span className="tile__label">Average, 2 weeks</span><span className="tile__value">{hoursText(facts.averageMinutes)}</span></div>
               <div className="tile"><span className="tile__label">Nights logged</span><span className="tile__value">{facts.nights}</span></div>
             </div>
+          )}
+          {weekFacts && (
+            <section className="card diaita-week-facts">
+              <h2 className="card__title">This week</h2>
+              <div className="diaita-fact-row">
+                <span><strong>{hoursText(weekFacts.totalMinutes)}</strong><small>Logged across {weekFacts.nights} {weekFacts.nights === 1 ? 'night' : 'nights'}</small></span>
+                <span><strong>{hoursText(weekFacts.chosenMinutes)}</strong><small>Chosen amount</small></span>
+              </div>
+              <div className="diaita-fact-row diaita-fact-row--regularity">
+                <span><strong>{hoursText(weekFacts.bedSpreadMinutes)}</strong><small>Bedtime variation</small></span>
+                <span><strong>{hoursText(weekFacts.upSpreadMinutes)}</strong><small>Wake-time variation</small></span>
+              </div>
+              <p className="hint">These are the times and amount you recorded.</p>
+            </section>
           )}
           <ColumnChart
             title="Hours slept, last 14 nights"

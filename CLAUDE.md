@@ -712,7 +712,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight. Every line can open its source; Settings (More) holds bedtime, sleep
   hours, travel, getting ready, cutoff, wind-down, Light and Meals switches. Grouped by the person's day
   (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
-  and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources.
+  and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also
+  offers a chosen 10–20 minute Wind down (`screens/WindDownPage.tsx`) with Meditate's sounds, bell and spoken cues,
+  a dim Can’t sleep screen (`screens/CantSleepPage.tsx`), and weekly amount/regularity facts (`sleepWeekFacts`).
   Notices kind `rhythm` (`core/notices.ts`: wind down, nap on; last caffeine off), not held by quiet hours.
 - Philia (`core/people.ts`, tests): people (`philia:person:ID`) with birthday (year optional, 29 Feb on the
   28th), other yearly dates, who they are, Remember lines, gift ideas (mark given), times together, and an

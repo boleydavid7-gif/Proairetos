@@ -135,6 +135,18 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
           </section>
         )}
 
+        {(hour >= 16 || hour < 5) && (
+          <section className="card diaita-bedtime">
+            <span className="card__eyebrow">Tonight</span>
+            <strong className="diaita-next__title">Make sleep easier</strong>
+            <span className="muted">An 11-minute routine, or help if you are awake later.</span>
+            <div className="button-row">
+              <button type="button" className="button-main" onClick={() => nav.go({ name: 'wind-down' })}>Wind down</button>
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'cant-sleep' })}>Can’t sleep</button>
+            </div>
+          </section>
+        )}
+
         {(hour >= 4 || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
 
         <div className="section-head">
