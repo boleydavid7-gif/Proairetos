@@ -10,7 +10,6 @@ import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { Timeline, span } from '../app/ui';
 import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, type SleepQuality } from '../core/rhythm';
-import { Greeting } from '../../app/family/greeting';
 
 const ENERGY: { id: Energy; label: string }[] = [
   { id: 'full', label: 'Plenty' },
@@ -121,7 +120,6 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
         <div className="hero__content">
           <Brand name="Diaita" mark={<AppMark app="diaita" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting"><Greeting now={now} /></p>
             <h1 className="home__title">{DAY_NAMES[kind]}</h1>
             <p className="home__sub">{work.length ? work.map((entry) => `${entry.title} ${span(entry)}`).join(' · ') : 'No work today'}</p>
           </div>

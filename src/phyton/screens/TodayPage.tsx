@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, CameraIcon, PlusIcon } from '../../app/family/icons';
-import { Greeting } from '../../app/family/greeting';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photo from '../../assets/images/scenes/phyton.webp';
@@ -49,9 +48,8 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
         <div className="hero__content">
           <Brand name="Phyton" mark={<AppMark app="phyton" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting"><Greeting /></p>
             <h1 className="home__title">{groups.now.length === 0 ? 'Nothing to check' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} to check`}</h1>
-            <p className="home__sub">{home ? home.name : 'Plants'}</p>
+            {home && <p className="home__sub">{home.name}</p>}
           </div>
         </div>
       </div>
@@ -82,7 +80,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
         )}
 
         {all.length === 0 ? (
-          <section className="card">
+          <section className="card first-run">
             <h2 className="card__title">No plants yet</h2>
             <div className="button-row">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add a plant</button>
@@ -126,7 +124,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
             )}
           </>
         )}
-        <DailyLine app="phyton" />
+        {all.length > 0 && <DailyLine app="phyton" />}
       </div>
     </div>
   );

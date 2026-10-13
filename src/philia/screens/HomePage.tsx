@@ -9,7 +9,6 @@ import { people } from '../app/state';
 import { Initials } from '../app/ui';
 import SwipeItem from '../../app/family/SwipeItem';
 import { comingUp, inTouchNow, shortDate, sinceText, turningText, whenText, type Person } from '../core/people';
-import { Greeting } from '../../app/family/greeting';
 
 
 export function markInTouch(person: Person, today: string) {
@@ -40,7 +39,6 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
         <div className="hero__content">
           <Brand name="Philia" mark={<AppMark app="philia" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting"><Greeting /></p>
             <h1 className="home__title">{first ? (first.label === 'Birthday' ? `${first.person.name}’s birthday` : `${first.person.name}: ${first.label}`) : 'Philia'}</h1>
             <p className="home__sub">{first ? whenText(first.date, today) : 'The people in your life'}</p>
           </div>
@@ -49,7 +47,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
 
       <div className="page page--under-hero">
         {all.length === 0 ? (
-          <section className="card">
+          <section className="card first-run">
             <h2 className="card__title">No one here yet</h2>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add someone</button>
             <button type="button" className="text-link" onClick={() => nav.swap({ name: 'more' })}>Bring in from Compass</button>
@@ -110,7 +108,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
             )}
           </>
         )}
-        <DailyLine app="philia" />
+        {all.length > 0 && <DailyLine app="philia" />}
       </div>
     </div>
   );

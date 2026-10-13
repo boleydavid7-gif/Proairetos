@@ -11,7 +11,6 @@ import { ROUTINES, routineMinutes, weekMobility } from '../core/mobility';
 import { useStore } from '../../app/family/read';
 import { useAddedApps } from '../../app/family/added';
 import { fromRunDays, isTrainingDay, nextSession, sessionMinutes, setsOffer, targetsFor, weekDays } from '../core/plan';
-import { Greeting } from '../../app/family/greeting';
 
 
 export default function TodayPage({ nav }: { nav: DynamisNav }) {
@@ -125,7 +124,6 @@ function Hero({ title, sub }: { title: string; sub: string }) {
       <div className="hero__content">
         <Brand name="Dynamis" mark={<AppMark app="dynamis" size={30} light />} light />
         <div className="home__words">
-          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">{title}</h1>
           <p className="home__sub">{sub}</p>
         </div>

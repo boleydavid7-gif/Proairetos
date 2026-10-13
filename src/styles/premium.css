@@ -308,3 +308,43 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   letter-spacing: -0.005em;
   line-height: 1.3;
 }
+
+/* ---------- First run (an app with nothing in it yet) ----------
+   No card around it and no full-width pill: one plain line and a compact button, left where the list will be. */
+.card.first-run {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 4px 0 8px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.first-run .card__title {
+  margin: 0;
+  font-family: var(--sans, inherit);
+  font-size: var(--text-base, 1rem);
+  font-weight: 500;
+  color: var(--muted, var(--color-text-muted));
+}
+.first-run .button-main,
+.first-run .button-quiet {
+  width: auto;
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: var(--text-base, 1rem);
+}
+.first-run .button-row {
+  justify-content: flex-start;
+}
+.first-run .button-row > * {
+  flex: 0 0 auto;
+}
+
+/* The daily line is a quiet foot, never the biggest thing on the page. */
+.daily-line blockquote,
+blockquote.daily-line {
+  font-size: var(--text-base, 1rem);
+  line-height: 1.5;
+  color: var(--muted, var(--color-text-muted));
+}

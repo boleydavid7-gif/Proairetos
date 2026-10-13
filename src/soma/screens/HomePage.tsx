@@ -14,7 +14,6 @@ import { plannedOn, weekFrom } from '../core/week';
 import { Brand, dayLabel, Hero } from '../app/ui';
 import { lineFor } from '../core/lines';
 import { minutesLabel, timeOf, type Recipe } from '../core/recipes';
-import { Greeting } from '../../app/family/greeting';
 
 export function RecipeCard({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   const time = minutesLabel(timeOf(recipe));
@@ -54,7 +53,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero image={scene('lake-produce')} tall>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">Recipes</h1>
         </div>
       </Hero>
@@ -155,7 +153,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
           <span className="card__title">Find something new to cook</span>
         </button>
 
-        {settings.dailyLine && (
+        {settings.dailyLine && recipes.length > 0 && (
           <blockquote className="daily-line">
             “{line.text}”<cite>{line.source}</cite>
           </blockquote>

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Quieter first screens: an app with nothing in it shows one line and a small button, the daily line waits until there is something there, and only Proairetos says hello.',
       'Sync through your own Google Drive, Dropbox or OneDrive (Settings > Account > Where your data syncs). Everything is still locked on your phone first; every app and device follows.',
       'A passkey that only signs in now has “Let it open your data” in Settings > Account: your passphrase once, then Face ID.',
       'Signing in is simpler: with a passkey, Face ID opens your data in every app, and the passphrase and sign-in pass step aside. A passkey that only signed in before is set to open your data the next time you enter your passphrase after it.',

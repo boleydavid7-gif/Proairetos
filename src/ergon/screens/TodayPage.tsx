@@ -10,7 +10,6 @@ import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
 import { ChoreList } from '../app/ui';
 import { IDEAS, grouped, type Chore } from '../core/chores';
-import { Greeting } from '../../app/family/greeting';
 
 
 export function Ideas({ chores }: { chores: readonly Chore[] }) {
@@ -60,7 +59,6 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         <div className="hero__content">
           <Brand name="Ergon" mark={<AppMark app="ergon" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting"><Greeting /></p>
             <h1 className="home__title">{groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} today`}</h1>
             <p className="home__sub">{home ? home.name : 'Chores'}</p>
           </div>
@@ -73,7 +71,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         )}
 
         {all.length === 0 ? (
-          <section className="card">
+          <section className="card first-run">
             <h2 className="card__title">No chores yet</h2>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add a chore</button>
             <p className="label">Or start with</p>
@@ -94,7 +92,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
             )}
           </>
         )}
-        <DailyLine app="ergon" />
+        {all.length > 0 && <DailyLine app="ergon" />}
       </div>
     </div>
   );

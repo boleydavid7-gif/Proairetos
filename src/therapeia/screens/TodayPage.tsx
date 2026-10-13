@@ -9,7 +9,6 @@ import type { TherapeiaNav } from '../app/App';
 import { appointments, medicines, useAnchors } from '../app/state';
 import { at, DoseRow, dayWord, takeOneNow } from '../app/ui';
 import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments } from '../core/medicines';
-import { Greeting } from '../../app/family/greeting';
 
 
 export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
@@ -37,7 +36,6 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
         <div className="hero__content">
           <Brand name="Therapeia" mark={<AppMark app="therapeia" size={30} light />} light />
           <div className="home__words">
-            <p className="home__greeting"><Greeting now={now} /></p>
             <h1 className="home__title">{next ? next.medicine.name : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
             <p className="home__sub">{next ? `${at(next.at)}${next.medicine.dose ? ` · ${next.medicine.dose}` : ''}` : 'Medicines'}</p>
           </div>
@@ -46,7 +44,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
 
       <div className="page page--under-hero">
         {all.length === 0 ? (
-          <section className="card">
+          <section className="card first-run">
             <h2 className="card__title">No medicines yet</h2>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={18} />Add a medicine</button>
           </section>
@@ -106,7 +104,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
             </ul>
           </>
         )}
-        <DailyLine app="therapeia" />
+        {all.length > 0 && <DailyLine app="therapeia" />}
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import { payBill } from '../app/payBill';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
 import { Brand, Hero } from '../app/ui';
-import { Greeting } from '../../app/family/greeting';
 
 function billRow(bill: Bill, date: string, nav: Nav, today: string) {
   return (
@@ -50,7 +49,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">This month</h1>
         </div>
       </Hero>
@@ -60,16 +58,19 @@ export default function HomePage({ nav }: { nav: Nav }) {
           <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /></div>
         ) : all.length === 0 ? (
           <>
-            <section className="card oiko-empty">
-              <h2 className="card__title">Coming up</h2>
-              <p className="muted">Nothing here yet.</p>
+            <section className="card oiko-empty first-run">
+              <h2 className="card__title">No bills yet</h2>
               <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
                 Add a bill
               </button>
             </section>
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
-              <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
+              {budgetSummary.plannedCents || budget?.totalCents ? (
+                <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : ''}</span></span>
+              ) : (
+                <span className="oiko-budget-home__line"><span>Set a monthly amount</span></span>
+              )}
               <span className="muted"><ChevronIcon size={17} /></span>
             </button>
           </>

@@ -16,7 +16,6 @@ import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
-import { Greeting } from '../../app/family/greeting';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -65,7 +64,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
       <Hero image={scene('sunset-lake')} tall>
         <Brand light />
         <div className="home__words">
-          <p className="home__greeting"><Greeting /></p>
           <h1 className="home__title">{week ? `Week ${week.n}` : resting ? 'Rest week' : 'Askesis'}</h1>
         </div>
       </Hero>
