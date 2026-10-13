@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-12',
     lines: [
+      'Askesis: setting an aim is one list per question, with a check on your answer. Praxis: a calmer top and no timer until there is a block. Therapeia: the time on a medicine shows in full.',
       'Quieter first screens: an app with nothing in it shows one line and a small button, the daily line waits until there is something there, and only Proairetos says hello.',
       'Sync through your own Google Drive, Dropbox or OneDrive (Settings > Account > Where your data syncs). Everything is still locked on your phone first; every app and device follows.',
       'A passkey that only signs in now has “Let it open your data” in Settings > Account: your passphrase once, then Face ID.',

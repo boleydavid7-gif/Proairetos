@@ -330,9 +330,8 @@ export default function PraxisApp() {
 
       <main className="praxis-main">
         <header className="praxis-topbar">
-          <a className="praxis-family-link" href="/" aria-label="Open Proairetos"><span>Proairetos</span></a>
+          {/* Proairetos is a tab in the bar, and sync shows in Settings: the top holds only the date. */}
           <div className="praxis-topbar__date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(clock)}</div>
-          <SyncDot />
         </header>
 
         <div className="praxis-page">
@@ -417,10 +416,6 @@ export default function PraxisApp() {
   );
 }
 
-function SyncDot() {
-  const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
-  return <div className="praxis-topbar__person"><span className={`praxis-sync-dot praxis-sync-dot--${sync.phase}`} role="img" aria-label={sync.phase === 'ready' ? 'Synced' : 'On this device'} /></div>;
-}
 
 function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {
   return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<ProairetosTab className="praxis-nav-item" size={18} /></div>;

@@ -90,12 +90,13 @@ export function TodayView(props: TodayProps) {
             <>
               <div className="praxis-card-heading">
                 <div>
-                  <p className="praxis-eyebrow">{rest ? 'A break' : session ? 'Studying' : 'Next'}</p>
-                  <h2>{rest ? `${rest.minutes} minutes away` : session?.itemTitle ?? selected?.title ?? 'Add a block to begin'}</h2>
+                  {(rest || session || selected) && <p className="praxis-eyebrow">{rest ? 'A break' : session ? 'Studying' : 'Next'}</p>}
+                  <h2>{rest ? `${rest.minutes} minutes away` : session?.itemTitle ?? selected?.title ?? 'No blocks yet'}</h2>
+                  {!rest && !session && !selected && <p>Add what you study under Your blocks.</p>}
                   {!rest && <p>{session ? (session.pausedAt ? 'Paused' : `${Math.round(session.durationMs / 60_000)} minutes`) : selected ? `${minutes} minutes` : ''}</p>}
                 </div>
               </div>
-              <div className="praxis-focus-stage">
+              {(rest || session || selected) && <div className="praxis-focus-stage">
                 <div className="praxis-timer" style={{ '--praxis-progress': `${Math.max(0.01, progress) * 360}deg` } as CSSProperties} aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
                   <div className="praxis-timer__inner"><span className="praxis-timer__time">{rest ? formatClockDown(restLeft) : session ? (finished ? '0:00' : formatClockDown(remaining)) : `${minutes}:00`}</span></div>
                 </div>
@@ -110,7 +111,7 @@ export function TodayView(props: TodayProps) {
                     {!session && selected && <LengthPicker minutes={minutes} onMinutes={props.onMinutes} />}
                   </>
                 )}
-              </div>
+              </div>}
             </>
           )}
         </article>

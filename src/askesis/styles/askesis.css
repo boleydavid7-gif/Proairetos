@@ -775,16 +775,52 @@ input[type='date'].input {
   gap: 2px;
 }
 
+/* One grouped list per question, a hairline between rows and a check on the chosen one (as in iOS Settings),
+   not a stack of separate cards. */
 .choice-list {
   display: grid;
-  gap: 8px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
 }
 
-.choice-list .chip {
+.choice-list .chip,
+.choice-list .chip[aria-pressed='true'] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   min-height: 48px;
-  border-radius: 14px;
-  text-align: left;
   padding: 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+  transform: none;
+}
+
+.choice-list .chip + .chip {
+  box-shadow: inset 0 1px 0 var(--line);
+}
+
+.choice-list .chip[aria-pressed='true'] {
+  font-weight: 600;
+}
+
+.choice-list .chip[aria-pressed='true']::after {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 12px;
+  margin: -3px 4px 0 12px;
+  border: solid var(--mint);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 /* ---------- Home ---------- */

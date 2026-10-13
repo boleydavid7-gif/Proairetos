@@ -63,10 +63,16 @@
 /* A dose time: its kind, its value, and Remove, in a row. */
 .dose-time {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto;
+  /* The time keeps room for "08:00 AM" whatever the phone's clock style; the kind of time takes what is left. */
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, auto) auto;
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
+}
+
+.dose-time .input {
+  min-width: 0;
+  padding-inline: 10px;
 }
 
 .dose .chore__when {

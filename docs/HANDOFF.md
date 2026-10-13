@@ -86,13 +86,10 @@ Paste this to a new assistant to pick up where the last one stopped.
 4. **Microsoft Entra:** in Noesis's app, under Authentication → Single-page application → Add URI, add the same address.
 5. **Check:** https://proairetos.com/api/storage should list google, dropbox and onedrive.
 
-## Next work (the rest of the third design pass)
+## Next work
 
-1. **Askesis setup** ("Where you are now", `src/askesis/screens/PlanPage.tsx`): ten stacked choice cards per question. Make each question one grouped list with a check mark, iOS style.
-2. **Praxis** (`src/praxis/PraxisApp.tsx`, `views.tsx`):
-   - Remove the tiny "Proairetos" label and the stray dot at the top.
-   - With no block, don't show a 25:00 timer with an active Start; show "Add a block" instead.
-   - The phone bar has 7 items; consider fewer.
-3. **Therapeia "Add a medicine"**: the time field is cut off ("08:00 A"). Widen it in that form's CSS.
-4. **Check the result:** take phone-size screenshots of every app's first screen in dark and light, using Playwright with Chromium at `/opt/pw-browsers/chromium` against `npm run build` plus `npx vite preview`.
-5. **Optional:** Ktema's and Theoria's device-only files could sync through the person's own storage.
+The third design pass is done: grouped lists in Askesis, Praxis's top bar and empty state, and the Therapeia time field.
+
+1. **Check the result:** take phone-size screenshots of every app's first screen in dark and light, using Playwright with Chromium at `/opt/pw-browsers/chromium` against `npm run build` plus `npx vite preview`.
+2. **Optional:** Praxis's phone bar has 7 items; consider fewer.
+3. **Optional:** Ktema's and Theoria's device-only files could sync through the person's own storage.
