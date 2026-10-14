@@ -449,9 +449,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `29-touch.css` (last) keeps every control at least 44px to tap.
   Moving between places uses view transitions (`app/transitions.ts`):
   every route change goes through `go()` in App (tabs slide by bar order,
-  pages push in and pop out); the shell owns a viewport-height scroll surface,
-  and suppresses pull-bounce at its edges, so main-tab changes swap content at the top under a fixed tab bar with extra
-  mobile top room, and the selected tab has a sliding indicator; other page
+  pages push in and pop out); Proairetos follows the family's normal page
+  scrolling, so main-tab changes swap content at the top under a fixed tab bar
+  with extra mobile top room, and the selected tab has a sliding indicator; other page
   changes move under the dock; a page's own tabs call `transition(...,
   'panel')` and key their `.vt-panel` by tab: no snapshot there, the new
   content just slides in (Safari tinted snapshots of filtered photos green). The tab bar holds still
@@ -634,7 +634,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`laterCollections` until migration `20261010000000_soma_sync.sql`; the
   old `soma` database moves over once in `startStore`); settings in localStorage `soma:settings`. Import through the Worker
   bridge `/api/recipe` (`worker/recipeProxy.ts`, JSON-LD only, nothing
-  stored) or pasted text; Ideas from TheMealDB (direct, CORS). Groceries by
+  stored), pasted text, or a recipe-card photo with on-device OCR reviewed
+  before parsing; Ideas from TheMealDB (direct, CORS). Groceries by
   aisle (`core/aisles.ts`, first matching phrase wins; moves remembered in
   `aisleChoices`). Reuses Askesis UI pieces and `askesis.css`, with
   `soma.css` tokens on `:root.soma`. "I cooked this" can keep a line in

@@ -15,7 +15,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'The bottom dock now stays fixed as pages change, with a springing line that follows the selected tab.',
       'Switching between Today, Reflect, Days ahead and Capture now opens the new page at the top, with the dock still.',
       'The main pages now have a little more room above their content on phones.',
-      'The phone scroll surface no longer stretches down when you pull past the top.',
+      'Proairetos now follows the same page scrolling as the other family apps when you change places.',
+      'Soma can read a recipe card photo on the phone; edit the recognized text before it becomes a recipe.',
+      'Soma’s bottom dock now has a moving active line and a clearer selected icon.',
     ],
   },
   {

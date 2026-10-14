@@ -1,9 +1,69 @@
 import { apiUrl } from '../../app/apiBase';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Nav } from '../app/App';
 import { holdDraft } from '../app/draft';
 import { BackLink, Segmented } from '../app/ui';
 import { fromJsonLd, fromText } from '../core/importRecipe';
+import { readPhotoText } from '../../app/family/ocr';
+
+function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState<number>();
+  const [text, setText] = useState('');
+  const [problem, setProblem] = useState('');
+
+  const read = (file: File) => {
+    setProblem('');
+    setText('');
+    setReading(0);
+    void readPhotoText(file, setReading)
+      .then(setText)
+      .catch(() => setProblem('The recipe card could not be read here. A closer, straighter photo in good light reads best.'))
+      .finally(() => setReading(undefined));
+  };
+
+  return (
+    <div className="recipe-photo-import">
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) read(file);
+        }}
+      />
+      {!text && (
+        <>
+          <p className="hint">Read a recipe card on this phone. The photo stays here.</p>
+          <button type="button" className="button-main" disabled={reading !== undefined} onClick={() => input.current?.click()}>
+            {reading !== undefined ? `Reading… ${Math.round(reading * 100)}%` : 'Take a photo'}
+          </button>
+        </>
+      )}
+      {problem && <p className="hint" role="alert">{problem}</p>}
+      {text && (
+        <>
+          <label className="field">
+            <span className="label">Text from the photo</span>
+            <textarea className="area recipe-photo-import__text" rows={12} value={text} onChange={(event) => setText(event.target.value)} />
+          </label>
+          <div className="button-row">
+            <button type="button" className="button-main" onClick={() => onUse(text)}>
+              Use this text
+            </button>
+            <button type="button" className="button-quiet" onClick={() => input.current?.click()}>
+              Another photo
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 /**
  * Bringing a recipe in: from a link (the page is read through the app's own
@@ -11,7 +71,7 @@ import { fromJsonLd, fromText } from '../core/importRecipe';
  * shown to look over before it is kept.
  */
 export default function ImportPage({ nav }: { nav: Nav }) {
-  const [how, setHow] = useState<'link' | 'text'>('link');
+  const [how, setHow] = useState<'link' | 'text' | 'photo'>('link');
   const [link, setLink] = useState('');
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -51,6 +111,7 @@ export default function ImportPage({ nav }: { nav: Nav }) {
         options={[
           { id: 'link', label: 'A link' },
           { id: 'text', label: 'Pasted text' },
+          { id: 'photo', label: 'A photo' },
         ]}
         onChange={setHow}
       />
@@ -73,7 +134,7 @@ export default function ImportPage({ nav }: { nav: Nav }) {
             {busy ? 'Reading the page…' : 'Bring it in'}
           </button>
         </>
-      ) : (
+      ) : how === 'text' ? (
         <>
           <label className="field">
             <span className="label">The recipe, as text</span>
@@ -96,6 +157,13 @@ export default function ImportPage({ nav }: { nav: Nav }) {
             Split it up
           </button>
         </>
+      ) : (
+        <RecipePhoto
+          onUse={(photoText) => {
+            holdDraft(fromText(photoText));
+            nav.swap({ name: 'edit' });
+          }}
+        />
       )}
       {problem && (
         <p className="hint" role="status">

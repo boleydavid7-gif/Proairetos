@@ -10,8 +10,10 @@ choice: informative, sourced, switchable in More). Served at
 - **Import** (`ImportPage`): from a link (the Worker bridge `/api/recipe`,
   `worker/recipeProxy.ts`, fetches the page and returns only its schema.org
   Recipe JSON-LD, title and picture; `core/importRecipe.ts` `fromJsonLd`), or
-  pasted text (`fromText`: headings or the look of each line). Either way the
-  recipe opens in Edit to look over before it is kept.
+  pasted text (`fromText`: headings or the look of each line), or a recipe-card
+  photo read on the phone with on-device OCR. The recognized text can be edited
+  before it is parsed. Either way the recipe opens in Edit to look over before
+  it is kept.
 - **Ideas** (tab): TheMealDB (themealdb.com, free open recipe database):
   kinds (Vegetarian, Vegan, Seafood…), search by dish or ingredient; a meal
   opens in Edit (`fromMeal`).
@@ -129,7 +131,8 @@ choice: informative, sourced, switchable in More). Served at
 
 ## Next
 
-- A photo of a recipe card read on the phone (OCR, loaded only when used).
+- Barcode scanning and a fuller pantry model: quantities, expiry, package sizes
+  and “use soon” suggestions.
 - Askesis link: meals around runs.
 - Pictures for recipes without one: a photo taken by the person, or an
   image made by an AI image service through the Worker (needs a key and has a
