@@ -10,6 +10,12 @@
   background: var(--color-surface);
 }
 
+/* A short list of switches: rows edge to edge, a hairline between them. */
+.settings-card--rows {
+  gap: 0;
+  padding: var(--space-1) var(--space-4);
+}
+
 .settings-card .section-description {
   margin-top: calc(var(--space-2) * -1);
 }

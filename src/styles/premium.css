@@ -385,3 +385,139 @@ blockquote.daily-line {
   line-height: 1.5;
   color: var(--muted, var(--color-text-muted));
 }
+
+/* ---------- Settings, one look ----------
+   Grouped lists as on iPhone: a coloured tile per row, hairlines that start after the tile, a chevron.
+   Switches sit at the end of their row with iOS proportions and a Material-style filled track. The same
+   classes serve every app's settings, so the family reads as one. */
+:root {
+  --tile-gold: #b0844c;
+  --tile-blue: #3a78c9;
+  --tile-indigo: #5a5cc2;
+  --tile-teal: #2b8580;
+  --tile-green: #3a8650;
+  --tile-orange: #c9722a;
+  --tile-red: #c8463f;
+  --tile-pink: #c04b78;
+  --tile-grey: #74777e;
+}
+
+.settings-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+  color: #fff;
+  background: var(--tile-grey);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+.settings-tile--gold { background: var(--tile-gold); }
+.settings-tile--blue { background: var(--tile-blue); }
+.settings-tile--indigo { background: var(--tile-indigo); }
+.settings-tile--teal { background: var(--tile-teal); }
+.settings-tile--green { background: var(--tile-green); }
+.settings-tile--orange { background: var(--tile-orange); }
+.settings-tile--red { background: var(--tile-red); }
+.settings-tile--pink { background: var(--tile-pink); }
+.settings-tile--app {
+  background: none;
+  box-shadow: none;
+}
+.settings-tile--app img {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+}
+
+.settings-list {
+  border-radius: 14px;
+}
+.settings-list .settings-row {
+  gap: var(--space-3);
+  min-height: 3rem;
+  padding-block: var(--space-2);
+  border-bottom: 0;
+}
+/* The hairline starts where the words do, as on iPhone. */
+.settings-list .settings-row:not(:last-child) {
+  background-image: linear-gradient(var(--color-border), var(--color-border));
+  background-size: calc(100% - 3.9rem) 1px;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+.settings-row__text {
+  font-size: var(--text-base, 1rem);
+}
+
+.toggle-switch {
+  flex: none;
+  position: relative;
+  width: 3.1rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  transition: background 200ms ease;
+  background: color-mix(in srgb, var(--color-text, currentColor) 20%, transparent);
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  top: 0.17rem;
+  left: 0.17rem;
+  width: 1.56rem;
+  height: 1.56rem;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.toggle-switch--on {
+  background: var(--color-accent);
+}
+.toggle-switch--on::after {
+  transform: translateX(1.2rem);
+  background: #fff;
+}
+
+/* In settings the label leads and the switch ends the row; rows part with a hairline. */
+.settings-card .toggle-row {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: 3rem;
+  color: var(--color-text);
+  text-align: left;
+}
+.settings-card .toggle-row > :not(.toggle-switch) {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+.settings-card .toggle-row[aria-pressed='true'] {
+  color: var(--color-text);
+}
+.settings-card .toggle-row + .toggle-row,
+.notify-list > .notify-row + .notify-row {
+  border-top: 1px solid var(--color-border);
+}
+.notify-row .toggle-row {
+  flex-basis: 100%;
+}
+
+/* A settings page made of several short lists, each under its own label. */
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.settings-sections .settings-group__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.settings-sections .settings-group__label img {
+  border-radius: 5px;
+}

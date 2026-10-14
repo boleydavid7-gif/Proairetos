@@ -200,7 +200,7 @@ export default function BringInSection() {
       </button>
       {error && <p className="form-error">{error}</p>}
       {message && <p className="sheet__hint">{message}</p>}
-      <p className="sheet__hint">To move everything from another Proairetos, use Back up and restore instead.</p>
+      <p className="sheet__hint">To move everything from another Proairetos, restore a backup above.</p>
     </section>
   );
 }

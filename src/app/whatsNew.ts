@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-14',
     lines: [
+      'Settings in Proairetos is shorter and clearer: fewer pages, one page for your data, privacy and the lock together, and switches at the end of each row.',
       'Reminders from every app arrive with that app’s name, icon and your own words, even before the lock-screen preview is set up on the server.',
       'Askesis and Soma settings now open correctly, including the shared account section.',
       'Diaita now has an early-evening Worry time with one next step for each worry, plus sourced room guidance in the sleep log.',

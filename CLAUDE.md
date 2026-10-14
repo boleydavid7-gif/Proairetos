@@ -181,9 +181,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   optional inner weather (the person picks it; the app never infers
   mood). Insights (`features/insights/`, `core/reflections/insights.ts`)
   only counts what was recorded: no trends, conclusions, or advice.
-  Settings is labelled groups of rows (`SettingsGroup`: Your days,
-  The app (Notifications, What's included, Appearance), Account and data (account and name, lock, back up, bring in, privacy, delete), Apps (Store and the added apps), About; support row last) with
-  detail pages, under a profile card. Calendars holds both other
+  Settings is labelled groups of rows (`SettingsGroup`: Your days (schedule, calendars, day starts, weather),
+  The app (Notifications, What's included, Appearance), Account and data (Account and sync, Privacy and lock, Your data:
+  backup, daily copies, restore, bring things in and delete on one page), Apps (Store and the added apps, names only),
+  About; support row last) with detail pages, under a profile card. Older page names fold into these (`shownView` in
+  `settingsViews.ts`: lock→privacy, delete/import→backup, offers→today, calendar→calendars), so links keep working.
+  One look for settings in every app (end of `premium.css`): a coloured tile per row (`settings-tile--<tone>`),
+  hairlines that start after the tile, switches at the row's end with iOS proportions and a filled track
+  (`.settings-card .toggle-row`), and pages of short lists under labels (`.settings-sections`, `.settings-card--rows`);
+  What's included and Notifications use them. Calendars holds both other
   calendars and the subscription; What's included holds Quiet offers;
   About holds sources; Values live only in Compass. The name
   (`proairetos.displayName`) syncs as a setting and greets in every app (`app/family/greeting.tsx` `Greeting`);

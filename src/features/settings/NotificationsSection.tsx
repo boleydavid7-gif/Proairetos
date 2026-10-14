@@ -95,13 +95,13 @@ const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: str
 
 function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {
   return (
-    <div className="notify-group">
-      <h3 className="settings-group__label notify-group__label">
+    <section className="settings-group notify-group" aria-label={label}>
+      <h2 className="settings-group__label notify-group__label">
         {icon && <img src={icon} alt="" width={18} height={18} />}
         {label}
-      </h3>
-      <div className="notify-list">{children}</div>
-    </div>
+      </h2>
+      <div className="settings-card settings-card--rows notify-list">{children}</div>
+    </section>
   );
 }
 
@@ -139,7 +139,7 @@ export default function NotificationsSection() {
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
-    <section className="settings-card notify-settings" aria-label="Notifications">
+    <div className="settings-sections notify-settings">
       {permission === 'default' && (
         <button type="button" className="button-accent" onClick={() => void notifications.ask()}>
           Allow notifications
@@ -291,7 +291,7 @@ export default function NotificationsSection() {
         {error && <p className="form-error">{error}</p>}
       </NotifyGroup>
 
-      <details className="notify-coming">
+      <details className="settings-card notify-coming">
         <summary>Coming up</summary>
         {upcoming.length === 0 ? (
           <p className="sheet__hint">Nothing in the next two weeks.</p>
@@ -312,6 +312,6 @@ export default function NotificationsSection() {
           Show one now
         </button>
       )}
-    </section>
+    </div>
   );
 }
