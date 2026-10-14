@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { offerUndo, say } from '../../app/family/shell';
 import { BackIcon, CheckIcon } from '../../app/family/icons';
@@ -8,7 +8,7 @@ import { newId, people } from '../app/state';
 import { AddLine, Initials } from '../app/ui';
 import { RHYTHMS, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
 import { markInTouch } from './HomePage';
-import { photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
+import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -25,6 +25,8 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
   const [timeDate, setTimeDate] = useState(today);
   const photo = usePhoto(person?.id);
   const [savingPhoto, setSavingPhoto] = useState(false);
+  const [restoringPhoto, setRestoringPhoto] = useState(false);
+  const restorePhotoInput = useRef<HTMLInputElement>(null);
 
   if (!person) {
     return (
@@ -87,14 +89,30 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                   setSavingPhoto(false);
                 }
               }}>{savingPhoto ? 'Saving…' : 'Save a copy'}</button>
+              <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>
               <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
                 void removePhoto(person.id);
                 if (before) offerUndo('Photo removed', () => void putPhoto(before));
               })}>Remove photo</button>
             </div>
           )}
+          {!photo && <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>}
         </div>
       </div>
+      <input ref={restorePhotoInput} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+        if (!file) return;
+        setRestoringPhoto(true);
+        try {
+          const restored = await importPhoto(file, person.id);
+          say(restored ? 'Photo restored' : 'No photo was found in that archive');
+        } catch {
+          say('That archive could not be opened here');
+        } finally {
+          setRestoringPhoto(false);
+        }
+      }} />
       {photo && <p className="fine">This photo stays on this phone. Save a copy before changing phones.</p>}
 
       {(person.phone || person.email) && (

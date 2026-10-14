@@ -7,6 +7,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita now has an early-evening Worry time with one next step for each worry, plus a one-time room check.',
       'Account now has a System check for sync, reminders, connection and browser storage, with Check again when a device setting changes.',
       'Device-only songs, thing files, plant photos and people photos can each be saved as one archive before you change phones.',
+      'Those archives can now be restored into the matching Askesis songs, Ktema thing, Phyton plant or Philia person.',
       'Diaita now shows an Askesis-run sleep comparison, one sourced regularity suggestion, and two-week experiments with before-and-after recorded amounts.',
       'Diaita’s sleep comparison can also group nights by Dynamis training, Hydros caffeine after cutoff, and scheduled night shifts.',
       'Diaita worries open Think it through in Proairetos, and the sleep log can offer a plain doctor prompt when its recorded signs or duration call for one.',

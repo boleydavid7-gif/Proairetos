@@ -13,7 +13,7 @@ import { takeHeldPhoto } from '../app/identify';
 import { moist, PlantThumb, watered } from '../app/ui';
 import { dayText, everyNow, everyText, feed, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
 import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
-import { photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
+import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
 
 async function keepPhoto(plantId: string, file: Blob): Promise<void> {
   const small = await smallPhoto(file);
@@ -128,7 +128,9 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
 function Photos({ plant }: { plant: Plant }) {
   const photos = usePhotos(plant.id);
   const picker = useRef<HTMLInputElement>(null);
+  const restorePicker = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const saveCopy = async () => {
     setSaving(true);
     try {
@@ -146,6 +148,7 @@ function Photos({ plant }: { plant: Plant }) {
         <h2 className="card__title card__title--small">Photos</h2>
         <div className="chip-row">
           {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Saving…' : 'Save a copy'}</button>}
+          <button type="button" className="text-link" disabled={restoring} onClick={() => restorePicker.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
           <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
         </div>
       </div>
@@ -160,6 +163,20 @@ function Photos({ plant }: { plant: Plant }) {
           if (file) void keepPhoto(plant.id, file).catch(() => say('That photo could not be read.'));
         }}
       />
+      <input ref={restorePicker} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+        if (!file) return;
+        setRestoring(true);
+        try {
+          const count = await importPhotos(file, plant.id);
+          say(count ? `${count} ${count === 1 ? 'photo' : 'photos'} restored` : 'No photos were found in that archive');
+        } catch {
+          say('That archive could not be opened here');
+        } finally {
+          setRestoring(false);
+        }
+      }} />
       {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>}
       {photos.length > 0 && <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>}
       {photos.length > 1 && (

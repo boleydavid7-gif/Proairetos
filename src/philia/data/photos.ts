@@ -3,6 +3,7 @@
  * or sync. Photos are cropped square and made small before they are kept.
  */
 import { useEffect, useState } from 'react';
+import { readArchiveJson, readZip } from '../../app/family/downloadZip';
 
 export type PersonPhoto = { personId: string; type: string; data: ArrayBuffer; at: string };
 
@@ -47,6 +48,18 @@ export async function putPhoto(photo: PersonPhoto): Promise<void> {
 export async function removePhoto(personId: string): Promise<void> {
   await run('readwrite', (store) => store.delete(personId)).catch(() => undefined);
   changed(personId);
+}
+
+/** Restores one person's photo from the archive saved on another phone. */
+export async function importPhoto(file: Blob, personId: string): Promise<boolean> {
+  const files = await readZip(file);
+  const manifest = readArchiveJson<{ app?: string; personId?: string; photo?: { type?: string; at?: string } }>(files, 'manifest.json');
+  if (manifest.app !== 'philia' || manifest.personId !== personId || !manifest.photo) throw new Error('This is not a Philia photo archive for this person.');
+  const path = Object.keys(files).find((each) => each.startsWith('photo.'));
+  if (!path) return false;
+  const data = files[path];
+  await putPhoto({ personId, type: manifest.photo.type || 'image/jpeg', data: data.slice().buffer as ArrayBuffer, at: manifest.photo.at || new Date().toISOString() });
+  return true;
 }
 
 /** A chosen image, cropped to its middle square and made small, as JPEG. */

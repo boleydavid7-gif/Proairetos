@@ -3,6 +3,7 @@
  * not in backups or sync. Each is made small (1200 px on its long side, JPEG) before it is kept.
  */
 import { useEffect, useState } from 'react';
+import { readArchiveJson, readZip } from '../../app/family/downloadZip';
 
 export type PlantPhoto = { id: string; plantId: string; date: string; type: string; data: ArrayBuffer };
 
@@ -44,6 +45,23 @@ export async function putPhoto(photo: PlantPhoto): Promise<void> {
 export async function removePhoto(id: string): Promise<void> {
   await run('readwrite', (store) => store.delete(id)).catch(() => undefined);
   changed();
+}
+
+/** Restores a plant's photos from the archive saved on another phone. */
+export async function importPhotos(file: Blob, plantId: string): Promise<number> {
+  const files = await readZip(file);
+  const manifest = readArchiveJson<{ app?: string; plantId?: string; photos?: { id?: string; date?: string; type?: string }[] }>(files, 'manifest.json');
+  if (manifest.app !== 'phyton' || manifest.plantId !== plantId || !Array.isArray(manifest.photos)) throw new Error('This is not a Phyton photo archive for this plant.');
+  let restored = 0;
+  for (const info of manifest.photos) {
+    if (!info.id || !info.date) continue;
+    const path = Object.keys(files).find((each) => each.startsWith('photos/') && each.endsWith(`${info.id}.jpg`));
+    if (!path) continue;
+    const data = files[path];
+    await putPhoto({ id: info.id, plantId, date: info.date, type: info.type || 'image/jpeg', data: data.slice().buffer as ArrayBuffer });
+    restored += 1;
+  }
+  return restored;
 }
 
 /** A chosen image made small, as JPEG; for keeping and for identifying. */

@@ -3,7 +3,7 @@ import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { offerUndo, say } from '../../app/family/shell';
 import { prepareFile } from '../../features/items/attachments/prepare';
 import { newId } from '../app/state';
-import { filesFor, putFile, removeFile, type KtemaFile } from '../data/files';
+import { filesFor, importFiles, putFile, removeFile, type KtemaFile } from '../data/files';
 
 const LIMIT = 10_000_000;
 
@@ -12,7 +12,9 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
   const [files, setFiles] = useState<KtemaFile[]>([]);
   const [viewing, setViewing] = useState<KtemaFile>();
   const [saving, setSaving] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const restoreInput = useRef<HTMLInputElement>(null);
   const reload = () => void filesFor(thingId).then((list) => setFiles(list.sort((a, b) => a.at.localeCompare(b.at))));
   useEffect(reload, [thingId]);
   const urls = useMemo(() => new Map(files.map((file) => [file.id, URL.createObjectURL(new Blob([file.data], { type: file.type }))])), [files]);
@@ -72,6 +74,22 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
       <input ref={input} type="file" accept="image/*,application/pdf" multiple hidden onChange={(event) => { void add(event.target.files); event.target.value = ''; }} />
       <button type="button" className="button-quiet" onClick={() => input.current?.click()}>Add a receipt, photo or manual</button>
       {files.length > 0 && <button type="button" className="button-quiet" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Preparing…' : 'Save a copy of these files'}</button>}
+      <input ref={restoreInput} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+        if (!file) return;
+        setRestoring(true);
+        try {
+          const count = await importFiles(file, thingId);
+          say(count ? `${count} ${count === 1 ? 'file' : 'files'} restored` : 'No files were found in that archive');
+          reload();
+        } catch {
+          say('That archive could not be opened here');
+        } finally {
+          setRestoring(false);
+        }
+      }} />
+      <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
       <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>
       {viewing && (
         <div className="ktema-viewer" role="dialog" aria-label={viewing.name} onClick={() => setViewing(undefined)}>

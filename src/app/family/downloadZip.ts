@@ -1,4 +1,4 @@
-import { strToU8, zipSync } from 'fflate';
+import { strToU8, unzipSync, zipSync } from 'fflate';
 
 export type ArchiveEntry = { path: string; data: string | ArrayBuffer | Uint8Array };
 
@@ -26,4 +26,20 @@ export function downloadZip(filename: string, entries: readonly ArchiveEntry[]):
   link.download = filename.endsWith('.zip') ? filename : `${filename}.zip`;
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Opens an archive made by one of the family apps. */
+export async function readZip(file: Blob): Promise<Record<string, Uint8Array>> {
+  if (file.size > 100 * 1024 * 1024) throw new Error('This archive is larger than 100 MB.');
+  return unzipSync(new Uint8Array(await file.arrayBuffer()));
+}
+
+export function readArchiveJson<T>(files: Record<string, Uint8Array>, path: string): T {
+  const bytes = files[path];
+  if (!bytes) throw new Error('This archive has no manifest.');
+  try {
+    return JSON.parse(new TextDecoder().decode(bytes)) as T;
+  } catch {
+    throw new Error('This archive has an unreadable manifest.');
+  }
 }

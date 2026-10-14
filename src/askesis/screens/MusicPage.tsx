@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { letGo, wakeAudio } from '../../app/sound/engine';
 import type { Nav } from '../app/App';
 import { PauseIcon, PlayIcon, PlusIcon } from '../app/icons';
-import { addSongs, exportSongs, playSongs, removeSong, stopSongs, useNowPlaying, useSongs } from '../app/music';
+import { addSongs, exportSongs, importSongs, playSongs, removeSong, stopSongs, useNowPlaying, useSongs } from '../app/music';
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { saveSettings } from '../data/store';
@@ -17,7 +17,9 @@ export default function MusicPage({ nav }: { nav: Nav }) {
   const [added, setAdded] = useState<string>();
   const [saved, setSaved] = useState<string>();
   const [saving, setSaving] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const restoreInput = useRef<HTMLInputElement>(null);
 
   const stop = () => {
     stopSongs();
@@ -132,6 +134,21 @@ export default function MusicPage({ nav }: { nav: Nav }) {
               </p>
             )}
             {saved && <p className="hint" role="status">{saved}</p>}
+            <input ref={restoreInput} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              if (!file) return;
+              setRestoring(true);
+              try {
+                const count = await importSongs(file);
+                setSaved(count ? `${count} ${count === 1 ? 'song' : 'songs'} restored.` : 'No songs were found in that archive.');
+              } catch {
+                setSaved('That archive could not be opened here.');
+              } finally {
+                setRestoring(false);
+              }
+            }} />
+            <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
             <p className="hint">From your phone’s files, kept on this phone. Songs in streaming apps stay in those apps.</p>
           </section>
         </>

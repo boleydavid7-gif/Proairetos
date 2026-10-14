@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { audio, gain } from '../../app/sound/engine';
-import { archiveName, downloadZip } from '../../app/family/downloadZip';
+import { archiveName, downloadZip, readArchiveJson, readZip } from '../../app/family/downloadZip';
 import { BELL_GAP } from '../core/cues';
 
 /*
@@ -62,6 +62,27 @@ export async function exportSongs(): Promise<number> {
   ];
   downloadZip(`askesis-songs-${new Date().toISOString().slice(0, 10)}`, entries);
   return songs.length;
+}
+
+/** Restores songs from an archive made by Askesis on another phone. */
+export async function importSongs(file: Blob): Promise<number> {
+  const files = await readZip(file);
+  const manifest = readArchiveJson<{ app?: string; kind?: string; songs?: { id?: string; name?: string; type?: string; addedAt?: string }[] }>(files, 'manifest.json');
+  if (manifest.app !== 'askesis' || manifest.kind !== 'songs' || !Array.isArray(manifest.songs)) throw new Error('This is not an Askesis songs archive.');
+  let restored = 0;
+  for (const info of manifest.songs) {
+    const id = info.id;
+    const name = info.name;
+    if (!id || !name) continue;
+    const type = info.type || 'audio/mpeg';
+    const path = Object.keys(files).find((each) => each.startsWith('songs/') && each.endsWith(`-${id}`));
+    if (!path) continue;
+    const data = files[path];
+    await run('readwrite', (store) => store.put({ id, name, type, size: data.byteLength, addedAt: info.addedAt || new Date().toISOString(), blob: new Blob([data.slice().buffer as ArrayBuffer], { type }) } satisfies Song));
+    restored += 1;
+  }
+  if (restored) changed();
+  return restored;
 }
 
 const songName = (file: File) => file.name.replace(/\.[a-z0-9]+$/i, '').replace(/[_]+/g, ' ').trim() || 'A song';

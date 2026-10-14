@@ -40,6 +40,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Diaita on a phone: try Wind down and Can’t sleep with the screen dimmed or locked, and check the bell, sound and spoken cues.
 - [ ] Hydros on a phone: add two custom drinks from Today and check both remain in History for quick selection.
 - [ ] Device-only exports on a phone: save an Askesis song archive, Ktema files, a Phyton plant photo archive and a Philia person photo archive, then open each ZIP elsewhere.
+- [ ] Device-only restore on a phone: bring each of those archives back into its matching song list, thing, plant and person.
 - [ ] Read from a photo: a real medicine box (Therapeia, Add a medicine > Read the label), an appliance plate
       (Ktema), a paper bill (Oikonomia). The first use downloads about 7 MB.
 - [ ] Android only, if you have one: Scan a barcode (Soma groceries), From contacts (Philia), Write to an NFC tag
