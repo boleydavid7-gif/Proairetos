@@ -102,3 +102,17 @@
   margin: 0;
   accent-color: currentColor;
 }
+
+/* Signing in: the less used ways folded under one line. */
+.account__other summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--muted, var(--color-text-muted));
+}
+.account__other[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

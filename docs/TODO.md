@@ -11,6 +11,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,
       iPhone notifications can carry the app name, icon and actual reminder line. Without it, each app's words still
       arrive sealed and the phone shows them; the redeploy is needed either way, since the older function sent plain pushes.
+- [ ] Migration `20261023000000_passkey_first.sql`: new accounts can set up with a passkey and no passphrase.
 - [ ] Migration `20261018000000_shared_lists.sql`: Soma's shared grocery list, Ergon's household, Phyton's shared plants.
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
 - [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (one file, named exactly that, Verify JWT off): passkeys

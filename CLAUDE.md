@@ -253,6 +253,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `rewrapWithPassphrase` wraps it under the new passphrase (fresh salt) and `savePassphraseWrap` replaces only `passphrase_wrap`
   in `user_keys` (RLS "own key" allows it), then it unlocks. Signed in, Account has "Change passphrase" (current one, new twice).
   Nothing encrypted changes, the recovery key keeps working, open devices stay open. Lost both: synced data cannot be opened.
+- Sign-in, made short (`features/settings/AccountSection.tsx`, `app/family/AccountCard.tsx`): signed out shows "Sign in with a
+  passkey" (gold), an email field and "Continue with email"; Google/Apple and "Paste from Proairetos" fold under "Other ways to
+  sign in". A new account sets up with a passkey (migration `20261023000000_passkey_first.sql` makes `user_keys.passphrase_wrap`
+  nullable): keys made before the tap (`prepareKeysForPasskey`, `createKeysForPasskey`), "Create a passkey" (`makeSetupPasskey`),
+  on iPhone one Continue (`continueSetupPasskey`), then the recovery key with Copy and "I've saved it" (`finishSetupWithPasskey`
+  saves keys and passkey only then). "Use a passphrase instead" keeps the old way; a server without the migration
+  (`PassphraseRequired`) or a passkey that gives no secret falls back to it. Unlocking with a passphrase makes the passkey offer
+  follow by itself (no checkbox); an account with no passphrase opens with the recovery key (`hasPassphrase`), and Account's
+  "Add a passphrase" uses it. Signed in: email and last sync with Sync now, Passkeys, Sign in other apps, then More (where it
+  syncs, system check, passphrase, delete account) and Sign out.
 - Passkeys (migration `20261020000000_passkeys.sql`, function `passkey-sign-in` deployed `--no-verify-jwt`, verifier in
   `supabase/functions/_shared/webauthn.ts` `checkAssertion`, copied into the function so it deploys as one file (a test keeps them equal), ES256/RS256, tested from `src/tests/sync/passkeys.test.ts`):
   a passkey (rp = the site, so every app) signs in and opens the data. `data/sync/passkeys.ts` (`createPasskey`,

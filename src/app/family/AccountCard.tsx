@@ -1,6 +1,6 @@
-import { useState, useSyncExternalStore, type FormEvent } from 'react';
-import { changePassphrase, confirmCode, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
-import { AddPasskeyChoice, MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
+import { changePassphrase, confirmCode, hasPassphrase, passkeysAvailable, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
@@ -29,7 +29,7 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
       : account.phase === 'signed-out'
         ? ['Not signed in', `The same account as Proairetos.`]
         : account.phase === 'locked'
-          ? [account.email ?? 'Signed in', 'Your passphrase opens your data here.']
+          ? [account.email ?? 'Signed in', 'Open your data here.']
           : account.phase === 'needs-setup'
             ? [account.email ?? 'Signed in', `Set up sync in Proairetos, then it covers ${app} too.`]
             : ['On this phone', 'Everything stays on this phone.'];
@@ -52,6 +52,7 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
         </div>
       </div>
       {account.phase === 'signed-out' && <PasskeySignIn className="button-main account__link" />}
+
       {account.phase === 'signed-out' && <SignIn />}
       {account.phase === 'locked' && <Unlock />}
       {account.phase === 'ready' && <MakePasskeyNow className="button-main account__link" quietClass="button-quiet account__link" />}
@@ -96,13 +97,11 @@ function SignIn() {
   if (!open)
     return (
       <button type="button" className="button-quiet account__link" onClick={() => setOpen(true)}>
-        Sign in
+        Sign in with email
       </button>
     );
   return (
     <div className="card account__step">
-      {!sent && <ProviderButtons className="button-quiet" />}
-      {!sent && <PasteFromProairetos className="button-quiet" />}
       {!sent ? (
         <form
           className="field"
@@ -117,7 +116,7 @@ function SignIn() {
           <span className="label">Your Proairetos email</span>
           <input className="input" type="email" autoComplete="email webauthn" aria-label="Email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
           <button type="submit" className="button-main" disabled={!email.includes('@') || busy}>
-            Send code
+            {busy ? 'Sending…' : 'Continue'}
           </button>
         </form>
       ) : (
@@ -139,7 +138,7 @@ function SignIn() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
           />
-          <p className="hint">If it is a link, long-press it, copy, and paste it here.</p>
+          <p className="hint">If it is a link, copy it and paste it here.</p>
           <button type="submit" className="button-main" disabled={code.trim().length < 6 || busy}>
             Sign in
           </button>
@@ -147,6 +146,13 @@ function SignIn() {
             Use a different email
           </button>
         </form>
+      )}
+      {!sent && (
+        <details className="account__other">
+          <summary>Other ways to sign in</summary>
+          <PasteFromProairetos className="button-quiet" />
+          <ProviderButtons className="button-quiet" />
+        </details>
       )}
       <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
         Cancel
@@ -170,70 +176,73 @@ function Unlock() {
   const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
   const [next, setNext] = useState('');
   const [again, setAgain] = useState('');
-  const [passkey, setPasskey] = useState(false);
   const { busy, error, run } = useStep();
-  const forgot = method === 'recovery';
-  const ready = Boolean(secret) && (!forgot || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  const [withPassphrase, setWithPassphrase] = useState<boolean>();
+  useEffect(() => void hasPassphrase().then(setWithPassphrase), []);
   // A passkey that opens the data is the way in here too; the passphrase and a pass are one link away.
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
-  if (opening === undefined) return null;
-  if (opening.length > 0 && !typing && !forgot) {
+  if (opening === undefined || withPassphrase === undefined) return null;
+  const recovery = method === 'recovery' || !withPassphrase;
+  // A forgotten passphrase is replaced; an account without one simply opens with the recovery key.
+  const choosing = recovery && withPassphrase;
+  const ready = Boolean(secret) && (!choosing || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  if (opening.length > 0 && !typing) {
     return (
       <>
         <PasskeyOpen rows={opening} className="button-main account__link" />
         <button type="button" className="button-quiet account__link" onClick={() => setTyping(true)}>
-          Use my passphrase
+          {withPassphrase ? 'Use my passphrase' : 'Use my recovery key'}
         </button>
       </>
     );
   }
   return (
     <>
-    {!opening.length && <PasteFromProairetos className="button-quiet account__link" />}
     <form
       className="card account__step field"
       onSubmit={(event: FormEvent) => {
         event.preventDefault();
         void run(async () => {
-          // A forgotten passphrase: the recovery key proves it is you, and a new passphrase takes the old one's place.
-          if (forgot) await changePassphrase(secret, 'recovery', next);
-          await unlock(secret, method, passkey && !forgot);
+          if (choosing) await changePassphrase(secret, 'recovery', next);
+          // Without a passkey that opens the data, the next screen offers to make one.
+          await unlock(secret, recovery ? 'recovery' : 'passphrase', passkeysAvailable() && !opening.length);
         });
       }}
     >
-      <span className="label">{forgot ? 'Your recovery key' : 'Your sync passphrase'}</span>
+      <span className="label">{recovery ? 'Your recovery key' : 'Your passphrase'}</span>
       <input
         className="input"
-        type={forgot ? 'text' : 'password'}
-        autoComplete={forgot ? 'off' : 'current-password'}
-        aria-label={forgot ? 'Recovery key' : 'Passphrase'}
+        type={recovery ? 'text' : 'password'}
+        autoComplete={recovery ? 'off' : 'current-password'}
+        aria-label={recovery ? 'Recovery key' : 'Passphrase'}
         value={secret}
         onChange={(event) => setSecret(event.target.value)}
       />
-      {forgot && (
+      {choosing && (
         <>
           <span className="label">New passphrase</span>
           <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
           <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
           {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-          {next && again && next !== again && <p className="hint">The two passphrases do not match.</p>}
+          {next && again && next !== again && <p className="hint">The two do not match.</p>}
         </>
       )}
-      {!forgot && !opening.length && <AddPasskeyChoice checked={passkey} onChange={setPasskey} className="check-line" />}
       <button type="submit" className="button-main" disabled={!ready || busy}>
-        {busy ? 'Opening…' : forgot ? 'Save and open my data' : 'Open my data'}
+        {busy ? 'Opening…' : 'Open'}
       </button>
-      <button type="button" className="button-quiet" onClick={() => (setMethod(forgot ? 'passphrase' : 'recovery'), setSecret(''), setNext(''), setAgain(''))}>
-        {forgot ? 'Use the passphrase instead' : 'Forgot your passphrase?'}
-      </button>
-      {forgot && <p className="hint">Without the passphrase or the recovery key, synced data cannot be opened, by anyone. What is on this device stays.</p>}
+      {withPassphrase && (
+        <button type="button" className="button-quiet" onClick={() => (setMethod(method === 'recovery' ? 'passphrase' : 'recovery'), setSecret(''), setNext(''), setAgain(''))}>
+          {method === 'recovery' ? 'Use my passphrase instead' : 'Forgot your passphrase?'}
+        </button>
+      )}
       {error && (
         <p className="hint" role="alert">
           {error}
         </p>
       )}
     </form>
+    {!opening.length && <PasteFromProairetos className="button-quiet account__link" />}
     </>
   );
 }

@@ -80,3 +80,28 @@
   font-size: var(--text-sm);
   line-height: 1.7;
 }
+
+/* Account: who is signed in and when it last synced, then the few things people do here. */
+.account-head__email {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.account-head .sheet__hint {
+  margin: 0;
+}
+
+.account-head__sync {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+}
+
+/* Signing in and setting up: each step's buttons span the card, the main one in gold. */
+.account-wide {
+  width: 100%;
+  min-height: 2.9rem;
+  justify-content: center;
+  border-radius: 12px;
+}

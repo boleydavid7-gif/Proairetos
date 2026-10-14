@@ -453,10 +453,9 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         onDone();
       }}
     >
-      <p className="section-description">Greets you in every app.</p>
+      <p className="sheet__label">Your name</p>
       <input
         className="field-input"
-        autoFocus
         autoComplete="given-name"
         aria-label="Name"
         placeholder="What would you like to be called?"
@@ -464,14 +463,13 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         value={name}
         onChange={(event) => setName(event.target.value)}
       />
-      <div className="composer__actions">
-        <button type="button" className="button-quiet" onClick={onDone}>
-          Cancel
-        </button>
-        <button type="submit" className="button-accent">
-          Save
-        </button>
-      </div>
+      {name.trim() !== displayName() && (
+        <div className="composer__actions">
+          <button type="submit" className="button-accent">
+            Save
+          </button>
+        </div>
+      )}
     </form>
   );
 }
@@ -1077,8 +1075,8 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'weather' && <WeatherSection />}
-        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'account' && <AccountSection />}
+        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
         {view === 'backup' && (
           <>

@@ -133,19 +133,24 @@ export async function signOutRemote(): Promise<void> {
 
 // ---------- Wrapped key ----------
 
-export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey; recovery: WrappedKey } | null> {
+/** The account's wrapped data key. `passphrase` is null for an account set up with a passkey and no passphrase. */
+export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey | null; recovery: WrappedKey } | null> {
   const { data, error } = await (await supabase()).from('user_keys').select('passphrase_wrap, recovery_wrap').maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? { passphrase: data.passphrase_wrap as WrappedKey, recovery: data.recovery_wrap as WrappedKey } : null;
+  return data ? { passphrase: (data.passphrase_wrap as WrappedKey | null) ?? null, recovery: data.recovery_wrap as WrappedKey } : null;
 }
 
-export async function saveWrappedKeys(userId: string, passphrase: WrappedKey, recovery: WrappedKey): Promise<void> {
+/** Raised when the server still requires a passphrase (before migration 20261023000000_passkey_first.sql). */
+export class PassphraseRequired extends Error {}
+
+export async function saveWrappedKeys(userId: string, passphrase: WrappedKey | null, recovery: WrappedKey): Promise<void> {
   // The owner is named outright rather than left to the column default, so a
   // table set up without that default still accepts the row.
   // Insert, never overwrite: keys another device already saved must stay.
   const { error } = await (await supabase())
     .from('user_keys')
     .insert({ user_id: userId, passphrase_wrap: passphrase, recovery_wrap: recovery });
+  if (error && !passphrase && /passphrase_wrap|not-null|null value/i.test(error.message)) throw new PassphraseRequired(error.message);
   if (error) throw new Error(signInExpired(error.message));
 }
 
