@@ -1,5 +1,5 @@
 import { SignInAnotherApp } from '../../app/family/SignInPass';
-import { useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { syncConfig } from '../../data/sync/supabase';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
@@ -14,6 +14,8 @@ import {
   deleteAccount,
   signOut,
   syncNow,
+  refreshReminders,
+  refreshSyncStatus,
   syncStatus,
   unlock,
   changePassphrase,
@@ -383,6 +385,7 @@ function Ready() {
       <button type="button" className="chip chip--wide" disabled={status.syncing} onClick={() => void syncNow()}>
         Sync now
       </button>
+      <SystemCheck />
       <StorageChoice />
       <Passkeys />
       <SignInAnotherApp />
@@ -408,6 +411,146 @@ function Ready() {
 
       <DeleteAccount />
     </div>
+  );
+}
+
+type StorageCheck = {
+  supported: boolean;
+  usage?: number;
+  quota?: number;
+  persisted?: boolean;
+  error?: string;
+};
+
+const size = (bytes: number): string => {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+};
+
+function useStorageCheck() {
+  const [check, setCheck] = useState<StorageCheck | null>(null);
+
+  async function run() {
+    if (typeof navigator === 'undefined' || !navigator.storage?.estimate) {
+      setCheck({ supported: false });
+      return;
+    }
+    try {
+      const [estimate, persisted] = await Promise.all([
+        navigator.storage.estimate(),
+        navigator.storage.persisted?.() ?? Promise.resolve(false),
+      ]);
+      setCheck({ supported: true, usage: estimate.usage, quota: estimate.quota, persisted });
+    } catch (cause) {
+      setCheck({ supported: true, error: cause instanceof Error ? cause.message : 'Storage details unavailable.' });
+    }
+  }
+
+  useEffect(() => {
+    void run();
+  }, []);
+
+  return { check, run };
+}
+
+function SystemCheck() {
+  const status = useSyncStatus();
+  const { check, run: checkStorage } = useStorageCheck();
+  const [busy, setBusy] = useState(false);
+  const [copyLabel, setCopyLabel] = useState('Copy details');
+  const online = typeof navigator === 'undefined' || navigator.onLine;
+  const storagePercent = check?.usage !== undefined && check.quota ? Math.round((check.usage / check.quota) * 100) : null;
+  const storageLabel = !check
+    ? 'Checking…'
+    : !check.supported
+      ? 'Browser did not report storage details'
+      : check.error
+        ? check.error
+        : check.usage !== undefined && check.quota
+          ? `${size(check.usage)} used of ${size(check.quota)}${storagePercent !== null ? ` (${storagePercent}%)` : ''}`
+          : 'Available';
+  const reminderLabel =
+    status.reminders === 'on'
+      ? 'Enabled on this device'
+      : status.reminders === 'off'
+        ? 'Not enabled on this device'
+        : status.reminders === 'blocked'
+          ? 'Blocked in browser settings'
+          : 'Unavailable in this browser or build';
+  const checkAgain = async () => {
+    setBusy(true);
+    try {
+      await Promise.allSettled([refreshSyncStatus(), refreshReminders(), checkStorage()]);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const copyDetails = async () => {
+    if (!navigator.clipboard?.writeText) {
+      setCopyLabel('Copy unavailable');
+      return;
+    }
+    const details = [
+      'Proairetos system check',
+      `Connection: ${online ? 'online' : 'offline'}`,
+      `Account sync: ${status.error ? 'needs attention' : status.syncing ? 'syncing' : status.lastSyncedAt ? 'connected' : 'ready'}`,
+      `Reminders: ${reminderLabel}`,
+      `Device storage: ${storageLabel}`,
+      `Web reminder service: ${syncConfig.vapidPublicKey ? 'configured' : 'not configured'}`,
+      `Checked: ${new Date().toISOString()}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(details);
+      setCopyLabel('Copied');
+      window.setTimeout(() => setCopyLabel('Copy details'), 1800);
+    } catch {
+      setCopyLabel('Copy unavailable');
+    }
+  };
+
+  return (
+    <section className="system-check" aria-label="System check">
+      <div className="system-check__head">
+        <div>
+          <h3 className="settings-group__label">System check</h3>
+          <p className="sheet__hint">A quick look at sync, reminders and this browser.</p>
+        </div>
+        <div className="system-check__actions">
+          <button type="button" className="text-link" disabled={busy} onClick={() => void checkAgain()}>
+            {busy ? 'Checking…' : 'Check again'}
+          </button>
+          <button type="button" className="text-link" onClick={() => void copyDetails()}>
+            {copyLabel}
+          </button>
+        </div>
+      </div>
+      <dl className="system-check__list">
+        <div className="system-check__row">
+          <dt>Connection</dt>
+          <dd>{online ? 'Online' : 'Offline'}</dd>
+        </div>
+        <div className="system-check__row">
+          <dt>Account sync</dt>
+          <dd>{status.error ? 'Needs attention' : status.syncing ? 'Syncing…' : status.lastSyncedAt ? 'Connected' : 'Ready'}</dd>
+        </div>
+        <div className="system-check__row">
+          <dt>Reminders</dt>
+          <dd>{reminderLabel}</dd>
+        </div>
+        <div className="system-check__row">
+          <dt>Device storage</dt>
+          <dd>{storageLabel}</dd>
+        </div>
+        <div className="system-check__row">
+          <dt>Web reminder service</dt>
+          <dd>{syncConfig.vapidPublicKey ? 'Configured' : 'Not configured'}</dd>
+        </div>
+      </dl>
+      {status.error && <p className="form-error" role="status">{status.error}</p>}
+      {storagePercent !== null && storagePercent >= 85 && <p className="form-error" role="status">Device storage is nearly full.</p>}
+      {check?.persisted === false && <p className="sheet__hint">The browser may clear local data when space is tight. Back up from Settings.</p>}
+    </section>
   );
 }
 

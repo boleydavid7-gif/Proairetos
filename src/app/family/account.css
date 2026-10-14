@@ -34,6 +34,15 @@
 .settings-card[aria-label='Account and sync'] .setup-check { color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); }
 .settings-card[aria-label='Account and sync'] .setup-check summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .settings-card[aria-label='Account and sync'] .setup-check ul { margin: 8px 0; padding-left: 18px; line-height: 1.7; }
+.settings-card[aria-label='Account and sync'] .system-check { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.12))); border-radius: 12px; background: var(--surface-2, var(--color-surface-raised, rgba(0,0,0,.1))); }
+.settings-card[aria-label='Account and sync'] .system-check__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.settings-card[aria-label='Account and sync'] .system-check__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 12px; }
+.settings-card[aria-label='Account and sync'] .system-check__head .settings-group__label { margin: 0; }
+.settings-card[aria-label='Account and sync'] .system-check__head .sheet__hint { margin-top: 4px; }
+.settings-card[aria-label='Account and sync'] .system-check__list { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.settings-card[aria-label='Account and sync'] .system-check__row { display: flex; justify-content: space-between; gap: 12px; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); font-size: .9rem; }
+.settings-card[aria-label='Account and sync'] .system-check__row dt { font-weight: 500; }
+.settings-card[aria-label='Account and sync'] .system-check__row dd { margin: 0; color: var(--text, var(--color-text, inherit)); text-align: right; }
 
 @media (max-width: 480px) {
   .settings-card[aria-label='Account and sync'] .inline-form { display: grid; }

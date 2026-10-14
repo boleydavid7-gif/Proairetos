@@ -239,6 +239,11 @@ export function refreshReminders(): Promise<void> {
   return updateReminders().catch(() => undefined);
 }
 
+/** Re-reads the account, browser reminder permission and local sync metadata for diagnostics. */
+export async function refreshSyncStatus(): Promise<void> {
+  await resolvePhase();
+}
+
 /** Whether this account takes reminders somewhere: here, or on a phone where another app of the family has them on. */
 let accountTakesReminders: boolean | undefined;
 

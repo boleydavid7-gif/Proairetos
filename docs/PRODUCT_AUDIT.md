@@ -11,7 +11,7 @@ The built site opened all fourteen app roots at phone width in a production prev
 1. **Finish the live server path.** The owner checklist still has the reminder-source migration and function deployment, sign-in handoff, passkeys, calendar feed, and own-storage setup open. Until those are complete, the apps look finished while important paid-app expectations—closed-app reminders, recovery, multi-app sign-in, and dependable cross-device use—remain partly local or unavailable.
 2. **Make data portability explicit.** The family backup carries records and settings, but several valuable files are device-only: Proairetos attachments, Askesis music, Theoria books unless a sealed copy is chosen, Ktema files, Philia photos, and Phyton photos. Each needs either encrypted account storage, an app-level export, or a clear first-run warning with a backup action. A paid app cannot let a phone replacement silently remove a library of books, receipts, or plant photos.
 3. **Run a real-device release pass.** Test iPhone Safari/Home Screen, Android Chrome, and desktop Chrome/Edge for install, reload, offline reopen, storage pressure, screen lock during timers, microphone, camera, GPS, push, sign-in handoff, passkeys, backup restore, and service-worker updates. The code has many platform-specific paths, and the TODO list confirms that most have not been exercised on a real phone.
-4. **Add an in-app system check.** Account or Help can show sync phase, last successful sync, reminder subscription state, server setup state, storage availability, and a copyable diagnostic summary. Today a person can see a generic error page or an empty reminder result without knowing whether the cause is permissions, an old app shell, an unconfigured Supabase project, or a blocked browser capability.
+4. **Add an in-app system check.** Account now shows connection, sync state, reminder availability, browser storage and web reminder setup, with Check again and a privacy-safe Copy details action. A full cross-app check remains.
 5. **Add cross-app smoke coverage.** The recent Askesis/Soma settings crash came from a shared component used outside Proairetos’s provider. A browser test that opens each app, More/Settings, Account, backup, and one primary create/edit flow would catch this class of regression before release.
 
 ### P1: shared paid-app foundations
@@ -196,7 +196,7 @@ Most valuable gaps:
 
 ## Recommended order
 
-1. **Release hardening:** finish server setup, run the real-device matrix, add app/settings/account smoke tests, and add sync/reminder diagnostics.
+1. **Release hardening:** finish server setup, run the real-device matrix, add app/settings/account smoke tests, and extend the sync/reminder diagnostics across the family.
 2. **Data safety:** make device-only files opt-in with encrypted cloud copies or export, starting with Theoria, Ktema, Phyton, Philia photos, Proairetos attachments, and Askesis music.
 3. **Diaita phase two:** side-by-side facts, experiments, and sourced suggestions. Worry time and the room check are now in place; the remaining work gives Diaita a stronger daily evidence loop.
 4. **High-value integrations:** health/wearables for Askesis, Hydros, Diaita, Therapeia, and Dynamis; bank/receipt workflows for Oikonomia; OCR recipe cards for Soma; contact import for Philia.
