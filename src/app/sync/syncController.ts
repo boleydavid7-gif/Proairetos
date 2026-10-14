@@ -138,7 +138,15 @@ async function localState(): Promise<SyncStateStore | null> {
 async function remindersPhase(): Promise<SyncStatus['reminders']> {
   if (!pushSupported()) return 'unsupported';
   if (Notification.permission === 'denied') return 'blocked';
-  return (await (await localState())?.getMeta<string>(REMINDERS_META)) ? 'on' : 'off';
+  const local = await localState();
+  if (await local?.getMeta<string>(REMINDERS_META)) return 'on';
+  // A browser update or app reinstall can keep the subscription while losing
+  // the local marker. Read the worker's real state before reporting off.
+  const registration = await familyWorker().catch(() => undefined);
+  const subscription = await registration?.pushManager.getSubscription().catch(() => undefined);
+  if (!subscription) return 'off';
+  if (local) await local.setMeta(REMINDERS_META, subscription.endpoint).catch(() => undefined);
+  return 'on';
 }
 
 async function resolvePhase(): Promise<void> {

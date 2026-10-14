@@ -18,6 +18,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Proairetos now follows the same page scrolling as the other family apps when you change places.',
       'Soma can read a recipe card photo on the phone; edit the recognized text before it becomes a recipe.',
       'Soma’s bottom dock now has a moving active line and a clearer selected icon.',
+      'Reminder status now checks the actual phone subscription, so a browser update can repair its saved reminder state.',
     ],
   },
   {
