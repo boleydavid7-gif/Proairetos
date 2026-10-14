@@ -11,6 +11,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,
       iPhone notifications can carry the app name, icon and actual reminder line. Without it, each app's words still
       arrive sealed and the phone shows them; the redeploy is needed either way, since the older function sent plain pushes.
+- [ ] Strava for Askesis: at https://www.strava.com/settings/api create an app (Website https://proairetos.com,
+      Authorization Callback Domain `proairetos.com`), then in Cloudflare > the proairetos Worker > Settings > Variables and
+      Secrets add `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` (both as Secrets). A new Strava app connects only its owner
+      until Strava approves more athletes (request it in the same settings page when others use it).
 - [ ] Migration `20261023000000_passkey_first.sql`: new accounts can set up with a passkey and no passphrase.
 - [ ] Migration `20261018000000_shared_lists.sql`: Soma's shared grocery list, Ergon's household, Phyton's shared plants.
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".

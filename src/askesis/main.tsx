@@ -19,9 +19,12 @@ import { applyAppearance } from '../app/appearance';
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import { startLaunchFiles } from '../app/family/launchFiles';
+import { keepStravaReturn } from './app/strava';
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
 startLaunchFiles();
+// Back from Strava: its answer is kept before the app tidies the address.
+keepStravaReturn();
 
 document.documentElement.classList.add('askesis');
 

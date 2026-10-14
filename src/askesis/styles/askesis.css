@@ -2790,3 +2790,13 @@ html[data-nav='back']::view-transition-new(root) {
   display: block;
   margin-bottom: 2px;
 }
+
+/* Strava's own orange for its button, as its brand guidelines ask; "Powered by Strava" under the page. */
+.strava-connect {
+  background: #fc4c02;
+  color: #fff;
+}
+.strava-powered {
+  margin-top: 16px;
+  font-size: var(--text-sm, 0.875rem);
+}

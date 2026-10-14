@@ -582,6 +582,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   each guide step change. The phone dock is a six-column fixed bar with one
   sliding active line and a small selected-icon lift; deeper pages keep the
   parent tab selected (`lastTab`).
+- Strava (More > Strava, route `strava`, `?open=strava`): `worker/strava.ts` (`/api/strava`: GET the public client id,
+  POST trades a code or refresh token with the secret `STRAVA_CLIENT_SECRET`; `/api/strava/activities?after=` passes the
+  person's activities through trimmed to id, type, local start, moving time, distance, heart rate and name, never routes).
+  `askesis/app/strava.ts`: connect (OAuth, scope `activity:read_all`, back to `/askesis/?open=strava`, read by
+  `keepStravaReturn` in `main.tsx` before the address is tidied), `bringInFromStrava` (on opening at most every 15 min via
+  `StravaOnOpen`, or "Bring in now"; one undo for what came in). `core/strava.ts` `entriesFromStrava`: entries with id
+  `strava-<id>` (two devices make one record), skips one already logged (same id, or same day, kind and distance within
+  3%), a run or walk counts as that day's open session once. The connection (`askesis:strava`) stays on the device, out of
+  backups and sync. Strava's orange button and "Powered by Strava" as its guidelines ask.
 - Progress portability and plain records: `core/log.ts` finds the longest
   distance, longest workout and fastest recorded pace from run entries, and
   `logCsv` exports the full entered log (including notes and heart rate) as a
