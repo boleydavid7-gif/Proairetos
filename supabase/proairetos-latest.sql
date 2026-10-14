@@ -52,6 +52,16 @@ alter table public.reminders add column if not exists source text not null defau
 alter table public.reminders add column if not exists sealed text
   check (sealed is null or char_length(sealed) <= 1200);
 
+-- ========== 20261022000000_reminder_previews ==========
+-- Optional lock-screen previews for Declarative Web Push. The device writes these only when the person chose
+-- details on the lock screen; the sealed words remain the service worker's private source of truth.
+alter table public.reminders add column if not exists preview_title text
+  check (preview_title is null or char_length(preview_title) <= 120);
+alter table public.reminders add column if not exists preview_body text
+  check (preview_body is null or char_length(preview_body) <= 300);
+alter table public.reminders add column if not exists preview_open text
+  check (preview_open is null or char_length(preview_open) <= 160);
+
 create index if not exists reminders_source on public.reminders (user_id, source) where sent_at is null;
 
 -- ========== 20261018000000_shared_lists ==========

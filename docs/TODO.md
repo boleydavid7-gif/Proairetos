@@ -8,6 +8,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 
 - [ ] Migration `20261016000000_preferences_files_sync.sql`: settings and photos sync.
 - [ ] Migration `20261017000000_reminder_sources.sql`, then redeploy `send-reminders`: reminders from every app.
+- [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,
+      iPhone notifications can carry the app name, icon and actual reminder line.
 - [ ] Migration `20261018000000_shared_lists.sql`: Soma's shared grocery list, Ergon's household, Phyton's shared plants.
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
 - [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (one file, named exactly that, Verify JWT off): passkeys
@@ -36,7 +38,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Change passphrase (Account) and "Forgot your passphrase?" with the recovery key, once on your own account.
 - [ ] Passkeys: in Proairetos, Account > Add a passkey; then in another Home Screen app, Sign in with a passkey
       (one Face ID should sign in and open your data).
-- [ ] iPhone reminders after the redeploy: lock the phone with every app closed and wait for one.
+- [ ] iPhone reminders after both reminder migrations and the redeploy: turn on Details on the lock screen, close every
+      app, and wait for a reminder from Hydros or Askesis.
 - [ ] Diaita on a phone: try Wind down and Can’t sleep with the screen dimmed or locked, and check the bell, sound and spoken cues.
 - [ ] Hydros on a phone: add two custom drinks from Today and check both remain in History for quick selection.
 - [ ] Device-only exports on a phone: save an Askesis song archive, Ktema files, a Phyton plant photo archive and a Philia person photo archive, then open each ZIP elsewhere.

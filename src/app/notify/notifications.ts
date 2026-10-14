@@ -5,12 +5,13 @@ import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { familyWorker } from './familyWorker';
 import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
+import { iconForOpen } from '../../core/notify/sources';
 
 /**
  * Notifications, written on this device. The app works out what is due
  * (`noticesBetween`) and keeps the next two weeks in Cache Storage, where
- * the service worker can read them: when a push arrives (empty, from the
- * server, which knows only times), it shows the real words. While the app
+ * the service worker can read them: when a push arrives, it shows the real
+ * words. While the app
  * is open, a timer shows them too. A notification's tag is its key, so
  * one that arrives both ways shows once.
  */
@@ -65,7 +66,7 @@ async function show(notice: Notice, details: boolean): Promise<void> {
   await registration.showNotification(shown.title, {
     body: shown.body,
     tag: notice.key,
-    icon: '/icons/icon-192.png',
+    icon: iconForOpen(shown.open),
     badge: '/icons/icon-192.png',
     data: { open: notice.open },
     timestamp: notice.at.getTime(),

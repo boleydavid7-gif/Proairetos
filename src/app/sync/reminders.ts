@@ -13,8 +13,8 @@ async function opaqueId(text: string): Promise<string> {
 
 /**
  * What the server may know about notices: when each is due, under an id it
- * cannot read back. The words stay on the device, which writes the
- * notification itself when the (empty) push arrives.
+ * cannot read back. The words stay sealed on the device; an optional preview
+ * is sent only when the person chose details on the lock screen.
  */
 export function reminderTimes(notices: readonly Notice[]) {
   return Promise.all(

@@ -34,6 +34,8 @@ choice: informative, sourced, switchable in More). Served at
   recent, "What can I make with…", Ideas, a Stoic line on food a day
   (`core/lines.ts`, Musonius Rufus, Epictetus, Seneca; "after" marks a close
   rendering).
+- **All recipes**: the Recipes tab keeps a chosen Cards, List or Grid view
+  (`recipeView` in `soma:settings`) and retains it on the next visit.
 - **More**: Usually have, Settings (daily line, ways to try it), Your data
   (backup file, restore, remove everything with undo), About and sources.
 - **Units**: Settings can show measured ingredients, cooking steps, grocery

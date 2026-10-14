@@ -295,11 +295,11 @@ export class OlderRemindersTable extends Error {}
 export async function replaceSourceReminders(
   userId: string,
   source: string,
-  reminders: { id: string; fire_at: string; sealed: string }[],
+  reminders: { id: string; fire_at: string; sealed: string; preview_title?: string | null; preview_body?: string | null; preview_open?: string | null }[],
 ): Promise<void> {
   const client = await supabase();
   const older = (error: { code?: string; message: string }) =>
-    error.code === '42703' || error.code === 'PGRST204' || /source|sealed/.test(error.message);
+    error.code === '42703' || error.code === 'PGRST204' || /source|sealed|preview_/.test(error.message);
   const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).eq('source', source).is('sent_at', null);
   if (clearError) throw older(clearError) ? new OlderRemindersTable(clearError.message) : new Error(clearError.message);
   if (reminders.length === 0) return;

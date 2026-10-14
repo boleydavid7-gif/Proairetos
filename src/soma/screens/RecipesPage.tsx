@@ -1,14 +1,35 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { SearchIcon, BookIcon } from '../app/icons';
-import { useRecipes } from '../app/state';
-import { Brand } from '../app/ui';
-import { searchRecipes } from '../core/recipes';
+import DishImage from '../app/DishImage';
+import { useFoodChoices } from '../data/foodChoices';
+import { recipeNutrition } from '../core/nutrition';
+import { useRecipes, useSettings } from '../app/state';
+import { Brand, Segmented } from '../app/ui';
+import { minutesLabel, searchRecipes, timeOf, type Recipe } from '../core/recipes';
+import { loadSettings, saveSettings } from '../data/store';
 import { RecipeCard } from './HomePage';
 import Empty from '../../app/family/Empty';
 
+function RecipeRow({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
+  const settings = useSettings();
+  const choices = useFoodChoices();
+  const grade = settings.healthRating ? recipeNutrition(recipe.ingredients, choices).grade : undefined;
+  return (
+    <button type="button" className="recipe-row" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
+      <DishImage className="recipe-row__image" recipe={recipe} />
+      <span>
+        <span className="recipe-row__title">{recipe.title}</span>
+        <span className="recipe-row__meta">{[minutesLabel(timeOf(recipe)), recipe.tags[0]].filter(Boolean).join(' · ')}</span>
+      </span>
+      {grade && <span className={`recipe-row__grade nutri--${grade}`} aria-label={`Nutri-Score ${grade}`}>{grade}</span>}
+    </button>
+  );
+}
+
 export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: string }) {
   const recipes = useRecipes();
+  const settings = useSettings();
   const [query, setQuery] = useState(start ?? '');
   const [shelf, setShelf] = useState<string>('All');
   const tags = [...new Set((recipes ?? []).flatMap((recipe) => recipe.tags))].sort((a, b) => a.localeCompare(b));
@@ -16,6 +37,8 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
   const shown = searchRecipes(recipes ?? [], query).filter((recipe) =>
     shelf === 'All' ? true : shelf === 'Favourites' ? recipe.favorite : recipe.tags.includes(shelf),
   );
+  const view = settings.recipeView;
+  const changeView = (recipeView: typeof view) => saveSettings({ ...loadSettings(), recipeView });
 
   return (
     <div className="page">
@@ -34,6 +57,17 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
           ))}
         </div>
       )}
+      <Segmented
+        label="Recipe view"
+        value={view}
+        options={[
+          { id: 'cards', label: 'Cards' },
+          { id: 'list', label: 'List' },
+          { id: 'grid', label: 'Grid' },
+        ]}
+        onChange={changeView}
+        small
+      />
       {recipes && recipes.length === 0 ? (
         <Empty icon={<BookIcon size={26} />} title="No recipes yet" line="Bring one in from a link, paste one, or write your own.">
           <div className="button-row">
@@ -48,10 +82,16 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
       ) : (
         <>
           {shown.length === 0 && recipes && <p className="muted">Nothing matches that.</p>}
-          <div className="recipe-grid">
-            {shown.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />
-            ))}
+          <div className={`recipe-collection recipe-collection--${view}`}>
+            {view === 'list' ? (
+              <div className="recipe-rows">
+                {shown.map((recipe) => <RecipeRow key={recipe.id} recipe={recipe} nav={nav} />)}
+              </div>
+            ) : (
+              <div className={view === 'cards' ? 'recipe-cards' : 'recipe-grid'}>
+                {shown.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />)}
+              </div>
+            )}
           </div>
           <div className="button-row" style={{ marginTop: 18 }}>
             <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'import' })}>

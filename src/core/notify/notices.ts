@@ -4,6 +4,7 @@ import type { LifeItem } from '../life-items/types';
 import { deliverAt, type QuietHours } from '../rhythm/quietHours';
 import { addDays, atTime, toLocalDate } from '../scheduling/dates';
 import type { ScheduleOccurrence } from '../scheduling/types';
+import { appNameForOpen } from './sources';
 
 /**
  * Notifications, worked out on the device from what the person set. Each
@@ -375,5 +376,5 @@ export function noticesBetween(sources: Sources): Notice[] {
 
 /** What the lock screen shows when the person keeps details private. */
 export function privateNotice(notice: Notice, time: (date: Date) => string = defaultTime): Notice {
-  return { ...notice, title: 'Proairetos', body: `Reminder · ${time(notice.at)}` };
+  return { ...notice, title: appNameForOpen(notice.open), body: `Reminder · ${time(notice.at)}` };
 }

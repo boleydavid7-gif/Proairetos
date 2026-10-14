@@ -20,6 +20,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Soma’s bottom dock now has a moving active line and a clearer selected icon.',
       'Reminder status now checks the actual phone subscription, so a browser update can repair its saved reminder state.',
       'Askesis Progress now shows plain running records and can export the entered log as a CSV; its dock keeps the selected tab through deeper pages.',
+      'Soma’s Recipes tab now remembers Cards, List or Grid view for the full shelf.',
+      'Companion reminders now carry the app name and icon; with Details on the lock screen, iPhone can show the actual reminder line too.',
     ],
   },
   {

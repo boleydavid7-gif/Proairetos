@@ -56,6 +56,7 @@ Already strong: recipe import, pasted recipes, TheMealDB ideas, serving scaling,
 Most valuable gaps:
 
 - Recipe-card photo/OCR import now reads on the phone and lets the person edit the recognized text before Soma parses it.
+- The full recipe shelf now offers retained Cards, List and Grid views.
 - Barcode scanning and a fuller pantry model: quantities, expiry, package sizes, and “use soon” suggestions.
 - A stronger meal-plan workflow: repeat a week, drag meals, plan leftovers, and build a shopping list across more than one week.
 - More complete nutrition and dietary controls: allergens, dietary exclusions, nutrient targets, and a way to mark a recipe as unsuitable without turning food into a score.

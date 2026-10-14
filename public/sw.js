@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v15';
+const CACHE = 'proairetos-v16';
 const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png','/theoria/manifest.webmanifest','/theoria/icons/icon-192.png','/theoria/icons/icon-512.png','/theoria/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
@@ -92,12 +92,12 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ---------- Private reminders ----------
-// Pushes arrive empty. The server knows only that a reminder is due, never
-// what it is about, so the notification says so plainly; details are in the app.
+// The server carries sealed words with a push. This worker opens them on the
+// device, so a reminder can keep its app name, icon and chosen lock-screen detail.
 
 // The app keeps the next two weeks of notices in Cache Storage, written on
-// the device (see src/app/notify). A push only says "now"; the words come
-// from there, so the server never sees them. Anything due within the last
+// the device (see src/app/notify). The sealed words come from there, so the
+// server never sees them. Anything due within the last
 // hour that has not been shown yet is shown now; each notice's tag is its
 // key, so one shown by the open app as well appears once.
 const NOTIFY_CACHE = 'proairetos-notify';
@@ -113,13 +113,31 @@ async function readJson(cache, path, fallback) {
   }
 }
 
-// Each app's own mark beside its reminders (Hydros has only its drawn icon, so it shares Proairetos's).
+const APP_NAMES = {
+  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton',
+};
+
+function appFor(open) {
+  if (open === 'askesis' || (open && open.startsWith('askesis:'))) return 'askesis';
+  if (open === 'oikonomia' || (open && open.startsWith('oikonomia:'))) return 'oikonomia';
+  if (open === 'hydros' || (open && open.startsWith('hydros:'))) return 'hydros';
+  if (open === 'praxis' || (open && open.startsWith('praxis:'))) return 'praxis';
+  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton']) if (open === app || (open && open.startsWith(app + ':'))) return app;
+  return 'proairetos';
+}
+
+function appNameFor(open) {
+  return APP_NAMES[appFor(open)];
+}
+
 function iconFor(open) {
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton']) if (open === app || (open && open.startsWith(app + ':'))) return '/' + app + '/icons/icon-192.png';
-  if (open === 'praxis') return '/praxis/icons/icon-192.png';
-  if (open === 'askesis') return '/askesis/icons/icon-192.png';
-  if (open && open.startsWith('oikonomia:')) return '/oikonomia/icons/icon-192.png';
-  return '/icons/icon-192.png';
+  const app = appFor(open);
+  return app === 'proairetos' ? '/icons/icon-192.png' : '/' + app + '/icons/icon-192.png';
+}
+
+function bodyFor(notice) {
+  return notice.title === appNameFor(notice.open) ? notice.body : [notice.title, notice.body].filter(Boolean).join(' · ');
 }
 
 // The account key, kept on this device by sync (database `proairetos`, store `syncMeta`), opens the words that
@@ -163,7 +181,7 @@ async function openSealed(sealed) {
   return opened;
 }
 
-async function showDue(sealed) {
+async function showDue(sealed, fallback) {
   const cache = await caches.open(NOTIFY_CACHE);
   const upcoming = await readJson(cache, UPCOMING, []);
   const shown = new Set(await readJson(cache, SHOWN, []));
@@ -183,18 +201,19 @@ async function showDue(sealed) {
     due.push(stored[stored.length - 1]);
   }
   if (due.length === 0) {
-    // Nothing found on the device (stored before an update, or cleared): still say something gentle.
-    await self.registration.showNotification('Proairetos', {
-      body: 'You have a reminder.',
-      icon: '/icons/icon-192.png',
+    // Nothing found on the device: retain the app label from a declarative push when one was supplied.
+    await self.registration.showNotification(fallback?.title || 'Proairetos', {
+      body: fallback?.body || 'You have a reminder.',
+      icon: fallback?.icon || '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: 'proairetos-reminder',
+      data: { open: fallback?.open || 'today' },
     });
     return;
   }
   for (const notice of due) {
-    await self.registration.showNotification(notice.title, {
-      body: notice.body,
+    await self.registration.showNotification(appNameFor(notice.open), {
+      body: bodyFor(notice),
       icon: iconFor(notice.open),
       badge: '/icons/icon-192.png',
       tag: notice.key,
@@ -215,11 +234,23 @@ function sealedIn(event) {
   }
 }
 
+function fallbackIn(event) {
+  try {
+    const payload = event.data ? event.data.json() : null;
+    const notice = payload && payload.notification;
+    if (!notice) return undefined;
+    const app = appFor(notice.open || 'today');
+    return { title: notice.title || APP_NAMES[app], body: notice.body || 'You have a reminder.', icon: notice.icon || iconFor(notice.open || 'today'), open: notice.open || app };
+  } catch {
+    return undefined;
+  }
+}
+
 self.addEventListener('push', (event) => {
   // A Declarative Web Push (Safari 18.4+) arrives with its own plain notice, shown by the phone if this worker shows
   // nothing; showDue shows the person's own words in its place.
   event.waitUntil(
-    showDue(sealedIn(event)).catch(() =>
+    showDue(sealedIn(event), fallbackIn(event)).catch(() =>
       // A phone stops sending to a worker that shows nothing, so even a failure here shows the plain line.
       self.registration.showNotification('Proairetos', { body: 'You have a reminder.', icon: '/icons/icon-192.png', tag: 'proairetos-reminder' }),
     ),

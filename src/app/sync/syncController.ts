@@ -286,11 +286,18 @@ async function updateReminders() {
       const own = notices.filter((notice) => sourceOf(notice) === source);
       const times = await reminderTimes(own);
       const rows = await Promise.all(
-        own.map(async (notice, index) => ({
-          ...times[index],
-          // Only the times are readable by the server; the words travel sealed with the account key.
-          sealed: await sealNoticeWords(key, wordsOf(details ? notice : privateNotice(notice))),
-        })),
+        own.map(async (notice, index) => {
+          const shown = details ? notice : privateNotice(notice);
+          return {
+            ...times[index],
+            // The service worker opens the sealed words. A preview is present only when the person chose
+            // details on the lock screen, so Declarative Web Push can show the same choice on iPhone.
+            sealed: await sealNoticeWords(key, wordsOf(shown)),
+            preview_title: details ? shown.title : null,
+            preview_body: details ? shown.body : null,
+            preview_open: details ? shown.open : null,
+          };
+        }),
       );
       await replaceSourceReminders(userId, source, rows);
     }

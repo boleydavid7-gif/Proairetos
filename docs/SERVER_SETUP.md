@@ -271,6 +271,10 @@ arrive with their own words on a phone where Proairetos is the app that receives
 3. Open each app you use once while signed in (Proairetos, Hydros, Oikonomia, Askesis, Praxis, Diaita, Philia, Ergon), so each sends its
    times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
 
+For iPhone Declarative Web Push, also run `supabase/migrations/20261022000000_reminder_previews.sql` and redeploy
+`send-reminders` from the current source. The optional preview is written only when **Details on the lock screen**
+is on; turning it off clears the preview on the next sync while sealed reminders continue to work.
+
 Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.
 
 ## Shared lists and households (migration 20261018000000)
@@ -280,7 +284,7 @@ shared household work: every line or chore is sealed on the phone with that list
 in the invite link, so the server stores them without being able to read them. Both people need to be signed in
 (any account; no passphrase needed for a shared list). Nothing else changes.
 
-All three migrations above are safe to run again; running them in date order on a server that already has some
+All four migrations above are safe to run again; running them in date order on a server that already has some
 of them does no harm.
 
 ## Sign in other apps from Proairetos (migration 20261019000000)

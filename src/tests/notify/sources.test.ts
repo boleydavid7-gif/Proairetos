@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appAt, sourceOf, sourcesToWrite, wordsOf } from '../../core/notify/sources';
+import { appAt, appNameForOpen, iconForOpen, sourceOf, sourcesToWrite, wordsOf } from '../../core/notify/sources';
 import { openNoticeWords, sealNoticeWords } from '../../data/sync/keys';
 import { findJudgmentLanguage } from '../../core/rules/languageRules';
 import { readFileSync } from 'node:fs';
@@ -20,6 +20,12 @@ describe('reminders from every app', () => {
     expect(appAt('/oikonomia/index.html')).toBe('oikonomia');
     expect(appAt('/theoria/')).toBe('theoria');
     expect(appAt('/settings')).toBe('proairetos');
+  });
+
+  it('keeps a companion reminder’s app name and icon', () => {
+    expect(appNameForOpen('hydros')).toBe('Hydros');
+    expect(iconForOpen('askesis')).toBe('/askesis/icons/icon-192.png');
+    expect(iconForOpen('oikonomia:bill:1')).toBe('/oikonomia/icons/icon-192.png');
   });
 
   it('lets each app write only its own, so none removes another', () => {
@@ -66,6 +72,9 @@ describe('reminders from every app', () => {
     const worker = readFileSync('public/sw.js', 'utf8');
     expect(worker).toContain("'proairetos-notice'");
     expect(worker).toContain("get('dataKey')");
+    expect(worker).toContain("open === 'hydros'");
+    expect(worker).toContain("'/' + app + '/icons/icon-192.png'");
+    expect(worker).toContain('bodyFor');
     expect(findJudgmentLanguage(worker)).toEqual([]);
   });
 });

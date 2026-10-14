@@ -19,6 +19,8 @@ const SETTINGS = 'soma:settings';
 
 export type Settings = {
   started: boolean;
+  /** How the full recipe shelf is arranged. */
+  recipeView: 'cards' | 'list' | 'grid';
   /** How measured ingredients are shown; recipes remain stored as imported. */
   units: UnitSystem;
   /** The daily line on Home. */
@@ -47,6 +49,7 @@ export type Settings = {
 
 export const defaultSettings = (): Settings => ({
   started: false,
+  recipeView: 'grid',
   units: 'original',
   dailyLine: true,
   waysToTry: true,
@@ -186,7 +189,8 @@ export function loadSettings(): Settings {
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS) ?? '{}') as Partial<Settings>;
     const units = saved.units === 'metric' || saved.units === 'us' || saved.units === 'original' ? saved.units : defaultSettings().units;
-    return { ...defaultSettings(), ...saved, units };
+    const recipeView = saved.recipeView === 'cards' || saved.recipeView === 'list' || saved.recipeView === 'grid' ? saved.recipeView : defaultSettings().recipeView;
+    return { ...defaultSettings(), ...saved, units, recipeView };
   } catch {
     return defaultSettings();
   }

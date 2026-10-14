@@ -9,9 +9,9 @@
 // Optional: SITE_URL (default https://proairetos.com), where a tap goes on a phone that shows the push itself.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 //
-// Each push is also a Declarative Web Push (Safari 18.4 and later): an iPhone shows its plain title and line
-// even when the service worker does not wake, and the service worker, when it does, replaces it with the
-// person's own words. Other browsers ignore that part.
+// Each push is also a Declarative Web Push (Safari 18.4 and later). When lock-screen details are enabled, the
+// preview fields carry the same title and line the service worker would show; otherwise the phone gets only a
+// generic line. Other browsers ignore that part.
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
@@ -44,15 +44,24 @@ const APP_NAMES: Record<string, string> = {
 };
 
 /** The part an iPhone can show by itself: the app's name, a plain line, and where a tap goes. Nothing personal. */
-function declarative(source: string) {
+function iconFor(source: string, site: string): string {
+  const app = APP_NAMES[source] ? source : 'proairetos';
+  return `${site}${app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`}`;
+}
+
+function declarative(source: string, preview?: { title?: string | null; body?: string | null; open?: string | null }) {
   const site = (secret('SITE_URL') || 'https://proairetos.com').replace(/\/+$/, '');
   const app = APP_NAMES[source] ? source : 'proairetos';
+  const body = preview?.title ? [preview.title, preview.body].filter(Boolean).join(' · ') : 'You have a reminder.';
+  const navigate = preview?.open && app === 'proairetos' ? `${site}/?open=${encodeURIComponent(preview.open)}` : app === 'proairetos' ? `${site}/` : `${site}/${app}/`;
   return {
     web_push: 8030,
     notification: {
       title: APP_NAMES[app],
-      body: 'You have a reminder.',
-      navigate: app === 'proairetos' ? `${site}/` : `${site}/${app}/`,
+      body,
+      icon: iconFor(source, site),
+      badge: `${site}/icons/icon-192.png`,
+      navigate,
       lang: 'en',
     },
     mutable: true,
@@ -80,10 +89,10 @@ async function handle(request: Request): Promise<Response> {
       .lte('fire_at', now.toISOString())
       .gte('fire_at', staleBefore)
       .limit(500);
-  type Row = { user_id: string; id: string; sealed?: string | null; source?: string | null };
+  type Row = { user_id: string; id: string; sealed?: string | null; source?: string | null; preview_title?: string | null; preview_body?: string | null; preview_open?: string | null };
   type Result = { data: Row[] | null; error: { message: string } | null };
-  let { data: due, error } = (await dueRows('user_id, id, sealed, source')) as unknown as Result;
-  // Before the reminder-sources migration there is no sealed or source column: plain pushes as before.
+  let { data: due, error } = (await dueRows('user_id, id, sealed, source, preview_title, preview_body, preview_open')) as unknown as Result;
+  // Before the reminder-sources or preview migration there is no sealed/source/preview column: plain pushes as before.
   if (error) ({ data: due, error } = (await dueRows('user_id, id')) as unknown as Result);
   if (error) return new Response(error.message, { status: 500 });
 
@@ -103,8 +112,11 @@ async function handle(request: Request): Promise<Response> {
       sealed.push(row.sealed);
       size += row.sealed.length + 3;
     }
-    const source = (due ?? []).find((row) => row.user_id === userId)?.source ?? 'proairetos';
-    const payload = JSON.stringify({ ...declarative(source), v: 1, n: sealed });
+    const first = (due ?? []).find((row) => row.user_id === userId);
+    const declarativeRow = (due ?? []).find((row) => row.user_id === userId && row.preview_title) ?? first;
+    const source = declarativeRow?.source ?? 'proairetos';
+    const preview = declarativeRow?.preview_title ? declarativeRow : undefined;
+    const payload = JSON.stringify({ ...declarative(source, preview), v: 1, n: sealed });
     const { data: subscriptions } = await supabase
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth')
@@ -114,7 +126,7 @@ async function handle(request: Request): Promise<Response> {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          payload, // the app's name and sealed words: nothing the server can read
+          payload, // the app's name, sealed words, and an opt-in lock-screen preview
           { TTL: 3600, urgency: 'normal' },
         );
         sent++;
