@@ -117,6 +117,59 @@
   border-top: 1px solid var(--line);
 }
 
+.diaita-side-by-side,
+.diaita-suggestion,
+.diaita-experiment {
+  gap: 12px;
+}
+
+.diaita-suggestion > strong,
+.diaita-experiment > strong {
+  font-size: var(--text-lg);
+}
+
+.diaita-source-detail {
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.diaita-source-detail summary {
+  cursor: pointer;
+}
+
+.diaita-source-detail span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.diaita-experiment__options {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.diaita-experiment__option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.diaita-experiment__option > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.diaita-experiment__option span {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
 /* ---------- Wind down ---------- */
 
 .diaita-piece-list {

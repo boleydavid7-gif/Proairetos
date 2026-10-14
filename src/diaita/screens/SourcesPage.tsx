@@ -7,6 +7,7 @@ const TOPICS: { key: keyof typeof SOURCES; topic: string }[] = [
   { key: 'caffeine', topic: 'Last caffeine' },
   { key: 'nap', topic: 'Naps before nights' },
   { key: 'light', topic: 'Light and sleep after nights' },
+  { key: 'regularity', topic: 'Regular sleep timing' },
   { key: 'night-meals', topic: 'Eating on nights' },
   { key: 'hygiene', topic: 'Wind-down, meals and sleep after the last night' },
 ];

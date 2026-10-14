@@ -39,7 +39,7 @@ export const defaultRhythm: RhythmSettings = {
   light: true,
 };
 
-export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'night-meals' | 'hygiene' | 'short-nap';
+export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'night-meals' | 'hygiene' | 'short-nap' | 'regularity';
 
 export const SOURCES: Record<SourceKey, string> = {
   sleep: 'Watson NF et al. Recommended amount of sleep for a healthy adult. Sleep 2015;38(6):843–844.',
@@ -48,6 +48,7 @@ export const SOURCES: Record<SourceKey, string> = {
   light: 'Smith MR, Fogg LF, Eastman CI. A compromise circadian phase position for permanent night work improves mood, fatigue, and performance. Sleep 2009;32(11):1481–1489.',
   'night-meals': 'Chellappa SL et al. Daytime eating prevents internal circadian misalignment and glucose intolerance in night work. Sci Adv 2021;7(49):eabg9910.',
   'short-nap': 'Brooks A, Lack L. A brief afternoon nap following nocturnal sleep restriction: which nap duration is most recuperative? Sleep 2006;29(6):831–840.',
+  regularity: 'Phillips AJK et al. Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Sci Rep 2017;7:3216.',
   hygiene: 'Shriane AE et al. Sleep hygiene in shift workers: a systematic literature review. Sleep Med Rev 2020;53:101336.',
 };
 

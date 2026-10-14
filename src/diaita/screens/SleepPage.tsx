@@ -1,14 +1,84 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Empty, offerUndo } from '../../app/family/shell';
 import { BackIcon, MoonIcon, PlusIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
-import { settings, sleeps } from '../app/state';
+import { experiment, settings, sleeps } from '../app/state';
 import { weekdayText } from '../app/ui';
 import { ColumnChart } from '../../app/family/charts';
 import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
+import { EXPERIMENTS, experimentFacts, sideBySide, suggestionFor } from '../core/evidence';
 
 type Kept = SleepRecord & { id: string };
+
+function SideBySide({ records }: { records: readonly SleepRecord[] }) {
+  const [runDates, setRunDates] = useState<string[]>();
+  useEffect(() => {
+    let live = true;
+    void import('../../app/askesis/runs').then(({ readRuns }) => readRuns().then((runs) => {
+      if (live) setRunDates(runs.workouts.map((workout) => workout.date));
+    })).catch(() => {
+      if (live) setRunDates([]);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (!runDates) return null;
+  const groups = sideBySide(records, runDates, 'Nights after an Askesis run');
+  if (groups.length < 2) return null;
+  return (
+    <section className="card diaita-side-by-side">
+      <h2 className="card__title">Side by side</h2>
+      <p className="hint">Your recorded sleep, grouped by whether an Askesis run was logged that day.</p>
+      <div className="diaita-fact-row">
+        {groups.map((group) => <span key={group.label}><strong>{hoursText(group.averageMinutes)}</strong><small>{group.label} · {group.nights} {group.nights === 1 ? 'night' : 'nights'}</small></span>)}
+      </div>
+    </section>
+  );
+}
+
+function Suggestion({ records, chosenHours }: { records: readonly SleepRecord[]; chosenHours: number }) {
+  const current = settings.use();
+  const today = toLocalDate(new Date());
+  const suggestion = suggestionFor(records, chosenHours, today);
+  if (!suggestion || current.dismissedSuggestions?.includes(suggestion.id)) return null;
+  return (
+    <section className="card diaita-suggestion">
+      <div className="section-head"><h2 className="card__title">From your log</h2><button type="button" className="text-link" onClick={() => settings.save({ ...settings.load(), dismissedSuggestions: [...new Set([...(current.dismissedSuggestions ?? []), suggestion.id])] })}>Not for me</button></div>
+      <strong>{suggestion.title}</strong>
+      <p className="muted">{suggestion.body}</p>
+      <details className="diaita-source-detail"><summary>Source</summary><span>{suggestion.source}</span></details>
+    </section>
+  );
+}
+
+function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; today: string }) {
+  const current = experiment.use().current;
+  const option = current && EXPERIMENTS.find((each) => each.kind === current.kind);
+  if (current && option) {
+    const facts = experimentFacts(records, current, today);
+    return (
+      <section className="card diaita-experiment">
+        <div className="section-head"><h2 className="card__title">Two-week try</h2><button type="button" className="text-link" onClick={() => experiment.save({})}>End this try</button></div>
+        <strong>{option.label}</strong>
+        <p className="muted">{option.detail} {current.startedOn}–{current.endsOn}.</p>
+        {facts.current && <div className="diaita-fact-row"><span><strong>{hoursText(facts.current.averageMinutes)}</strong><small>This try · {facts.current.nights} {facts.current.nights === 1 ? 'night' : 'nights'}</small></span>{facts.before && <span><strong>{hoursText(facts.before.averageMinutes)}</strong><small>Previous two weeks · {facts.before.nights} {facts.before.nights === 1 ? 'night' : 'nights'}</small></span>}</div>}
+        <details className="diaita-source-detail"><summary>Source</summary><span>{option.source}</span></details>
+        <p className="hint">{facts.complete ? 'The two weeks are complete. These are the recorded amounts.' : 'The comparison will fill in as you record nights.'}</p>
+      </section>
+    );
+  }
+  return (
+    <section className="card diaita-experiment">
+      <h2 className="card__title">Try something for two weeks</h2>
+      <p className="hint">Choose one change. Diaita will place the recorded nights beside the two weeks before.</p>
+      <div className="diaita-experiment__options">
+        {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
+      </div>
+    </section>
+  );
+}
 
 function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
   const today = toLocalDate(new Date());
@@ -124,6 +194,9 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               <p className="hint">These are the times and amount you recorded.</p>
             </section>
           )}
+          <Suggestion records={all} chosenHours={current.sleepHours} />
+          <SideBySide records={all} />
+          <ExperimentCard records={all} today={today} />
           <ColumnChart
             title="Hours slept, last 14 nights"
             unit="h"

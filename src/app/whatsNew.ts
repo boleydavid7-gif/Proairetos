@@ -7,6 +7,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita now has an early-evening Worry time with one next step for each worry, plus a one-time room check.',
       'Account now has a System check for sync, reminders, connection and browser storage, with Check again when a device setting changes.',
       'Device-only songs, thing files, plant photos and people photos can each be saved as one archive before you change phones.',
+      'Diaita now shows an Askesis-run sleep comparison, one sourced regularity suggestion, and two-week experiments with before-and-after recorded amounts.',
     ],
   },
   {

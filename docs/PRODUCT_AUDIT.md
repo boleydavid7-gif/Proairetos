@@ -117,9 +117,9 @@ Most valuable gaps, matching the earlier product brief:
 
 - The worry list links to Proairetos Capture; a deeper direct Think it through handoff would make that connection stronger.
 - A morning-light plan alongside the existing room check.
-- Side-by-side facts from Askesis, Dynamis, Hydros, Soma, and night shifts.
-- Two-week experiments with before/after facts.
-- Source-backed suggestion cards, “Not for me,” and the plain doctor prompt for persistent poor sleep, loud snoring, or waking gasping.
+- Side-by-side facts now include recorded sleep after an Askesis run; Dynamis, Hydros, Soma, and night-shift comparisons remain.
+- Two-week experiments now offer a fixed wake time, caffeine cutoff, or morning daylight, with before/after recorded amounts.
+- A source-backed regularity suggestion now has “Not for me.” The plain doctor prompt for persistent poor sleep, loud snoring, or waking gasping remains.
 - Wearable/sleep-platform import and a richer sleep diary (latency, awakenings, naps, perceived rest), with careful privacy wording.
 
 ### Philia
@@ -198,7 +198,7 @@ Most valuable gaps:
 
 1. **Release hardening:** finish server setup, run the real-device matrix, add app/settings/account smoke tests, and extend the sync/reminder diagnostics across the family.
 2. **Data safety:** finish encrypted account copies and restore/import for the device libraries; Save a copy archives now cover Askesis music, Ktema files, Phyton photos and Philia photos, while Theoria, Proairetos attachments and the warnings are in place.
-3. **Diaita phase two:** side-by-side facts, experiments, and sourced suggestions. Worry time and the room check are now in place; the remaining work gives Diaita a stronger daily evidence loop.
+3. **Diaita phase two:** extend the new side-by-side facts, experiments, and sourced suggestions to Dynamis, Hydros and the remaining sleep signals; Worry time and the room check are in place.
 4. **High-value integrations:** health/wearables for Askesis, Hydros, Diaita, Therapeia, and Dynamis; bank/receipt workflows for Oikonomia; OCR recipe cards for Soma; contact import for Philia.
 5. **Collection depth:** custom workouts/programs, pantry/barcode flows, finance forecasting, study card/library management, household permissions, plant care journal, and structured exports.
 6. **Commercial layer:** define what a paid plan unlocks, add entitlement checks and restore behavior, then gate only features that have enough reliability and support around them.

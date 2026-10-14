@@ -5,10 +5,11 @@ import { addDays } from '../../core/scheduling/dates';
 import { defaultRhythm, planBetween, type Entry, type RhythmSettings, type WorkBlock, type SleepRecord } from '../core/rhythm';
 import type { RhythmNoticeChoices } from '../core/notices';
 import { defaultRhythmNotices } from '../core/notices';
+import type { SleepExperiment } from '../core/evidence';
 
 export type RoomCheck = { cool: boolean; dark: boolean; quiet: boolean; phoneAway: boolean; checkedAt?: string };
 
-export type DiaitaSettings = RhythmSettings & { started: boolean; notices: RhythmNoticeChoices; room: RoomCheck };
+export type DiaitaSettings = RhythmSettings & { started: boolean; notices: RhythmNoticeChoices; room: RoomCheck; dismissedSuggestions?: string[] };
 
 export type Worry = { id: string; concern: string; nextStep?: string; createdAt: string };
 
@@ -17,9 +18,11 @@ export const settings = stored<DiaitaSettings>('diaita:settings', () => ({
   started: false,
   notices: { ...defaultRhythmNotices },
   room: { cool: false, dark: false, quiet: false, phoneAway: false },
+  dismissedSuggestions: [],
 }));
 
 export const worries = collection<Worry>('diaita:worry:');
+export const experiment = stored<{ current?: SleepExperiment }>('diaita:experiment', () => ({}));
 
 /** One record per night, keyed by the day woken into. */
 export const sleeps = collection<SleepRecord & { id: string }>('diaita:sleep:');
