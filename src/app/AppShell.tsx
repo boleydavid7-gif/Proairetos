@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import MovedNotice from './MovedNotice';
 import AppsTab from '../components/layout/AppsTab';
 import { navigation } from './navigation';
@@ -21,11 +21,12 @@ function useStorageMode() {
 
 export default function AppShell({ route, onNavigate, children }: AppShellProps) {
   const mode = useStorageMode();
+  const contentRef = useRef<HTMLElement>(null);
 
   // Each top-level place owns its scroll position. Without this reset, a
   // long Today page can leave Reflect or Capture opening partway down.
   useLayoutEffect(() => {
-    const scrolling = document.scrollingElement;
+    const scrolling = contentRef.current;
     if (!scrolling) return;
     scrolling.scrollLeft = 0;
     scrolling.scrollTop = 0;
@@ -33,7 +34,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
 
   return (
     <div className="app-shell" data-route={route}>
-      <main className="app-shell__content">
+      <main ref={contentRef} className="app-shell__content">
         <MovedNotice />
         {mode === 'memory' && (
           <p className="storage-notice" role="status">

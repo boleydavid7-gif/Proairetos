@@ -1,7 +1,11 @@
 /* ---------- App shell (dark ink) ---------- */
 
 .app-shell {
+  height: 100svh;
   min-height: 100svh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(120% 50% at 50% -10%, rgba(201, 162, 116, 0.06), transparent 60%),
     var(--color-bg);
@@ -10,6 +14,12 @@
 .app-shell__content {
   width: 100%;
   max-width: 34rem;
+  height: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   margin: 0 auto;
   padding: calc(env(safe-area-inset-top) + var(--space-6)) var(--space-5)
     calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
