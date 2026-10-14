@@ -1,6 +1,10 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-14',
+    lines: ['Askesis and Soma settings now open correctly, including the shared account section.'],
+  },
+  {
     date: '2026-10-13',
     lines: [
       'Diaita now has Wind down: choose a short routine from slow breathing, progressive muscle relaxation, a body scan and Park tomorrow, with spoken cues, sounds and a bell from Meditate.',

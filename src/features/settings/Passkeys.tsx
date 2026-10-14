@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { useOverlays } from '../../app/overlays/OverlayContext';
+import { useContext, useEffect, useState, type FormEvent } from 'react';
+import { OverlayContext } from '../../app/overlays/OverlayContext';
 import { MakePasskeyNow, usePasskeyStep } from '../../app/family/Passkey';
 import {
   addPasskey,
@@ -22,7 +22,10 @@ const day = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined,
  * every app. Added with the passphrase once (or none, where this device keeps the copy for sign-in passes).
  */
 export function Passkeys() {
-  const { offerUndo } = useOverlays();
+  // Askesis and Soma reuse the account settings panel but do not mount
+  // Proairetos's overlay provider. Passkey management still works there;
+  // only the Proairetos undo toast is unavailable.
+  const overlays = useContext(OverlayContext);
   const [entries, setEntries] = useState<PasskeyEntry[]>();
   const [problem, setProblem] = useState('');
   const [oneTap, setOneTap] = useState(false);
@@ -86,7 +89,7 @@ export function Passkeys() {
                       void run(async () => {
                         await removePasskey(entry.id);
                         setEntries((all) => all?.filter((each) => each.id !== entry.id));
-                        offerUndo(`Passkey removed: ${entry.label}`, async () => {
+                        overlays?.offerUndo(`Passkey removed: ${entry.label}`, async () => {
                           await restorePasskey(entry.row);
                           await load();
                         });
