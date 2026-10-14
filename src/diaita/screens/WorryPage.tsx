@@ -38,6 +38,7 @@ function WorryRow({ worry }: { worry: Worry }) {
   return (
     <li className="row diaita-worry-row">
       <span className="row__text"><span>{worry.concern}</span>{worry.nextStep && <span className="row__detail">Next: {worry.nextStep}</span>}</span>
+      <a className="text-link" href={`/?open=think-through&text=${encodeURIComponent(worry.concern)}`}>Think it through</a>
       <button type="button" className="text-link" onClick={() => { worries.remove(worry.id); offerUndo('Worry removed', () => worries.put(worry)); }}>Remove</button>
     </li>
   );
@@ -57,7 +58,7 @@ export default function WorryPage({ nav }: { nav: DiaitaNav }) {
       {!adding && <button type="button" className="button-main" onClick={() => setAdding(true)}><PlusIcon size={18} />Add a worry</button>}
       {adding && <WorryForm onDone={() => setAdding(false)} />}
       {all.length > 0 ? <ul className="rows diaita-worry-list">{all.map((worry) => <WorryRow key={worry.id} worry={worry} />)}</ul> : <p className="muted">Nothing written down yet.</p>}
-      <a className="text-link" href="/?open=capture">Write a concern in Proairetos Capture</a>
+      <a className="text-link" href="/?open=capture">Write another concern in Proairetos Capture</a>
     </div>
   );
 }

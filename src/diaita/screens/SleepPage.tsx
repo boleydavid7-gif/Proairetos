@@ -103,12 +103,14 @@ function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
   const [up, setUp] = useState(record?.up ?? '07:00');
   const [how, setHow] = useState<SleepQuality | undefined>(record?.how);
   const [note, setNote] = useState(record?.note ?? '');
+  const [snoring, setSnoring] = useState(record?.snoring ?? false);
+  const [gasping, setGasping] = useState(record?.gasping ?? false);
 
   const save = () => {
     const before = record;
     const replaced = sleeps.get(date);
     if (record && record.id !== date) sleeps.remove(record.id);
-    sleeps.put({ id: date, date, bed, up, how, note: note.trim() || undefined });
+    sleeps.put({ id: date, date, bed, up, how, note: note.trim() || undefined, snoring: snoring || undefined, gasping: gasping || undefined });
     offerUndo(record ? 'Sleep changed' : 'Sleep saved', () => {
       sleeps.remove(date);
       if (replaced) sleeps.put(replaced);
@@ -144,6 +146,11 @@ function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
         <span className="field__label">Note (optional)</span>
         <input className="input" value={note} onChange={(event) => setNote(event.target.value)} />
       </label>
+      <div className="diaita-sleep-signs">
+        <p className="field__label">Optional signs to record</p>
+        <label className="toggle-row"><input type="checkbox" checked={snoring} onChange={(event) => setSnoring(event.target.checked)} /><span>Loud snoring</span></label>
+        <label className="toggle-row"><input type="checkbox" checked={gasping} onChange={(event) => setGasping(event.target.checked)} /><span>Waking gasping</span></label>
+      </div>
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onDone}>Cancel</button>
         <button type="button" className="button-main" disabled={!date || !bed || !up} onClick={save}>Save</button>

@@ -20,6 +20,7 @@ import { notifications } from './notify/notifications';
 import { directionBetween, transition } from './transitions';
 import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
+import { useOverlays } from './overlays/OverlayContext';
 import { NavigationContext, ReturnRouteContext } from './navigationContext';
 import { defaultRoute, routePaths, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
@@ -29,6 +30,18 @@ const routeFromLocation = (): AppRoute => {
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   return (Object.entries(routePaths).find(([, routePath]) => routePath === path)?.[0] as AppRoute | undefined) ?? defaultRoute;
 };
+
+/** Lets a family app hand a short piece of text straight into Think it through. */
+function UrlOverlayOpener() {
+  const { openThinkThrough } = useOverlays();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('open') !== 'think-through') return;
+    history.replaceState(history.state, '', window.location.pathname + window.location.hash);
+    openThinkThrough(params.get('text') ? { text: params.get('text')! } : undefined);
+  }, [openThinkThrough]);
+  return null;
+}
 
 export default function App() {
   // Coming back from signing in (Google, Apple or the email's link) goes straight to the account, past the welcome.
@@ -97,6 +110,7 @@ export default function App() {
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
     <OverlayProvider>
+      <UrlOverlayOpener />
       <NoticeOpener />
       <AppShell route={route} onNavigate={go}>
       <Suspense fallback={null}>

@@ -132,6 +132,16 @@
   margin-bottom: 8px;
 }
 
+.diaita-sleep-signs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diaita-sleep-signs .field__label {
+  margin-bottom: 0;
+}
+
 .diaita-suggestion > strong,
 .diaita-experiment > strong {
   font-size: var(--text-lg);

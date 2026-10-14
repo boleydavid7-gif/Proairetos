@@ -115,11 +115,11 @@ Already strong: shift-aware sleep planning, sleep/wake, naps, light, caffeine, m
 
 Most valuable gaps, matching the earlier product brief:
 
-- The worry list links to Proairetos Capture; a deeper direct Think it through handoff would make that connection stronger.
+- Each worry now has a direct Think it through handoff into Proairetos; Capture remains available for another concern.
 - A morning-light plan alongside the existing room check.
 - Side-by-side facts now include recorded sleep after an Askesis run, Dynamis training, Hydros caffeine after cutoff, and scheduled night shifts; Soma meals remain.
 - Two-week experiments now offer a fixed wake time, caffeine cutoff, or morning daylight, with before/after recorded amounts.
-- A source-backed regularity suggestion now has “Not for me.” The plain doctor prompt for persistent poor sleep, loud snoring, or waking gasping remains.
+- A source-backed regularity suggestion and a plain doctor prompt for marked loud snoring, waking gasping, or three months of poor sleep now have “Not for me.”
 - Wearable/sleep-platform import and a richer sleep diary (latency, awakenings, naps, perceived rest), with careful privacy wording.
 
 ### Philia

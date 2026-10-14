@@ -244,6 +244,9 @@ export type SleepRecord = {
   up: string;
   how?: SleepQuality;
   note?: string;
+  /** Optional signs the person chose to record, never interpreted as a diagnosis. */
+  snoring?: boolean;
+  gasping?: boolean;
 };
 
 export const QUALITY_NAMES: Record<SleepQuality, string> = { well: 'Well', okay: 'Okay', poorly: 'Poorly' };

@@ -34,4 +34,13 @@ describe('Diaita evidence', () => {
     expect(caffeineAfterCutoffDates([{ date: '2026-10-02', bed: '23:00', up: '07:00' }], [{ loggedAt: '2026-10-02T18:00:00', caffeineMg: 95 }], 6)).toEqual(['2026-10-02']);
     expect(caffeineAfterCutoffDates([{ date: '2026-10-02', bed: '23:00', up: '07:00' }], [{ loggedAt: '2026-10-02T15:00:00', caffeineMg: 95 }], 6)).toEqual([]);
   });
+
+  it('offers the doctor prompt for marked signs or three months of poor sleep', () => {
+    expect(suggestionFor([{ date: '2026-10-01', bed: '23:00', up: '07:00', snoring: true }], 7.5, '2026-10-02')?.id).toBe('doctor-symptoms');
+    expect(suggestionFor([
+      { date: '2026-08-01', bed: '23:00', up: '07:00', how: 'poorly' },
+      { date: '2026-09-01', bed: '23:00', up: '07:00', how: 'poorly' },
+      { date: '2026-10-01', bed: '23:00', up: '07:00', how: 'poorly' },
+    ], 7.5, '2026-10-02')?.id).toBe('doctor-duration');
+  });
 });

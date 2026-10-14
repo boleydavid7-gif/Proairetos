@@ -70,5 +70,24 @@ export function suggestionFor(records: readonly SleepRecord[], chosenHours: numb
       source: 'Phillips AJK et al. Sci Rep 2017;7:3216.',
     };
   }
+  // A little more than three 30-day months keeps the prompt tied to three calendar months around DST and month ends.
+  const recent = records.filter((record) => record.date >= addDays(today, -120));
+  const poorMonths = new Set(recent.filter((record) => record.how === 'poorly').map((record) => record.date.slice(0, 7)));
+  if (recent.some((record) => record.snoring || record.gasping)) {
+    return {
+      id: 'doctor-symptoms',
+      title: 'Consider talking with a doctor about your sleep',
+      body: 'You marked loud snoring or waking gasping in your log. A doctor can help you decide what to check.',
+      source: 'Kapur VK et al. Clinical practice guideline for diagnostic testing for adult obstructive sleep apnea. J Clin Sleep Med 2017;13(3):479–504.',
+    };
+  }
+  if (poorMonths.size >= 3) {
+    return {
+      id: 'doctor-duration',
+      title: 'Consider talking with a doctor about your sleep',
+      body: 'Poor sleep is marked across three months of your log. A doctor can help you decide what to check.',
+      source: 'Qaseem A et al. Management of chronic insomnia disorder in adults. Ann Intern Med 2016;165(2):125–133.',
+    };
+  }
   return undefined;
 }
