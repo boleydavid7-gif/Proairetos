@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { audio, gain } from '../../app/sound/engine';
+import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { BELL_GAP } from '../core/cues';
 
 /*
@@ -43,8 +44,24 @@ const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());
 
 export async function listSongs(): Promise<SongInfo[]> {
-  const all = (await run('readonly', (s) => s.getAll() as IDBRequest<Song[]>)) ?? [];
+  const all = await allSongs();
   return all.map(({ blob: _blob, ...info }) => info).sort((a, b) => a.addedAt.localeCompare(b.addedAt));
+}
+
+async function allSongs(): Promise<Song[]> {
+  return (await run('readonly', (s) => s.getAll() as IDBRequest<Song[]>)) ?? [];
+}
+
+/** Saves the songs added to Askesis as one archive with a small manifest. */
+export async function exportSongs(): Promise<number> {
+  const songs = await allSongs();
+  if (!songs.length) return 0;
+  const entries = [
+    { path: 'manifest.json', data: JSON.stringify({ app: 'askesis', kind: 'songs', exportedAt: new Date().toISOString(), songs: songs.map(({ blob: _blob, ...info }) => info) }) },
+    ...(await Promise.all(songs.map(async (song) => ({ path: `songs/${archiveName(song.name)}-${song.id}`, data: await song.blob.arrayBuffer() })))),
+  ];
+  downloadZip(`askesis-songs-${new Date().toISOString().slice(0, 10)}`, entries);
+  return songs.length;
 }
 
 const songName = (file: File) => file.name.replace(/\.[a-z0-9]+$/i, '').replace(/[_]+/g, ' ').trim() || 'A song';

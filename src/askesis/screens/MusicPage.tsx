@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { letGo, wakeAudio } from '../../app/sound/engine';
 import type { Nav } from '../app/App';
 import { PauseIcon, PlayIcon, PlusIcon } from '../app/icons';
-import { addSongs, playSongs, removeSong, stopSongs, useNowPlaying, useSongs } from '../app/music';
+import { addSongs, exportSongs, playSongs, removeSong, stopSongs, useNowPlaying, useSongs } from '../app/music';
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { saveSettings } from '../data/store';
@@ -15,6 +15,8 @@ export default function MusicPage({ nav }: { nav: Nav }) {
   const undo = useUndo();
   const [trying, setTrying] = useState(false);
   const [added, setAdded] = useState<string>();
+  const [saved, setSaved] = useState<string>();
+  const [saving, setSaving] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
   const stop = () => {
@@ -72,12 +74,21 @@ export default function MusicPage({ nav }: { nav: Nav }) {
           <section className="field" aria-label="Songs">
             <div className="music-head">
               <h2 className="label">Songs</h2>
-              {songs && songs.length > 0 && (
+              {songs && songs.length > 0 && <div className="chip-row">
                 <button type="button" className="text-link music-play" onClick={() => (trying && song.name ? stop() : void play())}>
                   {trying && song.name ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
                   {trying && song.name ? 'Stop' : 'Play'}
                 </button>
-              )}
+                <button type="button" className="text-link" disabled={saving} onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const count = await exportSongs();
+                    setSaved(`${count} ${count === 1 ? 'song' : 'songs'} saved.`);
+                  } finally {
+                    setSaving(false);
+                  }
+                }}>{saving ? 'Saving…' : 'Save a copy'}</button>
+              </div>}
             </div>
             {trying && song.name && <p className="hint">♪ {song.name}</p>}
             {songs && songs.length === 0 && <p className="muted">No songs yet.</p>}
@@ -120,6 +131,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                 {added}
               </p>
             )}
+            {saved && <p className="hint" role="status">{saved}</p>}
             <p className="hint">From your phone’s files, kept on this phone. Songs in streaming apps stay in those apps.</p>
           </section>
         </>

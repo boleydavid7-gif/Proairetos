@@ -9,7 +9,7 @@ The built site opened all fourteen app roots at phone width in a production prev
 ### P0: make the existing product dependable
 
 1. **Finish the live server path.** The owner checklist still has the reminder-source migration and function deployment, sign-in handoff, passkeys, calendar feed, and own-storage setup open. Until those are complete, the apps look finished while important paid-app expectations—closed-app reminders, recovery, multi-app sign-in, and dependable cross-device use—remain partly local or unavailable.
-2. **Make data portability explicit.** The family backup carries records and settings, but several valuable files are device-only: Proairetos attachments, Askesis music, Theoria books unless a sealed copy is chosen, Ktema files, Philia photos, and Phyton photos. Each needs either encrypted account storage, an app-level export, or a clear first-run warning with a backup action. A paid app cannot let a phone replacement silently remove a library of books, receipts, or plant photos.
+2. **Make data portability explicit.** The family backup carries records and settings. Theoria already offers sealed book copies, Proairetos attachments follow the encrypted sync/backup path, and Askesis songs, Ktema files, Philia photos and Phyton photos now have one-archive Save a copy actions. Encrypted account copies and restore/import flows remain for those device libraries, alongside the existing warnings.
 3. **Run a real-device release pass.** Test iPhone Safari/Home Screen, Android Chrome, and desktop Chrome/Edge for install, reload, offline reopen, storage pressure, screen lock during timers, microphone, camera, GPS, push, sign-in handoff, passkeys, backup restore, and service-worker updates. The code has many platform-specific paths, and the TODO list confirms that most have not been exercised on a real phone.
 4. **Add an in-app system check.** Account now shows connection, sync state, reminder availability, browser storage and web reminder setup, with Check again and a privacy-safe Copy details action. A full cross-app check remains.
 5. **Add cross-app smoke coverage.** The recent Askesis/Soma settings crash came from a shared component used outside Proairetos’s provider. A browser test that opens each app, More/Settings, Account, backup, and one primary create/edit flow would catch this class of regression before release.
@@ -47,7 +47,7 @@ Most valuable gaps:
 - A route map and reliable background GPS. The current web GPS keeps the screen awake; a locked phone cannot provide the experience people expect from a paid running app.
 - Custom workouts and plan editing. The generated path is good, but a runner cannot build a reusable interval session or edit a session structure.
 - Export of the run log and route data, plus plain facts such as best recorded time/distance and pace trends.
-- Askesis music and some settings remain device-only. The app needs a clear transfer path when a person changes phones.
+- Askesis music remains device-only, with a Save a copy archive; an import or encrypted account copy would make a phone change one step.
 
 ### Soma
 
@@ -131,7 +131,7 @@ Most valuable gaps:
 - Contact import and two-way contact changes; the phone/contact path is still an owner test item.
 - A proper interaction log for calls, messages, visits, and notes, rather than links that launch the phone’s apps.
 - Shared household/family access with per-person privacy, or a clear statement that Philia is personal-only.
-- Photo backup/sync and a structured import/export path.
+- Photo backup/sync and a structured import path. Each person can now save their photo with its metadata in one archive.
 - Better review of history: last interaction, next date, gifts given, and notes in one person timeline.
 
 ### Ergon
@@ -176,7 +176,7 @@ Already strong: belongings, categories, make/model/serial, warranty and renewal 
 
 Most valuable gaps:
 
-- Files and photos are explicitly device-only and excluded from backup/sync. This is the largest product risk in Ktema.
+- Files and photos remain device-only and excluded from backup/sync. Each thing now offers a Save a copy archive; an encrypted account copy and restore path would remove the remaining product risk.
 - Receipt/manual OCR can extract dates, prices, warranty terms, and serials with a review step.
 - A stronger household inventory model: shared access, rooms, ownership, replacement value, and insurance export.
 - Depreciation, purchase history, and renewal/subscription tracking as plain records.
@@ -188,7 +188,7 @@ Already strong: species notes, light/dryness/feed guidance, adaptive watering ch
 
 Most valuable gaps:
 
-- Plant photos are device-only and excluded from backup/sync.
+- Plant photos remain device-only and excluded from backup/sync. A plant page now offers a Save a copy archive with the dates and images; account copy and restore are still open.
 - Pest/disease tracking, repotting/propagation, fertiliser history, and a richer care journal.
 - Room/window/bed layout and filters by location, light, or caretaker.
 - Photo identification is unavailable until the production `PLANTNET_KEY` is configured; this needs a visible setup state and a graceful fallback.
@@ -197,7 +197,7 @@ Most valuable gaps:
 ## Recommended order
 
 1. **Release hardening:** finish server setup, run the real-device matrix, add app/settings/account smoke tests, and extend the sync/reminder diagnostics across the family.
-2. **Data safety:** make device-only files opt-in with encrypted cloud copies or export, starting with Theoria, Ktema, Phyton, Philia photos, Proairetos attachments, and Askesis music.
+2. **Data safety:** finish encrypted account copies and restore/import for the device libraries; Save a copy archives now cover Askesis music, Ktema files, Phyton photos and Philia photos, while Theoria, Proairetos attachments and the warnings are in place.
 3. **Diaita phase two:** side-by-side facts, experiments, and sourced suggestions. Worry time and the room check are now in place; the remaining work gives Diaita a stronger daily evidence loop.
 4. **High-value integrations:** health/wearables for Askesis, Hydros, Diaita, Therapeia, and Dynamis; bank/receipt workflows for Oikonomia; OCR recipe cards for Soma; contact import for Philia.
 5. **Collection depth:** custom workouts/programs, pantry/barcode flows, finance forecasting, study card/library management, household permissions, plant care journal, and structured exports.

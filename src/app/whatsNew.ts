@@ -6,6 +6,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Askesis and Soma settings now open correctly, including the shared account section.',
       'Diaita now has an early-evening Worry time with one next step for each worry, plus a one-time room check.',
       'Account now has a System check for sync, reminders, connection and browser storage, with Check again when a device setting changes.',
+      'Device-only songs, thing files, plant photos and people photos can each be saved as one archive before you change phones.',
     ],
   },
   {

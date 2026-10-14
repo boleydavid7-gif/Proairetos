@@ -1,4 +1,5 @@
 import { WriteTag } from '../../app/family/DeviceExtras';
+import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { useEffect, useRef, useState } from 'react';
 import { CameraIcon, LeafIcon } from '../../app/family/icons';
 import { offerUndo, say } from '../../app/family/shell';
@@ -127,11 +128,26 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
 function Photos({ plant }: { plant: Plant }) {
   const photos = usePhotos(plant.id);
   const picker = useRef<HTMLInputElement>(null);
+  const [saving, setSaving] = useState(false);
+  const saveCopy = async () => {
+    setSaving(true);
+    try {
+      downloadZip(`phyton-${archiveName(plant.name)}-photos-${new Date().toISOString().slice(0, 10)}`, [
+        { path: 'manifest.json', data: JSON.stringify({ app: 'phyton', plantId: plant.id, plant: plant.name, exportedAt: new Date().toISOString(), photos: photos.map(({ photo }) => ({ id: photo.id, date: photo.date, type: photo.type })) }) },
+        ...photos.map(({ photo }) => ({ path: `photos/${photo.date}-${photo.id}.jpg`, data: photo.data })),
+      ]);
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <section className="card">
       <div className="section-head">
         <h2 className="card__title card__title--small">Photos</h2>
-        <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
+        <div className="chip-row">
+          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Saving…' : 'Save a copy'}</button>}
+          <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
+        </div>
       </div>
       <input
         ref={picker}
@@ -145,6 +161,7 @@ function Photos({ plant }: { plant: Plant }) {
         }}
       />
       {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>}
+      {photos.length > 0 && <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>}
       {photos.length > 1 && (
         <figure className="then-now">
           <div className="then-now__pair">

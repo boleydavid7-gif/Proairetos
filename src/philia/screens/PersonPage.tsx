@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { offerUndo, say } from '../../app/family/shell';
 import { BackIcon, CheckIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -23,6 +24,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
   const today = toLocalDate(new Date());
   const [timeDate, setTimeDate] = useState(today);
   const photo = usePhoto(person?.id);
+  const [savingPhoto, setSavingPhoto] = useState(false);
 
   if (!person) {
     return (
@@ -72,13 +74,28 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           <h1 className="title">{person.name}</h1>
           {person.relation && <p className="muted">{person.relation}</p>}
           {photo && (
-            <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
-              void removePhoto(person.id);
-              if (before) offerUndo('Photo removed', () => void putPhoto(before));
-            })}>Remove photo</button>
+            <div className="chip-row">
+              <button type="button" className="text-link" disabled={savingPhoto} onClick={async () => {
+                setSavingPhoto(true);
+                try {
+                  const saved = await photoFor(person.id);
+                  if (saved) downloadZip(`philia-${archiveName(person.name)}-photo-${new Date().toISOString().slice(0, 10)}`, [
+                    { path: 'manifest.json', data: JSON.stringify({ app: 'philia', personId: person.id, person: person.name, exportedAt: new Date().toISOString(), photo: { type: saved.type, at: saved.at } }) },
+                    { path: `photo.${saved.type.split('/')[1] || 'jpg'}`, data: saved.data },
+                  ]);
+                } finally {
+                  setSavingPhoto(false);
+                }
+              }}>{savingPhoto ? 'Saving…' : 'Save a copy'}</button>
+              <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
+                void removePhoto(person.id);
+                if (before) offerUndo('Photo removed', () => void putPhoto(before));
+              })}>Remove photo</button>
+            </div>
           )}
         </div>
       </div>
+      {photo && <p className="fine">This photo stays on this phone. Save a copy before changing phones.</p>}
 
       {(person.phone || person.email) && (
         <div className="chip-row philia-contact">

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { offerUndo, say } from '../../app/family/shell';
 import { prepareFile } from '../../features/items/attachments/prepare';
 import { newId } from '../app/state';
@@ -10,6 +11,7 @@ const LIMIT = 10_000_000;
 export default function ThingFiles({ thingId }: { thingId: string }) {
   const [files, setFiles] = useState<KtemaFile[]>([]);
   const [viewing, setViewing] = useState<KtemaFile>();
+  const [saving, setSaving] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const reload = () => void filesFor(thingId).then((list) => setFiles(list.sort((a, b) => a.at.localeCompare(b.at))));
   useEffect(reload, [thingId]);
@@ -30,6 +32,18 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
       await putFile({ id: newId(), thingId, name: ready.name, type: ready.type, data: ready.data, at: new Date().toISOString() });
     }
     reload();
+  };
+
+  const saveCopy = async () => {
+    setSaving(true);
+    try {
+      downloadZip(`ktema-files-${new Date().toISOString().slice(0, 10)}`, [
+        { path: 'manifest.json', data: JSON.stringify({ app: 'ktema', thingId, exportedAt: new Date().toISOString(), files: files.map(({ data: _data, ...info }) => info) }) },
+        ...files.map((file) => ({ path: `files/${archiveName(file.name)}-${file.id}`, data: file.data })),
+      ]);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -57,7 +71,8 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
       )}
       <input ref={input} type="file" accept="image/*,application/pdf" multiple hidden onChange={(event) => { void add(event.target.files); event.target.value = ''; }} />
       <button type="button" className="button-quiet" onClick={() => input.current?.click()}>Add a receipt, photo or manual</button>
-      <p className="fine">Kept on this phone, not in backups or sync.</p>
+      {files.length > 0 && <button type="button" className="button-quiet" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Preparing…' : 'Save a copy of these files'}</button>}
+      <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>
       {viewing && (
         <div className="ktema-viewer" role="dialog" aria-label={viewing.name} onClick={() => setViewing(undefined)}>
           <img src={urls.get(viewing.id)} alt={viewing.name} />
