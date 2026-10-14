@@ -147,12 +147,25 @@ function accountKey() {
     try {
       const request = indexedDB.open('proairetos');
       request.onerror = () => resolve(null);
+      // Opened without a version: on a device that never synced it would make an empty database, so stop there.
+      request.onupgradeneeded = () => request.transaction.abort();
       request.onsuccess = () => {
         const db = request.result;
-        if (!db.objectStoreNames.contains('syncMeta')) return resolve(null);
-        const get = db.transaction('syncMeta', 'readonly').objectStore('syncMeta').get('dataKey');
-        get.onsuccess = () => resolve((get.result && get.result.value) || null);
-        get.onerror = () => resolve(null);
+        try {
+          if (!db.objectStoreNames.contains('syncMeta')) {
+            db.close();
+            return resolve(null);
+          }
+          const get = db.transaction('syncMeta', 'readonly').objectStore('syncMeta').get('dataKey');
+          get.onsuccess = () => {
+            db.close();
+            resolve((get.result && get.result.value) || null);
+          };
+          get.onerror = () => resolve(null);
+        } catch {
+          db.close();
+          resolve(null);
+        }
       };
     } catch {
       resolve(null);

@@ -299,13 +299,16 @@ export async function replaceSourceReminders(
 ): Promise<void> {
   const client = await supabase();
   const older = (error: { code?: string; message: string }) =>
-    error.code === '42703' || error.code === 'PGRST204' || /source|sealed|preview_/.test(error.message);
+    error.code === '42703' || error.code === 'PGRST204' || /source|sealed/.test(error.message);
   const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).eq('source', source).is('sent_at', null);
   if (clearError) throw older(clearError) ? new OlderRemindersTable(clearError.message) : new Error(clearError.message);
   if (reminders.length === 0) return;
-  const { error } = await client
-    .from('reminders')
-    .upsert(reminders.map((r) => ({ ...r, source, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
+  const write = (rows: typeof reminders) =>
+    client.from('reminders').upsert(rows.map((r) => ({ ...r, source, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
+  let { error } = await write(reminders);
+  // A server with sources but not yet the preview columns still takes the sealed words, so the phone shows each
+  // app's own name, icon and words; only the lock-screen preview waits for that migration.
+  if (error && /preview_/.test(error.message)) ({ error } = await write(reminders.map(({ id, fire_at, sealed }) => ({ id, fire_at, sealed }))));
   if (error) throw older(error) ? new OlderRemindersTable(error.message) : new Error(error.message);
 }
 
