@@ -3,16 +3,18 @@ import { Empty, offerUndo } from '../../app/family/shell';
 import { BackIcon, MoonIcon, PlusIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
-import { experiment, settings, sleeps } from '../app/state';
+import { dynamisWorkouts, experiment, settings, sleeps, usePlan } from '../app/state';
 import { weekdayText } from '../app/ui';
 import { ColumnChart } from '../../app/family/charts';
-import { QUALITY_NAMES, clockText, hoursText, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
-import { EXPERIMENTS, experimentFacts, sideBySide, suggestionFor } from '../core/evidence';
+import { QUALITY_NAMES, clockText, hoursText, isNight, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
+import { EXPERIMENTS, caffeineAfterCutoffDates, experimentFacts, sideBySide, suggestionFor, type ContextDates } from '../core/evidence';
 
 type Kept = SleepRecord & { id: string };
 
-function SideBySide({ records }: { records: readonly SleepRecord[] }) {
+function SideBySide({ records, nightDates, trainingDates, cutoffHours }: { records: readonly SleepRecord[]; nightDates: readonly string[]; trainingDates: readonly string[]; cutoffHours: number }) {
   const [runDates, setRunDates] = useState<string[]>();
+  const [caffeineDates, setCaffeineDates] = useState<string[]>();
+  const recordSignature = records.map((record) => `${record.date}:${record.bed}:${record.up}`).join('|');
   useEffect(() => {
     let live = true;
     void import('../../app/askesis/runs').then(({ readRuns }) => readRuns().then((runs) => {
@@ -24,16 +26,30 @@ function SideBySide({ records }: { records: readonly SleepRecord[] }) {
       live = false;
     };
   }, []);
-  if (!runDates) return null;
-  const groups = sideBySide(records, runDates, 'Nights after an Askesis run');
-  if (groups.length < 2) return null;
+  useEffect(() => {
+    let live = true;
+    void import('../../hydros/data/store').then(({ listDrinks }) => listDrinks().then((drinks) => {
+      if (live) setCaffeineDates(caffeineAfterCutoffDates(records, drinks, cutoffHours));
+    })).catch(() => {
+      if (live) setCaffeineDates([]);
+    });
+    return () => {
+      live = false;
+    };
+  }, [recordSignature, cutoffHours]);
+  const contexts: ContextDates[] = [
+    ...(runDates ? [{ label: 'Nights after an Askesis run', dates: runDates }] : []),
+    { label: 'Nights after Dynamis training', dates: trainingDates },
+    ...(caffeineDates ? [{ label: 'Nights after caffeine after cutoff', dates: caffeineDates }] : []),
+    { label: 'Nights on a night shift', dates: nightDates },
+  ];
+  const comparisons = contexts.map((context) => ({ ...context, groups: sideBySide(records, context.dates, context.label) })).filter((context) => context.groups.length >= 2);
+  if (!comparisons.length) return null;
   return (
     <section className="card diaita-side-by-side">
       <h2 className="card__title">Side by side</h2>
-      <p className="hint">Your recorded sleep, grouped by whether an Askesis run was logged that day.</p>
-      <div className="diaita-fact-row">
-        {groups.map((group) => <span key={group.label}><strong>{hoursText(group.averageMinutes)}</strong><small>{group.label} · {group.nights} {group.nights === 1 ? 'night' : 'nights'}</small></span>)}
-      </div>
+      <p className="hint">Your recorded sleep, grouped by what you recorded elsewhere.</p>
+      {comparisons.map((comparison) => <div className="diaita-side-by-side__comparison" key={comparison.label}><p className="label">{comparison.label}</p><div className="diaita-fact-row">{comparison.groups.map((group) => <span key={group.label}><strong>{hoursText(group.averageMinutes)}</strong><small>{group.label} · {group.nights} {group.nights === 1 ? 'night' : 'nights'}</small></span>)}</div></div>)}
     </section>
   );
 }
@@ -154,6 +170,9 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
   const current = settings.use();
   const [editing, setEditing] = useState<string | true | undefined>(adding);
   const today = toLocalDate(new Date());
+  const { blocks } = usePlan(addDays(today, -14), today);
+  const trainingDates = dynamisWorkouts.use().map((workout) => workout.date);
+  const nightDates = blocks.filter(isNight).map((block) => toLocalDate(block.start));
   const recent = all.filter((record) => record.date > addDays(today, -14));
   const facts = sleepFacts(recent);
   const weekFacts = sleepWeekFacts(all.filter((record) => record.date > addDays(today, -7)), current.sleepHours);
@@ -195,7 +214,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
             </section>
           )}
           <Suggestion records={all} chosenHours={current.sleepHours} />
-          <SideBySide records={all} />
+          <SideBySide records={all} nightDates={nightDates} trainingDates={trainingDates} cutoffHours={current.cutoffHours} />
           <ExperimentCard records={all} today={today} />
           <ColumnChart
             title="Hours slept, last 14 nights"

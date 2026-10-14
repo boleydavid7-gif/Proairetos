@@ -23,6 +23,7 @@ export const settings = stored<DiaitaSettings>('diaita:settings', () => ({
 
 export const worries = collection<Worry>('diaita:worry:');
 export const experiment = stored<{ current?: SleepExperiment }>('diaita:experiment', () => ({}));
+export const dynamisWorkouts = collection<{ id: string; date: string }>('dynamis:workout:');
 
 /** One record per night, keyed by the day woken into. */
 export const sleeps = collection<SleepRecord & { id: string }>('diaita:sleep:');

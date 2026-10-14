@@ -8,6 +8,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Account now has a System check for sync, reminders, connection and browser storage, with Check again when a device setting changes.',
       'Device-only songs, thing files, plant photos and people photos can each be saved as one archive before you change phones.',
       'Diaita now shows an Askesis-run sleep comparison, one sourced regularity suggestion, and two-week experiments with before-and-after recorded amounts.',
+      'Diaita’s sleep comparison can also group nights by Dynamis training, Hydros caffeine after cutoff, and scheduled night shifts.',
     ],
   },
   {

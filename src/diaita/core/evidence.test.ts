@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { experimentFacts, sideBySide, suggestionFor, type SleepExperiment } from './evidence';
+import { caffeineAfterCutoffDates, experimentFacts, sideBySide, suggestionFor, type SleepExperiment } from './evidence';
 
 const nights = [
   { date: '2026-10-01', bed: '22:30', up: '06:30' },
@@ -28,5 +28,10 @@ describe('Diaita evidence', () => {
       before: { nights: 2, averageMinutes: 480 },
       complete: true,
     });
+  });
+
+  it('finds caffeine after the chosen cutoff for a night', () => {
+    expect(caffeineAfterCutoffDates([{ date: '2026-10-02', bed: '23:00', up: '07:00' }], [{ loggedAt: '2026-10-02T18:00:00', caffeineMg: 95 }], 6)).toEqual(['2026-10-02']);
+    expect(caffeineAfterCutoffDates([{ date: '2026-10-02', bed: '23:00', up: '07:00' }], [{ loggedAt: '2026-10-02T15:00:00', caffeineMg: 95 }], 6)).toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-import { addDays } from '../../core/scheduling/dates';
+import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { sleepWeekFacts, type SleepRecord } from './rhythm';
 
 export type ExperimentKind = 'wake-time' | 'caffeine' | 'morning-light';
@@ -12,6 +12,8 @@ export const EXPERIMENTS: readonly { kind: ExperimentKind; label: string; detail
 ];
 
 export type SleepGroup = { label: string; nights: number; averageMinutes: number };
+
+export type ContextDates = { label: string; dates: readonly string[] };
 
 function group(label: string, records: readonly SleepRecord[]): SleepGroup | undefined {
   if (!records.length) return undefined;
@@ -29,6 +31,19 @@ function group(label: string, records: readonly SleepRecord[]): SleepGroup | und
 export function sideBySide(records: readonly SleepRecord[], markedDates: readonly string[], label: string): SleepGroup[] {
   const marked = new Set(markedDates);
   return [group(label, records.filter((record) => marked.has(record.date))), group('Other recorded nights', records.filter((record) => !marked.has(record.date)))].filter((each): each is SleepGroup => Boolean(each));
+}
+
+/** Caffeine entries after the cutoff before each recorded sleep, grouped by the day woken into. */
+export function caffeineAfterCutoffDates(records: readonly SleepRecord[], drinks: readonly { loggedAt: string; caffeineMg?: number; kind?: string }[], cutoffHours: number): string[] {
+  const caffeinated = drinks.filter((drink) => (drink.caffeineMg ?? 0) > 0 || drink.kind === 'coffee' || drink.kind === 'tea');
+  return records.filter((record) => {
+    const bedDate = Number(record.bed.slice(0, 2)) < 12 ? addDays(record.date, -1) : record.date;
+    const cutoff = new Date(atTime(bedDate, record.bed).getTime() - cutoffHours * 3_600_000);
+    return caffeinated.some((drink) => {
+      const at = new Date(drink.loggedAt);
+      return toLocalDate(at) === toLocalDate(cutoff) && at > cutoff;
+    });
+  }).map((record) => record.date);
 }
 
 export function experimentFacts(records: readonly SleepRecord[], experiment: SleepExperiment, today: string) {

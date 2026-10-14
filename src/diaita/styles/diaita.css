@@ -123,6 +123,15 @@
   gap: 12px;
 }
 
+.diaita-side-by-side__comparison + .diaita-side-by-side__comparison {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.diaita-side-by-side__comparison > .label {
+  margin-bottom: 8px;
+}
+
 .diaita-suggestion > strong,
 .diaita-experiment > strong {
   font-size: var(--text-lg);
