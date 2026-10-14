@@ -450,7 +450,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Moving between places uses view transitions (`app/transitions.ts`):
   every route change goes through `go()` in App (tabs slide by bar order,
   pages push in and pop out); the shell owns a viewport-height scroll surface,
-  so main-tab changes swap content at the top under a fixed tab bar with extra
+  and suppresses pull-bounce at its edges, so main-tab changes swap content at the top under a fixed tab bar with extra
   mobile top room, and the selected tab has a sliding indicator; other page
   changes move under the dock; a page's own tabs call `transition(...,
   'panel')` and key their `.vt-panel` by tab: no snapshot there, the new

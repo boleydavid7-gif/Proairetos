@@ -6,6 +6,7 @@
   height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
   background:
     radial-gradient(120% 50% at 50% -10%, rgba(201, 162, 116, 0.06), transparent 60%),
     var(--color-bg);
@@ -18,7 +19,7 @@
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
   margin: 0 auto;
   padding: calc(env(safe-area-inset-top) + var(--space-6) + var(--space-4)) var(--space-5)

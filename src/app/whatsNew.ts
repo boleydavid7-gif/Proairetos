@@ -15,6 +15,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'The bottom dock now stays fixed as pages change, with a springing line that follows the selected tab.',
       'Switching between Today, Reflect, Days ahead and Capture now opens the new page at the top, with the dock still.',
       'The main pages now have a little more room above their content on phones.',
+      'The phone scroll surface no longer stretches down when you pull past the top.',
     ],
   },
   {
