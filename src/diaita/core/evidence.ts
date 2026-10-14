@@ -89,5 +89,13 @@ export function suggestionFor(records: readonly SleepRecord[], chosenHours: numb
       source: 'Qaseem A et al. Management of chronic insomnia disorder in adults. Ann Intern Med 2016;165(2):125–133.',
     };
   }
+  if (records.length > 0) {
+    return {
+      id: 'room',
+      title: 'Make the room sleep-friendly',
+      body: 'A cool room, around 60–67 °F, dark, quiet, and your phone away can make sleep easier.',
+      source: 'Shriane AE et al. Sleep hygiene in shift workers: a systematic literature review. Sleep Med Rev 2020;53:101336.',
+    };
+  }
   return undefined;
 }

@@ -718,7 +718,7 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also
   offers a chosen 10–20 minute Wind down (`screens/WindDownPage.tsx`) with Meditate's sounds, bell and spoken cues,
   a dim Can’t sleep screen (`screens/CantSleepPage.tsx`), and weekly amount/regularity facts (`sleepWeekFacts`).
-  Worry time is an early-evening entry with its own reminder and a synced `diaita:worry:` list of worries and one next step; each row links straight into Proairetos Think it through, and More also keeps the one-time room check (cool, dark, quiet, phone away).
+  Worry time is an early-evening entry with its own reminder and a synced `diaita:worry:` list of worries and one next step; each row links straight into Proairetos Think it through. Sleep offers sourced room guidance (about 60–67 °F, dark, quiet, phone away).
   Sleep shows source-backed regularity and doctor suggestions with Not for me, records side-by-side comparisons for Askesis runs, Dynamis training,
   Hydros caffeine after cutoff and scheduled night shifts when both groups exist, and offers two-week experiments (fixed wake time,
   caffeine cutoff, morning daylight) with the recorded amounts beside the previous two weeks.

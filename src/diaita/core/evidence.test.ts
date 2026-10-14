@@ -18,7 +18,7 @@ describe('Diaita evidence', () => {
 
   it('offers the regularity suggestion only when the log shows it', () => {
     expect(suggestionFor(nights, 7.5, '2026-10-04')?.id).toBe('regularity');
-    expect(suggestionFor([{ date: '2026-10-01', bed: '22:30', up: '06:30' }], 7.5, '2026-10-04')).toBeUndefined();
+    expect(suggestionFor([{ date: '2026-10-01', bed: '22:30', up: '06:30' }], 7.5, '2026-10-04')?.id).toBe('room');
   });
 
   it('places the two-week facts beside the previous two weeks', () => {

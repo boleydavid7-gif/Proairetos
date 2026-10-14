@@ -111,12 +111,12 @@ Most valuable gaps:
 
 ### Diaita
 
-Already strong: shift-aware sleep planning, sleep/wake, naps, light, caffeine, meals, morning check-in, sleep log, weekly amount/regularity facts, sources, Wind down, Can’t sleep, worry time, the one-time room check, and reminders.
+Already strong: shift-aware sleep planning, sleep/wake, naps, light, caffeine, meals, morning check-in, sleep log, weekly amount/regularity facts, sources, Wind down, Can’t sleep, worry time, sourced room guidance, and reminders.
 
 Most valuable gaps, matching the earlier product brief:
 
 - Each worry now has a direct Think it through handoff into Proairetos; Capture remains available for another concern.
-- A morning-light plan alongside the existing room check.
+- A clearer morning-light plan alongside the room guidance.
 - Side-by-side facts now include recorded sleep after an Askesis run, Dynamis training, Hydros caffeine after cutoff, and scheduled night shifts; Soma meals remain.
 - Two-week experiments now offer a fixed wake time, caffeine cutoff, or morning daylight, with before/after recorded amounts.
 - A source-backed regularity suggestion and a plain doctor prompt for marked loud snoring, waking gasping, or three months of poor sleep now have “Not for me.”
@@ -198,7 +198,7 @@ Most valuable gaps:
 
 1. **Release hardening:** finish server setup, run the real-device matrix, add app/settings/account smoke tests, and extend the sync/reminder diagnostics across the family.
 2. **Data safety:** finish encrypted account copies for the device libraries; Save a copy and Restore a copy archives now cover Askesis music, Ktema files, Phyton photos and Philia photos, while Theoria, Proairetos attachments and the warnings are in place.
-3. **Diaita phase two:** extend the new side-by-side facts, experiments, and sourced suggestions to Dynamis, Hydros and the remaining sleep signals; Worry time and the room check are in place.
+3. **Diaita phase two:** extend the new side-by-side facts, experiments, and sourced suggestions to Dynamis, Hydros and the remaining sleep signals; Worry time and room guidance are in place.
 4. **High-value integrations:** health/wearables for Askesis, Hydros, Diaita, Therapeia, and Dynamis; bank/receipt workflows for Oikonomia; OCR recipe cards for Soma; contact import for Philia.
 5. **Collection depth:** custom workouts/programs, pantry/barcode flows, finance forecasting, study card/library management, household permissions, plant care journal, and structured exports.
 6. **Commercial layer:** define what a paid plan unlocks, add entitlement checks and restore behavior, then gate only features that have enough reliability and support around them.

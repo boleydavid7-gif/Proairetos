@@ -192,7 +192,10 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
         {adding ? (
           <button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Back</button>
         ) : (
-          <h1 className="title">Sleep</h1>
+          <div className="diaita-sleep-head">
+            <div><h1 className="title">Sleep</h1><p>Facts from your nights, in your own words.</p></div>
+            <MoonIcon size={28} />
+          </div>
         )}
       </div>
 
@@ -201,7 +204,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
       ) : (
         <>
           {facts && (
-            <div className="tiles">
+            <div className="tiles diaita-sleep-tiles">
               <div className="tile"><span className="tile__label">Average, 2 weeks</span><span className="tile__value">{hoursText(facts.averageMinutes)}</span></div>
               <div className="tile"><span className="tile__label">Nights logged</span><span className="tile__value">{facts.nights}</span></div>
             </div>

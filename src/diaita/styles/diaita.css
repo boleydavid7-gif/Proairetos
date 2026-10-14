@@ -79,6 +79,61 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Shared Diaita finish ---------- */
+
+.diaita-page {
+  gap: 18px;
+}
+
+.diaita-page > .page-top {
+  margin-bottom: 0;
+}
+
+.diaita-sleep-head {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.diaita-sleep-head h1 {
+  margin-bottom: 4px;
+}
+
+.diaita-sleep-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.diaita-sleep-head > svg {
+  flex: 0 0 auto;
+  margin-bottom: 6px;
+  color: var(--mint);
+  opacity: .85;
+}
+
+.diaita-page .card {
+  border-color: color-mix(in srgb, var(--line) 82%, var(--mint));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--bg) 70%, transparent);
+}
+
+.diaita-sleep-tiles {
+  gap: 10px;
+}
+
+.diaita-sleep-tiles .tile {
+  min-height: 92px;
+  justify-content: center;
+  border-top: 2px solid var(--mint);
+  background: linear-gradient(145deg, var(--surface-2), color-mix(in srgb, var(--surface) 80%, var(--mint-soft)));
+}
+
+.diaita-sleep-tiles .tile__value {
+  font-size: var(--text-2xl);
+}
+
 /* ---------- Sleep facts ---------- */
 
 .diaita-bedtime .button-row {
@@ -87,6 +142,7 @@
 
 .diaita-week-facts {
   gap: 14px;
+  border-left: 3px solid var(--mint) !important;
 }
 
 .diaita-fact-row {
@@ -121,6 +177,25 @@
 .diaita-suggestion,
 .diaita-experiment {
   gap: 12px;
+}
+
+.diaita-suggestion {
+  border-left: 3px solid var(--mint) !important;
+  background: linear-gradient(145deg, var(--surface), var(--mint-soft));
+}
+
+.diaita-experiment {
+  background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--surface-2) 70%, transparent));
+}
+
+.diaita-more .diaita-settings {
+  border-top: 3px solid var(--mint);
+}
+
+.diaita-more .diaita-settings .field__label,
+.diaita-more .diaita-switches-label {
+  color: var(--text-soft);
+  font-weight: 600;
 }
 
 .diaita-side-by-side__comparison + .diaita-side-by-side__comparison {

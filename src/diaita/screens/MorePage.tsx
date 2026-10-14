@@ -39,10 +39,9 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
     notifications.refreshSoon();
   };
   const notice = (patch: Partial<DiaitaSettings['notices']>) => change({ notices: { ...current.notices, ...patch } });
-  const room = (patch: Partial<DiaitaSettings['room']>) => change({ room: { ...current.room, ...patch, checkedAt: new Date().toISOString() } });
 
   return (
-    <div className="page diaita-page">
+    <div className="page diaita-page diaita-more">
       <div className="page-top"><h1 className="title">More</h1></div>
       <AccountCard app="Diaita" what="Your plan and sleep log" waiting="Sleep" />
 
@@ -76,15 +75,6 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
       <section className="card switches">
         <Switch on={current.light} label="Light" onToggle={() => change({ light: !current.light })} />
         <Switch on={current.meals} label="Meals" onToggle={() => change({ meals: !current.meals })} />
-      </section>
-
-      <section className="card switches" aria-label="Your room">
-        <p className="label diaita-switches-label">Your room</p>
-        <p className="hint">A one-time check for sleep: cool, dark, quiet, and your phone away.</p>
-        <Switch on={current.room.cool} label="Cool, around 16–19 °C" onToggle={() => room({ cool: !current.room.cool })} />
-        <Switch on={current.room.dark} label="Dark" onToggle={() => room({ dark: !current.room.dark })} />
-        <Switch on={current.room.quiet} label="Quiet" onToggle={() => room({ quiet: !current.room.quiet })} />
-        <Switch on={current.room.phoneAway} label="Phone away" onToggle={() => room({ phoneAway: !current.room.phoneAway })} />
       </section>
 
       <section className="card switches">
