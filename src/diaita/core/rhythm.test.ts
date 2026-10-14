@@ -127,6 +127,12 @@ describe('the sleep log', () => {
     expect(plannedSleepInto('2026-10-10', plan)).toEqual({ bed: '22:30', up: '06:00' });
   });
 
+  it('places worry time before an ordinary night', () => {
+    const plan = planBetween('2026-10-10', '2026-10-10', [], defaultRhythm);
+    const worry = plan.find((entry) => entry.kind === 'worry' && entry.start.getDate() === 10);
+    expect(worry && clock(worry.start)).toBe('18:00');
+  });
+
   it('keeps amount and regularity as plain weekly facts', () => {
     const records = [
       { date: '2026-10-01', bed: '22:30', up: '06:30' },

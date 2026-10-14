@@ -15,9 +15,10 @@ import SourcesPage from '../screens/SourcesPage';
 import NapPage from '../screens/NapPage';
 import WindDownPage from '../screens/WindDownPage';
 import CantSleepPage from '../screens/CantSleepPage';
+import WorryPage from '../screens/WorryPage';
 
 export type Tab = 'today' | 'week' | 'sleep' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' } | { name: 'wind-down' } | { name: 'cant-sleep' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' } | { name: 'worry' } | { name: 'wind-down' } | { name: 'cant-sleep' };
 export type DiaitaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -36,6 +37,7 @@ function firstRoute(): Route {
   if (opening === 'nap') return { name: 'nap' };
   if (opening === 'wind-down') return { name: 'wind-down' };
   if (opening === 'cant-sleep') return { name: 'cant-sleep' };
+  if (opening === 'worry') return { name: 'worry' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
@@ -73,6 +75,8 @@ export default function App() {
         return <WindDownPage nav={nav} />;
       case 'cant-sleep':
         return <CantSleepPage nav={nav} />;
+      case 'worry':
+        return <WorryPage nav={nav} />;
     }
   })();
 

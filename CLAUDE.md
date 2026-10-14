@@ -716,7 +716,8 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also
   offers a chosen 10–20 minute Wind down (`screens/WindDownPage.tsx`) with Meditate's sounds, bell and spoken cues,
   a dim Can’t sleep screen (`screens/CantSleepPage.tsx`), and weekly amount/regularity facts (`sleepWeekFacts`).
-  Notices kind `rhythm` (`core/notices.ts`: wind down, nap on; last caffeine off), not held by quiet hours.
+  Worry time is an early-evening entry with its own reminder and a synced `diaita:worry:` list of worries and one next step; More also keeps the one-time room check (cool, dark, quiet, phone away).
+  Notices kind `rhythm` (`core/notices.ts`: wind down, worry time, nap on; last caffeine off), not held by quiet hours.
 - Philia (`core/people.ts`, tests): people (`philia:person:ID`) with birthday (year optional, 29 Feb on the
   28th), other yearly dates, who they are, Remember lines, gift ideas (mark given), times together, and an
   optional keep-in-touch rhythm that, when it comes round, says only how long it has been (`sinceText`).

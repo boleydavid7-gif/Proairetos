@@ -39,6 +39,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
     notifications.refreshSoon();
   };
   const notice = (patch: Partial<DiaitaSettings['notices']>) => change({ notices: { ...current.notices, ...patch } });
+  const room = (patch: Partial<DiaitaSettings['room']>) => change({ room: { ...current.room, ...patch, checkedAt: new Date().toISOString() } });
 
   return (
     <div className="page diaita-page">
@@ -62,6 +63,10 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <NumberField label="Last caffeine before sleep" value={current.cutoffHours} min={0} max={12} step={1} unit="h" onChange={(cutoffHours) => change({ cutoffHours })} />
           <NumberField label="Wind-down" value={current.windDownMinutes} min={0} max={120} step={15} unit="min" onChange={(windDownMinutes) => change({ windDownMinutes })} />
         </div>
+        <label className="field">
+          <span className="field__label">Worry time</span>
+          <input className="input" type="time" value={current.worryTime} onChange={(event) => event.target.value && change({ worryTime: event.target.value })} />
+        </label>
       </section>
 
       <section className="card switches">
@@ -73,14 +78,30 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         <Switch on={current.meals} label="Meals" onToggle={() => change({ meals: !current.meals })} />
       </section>
 
+      <section className="card switches" aria-label="Your room">
+        <p className="label diaita-switches-label">Your room</p>
+        <p className="hint">A one-time check for sleep: cool, dark, quiet, and your phone away.</p>
+        <Switch on={current.room.cool} label="Cool, around 16–19 °C" onToggle={() => room({ cool: !current.room.cool })} />
+        <Switch on={current.room.dark} label="Dark" onToggle={() => room({ dark: !current.room.dark })} />
+        <Switch on={current.room.quiet} label="Quiet" onToggle={() => room({ quiet: !current.room.quiet })} />
+        <Switch on={current.room.phoneAway} label="Phone away" onToggle={() => room({ phoneAway: !current.room.phoneAway })} />
+      </section>
+
       <section className="card switches">
         <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.windDown} label="Wind down" onToggle={() => notice({ windDown: !current.notices.windDown })} />
+        <Switch on={current.notices.worry} label="Worry time" onToggle={() => notice({ worry: !current.notices.worry })} />
         <Switch on={current.notices.nap} label="Nap" onToggle={() => notice({ nap: !current.notices.nap })} />
         <Switch on={current.notices.caffeine} label="Last caffeine" onToggle={() => notice({ caffeine: !current.notices.caffeine })} />
       </section>
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'worry' })}>
+            <span className="row__icon"><BookIcon size={21} /></span>
+            <span className="row__text"><span>Worry time</span><span className="row__detail">Write worries down before bed</span></span>
+          </button>
+        </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
             <span className="row__icon"><HistoryIcon size={21} /></span>

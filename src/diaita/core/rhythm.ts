@@ -19,6 +19,8 @@ export type RhythmSettings = {
   commuteMinutes: number;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
+  /** Early-evening time for writing worries down before bed. */
+  worryTime: string;
   /** Minutes from waking to leaving for work. */
   readyMinutes: number;
   meals: boolean;
@@ -31,6 +33,7 @@ export const defaultRhythm: RhythmSettings = {
   cutoffHours: 6,
   commuteMinutes: 30,
   windDownMinutes: 45,
+  worryTime: '18:00',
   readyMinutes: 60,
   meals: true,
   light: true,
@@ -48,7 +51,7 @@ export const SOURCES: Record<SourceKey, string> = {
   hygiene: 'Shriane AE et al. Sleep hygiene in shift workers: a systematic literature review. Sleep Med Rev 2020;53:101336.',
 };
 
-export type EntryKind = 'work' | 'sleep' | 'wake' | 'nap' | 'wind-down' | 'caffeine' | 'light' | 'dark' | 'meal' | 'light-food';
+export type EntryKind = 'work' | 'sleep' | 'wake' | 'nap' | 'wind-down' | 'worry' | 'caffeine' | 'light' | 'dark' | 'meal' | 'light-food';
 
 export type Entry = {
   key: string;
@@ -167,6 +170,11 @@ export function planBetween(from: string, until: string, blocks: readonly WorkBl
     add({ key: `wake:${stamp(sleep.end)}`, kind: 'wake', start: sleep.end, title: 'Up' });
     if (settings.windDownMinutes > 0 && sleep.after === 'evening') {
       add({ key: `wind:${stamp(sleep.start)}`, kind: 'wind-down', day: sleep.day, start: later(sleep.start, -settings.windDownMinutes), end: sleep.start, title: 'Wind down', detail: 'Dim lights, screens away', source: 'hygiene' });
+    }
+    if (sleep.after === 'evening') {
+      const worryDay = sleep.day ?? toLocalDate(sleep.start);
+      const worry = atTime(worryDay, settings.worryTime);
+      if (worry < sleep.start) add({ key: `worry:${worry.toISOString()}`, kind: 'worry', day: worryDay, start: worry, title: 'Worry time', detail: 'Write down worries and one next step', source: 'hygiene' });
     }
     if (settings.cutoffHours > 0) {
       add({ key: `caffeine:${stamp(sleep.start)}`, kind: 'caffeine', day: sleep.day, start: later(sleep.start, -settings.cutoffHours * 60), title: 'Last caffeine', source: 'caffeine' });

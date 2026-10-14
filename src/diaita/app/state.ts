@@ -6,9 +6,20 @@ import { defaultRhythm, planBetween, type Entry, type RhythmSettings, type WorkB
 import type { RhythmNoticeChoices } from '../core/notices';
 import { defaultRhythmNotices } from '../core/notices';
 
-export type DiaitaSettings = RhythmSettings & { started: boolean; notices: RhythmNoticeChoices };
+export type RoomCheck = { cool: boolean; dark: boolean; quiet: boolean; phoneAway: boolean; checkedAt?: string };
 
-export const settings = stored<DiaitaSettings>('diaita:settings', () => ({ ...defaultRhythm, started: false, notices: { ...defaultRhythmNotices } }));
+export type DiaitaSettings = RhythmSettings & { started: boolean; notices: RhythmNoticeChoices; room: RoomCheck };
+
+export type Worry = { id: string; concern: string; nextStep?: string; createdAt: string };
+
+export const settings = stored<DiaitaSettings>('diaita:settings', () => ({
+  ...defaultRhythm,
+  started: false,
+  notices: { ...defaultRhythmNotices },
+  room: { cool: false, dark: false, quiet: false, phoneAway: false },
+}));
+
+export const worries = collection<Worry>('diaita:worry:');
 
 /** One record per night, keyed by the day woken into. */
 export const sleeps = collection<SleepRecord & { id: string }>('diaita:sleep:');

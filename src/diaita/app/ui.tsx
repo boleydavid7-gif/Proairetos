@@ -9,6 +9,7 @@ const ICONS: Record<EntryKind, (props: { size?: number }) => ReactNode> = {
   wake: SunIcon,
   nap: MoonIcon,
   'wind-down': BookIcon,
+  worry: BookIcon,
   caffeine: CupIcon,
   light: SunIcon,
   dark: GlassesIcon,

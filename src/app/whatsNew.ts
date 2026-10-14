@@ -2,7 +2,10 @@
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-14',
-    lines: ['Askesis and Soma settings now open correctly, including the shared account section.'],
+    lines: [
+      'Askesis and Soma settings now open correctly, including the shared account section.',
+      'Diaita now has an early-evening Worry time with one next step for each worry, plus a one-time room check.',
+    ],
   },
   {
     date: '2026-10-13',
