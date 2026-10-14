@@ -32,7 +32,7 @@ Already strong: capture, item types, routines, schedules and rotations, calendar
 Most valuable gaps:
 
 - Read-only calendar feeds are present, but there is no full Google/Apple calendar connection or write-back. A paid organizer normally makes calendar setup and two-way behavior clear.
-- The item model has types, values, plan groups, repeats, and search, but no richer projects/areas/tags or saved views for people with a large system.
+- The item model has types, values, plan groups, repeats, and search. Search now has scopes for items, reflections, decisions, Compass, and companion apps; richer projects/areas/tags and saved views remain open for people with a large system.
 - Attachments are in device backups but not sync. A second device can receive the item without its photo or file.
 - There is no shared household/workspace model for Proairetos itself; collaboration exists only in selected companion apps.
 - The web app has no native quick-add widget, lock-screen action, or background capture path. Those are platform limits worth explaining in the install/help flow.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { search, type Searchable } from '../../core/search/search';
+import { inSearchScope, search, type Searchable } from '../../core/search/search';
 
 const things: Searchable[] = [
   { id: '1', kind: 'item', title: 'Call about car insurance', fields: [{ name: 'Notes', text: 'Policy ends in November' }], at: '2026-09-10T10:00:00Z' },
@@ -18,5 +18,11 @@ describe('search', () => {
 
   it('lists newest first', () => {
     expect(search('a', things).map((h) => h.id)).toEqual(['3', '2', '1']);
+  });
+
+  it('can narrow results to one part of the archive', () => {
+    expect(things.filter((thing) => inSearchScope(thing, 'items')).map((thing) => thing.id)).toEqual(['1', '3']);
+    expect(things.filter((thing) => inSearchScope(thing, 'reflections')).map((thing) => thing.id)).toEqual(['2']);
+    expect(inSearchScope(things[0], 'all')).toBe(true);
   });
 });

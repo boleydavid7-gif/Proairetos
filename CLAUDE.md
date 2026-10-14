@@ -426,7 +426,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   sync + the `send-reminders` function (server setup still paused).
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
-  decisions, Compass; every word must match, newest first, all on device.
+  decisions, Compass and added apps; every word must match, newest first,
+  all on device, with scopes to narrow the archive. Today also keeps Capture
+  one tap away beside the header actions.
 - Share into Capture (Android): `share_target` in `public/manifest.webmanifest`
   sends `?share_title&share_text&share_url` to `/`; `features/share/` reads
   it once, cleans the address, and offers a Capture sheet. Bump the

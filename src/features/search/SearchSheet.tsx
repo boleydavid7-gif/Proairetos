@@ -17,7 +17,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService, reflectionService } from '../../app/services';
 import { useSheet } from '../../components/ui/useSheet';
 import { kindLabel, kindOf } from '../../core/life-items/kinds';
-import { search, type Searchable } from '../../core/search/search';
+import { inSearchScope, search, type Searchable, type SearchScope } from '../../core/search/search';
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
 
@@ -182,6 +182,7 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const field = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
+  const [scope, setScope] = useState<SearchScope>('all');
   // The sheet opens after this renders, so the field is focused once it is showing.
   useEffect(() => field.current?.focus(), []);
   const [openEntry, setOpenEntry] = useState<string | null>(null);
@@ -190,7 +191,19 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
   // While the lock is on, what was written in Reflect stays out of search.
-  const hits = data ? search(deferred, data.things).filter((hit) => !(locked && hit.kind === 'reflection')) : [];
+  const hits = data
+    ? search(deferred, data.things).filter(
+        (hit) => !(locked && hit.kind === 'reflection') && inSearchScope(hit, scope),
+      )
+    : [];
+  const scopes: { id: SearchScope; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'items', label: 'Items' },
+    { id: 'reflections', label: 'Reflections' },
+    { id: 'decisions', label: 'Decisions' },
+    { id: 'compass', label: 'Compass' },
+    { id: 'apps', label: 'Other apps' },
+  ];
 
   return (
     <dialog
@@ -214,6 +227,20 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
+        <div className="search-scope" role="tablist" aria-label="Search in">
+          {scopes.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={scope === option.id}
+              className="chip chip--small"
+              onClick={() => setScope(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
         {deferred.trim() && hits.length === 0 && <p className="empty-note">Nothing matches that.</p>}
         {!deferred.trim() && <p className="sheet__hint">Things you captured, reflections, decisions, and Compass, plus recipes, books and bills from the other apps. Only on this device.</p>}
         <ul className="search-list">

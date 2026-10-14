@@ -31,6 +31,24 @@
   color: var(--color-accent-strong);
 }
 
+/* A compact primary action keeps Capture available from Today, like a
+   familiar iOS trailing action or Material extended action reduced to an icon. */
+.header-action--accent {
+  margin-right: var(--space-1);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22), 0 1px 0 rgba(255, 255, 255, 0.18) inset;
+}
+
+.header-action--accent:hover {
+  background: var(--color-accent-strong);
+  color: var(--color-accent-ink);
+}
+
+.header-action--accent:active {
+  transform: scale(0.96);
+}
+
 /* Today: a quiet typographic header, the landscape resting at the foot of the page. */
 .today-header .page-header__title {
   padding-right: var(--space-6);

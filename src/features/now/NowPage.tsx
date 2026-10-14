@@ -16,7 +16,7 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, scheduleService } from '../../app/services';
 import { goalLines } from '../../core/compass/goals';
-import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
+import { CaptureIcon, ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
@@ -190,6 +190,14 @@ export default function NowPage() {
             onClick={() => setLighterToday(!lighter, today)}
           >
             <SproutIcon size={22} />
+          </button>
+          <button
+            type="button"
+            className="header-action header-action--accent"
+            aria-label="Capture"
+            onClick={() => navigate('capture')}
+          >
+            <CaptureIcon size={21} />
           </button>
           <SearchButton />
           <SettingsButton />

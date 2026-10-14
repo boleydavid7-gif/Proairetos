@@ -16,6 +16,18 @@ export type Searchable = {
 
 export type SearchHit = Searchable & { snippet?: string };
 
+/** The parts of the archive a person can narrow a search to. */
+export type SearchScope = 'all' | 'items' | 'reflections' | 'decisions' | 'compass' | 'apps';
+
+export function inSearchScope(thing: Searchable, scope: SearchScope): boolean {
+  if (scope === 'all') return true;
+  if (scope === 'items') return thing.kind === 'item';
+  if (scope === 'reflections') return thing.kind === 'reflection';
+  if (scope === 'decisions') return thing.kind === 'decision';
+  if (scope === 'compass') return thing.kind === 'statement';
+  return thing.kind === 'app';
+}
+
 export const normalize = (text: string) =>
   text
     .normalize('NFD')
