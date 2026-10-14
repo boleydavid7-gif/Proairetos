@@ -427,8 +427,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass and added apps; every word must match, newest first,
-  all on device, with scopes to narrow the archive. Today also keeps Capture
-  one tap away beside the header actions.
+  all on device, with scopes to narrow the archive.
 - Share into Capture (Android): `share_target` in `public/manifest.webmanifest`
   sends `?share_title&share_text&share_url` to `/`; `features/share/` reads
   it once, cleans the address, and offers a Capture sheet. Bump the
@@ -450,9 +449,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `29-touch.css` (last) keeps every control at least 44px to tap.
   Moving between places uses view transitions (`app/transitions.ts`):
   every route change goes through `go()` in App (tabs slide by bar order,
-  pages push in and pop out); main-tab changes swap content under a fixed tab
-  bar, and the selected tab has a sliding indicator; other page changes move
-  under the dock; a page's own tabs call `transition(...,
+  pages push in and pop out); main-tab changes swap content at the top under a
+  fixed tab bar, and the selected tab has a sliding indicator; other page
+  changes move under the dock; a page's own tabs call `transition(...,
   'panel')` and key their `.vt-panel` by tab: no snapshot there, the new
   content just slides in (Safari tinted snapshots of filtered photos green). The tab bar holds still
   (`view-transition-name`). Without support or with reduced motion,

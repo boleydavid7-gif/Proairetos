@@ -11,9 +11,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita now shows an Askesis-run sleep comparison, one sourced regularity suggestion, and two-week experiments with before-and-after recorded amounts.',
       'Diaita’s sleep comparison can also group nights by Dynamis training, Hydros caffeine after cutoff, and scheduled night shifts.',
       'Diaita worries open Think it through in Proairetos, and the sleep log can offer a plain doctor prompt when its recorded signs or duration call for one.',
-      'Today now has a one-tap Capture action, and Search can narrow results to items, reflections, decisions, Compass or other apps.',
+      'Search can narrow results to items, reflections, decisions, Compass or other apps.',
       'The bottom dock now stays fixed as pages change, with a springing line that follows the selected tab.',
-      'Switching between Today, Reflect, Days ahead and Capture now keeps the dock still while the page content changes.',
+      'Switching between Today, Reflect, Days ahead and Capture now opens the new page at the top, with the dock still.',
     ],
   },
   {
