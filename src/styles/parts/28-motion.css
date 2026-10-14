@@ -57,6 +57,10 @@
 
 /* ---------- Tab bar ---------- */
 
+.app-shell__content {
+  view-transition-name: app-content;
+}
+
 .tab-bar__item svg {
   transition: translate 280ms var(--ease-spring);
 }
@@ -262,6 +266,14 @@ html[data-panel='left'] .vt-panel {
   animation-timing-function: var(--ease-out);
 }
 
+/* The shell stays put while only the page content travels. This keeps the
+   bottom dock in one place on browsers that support view transitions. */
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
 ::view-transition-old(*),
 ::view-transition-new(*) {
   animation-duration: 380ms;
@@ -271,38 +283,38 @@ html[data-panel='left'] .vt-panel {
 }
 
 /* Along the tab bar: the new page comes from the side of the tab tapped. */
-html[data-nav='right']::view-transition-old(root) {
+html[data-nav='right']::view-transition-old(app-content) {
   animation-name: slide-out-left;
 }
 
-html[data-nav='right']::view-transition-new(root) {
+html[data-nav='right']::view-transition-new(app-content) {
   animation-name: slide-in-right;
 }
 
-html[data-nav='left']::view-transition-old(root) {
+html[data-nav='left']::view-transition-old(app-content) {
   animation-name: slide-out-right;
 }
 
-html[data-nav='left']::view-transition-new(root) {
+html[data-nav='left']::view-transition-new(app-content) {
   animation-name: slide-in-left;
 }
 
 /* Into a page: it slides over the one beneath, which settles back. */
-html[data-nav='forward']::view-transition-old(root) {
+html[data-nav='forward']::view-transition-old(app-content) {
   animation-name: settle-back;
 }
 
-html[data-nav='forward']::view-transition-new(root) {
+html[data-nav='forward']::view-transition-new(app-content) {
   animation-name: push-in;
   animation-duration: 420ms;
 }
 
 /* Back out: the page slides away and the one beneath comes forward again. */
-html[data-nav='back']::view-transition-old(root) {
+html[data-nav='back']::view-transition-old(app-content) {
   animation-name: push-out;
 }
 
-html[data-nav='back']::view-transition-new(root) {
+html[data-nav='back']::view-transition-new(app-content) {
   animation-name: come-forward;
 }
 
@@ -363,7 +375,7 @@ html[data-nav='back']::view-transition-new(root) {
 }
 
 /* Coming back in, the page slides above the one it covers. */
-html[data-nav='back']::view-transition-old(root) {
+html[data-nav='back']::view-transition-old(app-content) {
   z-index: 1;
 }
 
