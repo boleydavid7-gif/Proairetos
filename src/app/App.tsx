@@ -62,6 +62,13 @@ export default function App() {
   const go = useCallback((next: AppRoute) => {
     const from = current.current;
     if (next === from) return;
+    // Main-tab changes keep the real dock out of the document view
+    // transition. The page swaps beneath it while the dock and its indicator
+    // stay anchored to the viewport.
+    if (mainTabs.has(from) && mainTabs.has(next)) {
+      setRoute(next);
+      return;
+    }
     transition(directionBetween(from, next), () => setRoute(next));
   }, []);
   const [paletteOpen, setPaletteOpen] = useState(false);

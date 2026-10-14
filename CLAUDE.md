@@ -450,8 +450,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `29-touch.css` (last) keeps every control at least 44px to tap.
   Moving between places uses view transitions (`app/transitions.ts`):
   every route change goes through `go()` in App (tabs slide by bar order,
-  pages push in and pop out); the page content moves under a fixed tab bar,
-  and the selected tab has a sliding indicator; a page's own tabs call `transition(...,
+  pages push in and pop out); main-tab changes swap content under a fixed tab
+  bar, and the selected tab has a sliding indicator; other page changes move
+  under the dock; a page's own tabs call `transition(...,
   'panel')` and key their `.vt-panel` by tab: no snapshot there, the new
   content just slides in (Safari tinted snapshots of filtered photos green). The tab bar holds still
   (`view-transition-name`). Without support or with reduced motion,

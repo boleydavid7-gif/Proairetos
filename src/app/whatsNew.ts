@@ -13,6 +13,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Diaita worries open Think it through in Proairetos, and the sleep log can offer a plain doctor prompt when its recorded signs or duration call for one.',
       'Today now has a one-tap Capture action, and Search can narrow results to items, reflections, decisions, Compass or other apps.',
       'The bottom dock now stays fixed as pages change, with a springing line that follows the selected tab.',
+      'Switching between Today, Reflect, Days ahead and Capture now keeps the dock still while the page content changes.',
     ],
   },
   {
