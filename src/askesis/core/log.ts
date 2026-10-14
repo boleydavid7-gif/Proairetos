@@ -1,4 +1,5 @@
 import { addDays, mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
+import { formatDistance, formatDuration, formatPace, paceOf, type Unit } from './pace';
 
 /**
  * What the person wrote down after a workout. Everything but the date is
@@ -88,3 +89,54 @@ export function weeklyTotals(entries: readonly LogEntry[], weeks: number, today:
 
 export const newestFirst = (a: LogEntry, b: LogEntry) =>
   b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt);
+
+/** The clearest records in the run log, using only entries with the needed facts. */
+export type RecordFacts = {
+  longestDistance?: LogEntry;
+  longestDuration?: LogEntry;
+  fastestPace?: { entry: LogEntry; secondsPerUnit: number };
+};
+
+const trainingEntry = (entry: LogEntry) => entry.activity === 'run' || Boolean(entry.workoutId);
+
+export function recordFacts(entries: readonly LogEntry[], unit: Unit): RecordFacts {
+  const runs = entries.filter(trainingEntry);
+  const withDistance = runs.filter((entry) => (entry.meters ?? 0) > 0);
+  const withDuration = runs.filter((entry) => (entry.seconds ?? 0) > 0);
+  const withPace = runs
+    .map((entry) => ({ entry, secondsPerUnit: paceOf(entry.seconds ?? 0, entry.meters ?? 0, unit) }))
+    .filter((item): item is { entry: LogEntry; secondsPerUnit: number } => item.secondsPerUnit !== undefined);
+  return {
+    longestDistance: withDistance.reduce<LogEntry | undefined>((longest, entry) => (!longest || (entry.meters ?? 0) > (longest.meters ?? 0) ? entry : longest), undefined),
+    longestDuration: withDuration.reduce<LogEntry | undefined>((longest, entry) => (!longest || (entry.seconds ?? 0) > (longest.seconds ?? 0) ? entry : longest), undefined),
+    fastestPace: withPace.reduce<{ entry: LogEntry; secondsPerUnit: number } | undefined>((fastest, item) => (!fastest || item.secondsPerUnit < fastest.secondsPerUnit ? item : fastest), undefined),
+  };
+}
+
+const csvCell = (value: unknown) => {
+  const text = value === undefined || value === null ? '' : String(value);
+  return `"${text.replaceAll('"', '""')}"`;
+};
+
+/** A readable copy of the recorded log for a spreadsheet or another running app. */
+export function logCsv(entries: readonly LogEntry[], unit: Unit): string {
+  const header = ['Date', 'Activity', `Distance (${unit})`, 'Duration', `Pace (/${unit})`, 'Average heart rate', 'Felt', 'Notes', 'Went well', 'Next time', 'Intention', 'Planned workout'];
+  const rows = entries.map((entry) => {
+    const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
+    return [
+      entry.date,
+      activities[entry.activity],
+      entry.meters ? formatDistance(entry.meters, unit) : '',
+      entry.seconds ? formatDuration(entry.seconds) : '',
+      pace ? formatPace(pace, unit) : '',
+      entry.avgHr ?? '',
+      entry.felt ? feelings[entry.felt] : '',
+      entry.notes,
+      entry.wentWell,
+      entry.nextTime,
+      entry.intention,
+      entry.workoutTitle,
+    ].map(csvCell).join(',');
+  });
+  return [header.map(csvCell).join(','), ...rows].join('\r\n') + '\r\n';
+}

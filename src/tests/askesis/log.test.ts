@@ -1,4 +1,4 @@
-import { periodRange, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
+import { logCsv, periodRange, recordFacts, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
 import { formatDuration, formatPace, paceOf, parseDistance, parseDuration } from '../../askesis/core/pace';
 import { layOut, nightNote } from '../../askesis/core/week';
 import { buildPath } from '../../askesis/core/plans';
@@ -50,6 +50,23 @@ describe('the log', () => {
   it('months and years follow the calendar', () => {
     expect(periodRange('month', '2026-02-10')).toMatchObject({ from: '2026-02-01', to: '2026-02-28' });
     expect(periodRange('year', '2026-02-10').before).toEqual({ from: '2025-01-01', to: '2025-12-31' });
+  });
+
+  it('finds plain running records and makes a safe CSV copy', () => {
+    const records = recordFacts(
+      [
+        entry('2026-09-28', 5000, 1800, { notes: 'Felt "good"' }),
+        entry('2026-09-30', 10000, 3900),
+        entry('2026-10-01', 3000, 900, { activity: 'walk' }),
+      ],
+      'km',
+    );
+    expect(records.longestDistance?.meters).toBe(10000);
+    expect(records.longestDuration?.seconds).toBe(3900);
+    expect(records.fastestPace?.secondsPerUnit).toBe(360);
+    const csv = logCsv([entry('2026-09-28', 5000, 1800, { notes: 'Felt "good"' })], 'km');
+    expect(csv).toContain('"Distance (km)"');
+    expect(csv).toContain('"Felt ""good"""');
   });
 });
 

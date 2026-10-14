@@ -562,7 +562,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Motion: same as Proairetos: `app/transitions.ts` (tabs slide by bar order,
   pages push in, back comes forward), sliding segmented highlight (`--count`,
   `--at` set inline), press spring, choices pop, `tap()` (Gentle taps) on
-  each guide step change.
+  each guide step change. The phone dock is a six-column fixed bar with one
+  sliding active line and a small selected-icon lift; deeper pages keep the
+  parent tab selected (`lastTab`).
+- Progress portability and plain records: `core/log.ts` finds the longest
+  distance, longest workout and fastest recorded pace from run entries, and
+  `logCsv` exports the full entered log (including notes and heart rate) as a
+  CSV from Progress. GPS keeps distance only, so route points are not
+  available for export; a watch GPX/TCX can still be brought in for review.
 - Learn articles (`core/learn.ts`) cite sources; daily Stoic line and the
   optional "What part of this is up to you?" intention (`core/stoic.ts`).
 - Bending to a life (`core/gentler.ts`): "Lighter today" swaps a session for

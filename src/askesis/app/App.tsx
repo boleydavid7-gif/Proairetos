@@ -162,7 +162,7 @@ export default function App() {
         <main key={JSON.stringify(route)} className="page-enter">
           {page}
         </main>
-        {showTabs && <TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} />}
+        {showTabs && <TabBar current={isTab(route.name) ? route.name : lastTab} onPick={(tab) => swap({ name: tab })} />}
       </div>
     </UndoProvider>
   );

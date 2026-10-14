@@ -7,7 +7,7 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, LogIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand, dayLabel, Segmented } from '../app/ui';
-import { activities, feelings, newestFirst, periodRange, totalsBetween, weeklyTotals, type Period } from '../core/log';
+import { activities, feelings, logCsv, newestFirst, periodRange, recordFacts, totalsBetween, weeklyTotals, type Period } from '../core/log';
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
 import Empty from '../../app/family/Empty';
 
@@ -45,6 +45,15 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const before = range.before && totalsBetween(list, range.before.from, range.before.to);
   const weeks = weeklyTotals(list, 8, today);
   const byDistance = weeks.some((week) => week.meters > 0);
+  const records = recordFacts(list, unit);
+  const exportLog = () => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([logCsv(list, unit)], { type: 'text/csv;charset=utf-8' }));
+    link.download = `askesis-log-${today}.csv`;
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
+  };
 
   return (
     <div className="page log-page">
@@ -58,6 +67,9 @@ export default function LogPage({ nav }: { nav: Nav }) {
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
       <button type="button" className="text-link" onClick={() => file.current?.click()}>
         From a watch file
+      </button>
+      <button type="button" className="button-quiet log-page__export" onClick={exportLog} disabled={!list.length}>
+        Export log (CSV)
       </button>
       {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
       <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
@@ -82,6 +94,20 @@ export default function LogPage({ nav }: { nav: Nav }) {
           </span>
         </div>
       </div>
+      {(records.longestDistance || records.longestDuration || records.fastestPace) && (
+        <section className="card records" aria-label="Recorded facts">
+          <div className="records__head">
+            <h2 className="card__title card__title--small">Recorded facts</h2>
+            <span className="card__eyebrow">All time</span>
+          </div>
+          <div className="records__grid">
+            {records.longestDistance && <div><span className="tile__label">Longest distance</span><strong>{formatDistance(records.longestDistance.meters!, unit)}</strong></div>}
+            {records.longestDuration && <div><span className="tile__label">Longest workout</span><strong>{formatHours(records.longestDuration.seconds!)}</strong></div>}
+            {records.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(records.fastestPace.secondsPerUnit, unit)}</strong></div>}
+          </div>
+          <p className="hint">These are the fastest, longest and farthest entries you recorded. Askesis does not score them.</p>
+        </section>
+      )}
       {before && before.count > 0 && (
         <p className="hint">
           {beforeName[period]}: {formatDistance(before.meters, unit)}, {formatHours(before.seconds)}, {before.count}{' '}

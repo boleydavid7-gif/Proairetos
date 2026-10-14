@@ -46,7 +46,7 @@ Most valuable gaps:
 - Apple Health, Health Connect, Garmin/Strava, or another wearable import. Today a runner must enter most results manually or import a file.
 - A route map and reliable background GPS. The current web GPS keeps the screen awake; a locked phone cannot provide the experience people expect from a paid running app.
 - Custom workouts and plan editing. The generated path is good, but a runner cannot build a reusable interval session or edit a session structure.
-- Export of the run log and route data, plus plain facts such as best recorded time/distance and pace trends.
+- Progress now shows plain all-time records (longest distance, longest workout and fastest recorded pace) and exports the entered run log as CSV. Route maps and route-point export remain open because the web GPS deliberately keeps distance only.
 - Askesis music remains device-only, with Save a copy and Restore a copy archives; an encrypted account copy would make a phone change one step.
 
 ### Soma
