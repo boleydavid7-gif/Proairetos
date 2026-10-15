@@ -6,6 +6,7 @@ import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
+import { recipesUsing, soonItems, shownUseBy } from '../core/soon';
 import { latitude, useBlocks } from '../app/proairetos';
 import { dayShape } from '../core/dayShape';
 import { inSeason, seasonal as seasonalNow, seasonalRecipes } from '../core/seasons';
@@ -37,7 +38,9 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const line = lineFor(today);
   const [query, setQuery] = useState('');
   const favourites = recipes.filter((recipe) => recipe.favorite);
-  useGroceries();
+  const groceries = useGroceries() ?? [];
+  const soon = soonItems(groceries, today);
+  const soonRecipes = soon.length ? recipesUsing(recipes, soon) : [];
   const blocks = useBlocks(today);
   const shape = settings.fitsYourDay ? dayShape(blocks, today, new Date()) : undefined;
   const week = weekFrom(today)
@@ -73,6 +76,18 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <span className="card__title">What can I make tonight?</span>
             {shape?.today && <span className="muted">{shape.today}</span>}
           </button>
+        )}
+        {soon.length > 0 && (
+          <section className="card use-soon" aria-label="Use soon">
+            <span className="card__eyebrow">Use soon</span>
+            <p className="use-soon__things">{soon.map((item) => `${item.name} (${(shownUseBy(item.useBy, today) ?? '').replace(/^Use by /, '').replace(/^Use-by was /, 'was ')})`).join(', ')}</p>
+            {soonRecipes.map(({ recipe, uses }) => (
+              <button key={recipe.id} type="button" className="use-soon__recipe" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
+                <span>{recipe.title}</span>
+                <span className="muted">{uses.join(', ')}</span>
+              </button>
+            ))}
+          </section>
         )}
         {shape && shape.lateDays.length >= 2 && recipes.length > 0 && (
           <button type="button" className="card card--link" onClick={() => nav.go({ name: 'week', mark: recipes.some((recipe) => recipe.marks?.includes('ahead')) ? 'ahead' : undefined })}>

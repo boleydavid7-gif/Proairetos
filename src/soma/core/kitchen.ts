@@ -1,5 +1,6 @@
 import { itemKey, readIngredient } from './ingredients';
 import { inKitchen, onList, type GroceryItem } from './groceries';
+import { guessUseBy } from './soon';
 
 /**
  * What is in the kitchen: things ticked as bought come home here (or are
@@ -13,7 +14,7 @@ export function bringHome(all: readonly GroceryItem[], today: string): GroceryIt
   const keys = new Set(home.map((item) => itemKey(item.name)));
   return [
     ...all.filter((item) => !(onList(item) && item.checked) && !(inKitchen(item) && keys.has(itemKey(item.name)))),
-    ...home.map((item) => ({ ...item, place: 'kitchen' as const, boughtAt: today, checked: false })),
+    ...home.map((item) => ({ ...item, place: 'kitchen' as const, boughtAt: today, checked: false, useBy: guessUseBy(item.name, today) })),
   ];
 }
 
@@ -45,7 +46,15 @@ export function boughtLabel(day: string | undefined, today: string): string | un
   return `Bought ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
 }
 
-/** Kitchen things, the ones there longest first, so they come to mind. */
+/** Kitchen things: those with a day to use them by first (soonest first), then the ones there longest, so they come to mind. */
 export function kitchenByAge(all: readonly GroceryItem[]): GroceryItem[] {
-  return all.filter(inKitchen).sort((a, b) => (a.boughtAt ?? '').localeCompare(b.boughtAt ?? '') || a.name.localeCompare(b.name));
+  return all
+    .filter(inKitchen)
+    .sort(
+      (a, b) =>
+        (a.useBy ? 0 : 1) - (b.useBy ? 0 : 1) ||
+        (a.useBy ?? '').localeCompare(b.useBy ?? '') ||
+        (a.boughtAt ?? '').localeCompare(b.boughtAt ?? '') ||
+        a.name.localeCompare(b.name),
+    );
 }

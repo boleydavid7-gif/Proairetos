@@ -26,3 +26,16 @@ export function plannedAhead(recipes: readonly Recipe[], today: string, days = 7
   const first = (recipe: Recipe) => recipe.planned?.find((day) => day >= today && day <= last);
   return recipes.filter(first).sort((a, b) => first(a)!.localeCompare(first(b)!));
 }
+
+/** Each recipe placed in the seven days before `start`, placed again on the same weekday from `start` (undo restores). */
+export function repeatWeekBefore(recipes: readonly Recipe[], start: string, today: string): Recipe[] {
+  const before = weekFrom(addDays(start, -7));
+  return recipes
+    .map((recipe): Recipe | undefined => {
+      const add = (recipe.planned ?? []).filter((day) => before.includes(day)).map((day) => addDays(day, 7)).filter((day) => day >= today);
+      if (!add.length) return undefined;
+      const days = [...new Set([...(recipe.planned ?? []).filter((each) => each >= today), ...add])].sort();
+      return days.length === (recipe.planned ?? []).filter((each) => each >= today).length ? undefined : { ...recipe, planned: days };
+    })
+    .filter((recipe): recipe is Recipe => Boolean(recipe));
+}

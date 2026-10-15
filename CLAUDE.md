@@ -703,6 +703,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   a moment before eating, cooked for (`Recipe.cookedFor`). Proairetos reads
   recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
   day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
+- Use soon and weeks ahead (`core/soon.ts`): a kitchen thing may have `useBy`; putting away (`bringHome`) and adding by hand
+  offer a first guess from the short end of USDA FoodKeeper fridge times for common fresh foods (`keepsAbout`,
+  `KEEPS_SOURCE`, shown under the kitchen list), changeable per row (Today / Tomorrow / 3 days / A week / 2 weeks / No
+  date). The kitchen lists dated things soonest first; Home's "Use soon" card names what is due within two days and up
+  to three recipes using it (`soonItems`, `recipesUsing`). Facts only ("Use by Thu", "Use-by was Tue"). The Week page steps
+  up to three weeks ahead; "Repeat the week before" places last week's meals on the same weekdays (`repeatWeekBefore`,
+  undo); Groceries for these covers the week shown.
 - Groceries take only things to buy (`isGrocery`, `cleanLine` in `soma/core/groceries.ts`): list numbering is taken off ("2. Black beans"); notes in brackets, rules (———), emoji or "Optional / Upgrade" titles, headings and cooking steps are left out. The Groceries page offers "Tidy the list" for lines saved before that.
 - Reading recipes: `readIngredient` takes "plus" amounts, can sizes, "juice
   of", size words and uses into notes; `boughtAs` buys juice as fruit; ranges

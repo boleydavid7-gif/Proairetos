@@ -1661,3 +1661,67 @@ button.nutri-badge {
   padding-left: 1.3rem;
   line-height: 1.5;
 }
+
+/* Use soon: kitchen things with a day to use them by, and recipes that use them. */
+.use-soon {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.use-soon__things {
+  margin: 0;
+}
+.use-soon__recipe {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.kitchen-row {
+  flex-wrap: wrap;
+}
+.kitchen-row__main {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 0;
+}
+.kitchen-row__when {
+  flex-basis: 100%;
+  padding-bottom: 8px;
+}
+.kitchen-row__soon {
+  color: var(--accent, inherit);
+}
+.kitchen-source {
+  margin-top: 12px;
+}
+
+/* The week page steps a week at a time, up to three ahead. */
+.week-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.week-steps .title {
+  margin: 0;
+  text-align: center;
+}
+.week-repeat {
+  align-self: flex-start;
+  min-height: 44px;
+}

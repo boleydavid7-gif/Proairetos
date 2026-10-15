@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Soma: kitchen things can have a use-by day (a first guess for fresh food), Home shows what to use soon with recipes that use it, and the week plans up to a month ahead with Repeat the week before.',
       'Therapeia keeps each medicine’s history by itself (dose, times, stopped, refilled), prints recent changes for a doctor, and can share your medicines with someone who helps.',
       'Oikonomia shows your next pay date, the bills due before it, and what is left after them when you say what is in the account.',
       'Capture from anywhere: “Hey Siri, Capture”, a double tap on the back of your iPhone, or your watch sends words straight into Capture, locked until Proairetos opens them.',
