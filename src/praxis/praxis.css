@@ -266,6 +266,15 @@ html, body { margin: 0; }
 .praxis-card-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--color-border); }
 .praxis-card-list span { display: grid; gap: 2px; min-width: 0; }
 .praxis-card-list small { color: var(--color-text-muted); font-size: 13px; overflow-wrap: anywhere; }
+.praxis-card-list span.praxis-card-list__actions { display: flex; gap: 4px; flex: none; }
+.praxis-card-list li.praxis-card-edit { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: stretch; justify-content: stretch; }
+.praxis-card-edit label { display: grid; gap: 6px; }
+.praxis-card-edit label span { color: var(--color-text-muted); font-size: 13px; }
+.praxis-card-edit input, .praxis-card-edit textarea { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-soft); color: var(--color-text); font: inherit; font-size: 16px; }
+.praxis-card-edit__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.praxis-highlights { max-height: 340px; overflow-y: auto; }
+.praxis-highlights strong { font-weight: 500; }
+.praxis-card-files { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; margin: 12px 0 4px; }
 .praxis-chips button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-text); background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
 .praxis-wide-card.praxis-card:has(> .praxis-text-button:only-child) { padding: 6px 20px; }
 

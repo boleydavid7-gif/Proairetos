@@ -52,3 +52,87 @@ export function cardsFromText(text: string): { front: string; back: string }[] {
   }
   return pairs.filter((pair) => pair.front.length <= 300 && pair.back.length <= 600);
 }
+
+/** A card's words changed; where it stands in the boxes stays. */
+export function editCard(card: Card, front: string, back: string): Card {
+  return { ...card, front: front.trim() || card.front, back: back.trim() || card.back };
+}
+
+const cell = (value: unknown) => {
+  const text = value === undefined || value === null ? '' : String(value);
+  return `"${text.replaceAll('"', '""')}"`;
+};
+
+/** Every card as CSV (Question, Answer, Block, Box, Next), for a spreadsheet or another cards app. */
+export function cardsCsv(cards: readonly Card[], blockTitle: (id?: string) => string | undefined): string {
+  const header = ['Question', 'Answer', 'Block', 'Box', 'Next'];
+  const rows = cards.map((card) => [card.front, card.back, blockTitle(card.blockId) ?? '', card.box, card.due].map(cell).join(','));
+  return [header.map(cell).join(','), ...rows].join('\r\n') + '\r\n';
+}
+
+/** Rows of a CSV or tab-separated file, quotes and line breaks inside quotes kept. */
+export function csvRows(text: string): string[][] {
+  const clean = text.replace(/^﻿/, '');
+  const firstLine = clean.split(/\r?\n/, 1)[0] ?? '';
+  const separator = firstLine.includes('\t') && !firstLine.includes(',') ? '\t' : firstLine.split(';').length > firstLine.split(',').length ? ';' : ',';
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let quoted = false;
+  for (let index = 0; index < clean.length; index += 1) {
+    const char = clean[index];
+    if (quoted) {
+      if (char === '"' && clean[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"' && field === '') quoted = true;
+    else if (char === separator) {
+      row.push(field);
+      field = '';
+    } else if (char === '\n' || char === '\r') {
+      if (char === '\r' && clean[index + 1] === '\n') index += 1;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+    } else field += char;
+  }
+  if (field || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((each) => each.some((value) => value.trim()));
+}
+
+const HEADER = /^(question|front|term|prompt|q)$/i;
+
+/**
+ * Cards from a spreadsheet file (CSV, or tab-separated as Anki and Quizlet export): the first two columns are the
+ * question and the answer; a heading row is skipped; cards already here with the same question and answer are left out.
+ */
+export function cardsFromCsv(text: string, existing: readonly Pick<Card, 'front' | 'back'>[] = []): { front: string; back: string }[] {
+  const rows = csvRows(text);
+  if (rows[0] && HEADER.test(rows[0][0]?.trim() ?? '')) rows.shift();
+  const seen = new Set(existing.map((card) => `${card.front.trim()}\n${card.back.trim()}`));
+  const pairs: { front: string; back: string }[] = [];
+  for (const row of rows) {
+    const front = (row[0] ?? '').trim();
+    const back = (row[1] ?? '').trim();
+    if (!front || !back || front.length > 300 || back.length > 600) continue;
+    const key = `${front}\n${back}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    pairs.push({ front, back });
+  }
+  return pairs;
+}
+
+export type Highlight = { id: string; text: string; bookTitle: string; author?: string; chapter?: string };
+
+/** Highlights from Theoria not yet made into a card, newest books' highlights first as given. */
+export function highlightsToOffer(highlights: readonly Highlight[], cards: readonly Pick<Card, 'back'>[]): Highlight[] {
+  const used = new Set(cards.map((card) => card.back.trim()));
+  return highlights.filter((each) => each.text.trim() && each.text.trim().length <= 600 && !used.has(each.text.trim()));
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { answer, cardsFromText, newCard, nextDay, ready } from '../../praxis/cards';
+import { answer, cardsFromText, newCard, nextDay, ready, editCard, cardsCsv, cardsFromCsv, highlightsToOffer } from '../../praxis/cards';
 import { findJudgmentLanguage } from '../../core/rules/languageRules';
 import { readFileSync } from 'node:fs';
 
@@ -43,5 +43,38 @@ describe('cards to look at again', () => {
     const source = readFileSync('src/praxis/cards.ts', 'utf8') + readFileSync('src/praxis/CardsView.tsx', 'utf8');
     expect(source).not.toMatch(/overdue|streak|score|missed/i);
     expect(findJudgmentLanguage(source)).toEqual([]);
+  });
+});
+
+describe('cards in and out', () => {
+  const card = newCard('Capital of Peru', 'Lima', '2026-10-15', 'a', 'b1');
+
+  it('changes the words and keeps the box', () => {
+    const moved = { ...card, box: 3, due: '2026-10-20' };
+    expect(editCard(moved, ' Capital of Chile ', 'Santiago')).toMatchObject({ front: 'Capital of Chile', back: 'Santiago', box: 3, due: '2026-10-20' });
+    expect(editCard(moved, '  ', '').front).toBe('Capital of Peru');
+  });
+
+  it('writes CSV and reads it back without doubles', () => {
+    const csv = cardsCsv([{ ...card, back: 'Lima, "the city of kings"' }], () => 'Geography');
+    expect(csv.split('\r\n')[1]).toBe('"Capital of Peru","Lima, ""the city of kings""","Geography","1","2026-10-15"');
+    expect(cardsFromCsv(csv)).toEqual([{ front: 'Capital of Peru', back: 'Lima, "the city of kings"' }]);
+    expect(cardsFromCsv(csv, [{ front: 'Capital of Peru', back: 'Lima, "the city of kings"' }])).toEqual([]);
+  });
+
+  it('reads tab-separated exports and answers over two lines', () => {
+    expect(cardsFromCsv('Aorta\tthe largest artery\nMitosis\t"one cell\ninto two"\n')).toEqual([
+      { front: 'Aorta', back: 'the largest artery' },
+      { front: 'Mitosis', back: 'one cell\ninto two' },
+    ]);
+    expect(cardsFromCsv('front;back\nun;one\n')).toEqual([{ front: 'un', back: 'one' }]);
+  });
+
+  it('offers highlights not yet made into cards', () => {
+    const offered = highlightsToOffer(
+      [{ id: 'h1', text: 'Lima', bookTitle: 'Peru' }, { id: 'h2', text: 'Waste no more time', bookTitle: 'Meditations' }, { id: 'h3', text: ' ', bookTitle: 'X' }],
+      [card],
+    );
+    expect(offered.map((each) => each.id)).toEqual(['h2']);
   });
 });

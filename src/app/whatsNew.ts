@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Praxis cards: change a card’s words, bring cards in from a CSV or Anki/Quizlet export, download them, and make a card from a Theoria highlight.',
       'Hydros: download every drink as a CSV file from Settings, in your unit.',
       'Philia: Called, Messaged or Saw them in one tap, an optional line about it, and one timeline per person.',
       'Diaita: morning daylight has its own sources and an optional reminder.',
