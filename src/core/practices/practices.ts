@@ -65,7 +65,7 @@ export const practices: readonly Practice[] = [
     steps: [
       'Bring to mind someone who is easy to care about. Silently wish: may you be well, may you be at ease.',
       'Now yourself, as you are today: may I be well, may I be at ease.',
-      'Someone you see often but hardly know, perhaps a coworker or a neighbour: may you be well.',
+      'Someone you see often but hardly know, perhaps a coworker or a neighbor: may you be well.',
       'And widening, to everyone having a day like yours: may we all be at ease.',
     ],
     close: 'May you be well.',

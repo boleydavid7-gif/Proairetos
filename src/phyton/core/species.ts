@@ -88,7 +88,7 @@ export const SPECIES: readonly Species[] = [
   s('watermelon-peperomia', 'Watermelon peperomia', 'Peperomia argyreia', 'Houseplant', 'indirect', 'half', 9, 6, 'none'),
   s('boston-fern', 'Boston fern', 'Nephrolepis exaltata', 'Houseplant', 'indirect', 'moist', 3, 6, 'none', { humid: true }),
   s('maidenhair-fern', 'Maidenhair fern', 'Adiantum raddianum', 'Houseplant', 'indirect', 'moist', 3, 6, 'none', { humid: true, note: 'Never let it dry out completely.' }),
-  s('birds-nest-fern', 'Bird’s nest fern', 'Asplenium nidus', 'Houseplant', 'low', 'moist', 5, 6, 'none', { humid: true, note: 'Water the soil, not the centre of the rosette.' }),
+  s('birds-nest-fern', 'Bird’s nest fern', 'Asplenium nidus', 'Houseplant', 'low', 'moist', 5, 6, 'none', { humid: true, note: 'Water the soil, not the center of the rosette.' }),
   s('asparagus-fern', 'Asparagus fern', 'Asparagus aethiopicus', 'Houseplant', 'indirect', 'moist', 5, 4, 'both'),
   s('prayer-plant', 'Prayer plant', 'Maranta leuconeura', 'Houseplant', 'indirect', 'moist', 5, 4, 'none', { humid: true, note: 'Rain or filtered water keeps the leaf edges from browning.' }),
   s('calathea', 'Calathea', 'Goeppertia', 'Houseplant', 'indirect', 'moist', 5, 4, 'none', { also: ['Rattlesnake plant', 'Peacock plant', 'Zebra plant'], humid: true, note: 'Rain or filtered water keeps the leaf edges from browning.' }),

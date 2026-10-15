@@ -123,7 +123,7 @@ function RunCard({
             onChange={(event) => onChange({ ...segment, blocks: [{ ...block, label: event.target.value }] })}
           />
           <BlockFields block={block} label={name} onChange={(next) => onChange({ ...segment, blocks: [next] })} />
-          <ColorChoice label={`${block.label?.trim() || name} colour`} value={block.color} onChange={onColor} />
+          <ColorChoice label={`${block.label?.trim() || name} color`} value={block.color} onChange={onColor} />
         </>
       )}
     </li>
@@ -211,7 +211,7 @@ function WeeklyEditor({ segments, onChange }: { segments: ScheduleSegment[]; onC
               {block && <BlockFields block={block} label={day} onChange={(next) => update(index, [next])} />}
               {block && (
                 <ColorChoice
-                  label={`${day} colour`}
+                  label={`${day} color`}
                   value={block.color}
                   onChange={(color) => update(index, [{ ...block, color }])}
                 />
@@ -284,9 +284,9 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           placeholder="A place, if it helps"
           onChange={(event) => set({ location: event.target.value || undefined })}
         />
-        <span className="field-label">Colour for the whole schedule</span>
+        <span className="field-label">Color for the whole schedule</span>
         <ColorChoice value={draft.color} onChange={(color) => set({ color })} />
-        <p className="sheet__hint">A shift with its own colour (in the cycle above) shows in that colour instead.</p>
+        <p className="sheet__hint">A shift with its own color (in the cycle above) shows in that color instead.</p>
       </div>
 
       <div className="stack-tight">

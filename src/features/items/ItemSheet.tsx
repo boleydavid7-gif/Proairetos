@@ -360,7 +360,7 @@ function ChecklistSection({ item }: { item: LifeItem }) {
 function LookSection({ item }: { item: LifeItem }) {
   const [location, setLocation] = useState(item.location ?? '');
   return (
-    <section className="sheet__section" aria-label="Where and colour">
+    <section className="sheet__section" aria-label="Where and color">
       <p className="sheet__label">Where</p>
       <input
         className="field-input"
@@ -370,7 +370,7 @@ function LookSection({ item }: { item: LifeItem }) {
         onChange={(event) => setLocation(event.target.value)}
         onBlur={() => location !== (item.location ?? '') && lifeService.setLook(item.id, { location })}
       />
-      <p className="sheet__label">Colour</p>
+      <p className="sheet__label">Color</p>
       <ColorChoice value={item.color} onChange={(color) => lifeService.setLook(item.id, { color: color ?? null })} />
     </section>
   );

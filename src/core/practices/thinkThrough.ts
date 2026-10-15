@@ -36,7 +36,7 @@ export type ThinkAnswers = Partial<Record<ThinkStepId, string>>;
 
 export const thinkThroughSource =
   'Epictetus, Enchiridion 5: “It is not things that disturb us, but our judgments about things.” ' +
-  'The steps follow the thought record from cognitive behavioural therapy (Aaron Beck), which grew in part from that Stoic idea.';
+  'The steps follow the thought record from cognitive behavioral therapy (Aaron Beck), which grew in part from that Stoic idea.';
 
 /** What gets kept: the person's own answers under the questions they answered. */
 export function composeThinkThrough(answers: ThinkAnswers): string {

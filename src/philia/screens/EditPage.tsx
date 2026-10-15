@@ -64,7 +64,7 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
       </label>
       <label className="field">
         <span className="field__label">Who they are (optional)</span>
-        <input className="input" placeholder="Sister, friend, neighbour" value={relation} onChange={(event) => setRelation(event.target.value)} />
+        <input className="input" placeholder="Sister, friend, neighbor" value={relation} onChange={(event) => setRelation(event.target.value)} />
       </label>
       <div className="input-row">
         <label className="field">

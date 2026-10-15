@@ -63,7 +63,7 @@ const waysToTry: Readonly<Record<string, string>> = {
   'A well-ordered mind can stop just where it is and pass some time in its own company.':
     'Spend two minutes doing nothing at all: no phone, no task. Just sit.',
   'The impediment to action advances action. What stands in the way becomes the way.':
-    'Take today’s biggest obstacle and ask what it lets you practise: patience, skill, or courage.',
+    'Take today’s biggest obstacle and ask what it lets you practice: patience, skill, or courage.',
   'Such as are your habitual thoughts, such also will be the character of your mind.':
     'Catch one repeating thought today and ask whether it is one you would choose.',
   'If it is not right, do not do it; if it is not true, do not say it.':

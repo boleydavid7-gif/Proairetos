@@ -135,7 +135,7 @@ export function PacePage({ nav }: { nav: Nav }) {
         value={unit}
         options={[
           { id: 'mi', label: 'Miles' },
-          { id: 'km', label: 'Kilometres' },
+          { id: 'km', label: 'Kilometers' },
         ]}
         onChange={setUnit}
         small
@@ -198,7 +198,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
           value={settings.unit}
           options={[
             { id: 'mi', label: 'Miles' },
-            { id: 'km', label: 'Kilometres' },
+            { id: 'km', label: 'Kilometers' },
           ]}
           onChange={(unit) => saveSettings({ ...settings, unit })}
         />

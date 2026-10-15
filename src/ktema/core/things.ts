@@ -61,7 +61,7 @@ export const IDEAS: { name: string; category: Category; every: Every; distance?:
   { name: 'Clean the fridge coils', category: 'Appliance', every: { count: 1, unit: 'years' } },
   { name: 'Flush the water heater', category: 'Appliance', every: { count: 1, unit: 'years' } },
   { name: 'Oil change', category: 'Car', every: { count: 6, unit: 'months' }, distance: { mi: 5000, km: 8000 } },
-  { name: 'Tyre pressure', category: 'Car', every: { count: 1, unit: 'months' } },
+  { name: 'Tire pressure', category: 'Car', every: { count: 1, unit: 'months' } },
   { name: 'Back up the computer', category: 'Tech', every: { count: 1, unit: 'months' } },
 ];
 

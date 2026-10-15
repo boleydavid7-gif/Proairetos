@@ -41,7 +41,7 @@ export type Chore = {
 export const ROOMS = ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Laundry', 'Outside', 'Car', 'Pets'];
 
 export const IDEAS: { name: string; room: string; repeat: Repeat }[] = [
-  { name: 'Bins out', room: 'Outside', repeat: { kind: 'weeks', every: 1 } },
+  { name: 'Take out the trash', room: 'Outside', repeat: { kind: 'weeks', every: 1 } },
   { name: 'Laundry', room: 'Laundry', repeat: { kind: 'days', every: 4 } },
   { name: 'Change the sheets', room: 'Bedroom', repeat: { kind: 'weeks', every: 2 } },
   { name: 'Vacuum', room: 'Living room', repeat: { kind: 'weeks', every: 1 } },

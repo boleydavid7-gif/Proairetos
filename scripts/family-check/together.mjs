@@ -66,9 +66,9 @@ await step('Therapeia', async () => {
 // Ergon: a chore whose day came, on Today and in search
 await step('Ergon', async () => {
   await go('/ergon/'); await begin();
-  await p.getByRole('button', { name: '+ Bins out' }).click(); await p.waitForTimeout(600);
+  await p.getByRole('button', { name: '+ Take out the trash' }).click(); await p.waitForTimeout(600);
   await go('/');
-  ok('Proairetos Today: chore from Ergon', /Bins out/.test(await text()));
+  ok('Proairetos Today: chore from Ergon', /Take out the trash/.test(await text()));
 });
 
 // Ktema: upkeep due, on Today
@@ -204,13 +204,13 @@ await step('Live update', async () => {
   await go('/');
   const other = await ctx.newPage();
   await other.goto(B + '/ergon/'); await other.waitForTimeout(1300);
-  await other.getByRole('button', { name: 'Bins out: done' }).first().click(); await other.waitForTimeout(800);
+  await other.getByRole('button', { name: 'Take out the trash: done' }).first().click(); await other.waitForTimeout(800);
   await p.waitForTimeout(1500);
-  ok('Proairetos updates live when Ergon marks a chore done', !/Bins out/.test(await text()));
+  ok('Proairetos updates live when Ergon marks a chore done', !/Take out the trash/.test(await text()));
   await other.close();
   await go('/?open=settings:notifications'); await p.waitForTimeout(1500);
   const kept = await p.evaluate(async () => { const c = await caches.open('proairetos-notify'); const r = await c.match('/__notify/upcoming.json'); return r ? await r.text() : ''; });
-  ok('Notice kept for Ergon (next week, after done)', /Bins out/.test(kept));
+  ok('Notice kept for Ergon (next week, after done)', /Take out the trash/.test(kept));
 });
 
 // Removing an app takes it out of Proairetos, keeps its records

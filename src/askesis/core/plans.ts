@@ -128,7 +128,7 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     ],
   },
   strides: {
-    why: 'Strides are short, quick, relaxed bursts. They practise good form and leg speed without the tiredness of a hard session.',
+    why: 'Strides are short, quick, relaxed bursts. They practice good form and leg speed without the tiredness of a hard session.',
     tips: [
       'About 20 seconds each, building smoothly to quick, then easing off.',
       'Fast, never a sprint. Stay tall and relaxed.',
@@ -168,7 +168,7 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     ],
   },
   'race-pace': {
-    why: 'Practising race effort inside a long run teaches pacing, and lets you rehearse fuelling, on tired legs.',
+    why: 'Practicing race effort inside a long run teaches pacing, and lets you rehearse fueling, on tired legs.',
     tips: [
       'Race effort here is steady, not hard: it has to last.',
       'Try the drinks and gels you will use on the day.',

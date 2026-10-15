@@ -327,7 +327,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
               value={unit}
               options={[
                 { id: 'mi', label: 'Miles' },
-                { id: 'km', label: 'Kilometres' },
+                { id: 'km', label: 'Kilometers' },
               ]}
               onChange={(next) => saveSettings({ ...settings, unit: next })}
             />

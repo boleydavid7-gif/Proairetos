@@ -286,7 +286,7 @@ export const articles: Article[] = [
         text: 'For runs over about 90 minutes, sports nutrition research suggests 30 to 60 g of carbohydrate an hour, and up to 90 g in races of two and a half hours or more, from drinks, gels or food you have tried in training. Drinking to thirst suits most people.',
       },
     ],
-    takeaway: 'Easy and long. Practise the fuelling you will use on race day.',
+    takeaway: 'Easy and long. Practice the fueling you will use on race day.',
     sources: [
       'Jeukendrup A. A step towards personalized sports nutrition: carbohydrate intake during exercise. Sports Med. 2014;44(Suppl 1):S25-S33.',
       "Daniels J. Daniels' Running Formula. 3rd ed. Human Kinetics; 2014.",
@@ -334,7 +334,7 @@ export const articles: Article[] = [
       },
       {
         heading: 'Strides help',
-        text: 'The short strides in the plans are a gentle way to practise quick, relaxed running form.',
+        text: 'The short strides in the plans are a gentle way to practice quick, relaxed running form.',
       },
     ],
     takeaway: 'Tall, relaxed, quick light steps. Small changes, over weeks.',

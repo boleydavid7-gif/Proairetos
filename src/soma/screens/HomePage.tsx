@@ -93,7 +93,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
         {(favourites.length > 0 || recipes.length > 0) && (
           <>
             <div className="section-head">
-              <h2>{favourites.length ? 'Favourites' : 'Recently added'}</h2>
+              <h2>{favourites.length ? 'Favorites' : 'Recently added'}</h2>
               <button type="button" className="text-link" onClick={() => nav.swap({ name: 'recipes' })}>
                 All
               </button>

@@ -85,7 +85,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 
       <label className="field">
         <span className="field__label">Chore</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Bins out" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Take out the trash" />
       </label>
       <label className="field">
         <span className="field__label">Room (optional)</span>

@@ -226,7 +226,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
           />
 
           <ColorChoice
-            label={`Colour for ${goal.body}`}
+            label={`Color for ${goal.body}`}
             value={goal.color}
             onChange={async (color) => {
               await compassService.updateGoal(goal.id, { color: color ?? null });

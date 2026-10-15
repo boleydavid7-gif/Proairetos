@@ -33,9 +33,9 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
   const [query, setQuery] = useState(start ?? '');
   const [shelf, setShelf] = useState<string>('All');
   const tags = [...new Set((recipes ?? []).flatMap((recipe) => recipe.tags))].sort((a, b) => a.localeCompare(b));
-  const shelves = ['All', ...((recipes ?? []).some((recipe) => recipe.favorite) ? ['Favourites'] : []), ...tags];
+  const shelves = ['All', ...((recipes ?? []).some((recipe) => recipe.favorite) ? ['Favorites'] : []), ...tags];
   const shown = searchRecipes(recipes ?? [], query).filter((recipe) =>
-    shelf === 'All' ? true : shelf === 'Favourites' ? recipe.favorite : recipe.tags.includes(shelf),
+    shelf === 'All' ? true : shelf === 'Favorites' ? recipe.favorite : recipe.tags.includes(shelf),
   );
   const view = settings.recipeView;
   const changeView = (recipeView: typeof view) => saveSettings({ ...loadSettings(), recipeView });

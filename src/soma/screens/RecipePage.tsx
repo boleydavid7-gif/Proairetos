@@ -180,7 +180,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               type="button"
               className="round-button"
               aria-pressed={Boolean(recipe.favorite)}
-              aria-label={recipe.favorite ? 'Take out of favourites' : 'Keep as a favourite'}
+              aria-label={recipe.favorite ? 'Take out of favorites' : 'Keep as a favorite'}
               onClick={() => void save({ favorite: !recipe.favorite })}
             >
               <HeartIcon size={20} filled={recipe.favorite} />

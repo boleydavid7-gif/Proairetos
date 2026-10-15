@@ -73,7 +73,7 @@ export async function finishConnect(params: URLSearchParams): Promise<{ provider
   const raw = localStorage.getItem(PENDING);
   localStorage.removeItem(PENDING);
   const pending = raw ? (JSON.parse(raw) as { provider: StorageProvider; verifier: string; state: string; at: number }) : null;
-  if (params.get('storage-error')) throw new Error('Connecting was cancelled.');
+  if (params.get('storage-error')) throw new Error('Connecting was canceled.');
   if (!pending || pending.state !== params.get('storage-state') || Date.now() - pending.at > 30 * 60_000) {
     throw new Error('That connection did not finish. Try again.');
   }
