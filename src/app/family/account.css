@@ -67,8 +67,9 @@
 .family-surface .button-quiet { border: 1px solid var(--color-border, rgba(255,255,255,.14)); color: inherit; background: transparent; }
 .family-surface .button-main:disabled, .family-surface .button-quiet:disabled { opacity: .5; cursor: default; }
 .family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, #d9b68a); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.family-surface .rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.family-surface .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; color: inherit; background: var(--color-surface, rgba(255,255,255,.04)); font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.family-surface .rows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; background: var(--color-surface, rgba(255,255,255,.04)); overflow: hidden; }
+.family-surface .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border: 0; color: inherit; background: none; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.family-surface .row > .row__text { flex: 1 1 auto; }
 .family-surface .row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; }
 .family-surface .row__app { width: 32px; height: 32px; border-radius: 8px; }
 .family-surface .row__text { display: grid; min-width: 0; gap: 2px; }

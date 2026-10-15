@@ -805,3 +805,9 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-bottom-nav .theoria-proairetos span { font-weight: 600; }
 .theoria-bottom-nav .theoria-proairetos span,
 .theoria-bottom-nav .theoria-nav-list button small { width: 100%; overflow: hidden; font-size: 10px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Settings as grouped rows, like the rest of the family. */
+.theoria-settings { max-width: 740px; margin-top: 8px; }
+.theoria-settings .label { margin-top: 6px; }
+.theoria-settings .switch { margin-left: auto; }
+.theoria-settings .row__text > span:first-child { font-size: 15px; }

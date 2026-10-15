@@ -1949,6 +1949,14 @@ input[type='date'].input {
   border-top: 1px solid var(--line);
 }
 
+.more__foot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+}
+
 .more__foot figcaption {
   display: flex;
   flex-direction: column;

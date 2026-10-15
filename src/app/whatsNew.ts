@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Every app’s More and Settings pages now look like Proairetos’s: a coloured tile per row, one grouped list, and the same switches. Theoria’s settings are short rows, and Oikonomia’s options sit in a list.',
       'Phyton: a care journal on each plant (pruned, pests seen, a note) beside watered, fed and repotted, and Plants shows one place at a time.',
       'Ktema: things group by room, and an insurance list prints room by room with prices and totals, or downloads as CSV.',
       'Ergon: a bigger chore can have steps to tick (they clear when it is done), and Today narrows to one room with Mark all of these done.',

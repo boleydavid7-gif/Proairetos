@@ -216,7 +216,30 @@ export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: r
 }
 
 export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear }: { onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
-  return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Theoria</p><h1>Settings</h1></div></div><div className="theoria-settings-list"><label><span>Reading theme</span><select value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label><label><span>Reading font</span><select value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Inter</option><option value="dyslexia">Dyslexia-friendly</option></select></label><label className="theoria-settings-switch"><span>Keep a sealed copy of new books in my account<small>So your other devices can open them. Encrypted before upload.</small></span><input type="checkbox" checked={copyNew} onChange={(event) => onCopyNew(event.target.checked)} /></label><label className="theoria-settings-file"><span>Bring in highlights<small>From a Kindle (My Clippings.txt) or a Readwise CSV export.</small></span><span className="theoria-add-button">Choose a file</span><input type="file" accept=".txt,.csv,text/plain,text/csv" onChange={(event) => { const file = event.target.files?.[0]; if (file) onHighlights(file); event.target.value = ''; }} /></label><article className="theoria-settings-copy"><p className="theoria-eyebrow">Where things are kept</p><p>Books stay on this phone. Your place, highlights, notes and reflections sync when you’re signed in, and are in the family backup. The books themselves aren’t.</p></article></div><div className="family-surface"><ul className="rows"><li><button type="button" className="row" onClick={onYear}><span className="row__text"><span>Your year</span><span className="row__detail">Books, highlights and notes, by year</span></span></button></li></ul><AccountCard app="Theoria" what="Your shelf, highlights and notes" waiting="Books" /><FamilyBackup /><FamilyApps current="theoria" /></div></section>;
+  const file = useRef<HTMLInputElement>(null);
+  const icon = (path: string) => <span className="row__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg></span>;
+  return (
+    <section className="theoria-view">
+      <div className="theoria-heading"><div><p className="theoria-eyebrow">Theoria</p><h1>Settings</h1></div></div>
+      <div className="family-surface theoria-settings">
+        <p className="label">Reading</p>
+        <ul className="rows">
+          <li><label className="row row--select">{icon('M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9')}<span className="row__text"><span>Reading theme</span></span><select className="row__select" value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label></li>
+          <li><label className="row row--select">{icon('M4 20 10 4l6 16M6.5 14h7M17 20h4')}<span className="row__text"><span>Reading font</span></span><select className="row__select" value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Inter</option><option value="dyslexia">Dyslexia-friendly</option></select></label></li>
+        </ul>
+        <p className="label">Books</p>
+        <ul className="rows">
+          <li><button type="button" className="row" role="switch" aria-checked={copyNew} onClick={() => onCopyNew(!copyNew)}>{icon('M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18zM12 11v4M10 13h4')}<span className="row__text"><span>Sealed copy of new books</span><span className="row__detail">In your account, for your other devices</span></span><span className={`switch${copyNew ? ' switch--on' : ''}`} aria-hidden="true" /></button></li>
+          <li><button type="button" className="row" onClick={() => file.current?.click()}>{icon('M12 4v11m0 0-4-4m4 4 4-4M5 20h14')}<span className="row__text"><span>Bring in highlights</span><span className="row__detail">Kindle My Clippings.txt or a Readwise CSV</span></span></button><input ref={file} type="file" hidden accept=".txt,.csv,text/plain,text/csv" onChange={(event) => { const chosen = event.target.files?.[0]; if (chosen) onHighlights(chosen); event.target.value = ''; }} /></li>
+          <li><button type="button" className="row" onClick={onYear}>{icon('M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 8v4l3 2')}<span className="row__text"><span>Your year</span><span className="row__detail">Books, highlights and notes, by year</span></span></button></li>
+        </ul>
+        <p className="muted">Books stay on this phone. Your place, highlights, notes and reflections sync when you’re signed in, and are in the family backup; the books themselves aren’t.</p>
+        <AccountCard app="Theoria" what="Your shelf, highlights and notes" waiting="Books" />
+        <FamilyBackup />
+        <FamilyApps current="theoria" />
+      </div>
+    </section>
+  );
 }
 
 export function buildInsightItems(shelf: readonly TheoriaBook[]): { highlights: InsightItem[]; notes: InsightItem[]; reflections: InsightItem[] } {
