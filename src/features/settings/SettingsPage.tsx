@@ -735,7 +735,7 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
-          <span className="toggle-row__detail">A light tap when you tick or switch something, on iPhone and Android.</span>
+          <span className="toggle-row__detail">A light tap when you tick or switch something.</span>
         </span>
       </button>
     </section>
@@ -790,9 +790,7 @@ function TodaySection() {
           })}
         </div>
       ))}
-      <p className="sheet__hint">
-        For a lighter day, tap the leaf at the top of Today: just the next thing, a pause, and capture, until tomorrow.
-      </p>
+      <p className="sheet__hint">Tap the leaf on Today for a lighter view.</p>
     </section>
   );
 }
@@ -804,9 +802,7 @@ function OffersSection() {
   return (
     <section className="settings-card" aria-label="Quiet offers">
       <h2 className="section-label">Quiet offers</h2>
-      <p className="section-description">
-        Now and then, a short practice at a natural moment. At most one a day.
-      </p>
+      <p className="section-description">Offers appear at most once a day.</p>
       <button
         type="button"
         className="toggle-row"
@@ -894,9 +890,7 @@ function SourcesSection() {
   return (
     <section className="settings-card" aria-label="Where this comes from">
       <h2 className="section-label">Where this comes from</h2>
-      <p className="section-description">
-        Proairetos borrows its practices from people who thought carefully about living well.
-      </p>
+      <p className="section-description">Sources for the practices in Proairetos.</p>
       {sources.map((source) => (
         <div key={source.tradition} className="sources">
           <p className="sheet__label">{source.tradition}</p>

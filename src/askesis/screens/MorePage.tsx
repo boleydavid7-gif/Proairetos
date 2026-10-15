@@ -27,7 +27,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: 'Pace, time and distance', route: { name: 'pace' } },
     { icon: <ShieldIcon />, title: 'Before you start', detail: 'When to check with a doctor', route: { name: 'safety' } },
     { icon: <HistoryIcon size={22} />, title: 'Your year', detail: 'What you logged, by year', route: { name: 'year' } },
-    { icon: <GearIcon />, title: 'Settings', detail: 'Units, voice, bells, screen', route: { name: 'settings' } },
+    { icon: <GearIcon />, title: 'Settings', detail: 'Distance, voice, bells, screen', route: { name: 'settings' } },
     { icon: <BoxIcon />, title: 'Your data', detail: 'Back up, restore, delete', route: { name: 'data' } },
     { icon: <InfoIcon />, title: 'About and sources', detail: 'The name, the science', route: { name: 'about' } },
   ];

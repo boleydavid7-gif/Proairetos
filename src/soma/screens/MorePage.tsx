@@ -112,7 +112,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
             ]}
             onChange={(units) => saveSettings({ ...settings, units })}
           />
-          <p className="hint">Recipes stay as written. Metric weighs flour, sugar, butter, oats and rice in grams.</p>
+          <p className="hint">Recipes stay as written. Metric uses grams for flour, sugar, butter, oats and rice.</p>
         </div>
         <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />

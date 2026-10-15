@@ -54,7 +54,7 @@ export default function MorePage({ nav }: { nav: KtemaNav }) {
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

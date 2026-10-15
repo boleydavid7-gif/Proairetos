@@ -321,9 +321,9 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
         {first && (
           <section className="field">
-            <h2 className="label">Distances in</h2>
+            <h2 className="label">Distance units</h2>
             <Segmented
-              label="Distances in"
+              label="Distance units"
               value={unit}
               options={[
                 { id: 'mi', label: 'Miles' },

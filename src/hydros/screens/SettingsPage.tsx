@@ -134,7 +134,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <ScreenHeader title="Settings" onBack={nav.back} />
 
       <SettingsGroup title="Daily amount">
-        <label className="hydros-settings-row"><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">From drinks, each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} placeholder="None" onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
+        <label className="hydros-settings-row"><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">From drinks each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} placeholder="None" onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
         <div className="hydros-reference">
           <span>Reference amounts from drinks</span>
           {referenceAmounts.map((reference) => (
@@ -146,7 +146,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
           <small className="hydros-reference__source">{REFERENCE_SOURCE}. Heat, effort, pregnancy and health change it.</small>
         </div>
         {settings.goalChosen && <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={clearGoal}><Icon><MoreIcon /></Icon><span className="hydros-settings-row__name">No daily amount</span><Chevron /></button>}
-        {isAdded('askesis') && <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">A little more on run days, from Askesis</span><Switch on={settings.runDayExtra !== false} /></button>}
+        {isAdded('askesis') && <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">Extra on run days (Askesis)</span><Switch on={settings.runDayExtra !== false} /></button>}
       </SettingsGroup>
 
       <SettingsGroup title="Your glasses">

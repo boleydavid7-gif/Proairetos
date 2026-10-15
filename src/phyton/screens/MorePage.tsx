@@ -50,7 +50,7 @@ function RainPlace() {
         </div>
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometre, is sent; it stays on this phone.</p>
+      <p className="hint">Daily rainfall comes from Open-Meteo. Only your approximate place (about 1 km) is sent, and it stays on this phone.</p>
     </div>
   );
 }
@@ -78,7 +78,7 @@ function AwayCard({ nav }: { nav: PhytonNav }) {
               <input className="input" type="date" min={away.from} value={away.to} onChange={(event) => event.target.value && save({ ...away, to: event.target.value < away.from ? away.from : event.target.value })} />
             </label>
           </div>
-          <p className="hint">Reminders wait; the day after, one names what came round.</p>
+          <p className="hint">Reminders pause while you’re away; the first one after you return lists what was due.</p>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'sitter' })}><PrintIcon size={18} />Sheet for whoever waters</button>
             <button
@@ -138,7 +138,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || 'For Mine and for who watered'} />
+          <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || 'For Mine and watering history'} />
           <datalist id="phyton-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
         <div className="field">
@@ -151,7 +151,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         <Switch
           on={current.rain}
           label="Weather outside"
-          detail="Rain counts as watering; frost and hot days are said"
+          detail="Rain counts as watering; frost and hot days are noted"
           onToggle={() => {
             change({ rain: !current.rain });
             if (!current.rain) void refreshRain(true);
@@ -183,7 +183,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

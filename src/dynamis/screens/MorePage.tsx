@@ -42,7 +42,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'why' })}>
             <span className="row__icon"><BookIcon size={21} /></span>
-            <span className="row__text"><span>How the plan is built</span><span className="row__detail">With its sources</span></span>
+            <span className="row__text"><span>How the plan is built</span></span>
             <ChevronIcon size={17} />
           </button>
         </li>
@@ -69,7 +69,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

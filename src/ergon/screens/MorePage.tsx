@@ -47,7 +47,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and for who did what"} />
+          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and activity history"} />
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
       </section>
@@ -83,7 +83,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

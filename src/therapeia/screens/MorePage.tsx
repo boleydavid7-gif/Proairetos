@@ -54,7 +54,7 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
           <span className="field__label">Emergency contact (optional)</span>
           <input className="input" value={current.card.contact ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, contact: event.target.value || undefined } })} placeholder="Name and number" />
         </label>
-        <p className="fine">Shown on Medicines and added when you share the list.</p>
+        <p className="fine">Shown in Medicines and included when you share the list.</p>
       </section>
 
       <section className="card switches">
@@ -83,7 +83,7 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
         <li>
           <a className="row" href="/?open=settings:notifications">
             <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
         {diaitaAdded && (
@@ -111,11 +111,11 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
               </select>
             </label>
           </div>
-          <p className="fine">Doses after waking and before sleep follow these, and your work schedule in Proairetos.</p>
+          <p className="fine">Dose times follow these settings and your Proairetos work schedule.</p>
         </section>
       )}
 
-      <p className="fine">Follow the directions you were given. Therapeia reminds and records; it gives no medical advice.</p>
+      <p className="fine">Follow the directions given by your clinician. Therapeia reminds and records; it does not give medical advice.</p>
 
       <section>
         <p className="label">Your data</p>

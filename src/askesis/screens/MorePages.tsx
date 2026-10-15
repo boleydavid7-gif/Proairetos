@@ -192,9 +192,9 @@ export function SettingsPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Settings</h1>
       <section className="field">
-        <h2 className="label">Distances in</h2>
+        <h2 className="label">Distance units</h2>
         <Segmented
-          label="Distances in"
+          label="Distance units"
           value={settings.unit}
           options={[
             { id: 'mi', label: 'Miles' },
@@ -207,11 +207,11 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.voice} label="Spoken cues" detail="Your music keeps playing." onToggle={() => flip('voice')} />
         <Switch on={settings.bells} label="Bells" onToggle={() => flip('bells')} />
         <Switch on={settings.keepAwake} label="Keep the screen on" onToggle={() => flip('keepAwake')} />
-        <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="Only the distance is saved." onToggle={() => flip('gps')} />
+        <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="GPS saves distance only." onToggle={() => flip('gps')} />
         <Switch
           on={settings.readSchedule}
           label="Use my Proairetos schedule"
-          detail="Marks days after a night of work."
+          detail="Marks sessions after a night shift."
           onToggle={() => flip('readSchedule')}
         />
       </div>
@@ -250,7 +250,7 @@ export function DataPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">On this phone, and synced when signed in to Proairetos.</p>
+      <p className="lead">Stored on this phone and synced when you sign in to Proairetos.</p>
       <FamilyBackup
         older={async (text: string) => {
           const old = readBackup(text);
@@ -260,7 +260,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       />
       <div className="card">
         <h2 className="card__title card__title--small">Delete everything</h2>
-        <p className="muted">Removes your plan and every workout, here and, if you sync, on your other devices. Your Proairetos data is not touched.</p>
+        <p className="muted">Removes your plan and every workout from this phone and, if you sync, your other devices. Your Proairetos data is not touched.</p>
         {confirming ? (
           <div className="button-row">
             <button type="button" className="button-danger" onClick={() => void wipe()}>
