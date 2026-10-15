@@ -167,7 +167,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     }
   });
 
-  // The bell, ready before Start (and kept on the phone for sessions without signal).
+  // The bell, ready before Start (and kept on the device for sessions without signal).
   useEffect(() => void buffer(BELL_FILE).catch(() => undefined), []);
 
   useEffect(

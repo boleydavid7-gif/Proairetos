@@ -85,10 +85,10 @@ describe('sync through a storage folder', () => {
 
     // A phone whose clock runs behind still writes after what it has seen.
     clock.now = 500;
-    await phone.local.put('lifeItems', item('a', 'Then on the phone'));
+    await phone.local.put('lifeItems', item('a', 'Then on the device'));
     await phone.sync();
     await laptop.sync();
-    expect(await laptop.local.list('lifeItems')).toEqual([item('a', 'Then on the phone')]);
+    expect(await laptop.local.list('lifeItems')).toEqual([item('a', 'Then on the device')]);
   });
 
   it('carries deletions', async () => {

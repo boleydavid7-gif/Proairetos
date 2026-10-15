@@ -15,7 +15,7 @@ export function myName(current: ErgonSettings = settings.load()): string {
 
 export const settings = stored<ErgonSettings>('ergon:settings', () => ({ started: false, me: '', notices: { ...defaultChoreNotices } }));
 
-/** Chores kept on this phone (and in the person's own account) while there is no shared home. */
+/** Chores kept on this device (and in the person's own account) while there is no shared home. */
 export const ownChores = collection<Chore>('ergon:chore:');
 
 /** A shared home: every chore sealed with the home's key; everyone with the invite sees and changes them. */
@@ -50,7 +50,7 @@ export function useHome(): SharedListRef | undefined {
   return useSyncExternalStore(homes.subscribeShared, () => snapshot().value);
 }
 
-/** Every chore to show: the shared home's while there is one, else this phone's own. */
+/** Every chore to show: the shared home's while there is one, else this device's own. */
 export function useChores(): Chore[] {
   const own = ownChores.use();
   const shared = useSyncExternalStore(homes.subscribeShared, () => snapshot());

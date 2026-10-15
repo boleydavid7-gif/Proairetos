@@ -8,7 +8,7 @@ import { weatherSettings } from '../../app/weather/weather';
 import type { Block } from '../core/dayShape';
 
 /**
- * What Soma reads from Proairetos on this phone (never writes): the
+ * What Soma reads from Proairetos on this device (never writes): the
  * person's schedule, the energy word they chose for today, the people who
  * matter to them (Compass), and the place they gave for the weather.
  */

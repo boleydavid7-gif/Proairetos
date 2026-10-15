@@ -175,7 +175,7 @@ export default function VisitPage({ nav, id }: { nav: TherapeiaNav; id?: string 
     return (
       <div className="page therapeia-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }

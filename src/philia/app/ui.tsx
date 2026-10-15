@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { initials } from '../core/people';
 import { usePhoto } from '../data/photos';
 
-/** The person's photo when this phone has one, else their initials. */
+/** The person's photo when this device has one, else their initials. */
 export function Initials({ name, id, large = false }: { name: string; id?: string; large?: boolean }) {
   const photo = usePhoto(id);
   return (

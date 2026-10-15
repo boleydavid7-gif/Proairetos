@@ -23,7 +23,7 @@ export const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.no
 
 /**
  * A care circle: the medicines sealed with the circle's key and shared with whoever helps (a partner, a parent, a
- * carer), who can see them and mark doses. While there is one, it holds the medicines; this phone's own list waits.
+ * carer), who can see them and mark doses. While there is one, it holds the medicines; this device's own list waits.
  */
 export const circles = createSharedLists<Medicine>({
   listsKey: 'therapeia:circles',
@@ -52,7 +52,7 @@ export function useCircle(): SharedListRef | undefined {
   return useSyncExternalStore(circles.subscribeShared, () => snapshot().value);
 }
 
-/** Every medicine to show: the circle's while there is one, else this phone's own. */
+/** Every medicine to show: the circle's while there is one, else this device's own. */
 export function useMedicines(): Medicine[] {
   const own = medicines.use();
   const shared = useSyncExternalStore(circles.subscribeShared, () => snapshot());

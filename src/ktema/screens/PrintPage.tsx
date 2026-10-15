@@ -48,7 +48,7 @@ function InsuranceSheet({ nav, onKinds }: { nav: KtemaNav; onKinds: () => void }
         </PrintPart>
       ))}
       {(rooms.length > 1 || totalOf(all).unpriced > 0) && all.length > 0 && <p className="print-total">All rooms: {totalText(all, true)}</p>}
-      <p className="print-note">From Ktema. Prices as paid; photos and receipts are kept on the phone with each thing.</p>
+      <p className="print-note">From Ktema. Prices as paid; photos and receipts are kept on the device with each thing.</p>
     </PrintSheet>
   );
 }

@@ -31,7 +31,7 @@ describe('a shared grocery list', () => {
     expect(withPending(server, pending).map((each) => [each.name, each.checked])).toEqual([['rice', false], ['bread', true]]);
   });
 
-  it('keeps recipe links on this phone', () => {
+  it('keeps recipe links on this device', () => {
     const shared = toShared({ ...item('a', 'lemons'), from: [{ id: 'r1', title: 'Lemon cake' }] });
     expect(shared).not.toHaveProperty('from');
   });

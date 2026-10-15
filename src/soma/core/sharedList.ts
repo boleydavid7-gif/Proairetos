@@ -30,7 +30,7 @@ export function readInvite(search: string, hash: string): { id: string; key: str
   return { id, key, name: (fragment.get('n') ?? '').slice(0, 60) || 'Shared list' };
 }
 
-/** The list as the server has it, with this phone's unsent changes laid over it. */
+/** The list as the server has it, with this device's unsent changes laid over it. */
 export function withPending(fromServer: readonly SharedItem[], pending: readonly Pending[]): SharedItem[] {
   const byId = new Map(fromServer.map((item) => [item.id, item]));
   for (const change of pending) {
@@ -45,7 +45,7 @@ export function queue(pending: readonly Pending[], change: Pending): Pending[] {
   return [...pending.filter((each) => each.id !== change.id), change];
 }
 
-/** A grocery line as a shared item (recipe links stay on this phone). */
+/** A grocery line as a shared item (recipe links stay on this device). */
 export function toShared(item: GroceryItem): SharedItem {
   return { id: item.id, name: item.name, amounts: item.amounts, aisle: item.aisle, checked: item.checked, addedAt: item.addedAt };
 }

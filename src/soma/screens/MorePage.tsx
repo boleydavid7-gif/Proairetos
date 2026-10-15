@@ -146,7 +146,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       <div className="card">
         {confirming ? (
           <>
-            <p>Remove every recipe and the grocery list from this phone?</p>
+            <p>Remove every recipe and the grocery list from this device?</p>
             <div className="button-row">
               <button
                 type="button"

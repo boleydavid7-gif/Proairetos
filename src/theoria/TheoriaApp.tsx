@@ -113,14 +113,14 @@ export default function TheoriaApp() {
     for (const book of shelf) void migrateBook(book).then((next) => next && putBook(next)).catch(() => undefined);
   }, [booksState.loading, shelf.length, sync.phase]);
 
-  // Which books are on this phone in full.
+  // Which books are on this device in full.
   useEffect(() => {
     let live = true;
     void Promise.all(shelf.map(async (book) => ((await readableChapters(book.id)) || (await localFile(book.id)) ? book.id : undefined))).then((ids) => live && setHere(new Set(ids.filter((id): id is string => Boolean(id)))));
     return () => { live = false; };
   }, [shelf, readerText]);
 
-  // The reader takes the book's text from this phone.
+  // The reader takes the book's text from this device.
   const loadText = async (book: TheoriaBook) => {
     setReaderText({ bookId: book.id, loading: true });
     const [chapters, file] = await Promise.all([readableChapters(book.id), localFile(book.id)]);
@@ -225,17 +225,17 @@ export default function TheoriaApp() {
     });
   };
 
-  /** One book onto the shelf: read, kept on this phone, an account copy if chosen. Throws when the file cannot be read. */
+  /** One book onto the shelf: read, kept on this device, an account copy if chosen. Throws when the file cannot be read. */
   const addOne = async (input: NewBookForm, extra: { fromFolder?: string } = {}): Promise<{ book: TheoriaBook; saved: TheoriaBook }> => {
     const imported = input.file ? await inspectReadingFile(input.file) : undefined;
     const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, coverUrl: input.coverUrl, publisher: imported?.publisher || input.publisher, language: imported?.language || input.language, publicationDate: input.publicationDate, chapters: imported?.chapters ? outline(imported.chapters) : undefined, pageCount: imported?.pageCount, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName ?? input.file?.name, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read', fromFolder: extra.fromFolder });
-    // The book itself stays on this phone; only its record syncs.
+    // The book itself stays on this device; only its record syncs.
     await keepLocally(book.id, input.file, imported ? { ...imported, coverFile: imported.coverFile ?? input.coverFile } : undefined);
     if (!imported && input.coverFile) await putCover({ bookId: book.id, blob: input.coverFile });
     let saved = book;
     // A book from the library folder always gets its account copy: that is how it reaches the other devices.
     if (input.file && (copyNew || extra.fromFolder) && sync.phase === 'ready') {
-      try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { toast(error instanceof Error ? error.message : 'The book is on this phone; the account copy can be made later.'); }
+      try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { toast(error instanceof Error ? error.message : 'The book is on this device; the account copy can be made later.'); }
     }
     return { book, saved };
   };
@@ -386,7 +386,7 @@ export default function TheoriaApp() {
     try {
       await fetchCopy(book);
       await loadText(book);
-      toast('The book is on this phone now.');
+      toast('The book is on this device now.');
     } catch (error) { toast(error instanceof Error ? error.message : 'The copy could not be fetched.'); }
   };
   const chooseFile = async (file: File) => {
@@ -395,14 +395,14 @@ export default function TheoriaApp() {
       const read = await keepFile(selected, file);
       await putBook({ ...selected, chapters: read.chapters ? outline(read.chapters) : selected.chapters, pageCount: read.pageCount ?? selected.pageCount, contentFormat: read.contentFormat, fileName: file.name, fileSize: file.size, fileType: file.type, updatedAt: new Date().toISOString() });
       await loadText(selected);
-      toast('The book is on this phone now.');
+      toast('The book is on this device now.');
     } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); }
   };
   const setCloudCopy = async (on: boolean) => {
     if (!selected) return;
     try {
       await putBook(on ? await makeCloudCopy(selected) : await dropCloudCopy(selected));
-      toast(on ? 'A sealed copy is in your account.' : 'The account copy is removed; the book stays on this phone.');
+      toast(on ? 'A sealed copy is in your account.' : 'The account copy is removed; the book stays on this device.');
     } catch (error) { toast(error instanceof Error ? error.message : 'That did not finish.'); }
   };
   const removeItem = async (kind: 'highlight' | 'note' | 'reflection' | 'bookmark', id: string) => {

@@ -4,7 +4,7 @@ import { readPhotoText } from './ocr';
 import './readFromPhoto.css';
 
 /**
- * "Read from a photo" on a form: a photo of a label, plate or bill is read on the phone, and what was found is shown
+ * "Read from a photo" on a form: a photo of a label, plate or bill is read on the device, and what was found is shown
  * to look over (each value can be changed or left out) before it fills the form. Nothing is saved by this.
  */
 export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initialFile }: { find: (text: string) => Found[]; onUse: (values: Record<string, string>) => void; label?: string; initialFile?: File }) {

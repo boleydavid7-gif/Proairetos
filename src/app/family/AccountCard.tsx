@@ -24,7 +24,7 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
     account.phase === 'ready'
       ? [
           account.email ?? 'Signed in',
-          account.held ? `${waiting} wait on this phone until the server is updated.` : `${what} sync with Proairetos${synced ? `. Last ${synced}` : ''}.`,
+          account.held ? `${waiting} wait on this device until the server is updated.` : `${what} sync with Proairetos${synced ? `. Last ${synced}` : ''}.`,
         ]
       : account.phase === 'signed-out'
         ? ['Not signed in', `The same account as Proairetos.`]
@@ -32,7 +32,7 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
           ? [account.email ?? 'Signed in', 'Open your data here.']
           : account.phase === 'needs-setup'
             ? [account.email ?? 'Signed in', `Set up sync in Proairetos, then it covers ${app} too.`]
-            : ['On this phone', 'Everything stays on this phone.'];
+            : ['On this device', 'Everything stays on this device.'];
   return (
     <section className="account" aria-label="Account">
       <div className="rows">

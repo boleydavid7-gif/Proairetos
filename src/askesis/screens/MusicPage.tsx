@@ -121,7 +121,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                 const files = [...(event.target.files ?? [])];
                 event.target.value = '';
                 const count = await addSongs(files);
-                setAdded(count === 0 ? 'Those files are not songs this phone can play.' : undefined);
+                setAdded(count === 0 ? 'Those files are not songs this device can play.' : undefined);
                 if (count > 0 && settings.music === 'none') saveSettings({ ...settings, music: 'mine' });
               }}
             />
@@ -149,7 +149,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
               }
             }} />
             <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-            <p className="hint">From your phone’s files, kept on this phone. Songs in streaming apps stay in those apps.</p>
+            <p className="hint">From your phone’s files, kept on this device. Songs in streaming apps stay in those apps.</p>
           </section>
         </>
       )}

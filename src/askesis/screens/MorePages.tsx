@@ -250,7 +250,7 @@ export function DataPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">On this phone, and synced when signed in to Proairetos.</p>
+      <p className="lead">On this device, and synced when signed in to Proairetos.</p>
       <FamilyBackup
         older={async (text: string) => {
           const old = readBackup(text);

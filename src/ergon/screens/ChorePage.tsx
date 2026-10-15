@@ -293,7 +293,7 @@ export default function ChorePage({ nav, id }: { nav: ErgonNav; id?: string }) {
     return (
       <div className="page ergon-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }

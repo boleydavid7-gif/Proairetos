@@ -451,7 +451,7 @@ export async function prepareKeysForPasskey(): Promise<void> {
 }
 
 /**
- * Tap one: makes the passkey. 'recovery' when it can already open the data; 'continue' when this phone gives the
+ * Tap one: makes the passkey. 'recovery' when it can already open the data; 'continue' when this device gives the
  * passkey's secret only when it is used (iPhone), so one more tap; 'no-secret' when it never will (a passphrase then).
  */
 export async function makeSetupPasskey(): Promise<'recovery' | 'continue' | 'no-secret'> {

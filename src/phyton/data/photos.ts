@@ -1,5 +1,5 @@
 /*
- * Photos of each plant over time, kept on this phone only in their own IndexedDB database, like Ktema's files:
+ * Photos of each plant over time, kept on this device only in their own IndexedDB database, like Ktema's files:
  * not in backups or sync. Each is made small (1200 px on its long side, JPEG) before it is kept.
  */
 import { useEffect, useState } from 'react';

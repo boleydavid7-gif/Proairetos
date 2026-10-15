@@ -27,7 +27,7 @@ function guessHemisphere(): Hemisphere {
 
 export const settings = stored<PhytonSettings>('phyton:settings', () => ({ started: false, me: '', notices: { ...defaultPlantNotices }, hemisphere: guessHemisphere(), rain: false }));
 
-/** Plants kept on this phone (and in the person's own account) while there is no shared home. */
+/** Plants kept on this device (and in the person's own account) while there is no shared home. */
 export const ownPlants = collection<Plant>('phyton:plant:');
 
 /** A shared home: every plant sealed with the home's key; everyone with the invite sees and waters them. */
@@ -61,7 +61,7 @@ export function useHome(): SharedListRef | undefined {
   return useSyncExternalStore(homes.subscribeShared, () => snapshot().value);
 }
 
-/** Every plant to show: the shared home's while there is one, else this phone's own. */
+/** Every plant to show: the shared home's while there is one, else this device's own. */
 export function usePlants(): Plant[] {
   const own = ownPlants.use();
   const shared = useSyncExternalStore(homes.subscribeShared, () => snapshot());

@@ -35,7 +35,7 @@ const dropInvite = () => {
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That did not go through. Try again.');
 
-/** Moves this phone's own chores into the shared home. */
+/** Moves this device's own chores into the shared home. */
 function moveOwnInto(list: NonNullable<ReturnType<typeof homes.sharedLists>[number]>): number {
   const own = ownChores.list();
   const there = new Set(homes.sharedItems(list).map((chore) => chore.name.toLowerCase()));
@@ -98,7 +98,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         <section className="card" aria-label="A home shared with you">
           <span className="card__eyebrow">Shared with you</span>
           <h1 className="card__title">{invite.name}</h1>
-          {home && <p className="muted">Joining leaves {home.name} on this phone.</p>}
+          {home && <p className="muted">Joining leaves {home.name} on this device.</p>}
           {signedIn ? (
             <div className="button-row">
               <button
@@ -182,14 +182,14 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join. Each chore is encrypted on the phone before it’s sent.</p>
+        <p className="muted">Anyone with the invite link can join. Each chore is encrypted on the device before it’s sent.</p>
         <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>
 
       {own.length > 0 && (
         <section className="card">
-          <p className="muted">{own.length === 1 ? 'One chore is still only on this phone.' : `${own.length} chores are still only on this phone.`}</p>
+          <p className="muted">{own.length === 1 ? 'One chore is still only on this device.' : `${own.length} chores are still only on this device.`}</p>
           <button
             type="button"
             className="button-quiet"
@@ -220,7 +220,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
               disabled={busy}
               onClick={() =>
                 void run(async () => {
-                  // Keep a copy of the chores on this phone.
+                  // Keep a copy of the chores on this device.
                   for (const chore of homes.sharedItems(home)) ownChores.put(chore);
                   await homes.leaveList(home);
                   setLeaving(false);

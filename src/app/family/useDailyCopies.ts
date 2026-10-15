@@ -3,7 +3,7 @@ import { copyFor, dailyCopiesOn, listCopies, setDailyCopies, type DailyCopyInfo 
 import { backupService } from '../services';
 import { makeDailyCopy } from './dailyCopy';
 
-/** The daily copies on this phone, the switch for them, and restoring one. */
+/** The daily copies on this device, the switch for them, and restoring one. */
 export function useDailyCopies() {
   const [on, setOn] = useState(() => dailyCopiesOn());
   const [copies, setCopies] = useState<DailyCopyInfo[]>([]);

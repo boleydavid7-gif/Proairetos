@@ -35,7 +35,7 @@ const dropInvite = () => {
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That did not go through. Try again.');
 
-/** Moves this phone's own plants into the shared home. */
+/** Moves this device's own plants into the shared home. */
 function moveOwnInto(list: NonNullable<ReturnType<typeof homes.sharedLists>[number]>): number {
   const own = ownPlants.list();
   const there = new Set(homes.sharedItems(list).map((plant) => plant.name.toLowerCase()));
@@ -98,7 +98,7 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
         <section className="card" aria-label="A home shared with you">
           <span className="card__eyebrow">Shared with you</span>
           <h1 className="card__title">{invite.name}</h1>
-          {home && <p className="muted">Joining leaves {home.name} on this phone.</p>}
+          {home && <p className="muted">Joining leaves {home.name} on this device.</p>}
           {signedIn ? (
             <div className="button-row">
               <button
@@ -182,14 +182,14 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join. Each plant is encrypted on the phone before it’s sent.</p>
+        <p className="muted">Anyone with the invite link can join. Each plant is encrypted on the device before it’s sent.</p>
         <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>
 
       {own.length > 0 && (
         <section className="card">
-          <p className="muted">{own.length === 1 ? 'One plant is still only on this phone.' : `${own.length} plants are still only on this phone.`}</p>
+          <p className="muted">{own.length === 1 ? 'One plant is still only on this device.' : `${own.length} plants are still only on this device.`}</p>
           <button
             type="button"
             className="button-quiet"
@@ -220,7 +220,7 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
               disabled={busy}
               onClick={() =>
                 void run(async () => {
-                  // Keep a copy of the plants on this phone.
+                  // Keep a copy of the plants on this device.
                   for (const plant of homes.sharedItems(home)) ownPlants.put(plant);
                   await homes.leaveList(home);
                   setLeaving(false);

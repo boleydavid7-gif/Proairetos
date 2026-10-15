@@ -33,7 +33,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
     return (
       <div className="page philia-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           setRestoringPhoto(false);
         }
       }} />
-      {photo && <p className="fine">This photo stays on this phone. Save a copy before changing phones.</p>}
+      {photo && <p className="fine">This photo stays on this device. Save a copy before changing devices.</p>}
 
       {(person.phone || person.email) && (
         <div className="chip-row philia-contact">

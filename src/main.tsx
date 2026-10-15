@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 
-// A copy of everything, once a day, kept on this phone (Settings > Your data).
+// A copy of everything, once a day, kept on this device (Settings > Your data).
 startDailyCopies();
 
 // Offline support in production builds only, so development always loads fresh code.

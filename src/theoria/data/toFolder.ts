@@ -6,7 +6,7 @@ import { listBooks } from './store';
 export const BOOKS_SUB = 'Theoria books';
 
 /**
- * Copies every book kept on this phone into the family backup folder's "Theoria books", by title; a copy already
+ * Copies every book kept on this device into the family backup folder's "Theoria books", by title; a copy already
  * there with the same size is left alone. Quietly does nothing without a folder, or when the browser no longer
  * allows writing and `ask` (a tap) is not given. Returns how many files were written.
  */

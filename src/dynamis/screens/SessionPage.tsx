@@ -35,7 +35,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   const [felt, setFelt] = useState<Felt>();
   // Once finished or put aside, leaving the page never starts another session.
   const leaving = useRef(false);
-  // "Done" and "skip" said instead of tapped, when chosen (kept on this phone only).
+  // "Done" and "skip" said instead of tapped, when chosen (kept on this device only).
   const [listen, setListen] = useState(() => {
     try {
       return localStorage.getItem(LISTEN_KEY) === 'true';
@@ -63,7 +63,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   );
   const away = ready ? awayDays(done, toLocalDate(new Date())) : undefined;
 
-  // A session begins the first time this page opens, and is kept on this phone until finished or put aside.
+  // A session begins the first time this page opens, and is kept on this device until finished or put aside.
   useEffect(() => {
     if (!ready || !session || current || leaving.current) return;
     const sets: Draft['sets'] = {};

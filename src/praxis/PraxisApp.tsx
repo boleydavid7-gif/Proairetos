@@ -246,7 +246,7 @@ export default function PraxisApp() {
   // Start begins the timer, the sound and the end bell together.
   const [ready, setReady] = useState(opening === 'start');
 
-  // From Theoria's "Read for a while": the book as a block (made once, 20 minutes), ready to start.
+  // From Theoria's "Open Praxis": the book as a block (made once, 20 minutes), ready to start.
   const fromTheoria = useRef(false);
   useEffect(() => {
     if (fromTheoria.current || !items || !opening?.startsWith('read:')) return;

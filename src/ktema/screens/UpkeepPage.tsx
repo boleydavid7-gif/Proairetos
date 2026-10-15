@@ -207,7 +207,7 @@ export default function UpkeepPage({ nav, id, thingId }: { nav: KtemaNav; id?: s
     return (
       <div className="page ktema-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }

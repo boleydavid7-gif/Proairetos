@@ -83,7 +83,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
     <>
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
-        <p className="muted">All the apps and their settings.{added.includes('theoria') ? ' Theoria’s books stay on the phone.' : ''}</p>
+        <p className="muted">All the apps and their settings.{added.includes('theoria') ? ' Theoria’s books stay on the device.' : ''}</p>
         <StorageFacts />
         <label className="field">
           <span className="label">Password (optional)</span>
@@ -134,7 +134,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
             <p>
               From {when(ready.exportedAt)}: {describe(ready.data)}.
             </p>
-            <p className="muted">This replaces what is on this phone, in the family apps.</p>
+            <p className="muted">This replaces what is on this device, in the family apps.</p>
             <button
               type="button"
               className="button-main"
@@ -164,7 +164,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
   );
 }
 
-/** A copy made each day on this phone, the last seven kept; any day can be restored. */
+/** A copy made each day on this device, the last seven kept; any day can be restored. */
 /** A folder on this computer or phone where backups and daily copies are written too (Chrome and Edge). */
 function BackupFolder({ name }: { name?: string }) {
   const [problem, setProblem] = useState<string>();
@@ -205,7 +205,7 @@ function DailyCopies() {
       <button type="button" className="switch-row" role="switch" aria-checked={on} onClick={() => void turn(!on)}>
         <span className="switch-row__text">
           <span>Keep a copy each day</span>
-          <span className="switch-row__detail">On this phone, the last seven days.</span>
+          <span className="switch-row__detail">On this device, the last seven days.</span>
         </span>
         <span className={`switch${on ? ' switch--on' : ''}`} aria-hidden="true" />
       </button>
@@ -222,7 +222,7 @@ function DailyCopies() {
       )}
       {chosen && (
         <>
-          <p className="muted">This replaces what is on this phone, in the family apps, with {dayName(chosen)}’s copy.</p>
+          <p className="muted">This replaces what is on this device, in the family apps, with {dayName(chosen)}’s copy.</p>
           <button
             type="button"
             className="button-main"

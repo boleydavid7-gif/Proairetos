@@ -38,7 +38,7 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
       />
       {!text && (
         <>
-          <p className="hint">Read a recipe card on this phone. The photo stays here.</p>
+          <p className="hint">Read a recipe card on this device. The photo stays here.</p>
           <button type="button" className="button-main" disabled={reading !== undefined} onClick={() => input.current?.click()}>
             {reading !== undefined ? `Reading… ${Math.round(reading * 100)}%` : 'Take a photo'}
           </button>

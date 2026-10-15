@@ -133,7 +133,7 @@ function RecoveryKey({ value, busy, onSaved }: { value: string; busy: boolean; o
     <div className="stack-tight">
       <p className="sheet__label">Your recovery key</p>
       <p className="recovery-key" aria-label="Recovery key">{value}</p>
-      <p className="section-description">It opens your data if you lose your passkeys. Keep it somewhere safe, away from this phone. It is shown only now.</p>
+      <p className="section-description">It opens your data if you lose your passkeys. Keep it somewhere safe, away from this device. It is shown only now.</p>
       {navigator.clipboard?.writeText && (
         <button type="button" className="chip account-wide" onClick={() => void navigator.clipboard.writeText(value).then(() => setCopied(true))}>
           {copied ? 'Copied' : 'Copy'}
@@ -183,7 +183,7 @@ function SetUp() {
     <div className="stack-tight">
       {stage === 'passkey' && (
         <>
-          <p className="section-description">Your data is locked on this phone before it syncs. A passkey opens it in every app, with Face ID or your fingerprint.</p>
+          <p className="section-description">Your data is locked on this device before it syncs. A passkey opens it in every app, with Face ID or your fingerprint.</p>
           <button
             type="button"
             className="button-accent account-wide"
@@ -267,7 +267,7 @@ function PassphraseSetUp({ note }: { note: string }) {
         }
       }}
     >
-      <p className="section-description">{note || 'A passphrase locks your data on this phone before it syncs. You need it on each new device.'}</p>
+      <p className="section-description">{note || 'A passphrase locks your data on this device before it syncs. You need it on each new device.'}</p>
       <input
         type="password"
         className="field-input"

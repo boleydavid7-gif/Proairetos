@@ -43,14 +43,14 @@ function RainPlace() {
         <input className="input" aria-label="A town" placeholder="A town" value={query} onChange={(event) => setQuery(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!query.trim()}>Find</button>
       </form>
-      <button type="button" className="text-link" onClick={() => void placeFromDevice().then(choose).catch((cause: Error) => setError(cause.message))}>Use this phone’s location</button>
+      <button type="button" className="text-link" onClick={() => void placeFromDevice().then(choose).catch((cause: Error) => setError(cause.message))}>Use this device’s location</button>
       {found.length > 0 && (
         <div className="chip-row">
           {found.map((each) => <button key={`${each.lat},${each.lon}`} type="button" className="chip" onClick={() => choose(each)}>{each.name}</button>)}
         </div>
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometre, is sent; it stays on this phone.</p>
+      <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometre, is sent; it stays on this device.</p>
     </div>
   );
 }

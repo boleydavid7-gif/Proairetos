@@ -124,7 +124,7 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for every app, with settings, photos and files. Keep it off this phone.
+        One file for every app, with settings, photos and files. Keep it off this device.
       </p>
       <label className="plan-field">
         <span>Password (recommended)</span>
@@ -942,7 +942,7 @@ function LockSection() {
       >
         <p className="section-description">
           A passcode before Reflect, Journal, Insights and the weekly review; Reflect stays out of search. Privacy on
-          this phone, not encryption.
+          this device, not encryption.
         </p>
         <input
           className="field-input"

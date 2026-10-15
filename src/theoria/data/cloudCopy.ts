@@ -13,7 +13,7 @@ const label = (kind: SealedKind, bookId: string) => `theoria:${kind}:${bookId}`;
 
 /** A server without Theoria's storage (migration 20261014000000) answers "Bucket not found"; say so plainly. */
 function plain(message: string): string {
-  return /bucket not found/i.test(message) ? 'Account copies are not set up on the server yet. The book stays on this phone.' : message;
+  return /bucket not found/i.test(message) ? 'Account copies are not set up on the server yet. The book stays on this device.' : message;
 }
 
 export async function uploadSealed(kind: SealedKind, bookId: string, blob: Blob): Promise<string> {

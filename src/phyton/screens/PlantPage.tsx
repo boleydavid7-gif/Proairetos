@@ -177,8 +177,8 @@ function Photos({ plant }: { plant: Plant }) {
           setRestoring(false);
         }
       }} />
-      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>}
-      {photos.length > 0 && <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>}
+      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this device.</p>}
+      {photos.length > 0 && <p className="fine">Kept on this device, not in backups or sync. Save a copy before changing devices.</p>}
       {photos.length > 1 && (
         <figure className="then-now">
           <div className="then-now__pair">
@@ -371,7 +371,7 @@ export default function PlantPage({ nav, id, species, latin, given }: { nav: Phy
     return (
       <div className="page phyton-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted"><LeafIcon size={18} /> Not found on this phone.</p>
+        <p className="muted"><LeafIcon size={18} /> Not found on this device.</p>
       </div>
     );
   }

@@ -36,7 +36,7 @@ const dropInvite = () => {
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That did not go through. Try again.');
 
-/** Moves this phone's own medicines into the circle (kept short enough to seal as one item each). */
+/** Moves this device's own medicines into the circle (kept short enough to seal as one item each). */
 function moveOwnInto(list: NonNullable<ReturnType<typeof circles.sharedLists>[number]>): number {
   const own = medicines.list();
   const there = new Set(circles.sharedItems(list).map((medicine) => medicine.name.toLowerCase()));
@@ -99,7 +99,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
         <section className="card" aria-label="Medicines shared with you">
           <span className="card__eyebrow">Medicines shared with you</span>
           <h1 className="card__title">{invite.name}</h1>
-          {home && <p className="muted">Joining leaves {home.name} on this phone.</p>}
+          {home && <p className="muted">Joining leaves {home.name} on this device.</p>}
           {signedIn ? (
             <div className="button-row">
               <button
@@ -139,7 +139,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
         <h1 className="title">Share with someone who helps</h1>
         <section className="card">
           <h2 className="card__title card__title--small">A partner, a parent, a carer</h2>
-          <p className="muted">Everyone with the link sees the same medicines and doses, and can mark them taken. Encrypted end to end. Readings, visits and the health card stay on this phone.</p>
+          <p className="muted">Everyone with the link sees the same medicines and doses, and can mark them taken. Encrypted end to end. Readings, visits and the health card stay on this device.</p>
           {signedIn ? (
             <form
               className="field"
@@ -183,14 +183,14 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join, see the medicines and mark doses. Each medicine is encrypted on the phone before it’s sent.</p>
+        <p className="muted">Anyone with the invite link can join, see the medicines and mark doses. Each medicine is encrypted on the device before it’s sent.</p>
         <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>
 
       {own.length > 0 && (
         <section className="card">
-          <p className="muted">{own.length === 1 ? 'One medicine is still only on this phone.' : `${own.length} medicines are still only on this phone.`}</p>
+          <p className="muted">{own.length === 1 ? 'One medicine is still only on this device.' : `${own.length} medicines are still only on this device.`}</p>
           <button
             type="button"
             className="button-quiet"
@@ -212,7 +212,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
 
       {leaving ? (
         <section className="card">
-          <p>Leave {home.name}? A copy of the medicines stays on this phone; the others keep theirs.</p>
+          <p>Leave {home.name}? A copy of the medicines stays on this device; the others keep theirs.</p>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => setLeaving(false)}>Cancel</button>
             <button
@@ -221,7 +221,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
               disabled={busy}
               onClick={() =>
                 void run(async () => {
-                  // Keep a copy of the medicines on this phone.
+                  // Keep a copy of the medicines on this device.
                   for (const medicine of circles.sharedItems(home)) medicines.put(medicine);
                   await circles.leaveList(home);
                   setLeaving(false);

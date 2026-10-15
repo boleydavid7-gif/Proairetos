@@ -377,7 +377,7 @@ export const articles: Article[] = [
       },
       {
         heading: 'Fitting the plan to your schedule',
-        text: 'If you use Proairetos on this phone, Askesis reads your schedule and marks sessions that fall the day after a night. You can move them, keep them easy, or let them pass. Hard sessions fit best on rested days.',
+        text: 'If you use Proairetos on this device, Askesis reads your schedule and marks sessions that fall the day after a night. You can move them, keep them easy, or let them pass. Hard sessions fit best on rested days.',
       },
       {
         heading: 'Sleep first',

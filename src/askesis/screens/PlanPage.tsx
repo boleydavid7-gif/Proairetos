@@ -39,7 +39,7 @@ const levelNames: Record<Level, string> = { beginner: 'Beginner', intermediate: 
 const sameAim = (a: Aim, b: Aim) => JSON.stringify(a) === JSON.stringify(b);
 const isKnown = (meters: number) => aimDistances.some((d) => Math.abs(d.meters - meters) < 5);
 
-/** The answers so far, kept on the phone so a test run can come back to them. */
+/** The answers so far, kept on the device so a test run can come back to them. */
 const TEST_KEY = 'askesis:startTest';
 type Draft = { walk?: WalkNow; run?: RunNow };
 function readDraft(): Draft {

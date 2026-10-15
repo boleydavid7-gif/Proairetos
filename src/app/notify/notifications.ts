@@ -175,7 +175,7 @@ export const notifications = {
     pending = window.setTimeout(() => void notifications.refresh(), 800);
   },
 
-  /** Shows one now, so the person can see how they look on this phone. */
+  /** Shows one now, so the person can see how they look on this device. */
   async test(): Promise<void> {
     const soonest = upcoming[0];
     const sample: Notice = soonest
