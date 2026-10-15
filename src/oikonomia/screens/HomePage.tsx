@@ -6,6 +6,7 @@ import { payBill } from '../app/payBill';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
 import { Brand, Hero } from '../app/ui';
+import PayCard from './PayCard';
 
 function billRow(bill: Bill, date: string, nav: Nav, today: string) {
   return (
@@ -89,6 +90,8 @@ export default function HomePage({ nav }: { nav: Nav }) {
                 </button>
               </section>
             )}
+
+            <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
 
             <div className="oiko-section-head">
               <h2>This month</h2>

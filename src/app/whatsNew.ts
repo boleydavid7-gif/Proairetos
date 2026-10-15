@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Oikonomia shows your next pay date, the bills due before it, and what is left after them when you say what is in the account.',
       'Capture from anywhere: “Hey Siri, Capture”, a double tap on the back of your iPhone, or your watch sends words straight into Capture, locked until Proairetos opens them.',
     ],
   },
