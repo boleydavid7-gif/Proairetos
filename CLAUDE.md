@@ -789,7 +789,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Sleep shows source-backed regularity and doctor suggestions with Not for me, records side-by-side comparisons for Askesis runs, Dynamis training,
   Hydros caffeine after cutoff and scheduled night shifts when both groups exist, and offers two-week experiments (fixed wake time,
   caffeine cutoff, morning daylight) with the recorded amounts beside the previous two weeks.
-  Notices kind `rhythm` (`core/notices.ts`: wind down, worry time, nap on; last caffeine off), not held by quiet hours.
+  Morning daylight (15 to 30 minutes, outside if you can) follows each wake that is not after a night, with its own
+  source (`morning-light`: Khalsa 2003, Blume 2019).
+  Notices kind `rhythm` (`core/notices.ts`: wind down, worry time, nap on; last caffeine and morning daylight off), not held by quiet hours.
 - Philia (`core/people.ts`, tests): people (`philia:person:ID`) with birthday (year optional, 29 Feb on the
   28th), other yearly dates, who they are, Remember lines, gift ideas (mark given), times together, and an
   optional keep-in-touch rhythm that, when it comes round, says only how long it has been (`sinceText`).

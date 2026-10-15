@@ -39,13 +39,15 @@ export const defaultRhythm: RhythmSettings = {
   light: true,
 };
 
-export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'night-meals' | 'hygiene' | 'short-nap' | 'regularity';
+export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'morning-light' | 'night-meals' | 'hygiene' | 'short-nap' | 'regularity';
 
 export const SOURCES: Record<SourceKey, string> = {
   sleep: 'Watson NF et al. Recommended amount of sleep for a healthy adult. Sleep 2015;38(6):843–844.',
   caffeine: 'Drake C et al. Caffeine effects on sleep taken 0, 3, or 6 hours before going to bed. J Clin Sleep Med 2013;9(11):1195–1200.',
   nap: 'Ruggiero JS, Redeker NS. Effects of napping on sleepiness and sleep-related performance deficits in night-shift workers: a systematic review. Biol Res Nurs 2014;16(2):134–142.',
   light: 'Smith MR, Fogg LF, Eastman CI. A compromise circadian phase position for permanent night work improves mood, fatigue, and performance. Sleep 2009;32(11):1481–1489.',
+  'morning-light':
+    'Khalsa SBS et al. A phase response curve to single bright light pulses in human subjects. J Physiol 2003;549(3):945–952. Blume C, Garbazza C, Spitschan M. Effects of light on human circadian rhythms, sleep and mood. Somnologie 2019;23:147–156.',
   'night-meals': 'Chellappa SL et al. Daytime eating prevents internal circadian misalignment and glucose intolerance in night work. Sci Adv 2021;7(49):eabg9910.',
   'short-nap': 'Brooks A, Lack L. A brief afternoon nap following nocturnal sleep restriction: which nap duration is most recuperative? Sleep 2006;29(6):831–840.',
   regularity: 'Phillips AJK et al. Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Sci Rep 2017;7:3216.',
@@ -186,7 +188,9 @@ export function planBetween(from: string, until: string, blocks: readonly WorkBl
     if (settings.light && sleep.after !== 'night') {
       const wake = sleep.end;
       if (wake.getHours() >= 5 && wake.getHours() < 18) {
-        add({ key: `daylight:${stamp(wake)}`, kind: 'light', start: later(wake, 15), end: later(wake, 45), title: 'Daylight', detail: 'Outside if you can', source: sleep.after === 'last-night' ? 'hygiene' : 'light' });
+        // Light soon after waking sets the body clock earlier and steadier (Khalsa 2003); outdoor daylight is far
+        // brighter than indoor light, even on a cloudy morning (Blume 2019).
+        add({ key: `daylight:${stamp(wake)}`, kind: 'light', start: later(wake, 15), end: later(wake, 45), title: 'Morning daylight', detail: '15 to 30 minutes, outside if you can', source: sleep.after === 'last-night' ? 'hygiene' : 'morning-light' });
       }
     }
   }

@@ -83,6 +83,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         <Switch on={current.notices.worry} label="Worry time" onToggle={() => notice({ worry: !current.notices.worry })} />
         <Switch on={current.notices.nap} label="Nap" onToggle={() => notice({ nap: !current.notices.nap })} />
         <Switch on={current.notices.caffeine} label="Last caffeine" onToggle={() => notice({ caffeine: !current.notices.caffeine })} />
+        <Switch on={Boolean(current.notices.daylight)} label="Morning daylight" onToggle={() => notice({ daylight: !current.notices.daylight })} />
       </section>
 
       <ul className="rows">
