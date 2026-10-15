@@ -209,6 +209,16 @@
 .theoria-book-location { margin: -14px 0 16px; color: var(--theoria-faint); font-size: 13px; }
 .theoria-category-row { display: flex; gap: 6px; overflow-x: auto; margin-top: 18px; padding-bottom: 2px; scrollbar-width: none; }
 .theoria-category-row::-webkit-scrollbar { display: none; }
+.theoria-shelf-tabs { display: flex; gap: 4px; margin-top: 18px; padding: 3px; overflow-x: auto; border: 1px solid var(--theoria-border); border-radius: 12px; background: rgba(255,255,255,.03); scrollbar-width: none; }
+.theoria-shelf-tabs::-webkit-scrollbar { display: none; }
+.theoria-shelf-tabs button { flex: 1 0 auto; min-height: 36px; padding: 6px 12px; border: 0; border-radius: 9px; color: var(--theoria-muted); background: transparent; cursor: pointer; font-size: 14px; white-space: nowrap; }
+.theoria-shelf-tabs button[aria-pressed="true"] { color: var(--theoria-ink); background: rgba(182,163,212,.2); }
+.theoria-shelf-tabs--book { flex-wrap: wrap; margin: 14px 0 12px; max-width: 460px; }
+.theoria-shelf-tabs--book button { padding: 6px 10px; }
+.theoria-shelf-find { display: flex; gap: 8px; margin-top: 12px; }
+.theoria-shelf-find .theoria-global-search { flex: 1; min-width: 0; height: 44px; }
+.theoria-shelf-find select { flex: none; height: 44px; padding: 0 10px; border: 1px solid var(--theoria-border); border-radius: 11px; color: var(--theoria-ink); background: rgba(20,29,51,.8); font: inherit; font-size: 14px; }
+.theoria-shelf-none { margin-top: 24px; color: var(--theoria-muted); }
 .theoria-category-row button { flex: 0 0 auto; padding: 7px 9px; border: 1px solid var(--theoria-border); border-radius: 7px; color: var(--theoria-muted); background: rgba(255,255,255,.035); cursor: pointer; font-size: 11px; }
 .theoria-category-row button:first-child { color: #202039; background: var(--theoria-parchment); }
 .theoria-home-empty { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px; border: 1px dashed var(--theoria-border); border-radius: 14px; color: var(--theoria-muted); background: rgba(255,255,255,.025); font-size: 14px; }

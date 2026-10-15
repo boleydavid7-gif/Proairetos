@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Theoria: move a book between Reading, To read, Finished and Put away; the shelf finds books by title or author and sorts by last opened, title, author or added.',
       'Praxis cards: change a card’s words, bring cards in from a CSV or Anki/Quizlet export, download them, and make a card from a Theoria highlight.',
       'Hydros: download every drink as a CSV file from Settings, in your unit.',
       'Philia: Called, Messaged or Saw them in one tap, an optional line about it, and one timeline per person.',
