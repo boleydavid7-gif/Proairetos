@@ -12,7 +12,7 @@ import { addImported, readHighlightsFile } from './core/clippings';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { SHELVES, type Shelf } from './core/shelves';
-import { booksToAdd, planFolderScan, READABLE } from './core/folder';
+import { booksToAdd, folderDuplicates, mergeBooks, planFolderScan, READABLE } from './core/folder';
 import { filesIn, folderBooks, readableLibrary, saveFolderBooks } from './data/libraryFolder';
 import { chosenCloudFolder, cloudConnected, CLOUD_NAMES, connectedClouds, downloadCloudFile, filesInCloud, findInCloud, finishCloud, type CloudProvider } from './data/cloudLibrary';
 import { copyBooksToFolder } from './data/toFolder';
@@ -339,7 +339,17 @@ export default function TheoriaApp() {
       if (!names.length) return problem ?? (ask ? 'The folder could not be opened. Choose it again.' : undefined);
       const books = await listBooks();
       const known = folderBooks();
-      const plan = planFolderScan(found.map(({ path, size }) => ({ path, size })), known, new Set(books.map((book) => book.id)));
+      const plan = planFolderScan(found.map(({ path, size }) => ({ path, size })), known, new Set(books.map((book) => book.id)), books);
+      // Files already on the shelf (added by hand, or on another device): linked to that book, never added twice.
+      for (const { path, bookId } of plan.link) {
+        const item = found.find((each) => each.path === path)!;
+        const book = books.find((each) => each.id === bookId);
+        if (!book) continue;
+        known[path] = { bookId, size: item.size };
+        if (!book.fromFolder) await putBook({ ...book, fromFolder: path, fileSize: book.fileSize ?? item.size, updatedAt: new Date().toISOString() });
+        if (!(await localFile(bookId))) await item.get().then((file) => keepFile(book, file)).catch(() => undefined);
+      }
+      if (plan.link.length) saveFolderBooks(known);
       let added = 0;
       for (const path of plan.add) {
         const item = found.find((each) => each.path === path)!;
@@ -386,6 +396,48 @@ export default function TheoriaApp() {
       folderBusy.current = false;
     }
   };
+  /**
+   * Copies the library folder added of books already on the shelf (before it learned to link them): each merged into
+   * the original (marks joined, the further place kept) and taken away, with one undo for all.
+   */
+  const cleanDuplicates = async () => {
+    // Undone once: the person keeps the copies, and they are not merged again.
+    if (localStorage.getItem('theoria:duplicatesKept') === 'true') return;
+    const books = await listBooks();
+    const pairs = folderDuplicates(books);
+    if (!pairs.length) return;
+    const knownBefore = folderBooks();
+    const known = { ...knownBefore };
+    const undo: (() => Promise<void>)[] = [];
+    const settled = new Map<string, TheoriaBook>();
+    for (const { keep: first, drop } of pairs) {
+      const keep = settled.get(first.id) ?? first;
+      const merged = mergeBooks(keep, drop);
+      if (!(await localFile(keep.id))) {
+        const theirs = await localFile(drop.id);
+        if (theirs) await keepFile(merged, new File([theirs.blob], theirs.name || keep.fileName || 'book', { type: theirs.type })).catch(() => undefined);
+      }
+      await putBook(merged);
+      settled.set(keep.id, merged);
+      for (const [path, entry] of Object.entries(known)) if (entry.bookId === drop.id) known[path] = { ...entry, bookId: keep.id };
+      const files = await takeAll(drop.id);
+      await removeBook(drop.id);
+      undo.push(async () => { await putBook(drop); await putAll(files); });
+      window.setTimeout(() => { if (undo.length) void forgetCloudCopy(drop); }, 15_000);
+    }
+    saveFolderBooks(known);
+    const originals = pairs.map(({ keep }) => keep);
+    toast(`${pairs.length === 1 ? 'One duplicate book' : `${pairs.length} duplicate books`} merged into the originals.`, () => {
+      const steps = undo.splice(0);
+      localStorage.setItem('theoria:duplicatesKept', 'true');
+      void (async () => {
+        for (const step of steps) await step();
+        for (const book of originals) await putBook(book);
+        saveFolderBooks(knownBefore);
+      })();
+    });
+  };
+
   /** On every device: books from the library folder that are not here yet come from their account copies. */
   const fetching = useRef(new Set<string>());
   const fetchFolderBooks = async () => {
@@ -412,7 +464,7 @@ export default function TheoriaApp() {
     const look = () => {
       if (document.visibilityState !== 'visible' || Date.now() - last < 60_000) return;
       last = Date.now();
-      void syncLibraryFolder().then(() => fetchFolderBooks());
+      void cleanDuplicates().catch(() => undefined).then(() => syncLibraryFolder()).then(() => fetchFolderBooks());
     };
     const first = window.setTimeout(look, 5000);
     document.addEventListener('visibilitychange', look);

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Theoria: a library folder no longer adds books already on your shelf, and copies it added before are merged into the originals with their highlights and place.',
       'Theoria: connect OneDrive, Google Drive or Dropbox under Settings › Your storage, and a book that is not on this device is found there by its file name and brought down when you open it.',
       'Theoria: books open on every device you sign in on. Account copies that could not be made before are made by themselves, and other devices bring the books down when Theoria opens.',
       'Every app says “this device” instead of “this phone”, and Theoria’s book page has Open Praxis.',
