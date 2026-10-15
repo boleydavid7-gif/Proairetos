@@ -4,6 +4,9 @@
  * cleaned so a reload does not add it twice.
  */
 export function composeShared(params: URLSearchParams): string | undefined {
+  // A link made for capturing (`?capture=…`, from a bookmark or a Shortcut on a computer or Android) reads the same way.
+  const captured = params.get('capture')?.trim();
+  if (captured) return captured;
   const title = params.get('share_title')?.trim();
   const text = params.get('share_text')?.trim();
   const url = params.get('share_url')?.trim();

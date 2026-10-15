@@ -4,8 +4,9 @@ import { handlePlantRequest } from './plantProxy';
 import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
+import { handleCaptureRequest, type CaptureEnv } from './capture';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -32,6 +33,8 @@ export default {
     if (url.pathname === '/api/storage') return handleStorageRequest(request, env);
     // Askesis's Strava connection: the sign-in step that needs the secret, and the person's own activities.
     if (url.pathname === '/api/strava' || url.pathname === '/api/strava/activities') return handleStravaRequest(request, env);
+    // Capture from anywhere: a Shortcut posts words with the person's inbox token; they are sealed before they are kept.
+    if (url.pathname === '/api/capture') return handleCaptureRequest(request, env);
     // Phyton's photos, from its own pages only (POST, same origin).
     if (url.pathname === '/api/plant') {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();

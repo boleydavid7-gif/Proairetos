@@ -315,6 +315,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`phyton/app/background.ts` leaves place, names, unit and known frost nights in Cache Storage
   `proairetos-phyton-outside`; `public/phyton/sw.js` `checkFrost` asks Open-Meteo, 12:00-22:00, once a night).
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
+- Capture from anywhere (Settings > The app > Capture from anywhere, view `inbox`; migration
+  `20261024000000_capture_inbox.sql`; Worker `/api/capture`, `worker/capture.ts`, vars `SUPABASE_URL`, `SUPABASE_ANON_KEY`):
+  the device makes an RSA-OAEP key pair and a token (`app/capture/inbox.ts`, kept in `proairetos.captureInbox`, device only,
+  out of backups and sync); the server gets the token's SHA-256 and the public key (`capture_inboxes`). An iPhone Shortcut
+  (Ask for Input → Get Contents of URL, POST JSON `{token, text}`; Siri, Back Tap, Apple Watch) reaches the Worker, which
+  seals the words (`sealForInbox`: fresh AES-GCM key wrapped by RSA-OAEP, AD `proairetos-capture`) and keeps them through the
+  security-definer RPCs `inbox_key` / `inbox_add` (anon key only, at most 200 waiting). `InboxOpener` in App opens them on
+  start, on sync ready and on coming into view, adds captures (first line title, rest note), deletes what it read, one undo.
+  Items sealed for another device's key are left for it. `?capture=TEXT` also opens the Capture sheet with the words.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
 - Command palette (Ctrl or ⌘ + K, `app/palette/CommandPalette.tsx`, works while typing): go to any page, pause, focus, search, or write a thing down. Typed words become a "Write it down" row, read by `core/capture/quickAdd.ts` ("dentist friday 3pm 45 min": day, time, length; shown before Enter saves, with undo). Sheets focus their field in an effect, not `autoFocus` (the dialog opens after render).

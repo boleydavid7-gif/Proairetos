@@ -12,6 +12,7 @@ import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
 import SharedSheet from '../features/share/SharedSheet';
+import InboxOpener from './capture/InboxOpener';
 import { takeShared } from '../features/share/shared';
 import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview } from './laterPages';
 import AppShell from './AppShell';
@@ -119,6 +120,7 @@ export default function App() {
     <OverlayProvider>
       <UrlOverlayOpener />
       <NoticeOpener />
+      <InboxOpener />
       <AppShell route={route} onNavigate={go}>
       <Suspense fallback={null}>
       {route === 'today' && <NowPage />}

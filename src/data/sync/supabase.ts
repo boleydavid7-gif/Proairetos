@@ -465,3 +465,30 @@ export function finishPasskeySignIn(answer: {
 }): Promise<{ token_hash: string; wrap: WrappedKey | null }> {
   return passkeyFunction({ step: 'finish', ...answer });
 }
+
+// ---------- Capture from anywhere (migration 20261024000000_capture_inbox.sql) ----------
+
+/** Sets up (or replaces) this account's capture inbox: the token's hash and the public key that seals what arrives. */
+export async function saveCaptureInbox(userId: string, tokenHash: string, publicKey: JsonWebKey): Promise<void> {
+  const { error } = await (await supabase())
+    .from('capture_inboxes')
+    .upsert({ user_id: userId, token_hash: tokenHash, public_key: publicKey }, { onConflict: 'user_id' });
+  if (error) throw new Error(/capture_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
+}
+
+export async function deleteCaptureInbox(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('capture_inboxes').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function fetchInboxItems(): Promise<{ id: string; sealed: string; created_at: string }[]> {
+  const { data, error } = await (await supabase()).from('capture_inbox_items').select('id, sealed, created_at').order('created_at').limit(200);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as { id: string; sealed: string; created_at: string }[];
+}
+
+export async function deleteInboxItems(ids: readonly string[]): Promise<void> {
+  if (!ids.length) return;
+  const { error } = await (await supabase()).from('capture_inbox_items').delete().in('id', ids as string[]);
+  if (error) throw new Error(error.message);
+}

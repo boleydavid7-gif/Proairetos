@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-15',
+    lines: [
+      'Capture from anywhere: “Hey Siri, Capture”, a double tap on the back of your iPhone, or your watch sends words straight into Capture, locked until Proairetos opens them.',
+    ],
+  },
+  {
     date: '2026-10-14',
     lines: [
       'Askesis: build your own sessions (warm-up, repeats, cool-down) under Train, and run them in the guide with its bells.',

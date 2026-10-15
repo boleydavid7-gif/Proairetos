@@ -626,6 +626,11 @@ async function keepKey(key: CryptoKey, email?: string): Promise<void> {
   await syncNow();
 }
 
+/** The signed-in account's id, or null. */
+export function currentUserId(): string | null {
+  return userId;
+}
+
 /** Whether passkeys can be offered here: a browser that has them, and sync set up. */
 export function passkeysAvailable(): boolean {
   return isSyncConfigured && passkeysHere();

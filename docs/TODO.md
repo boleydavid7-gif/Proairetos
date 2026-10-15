@@ -11,6 +11,9 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,
       iPhone notifications can carry the app name, icon and actual reminder line. Without it, each app's words still
       arrive sealed and the phone shows them; the redeploy is needed either way, since the older function sent plain pushes.
+- [ ] Capture from anywhere: run `20261024000000_capture_inbox.sql`, then in Cloudflare > the proairetos Worker >
+      Settings > Variables and Secrets add `SUPABASE_URL` (your project address) and `SUPABASE_ANON_KEY` (the publishable
+      key; both are public values, plain text is fine). Then Settings > Capture from anywhere > Turn on, and make the Shortcut.
 - [ ] Strava for Askesis: at https://www.strava.com/settings/api create an app (Website https://proairetos.com,
       Authorization Callback Domain `proairetos.com`), then in Cloudflare > the proairetos Worker > Settings > Variables and
       Secrets add `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` (both as Secrets). A new Strava app connects only its owner

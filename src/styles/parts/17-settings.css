@@ -105,3 +105,32 @@
   justify-content: center;
   border-radius: 12px;
 }
+
+/* Capture from anywhere: the Shortcut's steps and the two values to copy into it. */
+.inbox-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  line-height: 1.5;
+}
+
+.inbox-copy {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.inbox-copy .sheet__label {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.inbox-copy__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
