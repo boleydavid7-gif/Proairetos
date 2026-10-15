@@ -6,7 +6,9 @@ import { BackLink, dayLabel } from '../app/ui';
 import SessionBar, { SessionKey } from '../app/SessionBar';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { defaultWeekdays, examplePath, findWorkout, type Plan } from '../core/plans';
+import { defaultWeekdays, examplePath, findWorkout, type Plan, type PlanWeek } from '../core/plans';
+import { isOwn } from '../core/own';
+import { ownWorkoutById } from '../app/own';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { intentionPrompt, raceDayLine } from '../core/stoic';
 import { isSet, lengthLabel, mainEffort, partLabel, sessionLines, totalMinutes, type Part } from '../core/workouts';
@@ -18,6 +20,11 @@ import { updatePlan } from '../app/state';
 /** Finds a session in the person's plan, or in any plan when browsing. */
 /** Finds a session in the person's path, or in the example path shown before an aim is set. */
 function locate(id: string, plan: Plan | undefined) {
+  // The runner's own sessions run in the guide and log like the plan's, outside any week.
+  if (isOwn(id)) {
+    const workout = ownWorkoutById(id);
+    return workout && { workout, week: { n: 0, stage: 'Base', theme: '', easier: false, workouts: [workout] } as PlanWeek, plan: plan ?? examplePath() };
+  }
   const found = plan && findWorkout(plan, id);
   if (found) return { ...found, plan };
   const example = examplePath();

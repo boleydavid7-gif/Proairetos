@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-14',
     lines: [
+      'Askesis: build your own sessions (warm-up, repeats, cool-down) under Train, and run them in the guide with its bells.',
       'Askesis connects to Strava: runs from your watch arrive in Log by themselves, and a run on a session day counts as that session.',
       'Signing in is shorter: a passkey first, email second, and a new account sets up with one passkey and a recovery key.',
       'Settings in Proairetos is shorter and clearer: fewer pages, one page for your data, privacy and the lock together, and switches at the end of each row.',
