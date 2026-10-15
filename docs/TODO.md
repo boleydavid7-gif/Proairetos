@@ -6,6 +6,10 @@ Things only you can do: server setup, phone checks, and choices. The code for ea
 
 Skip any you have already done. Until a migration is run, the apps keep that data on the device and work as usual.
 
+- [ ] Migration `20261014000000_theoria_storage.sql`: makes the private `theoria-books` and `theoria-covers` buckets, so
+      Theoria's "Keep a sealed copy in my account" works (it answers "Bucket not found" until then). Run only this one of
+      the two Theoria files: `20261015000000_theoria_sync.sql` is already covered by the later migrations, and running it
+      now would take back the record kinds they added.
 - [ ] Migration `20261016000000_preferences_files_sync.sql`: settings and photos sync.
 - [ ] Migration `20261017000000_reminder_sources.sql`, then redeploy `send-reminders`: reminders from every app.
 - [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,

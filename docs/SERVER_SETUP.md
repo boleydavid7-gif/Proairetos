@@ -252,6 +252,14 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   only that device.
 - Keep using **Back up** now and then. It is independent of the server.
 
+## Theoria's account copies (migration 20261014000000)
+
+Run `supabase/migrations/20261014000000_theoria_storage.sql`. It creates the private `theoria-books` and `theoria-covers`
+buckets, each person reaching only their own folder. Books arrive already sealed on the phone. Without it, "Keep a sealed
+copy in my account" says the account copies are not set up and the book stays on the phone. Do not run
+`20261015000000_theoria_sync.sql` on a server that has `20261016000000` or later: those already allow Theoria's records,
+and the older file would narrow the list again.
+
 ## Settings and files sync (migration 20261016000000)
 
 Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets settings and photo/file details sync, and creates the private `proairetos-files` bucket (12 MB limit; files arrive already encrypted). Redeploy `delete-account` so it also clears a person's files: `supabase functions deploy delete-account`. Until the migration runs, these are held on the device and everything else syncs as before.
