@@ -813,6 +813,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `main.tsx`); sharing moves this phone's chores in, leaving keeps a copy. Notices kind `chore`: one per day
   naming that day's chores at the usual time, or at a chore's own `remindAt` (optional, on the chore page);
   optional "Only mine" (More: your name here).
+  Steps (`Chore.steps`, optional, one per line in the form, `stepsFromText`, at most 20): ticked on the chore's page
+  (`toggleStep`), cleared by `markDone`. Today shows room chips when its chores span two rooms or more (`roomsOf`) and, in one
+  room, "Mark all of these done" with one undo.
 - In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
   from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
   `app/notify/familyNotices.ts`); What's included parts `diaita` (tonight's sleep on Today), `birthdays`

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayText, grouped, markDone, namesIn, nextDay, repeatText, skip, whoDidWhat, type Chore } from './chores';
+import { dayText, grouped, markDone, namesIn, nextDay, repeatText, skip, whoDidWhat, stepsFromText, toggleStep, roomsOf, type Chore } from './chores';
 import { choreNotices, defaultChoreNotices } from './notices';
 
 const chore = (patch: Partial<Chore>): Chore => ({ id: 'c', name: 'Vacuum', repeat: { kind: 'weeks', every: 1 }, history: [], createdAt: '2026-10-01T10:00:00', ...patch });
@@ -105,5 +105,28 @@ describe('notices', () => {
     const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12', who: 'Ana' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Ben' })];
     const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'Ana', '2026-10-10', 14);
     expect(notices.map((n) => n.title)).toEqual(['Bins out']);
+  });
+});
+
+describe('steps and rooms', () => {
+  const base = { id: 'c', name: 'Clean the kitchen', room: 'Kitchen', repeat: { kind: 'weeks', every: 1 } as const, history: [], createdAt: '2026-10-01T00:00:00Z' };
+
+  it('reads steps from lines and keeps earlier ticks', () => {
+    const steps = stepsFromText('- Clear the counters\n2. Wipe the hob\n\n[x] Mop');
+    expect(steps).toEqual([{ text: 'Clear the counters' }, { text: 'Wipe the hob' }, { text: 'Mop' }]);
+    expect(stepsFromText('Mop\nBins', [{ text: 'Mop', done: true }])).toEqual([{ text: 'Mop', done: true }, { text: 'Bins' }]);
+    expect(stepsFromText('  \n')).toBeUndefined();
+  });
+
+  it('ticks a step and clears every tick when done', () => {
+    const chore = { ...base, steps: [{ text: 'Counters' }, { text: 'Mop' }] };
+    const ticked = toggleStep(chore, 1);
+    expect(ticked.steps).toEqual([{ text: 'Counters' }, { text: 'Mop', done: true }]);
+    expect(toggleStep(ticked, 1).steps?.[1].done).toBeUndefined();
+    expect(markDone(ticked, '2026-10-15').steps).toEqual([{ text: 'Counters' }, { text: 'Mop' }]);
+  });
+
+  it('orders rooms the usual way', () => {
+    expect(roomsOf([{ ...base, room: 'Garage' }, { ...base, room: 'Bathroom' }, base, { ...base, room: undefined }])).toEqual(['Kitchen', 'Bathroom', 'Garage']);
   });
 });

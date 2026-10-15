@@ -59,3 +59,53 @@
     --accent: #2d6a5c;
   }
 }
+
+/* Steps of a bigger chore: ticks clear when the chore is done. */
+.ergon-steps {
+  display: grid;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ergon-steps li + li {
+  border-top: 1px solid var(--line);
+}
+
+.ergon-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ergon-step__box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid currentColor;
+  border-radius: 7px;
+  opacity: 0.7;
+}
+
+.ergon-step.is-done .ergon-step__box {
+  border-color: var(--mint);
+  background: var(--mint);
+  color: var(--mint-ink);
+  opacity: 1;
+}
+
+.ergon-step.is-done > span:last-child {
+  color: var(--muted);
+  text-decoration: line-through;
+}

@@ -16,6 +16,9 @@ export type Repeat =
 
 export type Done = { date: string; by?: string };
 
+/** A step of a bigger chore; ticks clear each time the chore is done. */
+export type Step = { text: string; done?: boolean };
+
 export type Chore = {
   id: string;
   name: string;
@@ -31,6 +34,8 @@ export type Chore = {
   skipped?: string;
   history: Done[];
   note?: string;
+  /** Steps for a bigger chore (optional). */
+  steps?: Step[];
   /** Minutes it usually takes, if noted. */
   minutes?: number;
   /** "HH:MM" for this chore's reminder, when it differs from the usual time. */
@@ -135,7 +140,32 @@ export function markDone(chore: Chore, today: string, by?: string): Chore {
     const at = chore.rota.indexOf(chore.who ?? '');
     who = chore.rota[(at + 1) % chore.rota.length];
   }
-  return { ...chore, history, who, skipped: undefined };
+  return { ...chore, history, who, skipped: undefined, steps: chore.steps?.map(({ text }) => ({ text })) };
+}
+
+/** Steps written one per line (list marks taken off), at most 20. */
+export function stepsFromText(text: string, before: readonly Step[] = []): Step[] | undefined {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^\s*(?:[-*•]|\d+[.)]|\[[ xX]?\])\s*/, '').trim().slice(0, 120))
+    .filter(Boolean)
+    .slice(0, 20);
+  if (!lines.length) return undefined;
+  return lines.map((line) => ({ text: line, done: before.find((step) => step.text === line)?.done || undefined }));
+}
+
+/** One step ticked or unticked. */
+export function toggleStep(chore: Chore, index: number): Chore {
+  return { ...chore, steps: chore.steps?.map((step, at) => (at === index ? { text: step.text, done: step.done ? undefined : true } : step)) };
+}
+
+/** The rooms among some chores, in the usual order, then any others by name. */
+export function roomsOf(chores: readonly Chore[]): string[] {
+  const named = [...new Set(chores.map((chore) => chore.room).filter((room): room is string => Boolean(room)))];
+  return named.sort((a, b) => {
+    const at = (room: string) => (ROOMS.includes(room) ? ROOMS.indexOf(room) : ROOMS.length);
+    return at(a) - at(b) || a.localeCompare(b);
+  });
 }
 
 /** Not this time: the next day counts from today, nothing recorded as done. */

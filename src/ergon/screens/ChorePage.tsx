@@ -7,7 +7,8 @@ import type { ErgonNav } from '../app/App';
 import { findChore, newId, putChore, removeChore, settings, useChores, myName } from '../app/state';
 import { done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
-import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, weekdayName, type Chore, type Repeat } from '../core/chores';
+import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
+import { CheckIcon } from '../../app/family/icons';
 
 type Kind = Repeat['kind'];
 const KINDS: { id: Kind; label: string }[] = [
@@ -36,6 +37,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState(existing?.note ?? '');
   const [remindAt, setRemindAt] = useState(existing?.remindAt ?? '');
+  const [stepLines, setStepLines] = useState(existing?.steps?.map((step) => step.text).join('\n') ?? '');
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!existing) nameField.current?.focus();
@@ -68,6 +70,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
       who: turns ? (rotaNames?.includes(who) ? who : rotaNames?.[0]) : who.trim() || undefined,
       rota: rotaNames && rotaNames.length > 1 ? rotaNames : undefined,
       note: note.trim() || undefined,
+      steps: stepsFromText(stepLines, existing?.steps),
       remindAt: remindAt || undefined,
     };
     putChore(next);
@@ -171,6 +174,10 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <input className="input" type="time" value={remindAt} onChange={(event) => setRemindAt(event.target.value)} />
       </label>
       <label className="field">
+        <span className="field__label">Steps (optional), one per line</span>
+        <textarea className="input" rows={3} value={stepLines} placeholder={'Clear the counters\nWipe the hob\nMop'} onChange={(event) => setStepLines(event.target.value)} />
+      </label>
+      <label className="field">
         <span className="field__label">Note (optional)</span>
         <input className="input" value={note} onChange={(event) => setNote(event.target.value)} />
       </label>
@@ -221,6 +228,22 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
               </button>
             )}
           </div>
+        </section>
+      )}
+
+      {existing.steps && existing.steps.length > 0 && (
+        <section className="card">
+          <h2 className="card__title card__title--small">Steps</h2>
+          <ul className="ergon-steps">
+            {existing.steps.map((step, index) => (
+              <li key={`${index}-${step.text}`}>
+                <button type="button" className={`ergon-step${step.done ? ' is-done' : ''}`} role="checkbox" aria-checked={Boolean(step.done)} onClick={() => putChore(toggleStep(existing, index))}>
+                  <span className="ergon-step__box" aria-hidden="true">{step.done && <CheckIcon size={16} />}</span>
+                  <span>{step.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
