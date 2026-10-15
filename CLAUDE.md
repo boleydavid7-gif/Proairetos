@@ -799,6 +799,10 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   reminder choices (dates on the day or days before, keep in touch, time). Notices kind `person`, opening
   `philia:person:ID`. People brought in keep `compassId`/`compassName`; a rename in Compass carries over on
   opening Philia unless they were renamed in Philia since (`followCompass`). `?open=person:ID|add|people`.
+  In touch in one tap (person page: Called / Messaged / Saw them; `logContact` keeps a `TimeTogether` with `how`, moves
+  `lastInTouch`, undo, then an optional line about it); Home's "In touch today" logs `touch`. "Together and in touch" is one
+  timeline per person (`timeline`, `timelineText`: contacts, times together, gifts given; newest first, 8 then All).
+  Your year counts calls and messages apart from times together.
 - Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
   week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
   late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;

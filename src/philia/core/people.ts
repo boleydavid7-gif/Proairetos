@@ -8,7 +8,15 @@ import { addDays, daysBetween, parseLocalDate } from '../../core/scheduling/date
 
 export type Line = { id: string; text: string; at: string };
 export type Gift = Line & { given?: string };
-export type TimeTogether = { id: string; date: string; text: string };
+/** A time together, or (with `how`) being in touch: a call, a message, a visit, or simply in touch. */
+export type TimeTogether = { id: string; date: string; text: string; how?: Contact };
+export type Contact = 'call' | 'message' | 'visit' | 'touch';
+
+export const CONTACTS: { id: Exclude<Contact, 'touch'>; label: string; done: string }[] = [
+  { id: 'call', label: 'Called', done: 'Called' },
+  { id: 'message', label: 'Messaged', done: 'Messaged' },
+  { id: 'visit', label: 'Saw them', done: 'Saw them' },
+];
 export type PersonDate = { id: string; label: string; date: string };
 
 export type Person = {
@@ -194,4 +202,29 @@ export function followCompass(people: readonly Person[], compass: readonly { id:
     changed.push(untouched ? { ...person, name: there, compassName: there } : { ...person, compassName: there });
   }
   return changed;
+}
+
+
+/** Being in touch, kept as a line in the person's timeline; the keep-in-touch rhythm counts from it. */
+export function logContact(person: Person, how: Contact, date: string, id: string, text = ''): Person {
+  const latest = [person.lastInTouch?.slice(0, 10), date].filter(Boolean).sort().pop();
+  return { ...person, times: [...person.times, { id, date, text, how }], lastInTouch: latest };
+}
+
+export type TimelineEntry = { id: string; date: string; kind: 'contact' | 'time' | 'gift'; text: string; how?: Contact };
+
+/** Everything with a day, newest first: being in touch, times together and gifts given. */
+export function timeline(person: Person): TimelineEntry[] {
+  return [
+    ...person.times.map((time): TimelineEntry => ({ id: time.id, date: time.date, kind: time.how ? 'contact' : 'time', text: time.text, how: time.how })),
+    ...person.gifts.filter((gift) => gift.given).map((gift): TimelineEntry => ({ id: gift.id, date: gift.given!, kind: 'gift', text: gift.text })),
+  ].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** One timeline line in words: "Called · about the move", "Gave: a scarf". */
+export function timelineText(entry: TimelineEntry): string {
+  if (entry.kind === 'gift') return `Gave ${entry.text}`;
+  if (entry.kind === 'time') return entry.text;
+  const said = entry.how === 'touch' ? 'In touch' : (CONTACTS.find((each) => each.id === entry.how)?.done ?? 'In touch');
+  return entry.text ? `${said} · ${entry.text}` : said;
 }

@@ -5,15 +5,15 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import photo from '../../assets/images/scenes/philia.webp';
 import photoWide from '../../assets/images/scenes/philia-wide.webp';
 import type { PhiliaNav } from '../app/App';
-import { people } from '../app/state';
+import { newId, people } from '../app/state';
 import { Initials } from '../app/ui';
 import SwipeItem from '../../app/family/SwipeItem';
-import { comingUp, inTouchNow, shortDate, sinceText, turningText, whenText, type Person } from '../core/people';
+import { comingUp, inTouchNow, logContact, shortDate, sinceText, turningText, whenText, type Person } from '../core/people';
 
 
 export function markInTouch(person: Person, today: string) {
   const before = person;
-  people.put({ ...person, lastInTouch: today });
+  people.put(logContact(person, 'touch', today, newId()));
   offerUndo(`In touch with ${person.name}`, () => people.put(before));
 }
 
@@ -23,7 +23,8 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
   const soon = comingUp(all, today, 30);
   const touch = inTouchNow(all, today);
   const times = all
-    .flatMap((person) => person.times.map((time) => ({ person, time })))
+    // Times together on Home; a plain call or message stays on the person's own page.
+    .flatMap((person) => person.times.filter((time) => !time.how || time.how === 'visit' || time.text).map((time) => ({ person, time })))
     .sort((a, b) => b.time.date.localeCompare(a.time.date))
     .slice(0, 4);
   const first = soon[0];
@@ -98,7 +99,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                     <li key={time.id}>
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
                         <Initials name={person.name} id={person.id} />
-                        <span className="row__text"><span>{time.text}</span><span className="row__detail">{person.name} · {shortDate(time.date)}</span></span>
+                        <span className="row__text"><span>{time.text || (time.how === 'visit' ? 'Saw them' : 'In touch')}</span><span className="row__detail">{person.name} · {shortDate(time.date)}</span></span>
                         <ChevronIcon size={17} />
                       </button>
                     </li>
