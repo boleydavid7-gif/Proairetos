@@ -11,7 +11,7 @@ import { useForecast, useRain } from '../app/rain';
 import { hotDays } from '../core/outdoors';
 import { takeHeldPhoto } from '../app/identify';
 import { moist, PlantThumb, watered } from '../app/ui';
-import { dayText, everyNow, everyText, feed, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
+import { dayText, everyNow, everyText, feed, journal, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
 import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
 import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
 
@@ -246,6 +246,14 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
     putPlant(next);
     offerUndo(words, () => putPlant(plant));
   };
+  const [writing, setWriting] = useState<'pest' | 'note'>();
+  const [words, setWords] = useState('');
+  const keepLine = () => {
+    if (!writing || (writing === 'note' && !words.trim())) return;
+    mark(journal(plant, today, writing, words, me), writing === 'pest' ? 'Pests noted' : 'Note kept');
+    setWriting(undefined);
+    setWords('');
+  };
 
   return (
     <div className="page phyton-page">
@@ -284,8 +292,24 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
       <div className="chip-row">
         <button type="button" className="chip" onClick={() => mark(feed(plant, today, me), `${plant.name} fed`)}>Fed</button>
         <button type="button" className="chip" onClick={() => mark(repot(plant, today, me), `${plant.name} repotted`)}>Repotted</button>
+        <button type="button" className="chip" onClick={() => mark(journal(plant, today, 'prune', undefined, me), `${plant.name} pruned`)}>Pruned</button>
+        <button type="button" className="chip" aria-pressed={writing === 'pest'} onClick={() => setWriting(writing === 'pest' ? undefined : 'pest')}>Pests seen</button>
+        <button type="button" className="chip" aria-pressed={writing === 'note'} onClick={() => setWriting(writing === 'note' ? undefined : 'note')}>Note</button>
         {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={15} />Identify</button>}
       </div>
+
+      {writing && (
+        <form className="card plant-journal" onSubmit={(event) => { event.preventDefault(); keepLine(); }}>
+          <label className="field">
+            <span className="field__label">{writing === 'pest' ? 'What and where (optional)' : 'Note'}</span>
+            <input className="input" value={words} maxLength={140} autoComplete="off" placeholder={writing === 'pest' ? 'Fungus gnats in the soil' : 'New leaf unfurling'} onChange={(event) => setWords(event.target.value)} />
+          </label>
+          <div className="button-row">
+            <button type="button" className="button-quiet" onClick={() => { setWriting(undefined); setWords(''); }}>Cancel</button>
+            <button type="submit" className="button-main" disabled={writing === 'note' && !words.trim()}>Keep</button>
+          </div>
+        </form>
+      )}
 
       {type ? (
         <section className="card">
@@ -311,7 +335,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           <ul className="notes-list">
             {[...plant.log].reverse().slice(0, 12).map((each, index) => (
               <li key={`${each.date}-${index}`} className="note-line">
-                <span>{new Date(`${each.date}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} · {LOG_TEXT[each.kind]}</span>
+                <span>{new Date(`${each.date}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} · {each.kind === 'note' && each.text ? each.text : LOG_TEXT[each.kind]}{each.kind === 'pest' && each.text ? `: ${each.text}` : ''}</span>
                 <span className="muted">{each.by ?? ''}</span>
               </li>
             ))}

@@ -8,8 +8,9 @@ import { speciesBy, type Dryness } from './species';
  * months, and rain counts for plants outside. A day that has come reads "Since Tue", never late.
  */
 
-export type LogKind = 'water' | 'moist' | 'feed' | 'repot';
-export type LogEntry = { date: string; kind: LogKind; by?: string };
+export type LogKind = 'water' | 'moist' | 'feed' | 'repot' | 'prune' | 'pest' | 'note';
+/** One mark in a plant's record; pests and notes may carry a few words. */
+export type LogEntry = { date: string; kind: LogKind; by?: string; text?: string };
 
 export type Plant = {
   id: string;
@@ -208,7 +209,23 @@ export function everyText(days: number): string {
   return `Every ${days} days`;
 }
 
-export const LOG_TEXT: Record<LogKind, string> = { water: 'Watered', moist: 'Still moist', feed: 'Fed', repot: 'Repotted' };
+export const LOG_TEXT: Record<LogKind, string> = { water: 'Watered', moist: 'Still moist', feed: 'Fed', repot: 'Repotted', prune: 'Pruned', pest: 'Pests seen', note: 'Note' };
+
+/** A line in the plant's care journal: pruned, pests seen (what, optional), or a note. */
+export function journal(plant: Plant, today: string, kind: 'prune' | 'pest' | 'note', text?: string, by?: string): Plant {
+  const words = text?.trim().slice(0, 140) || undefined;
+  return { ...plant, log: keep([...plant.log, { date: today, kind, by, text: words }]) };
+}
+
+/**
+ * A shared home's record is sealed into at most 4,000 characters, so the oldest marks give way first (never fewer
+ * than ten), keeping the plant itself whole.
+ */
+export function fitForSharing(plant: Plant, most = 2700): Plant {
+  let fitted = plant;
+  while (JSON.stringify(fitted).length > most && fitted.log.length > 10) fitted = { ...fitted, log: fitted.log.slice(1) };
+  return fitted;
+}
 
 /** Names used in the home, for choosing who. */
 export function namesIn(plants: readonly Plant[], extra: readonly string[] = []): string[] {

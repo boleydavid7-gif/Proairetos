@@ -941,4 +941,5 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   plant (how dry, about how often this month, notes, pets) to print or send as text.
 - Plants page: "Watered all" per place, one undo (`wateredAll`). A plant's photos: Then and now (first and latest, "7 months apart",
   `apart`) and a sideways strip of every photo.
+- Care journal: a plant's page also marks Pruned, Pests seen (what and where, optional) and Note (`journal`, kinds `prune`, `pest`, `note` with `text` up to 140 characters, in the same record; no effect on watering). A shared home's plant is trimmed oldest marks first to fit the sealed size (`fitForSharing` in `putPlant`, never below ten marks). Plants has place chips when there are two places or more.
 - Links: `?open=today|plants|more|add|identify|home|sitter|plant:ID`.

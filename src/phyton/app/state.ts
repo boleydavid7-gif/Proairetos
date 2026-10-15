@@ -4,7 +4,7 @@ import { createSharedLists, joinProof, sharingAvailable, type SharedListRef } fr
 import { notifications } from '../../app/notify/notifications';
 import { displayName } from '../../data/storage/preferences';
 import { defaultPlantNotices, type PlantNoticeChoices } from '../core/notices';
-import type { Hemisphere, Plant } from '../core/plants';
+import { fitForSharing, type Hemisphere, type Plant } from '../core/plants';
 import type { Away } from '../core/outdoors';
 
 /** `rain` is the switch for weather outside (rain, frost, hot days); the name stays for settings already kept. */
@@ -87,7 +87,7 @@ export function allPlants(): Plant[] {
 
 export function putPlant(plant: Plant): void {
   const list = home();
-  if (list) homes.changeItem(list, plant.id, plant);
+  if (list) homes.changeItem(list, plant.id, fitForSharing(plant));
   else ownPlants.put(plant);
   notifications.refreshSoon();
 }

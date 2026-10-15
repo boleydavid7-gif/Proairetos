@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayText, everyNow, feed, grouped, learnedEvery, nextCheck, nextFeed, seasonFactor, stillMoist, toFeed, water, wateredText, type Plant } from './plants';
+import { dayText, everyNow, feed, grouped, learnedEvery, nextCheck, nextFeed, seasonFactor, stillMoist, toFeed, water, wateredText, journal, fitForSharing, type Plant } from './plants';
 import { findSpecies, speciesForLatin, SPECIES } from './species';
 import { plantNotices, defaultPlantNotices } from './notices';
 import { frostTonight, hotDays, isAway } from './outdoors';
@@ -163,5 +163,30 @@ describe('the sheet for whoever waters', () => {
     expect(rows[1]).toMatchObject({ name: 'Lily', place: 'Bedroom', often: 'About every 5 days', pets: 'Toxic to cats and dogs' });
     expect(rows[0].often).toBe('About every 2 days, less after rain');
     expect(sitterText(rows, { from: '2026-07-02', to: '2026-07-09' }, (day) => day)).toMatch(/^Plants, 2026-07-02 to 2026-07-09\n\nTomatoes \(Balcony, outside\)/);
+  });
+});
+
+describe('care journal', () => {
+  const plant: Plant = { id: 'p', name: 'Pothos', every: 7, log: [], createdAt: '2026-01-01T00:00:00Z' };
+
+  it('keeps pruned, pests and notes without moving the watering', () => {
+    const pruned = journal(plant, '2026-10-01', 'prune');
+    const pests = journal(pruned, '2026-10-02', 'pest', '  Fungus gnats  ');
+    const noted = journal(pests, '2026-10-03', 'note', 'x'.repeat(200));
+    expect(noted.log.map((entry) => entry.kind)).toEqual(['prune', 'pest', 'note']);
+    expect(noted.log[1].text).toBe('Fungus gnats');
+    expect(noted.log[2].text).toHaveLength(140);
+    expect(noted.tally).toBeUndefined();
+    expect(nextCheck(noted, '2026-10-03')).toBe(nextCheck(plant, '2026-10-03'));
+  });
+
+  it('gives way oldest first to fit a shared record, never below ten marks', () => {
+    let full = plant;
+    for (let day = 1; day <= 40; day += 1) full = journal(full, `2026-09-${String((day % 28) + 1).padStart(2, '0')}`, 'note', 'A long line about the new growth on the left side');
+    const fitted = fitForSharing(full);
+    expect(JSON.stringify(fitted).length).toBeLessThanOrEqual(2700);
+    expect(fitted.log.at(-1)).toEqual(full.log.at(-1));
+    expect(fitForSharing(full, 10).log).toHaveLength(10);
+    expect(fitForSharing(plant)).toBe(plant);
   });
 });
