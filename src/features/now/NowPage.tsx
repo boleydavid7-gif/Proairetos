@@ -228,7 +228,7 @@ export default function NowPage() {
 
       {shows('intention') && <Intention date={date} isToday />}
       {shows('path') && <TodayThree date={today} items={items} />}
-      {<NowCard now={clock} occurrences={nearOccurrences} items={items} />}
+      {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
 
       {entries.length > 0 && (
         <section className="stack-tight" aria-label="Your day">
@@ -265,13 +265,19 @@ export default function NowPage() {
         </section>
       )}
 
-      {shows('askesis') && <TodayRun today={today} />}
-      <TodayStudy today={today} />
-      <TodayHighlight today={today} />
-      <TodayFamily today={today} />
-      <TodayRhythm now={clock} today={today} blocks={blocks} />
-      <TodayBirthdays today={today} />
-      <FromYourApps today={today} />
+      {/* Everything the other apps bring today, as one grouped list: things to mark first, then the rest. */}
+      <section className="today-apps" aria-labelledby="today-apps-title">
+        <h2 id="today-apps-title" className="section-label">From your apps</h2>
+        <div className="today-group">
+          <FromYourApps today={today} embedded />
+          {shows('askesis') && <TodayRun today={today} />}
+          <TodayRhythm now={clock} today={today} blocks={blocks} />
+          <TodayFamily today={today} />
+          <TodayBirthdays today={today} />
+          <TodayStudy today={today} />
+          <TodayHighlight today={today} />
+        </div>
+      </section>
       <TodayOnThisDay today={today} />
 
       {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}

@@ -608,3 +608,120 @@ blockquote.daily-line {
   text-overflow: ellipsis;
   appearance: none;
 }
+
+/* ---------- Settings behind your initial, Today as grouped lists ---------- */
+/* Like Apple's own apps: a round button with the person's initial opens Settings, and Today's rows from the
+   other apps sit in one inset grouped list with separators that start after the icon. */
+
+.profile-button__face {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 22%, var(--color-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  color: var(--color-accent-strong, var(--color-accent));
+  font-family: var(--font-sans, system-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.profile-button:hover .profile-button__face {
+  background: color-mix(in srgb, var(--color-accent) 32%, var(--color-surface));
+}
+
+.profile-button:active .profile-button__face {
+  transform: scale(0.94);
+}
+
+.today-apps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Nothing from the other apps today: no heading, no empty card. */
+.today-apps:not(:has(.quiet-row, .check-row)) {
+  display: none;
+}
+
+.today-group {
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.today-group .check-list {
+  margin: 0;
+}
+
+.today-group .quiet-row-wrap,
+.today-group .check-row {
+  position: relative;
+}
+
+.today-group .quiet-row,
+.today-group .check-row {
+  min-height: 3.25rem;
+  border: 0;
+}
+
+.today-group .quiet-row {
+  padding: var(--space-3) 0;
+}
+
+/* One hairline between rows, starting where the words start. */
+.today-group :is(.quiet-row-wrap, .check-row)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2.15rem;
+  right: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.today-group > :first-child::before,
+.today-group > .check-list:first-child > .check-row:first-child::before {
+  display: none;
+}
+
+.today-group .check-row__title {
+  padding: var(--space-3) 0;
+}
+
+.today-group .quiet-row-wrap .not-for-me {
+  align-self: flex-end;
+  margin: 0 0 var(--space-2);
+}
+
+/* Today's path before anything is chosen: three open circles and one line, a single tap to choose. */
+.path-empty {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: 16px;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+}
+
+.path-empty__dots {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.path-empty__dots span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid var(--color-text-faint);
+  border-radius: 50%;
+}
+
+.path-empty:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+}

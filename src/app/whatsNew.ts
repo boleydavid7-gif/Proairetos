@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Settings opens from your initial, top right of each main page. Today keeps everything from your other apps in one list, says how long until the next thing in Your day, and reads shorter: “Sleep 7:00 AM tomorrow”, “Bills due tomorrow”.',
       'Every app now uses American spelling and words: color, center, favorite, tire, cilantro, fiber, and chores that come around.',
       'On a computer: Soma and Askesis have their side menu again, welcome screens keep Begin under the words, Hydros centers its greeting over the glass, and Theoria’s menu fits the window.',
       'Theoria: books at the top of a cloud library folder are matched to your shelf (they were being added again); Settings has Clear the library for a fresh start from the folder.',

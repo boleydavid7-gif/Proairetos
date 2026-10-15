@@ -167,9 +167,11 @@ export default function TodayThree({ date, items }: Props) {
         <h2 className="section-label">Today’s path</h2>
         <span className="section-heading__actions">
           {picks.length === 0 && <NotForMe part="path" />}
-          <button type="button" className="text-link" onClick={() => setPicking(true)}>
-            {picks.length > 0 ? 'Change' : 'Choose'}
-          </button>
+          {picks.length > 0 && (
+            <button type="button" className="text-link" onClick={() => setPicking(true)}>
+              Change
+            </button>
+          )}
         </span>
       </div>
       {picks.length > 0 ? (
@@ -202,7 +204,8 @@ export default function TodayThree({ date, items }: Props) {
         </ol>
       ) : (
         <button type="button" className="path-empty" onClick={() => setPicking(true)}>
-          Pick up to three things from your list to walk through today.
+          <span className="path-empty__dots" aria-hidden="true"><span /><span /><span /></span>
+          Choose up to three
         </button>
       )}
       {picking && <Picker date={date} items={items} onClose={() => setPicking(false)} />}

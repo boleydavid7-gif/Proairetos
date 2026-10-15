@@ -3,7 +3,7 @@ import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import { MoonIcon, PersonIcon } from '../../app/family/icons';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
-import { addDays } from '../../core/scheduling/dates';
+import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { planBetween, timeText } from '../../diaita/core/rhythm';
 import { settings as diaitaSettings } from '../../diaita/app/state';
 import { people } from '../../philia/app/state';
@@ -42,7 +42,7 @@ export function TodayRhythm({ now, today, blocks }: { now: Date; today: string; 
     <QuietLink
       href="/diaita/"
       icon={<MoonIcon size={20} />}
-      line={`${sleep.title} at ${timeText(sleep.start)}`}
+      line={`${sleep.title} ${timeText(sleep.start)}${toLocalDate(sleep.start) !== toLocalDate(now) ? ' tomorrow' : ''}`}
       detail={before ? `${before.title} ${timeText(before.start)} · Diaita` : 'Diaita'}
       part="diaita"
     />
@@ -63,7 +63,7 @@ export function TodayBirthdays({ today }: { today: string }) {
       href={soon.length === 1 ? `/philia/?open=${encodeURIComponent(`person:${first.person.id}`)}` : '/philia/'}
       icon={<PersonIcon size={20} />}
       line={soon.slice(0, 2).map((entry) => `${name(entry)} ${whenText(entry.date, today).toLowerCase()}`).join(' · ')}
-      detail={soon.length > 2 ? `And ${soon.length - 2} more in Philia` : 'Philia'}
+      detail={soon.length > 2 ? `And ${soon.length - 2} more · Philia` : 'Philia'}
       part="birthdays"
     />
   );

@@ -80,7 +80,7 @@ function Row({ row, today }: { row: FromAppsRow; today: string }) {
  * From your apps: plants to check, chores, today's doses, upkeep and a training day, as one list. Each can be
  * marked here; the mark goes into the app it belongs to, with undo. Nothing is kept here.
  */
-export default function FromYourApps({ today }: { today: string }) {
+export default function FromYourApps({ today, embedded = false }: { today: string; embedded?: boolean }) {
   const shows = useTodayParts();
   const plants = usePlants();
   const phyton = phytonSettings.use();
@@ -115,6 +115,13 @@ export default function FromYourApps({ today }: { today: string }) {
       : undefined,
   });
   if (!rows.length) return null;
+  if (embedded) {
+    return (
+      <ul className="check-list">
+        {rows.map((row) => <Row key={row.key} row={row} today={today} />)}
+      </ul>
+    );
+  }
 
   return (
     <section className="from-apps" aria-labelledby="from-apps-title">

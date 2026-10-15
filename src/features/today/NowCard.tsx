@@ -3,18 +3,22 @@ import { ClockIcon } from '../../components/icons/Icons';
 import type { LifeItem } from '../../core/life-items/types';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 import { formatTimeOf } from '../schedule/format';
-import { blockTitle, formatDuration, nowStatus } from './timeline';
+import { blockTitle, formatDuration, nowStatus, untilText } from './timeline';
 
 type Props = {
   now: Date;
   occurrences: ScheduleOccurrence[];
   items: LifeItem[];
+  /** Off when Your day already shows the next thing with its time to go. */
+  showNext?: boolean;
 };
 
 /** Where you are in time right now. Plain facts, updated live. */
-export default function NowCard({ now, occurrences, items }: Props) {
+export default function NowCard({ now, occurrences, items, showNext = true }: Props) {
   const { openItem } = useOverlays();
-  const { current, next } = nowStatus(now, occurrences, items);
+  const status = nowStatus(now, occurrences, items);
+  const current = status.current;
+  const next = showNext ? status.next : undefined;
   if (!current && !next) return null;
 
   return (
@@ -42,7 +46,7 @@ export default function NowCard({ now, occurrences, items }: Props) {
             <span className="now-card__label">Next</span> {next.title}
           </span>
           <span className="now-card__when">
-            in {formatDuration(next.start.getTime() - now.getTime())}
+            in {untilText(next.start.getTime() - now.getTime())}
             <span className="now-card__at"> · {formatTimeOf(next.start)}</span>
           </span>
         </button>

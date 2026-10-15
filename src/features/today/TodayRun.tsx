@@ -20,7 +20,7 @@ export default function TodayRun({ today }: { today: string }) {
             {run.title}
             {length ? ` · ${length}` : ''}
           </span>
-          <span className="quiet-row__detail">Today in Askesis. {run.summary}.</span>
+          <span className="quiet-row__detail">{run.summary.replace(/(\d) x /g, '$1 × ')} · Askesis</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
