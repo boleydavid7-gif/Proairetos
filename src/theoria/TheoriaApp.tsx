@@ -14,7 +14,7 @@ import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageD
 import { SHELVES, type Shelf } from './core/shelves';
 import { booksToAdd, planFolderScan, READABLE } from './core/folder';
 import { filesIn, folderBooks, readableLibrary, saveFolderBooks } from './data/libraryFolder';
-import { chosenCloudFolder, cloudConnected, CLOUD_NAMES, downloadCloudFile, filesInCloud, finishCloud, type CloudProvider } from './data/cloudLibrary';
+import { chosenCloudFolder, cloudConnected, CLOUD_NAMES, connectedClouds, downloadCloudFile, filesInCloud, findInCloud, finishCloud, type CloudProvider } from './data/cloudLibrary';
 import { copyBooksToFolder } from './data/toFolder';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingFile } from './data/importers';
@@ -121,9 +121,48 @@ export default function TheoriaApp() {
   }, [shelf, readerText]);
 
   // The reader takes the book's text from this device.
+  /**
+   * A book not on this device yet: from the cloud storage this device is signed in to (where it was found before, else
+   * by its file name and size), else from its sealed account copy. Says where it came from, or undefined.
+   */
+  const bringBook = async (book: TheoriaBook): Promise<string | undefined> => {
+    if (!book.fileName) return undefined;
+    const clouds = connectedClouds();
+    const order = book.foundIn && clouds.includes(book.foundIn.provider) ? [book.foundIn.provider, ...clouds.filter((each) => each !== book.foundIn!.provider)] : clouds;
+    for (const provider of order) {
+      try {
+        const place = book.foundIn?.provider === provider ? { provider, id: book.foundIn.id } : await findInCloud(provider, book.fileName, book.fileSize);
+        if (!place) continue;
+        const file = await downloadCloudFile(provider, place, book.fileName);
+        if (book.fileSize && file.size !== book.fileSize && book.foundIn?.provider !== provider) continue;
+        await keepFile(book, file);
+        if (book.foundIn?.id !== place.id) await putBook({ ...book, foundIn: { provider, id: place.id }, updatedAt: new Date().toISOString() });
+        return CLOUD_NAMES[provider];
+      } catch {
+        // Not there, or the storage could not be reached: the next one, then the account copy.
+      }
+    }
+    if (book.cloudCopy && book.filePath && book.sealed) {
+      try {
+        await fetchCopy(book);
+        return 'your account';
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  };
+
   const loadText = async (book: TheoriaBook) => {
     setReaderText({ bookId: book.id, loading: true });
-    const [chapters, file] = await Promise.all([readableChapters(book.id), localFile(book.id)]);
+    let [chapters, file] = await Promise.all([readableChapters(book.id), localFile(book.id)]);
+    if (!chapters && !file) {
+      const from = await bringBook(book);
+      if (from) {
+        [chapters, file] = await Promise.all([readableChapters(book.id), localFile(book.id)]);
+        toast(`Brought from ${from}.`);
+      }
+    }
     setReaderText({ bookId: book.id, chapters, pdf: book.contentFormat === 'pdf' || file?.type === 'application/pdf' ? file?.blob : undefined, loading: false });
   };
 
@@ -134,7 +173,7 @@ export default function TheoriaApp() {
     opened.current = true;
     const open = takeOpening();
     // Back from connecting OneDrive for the library folder: settings, where the folder is chosen.
-    void finishCloud().then((back) => { if (back) { setView('settings'); setDriveReturn(back); } }).catch((error) => { setView('settings'); toast(error instanceof Error ? error.message : 'The storage did not connect.'); });
+    void finishCloud().then((back) => { if (back) { setView('settings'); if (back.intent === 'folder') setDriveReturn(back.provider); else toast(`${CLOUD_NAMES[back.provider]} is connected. Books not on this device come from it when opened.`); } }).catch((error) => { setView('settings'); toast(error instanceof Error ? error.message : 'The storage did not connect.'); });
     if (open === 'add') setAddOpen(true);
     if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
@@ -386,11 +425,11 @@ export default function TheoriaApp() {
 
   const loadSource = async (book = selected) => {
     if (!book) return;
-    try {
-      await fetchCopy(book);
+    const from = await bringBook(book);
+    if (from) {
       await loadText(book);
-      toast('The book is on this device now.');
-    } catch (error) { toast(error instanceof Error ? error.message : 'The copy could not be fetched.'); }
+      toast(`The book is on this device now, from ${from}.`);
+    } else toast(connectedClouds().length ? 'The book was not found in your storage or your account. Choose the file on this device.' : 'This book has no copy in your account. Connect the storage it is in (Settings), or choose the file on this device.');
   };
   const chooseFile = async (file: File) => {
     if (!selected) return;

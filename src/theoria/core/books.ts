@@ -61,6 +61,8 @@ export type TheoriaBook = {
   pageCount?: number;
   /** Brought in from the library folder at this path; its account copy carries it to every other device. */
   fromFolder?: string;
+  /** Where the file was last found in the person's cloud storage, so another device signed in to it goes straight there. */
+  foundIn?: { provider: 'onedrive' | 'google' | 'dropbox'; id: string };
   lastOpenedAt?: string;
   createdAt: string;
   updatedAt: string;

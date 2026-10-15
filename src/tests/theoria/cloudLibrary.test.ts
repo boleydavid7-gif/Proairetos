@@ -48,3 +48,25 @@ describe('cloud library folder', () => {
     ]);
   });
 });
+
+describe('finding a book in the storage', () => {
+  it('takes the same name and size, case aside', async () => {
+    const { pickMatch } = await import('../../theoria/data/cloudLibrary');
+    const found = [{ name: 'meditations.epub', size: 9 }, { name: 'Meditations.epub', size: 10 }, { name: 'Meditations (1).epub', size: 10 }];
+    expect(pickMatch(found, 'Meditations.EPUB', 10)).toEqual({ name: 'Meditations.epub', size: 10 });
+    expect(pickMatch(found, 'Meditations.epub')).toEqual({ name: 'meditations.epub', size: 9 });
+    expect(pickMatch(found, 'Letters.pdf', 10)).toBeUndefined();
+  });
+
+  it('searches OneDrive by name and gives the matching file', async () => {
+    const { findInCloud } = await import('../../theoria/data/cloudLibrary');
+    localStorage.setItem('theoriaCloud.onedrive', JSON.stringify({ access: 'T', until: Date.now() + 60_000 }));
+    const fetched: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      fetched.push(url);
+      return new Response(JSON.stringify({ value: [{ id: 'x', name: "Marcus's Meditations.epub", size: 5, file: {}, '@microsoft.graph.downloadUrl': 'https://dl/x' }, { id: 'f', name: "Marcus's Meditations.epub", folder: {} }] }));
+    }));
+    expect(await findInCloud('onedrive', "Marcus's Meditations.epub", 5)).toEqual({ provider: 'onedrive', id: 'x', download: 'https://dl/x' });
+    expect(fetched[0]).toContain("search(q='Marcus''s%20Meditations.epub')");
+  });
+});

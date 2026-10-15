@@ -168,3 +168,48 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
     </>
   );
 }
+
+/** Settings > Your storage: the cloud storages this device reads books from, connected or not. */
+export function CloudConnections() {
+  const [clouds, setClouds] = useState<CloudProvider[]>([]);
+  const [turn, setTurn] = useState(0);
+  const [problem, setProblem] = useState<string>();
+  useEffect(() => {
+    void cloudsOffered().then(setClouds);
+  }, []);
+  if (!clouds.length) return null;
+  return (
+    <>
+      <ul className="rows" key={turn}>
+        {clouds.map((provider) => {
+          const connected = cloudConnected(provider);
+          return (
+            <li key={provider}>
+              <button
+                type="button"
+                className="row"
+                role={connected ? 'switch' : undefined}
+                aria-checked={connected ? true : undefined}
+                onClick={() => {
+                  setProblem(undefined);
+                  if (connected) {
+                    disconnectCloud(provider);
+                    setTurn(turn + 1);
+                  } else void connectCloud(provider, 'books').catch((error: unknown) => setProblem(error instanceof Error ? error.message : 'That did not open.'));
+                }}
+              >
+                {icon('M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18z')}
+                <span className="row__text">
+                  <span>{CLOUD_NAMES[provider]}</span>
+                  <span className="row__detail">{connected ? 'Books not on this device come from here' : 'Connect, read only'}</span>
+                </span>
+                <span className={`switch${connected ? ' switch--on' : ''}`} aria-hidden="true" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {problem && <p className="hint" role="alert">{problem}</p>}
+    </>
+  );
+}

@@ -86,13 +86,13 @@ export const chooseCloudFolder = (folder: CloudFolder | undefined) => write(FOLD
 export const disconnectCloud = (provider: CloudProvider) => write(tokensKey(provider), undefined);
 
 /** Leaves for the storage's sign-in (from a tap); it comes back to Theoria's settings. */
-export async function connectCloud(provider: CloudProvider): Promise<void> {
+export async function connectCloud(provider: CloudProvider, intent: 'folder' | 'books' = 'folder'): Promise<void> {
   const id = await clientId(provider);
   if (!id) throw new Error(`${CLOUD_NAMES[provider]} is not set up on this site yet.`);
   const verifier = randomText(48);
   const challenge = base64Url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
   const state = `theoria.${randomText(16)}`;
-  write(PENDING, { provider, verifier, state, at: Date.now() });
+  write(PENDING, { provider, verifier, state, at: Date.now(), intent });
   const params = new URLSearchParams({ client_id: id, redirect_uri: `${location.origin}${RETURN_PATH}`, response_type: 'code', code_challenge: challenge, code_challenge_method: 'S256', state });
   if (provider === 'onedrive') {
     params.set('scope', SCOPES.onedrive);
@@ -106,18 +106,18 @@ export async function connectCloud(provider: CloudProvider): Promise<void> {
   location.assign(`${AUTHORIZE[provider]}?${params}`);
 }
 
-/** Back from a storage's sign-in: keeps it and says which storage. Undefined when the address carried none. */
-export async function finishCloud(hash = location.hash): Promise<CloudProvider | undefined> {
+/** Back from a storage's sign-in: keeps it and says which storage and why. Undefined when the address carried none. */
+export async function finishCloud(hash = location.hash): Promise<{ provider: CloudProvider; intent: 'folder' | 'books' } | undefined> {
   const params = new URLSearchParams(hash.replace(/^#/, ''));
   if (!params.has('storage') && !params.has('storage-error')) return undefined;
-  const pending = read<{ provider: CloudProvider; verifier: string; state: string; at: number }>(PENDING);
+  const pending = read<{ provider: CloudProvider; verifier: string; state: string; at: number; intent?: 'folder' | 'books' }>(PENDING);
   if (!pending || pending.state !== params.get('storage-state')) return undefined;
   history.replaceState(history.state, '', location.pathname + location.search);
   write(PENDING, undefined);
   if (params.get('storage-error')) throw new Error(`Connecting ${CLOUD_NAMES[pending.provider]} was cancelled.`);
   if (Date.now() - pending.at > 30 * 60_000) throw new Error(`That took too long. Connect ${CLOUD_NAMES[pending.provider]} again.`);
   await trade(pending.provider, { code: params.get('storage') ?? '', verifier: pending.verifier });
-  return pending.provider;
+  return { provider: pending.provider, intent: pending.intent ?? 'folder' };
 }
 
 async function trade(provider: CloudProvider, body: { code?: string; verifier?: string; refresh?: string }): Promise<Tokens> {
@@ -272,4 +272,36 @@ export async function downloadCloudFile(provider: CloudProvider, file: Pick<Clou
   if (!response.ok) throw new Error(`${CLOUD_NAMES[provider]} did not give the file.`);
   const blob = await response.blob();
   return new File([blob], name, { type: blob.type });
+}
+
+/** The storages this device is signed in to, OneDrive first. */
+export const connectedClouds = (): CloudProvider[] => (['onedrive', 'google', 'dropbox'] as const).filter((provider) => cloudConnected(provider));
+
+export type CloudPlace = { provider: CloudProvider; id: string; download?: string };
+
+/** The file of that name (and size, when known) in the storage, wherever it is; undefined when none matches. */
+export async function findInCloud(provider: CloudProvider, name: string, size?: number): Promise<CloudPlace | undefined> {
+  type Found = { id: string; name: string; size?: number; download?: string };
+  let found: Found[] = [];
+  if (provider === 'onedrive') {
+    const query = encodeURIComponent(name.replace(/'/g, "''"));
+    const page = (await (await call(provider, `https://graph.microsoft.com/v1.0/me/drive/root/search(q='${query}')?$top=50&$select=id,name,size,file,@microsoft.graph.downloadUrl`)).json()) as { value: { id: string; name: string; size?: number; file?: unknown; '@microsoft.graph.downloadUrl'?: string }[] };
+    found = page.value.filter((item) => item.file).map((item) => ({ id: item.id, name: item.name, size: item.size, download: item['@microsoft.graph.downloadUrl'] }));
+  } else if (provider === 'google') {
+    const query = new URLSearchParams({ q: `name = '${name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}' and trashed = false`, fields: 'files(id,name,size,mimeType)', pageSize: '50', supportsAllDrives: 'true', includeItemsFromAllDrives: 'true' });
+    const page = (await (await call(provider, `https://www.googleapis.com/drive/v3/files?${query}`)).json()) as { files: { id: string; name: string; size?: string }[] };
+    found = page.files.map((item) => ({ id: item.id, name: item.name, size: item.size === undefined ? undefined : Number(item.size) }));
+  } else {
+    const response = await call(provider, 'https://api.dropboxapi.com/2/files/search_v2', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ query: name, options: { filename_only: true, max_results: 50 } }) });
+    const page = (await response.json()) as { matches: { metadata: { metadata: { '.tag': string; id: string; name: string; size?: number } } }[] };
+    found = page.matches.map((match) => match.metadata.metadata).filter((item) => item['.tag'] === 'file').map((item) => ({ id: item.id, name: item.name, size: item.size }));
+  }
+  const match = pickMatch(found, name, size);
+  return match ? { provider, id: match.id, download: match.download } : undefined;
+}
+
+/** The same name (case aside), and the same size when the book's size is known. */
+export function pickMatch<T extends { name: string; size?: number }>(found: readonly T[], name: string, size?: number): T | undefined {
+  const named = found.filter((item) => item.name.toLowerCase() === name.toLowerCase());
+  return size ? named.find((item) => item.size === size) : named[0];
 }
