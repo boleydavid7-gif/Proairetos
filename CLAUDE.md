@@ -853,6 +853,7 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   days/weeks/months/years, or by distance for a car, whichever first (`nextDue`, estimated from readings); days that
   came read "Since Tue", never late; Ideas chips with "Common times; the manual has the ones for yours." Notices kind
   `upkeep` (one per day, and a month before a warranty or document ends).
+- Ktema rooms and insurance (`core/insurance.ts`): a thing's place is its Room (datalist of rooms used); Things groups by Kind or Room (`byRoom`, case ignored, unplaced last). Print has "By room, with prices" (route `print` with `insurance`, `?open=insurance`, also an Insurance list button on Things): a table per room with its total, all rooms' total (`readPrice` reads prices as written, `totalOf` adds by currency mark and says how many have no price) and Download (CSV) (`thingsCsv`, the amount as a number beside the price as written).
 - Therapeia history and care circle: each save writes what changed (`core/history.ts` `withChanges` from `putMedicine`:
   started, dose, times, course, stopped, started again, refilled; `Medicine.changes`, last 40), shown as History on the
   medicine and as "Recent changes" (six months, refills left out) on the printed sheet. Undo uses `restoreMedicine` (no

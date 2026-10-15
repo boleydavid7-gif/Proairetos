@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Ktema: things group by room, and an insurance list prints room by room with prices and totals, or downloads as CSV.',
       'Ergon: a bigger chore can have steps to tick (they clear when it is done), and Today narrows to one room with Mark all of these done.',
       'Dynamis: each exercise has its own page (every session’s sets, heaviest set, most reps, a line over time), and barbell lifts show the plates for each side.',
       'Theoria: move a book between Reading, To read, Finished and Put away; the shelf finds books by title or author and sorts by last opened, title, author or added.',

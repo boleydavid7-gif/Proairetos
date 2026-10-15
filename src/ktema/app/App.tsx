@@ -15,7 +15,7 @@ import PrintPage from '../screens/PrintPage';
 import SharedPage from '../screens/SharedPage';
 
 export type Tab = 'today' | 'things' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string } | { name: 'print' } | { name: 'year' } | { name: 'shared' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'thing'; id?: string } | { name: 'upkeep'; id?: string; thingId?: string; idea?: string } | { name: 'print'; insurance?: boolean } | { name: 'year' } | { name: 'shared' };
 export type KtemaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -32,6 +32,7 @@ function firstRoute(): Route {
   if (opening?.startsWith('thing:')) return { name: 'thing', id: opening.slice(6) };
   if (opening?.startsWith('upkeep:')) return { name: 'upkeep', id: opening.slice(7) };
   if (opening === 'print') return { name: 'print' };
+  if (opening === 'insurance') return { name: 'print', insurance: true };
   if (opening === 'shared') return { name: 'shared' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
@@ -63,7 +64,7 @@ export default function App() {
       case 'shared':
         return <SharedPage nav={nav} />;
       case 'print':
-        return <PrintPage nav={nav} />;
+        return <PrintPage nav={nav} insurance={route.insurance} />;
     }
   })();
 

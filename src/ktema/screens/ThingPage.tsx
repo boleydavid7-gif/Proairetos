@@ -69,8 +69,9 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         </div>
       </fieldset>
       <label className="field">
-        <span className="field__label">Where (optional)</span>
-        <input className="input" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
+        <span className="field__label">Room (optional)</span>
+        <input className="input" list="ktema-rooms" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
+        <datalist id="ktema-rooms">{[...new Set(things.list().map((each) => each.place?.trim()).filter((each): each is string => Boolean(each)))].map((each) => <option key={each} value={each} />)}</datalist>
       </label>
       <ReadFromPhoto
         label="Read the model and serial from a photo"
