@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
+import CirclePage, { pendingInvite } from '../screens/CirclePage';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
 import { HomeIcon, MoreIcon, PillIcon, PulseIcon, VisitIcon } from '../../app/family/icons';
 import ReadingsPage from '../screens/ReadingsPage';
@@ -16,7 +17,7 @@ import YearScreen from '../screens/YearScreen';
 import PrintPage from '../screens/PrintPage';
 
 export type Tab = 'today' | 'medicines' | 'readings' | 'visits' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print' } | { name: 'year' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print' } | { name: 'year' } | { name: 'circle' };
 export type TherapeiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -36,6 +37,7 @@ function firstRoute(): Route {
   if (opening?.startsWith('medicine:')) return { name: 'medicine', id: opening.slice(9) };
   if (opening?.startsWith('visit:')) return { name: 'visit', id: opening.slice(6) };
   if (opening === 'print') return { name: 'print' };
+  if (opening === 'circle' || pendingInvite()) return { name: 'circle' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
@@ -69,6 +71,8 @@ export default function App() {
         return <YearScreen nav={nav} />;
       case 'print':
         return <PrintPage nav={nav} />;
+      case 'circle':
+        return <CirclePage nav={nav} />;
     }
   })();
 

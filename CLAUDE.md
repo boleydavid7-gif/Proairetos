@@ -834,6 +834,15 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   days/weeks/months/years, or by distance for a car, whichever first (`nextDue`, estimated from readings); days that
   came read "Since Tue", never late; Ideas chips with "Common times; the manual has the ones for yours." Notices kind
   `upkeep` (one per day, and a month before a warranty or document ends).
+- Therapeia history and care circle: each save writes what changed (`core/history.ts` `withChanges` from `putMedicine`:
+  started, dose, times, course, stopped, started again, refilled; `Medicine.changes`, last 40), shown as History on the
+  medicine and as "Recent changes" (six months, refills left out) on the printed sheet. Undo uses `restoreMedicine` (no
+  change written). A care circle (More > Share with someone who helps, route `circle`, invite
+  `/therapeia/?open=circle:ID#k=KEY&n=NAME` read in `main.tsx`; `createSharedLists` with `therapeia:circles`, cache
+  `therapeiaShared`, AD `therapeia-list`) holds the medicines while there is one (`useMedicines`, `allMedicines`, used by
+  Therapeia's pages, Proairetos's From your apps, notices and search); a shared medicine is trimmed to fit one sealed
+  item (`forSharing`: ten days and at most 30 marks, 12 changes, the supply recounted from the oldest mark kept so what is
+  left stays the same). Readings, visits and the health card stay on the phone. Leaving keeps a copy.
 - Daily lines (`app/family/dailyLines.ts`, `DailyLine.tsx`): Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema each
   show one line a day at the foot of their first page, Stoic and Buddhist days in turn, with translator or
   "(paraphrase)"; a "Daily line" switch in each More (`proairetos.dailyLines`). Keep banned words out of quotes.

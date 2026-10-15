@@ -22,7 +22,8 @@ describe('capture from anywhere', () => {
     expect(sealed).not.toContain('dentist');
     expect(await openSealed(mine.privateJwk, sealed)).toEqual(words);
     await expect(openSealed(someoneElse.privateJwk, sealed)).rejects.toThrow();
-  });
+    // RSA keys take a moment to make, more so with every test file running at once.
+  }, 30_000);
 
   it('keeps only sealed words, and says when the token is unknown', async () => {
     const { publicJwk } = await pair();
@@ -45,5 +46,5 @@ describe('capture from anywhere', () => {
     expect((await handleCaptureRequest(post({ token: 'an-unknown-token-of-enough-length', text: 'x' }), env, fake)).status).toBe(404);
     expect((await handleCaptureRequest(post({ token: 'a-good-token-of-enough-length', text: '  ' }), env, fake)).status).toBe(400);
     expect((await handleCaptureRequest(post({ token: 'a-good-token-of-enough-length', text: 'x' }), {}, fake)).status).toBe(503);
-  });
+  }, 30_000);
 });

@@ -6,7 +6,8 @@ import { offerUndo } from '../../app/family/shell';
 import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
-import { medicines, newId, putMedicine, removeMedicine } from '../app/state';
+import { changeText } from '../core/history';
+import { newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
 
@@ -96,7 +97,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
       look,
     };
     putMedicine(next);
-    if (existing) offerUndo('Saved', () => putMedicine(existing));
+    if (existing) offerUndo('Saved', () => restoreMedicine(existing));
     onDone();
   };
 
@@ -296,13 +297,27 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               const added = Number(refillCount);
               if (!(added > 0)) return;
               putMedicine(refill(existing, added, new Date()));
-              offerUndo(`${added} added`, () => putMedicine(existing));
+              offerUndo(`${added} added`, () => restoreMedicine(existing));
               setRefillCount('');
             }}
           >
             <input className="input" inputMode="numeric" aria-label="How many came" placeholder="Refill: how many" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>
           </form>
+        </section>
+      )}
+
+      {(existing.changes?.length ?? 0) > 0 && (
+        <section className="card">
+          <h2 className="card__title card__title--small">History</h2>
+          <ul className="notes-list">
+            {[...(existing.changes ?? [])].reverse().map((change, index) => (
+              <li key={`${change.on}-${change.what}-${index}`} className="note-line">
+                <span>{new Date(`${change.on}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                <span className="muted">{changeText(change)}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -325,18 +340,18 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
           {existing.stopped && existing.stopped <= today ? (
             <button type="button" className="button-quiet" onClick={() => {
               putMedicine({ ...existing, stopped: undefined });
-              offerUndo(`${existing.name} back on the list`, () => putMedicine(existing));
+              offerUndo(`${existing.name} back on the list`, () => restoreMedicine(existing));
             }}>Taking it again</button>
           ) : (
             <button type="button" className="button-quiet" onClick={() => {
               putMedicine({ ...existing, stopped: today });
-              offerUndo(`${existing.name} stopped`, () => putMedicine(existing));
+              offerUndo(`${existing.name} stopped`, () => restoreMedicine(existing));
               nav.back();
             }}>Stopped taking it</button>
           )}
           <button type="button" className="text-link remove-link" onClick={() => {
             removeMedicine(existing.id);
-            offerUndo(`${existing.name} removed`, () => putMedicine(existing));
+            offerUndo(`${existing.name} removed`, () => restoreMedicine(existing));
             nav.back();
           }}>Remove</button>
         </div>
@@ -346,7 +361,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
 }
 
 export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
-  const existing = medicines.use().find((medicine) => medicine.id === id);
+  const existing = useMedicines().find((medicine) => medicine.id === id);
   const [editing, setEditing] = useState(!id);
   if (id && !existing) {
     return (

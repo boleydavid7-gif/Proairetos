@@ -71,8 +71,13 @@ export type Medicine = {
   taken: Taken[];
   /** No longer taken, from this day; kept with its record. */
   stopped?: string;
+  /** What changed and when, written on each save (`changesOf`), newest last. */
+  changes?: Change[];
   createdAt: string;
 };
+
+/** One change to a medicine, as a plain record for the person, a pharmacist or a doctor. */
+export type Change = { on: string; what: 'started' | 'dose' | 'schedule' | 'course' | 'stopped' | 'restarted' | 'refilled'; from?: string; to?: string };
 
 export type Appointment = {
   id: string;

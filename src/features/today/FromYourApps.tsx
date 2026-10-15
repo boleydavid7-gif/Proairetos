@@ -10,7 +10,7 @@ import { hotDays } from '../../phyton/core/outdoors';
 import { nextCheck, water, dayText } from '../../phyton/core/plants';
 import { useChores, putChore, myName as ergonName } from '../../ergon/app/state';
 import { markDone as choreDone, nextDay as choreDay } from '../../ergon/core/chores';
-import { appointments, medicines, putMedicine, useAnchors } from '../../therapeia/app/state';
+import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
 import { dosesOn, isCurrent, take } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../../ktema/app/state';
 import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/core/things';
@@ -35,7 +35,7 @@ function markIn(mark: Mark, today: string): () => void {
     case 'dose': {
       const before = mark.dose.medicine;
       putMedicine(take(before, mark.dose.slot, new Date()));
-      return () => putMedicine(before);
+      return () => restoreMedicine(before);
     }
     case 'upkeep': {
       const before = mark.upkeep;
@@ -87,7 +87,7 @@ export default function FromYourApps({ today }: { today: string }) {
   const rain = useRain(phyton.rain);
   const forecast = useForecast(phyton.rain);
   const chores = useChores();
-  const allMedicines = medicines.use();
+  const allMedicines = useMedicines();
   const visits = appointments.use();
   const calendarToday = toLocalDate(new Date());
   const { anchors, dayAt } = useAnchors(addDays(calendarToday, -1), addDays(calendarToday, 1));

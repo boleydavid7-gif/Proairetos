@@ -2,11 +2,11 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { HistoryIcon, SettingsIcon } from '../../app/family/icons';
+import { HistoryIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { TherapeiaNav } from '../app/App';
-import { settings, type TherapeiaSettings } from '../app/state';
+import { settings, useCircle, type TherapeiaSettings } from '../app/state';
 import { settings as diaitaSettings } from '../../diaita/app/state';
 import { useAddedApps } from '../../app/family/added';
 
@@ -18,6 +18,7 @@ const LEADS = [
 ];
 
 export default function MorePage({ nav }: { nav: TherapeiaNav }) {
+  const circle = useCircle();
   const current = settings.use();
   const rhythm = diaitaSettings.use();
   const diaitaAdded = useAddedApps().includes('diaita');
@@ -74,6 +75,12 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
       </section>
 
       <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'circle' })}>
+            <span className="row__icon"><PeopleIcon size={21} /></span>
+            <span className="row__text"><span>Share with someone who helps</span>{circle && <span className="row__detail">{circle.name}</span>}</span>
+          </button>
+        </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
             <span className="row__icon"><HistoryIcon size={21} /></span>

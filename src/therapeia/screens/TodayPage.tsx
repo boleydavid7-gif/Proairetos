@@ -6,14 +6,14 @@ import photo from '../../assets/images/scenes/therapeia.webp';
 import photoWide from '../../assets/images/scenes/therapeia-wide.webp';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
-import { appointments, medicines, useAnchors } from '../app/state';
+import { appointments, useAnchors, useMedicines } from '../app/state';
 import { at, DoseRow, dayWord, takeOneNow } from '../app/ui';
 import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments } from '../core/medicines';
 
 
 export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
   const now = useNow();
-  const all = medicines.use();
+  const all = useMedicines();
   const visits = appointments.use();
   const calendarToday = toLocalDate(now);
   const { anchors, dayAt } = useAnchors(addDays(calendarToday, -1), addDays(calendarToday, 1));
