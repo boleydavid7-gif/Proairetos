@@ -605,7 +605,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `StravaOnOpen`, or "Bring in now"; one undo for what came in). `core/strava.ts` `entriesFromStrava`: entries with id
   `strava-<id>` (two devices make one record), skips one already logged (same id, or same day, kind and distance within
   3%), a run or walk counts as that day's open session once. The connection (`askesis:strava`) stays on the device, out of
-  backups and sync. Strava's orange button and "Powered by Strava" as its guidelines ask.
+  backups and sync. Strava's orange button and "Powered by Strava" as its guidelines ask. On hold: since June 2026 a
+  Strava API app needs its owner's paid subscription; without the secrets the page says it is not set up.
 - Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
   a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
   `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log

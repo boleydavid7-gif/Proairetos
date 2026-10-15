@@ -14,7 +14,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Capture from anywhere: run `20261024000000_capture_inbox.sql`, then in Cloudflare > the proairetos Worker >
       Settings > Variables and Secrets add `SUPABASE_URL` (your project address) and `SUPABASE_ANON_KEY` (the publishable
       key; both are public values, plain text is fine). Then Settings > Capture from anywhere > Turn on, and make the Shortcut.
-- [ ] Strava for Askesis: at https://www.strava.com/settings/api create an app (Website https://proairetos.com,
+- [ ] (Optional, on hold: since June 2026 Strava requires the app owner's paid subscription; the code waits unused until then.) Strava for Askesis: at https://www.strava.com/settings/api create an app (Website https://proairetos.com,
       Authorization Callback Domain `proairetos.com`), then in Cloudflare > the proairetos Worker > Settings > Variables and
       Secrets add `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` (both as Secrets). A new Strava app connects only its owner
       until Strava approves more athletes (request it in the same settings page when others use it).
