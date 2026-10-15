@@ -539,7 +539,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
         parts: [
           { part: 'line', label: 'The daily line' },
           { part: 'intention', label: 'Today’s intention' },
-          { part: 'path', label: 'Today’s path' },
+          { part: 'path', label: 'Today’s to-do' },
           { part: 'capture', label: 'Capture line' },
           { part: 'close-day', label: 'Close the day' },
           { part: 'three-good-things', label: 'Three good things' },
@@ -652,7 +652,7 @@ const helpTopics: { title: string; body: string }[] = [
   },
   {
     title: 'Today',
-    body: 'A greeting, a line for the day, and the parts you choose: an intention, up to three things, your schedule. Tap the leaf for a lighter view.',
+    body: 'A greeting, a line for the day, and the parts you choose: an intention, a to-do for the day, your schedule. Tap the leaf for a lighter view.',
   },
   {
     title: 'Days ahead',

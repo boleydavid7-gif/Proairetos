@@ -127,7 +127,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   other apps bring into one inset list under "From your apps" (`.today-apps` / `.today-group` in `premium.css`, hidden
   when empty; `FromYourApps embedded` first, then run, sleep, bills, birthdays, study, highlight), with separators
   that start after the icon. Your day carries the countdown on its next entry (`untilText`: exact within three hours,
-  then "about N h"), so `NowCard` shows Next only when the day's list has nothing still to come. Today's path and the
+  then "about N h"), so `NowCard` shows Next only when the day's list has nothing still to come. Today's to-do and the
   intention have no header link until something is set (the row and field are the way in).
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
@@ -178,7 +178,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`useTodayParts`; `startLight()` gives new people a lighter Today).
   Compass is tabbed (Values, Goals, People, Words). The item sheet shows
   essentials and puts the rest under More. Today = `features/now/NowPage.tsx` (greeting, daily Stoic
-  line, intention, Today's path = up to three picks, timeline, folded
+  line, intention, Today's to-do = as many picks as the person chooses, timeline, folded
   lists, done today, landscape at the foot). Each day in Days ahead lists its
   untimed to-dos by the person's own marks (Important, Maintenance,
   Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has the five kinds

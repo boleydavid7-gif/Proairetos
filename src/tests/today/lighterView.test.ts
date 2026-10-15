@@ -8,7 +8,7 @@ const item = (fields: Partial<LifeItem>): LifeItem => ({
 });
 
 describe('lighter view', () => {
-  it('offers the first of today’s path, in the order chosen', () => {
+  it('offers the first of today’s to-do, in the order chosen', () => {
     const items = [
       item({ title: 'Second', pickedFor: '2026-10-02', pickedAt: '2026-10-02T08:05:00.000Z' }),
       item({ title: 'First', pickedFor: '2026-10-02', pickedAt: '2026-10-02T08:00:00.000Z' }),

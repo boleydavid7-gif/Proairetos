@@ -3,7 +3,6 @@ import { useSheet } from '../../components/ui/useSheet';
 import { useEffect, useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService } from '../../app/services';
-import { MAX_TODAY_PICKS } from '../../core/life-items/commands';
 import type { LifeItem } from '../../core/life-items/types';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
@@ -33,7 +32,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   const [error, setError] = useState('');
   // Shows a tap at once; the saved value takes over when it arrives.
   const [pending, setPending] = useState<Record<string, boolean>>({});
-  // Done picks still hold their place in the three, so they are listed (and can be unpicked) too.
+  // Done ones stay on the day's list, so they are listed (and can be taken off) too.
   const open = items
     .filter((item) => isOpen(item) || (item.status === 'DONE' && item.pickedFor === date))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
@@ -57,7 +56,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
     <dialog
       ref={dialog}
       className="sheet"
-      aria-label="Today’s path"
+      aria-label="Today’s to-do"
       onClose={onClose}
       onClick={(event) => event.target === dialog.current && dialog.current?.close()}
     >
@@ -66,13 +65,8 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>
           Done
         </button>
-        <p className="sheet__title sheet__title--static">Today’s path</p>
-        <p className="sheet__hint">
-          Up to three things from your list, for today.
-        </p>
-        <p className="sheet__status">
-          {pickedCount} of {MAX_TODAY_PICKS} chosen. You decide; nothing is suggested.
-        </p>
+        <p className="sheet__title sheet__title--static">Today’s to-do</p>
+        {pickedCount > 0 && <p className="sheet__status">{pickedCount} chosen</p>}
         <EnergyChoice date={date} />
         {open.length === 0 && <p className="empty-note">Nothing open yet. Capture something first.</p>}
         {[
@@ -100,7 +94,6 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
                         <input
                           type="checkbox"
                           checked={picked}
-                          disabled={!picked && pickedCount >= MAX_TODAY_PICKS}
                           onChange={async () => {
                             setError('');
                             setPending((current) => ({
@@ -139,7 +132,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
 }
 
 /**
- * Today’s path: the person's own up to three for the day, as a short path of
+ * Today’s to-do: the things the person chose from their list for the day, as a short path of
  * circles. Checking one closes it with an undo; nothing carries over as a debt.
  */
 export default function TodayThree({ date, items }: Props) {
@@ -162,9 +155,9 @@ export default function TodayThree({ date, items }: Props) {
   }
 
   return (
-    <section className="today-section" aria-label="Today’s path">
+    <section className="today-section" aria-label="Today’s to-do">
       <div className="section-heading">
-        <h2 className="section-label">Today’s path</h2>
+        <h2 className="section-label">Today’s to-do</h2>
         <span className="section-heading__actions">
           {picks.length === 0 && <NotForMe part="path" />}
           {picks.length > 0 && (
@@ -204,8 +197,8 @@ export default function TodayThree({ date, items }: Props) {
         </ol>
       ) : (
         <button type="button" className="path-empty" onClick={() => setPicking(true)}>
-          <span className="path-empty__dots" aria-hidden="true"><span /><span /><span /></span>
-          Choose up to three
+          <span className="path-empty__dots" aria-hidden="true"><span /></span>
+          Choose from your list
         </button>
       )}
       {picking && <Picker date={date} items={items} onClose={() => setPicking(false)} />}

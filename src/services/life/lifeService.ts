@@ -21,7 +21,6 @@ import {
   setRepeat,
   setStepPlan,
   skipRoutine,
-  MAX_TODAY_PICKS,
   setControlSplit,
   editItem,
   scheduleItem,
@@ -273,16 +272,9 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => setStepPlan(context, item, plan));
     },
 
-    /** One of up to three for a day, chosen by the person. */
+    /** On the person's to-do for a day, as many as they choose. */
     pickForDay(id: string, date: string | undefined): Promise<LifeItem> {
-      // The count and the change happen in one queued step, so quick taps cannot exceed the limit.
-      return serial(async () => {
-        if (date) {
-          const picked = (await items.list(userId)).filter((item) => item.pickedFor === date && item.id !== id);
-          if (picked.length >= MAX_TODAY_PICKS) throw new Error(`Up to ${MAX_TODAY_PICKS} for a day. Unpick one first.`);
-        }
-        return save(setPickedFor(context, await load(id), date));
-      });
+      return serial(async () => save(setPickedFor(context, await load(id), date)));
     },
 
     setCheckBack(id: string, checkBackAt: string | undefined) {

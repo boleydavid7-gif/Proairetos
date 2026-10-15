@@ -383,9 +383,8 @@ export function skipRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
   return { item: touch(item, ctx.now().toISOString(), movedTo(item, nextOccurrence(item.repeat, item.scheduledAt))), events: [] };
 }
 
-export const MAX_TODAY_PICKS = 3;
 
-/** Marks an item as one of the person's up to three for a day, or clears it. */
+/** Puts an item on the person's to-do for a day, or takes it off. */
 export function setPickedFor(ctx: DomainContext, item: LifeItem, date: string | undefined): ItemChange {
   if (item.pickedFor === date) return { item, events: [] };
   const timestamp = ctx.now().toISOString();
