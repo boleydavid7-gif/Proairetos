@@ -25,6 +25,9 @@ rule: **the system records life; it does not interpret life.**
 - Never a chore: everything is offered, never asked twice; nothing
   piles up or needs catching up; one tap, under a minute.
 - Wording: short and functional, like Things, Todoist, Apple Reminders, Strava, Paprika, Kindle. Optional fields say "(optional)", not "if you like"; titles are names ("New highlight", "Add a book"), not sentences with a full stop; no reassurance lines ("nothing is counted", "whenever you like"), no "quietly", "gently" or poetic taglines outside the welcome screens.
+- American English everywhere (color, center, favorite, tire, canceled, practice, "comes around", cilantro, fiber).
+  Readers of outside text (Soma's ingredient lines, statements, photo text, calendar files) still accept British
+  spellings; cited paper titles stay as published.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 

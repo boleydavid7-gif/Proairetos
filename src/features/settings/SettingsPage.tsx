@@ -430,9 +430,9 @@ function SettingsGroup({ label, children }: { label: string; children: ReactNode
   );
 }
 
-type Tone = 'gold' | 'blue' | 'indigo' | 'teal' | 'green' | 'orange' | 'red' | 'pink' | 'grey' | 'app';
+type Tone = 'gold' | 'blue' | 'indigo' | 'teal' | 'green' | 'orange' | 'red' | 'pink' | 'gray' | 'app';
 
-function Row({ icon, tone = 'grey', title, value, onClick }: { icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void }) {
+function Row({ icon, tone = 'gray', title, value, onClick }: { icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void }) {
   return (
     <button type="button" className="settings-row" onClick={onClick}>
       <span className={`settings-row__icon settings-tile settings-tile--${tone}`}>{icon}</span>
@@ -1198,7 +1198,7 @@ export default function SettingsPage() {
       label: 'Account and data',
       entries: [
         { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey passphrase storage google drive dropbox onedrive' },
-        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'grey', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock' },
+        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock' },
         {
           id: 'backup',
           icon: <InboxIcon size={18} />,
@@ -1224,7 +1224,7 @@ export default function SettingsPage() {
       entries: [
         { id: 'help', icon: <NoteIcon size={18} />, tone: 'teal', title: 'Help and feedback', onClick: () => setView('help') },
         { id: 'news', icon: <StarIcon size={18} />, tone: 'pink', title: 'What’s new', onClick: () => setView('news'), words: 'changes updates new features' },
-        { id: 'about', icon: <BookIcon size={18} />, tone: 'grey', title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
+        { id: 'about', icon: <BookIcon size={18} />, tone: 'gray', title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
       ],
     },
   ];

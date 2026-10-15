@@ -13,12 +13,12 @@ describe('From your apps', () => {
       dayText,
       clock: (at) => `${at.getHours()}:00`,
       doses: [dose(20, '2026-10-12#1'), dose(8, '2026-10-12#0')],
-      chores: [{ chore: { id: 'c1', name: 'Bins out', who: 'Sam' } as never, day: '2026-10-12' }],
+      chores: [{ chore: { id: 'c1', name: 'Take out the trash', who: 'Sam' } as never, day: '2026-10-12' }],
       plants: [{ plant: { id: 'p1', name: 'Fern' } as never, day: '2026-10-09' }],
       upkeep: [{ upkeep: { id: 'u1', name: 'Air filter' } as never, due: { date: '2026-10-12' }, thing: 'Furnace' }],
       training: { name: 'Session A', minutes: 40 },
     });
-    expect(rows.map((row) => row.title)).toEqual(['Sertraline', 'Sertraline', 'Bins out', 'Fern', 'Air filter', 'Session A']);
+    expect(rows.map((row) => row.title)).toEqual(['Sertraline', 'Sertraline', 'Take out the trash', 'Fern', 'Air filter', 'Session A']);
     expect(rows[0].detail).toBe('8:00 · 50 mg · Therapeia');
     expect(rows[2].detail).toBe('Sam · Ergon');
     expect(rows[3]).toMatchObject({ done: 'Watered', href: '/phyton/?open=plant%3Ap1' });
@@ -27,7 +27,7 @@ describe('From your apps', () => {
     expect(rows[5].mark).toBeUndefined();
   });
 
-  it('is empty when nothing came round', () => {
+  it('is empty when nothing came around', () => {
     expect(fromAppsRows({ today: '2026-10-12', dayText, clock: () => '' })).toEqual([]);
   });
 });

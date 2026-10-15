@@ -11,7 +11,7 @@ import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
-// The family's shared look (from Askesis), then Soma's own warmer colours.
+// The family's shared look (from Askesis), then Soma's own warmer colors.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
 import '../styles/premium.css';
@@ -22,7 +22,7 @@ import AddedOnly from '../app/family/AddedOnly';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
-// The same theme and text size as Proairetos, with Soma's own bar colour.
+// The same theme and text size as Proairetos, with Soma's own bar color.
 function appearance() {
   applyAppearance();
   const theme = document.documentElement.dataset.theme;

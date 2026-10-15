@@ -41,7 +41,7 @@ export function minutesOf(time: string): number {
   return hours * 60 + minutes;
 }
 
-/** A local date and "HH:MM" combined into a Date, honouring DST. */
+/** A local date and "HH:MM" combined into a Date, honoring DST. */
 export function atTime(date: string, time: string): Date {
   const [hours, minutes] = time.split(':').map(Number);
   const result = parseLocalDate(date);

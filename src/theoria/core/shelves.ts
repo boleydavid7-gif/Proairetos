@@ -31,7 +31,7 @@ const sortTitle = (title: string) => plain(title).replace(/^(the|a|an)\s+/, '');
 const surname = (author?: string) => plain(author?.split(/[,&]| and /)[0].trim().split(/\s+/).pop() ?? '');
 
 /**
- * The books to show: one shelf (or all but those put away), one category or favourites, every typed word found in
+ * The books to show: one shelf (or all but those put away), one category or favorites, every typed word found in
  * the title or author, in the chosen order.
  */
 export function booksOnShelf<T extends Shown>(books: readonly T[], choice: { shelf?: Shelf; category?: string; query?: string; order?: ShelfOrder }): T[] {

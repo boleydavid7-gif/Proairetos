@@ -1,4 +1,4 @@
-/* Soma: the family's look (askesis.css) in warmer colours: cream and olive in
+/* Soma: the family's look (askesis.css) in warmer colors: cream and olive in
    light, deep forest in dark. Follows Proairetos's Appearance setting. */
 
 :root.soma {
@@ -983,7 +983,7 @@
   margin: 4px 0 8px;
 }
 
-/* ---------- A recipe without a photo: its colour and first letter ---------- */
+/* ---------- A recipe without a photo: its color and first letter ---------- */
 
 .dish-card--sage { --dish: #6f9a78; }
 .dish-card--olive { --dish: #8f9548; }
@@ -1227,7 +1227,7 @@
   cursor: pointer;
 }
 
-/* Nutri-Score: the published colours, A to E (shown as F here). Dark letters on the light ones so each passes contrast. */
+/* Nutri-Score: the published colors, A to E (shown as F here). Dark letters on the light ones so each passes contrast. */
 .nutri--A { background: #038141; color: #ffffff; }
 .nutri--B { background: #85bb2f; color: #14210a; }
 .nutri--C { background: #fecb02; color: #2a2100; }

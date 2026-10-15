@@ -22,8 +22,8 @@ const rotation: SchedulePattern = {
   updatedAt: '',
 };
 
-describe('shift colours', () => {
-  it('gives every shift with the same name the colour, and leaves the others', () => {
+describe('shift colors', () => {
+  it('gives every shift with the same name the color, and leaves the others', () => {
     const segments = colorShift(rotation.segments, 2, 'violet');
     expect(segments.map((s) => s.blocks[0]?.color)).toEqual([undefined, undefined, 'violet', undefined, 'violet']);
     expect(colorShift(segments, 4, undefined).map((s) => s.blocks[0]?.color)).toEqual([
@@ -35,7 +35,7 @@ describe('shift colours', () => {
     ]);
   });
 
-  it('carries a shift colour onto its occurrences', () => {
+  it('carries a shift color onto its occurrences', () => {
     const pattern = { ...rotation, segments: colorShift(rotation.segments, 0, 'amber') };
     expect(occurrencesStartingOn(pattern, '2026-09-29')[0].color).toBe('amber');
     expect(occurrencesStartingOn(pattern, '2026-10-02')[0].color).toBeUndefined();

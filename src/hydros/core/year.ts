@@ -5,7 +5,7 @@ import { formatVolume, kindLabel, type Drink, type HydrosUnit } from './drinks';
 export function hydrosYear(drinks: readonly Drink[], year: number, unit: HydrosUnit, dayOf: (drink: Drink) => string): Year {
   const kept = drinks.filter((drink) => inYear(dayOf(drink), year));
   if (!kept.length) return { facts: [], lists: [] };
-  // Large totals read better in litres when the person counts in millilitres.
+  // Large totals read better in liters when the person counts in milliliters.
   const shownUnit: HydrosUnit = unit === 'ml' ? 'L' : unit;
   const amount = (ounces: number) => `${formatVolume(ounces, shownUnit)} ${shownUnit}`;
   const total = kept.reduce((sum, drink) => sum + drink.amountOz, 0);

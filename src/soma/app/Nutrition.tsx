@@ -7,14 +7,14 @@ import { loadFoodChoices, saveFoodChoices, useFoodChoices } from '../data/foodCh
 const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'F'];
 const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', F: 'Least healthy' };
 
-/** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fibre is EFSA's adequate intake. */
+/** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fiber is EFSA's adequate intake. */
 const REFERENCE = { kcal: 2000, protein: 50, fat: 70, saturated: 20, carbs: 260, sugars: 90, fibre: 25, salt: 6 };
-const REFERENCE_SOURCE = 'Day’s reference: EU reference intakes for an adult (Regulation 1169/2011); fibre, EFSA’s adequate intake of 25 g.';
+const REFERENCE_SOURCE = 'Day’s reference: EU reference intakes for an adult (Regulation 1169/2011); fiber, EFSA’s adequate intake of 25 g.';
 
 /** The points that make up the grade, per 100 g, as Nutri-Score adds them up. */
 function ScoreWorking({ parts, points }: { parts: ScoreParts; points: number }) {
   const against: [string, number, number][] = [['Energy', parts.energy, 10], ['Sugars', parts.sugars, 15], ['Saturated fat', parts.saturated, 10], ['Salt', parts.salt, 20]];
-  const towards: [string, number, number, boolean][] = [['Protein', parts.protein, 7, parts.proteinCounted], ['Fibre', parts.fibre, 5, true], ['Fruit, vegetables, legumes', parts.fvl, 5, true]];
+  const towards: [string, number, number, boolean][] = [['Protein', parts.protein, 7, parts.proteinCounted], ['Fiber', parts.fibre, 5, true], ['Fruit, vegetables, legumes', parts.fvl, 5, true]];
   return (
     <details className="nutri-working">
       <summary>How it was worked out</summary>
@@ -165,7 +165,7 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
     { name: 'of which sugars', value: facts.sugars, ref: REFERENCE.sugars, sub: true },
     { name: 'Fat', value: facts.fat, ref: REFERENCE.fat },
     { name: 'of which saturates', value: facts.saturated, ref: REFERENCE.saturated, sub: true },
-    { name: 'Fibre', value: facts.fibre, ref: REFERENCE.fibre },
+    { name: 'Fiber', value: facts.fibre, ref: REFERENCE.fibre },
     { name: 'Salt', value: facts.salt, ref: REFERENCE.salt },
   ];
   const where = servings ? 'One serving' : 'The whole recipe';

@@ -324,7 +324,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           <p className="fine">{CARE_SOURCE}</p>
         </section>
       ) : (
-        <p className="muted">No care notes for this one. The days you set, then your waterings, decide when it comes round.</p>
+        <p className="muted">No care notes for this one. The days you set, then your waterings, decide when it comes around.</p>
       )}
 
       <Photos plant={plant} />

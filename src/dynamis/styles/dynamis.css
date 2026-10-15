@@ -1,4 +1,4 @@
-/* Dynamis's colours: iron and amber. The look is askesis.css; Appearance follows Proairetos. */
+/* Dynamis's colors: iron and amber. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.dynamis {
   --app-name: 'Dynamis';
@@ -287,7 +287,7 @@
   text-align: left;
 }
 
-/* Exercise figures: the body in the text colour, what it holds in the accent. */
+/* Exercise figures: the body in the text color, what it holds in the accent. */
 .dynamis-figure {
   display: inline-flex;
   flex: none;

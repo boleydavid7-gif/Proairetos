@@ -86,7 +86,7 @@ export async function finishStravaConnect(): Promise<string | null> {
   if (!params) return null;
   const expected = sessionStorage.getItem(PENDING);
   sessionStorage.removeItem(PENDING);
-  if (params.get('error')) return 'Connecting was cancelled.';
+  if (params.get('error')) return 'Connecting was canceled.';
   if (!expected || params.get('state') !== expected) return 'That connection did not finish. Try again.';
   if (!/activity:read/.test(params.get('scope') ?? '')) return 'Strava was connected without your activities. Connect again and leave “View data about your activities” ticked.';
   const tokens = await trade({ code: params.get('code') ?? '' });

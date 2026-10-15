@@ -1,6 +1,6 @@
 import { Leaf } from './icons';
 
-/** A gentle colour for a recipe without a photo: the same one each time for the same recipe. */
+/** A gentle color for a recipe without a photo: the same one each time for the same recipe. */
 const tints = ['sage', 'olive', 'terracotta', 'wheat', 'plum', 'sea'] as const;
 export function tintOf(id: string): (typeof tints)[number] {
   let hash = 0;
@@ -9,7 +9,7 @@ export function tintOf(id: string): (typeof tints)[number] {
 }
 
 /**
- * A recipe's own photo, or, without one, a plain card in its colour with
+ * A recipe's own photo, or, without one, a plain card in its color with
  * its first letter: never a stand-in picture of some other dish.
  */
 export default function DishImage({ recipe, className }: { recipe: { id: string; title: string; image?: string }; className?: string }) {

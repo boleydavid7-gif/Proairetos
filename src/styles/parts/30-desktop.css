@@ -1,4 +1,4 @@
-/* ---------- Desktop: a side rail, a wider page, centred sheets ---------- */
+/* ---------- Desktop: a side rail, a wider page, centered sheets ---------- */
 
 .tab-bar__brand {
   display: none;
@@ -98,7 +98,7 @@
     min-height: calc(100svh - var(--space-6) * 2);
   }
 
-  /* Sheets open as centred dialogs, not from the bottom edge. */
+  /* Sheets open as centered dialogs, not from the bottom edge. */
   .sheet {
     max-width: 38rem;
     max-height: 88svh;

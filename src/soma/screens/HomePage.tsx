@@ -37,7 +37,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const today = useToday();
   const line = lineFor(today);
   const [query, setQuery] = useState('');
-  const favourites = recipes.filter((recipe) => recipe.favorite);
+  const favorites = recipes.filter((recipe) => recipe.favorite);
   const groceries = useGroceries() ?? [];
   const soon = soonItems(groceries, today);
   const soonRecipes = soon.length ? recipesUsing(recipes, soon) : [];
@@ -105,16 +105,16 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </button>
         </div>
 
-        {(favourites.length > 0 || recipes.length > 0) && (
+        {(favorites.length > 0 || recipes.length > 0) && (
           <>
             <div className="section-head">
-              <h2>{favourites.length ? 'Favourites' : 'Recently added'}</h2>
+              <h2>{favorites.length ? 'Favorites' : 'Recently added'}</h2>
               <button type="button" className="text-link" onClick={() => nav.swap({ name: 'recipes' })}>
                 All
               </button>
             </div>
             <div className="recipe-scroll">
-              {(favourites.length ? favourites : recipes).slice(0, 8).map((recipe) => (
+              {(favorites.length ? favorites : recipes).slice(0, 8).map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />
               ))}
             </div>

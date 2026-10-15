@@ -114,7 +114,7 @@ export async function finishCloud(hash = location.hash): Promise<{ provider: Clo
   if (!pending || pending.state !== params.get('storage-state')) return undefined;
   history.replaceState(history.state, '', location.pathname + location.search);
   write(PENDING, undefined);
-  if (params.get('storage-error')) throw new Error(`Connecting ${CLOUD_NAMES[pending.provider]} was cancelled.`);
+  if (params.get('storage-error')) throw new Error(`Connecting ${CLOUD_NAMES[pending.provider]} was canceled.`);
   if (Date.now() - pending.at > 30 * 60_000) throw new Error(`That took too long. Connect ${CLOUD_NAMES[pending.provider]} again.`);
   await trade(pending.provider, { code: params.get('storage') ?? '', verifier: pending.verifier });
   return { provider: pending.provider, intent: pending.intent ?? 'folder' };

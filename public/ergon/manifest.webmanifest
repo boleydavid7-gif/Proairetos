@@ -2,7 +2,7 @@
   "id": "/ergon/",
   "name": "Ergon by Proairetos",
   "short_name": "Ergon",
-  "description": "Household chores that come round, shared with the people you live with.",
+  "description": "Household chores that come around, shared with the people you live with.",
   "start_url": "/ergon/",
   "scope": "/ergon/",
   "display": "standalone",

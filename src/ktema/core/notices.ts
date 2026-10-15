@@ -6,7 +6,7 @@ export type UpkeepNoticeChoices = { on: boolean; at: string; warranties: boolean
 
 export const defaultUpkeepNotices: UpkeepNoticeChoices = { on: true, at: '09:00', warranties: true };
 
-/** One notice on each day upkeep comes round, naming it; and a month before a warranty ends. A day already come is not said again. */
+/** One notice on each day upkeep comes around, naming it; and a month before a warranty ends. A day already come is not said again. */
 export function upkeepNotices(upkeeps: readonly Upkeep[], things: readonly Thing[], choices: UpkeepNoticeChoices, today: string, horizon: number, now: Date): Notice[] {
   const notices: Notice[] = [];
   if (choices.on) {

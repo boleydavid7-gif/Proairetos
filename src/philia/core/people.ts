@@ -3,7 +3,7 @@ import { addDays, daysBetween, parseLocalDate } from '../../core/scheduling/date
 /*
  * Philia keeps the people in someone's life: birthdays and other dates, things to remember, gift ideas and
  * times together. It never ranks people or measures closeness; a keep-in-touch rhythm is the person's own
- * choice, and when it comes round it says how long it has been, nothing more.
+ * choice, and when it comes around it says how long it has been, nothing more.
  */
 
 export type Line = { id: string; text: string; at: string };
@@ -24,7 +24,7 @@ export type Person = {
   name: string;
   /** "MM-DD", or "YYYY-MM-DD" when the year is known. */
   birthday?: string;
-  /** Anniversaries and other dates that come round each year. */
+  /** Anniversaries and other dates that come around each year. */
   dates?: PersonDate[];
   relation?: string;
   /** To call or message them from their page (optional). */
@@ -55,7 +55,7 @@ export function initials(name: string): string {
 
 const isLeap = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
-/** The next time a yearly date comes round, today included. 29 February is kept on the 28th in other years. */
+/** The next time a yearly date comes around, today included. 29 February is kept on the 28th in other years. */
 export function nextOccurrence(date: string, today: string): string {
   const [month, day] = date.slice(-5).split('-').map(Number);
   const year = Number(today.slice(0, 4));
@@ -106,14 +106,14 @@ export function turningText(entry: Pick<ComingUp, 'label' | 'turning'>): string 
   return entry.label === 'Birthday' ? `Turns ${entry.turning}` : `${entry.turning} ${entry.turning === 1 ? 'year' : 'years'}`;
 }
 
-/** When the person's own keep-in-touch rhythm next comes round, if they set one. */
+/** When the person's own keep-in-touch rhythm next comes around, if they set one. */
 export function touchDate(person: Person, today: string): string | undefined {
   if (!person.keepInTouch) return undefined;
   if (!person.lastInTouch) return today;
   return addDays(person.lastInTouch.slice(0, 10), person.keepInTouch);
 }
 
-/** People whose rhythm has come round, longest since first. */
+/** People whose rhythm has come around, longest since first. */
 export function inTouchNow(people: readonly Person[], today: string): Person[] {
   return people
     .filter((person) => {

@@ -22,7 +22,7 @@ export const stoicVirtues: readonly string[] = ['Courage', 'Justice', 'Temperanc
 
 /**
  * Starting points to choose from, offered alphabetically so none is
- * favoured. The first four are the Stoic cardinal virtues; people can
+ * favored. The first four are the Stoic cardinal virtues; people can
  * also write their own.
  */
 export const presetValues: readonly string[] = [

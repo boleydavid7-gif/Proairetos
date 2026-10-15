@@ -2,7 +2,7 @@ import { addDays, daysBetween, parseLocalDate } from '../../core/scheduling/date
 import { speciesBy, type Dryness } from './species';
 
 /*
- * Phyton keeps the plants in a home and when to look at them. A plant comes round to be checked, not
+ * Phyton keeps the plants in a home and when to look at them. A plant comes around to be checked, not
  * watered on a fixed day: the person touches the soil and marks Watered or Still moist. The days between
  * waterings start from the plant's type and then follow what was actually done; they stretch in the cool
  * months, and rain counts for plants outside. A day that has come reads "Since Tue", never late.

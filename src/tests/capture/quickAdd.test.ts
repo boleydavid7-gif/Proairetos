@@ -15,8 +15,8 @@ describe('parseQuickAdd', () => {
   });
 
   it('knows tomorrow, am times, half hours and hours', () => {
-    expect(parseQuickAdd('call mum tomorrow at 9:30 am for 1 hour', today)).toMatchObject({
-      title: 'Call mum',
+    expect(parseQuickAdd('call mom tomorrow at 9:30 am for 1 hour', today)).toMatchObject({
+      title: 'Call mom',
       kind: 'TODO',
       day: '2026-10-10',
       time: '09:30',

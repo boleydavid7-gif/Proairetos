@@ -115,7 +115,7 @@ async function handle(request: Request): Promise<Response> {
       size += row.sealed.length + 3;
     }
     const mine = (due ?? []).filter((row) => row.user_id === userId);
-    // Labelled by a row that has an app of its own rather than Proairetos's catch-all, so a push for Ergon or Therapeia
+    // Labeled by a row that has an app of its own rather than Proairetos's catch-all, so a push for Ergon or Therapeia
     // carries that app's name and icon even when the phone shows the push itself.
     const first = mine.find((row) => row.source && row.source !== 'proairetos') ?? mine[0];
     const declarativeRow = mine.find((row) => row.preview_title) ?? first;

@@ -20,7 +20,7 @@ const localDate = (t: ICAL.Time) => `${t.year}-${pad(t.month)}-${pad(t.day)}`;
 /**
  * Reads an iCalendar file (from Google, Apple, Outlook, or any calendar) and
  * returns the events that overlap the range: repeats expanded, skipped and
- * cancelled ones left out, time zones respected.
+ * canceled ones left out, time zones respected.
  */
 export function readIcs(text: string, range: { start: Date; end: Date }): ExternalEvent[] {
   const root = new ICAL.Component(ICAL.parse(text));

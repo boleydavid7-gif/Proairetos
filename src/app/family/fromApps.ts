@@ -5,7 +5,7 @@ import type { Upkeep, Due } from '../../ktema/core/things';
 import type { TodayPart } from '../../data/storage/preferences';
 
 /*
- * What has come round in the other apps today, as one list for Proairetos Today. Nothing here is stored: the rows
+ * What has come around in the other apps today, as one list for Proairetos Today. Nothing here is stored: the rows
  * are read from each app every time, so a mark made in the app itself, or here, shows everywhere at once and nothing
  * piles up. A day that came earlier reads "Since Tue", never late.
  */

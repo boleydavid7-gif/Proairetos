@@ -9,7 +9,7 @@ const occurrence = (kind: 'COMMITTED' | 'PROTECTED'): ScheduleOccurrence => ({
 const shift = (kind: 'COMMITTED' | 'PROTECTED') => ({ kind: 'shift' as const, key: 'k', start: new Date(), end: new Date(), occurrence: occurrence(kind) });
 
 describe('days ahead', () => {
-  it('uses the colour and place the person chose, else a quiet default by kind', () => {
+  it('uses the color and place the person chose, else a quiet default by kind', () => {
     const pattern = { id: 'p', color: 'rose', location: 'Middletown Works' } as SchedulePattern;
     expect(entryLook(shift('COMMITTED'), [pattern], [])).toMatchObject({ title: 'Work · Days', color: 'rose', icon: 'work', location: 'Middletown Works' });
     expect(entryLook(shift('COMMITTED'), [], [])).toMatchObject({ color: 'amber' });

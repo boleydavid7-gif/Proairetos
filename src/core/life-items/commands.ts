@@ -186,7 +186,7 @@ export function setImportant(ctx: DomainContext, item: LifeItem, important: bool
   return { item: touch(item, ctx.now().toISOString(), { important }), events: [] };
 }
 
-/** Where and what colour: the person's own labels for the days-ahead view. Not logged as history. */
+/** Where and what color: the person's own labels for the days-ahead view. Not logged as history. */
 export function setLook(ctx: DomainContext, item: LifeItem, look: { location?: string; color?: TagColor | null }): ItemChange {
   const next: LifeItem = { ...item };
   if ('location' in look) {

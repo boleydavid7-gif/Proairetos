@@ -192,7 +192,7 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
             <button type="button" className="praxis-button" onClick={begin}>Look at them</button>
           </>
         ) : (
-          <p className="praxis-empty">{listed.length === 0 ? 'Add a question and its answer below.' : next ? `The next ones come round on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
+          <p className="praxis-empty">{listed.length === 0 ? 'Add a question and its answer below.' : next ? `The next ones come around on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
         )}
       </article>
 

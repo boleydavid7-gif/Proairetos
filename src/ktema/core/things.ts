@@ -2,7 +2,7 @@ import { addDays, daysBetween, parseLocalDate, toLocalDate } from '../../core/sc
 
 /*
  * Ktema keeps what the person owns and looks after: the details that are hard to find when needed (model, serial,
- * receipt, warranty, manual) and the upkeep that comes round by date or, for a car, by distance. Like Ergon, a
+ * receipt, warranty, manual) and the upkeep that comes around by date or, for a car, by distance. Like Ergon, a
  * day that has come stays the upkeep's day until it is done or skipped; it is never called late.
  */
 
@@ -43,7 +43,7 @@ export type Upkeep = {
   name: string;
   thingId?: string;
   every: Every;
-  /** Also due by distance (a car): every this many miles or kilometres, whichever comes first. */
+  /** Also due by distance (a car): every this many miles or kilometers, whichever comes first. */
   distance?: number;
   /** First day, for one never done. */
   start: string;
@@ -61,7 +61,7 @@ export const IDEAS: { name: string; category: Category; every: Every; distance?:
   { name: 'Clean the fridge coils', category: 'Appliance', every: { count: 1, unit: 'years' } },
   { name: 'Flush the water heater', category: 'Appliance', every: { count: 1, unit: 'years' } },
   { name: 'Oil change', category: 'Car', every: { count: 6, unit: 'months' }, distance: { mi: 5000, km: 8000 } },
-  { name: 'Tyre pressure', category: 'Car', every: { count: 1, unit: 'months' } },
+  { name: 'Tire pressure', category: 'Car', every: { count: 1, unit: 'months' } },
   { name: 'Back up the computer', category: 'Tech', every: { count: 1, unit: 'months' } },
 ];
 
@@ -178,7 +178,7 @@ export function monthText(date: string): string {
 /** A warranty in words: "Until Jun 2027", or "Ended Mar 2025". */
 export function warrantyText(thing: Thing, today: string): string | undefined {
   if (!thing.warrantyUntil) return undefined;
-  // A passport, a licence or a policy: it runs until a date rather than having a warranty.
+  // A passport, a license or a policy: it runs until a date rather than having a warranty.
   if (thing.category === 'Documents') return thing.warrantyUntil >= today ? `Until ${monthText(thing.warrantyUntil)}` : `Ended ${monthText(thing.warrantyUntil)}`;
   return thing.warrantyUntil >= today ? `Warranty until ${monthText(thing.warrantyUntil)}` : `Warranty ended ${monthText(thing.warrantyUntil)}`;
 }

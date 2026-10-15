@@ -1,4 +1,4 @@
-/* ---------- Colours the person chose ---------- */
+/* ---------- Colors the person chose ---------- */
 
 .tag--amber { --tag: var(--tag-amber); }
 .tag--violet { --tag: var(--tag-violet); }
@@ -265,7 +265,7 @@
   max-height: 68svh;
 }
 
-/* A warm light at the top of the page, the colour of the photos. */
+/* A warm light at the top of the page, the color of the photos. */
 .days-page {
   position: relative;
   isolation: isolate;
@@ -715,7 +715,7 @@
   border-radius: var(--radius-sm);
 }
 
-/* A shift with its own colour, on Today's timeline. */
+/* A shift with its own color, on Today's timeline. */
 .timeline__entry--colored {
   border-left-color: var(--tag);
   background: linear-gradient(90deg, color-mix(in srgb, var(--tag) 14%, transparent), var(--color-surface) 60%);
@@ -815,7 +815,7 @@
   }
 }
 
-/* On a computer each day is roomy enough to name what is in it, in the person's colours. */
+/* On a computer each day is roomy enough to name what is in it, in the person's colors. */
 @media (min-width: 62rem) {
   .month__grid {
     gap: 6px;
@@ -1029,7 +1029,7 @@
   font-size: var(--text-xs);
 }
 
-/* A day with something on it carries its colour; with none of its own, the gold. */
+/* A day with something on it carries its color; with none of its own, the gold. */
 .year__day--marked {
   --tag: var(--color-accent);
   background: color-mix(in srgb, var(--tag) 34%, transparent);

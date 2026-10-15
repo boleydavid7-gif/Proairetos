@@ -30,7 +30,7 @@ export function describeValue(name: string): string | undefined {
 }
 
 /**
- * What practising each starting value can look like on an ordinary day.
+ * What practicing each starting value can look like on an ordinary day.
  * Character grows through practice (Aristotle); these are examples, never
  * a standard to meet.
  */

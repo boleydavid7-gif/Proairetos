@@ -1,9 +1,9 @@
 import { addDays, daysBetween, parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 
 /*
- * Ergon keeps the jobs that come round in a home. A chore's next day counts from when it was last done, or
+ * Ergon keeps the jobs that come around in a home. A chore's next day counts from when it was last done, or
  * falls on the weekdays or day of the month chosen. A day that has come stays the chore's day until it is done
- * or skipped; it is never called late, and nothing piles up: a weekly job done after ten days comes round a
+ * or skipped; it is never called late, and nothing piles up: a weekly job done after ten days comes around a
  * week after that, once.
  */
 
@@ -46,7 +46,7 @@ export type Chore = {
 export const ROOMS = ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Laundry', 'Outside', 'Car', 'Pets'];
 
 export const IDEAS: { name: string; room: string; repeat: Repeat }[] = [
-  { name: 'Bins out', room: 'Outside', repeat: { kind: 'weeks', every: 1 } },
+  { name: 'Take out the trash', room: 'Outside', repeat: { kind: 'weeks', every: 1 } },
   { name: 'Laundry', room: 'Laundry', repeat: { kind: 'days', every: 4 } },
   { name: 'Change the sheets', room: 'Bedroom', repeat: { kind: 'weeks', every: 2 } },
   { name: 'Vacuum', room: 'Living room', repeat: { kind: 'weeks', every: 1 } },

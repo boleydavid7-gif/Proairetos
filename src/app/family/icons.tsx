@@ -250,7 +250,7 @@ export const CameraIcon = (p: IconProps) => (
   </Icon>
 );
 
-/** Each app's mark: its icon's symbol without the tile (`marks.tsx`), light over pictures, else the text colour. */
+/** Each app's mark: its icon's symbol without the tile (`marks.tsx`), light over pictures, else the text color. */
 export function AppMark({ app, size = 30, light = false }: { app: FamilyApp; size?: number; light?: boolean }) {
   return <FamilyMark app={app} size={size} color={light ? MARK_LIGHT : 'currentColor'} />;
 }

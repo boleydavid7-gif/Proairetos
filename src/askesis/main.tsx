@@ -28,7 +28,7 @@ keepStravaReturn();
 
 document.documentElement.classList.add('askesis');
 
-// The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar colour.
+// The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar color.
 function appearance() {
   applyAppearance();
   const theme = document.documentElement.dataset.theme;

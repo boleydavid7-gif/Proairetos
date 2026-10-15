@@ -148,7 +148,7 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
             value={location}
             onChange={(event) => setLocation(event.target.value)}
           />
-          <span className="field-label">Colour</span>
+          <span className="field-label">Color</span>
           <ColorChoice value={color} onChange={setColor} />
 
           <button type="button" className="text-link add-more" aria-expanded={more} onClick={() => setMore(!more)}>

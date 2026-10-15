@@ -29,7 +29,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const today = useToday();
   const all = bills ?? [];
   const recipes = useSomaRecipes();
-  // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes round.
+  // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes around.
   const next = all
     .map((bill) => ({ bill, stand: standing(bill, today) }))
     .filter(({ stand }) => !stand.settled)

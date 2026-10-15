@@ -168,7 +168,7 @@ export async function savePassphraseWrap(userId: string, passphrase: WrappedKey)
 /** An RLS refusal here almost always means the sign-in did not reach the request. */
 function signInExpired(message: string): string {
   return /row-level security/i.test(message)
-    ? 'The server did not recognise this sign-in. Sign out, sign in again with a new email link, and try once more.'
+    ? 'The server did not recognize this sign-in. Sign out, sign in again with a new email link, and try once more.'
     : message;
 }
 

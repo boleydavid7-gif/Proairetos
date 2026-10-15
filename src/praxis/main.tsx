@@ -19,7 +19,7 @@ import PraxisApp from './PraxisApp';
 import { notifications } from '../app/notify/notifications';
 
 // Praxis is a dark study room in either appearance (like Theoria's library): the text size follows
-// Proairetos, the colours stay, so nothing goes dark on dark.
+// Proairetos, the colors stay, so nothing goes dark on dark.
 const appearance = () => {
   applyAppearance();
   document.documentElement.dataset.theme = 'dark';

@@ -226,11 +226,11 @@ function Goal({ goal }: { goal: CompassStatement }) {
           />
 
           <ColorChoice
-            label={`Colour for ${goal.body}`}
+            label={`Color for ${goal.body}`}
             value={goal.color}
             onChange={async (color) => {
               await compassService.updateGoal(goal.id, { color: color ?? null });
-              // Its time takes the same colour, so the week reads as one.
+              // Its time takes the same color, so the week reads as one.
               const pattern = goal.patternId ? await scheduleService.getPattern(goal.patternId) : null;
               if (pattern) await scheduleService.updatePattern(pattern.id, { ...inputOf(pattern), color: color ?? 'sage' });
             }}

@@ -278,7 +278,7 @@ html[data-panel='left'] .vt-panel {
 ::view-transition-new(*) {
   animation-duration: 380ms;
   animation-timing-function: var(--ease-out);
-  /* The two pictures cross; neither blends into the other's colours. */
+  /* The two pictures cross; neither blends into the other's colors. */
   mix-blend-mode: normal;
 }
 

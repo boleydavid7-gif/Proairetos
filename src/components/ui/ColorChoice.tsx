@@ -1,7 +1,7 @@
 import { tagColors, type TagColor } from '../../core/look/tagColors';
 
-/** A row of colour swatches; tapping the chosen one clears it. */
-export default function ColorChoice({ value, onChange, label = 'Colour' }: { value?: TagColor; onChange: (color: TagColor | undefined) => void; label?: string }) {
+/** A row of color swatches; tapping the chosen one clears it. */
+export default function ColorChoice({ value, onChange, label = 'Color' }: { value?: TagColor; onChange: (color: TagColor | undefined) => void; label?: string }) {
   return (
     <div className="color-choice" role="group" aria-label={label}>
       {tagColors.map((color) => (

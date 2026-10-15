@@ -2598,7 +2598,7 @@ html[data-nav='back']::view-transition-new(root) {
   justify-content: center;
 }
 
-/* ---------- Desktop: a side rail, wider pages, centred sheets ----------
+/* ---------- Desktop: a side rail, wider pages, centered sheets ----------
    Shared by Askesis, Soma and Oikonomia (they load this file). Phones are unchanged. */
 
 :root {
@@ -2738,7 +2738,7 @@ html[data-nav='back']::view-transition-new(root) {
   padding: 18px 20px 6px;
   isolation: isolate;
 }
-/* A soft light in the colour of the session's main effort. */
+/* A soft light in the color of the session's main effort. */
 .session-head::before {
   content: '';
   position: absolute;

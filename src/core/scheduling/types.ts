@@ -13,7 +13,7 @@ export interface TimeBlock {
   start: string;
   end: string;
   label?: string;
-  /** A colour for this shift (days, evenings, nights), over the schedule's own. */
+  /** A color for this shift (days, evenings, nights), over the schedule's own. */
   color?: TagColor;
 }
 
@@ -40,7 +40,7 @@ export interface SchedulePattern {
   endDate?: string;
   /** Offer a one-minute pause when a block of this pattern ends. Off unless chosen. */
   pauseWhenEnds?: boolean;
-  /** A colour the person gave it, for the days-ahead view. */
+  /** A color the person gave it, for the days-ahead view. */
   color?: TagColor;
   /** Where it happens, in the person's words. */
   location?: string;
@@ -70,7 +70,7 @@ export interface ScheduleOccurrence {
   start: Date;
   end: Date;
   changed: boolean;
-  /** The shift's own colour, if the person gave it one. */
+  /** The shift's own color, if the person gave it one. */
   color?: TagColor;
 }
 

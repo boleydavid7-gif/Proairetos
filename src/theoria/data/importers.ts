@@ -16,7 +16,7 @@ export type ImportedReading = {
   pageCount?: number;
 };
 
-/** A few lines to recognise the book by; the whole text is kept on this device, never in the record. */
+/** A few lines to recognize the book by; the whole text is kept on this device, never in the record. */
 export const PREVIEW_LENGTH = 600;
 
 function extension(file: File): string {

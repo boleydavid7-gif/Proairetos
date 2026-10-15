@@ -166,7 +166,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
   return (
     <div className="page recipe">
-      {/* The recipe's own photo across the top; without one, a soft band in its colour. */}
+      {/* The recipe's own photo across the top; without one, a soft band in its color. */}
       <div className={`recipe-hero${recipe.image ? '' : ` recipe-hero--plain dish-card--${tintOf(recipe.id)}`}`}>
         {recipe.image && <img src={recipe.image} alt="" />}
         <div className="recipe-hero__bar">
@@ -180,7 +180,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               type="button"
               className="round-button"
               aria-pressed={Boolean(recipe.favorite)}
-              aria-label={recipe.favorite ? 'Take out of favourites' : 'Keep as a favourite'}
+              aria-label={recipe.favorite ? 'Take out of favorites' : 'Keep as a favorite'}
               onClick={() => void save({ favorite: !recipe.favorite })}
             >
               <HeartIcon size={20} filled={recipe.favorite} />

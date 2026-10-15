@@ -1,6 +1,6 @@
 import { flatten, type Part } from '../core/workouts';
 
-/** The session at a glance: one block per stretch, as long as it lasts, coloured by effort. */
+/** The session at a glance: one block per stretch, as long as it lasts, colored by effort. */
 export default function SessionBar({ parts, small, large }: { parts: readonly Part[]; small?: boolean; large?: boolean }) {
   return (
     <div className={`session-bar${small ? ' session-bar--small' : ''}${large ? ' session-bar--large' : ''}`} aria-hidden="true">
@@ -11,7 +11,7 @@ export default function SessionBar({ parts, small, large }: { parts: readonly Pa
   );
 }
 
-/** What the colours mean, for the efforts in this session. */
+/** What the colors mean, for the efforts in this session. */
 export function SessionKey({ parts }: { parts: readonly Part[] }) {
   const present = new Set(flatten(parts).map((item) => item.effort));
   const keys: [string, string][] = [];

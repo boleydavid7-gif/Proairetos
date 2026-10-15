@@ -1,4 +1,4 @@
-/* Pieces Diaita, Philia and Ergon share, on top of askesis.css. Each app sets its colours on :root.<app>. */
+/* Pieces Diaita, Philia and Ergon share, on top of askesis.css. Each app sets its colors on :root.<app>. */
 
 .family-unit {
   display: flex;
@@ -198,7 +198,7 @@
   font-size: 0.85rem;
 }
 
-/* Passed lines step back in colour, not opacity, so they keep readable contrast. */
+/* Passed lines step back in color, not opacity, so they keep readable contrast. */
 .diaita-entry--past .diaita-entry__main,
 .diaita-entry--past .diaita-entry__main :is(strong, small, .diaita-entry__time) {
   color: var(--muted);
@@ -632,7 +632,7 @@
 
 /* Pill look choices (Therapeia). */
 .pill-choices,
-.pill-colours {
+.pill-colors {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -654,7 +654,7 @@
   background: var(--mint-soft);
 }
 
-.pill-colour {
+.pill-color {
   width: 34px;
   height: 34px;
   border: 2px solid var(--surface);
@@ -663,12 +663,12 @@
   cursor: pointer;
 }
 
-.pill-colour--small {
+.pill-color--small {
   width: 26px;
   height: 26px;
 }
 
-.pill-colour[aria-pressed='true'] {
+.pill-color[aria-pressed='true'] {
   outline: 2px solid var(--text);
 }
 

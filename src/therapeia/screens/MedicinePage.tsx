@@ -147,16 +147,16 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
           ))}
         </div>
         {look && (
-          <div className="pill-colours" role="group" aria-label="Colour">
+          <div className="pill-colors" role="group" aria-label="Color">
             {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-colour" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
+              <button key={key} type="button" className="pill-color" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
             ))}
           </div>
         )}
         {look && (look.shape === 'capsule' || look.shape === 'inhaler' || look.shape === 'patch' || look.shape === 'injection') && (
-          <div className="pill-colours" role="group" aria-label="Second colour">
+          <div className="pill-colors" role="group" aria-label="Second color">
             {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-colour pill-colour--small" style={{ background: value }} aria-label={`${key}, second colour`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
+              <button key={key} type="button" className="pill-color pill-color--small" style={{ background: value }} aria-label={`${key}, second color`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
             ))}
           </div>
         )}

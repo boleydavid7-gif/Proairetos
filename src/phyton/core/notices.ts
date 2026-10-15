@@ -14,8 +14,8 @@ export type NoticeContext = { hemisphere?: Hemisphere; rain?: Rain; forecast?: F
 export const FROST_AT = '17:00';
 
 /**
- * One notice on each day plants come round to be checked (and fed, if chosen), naming them. A day already come is
- * not said again. Days away say nothing; the day after, one notice names what came round meanwhile. Frost tonight
+ * One notice on each day plants come around to be checked (and fed, if chosen), naming them. A day already come is
+ * not said again. Days away say nothing; the day after, one notice names what came around meanwhile. Frost tonight
  * is said at 17:00, naming the plants outside.
  */
 export function plantNotices(plants: readonly Plant[], choices: PlantNoticeChoices, me: string | undefined, today: string, horizon: number, now: Date, context: NoticeContext = {}): Notice[] {
@@ -32,7 +32,7 @@ export function plantNotices(plants: readonly Plant[], choices: PlantNoticeChoic
   const back = away ? addDays(away.to, 1) : undefined;
   for (const plant of mine) {
     let day = nextCheck(plant, today, hemisphere, rain, hot);
-    // Came round while away: said once, the day after coming home.
+    // Came around while away: said once, the day after coming home.
     if (back && day <= away!.to && back >= today && (day >= away!.from || isAway(away, today))) day = back;
     if (day >= today && day <= addDays(today, horizon)) add(day, 'check', plant.name);
     if (choices.feed) {

@@ -50,7 +50,7 @@ function RainPlace() {
         </div>
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometre, is sent; it stays on this device.</p>
+      <p className="hint">Daily rainfall from Open-Meteo. Only the place, to about a kilometer, is sent; it stays on this device.</p>
     </div>
   );
 }
@@ -78,7 +78,7 @@ function AwayCard({ nav }: { nav: PhytonNav }) {
               <input className="input" type="date" min={away.from} value={away.to} onChange={(event) => event.target.value && save({ ...away, to: event.target.value < away.from ? away.from : event.target.value })} />
             </label>
           </div>
-          <p className="hint">Reminders wait; the day after, one names what came round.</p>
+          <p className="hint">Reminders wait; the day after, one names what came around.</p>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'sitter' })}><PrintIcon size={18} />Sheet for whoever waters</button>
             <button

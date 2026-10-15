@@ -484,7 +484,7 @@
   color: var(--color-accent);
 }
 
-/* Entries with no colour of their own take the app's gold, so nothing in the week is grey. */
+/* Entries with no color of their own take the app's gold, so nothing in the week is gray. */
 .cal-entry.tag--none {
   --tag: var(--color-accent);
 }

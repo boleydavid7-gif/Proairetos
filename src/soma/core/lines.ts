@@ -1,4 +1,4 @@
-/** Lines on food from the Stoics and their neighbours, one a day, each with its source. */
+/** Lines on food from the Stoics and their neighbors, one a day, each with its source. */
 export type Line = { text: string; source: string };
 
 export const lines: Line[] = [

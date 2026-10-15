@@ -110,7 +110,7 @@ export function suggestWeek(plan: Plan, current: number, entries: readonly LogEn
     for (let n = next + 1; n <= last; n += 1) {
       const candidate = weekAt(plan, n);
       if (!growing(candidate) || !fits(candidate, reading)) break;
-      // Never land on an easier week by reading ahead; they come round in their turn.
+      // Never land on an easier week by reading ahead; they come around in their turn.
       if (!candidate.easier) ahead = n;
     }
   }
@@ -118,7 +118,7 @@ export function suggestWeek(plan: Plan, current: number, entries: readonly LogEn
   return { week: next, why: 'next', reading };
 }
 
-/** Weeks from a week to the aim, counting that week; undefined on a path that goes round. */
+/** Weeks from a week to the aim, counting that week; undefined on a path that goes around. */
 export function weeksToAim(plan: Plan, week: number): number | undefined {
   if (plan.cycleFrom) return undefined;
   return Math.max(1, lastWeekOf(plan) - week + 1);

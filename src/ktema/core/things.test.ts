@@ -6,7 +6,7 @@ import { defaultUpkeepNotices, upkeepNotices } from './notices';
 const upkeep = (patch: Partial<Upkeep> = {}): Upkeep => ({ id: 'u1', name: 'Air filter', every: { count: 3, unit: 'months' }, start: '2026-10-01', history: [], createdAt: '', ...patch });
 const car = (readings: Thing['readings']): Thing => ({ id: 'car', name: 'Car', category: 'Car', readings, createdAt: '' });
 
-describe('when upkeep comes round', () => {
+describe('when upkeep comes around', () => {
   it('counts months from when it was last done, keeping to the end of short months', () => {
     expect(addMonths('2026-01-31', 1)).toBe('2026-02-28');
     expect(nextDue(upkeep()).date).toBe('2026-10-01');
@@ -14,7 +14,7 @@ describe('when upkeep comes round', () => {
     expect(nextDue(skip(upkeep(), '2026-10-05')).date).toBe('2027-01-05');
   });
 
-  it('comes round by distance when that is sooner, estimated from the readings', () => {
+  it('comes around by distance when that is sooner, estimated from the readings', () => {
     const oil = markDone(upkeep({ name: 'Oil change', every: { count: 6, unit: 'months' }, distance: 5000, thingId: 'car' }), '2026-06-01', { reading: 40000 });
     // 1,500 a month: 5,000 more comes before six months.
     const driven = car([{ date: '2026-06-01', value: 40000 }, { date: '2026-08-30', value: 44500 }]);

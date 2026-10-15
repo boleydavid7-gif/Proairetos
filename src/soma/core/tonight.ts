@@ -65,7 +65,7 @@ export function tonight(recipes: readonly Recipe[], answers: Tonight, today: str
     .sort((a, b) => b.uses.length - a.uses.length || hash(today + a.recipe.id) - hash(today + b.recipe.id));
 }
 
-/** Three at a time; "Some others" moves along, coming round again at the end. */
+/** Three at a time; "Some others" moves along, coming around again at the end. */
 export function threeFrom<T>(all: readonly T[], round: number): T[] {
   if (all.length <= 3) return [...all];
   const start = (round * 3) % all.length;

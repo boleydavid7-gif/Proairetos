@@ -1,5 +1,5 @@
 /*
- * The family's icons as one system: a 1024 canvas, a tile in the app's own colour lit from the top, and one solid
+ * The family's icons as one system: a 1024 canvas, a tile in the app's own color lit from the top, and one solid
  * glyph in warm white with a tinted second layer. Every glyph keeps inside the central circle a maskable crop keeps
  * (radius 410) and sits on the same keylines: about 560 across for round shapes, 500 for square ones.
  */
@@ -8,7 +8,7 @@ export const WHITE = '#fbf6ec';
 
 const hex = (c) => c.match(/\w\w/g).map((h) => parseInt(h, 16));
 const out = (rgb) => '#' + rgb.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
-/** Mix colour a toward b by t (0..1). */
+/** Mix color a toward b by t (0..1). */
 export const mix = (a, b, t) => out(hex(a).map((v, i) => v + (hex(b)[i] - v) * t));
 
 const sprig = (x, y, s, leaf, stem) => `
@@ -18,7 +18,7 @@ const sprig = (x, y, s, leaf, stem) => `
     <path d="M2 -120 C70 -120 120 -160 128 -222 C66 -222 14 -192 2 -120Z" fill="${leaf}"/>
   </g>`;
 
-/** Each app: tile colour, and its glyph drawn from (white, tint, deep). */
+/** Each app: tile color, and its glyph drawn from (white, tint, deep). */
 export const APPS = {
   proairetos: {
     tile: '#18202b',

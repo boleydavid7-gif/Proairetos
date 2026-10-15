@@ -33,7 +33,7 @@ describe('next day', () => {
     expect(nextDay(chore({ repeat: { kind: 'once' }, history: [{ date: '2026-10-11' }] }))).toBeUndefined();
   });
 
-  it('done late comes round once, a full interval later', () => {
+  it('done late comes around once, a full interval later', () => {
     const late = markDone(chore({ history: [{ date: '2026-09-20' }] }), '2026-10-10');
     expect(nextDay(late)).toBe('2026-10-17');
   });
@@ -90,21 +90,21 @@ describe('showing them', () => {
 
 describe('notices', () => {
   it('names the chores of each day once, from today on', () => {
-    const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12' }), chore({ id: 'c', name: 'Old', start: '2026-10-01' })];
+    const list = [chore({ id: 'a', name: 'Take out the trash', start: '2026-10-12' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12' }), chore({ id: 'c', name: 'Old', start: '2026-10-01' })];
     const notices = choreNotices(list, defaultChoreNotices, undefined, '2026-10-10', 14);
-    expect(notices.map((n) => [n.title, n.body, n.at.getDate()])).toEqual([['2 chores', 'Bins out, Vacuum', 12]]);
+    expect(notices.map((n) => [n.title, n.body, n.at.getDate()])).toEqual([['2 chores', 'Take out the trash, Vacuum', 12]]);
   });
 
   it('says a chore with its own time at that time', () => {
-    const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12', remindAt: '19:00' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12' })];
+    const list = [chore({ id: 'a', name: 'Take out the trash', start: '2026-10-12', remindAt: '19:00' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12' })];
     const notices = choreNotices(list, defaultChoreNotices, undefined, '2026-10-10', 14);
-    expect(notices.map((n) => [n.title, n.at.getHours()]).sort()).toEqual([['Bins out', 19], ['Vacuum', 9]]);
+    expect(notices.map((n) => [n.title, n.at.getHours()]).sort()).toEqual([['Take out the trash', 19], ['Vacuum', 9]]);
   });
 
   it('can keep to one person', () => {
-    const list = [chore({ id: 'a', name: 'Bins out', start: '2026-10-12', who: 'Ana' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Ben' })];
+    const list = [chore({ id: 'a', name: 'Take out the trash', start: '2026-10-12', who: 'Ana' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Ben' })];
     const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'Ana', '2026-10-10', 14);
-    expect(notices.map((n) => n.title)).toEqual(['Bins out']);
+    expect(notices.map((n) => n.title)).toEqual(['Take out the trash']);
   });
 });
 
@@ -112,8 +112,8 @@ describe('steps and rooms', () => {
   const base = { id: 'c', name: 'Clean the kitchen', room: 'Kitchen', repeat: { kind: 'weeks', every: 1 } as const, history: [], createdAt: '2026-10-01T00:00:00Z' };
 
   it('reads steps from lines and keeps earlier ticks', () => {
-    const steps = stepsFromText('- Clear the counters\n2. Wipe the hob\n\n[x] Mop');
-    expect(steps).toEqual([{ text: 'Clear the counters' }, { text: 'Wipe the hob' }, { text: 'Mop' }]);
+    const steps = stepsFromText('- Clear the counters\n2. Wipe the stovetop\n\n[x] Mop');
+    expect(steps).toEqual([{ text: 'Clear the counters' }, { text: 'Wipe the stovetop' }, { text: 'Mop' }]);
     expect(stepsFromText('Mop\nBins', [{ text: 'Mop', done: true }])).toEqual([{ text: 'Mop', done: true }, { text: 'Bins' }]);
     expect(stepsFromText('  \n')).toBeUndefined();
   });

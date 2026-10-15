@@ -1,5 +1,5 @@
 /**
- * Colours the person can give their own things, so a week reads at a
+ * Colors the person can give their own things, so a week reads at a
  * glance. Only a label the person chose; nothing ranks or acts on it.
  */
 export type TagColor = 'amber' | 'violet' | 'sage' | 'sky' | 'rose' | 'slate';

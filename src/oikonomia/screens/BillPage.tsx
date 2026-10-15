@@ -108,7 +108,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
         {bill.endedOn ? (
           <button type="button" className="text-link" onClick={() => void startAgain()}>Bring its dates back</button>
         ) : (
-          bill.frequency !== 'once' && <button type="button" className="text-link" onClick={() => void stop()}>No more dates (cancelled)</button>
+          bill.frequency !== 'once' && <button type="button" className="text-link" onClick={() => void stop()}>No more dates (canceled)</button>
         )}
         <button type="button" className="text-link" onClick={() => void remove()}>Remove this bill</button>
       </div>

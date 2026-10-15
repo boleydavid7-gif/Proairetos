@@ -69,7 +69,7 @@ export type Plan = {
   aim: Aim;
   days: number;
   weeks: PlanWeek[];
-  /** Steady aims go round a four-week rhythm from this week on. */
+  /** Steady aims go around a four-week rhythm from this week on. */
   cycleFrom?: number;
   /** With a date: how the path fits it. */
   fit?: 'fits' | 'shortened' | 'held';
@@ -128,7 +128,7 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     ],
   },
   strides: {
-    why: 'Strides are short, quick, relaxed bursts. They practise good form and leg speed without the tiredness of a hard session.',
+    why: 'Strides are short, quick, relaxed bursts. They practice good form and leg speed without the tiredness of a hard session.',
     tips: [
       'About 20 seconds each, building smoothly to quick, then easing off.',
       'Fast, never a sprint. Stay tall and relaxed.',
@@ -168,7 +168,7 @@ export const kindNotes: Record<WorkoutKind, { why: string; tips: string[] }> = {
     ],
   },
   'race-pace': {
-    why: 'Practising race effort inside a long run teaches pacing, and lets you rehearse fuelling, on tired legs.',
+    why: 'Practicing race effort inside a long run teaches pacing, and lets you rehearse fueling, on tired legs.',
     tips: [
       'Race effort here is steady, not hard: it has to last.',
       'Try the drinks and gels you will use on the day.',
@@ -837,7 +837,7 @@ export function buildPath(choice: PathChoice): Plan {
 /** The number of the last week listed. */
 export const lastWeekOf = (plan: Plan): number => plan.weeks.at(-1)?.n ?? 0;
 
-/** A week by its number; steady paths go round their rhythm after the last week. */
+/** A week by its number; steady paths go around their rhythm after the last week. */
 export function weekAt(plan: Plan, n: number): PlanWeek {
   const first = plan.weeks[0]?.n ?? 1;
   const last = lastWeekOf(plan);

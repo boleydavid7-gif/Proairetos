@@ -88,7 +88,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 
       <label className="field">
         <span className="field__label">Chore</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Bins out" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Take out the trash" />
       </label>
       <label className="field">
         <span className="field__label">Room (optional)</span>
@@ -175,7 +175,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
       </label>
       <label className="field">
         <span className="field__label">Steps (optional), one per line</span>
-        <textarea className="input" rows={3} value={stepLines} placeholder={'Clear the counters\nWipe the hob\nMop'} onChange={(event) => setStepLines(event.target.value)} />
+        <textarea className="input" rows={3} value={stepLines} placeholder={'Clear the counters\nWipe the stovetop\nMop'} onChange={(event) => setStepLines(event.target.value)} />
       </label>
       <label className="field">
         <span className="field__label">Note (optional)</span>

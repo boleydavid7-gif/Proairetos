@@ -126,10 +126,10 @@ describe('notices', () => {
   });
 
   it('reminds before an appointment', () => {
-    const notices = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health centre', questions: [], createdAt: '' }], defaultCareNotices, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
+    const notices = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health center', questions: [], createdAt: '' }], defaultCareNotices, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
     expect(notices).toHaveLength(1);
     expect(clock(notices[0].at)).toBe('08:30');
-    expect(notices[0].body).toMatch(/Health centre/);
+    expect(notices[0].body).toMatch(/Health center/);
   });
 });
 

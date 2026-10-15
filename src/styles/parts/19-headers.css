@@ -137,7 +137,7 @@
 }
 
 /*
- * The fade is a gradient laid over the photo in the page colour, not a mask:
+ * The fade is a gradient laid over the photo in the page color, not a mask:
  * Safari can drop a mask on an element that also has a filter, which left a
  * hard edge at the top. Many stops make the fade ease in rather than band.
  */

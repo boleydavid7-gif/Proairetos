@@ -26,7 +26,7 @@ export default function SwipeItem({ children, label, onSwipe, className, off = f
       setLeaving(true);
       window.setTimeout(() => {
         onSwipe();
-        // The same row may stay on the page (a chore that comes round again): bring it back in.
+        // The same row may stay on the page (a chore that comes around again): bring it back in.
         setLeaving(false);
         setDx(0);
       }, 180);

@@ -8,7 +8,7 @@ export type StoicLine = {
 /** Short passages from the Stoics, in common public-domain translations. */
 const baseLines: readonly StoicLine[] = [
   { text: 'Some things are within our power, while others are not.', source: 'Epictetus, Enchiridion 1' },
-  { text: 'It is not things that disturb us, but our judgements about things.', source: 'Epictetus, Enchiridion 5' },
+  { text: 'It is not things that disturb us, but our judgments about things.', source: 'Epictetus, Enchiridion 5' },
   { text: 'First say to yourself what you would be; and then do what you have to do.', source: 'Epictetus, Discourses 3.23' },
   { text: 'No one is free who is not master of himself.', source: 'Epictetus, Fragments' },
   { text: 'How long are you going to wait before you demand the best for yourself?', source: 'Epictetus, Enchiridion 51' },
@@ -42,7 +42,7 @@ const baseLines: readonly StoicLine[] = [
 const waysToTry: Readonly<Record<string, string>> = {
   'Some things are within our power, while others are not.':
     'Pick one thing on your mind and sort it: the part that is yours to act on, and the part that is not.',
-  'It is not things that disturb us, but our judgements about things.':
+  'It is not things that disturb us, but our judgments about things.':
     'When something stings today, name the event plainly, then notice the story you added to it.',
   'First say to yourself what you would be; and then do what you have to do.':
     'Before your next task, finish this sentence: today I want to be someone who…',
@@ -63,7 +63,7 @@ const waysToTry: Readonly<Record<string, string>> = {
   'A well-ordered mind can stop just where it is and pass some time in its own company.':
     'Spend two minutes doing nothing at all: no phone, no task. Just sit.',
   'The impediment to action advances action. What stands in the way becomes the way.':
-    'Take today’s biggest obstacle and ask what it lets you practise: patience, skill, or courage.',
+    'Take today’s biggest obstacle and ask what it lets you practice: patience, skill, or courage.',
   'Such as are your habitual thoughts, such also will be the character of your mind.':
     'Catch one repeating thought today and ask whether it is one you would choose.',
   'If it is not right, do not do it; if it is not true, do not say it.':
@@ -90,7 +90,7 @@ const buddhistLines: readonly StoicLine[] = [
   { text: 'All that we are is the result of what we have thought.', source: 'The Dhammapada, 1' },
   { text: 'Better than a thousand hollow words is one word that brings peace.', source: 'The Dhammapada, 100' },
   { text: 'No one saves us but ourselves. No one can and no one may.', source: 'The Dhammapada, 165' },
-  { text: 'As a bee gathers honey from a flower without harming its colour or fragrance, so the wise move through the world.', source: 'The Dhammapada, 49' },
+  { text: 'As a bee gathers honey from a flower without harming its color or fragrance, so the wise move through the world.', source: 'The Dhammapada, 49' },
   { text: 'The mind is difficult to control and swift; training it is good.', source: 'The Dhammapada, 35' },
   { text: 'Hatred does not cease by hatred, but only by love; this is the eternal law.', source: 'The Dhammapada, 5' },
 ];

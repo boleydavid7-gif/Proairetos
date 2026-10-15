@@ -40,7 +40,7 @@ export default function MorePage({ nav }: { nav: KtemaNav }) {
       <section className="card">
         <p className="label">Distance in</p>
         <div className="chip-row" role="group" aria-label="Distance in">
-          {(['mi', 'km'] as const).map((each) => <button key={each} type="button" className="chip" aria-pressed={current.distance === each} onClick={() => change({ distance: each })}>{each === 'mi' ? 'Miles' : 'Kilometres'}</button>)}
+          {(['mi', 'km'] as const).map((each) => <button key={each} type="button" className="chip" aria-pressed={current.distance === each} onClick={() => change({ distance: each })}>{each === 'mi' ? 'Miles' : 'Kilometers'}</button>)}
         </div>
       </section>
 

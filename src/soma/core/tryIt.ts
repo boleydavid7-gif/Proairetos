@@ -32,14 +32,14 @@ const rules: Rule[] = [
     id: 'brown-rice',
     when: (text) => has(text, 'white rice', 'jasmine rice', 'basmati') || (/\brice\b/.test(text) && !has(text, 'brown rice', 'wild rice', 'rice vinegar', 'rice noodle')),
     title: 'Brown rice, or half and half',
-    detail: 'Whole grains keep their fibre. Half brown, half white is an easy start.',
+    detail: 'Whole grains keep their fiber. Half brown, half white is an easy start.',
     source: 'plate',
   },
   {
     id: 'whole-pasta',
     when: (text) => has(text, 'pasta', 'spaghetti', 'penne', 'linguine', 'fettuccine', 'macaroni') && !has(text, 'whole wheat', 'wholewheat', 'whole-wheat', 'wholemeal'),
     title: 'Whole-wheat pasta, or half and half',
-    detail: 'More fibre, the same dish. Mixing the two keeps the feel of the original.',
+    detail: 'More fiber, the same dish. Mixing the two keeps the feel of the original.',
     source: 'plate',
   },
   {
@@ -60,7 +60,7 @@ const rules: Rule[] = [
     id: 'oil',
     when: (text) => has(text, 'butter') && !has(text, 'peanut butter', 'almond butter', 'buttermilk', 'butternut'),
     title: 'Olive oil for some of the butter',
-    detail: 'In savoury cooking most of the butter can be olive oil. Plant oils are the fats the guidance favours.',
+    detail: 'In savory cooking most of the butter can be olive oil. Plant oils are the fats the guidance favors.',
     source: 'plate',
   },
   {

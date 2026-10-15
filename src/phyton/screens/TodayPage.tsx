@@ -75,7 +75,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
         {hot && (
           <section className="card plant-note plant-note--hot">
             <span className="card__eyebrow">Hot today · {degrees(hot.max, unit)}</span>
-            <p>Plants outside come round a day sooner: {hot.plants.map((plant) => plant.name).join(', ')}</p>
+            <p>Plants outside come around a day sooner: {hot.plants.map((plant) => plant.name).join(', ')}</p>
           </section>
         )}
 

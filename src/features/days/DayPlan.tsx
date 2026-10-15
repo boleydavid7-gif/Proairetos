@@ -14,13 +14,13 @@ export default function DayPlan({ date, today, items, range, allowDelete = false
     .map((section) => ({ ...section, open: section.open.filter(untimed), done: section.done.filter(untimed) }))
     .filter((section) => section.open.length + section.done.length > 0);
   if (sections.length === 0) return null;
-  const labelled = sections.length > 1 || sections[0].id !== 'OTHER';
+  const labeled = sections.length > 1 || sections[0].id !== 'OTHER';
 
   return (
     <div className="day-plan" aria-label="Planned">
       {sections.map((section) => (
         <div key={section.id} className="day-plan__group">
-          {labelled && <p className="day-plan__label">{section.label}</p>}
+          {labeled && <p className="day-plan__label">{section.label}</p>}
           <ul className="check-list">
             {section.open.map((item) => (
               <CheckRow

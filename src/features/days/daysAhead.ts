@@ -23,8 +23,8 @@ export type EntryIcon = 'work' | 'protected' | 'item' | 'event';
 export type EntryLook = { title: string; color?: TagColor; icon: EntryIcon; location?: string; detail?: string; short?: string };
 
 /**
- * How an entry looks: the person's own colour if they gave one, else a
- * quiet default by kind. Colours are labels only; nothing reads meaning
+ * How an entry looks: the person's own color if they gave one, else a
+ * quiet default by kind. Colors are labels only; nothing reads meaning
  * into them.
  */
 export type GoalContext = { goals: readonly CompassStatement[]; lines: ReadonlyMap<string, string> };
@@ -51,7 +51,7 @@ export function entryLook(
     const source = sources.find((s) => s.id === entry.event.sourceId);
     return { title: entry.event.title, color: source?.color ?? 'sky', icon: 'event', location: entry.event.location, detail: entry.event.source };
   }
-  // A step toward a goal takes the goal's colour unless it has its own.
+  // A step toward a goal takes the goal's color unless it has its own.
   const goalColor = entry.item.goalId ? goals.goals.find((goal) => goal.id === entry.item.goalId)?.color : undefined;
   return { title: entry.item.title, color: entry.item.color ?? goalColor, icon: 'item', location: entry.item.location };
 }

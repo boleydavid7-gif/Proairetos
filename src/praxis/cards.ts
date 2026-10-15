@@ -30,7 +30,7 @@ export function ready(cards: readonly Card[], today: string, blockId?: string, m
     .slice(0, most);
 }
 
-/** The next day a card comes round, when none is ready now. */
+/** The next day a card comes around, when none is ready now. */
 export function nextDay(cards: readonly Card[], today: string, blockId?: string): string | undefined {
   return cards
     .filter((card) => card.due > today && (!blockId || card.blockId === blockId))

@@ -7,7 +7,7 @@ import { onRemoteChanges, syncSoon } from '../sync/syncController';
  * The shell the newer family apps share (Diaita, Philia, Ergon): routes with the phone's back button, sliding
  * tabs, one undo bar, a tab bar that becomes a rail on computers, settings kept in browser storage (so they go
  * with backups and, sealed, to the person's other devices), and a welcome page. The look comes from
- * askesis.css; each app sets its own colours on `:root.<app>`.
+ * askesis.css; each app sets its own colors on `:root.<app>`.
  */
 
 // ---------- Settings in browser storage ----------

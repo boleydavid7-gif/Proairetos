@@ -107,7 +107,7 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
 
 /**
  * Days ahead: up to a week, as a list or a calendar. Shows what is already
- * there and lets the person add something with a day and time. Colours are
+ * there and lets the person add something with a day and time. Colors are
  * the person's own labels.
  */
 /** Bills with a date on one day: a quiet line each, opening Oikonomia. A paid one says so. */

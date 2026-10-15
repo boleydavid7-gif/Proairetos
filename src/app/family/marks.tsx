@@ -1,9 +1,9 @@
 import { useId } from 'react';
 
 /*
- * Each app's mark inside the app: the icon's symbol without its tile, in one colour that follows the surface (light
- * over pictures, ink on pages, the app's own colour where it stands alone). The icon's tinted second layer becomes a
- * lighter shade of the same colour, and where shapes overlap a thin gap is cut so they read apart at small sizes.
+ * Each app's mark inside the app: the icon's symbol without its tile, in one color that follows the surface (light
+ * over pictures, ink on pages, the app's own color where it stands alone). The icon's tinted second layer becomes a
+ * lighter shade of the same color, and where shapes overlap a thin gap is cut so they read apart at small sizes.
  * Drawn on the icons' 1024 canvas from the shapes in scripts/icons/glyphs.mjs, so a change there belongs here too.
  */
 
@@ -300,7 +300,7 @@ const MARKS: Record<FamilyApp, Shape[]> = {
   ],
 };
 
-/** The app's own colour, the same as its icon's tile, for a mark standing alone on a plain page. */
+/** The app's own color, the same as its icon's tile, for a mark standing alone on a plain page. */
 export const MARK_COLOR: Record<FamilyApp, string> = {
   proairetos: '#c9a274',
   askesis: '#167a64',
@@ -328,7 +328,7 @@ function draw(shape: Shape, key: string, extra: Record<string, unknown> = {}) {
   return <Tag key={key} {...(shape.attrs as object)} {...extra} />;
 }
 
-/** One app's mark. `color` defaults to the text colour around it. */
+/** One app's mark. `color` defaults to the text color around it. */
 export function FamilyMark({ app, size = 30, color = 'currentColor', label }: { app: FamilyApp; size?: number; color?: string; label?: string }) {
   const id = `mark-${app}-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const shapes = MARKS[app];

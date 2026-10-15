@@ -356,11 +356,11 @@ function ChecklistSection({ item }: { item: LifeItem }) {
 
 /** The person's own grouping and day on Plan. */
 /** Which goal this is a step toward, if any. Only shown once the person has a goal. */
-/** Where it happens and a colour: the person's own labels for Days ahead. */
+/** Where it happens and a color: the person's own labels for Days ahead. */
 function LookSection({ item }: { item: LifeItem }) {
   const [location, setLocation] = useState(item.location ?? '');
   return (
-    <section className="sheet__section" aria-label="Where and colour">
+    <section className="sheet__section" aria-label="Where and color">
       <p className="sheet__label">Where</p>
       <input
         className="field-input"
@@ -370,7 +370,7 @@ function LookSection({ item }: { item: LifeItem }) {
         onChange={(event) => setLocation(event.target.value)}
         onBlur={() => location !== (item.location ?? '') && lifeService.setLook(item.id, { location })}
       />
-      <p className="sheet__label">Colour</p>
+      <p className="sheet__label">Color</p>
       <ColorChoice value={item.color} onChange={(color) => lifeService.setLook(item.id, { color: color ?? null })} />
     </section>
   );

@@ -9,7 +9,7 @@ import { phytonYear } from './year';
 const plant = (patch: Partial<Plant> = {}): Plant => ({ id: 'p1', name: 'Pothos', species: 'pothos', every: 7, log: [], createdAt: '2026-06-01T10:00:00.000Z', ...patch });
 const watered = (...dates: string[]) => dates.map((date) => ({ date, kind: 'water' as const }));
 
-describe('when a plant comes round', () => {
+describe('when a plant comes around', () => {
   it('starts on the day it was added, then counts from the last watering', () => {
     expect(nextCheck(plant(), '2026-06-01')).toBe('2026-06-01');
     expect(nextCheck(water(plant(), '2026-06-03'), '2026-06-03')).toBe('2026-06-10');
@@ -47,7 +47,7 @@ describe('when a plant comes round', () => {
     expect(nextCheck({ ...p, outside: false }, '2026-06-06', 'north', rain)).toBe('2026-06-08');
   });
 
-  it('groups plants by the day they come round and never calls them late', () => {
+  it('groups plants by the day they come around and never calls them late', () => {
     const today = '2026-06-20';
     const g = grouped([plant({ id: 'a', name: 'A', log: watered('2026-06-01') }), plant({ id: 'b', name: 'B', log: watered('2026-06-18') }), plant({ id: 'c', name: 'C', every: 30, log: watered('2026-06-19') })], today);
     expect(g.now.map((p) => p.name)).toEqual(['A']);
@@ -58,7 +58,7 @@ describe('when a plant comes round', () => {
 });
 
 describe('feeding', () => {
-  it('comes round in spring and summer and waits for spring otherwise', () => {
+  it('comes around in spring and summer and waits for spring otherwise', () => {
     const p = feed(plant({ feedEvery: 4 }), '2026-06-01');
     expect(nextFeed(p, '2026-06-02')).toBe('2026-06-29');
     const late = feed(plant({ feedEvery: 4 }), '2026-09-20');
@@ -145,7 +145,7 @@ describe('outside: frost, hot days and days away', () => {
     expect(frostTonight([list[1]], forecast, '2026-10-21')).toBeUndefined();
   });
 
-  it('says nothing while away and names what came round the day after', () => {
+  it('says nothing while away and names what came around the day after', () => {
     const list = [plant({ id: 'a', name: 'Fern', log: watered('2026-06-14') }), plant({ id: 'b', name: 'Cactus', every: 30, log: watered('2026-06-14') })];
     const away = { from: '2026-06-19', to: '2026-06-24' };
     const notices = plantNotices(list, defaultPlantNotices, undefined, '2026-06-18', 10, new Date(2026, 5, 18, 8), { away });

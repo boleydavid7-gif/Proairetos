@@ -69,7 +69,7 @@ export interface LifeItem {
   valueIds?: string[];
   /** Where it happens, in the person's words. */
   location?: string;
-  /** A colour the person gave it, for the days-ahead view. */
+  /** A color the person gave it, for the days-ahead view. */
   color?: TagColor;
   /** A goal (Compass statement) this is a step toward, as the person linked it. */
   goalId?: string;

@@ -66,7 +66,7 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
         </select>
       </label>
       <fieldset className="field">
-        <legend className="field__label">Comes round</legend>
+        <legend className="field__label">Comes around</legend>
         <div className="stepper">
           <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
           <span className="stepper__value">Every {count}</span>
@@ -173,7 +173,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
 
       <WriteTag path={`/ktema/?open=upkeep:${existing.id}`} />
       <dl className="detail-list">
-        <dt>Comes round</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
+        <dt>Comes around</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
         {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
       </dl>
 

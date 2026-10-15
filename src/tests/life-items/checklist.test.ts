@@ -13,7 +13,7 @@ describe('lists that come back', () => {
     return { service, advance };
   }
 
-  it('ticks lines, and clears them when the list is done and comes round again', async () => {
+  it('ticks lines, and clears them when the list is done and comes around again', async () => {
     const { service } = setup();
     const list = await service.capture('Sunday reset', 'DO', { source: 'MANUAL' });
     await service.schedule(list.id, new Date(2026, 9, 4, 9).toISOString());

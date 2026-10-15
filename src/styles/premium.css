@@ -13,7 +13,7 @@
 
 /*
  * One finish for every app in the family. Loaded after each app's own styles, so it only adds
- * depth, type care and small touches; it never changes layout or colours of the apps themselves.
+ * depth, type care and small touches; it never changes layout or colors of the apps themselves.
  */
 
 :root {
@@ -138,7 +138,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 /* ---------- Light mode photos ---------- */
-/* The same places that show a landscape in dark show the morning one in light, left true to its colours. */
+/* The same places that show a landscape in dark show the morning one in light, left true to its colors. */
 
 :root[data-theme='light'] [style*='--photo-light'] {
   background-image: var(--photo-light) !important;
@@ -192,7 +192,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 /* ---------- The bar along the bottom ---------- */
-/* Labels a little larger, and the page you are on marked by a short line above it, not only by colour. */
+/* Labels a little larger, and the page you are on marked by a short line above it, not only by color. */
 @media (max-width: 61.99rem) {
   .app-shell .tab-bar {
     --tab-indicator-left: calc(10% - 0.9rem);
@@ -321,7 +321,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 @media (prefers-contrast: more) {
-  /* Repeated so it outweighs each app's own colours (:root.soma, :root[data-theme='light'] and the like). */
+  /* Repeated so it outweighs each app's own colors (:root.soma, :root[data-theme='light'] and the like). */
   :root:root:root:root {
     --color-text-muted: var(--color-text);
     --color-text-faint: var(--color-text);
@@ -387,7 +387,7 @@ blockquote.daily-line {
 }
 
 /* ---------- Settings, one look ----------
-   Grouped lists as on iPhone: a coloured tile per row, hairlines that start after the tile, a chevron.
+   Grouped lists as on iPhone: a colored tile per row, hairlines that start after the tile, a chevron.
    Switches sit at the end of their row with iOS proportions and a Material-style filled track. The same
    classes serve every app's settings, so the family reads as one. */
 :root {
@@ -399,7 +399,7 @@ blockquote.daily-line {
   --tile-orange: #c9722a;
   --tile-red: #c8463f;
   --tile-pink: #c04b78;
-  --tile-grey: #74777e;
+  --tile-gray: #74777e;
 }
 
 .settings-tile {
@@ -410,7 +410,7 @@ blockquote.daily-line {
   height: 1.9rem;
   border-radius: 0.55rem;
   color: #fff;
-  background: var(--tile-grey);
+  background: var(--tile-gray);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
 .settings-tile--gold { background: var(--tile-gold); }
@@ -524,7 +524,7 @@ blockquote.daily-line {
 
 /* ---------- The same settings look in every app ----------
    The other apps' More and Settings pages use `.rows` and `Switch` (askesis.css). Here they take the look of
-   Proairetos's settings: a coloured tile per row (by position, so every app's lists vary the same way), hairlines
+   Proairetos's settings: a colored tile per row (by position, so every app's lists vary the same way), hairlines
    that start after the tile, and switches with iOS proportions and a filled track. `:root` keeps these ahead of
    the app sheets whatever order the chunks load in. */
 :root .rows .row__icon {

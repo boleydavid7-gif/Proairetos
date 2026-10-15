@@ -38,7 +38,7 @@ describe('Theoria shelves', () => {
     expect(booksOnShelf(books, { query: 'kant' })).toHaveLength(0);
   });
 
-  it('filters by category or favourites and orders by title past articles, or by surname', () => {
+  it('filters by category or favorites and orders by title past articles, or by surname', () => {
     expect(booksOnShelf(books, { category: 'Philosophy', order: 'title' }).map((each) => each.title)).toEqual(['Meditations', 'The Republic']);
     expect(booksOnShelf(books, { category: 'Favorites' }).map((each) => each.title)).toEqual(['Meditations']);
     expect(booksOnShelf(books, { order: 'author' }).map((each) => each.author)).toEqual(['Marcus Aurelius', 'Stephen Hawking', 'Plato', 'Jean-Jacques Rousseau']);

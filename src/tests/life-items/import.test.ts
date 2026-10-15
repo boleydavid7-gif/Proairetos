@@ -23,7 +23,7 @@ describe('import', () => {
   });
 
   it('reads any spreadsheet, using the first column without a header', () => {
-    expect(fromCsv('Pay rent,2026-10-01\nCall mum').rows).toEqual([{ title: 'Pay rent' }, { title: 'Call mum' }]);
+    expect(fromCsv('Pay rent,2026-10-01\nCall mom').rows).toEqual([{ title: 'Pay rent' }, { title: 'Call mom' }]);
     expect(fromCsv('Task,Done\nOld thing,yes\nNew thing,').rows).toEqual([{ title: 'Old thing', done: true }, { title: 'New thing' }]);
   });
 

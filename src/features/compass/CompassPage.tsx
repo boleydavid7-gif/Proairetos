@@ -47,12 +47,12 @@ function HonourToday({ value }: { value: ChosenValue }) {
         void save();
       }}
     >
-      <label className="daily-line__label" htmlFor={`honour-${value.id}`}>
+      <label className="daily-line__label" htmlFor={`honor-${value.id}`}>
         What would {value.name.toLowerCase()} look like today?
       </label>
       <div className="field-row">
         <input
-          id={`honour-${value.id}`}
+          id={`honor-${value.id}`}
           className="field-input"
           placeholder="One small thing"
           value={text}
