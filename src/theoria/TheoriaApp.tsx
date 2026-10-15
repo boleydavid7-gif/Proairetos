@@ -339,13 +339,6 @@ export default function TheoriaApp() {
         const item = found.find((each) => each.path === book.fromFolder);
         if (item) await item.get().then((file) => keepFile(book, file)).catch(() => undefined);
       }
-      // Folder books made before the account could take them (signed out, or the server not set up yet).
-      if (sync.phase === 'ready') {
-        for (const book of await listBooks()) {
-          if (!book.fromFolder || book.cloudCopy || !(await localFile(book.id))) continue;
-          try { await putBook(await makeCloudCopy(book)); } catch { break; }
-        }
-      }
       if (added || replaced) void copyBooksToFolder();
       const words = [added ? `${added === 1 ? 'One book' : `${added} books`} added from ${names.join(' and ')}` : '', replaced ? `${replaced === 1 ? 'one' : replaced} updated` : ''].filter(Boolean).join(', ');
       if (words) toast(`${words[0].toUpperCase()}${words.slice(1)}.`);
@@ -358,12 +351,22 @@ export default function TheoriaApp() {
   const fetching = useRef(new Set<string>());
   const fetchFolderBooks = async () => {
     if (sync.phase !== 'ready') return;
+    // Books whose account copy could not be made when they were added (signed out, or the server not set up yet):
+    // made now, unless the person took the copy away from that book (`cloudCopy: false`).
     for (const book of await listBooks()) {
-      if (!book.fromFolder || !book.cloudCopy || !book.filePath || fetching.current.has(book.id)) continue;
+      const wanted = book.cloudCopy === undefined && (book.fromFolder || copyNew);
+      if (!wanted || !(await localFile(book.id))) continue;
+      try { await putBook(await makeCloudCopy(book)); } catch { break; }
+    }
+    // Every book with an account copy that is not on this device yet comes down by itself.
+    let brought = 0;
+    for (const book of await listBooks()) {
+      if (!book.cloudCopy || !book.filePath || !book.sealed || fetching.current.has(book.id)) continue;
       fetching.current.add(book.id);
       if (await localFile(book.id)) continue;
-      await fetchCopy(book).catch(() => fetching.current.delete(book.id));
+      await fetchCopy(book).then(() => { brought += 1; }).catch(() => fetching.current.delete(book.id));
     }
+    if (brought) toast(`${brought === 1 ? 'One book' : `${brought} books`} brought to this device.`);
   };
   useEffect(() => {
     let last = 0;
