@@ -23,6 +23,8 @@ import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import FamilyApps from '../../app/family/FamilyApps';
 import { isAdded } from '../../app/family/added';
+import { listDrinks, loadSettings } from '../data/store';
+import { drinksCsv } from '../core/export';
 
 const intervals = [60, 90, 120, 180] as const;
 
@@ -186,11 +188,25 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <div className="family-surface"><FamilyApps current="hydros" /></div>
 
       <SettingsGroup title="More">
+        <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={() => void downloadLog()}><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">Download the log (CSV)</span><Chevron /></button>
         <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Aprivacy"><Icon><GearIcon /></Icon><span className="hydros-settings-row__name">Privacy</span><Chevron /></a>
         <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Ahelp"><Icon><LeafIcon /></Icon><span className="hydros-settings-row__name">Help</span><Chevron /></a>
       </SettingsGroup>
     </div>
   );
+}
+
+/** Every drink as a CSV file, for a spreadsheet. */
+async function downloadLog() {
+  const settings = loadSettings();
+  const profiles = settings.drinkProfiles?.length ? settings.drinkProfiles : defaultDrinkProfiles();
+  const csv = drinksCsv(await listDrinks(), profiles, (settings.unit ?? 'oz') as HydrosUnit);
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  link.download = `hydros-log-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
 }
 
 function SettingsGroup({ title, children }: { title: string; children: React.ReactNode }) {

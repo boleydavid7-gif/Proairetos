@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Hydros: download every drink as a CSV file from Settings, in your unit.',
       'Philia: Called, Messaged or Saw them in one tap, an optional line about it, and one timeline per person.',
       'Diaita: morning daylight has its own sources and an optional reminder.',
       'Soma: kitchen things can have a use-by day (a first guess for fresh food), Home shows what to use soon with recipes that use it, and the week plans up to a month ahead with Repeat the week before.',
