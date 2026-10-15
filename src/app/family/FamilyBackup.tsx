@@ -1,5 +1,5 @@
 import StorageFacts from './StorageFacts';
-import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
+import { BACKUP_ACCEPT, backupText, downloadBackup, packBackup } from '../../data/backup/packing';
 import { localDayKey } from '../../data/storage/preferences';
 import { useRef, useState } from 'react';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
@@ -7,6 +7,8 @@ import { lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { backupService } from '../services';
 import { dayName, useDailyCopies } from './useDailyCopies';
 import { useAddedApps } from './added';
+import { chooseBackupFolder, forgetBackupFolder, useBackupFolder, writableFolder, writeToFolder } from './backupFolder';
+import { dailyCopyToFolder } from './dailyCopy';
 
 /**
  * The family's one backup, for Askesis, Soma, Oikonomia and Hydros's "Your data" pages. It is
@@ -39,10 +41,21 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
   const [ready, setReady] = useState<{ data: BackupData; exportedAt: string }>();
   const [problem, setProblem] = useState<string>();
 
+  const folder = useBackupFolder();
+  const [savedTo, setSavedTo] = useState<string>();
   const save = async () => {
     setBusy(true);
+    setSavedTo(undefined);
     try {
-      await downloadBackup(await backupService.exportFile(password || undefined), localDayKey(new Date()));
+      const text = await backupService.exportFile(password || undefined);
+      const day = localDayKey(new Date());
+      // With a backup folder, the file goes there (asked again if the browser forgot); else it downloads.
+      const chosen = folder.name ? await writableFolder(true) : undefined;
+      if (chosen) {
+        const { blob, extension } = await packBackup(text);
+        await writeToFolder(chosen, `proairetos-backup-${day}.${extension}`, blob);
+        setSavedTo(chosen.name);
+      } else await downloadBackup(text, day);
       recordBackup();
       setLast(lastBackupDate());
     } finally {
@@ -86,10 +99,11 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
         <button type="button" className="button-main" disabled={busy} onClick={() => void save()}>
           {busy ? 'Preparing…' : 'Save a backup file'}
         </button>
-        <p className="hint">{last ? `Last backup ${when(last)}.` : 'No backup yet.'}</p>
+        <p className="hint">{savedTo ? `Saved in ${savedTo}.` : last ? `Last backup ${when(last)}.` : 'No backup yet.'}</p>
       </section>
 
       <DailyCopies />
+      {folder.supported && <BackupFolder name={folder.name} />}
 
       <section className="card family-backup" aria-label="Restore">
         <h2 className="card__title card__title--small">Restore</h2>
@@ -151,6 +165,35 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
 }
 
 /** A copy made each day on this phone, the last seven kept; any day can be restored. */
+/** A folder on this computer or phone where backups and daily copies are written too (Chrome and Edge). */
+function BackupFolder({ name }: { name?: string }) {
+  const [problem, setProblem] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const choose = async () => {
+    setProblem(undefined);
+    setBusy(true);
+    try {
+      if (!(await chooseBackupFolder())) return;
+      await dailyCopyToFolder(await backupService.exportFile(), localDayKey(new Date()));
+    } catch (cause) {
+      if (!(cause instanceof DOMException && cause.name === 'AbortError')) setProblem('That folder could not be used. Try another.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="card family-backup" aria-label="Backup folder">
+      <h2 className="card__title card__title--small">Backup folder</h2>
+      <p className="muted">{name ? `Backups and daily copies also go to “${name}”.` : 'Backups and daily copies can also go to a folder you choose, such as one Drive or OneDrive keeps.'}</p>
+      <div className="button-row">
+        <button type="button" className="button-quiet" disabled={busy} onClick={() => void choose()}>{name ? 'Choose another' : 'Choose a folder'}</button>
+        {name && <button type="button" className="text-link" onClick={() => void forgetBackupFolder()}>Stop using it</button>}
+      </div>
+      {problem && <p className="hint" role="alert">{problem}</p>}
+    </section>
+  );
+}
+
 function DailyCopies() {
   const { on, turn, copies, restore } = useDailyCopies();
   const [chosen, setChosen] = useState<string>();

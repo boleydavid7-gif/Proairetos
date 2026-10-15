@@ -811,3 +811,6 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-settings .label { margin-top: 6px; }
 .theoria-settings .switch { margin-left: auto; }
 .theoria-settings .row__text > span:first-child { font-size: 15px; }
+.theoria-add-many { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.theoria-add-many > span { flex-basis: 100%; color: var(--theoria-muted); font-size: 13px; }
+.theoria-add-many input[type="file"] { display: none; }

@@ -12,6 +12,8 @@ import { addImported, readHighlightsFile } from './core/clippings';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { SHELVES, type Shelf } from './core/shelves';
+import { booksToAdd, READABLE } from './core/folder';
+import { copyBooksToFolder } from './data/toFolder';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingFile } from './data/importers';
 import { lookupBookMetadata } from './data/metadata';
@@ -91,6 +93,8 @@ export default function TheoriaApp() {
   useEffect(() => {
     void startStore();
     void startSync();
+    // Books into the backup folder, when one is chosen and the browser still allows it (no prompt here).
+    window.setTimeout(() => void copyBooksToFolder(), 6000);
     return syncStatus.subscribe(() => setSync(syncStatus.get()));
   }, []);
 
@@ -216,11 +220,9 @@ export default function TheoriaApp() {
     });
   };
 
-  const saveBook = async (input: NewBookForm) => {
-    let imported: Awaited<ReturnType<typeof inspectReadingFile>> | undefined;
-    if (input.file) {
-      try { imported = await inspectReadingFile(input.file); } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); return; }
-    }
+  /** One book onto the shelf: read, kept on this phone, an account copy if chosen. Throws when the file cannot be read. */
+  const addOne = async (input: NewBookForm): Promise<{ book: TheoriaBook; saved: TheoriaBook }> => {
+    const imported = input.file ? await inspectReadingFile(input.file) : undefined;
     const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, coverUrl: input.coverUrl, publisher: imported?.publisher || input.publisher, language: imported?.language || input.language, publicationDate: input.publicationDate, chapters: imported?.chapters ? outline(imported.chapters) : undefined, pageCount: imported?.pageCount, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName ?? input.file?.name, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
     // The book itself stays on this phone; only its record syncs.
     await keepLocally(book.id, input.file, imported ? { ...imported, coverFile: imported.coverFile ?? input.coverFile } : undefined);
@@ -229,10 +231,34 @@ export default function TheoriaApp() {
     if (input.file && copyNew && sync.phase === 'ready') {
       try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { toast(error instanceof Error ? error.message : 'The book is on this phone; the account copy can be made later.'); }
     }
+    return { book, saved };
+  };
+  const saveBook = async (input: NewBookForm) => {
+    let added: Awaited<ReturnType<typeof addOne>>;
+    try { added = await addOne(input); } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); return; }
+    const { book, saved } = added;
     setSelectedId(book.id);
     setAddOpen(false);
     setView('detail');
+    void copyBooksToFolder();
     toast(book.title + ' is on your shelf.', () => { void takeAll(book.id).then(() => removeBook(book.id)).then(() => forgetCloudCopy(saved)); setView('library'); });
+  };
+  /** Several files or a whole folder: each readable book not already on the shelf, one undo for all. */
+  const saveMany = async (files: File[]) => {
+    const chosen = booksToAdd(files, shelf);
+    setAddOpen(false);
+    if (!chosen.length) { toast('No new books there. Theoria reads EPUB, PDF, text and Markdown.'); return; }
+    const added: { book: TheoriaBook; saved: TheoriaBook }[] = [];
+    let unread = 0;
+    for (const [index, file] of chosen.entries()) {
+      toast(`Adding ${index + 1} of ${chosen.length}…`);
+      const name = file.name.replace(READABLE, '');
+      try { added.push(await addOne({ title: name, author: '', description: '', source: 'upload', provider: 'other', sourceUrl: '', fileName: file.name, file, categories: ['Personal'] })); } catch { unread += 1; }
+    }
+    setView('shelf');
+    void copyBooksToFolder();
+    const words = `${added.length === 1 ? 'One book' : `${added.length} books`} added${unread ? `; ${unread} could not be read` : ''}.`;
+    toast(words, added.length ? () => { for (const { book, saved } of added) void takeAll(book.id).then(() => removeBook(book.id)).then(() => forgetCloudCopy(saved)); } : undefined);
   };
   const loadSource = async (book = selected) => {
     if (!book) return;
@@ -367,7 +393,7 @@ export default function TheoriaApp() {
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
-    {addOpen && <AddBookDialog initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}
+    {addOpen && <AddBookDialog onMany={(files) => void saveMany(files)} initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}
   </div>;
 }
 

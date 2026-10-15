@@ -1,6 +1,8 @@
 import { BulbIcon, PenIcon } from '../../components/icons/Icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useBackupFolder } from '../../app/family/backupFolder';
+import { copyBooksToFolder } from '../data/toFolder';
 import { ORDERS, SHELVES, booksOnShelf, shelfOf, type Shelf, type ShelfOrder } from '../core/shelves';
 import { sourceLabel, statusLabel, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaHighlight, type TheoriaNote, type TheoriaNotebook, type TheoriaReflection } from '../core/books';
 import TheoriaMark from '../../components/brand/TheoriaMark';
@@ -217,6 +219,20 @@ export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: r
 
 export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear }: { onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
   const file = useRef<HTMLInputElement>(null);
+  const folder = useBackupFolder();
+  const [copying, setCopying] = useState(false);
+  const [copied, setCopied] = useState<string>();
+  const copyNow = async () => {
+    setCopying(true);
+    try {
+      const written = await copyBooksToFolder(true);
+      setCopied(written ? `${written === 1 ? 'One book' : `${written} books`} copied` : 'Every book is already there');
+    } catch {
+      setCopied('The folder could not be written to. Choose it again below.');
+    } finally {
+      setCopying(false);
+    }
+  };
   const icon = (path: string) => <span className="row__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg></span>;
   return (
     <section className="theoria-view">
@@ -231,6 +247,7 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
         <ul className="rows">
           <li><button type="button" className="row" role="switch" aria-checked={copyNew} onClick={() => onCopyNew(!copyNew)}>{icon('M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18zM12 11v4M10 13h4')}<span className="row__text"><span>Sealed copy of new books</span><span className="row__detail">In your account, for your other devices</span></span><span className={`switch${copyNew ? ' switch--on' : ''}`} aria-hidden="true" /></button></li>
           <li><button type="button" className="row" onClick={() => file.current?.click()}>{icon('M12 4v11m0 0-4-4m4 4 4-4M5 20h14')}<span className="row__text"><span>Bring in highlights</span><span className="row__detail">Kindle My Clippings.txt or a Readwise CSV</span></span></button><input ref={file} type="file" hidden accept=".txt,.csv,text/plain,text/csv" onChange={(event) => { const chosen = event.target.files?.[0]; if (chosen) onHighlights(chosen); event.target.value = ''; }} /></li>
+          {folder.supported && folder.name && <li><button type="button" className="row" disabled={copying} onClick={() => void copyNow()}>{icon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6m-3-3h6')}<span className="row__text"><span>{copying ? 'Copying…' : 'Copy books to the backup folder'}</span><span className="row__detail">{copied ?? `Into “${folder.name}”, Theoria books; new books follow`}</span></span></button></li>}
           <li><button type="button" className="row" onClick={onYear}>{icon('M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 8v4l3 2')}<span className="row__text"><span>Your year</span><span className="row__detail">Books, highlights and notes, by year</span></span></button></li>
         </ul>
         <p className="muted">Books stay on this phone. Your place, highlights, notes and reflections sync when you’re signed in, and are in the family backup; the books themselves aren’t.</p>
