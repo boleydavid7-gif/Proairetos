@@ -12,7 +12,9 @@ import { addImported, readHighlightsFile } from './core/clippings';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { SHELVES, type Shelf } from './core/shelves';
-import { booksToAdd, READABLE } from './core/folder';
+import { booksToAdd, planFolderScan, READABLE } from './core/folder';
+import { filesIn, folderBooks, readableLibrary, saveFolderBooks } from './data/libraryFolder';
+import { chosenCloudFolder, cloudConnected, CLOUD_NAMES, downloadCloudFile, filesInCloud, finishCloud, type CloudProvider } from './data/cloudLibrary';
 import { copyBooksToFolder } from './data/toFolder';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingFile } from './data/importers';
@@ -80,6 +82,7 @@ export default function TheoriaApp() {
   const [here, setHere] = useState<Set<string>>(new Set());
   const [copyNew, setCopyNew] = useState(() => localStorage.getItem('theoria:copyNew') !== 'false');
   const [sync, setSync] = useState<SyncStatus>(syncStatus.get());
+  const [driveReturn, setDriveReturn] = useState<CloudProvider>();
   const [theme, setTheme] = useState<ReadingTheme>(() => (localStorage.getItem('theoria:readingTheme') as ReadingTheme | null) ?? 'paper');
   const [font, setFont] = useState<ReadingFont>(() => (localStorage.getItem('theoria:readingFont') as ReadingFont | null) ?? 'serif');
   const positionTimer = useRef<number | undefined>(undefined);
@@ -130,6 +133,8 @@ export default function TheoriaApp() {
     if (opened.current || booksState.loading) return;
     opened.current = true;
     const open = takeOpening();
+    // Back from connecting OneDrive for the library folder: settings, where the folder is chosen.
+    void finishCloud().then((back) => { if (back) { setView('settings'); setDriveReturn(back); } }).catch((error) => { setView('settings'); toast(error instanceof Error ? error.message : 'The storage did not connect.'); });
     if (open === 'add') setAddOpen(true);
     if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
@@ -221,14 +226,15 @@ export default function TheoriaApp() {
   };
 
   /** One book onto the shelf: read, kept on this phone, an account copy if chosen. Throws when the file cannot be read. */
-  const addOne = async (input: NewBookForm): Promise<{ book: TheoriaBook; saved: TheoriaBook }> => {
+  const addOne = async (input: NewBookForm, extra: { fromFolder?: string } = {}): Promise<{ book: TheoriaBook; saved: TheoriaBook }> => {
     const imported = input.file ? await inspectReadingFile(input.file) : undefined;
-    const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, coverUrl: input.coverUrl, publisher: imported?.publisher || input.publisher, language: imported?.language || input.language, publicationDate: input.publicationDate, chapters: imported?.chapters ? outline(imported.chapters) : undefined, pageCount: imported?.pageCount, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName ?? input.file?.name, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read' });
+    const book = await addBook({ title: imported?.title || input.title, author: imported?.author || input.author, description: input.description || undefined, coverUrl: input.coverUrl, publisher: imported?.publisher || input.publisher, language: imported?.language || input.language, publicationDate: input.publicationDate, chapters: imported?.chapters ? outline(imported.chapters) : undefined, pageCount: imported?.pageCount, contentFormat: imported?.contentFormat, contentPreview: imported?.contentPreview, source: input.source, provider: input.provider, sourceUrl: input.sourceUrl, fileName: input.fileName ?? input.file?.name, fileSize: input.file?.size, fileType: input.file?.type, categories: input.categories, status: input.source === 'cloud' || input.source === 'web' ? 'reading' : 'want_to_read', fromFolder: extra.fromFolder });
     // The book itself stays on this phone; only its record syncs.
     await keepLocally(book.id, input.file, imported ? { ...imported, coverFile: imported.coverFile ?? input.coverFile } : undefined);
     if (!imported && input.coverFile) await putCover({ bookId: book.id, blob: input.coverFile });
     let saved = book;
-    if (input.file && copyNew && sync.phase === 'ready') {
+    // A book from the library folder always gets its account copy: that is how it reaches the other devices.
+    if (input.file && (copyNew || extra.fromFolder) && sync.phase === 'ready') {
       try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { toast(error instanceof Error ? error.message : 'The book is on this phone; the account copy can be made later.'); }
     }
     return { book, saved };
@@ -260,6 +266,121 @@ export default function TheoriaApp() {
     const words = `${added.length === 1 ? 'One book' : `${added.length} books`} added${unread ? `; ${unread} could not be read` : ''}.`;
     toast(words, added.length ? () => { for (const { book, saved } of added) void takeAll(book.id).then(() => removeBook(book.id)).then(() => forgetCloudCopy(saved)); } : undefined);
   };
+  /**
+   * The library folder (on the computer that chose it): new books in, newer files of books it brought in replaced,
+   * and account copies made for folder books still waiting for one. Quiet unless something came in.
+   */
+  const folderBusy = useRef(false);
+  const syncLibraryFolder = async (ask = false): Promise<string | undefined> => {
+    if (folderBusy.current) return undefined;
+    folderBusy.current = true;
+    try {
+      // Two kinds of library folder: one on this computer (Chrome, Edge) and one in OneDrive (any device).
+      type Found = { path: string; size: number; name: string; get: () => Promise<File> };
+      const found: Found[] = [];
+      const names: string[] = [];
+      let problem: string | undefined;
+      const local = await readableLibrary(ask);
+      if (local) {
+        names.push(local.name);
+        for (const each of await filesIn(local)) found.push({ path: each.path, size: each.size, name: each.file.name, get: async () => each.file });
+      }
+      const cloud = chosenCloudFolder();
+      if (cloud && cloudConnected(cloud.provider)) {
+        try {
+          for (const each of await filesInCloud(cloud)) {
+            const name = each.path.split('/').pop() ?? each.path;
+            found.push({ path: `${cloud.provider}:${each.path}`, size: each.size, name, get: () => downloadCloudFile(cloud.provider, each, name) });
+          }
+          names.push(`${cloud.name} (${CLOUD_NAMES[cloud.provider]})`);
+        } catch (error) {
+          problem = error instanceof Error ? error.message : `${CLOUD_NAMES[cloud.provider]} could not be reached.`;
+        }
+      }
+      if (!names.length) return problem ?? (ask ? 'The folder could not be opened. Choose it again.' : undefined);
+      const books = await listBooks();
+      const known = folderBooks();
+      const plan = planFolderScan(found.map(({ path, size }) => ({ path, size })), known, new Set(books.map((book) => book.id)));
+      let added = 0;
+      for (const path of plan.add) {
+        const item = found.find((each) => each.path === path)!;
+        try {
+          const file = await item.get();
+          const { book } = await addOne({ title: item.name.replace(READABLE, ''), author: '', description: '', source: 'upload', provider: path.startsWith('onedrive:') ? 'onedrive' : path.startsWith('google:') ? 'google-drive' : path.startsWith('dropbox:') ? 'dropbox' : 'other', sourceUrl: '', fileName: item.name, file, categories: ['Personal'] }, { fromFolder: path });
+          known[path] = { bookId: book.id, size: item.size };
+          added += 1;
+        } catch {
+          // Not a readable book after all: remembered, so it is not tried at every look.
+          known[path] = { bookId: '', size: item.size };
+        }
+        saveFolderBooks(known);
+      }
+      let replaced = 0;
+      for (const { path, bookId } of plan.replace) {
+        const item = found.find((each) => each.path === path)!;
+        const book = books.find((each) => each.id === bookId);
+        if (!book) continue;
+        try {
+          await keepFile(book, await item.get());
+          let next: TheoriaBook = { ...book, fileSize: item.size, updatedAt: new Date().toISOString() };
+          if (sync.phase === 'ready') next = await makeCloudCopy(next).catch(() => next);
+          await putBook(next);
+          known[path] = { bookId, size: item.size };
+          saveFolderBooks(known);
+          replaced += 1;
+        } catch {
+          // Left as it was; the next look tries again.
+        }
+      }
+      // Folder books on the shelf (from another device) that are not here yet: straight from the folder when it is
+      // reachable here.
+      for (const book of await listBooks()) {
+        if (!book.fromFolder || (await localFile(book.id))) continue;
+        const item = found.find((each) => each.path === book.fromFolder);
+        if (item) await item.get().then((file) => keepFile(book, file)).catch(() => undefined);
+      }
+      // Folder books made before the account could take them (signed out, or the server not set up yet).
+      if (sync.phase === 'ready') {
+        for (const book of await listBooks()) {
+          if (!book.fromFolder || book.cloudCopy || !(await localFile(book.id))) continue;
+          try { await putBook(await makeCloudCopy(book)); } catch { break; }
+        }
+      }
+      if (added || replaced) void copyBooksToFolder();
+      const words = [added ? `${added === 1 ? 'One book' : `${added} books`} added from ${names.join(' and ')}` : '', replaced ? `${replaced === 1 ? 'one' : replaced} updated` : ''].filter(Boolean).join(', ');
+      if (words) toast(`${words[0].toUpperCase()}${words.slice(1)}.`);
+      return problem ?? (words ? `${words[0].toUpperCase()}${words.slice(1)}.` : `Nothing new in ${names.join(' or ')}.`);
+    } finally {
+      folderBusy.current = false;
+    }
+  };
+  /** On every device: books from the library folder that are not here yet come from their account copies. */
+  const fetching = useRef(new Set<string>());
+  const fetchFolderBooks = async () => {
+    if (sync.phase !== 'ready') return;
+    for (const book of await listBooks()) {
+      if (!book.fromFolder || !book.cloudCopy || !book.filePath || fetching.current.has(book.id)) continue;
+      fetching.current.add(book.id);
+      if (await localFile(book.id)) continue;
+      await fetchCopy(book).catch(() => fetching.current.delete(book.id));
+    }
+  };
+  useEffect(() => {
+    let last = 0;
+    const look = () => {
+      if (document.visibilityState !== 'visible' || Date.now() - last < 60_000) return;
+      last = Date.now();
+      void syncLibraryFolder().then(() => fetchFolderBooks());
+    };
+    const first = window.setTimeout(look, 5000);
+    document.addEventListener('visibilitychange', look);
+    return () => {
+      window.clearTimeout(first);
+      document.removeEventListener('visibilitychange', look);
+    };
+    // Looks again when sync becomes ready, so copies can go up and come down.
+  }, [sync.phase]);
+
   const loadSource = async (book = selected) => {
     if (!book) return;
     try {
@@ -389,7 +510,7 @@ export default function TheoriaApp() {
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
-      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} />}
+      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} />}
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>

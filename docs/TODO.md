@@ -10,6 +10,17 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Theoria's "Keep a sealed copy in my account" works (it answers "Bucket not found" until then). Run only this one of
       the two Theoria files: `20261015000000_theoria_sync.sql` is already covered by the later migrations, and running it
       now would take back the record kinds they added.
+- [ ] Theoria's library folder (OneDrive, Google Drive, Dropbox), one storage or all three:
+      - OneDrive: in Azure > App registrations > the Noesis/Proairetos registration > API permissions, add Microsoft Graph
+        delegated `Files.Read` (personal accounts consent at sign-in, so this mostly makes the list honest).
+      - Google Drive: in Google Cloud > the same OAuth client's project > Google Auth Platform > Data access, add the scope
+        `https://www.googleapis.com/auth/drive.readonly`. It is a restricted scope: until Google verifies the app, keep it in
+        Testing with your own account under Test users (sign-ins then last 7 days before connecting again), or publish it
+        unverified (a warning screen, at most 100 people).
+      - Dropbox: the existing app reaches only its own app folder. For any folder, create a second app at
+        https://www.dropbox.com/developers/apps (Scoped access, Full Dropbox), tick `files.metadata.read` and
+        `files.content.read`, add the redirect `https://proairetos.com/storage-connected/`, then in Cloudflare > the
+        proairetos Worker > Settings > Variables add `DROPBOX_LIBRARY_APP_KEY` (its App key; plain text is fine).
 - [ ] Migration `20261016000000_preferences_files_sync.sql`: settings and photos sync.
 - [ ] Migration `20261017000000_reminder_sources.sql`, then redeploy `send-reminders`: reminders from every app.
 - [ ] Migration `20261022000000_reminder_previews.sql`, then redeploy `send-reminders`: when lock-screen details are on,

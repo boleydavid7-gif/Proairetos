@@ -2,6 +2,8 @@ import { BulbIcon, PenIcon } from '../../components/icons/Icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useBackupFolder } from '../../app/family/backupFolder';
+import { LibraryFolder } from './LibraryFolder';
+import type { CloudProvider } from '../data/cloudLibrary';
 import { copyBooksToFolder } from '../data/toFolder';
 import { ORDERS, SHELVES, booksOnShelf, shelfOf, type Shelf, type ShelfOrder } from '../core/shelves';
 import { sourceLabel, statusLabel, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaHighlight, type TheoriaNote, type TheoriaNotebook, type TheoriaReflection } from '../core/books';
@@ -217,7 +219,7 @@ export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: r
   return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Search</p><h1>Search</h1></div></div><input className="theoria-global-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search your library" autoFocus />{query && <div className="theoria-search-results">{results.length ? results.map((result, index) => <button type="button" key={result.kind + '-' + index} onClick={() => result.book && onOpen(result.book)}><span>{result.kind}</span><strong>{result.text}</strong><small>{result.detail}</small></button>) : <p>No matches.</p>}</div>}</section>;
 }
 
-export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear }: { onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
+export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear, onCheckFolder, driveReturn, folderBooksHere }: { onCheckFolder: () => Promise<string | undefined>; driveReturn?: CloudProvider; folderBooksHere: boolean; onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
   const file = useRef<HTMLInputElement>(null);
   const folder = useBackupFolder();
   const [copying, setCopying] = useState(false);
@@ -243,6 +245,8 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
           <li><label className="row row--select">{icon('M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9')}<span className="row__text"><span>Reading theme</span></span><select className="row__select" value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label></li>
           <li><label className="row row--select">{icon('M4 20 10 4l6 16M6.5 14h7M17 20h4')}<span className="row__text"><span>Reading font</span></span><select className="row__select" value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Inter</option><option value="dyslexia">Dyslexia-friendly</option></select></label></li>
         </ul>
+        <p className="label">Library folder</p>
+        <LibraryFolder onCheck={onCheckFolder} returned={driveReturn} booksFromFolder={folderBooksHere} />
         <p className="label">Books</p>
         <ul className="rows">
           <li><button type="button" className="row" role="switch" aria-checked={copyNew} onClick={() => onCopyNew(!copyNew)}>{icon('M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18zM12 11v4M10 13h4')}<span className="row__text"><span>Sealed copy of new books</span><span className="row__detail">In your account, for your other devices</span></span><span className={`switch${copyNew ? ' switch--on' : ''}`} aria-hidden="true" /></button></li>

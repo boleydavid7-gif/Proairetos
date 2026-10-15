@@ -27,3 +27,25 @@ export function folderFileName(book: { title: string; fileName?: string }, type 
   const extension = book.fileName?.match(/\.[a-z0-9]{1,8}$/i)?.[0] ?? (type.includes('pdf') ? '.pdf' : type.includes('epub') ? '.epub' : type.includes('markdown') ? '.md' : '.txt');
   return `${book.title}${extension.toLowerCase()}`;
 }
+
+/** What the library folder brought in, by path within it: the book made from it and the file's size then. */
+export type FolderBooks = Record<string, { bookId: string; size: number }>;
+
+/**
+ * What a look through the library folder does: new paths become books; a path already brought in whose file
+ * changed size replaces that book's file (its highlights and place stay); a book taken off the shelf is not brought
+ * back. Files gone from the folder leave their books as they are.
+ */
+export function planFolderScan(files: readonly { path: string; size: number }[], known: FolderBooks, onShelf: ReadonlySet<string>): { add: string[]; replace: { path: string; bookId: string }[] } {
+  const add: string[] = [];
+  const replace: { path: string; bookId: string }[] = [];
+  for (const file of files) {
+    const name = file.path.split('/').pop() ?? file.path;
+    if (!READABLE.test(name) || name.startsWith('.')) continue;
+    const before = known[file.path];
+    if (!before) add.push(file.path);
+    else if (before.size !== file.size && onShelf.has(before.bookId)) replace.push({ path: file.path, bookId: before.bookId });
+  }
+  add.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  return { add, replace };
+}

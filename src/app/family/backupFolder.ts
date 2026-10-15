@@ -46,38 +46,43 @@ async function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) =>
   }
 }
 
-export async function backupFolder(): Promise<Handle | undefined> {
+/** A kept folder by its key: `backup` (every app), `theoria-library` (Theoria's library folder). */
+export async function storedFolder(key = KEY): Promise<Handle | undefined> {
   if (!folderSupported()) return undefined;
-  return run<Handle | undefined>('readonly', (store) => store.get(KEY)).catch(() => undefined);
+  return run<Handle | undefined>('readonly', (store) => store.get(key)).catch(() => undefined);
 }
+export const backupFolder = () => storedFolder(KEY);
 
-/** Opens the folder picker (from a tap) and keeps the choice. */
-export async function chooseBackupFolder(): Promise<string | undefined> {
-  const picker = (window as unknown as { showDirectoryPicker?: Picker }).showDirectoryPicker;
+/** Opens the folder picker (from a tap) and keeps the choice under its key. */
+export async function chooseFolder(key = KEY, mode: 'read' | 'readwrite' = 'readwrite'): Promise<string | undefined> {
+  const picker = (window as unknown as { showDirectoryPicker?: (options?: { id?: string; mode?: 'read' | 'readwrite'; startIn?: string }) => Promise<Handle> }).showDirectoryPicker;
   if (!picker) return undefined;
-  const handle = await picker({ id: 'proairetos-backups', mode: 'readwrite', startIn: 'documents' });
-  await run('readwrite', (store) => store.put(handle, KEY));
+  const handle = await picker({ id: `proairetos-${key}`, mode, startIn: 'documents' });
+  await run('readwrite', (store) => store.put(handle, key));
   listeners.forEach((listener) => listener());
   return handle.name;
 }
+export const chooseBackupFolder = () => chooseFolder(KEY);
 
-export async function forgetBackupFolder(): Promise<void> {
-  await run('readwrite', (store) => store.delete(KEY)).catch(() => undefined);
+export async function forgetFolder(key = KEY): Promise<void> {
+  await run('readwrite', (store) => store.delete(key)).catch(() => undefined);
   listeners.forEach((listener) => listener());
 }
+export const forgetBackupFolder = () => forgetFolder(KEY);
 
 /**
- * The folder, if writing is allowed now. `ask` (only from a tap) asks the browser again when it has forgotten;
+ * A kept folder, if the browser allows it now. `ask` (only from a tap) asks again when the browser has forgotten;
  * without it, a folder whose permission lapsed is skipped quietly.
  */
-export async function writableFolder(ask = false): Promise<Handle | undefined> {
-  const handle = await backupFolder();
+export async function allowedFolder(key = KEY, mode: 'read' | 'readwrite' = 'readwrite', ask = false): Promise<Handle | undefined> {
+  const handle = await storedFolder(key);
   if (!handle) return undefined;
-  const state = (await handle.queryPermission?.({ mode: 'readwrite' }).catch(() => 'prompt' as Permission)) ?? 'granted';
+  const state = (await handle.queryPermission?.({ mode: mode as 'readwrite' }).catch(() => 'prompt' as Permission)) ?? 'granted';
   if (state === 'granted') return handle;
   if (!ask || !handle.requestPermission) return undefined;
-  return (await handle.requestPermission({ mode: 'readwrite' }).catch(() => 'denied' as Permission)) === 'granted' ? handle : undefined;
+  return (await handle.requestPermission({ mode: mode as 'readwrite' }).catch(() => 'denied' as Permission)) === 'granted' ? handle : undefined;
 }
+export const writableFolder = (ask = false) => allowedFolder(KEY, 'readwrite', ask);
 
 /** A name safe on every system: no slashes, colons or other reserved marks, at most 120 characters. */
 export function safeName(name: string): string {
@@ -101,18 +106,18 @@ export async function writeToFolder(folder: FileSystemDirectoryHandle, name: str
 }
 
 /** The chosen folder's name, for showing; follows a change made on this page. */
-export function useBackupFolder(): { name?: string; supported: boolean; refresh: () => void } {
+export function useBackupFolder(key = KEY): { name?: string; supported: boolean; refresh: () => void } {
   const [name, setName] = useState<string>();
   const [turn, setTurn] = useState(0);
   useEffect(() => {
     let live = true;
-    void backupFolder().then((handle) => live && setName(handle?.name));
+    void storedFolder(key).then((handle) => live && setName(handle?.name));
     const listener = () => setTurn((value) => value + 1);
     listeners.add(listener);
     return () => {
       live = false;
       listeners.delete(listener);
     };
-  }, [turn]);
+  }, [turn, key]);
   return { name, supported: folderSupported(), refresh: () => setTurn((value) => value + 1) };
 }

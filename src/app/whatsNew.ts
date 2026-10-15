@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Theoria keeps in step with a library folder in OneDrive, Google Drive or Dropbox, on any device: new books in the folder come onto your shelf when Theoria opens, and newer versions replace the old file with your highlights kept.',
       'Theoria adds several books at once, or a whole folder with its subfolders.',
       'A backup folder (Chrome and Edge, on a computer or Android): backups and daily copies go to a folder you choose, and Theoria copies its books there too.',
       'Theoria explains plainly when account copies are not set up on the server yet.',

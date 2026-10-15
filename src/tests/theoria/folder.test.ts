@@ -23,3 +23,24 @@ describe('bringing in a folder', () => {
     expect(folderFileName({ title: 'Notes' }, 'application/pdf')).toBe('Notes.pdf');
   });
 });
+
+describe('keeping in step with the library folder', () => {
+  it('adds new paths, replaces changed files, and never brings back a removed book', async () => {
+    const { planFolderScan } = await import('../../theoria/core/folder');
+    const files = [
+      { path: 'Stoics/Meditations.epub', size: 100 },
+      { path: 'Stoics/Letters.pdf', size: 250 },
+      { path: 'Removed.txt', size: 5 },
+      { path: 'New 10.md', size: 9 },
+      { path: 'New 2.md', size: 9 },
+      { path: 'cover.jpg', size: 9 },
+      { path: '.hidden.epub', size: 9 },
+    ];
+    const known = {
+      'Stoics/Meditations.epub': { bookId: 'm', size: 100 },
+      'Stoics/Letters.pdf': { bookId: 'l', size: 200 },
+      'Removed.txt': { bookId: 'r', size: 4 },
+    };
+    expect(planFolderScan(files, known, new Set(['m', 'l']))).toEqual({ add: ['New 2.md', 'New 10.md'], replace: [{ path: 'Stoics/Letters.pdf', bookId: 'l' }] });
+  });
+});
