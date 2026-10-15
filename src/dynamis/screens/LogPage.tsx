@@ -73,9 +73,11 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
               if (!facts.first || !facts.latest) return null;
               return (
                 <li key={id} className="note-line dynamis-then">
-                  <span>{facts.latest.log.name}</span>
-                  <small className="muted">{dayText(facts.first.date)}: {setsText(facts.first.log, unit)}</small>
-                  {facts.times > 1 && <small className="muted">{dayText(facts.latest.date)}: {setsText(facts.latest.log, unit)}</small>}
+                  <button type="button" className="dynamis-then__open" onClick={() => nav.go({ name: 'exercise', id })}>
+                    <span>{facts.latest.log.name}</span>
+                    <small className="muted">{dayText(facts.first.date)}: {setsText(facts.first.log, unit)}</small>
+                    {facts.times > 1 && <small className="muted">{dayText(facts.latest.date)}: {setsText(facts.latest.log, unit)}</small>}
+                  </button>
                 </li>
               );
             })}

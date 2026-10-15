@@ -844,6 +844,7 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `Setup.swaps`). The live session (`SessionPage`) keeps a device-only draft (`dynamisDraft`, not synced), rests on the
   audio clock (`praxis/bell.ts`), and saves a `Workout`. Mobility routines with a guided timer and bell
   (Thomas 2018, Afonso 2021). Training-day notices kind `training` (off until chosen).
+- Dynamis exercise pages (route `exercise`, `?open=exercise:ID`, opened from Log's Then and now; `core/history.ts`): every session's sets newest first (`exerciseHistory`), the heaviest set and most reps as plain records (`exerciseRecords`), a line over time. Barbell lifts (`BARBELL`: back squat, Romanian deadlift) get a plate calculator (`platesFor`: usual plates largest first, says what is short; bar weight in `Setup.bar`) and a Plates line on the session.
 - Ktema (`core/things.ts`, tests): things (category incl. Documents, place, make, model, serial with Copy, bought,
   price, store, warranty or renewal date with 1/2/3/5-year picks, manual link, odometer readings) and upkeep every N
   days/weeks/months/years, or by distance for a car, whichever first (`nextDue`, estimated from readings); days that

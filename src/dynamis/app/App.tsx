@@ -16,6 +16,7 @@ import MorePage from '../screens/MorePage';
 import YearScreen from '../screens/YearScreen';
 import WhyPage from '../screens/WhyPage';
 import AfterPage from '../screens/AfterPage';
+import ExercisePage from '../screens/ExercisePage';
 
 export type Tab = 'today' | 'log' | 'mobility' | 'more';
 export type Route =
@@ -27,7 +28,8 @@ export type Route =
   | { name: 'guide'; routine: string }
   | { name: 'why' }
   | { name: 'after'; id: string }
-  | { name: 'year' };
+  | { name: 'year' }
+  | { name: 'exercise'; id: string };
 export type DynamisNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -43,6 +45,7 @@ function firstRoute(): Route {
   const opening = takeOpening();
   if (opening === 'session') return { name: 'session' };
   if (opening?.startsWith('routine:')) return { name: 'guide', routine: opening.slice(8) };
+  if (opening?.startsWith('exercise:')) return { name: 'exercise', id: opening.slice(9) };
   if (opening?.startsWith('workout:')) return { name: 'workout', id: opening.slice(8) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
@@ -81,6 +84,8 @@ export default function App() {
         return <WhyPage nav={nav} />;
       case 'after':
         return <AfterPage nav={nav} id={route.id} />;
+      case 'exercise':
+        return <ExercisePage nav={nav} id={route.id} />;
     }
   })();
 

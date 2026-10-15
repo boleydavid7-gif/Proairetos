@@ -205,6 +205,35 @@
   gap: 2px;
 }
 
+.dynamis-then__open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dynamis-plates__inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dynamis-plates__answer {
+  margin: 10px 0 0;
+  font-size: var(--text-lg, 1.1rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .dynamis-steps {
   margin: 0;
   padding-left: 1.2rem;
