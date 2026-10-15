@@ -12,7 +12,7 @@ import { addImported, readHighlightsFile } from './core/clippings';
 import { newId, type ReadingFont, type ReadingTheme, type TheoriaBook, type TheoriaNotebook } from './core/books';
 import { AddBookDialog, CaptureDialog, EditBookDialog, NotebookDialog, NotePageDialog, type BookDetailsDraft, type InsightDraft, type InsightKind, type NewBookForm, type NotePageDraft } from './components/dialogs';
 import { SHELVES, type Shelf } from './core/shelves';
-import { booksToAdd, folderDuplicates, mergeBooks, planFolderScan, READABLE } from './core/folder';
+import { booksToAdd, folderDuplicates, mergeBooks, planFolderScan, READABLE, sameFile } from './core/folder';
 import { filesIn, folderBooks, readableLibrary, saveFolderBooks } from './data/libraryFolder';
 import { chosenCloudFolder, cloudConnected, CLOUD_NAMES, connectedClouds, downloadCloudFile, filesInCloud, findInCloud, finishCloud, type CloudProvider } from './data/cloudLibrary';
 import { copyBooksToFolder } from './data/toFolder';
@@ -59,6 +59,12 @@ function useNotebooks(): { notebooks: TheoriaNotebook[]; loading: boolean; error
     return () => { active = false; };
   }, [version]);
   return state;
+}
+
+/** One tab or window at a time (Web Locks where the browser has them). */
+function withLock<T>(name: string, work: () => Promise<T>): Promise<T> {
+  const locks = (navigator as Navigator & { locks?: { request: (name: string, work: () => Promise<T>) => Promise<T> } }).locks;
+  return locks ? locks.request(name, work) : work();
 }
 
 export default function TheoriaApp() {
@@ -234,6 +240,35 @@ export default function TheoriaApp() {
     setEditBookOpen(false);
     toast('Book details saved.');
   };
+  /**
+   * Settings › Clear the library: every book off the shelf (on every device, as removals sync), with one undo; the
+   * account copies go only once the undo has passed. With a library folder, a fresh look follows, which adds each
+   * file once.
+   */
+  const clearLibrary = async (): Promise<string> => {
+    const books = await listBooks();
+    if (!books.length) return 'The library is already empty.';
+    const knownBefore = folderBooks();
+    const kept: { book: TheoriaBook; files: Awaited<ReturnType<typeof takeAll>> }[] = [];
+    for (const book of books) {
+      kept.push({ book, files: await takeAll(book.id) });
+      await removeBook(book.id);
+    }
+    saveFolderBooks({});
+    setSelectedId(undefined);
+    let undone = false;
+    window.setTimeout(() => { if (!undone) for (const { book } of kept) void forgetCloudCopy(book); }, 10_000);
+    toast(`${books.length === 1 ? 'One book' : `${books.length} books`} removed.`, () => {
+      undone = true;
+      void (async () => {
+        for (const { book, files } of kept) { await putAll(files); await putBook(book); }
+        saveFolderBooks(knownBefore);
+      })();
+    });
+    // A fresh look through the folder, once the chance to undo has passed.
+    window.setTimeout(() => { if (!undone) void syncLibraryFolder(); }, 10_500);
+    return `${books.length === 1 ? 'One book' : `${books.length} books`} removed.`;
+  };
   const removeSelectedBook = async () => {
     if (!selected) return;
     const book = selected;
@@ -279,6 +314,15 @@ export default function TheoriaApp() {
     return { book, saved };
   };
   const saveBook = async (input: NewBookForm) => {
+    // The same file already on the shelf opens that book rather than making a second.
+    const already = input.file ? (await listBooks()).find((book) => sameFile(book, input.file!.name, input.file!.size)) : undefined;
+    if (already) {
+      setAddOpen(false);
+      setSelectedId(already.id);
+      setView('detail');
+      toast(`${already.title} is already on your shelf.`);
+      return;
+    }
     let added: Awaited<ReturnType<typeof addOne>>;
     try { added = await addOne(input); } catch (error) { toast(error instanceof Error ? error.message : 'That file could not be read.'); return; }
     const { book, saved } = added;
@@ -310,7 +354,8 @@ export default function TheoriaApp() {
    * and account copies made for folder books still waiting for one. Quiet unless something came in.
    */
   const folderBusy = useRef(false);
-  const syncLibraryFolder = async (ask = false): Promise<string | undefined> => {
+  const syncLibraryFolder = (ask = false): Promise<string | undefined> => withLock('theoria-library-folder', () => syncLibraryFolderHere(ask));
+  const syncLibraryFolderHere = async (ask = false): Promise<string | undefined> => {
     if (folderBusy.current) return undefined;
     folderBusy.current = true;
     try {
@@ -353,6 +398,13 @@ export default function TheoriaApp() {
       let added = 0;
       for (const path of plan.add) {
         const item = found.find((each) => each.path === path)!;
+        // The shelf as it is now (another device's sync may have just brought this book): linked, never added twice.
+        const already = (await listBooks()).find((book) => sameFile(book, item.name, item.size));
+        if (already) {
+          known[path] = { bookId: already.id, size: item.size };
+          saveFolderBooks(known);
+          continue;
+        }
         try {
           const file = await item.get();
           const { book } = await addOne({ title: item.name.replace(READABLE, ''), author: '', description: '', source: 'upload', provider: path.startsWith('onedrive:') ? 'onedrive' : path.startsWith('google:') ? 'google-drive' : path.startsWith('dropbox:') ? 'dropbox' : 'other', sourceUrl: '', fileName: item.name, file, categories: ['Personal'] }, { fromFolder: path });
@@ -364,6 +416,9 @@ export default function TheoriaApp() {
         }
         saveFolderBooks(known);
       }
+      // The same file at a second path is the same book.
+      for (const { path, as } of plan.same) if (known[as]) known[path] = known[as];
+      if (plan.same.length) saveFolderBooks(known);
       let replaced = 0;
       for (const { path, bookId } of plan.replace) {
         const item = found.find((each) => each.path === path)!;
@@ -388,6 +443,8 @@ export default function TheoriaApp() {
         const item = found.find((each) => each.path === book.fromFolder);
         if (item) await item.get().then((file) => keepFile(book, file)).catch(() => undefined);
       }
+      // Copies made by another device or window before this one saw them are merged now.
+      if (added) await cleanDuplicatesHere().catch(() => undefined);
       if (added || replaced) void copyBooksToFolder();
       const words = [added ? `${added === 1 ? 'One book' : `${added} books`} added from ${names.join(' and ')}` : '', replaced ? `${replaced === 1 ? 'one' : replaced} updated` : ''].filter(Boolean).join(', ');
       if (words) toast(`${words[0].toUpperCase()}${words.slice(1)}.`);
@@ -400,9 +457,11 @@ export default function TheoriaApp() {
    * Copies the library folder added of books already on the shelf (before it learned to link them): each merged into
    * the original (marks joined, the further place kept) and taken away, with one undo for all.
    */
-  const cleanDuplicates = async () => {
-    // Undone once: the person keeps the copies, and they are not merged again.
-    if (localStorage.getItem('theoria:duplicatesKept') === 'true') return;
+  const duplicatesKept = useRef(false);
+  const cleanDuplicates = () => withLock('theoria-library-folder', cleanDuplicatesHere);
+  const cleanDuplicatesHere = async () => {
+    // Undone: the copies stay for the rest of this visit; the next opening merges them again.
+    if (duplicatesKept.current) return;
     const books = await listBooks();
     const pairs = folderDuplicates(books);
     if (!pairs.length) return;
@@ -429,7 +488,7 @@ export default function TheoriaApp() {
     const originals = pairs.map(({ keep }) => keep);
     toast(`${pairs.length === 1 ? 'One duplicate book' : `${pairs.length} duplicate books`} merged into the originals.`, () => {
       const steps = undo.splice(0);
-      localStorage.setItem('theoria:duplicatesKept', 'true');
+      duplicatesKept.current = true;
       void (async () => {
         for (const step of steps) await step();
         for (const book of originals) await putBook(book);
@@ -604,7 +663,7 @@ export default function TheoriaApp() {
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
-      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} />}
+      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} onClearLibrary={clearLibrary} bookCount={shelf.length} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} />}
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>

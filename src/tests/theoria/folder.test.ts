@@ -41,7 +41,7 @@ describe('keeping in step with the library folder', () => {
       'Stoics/Letters.pdf': { bookId: 'l', size: 200 },
       'Removed.txt': { bookId: 'r', size: 4 },
     };
-    expect(planFolderScan(files, known, new Set(['m', 'l']))).toEqual({ add: ['New 2.md', 'New 10.md'], replace: [{ path: 'Stoics/Letters.pdf', bookId: 'l' }], link: [] });
+    expect(planFolderScan(files, known, new Set(['m', 'l']))).toEqual({ add: ['New 2.md', 'New 10.md'], replace: [{ path: 'Stoics/Letters.pdf', bookId: 'l' }], link: [], same: [] });
   });
 });
 
@@ -58,8 +58,9 @@ describe('the library folder and books already on the shelf', () => {
       new Set(['old']),
       [{ id: 'old', fileName: 'Meditations.epub', fileSize: 100 }],
     );
-    expect(plan.link).toEqual([{ path: 'Stoics/Meditations.epub', bookId: 'old' }]);
-    expect(plan.add).toEqual(['Letters.pdf', 'meditations.EPUB']);
+    expect(plan.link).toContainEqual({ path: 'Stoics/Meditations.epub', bookId: 'old' });
+    expect(plan.add).toEqual(['Letters.pdf']);
+    expect(plan.link).toContainEqual({ path: 'meditations.EPUB', bookId: 'old' });
   });
 
   it('finds the copies the folder added and merges them into the original', async () => {
@@ -77,5 +78,36 @@ describe('the library folder and books already on the shelf', () => {
   it('never takes away a book added by hand', async () => {
     const { folderDuplicates } = await import('../../theoria/core/folder');
     expect(folderDuplicates([book('a'), book('bb')])).toEqual([]);
+  });
+});
+
+describe('never two copies from the folder', () => {
+  it('adds a file found at two paths once, and links a file already linked elsewhere', async () => {
+    const { planFolderScan } = await import('../../theoria/core/folder');
+    const plan = planFolderScan(
+      [{ path: 'b/Meditations.epub', size: 100 }, { path: 'a/Meditations.epub', size: 100 }, { path: 'Letters.epub', size: 20 }],
+      { 'old/Letters.epub': { bookId: 'l', size: 20 } },
+      new Set(['l']),
+      [{ id: 'l', fileName: 'Letters.epub', fileSize: 20 }],
+    );
+    expect(plan.add).toEqual(['a/Meditations.epub']);
+    expect(plan.same).toEqual([{ path: 'b/Meditations.epub', as: 'a/Meditations.epub' }]);
+    expect(plan.link).toEqual([{ path: 'Letters.epub', bookId: 'l' }]);
+  });
+});
+
+describe('cloud paths', () => {
+  it('matches a book at the top of a cloud folder by its own file name', async () => {
+    const { planFolderScan, fileNameOf } = await import('../../theoria/core/folder');
+    expect(fileNameOf('onedrive:Meditations.epub')).toBe('Meditations.epub');
+    expect(fileNameOf('dropbox:Stoics/Letters.pdf')).toBe('Letters.pdf');
+    const plan = planFolderScan(
+      [{ path: 'onedrive:Meditations.epub', size: 100 }, { path: 'onedrive:Stoics/Meditations.epub', size: 100 }],
+      {},
+      new Set(['old']),
+      [{ id: 'old', fileName: 'Meditations.epub', fileSize: 100 }],
+    );
+    expect(plan.add).toEqual([]);
+    expect(plan.link).toEqual([{ path: 'onedrive:Meditations.epub', bookId: 'old' }, { path: 'onedrive:Stoics/Meditations.epub', bookId: 'old' }]);
   });
 });

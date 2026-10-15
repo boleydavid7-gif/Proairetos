@@ -38,6 +38,9 @@ export type FolderBooks = Record<string, { bookId: string; size: number }>;
  */
 export type ShelfFile = { id: string; fileName?: string; fileSize?: number };
 
+/** The file's own name from a folder path, without the storage's mark in front ("onedrive:Books/a.epub" → "a.epub"). */
+export const fileNameOf = (path: string) => (path.split('/').pop() ?? path).replace(/^(onedrive|google|dropbox):/, '');
+
 /** The same file: the same name (case aside) and, when both sizes are known, the same size. */
 export const sameFile = (a: { fileName?: string; fileSize?: number }, name: string, size?: number) =>
   Boolean(a.fileName) && a.fileName!.toLowerCase() === name.toLowerCase() && (!a.fileSize || !size || a.fileSize === size);
@@ -53,25 +56,31 @@ export function planFolderScan(
   known: FolderBooks,
   onShelf: ReadonlySet<string>,
   shelf: readonly ShelfFile[] = [],
-): { add: string[]; replace: { path: string; bookId: string }[]; link: { path: string; bookId: string }[] } {
+): { add: string[]; replace: { path: string; bookId: string }[]; link: { path: string; bookId: string }[]; same: { path: string; as: string }[] } {
   const add: string[] = [];
   const replace: { path: string; bookId: string }[] = [];
   const link: { path: string; bookId: string }[] = [];
-  const linked = new Set(Object.values(known).map((each) => each.bookId));
-  for (const file of files) {
-    const name = file.path.split('/').pop() ?? file.path;
+  const sorted = [...files].sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
+  // A file in the folder twice (two subfolders, say) is one book: the second path follows the first.
+  const firstOf = new Map<string, string>();
+  const same: { path: string; as: string }[] = [];
+  for (const file of sorted) {
+    const name = fileNameOf(file.path);
     if (!READABLE.test(name) || name.startsWith('.')) continue;
     const before = known[file.path];
     if (!before) {
-      const there = shelf.find((book) => !linked.has(book.id) && sameFile(book, name, file.size));
-      if (there) {
-        link.push({ path: file.path, bookId: there.id });
-        linked.add(there.id);
-      } else add.push(file.path);
+      const key = `${name.toLowerCase()}\n${file.size}`;
+      // Any book on the shelf with this file, linked to another path already or not: never a second copy.
+      const there = shelf.find((book) => sameFile(book, name, file.size));
+      if (there) link.push({ path: file.path, bookId: there.id });
+      else if (firstOf.has(key)) same.push({ path: file.path, as: firstOf.get(key)! });
+      else {
+        firstOf.set(key, file.path);
+        add.push(file.path);
+      }
     } else if (before.size !== file.size && onShelf.has(before.bookId)) replace.push({ path: file.path, bookId: before.bookId });
   }
-  add.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  return { add, replace, link };
+  return { add, replace, link, same };
 }
 
 type Mergeable = ShelfFile & {

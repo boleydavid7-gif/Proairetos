@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'Theoria: books at the top of a cloud library folder are matched to your shelf (they were being added again); Settings has Clear the library for a fresh start from the folder.',
+      'Theoria: a file in your library folder twice, two windows open at once, or two devices adding at the same time no longer make extra copies; any made before are merged.',
       'Theoria: a library folder no longer adds books already on your shelf, and copies it added before are merged into the originals with their highlights and place.',
       'Theoria: connect OneDrive, Google Drive or Dropbox under Settings › Your storage, and a book that is not on this device is found there by its file name and brought down when you open it.',
       'Theoria: books open on every device you sign in on. Account copies that could not be made before are made by themselves, and other devices bring the books down when Theoria opens.',

@@ -821,3 +821,4 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-folder-browser .rows { max-height: 360px; overflow-y: auto; }
 .theoria-folder-browser__empty { padding: 14px; }
 .theoria-settings .button-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.theoria-clear { flex-wrap: wrap; } .theoria-clear .theoria-danger-button { min-height: 40px; padding: 0 14px; }

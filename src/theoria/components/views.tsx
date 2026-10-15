@@ -219,9 +219,10 @@ export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: r
   return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Search</p><h1>Search</h1></div></div><input className="theoria-global-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search your library" autoFocus />{query && <div className="theoria-search-results">{results.length ? results.map((result, index) => <button type="button" key={result.kind + '-' + index} onClick={() => result.book && onOpen(result.book)}><span>{result.kind}</span><strong>{result.text}</strong><small>{result.detail}</small></button>) : <p>No matches.</p>}</div>}</section>;
 }
 
-export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear, onCheckFolder, driveReturn, folderBooksHere }: { onCheckFolder: () => Promise<string | undefined>; driveReturn?: CloudProvider; folderBooksHere: boolean; onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
+export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear, onCheckFolder, driveReturn, folderBooksHere, onClearLibrary, bookCount }: { onClearLibrary: () => Promise<string>; bookCount: number; onCheckFolder: () => Promise<string | undefined>; driveReturn?: CloudProvider; folderBooksHere: boolean; onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
   const file = useRef<HTMLInputElement>(null);
   const folder = useBackupFolder();
+  const [clearing, setClearing] = useState(false);
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState<string>();
   const copyNow = async () => {
@@ -256,6 +257,21 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
           {folder.supported && folder.name && <li><button type="button" className="row" disabled={copying} onClick={() => void copyNow()}>{icon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6m-3-3h6')}<span className="row__text"><span>{copying ? 'Copying…' : 'Copy books to the backup folder'}</span><span className="row__detail">{copied ?? `Into “${folder.name}”, Theoria books; new books follow`}</span></span></button></li>}
           <li><button type="button" className="row" onClick={onYear}>{icon('M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 8v4l3 2')}<span className="row__text"><span>Your year</span><span className="row__detail">Books, highlights and notes, by year</span></span></button></li>
         </ul>
+        {bookCount > 0 && (
+          <ul className="rows">
+            <li>
+              {clearing ? (
+                <div className="row theoria-clear">
+                  <span className="row__text"><span>Remove all {bookCount === 1 ? 'one book' : `${bookCount} books`}?</span><span className="row__detail">Highlights and notes go with them. A library folder is looked through afresh after.</span></span>
+                  <button type="button" className="text-link" onClick={() => setClearing(false)}>Cancel</button>
+                  <button type="button" className="theoria-danger-button" onClick={() => { setClearing(false); void onClearLibrary(); }}>Remove all</button>
+                </div>
+              ) : (
+                <button type="button" className="row" onClick={() => setClearing(true)}>{icon('M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3')}<span className="row__text"><span>Clear the library</span><span className="row__detail">Start again from your library folder</span></span></button>
+              )}
+            </li>
+          </ul>
+        )}
         <p className="muted">Books stay on this device. Your place, highlights, notes and reflections sync when you’re signed in, and are in the family backup; the books themselves aren’t.</p>
         <AccountCard app="Theoria" what="Your shelf, highlights and notes" waiting="Books" />
         <FamilyBackup />
