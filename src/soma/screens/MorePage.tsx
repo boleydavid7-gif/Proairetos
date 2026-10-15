@@ -122,7 +122,6 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         <Switch on={settings.pauseBeforeEating} label="A moment before eating" onToggle={() => saveSettings({ ...settings, pauseBeforeEating: !settings.pauseBeforeEating })} />
         <Switch on={settings.readAloud} label="Read steps aloud" onToggle={() => saveSettings({ ...settings, readAloud: !settings.readAloud })} />
       </div>
-      <p className="hint">Theme and text size follow Proairetos (Settings, Appearance).</p>
       <AccountSection />
     </div>
   );
