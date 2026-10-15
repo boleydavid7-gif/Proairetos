@@ -68,6 +68,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
   `--app-name`, wider `.shell--tabs`); Soma centres its sheet; Hydros has its
   own block in `hydros.css`; Praxis and Theoria already had side navigation.
+  Askesis's and Soma's phone-dock rules (`.askesis .tab-bar`, `.soma .tab-bar`: six-column grid,
+  sliding mark) sit in `@media (max-width: 61.99rem)`, since their higher specificity broke the rail;
+  keep app-scoped dock rules phone-only. Checked by screenshots before/after: phones byte-identical.
 - Sync carries two more kinds of record (migration `20261016000000_preferences_files_sync.sql`,
   held in `laterCollections` until the server has it): `preferences` (every setting in browser
   storage that `syncedSetting` allows, one record each; device-only ones such as sign-in

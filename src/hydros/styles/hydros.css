@@ -273,6 +273,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
   /* The rail names the app; the words over the photo need only their own shadow. */
   .hydros-home-head .hydros-brand { visibility: hidden; }
   .hydros-hero__words::before { display: none; }
+  /* In the wide column the greeting, date and line stand centred over the glass. */
+  .hydros-hero__words { text-align: center; }
+  .hydros-hero__words > span { padding-right: 0; text-align: center; }
 
   .hydros-shell {
     max-width: none;

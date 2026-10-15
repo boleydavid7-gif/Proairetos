@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-15',
     lines: [
+      'On a computer: Soma and Askesis have their side menu again, welcome screens keep Begin under the words, Hydros centres its greeting over the glass, and Theoria’s menu fits the window.',
       'Theoria: books at the top of a cloud library folder are matched to your shelf (they were being added again); Settings has Clear the library for a fresh start from the folder.',
       'Theoria: a file in your library folder twice, two windows open at once, or two devices adding at the same time no longer make extra copies; any made before are merged.',
       'Theoria: a library folder no longer adds books already on your shelf, and copies it added before are merged into the originals with their highlights and place.',

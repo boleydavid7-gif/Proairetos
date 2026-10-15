@@ -14,7 +14,7 @@
 }
 
 .theoria-app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); color: var(--theoria-ink); background: radial-gradient(circle at 72% -12%, rgba(70, 72, 118, .35), transparent 32rem), radial-gradient(circle at 5% 78%, rgba(104, 71, 115, .16), transparent 27rem), var(--theoria-bg); }
-.theoria-sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 25px 15px 22px; border-right: 1px solid var(--theoria-border); background: rgba(11, 16, 32, .82); }
+.theoria-sidebar { position: sticky; top: 0; box-sizing: border-box; height: 100vh; display: flex; flex-direction: column; padding: 25px 15px 22px; border-right: 1px solid var(--theoria-border); background: rgba(11, 16, 32, .82); }
 .theoria-family-link { align-self: flex-start; color: var(--theoria-faint); font-size: 12px; letter-spacing: .02em; text-decoration: none; }
 .theoria-family-link small { margin-left: 4px; letter-spacing: 0; }
 .theoria-brand { display: flex; align-items: center; gap: 10px; padding: 29px 9px 36px; }
