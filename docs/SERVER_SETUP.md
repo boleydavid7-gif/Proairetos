@@ -429,3 +429,15 @@ belongs to the account). With the Store paid, an app that is added but not bough
 "Get it · $4.99" in place of the app; its records are kept.
 
 Note: Pl@ntNet's free plan (Phyton's Identify) is for non-commercial use; once Phyton is sold, its paid plan is needed.
+
+## The waitlist (migration 20261026000000)
+
+The front page (`/welcome/`) and each app's page (`/welcome/<app>/`) have a "Hear when it opens" form. It posts to
+`/api/waitlist` (`worker/waitlist.ts`), which keeps the email and the apps ticked through the RPC `join_waitlist` with
+the publishable key, then sends the visitor to `/welcome/thanks/`. Nobody can read the table through the API.
+
+1. Run `supabase/migrations/20261026000000_waitlist.sql` in the SQL editor.
+2. `SUPABASE_URL` and `SUPABASE_ANON_KEY` must be set on the Worker (they are, if Capture from anywhere is set up).
+3. Read it: `select email, apps, source, created_at from public.waitlist order by created_at;` (`source` is the page it
+   came from: `welcome` or an app's name). Export with the SQL editor's Download CSV.
+4. On launch day, email the list, then add early testers' emails to `STORE_TESTERS` if you want them to keep the apps free.

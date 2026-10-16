@@ -5,6 +5,7 @@ import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
 import { handleCaptureRequest, type CaptureEnv } from './capture';
+import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 
 type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
@@ -38,6 +39,8 @@ export default {
     if (url.pathname === '/api/capture') return handleCaptureRequest(request, env);
     // The Store: add-ons bought once through Stripe Checkout, kept with the person's account.
     if (url.pathname === '/api/store' || url.pathname.startsWith('/api/store/')) return handleStoreRequest(request, env);
+    // The front page's waitlist: a plain form posts here and is sent on to a thank-you page.
+    if (url.pathname === '/api/waitlist') return handleWaitlistRequest(request, env);
     // Phyton's photos, from its own pages only (POST, same origin).
     if (url.pathname === '/api/plant') {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();

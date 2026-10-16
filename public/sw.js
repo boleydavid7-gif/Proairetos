@@ -37,7 +37,8 @@ const STATIC_PAGES = ['/privacy', '/privacy.html', '/welcome', '/welcome/', '/we
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
   // By path, so /praxis/?open=start still finds the page offline.
-  const key = STATIC_PAGES.includes(path) ? path : '/index.html';
+  // The front page's pages (/welcome/soma/, /welcome/thanks/) are kept as themselves too.
+  const key = STATIC_PAGES.includes(path) || path.startsWith('/welcome/') ? path : '/index.html';
   try {
     const response = await fetch(request);
     if (response.ok) {

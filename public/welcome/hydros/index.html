@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hydros: what you drink, through the day</title>
+    <meta name="description" content="Log a glass in one tap and see what you drank by day. No made-up target: choose a published reference amount if you want one." />
+    <meta property="og:title" content="Hydros: what you drink, through the day" />
+    <meta property="og:description" content="Log a glass in one tap and see what you drank by day. No made-up target: choose a published reference amount if you want one." />
+    <meta property="og:image" content="https://proairetos.com/social/proairetos.png" />
+    <meta property="og:url" content="https://proairetos.com/welcome/hydros/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://proairetos.com/welcome/hydros/" />
+    <link rel="icon" href="/hydros/icons/icon-192.png" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Hydros","url":"https://proairetos.com/hydros/","description":"Log a glass in one tap and see what you drank by day. No made-up target: choose a published reference amount if you want one.","applicationCategory":"HealthApplication","operatingSystem":"Any (installable web app)","image":"https://proairetos.com/hydros/icons/icon-192.png","isPartOf":{"@type":"WebApplication","name":"Proairetos","url":"https://proairetos.com/"}}</script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #061b25; --text: #a9edff; --accent: #36c9f4; --on-accent: #061b25;
+        --muted: color-mix(in srgb, #a9edff 74%, #061b25);
+        --card: color-mix(in srgb, #a9edff 6%, #061b25);
+        --border: color-mix(in srgb, #a9edff 16%, #061b25);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; }
+      a { color: inherit; }
+      .wrap { max-width: 64rem; margin: 0 auto; padding: 0 16px; }
+      h1, h2, h3 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; line-height: 1.15; margin: 0; }
+      h2 { font-size: 2rem; margin-bottom: 1.2rem; }
+      .lead { color: var(--muted); font-size: 1.1rem; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1.8rem; }
+      .button {
+        display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px;
+        border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid var(--border); font: inherit; font-weight: 600;
+        background: transparent; color: inherit; cursor: pointer;
+      }
+      .button--main { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+      section.wrap { padding: 2.5rem 16px; border-top: 1px solid var(--border); }
+      .notes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+      .notes p { margin: 0.3rem 0 0; color: var(--muted); }
+      .notes h3 { font-size: 1.3rem; }
+      .waitlist { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 24px; }
+      .waitlist h2 { margin-bottom: 0.4rem; }
+      .waitlist > p { margin: 0 0 1.2rem; color: var(--muted); }
+      .waitlist__row { display: flex; flex-wrap: wrap; gap: 12px; }
+      .waitlist input[type='email'] {
+        flex: 1 1 16rem; min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border);
+        background: var(--bg); color: var(--text); font: inherit;
+      }
+      .waitlist fieldset { border: 0; padding: 0; margin: 1.2rem 0 0; }
+      .waitlist legend { font-weight: 600; margin-bottom: 0.6rem; padding: 0; }
+      .picks { display: flex; flex-wrap: wrap; gap: 8px; }
+      .picks label {
+        display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px;
+        border: 1px solid var(--border); cursor: pointer;
+      }
+      .picks input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+      .picks label:has(input:checked) { border-color: var(--accent); }
+      .waitlist small { display: block; margin-top: 1rem; color: var(--muted); font-size: 0.9rem; }
+      .hidden-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+      footer { padding: 2rem 0 3rem; color: var(--muted); font-size: 0.95rem; border-top: 1px solid var(--border); }
+      footer a { margin-right: 18px; display: inline-block; min-height: 44px; line-height: 44px; }
+      .hero { display: grid; gap: 32px; align-items: center; padding: 3.5rem 16px 3rem; }
+      .hero__mark { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; }
+      .hero__mark img { width: 64px; height: 64px; border-radius: 16px; }
+      .hero__mark span { font-family: 'EB Garamond', Georgia, serif; font-size: 1.6rem; }
+      h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin-top: 1.4rem; }
+      .hero .lead { margin: 1rem 0 0; max-width: 34rem; }
+      .phone { width: min(100%, 300px); height: auto; justify-self: center; border-radius: 28px; border: 1px solid var(--border); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.55); }
+      .points { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+      .points li { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
+      .points h3 { font-family: inherit; font-weight: 600; font-size: 1.1rem; }
+      .points p { margin: 0.4rem 0 0; color: var(--muted); }
+      .shots { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+      .shots img { height: 26rem; width: auto; max-width: none; border-radius: 20px; border: 1px solid var(--border); scroll-snap-align: start; }
+      .family { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+      .family a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 8px; border-radius: 999px; border: 1px solid var(--border); text-decoration: none; }
+      .family img { width: 28px; height: 28px; border-radius: 8px; }
+      @media (min-width: 48rem) {
+        .hero { grid-template-columns: 1.2fr 1fr; padding: 5rem 16px 4rem; }
+        .shots img { height: 30rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="wrap hero">
+        <div>
+          <a class="hero__mark" href="/welcome/" aria-label="All the apps"><img src="/hydros/icons/icon-192.png" alt="" width="64" height="64" /><span>Hydros</span></a>
+          <h1>What you drink, through the day</h1>
+          <p class="lead">Log a glass in one tap and see what you drank by day. No made-up target: choose a published reference amount if you want one.</p>
+          <div class="actions">
+            <a class="button button--main" href="/hydros/">Open Hydros</a>
+            <a class="button" href="#waitlist">Hear when it opens</a>
+          </div>
+        </div>
+        <img class="phone" src="/hydros/screenshots/narrow-1.webp" alt="Hydros on a phone" width="300" height="650" />
+      </header>
+
+      <section class="wrap" aria-labelledby="what">
+        <h2 id="what">What it does</h2>
+        <ul class="points">
+          <li><h3>One tap</h3><p>Your usual glasses on the first page, and Same again, each with undo.</p></li>
+          <li><h3>Reminders that fit</h3><p>Through your waking hours or your work, never sooner than an interval after your last drink.</p></li>
+          <li><h3>Night shifts too</h3><p>Drinks count toward your day as you live it, not the calendar’s.</p></li>
+          <li><h3>By week and month</h3><p>Every drink of the period, and caffeine as plain facts.</p></li>
+        </ul>
+      </section>
+
+      <section class="wrap" aria-labelledby="look">
+        <h2 id="look">A closer look</h2>
+        <div class="shots">
+          <img src="/hydros/screenshots/narrow-2.webp" alt="Hydros on a phone" />
+          <img src="/hydros/screenshots/wide-1.webp" alt="Hydros on a computer" />
+        </div>
+      </section>
+
+      <section class="wrap" aria-labelledby="install-title">
+        <h2 id="install-title">On any device</h2>
+        <p class="lead">Hydros is a web app: open it in your browser and add it to your Home Screen, on iPhone, Android or a computer. No app store, no download. <a href="/welcome/#install">How to add it</a></p>
+      </section>
+
+      <section class="wrap" id="waitlist" aria-labelledby="waitlist-title">
+        <form class="waitlist" method="post" action="/api/waitlist">
+          <h2 id="waitlist-title">Hear when it opens</h2>
+          <p>The family is in early use. Leave your email to hear when it opens, and be first to try what comes next.</p>
+          <input type="hidden" name="source" value="hydros" />
+          <div class="hidden-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <div class="waitlist__row">
+            <label class="hidden-field" for="waitlist-email">Email</label>
+            <input id="waitlist-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" />
+            <button class="button button--main" type="submit">Keep me posted</button>
+          </div>
+          <input type="hidden" name="apps" value="hydros" />
+          <small>Only used to tell you about Proairetos and its apps. <a href="/privacy.html#waitlist">Privacy</a></small>
+        </form>
+      </section>
+
+      <section class="wrap" aria-labelledby="yours">
+        <h2 id="yours">Privacy</h2>
+        <div class="notes">
+          <div>
+            <h3>On your phone</h3>
+            <p>Everything works without an account and without a connection. Nothing is sent anywhere unless you turn on sync.</p>
+          </div>
+          <div>
+            <h3>Encrypted if you sync</h3>
+            <p>With sync on, your data is encrypted on your phone with a key only you hold. The server can’t read it.</p>
+          </div>
+          <div>
+            <h3>No scores</h3>
+            <p>No streaks, badges or rankings.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap" aria-labelledby="family">
+        <h2 id="family">Part of the Proairetos family</h2>
+        <ul class="family">
+          <li><a href="/welcome/"><img src="/icons/icon-192.png" alt="" width="28" height="28" />Proairetos</a></li>
+          <li><a href="/welcome/askesis/"><img src="/askesis/icons/icon-192.png" alt="" width="28" height="28" />Askesis</a></li>
+          <li><a href="/welcome/soma/"><img src="/soma/icons/icon-192.png" alt="" width="28" height="28" />Soma</a></li>
+          <li><a href="/welcome/oikonomia/"><img src="/oikonomia/icons/icon-192.png" alt="" width="28" height="28" />Oikonomia</a></li>
+          <li><a href="/welcome/praxis/"><img src="/praxis/icons/icon-192.png" alt="" width="28" height="28" />Praxis</a></li>
+          <li><a href="/welcome/theoria/"><img src="/theoria/icons/icon-192.png" alt="" width="28" height="28" />Theoria</a></li>
+          <li><a href="/welcome/diaita/"><img src="/diaita/icons/icon-192.png" alt="" width="28" height="28" />Diaita</a></li>
+          <li><a href="/welcome/philia/"><img src="/philia/icons/icon-192.png" alt="" width="28" height="28" />Philia</a></li>
+          <li><a href="/welcome/ergon/"><img src="/ergon/icons/icon-192.png" alt="" width="28" height="28" />Ergon</a></li>
+          <li><a href="/welcome/therapeia/"><img src="/therapeia/icons/icon-192.png" alt="" width="28" height="28" />Therapeia</a></li>
+          <li><a href="/welcome/dynamis/"><img src="/dynamis/icons/icon-192.png" alt="" width="28" height="28" />Dynamis</a></li>
+          <li><a href="/welcome/ktema/"><img src="/ktema/icons/icon-192.png" alt="" width="28" height="28" />Ktema</a></li>
+          <li><a href="/welcome/phyton/"><img src="/phyton/icons/icon-192.png" alt="" width="28" height="28" />Phyton</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <a href="/welcome/">All the apps</a>
+      <a href="/">Proairetos</a>
+      <a href="/privacy.html">Privacy</a>
+    </footer>
+  </body>
+</html>

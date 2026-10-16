@@ -49,6 +49,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
 
+- [ ] The waitlist on the front page: run `20261026000000_waitlist.sql` (uses `SUPABASE_URL` and `SUPABASE_ANON_KEY`,
+      already set for Capture from anywhere). Until then the form shows "That didn't go through". Read the list in the
+      SQL editor: `select email, apps, source, created_at from public.waitlist order by created_at;` To take someone
+      off: `delete from public.waitlist where email = '…';`
 - [ ] The Store's payments ($4.99 per add-on, Proairetos free): run `20261025000000_purchases.sql`, set up Stripe
       (secret key, a webhook to `https://proairetos.com/api/store/webhook`), and add the Worker secrets
       `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`. Steps in SERVER_SETUP.md, "The Store".
