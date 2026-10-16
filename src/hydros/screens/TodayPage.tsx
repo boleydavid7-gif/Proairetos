@@ -43,7 +43,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
         <div className="hydros-home-head">
           <Brand light />
           <button type="button" className="hydros-settings-button" data-to-header="" aria-label="Settings" onClick={() => nav.go({ name: 'settings' })}>
-            <GearIcon size={21} />
+            <GearIcon size={22} />
           </button>
         </div>
         <div className="hydros-hero__words">
@@ -100,7 +100,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <section className="hydros-today-list" aria-label="Today’s drinks">
         <div className="hydros-section-title">
           <h2>Today</h2>
-          <button type="button" aria-label="Add a custom drink" onClick={() => nav.go({ name: 'add', custom: true })}><PlusIcon size={19} /></button>
+          <button type="button" aria-label="Add a custom drink" onClick={() => nav.go({ name: 'add', custom: true })}><PlusIcon size={20} /></button>
           {caffeine.mg > 0 && <span className="hydros-caffeine">{caffeine.mg} mg caffeine{caffeine.lastAt ? ` · last ${hourLabel(caffeine.lastAt)}` : ''}</span>}
         </div>
         {all && todays.length === 0 && <p className="pattern-empty">Nothing logged yet.</p>}

@@ -382,7 +382,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </div>
         <span className="days-header__actions">
           <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
-            <PlusIcon size={26} />
+            <PlusIcon size={28} />
           </button>
         </span>
       </header>
@@ -504,7 +504,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         <span className="days-row__title">{look.title}</span>
                         {look.location && (
                           <span className="days-row__where">
-                            <PinIcon size={14} /> {look.location}
+                            <PinIcon size={16} /> {look.location}
                           </span>
                         )}
                         {look.detail && <span className="days-row__where">{look.detail}</span>}
@@ -719,7 +719,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                               void remove(entry);
                             }}
                           >
-                            <TrashIcon size={12} />
+                            <TrashIcon size={16} />
                           </button>
                         </div>
                       );
@@ -836,7 +836,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                             </span>
                             {look.location && (
                               <span className="days-row__where">
-                                <PinIcon size={14} /> {look.location}
+                                <PinIcon size={16} /> {look.location}
                               </span>
                             )}
                           </span>

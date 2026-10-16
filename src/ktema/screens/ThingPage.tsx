@@ -142,7 +142,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
       </div>
 
       <div className="detail-head">
-        <span className="detail-head__mark"><BoxIcon size={30} /></span>
+        <span className="detail-head__mark"><BoxIcon size={32} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
           <p className="muted">{[existing.category === existing.name ? undefined : existing.category, existing.place].filter(Boolean).join(' · ')}</p>

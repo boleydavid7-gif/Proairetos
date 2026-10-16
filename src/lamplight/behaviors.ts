@@ -24,7 +24,7 @@ const TITLE = [
   'main h1',
 ].join(', ');
 
-const BACK = '.back-link, .page-hero__back, .theoria-back-button, .meditate-page__back, [data-back]';
+const BACK = '.back-link, .page-hero__back, .theoria-back-button, .meditate-page__back, .hydros-header .hydros-icon-button, [data-back]';
 const OUTSIDE = 'dialog, nav, .tab-bar, .ll-topbar, [data-no-topbar]';
 const PAGE = '.app-shell__content, .page, main';
 const PHONE = '(max-width: 61.99rem)';
@@ -89,7 +89,7 @@ function largeTitle(): void {
   lead.type = 'button';
   lead.className = 'll-topbar__lead';
   const chevron =
-    '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+    '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>';
   const actions = document.createElement('span');
   actions.className = 'll-topbar__actions';
   bar.append(lead, actions);

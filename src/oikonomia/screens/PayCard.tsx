@@ -22,7 +22,7 @@ export default function PayCard({ nav, bills, today, currency }: { nav: Nav; bil
       <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'pay' })}>
         <span className="card__eyebrow">Pay</span>
         <span className="oiko-budget-home__line"><span>Add when you’re paid</span></span>
-        <span className="muted"><ChevronIcon size={17} /></span>
+        <span className="muted"><ChevronIcon size={18} /></span>
       </button>
     );
   }

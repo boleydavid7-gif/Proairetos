@@ -82,7 +82,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
                         <Initials name={person.name} id={person.id} />
                         <span className="row__text"><span>{person.name}</span><span className="row__detail">{sinceText(person.lastInTouch, today)}</span></span>
-                        <ChevronIcon size={17} />
+                        <ChevronIcon size={18} />
                       </button>
                       <button type="button" className="button-quiet person-touch__mark" onClick={() => markInTouch(person, today)}>In touch today</button>
                     </SwipeItem>
@@ -100,7 +100,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
                         <Initials name={person.name} id={person.id} />
                         <span className="row__text"><span>{time.text || (time.how === 'visit' ? 'Saw them' : 'In touch')}</span><span className="row__detail">{person.name} · {shortDate(time.date)}</span></span>
-                        <ChevronIcon size={17} />
+                        <ChevronIcon size={18} />
                       </button>
                     </li>
                   ))}

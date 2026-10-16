@@ -40,7 +40,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
       <li key={week.n} className={`weeks__item${here ? ' weeks__item--current' : ''}`}>
         <button type="button" className="weeks__head" aria-expanded={open === week.n} onClick={() => setOpen(open === week.n ? undefined : week.n)}>
           <span className={`weeks__dot${past ? ' weeks__dot--past' : ''}${here ? ' weeks__dot--current' : ''}`} aria-hidden="true">
-            {past && <CheckIcon size={14} />}
+            {past && <CheckIcon size={16} />}
           </span>
           <span className="weeks__text">
             <span className="weeks__name">

@@ -41,7 +41,7 @@ function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDa
   return (
     <li className="timeline-entry">
       <span className="timeline-entry__mark" role="img" aria-label={mark.label}>
-        <Icon size={30} />
+        <Icon size={32} />
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">

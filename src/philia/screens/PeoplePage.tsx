@@ -19,7 +19,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
       </div>
       {all.length > 6 && <input className="input" type="search" placeholder="Search" aria-label="Search people" value={query} onChange={(event) => setQuery(event.target.value)} />}
       {all.length === 0 ? (
-        <Empty icon={<PeopleIcon size={26} />} title="No one here yet" line="Birthdays, things to remember, gift ideas." />
+        <Empty icon={<PeopleIcon size={28} />} title="No one here yet" line="Birthdays, things to remember, gift ideas." />
       ) : shown.length === 0 ? (
         <p className="muted">No one matches.</p>
       ) : (
@@ -32,7 +32,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
                   <span>{person.name}</span>
                   <span className="row__detail">{[person.relation, person.birthday && `Birthday ${dateText(person.birthday.slice(-5))}`].filter(Boolean).join(' · ')}</span>
                 </span>
-                <ChevronIcon size={17} />
+                <ChevronIcon size={18} />
               </button>
             </li>
           ))}

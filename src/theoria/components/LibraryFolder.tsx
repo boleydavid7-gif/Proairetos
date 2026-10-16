@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { folderSupported, useBackupFolder } from '../../app/family/backupFolder';
 import { browseCloud, chooseCloudFolder, chosenCloudFolder, cloudConnected, cloudsOffered, CLOUD_NAMES, connectCloud, disconnectCloud, dropboxWhole, type CloudEntry, type CloudFolder, type CloudProvider } from '../data/cloudLibrary';
 import { chooseLibraryFolder, forgetLibraryFolder, LIBRARY_KEY } from '../data/libraryFolder';
+import { LampIcon } from '../../lamplight/icons';
 
 const ICON_PATH = 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
-const icon = (path = ICON_PATH) => <span className="row__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={path} /></svg></span>;
+const icon = (path = ICON_PATH) => <span className="row__icon"><LampIcon glyph={{ line: <path d={path} /> }} size={20} /></span>;
 
 /** Folders of a connected storage, one level at a time, to choose the library folder. */
 function FolderBrowser({ provider, onChosen, onClose }: { provider: CloudProvider; onChosen: (folder: CloudFolder) => void; onClose: () => void }) {

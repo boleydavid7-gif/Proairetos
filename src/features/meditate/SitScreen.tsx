@@ -193,7 +193,7 @@ export default function SitScreen({ plan, onClose }: { plan: SitPlan; onClose: (
               aria-label={running ? 'Pause' : 'Carry on'}
               onClick={toggle}
             >
-              {running ? <PauseIcon size={26} /> : <PlayIcon size={26} />}
+              {running ? <PauseIcon size={28} /> : <PlayIcon size={28} />}
             </button>
             <span className="sit-screen__time" />
           </div>

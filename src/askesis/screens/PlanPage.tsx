@@ -26,6 +26,7 @@ import {
 } from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
 import GoalLink, { moveGoalTime } from './GoalLink';
+import { Sym } from '../../lamplight/icons';
 
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -369,11 +370,11 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             </div>
             <div className="stepper">
               <button type="button" className="stepper__button" aria-label="Less" onClick={() => setMinutes(Math.max(10, minutes - 5))}>
-                −
+                <Sym name="minus" />
               </button>
               <span className="stepper__value">{minutes} minutes</span>
               <button type="button" className="stepper__button" aria-label="More" onClick={() => setMinutes(Math.min(180, minutes + 5))}>
-                +
+                <Sym name="plus" />
               </button>
             </div>
           </section>

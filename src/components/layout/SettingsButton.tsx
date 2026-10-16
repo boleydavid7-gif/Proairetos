@@ -14,7 +14,7 @@ export default function SettingsButton() {
   return (
     <button type="button" className="header-action profile-button" aria-label="Settings" onClick={() => navigate('settings')}>
       <span className="profile-button__face" aria-hidden="true">
-        {initial || <GearIcon size={17} />}
+        {initial || <GearIcon size={18} />}
       </span>
     </button>
   );

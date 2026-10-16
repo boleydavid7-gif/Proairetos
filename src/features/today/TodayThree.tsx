@@ -181,7 +181,7 @@ export default function TodayThree({ date, items }: Props) {
                   className="path__circle"
                   onClick={() => toggle(item)}
                 >
-                  {done && <CheckIcon size={14} />}
+                  {done && <CheckIcon size={16} />}
                 </button>
                 <button type="button" className="path__text" onClick={() => openItem(item.id)}>
                   <span className="path__title">{item.title}</span>

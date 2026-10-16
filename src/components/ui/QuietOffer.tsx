@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { showNotForMeSnapshot, subscribePreferences } from '../../data/storage/preferences';
+import { Sym } from '../../lamplight/icons';
 
 type Props = {
   text: string;
@@ -24,7 +25,7 @@ export default function QuietOffer({ text, onAccept, onNotForMe, onDismiss }: Pr
           </button>
         )}
         <button type="button" className="quiet-offer__quiet" aria-label="Dismiss" onClick={onDismiss}>
-          ×
+          <Sym name="close" />
         </button>
       </span>
     </div>

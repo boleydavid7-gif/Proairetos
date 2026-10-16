@@ -26,6 +26,7 @@ import { listBills, getBudget, loadSettings as loadOikonomiaSettings } from '../
 import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/core/budget';
 import { formatMoney } from '../../oikonomia/core/bills';
 import { isAdded } from '../../app/family/added';
+import { Sym } from '../../lamplight/icons';
 
 type Tab = 'ingredients' | 'steps' | 'nutrition' | 'notes';
 
@@ -171,9 +172,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         {recipe.image && <img src={recipe.image} alt="" />}
         <div className="recipe-hero__bar">
           <button type="button" className="round-button" onClick={nav.back} aria-label="Back">
-            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="m15 6-6 6 6 6" />
-            </svg>
+            <Sym name="back" size={20} />
           </button>
           <span style={{ display: 'flex', gap: 8 }}>
             <button
@@ -285,13 +284,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             <div className="servings">
               <span>Servings</span>
               <span className="stepper">
-                <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setServes(Math.max(1, serves - 1))}>
-                  −
-                </button>
+                <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
                 <span className="stepper__value">{serves}</span>
-                <button type="button" className="stepper__button" aria-label="More" onClick={() => setServes(serves + 1)}>
-                  +
-                </button>
+                <button type="button" className="stepper__button" aria-label="More" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
               </span>
             </div>
           )}
@@ -327,7 +322,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                       setGathered(next);
                     }}
                   >
-                    <span className="check-row__box">{gathered.has(i) ? '✓' : ''}</span>
+                    <span className="check-row__box">{gathered.has(i) ? <Sym name="check" size={16} /> : null}</span>
                     <span className="check-row__text">{line}</span>
                   </button>
                 </li>
@@ -628,7 +623,7 @@ function AddToGroceries({ lines, sourceLines, kitchen, onClose, onAdd }: { lines
                   setChosen(next);
                 }}
               >
-                <span className="check-row__box">{chosen.has(i) ? '✓' : ''}</span>
+                <span className="check-row__box">{chosen.has(i) ? <Sym name="check" size={16} /> : null}</span>
                 <span>{line}</span>
               </button>
             </li>

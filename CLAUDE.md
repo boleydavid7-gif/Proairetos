@@ -188,6 +188,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack through `setSwipeBack` in
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
+- Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
+  28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
+  (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

@@ -1,4 +1,5 @@
 import { MAX_USER_VALUES, presetValues } from '../../../core/values/types';
+import { Sym } from '../../../lamplight/icons';
 
 export type Choices = { name: string; values: string[]; shifts: boolean };
 
@@ -55,7 +56,7 @@ export default function MakeItYours({ choices, onChange }: Props) {
         aria-pressed={choices.shifts}
         onClick={() => onChange({ ...choices, shifts: !choices.shifts })}
       >
-        <span className="make-yours__check" aria-hidden="true">{choices.shifts ? '✓' : ''}</span>
+        <span className="make-yours__check" aria-hidden="true">{choices.shifts ? <Sym name="check" size={16} /> : null}</span>
         Set up my schedule next
       </button>
     </div>

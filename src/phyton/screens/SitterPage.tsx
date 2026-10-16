@@ -33,7 +33,7 @@ export default function SitterPage({ nav }: { nav: PhytonNav }) {
     <PrintSheet
       title={away ? `Plants, ${long(away.from)} to ${long(away.to)}` : 'Plants'}
       onBack={nav.back}
-      choices={rows.length > 0 && <button type="button" className="chip" onClick={() => void share()}><ShareIcon size={15} />Send as text</button>}
+      choices={rows.length > 0 && <button type="button" className="chip" onClick={() => void share()}><ShareIcon size={16} />Send as text</button>}
     >
       {rows.length === 0 && <p>No plants yet.</p>}
       {rows.length > 0 && (

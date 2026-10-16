@@ -122,15 +122,15 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'home' })}>
-            <span className="row__icon"><PeopleIcon size={21} /></span>
+            <span className="row__icon"><PeopleIcon size={22} /></span>
             <span className="row__text"><span>Share</span><span className="row__detail">{home ? home.name : 'With the people you live with'}</span></span>
-            <ChevronIcon size={17} />
+            <ChevronIcon size={18} />
           </button>
         </li>
       </ul>
@@ -182,7 +182,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <ul className="rows">
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
             <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>

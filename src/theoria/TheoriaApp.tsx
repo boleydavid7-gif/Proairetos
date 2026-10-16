@@ -672,5 +672,5 @@ export default function TheoriaApp() {
 }
 
 function TheoriaNav({ bottom = false, view, onView, items }: { bottom?: boolean; view: View; onView: (view: View) => void; items: readonly { id: View; label: string; Icon: ComponentType<{ size?: number }> }[] }) {
-  return <div className="theoria-nav-list">{items.map((item) => <button type="button" key={item.id} data-to-header={item.id === 'settings' ? '' : undefined} className={view === item.id || (item.id === 'library' && view === 'shelf') ? 'is-active' : ''} onClick={() => onView(item.id)}><span><item.Icon size={19} /></span><small>{item.label}</small></button>)}{bottom && <ProairetosTab className="theoria-proairetos" size={19} />}</div>;
+  return <div className="theoria-nav-list">{items.map((item) => <button type="button" key={item.id} data-to-header={item.id === 'settings' ? '' : undefined} className={view === item.id || (item.id === 'library' && view === 'shelf') ? 'is-active' : ''} onClick={() => onView(item.id)}><span><item.Icon size={20} /></span><small>{item.label}</small></button>)}{bottom && <ProairetosTab className="theoria-proairetos" size={19} />}</div>;
 }

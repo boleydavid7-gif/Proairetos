@@ -29,6 +29,7 @@ import {
   type DayAt,
   type PraxisQuote,
 } from './data';
+import { Sym } from '../lamplight/icons';
 
 export const PRAXIS_SOUND_IDS = ['none', 'forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
 
@@ -180,11 +181,11 @@ function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove
     <div className={`praxis-task${selected ? ' is-selected' : ''}${block.status === 'DONE' ? ' is-done' : ''}`}>
       <div className="praxis-task__row">
         <button type="button" className="praxis-task-main" onClick={() => onSelect(block)} aria-pressed={selected}>
-          <span className="praxis-task-icon"><BookIcon size={17} /></span>
+          <span className="praxis-task-icon"><BookIcon size={18} /></span>
           <span><strong>{block.title}</strong><small>{block.plannedMinutes ?? 25} min{goal ? ` · ${goal.body}` : ''}</small></span>
         </button>
-        <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={15} /></button>
-        <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={14} /></button>
+        <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
+        <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
       </div>
       {editing && (
         <form className="praxis-block-form" onSubmit={save}>
@@ -285,7 +286,7 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
           {group.events.map((event) => (
             <div key={event.id}>
               <div className="praxis-history-row">
-                <span className="praxis-history-icon"><BookIcon size={17} /></span>
+                <span className="praxis-history-icon"><BookIcon size={18} /></span>
                 <span><strong>{titles.get(event.itemId) ?? 'A block'}</strong><small>{formatSessionTime(event.timestamp)}</small></span>
                 <button type="button" className="praxis-history-duration" onClick={() => { setEditing(editing === event.id ? undefined : event.id); setValue(String(focusMinutes(event))); }}>{focusMinutes(event)} min</button>
               </div>
@@ -330,8 +331,8 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
           <div className="praxis-card-heading">
             <div><p className="praxis-eyebrow">{label}</p><h2>{total ? formatMinutes(total) : 'Nothing recorded'}</h2></div>
             <div className="praxis-week-step">
-              <button type="button" aria-label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}>‹</button>
-              <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}>›</button>
+              <button type="button" aria-label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}><Sym name="back" /></button>
+              <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}><Sym name="chevron" /></button>
             </div>
           </div>
           <div className={total ? 'praxis-chart' : 'praxis-chart praxis-chart--empty'}>
@@ -347,7 +348,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
         <article className="praxis-card praxis-wide-card">
           <p className="praxis-eyebrow">By block</p>
           {blocks.length === 0 ? <p className="praxis-empty">No time recorded in this week.</p> : blocks.map((each) => (
-            <div className="praxis-history-row" key={each.itemId}><span className="praxis-history-icon"><ClockIcon size={17} /></span><span><strong>{titles.get(each.itemId) ?? 'A block'}</strong></span><span className="praxis-history-duration">{formatMinutes(each.minutes)}</span></div>
+            <div className="praxis-history-row" key={each.itemId}><span className="praxis-history-icon"><ClockIcon size={18} /></span><span><strong>{titles.get(each.itemId) ?? 'A block'}</strong></span><span className="praxis-history-duration">{formatMinutes(each.minutes)}</span></div>
           ))}
         </article>
       </div>

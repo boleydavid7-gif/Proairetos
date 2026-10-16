@@ -10,6 +10,7 @@ import { changeText } from '../core/history';
 import { newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
+import { Sym } from '../../lamplight/icons';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const OFFSETS = [0, 15, 30, 60, 120];
@@ -194,9 +195,9 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
           )}
           {daysKind === 'every' && (
             <div className="stepper">
-              <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(2, every - 1))}>−</button>
+              <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(2, every - 1))}><Sym name="minus" /></button>
               <span className="stepper__value">Every {every} days</span>
-              <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(30, every + 1))}>+</button>
+              <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(30, every + 1))}><Sym name="plus" /></button>
             </div>
           )}
         </fieldset>

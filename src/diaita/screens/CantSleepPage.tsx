@@ -33,7 +33,7 @@ export default function CantSleepPage({ nav }: { nav: DiaitaNav }) {
     <div className="diaita-cant-sleep">
       <button type="button" className="diaita-cant-sleep__back" onClick={nav.back}><BackIcon size={18} />Back</button>
       <div className="diaita-cant-sleep__content">
-        <MoonIcon size={34} />
+        <MoonIcon size={32} />
         {phase === 'start' && (
           <>
             <h1>Can’t sleep</h1>
@@ -65,7 +65,7 @@ export default function CantSleepPage({ nav }: { nav: DiaitaNav }) {
           <div className="diaita-cant-sleep__chips" role="group" aria-label="Sound">
             {SOUNDS.map((choice) => (
               <button key={choice.label} type="button" className="diaita-cant-sleep__chip" aria-pressed={sound === choice.id} onClick={() => play(choice.id)}>
-                {sound === choice.id && <TimerIcon size={14} />}{choice.label}
+                {sound === choice.id && <TimerIcon size={16} />}{choice.label}
               </button>
             ))}
           </div>

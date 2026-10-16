@@ -8,7 +8,7 @@ export default function MealEntry({ meal, showDay }: { meal: CookedFor; showDay:
   return (
     <li className="timeline-entry">
       <span className="timeline-entry__mark" role="img" aria-label="A meal, from Soma">
-        <LeafIcon size={30} />
+        <LeafIcon size={32} />
       </span>
       <div className="timeline-entry__body">
         {showDay && (

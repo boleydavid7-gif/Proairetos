@@ -16,12 +16,13 @@ import { pendingInvite, SharedLists } from './SharedList';
 import { sharingAvailable } from '../data/sharedLists';
 import Empty from '../../app/family/Empty';
 import SwipeItem from '../../app/family/SwipeItem';
+import { Sym } from '../../lamplight/icons';
 
 function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSystem: UnitSystem; onToggle: () => void; onMore: () => void }) {
   return (
     <SwipeItem className="grocery-row" label="Got it" off={item.checked} onSwipe={onToggle}>
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
-        <span className="check-row__box">{item.checked ? '✓' : ''}</span>
+        <span className="check-row__box">{item.checked ? <Sym name="check" size={16} /> : null}</span>
         <span className="check-row__text">
           {item.name}
           {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, unitSystem)).join(' + ')}</span>}
@@ -125,7 +126,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
       )}
 
       {toBuy.length === 0 ? (
-        <Empty icon={<BasketIcon size={26} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
+        <Empty icon={<BasketIcon size={28} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
       ) : (
         <>
           <Segmented

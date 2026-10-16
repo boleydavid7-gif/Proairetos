@@ -110,7 +110,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   return (
     <div className="page oiko-page oiko-budget">
       <PageTop>
-        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button>
+        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button>
         <span className="oiko-budget__mark"><WalletIcon size={20} /></span>
       </PageTop>
 

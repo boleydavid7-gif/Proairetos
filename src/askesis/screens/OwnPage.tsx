@@ -7,6 +7,7 @@ import { putOwnSession, removeOwnSession, saveOwnSessions, useOwnSessions } from
 import { efforts, type Effort } from '../core/effort';
 import { ENDS, REST_EFFORTS, STRETCHES, WORK_EFFORTS, newSession, ownWorkout, type OwnSession } from '../core/own';
 import { lengthLabel, sessionLines, totalMinutes } from '../core/workouts';
+import { Sym } from '../../lamplight/icons';
 
 function Choices<T extends string | number>({ label, value, options, name, onPick }: { label: string; value: T | undefined; options: readonly T[]; name: (option: T) => string; onPick: (option: T) => void }) {
   return (
@@ -39,11 +40,11 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
         <span className="label">Repeats</span>
         <div className="own-stepper">
           <button type="button" className="chip" aria-label="One fewer" disabled={session.repeat <= 1} onClick={() => change({ repeat: session.repeat - 1 })}>
-            −
+            <Sym name="minus" />
           </button>
           <span className="own-stepper__value">{session.repeat}</span>
           <button type="button" className="chip" aria-label="One more" disabled={session.repeat >= 30} onClick={() => change({ repeat: session.repeat + 1 })}>
-            +
+            <Sym name="plus" />
           </button>
         </div>
       </div>

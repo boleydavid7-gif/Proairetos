@@ -79,7 +79,7 @@ export default function CheckRow({ item, done, detail, allowDelete = false }: { 
                 className="check-lines__box"
                 onClick={() => lifeService.toggleChecklistLine(item.id, line.id)}
               >
-                {line.done && <CheckIcon size={12} />}
+                {line.done && <CheckIcon size={16} />}
               </button>
               <span>{line.text}</span>
             </li>

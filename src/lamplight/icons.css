@@ -9,3 +9,14 @@
 .ll-icon--lit .ll-icon__lit {
   opacity: 0.24;
 }
+
+/* An icon beside words sits on the middle of the line; a control holding only an icon centers it. */
+.ll-icon {
+  flex: none;
+  vertical-align: -0.22em;
+}
+
+:where(button, a, span):has(> .ll-icon:only-child) {
+  display: inline-grid;
+  place-items: center;
+}

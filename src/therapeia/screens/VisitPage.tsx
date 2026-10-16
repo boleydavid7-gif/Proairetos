@@ -122,7 +122,7 @@ function VisitView({ nav, visit, onEdit }: { nav: TherapeiaNav; visit: Appointme
         <button type="button" className="text-link" onClick={onEdit}>Edit</button>
       </div>
       <div className="detail-head">
-        <span className="detail-head__mark"><VisitIcon size={30} /></span>
+        <span className="detail-head__mark"><VisitIcon size={32} /></span>
         <div>
           <h1 className="title">{visit.with}</h1>
           <p className="muted">{when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}, {when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</p>

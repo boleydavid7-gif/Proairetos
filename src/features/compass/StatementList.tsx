@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import { MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
+import { Sym } from '../../lamplight/icons';
 
 type Props = {
   type: CompassStatementType;
@@ -47,7 +48,7 @@ export default function StatementList({ type, title, description, placeholder, s
                   offerUndo('Removed', removal.undo);
                 }}
               >
-                ×
+                <Sym name="close" />
               </button>
             </li>
           ))}

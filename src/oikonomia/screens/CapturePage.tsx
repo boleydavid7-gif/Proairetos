@@ -77,7 +77,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
   return (
     <div className="page oiko-page">
       <PageTop>
-        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button>
+        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button>
       </PageTop>
       <h1 className="title">{id ? 'Edit bill' : 'Add a bill'}</h1>
 

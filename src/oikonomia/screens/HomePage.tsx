@@ -72,7 +72,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
               ) : (
                 <span className="oiko-budget-home__line"><span>Set a monthly amount</span></span>
               )}
-              <span className="muted"><ChevronIcon size={17} /></span>
+              <span className="muted"><ChevronIcon size={18} /></span>
             </button>
           </>
         ) : (
@@ -115,7 +115,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
               <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
-              <span className="muted"><ChevronIcon size={17} /></span>
+              <span className="muted"><ChevronIcon size={18} /></span>
             </button>
           </>
         )}

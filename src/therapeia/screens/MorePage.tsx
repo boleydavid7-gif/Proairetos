@@ -77,26 +77,26 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'circle' })}>
-            <span className="row__icon"><PeopleIcon size={21} /></span>
+            <span className="row__icon"><PeopleIcon size={22} /></span>
             <span className="row__text"><span>Share with someone who helps</span>{circle && <span className="row__detail">{circle.name}</span>}</span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
             <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
         {diaitaAdded && (
           <li>
             <a className="row" href="/diaita/?open=more">
-              <span className="row__icon"><SettingsIcon size={21} /></span>
+              <span className="row__icon"><SettingsIcon size={22} /></span>
               <span className="row__text"><span>Waking and sleep</span><span className="row__detail">Set in Diaita</span></span>
             </a>
           </li>

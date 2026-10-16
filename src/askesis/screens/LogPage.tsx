@@ -130,7 +130,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
       <section aria-label="Workouts" className="entries">
         <h2 className="label">Workouts</h2>
         {entries && list.length === 0 && (
-          <Empty icon={<LogIcon size={26} />} title="Nothing logged yet" line="Runs, walks and anything else, with time and distance.">
+          <Empty icon={<LogIcon size={28} />} title="Nothing logged yet" line="Runs, walks and anything else, with time and distance.">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>
               Log a workout
             </button>

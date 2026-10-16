@@ -14,6 +14,7 @@ import { moist, PlantThumb, watered } from '../app/ui';
 import { dayText, everyNow, everyText, feed, journal, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
 import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
 import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
+import { Sym } from '../../lamplight/icons';
 
 async function keepPhoto(plantId: string, file: Blob): Promise<void> {
   const small = await smallPhoto(file);
@@ -88,9 +89,9 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
       <fieldset className="field">
         <legend className="field__label">Check the soil</legend>
         <div className="stepper">
-          <button type="button" className="stepper__button" aria-label="Fewer days" onClick={() => setEvery(Math.max(1, every - 1))}>−</button>
+          <button type="button" className="stepper__button" aria-label="Fewer days" onClick={() => setEvery(Math.max(1, every - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">{everyText(every)}</span>
-          <button type="button" className="stepper__button" aria-label="More days" onClick={() => setEvery(Math.min(60, every + 1))}>+</button>
+          <button type="button" className="stepper__button" aria-label="More days" onClick={() => setEvery(Math.min(60, every + 1))}><Sym name="plus" /></button>
         </div>
         <p className="hint">In spring and summer; longer in winter. Your waterings take over from here.</p>
       </fieldset>
@@ -98,9 +99,9 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
       <fieldset className="field">
         <legend className="field__label">Feed</legend>
         <div className="stepper">
-          <button type="button" className="stepper__button" aria-label="Less often" onClick={() => setFeedEvery(Math.max(0, feedEvery - 1))}>−</button>
+          <button type="button" className="stepper__button" aria-label="Less often" onClick={() => setFeedEvery(Math.max(0, feedEvery - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">{feedEvery === 0 ? 'Not reminded' : feedEvery === 1 ? 'Every week' : `Every ${feedEvery} weeks`}</span>
-          <button type="button" className="stepper__button" aria-label="More often" onClick={() => setFeedEvery(Math.min(12, feedEvery + 1))}>+</button>
+          <button type="button" className="stepper__button" aria-label="More often" onClick={() => setFeedEvery(Math.min(12, feedEvery + 1))}><Sym name="plus" /></button>
         </div>
       </fieldset>
 
@@ -295,7 +296,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         <button type="button" className="chip" onClick={() => mark(journal(plant, today, 'prune', undefined, me), `${plant.name} pruned`)}>Pruned</button>
         <button type="button" className="chip" aria-pressed={writing === 'pest'} onClick={() => setWriting(writing === 'pest' ? undefined : 'pest')}>Pests seen</button>
         <button type="button" className="chip" aria-pressed={writing === 'note'} onClick={() => setWriting(writing === 'note' ? undefined : 'note')}>Note</button>
-        {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={15} />Identify</button>}
+        {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={16} />Identify</button>}
       </div>
 
       {writing && (

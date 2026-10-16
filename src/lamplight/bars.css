@@ -111,7 +111,7 @@
 
   /* What the bar now carries leaves the page and the dock. */
   :root.ll-bar-on :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
-  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button),
+  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
   :root.ll-bar-on :is(.hydros-home-head, .theoria-mobile-brand),
   :root.ll-bar-on .shell .page > .brand,
   :root.ll-bar-on .hero .brand {
@@ -147,6 +147,10 @@
   /* Room for the bar where a page's title begins at the very top. */
   :root.ll-bar-on .shell .page:not(.page--under-hero):not(:has(> .back-link:first-child)):not(:has(> .brand:first-child)) {
     padding-top: calc(env(safe-area-inset-top) + 56px);
+  }
+
+  :root.ll-bar-on .hydros-screen {
+    padding-top: calc(env(safe-area-inset-top) + 48px);
   }
 
   :root.ll-bar-on :is(.praxis-main, .theoria-app:not(.theoria-app--reader) .theoria-main) {

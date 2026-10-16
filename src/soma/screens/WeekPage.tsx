@@ -9,6 +9,7 @@ import { isHeading, marks, searchRecipes, type Mark, type Recipe } from '../core
 import { plannedAhead, plannedOn, repeatWeekBefore, togglePlanned, weekFrom } from '../core/week';
 import { addDays } from '../../core/scheduling/dates';
 import { loadSettings, putRecipe, saveGroceries } from '../data/store';
+import { Sym } from '../../lamplight/icons';
 
 /** A loose week: a few recipes placed on days, nothing to fill. Their groceries in one tap. */
 export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
@@ -47,9 +48,9 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
     <div className="page">
       <BackLink label="Home" onBack={nav.back} />
       <div className="week-steps">
-        <button type="button" className="chip" aria-label="Week before" disabled={offset === 0} onClick={() => setOffset(offset - 1)}>‹</button>
+        <button type="button" className="chip" aria-label="Week before" disabled={offset === 0} onClick={() => setOffset(offset - 1)}><Sym name="back" /></button>
         <h1 className="title">{offset === 0 ? 'This week' : offset === 1 ? 'Next week' : `From ${dayLabel(start, today, true)}`}</h1>
-        <button type="button" className="chip" aria-label="Week after" disabled={offset === 3} onClick={() => setOffset(offset + 1)}>›</button>
+        <button type="button" className="chip" aria-label="Week after" disabled={offset === 3} onClick={() => setOffset(offset + 1)}><Sym name="chevron" /></button>
       </div>
       {again.length > 0 && (
         <button
@@ -88,9 +89,7 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
                     className="week__remove"
                     aria-label={`Take ${recipe.title} off ${dayLabel(day, today, true)}`}
                     onClick={() => undo(`${recipe.title} taken off`, toggle(recipe, day))}
-                  >
-                    ×
-                  </button>
+                  ><Sym name="close" /></button>
                 </div>
               ))}
             </li>

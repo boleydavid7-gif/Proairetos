@@ -7,6 +7,7 @@ import { useDays } from '../app/day';
 import DrinkEntry from '../app/DrinkEntry';
 import { defaultDrinkProfiles, drinkDay, effectiveGoalOz, formatVolume, hydrationOz, localDate, monthDates, startOfWeek, weekDates, weekNumber, type HydrosUnit } from '../core/drinks';
 import { ScreenHeader, Segmented } from '../app/ui';
+import { Sym } from '../../lamplight/icons';
 
 type Span = 'Week' | 'Month';
 const PAGE = 30;
@@ -52,9 +53,9 @@ export default function FlowPage({ nav }: { nav: Nav }) {
     <ScreenHeader title="Your flow" onBack={nav.back} />
     <Segmented items={['Week', 'Month'] as const} selected={span} onSelect={(next) => { setSpan(next); setShown(PAGE); }} />
     <div className="flow-period" aria-label={`${span} to show`}>
-      <button type="button" className="flow-period__button" aria-label={`Previous ${span.toLowerCase()}`} onClick={() => movePeriod(-1)}>‹</button>
+      <button type="button" className="flow-period__button" aria-label={`Previous ${span.toLowerCase()}`} onClick={() => movePeriod(-1)}><Sym name="back" /></button>
       <strong>{periodTitle}</strong>
-      <button type="button" className="flow-period__button" aria-label={`Next ${span.toLowerCase()}`} onClick={() => movePeriod(1)}>›</button>
+      <button type="button" className="flow-period__button" aria-label={`Next ${span.toLowerCase()}`} onClick={() => movePeriod(1)}><Sym name="chevron" /></button>
     </div>
     <div className="flow-chart-card">
       {span === 'Week'

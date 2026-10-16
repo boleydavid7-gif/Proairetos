@@ -11,6 +11,7 @@ import { saveSpent, spentIn } from '../../oikonomia/data/spent';
 import type { BudgetCategory } from '../../oikonomia/core/budget';
 import { TimerIcon } from '../../app/family/icons';
 import { dayText, everyText, latestReading, markDone, nextDue, skip, type Every, type Upkeep } from '../core/things';
+import { Sym } from '../../lamplight/icons';
 
 const UNITS: Every['unit'][] = ['days', 'weeks', 'months', 'years'];
 
@@ -68,9 +69,9 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
       <fieldset className="field">
         <legend className="field__label">Comes around</legend>
         <div className="stepper">
-          <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+          <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setCount(Math.max(1, count - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">Every {count}</span>
-          <button type="button" className="stepper__button" aria-label="More" onClick={() => setCount(Math.min(60, count + 1))}>+</button>
+          <button type="button" className="stepper__button" aria-label="More" onClick={() => setCount(Math.min(60, count + 1))}><Sym name="plus" /></button>
         </div>
         <div className="chip-row" role="group" aria-label="Unit">
           {UNITS.map((each) => <button key={each} type="button" className="chip" aria-pressed={per === each} onClick={() => setPer(each)}>{count === 1 ? each.slice(0, -1) : each}</button>)}
@@ -117,7 +118,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
       </div>
 
       <div className="detail-head">
-        <span className="detail-head__mark"><TimerIcon size={30} /></span>
+        <span className="detail-head__mark"><TimerIcon size={32} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
           <p className="muted">{thing ? <button type="button" className="text-link" onClick={() => nav.go({ name: 'thing', id: thing.id })}>{thing.name}</button> : 'The home in general'}</p>

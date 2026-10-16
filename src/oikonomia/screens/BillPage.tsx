@@ -24,7 +24,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
   }, [found?.amountCents]);
 
   if (!bills) return <div className="page oiko-page"><div className="skeleton-stack" role="status" aria-label="Gathering this bill"><div className="skeleton" /><div className="skeleton" /></div></div>;
-  if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button></PageTop><h1 className="title">That bill is not here</h1></div>;
+  if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button></PageTop><h1 className="title">That bill is not here</h1></div>;
   const bill = found;
   const stand = standing(bill, today);
   const open = !stand.settled;
@@ -70,11 +70,11 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
   return (
     <div className="page oiko-page oiko-detail">
       <PageTop>
-        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Bills</button>
+        <button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Bills</button>
       </PageTop>
 
       <div className="oiko-detail__heading">
-        <span className="oiko-detail__emblem"><WalletIcon size={26} /></span>
+        <span className="oiko-detail__emblem"><WalletIcon size={28} /></span>
         <div>{bill.category && <p className="label">{bill.category}</p>}<h1 className="title">{bill.name}</h1></div>
         <strong className="oiko-detail__amount">{formatMoney(bill.amountCents, bill.currency)}</strong>
       </div>
@@ -88,7 +88,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
       {open && !bill.autopay && !paidForOccurrence(bill, stand.date, today) && (
         <div className="oiko-pay">
           <label className="field"><span className="field__label">Amount paid</span><input className="input" type="text" inputMode="decimal" value={paidText} onChange={(event) => setPaidText(event.target.value)} /></label>
-          <button type="button" className="button-main" onClick={() => void markPaid()}><CheckIcon size={19} /> Mark paid</button>
+          <button type="button" className="button-main" onClick={() => void markPaid()}><CheckIcon size={20} /> Mark paid</button>
         </div>
       )}
       {problem && <p className="oiko-error" role="alert">{problem}</p>}

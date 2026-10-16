@@ -1,7 +1,8 @@
 import type { ReactNode, SVGProps } from 'react';
 
 /*
- * Lamplight's icons. One drawing rule for the whole family: a 24 grid with a 2-unit margin, one 1.7 stroke, round
+ * Lamplight's icons. One drawing rule for the whole family: a 24 grid with a 2-unit margin, one weight of line at
+ * every size (strokeFor: 1.66 in the grid at 24), round
  * ends and joins, corners rounded about 2, nothing thinner than the stroke. Each icon is a line drawing with an
  * inner shape that shows when it is lit: the icon of the page you are on fills softly with the lamp from inside,
  * the icon-sized version of "one light" (icons.css). An icon with no inner shape of its own is lit by filling its
@@ -12,6 +13,19 @@ export type LampIconProps = Omit<SVGProps<SVGSVGElement>, 'children'> & { size?:
 
 export type Glyph = { line: ReactNode; lit?: ReactNode };
 
+/** The icon sizes, a scale like the type scale: 16 inside text, 18 in controls, 20 in rows, 22 in bars, 24 in tabs,
+ *  28 and 32 where an icon stands alone. */
+export const ICON_SIZES = [16, 18, 20, 22, 24, 28, 32] as const;
+
+/**
+ * One weight at every size, as SF Symbols keeps it: a line reads about 1.5 px at 16 and grows only a little with the
+ * icon (1.66 at 24, 1.82 at 32), rather than doubling as a fixed stroke in the 24 grid would. Returned in grid units.
+ */
+export function strokeFor(size: number): number {
+  const px = 1.5 + 0.02 * (size - 16);
+  return Math.round(((px * 24) / size) * 100) / 100;
+}
+
 export function LampIcon({ glyph, size = 24, className, ...props }: LampIconProps & { glyph: Glyph }) {
   return (
     <svg
@@ -20,7 +34,7 @@ export function LampIcon({ glyph, size = 24, className, ...props }: LampIconProp
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.7}
+      strokeWidth={strokeFor(size)}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -33,6 +47,12 @@ export function LampIcon({ glyph, size = 24, className, ...props }: LampIconProp
       {glyph.line}
     </svg>
   );
+}
+
+/** A shared glyph by name, for the small marks inside controls (close, back, steppers, ticks): never a typed
+ *  character such as ×, ‹ or +, which take the font's weight and sit off the icon grid. */
+export function Sym({ name, size = 18, ...props }: LampIconProps & { name: keyof typeof GLYPHS }) {
+  return <LampIcon glyph={GLYPHS[name]} size={size} {...props} />;
 }
 
 /** Wraps a module's own drawing in the Lamplight base, keeping its default size. */

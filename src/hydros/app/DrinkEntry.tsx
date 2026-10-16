@@ -88,7 +88,7 @@ export default function DrinkEntry({ drink, profiles, unit, details = true }: { 
           <label><span>When</span><input type="datetime-local" value={draft.loggedAt} onChange={(event) => setDraft({ ...draft, loggedAt: event.target.value })} /></label>
           <div className="recent-entry__actions">
             <button type="button" className="hydros-save" onClick={() => void save()}>Save</button>
-            <button type="button" className="recent-entry__cancel" onClick={() => setDraft(undefined)}><CloseIcon size={17} /> Cancel</button>
+            <button type="button" className="recent-entry__cancel" onClick={() => setDraft(undefined)}><CloseIcon size={18} /> Cancel</button>
             <button type="button" className="recent-entry__delete" onClick={() => void remove()}>Delete</button>
           </div>
         </div>

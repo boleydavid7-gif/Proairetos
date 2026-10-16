@@ -141,7 +141,7 @@ export default function JournalPage() {
               aria-pressed={weather === id}
               onClick={() => setWeather(weather === id ? undefined : id)}
             >
-              <Icon size={26} />
+              <Icon size={28} />
               <span>{label}</span>
             </button>
           ))}

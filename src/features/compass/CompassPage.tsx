@@ -17,6 +17,7 @@ import PeopleSection from './PeopleSection';
 import GoalsSection from './GoalsSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
+import { Sym } from '../../lamplight/icons';
 
 /**
  * Offered when a value is opened: one small thing for today, in the
@@ -107,7 +108,7 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
             offerUndo(`Removed ${value.name}`, removal.undo);
           }}
         >
-          ×
+          <Sym name="close" />
         </button>
       )}
     </li>

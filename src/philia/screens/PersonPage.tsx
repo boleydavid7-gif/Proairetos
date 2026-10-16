@@ -8,6 +8,7 @@ import { newId, people } from '../app/state';
 import { AddLine, Initials } from '../app/ui';
 import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
 import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
+import { Sym } from '../../lamplight/icons';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -189,7 +190,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             {person.notes.map((note) => (
               <li key={note.id} className="note-line">
                 <span>{note.text}</span>
-                <button type="button" aria-label={`Remove ${note.text}`} onClick={() => change({ notes: person.notes.filter((each) => each.id !== note.id) }, 'Removed')}>✕</button>
+                <button type="button" aria-label={`Remove ${note.text}`} onClick={() => change({ notes: person.notes.filter((each) => each.id !== note.id) }, 'Removed')}><Sym name="close" /></button>
               </li>
             ))}
           </ul>
@@ -216,7 +217,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                   >
                     <CheckIcon size={18} />
                   </button>
-                  <button type="button" aria-label={`Remove ${gift.text}`} onClick={() => change({ gifts: person.gifts.filter((each) => each.id !== gift.id) }, 'Removed')}>✕</button>
+                  <button type="button" aria-label={`Remove ${gift.text}`} onClick={() => change({ gifts: person.gifts.filter((each) => each.id !== gift.id) }, 'Removed')}><Sym name="close" /></button>
                 </span>
               </li>
             ))}
@@ -235,7 +236,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                   <small>{shortDate(entry.date)}</small>
                 </span>
                 {entry.kind !== 'gift' && (
-                  <button type="button" aria-label={`Remove ${timelineText(entry)}`} onClick={() => change({ times: person.times.filter((each) => each.id !== entry.id) }, 'Removed')}>✕</button>
+                  <button type="button" aria-label={`Remove ${timelineText(entry)}`} onClick={() => change({ times: person.times.filter((each) => each.id !== entry.id) }, 'Removed')}><Sym name="close" /></button>
                 )}
               </li>
             ))}

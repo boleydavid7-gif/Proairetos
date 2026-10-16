@@ -1,10 +1,20 @@
+import { LampIcon } from '../../lamplight/icons';
+
 /** Proairetos's compass, drawn in the line style of the family's bars. */
 export function ProairetosMark({ size = 22 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 4.5 13.6 10.4 19.5 12 13.6 13.6 12 19.5 10.4 13.6 4.5 12 10.4 10.4Z" />
-    </svg>
+    <LampIcon
+      size={size}
+      glyph={{
+        line: (
+          <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 4.5 13.6 10.4 19.5 12 13.6 13.6 12 19.5 10.4 13.6 4.5 12 10.4 10.4Z" />
+          </>
+        ),
+        lit: <path d="M12 4.5 13.6 10.4 19.5 12 13.6 13.6 12 19.5 10.4 13.6 4.5 12 10.4 10.4Z" />,
+      }}
+    />
   );
 }
 

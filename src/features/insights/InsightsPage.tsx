@@ -94,7 +94,7 @@ export default function InsightsPage() {
 
       {insights && (
         <>
-          <InsightCard icon={<SunIcon size={26} />} title="Inner weather you noted">
+          <InsightCard icon={<SunIcon size={28} />} title="Inner weather you noted">
             {weatherTotal === 0 ? (
               <p className="insight-card__note">
                 None noted yet.
@@ -117,7 +117,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<NoteIcon size={26} />} title="What you captured">
+          <InsightCard icon={<NoteIcon size={28} />} title="What you captured">
             {captureTotal === 0 ? (
               <p className="insight-card__note">Nothing captured in this period.</p>
             ) : (
@@ -136,7 +136,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<ClockIcon size={26} />} title="When you wrote">
+          <InsightCard icon={<ClockIcon size={28} />} title="When you wrote">
             {insights.reflections === 0 ? (
               <p className="insight-card__note">No reflections in this period.</p>
             ) : (
@@ -151,7 +151,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<CheckIcon size={26} />} title="When things got done">
+          <InsightCard icon={<CheckIcon size={28} />} title="When things got done">
             {Object.values(insights.doneAt).every((n) => n === 0) ? (
               <p className="insight-card__note">Nothing marked done in this period.</p>
             ) : (
@@ -167,7 +167,7 @@ export default function InsightsPage() {
           </InsightCard>
 
           {insights.sideBySide && (
-            <InsightCard icon={<ScalesIcon size={26} />} title={period === 'week' ? 'This week and last' : 'This month and last'}>
+            <InsightCard icon={<ScalesIcon size={28} />} title={period === 'week' ? 'This week and last' : 'This month and last'}>
               <table className="side-by-side">
                 <thead>
                   <tr>
@@ -190,7 +190,7 @@ export default function InsightsPage() {
           )}
 
           {insights.values.length > 0 && (
-            <InsightCard icon={<CompassIcon size={26} />} title="Your values in what you recorded">
+            <InsightCard icon={<CompassIcon size={28} />} title="Your values in what you recorded">
               <ul className="insight-lines">
                 {insights.values.map((row) => (
                   <li key={row.name}>

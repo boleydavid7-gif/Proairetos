@@ -301,11 +301,11 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
             )}
             {startedAt === undefined ? (
               <button type="button" className="guide__play" aria-label="Start" onClick={start}>
-                <PlayIcon size={30} />
+                <PlayIcon size={32} />
               </button>
             ) : (
               <button type="button" className="guide__play" aria-label={pausedAt ? 'Go on' : 'Pause'} onClick={togglePause}>
-                {pausedAt ? <PlayIcon size={30} /> : <PauseIcon size={30} />}
+                {pausedAt ? <PlayIcon size={32} /> : <PauseIcon size={32} />}
               </button>
             )}
             <span className="guide__side">

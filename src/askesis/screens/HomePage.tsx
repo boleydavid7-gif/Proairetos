@@ -190,11 +190,11 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                       <span className="focus__facts">
                         {focus.workout.kind !== 'race' && (
                           <span>
-                            <ClockIcon size={15} /> {lengthLabel(totalMinutes(focus.workout.parts))}
+                            <ClockIcon size={16} /> {lengthLabel(totalMinutes(focus.workout.parts))}
                           </span>
                         )}
                         <span>
-                          <PulseIcon size={15} /> {efforts[mainEffort(focus.workout.parts)].name}
+                          <PulseIcon size={16} /> {efforts[mainEffort(focus.workout.parts)].name}
                         </span>
                       </span>
                     </span>

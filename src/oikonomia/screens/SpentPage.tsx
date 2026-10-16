@@ -72,7 +72,7 @@ export default function SpentPage({ nav }: { nav: Nav }) {
   if (review) {
     return (
       <div className="page oiko-page">
-        <PageTop><button type="button" className="back-link" onClick={() => setReview(undefined)}><ArrowLeftIcon size={19} /> Back</button></PageTop>
+        <PageTop><button type="button" className="back-link" onClick={() => setReview(undefined)}><ArrowLeftIcon size={20} /> Back</button></PageTop>
         <h1 className="title">From the statement</h1>
         <p className="muted">{review.length} {review.length === 1 ? 'line' : 'lines'} of money out. Change an area if it’s wrong.</p>
         <ul className="oiko-spent-list">
@@ -98,7 +98,7 @@ export default function SpentPage({ nav }: { nav: Nav }) {
 
   return (
     <div className="page oiko-page">
-      <PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={19} /> Back</button></PageTop>
+      <PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button></PageTop>
       <div className="oiko-budget__heading">
         <div>
           <p className="label">Spent</p>
@@ -115,7 +115,7 @@ export default function SpentPage({ nav }: { nav: Nav }) {
       {problem && <p className="form-error" role="alert">{problem}</p>}
 
       {lines.length === 0 ? (
-        <Empty icon={<WalletIcon size={26} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card; only money out is kept." />
+        <Empty icon={<WalletIcon size={28} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card; only money out is kept." />
       ) : (
         <>
           <section className="card oiko-budget-summary">

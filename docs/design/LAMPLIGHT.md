@@ -119,6 +119,13 @@ lamp from inside, at 24%. An icon with no inner shape of its own is lit by filli
 would fill badly (plus, chevrons, arrows) have an empty inner shape. The six icon modules (Proairetos, the newer
 apps, Askesis, Soma, Oikonomia, Hydros) draw through `LampIcon`, so a change here reaches every app.
 
+### Sizes, weight and marks
+
+Icons come in seven sizes (`ICON_SIZES`: 16 in text, 18 in controls, 20 in rows, 22 in bars, 24 in tabs, 28 and 32
+standing alone). `strokeFor(size)` keeps one optical weight, as SF Symbols does: about 1.5 px at 16, 1.66 at 24,
+1.82 at 32. Small marks inside controls (close, back, chevron, plus, minus, check) are drawn with `Sym`, never typed
+characters. `src/tests/lamplight/icons.test.ts` holds all three.
+
 ## The deep cut and Noesis
 
 `makeScheme(room, lamp, 'dark', 'deep')` is the premium cut: a darker room with more distance between its layers

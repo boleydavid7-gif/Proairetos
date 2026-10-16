@@ -25,25 +25,25 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'plan' })}>
-            <span className="row__icon"><WeightIcon size={21} /></span>
+            <span className="row__icon"><WeightIcon size={22} /></span>
             <span className="row__text">
               <span>Your plan</span>
               <span className="row__detail">{ready ? `${AIM_NAMES[setup.aim]} · ${PLACE[setup.place]} · ${[...setup.days].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map((day) => DAY[day]).join(', ')}` : 'Not made yet'}</span>
             </span>
-            <ChevronIcon size={17} />
+            <ChevronIcon size={18} />
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'why' })}>
-            <span className="row__icon"><BookIcon size={21} /></span>
+            <span className="row__icon"><BookIcon size={22} /></span>
             <span className="row__text"><span>How the plan is built</span><span className="row__detail">With its sources</span></span>
-            <ChevronIcon size={17} />
+            <ChevronIcon size={18} />
           </button>
         </li>
       </ul>
@@ -70,7 +70,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       <ul className="rows">
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
             <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>

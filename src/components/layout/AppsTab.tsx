@@ -4,12 +4,14 @@ import { openSettingsAt } from '../../features/settings/settingsViews';
 import { useSheet } from '../ui/useSheet';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps } from '../../app/family/added';
+import { LampIcon, Sym } from '../../lamplight/icons';
 
 export function AppsIcon({ size = 22 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true">
-      {[5, 12, 19].flatMap((x) => [5, 12, 19].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.6} />))}
-    </svg>
+    <LampIcon
+      size={size}
+      glyph={{ line: <>{[5, 12, 19].flatMap((x) => [5, 12, 19].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.7} fill="currentColor" stroke="none" />))}</>, lit: <></> }}
+    />
   );
 }
 
@@ -45,7 +47,7 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
                 navigate('settings');
               }}
             >
-              <span className="apps-grid__store" aria-hidden="true">+</span>
+              <span className="apps-grid__store" aria-hidden="true"><Sym name="plus" /></span>
               <span>Store</span>
             </button>
           </li>

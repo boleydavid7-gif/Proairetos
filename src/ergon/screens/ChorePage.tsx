@@ -9,6 +9,7 @@ import { done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
 import { CheckIcon } from '../../app/family/icons';
+import { Sym } from '../../lamplight/icons';
 
 type Kind = Repeat['kind'];
 const KINDS: { id: Kind; label: string }[] = [
@@ -107,9 +108,9 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         </div>
         {(kind === 'days' || kind === 'weeks') && (
           <div className="stepper">
-            <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(1, every - 1))}>−</button>
+            <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(1, every - 1))}><Sym name="minus" /></button>
             <span className="stepper__value">Every {every === 1 ? (kind === 'days' ? 'day' : 'week') : `${every} ${kind}`}</span>
-            <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(kind === 'days' ? 60 : 52, every + 1))}>+</button>
+            <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(kind === 'days' ? 60 : 52, every + 1))}><Sym name="plus" /></button>
           </div>
         )}
         {kind === 'weekdays' && (
@@ -202,7 +203,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
       </div>
 
       <div className="detail-head">
-        <span className="detail-head__mark"><BroomIcon size={30} /></span>
+        <span className="detail-head__mark"><BroomIcon size={32} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
           <p className="muted">{[existing.room, repeatText(existing.repeat)].filter(Boolean).join(' · ')}</p>
