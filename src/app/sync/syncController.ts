@@ -23,6 +23,7 @@ import {
   removePushSubscription,
   replaceReminders,
   replaceSourceReminders,
+  addTestReminder,
   hasPushSubscription,
   OlderRemindersTable,
   saveWrappedKeys,
@@ -923,6 +924,20 @@ async function keepPushSubscription(): Promise<void> {
   await (await localState())!.setMeta(REMINDERS_META, subscription.endpoint);
   accountTakesReminders = true;
   subscriptionKept = true;
+}
+
+/**
+ * Puts one reminder on the server for the next minute, sealed like any other, so the person can close the app and
+ * see a push arrive the way their own reminders do. Returns when it is due.
+ */
+export async function testReminderThroughServer(): Promise<Date> {
+  if (!userId || !dataKey || status.reminders !== 'on') throw new Error('Turn on “Also when the app is closed” first.');
+  await keepPushSubscription().catch(() => undefined);
+  const at = new Date(Date.now() + 60_000);
+  const key = `server-test:${at.getTime()}`;
+  const sealed = await sealNoticeWords(dataKey, wordsOf({ key, title: 'Test', body: 'This one came through the server.', open: 'today' }));
+  await addTestReminder(userId, { id: key.replace(/[^a-z0-9-]/gi, '-'), fire_at: at.toISOString(), sealed });
+  return at;
 }
 
 export async function disableReminders(): Promise<void> {

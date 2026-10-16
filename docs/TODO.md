@@ -38,6 +38,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Migration `20261019000000_sign_in_handoff.sql` and the `sign-in-handoff` function: "Sign in other apps".
 - [ ] Migration `20261020000000_passkeys.sql` and the `passkey-sign-in` function (one file, named exactly that, Verify JWT off): passkeys
       (steps in `docs/SERVER_SETUP.md`).
+- [ ] Redeploy `send-reminders` once more: pushes now go at high urgency, so Android's battery saving and an iPhone in
+  Low Power Mode no longer hold reminders back.
 - [ ] Redeploy `send-reminders` again: its reply now lists any push a phone's service refused, and why (`refused` in `net._http_response`).
 - [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
       the site is ever not https://proairetos.com.
@@ -67,7 +69,9 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 
 ## On a real phone
 
-- [ ] Reminders arrive with the apps closed, and a tap opens the right app.
+- [ ] Reminders arrive with the apps closed, and a tap opens the right app. Quickest check: Settings > Notifications >
+  "Send one through the server", then close the app; it comes within about a minute (after redeploying
+  `send-reminders`). If it does not, the reply in `net._http_response` says why.
 - [ ] New icons: an app already on the iPhone Home Screen keeps its old icon until it is removed and added again
   (back up first if that app is signed out; signed-in apps sync back). Android picks them up by itself over a few days.
 - [ ] Your own storage: connect one, check every app follows (another device, an iPhone Home Screen app), then move

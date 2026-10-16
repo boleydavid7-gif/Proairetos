@@ -38,7 +38,8 @@ await step('Name', async () => {
 await step('Diaita', async () => {
   await go('/diaita/'); await begin();
   const t = await text();
-  ok('Diaita: greets with the name', /Good \w+, Ada/.test(t));
+  // Only Proairetos greets; the add-on apps name their page.
+  ok('Diaita: no greeting of its own', !/Good (morning|afternoon|evening), Ada/.test(t));
   ok('Diaita: plans around the work block', !/Day off/.test(t) && /(work|19:00|7:00 PM|home)/i.test(t), t.match(/Good[^\n]*\n[^\n]*\n[^\n]*/)?.[0]?.replace(/\n/g, ' | '));
   await p.screenshot({ path: `${OUT}/diaita.png`, fullPage: true });
 });
@@ -47,7 +48,8 @@ await step('Diaita', async () => {
 await step('Hydros', async () => {
   await go('/hydros/'); await begin();
   const glass = p.getByRole('button', { name: /^Glass/ }).first(); await glass.click(); await p.waitForTimeout(600);
-  ok('Hydros bar: way back to Proairetos', (await p.getByRole('link', { name: 'Proairetos', exact: true }).count()) > 0);
+  // On a phone the way back sits in the top bar (a copy that presses the dock's link).
+  ok('Hydros bar: way back to Proairetos', (await p.locator('.ll-topbar__action[aria-label="Proairetos"]').count()) > 0);
   await go('/');
   ok('Proairetos Today: no water', !/Log a glass|since work began/i.test(await text()));
   ok('Proairetos bar: Apps', (await p.getByRole('button', { name: 'Apps', exact: true }).count()) > 0);
@@ -66,9 +68,9 @@ await step('Therapeia', async () => {
 // Ergon: a chore whose day came, on Today and in search
 await step('Ergon', async () => {
   await go('/ergon/'); await begin();
-  await p.getByRole('button', { name: '+ Bins out' }).click(); await p.waitForTimeout(600);
+  await p.getByRole('button', { name: 'Take out the trash' }).click(); await p.waitForTimeout(600);
   await go('/');
-  ok('Proairetos Today: chore from Ergon', /Bins out/.test(await text()));
+  ok('Proairetos Today: chore from Ergon', /Take out the trash/.test(await text()));
 });
 
 // Ktema: upkeep due, on Today
@@ -170,7 +172,7 @@ await step('Dynamis', async () => {
 // Search across apps from Proairetos
 await step('Search', async () => {
   await go('/');
-  for (const [word, what] of [['Bins', 'Ergon chore'], ['Maya', 'Philia person'], ['Sertraline', 'Therapeia medicine'], ['Lentil', 'Soma recipe'], ['Phone', 'Oikonomia bill'], ['smoke', 'Ktema upkeep']]) {
+  for (const [word, what] of [['trash', 'Ergon chore'], ['Maya', 'Philia person'], ['Sertraline', 'Therapeia medicine'], ['Lentil', 'Soma recipe'], ['Phone', 'Oikonomia bill'], ['smoke', 'Ktema upkeep']]) {
     await p.keyboard.press('/'); await p.waitForTimeout(500);
     await p.locator('dialog[open] input').first().fill(word); await p.waitForTimeout(700);
     const found = await p.locator('dialog[open]').innerText().catch(() => '');
@@ -204,13 +206,13 @@ await step('Live update', async () => {
   await go('/');
   const other = await ctx.newPage();
   await other.goto(B + '/ergon/'); await other.waitForTimeout(1300);
-  await other.getByRole('button', { name: 'Bins out: done' }).first().click(); await other.waitForTimeout(800);
+  await other.getByRole('button', { name: 'Take out the trash: done' }).first().click(); await other.waitForTimeout(800);
   await p.waitForTimeout(1500);
-  ok('Proairetos updates live when Ergon marks a chore done', !/Bins out/.test(await text()));
+  ok('Proairetos updates live when Ergon marks a chore done', !/Take out the trash/.test(await text()));
   await other.close();
   await go('/?open=settings:notifications'); await p.waitForTimeout(1500);
   const kept = await p.evaluate(async () => { const c = await caches.open('proairetos-notify'); const r = await c.match('/__notify/upcoming.json'); return r ? await r.text() : ''; });
-  ok('Notice kept for Ergon (next week, after done)', /Bins out/.test(kept));
+  ok('Notice kept for Ergon (next week, after done)', /Take out the trash/.test(kept));
 });
 
 // Removing an app takes it out of Proairetos, keeps its records

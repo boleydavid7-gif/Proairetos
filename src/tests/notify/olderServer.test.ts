@@ -5,7 +5,7 @@ const written: Record<string, unknown>[][] = [];
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => ({
     from: () => ({
-      delete: () => ({ eq: () => ({ eq: () => ({ is: async () => ({ error: null }) }) }) }),
+      delete: () => ({ eq: () => ({ eq: () => ({ is: () => ({ gt: async () => ({ error: null }) }) }) }) }),
       upsert: async (rows: Record<string, unknown>[]) => {
         written.push(rows);
         return 'preview_title' in rows[0]

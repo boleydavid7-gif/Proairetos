@@ -132,7 +132,9 @@ async function handle(request: Request): Promise<Response> {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           payload, // the app's name, sealed words, and an opt-in lock-screen preview
-          { TTL: 3600, urgency: 'normal' },
+          // High: a reminder is time-bound, and at normal urgency Android's Doze and an iPhone in Low Power Mode may
+          // hold a push back for many minutes.
+          { TTL: 3600, urgency: 'high' },
         );
         sent++;
       } catch (cause) {

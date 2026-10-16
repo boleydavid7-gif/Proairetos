@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'Reminders are steadier: one that came due while your phone was asleep shows when you open the app, a reminder looks the same whether the app or the server brings it, and Settings › Notifications can send one through the server so you can check it arrives with the app closed.',
       'The bar at the top shows each app’s mark beside its name again, and stays light over a home picture.',
       'Long lists scroll more smoothly, and the daily copy waits until you stop scrolling.',
       'Tidier pages: no gap above titles under the top bar, Praxis drops its empty cards and labels, Askesis Progress keeps watch files and export at the foot, and Hydros’s chart has a readable scale before anything is logged.',

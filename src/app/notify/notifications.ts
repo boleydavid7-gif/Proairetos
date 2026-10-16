@@ -5,7 +5,7 @@ import { decisionService, lifeService, scheduleService } from '../services';
 import { refreshReminders } from '../sync/syncController';
 import { familyWorker } from './familyWorker';
 import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
-import { iconForOpen } from '../../core/notify/sources';
+import { appNameForOpen, iconForOpen } from '../../core/notify/sources';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -22,6 +22,8 @@ const UPCOMING = '/__notify/upcoming.json';
 const SHOWN = '/__notify/shown.json';
 /** The longest a timer waits before looking again, so a sleeping laptop catches up. */
 const LONGEST_WAIT = 60 * 60_000;
+/** How far back the app looks, on opening or waking, for a notice that came while it slept and was never shown. */
+const CATCH_UP = 30 * 60_000;
 
 export type StoredNotice = { key: string; at: string; title: string; body: string; open: string };
 
@@ -58,13 +60,25 @@ async function store(notices: readonly Notice[], details: boolean): Promise<void
   }
 }
 
+async function shownKeys(): Promise<string[]> {
+  try {
+    const kept = await (await caches.open(CACHE)).match(SHOWN);
+    return kept ? ((await kept.json()) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 async function show(notice: Notice, details: boolean): Promise<void> {
   if (notifications.permission() !== 'granted') return;
   const shown = details ? notice : privateNotice(notice);
   const registration = await familyWorker();
   if (!registration) return;
-  await registration.showNotification(shown.title, {
-    body: shown.body,
+  // The same look as when a push brings it (public/sw.js): the app's name, then the words. A push for the same
+  // moment replaces this one under its tag, so it must not change how it reads.
+  const app = appNameForOpen(shown.open);
+  await registration.showNotification(app, {
+    body: shown.title === app ? shown.body : [shown.title, shown.body].filter(Boolean).join(' · '),
     tag: notice.key,
     icon: iconForOpen(shown.open),
     badge: '/icons/icon-192.png',
@@ -74,16 +88,29 @@ async function show(notice: Notice, details: boolean): Promise<void> {
   // So a push for the same moment does not show it a second time.
   try {
     const cache = await caches.open(CACHE);
-    const kept = await cache.match(SHOWN);
-    const shownKeys: string[] = kept ? await kept.json() : [];
-    shownKeys.push(notice.key);
+    const keys = await shownKeys();
+    keys.push(notice.key);
     await cache.put(
       SHOWN,
-      new Response(JSON.stringify(shownKeys.slice(-300)), { headers: { 'content-type': 'application/json' } }),
+      new Response(JSON.stringify(keys.slice(-300)), { headers: { 'content-type': 'application/json' } }),
     );
   } catch {
     // Only matters when a push arrives too.
   }
+}
+
+/**
+ * A phone freezes the open app's timer while it sleeps, and the next look starts from now. Without a push (none set
+ * up, or one held back) a notice due in that gap would never show; this shows any from the last half hour that
+ * neither the app nor a push has shown yet.
+ */
+async function catchUp(find: (now: Date, settings: NoticeSettings) => Promise<Notice[]>, details: boolean): Promise<void> {
+  const now = Date.now();
+  const since = new Date(now - CATCH_UP);
+  const missed = (await find(since, loadNotify())).filter((notice) => notice.at.getTime() < now - 1000);
+  if (missed.length === 0) return;
+  const done = new Set(await shownKeys());
+  for (const notice of missed) if (!done.has(notice.key)) await show(notice, details).catch(() => undefined);
 }
 
 /** Waits for the next notice while the app is open, shows it, and waits again. */
@@ -163,7 +190,10 @@ export const notifications = {
     upcoming.push(...(await hydrationUpcoming(new Date()).catch(() => [])));
     upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
-    if (notifications.permission() === 'granted') arm();
+    if (notifications.permission() === 'granted') {
+      await catchUp(upcomingNotices, settings.details).catch(() => undefined);
+      arm();
+    }
     // The server learns only the times, if reminders are on with sync.
     void refreshReminders();
     notify();

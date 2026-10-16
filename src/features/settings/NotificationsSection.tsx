@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { notifications } from '../../app/notify/notifications';
-import { disableReminders, enableReminders, refreshReminders } from '../../app/sync/syncController';
+import { disableReminders, enableReminders, refreshReminders, testReminderThroughServer } from '../../app/sync/syncController';
 import { noticeLeadChoices, noticeLeadLabel, type NoticeSettings } from '../../core/notify/notices';
 import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
@@ -115,6 +115,7 @@ export default function NotificationsSection() {
   const [settings, setSettings] = useState(notifications.settings);
   const [quiet, setQuiet] = useState(loadQuietHours);
   const [error, setError] = useState('');
+  const [serverTest, setServerTest] = useState('');
   const added = useAddedApps();
   const permission = notifications.permission();
   const upcoming = notifications.next();
@@ -288,6 +289,9 @@ export default function NotificationsSection() {
             }
           />
         )}
+        {permission === 'granted' && sync.phase !== 'ready' && (
+          <p className="sheet__hint">Only while the app is open. To get them when it’s closed, sign in under Account and sync.</p>
+        )}
         {error && <p className="form-error">{error}</p>}
       </NotifyGroup>
 
@@ -308,10 +312,30 @@ export default function NotificationsSection() {
       </details>
 
       {permission === 'granted' && (
-        <button type="button" className="text-link" onClick={() => void notifications.test()}>
-          Show one now
-        </button>
+        <div className="button-row">
+          <button type="button" className="text-link" onClick={() => void notifications.test()}>
+            Show one now
+          </button>
+          {sync.phase === 'ready' && sync.reminders === 'on' && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() =>
+                void testReminderThroughServer()
+                  .then((at) =>
+                    setServerTest(
+                      `Close the app. It arrives at ${at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}, about a minute from now.`,
+                    ),
+                  )
+                  .catch((cause) => setServerTest(cause instanceof Error ? cause.message : 'That did not work just now.'))
+              }
+            >
+              Send one through the server
+            </button>
+          )}
+        </div>
       )}
+      {serverTest && <p className="sheet__hint" role="status">{serverTest}</p>}
     </div>
   );
 }

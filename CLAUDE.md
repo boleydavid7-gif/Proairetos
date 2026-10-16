@@ -557,7 +557,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`sync/reminders.ts` `reminderTimes`). The SW's push handler shows the
   stored words (generic text only if none found); a tap opens `?open=`
   (`NoticeOpener`: item, day, Today, Reflect). Background delivery needs
-  sync + the `send-reminders` function (server setup still paused).
+  sync + the `send-reminders` function (pushes at high urgency).
+  A notice reads the same either way: the app's name as the title, then the words (`show` matches `sw.js`), so a
+  push replacing an in-app notice under its tag does not change it. On opening or waking, `catchUp` shows any notice
+  from the last 30 minutes that neither the app nor a push showed (the phone froze the timer). Replacing server rows
+  clears only rows still to come (`.gt('fire_at', now)`): a row whose time has come waits for the next minute's run,
+  since the new list starts from now (this lost reminders when a device synced in that minute; tested in
+  `src/tests/notify/dueRowsKept.test.ts`). Settings > Notifications says reminders come only while the app is open when
+  not signed in, and has "Send one through the server" (`testReminderThroughServer`: one sealed row a minute ahead under
+  source `test`, which no app's refresh clears) to check closed-app delivery on a phone.
 - Search (`core/search/search.ts`, `features/search/SearchSheet`, the
   magnifier beside the gear on every main tab): items, reflections,
   decisions, Compass and added apps; every word must match, newest first,

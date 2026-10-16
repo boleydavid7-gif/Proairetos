@@ -278,10 +278,15 @@ export async function removePushSubscription(endpoint: string): Promise<void> {
 /** Replaces upcoming reminder times. Only times and opaque ids are sent. */
 export async function replaceReminders(userId: string, reminders: { id: string; fire_at: string }[]): Promise<void> {
   const client = await supabase();
-  // Replace every pending row, including rows whose time has just passed. A
-  // previous lead-time setting may have left an old row scheduled after the
-  // event; keeping it lets the server deliver that stale notification later.
-  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).is('sent_at', null);
+  // Replace every pending row still to come (an old lead time may have left one at the wrong moment). A row whose
+  // time has come stays: the server sends due rows once a minute, and the new list starts from now, so clearing it
+  // here, in the minute before the server's next run, would lose that reminder.
+  const { error: clearError } = await client
+    .from('reminders')
+    .delete()
+    .eq('user_id', userId)
+    .is('sent_at', null)
+    .gt('fire_at', new Date().toISOString());
   if (clearError) throw new Error(clearError.message);
   if (reminders.length === 0) return;
   const { error } = await client
@@ -305,7 +310,14 @@ export async function replaceSourceReminders(
   const client = await supabase();
   const older = (error: { code?: string; message: string }) =>
     error.code === '42703' || error.code === 'PGRST204' || /source|sealed/.test(error.message);
-  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).eq('source', source).is('sent_at', null);
+  // Only rows still to come: one whose time has come waits for the server's next run (see replaceReminders).
+  const { error: clearError } = await client
+    .from('reminders')
+    .delete()
+    .eq('user_id', userId)
+    .eq('source', source)
+    .is('sent_at', null)
+    .gt('fire_at', new Date().toISOString());
   if (clearError) throw older(clearError) ? new OlderRemindersTable(clearError.message) : new Error(clearError.message);
   if (reminders.length === 0) return;
   const write = (rows: typeof reminders) =>
@@ -315,6 +327,15 @@ export async function replaceSourceReminders(
   // app's own name, icon and words; only the lock-screen preview waits for that migration.
   if (error && /preview_/.test(error.message)) ({ error } = await write(reminders.map(({ id, fire_at, sealed }) => ({ id, fire_at, sealed }))));
   if (error) throw older(error) ? new OlderRemindersTable(error.message) : new Error(error.message);
+}
+
+/**
+ * One reminder for checking that pushes reach this account: kept under its own source, so no app's refresh clears
+ * it before the server's next run sends it.
+ */
+export async function addTestReminder(userId: string, reminder: { id: string; fire_at: string; sealed: string }): Promise<void> {
+  const { error } = await (await supabase()).from('reminders').insert({ ...reminder, source: 'test', user_id: userId });
+  if (error) throw new Error(error.message);
 }
 
 /** Whether any phone or computer on this account takes reminders, so apps without their own know to write theirs. */
