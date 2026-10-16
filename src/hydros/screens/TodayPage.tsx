@@ -42,7 +42,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <section className="hydros-hero hydros-hero--today">
         <div className="hydros-home-head">
           <Brand light />
-          <button type="button" className="hydros-settings-button" aria-label="Settings" onClick={() => nav.go({ name: 'settings' })}>
+          <button type="button" className="hydros-settings-button" data-to-header="" aria-label="Settings" onClick={() => nav.go({ name: 'settings' })}>
             <GearIcon size={21} />
           </button>
         </div>

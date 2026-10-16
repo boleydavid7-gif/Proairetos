@@ -3,7 +3,7 @@
 export const LAMPLIGHT_VERSION = '1.2';
 
 export const LAMPLIGHT_CHANGES: { version: string; lines: string[] }[] = [
-  { version: '1.2', lines: ['The large title folds into a compact bar as a page scrolls (phones).', 'The back swipe and sheets are held: they follow the finger, take a flick, and spring back when let go short.', 'Praxis, Theoria and Hydros on the layout rhythm.'] },
+  { version: '1.2', lines: ['One bar at the top on phones: the app name left; actions, Settings and the family right, out of the dock.', 'The back swipe and sheets are held: they follow the finger, take a flick, and spring back when let go short.', 'Praxis, Theoria and Hydros on the layout rhythm.'] },
   { version: '1.1', lines: ['Layout: five patterns on four numbers; text never under 12 px.', 'A tapped card grows into its page; the lit tab hands off.', 'Every scene drawn under one light.'] },
   { version: '1.0', lines: ['Schemes from a room and a lamp, readable by construction.', 'Tokens, components, light in place of shadow, motion as light, icons with a lit state.'] },
 ];

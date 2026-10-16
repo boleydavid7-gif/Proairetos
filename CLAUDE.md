@@ -177,12 +177,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   tapped card or row and, on a forward move, names it and the new page's head `ll-morph` so the card grows into the
   title; the tab bar's old picture dims slowly while the new one lights (`motion.css`). Scenes have one light at
   `LAMP_X` (.64) with `lampRing`, no clouds (`scripts/scenes/engine.mjs`).
-- Lamplight behaviors (`src/lamplight/behaviors.ts`, `bars.css`, started by `applyAppearance`): the large title folds
-  into `.ll-topbar` on phones (title found from the page, back chevron presses the page's back link); the edge swipe
-  (installed apps) holds the page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack
-  through `setSwipeBack` in `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`).
-  Praxis and Theoria text uses `--ll-sans` (it had fallen back to Times and Arial). `version.ts` holds the system's
-  version, shown on the guide.
+- Lamplight behaviors (`src/lamplight/behaviors.ts`, `bars.css`, started by `applyAppearance`): on phones one bar across
+  the top of every page (`.ll-topbar`, `:root.ll-bar-on`): the app's name on the left (from `document.title`), or the
+  chevron with the back link's words; on the right copies of the page's header actions (`.page-header__actions` etc.)
+  and every dock item marked `data-to-header` (More / Settings, Proairetos's Apps, the family's Proairetos link,
+  Hydros's gear), each pressing its original. The originals leave the page and dock on phones (visibility hidden /
+  `display: none`; docks then lay out their remaining places in columns, indicators moved to four places). The bar
+  names the app only, never the page; it takes glass once scrolled and a hairline once the page's title has gone
+  under. Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
+  page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack through `setSwipeBack` in
+  `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`). Praxis and Theoria text uses
+  `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

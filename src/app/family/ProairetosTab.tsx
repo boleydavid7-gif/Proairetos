@@ -14,7 +14,7 @@ export function ProairetosMark({ size = 22 }: { size?: number }) {
  */
 export default function ProairetosTab({ className = 'tab-bar__item', size = 22 }: { className?: string; size?: number }) {
   return (
-    <a className={`${className} proairetos-tab`} href="/">
+    <a className={`${className} proairetos-tab`} href="/" data-to-header="">
       <ProairetosMark size={size} />
       <span>Proairetos</span>
     </a>

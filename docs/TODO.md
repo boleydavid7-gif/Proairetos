@@ -108,7 +108,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   - Small text: Praxis's and Theoria's bottom bars, Hydros's Flow chart, the month calendar in Days ahead.
   - Each app's home picture: one light, upper right, no clouds.
   - Anything that scrolls sideways, overlaps, or is hard to tap.
-  - Scroll a long page: the title folds into the slim bar at the top; its back arrow works.
+  - The top bar: app name left; search, Settings and Proairetos (or Apps) right, gone from the bottom bar; scroll a long page and the bar turns to glass.
   - From the Home Screen app, swipe from the left edge slowly, let go early (springs back), then all the way.
   - Pull a sheet down slowly and let go (springs back), then flick it (closes).
 

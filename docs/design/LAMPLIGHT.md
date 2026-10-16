@@ -94,10 +94,11 @@ the light off: the new picture lights in `--ll-quick` and the old dims over `--l
 
 ## Held motion and the large title
 
-`behaviors.ts` (started once by `applyAppearance` in every app; `bars.css`): on phones the first page title folds
-into a compact bar (`.ll-topbar`) as it scrolls under the top, with a back chevron that presses the page's own back
-link (`.back-link` and its kin) or Proairetos's back stack (`setSwipeBack` from `EdgeSwipe`); full-screen moments
-(reader, sit, focus, pause, run guide) have none. In an installed app a swipe from the left edge holds the page: it
+`behaviors.ts` (started once by `applyAppearance` in every app; `bars.css`): on phones one bar (`.ll-topbar`) runs
+across the top of every page: the app's name on the left, or a chevron with the back link's words; on the right the
+page's header actions and the dock's `data-to-header` places (More or Settings, Apps, the way to Proairetos), copies
+that press the originals, which leave the page and the dock. It names the app only, takes glass when the page
+scrolls and a hairline when the page's title has gone under; welcome, onboarding and full-screen moments have none. In an installed app a swipe from the left edge holds the page: it
 follows the finger and finishes past a third of the width or on a flick, else springs back with a slight overshoot;
 after it, only the new page's view transition plays (`data-swiped`). Sheets (`useSheet`) take a flick down, resist
 upward, and let the room brighten as they are pulled (`--sheet-pull`). Version and changes: `version.ts`, shown on

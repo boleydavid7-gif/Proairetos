@@ -60,7 +60,7 @@ export default function AppsTab() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className="tab-bar__item" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      <button type="button" className="tab-bar__item" data-to-header="" aria-label="Apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <AppsIcon size={24} />
         <span>Apps</span>
       </button>

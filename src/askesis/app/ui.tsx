@@ -20,6 +20,7 @@ export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: 
           key={id}
           type="button"
           className="tab-bar__item"
+          data-to-header={['more', 'settings'].includes(id) ? '' : undefined}
           aria-current={current === id ? 'page' : undefined}
           onClick={() => onPick(id)}
         >

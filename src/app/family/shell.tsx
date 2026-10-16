@@ -251,7 +251,7 @@ export function TabBar<T extends string>({ tabs, current, onPick }: { tabs: read
   return (
     <nav className="tab-bar" aria-label="Main">
       {tabs.map(({ id, label, Icon }) => (
-        <button key={id} type="button" className="tab-bar__item" aria-current={current === id ? 'page' : undefined} onClick={() => onPick(id)}>
+        <button key={id} type="button" className="tab-bar__item" data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={current === id ? 'page' : undefined} onClick={() => onPick(id)}>
           <Icon size={22} />
           <span>{label}</span>
         </button>

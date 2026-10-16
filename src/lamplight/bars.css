@@ -1,70 +1,161 @@
 /*
- * The compact bar the large title folds into (behaviors.ts), and the page held by a back swipe. Phones only for
- * the bar; computers keep their rail and the title where it is.
+ * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
+ * on the left; the page's actions, Settings and the family's places on the right. Glass once the page scrolls, a
+ * hairline once the page's title has gone under. It names the app only. Computers keep their rail.
  */
 .ll-topbar {
-  position: fixed;
-  z-index: 6;
-  inset: 0 0 auto;
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  height: calc(env(safe-area-inset-top) + 44px);
-  padding: env(safe-area-inset-top) 8px 0;
-  background: var(--ll-bar, rgba(20, 18, 15, 0.72));
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08));
-  color: var(--ll-ink, var(--text, var(--color-text)));
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-4px);
-  transition:
-    opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease),
-    transform var(--ll-calm, 240ms) var(--ll-ease-out, ease);
-}
-
-.ll-topbar.is-shown {
-  opacity: 1;
-  pointer-events: auto;
-  transform: none;
-}
-
-.ll-topbar__title {
-  grid-column: 2;
-  overflow: hidden;
-  font: 600 var(--text-base, 1rem) / 1.2 var(--ll-sans);
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ll-topbar__back {
-  grid-column: 1;
   display: none;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--ll-lamp, currentColor);
-  cursor: pointer;
 }
 
-.ll-topbar.has-back .ll-topbar__back {
-  display: grid;
-}
+@media (max-width: 61.99rem) {
+  .ll-topbar.is-on {
+    position: fixed;
+    z-index: 6;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    height: calc(env(safe-area-inset-top) + 48px);
+    padding: env(safe-area-inset-top) 10px 0 14px;
+    color: var(--ll-ink, var(--text, var(--color-text)));
+    background: transparent;
+    transition:
+      background-color var(--ll-calm, 240ms) var(--ll-ease-out, ease),
+      box-shadow var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+  }
 
-@media (min-width: 62rem) {
-  .ll-topbar {
-    display: none;
+  .ll-topbar.is-scrolled {
+    background: var(--ll-bar, rgba(20, 18, 15, 0.72));
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  }
+
+  .ll-topbar.is-folded {
+    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08));
+  }
+
+  /* Left: the app's name, or the chevron and where it goes. */
+  .ll-topbar__lead {
+    grid-column: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: 600 var(--text-lg, 1.15rem) / 1.2 var(--ll-sans);
+    letter-spacing: -0.01em;
+    cursor: default;
+  }
+
+  .ll-topbar__lead:disabled {
+    color: inherit;
+    opacity: 1;
+  }
+
+  .ll-topbar__lead span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ll-topbar__lead.is-back {
+    margin-left: -6px;
+    color: var(--ll-lamp, currentColor);
+    font: 400 var(--text-base, 1rem) / 1.2 var(--ll-sans);
+    cursor: pointer;
+  }
+
+  /* Right: the page's actions, then Settings and the family's places. */
+  .ll-topbar__actions {
+    grid-column: 2;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .ll-topbar__action {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ll-ink-2, currentColor);
+    cursor: pointer;
+  }
+
+  .ll-topbar__action svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .ll-topbar__action.is-on {
+    color: var(--ll-lamp, currentColor);
+  }
+
+  .ll-topbar__action .profile-button__face {
+    width: 30px;
+    height: 30px;
+    font-size: var(--text-sm, 0.875rem);
+  }
+
+  /* What the bar now carries leaves the page and the dock. */
+  :root.ll-bar-on :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
+  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button),
+  :root.ll-bar-on :is(.hydros-home-head, .theoria-mobile-brand),
+  :root.ll-bar-on .shell .page > .brand,
+  :root.ll-bar-on .hero .brand {
+    visibility: hidden;
+  }
+
+  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
+    display: none !important;
+  }
+
+  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav .praxis-nav-list, .theoria-bottom-nav .theoria-nav-list) {
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  /* The docks' moving marks, now over four places. */
+  :root.ll-bar-on .app-shell[data-route='today'] .tab-bar::before { --tab-indicator-left: calc(12.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell:is([data-route='reflect'], [data-route='compass'], [data-route='meditate'], [data-route='journal'], [data-route='insights'], [data-route='review']) .tab-bar::before { --tab-indicator-left: calc(37.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell:is([data-route='plan'], [data-route='calendar']) .tab-bar::before { --tab-indicator-left: calc(62.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell[data-route='capture'] .tab-bar::before { --tab-indicator-left: calc(87.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::before { left: calc(12.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::before { left: calc(37.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::before { left: calc(62.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::before { left: calc(87.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { opacity: 0; }
+
+  /* Room for the bar where a page's title begins at the very top. */
+  :root.ll-bar-on .shell .page:not(.page--under-hero):not(:has(> .back-link:first-child)):not(:has(> .brand:first-child)) {
+    padding-top: calc(env(safe-area-inset-top) + 56px);
+  }
+
+  :root.ll-bar-on :is(.praxis-main, .theoria-app:not(.theoria-app--reader) .theoria-main) {
+    padding-top: calc(env(safe-area-inset-top) + 52px);
   }
 }
 
 @media print {
-  .ll-topbar {
+  .ll-topbar.is-on {
     display: none;
   }
 }
@@ -104,7 +195,7 @@ html[data-swiped]::view-transition-old(root) {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .ll-topbar {
+  .ll-topbar.is-scrolled {
     background: var(--ll-page, #14120f);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
