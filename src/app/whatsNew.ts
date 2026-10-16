@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'New app icons: every app’s tile is lit by one lamp from the upper right, with a faint ring of its light.',
       'One set of icons across every app, drawn the same way; the icon of the page you are on fills softly with its lamp.',
       'Buttons, fields, chips and cards across the apps now share Lamplight’s shapes and light.',
       'Lamplight is now the whole family’s design system. Every app keeps its own place (Soma’s garden, Askesis’s path, Hydros’s water) on the same structure, with every color checked to be readable. A press brightens and fades slowly, like a lamp.',

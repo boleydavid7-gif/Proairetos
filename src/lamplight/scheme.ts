@@ -93,8 +93,12 @@ function readable(L: number, C: number, h: number, on: string[], need: number, d
   return hex;
 }
 
+/** How a scheme is cut: `deep` is the premium room (Noesis): darker, with more distance between its layers, a finer
+ *  hairline and a richer lamp. Contrast is held to the same numbers either way. */
+export type Depth = 'standard' | 'deep';
+
 /** The scheme for a room and a lamp, in dark or light. */
-export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode): Scheme {
+export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: Depth = 'standard'): Scheme {
   const dark = mode === 'dark';
   const h = dark ? room.hue : (room.lightHue ?? room.hue);
   const c = room.chroma[mode];
@@ -102,7 +106,10 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode): Scheme {
   const textHue = room.chroma.dark > 0.01 ? h : dark ? 75 : 70;
   const [[g1, c1], [g2, c2], [g3, c3]] = room.glows;
 
-  const tones = dark
+  const deep = depth === 'deep';
+  const tones = deep && dark
+    ? { wall: oklch(0.12, c * 1.1, h), page: oklch(0.15, c * 1.15, h), card: oklch(0.195, c * 1.05, h), inset: oklch(0.235, c, h), raised: oklch(0.275, c, h) }
+    : dark
     ? { wall: oklch(0.145, c, h), page: oklch(0.175, c, h), card: oklch(0.215, c, h), inset: oklch(0.25, c, h), raised: oklch(0.29, c * 1.1, h) }
     : { wall: oklch(0.935, c, h), page: oklch(0.965, c, h), card: oklch(0.993, c * 0.4, h), inset: oklch(0.945, c, h), raised: oklch(0.915, c * 1.1, h) };
   const surfaces = [tones.page, tones.card, tones.inset];
@@ -118,7 +125,7 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode): Scheme {
   let fill: Hex;
   let soft: Hex;
   if (dark) {
-    lampText = readable(0.8, lamp.chroma, lamp.hue, surfaces, 4.5, false);
+    lampText = readable(deep ? 0.81 : 0.8, deep ? lamp.chroma * 1.08 : lamp.chroma, lamp.hue, surfaces, 4.5, false);
     fill = lampText;
     soft = oklch(0.88, lamp.chroma * 0.6, lamp.hue);
   } else {
@@ -142,7 +149,7 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode): Scheme {
     ink,
     ink2,
     ink3,
-    hair: rgba(ink, dark ? 0.075 : 0.09),
+    hair: rgba(ink, deep ? 0.06 : dark ? 0.075 : 0.09),
     lamp: lampText,
     lampFill: fill,
     lampSoft: soft,

@@ -1,11 +1,7 @@
-import { LampIcon, glyphIcon } from '../../lamplight/icons';
-import type { ReactNode } from 'react';
+import { glyphIcon } from '../../lamplight/icons';
 
 type IconProps = { size?: number; className?: string };
 
-function Icon({ size = 22, className, children }: IconProps & { children: ReactNode }) {
-  return <LampIcon glyph={{ line: children }} size={size} className={className} />;
-}
 
 /** The Soma mark: a sprig of leaves, as on the welcome screen. */
 export function Leaf({ size = 30, color = 'currentColor' }: { size?: number; color?: string }) {
@@ -25,12 +21,7 @@ export function Leaf({ size = 30, color = 'currentColor' }: { size?: number; col
 
 export const HomeIcon = glyphIcon('home', 22);
 export const BookIcon = glyphIcon('book', 22);
-export const BasketIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M3.5 9.5h17l-1.8 9.2a1.5 1.5 0 0 1-1.5 1.3H6.8a1.5 1.5 0 0 1-1.5-1.3z" />
-    <path d="M8 9.5 11 4M16 9.5 13 4M9 13v3.5M12 13v3.5M15 13v3.5" />
-  </Icon>
-);
+export const BasketIcon = glyphIcon('basket', 22);
 export const SproutIcon = glyphIcon('sprout', 22);
 export const MoreIcon = glyphIcon('more', 22);
 export const LinkIcon = glyphIcon('link', 22);
@@ -50,25 +41,11 @@ export const HeartIcon = ({ filled, ...p }: IconProps & { filled?: boolean }) =>
   </svg>
 );
 export const ClockIcon = glyphIcon('clock', 22);
-export const ServesIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4 15h16M5.5 15a6.5 6.5 0 0 1 13 0M12 6.5V8.5M3 18h18" />
-  </Icon>
-);
+export const ServesIcon = glyphIcon('serves', 22);
 export const SearchIcon = glyphIcon('search', 22);
 export const ShareIcon = glyphIcon('share', 22);
-export const PotIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" />
-    <path d="M2.5 10H4M20 10h1.5M9 6.5c0-1 1-1.5 1-2.5M13 6.5c0-1 1-1.5 1-2.5" />
-  </Icon>
-);
+export const PotIcon = glyphIcon('pot', 22);
 export const GearIcon = glyphIcon('gear', 22);
 export const BoxIcon = glyphIcon('box', 22);
 export const InfoIcon = glyphIcon('info', 22);
-export const JarIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M8 4h8v2.5H8zM7 6.5h10a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7.5a1 1 0 0 1 1-1Z" />
-    <path d="M6 11h12" />
-  </Icon>
-);
+export const JarIcon = glyphIcon('jar', 22);

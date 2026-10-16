@@ -84,3 +84,16 @@ rounded about 2, nothing thinner than the stroke. Each icon has an inner shape t
 lamp from inside, at 24%. An icon with no inner shape of its own is lit by filling its own lines; glyphs whose lines
 would fill badly (plus, chevrons, arrows) have an empty inner shape. The six icon modules (Proairetos, the newer
 apps, Askesis, Soma, Oikonomia, Hydros) draw through `LampIcon`, so a change here reaches every app.
+
+## The deep cut and Noesis
+
+`makeScheme(room, lamp, 'dark', 'deep')` is the premium cut: a darker room with more distance between its layers
+(wall .12, page .15, card .195, inset .235, raised .275 in OKLCH lightness), a finer hairline (6%) and a richer lamp,
+held to the same contrast (tested for every room and lamp). Noesis (its own repository) carries a copy of
+`src/lamplight/` and uses this cut, with a premium finish of its own (`noesis.css` there).
+
+## Home Screen icons
+
+`scripts/icons/` draws each app's tile lit by the lamp from the upper right, where the wallpaper keeps it: a warm
+glow, one faint ring of its light, and the symbol's shadow falling down and to the left. Noesis's icon follows the
+same rule. After changing icons, bump each worker's `CACHE`.

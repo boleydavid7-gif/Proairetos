@@ -1,11 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="soma-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5ede0"/><stop offset="1" stop-color="#e7decd"/></linearGradient>
-    <radialGradient id="soma-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-    <filter id="soma-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.12"/></filter>
+    <linearGradient id="soma-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#f5ede0"/><stop offset="1" stop-color="#e7decd"/></linearGradient>
+    <radialGradient id="soma-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fcefd6" stop-opacity="0.5"/><stop offset=".28" stop-color="#fcefd6" stop-opacity="0.19"/><stop offset="1" stop-color="#fcefd6" stop-opacity="0"/></radialGradient>
+    <filter id="soma-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.12"/></filter>
+    <clipPath id="soma-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#soma-tile)"/>
-  <rect width="1024" height="1024" rx="229" fill="url(#soma-light)"/>
+  <g clip-path="url(#soma-clip)">
+    <rect width="1024" height="1024" fill="url(#soma-light)"/>
+    <circle cx="770" cy="170" r="250" fill="none" stroke="#fcefd6" stroke-opacity="0.16" stroke-width="6"/>
+  </g>
   <g filter="url(#soma-lift)"><g transform="translate(512 512) scale(1.08) translate(-512 -512)">
       
   <g transform="translate(560 520) scale(1.15)">

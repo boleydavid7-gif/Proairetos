@@ -43,4 +43,16 @@ describe('Lamplight scheme', () => {
       expect(contrast(s.onLamp, s.lampFill)).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  it('keeps the deep (premium) cut readable in every room and lamp', () => {
+    for (const room of rooms)
+      for (const [name, lamp] of seeds) {
+        const s = makeScheme(ROOM_SEEDS[room], lamp, 'dark', 'deep');
+        for (const bg of [s.page, s.card, s.inset]) {
+          expect(contrast(s.ink, bg), `${room} ${name}`).toBeGreaterThanOrEqual(7);
+          for (const fg of [s.ink2, s.ink3, s.lamp, s.remove]) expect(contrast(fg, bg), `${room} ${name}`).toBeGreaterThanOrEqual(4.5);
+        }
+        expect(contrast(s.onLamp, s.lampFill)).toBeGreaterThanOrEqual(4.5);
+      }
+  });
 });
