@@ -205,3 +205,46 @@ html[data-swiped]::view-transition-old(root) {
     -webkit-backdrop-filter: none;
   }
 }
+
+/* A sheet opened from the top bar drops from the top and leaves upward (useSheet({ from: 'top' })). */
+@media (max-width: 61.99rem) {
+  .sheet.sheet--top {
+    margin: 0 auto auto;
+  }
+
+  .sheet.sheet--top .sheet__panel {
+    padding-top: calc(env(safe-area-inset-top) + var(--space-5, 24px));
+    padding-bottom: var(--space-3, 12px);
+    border-top: 0;
+    border-bottom: 1px solid var(--color-border, var(--ll-hair));
+    border-radius: 0 0 var(--radius-lg, 22px) var(--radius-lg, 22px);
+  }
+
+  .sheet.sheet--top[open] .sheet__panel {
+    animation: sheet-down var(--ll-slow, 420ms) var(--ll-ease-out, ease) backwards;
+  }
+
+  .sheet.sheet--top.sheet--closing .sheet__panel {
+    transform: translateY(-105%);
+  }
+
+  .sheet.sheet--top .sheet__close {
+    top: calc(env(safe-area-inset-top) + var(--space-3, 12px));
+  }
+
+  .sheet__grabber--foot {
+    margin: var(--space-2, 8px) auto 0;
+  }
+}
+
+@media (min-width: 62rem) {
+  .sheet__grabber--foot {
+    display: none;
+  }
+}
+
+@keyframes sheet-down {
+  from {
+    transform: translateY(-100%);
+  }
+}

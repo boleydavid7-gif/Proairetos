@@ -16,14 +16,13 @@ export function AppsIcon({ size = 22 }: { size?: number }) {
 }
 
 function AppsSheet({ onClose }: { onClose: () => void }) {
-  const { dialog, panel, close } = useSheet();
+  const { dialog, panel, close } = useSheet({ from: 'top' });
   const navigate = useNavigate();
   const added = useAddedApps();
   const apps = familyApps.filter((app) => added.includes(app.id as never));
   return (
-    <dialog ref={dialog} className="sheet" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
+    <dialog ref={dialog} className="sheet sheet--top" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
       <div ref={panel} className="sheet__panel">
-        <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={close}>
           Close
         </button>
@@ -52,6 +51,7 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
             </button>
           </li>
         </ul>
+        <div className="sheet__grabber sheet__grabber--foot" aria-hidden="true" />
       </div>
     </dialog>
   );

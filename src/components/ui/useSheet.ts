@@ -16,7 +16,9 @@ function reducedMotion(): boolean {
  * by each sheet through `dialog`. Every way out glides the sheet down
  * first (instantly when the device asks for less motion).
  */
-export function useSheet() {
+/** `from: 'top'` drops the sheet from the top of the screen (for one opened from the top bar); it leaves upward. */
+export function useSheet({ from = 'bottom' }: { from?: 'bottom' | 'top' } = {}) {
+  const top = from === 'top';
   const dialog = useRef<HTMLDialogElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const closing = useRef(false);
@@ -59,20 +61,22 @@ export function useSheet() {
 
     const down = (event: TouchEvent) => {
       const target = event.target as HTMLElement;
-      if (element.scrollTop > 0 || target.closest('input, textarea, select')) return;
+      // Held from the edge it would leave by: the top of a bottom sheet, the foot of a top one.
+      const atEdge = top ? element.scrollTop + element.clientHeight >= element.scrollHeight - 1 : element.scrollTop <= 0;
+      if (!atEdge || target.closest('input, textarea, select')) return;
       startY = event.touches[0]?.clientY ?? null;
       dy = 0;
       samples = [];
     };
     const move = (event: TouchEvent) => {
       if (startY === null) return;
-      const raw = (event.touches[0]?.clientY ?? startY) - startY;
+      const raw = top ? startY - (event.touches[0]?.clientY ?? startY) : (event.touches[0]?.clientY ?? startY) - startY;
       // Down follows the finger; up gives a little and resists, as a held sheet does.
       dy = raw >= 0 ? raw : -Math.min(24, Math.sqrt(-raw) * 3);
       samples.push([performance.now(), raw]);
       if (samples.length > 6) samples.shift();
       element.style.transition = 'none';
-      element.style.transform = dy ? `translateY(${dy}px)` : '';
+      element.style.transform = dy ? `translateY(${top ? -dy : dy}px)` : '';
       // The room brightens again as the sheet is pulled away.
       sheet?.style.setProperty('--sheet-pull', String(Math.max(0, Math.min(1, dy / (element.offsetHeight || 1)))));
     };
@@ -103,7 +107,7 @@ export function useSheet() {
       element.removeEventListener('touchend', up);
       element.removeEventListener('touchcancel', up);
     };
-  }, []);
+  }, [top]);
 
   return { dialog, panel, close };
 }

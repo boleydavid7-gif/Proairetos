@@ -186,7 +186,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   names the app only, never the page; it takes glass once scrolled and a hairline once the page's title has gone
   under. Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
   page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack through `setSwipeBack` in
-  `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`). Praxis and Theoria text uses
+  `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
+  drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
