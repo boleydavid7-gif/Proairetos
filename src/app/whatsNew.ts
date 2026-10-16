@@ -3,7 +3,6 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
-      'Proairetos stays free. The Store is ready to sell each of the other apps once, for $4.99, kept with your account on every device; until it opens, every app stays free.',
       'A new look, Lamplight: choose a room (Hearth, Dusk, Harbor, Grove, Clay or Slate) and a color in Settings › Appearance. Each room has its own wallpaper, a lamp with rings of light over sweeping bands, in dark and light.',
     ],
   },
