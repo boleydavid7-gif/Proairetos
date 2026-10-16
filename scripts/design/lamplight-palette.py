@@ -63,7 +63,11 @@ for name,h,cd,cl,acc,glows in ROOMS:
         f"radial-gradient(70% 55% at 95% 30%, {rgba(0.85,c2*0.9,g2,0.55)}, transparent 62%), "
         f"radial-gradient(90% 70% at 40% 105%, {rgba(0.85,c3*0.9,g3,0.55)}, transparent 65%), "
         f"linear-gradient(180deg, {hexof(0.985,cl*0.6,h)} 0%, {l['tone1']} 70%)")
-    d['wall']=dw; l['wall']=lw; d['hair']=f"rgba({rgbtrip(d['paper'])}, 0.075)"; l['hair']=f"rgba({rgbtrip(l['paper'])}, 0.09)"
+    d['wall']=dw; l['wall']=lw;
+    # Colors for the drawn wallpaper (app/wallpaper.ts): a sky, the lamp's glow and three bands.
+    d['art']={'sky':hexof(0.31,cd*1.5+0.02,h),'glow':hexof(0.83,c1,g1),'b1':hexof(0.6,c2,g2),'b2':hexof(0.45,c3,g3),'b3':hexof(0.3,cd*1.8+0.015,h)}
+    l['art']={'sky':hexof(0.975,cl*1.4+0.01,h),'glow':hexof(0.88,c1*1.05,g1),'b1':hexof(0.86,c2*0.9,g2),'b2':hexof(0.8,c3*0.9,g3),'b3':hexof(0.92,cl*2+0.01,h)}
+    d['hair']=f"rgba({rgbtrip(d['paper'])}, 0.075)"; l['hair']=f"rgba({rgbtrip(l['paper'])}, 0.09)"
     out['rooms'][name]={'accent':acc,'dark':d,'light':l}
 # checks
 bad=[]
@@ -84,5 +88,9 @@ for an,a in out['accents'].items():
         if v<4.5: bad.append((an,mode,'on',round(v,2)))
 print('fails',bad)
 json.dump(out,open(os.path.join(os.path.dirname(__file__),'../../docs/design/lamplight-tokens.json'),'w'),indent=1)
-for an,a in out['accents'].items(): print(an,a['dark']['lamp'],a['light']['lamp'],a['light']['fill'])
-for rn,r in out['rooms'].items(): print(rn,r['dark']['tone1'],r['dark']['tone2'],r['light']['tone1'],r['light']['tone2'])
+for an,a in []: print(an,a['dark']['lamp'],a['light']['lamp'],a['light']['fill'])
+for rn,r in []: print(rn,r['dark']['tone1'],r['dark']['tone2'],r['light']['tone1'],r['light']['tone2'])
+# The same values for the app.
+with open(os.path.join(os.path.dirname(__file__), '../../src/app/lamplightPalette.ts'), 'w') as ts:
+    ts.write('// Made by scripts/design/lamplight-palette.py; change the script, not this file.\n')
+    ts.write('export const LAMPLIGHT = ' + json.dumps(out, indent=2) + ' as const;\n')

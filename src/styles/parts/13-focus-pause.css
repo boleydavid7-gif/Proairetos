@@ -74,9 +74,9 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-5);
-  border: 1px solid rgba(201, 162, 116, 0.28);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.28);
   border-radius: var(--radius-lg);
-  background: radial-gradient(120% 90% at 100% 0%, rgba(201, 162, 116, 0.12), transparent 60%), var(--color-surface);
+  background: radial-gradient(120% 90% at 100% 0%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.12), transparent 60%), var(--color-surface);
 }
 
 .welcome-back__title {
@@ -129,7 +129,7 @@
 }
 
 .focus-choice:hover {
-  border-color: rgba(201, 162, 116, 0.5);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
 }
 
 .focus-choice__number {
@@ -149,7 +149,7 @@
   justify-content: center;
   padding: calc(env(safe-area-inset-top) + var(--space-5)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-5));
   background:
-    radial-gradient(70% 50% at 50% 45%, rgba(201, 162, 116, 0.1), transparent 70%),
+    radial-gradient(70% 50% at 50% 45%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.1), transparent 70%),
     var(--color-ink);
   text-align: center;
   animation: rise 240ms ease-out both;
@@ -257,7 +257,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.35);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
   border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   color: var(--color-text);
@@ -295,8 +295,8 @@
   width: 9rem;
   height: 9rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(217, 182, 138, 0.55), rgba(201, 162, 116, 0.12) 70%);
-  box-shadow: 0 0 60px rgba(201, 162, 116, 0.25);
+  background: radial-gradient(circle, rgba(var(--color-accent-rgb, 217, 182, 138), 0.55), rgba(var(--color-accent-rgb, 201, 162, 116), 0.12) 70%);
+  box-shadow: 0 0 60px rgba(var(--color-accent-rgb, 201, 162, 116), 0.25);
 }
 
 .breath--in {

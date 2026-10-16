@@ -20,7 +20,7 @@
 
 @keyframes mic-breathe {
   50% {
-    box-shadow: 0 0 0 6px rgba(201, 162, 116, 0.12);
+    box-shadow: 0 0 0 6px rgba(var(--color-accent-rgb, 201, 162, 116), 0.12);
   }
 }
 

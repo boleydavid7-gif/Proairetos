@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-16',
+    lines: [
+      'A new look, Lamplight: choose a room (Hearth, Dusk, Harbor, Grove, Clay or Slate) and a color in Settings › Appearance. Each room has its own wallpaper, a lamp with rings of light over sweeping bands, in dark and light.',
+    ],
+  },
+  {
     date: '2026-10-15',
     lines: [
       'Today’s path is now Today’s to-do, with no limit on how many things you choose for the day.',

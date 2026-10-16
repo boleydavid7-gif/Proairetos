@@ -6,7 +6,7 @@ for where you are), in a warm key: ink and paper, lit by one amber lamp, the way
 Noesis uses the same structure in night blue and gold (`noesis/src/design.css`); copy that file's rules and
 swap in these tokens.
 
-Not applied yet. When it is, it sits on top of the existing light and dark themes (`data-theme`) and the
+Applied in Proairetos (Settings › Appearance › Room and Color); the rest of the family later. It sits on top of the existing light and dark themes (`data-theme`) and the
 person's chosen colors still win: every color below is a token, never a fixed value in a rule.
 
 ## Principles

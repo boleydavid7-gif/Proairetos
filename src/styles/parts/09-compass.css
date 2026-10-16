@@ -36,7 +36,7 @@
   padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(201, 162, 116, 0.08), var(--color-surface) 65%);
+  background: linear-gradient(90deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.08), var(--color-surface) 65%);
 }
 
 .value-card__icon {

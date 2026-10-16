@@ -135,7 +135,7 @@
   left: var(--space-1);
   width: calc((100% - 2 * var(--space-1)) / var(--count));
   border-radius: var(--radius-sm);
-  background: radial-gradient(80% 120% at 50% 50%, rgba(201, 162, 116, 0.22), rgba(201, 162, 116, 0.06));
+  background: radial-gradient(80% 120% at 50% 50%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.22), rgba(var(--color-accent-rgb, 201, 162, 116), 0.06));
   translate: calc(var(--at) * 100%) 0;
   transition: translate 340ms var(--ease-spring);
 }

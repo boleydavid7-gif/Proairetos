@@ -773,7 +773,7 @@
 }
 
 .sound-choice__row[aria-checked='true'] {
-  border-color: rgba(201, 162, 116, 0.5);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
   color: var(--color-accent-strong);
 }
 

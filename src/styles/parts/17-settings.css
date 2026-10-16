@@ -25,7 +25,7 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.3);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.3);
   border-radius: var(--radius-sm);
 }
 
@@ -46,7 +46,7 @@
 .recovery-key {
   margin: 0;
   padding: var(--space-4);
-  border: 1px dashed rgba(201, 162, 116, 0.5);
+  border: 1px dashed rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
   border-radius: var(--radius-sm);
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   font-size: var(--text-md);

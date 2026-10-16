@@ -1,6 +1,7 @@
 import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
 import { sessions, type SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
+import { DEFAULT_ROOM, isColorChoice, isRoom, type ColorChoice, type Room } from '../../core/look/lamplight';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
 
@@ -530,10 +531,21 @@ export type Appearance = {
   textSize: 'default' | 'large' | 'larger';
   /** A soft buzz when ticking something off, on phones that have one. */
   taps: boolean;
+  /** Lamplight's room and color (Proairetos only for now). */
+  room: Room;
+  color: ColorChoice;
 };
 
 export function loadAppearance(): Appearance {
-  return { theme: 'dark', textSize: 'default', taps: true, ...readJson<Partial<Appearance>>(APPEARANCE_KEY) };
+  const saved = readJson<Partial<Appearance>>(APPEARANCE_KEY) ?? {};
+  return {
+    theme: 'dark',
+    textSize: 'default',
+    taps: true,
+    ...saved,
+    room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
+    color: isColorChoice(saved.color) ? saved.color : 'match',
+  };
 }
 
 export function saveAppearance(appearance: Appearance): void {

@@ -16,6 +16,13 @@ function listenForSwitches(): void {
   });
 }
 
+/** Proairetos lays its Lamplight room and color over the theme (main.tsx hands it over, so the other apps
+ *  never load the palette). It returns the page color for the browser bar. */
+let lamplight: ((appearance: Appearance, light: boolean) => string) | null = null;
+export function withLamplight(apply: (appearance: Appearance, light: boolean) => string): void {
+  lamplight = apply;
+}
+
 export function applyAppearance(appearance: Appearance = loadAppearance()): void {
   listenForSwitches();
   const root = document.documentElement;
@@ -23,5 +30,6 @@ export function applyAppearance(appearance: Appearance = loadAppearance()): void
   root.style.fontSize = textScale[appearance.textSize];
   const light =
     appearance.theme === 'light' || (appearance.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f4ecdf' : '#0a0c0e');
+  const page = lamplight?.(appearance, Boolean(light));
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', page ?? (light ? '#f4ecdf' : '#0a0c0e'));
 }

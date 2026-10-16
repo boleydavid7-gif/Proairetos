@@ -18,6 +18,7 @@ import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
+import { LAMP_COLORS, ROOMS, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
 import {
@@ -695,6 +696,11 @@ function HelpSection() {
 
 function AppearanceSection() {
   const [appearance, setAppearance] = useState(loadAppearance);
+  const mode =
+    appearance.theme === 'light' ||
+    (appearance.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches)
+      ? 'light'
+      : 'dark';
   const update = (next: typeof appearance) => {
     setAppearance(next);
     saveAppearance(next);
@@ -713,6 +719,56 @@ function AppearanceSection() {
             onClick={() => update({ ...appearance, theme })}
           >
             {themeLabels[theme]}
+          </button>
+        ))}
+      </div>
+      <p className="sheet__label">Room</p>
+      <div className="room-grid" role="radiogroup" aria-label="Room">
+        {ROOMS.map((room) => (
+          <button
+            key={room}
+            type="button"
+            role="radio"
+            className="room-tile"
+            aria-checked={appearance.room === room}
+            onClick={() => update({ ...appearance, room })}
+          >
+            <span
+              className="room-tile__art"
+              style={{ backgroundImage: wallpaperOf(room, mode) }}
+              aria-hidden="true"
+            />
+            <span className="room-tile__name">{room}</span>
+          </button>
+        ))}
+      </div>
+      <p className="sheet__label">Color</p>
+      <div className="lamp-colors" role="radiogroup" aria-label="Color">
+        <button
+          type="button"
+          role="radio"
+          className="lamp-color lamp-color--match"
+          aria-checked={appearance.color === 'match'}
+          onClick={() => update({ ...appearance, color: 'match' })}
+        >
+          <span
+            className="lamp-color__dot"
+            style={{ background: swatchOf(colorFor(appearance.room, 'match'), mode) }}
+            aria-hidden="true"
+          />
+          Match
+        </button>
+        {LAMP_COLORS.map((color) => (
+          <button
+            key={color}
+            type="button"
+            role="radio"
+            className="lamp-color"
+            aria-checked={appearance.color === color}
+            onClick={() => update({ ...appearance, color })}
+          >
+            <span className="lamp-color__dot" style={{ background: swatchOf(color, mode) }} aria-hidden="true" />
+            {color}
           </button>
         ))}
       </div>

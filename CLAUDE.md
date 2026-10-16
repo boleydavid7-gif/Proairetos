@@ -129,6 +129,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   that start after the icon. Your day carries the countdown on its next entry (`untilText`: exact within three hours,
   then "about N h"), so `NowCard` shows Next only when the day's list has nothing still to come. Today's to-do and the
   intention have no header link until something is set (the row and field are the way in).
+- Lamplight (Proairetos only for now; spec `docs/design/LAMPLIGHT.md`): Settings > Appearance has Room (Hearth, Dusk, Harbor,
+  Grove, Clay, Slate) and Color (Match = the room's own, or Amber, Ember, Rose, Heather, Ink, Tide, Sage, Pewter), kept in
+  `proairetos.appearance` (`room`, `color`; names in `core/look/lamplight.ts`). Values are made and contrast-checked by
+  `scripts/design/lamplight-palette.py`, which writes `app/lamplightPalette.ts` (never edit it by hand) and the doc's tokens.
+  `app/lamplight.ts` maps a room and color onto the existing `--color-*` tokens inline on the root; `src/main.tsx` hands it to
+  `applyAppearance` through `withLamplight`, so other apps never load the palette. The wallpaper is drawn (`app/wallpaper.ts`,
+  SVG: a lamp toward the upper right with rings of light and three bands; tall for phones, wide from 62rem) and set as
+  `--room-wall` on `.app-shell` (`02-shell.css`), fading into the page above Today's landscape. Gold tints in Proairetos's
+  styles use `--color-accent-rgb` (falls back to the old gold elsewhere).
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

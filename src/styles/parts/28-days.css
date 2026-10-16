@@ -51,7 +51,7 @@
   border-radius: 50%;
   background: var(--color-accent);
   color: var(--color-accent-ink);
-  box-shadow: 0 6px 24px rgba(201, 162, 116, 0.35);
+  box-shadow: 0 6px 24px rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
 }
 
 .days-page .segmented__option {
@@ -279,7 +279,7 @@
   z-index: -1;
   inset: -3rem -2rem auto;
   height: 22rem;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 116, 0.13), transparent 75%);
+  background: radial-gradient(60% 100% at 50% 0%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.13), transparent 75%);
   pointer-events: none;
 }
 
@@ -384,7 +384,7 @@
 
 .month__day[aria-selected='true'] {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-accent), 0 0 14px rgba(201, 162, 116, 0.35);
+  box-shadow: 0 0 0 1px var(--color-accent), 0 0 14px rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
 }
 
 .month__num {

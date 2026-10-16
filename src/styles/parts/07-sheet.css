@@ -67,7 +67,7 @@
 }
 
 .sheet__title:focus {
-  border-bottom-color: rgba(201, 162, 116, 0.45);
+  border-bottom-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.45);
 }
 
 .sheet__status {
