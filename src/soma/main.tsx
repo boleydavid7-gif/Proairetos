@@ -16,19 +16,18 @@ import '../askesis/styles/askesis.css';
 import './styles/soma.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'soma'));
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
 // The same theme and text size as Proairetos, with Soma's own bar color.
-function appearance() {
-  applyAppearance();
-  const theme = document.documentElement.dataset.theme;
-  const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#121a16' : '#f3ede2');
-}
+const appearance = () => applyAppearance();
 appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);

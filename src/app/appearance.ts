@@ -16,8 +16,8 @@ function listenForSwitches(): void {
   });
 }
 
-/** Proairetos lays its Lamplight room and color over the theme (main.tsx hands it over, so the other apps
- *  never load the palette). It returns the page color for the browser bar. */
+/** Each app lays its Lamplight room and color over the theme (its main hands it over: Proairetos with the
+ *  person's color, the others with their own). It returns the page color for the browser bar. */
 let lamplight: ((appearance: Appearance, light: boolean) => string) | null = null;
 export function withLamplight(apply: (appearance: Appearance, light: boolean) => string): void {
   lamplight = apply;

@@ -12,4 +12,4 @@ import '../app/family/account.css';
 import App from './app/App';
 import { startApp } from '../app/family/startApp';
 
-startApp('ktema', App, { light: '#f1efe8', dark: '#12130f' });
+startApp('ktema', App);

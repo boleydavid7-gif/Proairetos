@@ -21,4 +21,4 @@ if (invite) {
   history.replaceState(history.state, '', `${location.pathname}?open=home`);
 }
 
-startApp('phyton', App, { light: '#eef2ea', dark: '#0f1410' });
+startApp('phyton', App);

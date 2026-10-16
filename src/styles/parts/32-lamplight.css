@@ -117,3 +117,48 @@
   background-size: cover;
   background-position: 70% top;
 }
+
+/* Your own color: a hue strip; the lamp is made from it like the named ones, readable in every room. */
+.lamp-hue {
+  display: grid;
+  gap: var(--space-2);
+  margin: calc(var(--space-2) * -1) 0 var(--space-4);
+}
+
+.lamp-hue input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  appearance: none;
+  background: transparent;
+}
+
+.lamp-hue input[type='range']::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, oklch(0.75 0.11 0), oklch(0.75 0.11 60), oklch(0.75 0.11 120), oklch(0.75 0.11 180), oklch(0.75 0.11 240), oklch(0.75 0.11 300), oklch(0.75 0.11 359));
+}
+
+.lamp-hue input[type='range']::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, oklch(0.75 0.11 0), oklch(0.75 0.11 60), oklch(0.75 0.11 120), oklch(0.75 0.11 180), oklch(0.75 0.11 240), oklch(0.75 0.11 300), oklch(0.75 0.11 359));
+}
+
+.lamp-hue input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: var(--ll-lamp-fill, var(--color-accent));
+  box-shadow: 0 0 0 3px var(--color-surface), 0 2px 8px rgb(0 0 0 / 0.3);
+}
+
+.lamp-hue input[type='range']::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ll-lamp-fill, var(--color-accent));
+  box-shadow: 0 0 0 3px var(--color-surface), 0 2px 8px rgb(0 0 0 / 0.3);
+}

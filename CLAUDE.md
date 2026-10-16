@@ -146,15 +146,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   that start after the icon. Your day carries the countdown on its next entry (`untilText`: exact within three hours,
   then "about N h"), so `NowCard` shows Next only when the day's list has nothing still to come. Today's to-do and the
   intention have no header link until something is set (the row and field are the way in).
-- Lamplight (Proairetos only for now; spec `docs/design/LAMPLIGHT.md`): Settings > Appearance has Room (Hearth, Dusk, Harbor,
-  Grove, Clay, Slate) and Color (Match = the room's own, or Amber, Ember, Rose, Heather, Ink, Tide, Sage, Pewter), kept in
-  `proairetos.appearance` (`room`, `color`; names in `core/look/lamplight.ts`). Values are made and contrast-checked by
-  `scripts/design/lamplight-palette.py`, which writes `app/lamplightPalette.ts` (never edit it by hand) and the doc's tokens.
-  `app/lamplight.ts` maps a room and color onto the existing `--color-*` tokens inline on the root; `src/main.tsx` hands it to
-  `applyAppearance` through `withLamplight`, so other apps never load the palette. The wallpaper is drawn (`app/wallpaper.ts`,
-  SVG: a lamp toward the upper right with rings of light and three bands; tall for phones, wide from 62rem) and set as
-  `--room-wall` on `.app-shell` (`02-shell.css`), fading into the page above Today's landscape. Gold tints in Proairetos's
-  styles use `--color-accent-rgb` (falls back to the old gold elsewhere).
+- Lamplight, the family's design system (spec `docs/design/LAMPLIGHT.md`, public guide `/lamplight/` from `lamplight/index.html`
+  → `src/lamplight-guide/`, a live theme builder): `src/lamplight/` holds the scheme (`scheme.ts`: OKLCH roles from a room seed
+  and a lamp seed, each moved until it reads 7:1 / 4.5:1 on every surface; presets kept exactly; `ownLamp(hue)` for "Your own"),
+  each app's theme from its content (`apps.ts` `appTheme`: room and lamp from its page colors and accent, so Soma stays its
+  garden, Hydros its water), the bridge to each app's own color names (`family.ts` `familyVars`; Praxis and Theoria `ALWAYS_DARK`),
+  and `tokens.css` (shape, space, type roles, light for depth, motion), `components.css` (`.ll-*`), `motion.css` (press brightens,
+  dims slowly; sheets dim the room), imported by `premium.css`. Every app's main (or `startApp`) registers
+  `withLamplight((look, light) => applyLamplight(look, light, app))`, which also sets the browser bar color. Proairetos takes the
+  person's Room and Color (Settings > Appearance; Color can be Your own, `hue:N` with a hue strip), kept in `proairetos.appearance`
+  (synced); `app/lamplight.ts` maps the scheme onto `--color-*` and draws the wallpaper (`app/wallpaper.ts`, SVG: a lamp with rings
+  of light and three bands; tall for phones, wide from 62rem) as `--room-wall` on `.app-shell` (`02-shell.css`). Tests in
+  `src/tests/lamplight/`. Gold tints in Proairetos's styles use `--color-accent-rgb`.
   One light per page: the lamp sits above the title and clear of the top-right icons (x .6, y .09 tall; .66/.12 wide).
   Today's foot (`Landscape`) is drawn from the same room (`footSvg`, `--room-foot` / `--room-foot-wide`: three ridges
   rising toward the lamp, a rim of its light, no sun or clouds), and Compass's `PageHero` has no picture of its own

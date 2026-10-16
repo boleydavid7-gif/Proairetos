@@ -21,4 +21,4 @@ if (invite) {
   history.replaceState(history.state, '', `${location.pathname}?open=circle`);
 }
 
-startApp('therapeia', App, { light: '#eef1f5', dark: '#10141a' });
+startApp('therapeia', App);

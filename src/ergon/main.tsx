@@ -21,4 +21,4 @@ if (invite) {
   history.replaceState(history.state, '', `${location.pathname}?open=household`);
 }
 
-startApp('ergon', App, { light: '#eff1ed', dark: '#0e1112' });
+startApp('ergon', App);

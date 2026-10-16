@@ -21,7 +21,7 @@ import { startLaunchFiles } from './app/family/launchFiles';
 startLaunchFiles();
 
 // Theme, text size, room and color before the first paint, and again when the phone switches light or dark.
-withLamplight(applyLamplight);
+withLamplight((appearance, light) => applyLamplight(appearance, light, 'proairetos'));
 applyAppearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
 

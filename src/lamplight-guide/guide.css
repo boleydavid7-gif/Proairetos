@@ -1,0 +1,493 @@
+/* The Lamplight guide. Written only against Lamplight's tokens, like everything it shows. */
+:root {
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.15rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.6rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.3rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: #14100b;
+}
+
+.g {
+  min-height: 100vh;
+  background: var(--ll-page);
+  color: var(--ll-ink);
+  font: var(--ll-type-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--ll-slow) var(--ll-ease-in-out), color var(--ll-slow) var(--ll-ease-in-out);
+}
+
+.g :focus-visible {
+  outline: none;
+  box-shadow: var(--ll-focus);
+}
+
+.g h1,
+.g h2 {
+  margin: 0;
+  font-family: var(--ll-serif);
+  font-weight: 400;
+}
+
+.g h3 {
+  margin: 0 0 var(--ll-space-2);
+  font: var(--ll-type-title);
+}
+
+/* ---------- Hero: the room's wallpaper, one lamp ---------- */
+.g-hero {
+  background: linear-gradient(rgba(var(--ll-page-rgb), 0) 55%, var(--ll-page)), var(--g-wall) top / cover no-repeat;
+  padding: calc(env(safe-area-inset-top) + 18vh) 16px 64px;
+}
+
+.g-hero__inner,
+.g-main,
+.g-footer {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.g-kicker {
+  margin: 0 0 var(--ll-space-2);
+  color: var(--ll-ink-2);
+  font: var(--ll-type-label);
+}
+
+.g-hero h1 {
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  line-height: 1;
+}
+
+.g-hero__lead {
+  max-width: 36rem;
+  margin: var(--ll-space-4) 0 0;
+  color: var(--ll-ink-2);
+  font-size: var(--text-lg);
+}
+
+.g-hero__actions,
+.g-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ll-space-3);
+}
+
+.g-hero__actions {
+  margin-top: var(--ll-space-6);
+}
+
+.g-row--end {
+  justify-content: flex-end;
+  margin-top: var(--ll-space-4);
+}
+
+/* ---------- Sections ---------- */
+.g-main {
+  padding: 0 16px;
+}
+
+.g-section {
+  padding: var(--ll-space-8) 0 var(--ll-space-6);
+}
+
+.g-section h2 {
+  font-size: var(--text-3xl);
+}
+
+.g-lead {
+  max-width: 40rem;
+  margin: var(--ll-space-2) 0 var(--ll-space-5);
+  color: var(--ll-ink-2);
+}
+
+.g-small,
+.g-note {
+  margin: var(--ll-space-3) 0 0;
+  color: var(--ll-ink-3);
+  font: var(--ll-type-label);
+  font-weight: 400;
+}
+
+.g-note {
+  color: var(--ll-ink-2);
+}
+
+.g-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ll-lamp);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.g-label {
+  display: block;
+  margin-bottom: var(--ll-space-2);
+  color: var(--ll-ink-2);
+  font: var(--ll-type-label);
+}
+
+/* ---------- Builder ---------- */
+.g-builder {
+  display: grid;
+  gap: var(--ll-space-5);
+  padding: var(--ll-space-5);
+}
+
+.g-rooms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: var(--ll-space-3);
+}
+
+.g-room,
+.g-lamp {
+  display: grid;
+  gap: var(--ll-space-2);
+  justify-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ll-ink-2);
+  font: var(--ll-type-label);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.g-room__art {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--ll-radius-sm);
+  background-size: cover;
+  background-position: top;
+  box-shadow: inset 0 0 0 1px var(--ll-hair);
+}
+
+.g-room[aria-checked='true'],
+.g-lamp[aria-checked='true'] {
+  color: var(--ll-ink);
+}
+
+.g-room[aria-checked='true'] .g-room__art {
+  box-shadow: 0 0 0 2px var(--ll-page), 0 0 0 4px var(--ll-lamp);
+}
+
+.g-lamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ll-space-4);
+}
+
+.g-lamp__dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.g-lamp[aria-checked='true'] .g-lamp__dot {
+  box-shadow: 0 0 0 2px var(--ll-page), 0 0 0 4px var(--ll-lamp), var(--ll-lamp-light);
+}
+
+.g-hue {
+  display: block;
+  margin-top: var(--ll-space-4);
+}
+
+.g-hue input {
+  width: 100%;
+  accent-color: var(--ll-lamp-fill);
+}
+
+.g-field--row {
+  display: flex;
+  align-items: center;
+  gap: var(--ll-space-4);
+}
+
+.g-field--row .g-label {
+  margin: 0;
+}
+
+.ll-chips {
+  display: flex;
+  gap: var(--ll-space-2);
+}
+
+/* ---------- Principles ---------- */
+.g-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--ll-space-4);
+  margin: var(--ll-space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.g-principles p {
+  margin: 0;
+  color: var(--ll-ink-2);
+}
+
+/* ---------- Roles ---------- */
+.g-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--ll-space-3);
+}
+
+.g-role {
+  display: grid;
+  gap: 2px;
+  padding: var(--ll-space-3);
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-card);
+  box-shadow: var(--ll-light-1);
+}
+
+.g-role__swatch {
+  display: grid;
+  place-items: center;
+  height: 56px;
+  margin-bottom: var(--ll-space-2);
+  border-radius: var(--ll-radius-sm);
+  box-shadow: inset 0 0 0 1px var(--ll-hair);
+  font: 500 1.4rem var(--ll-serif);
+}
+
+/* A text color shows on the page color, so its swatch reads like the text itself. */
+.g-role__swatch:has(span) {
+  background: var(--ll-page) !important;
+}
+
+.g-role__name {
+  font: var(--ll-type-label);
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+.g-role__use,
+.g-role__value,
+.g-role__ratio {
+  color: var(--ll-ink-3);
+  font: var(--ll-type-caption);
+}
+
+.g-role__ratio {
+  color: var(--ll-ink-2);
+}
+
+/* ---------- The family ---------- */
+.g-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--ll-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.g-app {
+  display: grid;
+  gap: var(--ll-space-1);
+  padding: var(--ll-space-4);
+  border-radius: var(--ll-radius-md);
+  box-shadow: inset 0 0 0 1px var(--ll-hair);
+  font: var(--ll-type-label);
+  font-weight: 400;
+}
+
+.g-app img {
+  border-radius: 10px;
+  margin-bottom: var(--ll-space-2);
+}
+
+.g-app strong {
+  font: var(--ll-type-title);
+}
+
+.g-app__swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--ll-space-2);
+}
+
+.g-app__swatches i {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.3);
+}
+
+/* ---------- Specimens ---------- */
+.g-specimens,
+.g-components {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--ll-space-4);
+}
+
+.g-radii {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ll-space-3);
+}
+
+.g-radius {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--ll-inset);
+  color: var(--ll-ink-2);
+  font: var(--ll-type-caption);
+}
+
+.g-space {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ll-space-3);
+  flex-wrap: wrap;
+}
+
+.g-space span {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--ll-ink-3);
+  font: var(--ll-type-caption);
+}
+
+.g-space i {
+  display: block;
+  border-radius: 3px;
+  background: var(--ll-lamp-fill);
+}
+
+.g-type p {
+  margin: 0 0 var(--ll-space-2);
+}
+
+.g-lights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--ll-space-5);
+}
+
+.g-light {
+  display: grid;
+  gap: var(--ll-space-1);
+  min-height: 120px;
+  align-content: end;
+  padding: var(--ll-space-4);
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-card);
+}
+
+.g-light span {
+  color: var(--ll-ink-2);
+  font: var(--ll-type-label);
+  font-weight: 400;
+}
+
+.g-light--lamp {
+  background: var(--ll-lamp-fill);
+  color: var(--ll-on-lamp);
+  box-shadow: var(--ll-lamp-light);
+}
+
+.g-light--lamp span {
+  color: var(--ll-on-lamp);
+}
+
+.g-stack {
+  display: grid;
+  align-content: start;
+  gap: var(--ll-space-3);
+}
+
+.g-h3 {
+  margin: 0;
+}
+
+.g-sheet-stage {
+  padding: var(--ll-space-6) var(--ll-space-4) 0;
+  border-radius: var(--ll-radius-lg);
+  overflow: hidden;
+}
+
+.g-sheet-stage.ll-dim,
+.g-sheet-stage {
+  background:
+    radial-gradient(120% 60% at 70% 0%, rgba(var(--ll-lamp-rgb), 0.1), transparent 60%),
+    rgba(var(--ll-page-rgb), 0.68),
+    var(--ll-inset);
+}
+
+.g-sheet-stage .ll-field {
+  margin-top: var(--ll-space-2);
+}
+
+.g-motion {
+  display: grid;
+  gap: var(--ll-space-3);
+  margin: 0;
+}
+
+.g-motion div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: var(--ll-space-3);
+}
+
+.g-motion dt {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: var(--text-sm);
+}
+
+.g-motion dd {
+  margin: 0;
+  color: var(--ll-ink-2);
+}
+
+.g-code {
+  margin: 0;
+  padding: var(--ll-space-5);
+  overflow-x: auto;
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-inset);
+  color: var(--ll-ink);
+  font: 400 var(--text-sm) / 1.6 ui-monospace, Menlo, monospace;
+}
+
+.g-footer {
+  display: flex;
+  gap: var(--ll-space-5);
+  padding: var(--ll-space-6) 16px var(--ll-space-8);
+  border-top: 1px solid var(--ll-hair);
+}
+
+.g-footer a {
+  min-height: 44px;
+  line-height: 44px;
+  color: var(--ll-ink-2);
+}
+
+@media (max-width: 30rem) {
+  .g-motion div {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

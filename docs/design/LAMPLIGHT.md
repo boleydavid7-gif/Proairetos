@@ -1,148 +1,75 @@
 # Lamplight
 
-A look kept for Proairetos, and later the family: Apple's calm and depth (translucent bars, large titles,
-space instead of lines) with Material 3's structure (tonal surfaces in steps, pill controls, a clear marker
-for where you are), in a warm key: ink and paper, lit by one amber lamp, the way a book is read at night.
-Noesis uses the same structure in night blue and gold (`noesis/src/design.css`); copy that file's rules and
-swap in these tokens.
-
-Applied in Proairetos (Settings › Appearance › Room and Color); the rest of the family later. It sits on top of the existing light and dark themes (`data-theme`) and the
-person's chosen colors still win: every color below is a token, never a fixed value in a rule.
+The design system behind Proairetos and its family: a room, lit by one lamp. Its public guide is
+https://proairetos.com/lamplight/ (`lamplight/index.html` → `src/lamplight-guide/`), a live theme builder that
+uses the same code as the apps.
 
 ## Principles
 
-- Surfaces, not outlines. Cards are a step lighter (dark) or whiter (light) than the page; a hairline at most.
-  Never a box drawn around a box.
-- One lit action per screen: the amber pill. Everything else is a tonal pill or plain text.
-- Where you are: a soft amber-tinted pill under the current tab or rail item, the icon in amber.
-- Bars are translucent with a blur (the phone tab bar, sheet headers).
-- The default wallpaper is a gradient (`--lamplight`); a chosen picture replaces it.
-- Covers without a picture are typeset: title in serif, a short rule, the author, a steady hue from the title.
-- Fields are filled (no border until focus); focus is an amber ring.
-- Radii: 22 (heroes), 16 (cards), 12 (small pieces), 999 (pills).
+- **One light.** Each page has one lamp: the main action, where you are, a link. Everything else is quiet.
+- **Made from two seeds.** A room (the hue every surface takes) and a lamp. Every color is made from them, in dark
+  and in light.
+- **Readable by construction.** Each color is checked against every surface it sits on and moved in lightness until
+  it passes: 7:1 for text, 4.5:1 for everything read, 4.5:1 for words on the lamp. Any seed, any hue.
+- **Light, not shadow.** Surfaces are lit along their top edge and rest on the page. Three steps of depth.
+- **Surfaces, not outlines.** Cards are a step lighter than the page, one hairline at most.
+- **Motion as light.** A touch turns the light up at once; letting go dims it slowly. Sheets dim the room and leave
+  the lamp at the top.
+- **Each app its own place.** Proairetos takes the person's room and lamp. Every other app keeps the place it is
+  about (Soma's garden, Askesis's lakeside path, Hydros's water); its room and lamp come from its own colors, made
+  the same way and held to the same contrast.
 
-## Dark
+## Code
 
-| Token         | Value                       | Use                                                       |
-| ------------- | --------------------------- | --------------------------------------------------------- |
-| `--lamp`      | `#e6b366`                   | the main action, current place, focus (9.7:1 on the page) |
-| `--lamp-soft` | `#f0d29c`                   | hover on the main action, text links                      |
-| `--on-lamp`   | `#1d1408`                   | text on the lamp (9.5:1)                                  |
-| `--paper`     | `#f2ebdf`                   | text (15.7:1)                                             |
-| `--paper-2`   | `#c4b9a9`                   | secondary text (9.1:1 on cards)                           |
-| `--paper-3`   | `#968c7e`                   | faint text (5.3:1 on cards)                               |
-| `--tone-0`    | `#0f0e0c`                   | sidebar, deepest                                          |
-| `--tone-1`    | `#141311`                   | page                                                      |
-| `--tone-2`    | `#1b1916`                   | cards                                                     |
-| `--tone-3`    | `#23201c`                   | a card inside a card, hover                               |
-| `--tone-4`    | `#2c2823`                   | menus, popovers                                           |
-| `--hair`      | `rgba(242, 235, 223, 0.07)` | the one hairline                                          |
+| File | What it holds |
+| --- | --- |
+| `src/lamplight/color.ts` | OKLCH to sRGB (chroma lowered until it fits), hex to OKLCH, WCAG contrast |
+| `src/lamplight/scheme.ts` | Seeds (`ROOM_SEEDS`, `LAMP_SEEDS`, `ROOM_LAMP`, `ownLamp`), `makeScheme(room, lamp, mode)`, `schemeVars` (`--ll-*`) |
+| `src/lamplight/apps.ts` | Each app's theme (`appTheme`): a room and lamp from its page colors and accent |
+| `src/lamplight/family.ts` | The bridge: each app's own color names set from the scheme (`familyVars`); `ALWAYS_DARK` (Praxis, Theoria) |
+| `src/lamplight/tokens.css` | Shape, space, type roles, light (depth), motion, focus |
+| `src/lamplight/components.css` | `.ll-button` (+ `--tonal`, `--plain`, `--remove`), `.ll-card`, `.ll-list`/`.ll-row`, `.ll-switch`, `.ll-field`, `.ll-chip`, `.ll-bar`, `.ll-sheet` |
+| `src/lamplight/motion.css` | Press brightens and dims slowly; sheets dim the room |
+| `src/app/lamplight.ts` | `applyLamplight(appearance, light, app)`: sets the scheme on the root, Proairetos's wallpaper and foot |
 
-```css
---lamplight:
-  radial-gradient(
-    120% 80% at 18% 0%,
-    rgba(230, 179, 102, 0.22),
-    rgba(230, 179, 102, 0) 55%
-  ),
-  radial-gradient(
-    90% 70% at 100% 100%,
-    rgba(120, 140, 170, 0.08),
-    rgba(120, 140, 170, 0) 60%
-  ),
-  linear-gradient(180deg, #1d1a16 0%, #141210 100%);
-```
+Every app's `main` (or `startApp`) registers `withLamplight((look, light) => applyLamplight(look, light, app))`;
+`premium.css` imports the three stylesheets, so every app has the tokens, components and motion. Tests:
+`src/tests/lamplight/scheme.test.ts` (presets kept, every room × 32 lamps × dark/light readable, every app theme
+readable).
 
-Phone bar: `--tone-1` at 72% with `blur(22px) saturate(1.4)`.
+## Color roles
 
-## Light
+| Role | Use |
+| --- | --- |
+| `--ll-wall` | side rail, deepest |
+| `--ll-page` | the page |
+| `--ll-card` | cards, grouped lists |
+| `--ll-inset` | a card inside a card, fields |
+| `--ll-raised` | menus, sheets |
+| `--ll-ink`, `--ll-ink-2`, `--ll-ink-3` | text, secondary, faint |
+| `--ll-hair` | the one hairline |
+| `--ll-lamp` | links, where you are, focus (reads as text) |
+| `--ll-lamp-fill`, `--ll-on-lamp` | the main action and the words on it |
+| `--ll-lamp-soft`, `--ll-glow` | hover; soft tints |
+| `--ll-remove` | removing something (never a failure color) |
+| `--ll-bar` | translucent bars |
 
-Warm paper in daylight, the lamp turned down to a deeper amber so it reads as text.
+Plus `--ll-page-rgb`, `--ll-ink-rgb` and `--ll-lamp-rgb` for `rgba()` tints.
 
-| Token         | Value                    | Use                                                        |
-| ------------- | ------------------------ | ---------------------------------------------------------- |
-| `--lamp`      | `#8f5f17`                | links, current place icon, focus (4.9:1 on the page)       |
-| `--lamp-fill` | `#d9a352`                | the main action's pill                                     |
-| `--on-lamp`   | `#1d1408`                | text on the pill (8.1:1)                                   |
-| `--paper`     | `#231d15`                | text (14.8:1)                                              |
-| `--paper-2`   | `#5f5547`                | secondary text (6.5:1)                                     |
-| `--paper-3`   | `#73685a`                | faint text (4.9:1)                                         |
-| `--tone-0`    | `#efe8db`                | sidebar                                                    |
-| `--tone-1`    | `#f6f1e7`                | page                                                       |
-| `--tone-2`    | `#fffdf8`                | cards (lighter than the page, as in Apple's grouped lists) |
-| `--tone-3`    | `#f1ebe0`                | a card inside a card, hover                                |
-| `--tone-4`    | `#e9e1d3`                | pressed, tonal buttons                                     |
-| `--hair`      | `rgba(35, 29, 21, 0.08)` | the one hairline                                           |
+## Rooms and colors (Proairetos)
 
-```css
---lamplight:
-  radial-gradient(
-    120% 80% at 18% 0%,
-    rgba(230, 179, 102, 0.28),
-    rgba(230, 179, 102, 0) 55%
-  ),
-  radial-gradient(
-    90% 70% at 100% 100%,
-    rgba(120, 140, 170, 0.1),
-    rgba(120, 140, 170, 0) 60%
-  ),
-  linear-gradient(180deg, #fbf6ec 0%, #f1e9da 100%);
-```
+Settings › Appearance: Room (Hearth, Dusk, Harbor, Grove, Clay, Slate) and Color (Match, Amber, Ember, Rose, Heather,
+Ink, Tide, Sage, Pewter, or Your own: any hue, `hue:N`), kept in `proairetos.appearance` (synced). The wallpaper
+(`app/wallpaper.ts`) is drawn from the room's `art` colors: a lamp toward the upper right with rings of light and
+three bands; Today's foot is three ridges in the same colors with no sun of their own.
 
-Phone bar: `#fffdf8` at 78% with the same blur, and a soft shadow (`0 8px 30px rgba(35, 29, 21, 0.1)`)
-in place of dark mode's deeper one. The current-place pill is `rgba(217, 163, 82, 0.2)`.
+## Tokens
 
-## Rooms and colors
-
-Apple offers a few named accent colors and wallpapers; Google's Material You takes a whole palette from the
-wallpaper. Lamplight does both, in its own way: the person picks a **room** (the wallpaper and the hue every
-surface takes from it, like Material You) and a **color** (the lamp: the one main action, the current place,
-links), each in dark and light. A color can be left on **Match**, which takes the one the room was made with.
-
-Every value is made in OKLCH by `scripts/design/lamplight-palette.py` and checked there: text 7:1, secondary
-and faint text and the lamp 4.5:1 on every surface (page, card, inner card) in every room, and text on the
-pill 4.5:1. All values are in `docs/design/lamplight-tokens.json`; `docs/design/lamplight-preview.html`
-shows them on Today.
-
-### Rooms
-
-The wallpaper is three soft glows in the room's colors over a gradient that settles into the page, so cards
-read the same in every room. Tones: page `tone1`, sidebar `tone0`, cards `tone2`, inner cards `tone3`,
-menus `tone4`; text `paper`, `paper2`, `paper3`; one hairline `hair`.
-
-| Room   | Dark                                            | Light                      | Matched color | Page (dark / light)   |
-| ------ | ----------------------------------------------- | -------------------------- | ------------- | --------------------- |
-| Hearth | Warm ink by the fire, amber light from the top  | Cream paper in morning sun | Amber         | `#14100b` / `#fcf2e7` |
-| Dusk   | Plum dark, a rose and amber sky low on the left | Soft pink morning          | Rose          | `#160d15` / `#faf0f9` |
-| Harbor | Deep sea blue with one lamp in a window         | Sea air, pale blue         | Amber         | `#07111d` / `#edf4fd` |
-| Grove  | Evening green, gold light through leaves        | Green shade, bright day    | Sage          | `#08130d` / `#ebf7ef` |
-| Clay   | Baked earth, ember glow                         | Sunlit plaster             | Ember         | `#1b0c06` / `#fff0ea` |
-| Slate  | Quiet graphite, the faintest warmth             | Cool paper, overcast       | Pewter        | `#0e1114` / `#f1f4f7` |
-
-### Colors
-
-Dark uses `lamp` for the pill, links and the current place. Light uses the deeper `lamp` for links and the
-current place (it reads as text) and `fill` for the pill. Text on the pill is `on` in both.
-
-| Color   | Dark `lamp` | Light `lamp` | Light `fill` |
-| ------- | ----------- | ------------ | ------------ |
-| Amber   | `#ebb25f`   | `#895c05`    | `#e6ab52`    |
-| Ember   | `#ffa47a`   | `#a84811`    | `#ff996a`    |
-| Rose    | `#fba0b0`   | `#9d4b5d`    | `#f797a9`    |
-| Heather | `#d8abe2`   | `#7e5688`    | `#d3a4dd`    |
-| Ink     | `#9bbeff`   | `#46659f`    | `#93b8fb`    |
-| Tide    | `#71cfd9`   | `#026f78`    | `#65c9d4`    |
-| Sage    | `#9ccd9c`   | `#427044`    | `#93c794`    |
-| Pewter  | `#c5bcb1`   | `#6b635a`    | `#bfb6aa`    |
-
-## Staying changeable
-
-Write rules against the tokens only. A person's chosen colors set the tokens:
-
-- an accent sets `--lamp`, `--lamp-soft`, `--lamp-fill` and an `--lamp-rgb` triple used for every tint
-  (`rgba(var(--lamp-rgb), 0.16)`);
-- a background sets `--tone-1`, and the other tones are mixed from it
-  (`color-mix(in oklab, var(--tone-1), #fff 4.5%)` for cards in dark; in light, cards toward `#fff` and the
-  inner and pressed tones toward `#000`), as Noesis does;
-- the wallpaper and the translucent bars are mixed from the tones too, so nothing stays amber or brown
-  when another color is chosen.
+- Shape: `--ll-radius-xs` 8, `-sm` 12, `-md` 16, `-lg` 22, `-pill` 999. Smaller nests inside larger.
+- Space: `--ll-space-1` … `-8` (4, 8, 12, 16, 24, 32, 40, 48).
+- Type: `--ll-type-display`, `-headline` (serif), `-title`, `-body`, `-label`, `-caption` (sans), on the
+  family's type scale (`--text-xs` … `--text-4xl`).
+- Light: `--ll-light-1` (a card), `-2` (a menu), `-3` (a sheet), `--ll-lamp-light` (the main action).
+- Motion: `--ll-quick` 120, `--ll-calm` 240, `--ll-slow` 420, `--ll-dim` 640 ms; `--ll-ease-out`,
+  `--ll-ease-in-out`, `--ll-ease-light`. Zero with reduced motion.
+- Focus: `--ll-focus`, a ring of the lamp.

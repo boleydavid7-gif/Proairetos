@@ -19,6 +19,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
 import { LAMP_COLORS, ROOMS, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
+import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
 import {
@@ -753,7 +754,7 @@ function AppearanceSection() {
         >
           <span
             className="lamp-color__dot"
-            style={{ background: swatchOf(colorFor(appearance.room, 'match'), mode) }}
+            style={{ background: swatchOf(colorFor(appearance.room, 'match'), mode, appearance.room) }}
             aria-hidden="true"
           />
           Match
@@ -767,11 +768,33 @@ function AppearanceSection() {
             aria-checked={appearance.color === color}
             onClick={() => update({ ...appearance, color })}
           >
-            <span className="lamp-color__dot" style={{ background: swatchOf(color, mode) }} aria-hidden="true" />
+            <span className="lamp-color__dot" style={{ background: swatchOf(color, mode, appearance.room) }} aria-hidden="true" />
             {color}
           </button>
         ))}
+        <button
+          type="button"
+          role="radio"
+          className="lamp-color"
+          aria-checked={ownHue(appearance.color) !== null}
+          onClick={() => update({ ...appearance, color: `hue:${ownHue(appearance.color) ?? 200}` })}
+        >
+          <span className="lamp-color__dot lamp-color__dot--own" style={{ background: swatchOf(`hue:${ownHue(appearance.color) ?? 200}`, mode, appearance.room) }} aria-hidden="true" />
+          Your own
+        </button>
       </div>
+      {ownHue(appearance.color) !== null && (
+        <label className="lamp-hue">
+          <span className="sheet__label">Hue</span>
+          <input
+            type="range"
+            min={0}
+            max={359}
+            value={ownHue(appearance.color) ?? 200}
+            onChange={(event) => update({ ...appearance, color: `hue:${Number(event.target.value)}` })}
+          />
+        </label>
+      )}
       <p className="sheet__label">Text size</p>
       <div className="chip-row" role="group" aria-label="Text size">
         {(Object.keys(sizeLabels) as (keyof typeof sizeLabels)[]).map((size) => (

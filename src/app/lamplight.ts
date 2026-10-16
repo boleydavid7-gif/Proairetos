@@ -1,77 +1,89 @@
-import { LAMPLIGHT } from './lamplightPalette';
 import type { Appearance } from '../data/storage/preferences';
 import { footSvg, wallpaperSvg } from './wallpaper';
-import { DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
+import { ownHue, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
+import { rgba, triple } from '../lamplight/color';
+import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampSeed, type Mode, type Scheme } from '../lamplight/scheme';
+import { appTheme } from '../lamplight/apps';
+import { ALWAYS_DARK, familyVars } from '../lamplight/family';
 
 export { ROOMS, LAMP_COLORS, DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
 
 /** Lamplight: a room (the wallpaper and the tint of every surface) and a color (the lamp), each in dark and light.
- *  Values come from lamplightPalette.ts; this maps them onto the page's color tokens. */
+ *  The values are made from seeds by src/lamplight/scheme.ts; this lays them on the page. */
 
-export function colorFor(room: Room, color: ColorChoice): LampColor {
-  return color === 'match' ? (LAMPLIGHT.rooms[room].accent as LampColor) : color;
+export function colorFor(room: Room, color: ColorChoice): LampColor | `hue:${number}` {
+  return color === 'match' ? (ROOM_LAMP[room] as LampColor) : color;
 }
 
-const rgb = (hex: string) => [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16)).join(', ');
+export function lampSeed(room: Room, color: ColorChoice): LampSeed {
+  const chosen = colorFor(room, color);
+  const hue = ownHue(chosen);
+  return hue === null ? LAMP_SEEDS[chosen as LampColor] : ownLamp(hue);
+}
+
+export const schemeOf = (room: Room, lamp: LampSeed, mode: Mode): Scheme => makeScheme(ROOM_SEEDS[room], lamp, mode);
 
 /** The swatch a color shows in Settings for this mode. */
-export function swatchOf(color: LampColor, mode: 'dark' | 'light'): string {
-  return LAMPLIGHT.accents[color][mode].lamp;
+export function swatchOf(color: LampColor | `hue:${number}`, mode: Mode, room: Room = 'Hearth'): string {
+  return schemeOf(room, lampSeed(room, color), mode).lampFill;
 }
 
 /** The room's drawn wallpaper, as a CSS image. */
-export function wallpaperOf(room: Room, mode: 'dark' | 'light', wide = false): string {
-  const tones = LAMPLIGHT.rooms[room][mode];
-  return wallpaperSvg(tones.art, tones.tone1, mode === 'light', wide);
+export function wallpaperOf(room: Room, mode: Mode, wide = false): string {
+  const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
+  return wallpaperSvg(s.art, s.page, mode === 'light', wide);
 }
 
 /** The foot of Today in the room's colors, as a CSS image. */
-export function footOf(room: Room, mode: 'dark' | 'light', wide = false): string {
-  const tones = LAMPLIGHT.rooms[room][mode];
-  return footSvg(tones.art, tones.tone1, mode === 'light', wide);
+export function footOf(room: Room, mode: Mode, wide = false): string {
+  const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
+  return footSvg(s.art, s.page, mode === 'light', wide);
 }
 
-/** The token values for a room and color. Text on every surface passes 4.5:1 (checked by the palette script). */
-export function lamplightVars(room: Room, color: ColorChoice, mode: 'dark' | 'light'): Record<string, string> {
-  const tones = LAMPLIGHT.rooms[room][mode];
-  const lamp = LAMPLIGHT.accents[colorFor(room, color)][mode];
-  const paper = rgb(tones.paper);
-  const dark = mode === 'dark';
+/** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
+export function proairetosVars(s: Scheme): Record<string, string> {
+  const dark = s.mode === 'dark';
   return {
-    '--color-ink': tones.tone1,
-    '--color-ink-raised': tones.tone0,
-    '--color-bg-rgb': rgb(tones.tone1),
-    '--color-bar-rgb': rgb(dark ? tones.tone1 : tones.tone2),
-    '--color-surface': tones.tone2,
-    '--color-surface-raised': dark ? tones.tone3 : '#ffffff',
-    '--color-surface-soft': `rgba(${paper}, ${dark ? 0.06 : 0.04})`,
-    '--color-border': `rgba(${paper}, ${dark ? 0.13 : 0.16})`,
-    '--color-text': tones.paper,
-    '--color-text-muted': tones.paper2,
-    '--color-text-faint': tones.paper3,
-    '--hero-text': dark ? `rgba(${paper}, 0.84)` : tones.paper2,
-    '--color-accent': lamp.lamp,
+    '--color-ink': s.page,
+    '--color-ink-raised': s.wall,
+    '--color-bg-rgb': triple(s.page),
+    '--color-bar-rgb': triple(dark ? s.page : s.card),
+    '--color-surface': s.card,
+    '--color-surface-raised': dark ? s.inset : '#ffffff',
+    '--color-surface-soft': rgba(s.ink, dark ? 0.06 : 0.04),
+    '--color-border': rgba(s.ink, dark ? 0.13 : 0.16),
+    '--color-text': s.ink,
+    '--color-text-muted': s.ink2,
+    '--color-text-faint': s.ink3,
+    '--hero-text': dark ? rgba(s.ink, 0.84) : s.ink2,
+    '--color-accent': s.lamp,
     // Light keeps the deeper lamp as the filled button with light words on it, as before.
-    '--color-accent-strong': dark ? (lamp as { soft: string }).soft : lamp.lamp,
-    '--color-accent-soft': `rgba(${rgb(lamp.lamp)}, ${dark ? 0.15 : 0.12})`,
-    '--color-accent-ink': dark ? lamp.on : tones.tone2,
-    '--color-accent-rgb': rgb(lamp.lamp),
-    '--room-wall': wallpaperOf(room, mode),
-    '--room-wall-wide': wallpaperOf(room, mode, true),
-    '--room-foot': footOf(room, mode),
-    '--room-foot-wide': footOf(room, mode, true),
+    '--color-accent-strong': dark ? s.lampSoft : s.lamp,
+    '--color-accent-soft': rgba(s.lamp, dark ? 0.15 : 0.12),
+    '--color-accent-ink': dark ? s.onLamp : s.card,
+    '--color-accent-rgb': triple(s.lamp),
+    '--room-wall': wallpaperSvg(s.art, s.page, !dark),
+    '--room-wall-wide': wallpaperSvg(s.art, s.page, !dark, true),
+    '--room-foot': footSvg(s.art, s.page, !dark),
+    '--room-foot-wide': footSvg(s.art, s.page, !dark, true),
   };
 }
 
-export const LAMPLIGHT_VARS = Object.keys(lamplightVars(DEFAULT_ROOM, 'match', 'dark'));
+/** The scheme for this page: Proairetos takes the person's room and color; every other app keeps its own theme,
+ *  a room and a lamp drawn from what it is about (Phyton's greens, Hydros's water), made the same way. */
+export function pageScheme(appearance: Appearance, mode: Mode, app: string): Scheme {
+  const theme = app === 'proairetos' ? null : appTheme(app);
+  if (theme) return makeScheme(theme.room, theme.lamp, mode);
+  return schemeOf(appearance.room, lampSeed(appearance.room, appearance.color), mode);
+}
 
-/** Sets the room and color on the page; returns the page color. */
-export function applyLamplight(appearance: Appearance, light: boolean): string {
-  const mode = light ? 'light' : 'dark';
+/** Lays the room and color on the page; returns the page color for the browser bar. */
+export function applyLamplight(appearance: Appearance, light: boolean, app = 'proairetos'): string {
+  const mode: Mode = light && !ALWAYS_DARK.has(app) ? 'light' : 'dark';
+  const s = pageScheme(appearance, mode, app);
   const root = document.documentElement;
-  for (const [name, value] of Object.entries(lamplightVars(appearance.room, appearance.color, mode))) {
-    root.style.setProperty(name, value);
-  }
+  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s) : familyVars(s, app)) };
+  for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
   root.dataset.room = appearance.room;
-  return LAMPLIGHT.rooms[appearance.room][mode].tone1;
+  return s.page;
 }

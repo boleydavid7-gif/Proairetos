@@ -531,7 +531,7 @@ export type Appearance = {
   textSize: 'default' | 'large' | 'larger';
   /** A soft buzz when ticking something off, on phones that have one. */
   taps: boolean;
-  /** Lamplight's room and color (Proairetos only for now). */
+  /** Lamplight's room and color in Proairetos; each other app has its own room and lamp, from its content. */
   room: Room;
   color: ColorChoice;
 };

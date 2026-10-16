@@ -294,6 +294,7 @@ const footer = `
     <footer class="wrap">
       <a href="/welcome/">All the apps</a>
       <a href="/">Proairetos</a>
+      <a href="/lamplight/">Lamplight</a>
       <a href="/privacy.html">Privacy</a>
     </footer>
   </body>
@@ -583,6 +584,7 @@ write(
   <url><loc>${site}/welcome/</loc></url>
 ${addOns.map((app) => `  <url><loc>${site}/welcome/${app.id}/</loc></url>`).join('\n')}
 ${addOns.map((app) => `  <url><loc>${site}/${app.id}/</loc></url>`).join('\n')}
+  <url><loc>${site}/lamplight/</loc></url>
   <url><loc>${site}/privacy.html</loc></url>
 </urlset>
 `,

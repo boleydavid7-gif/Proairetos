@@ -1,3 +1,8 @@
+/* Lamplight: the family's tokens, components and motion (src/lamplight). */
+@import '../lamplight/tokens.css';
+@import '../lamplight/components.css';
+@import '../lamplight/motion.css';
+
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */
 :root {

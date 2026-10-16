@@ -12,4 +12,4 @@ import '../app/family/account.css';
 import App from './app/App';
 import { startApp } from '../app/family/startApp';
 
-startApp('dynamis', App, { light: '#f3efea', dark: '#141110' });
+startApp('dynamis', App);

@@ -11,7 +11,11 @@ import '../askesis/styles/askesis.css';
 import './styles/hydros.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'hydros'));
 import { startSync } from '../app/sync/syncController';
 import { loadSettings, startStore } from './data/store';
 import { notifications } from '../app/notify/notifications';
@@ -19,11 +23,7 @@ import App from './app/App';
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 
-function appearance() {
-  applyAppearance();
-  const dark = document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#061b25' : '#eaf4f5');
-}
+const appearance = () => applyAppearance();
 appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);

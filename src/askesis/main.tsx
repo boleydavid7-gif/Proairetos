@@ -15,7 +15,11 @@ import './styles/askesis.css';
 import '../styles/premium.css';
 import './styles/desktop.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'askesis'));
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import { startLaunchFiles } from '../app/family/launchFiles';
@@ -29,12 +33,7 @@ keepStravaReturn();
 document.documentElement.classList.add('askesis');
 
 // The same theme and text size as Proairetos (Settings > Appearance there), with Askesis's own bar color.
-function appearance() {
-  applyAppearance();
-  const theme = document.documentElement.dataset.theme;
-  const light = theme === 'light' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f3f4ef' : '#0b0f0e');
-}
+const appearance = () => applyAppearance();
 appearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);

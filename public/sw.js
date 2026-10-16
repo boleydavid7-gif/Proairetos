@@ -74,8 +74,9 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'POST' && new URL(request.url).pathname === '/theoria/share') return takeShare(event, 'theoria', 'add');
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  // Askesis, the training app, has its own service worker and cache.
-  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton)(\/|$)/.test(url.pathname)) return;
+  // Askesis, the training app, has its own service worker and cache; the other apps too, and the Lamplight guide
+  // is a plain page of its own (never cached as Proairetos).
+  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton|lamplight)(\/|$)/.test(url.pathname)) return;
 
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
