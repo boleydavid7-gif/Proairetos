@@ -31,6 +31,7 @@ uses the same code as the apps.
 | `src/lamplight/components.css` | `.ll-button` (+ `--tonal`, `--plain`, `--remove`), `.ll-card`, `.ll-list`/`.ll-row`, `.ll-switch`, `.ll-field`, `.ll-chip`, `.ll-bar`, `.ll-sheet` |
 | `src/lamplight/motion.css` | Press brightens and dims slowly; sheets dim the room |
 | `src/lamplight/adopt.css` | The shared pieces the apps already use (`.card`, `.rows`, `.button-main`, `.button-accent`, `.button-quiet`, `.button-danger`, `.chip`, `.input`, `.field-input`, `.switch`, sheets) take shape, light, focus and tonal choices from the tokens, matching their `.ll-*` twins; layout untouched |
+| `src/lamplight/icons.tsx`, `icons.css` | The family's line icons: `LampIcon` (24 grid, 1.7 stroke, round ends and joins), `GLYPHS` (the shared icons, drawn once), `glyphIcon(name, size)`, `lampIcon(line, lit)`; every app's icon module draws through it and re-exports the shared glyphs under its own names |
 | `src/app/lamplight.ts` | `applyLamplight(appearance, light, app)`: sets the scheme on the root, Proairetos's wallpaper and foot |
 
 Every app's `main` (or `startApp`) registers `withLamplight((look, light) => applyLamplight(look, light, app))`;
@@ -74,3 +75,12 @@ three bands; Today's foot is three ridges in the same colors with no sun of thei
 - Motion: `--ll-quick` 120, `--ll-calm` 240, `--ll-slow` 420, `--ll-dim` 640 ms; `--ll-ease-out`,
   `--ll-ease-in-out`, `--ll-ease-light`. Zero with reduced motion.
 - Focus: `--ll-focus`, a ring of the lamp.
+
+## Icons
+
+One drawing rule for every app: a 24 grid with a 2-unit margin, one 1.7 stroke, round ends and joins, corners
+rounded about 2, nothing thinner than the stroke. Each icon has an inner shape that is hidden until the icon is
+**lit**: the icon of the page you are on (or a pressed or chosen control, or `.ll-icon--lit`) fills softly with the
+lamp from inside, at 24%. An icon with no inner shape of its own is lit by filling its own lines; glyphs whose lines
+would fill badly (plus, chevrons, arrows) have an empty inner shape. The six icon modules (Proairetos, the newer
+apps, Askesis, Soma, Oikonomia, Hydros) draw through `LampIcon`, so a change here reaches every app.

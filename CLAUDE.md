@@ -154,7 +154,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   and `tokens.css` (shape, space, type roles, light for depth, motion), `components.css` (`.ll-*`), `motion.css` (press brightens,
   dims slowly; sheets dim the room) and `adopt.css` (the shared classes every screen already uses take the components' shape,
   light, focus and tonal choices: pill main actions with the lamp's light, tonal chips and quiet buttons, filled fields, hairline
-  cards; `:root`-prefixed, layout untouched), imported by `premium.css`. Every app's main (or `startApp`) registers
+  cards; `:root`-prefixed, layout untouched) and `icons.css`, imported by `premium.css`. Icons: `src/lamplight/icons.tsx` (`LampIcon`: 24
+  grid, 1.7 stroke, round ends; `GLYPHS` drawn once; the current tab's icon is lit, filling softly with the lamp); every app's icon
+  module draws through it and re-exports the shared glyphs under its own names, so call sites stay the same. Every app's main (or `startApp`) registers
   `withLamplight((look, light) => applyLamplight(look, light, app))`, which also sets the browser bar color. Proairetos takes the
   person's Room and Color (Settings > Appearance; Color can be Your own, `hue:N` with a hue strip), kept in `proairetos.appearance`
   (synced); `app/lamplight.ts` maps the scheme onto `--color-*` and draws the wallpaper (`app/wallpaper.ts`, SVG: a lamp with rings

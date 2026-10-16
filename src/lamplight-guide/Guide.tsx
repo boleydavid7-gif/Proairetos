@@ -3,6 +3,7 @@ import { contrast } from '../lamplight/color';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampName, type Mode, type RoomName, type Scheme } from '../lamplight/scheme';
 import { THEMED_APPS, appTheme } from '../lamplight/apps';
 import { wallpaperSvg } from '../app/wallpaper';
+import { GLYPHS, LampIcon, type GlyphName } from '../lamplight/icons';
 
 const ROOM_NAMES = Object.keys(ROOM_SEEDS) as RoomName[];
 const LAMP_NAMES = Object.keys(LAMP_SEEDS) as LampName[];
@@ -368,6 +369,20 @@ export default function Guide() {
               </div>
             </div>
           </div>
+        </Section>
+
+        <Section id="icons" title="Icons" lead="One drawing rule for every app: a 24 grid, one 1.7 stroke, round ends and joins. The icon of the page you are on is lit: it fills softly with the lamp from inside.">
+          <ul className="g-icons">
+            {(Object.keys(GLYPHS) as GlyphName[]).map((name) => (
+              <li key={name}>
+                <span className="g-icons__pair" aria-hidden="true">
+                  <LampIcon glyph={GLYPHS[name]} size={28} />
+                  <LampIcon glyph={GLYPHS[name]} size={28} className="ll-icon--lit g-icons__lit" />
+                </span>
+                {name}
+              </li>
+            ))}
+          </ul>
         </Section>
 
         <Section id="motion" title="Motion as light" lead="Light turns up fast and down slowly. With reduced motion set on the device, it simply comes and goes.">

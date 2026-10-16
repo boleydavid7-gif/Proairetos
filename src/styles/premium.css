@@ -3,6 +3,7 @@
 @import '../lamplight/components.css';
 @import '../lamplight/motion.css';
 @import '../lamplight/adopt.css';
+@import '../lamplight/icons.css';
 
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */

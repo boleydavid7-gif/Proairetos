@@ -491,3 +491,35 @@ body {
     gap: 0;
   }
 }
+
+/* ---------- Icons ---------- */
+.g-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: var(--ll-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.g-icons li {
+  display: grid;
+  justify-items: center;
+  gap: var(--ll-space-2);
+  padding: var(--ll-space-4) var(--ll-space-2);
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-card);
+  box-shadow: var(--ll-light-1);
+  color: var(--ll-ink-3);
+  font: var(--ll-type-caption);
+}
+
+.g-icons__pair {
+  display: flex;
+  gap: var(--ll-space-4);
+  color: var(--ll-ink);
+}
+
+.g-icons__lit {
+  color: var(--ll-lamp);
+}

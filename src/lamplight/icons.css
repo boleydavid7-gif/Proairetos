@@ -1,0 +1,11 @@
+/* Lamplight's icons (icons.tsx): the inner shape stays dark until the icon is lit, then fills softly with the
+   lamp from inside: the page you are on, a chosen option, or `.ll-icon--lit`. */
+.ll-icon__lit {
+  opacity: 0;
+  transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+}
+
+:is([aria-current='page'], [aria-pressed='true'], [aria-checked='true'], [aria-selected='true'], .is-active, .active) .ll-icon__lit,
+.ll-icon--lit .ll-icon__lit {
+  opacity: 0.24;
+}

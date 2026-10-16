@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'One set of icons across every app, drawn the same way; the icon of the page you are on fills softly with its lamp.',
+      'Buttons, fields, chips and cards across the apps now share Lamplight’s shapes and light.',
       'Lamplight is now the whole family’s design system. Every app keeps its own place (Soma’s garden, Askesis’s path, Hydros’s water) on the same structure, with every color checked to be readable. A press brightens and fades slowly, like a lamp.',
       'Settings › Appearance › Color has Your own: any hue, made into a lamp that reads well in every room.',
       'The Lamplight guide at proairetos.com/lamplight shows the system and lets anyone make a scheme.',

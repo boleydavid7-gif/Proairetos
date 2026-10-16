@@ -8,6 +8,7 @@ import '@fontsource/inter/latin-600.css';
 import '../lamplight/tokens.css';
 import '../lamplight/components.css';
 import '../lamplight/motion.css';
+import '../lamplight/icons.css';
 import './guide.css';
 import Guide from './Guide';
 
