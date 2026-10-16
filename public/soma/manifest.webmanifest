@@ -68,5 +68,19 @@
         }
       ]
     }
+  ],
+  "file_handlers": [
+    {
+      "action": "/soma/?open=import:app",
+      "accept": {
+        "application/octet-stream": [
+          ".paprikarecipes",
+          ".paprikarecipe",
+          ".melarecipes",
+          ".melarecipe",
+          ".crumb"
+        ]
+      }
+    }
   ]
 }

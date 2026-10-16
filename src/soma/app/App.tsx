@@ -26,7 +26,7 @@ export type Route =
   | { name: Tab; query?: string }
   | { name: 'recipe'; id: string }
   | { name: 'edit'; id?: string }
-  | { name: 'import' }
+  | { name: 'import'; how?: 'app' }
   | { name: 'cook'; id: string; servings?: number }
   | { name: 'tonight'; time?: TimeChoice }
   | { name: 'week'; mark?: Mark }
@@ -63,6 +63,7 @@ export default function App() {
       if (kind === 'recipe' && id) go({ name: 'recipe', id });
       else if (kind === 'week' || kind === 'tonight') go({ name: kind });
       else if (kind === 'list') swap({ name: 'groceries' });
+      else if (kind === 'import') go({ name: 'import', how: id === 'app' ? 'app' : undefined });
       else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
     }
     return () => window.removeEventListener('popstate', onPop);
@@ -115,7 +116,7 @@ export default function App() {
       case 'edit':
         return <EditPage nav={nav} id={route.id} />;
       case 'import':
-        return <ImportPage nav={nav} />;
+        return <ImportPage nav={nav} how={route.how} />;
       case 'cook':
         return <CookPage nav={nav} id={route.id} servings={route.servings} />;
       case 'tonight':

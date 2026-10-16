@@ -14,7 +14,7 @@ export function takeDraft(): RecipeDraft | undefined {
 }
 
 /** A photo from the phone, made small enough to keep (1200 px, JPEG). */
-export function shrinkPhoto(file: File, longest = 1200): Promise<string> {
+export function shrinkPhoto(file: Blob, longest = 1200): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const image = new Image();

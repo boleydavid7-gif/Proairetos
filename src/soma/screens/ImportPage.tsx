@@ -6,6 +6,7 @@ import { BackLink, Segmented } from '../app/ui';
 import { fromJsonLd, fromText } from '../core/importRecipe';
 import { readPhotoText } from '../../app/family/ocr';
 import { Waiting } from '../../lamplight/Waiting';
+import FromAnotherApp from './FromAnotherApp';
 
 function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
   const input = useRef<HTMLInputElement>(null);
@@ -68,11 +69,11 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
 
 /**
  * Bringing a recipe in: from a link (the page is read through the app's own
- * bridge, which keeps nothing) or from pasted text. Either way the recipe is
- * shown to look over before it is kept.
+ * bridge, which keeps nothing), pasted text, a photo, or another recipe app's
+ * export. Every recipe is shown to look over or choose before it is kept.
  */
-export default function ImportPage({ nav }: { nav: Nav }) {
-  const [how, setHow] = useState<'link' | 'text' | 'photo'>('link');
+export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app' }) {
+  const [how, setHow] = useState<'link' | 'text' | 'photo' | 'app'>(opening ?? 'link');
   const [link, setLink] = useState('');
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -110,9 +111,10 @@ export default function ImportPage({ nav }: { nav: Nav }) {
         label="From"
         value={how}
         options={[
-          { id: 'link', label: 'A link' },
-          { id: 'text', label: 'Pasted text' },
-          { id: 'photo', label: 'A photo' },
+          { id: 'link', label: 'Link' },
+          { id: 'text', label: 'Text' },
+          { id: 'photo', label: 'Photo' },
+          { id: 'app', label: 'File' },
         ]}
         onChange={setHow}
       />
@@ -158,6 +160,8 @@ export default function ImportPage({ nav }: { nav: Nav }) {
             Split it up
           </button>
         </>
+      ) : how === 'app' ? (
+        <FromAnotherApp nav={nav} />
       ) : (
         <RecipePhoto
           onUse={(photoText) => {

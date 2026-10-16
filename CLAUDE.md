@@ -815,6 +815,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `aisleChoices`). Reuses Askesis UI pieces and `askesis.css`, with
   `soma.css` tokens on `:root.soma`. "I cooked this" can keep a line in
   Proairetos Reflect (promptKey `after-meal`).
+- Recipes from other apps (Import > File, `?open=import:app`, `file_handlers` in Soma's manifest; `core/fromApps.ts`,
+  `screens/FromAnotherApp.tsx`, tests `src/tests/soma/fromApps.test.ts`): Paprika (`.paprikarecipes` zip of gzipped JSON,
+  or one `.paprikarecipe`), Mela (`.melarecipe(s)`, `#` headings kept), Crouton (`.crumb`, amounts and units written out),
+  schema.org JSON (RecipeSage and others) or saved pages' JSON-LD, and text/Markdown, alone or in a zip; read on the device
+  with fflate. Every recipe found is listed to choose; ones already on the shelf (`alreadyKept`: same name, and same link
+  when both have one) start unchosen. One chosen opens the edit page to look over; several are added with one undo.
+  Photos inside the file are made small (`shrinkPhoto`, 1200 px); categories become tags, favorites stay favorites;
+  ratings and nutrition are left out.
 - The full recipe shelf keeps a `recipeView` setting (`cards`, `list` or
   `grid`) and the Recipes tab offers the three layouts with the selected
   choice retained on the device and in the family backup.
