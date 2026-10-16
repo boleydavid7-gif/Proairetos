@@ -14,7 +14,7 @@ person's chosen colors still win: every color below is a token, never a fixed va
 - Surfaces, not outlines. Cards are a step lighter (dark) or whiter (light) than the page; a hairline at most.
   Never a box drawn around a box.
 - One lit action per screen: the amber pill. Everything else is a tonal pill or plain text.
-- Where you are: a soft amber-tinted pill behind the current tab or rail item, the icon in amber.
+- Where you are: a soft amber-tinted pill under the current tab or rail item, the icon in amber.
 - Bars are translucent with a blur (the phone tab bar, sheet headers).
 - The default wallpaper is a gradient (`--lamplight`); a chosen picture replaces it.
 - Covers without a picture are typeset: title in serif, a short rule, the author, a steady hue from the title.
