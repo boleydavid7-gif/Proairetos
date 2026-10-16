@@ -92,6 +92,17 @@ most one action, with no box.
 named `ll-morph`, so the card grows into the page's title while the page pushes in (`motion.css`). The tab bar hands
 the light off: the new picture lights in `--ll-quick` and the old dims over `--ll-slow`. Reduced motion skips both.
 
+## Held motion and the large title
+
+`behaviors.ts` (started once by `applyAppearance` in every app; `bars.css`): on phones the first page title folds
+into a compact bar (`.ll-topbar`) as it scrolls under the top, with a back chevron that presses the page's own back
+link (`.back-link` and its kin) or Proairetos's back stack (`setSwipeBack` from `EdgeSwipe`); full-screen moments
+(reader, sit, focus, pause, run guide) have none. In an installed app a swipe from the left edge holds the page: it
+follows the finger and finishes past a third of the width or on a flick, else springs back with a slight overshoot;
+after it, only the new page's view transition plays (`data-swiped`). Sheets (`useSheet`) take a flick down, resist
+upward, and let the room brighten as they are pulled (`--sheet-pull`). Version and changes: `version.ts`, shown on
+the guide with States and Accessibility sections.
+
 ## Scenes
 
 Every drawn scene (`scripts/scenes/`) has one light at the same place across the picture (`LAMP_X` .64 in

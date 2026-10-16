@@ -177,6 +177,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   tapped card or row and, on a forward move, names it and the new page's head `ll-morph` so the card grows into the
   title; the tab bar's old picture dims slowly while the new one lights (`motion.css`). Scenes have one light at
   `LAMP_X` (.64) with `lampRing`, no clouds (`scripts/scenes/engine.mjs`).
+- Lamplight behaviors (`src/lamplight/behaviors.ts`, `bars.css`, started by `applyAppearance`): the large title folds
+  into `.ll-topbar` on phones (title found from the page, back chevron presses the page's back link); the edge swipe
+  (installed apps) holds the page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack
+  through `setSwipeBack` in `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`).
+  Praxis and Theoria text uses `--ll-sans` (it had fallen back to Times and Arial). `version.ts` holds the system's
+  version, shown on the guide.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

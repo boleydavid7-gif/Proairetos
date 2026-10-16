@@ -82,3 +82,30 @@
 :root :is(.article p, .contents__lead, .page-header__subtitle) {
   max-width: var(--ll-measure);
 }
+
+/* Praxis and Theoria (a study room and a library with side navigation on computers) and Hydros (its glass) keep
+   their own pages; on phones they take the family's gutter and section rhythm too. The reader keeps its own edges. */
+:root .hydros-screen,
+:root .hydros-add {
+  padding-inline: var(--ll-gutter);
+}
+
+:root :is(.praxis-page-heading, .theoria-heading) {
+  margin-bottom: var(--ll-section-gap);
+}
+
+@media (max-width: 900px) {
+  :root .praxis-main,
+  :root .theoria-app:not(.theoria-app--reader) .theoria-main {
+    padding-inline: var(--ll-gutter);
+  }
+}
+
+/* Praxis and Theoria set their own pages: text and controls take Lamplight's sans (headings keep their serif). */
+:root :is(.praxis-app, .theoria-app) {
+  font-family: var(--ll-sans);
+}
+
+:root :is(.praxis-app, .theoria-app) :is(button, input, select, textarea) {
+  font-family: inherit;
+}

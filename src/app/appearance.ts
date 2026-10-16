@@ -1,5 +1,6 @@
 import { tap } from './feel';
 import { loadAppearance, type Appearance } from '../data/storage/preferences';
+import { startLamplightBehaviors } from '../lamplight/behaviors';
 
 const textScale: Record<Appearance['textSize'], string> = { default: '100%', large: '112.5%', larger: '125%' };
 
@@ -25,6 +26,7 @@ export function withLamplight(apply: (appearance: Appearance, light: boolean) =>
 
 export function applyAppearance(appearance: Appearance = loadAppearance()): void {
   listenForSwitches();
+  startLamplightBehaviors();
   const root = document.documentElement;
   root.dataset.theme = appearance.theme;
   root.style.fontSize = textScale[appearance.textSize];

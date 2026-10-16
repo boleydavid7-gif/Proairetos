@@ -3,6 +3,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'On phones, a page’s title folds into a slim bar at the top as you scroll, with a back arrow when there is a way back.',
+      'In installed apps, swiping from the left edge now moves the page with your finger; let go early and it springs back. Sheets close with a quick flick down.',
+      'Praxis and Theoria show their text in the family’s typeface again, and sit on the same margins as the other apps.',
       'Every app’s pages now share one rhythm: the same side margins, the same space between sections, and section labels set just above what they name.',
       'Small text is larger across the apps: nothing under 12 points, tab labels at least 11.',
       'A tapped card now grows into the page it opens, and the light passes along the tab bar as you move between tabs.',

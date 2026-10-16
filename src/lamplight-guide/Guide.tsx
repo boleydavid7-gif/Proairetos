@@ -4,6 +4,7 @@ import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, typ
 import { THEMED_APPS, appTheme } from '../lamplight/apps';
 import { wallpaperSvg } from '../app/wallpaper';
 import { GLYPHS, LampIcon, type GlyphName } from '../lamplight/icons';
+import { LAMPLIGHT_CHANGES, LAMPLIGHT_VERSION } from '../lamplight/version';
 
 const ROOM_NAMES = Object.keys(ROOM_SEEDS) as RoomName[];
 const LAMP_NAMES = Object.keys(LAMP_SEEDS) as LampName[];
@@ -93,7 +94,7 @@ export default function Guide() {
     <div className="g" style={style} data-mode={mode}>
       <header className="g-hero">
         <div className="g-hero__inner">
-          <p className="g-kicker">Proairetos design system</p>
+          <p className="g-kicker">Proairetos design system · {LAMPLIGHT_VERSION}</p>
           <h1>Lamplight</h1>
           <p className="g-hero__lead">A room, lit by one lamp. Colors made from two seeds and readable by construction, light in place of shadow, and motion that behaves like light.</p>
           <div className="g-hero__actions">
@@ -410,6 +411,41 @@ export default function Guide() {
             <div><dt>--ll-dim</dt><dd>640 ms · the light fading after a press; a sheet dimming the room</dd></div>
             <div><dt>A card opens</dt><dd>The card tapped grows into the new page&rsquo;s title while the page arrives</dd></div>
             <div><dt>The tab hands off</dt><dd>The new tab lights at once and the old one dims slowly, so the light passes along the bar</dd></div>
+            <div><dt>Held</dt><dd>A sheet pulled down or a page swiped from the left edge follows the finger; a third of the way or a flick finishes it, less springs back past its place and settles</dd></div>
+            <div><dt>The large title</dt><dd>On phones a page&rsquo;s title folds into a compact bar as it scrolls under the top, with a back chevron when there is a way back</dd></div>
+          </dl>
+        </Section>
+
+        <Section id="states" title="States" lead="Every control has the same five states, made the same way.">
+          <dl className="g-motion">
+            <div><dt>Rest</dt><dd>The main action is the lamp&rsquo;s pill; everything else is tonal or quiet. One lit thing per screen.</dd></div>
+            <div><dt>Pressed</dt><dd>It brightens at once (--ll-quick) and dims slowly (--ll-dim) when let go; with Gentle taps on, a light haptic too.</dd></div>
+            <div><dt>Focused</dt><dd>A ring of the lamp (--ll-focus), only from the keyboard (:focus-visible).</dd></div>
+            <div><dt>Chosen</dt><dd>A chip, tab or row that is chosen takes the lamp&rsquo;s glow and its icon is lit; never color alone: a check, a filled icon or bold words go with it.</dd></div>
+            <div><dt>Disabled</dt><dd>Half the ink, no light, no press; it stays readable and says why nearby when it is not plain.</dd></div>
+          </dl>
+          <div className="g-row">
+            <button className="ll-button" type="button">Rest</button>
+            <button className="ll-button ll-button--tonal" type="button">Tonal</button>
+            <button className="ll-button" type="button" disabled>Disabled</button>
+          </div>
+        </Section>
+
+        <Section id="access" title="Accessibility" lead="Built in, so a screen made of Lamplight is accessible without extra work.">
+          <dl className="g-motion">
+            <div><dt>Contrast</dt><dd>Text 7:1, everything else read 4.5:1, on every surface it sits on, in every room and lamp, by construction and by test.</dd></div>
+            <div><dt>Touch</dt><dd>Every control at least 44 by 44 points.</dd></div>
+            <div><dt>Size</dt><dd>Everything is in rem, so the person&rsquo;s text size moves type and space together; nothing under 12 px.</dd></div>
+            <div><dt>Motion</dt><dd>Reduced motion: no travel, light simply comes and goes. Reduced transparency: bars and sheets go solid.</dd></div>
+            <div><dt>Words</dt><dd>Icon buttons carry a label; state is never shown by color alone; headings in order, one title per page.</dd></div>
+          </dl>
+        </Section>
+
+        <Section id="versions" title="Versions">
+          <dl className="g-motion">
+            {LAMPLIGHT_CHANGES.map((change) => (
+              <div key={change.version}><dt>{change.version}</dt><dd>{change.lines.join(' ')}</dd></div>
+            ))}
           </dl>
         </Section>
 

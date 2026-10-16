@@ -110,7 +110,7 @@
 .praxis-chart--empty { height: 96px; padding-top: 12px; }
 .praxis-bar-group { height: 100%; display: flex; flex: 1; flex-direction: column; justify-content: end; align-items: center; gap: 8px; }
 .praxis-bar { width: min(30px, 100%); min-height: 6px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--color-accent-strong), var(--color-accent)); }
-.praxis-bar-group span { color: var(--color-text-faint); font-size: 11px; }
+.praxis-bar-group span { color: var(--color-text-faint); font-size: 12px; }
 .praxis-stat-stack { display: grid; align-content: start; gap: 12px; }
 .praxis-stat-card { padding: 21px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(14, 33, 27, .68); }
 .praxis-stat-card span, .praxis-stat-card strong { display: block; }
@@ -165,7 +165,7 @@
   .praxis-planned-chip { margin-top: 17px; }
   .praxis-focus-card { padding: 20px; }
   .praxis-card-heading { gap: 10px; }
-  .praxis-ready-pill { padding: 6px 8px; font-size: 11px; }
+  .praxis-ready-pill { padding: 6px 8px; font-size: 12px; }
   .praxis-focus-stage { min-height: 385px; }
   .praxis-timer { width: min(320px, 76vw); }
   .praxis-focus-actions { margin-top: 22px; }
