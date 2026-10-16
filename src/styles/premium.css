@@ -185,8 +185,6 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 
 .app-shell .tab-bar {
   background: rgba(var(--color-bar-rgb), 0.8);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  backdrop-filter: blur(20px) saturate(1.2);
 }
 
 /* Meditate keeps light words over its photo, so the bright morning lake is toned down there. */
@@ -303,12 +301,6 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
    Increase contrast: muted and faint words as strong as the main text, clearer edges. Every app loads this file last. */
 
 @media (prefers-reduced-transparency: reduce) {
-  *,
-  *::before,
-  *::after {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
   .app-shell :is(.list-card, .item-card, .now-card, .intention, .settings-card, .settings-list, .profile-card,
     .insight-card, .kind-tile, .statement, .goal, .person, .run-card, .date-card, .observations, .decision-note,
     .timeline__entry, .three-item, .look-back, .sort-card, .add-reflection, .week-ahead__day, .composer),

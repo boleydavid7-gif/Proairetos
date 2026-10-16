@@ -32,3 +32,15 @@ describe('Lamplight icons', () => {
     expect(off).toEqual([]);
   });
 });
+
+describe('Lamplight materials', () => {
+  it('never blurs what is behind a surface (mica, not glass)', () => {
+    const css = (dir: string): string[] =>
+      readdirSync(dir).flatMap((name) => {
+        const path = join(dir, name);
+        return statSync(path).isDirectory() ? css(path) : path.endsWith('.css') ? [path] : [];
+      });
+    const blurred = css('src').filter((path) => /backdrop-filter\s*:/.test(readFileSync(path, 'utf8')));
+    expect(blurred).toEqual([]);
+  });
+});

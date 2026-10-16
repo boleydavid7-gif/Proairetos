@@ -104,6 +104,21 @@ after it, only the new page's view transition plays (`data-swiped`). Sheets (`us
 upward, and let the room brighten as they are pulled (`--sheet-pull`). Version and changes: `version.ts`, shown on
 the guide with States and Accessibility sections.
 
+## Materials
+
+After Fluent: **solid** for cards; **mica** for bars and docks (`--ll-mica`, opaque, the room's hue a little stronger than
+the page, `--ll-mica-surface` adds the lamp washing in from above); **smoke**, a plain dim, behind dialogs and sheets.
+Never blur: it renders unevenly on phones (a test keeps `backdrop-filter` out). Content passing under a bar fades into it
+(`--ll-edge-below`, `--ll-edge-above`) rather than meeting a hard line.
+
+## Touch and motion
+
+Docks tuck away while reading down and return scrolling up (`ll-tucked`). Rows open a menu on a long press or right click,
+read from their own buttons. Movement uses springs (`--ll-spring`, `--ll-spring-lively`, CSS `linear()`). Concentric
+corners: what touches a container's edge takes its corner, what sits inset takes that corner less the inset
+(`--ll-concentric`). One waiting mark, `Waiting`. Tablets get a floating dock; `forced-colors` and right to left are
+handled.
+
 ## Scenes
 
 Every drawn scene (`scripts/scenes/`) has one light at the same place across the picture (`LAMP_X` .64 in

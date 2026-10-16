@@ -381,7 +381,6 @@
   background: rgba(20, 26, 22, 0.55);
   color: #f6f1e7;
   font: inherit;
-  backdrop-filter: blur(6px);
 }
 
 .round-button[aria-pressed='true'] {

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { barcodesHere, contactsHere, nfcHere, pickContact, productName, readBarcode, writeTag } from './deviceExtras';
 import './readFromPhoto.css';
+import { Waiting } from '../../lamplight/Waiting';
 
 /** A photo of a barcode, then the product's name to look over (Android Chrome). */
 export function ScanBarcode({ onName, className = 'button-quiet' }: { onName: (name: string) => void; className?: string }) {
@@ -34,7 +35,7 @@ export function ScanBarcode({ onName, className = 'button-quiet' }: { onName: (n
         }}
       />
       <button type="button" className={className} disabled={busy} onClick={() => input.current?.click()}>
-        {busy ? 'Reading…' : 'Scan a barcode'}
+        {busy ? <Waiting>Reading…</Waiting> : 'Scan a barcode'}
       </button>
       {note && <p className="read-photo__note" role="status">{note}</p>}
     </>

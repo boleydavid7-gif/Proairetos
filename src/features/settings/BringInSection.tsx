@@ -12,6 +12,7 @@ import {
   type ImportRow,
 } from '../../core/import/readers';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
+import { Waiting } from '../../lamplight/Waiting';
 
 const DAY = 86_400_000;
 
@@ -145,7 +146,7 @@ export default function BringInSection() {
         {error && <p className="form-error">{error}</p>}
         <div className="chip-row">
           <button type="button" className="button-accent" disabled={busy || chosen.size === 0} onClick={bringIn}>
-            {busy ? 'Bringing in…' : `Bring in ${chosen.size}`}
+            {busy ? <Waiting>Bringing in…</Waiting> : `Bring in ${chosen.size}`}
           </button>
           <button type="button" className="button-quiet" onClick={() => setResult(null)}>
             Cancel

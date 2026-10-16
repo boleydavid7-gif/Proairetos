@@ -28,6 +28,7 @@ import {
   prepareKeysForPasskey,
   setupRecoveryKey,
 } from '../../app/sync/syncController';
+import { Waiting } from '../../lamplight/Waiting';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
 
@@ -366,7 +367,7 @@ function Unlock() {
         </>
       )}
       <button type="submit" className="button-accent account-wide" disabled={!ready || busy}>
-        {busy ? 'Opening…' : 'Open'}
+        {busy ? <Waiting>Opening…</Waiting> : 'Open'}
       </button>
       {withPassphrase && (
         <button
@@ -449,7 +450,7 @@ function ChangePassphrase() {
       <div className="chip-row">
         <button type="button" className="button-quiet" onClick={() => (setOpen(false), setError(''))}>Cancel</button>
         <button type="submit" className="chip chip--accent" disabled={!current || next.length < MIN_PASSPHRASE_LENGTH || next !== again || busy}>
-          {busy ? 'Saving…' : 'Save'}
+          {busy ? <Waiting>Saving…</Waiting> : 'Save'}
         </button>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
@@ -621,7 +622,7 @@ function SystemCheck() {
         </div>
         <div className="system-check__actions">
           <button type="button" className="text-link" disabled={busy} onClick={() => void checkAgain()}>
-            {busy ? 'Checking…' : 'Check again'}
+            {busy ? <Waiting>Checking…</Waiting> : 'Check again'}
           </button>
           <button type="button" className="text-link" onClick={() => void copyDetails()}>
             {copyLabel}

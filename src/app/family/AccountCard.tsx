@@ -4,6 +4,7 @@ import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePass
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
+import { Waiting } from '../../lamplight/Waiting';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
 
@@ -229,7 +230,7 @@ function Unlock() {
         </>
       )}
       <button type="submit" className="button-main" disabled={!ready || busy}>
-        {busy ? 'Opening…' : 'Open'}
+        {busy ? <Waiting>Opening…</Waiting> : 'Open'}
       </button>
       {withPassphrase && (
         <button type="button" className="button-quiet" onClick={() => (setMethod(method === 'recovery' ? 'passphrase' : 'recovery'), setSecret(''), setNext(''), setAgain(''))}>

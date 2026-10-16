@@ -77,6 +77,7 @@ import { weatherSettings } from '../../app/weather/weather';
 import { calendarSources } from '../../app/calendars/otherCalendars';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
+import { Waiting } from '../../lamplight/Waiting';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -319,7 +320,7 @@ function ImportSection() {
             onChange={(event) => setPassword(event.target.value)}
           />
           <button type="submit" className="button-accent" disabled={!password || busy}>
-            {busy ? 'Opening…' : 'Open'}
+            {busy ? <Waiting>Opening…</Waiting> : 'Open'}
           </button>
         </form>
       )}

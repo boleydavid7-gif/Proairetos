@@ -109,3 +109,36 @@
 :root :is(.praxis-app, .theoria-app) :is(button, input, select, textarea) {
   font-family: inherit;
 }
+
+/* Concentric corners, as Apple draws them: what touches a container's edge takes the container's own corner, and
+   what sits inset takes that corner less the inset (never under the smallest radius), so curves run parallel. */
+:root {
+  --ll-concentric: max(var(--ll-radius-xs), calc(var(--ll-outer, var(--ll-radius-md)) - var(--ll-inset, 12px)));
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places, .today-apps) {
+  --ll-outer: var(--ll-radius-md);
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :first-child,
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :first-child > :is(a, button, .row) {
+  border-top-left-radius: var(--ll-outer);
+  border-top-right-radius: var(--ll-outer);
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :last-child,
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :last-child > :is(a, button, .row) {
+  border-bottom-left-radius: var(--ll-outer);
+  border-bottom-right-radius: var(--ll-outer);
+}
+
+/* A picture or tile set just inside a card's corner follows it. */
+:root :is(.card, .ll-card) > :is(img, .place-row__thumb, .card__media):first-child {
+  border-radius: var(--ll-concentric);
+}
+
+/* Inside a sheet, its own corner (22) less the panel's padding. */
+:root .sheet__panel {
+  --ll-outer: var(--ll-radius-lg);
+  --ll-inset: 16px;
+}

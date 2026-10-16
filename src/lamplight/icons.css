@@ -10,13 +10,14 @@
   opacity: 0.24;
 }
 
-/* An icon beside words sits on the middle of the line; a control holding only an icon centers it. */
+/* An icon beside words sits on the middle of the line. */
 .ll-icon {
   flex: none;
   vertical-align: -0.22em;
 }
 
-:where(button, a, span):has(> .ll-icon:only-child) {
-  display: inline-grid;
-  place-items: center;
+/* Right to left: marks that point the way you read turn round. */
+:dir(rtl) .ll-icon--flip,
+:dir(rtl) .ll-topbar__lead.is-back svg {
+  scale: -1 1;
 }

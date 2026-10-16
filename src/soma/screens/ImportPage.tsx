@@ -5,6 +5,7 @@ import { holdDraft } from '../app/draft';
 import { BackLink, Segmented } from '../app/ui';
 import { fromJsonLd, fromText } from '../core/importRecipe';
 import { readPhotoText } from '../../app/family/ocr';
+import { Waiting } from '../../lamplight/Waiting';
 
 function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
   const input = useRef<HTMLInputElement>(null);
@@ -40,7 +41,7 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
         <>
           <p className="hint">Read a recipe card on this device. The photo stays here.</p>
           <button type="button" className="button-main" disabled={reading !== undefined} onClick={() => input.current?.click()}>
-            {reading !== undefined ? `Reading… ${Math.round(reading * 100)}%` : 'Take a photo'}
+            {reading !== undefined ? <Waiting>{`Reading… ${Math.round(reading * 100)}%`}</Waiting> : 'Take a photo'}
           </button>
         </>
       )}
@@ -131,7 +132,7 @@ export default function ImportPage({ nav }: { nav: Nav }) {
             />
           </label>
           <button type="button" className="button-main" disabled={!link.trim() || busy} onClick={() => void readLink()}>
-            {busy ? 'Reading the page…' : 'Bring it in'}
+            {busy ? <Waiting>Reading the page…</Waiting> : 'Bring it in'}
           </button>
         </>
       ) : how === 'text' ? (

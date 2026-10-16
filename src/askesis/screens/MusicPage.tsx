@@ -6,6 +6,7 @@ import { addSongs, exportSongs, importSongs, playSongs, removeSong, stopSongs, u
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { saveSettings } from '../data/store';
+import { Waiting } from '../../lamplight/Waiting';
 
 /** Music for guided sessions: songs kept here, another app's, or none. */
 export default function MusicPage({ nav }: { nav: Nav }) {
@@ -89,7 +90,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                   } finally {
                     setSaving(false);
                   }
-                }}>{saving ? 'Saving…' : 'Save a copy'}</button>
+                }}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
               </div>}
             </div>
             {trying && song.name && <p className="hint">♪ {song.name}</p>}

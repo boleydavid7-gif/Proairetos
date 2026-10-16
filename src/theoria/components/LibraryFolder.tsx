@@ -3,6 +3,7 @@ import { folderSupported, useBackupFolder } from '../../app/family/backupFolder'
 import { browseCloud, chooseCloudFolder, chosenCloudFolder, cloudConnected, cloudsOffered, CLOUD_NAMES, connectCloud, disconnectCloud, dropboxWhole, type CloudEntry, type CloudFolder, type CloudProvider } from '../data/cloudLibrary';
 import { chooseLibraryFolder, forgetLibraryFolder, LIBRARY_KEY } from '../data/libraryFolder';
 import { LampIcon } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 const ICON_PATH = 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
 const icon = (path = ICON_PATH) => <span className="row__icon"><LampIcon glyph={{ line: <path d={path} /> }} size={20} /></span>;
@@ -32,7 +33,7 @@ function FolderBrowser({ provider, onChosen, onClose }: { provider: CloudProvide
         ))}
       </div>
       {problem && <p className="hint" role="alert">{problem}</p>}
-      {!entries && !problem && <p className="muted">Opening…</p>}
+      {!entries && !problem && <p className="muted"><Waiting>Opening…</Waiting></p>}
       {entries && (
         <ul className="rows">
           {folders.map((folder) => (

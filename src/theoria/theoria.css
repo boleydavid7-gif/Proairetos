@@ -130,7 +130,7 @@
 .theoria-orbit--one { top: 12%; left: 15%; }.theoria-orbit--two { top: 14%; right: 15%; }.theoria-orbit--three { bottom: 22%; left: 18%; }.theoria-orbit--four { right: 17%; bottom: 21%; }
 .theoria-connections > .theoria-primary-button { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); }
 
-.theoria-modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(3, 5, 14, .72); backdrop-filter: blur(8px); }
+.theoria-modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(3, 5, 14, .72); }
 .theoria-modal { position: relative; width: min(480px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 29px; border: 1px solid var(--theoria-border); border-radius: 19px; background: #151f38; box-shadow: 0 25px 80px rgba(0,0,0,.4); }
 .theoria-modal h2 { margin: 8px 0 0; font: 500 29px var(--font-serif); }
 .theoria-modal-intro { margin: 9px 0 22px; color: var(--theoria-muted); font-size: 14px; line-height: 1.5; }
@@ -160,7 +160,7 @@
   .theoria-topbar { margin-bottom: 30px; }
   .theoria-mobile-brand { display: flex; }
   .theoria-date { display: none; }
-  .theoria-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 5; display: block; padding: 6px; border: 1px solid var(--theoria-border); border-radius: 16px; background: rgba(13, 20, 39, .93); box-shadow: 0 18px 45px rgba(0,0,0,.32); backdrop-filter: blur(15px); }
+  .theoria-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 5; display: block; padding: 6px; border: 1px solid var(--theoria-border); border-radius: 16px; background: rgba(13, 20, 39, .93); box-shadow: 0 18px 45px rgba(0,0,0,.32); }
   .theoria-bottom-nav .theoria-nav-list { grid-template-columns: repeat(6,1fr); }
   .theoria-bottom-nav .theoria-proairetos { display: grid; justify-items: center; gap: 4px; padding: 7px 3px; border-radius: 11px; color: var(--theoria-muted); text-decoration: none; }
   .theoria-bottom-nav .theoria-proairetos svg { color: var(--theoria-violet); }
@@ -728,7 +728,7 @@
   .theoria-reader-footer { width: calc(100% + 32px); margin-inline: -16px; padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
   .theoria-reader-toolbar { width: 100%; }
   .theoria-reader-title small { font-size: 12px; }
-  .theoria-reader-footer { gap: 6px; padding-top: 6px; padding-bottom: max(6px, calc(6px + env(safe-area-inset-bottom))); border-top-color: rgba(45,35,45,.2); border-radius: 14px 14px 0 0; background: rgba(240,227,206,.94); box-shadow: 0 -8px 20px rgba(42,35,45,.12); backdrop-filter: blur(14px); }
+  .theoria-reader-footer { gap: 6px; padding-top: 6px; padding-bottom: max(6px, calc(6px + env(safe-area-inset-bottom))); border-top-color: rgba(45,35,45,.2); border-radius: 14px 14px 0 0; background: rgba(240,227,206,.94); box-shadow: 0 -8px 20px rgba(42,35,45,.12); }
   .theoria-reader--night .theoria-reader-footer { border-top-color: rgba(255,255,255,.14); background: rgba(16,23,42,.95); box-shadow: 0 -8px 20px rgba(0,0,0,.18); }
   .theoria-reader--sepia .theoria-reader-footer { background: rgba(217,193,155,.95); }
   .theoria-reader-footer button { flex: 0 0 auto; min-width: 42px; padding: 0 1px; font-size: 12px; }

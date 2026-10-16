@@ -453,7 +453,6 @@ p {
   justify-content: space-around;
   align-items: flex-start;
   background: var(--bar);
-  backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
 }
 
@@ -2672,7 +2671,6 @@ html[data-nav='back']::view-transition-new(root) {
     padding: 28px 14px;
     border-top: 0;
     border-right: 1px solid var(--line);
-    backdrop-filter: none;
   }
 
   .tab-bar::before {

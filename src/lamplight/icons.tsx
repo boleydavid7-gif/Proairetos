@@ -51,8 +51,10 @@ export function LampIcon({ glyph, size = 24, className, ...props }: LampIconProp
 
 /** A shared glyph by name, for the small marks inside controls (close, back, steppers, ticks): never a typed
  *  character such as ×, ‹ or +, which take the font's weight and sit off the icon grid. */
-export function Sym({ name, size = 18, ...props }: LampIconProps & { name: keyof typeof GLYPHS }) {
-  return <LampIcon glyph={GLYPHS[name]} size={size} {...props} />;
+export function Sym({ name, size = 18, className, ...props }: LampIconProps & { name: keyof typeof GLYPHS }) {
+  // Marks that point the way you read turn round in a right-to-left language (icons.css).
+  const flips = name === 'back' || name === 'chevron' || name === 'arrowLeft';
+  return <LampIcon glyph={GLYPHS[name]} size={size} className={[flips ? 'll-icon--flip' : '', className].filter(Boolean).join(' ') || undefined} {...props} />;
 }
 
 /** Wraps a module's own drawing in the Lamplight base, keeping its default size. */

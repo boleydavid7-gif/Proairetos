@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'Press and hold a row (or right-click it) for its actions. The bottom bar steps aside while you read down a page and comes back when you scroll up.',
+      'Bars are now solid and tinted by your room instead of blurred glass, which looked uneven on some phones.',
       'Icons across the apps share one line weight at every size, and close, back, plus and tick marks are drawn rather than typed.',
       'On phones every app has one bar at the top: its name on the left, and search, Settings and the way to your other apps on the right. They are no longer in the bottom bar, which keeps only the app’s places.',
       'In installed apps, swiping from the left edge now moves the page with your finger; let go early and it springs back. Sheets close with a quick flick down.',

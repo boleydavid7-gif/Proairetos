@@ -3,6 +3,7 @@ import type { Found } from '../../core/ocr/labels';
 import { readPhotoText } from './ocr';
 import './readFromPhoto.css';
 import { LampIcon } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 /**
  * "Read from a photo" on a form: a photo of a label, plate or bill is read on the device, and what was found is shown
@@ -58,7 +59,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
       {text === undefined && (
         <button type="button" className="read-photo__start" disabled={reading !== undefined} onClick={() => input.current?.click()}>
           <LampIcon glyph={SCAN} size={18} />
-          {reading !== undefined ? `Reading… ${Math.round(reading * 100)}%` : label}
+          {reading !== undefined ? <Waiting>{`Reading… ${Math.round(reading * 100)}%`}</Waiting> : label}
         </button>
       )}
       {problem && <p className="read-photo__note" role="alert">{problem}</p>}

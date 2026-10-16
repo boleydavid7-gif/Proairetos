@@ -3,6 +3,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 import { buy, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase } from '../../app/family/purchases';
+import { Waiting } from '../../lamplight/Waiting';
 
 /**
  * The Store: the apps that can be added to Proairetos. Adding one brings it into Proairetos (Today, Days ahead,
@@ -111,7 +112,7 @@ export default function StoreSection() {
                     disabled={busy !== null || finishing === id}
                     onClick={() => void purchase(id, app.name)}
                   >
-                    {finishing === id ? 'Finishing…' : busy === id ? 'Opening…' : `Buy · ${priceText()}`}
+                    {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : `Buy · ${priceText()}`}
                   </button>
                 )}
               </div>

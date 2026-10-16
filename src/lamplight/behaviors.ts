@@ -5,6 +5,9 @@
  *   The bar. On phones every page has one bar across the top: the app's name (or the way back) on the left, the
  *   page's actions and Settings on the right. The page's own title stays in the page and scrolls under it.
  *
+ *   Row menus. Press and hold a row (or right-click it) and a menu offers what the row itself offers: its swipe
+ *   action, mark done, open, delete…, read from the row's own buttons, so every list in every app has one.
+ *
  *   The back swipe. In an installed app, a swipe from the left edge takes hold of the page: it follows the finger,
  *   and let go past a third of the way (or with a flick) it slides away and the place beneath comes forward; let go
  *   short and it springs back. Browsers and Android keep their own back gesture.
@@ -38,6 +41,7 @@ export function startLamplightBehaviors(): void {
   started = true;
   largeTitle();
   backSwipe();
+  rowMenus();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -54,6 +58,10 @@ function shown(el: Element): boolean {
 
 function first(selector: string): HTMLElement | undefined {
   return [...document.querySelectorAll<HTMLElement>(selector)].find(shown);
+}
+
+function rtl(): boolean {
+  return getComputedStyle(document.documentElement).direction === 'rtl';
 }
 
 function reduced(): boolean {
@@ -99,6 +107,8 @@ function largeTitle(): void {
   let copied = '';
   let leadKey = '';
   let frame = 0;
+  let lastY = 0;
+  let tucked = false;
 
   const backControl = () =>
     [...document.querySelectorAll<HTMLElement>(BACK)].find((each) => !each.closest(OUTSIDE) && each.isConnected);
@@ -153,6 +163,7 @@ function largeTitle(): void {
     const on = phone.matches && !document.querySelector(FULL);
     root.classList.toggle('ll-bar-on', on);
     if (!on) {
+      root.classList.remove('ll-tucked');
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded');
       return;
     }
@@ -172,6 +183,14 @@ function largeTitle(): void {
       label.textContent = hasBack ? (backWords.length <= 14 ? backWords.replace(/^[←‹<]\s*/, '') : '') : appName();
       lead.append(label);
     }
+    // The dock tucks away while reading down a page and comes back on the way up, at the top or the foot.
+    const y = document.scrollingElement?.scrollTop ?? scrollY;
+    const room = (document.scrollingElement?.scrollHeight ?? 0) - innerHeight;
+    if (y < 80 || y > room - 40) tucked = false;
+    else if (y - lastY > 8) tucked = true;
+    else if (lastY - y > 8) tucked = false;
+    if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
+    root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
     const scrolled = scrollY > 2 || document.scrollingElement!.scrollTop > 2;
     const folded = title ? title.getBoundingClientRect().bottom < height : scrolled;
@@ -220,7 +239,9 @@ function backSwipe(): void {
     'touchstart',
     (event) => {
       const touch = event.touches[0];
-      if (!touch || touch.clientX > EDGE || document.querySelector('dialog[open]')) return;
+      // The way back is from the edge you start reading from: the left, or the right in a right-to-left language.
+      const fromEdge = rtl() ? innerWidth - (touch?.clientX ?? innerWidth) : (touch?.clientX ?? innerWidth);
+      if (!touch || fromEdge > EDGE || document.querySelector('dialog[open]')) return;
       hold = { x: touch.clientX, y: touch.clientY, going: false, samples: [] };
     },
     { passive: true },
@@ -231,7 +252,7 @@ function backSwipe(): void {
     (event) => {
       const touch = event.touches[0];
       if (!hold || !touch) return;
-      const dx = touch.clientX - hold.x;
+      const dx = (touch.clientX - hold.x) * (rtl() ? -1 : 1);
       const dy = touch.clientY - hold.y;
       if (!hold.going) {
         if (Math.abs(dy) > 12 && Math.abs(dy) > dx) {
@@ -250,7 +271,7 @@ function backSwipe(): void {
       }
       hold.samples.push([performance.now(), dx]);
       if (hold.samples.length > 6) hold.samples.shift();
-      if (!reduced()) hold.page!.style.transform = `translate3d(${Math.max(0, dx)}px, 0, 0)`;
+      if (!reduced()) hold.page!.style.transform = `translate3d(${Math.max(0, dx) * (rtl() ? -1 : 1)}px, 0, 0)`;
     },
     { passive: true },
   );
@@ -261,7 +282,7 @@ function backSwipe(): void {
     if (!current?.going || !current.page || !current.back) return;
     const page = current.page;
     const touch = event.changedTouches[0];
-    const dx = touch ? touch.clientX - current.x : 0;
+    const dx = touch ? (touch.clientX - current.x) * (rtl() ? -1 : 1) : 0;
     const [t0, x0] = current.samples[0] ?? [performance.now(), 0];
     const speed = (dx - x0) / Math.max(1, performance.now() - t0); // px per ms
     const go = dx > innerWidth / 3 || (speed > 0.5 && dx > 40);
@@ -289,9 +310,167 @@ function backSwipe(): void {
       return;
     }
     page.classList.add('ll-leaving');
-    page.style.transform = `translate3d(${innerWidth}px, 0, 0)`;
+    page.style.transform = `translate3d(${rtl() ? -innerWidth : innerWidth}px, 0, 0)`;
     setTimeout(finish, 180);
   };
   addEventListener('touchend', end, { passive: true });
   addEventListener('touchcancel', end, { passive: true });
+}
+
+// ---------- Row menus ----------
+
+const ROWS = '[data-menu], .swipe, .check-row, .rows > li, .detail-list > li';
+const HOLD_MS = 480;
+
+type MenuItem = { label: string; run: () => void; danger: boolean };
+
+/** A row's name: the first words of the control carrying the most text (its open button), before any detail. */
+function rowTitle(row: HTMLElement): string {
+  const named = row.querySelector('.check-row__title span, .row__text > span');
+  if (named?.textContent?.trim()) return named.textContent.trim();
+  const controls = [...row.querySelectorAll<HTMLElement>('button, a[href]')].filter((el) => !el.hidden);
+  const main = controls.sort((a, b) => (b.textContent?.length ?? 0) - (a.textContent?.length ?? 0))[0];
+  if (!main) return '';
+  const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const text = node.textContent?.trim();
+    if (text) return text;
+  }
+  return '';
+}
+
+function itemsFor(row: HTMLElement): MenuItem[] {
+  const own = (el: Element) => !row.matches('li') || el.closest('li') === row;
+  const title = rowTitle(row);
+  const seen = new Set<string>();
+  const items: MenuItem[] = [];
+  const controls = [...row.querySelectorAll<HTMLElement>('[data-menu-first], button, a[href]')].filter(
+    (el, index, all) => all.indexOf(el) === index && own(el) && !(el as HTMLButtonElement).disabled,
+  );
+  controls.sort((a, b) => Number(b.hasAttribute('data-menu-first')) - Number(a.hasAttribute('data-menu-first')));
+  for (const control of controls) {
+    const named = control.getAttribute('aria-label')?.trim();
+    let label = named || control.textContent?.trim() || '';
+    if (control.getAttribute('role') === 'checkbox') label = control.getAttribute('aria-checked') === 'true' ? 'Mark not done' : 'Mark done';
+    else if (title && label.includes(title)) {
+      // "Delete Clean floors" is Delete; "Clean floors: done" is Done; the row's own words are Open.
+      const rest = named ? label.replace(title, '').replace(/^[\s:,·–-]+|[\s:,·–-]+$/g, '').replace(/\s+(for|of)$/i, '') : '';
+      label = rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : 'Open';
+    }
+    if (/^more$/i.test(label)) label = 'Open';
+    if (!label || label.length > 32 || seen.has(label)) continue;
+    seen.add(label);
+    items.push({ label, run: () => control.click(), danger: /^(delete|remove)/i.test(label) });
+  }
+  return items;
+}
+
+function rowMenus(): void {
+  let timer = 0;
+  let start: { x: number; y: number } | null = null;
+  let swallowClick = false;
+  let open: HTMLElement | null = null;
+
+  const close = () => {
+    open?.remove();
+    open = null;
+  };
+
+  const show = (row: HTMLElement, x: number, y: number) => {
+    const items = itemsFor(row);
+    if (items.length < 2) return false;
+    close();
+    const menu = document.createElement('div');
+    menu.className = 'll-menu';
+    menu.setAttribute('role', 'menu');
+    const title = rowTitle(row);
+    if (title) {
+      const head = document.createElement('p');
+      head.className = 'll-menu__title';
+      head.textContent = title;
+      menu.append(head);
+    }
+    for (const item of items) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('role', 'menuitem');
+      button.className = item.danger ? 'll-menu__item ll-menu__item--danger' : 'll-menu__item';
+      button.textContent = item.label;
+      button.addEventListener('click', () => {
+        close();
+        item.run();
+      });
+      menu.append(button);
+    }
+    document.body.append(menu);
+    const box = menu.getBoundingClientRect();
+    menu.style.left = `${Math.max(12, Math.min(x - box.width / 2, innerWidth - box.width - 12))}px`;
+    menu.style.top = `${Math.max(12, Math.min(y + 12, innerHeight - box.height - 12))}px`;
+    open = menu;
+    row.classList.add('ll-held');
+    setTimeout(() => row.classList.remove('ll-held'), 260);
+    (menu.querySelector('[role=menuitem]') as HTMLElement | null)?.focus({ preventScroll: true });
+    if (navigator.vibrate) navigator.vibrate(8);
+    return true;
+  };
+
+  addEventListener(
+    'pointerdown',
+    (event) => {
+      if (open && !open.contains(event.target as Node)) close();
+      if (event.pointerType === 'mouse') return;
+      const row = event.target instanceof Element ? event.target.closest<HTMLElement>(ROWS) : null;
+      if (!row || row.closest('dialog, nav, .ll-topbar')) return;
+      start = { x: event.clientX, y: event.clientY };
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (start && show(row, start.x, start.y)) swallowClick = true;
+        start = null;
+      }, HOLD_MS);
+    },
+    true,
+  );
+  addEventListener(
+    'pointermove',
+    (event) => {
+      if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) {
+        clearTimeout(timer);
+        start = null;
+      }
+    },
+    true,
+  );
+  const cancel = () => {
+    clearTimeout(timer);
+    start = null;
+  };
+  addEventListener('pointerup', cancel, true);
+  addEventListener('pointercancel', cancel, true);
+  // The press that opened the menu does not also tap the row.
+  addEventListener(
+    'click',
+    (event) => {
+      if (!swallowClick) return;
+      swallowClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    true,
+  );
+  addEventListener('contextmenu', (event) => {
+    const row = event.target instanceof Element ? event.target.closest<HTMLElement>(ROWS) : null;
+    if (!row || row.closest('dialog, nav') || (event.target as Element).closest('input, textarea, [contenteditable]')) return;
+    if (show(row, event.clientX, event.clientY)) event.preventDefault();
+  });
+  addEventListener('keydown', (event) => {
+    if (!open) return;
+    if (event.key === 'Escape') close();
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      const items = [...open.querySelectorAll<HTMLElement>('[role=menuitem]')];
+      const at = items.indexOf(document.activeElement as HTMLElement);
+      items[(at + (event.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
+      event.preventDefault();
+    }
+  });
+  addEventListener('scroll', close, { passive: true, capture: true });
 }

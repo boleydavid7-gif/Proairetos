@@ -43,8 +43,9 @@ export type Scheme = {
   glow: string;
   /** Removing something (never a failure color): a warm red, read as text on every surface. */
   remove: Hex;
-  /** Translucent bars. */
+  /** Bars and docks: mica, an opaque surface tinted a little more by the room than the page is, never blurred. */
   bar: string;
+  mica: Hex;
   /** The drawn wallpaper's colors: a sky, the lamp's glow and three bands. */
   art: { sky: Hex; glow: Hex; b1: Hex; b2: Hex; b3: Hex };
 };
@@ -141,6 +142,10 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: De
   }
   const onLamp = contrast(on, fill) >= 4.5 ? on : readable(0.2, Math.min(lamp.chroma, 0.05), lamp.hue, [fill], 4.5, true);
 
+  // Mica (Fluent's word): opaque, between the page and a card, carrying a little more of the room's own hue, so a
+  // bar reads as part of the room rather than a pane of frosted glass. Blur renders unevenly on phones; this never does.
+  const mica = deep && dark ? oklch(0.17, c * 1.6 + 0.006, h) : dark ? oklch(0.195, c * 1.6 + 0.006, h) : oklch(0.978, c * 1.4 + 0.006, h);
+
   const remove = readable(dark ? 0.78 : 0.5, dark ? 0.11 : 0.15, 25, surfaces, 4.5, !dark);
 
   return {
@@ -156,7 +161,8 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: De
     onLamp,
     glow: rgba(dark ? lampText : fill, dark ? 0.15 : 0.18),
     remove,
-    bar: rgba(dark ? tones.page : tones.card, dark ? 0.72 : 0.8),
+    bar: mica,
+    mica,
     art: dark
       ? { sky: oklch(0.31, c * 1.5 + 0.02, h), glow: oklch(0.83, c1, g1), b1: oklch(0.6, c2, g2), b2: oklch(0.45, c3, g3), b3: oklch(0.3, c * 1.8 + 0.015, h) }
       : { sky: oklch(0.975, c * 1.4 + 0.01, h), glow: oklch(0.88, c1 * 1.05, g1), b1: oklch(0.86, c2 * 0.9, g2), b2: oklch(0.8, c3 * 0.9, g3), b3: oklch(0.92, c * 2 + 0.01, h) },
@@ -185,5 +191,6 @@ export function schemeVars(s: Scheme): Record<string, string> {
     '--ll-glow': s.glow,
     '--ll-remove': s.remove,
     '--ll-bar': s.bar,
+    '--ll-mica': s.mica,
   };
 }

@@ -4,6 +4,7 @@ import { calendarSources, otherCalendars, type CalendarRole } from '../../app/ca
 import { refreshReminders } from '../../app/sync/syncController';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
+import { Waiting } from '../../lamplight/Waiting';
 
 const roles: { id: CalendarRole; label: string }[] = [
   { id: 'show', label: 'Just show' },
@@ -153,7 +154,7 @@ export default function OtherCalendarsSection() {
             onChange={(event) => setUrl(event.target.value)}
           />
           <button type="submit" className="button-accent" disabled={busy || !url.trim()}>
-            {busy ? 'Reading the calendar…' : 'Add calendar'}
+            {busy ? <Waiting>Reading the calendar…</Waiting> : 'Add calendar'}
           </button>
         </form>
         {error && (

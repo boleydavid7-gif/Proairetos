@@ -15,6 +15,7 @@ import { dayText, everyNow, everyText, feed, journal, LOG_TEXT, learnedEvery, na
 import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
 import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
 import { Sym } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 async function keepPhoto(plantId: string, file: Blob): Promise<void> {
   const small = await smallPhoto(file);
@@ -148,7 +149,7 @@ function Photos({ plant }: { plant: Plant }) {
       <div className="section-head">
         <h2 className="card__title card__title--small">Photos</h2>
         <div className="chip-row">
-          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Saving…' : 'Save a copy'}</button>}
+          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>}
           <button type="button" className="text-link" disabled={restoring} onClick={() => restorePicker.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
           <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
         </div>

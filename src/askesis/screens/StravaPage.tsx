@@ -12,6 +12,7 @@ import {
   takeBack,
 } from '../app/strava';
 import type { LogEntry } from '../core/log';
+import { Waiting } from '../../lamplight/Waiting';
 
 const message = (cause: unknown) => (cause instanceof Error ? cause.message : 'That did not work. Try again.');
 const read = () => JSON.stringify(stravaLink() ?? null);
@@ -82,7 +83,7 @@ export default function StravaPage({ nav }: { nav: Nav }) {
           </p>
           <p className="muted">Runs, walks and rides arrive in Log when Askesis opens. A run on a day with a session counts as that session.</p>
           <button type="button" className="button-main" disabled={busy} onClick={() => void bringIn()}>
-            {busy ? 'Looking…' : 'Bring in now'}
+            {busy ? <Waiting>Looking…</Waiting> : 'Bring in now'}
           </button>
           <button
             type="button"

@@ -1,4 +1,32 @@
 /*
+ * Lamplight's materials, after Fluent's: no blur anywhere (it renders unevenly on phones). Solid for cards; mica for
+ * bars and docks, opaque, the room's hue a little stronger than the page, with the lamp's light washing in faintly
+ * from above; smoke, a plain dim, behind dialogs and sheets. Where content passes under a bar it fades into the mica
+ * (the scroll edge) instead of meeting a hard line.
+ */
+:root {
+  --ll-mica-surface: radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.07), transparent 62%) var(--ll-mica, var(--ll-page, #14120f));
+  --ll-edge-below: 0 12px 16px -6px var(--ll-mica, var(--ll-page, #14120f));
+  --ll-edge-above: 0 -12px 16px -6px var(--ll-mica, var(--ll-page, #14120f));
+}
+
+:root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-bar) {
+  background: var(--ll-mica-surface) !important;
+}
+
+@media (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    box-shadow: var(--ll-edge-above);
+    transition: translate var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+  }
+
+  /* Reading down a page, the dock steps aside; scrolling up, or reaching the top or the foot, brings it back. */
+  :root.ll-tucked :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    translate: 0 calc(100% + 24px);
+  }
+}
+
+/*
  * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
  * on the left; the page's actions, Settings and the family's places on the right. Glass once the page scrolls, a
  * hairline once the page's title has gone under. It names the app only. Computers keep their rail.
@@ -25,13 +53,12 @@
   }
 
   .ll-topbar.is-scrolled {
-    background: var(--ll-bar, rgba(20, 18, 15, 0.72));
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    background: var(--ll-mica-surface);
+    box-shadow: var(--ll-edge-below);
   }
 
   .ll-topbar.is-folded {
-    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08));
+    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08)), var(--ll-edge-below);
   }
 
   /* Left: the app's name, or the chevron and where it goes. */
@@ -73,12 +100,21 @@
   }
 
   /* Right: the page's actions, then Settings and the family's places. */
+  /* The bar's buttons share one mica pill, as iOS groups a toolbar's actions on one piece of glass. */
   .ll-topbar__actions {
     grid-column: 2;
     justify-self: end;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 0;
+    padding: 0 4px;
+    border-radius: var(--ll-radius-pill, 999px);
+    background: var(--ll-mica-surface);
+    box-shadow: inset 0 0 0 1px var(--ll-hair, rgba(255, 255, 255, 0.08));
+  }
+
+  .ll-topbar__actions:empty {
+    display: none;
   }
 
   .ll-topbar__action {
@@ -198,14 +234,6 @@ html[data-swiped]::view-transition-old(root) {
   transition: transform var(--ll-slow, 420ms) cubic-bezier(0.25, 1.35, 0.4, 1) !important;
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .ll-topbar.is-scrolled {
-    background: var(--ll-page, #14120f);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
-
 /* A sheet opened from the top bar drops from the top and leaves upward (useSheet({ from: 'top' })). */
 @media (max-width: 61.99rem) {
   .sheet.sheet--top {
@@ -246,5 +274,66 @@ html[data-swiped]::view-transition-old(root) {
 @keyframes sheet-down {
   from {
     transform: translateY(-100%);
+  }
+}
+
+/* ---------- Tablets (48 to 62rem) ---------- */
+/* The page keeps its reading column; the dock floats as a pill under it rather than stretching edge to edge, and
+   the top bar lines up with the column. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  :root .ll-topbar.is-on {
+    padding-inline: max(14px, calc((100vw - 40rem) / 2));
+  }
+
+  :root :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
+    inset: auto 0 calc(env(safe-area-inset-bottom) + 14px) 0;
+    width: min(34rem, calc(100% - 48px));
+    margin-inline: auto;
+    border: 0;
+    border-radius: var(--ll-radius-pill, 999px);
+    box-shadow: var(--ll-light-2), inset 0 0 0 1px var(--ll-hair);
+  }
+
+  :root .hydros-tabs {
+    left: 0;
+    translate: none;
+    transform: none;
+  }
+
+  :root.ll-tucked :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
+    translate: 0 calc(100% + 40px);
+  }
+}
+
+/* ---------- Windows high contrast (forced colors) ---------- */
+/* The system's own colors take over: every surface keeps an edge, where you are is marked by the highlight, and
+   nothing relies on a tint, a glow or a shade. */
+@media (forced-colors: active) {
+  .ll-icon__lit,
+  .ll-waiting__light {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .ll-icon__lit {
+    display: none;
+  }
+
+  :root :is(.card, .ll-card, .rows, .settings-card, .sheet__panel, .ll-menu, .ll-topbar.is-scrolled, .tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-topbar__actions) {
+    border: 1px solid CanvasText;
+  }
+
+  :root :is(.button-main, .button-accent, .button-quiet, .ll-button, .chip, .switch) {
+    border: 1px solid ButtonText;
+  }
+
+  :root :is([aria-current='page'], [aria-pressed='true'], [aria-selected='true'], .is-active) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  :root :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
   }
 }

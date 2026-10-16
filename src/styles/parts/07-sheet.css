@@ -14,7 +14,6 @@
 
 .sheet::backdrop {
   background: rgba(4, 5, 6, 0.6);
-  backdrop-filter: blur(2px);
 }
 
 .sheet[open] .sheet__panel {

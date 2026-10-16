@@ -20,6 +20,7 @@ import {
   type ProduceKind,
 } from '../core/seasons';
 import { loadSettings, saveGroceries } from '../data/store';
+import { Waiting } from '../../lamplight/Waiting';
 
 const monthShort = (m: number) => new Date(2026, m - 1, 1).toLocaleDateString(undefined, { month: 'short' });
 
@@ -181,7 +182,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
           <h2>Ideas with {item.name.toLowerCase()}</h2>
         </div>
         {problem && <p className="muted">{problem}</p>}
-        {!problem && !ideas && <p className="muted">Looking…</p>}
+        {!problem && !ideas && <p className="muted"><Waiting>Looking…</Waiting></p>}
         {ideas && ideas.length === 0 && <p className="muted">None in TheMealDB yet.</p>}
         <ul className="recipe-rows">
           {ideas?.map((meal) => (

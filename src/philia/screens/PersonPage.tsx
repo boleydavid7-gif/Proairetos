@@ -9,6 +9,7 @@ import { AddLine, Initials } from '../app/ui';
 import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
 import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
 import { Sym } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -91,7 +92,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                 } finally {
                   setSavingPhoto(false);
                 }
-              }}>{savingPhoto ? 'Saving…' : 'Save a copy'}</button>
+              }}>{savingPhoto ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
               <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>
               <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
                 void removePhoto(person.id);

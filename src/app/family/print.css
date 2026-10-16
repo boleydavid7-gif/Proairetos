@@ -180,7 +180,6 @@
     box-shadow: none !important;
     transform: none !important;
     filter: none !important;
-    backdrop-filter: none !important;
   }
 
   body *:has(.print-sheet)::before,

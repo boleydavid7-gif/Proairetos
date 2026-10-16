@@ -47,7 +47,7 @@ export function proairetosVars(s: Scheme): Record<string, string> {
     '--color-ink': s.page,
     '--color-ink-raised': s.wall,
     '--color-bg-rgb': triple(s.page),
-    '--color-bar-rgb': triple(dark ? s.page : s.card),
+    '--color-bar-rgb': triple(s.mica),
     '--color-surface': s.card,
     '--color-surface-raised': dark ? s.inset : '#ffffff',
     '--color-surface-soft': rgba(s.ink, dark ? 0.06 : 0.04),

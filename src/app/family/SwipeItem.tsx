@@ -48,6 +48,10 @@ export default function SwipeItem({ children, label, onSwipe, className, off = f
         <CheckIcon size={20} />
         <span>{label}</span>
       </div>
+      {/* The swipe's action for the row's long-press menu (lamplight/behaviors.ts), first in its list. */}
+      <button type="button" hidden data-menu-first onClick={() => finish(true)}>
+        {label}
+      </button>
       <div
         className={`swipe__front ${className}`}
         style={{ transform: leaving ? 'translateX(-110%)' : `translateX(${dx}px)`, transition: pulling.current ? 'none' : undefined }}

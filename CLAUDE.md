@@ -189,6 +189,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
+- Lamplight 1.3 (materials and touch, `bars.css`, `layout.css`, `tokens.css`, `components.css`, `behaviors.ts`): no blur
+  anywhere (`backdrop-filter` is banned by a test): bars and docks are mica (`--ll-mica` from the scheme, `--ll-mica-surface`
+  with the lamp washing in; `--color-bar-rgb` and Askesis's `--bar` follow it), content fades into a bar (`--ll-edge-below` /
+  `--ll-edge-above`), backdrops are a plain dim. Docks tuck away reading down a page and come back scrolling up
+  (`:root.ll-tucked`); the top bar's buttons share one mica pill. Long-press or right-click a row (`.swipe`, `.check-row`,
+  `.rows > li`, `.detail-list > li`, `[data-menu]`) for a menu read from the row's own buttons (`SwipeItem`'s action as
+  `[data-menu-first]`, checkboxes as Mark done); labels lose the row's own name. Springs: `--ll-spring` / `--ll-spring-lively`
+  (CSS `linear()`), which the older easing names (`--ease-out`, `--ease`, `--ease-spring`) now take. Concentric corners
+  (`--ll-outer`, `--ll-inset`, `--ll-concentric`) on grouped lists' first and last rows, inset pictures and sheets. One waiting
+  mark: `Waiting` (`src/lamplight/Waiting.tsx`, a breathing light) beside "Saving…", "Opening…" etc. Tablets (48-62rem): a
+  floating dock pill and a top bar aligned to the column. `forced-colors` gives every surface an edge and marks the current
+  place with Highlight. Right to left: `Sym` back/chevron/arrow carry `ll-icon--flip`, and the back swipe comes from the right.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).
