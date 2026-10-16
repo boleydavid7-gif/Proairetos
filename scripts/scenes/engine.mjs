@@ -1,4 +1,4 @@
-// A small flat-illustration scene kit: layered ridges, firs on the ridge line, sky, sun or moon, clouds,
+// A small flat-illustration scene kit: layered ridges, firs on the ridge line, sky, the one light (LAMP_X),
 // mist, still water with reflections, and a few foreground things. Everything is seeded so it redraws the same.
 
 export function rng(seed) {
@@ -150,28 +150,35 @@ export function branch(x, y, len, angle, seed, leaf, color, stem) {
   return s;
 }
 
+/*
+ * Lamplight's one light. Every scene in the family is lit by a single light at the same place across the picture
+ * (LAMP_X, as the wallpaper's lamp and the icons' are upper right), at the height of that scene's horizon, with one
+ * faint ring around it as the wallpaper and the icons have. No clouds, no second sun or moon.
+ */
+export const LAMP_X = 0.64;
+
+export function lampRing(x, y, m, color, opacity = 0.22) {
+  return `<circle cx="${x}" cy="${y}" r="${(m * 0.13).toFixed(1)}" fill="none" stroke="${color}" stroke-opacity="${opacity}" stroke-width="${Math.max(1.5, m * 0.004).toFixed(1)}"/>`;
+}
+
 export function svg(w, h, extraDefs, body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${defs}${extraDefs}</defs>${body}<rect width="${w}" height="${h}" filter="url(#grain)"/></svg>`;
 }
 
 /**
- * A common landscape: sky, glow and sun, optional moon and stars, clouds, ridges (far to near, each optionally
+ * A common landscape: sky, the one light and its glow, optional stars, ridges (far to near, each optionally
  * with firs), mist between them, and optional water from a line.
  */
 export function landscape(w, h, o) {
   const m = Math.min(w, h);
-  const sunX = w * o.sun[0];
+  const sunX = w * LAMP_X;
   const sunY = h * o.sun[1];
   let extra = sky('sky', o.sky) + glow('sunglow', sunX, sunY, Math.max(w, h) * (o.glowSize ?? 0.55), o.glowColor, o.glowStrength ?? 0.9);
   let body = `<rect width="${w}" height="${h}" fill="url(#sky)"/>`;
   if (o.stars) body += stars(w, h, o.stars.seed ?? 3, Math.round((w * h) / o.stars.density), o.stars.maxY);
   body += `<rect width="${w}" height="${h}" fill="url(#sunglow)"/>`;
-  if (o.moon) {
-    const [mx, my, mr] = [w * o.moon[0], h * o.moon[1], m * o.moon[2]];
-    body += `<circle cx="${mx}" cy="${my}" r="${mr}" fill="#efe6d2"/><circle cx="${mx + mr * 0.45}" cy="${my - mr * 0.25}" r="${mr * 0.92}" fill="${o.moonSky}"/>`;
-  }
-  if (o.clouds) for (const c of o.clouds) body += clouds(w, h, c.seed, c.n, c.y0, c.y1, c.color, c.opacity, c.size ?? 1);
-  if (o.sunR) body += `<circle cx="${sunX}" cy="${sunY}" r="${m * o.sunR}" fill="${o.sunColor ?? '#fff3d6'}"/>`;
+  // The one light: its disc, and the ring around it.
+  if (o.sunR) body += `<circle cx="${sunX}" cy="${sunY}" r="${m * o.sunR}" fill="${o.sunColor ?? '#fff3d6'}"/>` + lampRing(sunX, sunY, m, o.glowColor);
   const fns = [];
   for (const [i, layer] of o.ridges.entries()) {
     const f = ridgeFn(w, h, layer.base, layer.amp, layer.seed ?? 10 + i * 7, layer.detail ?? 1, layer.peaks ?? 0);

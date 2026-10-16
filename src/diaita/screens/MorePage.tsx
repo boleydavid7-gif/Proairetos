@@ -77,8 +77,8 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         <Switch on={current.meals} label="Meals" onToggle={() => change({ meals: !current.meals })} />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.windDown} label="Wind down" onToggle={() => notice({ windDown: !current.notices.windDown })} />
         <Switch on={current.notices.worry} label="Worry time" onToggle={() => notice({ worry: !current.notices.worry })} />
         <Switch on={current.notices.nap} label="Nap" onToggle={() => notice({ nap: !current.notices.nap })} />

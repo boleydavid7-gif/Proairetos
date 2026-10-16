@@ -100,6 +100,15 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Android, if you have one: share a photo into Ktema and Therapeia, a PDF into Theoria.
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
 
+- [ ] Design round (Oct 16), on your iPhone with the apps installed. Tell me anything that feels off:
+  - Open a few apps' More pages: margins line up with Proairetos, "Reminders" sits above its card.
+  - Tap a row into its page (Soma More > Your year, an Ergon chore): the row should grow into the page title, not
+    jump. Safari 18+ only; older iPhones just slide.
+  - Move between tabs: the new tab lights at once, the old one fades a moment later.
+  - Small text: Praxis's and Theoria's bottom bars, Hydros's Flow chart, the month calendar in Days ahead.
+  - Each app's home picture: one light, upper right, no clouds.
+  - Anything that scrolls sideways, overlaps, or is hard to tap.
+
 ## To look over
 
 - [ ] Phyton's pet toxicity list (`src/phyton/core/species.ts`): spot-check a few against the ASPCA list

@@ -25,8 +25,8 @@ export default function MorePage({ nav }: { nav: KtemaNav }) {
         <DailyLineSwitch app="ktema" />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.on} label="Upkeep" onToggle={() => notice({ on: !current.notices.on })} />
         <Switch on={current.notices.warranties} label="Warranties and documents, a month before they end" onToggle={() => notice({ warranties: !current.notices.warranties })} />
         {(current.notices.on || current.notices.warranties) && (

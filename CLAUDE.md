@@ -170,6 +170,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   rising toward the lamp, a rim of its light, no sun or clouds), and Compass's `PageHero` has no picture of its own
   (the title sits on the wallpaper); Reflect's Compass row shows the room's wallpaper. `sunrise`/`morning` are no
   longer used in Proairetos.
+- Lamplight layout and motion (`src/lamplight/layout.css`, imported by `premium.css`): one rhythm for every app
+  (`--ll-gutter` 20, `--ll-gap` 16, `--ll-section-gap` 28, `--ll-label-gap` 8) put on the family's own page classes;
+  section labels outside their card (`.ll-section-label`, used for "Reminders" in the newer apps' More); text never
+  under 12 px, tab labels never under 11 px. `.list-empty` has no box and a sans title. `transitions.ts` notes the last
+  tapped card or row and, on a forward move, names it and the new page's head `ll-morph` so the card grows into the
+  title; the tab bar's old picture dims slowly while the new one lights (`motion.css`). Scenes have one light at
+  `LAMP_X` (.64) with `lampRing`, no clouds (`scripts/scenes/engine.mjs`).
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

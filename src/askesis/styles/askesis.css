@@ -905,7 +905,7 @@ input[type='date'].input {
   font-variant-numeric: lining-nums;
 }
 .focus__length small {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
   color: var(--muted);
 }
@@ -1839,7 +1839,7 @@ input[type='date'].input {
 
 .bars__value,
 .bars__label {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }

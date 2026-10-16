@@ -193,11 +193,6 @@
 }
 
 .diaita-more .diaita-settings .field__label,
-.diaita-more .diaita-switches-label {
-  color: var(--text-soft);
-  font-weight: 600;
-}
-
 .diaita-side-by-side__comparison + .diaita-side-by-side__comparison {
   padding-top: 12px;
   border-top: 1px solid var(--line);

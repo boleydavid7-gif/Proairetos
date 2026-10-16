@@ -166,8 +166,8 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         <DailyLineSwitch app="phyton" />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.on} label="Plants to check" onToggle={() => notice({ on: !current.notices.on })} />
         {current.notices.on && <Switch on={current.notices.feed} label="Feeding" onToggle={() => notice({ feed: !current.notices.feed })} />}
         {current.notices.on && myName(current) && home && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}

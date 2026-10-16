@@ -151,7 +151,7 @@
   .praxis-bottom-nav .praxis-nav-list { grid-template-columns: repeat(7,1fr); }
   .praxis-bottom-nav .praxis-nav-list { gap: 0; }
   .praxis-bottom-nav .praxis-nav-item { display: grid; justify-items: center; gap: 4px; min-width: 0; padding: 7px 0; }
-  .praxis-bottom-nav .praxis-nav-item span { max-width: 100%; overflow: hidden; font-size: 9.5px; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
+  .praxis-bottom-nav .praxis-nav-item span { max-width: 100%; overflow: hidden; font-size: 11px; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
   .praxis-today-grid, .praxis-stats-grid { grid-template-columns: 1fr; }
   .praxis-focus-card { min-height: 500px; }
   .praxis-timer { width: min(330px, 70vw); }

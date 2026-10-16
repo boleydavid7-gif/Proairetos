@@ -1,6 +1,7 @@
 // Run: node scripts/scenes/<file>.mjs <out-dir>; then convert each PNG to webp (ffmpeg -i x.png -quality 85 x.webp).
 // Needs Playwright with a Chromium (set CHROMIUM to its path).
 const { chromium } = await import(process.env.PLAYWRIGHT ?? 'playwright');
+import { LAMP_X, lampRing } from './engine.mjs';
 const out = process.argv[2];
 
 // Small seeded random and a smooth ridge line from summed waves.
@@ -35,7 +36,7 @@ const grain = `<filter id="grain"><feTurbulence type="fractalNoise" baseFrequenc
 
 function therapeia(w, h) {
   const lake = h * 0.68;
-  const sunX = w * 0.62, sunY = h * 0.5;
+  const sunX = w * LAMP_X, sunY = h * 0.5;
   const reeds = (x0, seed, n) => { const r = rng(seed); let d = ''; for (let i = 0; i < n; i++) { const x = x0 + r() * w * 0.22, t = h * (0.03 + r() * 0.05), b = h * 0.86 + r() * h * 0.03; d += `M${x},${b} Q${x + (r() - 0.5) * 18},${b - t / 2} ${x + (r() - 0.5) * 26},${b - t} `; } return d; };
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${grain}
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121a2a"/><stop offset="0.3" stop-color="#2e4566"/><stop offset="0.5" stop-color="#7f9cc4"/><stop offset="0.62" stop-color="#d9e1ea"/></linearGradient>
@@ -45,7 +46,7 @@ function therapeia(w, h) {
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   ${stars(w, h, 19, Math.round(w * h / 40000), 0.15)}
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.04}" fill="#fbfdff" opacity="0.9"/>
+  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.032}" fill="#fbfdff" opacity="0.9"/>${lampRing(sunX, sunY, Math.min(w, h), '#e7eef7')}
   <path d="${ridge(w, h, 0.6, 0.03, 111, 1.1)}" fill="#8aa2c4" opacity="0.75"/>
   <rect x="0" y="${h * 0.6}" width="${w}" height="${h * 0.05}" fill="#eef3f9" opacity="0.4" filter="url(#blur)"/>
   <path d="${ridge(w, h, 0.645, 0.03, 117, 1)}" fill="#5a7398"/>
@@ -60,7 +61,7 @@ function therapeia(w, h) {
 }
 
 function dynamis(w, h) {
-  const sunX = w * 0.42, sunY = h * 0.47;
+  const sunX = w * LAMP_X, sunY = h * 0.47;
   const peaks = (base, amp, seed, fill) => { const r = rng(seed); let pts = `M0,${h} L0,${base * h}`; let x = 0; while (x < w) { const step = w * (0.16 + r() * 0.22); const top = (base - amp * (0.4 + r() * 0.6)) * h; pts += ` L${x + step / 2},${top} L${x + step},${base * h - r() * amp * h * 0.3}`; x += step; } return `<path d="${pts} L${w},${h} Z" fill="${fill}"/>`; };
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${grain}
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1412"/><stop offset="0.3" stop-color="#5a3628"/><stop offset="0.48" stop-color="#d48a52"/><stop offset="0.56" stop-color="#f6c98c"/></linearGradient>
@@ -68,7 +69,7 @@ function dynamis(w, h) {
   </defs>
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${sunX}" cy="${sunY + h * 0.02}" r="${Math.min(w, h) * 0.055}" fill="#fff3d9"/>
+  <circle cx="${sunX}" cy="${sunY + h * 0.02}" r="${Math.min(w, h) * 0.032}" fill="#fff3d9"/>${lampRing(sunX, sunY + h * 0.02, Math.min(w, h), '#fff0cf')}
   ${peaks(0.6, 0.16, 131, '#a8664a')}
   <rect x="0" y="${h * 0.57}" width="${w}" height="${h * 0.05}" fill="#f4c48e" opacity="0.28" filter="url(#blur)"/>
   ${peaks(0.66, 0.1, 137, '#6e3f30')}
@@ -96,11 +97,11 @@ function ktema(w, h) {
   const rows = Array.from({ length: 10 }, (_, i) => `<path d="M0,${h * (0.82 + i * 0.016)} Q${w * 0.5},${h * (0.8 + i * 0.016)} ${w},${h * (0.83 + i * 0.016)}" stroke="#4b4528" stroke-width="${Math.max(2, 2.4 * s)}" fill="none" opacity="0.6"/>`).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${grain}
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#191a15"/><stop offset="0.3" stop-color="#4e4a33"/><stop offset="0.5" stop-color="#b9a26a"/><stop offset="0.62" stop-color="#f1dca4"/></linearGradient>
-  <radialGradient id="sun" cx="${w * 0.72}" cy="${h * 0.6}" r="${w * 0.6}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff4d4" stop-opacity="0.9"/><stop offset="0.14" stop-color="#f1d48f" stop-opacity="0.45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sun" cx="${w * LAMP_X}" cy="${h * 0.6}" r="${w * 0.6}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff4d4" stop-opacity="0.9"/><stop offset="0.14" stop-color="#f1d48f" stop-opacity="0.45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${w * 0.72}" cy="${h * 0.615}" r="${Math.min(w, h) * 0.045}" fill="#fff6dc"/>
+  <circle cx="${w * LAMP_X}" cy="${h * 0.615}" r="${Math.min(w, h) * 0.032}" fill="#fff6dc"/>${lampRing(w * LAMP_X, h * 0.615, Math.min(w, h), '#fff4d4')}
   <path d="${ridge(w, h, 0.62, 0.025, 151, 1.1)}" fill="#8f8558" opacity="0.8"/>
   <rect x="0" y="${h * 0.62}" width="${w}" height="${h * 0.04}" fill="#f6e8bf" opacity="0.3" filter="url(#blur)"/>
   <path d="${ridge(w, h, 0.67, 0.025, 157, 1)}" fill="#6a6440"/>

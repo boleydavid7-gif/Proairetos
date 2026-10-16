@@ -3,6 +3,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'Every app’s pages now share one rhythm: the same side margins, the same space between sections, and section labels set just above what they name.',
+      'Small text is larger across the apps: nothing under 12 points, tab labels at least 11.',
+      'A tapped card now grows into the page it opens, and the light passes along the tab bar as you move between tabs.',
+      'Every app’s picture is redrawn under one light, in the same place, with no clouds or second sun.',
       'New app icons: every app’s tile is lit by one lamp from the upper right, with a faint ring of its light.',
       'One set of icons across every app, drawn the same way; the icon of the page you are on fills softly with its lamp.',
       'Buttons, fields, chips and cards across the apps now share Lamplight’s shapes and light.',

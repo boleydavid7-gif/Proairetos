@@ -4,6 +4,7 @@
 @import '../lamplight/motion.css';
 @import '../lamplight/adopt.css';
 @import '../lamplight/icons.css';
+@import '../lamplight/layout.css';
 
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */
@@ -248,7 +249,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 
   .app-shell .tab-bar__item {
     position: relative;
-    font-size: min(0.8rem, 3vw);
+    font-size: clamp(11px, 3vw, 0.8rem);
     white-space: nowrap;
   }
 

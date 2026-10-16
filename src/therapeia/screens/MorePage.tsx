@@ -58,8 +58,8 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
         <p className="fine">Shown on Medicines and added when you share the list.</p>
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.doses} label="Doses" onToggle={() => notice({ doses: !current.notices.doses })} />
         <Switch on={current.notices.names} label="Names on the lock screen" onToggle={() => notice({ names: !current.notices.names })} />
         <Switch on={current.notices.refills} label="Refills" onToggle={() => notice({ refills: !current.notices.refills })} />

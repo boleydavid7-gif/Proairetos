@@ -263,6 +263,23 @@ export default function Guide() {
           </div>
         </Section>
 
+        <Section id="layout" title="Layout" lead="Five patterns, one rhythm. Every screen in the family is one of them, on the same four numbers.">
+          <dl className="g-motion">
+            <div><dt>--ll-gutter</dt><dd>20 px · the side margin, on every page and sheet</dd></div>
+            <div><dt>--ll-gap</dt><dd>16 px · between things in a section</dd></div>
+            <div><dt>--ll-section-gap</dt><dd>28 px · between sections</dd></div>
+            <div><dt>--ll-label-gap</dt><dd>8 px · from a section&rsquo;s label to what it labels</dd></div>
+          </dl>
+          <dl className="g-motion">
+            <div><dt>Home</dt><dd>A band of the app&rsquo;s scene or its title, then sections</dd></div>
+            <div><dt>List</dt><dd>A title, then one grouped list or cards, sections apart</dd></div>
+            <div><dt>Detail</dt><dd>A back link, a title, the facts, then actions at the foot</dd></div>
+            <div><dt>Settings</dt><dd>Labels outside, grouped rows inside, a tile per row</dd></div>
+            <div><dt>Sheet</dt><dd>A title row, the body on the same gutter, actions last</dd></div>
+          </dl>
+          <p className="g-small">Text is never under 12 px; tab labels never under 11 px. An empty list is a lit mark, a title, one line and at most one action, with no box around it.</p>
+        </Section>
+
         <Section id="light" title="Light, not shadow" lead="Three steps. Each surface is lit along its top edge and rests on the page beneath it.">
           <div className="g-lights">
             {[1, 2, 3].map((n) => (
@@ -391,6 +408,8 @@ export default function Guide() {
             <div><dt>--ll-calm</dt><dd>240 ms · a switch, a chip, a tab</dd></div>
             <div><dt>--ll-slow</dt><dd>420 ms · a page arriving</dd></div>
             <div><dt>--ll-dim</dt><dd>640 ms · the light fading after a press; a sheet dimming the room</dd></div>
+            <div><dt>A card opens</dt><dd>The card tapped grows into the new page&rsquo;s title while the page arrives</dd></div>
+            <div><dt>The tab hands off</dt><dd>The new tab lights at once and the old one dims slowly, so the light passes along the bar</dd></div>
           </dl>
         </Section>
 

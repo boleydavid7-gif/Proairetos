@@ -308,10 +308,6 @@
   grid-template-columns: 58px minmax(0, 1fr) auto;
 }
 
-.diaita-switches-label {
-  padding-top: 12px;
-}
-
 .diaita-source {
   padding: 12px 14px;
   display: flex;

@@ -418,7 +418,7 @@
   padding: 2px 0;
   border-radius: 6px;
   background: color-mix(in srgb, var(--tag) 22%, transparent);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   line-height: 1.15;
 }
 
@@ -515,7 +515,7 @@
   aspect-ratio: 1;
   border-radius: 50%;
   color: var(--color-text-muted);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -694,7 +694,7 @@
   align-items: center;
   gap: 0.2rem;
   padding: 0.3rem;
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   text-align: center;
   word-break: break-word;
 }

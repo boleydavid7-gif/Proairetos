@@ -68,8 +68,8 @@ export default function MorePage({ nav }: { nav: PhiliaNav }) {
         <DailyLineSwitch app="philia" />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.dates} label="Birthdays and dates" onToggle={() => notice({ dates: !current.notices.dates })} />
         {current.notices.dates && (
           <select className="input" aria-label="When" value={current.notices.dateLead} onChange={(event) => notice({ dateLead: Number(event.target.value) })}>

@@ -49,8 +49,9 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       </ul>
 
       {ready && (
+        <>
+        <p className="ll-section-label">Reminders</p>
         <section className="card switches">
-          <p className="label diaita-switches-label">Reminders</p>
           <Switch on={current.reminders} label="Training days" onToggle={() => { settings.save({ ...settings.load(), reminders: !current.reminders }); notifications.refreshSoon(); }} />
           {current.reminders && (
             <label className="field">
@@ -59,6 +60,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
             </label>
           )}
         </section>
+        </>
       )}
 
       <section className="card switches">

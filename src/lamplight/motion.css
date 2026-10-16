@@ -32,3 +32,61 @@
     filter: none;
   }
 }
+
+/* ---------- Between screens ---------- */
+
+/* A card opening into its page (transitions.ts names the card and the new page's head `ll-morph`): the box moves
+   and grows on the calm curve, the card's face fading quickly as the head's words come up. */
+::view-transition-group(ll-morph) {
+  animation-duration: var(--ll-slow);
+  animation-timing-function: var(--ll-ease-out);
+}
+
+::view-transition-old(ll-morph) {
+  animation: ll-morph-out var(--ll-calm) var(--ll-ease-out) both;
+  height: 100%;
+  object-fit: cover;
+}
+
+::view-transition-new(ll-morph) {
+  animation: ll-morph-in var(--ll-slow) var(--ll-ease-out) both;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes ll-morph-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ll-morph-in {
+  from {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0;
+  }
+}
+
+/* The lit tab hands off: the new place lights up fast and the old one dims slowly, as a lamp does, so for a
+   moment both glow and the light seems to pass along the bar. */
+::view-transition-old(tab-bar) {
+  animation: ll-tab-dim var(--ll-slow) var(--ll-ease-light) both;
+}
+
+::view-transition-new(tab-bar) {
+  animation: ll-tab-light var(--ll-quick) var(--ll-ease-out) both;
+}
+
+@keyframes ll-tab-dim {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ll-tab-light {
+  from {
+    opacity: 0;
+  }
+}

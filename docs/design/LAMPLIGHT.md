@@ -76,6 +76,28 @@ three bands; Today's foot is three ridges in the same colors with no sun of thei
   `--ll-ease-in-out`, `--ll-ease-light`. Zero with reduced motion.
 - Focus: `--ll-focus`, a ring of the lamp.
 
+## Layout
+
+`layout.css`: five patterns (home, list, detail, settings, sheet) on four numbers: `--ll-gutter` 20 (side margin),
+`--ll-gap` 16 (within a section), `--ll-section-gap` 28 (between sections), `--ll-label-gap` 8 (a section's label to
+what it labels). The family's own page classes (`.shell .page`, `.section-head`, `.app-shell__content`,
+`.app-shell .page`, `.settings-group`) are put on this rhythm there; new screens use `.ll-page`, `.ll-section` and
+`.ll-section-label` (a label outside its card, as Settings has it). Text is never under `--ll-text-min` 12 px, tab
+labels never under `--ll-tab-min` 11 px. An empty list (`.list-empty`) is a lit mark, a sans title, one line and at
+most one action, with no box.
+
+## Between screens
+
+`app/transitions.ts`: going forward from a tap on a card or row, the card tapped and the new page's head are both
+named `ll-morph`, so the card grows into the page's title while the page pushes in (`motion.css`). The tab bar hands
+the light off: the new picture lights in `--ll-quick` and the old dims over `--ll-slow`. Reduced motion skips both.
+
+## Scenes
+
+Every drawn scene (`scripts/scenes/`) has one light at the same place across the picture (`LAMP_X` .64 in
+`engine.mjs`), at its own horizon's height, with one faint ring (`lampRing`), as the wallpaper and the icons have. No
+clouds, no second sun or moon.
+
 ## Icons
 
 One drawing rule for every app: a 24 grid with a 2-unit margin, one 1.7 stroke, round ends and joins, corners

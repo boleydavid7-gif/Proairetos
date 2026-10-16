@@ -1,12 +1,11 @@
-/* An empty list (Empty.tsx; .empty is an older Askesis style). */
+/* An empty list (Empty.tsx), Lamplight's one empty state: a lit mark, a title in the sans, one line, at most one
+   action; no box around it, as iOS shows a list with nothing in it. */
 .list-empty {
   display: grid;
   justify-items: center;
   gap: 6px;
-  padding: 34px 20px 30px;
+  padding: 32px 20px 28px;
   text-align: center;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius);
 }
 
 .list-empty__mark {
@@ -16,8 +15,8 @@
   height: 56px;
   margin-bottom: 6px;
   border-radius: 50%;
-  background: var(--mint-soft);
-  color: var(--mint);
+  background: var(--ll-glow, var(--mint-soft));
+  color: var(--ll-lamp, var(--mint));
 }
 
 .list-empty .button-main,
@@ -27,8 +26,9 @@
 
 .list-empty__title {
   margin: 0;
-  font-family: var(--serif, 'EB Garamond', serif);
-  font-size: 1.3rem;
+  font-family: var(--sans, var(--ll-sans));
+  font-size: var(--text-lg, 1.15rem);
+  font-weight: 600;
   color: var(--text);
 }
 

@@ -1,7 +1,7 @@
 // Run: node scripts/scenes/<file>.mjs <out-dir>; then convert each PNG to webp (ffmpeg -i x.png -quality 85 x.webp).
 // Needs Playwright with a Chromium (set CHROMIUM to its path).
 const { chromium } = await import(process.env.PLAYWRIGHT ?? 'playwright');
-import { landscape, rocks, branch, svg, sky, glow, ridgeFn, ridgePath, firsOn, mist, water, clouds, rng } from './engine.mjs';
+import { LAMP_X, landscape, rocks, branch, svg, sky, glow, ridgeFn, ridgePath, firsOn, mist, water, rng } from './engine.mjs';
 
 const out = process.argv[2];
 const only = process.argv[3];
@@ -12,8 +12,7 @@ const only = process.argv[3];
 const sunrise = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#141a2e'], [0.25, '#2f3352'], [0.42, '#8a5a52'], [0.52, '#e59a5a'], [0.58, '#f6c47a']],
-    sun: [0.7, 0.55], sunR: 0.035, glowColor: '#ffcf86', glowSize: 0.5,
-    clouds: [{ seed: 4, n: 5, y0: 0.2, y1: 0.4, color: '#f0a070', opacity: 0.3 }],
+    sun: [LAMP_X, 0.55], sunR: 0.032, glowColor: '#ffcf86', glowSize: 0.5,
     ridges: [
       { base: 0.57, amp: 0.035, seed: 3, detail: 1.4, peaks: 4, color: '#8f6f86', light: '#ffd9a0' },
       { base: 0.62, amp: 0.03, seed: 8, detail: 1.1, color: '#5f4f72', mistBefore: ['#f2c08a', 0.25] },
@@ -27,8 +26,7 @@ const sunrise = (w, h) =>
 const morning = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#4f87c4'], [0.3, '#8fb9de'], [0.48, '#f2d9a8'], [0.56, '#fbe7bd']],
-    sun: [0.72, 0.5], sunR: 0.03, glowColor: '#fff0c4', glowSize: 0.5, sunColor: '#fffaf0',
-    clouds: [{ seed: 9, n: 8, y0: 0.08, y1: 0.36, color: '#ffffff', opacity: 0.75 }],
+    sun: [LAMP_X, 0.42], sunR: 0.032, glowColor: '#fff0c4', glowSize: 0.5, sunColor: '#fffaf0',
     ridges: [
       { base: 0.53, amp: 0.03, seed: 5, detail: 1.3, peaks: 3, color: '#a9bccd' },
       { base: 0.58, amp: 0.025, seed: 11, color: '#88a9a6', mistBefore: ['#ffffff', 0.55] },
@@ -42,8 +40,7 @@ const morning = (w, h) =>
 const valley = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#1d2340'], [0.22, '#4d3e5e'], [0.36, '#c46a4e'], [0.44, '#f2a65a']],
-    sun: [0.62, 0.42], sunR: 0.03, glowColor: '#ffc27a', glowSize: 0.5,
-    clouds: [{ seed: 12, n: 6, y0: 0.1, y1: 0.32, color: '#ff9f72', opacity: 0.4 }],
+    sun: [LAMP_X, 0.42], sunR: 0.032, glowColor: '#ffc27a', glowSize: 0.5,
     ridges: [
       { base: 0.46, amp: 0.03, seed: 41, detail: 1.6, peaks: 6, color: '#a87c86', light: '#ffe0b0' },
       { base: 0.52, amp: 0.04, seed: 47, detail: 1.2, peaks: 2, color: '#6e5672', mistBefore: ['#f6b07a', 0.3] },
@@ -57,7 +54,7 @@ const valley = (w, h) =>
 const lake = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#07090f'], [0.25, '#141a28'], [0.4, '#3a3240'], [0.47, '#c27a4a'], [0.5, '#e8a85e']],
-    sun: [0.66, 0.49], glowColor: '#f2a860', glowSize: 0.35, glowStrength: 0.7,
+    sun: [LAMP_X, 0.44], sunR: 0.022, sunColor: '#ffe2b0', glowColor: '#f2a860', glowSize: 0.35, glowStrength: 0.7,
     stars: { seed: 2, density: 20000, maxY: 0.3 },
     ridges: [
       { base: 0.48, amp: 0.025, seed: 71, detail: 1.3, peaks: 3, color: '#4b3e4a' },
@@ -71,8 +68,7 @@ const lake = (w, h) =>
 const lakeLight = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#5d93c8'], [0.3, '#a6c8e2'], [0.46, '#eadfc6']],
-    sun: [0.3, 0.44], sunR: 0.028, glowColor: '#fff4d2', glowSize: 0.45, sunColor: '#fffbf2',
-    clouds: [{ seed: 21, n: 7, y0: 0.06, y1: 0.3, color: '#ffffff', opacity: 0.8 }],
+    sun: [LAMP_X, 0.37], sunR: 0.032, glowColor: '#fff4d2', glowSize: 0.45, sunColor: '#fffbf2',
     ridges: [
       { base: 0.45, amp: 0.03, seed: 81, detail: 1.4, peaks: 3, color: '#a9bdd0' },
       { base: 0.5, amp: 0.025, seed: 83, color: '#6f9483', firs: { size: 0.02, count: 60 }, mistBefore: ['#ffffff', 0.5],
@@ -86,7 +82,7 @@ const lakeLight = (w, h) =>
 const forest = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#05070a'], [0.4, '#0c1214'], [0.6, '#29302c']],
-    sun: [0.55, 0.62], glowColor: '#c8b28a', glowSize: 0.45, glowStrength: 0.35,
+    sun: [LAMP_X, 0.5], sunR: 0.02, sunColor: '#e9dcc0', glowColor: '#c8b28a', glowSize: 0.45, glowStrength: 0.35,
     ridges: [
       { base: 0.6, amp: 0.025, seed: 91, color: '#2a3330', firs: { size: 0.03, count: 70, color: '#2a3330' } },
       { base: 0.66, amp: 0.03, seed: 93, color: '#1c2523', firs: { size: 0.05, count: 50 }, mistBefore: ['#b8b4a0', 0.35] },
@@ -100,8 +96,7 @@ const forest = (w, h) =>
 const hydrosLake = (w, h, glass) =>
   landscape(w, h, {
     sky: [[0, '#1a3a5c'], [0.22, '#4b6f93'], [0.36, '#e3a066'], [0.42, '#f6c47c']],
-    sun: [0.62, 0.41], sunR: 0.03, glowColor: '#ffd08a', glowSize: 0.5,
-    clouds: [{ seed: 31, n: 7, y0: 0.08, y1: 0.3, color: '#f7b98a', opacity: 0.55 }],
+    sun: [LAMP_X, 0.33], sunR: 0.032, glowColor: '#ffd08a', glowSize: 0.5,
     ridges: [
       { base: 0.42, amp: 0.035, seed: 101, detail: 1.5, peaks: 4, color: '#7c7a96', light: '#ffe2b4' },
       { base: 0.46, amp: 0.025, seed: 103, color: '#3f5568', firs: { size: 0.018, count: 60 },
@@ -125,8 +120,7 @@ const hydrosLake = (w, h, glass) =>
 const produce = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#6f9ac2'], [0.25, '#b9cfe0'], [0.42, '#f3d8a8']],
-    sun: [0.7, 0.4], sunR: 0.03, glowColor: '#fff0c8', glowSize: 0.45, sunColor: '#fffaf0',
-    clouds: [{ seed: 41, n: 6, y0: 0.06, y1: 0.28, color: '#ffffff', opacity: 0.75 }],
+    sun: [LAMP_X, 0.33], sunR: 0.032, glowColor: '#fff0c8', glowSize: 0.45, sunColor: '#fffaf0',
     ridges: [
       { base: 0.4, amp: 0.035, seed: 111, detail: 1.4, peaks: 4, color: '#a4b1c2' },
       { base: 0.46, amp: 0.025, seed: 113, color: '#6f927e', firs: { size: 0.025, count: 50 },
@@ -174,8 +168,7 @@ const oliveWall = (w, h) => {
 const sunsetValley = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#5d7aa4'], [0.2, '#c9a89a'], [0.36, '#f3c07e']],
-    sun: [0.62, 0.36], sunR: 0.035, glowColor: '#ffd890', glowSize: 0.55,
-    clouds: [{ seed: 51, n: 5, y0: 0.06, y1: 0.24, color: '#fff2dc', opacity: 0.7 }],
+    sun: [LAMP_X, 0.36], sunR: 0.032, glowColor: '#ffd890', glowSize: 0.55,
     ridges: [
       { base: 0.4, amp: 0.03, seed: 131, detail: 1.3, peaks: 2, color: '#a99aa6' },
       { base: 0.47, amp: 0.03, seed: 133, color: '#7e8f80', mistBefore: ['#fff0d0', 0.4] },
@@ -198,8 +191,7 @@ const sunsetValley = (w, h) =>
 const sunsetLake = (w, h) =>
   landscape(w, h, {
     sky: [[0, '#2b3558'], [0.25, '#7a5a6e'], [0.42, '#e8925a'], [0.5, '#f8c070']],
-    sun: [0.82, 0.47], sunR: 0.04, glowColor: '#ffd088', glowSize: 0.6,
-    clouds: [{ seed: 61, n: 6, y0: 0.08, y1: 0.3, color: '#f7a87a', opacity: 0.45 }],
+    sun: [LAMP_X, 0.4], sunR: 0.032, glowColor: '#ffd088', glowSize: 0.6,
     ridges: [
       { base: 0.48, amp: 0.035, seed: 141, detail: 1.4, peaks: 4, color: '#8a6f84', light: '#ffdcaa' },
       { base: 0.52, amp: 0.025, seed: 143, color: '#4d4a64', firs: { size: 0.025, count: 50 },

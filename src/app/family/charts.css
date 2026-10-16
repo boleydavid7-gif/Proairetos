@@ -83,7 +83,7 @@
 
 .family-chart__tick {
   fill: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 

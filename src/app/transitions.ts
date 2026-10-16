@@ -28,6 +28,43 @@ export function canTransition(): boolean {
 
 let panelTimer: number | undefined;
 
+/*
+ * The shared element: going into a page from a card or row, the thing tapped grows into the new page's head, so
+ * the card is seen to open into its page. The last tap is noted (capture phase, so every app gets it without
+ * wiring); a forward move within a moment of it names that card and the new page's head alike, and the browser
+ * morphs one into the other while the rest of the page pushes in as before.
+ */
+const MORPH = 'll-morph';
+const SOURCE = '.card, .row, .ll-row, .check-row, .place-row, li, [data-morph]';
+const HEAD = '[data-morph-head], .detail-head, .page-header__title, .page-hero__title, h1, .title';
+let tapped: { el: Element; at: number } | undefined;
+
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const source = target?.closest('a, button, [role="button"]')?.closest(SOURCE);
+      tapped = source && !source.closest('nav, .tab-bar, dialog') ? { el: source, at: Date.now() } : undefined;
+    },
+    true,
+  );
+}
+
+function morphSource(): HTMLElement | undefined {
+  const last = tapped;
+  tapped = undefined;
+  if (!last || Date.now() - last.at > 800 || !(last.el instanceof HTMLElement) || !last.el.isConnected) return undefined;
+  const box = last.el.getBoundingClientRect();
+  // Something off screen or as large as the screen gains nothing from growing into a head.
+  if (box.bottom < 0 || box.top > innerHeight || box.height > innerHeight * 0.6) return undefined;
+  return last.el;
+}
+
+function name(el: HTMLElement | null | undefined, value: string): void {
+  if (el) el.style.setProperty('view-transition-name', value);
+}
+
 export function transition(direction: Direction, update: () => void, scope: 'page' | 'panel' = 'page'): void {
   const root = document.documentElement;
   if (scope === 'panel') {
@@ -43,8 +80,21 @@ export function transition(direction: Direction, update: () => void, scope: 'pag
     return;
   }
   root.dataset.nav = direction;
-  const running = (document as ViewTransitionDocument).startViewTransition!(() => flushSync(update));
+  const source = direction === 'forward' ? morphSource() : undefined;
+  let head: HTMLElement | null = null;
+  name(source, MORPH);
+  const running = (document as ViewTransitionDocument).startViewTransition!(() => {
+    name(source, '');
+    flushSync(update);
+    if (!source) return;
+    head = [...document.querySelectorAll<HTMLElement>(HEAD)].find((each) => {
+      const box = each.getBoundingClientRect();
+      return box.height > 0 && box.top < innerHeight && !each.closest('nav, .tab-bar, dialog');
+    }) ?? null;
+    name(head, MORPH);
+  });
   running.finished.finally(() => {
+    name(head, '');
     if (root.dataset.nav?.endsWith(direction)) delete root.dataset.nav;
   });
 }
