@@ -38,7 +38,6 @@ export type Break = { endsAt: number; minutes: number };
 /* ---------- Today ---------- */
 
 type TodayProps = {
-  greeting: string;
   /** Opened from "Start my next block": the Start button waits for the one tap phones need for sound. */
   ready?: boolean;
   today: string;
@@ -71,7 +70,7 @@ type TodayProps = {
 };
 
 export function TodayView(props: TodayProps) {
-  const { greeting, today, blocks, selected, session, remaining, finished, minutes, rest, restLeft, after, quote } = props;
+  const { today, blocks, selected, session, remaining, finished, minutes, rest, restLeft, after, quote } = props;
   const open = blocks.filter((block) => block.status !== 'DONE');
   const done = blocks.filter((block) => block.status === 'DONE');
   const again = open.filter((block) => block.plannedFor && block.plannedFor <= today);
@@ -81,9 +80,9 @@ export function TodayView(props: TodayProps) {
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   return (
     <section className="praxis-view praxis-today-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Today</p><h1>{greeting}</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Today</h1></div></div>
       <div className="praxis-today-grid">
-        <article className="praxis-card praxis-focus-card">
+        <article className={`praxis-card praxis-focus-card${!after && !rest && !session && !selected ? ' praxis-focus-card--empty' : ''}`}>
           {after && !session && !rest ? (
             <AfterBlock after={after} onRest={props.onRest} onKeepLine={props.onKeepLine} onLookAgain={props.onLookAgain} onClose={props.onCloseAfter} />
           ) : (

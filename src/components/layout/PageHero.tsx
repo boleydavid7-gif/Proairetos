@@ -1,28 +1,19 @@
 import { ArrowLeftIcon } from '../icons/Icons';
 import type { ReactNode } from 'react';
-import sunrise from '../../assets/images/scenes/sunrise.webp';
-import sunriseWide from '../../assets/images/scenes/sunrise-wide.webp';
-import morning from '../../assets/images/scenes/morning.webp';
-import morningWide from '../../assets/images/scenes/morning-wide.webp';
-import type { CSSProperties } from 'react';
 import SearchButton from './SearchButton';
 import SettingsButton from './SettingsButton';
 
 type Props = {
   title: ReactNode;
   subtitle?: ReactNode;
-  /** Which part of the landscape shows under the title. */
-  focus?: 'peaks' | 'sunrise';
   /** A way back, for a page opened from another (Compass from Reflect). */
   back?: { label: string; onBack: () => void };
 };
 
-/** A page header over the landscape from onboarding, fading into the page. */
-export default function PageHero({ title, subtitle, focus = 'peaks', back }: Props) {
+/** A page header with its title low, over the room's wallpaper (Lamplight), so the lamp stays the one light. */
+export default function PageHero({ title, subtitle, back }: Props) {
   return (
-    <header className={`page-hero page-hero--${focus}`}>
-      <div aria-hidden="true" className="page-hero__photo" style={{ backgroundImage: `url(${sunrise})`, '--photo-wide': `url(${sunriseWide})`, '--photo-light': `url(${morning})`, '--photo-light-wide': `url(${morningWide})` } as CSSProperties} />
-      <div aria-hidden="true" className="page-hero__wash" />
+    <header className="page-hero">
       {back && (
         <button type="button" className="page-hero__back" onClick={back.onBack}>
           <ArrowLeftIcon size={20} />

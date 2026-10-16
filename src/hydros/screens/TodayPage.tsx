@@ -1,4 +1,4 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useMemo } from 'react';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
 import { useDays, useNow } from '../app/day';
@@ -9,8 +9,6 @@ import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
-import { displayName, subscribePreferences } from '../../data/storage/preferences';
-import { greeting as proairetosGreeting } from '../../features/today/greeting';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
   const all = useDrinks();
@@ -29,7 +27,6 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   const extra = settings.runDayExtra === false ? 0 : range.extra;
   const goal = effectiveGoalOz(settings) + extra;
   const percent = goal > 0 ? Math.min(100, Math.max(0, (amount / goal) * 100)) : 0;
-  const name = useSyncExternalStore(subscribePreferences, displayName, displayName);
   const quote = hydrosQuoteFor(today);
   const caffeine = caffeineFacts(todays);
   const last = drinks[0];
@@ -50,7 +47,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           </button>
         </div>
         <div className="hydros-hero__words">
-          <p>{proairetosGreeting(now, name)}</p>
+          <p>Today</p>
           <span>{dateLabel(now)}</span>
           <blockquote className="hydros-quote">“{quote.text}”<cite>— {quote.source}</cite></blockquote>
         </div>

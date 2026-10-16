@@ -92,3 +92,28 @@
   outline-offset: 3px;
   border-radius: 12px;
 }
+
+/* Today's foot in the room's colors (Landscape): drawn, so no photo filter and no grain. */
+.page-landscape__photo--room {
+  background-image: var(--room-foot);
+  background-size: 100% 100%;
+  background-position: center bottom;
+  filter: none;
+}
+
+.page-landscape__photo--room::after {
+  display: none;
+}
+
+@media (min-width: 62rem) {
+  .page-landscape__photo--room {
+    background-image: var(--room-foot-wide);
+  }
+}
+
+/* Compass's row on Reflect shows the room's own wallpaper. */
+.place-row__thumb--room {
+  background-image: var(--room-wall);
+  background-size: cover;
+  background-position: 70% top;
+}

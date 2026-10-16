@@ -725,3 +725,42 @@ blockquote.daily-line {
   color: var(--color-text);
   border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
 }
+
+/* ---------- Light home pictures ----------
+   In light, a home picture fades into the pale page, so white words at its foot lost their contrast. As in iOS, the
+   title and line there turn dark with a soft light halo; the top keeps its shade, so the app's name stays light.
+   Inside the picture `--text` is the light photo color (askesis.css), so the page's own ink is kept here first. */
+:root {
+  --page-ink: var(--text, var(--color-text));
+  --page-ink-soft: var(--text-soft, var(--page-ink));
+}
+
+:root[data-theme='light'] .hero .hero__shade {
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, color-mix(in srgb, var(--bg) 55%, transparent) 62%, var(--bg) 100%);
+}
+
+:root[data-theme='light'] .hero :is(.home__words, .home__title) {
+  color: var(--page-ink);
+  text-shadow: 0 0 18px rgb(255 255 255 / 0.75);
+}
+
+:root[data-theme='light'] .hero .hero__content .home__sub {
+  color: var(--page-ink-soft);
+  text-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] .hero .hero__shade {
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, color-mix(in srgb, var(--bg) 55%, transparent) 62%, var(--bg) 100%);
+  }
+
+  :root[data-theme='system'] .hero :is(.home__words, .home__title) {
+    color: var(--page-ink);
+    text-shadow: 0 0 18px rgb(255 255 255 / 0.75);
+  }
+
+  :root[data-theme='system'] .hero .hero__content .home__sub {
+    color: var(--page-ink-soft);
+    text-shadow: none;
+  }
+}

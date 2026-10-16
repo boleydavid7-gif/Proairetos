@@ -1,5 +1,3 @@
-import sunrise from '../../assets/images/scenes/sunrise.webp';
-import morning from '../../assets/images/scenes/morning.webp';
 import { directionAlong, transition } from '../../app/transitions';
 import lake from '../../assets/images/scenes/lake.webp';
 import lakeLight from '../../assets/images/scenes/lake-light.webp';
@@ -151,7 +149,7 @@ export default function ReflectPage() {
           </button>
         )}
         <button type="button" className="place-row" onClick={() => navigate('compass')}>
-          <span className="place-row__thumb place-row__thumb--compass" style={{ backgroundImage: `url(${sunrise})`, '--photo-light': `url(${morning})` } as React.CSSProperties} aria-hidden="true" />
+          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true" />
           <span className="place-row__text">
             <span className="place-row__title">Compass</span>
             <span className="place-row__detail">Values, goals, people and words</span>

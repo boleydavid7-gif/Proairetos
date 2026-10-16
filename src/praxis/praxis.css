@@ -284,3 +284,6 @@ html, body { margin: 0; }
   margin: 12px auto 0;
   min-height: 44px;
 }
+
+/* With no block yet, the card holds one line and is as tall as that. */
+.praxis-focus-card.praxis-focus-card--empty { min-height: 0; }

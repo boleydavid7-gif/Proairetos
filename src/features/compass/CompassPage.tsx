@@ -145,7 +145,7 @@ export default function CompassPage() {
 
   return (
     <div className="page">
-      <PageHero title="Compass" focus="peaks" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
+      <PageHero title="Compass" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>

@@ -42,12 +42,6 @@ const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
 const STARTERS_BEFORE = '2026-10-11';
 const SOUND_KEY = 'proairetos.praxisSound';
 
-function greeting(name: string, now: Date): string {
-  const hour = now.getHours();
-  const time = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  return name ? `${time}, ${name}` : time;
-}
-
 function usePraxisEvents(): ItemEvent[] | undefined {
   const local = useServiceData(lifeService.subscribe, () => lifeService.historyForAll(true));
   const [, setRemoteTick] = useState(0);
@@ -337,7 +331,6 @@ export default function PraxisApp() {
         <div className="praxis-page">
           {view === 'today' && (
             <TodayView
-              greeting={greeting(name, clock)}
               ready={ready && !session}
               today={today}
               blocks={blocks}

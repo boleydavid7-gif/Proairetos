@@ -1,6 +1,6 @@
 import { LAMPLIGHT } from './lamplightPalette';
 import type { Appearance } from '../data/storage/preferences';
-import { wallpaperSvg } from './wallpaper';
+import { footSvg, wallpaperSvg } from './wallpaper';
 import { DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
 
 export { ROOMS, LAMP_COLORS, DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
@@ -23,6 +23,12 @@ export function swatchOf(color: LampColor, mode: 'dark' | 'light'): string {
 export function wallpaperOf(room: Room, mode: 'dark' | 'light', wide = false): string {
   const tones = LAMPLIGHT.rooms[room][mode];
   return wallpaperSvg(tones.art, tones.tone1, mode === 'light', wide);
+}
+
+/** The foot of Today in the room's colors, as a CSS image. */
+export function footOf(room: Room, mode: 'dark' | 'light', wide = false): string {
+  const tones = LAMPLIGHT.rooms[room][mode];
+  return footSvg(tones.art, tones.tone1, mode === 'light', wide);
 }
 
 /** The token values for a room and color. Text on every surface passes 4.5:1 (checked by the palette script). */
@@ -52,6 +58,8 @@ export function lamplightVars(room: Room, color: ColorChoice, mode: 'dark' | 'li
     '--color-accent-rgb': rgb(lamp.lamp),
     '--room-wall': wallpaperOf(room, mode),
     '--room-wall-wide': wallpaperOf(room, mode, true),
+    '--room-foot': footOf(room, mode),
+    '--room-foot-wide': footOf(room, mode, true),
   };
 }
 

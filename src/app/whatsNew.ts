@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'Lamplight now has one light on each page: the foot of Today and the top of Compass are drawn in your room’s own colors, without a second sun.',
+      'In light mode, each app’s home title reads dark over its picture, so it stays clear.',
       'A new look, Lamplight: choose a room (Hearth, Dusk, Harbor, Grove, Clay or Slate) and a color in Settings › Appearance. Each room has its own wallpaper, a lamp with rings of light over sweeping bands, in dark and light.',
     ],
   },

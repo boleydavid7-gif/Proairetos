@@ -40,8 +40,8 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
         <div className="hero__content">
           <Brand name="Philia" mark={<AppMark app="philia" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{first ? (first.label === 'Birthday' ? `${first.person.name}’s birthday` : `${first.person.name}: ${first.label}`) : 'Philia'}</h1>
-            <p className="home__sub">{first ? whenText(first.date, today) : 'The people in your life'}</p>
+            <h1 className="home__title">{first ? (first.label === 'Birthday' ? `${first.person.name}’s birthday` : `${first.person.name}: ${first.label}`) : 'People'}</h1>
+            {first && <p className="home__sub">{whenText(first.date, today)}</p>}
           </div>
         </div>
       </div>
