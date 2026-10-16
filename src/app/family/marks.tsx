@@ -380,3 +380,46 @@ export function FamilyMark({ app, size = 30, color = 'currentColor', label }: { 
     </svg>
   );
 }
+
+const kebab = (name: string) => name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+const attrText = (attrs: Record<string, unknown>) =>
+  Object.entries(attrs)
+    .filter(([, value]) => value !== undefined)
+    .map(([name, value]) => `${kebab(name)}="${String(value)}"`)
+    .join(' ');
+
+/** The same mark as SVG text, for places drawn without React (the top bar). Ids carry `key` so copies never clash. */
+export function familyMarkSvg(app: FamilyApp, size = 22, key = 'bar'): string {
+  const shapes = MARKS[app];
+  const id = `mark-${app}-${key}`;
+  const tag = (shape: Shape, extra: Record<string, unknown>) =>
+    `<${shape.tag} ${attrText({ ...shape.attrs, ...extra })}/>`;
+  const masks = shapes
+    .map((shape, index) => {
+      const later = shapes.slice(index + 1).filter(cuts);
+      if (!later.length || shape.cut) return '';
+      const parts = later
+        .map((each) =>
+          tag(each, {
+            fill: each.attrs.fill !== 'none' ? '#000' : 'none',
+            stroke: '#000',
+            strokeWidth: Number(each.attrs.strokeWidth ?? 0) + 2 * (each.gap ?? 0),
+            opacity: 1,
+          }),
+        )
+        .join('');
+      return `<mask id="${id}-${index}" maskUnits="userSpaceOnUse" x="-512" y="-512" width="2048" height="2048"><rect x="-512" y="-512" width="2048" height="2048" fill="#fff"/>${parts}</mask>`;
+    })
+    .join('');
+  const body = shapes
+    .map((shape, index) => {
+      if (shape.cut) return '';
+      const masked = shapes.slice(index + 1).some(cuts);
+      return tag(shape, { opacity: shape.level ?? 1, mask: masked ? `url(#${id}-${index})` : undefined });
+    })
+    .join('');
+  const whole = WHOLE[app] ? ` transform="${WHOLE[app]}"` : '';
+  return `<svg width="${size}" height="${size}" viewBox="176 176 672 672" class="family-mark family-mark--${app}" aria-hidden="true" fill="currentColor" stroke="currentColor" stroke-width="0"><defs>${masks}</defs><g${whole}>${body}</g></svg>`;
+}
+
+export const isFamilyApp = (name: string | undefined): name is FamilyApp => Boolean(name && name in MARKS);

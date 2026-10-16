@@ -1747,12 +1747,6 @@ input[type='date'].input {
   gap: 10px;
 }
 
-.log-page__export {
-  align-self: flex-start;
-  width: auto;
-  min-height: 44px;
-}
-
 .records {
   gap: 14px;
 }

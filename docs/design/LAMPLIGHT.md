@@ -95,7 +95,7 @@ the light off: the new picture lights in `--ll-quick` and the old dims over `--l
 ## Held motion and the large title
 
 `behaviors.ts` (started once by `applyAppearance` in every app; `bars.css`): on phones one bar (`.ll-topbar`) runs
-across the top of every page: the app's name on the left, or a chevron with the back link's words; on the right the
+across the top of every page: the app's symbolic mark and name on the left (kept light over a home picture's shaded top), or a chevron with the back link's words; on the right the
 page's header actions and the dock's `data-to-header` places (More or Settings, Apps, the way to Proairetos), copies
 that press the originals, which leave the page and the dock. It names the app only, takes glass when the page
 scrolls and a hairline when the page's title has gone under; welcome, onboarding and full-screen moments have none. In an installed app a swipe from the left edge holds the page: it

@@ -178,7 +178,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   title; the tab bar's old picture dims slowly while the new one lights (`motion.css`). Scenes have one light at
   `LAMP_X` (.64) with `lampRing`, no clouds (`scripts/scenes/engine.mjs`).
 - Lamplight behaviors (`src/lamplight/behaviors.ts`, `bars.css`, started by `applyAppearance`): on phones one bar across
-  the top of every page (`.ll-topbar`, `:root.ll-bar-on`): the app's name on the left (from `document.title`), or the
+  the top of every page (`.ll-topbar`, `:root.ll-bar-on`): the app's symbolic mark and name on the left (`setBarMark` from `applyLamplight`, drawn by `familyMarkSvg` in
+  `app/family/marks.tsx`; light over a home picture's shaded top, `is-over-picture`), or the
   chevron with the back link's words; on the right copies of the page's header actions (`.page-header__actions` etc.)
   and every dock item marked `data-to-header` (More / Settings, Proairetos's Apps, the family's Proairetos link,
   Hydros's gear), each pressing its original. The originals leave the page and dock on phones (visibility hidden /
@@ -189,6 +190,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
+- Scroll cost (checked with 400 chores and people, a year of reflections, 4x CPU slowdown): a scroll frame in
+  `behaviors.ts` reads only the scroll and one rectangle; querying the page (full-screen check, actions, back link,
+  title, picture) runs only after the page changed (`dirty`). The bar's mica is a `::before` that fades by opacity and
+  the docks carry `will-change: translate`, so nothing repaints while scrolling. The daily copy waits until the page has
+  been still for 1.5 s and the browser is idle (`whenStill` in `dailyCopy.ts`). A `.page-top` holding only what the bar
+  carries is removed on phones (no gap above the title).
 - Lamplight 1.3 (materials and touch, `bars.css`, `layout.css`, `tokens.css`, `components.css`, `behaviors.ts`): no blur
   anywhere (`backdrop-filter` is banned by a test): bars and docks are mica (`--ll-mica` from the scheme, `--ll-mica-surface`
   with the lamp washing in; `--color-bar-rgb` and Askesis's `--bar` follow it), content fades into a bar (`--ll-edge-below` /

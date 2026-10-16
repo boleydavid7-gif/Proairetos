@@ -158,7 +158,7 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
 
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Recall</p><h1>Cards</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Cards</h1></div></div>
       {withCards.length > 0 && (
         <div className="praxis-chips" role="group" aria-label="Which cards">
           <button type="button" className="praxis-chip" aria-pressed={!blockId} onClick={() => setBlockId('')}>All</button>
@@ -168,7 +168,8 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
         </div>
       )}
 
-      <article className="praxis-card praxis-wide-card praxis-recall">
+      {/* With no cards yet the form below is the way in; an empty card above it said only that. */}
+      {(current || listed.length > 0) && <article className="praxis-card praxis-wide-card praxis-recall">
         {current ? (
           <>
             <p className="praxis-eyebrow">{titleOf(current.blockId) ?? 'Card'}</p>
@@ -192,9 +193,9 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
             <button type="button" className="praxis-button" onClick={begin}>Look at them</button>
           </>
         ) : (
-          <p className="praxis-empty">{listed.length === 0 ? 'Add a question and its answer below.' : next ? `The next ones come around on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
+          <p className="praxis-empty">{next ? `The next ones come around on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
         )}
-      </article>
+      </article>}
 
       <form className="praxis-card praxis-wide-card praxis-card-form" onSubmit={add}>
         <div className="praxis-card-heading">

@@ -3,6 +3,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'The bar at the top shows each app’s mark beside its name again, and stays light over a home picture.',
+      'Long lists scroll more smoothly, and the daily copy waits until you stop scrolling.',
+      'Tidier pages: no gap above titles under the top bar, Praxis drops its empty cards and labels, Askesis Progress keeps watch files and export at the foot, and Hydros’s chart has a readable scale before anything is logged.',
       'Press and hold a row (or right-click it) for its actions. The bottom bar steps aside while you read down a page and comes back when you scroll up.',
       'Bars are now solid and tinted by your room instead of blurred glass, which looked uneven on some phones.',
       'Icons across the apps share one line weight at every size, and close, back, plus and tick marks are drawn rather than typed.',

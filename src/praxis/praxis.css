@@ -20,7 +20,7 @@
 .praxis-sidebar__label { padding: 0 12px 10px; }
 .praxis-nav-list { display: grid; gap: 4px; }
 .praxis-nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 12px; color: var(--color-text-muted); background: transparent; cursor: pointer; text-align: left; transition: .2s ease; }
-.praxis-nav-item:hover { color: var(--color-text); background: var(--color-surface-soft); }
+@media (hover: hover) { .praxis-nav-item:hover { color: var(--color-text); background: var(--color-surface-soft); } }
 .praxis-nav-item.is-active { border-color: rgba(201, 162, 116, .28); color: var(--color-accent-strong); background: var(--color-accent-soft); }
 .praxis-nav-item span { font-size: 13px; font-weight: 600; }
 .praxis-sidebar__spacer { flex: 1; }
@@ -287,3 +287,5 @@ html, body { margin: 0; }
 
 /* With no block yet, the card holds one line and is as tall as that. */
 .praxis-focus-card.praxis-focus-card--empty { min-height: 0; }
+/* With no blocks yet, Your blocks below is the way in; the empty focus card said only that. */
+.praxis-focus-card.praxis-focus-card--empty:not(:has(.praxis-focus-stage)) { display: none; }

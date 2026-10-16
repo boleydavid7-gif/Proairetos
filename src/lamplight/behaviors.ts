@@ -75,6 +75,18 @@ const ACTIONS = '.page-header__actions, .page-hero__actions, .meditate-page__act
 /** Places that belong at the top rather than in the dock: More or Settings, Apps, the way to Proairetos. */
 const TO_HEADER = '[data-to-header]';
 const SIDEBAR = '.praxis-sidebar, .theoria-sidebar, dialog';
+/** A home picture at the top of a page: the bar's mark and name stay light over its shaded top, in either look. */
+const PICTURE = '.hero, .hydros-hero';
+
+let barMark = '';
+let onMark: (() => void) | undefined;
+
+/** The app's symbolic mark (SVG text), drawn before its name at the bar's left. Set by each app's appearance. */
+export function setBarMark(svg: string): void {
+  if (svg === barMark) return;
+  barMark = svg;
+  onMark?.();
+}
 
 function appName(): string {
   return document.title.split(/ by |:/)[0]?.trim() ?? '';
@@ -109,6 +121,12 @@ function largeTitle(): void {
   let frame = 0;
   let lastY = 0;
   let tucked = false;
+  // Reading the page's controls (and serialising them to see whether they changed) happens only after the page
+  // itself changed; a scroll frame reads the scroll and one rectangle, so long pages scroll without extra work.
+  let dirty = true;
+  let picture: HTMLElement | undefined;
+  let looks = 0;
+  let full = false;
 
   const backControl = () =>
     [...document.querySelectorAll<HTMLElement>(BACK)].find((each) => !each.closest(OUTSIDE) && each.isConnected);
@@ -160,14 +178,31 @@ function largeTitle(): void {
   const update = () => {
     frame = 0;
     if (!bar.isConnected) document.body.append(bar);
-    const on = phone.matches && !document.querySelector(FULL);
+    // Whether a full-screen moment is up changes only with the page, never with a scroll.
+    if (dirty) full = Boolean(document.querySelector(FULL));
+    const on = phone.matches && !full;
     root.classList.toggle('ll-bar-on', on);
     if (!on) {
       root.classList.remove('ll-tucked');
-      bar.classList.remove('is-on', 'is-scrolled', 'is-folded');
+      bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
+      dirty = false;
       return;
     }
+    if (title && !title.isConnected) dirty = true;
+    if (dirty) structure();
+    scrolled();
+  };
+
+  const structure = () => {
+    dirty = false;
     if (!title?.isConnected || !shown(title)) title = first(TITLE);
+    picture = first(PICTURE);
+    // Mid-transition a page's title or picture can measure empty; look again once the move has settled.
+    const unseen = (!title && document.querySelector(TITLE)) || (!picture && document.querySelector(PICTURE));
+    if (!unseen) looks = 0;
+    if (unseen && looks++ < 4) setTimeout(changed, 300);
+    // and measure where things sit once a page's slide in has ended.
+    else setTimeout(soon, 400);
     copyActions(gather());
     const control = backControl();
     const hasBack = Boolean(control) || Boolean(swipeSource?.can());
@@ -175,7 +210,7 @@ function largeTitle(): void {
     const key = hasBack ? `back:${backWords.length <= 14 ? backWords : ''}` : `name:${appName()}`;
     if (key !== leadKey) {
       leadKey = key;
-      lead.innerHTML = hasBack ? chevron : '';
+      lead.innerHTML = hasBack ? chevron : barMark ? `<span class="ll-topbar__mark">${barMark}</span>` : '';
       lead.classList.toggle('is-back', hasBack);
       lead.disabled = !hasBack;
       bar.setAttribute('aria-label', appName());
@@ -183,6 +218,9 @@ function largeTitle(): void {
       label.textContent = hasBack ? (backWords.length <= 14 ? backWords.replace(/^[←‹<]\s*/, '') : '') : appName();
       lead.append(label);
     }
+  };
+
+  const scrolled = () => {
     // The dock tucks away while reading down a page and comes back on the way up, at the top or the foot.
     const y = document.scrollingElement?.scrollTop ?? scrollY;
     const room = (document.scrollingElement?.scrollHeight ?? 0) - innerHeight;
@@ -195,26 +233,34 @@ function largeTitle(): void {
     // The bar stays clear while the page's own title is still in view, and takes its mica once the title has gone
     // under it (on a page with no title, after a short scroll).
     const folded = title ? title.getBoundingClientRect().bottom < height : y > 64;
-    const scrolled = folded;
     bar.classList.add('is-on');
-    bar.classList.toggle('is-scrolled', scrolled || folded);
+    bar.classList.toggle('is-scrolled', folded);
     bar.classList.toggle('is-folded', folded);
+    bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
   };
   const soon = () => {
     if (!frame) frame = requestAnimationFrame(update);
   };
+  const changed = () => {
+    dirty = true;
+    soon();
+  };
 
+  onMark = () => {
+    leadKey = '';
+    changed();
+  };
   addEventListener('scroll', soon, { passive: true, capture: true });
-  addEventListener('resize', soon);
+  addEventListener('resize', changed);
   addEventListener('popstate', () => {
     title = undefined;
-    soon();
+    changed();
   });
-  phone.addEventListener?.('change', soon);
+  phone.addEventListener?.('change', changed);
   new MutationObserver((records) => {
     if (records.every((record) => bar.contains(record.target))) return;
     if (!title?.isConnected) title = undefined;
-    soon();
+    changed();
   }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['aria-current', 'aria-pressed', 'class'] });
   soon();
 }

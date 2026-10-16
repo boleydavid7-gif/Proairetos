@@ -18,6 +18,8 @@
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
     box-shadow: var(--ll-edge-above);
     transition: translate var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+    /* Its own layer, so tucking away moves a picture of it rather than painting the dock again each frame. */
+    will-change: translate;
   }
 
   /* Reading down a page, the dock steps aside; scrolling up, or reaching the top or the foot, brings it back. */
@@ -47,18 +49,25 @@
     padding: env(safe-area-inset-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
-    transition:
-      background-color var(--ll-calm, 240ms) var(--ll-ease-out, ease),
-      box-shadow var(--ll-calm, 240ms) var(--ll-ease-out, ease);
   }
 
-  .ll-topbar.is-scrolled {
+  /* The mica sits on a layer of its own that fades in by opacity alone, so a long page scrolls without repainting
+     the bar (a fading shadow or background is painted again on every frame). */
+  .ll-topbar.is-on::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
     background: var(--ll-mica-surface);
-    box-shadow: var(--ll-edge-below);
+    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08)), var(--ll-edge-below);
+    opacity: 0;
+    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+    will-change: opacity;
+    pointer-events: none;
   }
 
-  .ll-topbar.is-folded {
-    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08)), var(--ll-edge-below);
+  .ll-topbar.is-scrolled::before {
+    opacity: 1;
   }
 
   /* Left: the app's name, or the chevron and where it goes. */
@@ -90,6 +99,28 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* Over a home picture's shaded top the mark and name stay light, as the in-page brand was. */
+  .ll-topbar.is-over-picture .ll-topbar__lead:not(.is-back) {
+    color: #fbf6ec;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.3);
+  }
+
+  /* The app's symbolic mark, then its name. */
+  .ll-topbar__lead:not(.is-back) {
+    gap: 8px;
+  }
+
+  .ll-topbar__lead .ll-topbar__mark {
+    display: inline-flex;
+    flex: none;
+    overflow: visible;
+  }
+
+  .ll-topbar__mark svg {
+    width: 22px;
+    height: 22px;
   }
 
   .ll-topbar__lead.is-back {
@@ -158,6 +189,11 @@
   :root.ll-bar-on .shell .page > .brand,
   :root.ll-bar-on .hero .brand {
     visibility: hidden;
+  }
+
+  /* A page's top row holding only what the bar now carries (a back link, the brand, the page's actions) leaves no gap. */
+  :root.ll-bar-on .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
+    display: none;
   }
 
   :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
@@ -327,6 +363,10 @@ html[data-swiped]::view-transition-old(root) {
 
   :root :is(.card, .ll-card, .rows, .settings-card, .sheet__panel, .ll-menu, .ll-topbar.is-scrolled, .tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-topbar__actions) {
     border: 1px solid CanvasText;
+  }
+
+  .ll-topbar.is-scrolled::before {
+    background: Canvas;
   }
 
   :root :is(.button-main, .button-accent, .button-quiet, .ll-button, .chip, .switch) {

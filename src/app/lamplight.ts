@@ -5,6 +5,8 @@ import { rgba, triple } from '../lamplight/color';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampSeed, type Mode, type Scheme } from '../lamplight/scheme';
 import { appTheme } from '../lamplight/apps';
 import { ALWAYS_DARK, familyVars } from '../lamplight/family';
+import { setBarMark } from '../lamplight/behaviors';
+import { familyMarkSvg, isFamilyApp } from './family/marks';
 
 export { ROOMS, LAMP_COLORS, DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
 
@@ -85,5 +87,6 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s) : familyVars(s, app)) };
   for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
   root.dataset.room = appearance.room;
+  if (isFamilyApp(app)) setBarMark(familyMarkSvg(app));
   return s.page;
 }

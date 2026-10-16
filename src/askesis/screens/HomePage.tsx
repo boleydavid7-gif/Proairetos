@@ -82,7 +82,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         ) : !plan || !planState || !week ? (
           <div className="home-top">
           <section className="card">
-            <h2 className="card__title">Set your aim</h2>
+            <h2 className="card__title">Your plan</h2>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
               Set your aim
             </button>

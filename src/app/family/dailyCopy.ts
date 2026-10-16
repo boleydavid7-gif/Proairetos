@@ -56,10 +56,25 @@ export async function keepStorage(asked = false): Promise<boolean> {
   return storage.persist().catch(() => false);
 }
 
+let lastTouched = 0;
+
+/** Reading every store for the copy takes a moment on a full year; it waits until the page is still and the browser idle. */
+function whenStill(run: () => void): void {
+  if (performance.now() - lastTouched < 1500) {
+    window.setTimeout(() => whenStill(run), 1500);
+    return;
+  }
+  if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 5000 });
+  else run();
+}
+
 export function startDailyCopies(): void {
+  const touched = () => (lastTouched = performance.now());
+  for (const kind of ['scroll', 'pointerdown', 'keydown'])
+    addEventListener(kind, touched, { passive: true, capture: true });
   window.setTimeout(() => void keepStorage(), 2000);
-  window.setTimeout(() => void makeDailyCopy(), 4000);
+  window.setTimeout(() => whenStill(() => void makeDailyCopy()), 4000);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void makeDailyCopy();
+    if (document.visibilityState === 'visible') window.setTimeout(() => whenStill(() => void makeDailyCopy()), 2000);
   });
 }

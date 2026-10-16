@@ -279,7 +279,7 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
   }
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">As recorded</p><h1>Sessions</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Sessions</h1></div></div>
       {groups.length === 0 ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : groups.map((group) => (
         <article className="praxis-card praxis-wide-card praxis-day-group" key={group.day}>
           <p className="praxis-eyebrow">{formatDay(group.day)}</p>
@@ -325,7 +325,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
   if (showYear) return <section className="praxis-view"><div className="family-surface"><YearPage dates={praxisFocusEvents(events).map((event) => sessionDay(event, dayAt))} build={(year) => praxisYear(events, titles, year, dayAt)} onBack={() => setShowYear(false)} /></div></section>;
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">As recorded</p><h1>Time</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Time</h1></div></div>
       <div className="praxis-stats-grid">
         <article className="praxis-card praxis-wide-card">
           <div className="praxis-card-heading">
@@ -362,7 +362,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
 export function SoundsView({ sound, soundState, onSound }: { sound: string; soundState: PlayerState; onSound: (sound: string) => void }) {
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">While you study</p><h1>Sounds</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Sounds</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-sound-grid">
           {PRAXIS_SOUND_IDS.map((id, index) => {
@@ -390,7 +390,7 @@ export function SoundsView({ sound, soundState, onSound }: { sound: string; soun
 export function SettingsView({ notices, onNotices }: { notices: string; onNotices: () => void }) {
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Praxis</p><h1>Settings</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Settings</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-setting">
           <span><strong>A notice when a block ends</strong></span>
