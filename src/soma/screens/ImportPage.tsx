@@ -19,7 +19,7 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
     setReading(0);
     void readPhotoText(file, setReading)
       .then(setText)
-      .catch(() => setProblem('The recipe card could not be read here. A closer, straighter photo in good light reads best.'))
+      .catch(() => setProblem('Couldn’t read the card. Try a closer, straighter photo in good light.'))
       .finally(() => setReading(undefined));
   };
 

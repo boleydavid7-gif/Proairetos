@@ -442,7 +442,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                       await save({ image });
                       undo('Photo added', () => void putRecipe({ ...recipe, image: undefined, updatedAt: new Date().toISOString() }));
                     } catch {
-                      setPhotoProblem('That photo could not be read. Another one may work.');
+                      setPhotoProblem('Couldn’t read that photo. Another one may work.');
                     }
                   }}
                 />

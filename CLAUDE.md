@@ -428,8 +428,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `parseQuickAdd(text, today, now)`, shown under the box with "Keep the words as written"; feelings, ideas and concerns
   keep their words) and, on Today, says it was added with Undo. Today's own weekday means today unless "next" is said
   or the time has gone by. Tapping an item in Your day opens its sheet in place (schedule blocks and events still lead
-  to Days ahead). Days ahead's delete is in each row's long-press menu on touch screens and shows on pointing with a
-  mouse (`.days-row` in `ROWS`, `28-days.css`).
+  to Days ahead). Days ahead's rows pull left to delete with undo, as in Reminders (`SwipeItem tone="remove"`, its
+  `frontRef` keeps the card-to-page morph), and the delete is also in the long-press menu and shows on pointing with a
+  mouse (`.days-row` in `ROWS`, `28-days.css`). A capture read as a time is filed as a To do.
+- Wording, checked against Things, Todoist and Reminders: undo toasts name the thing first (`“Stretch” deleted`,
+  `“X” done`, `“X” added, Fri 3 PM`); errors say what happened in a contraction and what to do ("Couldn’t save that.
+  Try again."), never "could not … just now"; a form's button is Save (Keep stays for "keep or discard" choices).
 - Command palette (Ctrl or ⌘ + K, `app/palette/CommandPalette.tsx`, works while typing): go to any page, pause, focus, search, or write a thing down. Typed words become a "Write it down" row, read by `core/capture/quickAdd.ts` ("dentist friday 3pm 45 min": day, time, length; shown before Enter saves, with undo). Sheets focus their field in an effect, not `autoFocus` (the dialog opens after render).
 - The family on Today and in search (read only, `app/family/read.ts`, `glance.ts`, `features/today/TodayFamily`): Settings > What's included is organised by app (Proairetos: Today, Capture, Compass, Reflect; Askesis; Soma; Oikonomia). Oikonomia's `bills` (bills coming up on Today, off until chosen, `OPT_IN_PARTS`, `proairetos.todayOptIn`) and `bill-dates` (in Days ahead, on). Water stays in Hydros (the owner's choice): Proairetos Today shows none; `waterDuring` in `glance.ts` is kept but unused. Theoria offers `highlight` (opt-in): one of the person's highlights a day (`highlightOfDay` in `theoria/core/export.ts`, `TodayHighlight`), opening the book (`/theoria/?open=book:ID`). Search also finds Soma recipes, Theoria books (author, highlights, notes) and Oikonomia bills (`kind: 'app'`, opens that app).
 - From your apps (Today, `features/today/FromYourApps.tsx`, rows from `app/family/fromApps.ts` `fromAppsRows`, tests in

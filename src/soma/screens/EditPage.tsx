@@ -112,7 +112,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
                 try {
                   setImage(await shrinkPhoto(file));
                 } catch (cause) {
-                  setProblem(cause instanceof Error ? cause.message : 'That photo could not be read.');
+                  setProblem(cause instanceof Error ? cause.message : 'Couldn’t read that photo.');
                 }
               }}
             />

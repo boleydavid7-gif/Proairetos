@@ -99,7 +99,7 @@ export default function OtherCalendarsSection() {
                     className="button-quiet"
                     onClick={() => {
                       const removal = otherCalendars.remove(source.id);
-                      offerUndo(`Removed ${source.name}`, removal.undo);
+                      offerUndo(`“${source.name}” removed`, removal.undo);
                     }}
                   >
                     Remove

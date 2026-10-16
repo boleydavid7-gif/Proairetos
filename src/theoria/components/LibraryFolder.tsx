@@ -18,7 +18,7 @@ function FolderBrowser({ provider, onChosen, onClose }: { provider: CloudProvide
     let live = true;
     setEntries(undefined);
     setProblem(undefined);
-    browseCloud(provider, here.id).then((found) => live && setEntries(found)).catch((error: unknown) => live && setProblem(error instanceof Error ? error.message : 'That did not open.'));
+    browseCloud(provider, here.id).then((found) => live && setEntries(found)).catch((error: unknown) => live && setProblem(error instanceof Error ? error.message : 'That didn’t open.'));
     return () => {
       live = false;
     };
@@ -87,7 +87,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
   const start = (provider: CloudProvider) => {
     setSaid(undefined);
     if (cloudConnected(provider)) setBrowsing(provider);
-    else void connectCloud(provider).catch((error: unknown) => setSaid(error instanceof Error ? error.message : 'That did not open.'));
+    else void connectCloud(provider).catch((error: unknown) => setSaid(error instanceof Error ? error.message : 'That didn’t open.'));
   };
 
   if (browsing) {
@@ -197,7 +197,7 @@ export function CloudConnections() {
                   if (connected) {
                     disconnectCloud(provider);
                     setTurn(turn + 1);
-                  } else void connectCloud(provider, 'books').catch((error: unknown) => setProblem(error instanceof Error ? error.message : 'That did not open.'));
+                  } else void connectCloud(provider, 'books').catch((error: unknown) => setProblem(error instanceof Error ? error.message : 'That didn’t open.'));
                 }}
               >
                 {icon('M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.6 1.5A3.5 3.5 0 0 1 17.5 18z')}

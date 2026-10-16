@@ -176,7 +176,7 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
       <span className="nutri-serves__step">
         <button type="button" className="chip" aria-label="Fewer servings" disabled={servings <= 1} onClick={() => onServings(servings - 1)}><Sym name="minus" /></button>
         <button type="button" className="chip" aria-label="More servings" onClick={() => onServings(servings + 1)}><Sym name="plus" /></button>
-        {estimated && <button type="button" className="chip" onClick={() => onServings(servings)}>Keep</button>}
+        {estimated && <button type="button" className="chip" onClick={() => onServings(servings)}>Save</button>}
       </span>
     </div>
   );

@@ -78,7 +78,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
         const end = parsed.minutes ? new Date(start.getTime() + parsed.minutes * 60_000) : undefined;
         await lifeService.scheduleSpan(item.id, start.toISOString(), end?.toISOString());
       }
-      offerUndo(`Saved “${parsed.title}”`, async () => {
+      offerUndo(`“${parsed.title}” added`, async () => {
         await lifeService.deleteItem(item.id);
       });
       close();

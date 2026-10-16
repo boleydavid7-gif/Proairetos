@@ -90,7 +90,7 @@ export function Passkeys() {
                       void run(async () => {
                         await removePasskey(entry.id);
                         setEntries((all) => all?.filter((each) => each.id !== entry.id));
-                        overlays?.offerUndo(`Passkey removed: ${entry.label}`, async () => {
+                        overlays?.offerUndo(`Passkey “${entry.label}” removed`, async () => {
                           await restorePasskey(entry.row);
                           await load();
                         });

@@ -307,7 +307,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
                 const savedTime = pattern ? inputOf(pattern) : undefined;
                 if (pattern) await scheduleService.removePattern(pattern.id);
                 const removal = await compassService.removeStatement(goal.id);
-                offerUndo(`Set down: ${goal.body}`, async () => {
+                offerUndo(`“${goal.body}” set down`, async () => {
                   await removal.undo();
                   if (savedTime) {
                     const restored = await scheduleService.createPattern(savedTime);

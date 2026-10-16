@@ -85,7 +85,7 @@ function Person({ person }: { person: CompassStatement }) {
               className="button-quiet"
               onClick={async () => {
                 const removal = await compassService.removeStatement(person.id);
-                offerUndo(`Removed ${person.body}`, removal.undo);
+                offerUndo(`“${person.body}” removed`, removal.undo);
               }}
             >
               Remove

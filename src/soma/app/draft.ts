@@ -29,7 +29,7 @@ export function shrinkPhoto(file: File, longest = 1200): Promise<string> {
     };
     image.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('That photo could not be read.'));
+      reject(new Error('Couldn’t read that photo.'));
     };
     image.src = url;
   });

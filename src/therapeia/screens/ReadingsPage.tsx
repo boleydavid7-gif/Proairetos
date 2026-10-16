@@ -87,7 +87,7 @@ export default function ReadingsPage() {
           <label className="field"><span className="field__label">When</span><input className="input" type="datetime-local" value={at} onChange={(event) => event.target.value && setAt(event.target.value)} /></label>
           <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="After a walk" /></label>
         </div>
-        <button type="button" className="button-main" disabled={!valid} onClick={save}>Keep</button>
+        <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
       </section>
 
       {groups.length === 0 && <p className="muted">Readings you keep appear here, newest first.</p>}

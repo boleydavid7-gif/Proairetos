@@ -73,7 +73,7 @@ export async function smallPhoto(file: Blob, side = SIDE): Promise<Blob> {
   canvas.height = Math.round(bitmap.height * scale);
   canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
-  if (!blob) throw new Error('That photo could not be read.');
+  if (!blob) throw new Error('Couldn’t read that photo.');
   return blob;
 }
 

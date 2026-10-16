@@ -294,7 +294,7 @@ function PassphraseSetUp({ note }: { note: string }) {
       >
         {busy ? 'Making your keys…' : 'Continue'}
       </button>
-      {passphrase && again && passphrase !== again && <p className="form-error">The two do not match.</p>}
+      {passphrase && again && passphrase !== again && <p className="form-error">The passphrases don’t match.</p>}
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
   );
@@ -363,7 +363,7 @@ function Unlock() {
           <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
           <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
           {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-          {next && again && next !== again && <p className="form-error">The two do not match.</p>}
+          {next && again && next !== again && <p className="form-error">The passphrases don’t match.</p>}
         </>
       )}
       <button type="submit" className="button-accent account-wide" disabled={!ready || busy}>
@@ -446,7 +446,7 @@ function ChangePassphrase() {
       <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
       <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
       {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-      {next && again && next !== again && <p className="form-error">The two do not match.</p>}
+      {next && again && next !== again && <p className="form-error">The passphrases don’t match.</p>}
       <div className="chip-row">
         <button type="button" className="button-quiet" onClick={() => (setOpen(false), setError(''))}>Cancel</button>
         <button type="submit" className="chip chip--accent" disabled={!current || next.length < MIN_PASSPHRASE_LENGTH || next !== again || busy}>
@@ -676,9 +676,9 @@ function DeleteAccount() {
     <div className="settings-sub">
       <p className="sheet__label">Delete my account</p>
       <p className="section-description">
-        Removes your account and everything stored on the server: your encrypted data, keys, reminder times, and any
-        calendar link. Other devices are signed out. Everything on this device stays here, so download a backup first if
-        you want a copy elsewhere. This cannot be undone.
+        Deletes your account and everything on the server: encrypted data, keys, reminder times and any calendar link.
+        Other devices sign out. This device keeps its copy; back up first if you want one elsewhere. This can’t be
+        undone.
       </p>
       <div className="chip-row">
         <button type="button" className="button-quiet" onClick={() => setStep('closed')}>

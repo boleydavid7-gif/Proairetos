@@ -158,7 +158,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
               </div>
             )}
             {confirmingOff && (
-              <p className="sheet__hint">Calendars subscribed to it stop updating. You can make a new link any time.</p>
+              <p className="sheet__hint">Calendars using it stop updating. Make a new link any time.</p>
             )}
           </>
         ) : (

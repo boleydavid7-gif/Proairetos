@@ -114,7 +114,7 @@ export default function QuickSortSheet({
                 onClick={() =>
                   choose(async () => {
                     const change = await lifeService.setStatus(current.id, 'LET_GO');
-                    offerUndo(`Let go: ${current.title}`, change.undo);
+                    offerUndo(`“${current.title}” let go`, change.undo);
                   })
                 }
               >
@@ -127,7 +127,7 @@ export default function QuickSortSheet({
                 onClick={() =>
                   choose(async () => {
                     const change = await lifeService.setStatus(current.id, 'DONE');
-                    offerUndo(`Done: ${current.title}`, change.undo);
+                    offerUndo(`“${current.title}” done`, change.undo);
                   })
                 }
               >

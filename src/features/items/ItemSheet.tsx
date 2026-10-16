@@ -716,7 +716,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
             const files = await attachmentService.removeForItem(item.id);
             const deletion = await lifeService.deleteItem(item.id);
             onClose();
-            offerUndo(`Deleted: ${item.title}`, async () => {
+            offerUndo(`“${item.title}” deleted`, async () => {
               await deletion.undo();
               await files.undo();
             });
@@ -734,7 +734,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
                 onClick={async () => {
                   const change = await lifeService.skipRoutine(item.id);
                   onClose();
-                  offerUndo(`Skipped this time: ${item.title}`, change.undo);
+                  offerUndo(`“${item.title}” skipped this time`, change.undo);
                 }}
               >
                 Skip this time

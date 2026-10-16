@@ -28,7 +28,7 @@ function WorryForm({ onDone }: { onDone: () => void }) {
       </label>
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onDone}>Cancel</button>
-        <button type="button" className="button-main" disabled={!concern.trim()} onClick={save}>Keep</button>
+        <button type="button" className="button-main" disabled={!concern.trim()} onClick={save}>Save</button>
       </div>
     </section>
   );

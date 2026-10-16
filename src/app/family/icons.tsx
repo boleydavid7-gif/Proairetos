@@ -46,6 +46,8 @@ export const RoomIcon = glyphIcon('room', 22);
 
 export const CheckIcon = glyphIcon('check', 22);
 
+export const TrashIcon = glyphIcon('trash', 22);
+
 export const PrintIcon = glyphIcon('print', 22);
 
 export const ShareIcon = glyphIcon('share', 22);

@@ -112,7 +112,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
     setProblem(undefined);
     mealsWith(item.lookup ?? item.photo ?? item.name)
       .then((found) => live && setIdeas(found.slice(0, 8)))
-      .catch(() => live && setProblem('Ideas need a connection. Your own recipes work without one.'));
+      .catch(() => live && setProblem('Ideas need a connection. Your recipes work offline.'));
     return () => {
       live = false;
     };
@@ -197,7 +197,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
                     await draftFrom(meal);
                     nav.go({ name: 'edit' });
                   } catch {
-                    setProblem('That recipe could not be opened just now.');
+                    setProblem('Couldn’t open that recipe. Try again.');
                   } finally {
                     setBusy(false);
                   }

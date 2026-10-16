@@ -139,7 +139,7 @@ function SignIn() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
           />
-          <p className="hint">If it is a link, copy it and paste it here.</p>
+          <p className="hint">If it’s a link, copy it and paste it here.</p>
           <button type="submit" className="button-main" disabled={code.trim().length < 6 || busy}>
             Sign in
           </button>
@@ -226,7 +226,7 @@ function Unlock() {
           <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
           <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
           {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-          {next && again && next !== again && <p className="hint">The two do not match.</p>}
+          {next && again && next !== again && <p className="hint">The passphrases don’t match.</p>}
         </>
       )}
       <button type="submit" className="button-main" disabled={!ready || busy}>

@@ -44,7 +44,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
     return (
       <div className="page">
         <BackLink label="Back" onBack={nav.back} />
-        <p className="muted">This session is not in your plan any more.</p>
+        <p className="muted">This session isn’t in your plan anymore.</p>
       </div>
     );
   const { week } = found;

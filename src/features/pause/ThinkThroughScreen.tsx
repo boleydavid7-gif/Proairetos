@@ -53,7 +53,7 @@ export default function ThinkThroughScreen({ from, onClose, onSupport }: Props) 
       });
       onClose();
     } catch {
-      setError('Could not keep it just now.');
+      setError('Couldn’t save that. Try again.');
     }
   }
 

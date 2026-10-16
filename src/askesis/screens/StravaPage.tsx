@@ -74,7 +74,7 @@ export default function StravaPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Strava</h1>
       {here === false && !connected ? (
-        <p className="muted">Strava is not set up on this site yet.</p>
+        <p className="muted">Strava isn’t set up yet.</p>
       ) : connected ? (
         <section className="card stack">
           <p>

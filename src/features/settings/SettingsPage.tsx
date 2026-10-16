@@ -215,7 +215,7 @@ function DailySection() {
                 try {
                   await restore(chosen);
                 } catch {
-                  setError('Restoring stopped partway. Try again.');
+                  setError('Restoring stopped partway. Your backup file is unchanged. Try again.');
                   setBusy(false);
                 }
               }}
@@ -280,7 +280,7 @@ function ImportSection() {
       await backupService.replaceAll(ready.data);
       window.location.reload();
     } catch {
-      setError('Restoring stopped partway. Your backup file is unchanged; try again.');
+      setError('Restoring stopped partway. Your backup file is unchanged. Try again.');
       setBusy(false);
     }
   }
@@ -1009,7 +1009,7 @@ function LockSection() {
         aria-label="Lock Reflect"
         onSubmit={async (event) => {
           event.preventDefault();
-          if (code !== again) return setMessage('The two do not match.');
+          if (code !== again) return setMessage('The passphrases don’t match.');
           try {
             await lock.turnOn(code);
             setCode('');
@@ -1080,7 +1080,7 @@ function LockSection() {
         onClick={async () => {
           if (await lock.check(current)) lock.turnOff();
           else {
-            setMessage('That is not the passcode.');
+            setMessage('That passcode isn’t right.');
             setCurrent('');
           }
         }}

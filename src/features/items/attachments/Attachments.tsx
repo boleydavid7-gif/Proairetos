@@ -76,7 +76,7 @@ function Viewer({ attachment, onClose }: { attachment: Attachment; onClose: () =
             className="button-quiet"
             onClick={async () => {
               const removal = await attachmentService.remove(attachment.id);
-              offerUndo(`Removed ${attachment.name}`, removal.undo);
+              offerUndo(`“${attachment.name}” removed`, removal.undo);
               close();
             }}
           >

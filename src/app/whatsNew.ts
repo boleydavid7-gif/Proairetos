@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-16',
     lines: [
+      'In Days ahead, pull a row to the left to delete it, with Undo. Messages across the apps are shorter and name the thing first (“Stretch” deleted), and forms save with Save.',
       'Type a day or time as you capture (“call the dentist friday 3pm”) and it is set for you, with a way to keep the words as written; on Today a note confirms it, with Undo.',
       'Tapping something in Your day opens it right there. Getting started is a step shorter, and its button stays in reach.',
       'Reminders are steadier: one that came due while your phone was asleep shows when you open the app, a reminder looks the same whether the app or the server brings it, and Settings › Notifications can send one through the server so you can check it arrives with the app closed.',

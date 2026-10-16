@@ -33,7 +33,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
         setText(words);
         setFound(find(words).map((each) => ({ ...each, use: true })));
       })
-      .catch(() => setProblem('The photo could not be read here. Check the connection the first time (the reader is about 7 MB), then try again.'))
+      .catch(() => setProblem('Couldn’t read the photo. The reader downloads once (about 7 MB), so check the connection and try again.'))
       .finally(() => setReading(undefined));
   };
 

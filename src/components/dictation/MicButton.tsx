@@ -39,10 +39,10 @@ function Notice({ onAccept, onClose }: { onAccept: () => void; onClose: () => vo
         </button>
         <p className="sheet__title sheet__title--static">Before you dictate</p>
         <p className="section-description">
-          Your browser turns speech into text using your phone maker’s speech service (Apple or Google). What you say is
-          sent to them for that, the same as the microphone on your keyboard. Proairetos only receives the text.
+          Your phone’s speech service (Apple or Google) turns speech into text, as your keyboard’s microphone does.
+          Proairetos only gets the text.
         </p>
-        <p className="section-description">If you would rather keep it all on this device, type instead.</p>
+        <p className="section-description">To keep it all on this device, type instead.</p>
         <button
           type="button"
           className="button-accent button-accent--wide"
@@ -90,9 +90,9 @@ export default function MicButton({ onText, className = '' }: { onText: (text: s
     };
     instance.onerror = (event) => {
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setError('Microphone access is off for this app. You can allow it in your browser settings.');
+        setError('Microphone access is off. Turn it on in your browser settings.');
       } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
-        setError('Dictation stopped. You can try again or type.');
+        setError('Dictation stopped. Try again, or type.');
       }
     };
     instance.onend = () => setListening(false);

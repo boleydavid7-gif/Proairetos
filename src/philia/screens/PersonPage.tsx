@@ -69,7 +69,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
               try {
                 await putPhoto({ personId: person.id, ...(await squarePhoto(file)), at: new Date().toISOString() });
               } catch {
-                say('That picture could not be read');
+                say('Couldn’t read that photo');
                 return;
               }
               offerUndo('Photo saved', () => void (before ? putPhoto(before) : removePhoto(person.id)));
@@ -112,7 +112,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           const restored = await importPhoto(file, person.id);
           say(restored ? 'Photo restored' : 'No photo was found in that archive');
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoringPhoto(false);
         }

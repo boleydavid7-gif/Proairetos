@@ -33,7 +33,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
         <MovedNotice />
         {mode === 'memory' && (
           <p className="storage-notice" role="status">
-            This browser is not letting Proairetos save. What you add stays until this tab closes.
+            This browser isn’t letting Proairetos save. What you add stays until this tab closes.
           </p>
         )}
         {/* Each page fades in; keyed so a new route starts fresh. */}

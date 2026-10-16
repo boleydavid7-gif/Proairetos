@@ -35,7 +35,7 @@ function HonourToday({ value }: { value: ChosenValue }) {
     setText('');
     const item = await lifeService.capture(title, 'DO', { plannedFor: today });
     await lifeService.connectValue(item.id, value.id);
-    offerUndo(`For today: ${title}`, async () => {
+    offerUndo(`“${title}” is on today’s to-do`, async () => {
       await lifeService.deleteItem(item.id);
     });
   }
@@ -105,7 +105,7 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
           aria-label={`Remove ${value.name}`}
           onClick={async () => {
             const removal = await compassService.removeValue(value.id);
-            offerUndo(`Removed ${value.name}`, removal.undo);
+            offerUndo(`“${value.name}” removed`, removal.undo);
           }}
         >
           <Sym name="close" />

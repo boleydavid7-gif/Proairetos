@@ -145,7 +145,7 @@ export default function FamilyBackup({ older }: { older?: (text: string) => Prom
                   await backupService.replaceAll(ready.data);
                   window.location.reload();
                 } catch {
-                  setProblem('Restoring stopped partway. The file is unchanged; try again.');
+                  setProblem('Restoring stopped partway. Your backup file is unchanged. Try again.');
                   setBusy(false);
                 }
               }}
@@ -176,7 +176,7 @@ function BackupFolder({ name }: { name?: string }) {
       if (!(await chooseBackupFolder())) return;
       await dailyCopyToFolder(await backupService.exportFile(), localDayKey(new Date()));
     } catch (cause) {
-      if (!(cause instanceof DOMException && cause.name === 'AbortError')) setProblem('That folder could not be used. Try another.');
+      if (!(cause instanceof DOMException && cause.name === 'AbortError')) setProblem('Couldn’t use that folder. Try another.');
     } finally {
       setBusy(false);
     }
@@ -232,7 +232,7 @@ function DailyCopies() {
               try {
                 await restore(chosen);
               } catch {
-                setProblem('Restoring stopped partway. Try again.');
+                setProblem('Restoring stopped partway. Your backup file is unchanged. Try again.');
                 setBusy(false);
               }
             }}

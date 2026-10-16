@@ -144,7 +144,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                 const count = await importSongs(file);
                 setSaved(count ? `${count} ${count === 1 ? 'song' : 'songs'} restored.` : 'No songs were found in that archive.');
               } catch {
-                setSaved('That archive could not be opened here.');
+                setSaved('Couldn’t open that archive.');
               } finally {
                 setRestoring(false);
               }

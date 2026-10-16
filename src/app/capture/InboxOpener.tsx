@@ -19,7 +19,7 @@ export default function InboxOpener() {
         ids.push(item.id);
       }).catch(() => []);
       if (!texts.length) return;
-      offerUndo(texts.length === 1 ? `Captured: ${texts[0].split('\n')[0]}` : `${texts.length} captured from your phone`, async () => {
+      offerUndo(texts.length === 1 ? `“${texts[0].split('\n')[0]}” captured` : `${texts.length} captured from your phone`, async () => {
         for (const id of ids) await lifeService.deleteItem(id);
       });
     };

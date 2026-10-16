@@ -72,7 +72,7 @@ export default function BringInSection() {
       setChosen(new Set(next.rows.flatMap((row, index) => (row.done ? [] : [index]))));
       if (next.rows.length === 0) setError('Nothing to bring in from that.');
     } catch {
-      setError('That file could not be read. A calendar file, a spreadsheet (CSV), Google Tasks, or a plain list works.');
+      setError('Couldn’t read that file. Use a calendar file, a CSV, a Google Tasks export, or a plain list.');
     }
   }
 

@@ -18,7 +18,7 @@ export default function CheckRow({ item, done, detail, allowDelete = false }: { 
     setBusy(true);
     try {
       const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');
-      if (!done) offerUndo(`Done: ${item.title}`, change.undo);
+      if (!done) offerUndo(`“${item.title}” done`, change.undo);
     } finally {
       setBusy(false);
     }
@@ -28,7 +28,7 @@ export default function CheckRow({ item, done, detail, allowDelete = false }: { 
     setBusy(true);
     try {
       const deletion = await lifeService.deleteItem(item.id);
-      offerUndo(`Deleted: ${item.title}`, deletion.undo);
+      offerUndo(`“${item.title}” deleted`, deletion.undo);
     } finally {
       setBusy(false);
     }

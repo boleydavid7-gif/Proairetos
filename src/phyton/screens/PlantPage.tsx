@@ -162,7 +162,7 @@ function Photos({ plant }: { plant: Plant }) {
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = '';
-          if (file) void keepPhoto(plant.id, file).catch(() => say('That photo could not be read.'));
+          if (file) void keepPhoto(plant.id, file).catch(() => say('Couldn’t read that photo.'));
         }}
       />
       <input ref={restorePicker} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
@@ -174,7 +174,7 @@ function Photos({ plant }: { plant: Plant }) {
           const count = await importPhotos(file, plant.id);
           say(count ? `${count} ${count === 1 ? 'photo' : 'photos'} restored` : 'No photos were found in that archive');
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoring(false);
         }
@@ -308,7 +308,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           </label>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => { setWriting(undefined); setWords(''); }}>Cancel</button>
-            <button type="submit" className="button-main" disabled={writing === 'note' && !words.trim()}>Keep</button>
+            <button type="submit" className="button-main" disabled={writing === 'note' && !words.trim()}>Save</button>
           </div>
         </form>
       )}

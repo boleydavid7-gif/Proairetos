@@ -45,7 +45,8 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
     setText('');
     setAsWritten(false);
     try {
-      const item = await lifeService.add(read ? read.title : value, kind, read?.day && !read.time ? { plannedFor: read.day } : {});
+      // Something given a day or time is something to do: it is filed as a To do rather than left not sorted.
+      const item = await lifeService.add(read ? read.title : value, read ? (kind ?? 'TODO') : kind, read?.day && !read.time ? { plannedFor: read.day } : {});
       if (read?.time) {
         const start = atTime(read.day ?? today, read.time);
         const end = read.minutes ? new Date(start.getTime() + read.minutes * 60_000) : undefined;
@@ -54,7 +55,7 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
       onCaptured?.(item);
       // On Today the new line is not in view, so say it was kept, with a way back.
       if (variant === 'quiet')
-        overlays?.offerUndo(read ? `Added “${read.title}”, ${when}` : `Added “${item.title}”`, async () => {
+        overlays?.offerUndo(read ? `“${read.title}” added, ${when}` : `“${item.title}” added`, async () => {
           await lifeService.deleteItem(item.id);
         });
     } catch {

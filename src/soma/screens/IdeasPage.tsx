@@ -21,7 +21,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
       const { meals } = await ask<{ meals: Found[] | null }>(path);
       setFound(meals ?? []);
     } catch {
-      setProblem('Ideas need a connection. Your own recipes work without one.');
+      setProblem('Ideas need a connection. Your recipes work offline.');
       setFound(undefined);
     } finally {
       setBusy(false);
@@ -38,7 +38,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
       await draftFrom(meal);
       nav.go({ name: 'edit' });
     } catch {
-      setProblem('That recipe could not be opened just now.');
+      setProblem('Couldn’t open that recipe. Try again.');
     } finally {
       setBusy(false);
     }

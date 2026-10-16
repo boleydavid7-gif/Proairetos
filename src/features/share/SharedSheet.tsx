@@ -15,7 +15,7 @@ export default function SharedSheet({ text, onClose }: { text: string; onClose: 
     const [first, ...rest] = value.trim().split('\n');
     const item = await lifeService.add(first, kind);
     if (rest.length) await lifeService.edit(item.id, { notes: rest.join('\n') });
-    offerUndo(`Captured: ${item.title}`, async () => {
+    offerUndo(`“${item.title}” captured`, async () => {
       await lifeService.deleteItem(item.id);
     });
     close();

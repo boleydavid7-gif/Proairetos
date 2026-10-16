@@ -185,7 +185,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
             setReading('');
           }}>
             <input className="input" inputMode="numeric" aria-label={`Reading in ${unit}`} placeholder={`Reading today, ${unit}`} value={reading} onChange={(event) => setReading(event.target.value)} />
-            <button type="submit" className="button-quiet" disabled={!reading.trim()}>Keep</button>
+            <button type="submit" className="button-quiet" disabled={!reading.trim()}>Save</button>
           </form>
         </section>
       )}

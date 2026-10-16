@@ -151,7 +151,7 @@ export default function TodayThree({ date, items }: Props) {
     const done = item.status === 'DONE';
     if (!done) tap();
     const change = await lifeService.setStatus(item.id, done ? 'OPEN' : 'DONE');
-    if (!done) offerUndo(`Done: ${item.title}`, change.undo);
+    if (!done) offerUndo(`“${item.title}” done`, change.undo);
   }
 
   return (

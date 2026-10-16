@@ -84,7 +84,7 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
           say(count ? `${count} ${count === 1 ? 'file' : 'files'} restored` : 'No files were found in that archive');
           reload();
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoring(false);
         }
