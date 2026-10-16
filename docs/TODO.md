@@ -49,6 +49,18 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
 
+- [ ] The Store's payments ($4.99 per add-on, Proairetos free): run `20261025000000_purchases.sql`, set up Stripe
+      (secret key, a webhook to `https://proairetos.com/api/store/webhook`), and add the Worker secrets
+      `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`. Steps in SERVER_SETUP.md, "The Store".
+      Try it first with Stripe's test keys and card 4242 4242 4242 4242.
+- [ ] Beta testers: Worker secret `STORE_TESTERS`, emails separated by commas (yours too). Those accounts get every
+      add-on without paying.
+- [ ] Before selling Phyton: Pl@ntNet's free plan is non-commercial; move to its paid plan.
+- [ ] Search: add proairetos.com and noesis.proairetos.com to Google Search Console (https://search.google.com/search-console)
+      and Bing Webmaster Tools (https://www.bing.com/webmasters, which can import from Google), verify each (a DNS TXT
+      record in Cloudflare is easiest), then submit `https://proairetos.com/sitemap.xml` and
+      `https://noesis.proairetos.com/sitemap.xml`.
+
 ## On a real phone
 
 - [ ] Reminders arrive with the apps closed, and a tap opens the right app.

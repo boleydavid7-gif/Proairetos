@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { FamilyApp } from './FamilyApps';
+import { mayUse, subscribePurchases } from './purchases';
 
 /*
  * Proairetos is the main app; the others are added from its Store. What is added is one setting, synced and
@@ -92,8 +93,9 @@ export function addedApps(): AddOn[] {
   return first.added;
 }
 
+/** Added and usable: while the Store takes payments, an add-on also has to be bought (purchases.ts). */
 export function isAdded(app: AddOn | string): boolean {
-  return !ADD_ONS.includes(app as AddOn) || addedApps().includes(app as AddOn);
+  return !ADD_ONS.includes(app as AddOn) || (addedApps().includes(app as AddOn) && mayUse(app));
 }
 
 export function addApp(app: AddOn): void {
@@ -107,6 +109,7 @@ export function removeApp(app: AddOn): void {
 
 export function subscribeAdded(listener: () => void): () => void {
   listeners.add(listener);
+  const offPurchases = subscribePurchases(listener);
   const onStorage = (event: StorageEvent) => (event.key === KEY || event.key === null) && listener();
   window.addEventListener('storage', onStorage);
   // A change made on another device arrives with sync.
@@ -118,6 +121,7 @@ export function subscribeAdded(listener: () => void): () => void {
   return () => {
     gone = true;
     offSync?.();
+    offPurchases();
     listeners.delete(listener);
     window.removeEventListener('storage', onStorage);
   };
@@ -125,7 +129,9 @@ export function subscribeAdded(listener: () => void): () => void {
 
 /** A string snapshot for React, so screens follow additions and removals at once. */
 export function addedSnapshot(): string {
-  return addedApps().join(',');
+  return addedApps()
+    .filter((app) => mayUse(app))
+    .join(',');
 }
 
 export function useAddedApps(): AddOn[] {

@@ -5,8 +5,9 @@ import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
 import { handleCaptureRequest, type CaptureEnv } from './capture';
+import { handleStoreRequest, type StoreEnv } from './store';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -35,6 +36,8 @@ export default {
     if (url.pathname === '/api/strava' || url.pathname === '/api/strava/activities') return handleStravaRequest(request, env);
     // Capture from anywhere: a Shortcut posts words with the person's inbox token; they are sealed before they are kept.
     if (url.pathname === '/api/capture') return handleCaptureRequest(request, env);
+    // The Store: add-ons bought once through Stripe Checkout, kept with the person's account.
+    if (url.pathname === '/api/store' || url.pathname.startsWith('/api/store/')) return handleStoreRequest(request, env);
     // Phyton's photos, from its own pages only (POST, same origin).
     if (url.pathname === '/api/plant') {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();

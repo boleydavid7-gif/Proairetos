@@ -398,3 +398,34 @@ Phyton names a plant from a photo through Pl@ntNet. Without a key the app works 
 2. In Cloudflare, open the Worker (proairetos) > Settings > Variables and Secrets > Add, type **Secret**, name `PLANTNET_KEY`, value the key. (Or from a computer: `npx wrangler secret put PLANTNET_KEY`.)
 
 The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.
+
+## The Store: paid add-ons (optional, migration 20261025000000)
+
+Proairetos stays free; each add-on is bought once for $4.99 through Stripe Checkout and kept with the account
+(`purchases` table), so it opens on every device. Until all the secrets below are set, `/api/store` says the Store is
+free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/family/purchases.ts`.
+
+1. Run `supabase/migrations/20261025000000_purchases.sql` in the SQL editor. Each person can only read their own rows;
+   only the Worker (service role) writes them.
+2. Stripe: make an account at https://dashboard.stripe.com and finish activation (business details, bank account).
+   Developers > API keys: copy the **Secret key** (`sk_live_…`; use `sk_test_…` first to try it with card 4242 4242 4242 4242).
+3. Stripe > Developers > Webhooks > Add endpoint: `https://proairetos.com/api/store/webhook`, events
+   `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Copy its **Signing secret** (`whsec_…`).
+4. Cloudflare > the proairetos Worker > Settings > Variables and Secrets, each as type **Secret** (never plain text,
+   never in the repo):
+   - `STRIPE_SECRET_KEY`: the secret key from step 2.
+   - `STRIPE_WEBHOOK_SECRET`: the signing secret from step 3.
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase > Project Settings > API keys > service_role (secret).
+   - `SUPABASE_URL` and `SUPABASE_ANON_KEY` should already be there from Capture from anywhere.
+5. Beta testers (optional): add a Secret `STORE_TESTERS` with their emails separated by commas, for example
+   `you@example.com, friend@example.com`. Anyone signed in with one of those emails gets every add-on without paying.
+   Edit the secret to add or remove someone; their apps follow the next time the Store or a held-back app opens.
+   Put your own email in it too.
+6. Refunds: refund in Stripe, then remove the row: `delete from purchases where app = 'soma' and user_id = '…';`.
+
+Once the Worker has every secret, the Store shows prices, Buy opens Stripe's own page, and the person comes back to
+the Store, which adds the app as soon as Stripe has told the Worker. People must be signed in to buy (the purchase
+belongs to the account). With the Store paid, an app that is added but not bought shows its welcome card with
+"Get it · $4.99" in place of the app; its records are kept.
+
+Note: Pl@ntNet's free plan (Phyton's Identify) is for non-commercial use; once Phyton is sold, its paid plan is needed.
