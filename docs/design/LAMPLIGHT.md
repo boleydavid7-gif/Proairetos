@@ -30,6 +30,7 @@ uses the same code as the apps.
 | `src/lamplight/tokens.css` | Shape, space, type roles, light (depth), motion, focus |
 | `src/lamplight/components.css` | `.ll-button` (+ `--tonal`, `--plain`, `--remove`), `.ll-card`, `.ll-list`/`.ll-row`, `.ll-switch`, `.ll-field`, `.ll-chip`, `.ll-bar`, `.ll-sheet` |
 | `src/lamplight/motion.css` | Press brightens and dims slowly; sheets dim the room |
+| `src/lamplight/adopt.css` | The shared pieces the apps already use (`.card`, `.rows`, `.button-main`, `.button-accent`, `.button-quiet`, `.button-danger`, `.chip`, `.input`, `.field-input`, `.switch`, sheets) take shape, light, focus and tonal choices from the tokens, matching their `.ll-*` twins; layout untouched |
 | `src/app/lamplight.ts` | `applyLamplight(appearance, light, app)`: sets the scheme on the root, Proairetos's wallpaper and foot |
 
 Every app's `main` (or `startApp`) registers `withLamplight((look, light) => applyLamplight(look, light, app))`;

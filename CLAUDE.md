@@ -152,7 +152,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   each app's theme from its content (`apps.ts` `appTheme`: room and lamp from its page colors and accent, so Soma stays its
   garden, Hydros its water), the bridge to each app's own color names (`family.ts` `familyVars`; Praxis and Theoria `ALWAYS_DARK`),
   and `tokens.css` (shape, space, type roles, light for depth, motion), `components.css` (`.ll-*`), `motion.css` (press brightens,
-  dims slowly; sheets dim the room), imported by `premium.css`. Every app's main (or `startApp`) registers
+  dims slowly; sheets dim the room) and `adopt.css` (the shared classes every screen already uses take the components' shape,
+  light, focus and tonal choices: pill main actions with the lamp's light, tonal chips and quiet buttons, filled fields, hairline
+  cards; `:root`-prefixed, layout untouched), imported by `premium.css`. Every app's main (or `startApp`) registers
   `withLamplight((look, light) => applyLamplight(look, light, app))`, which also sets the browser bar color. Proairetos takes the
   person's Room and Color (Settings > Appearance; Color can be Your own, `hue:N` with a hue strip), kept in `proairetos.appearance`
   (synced); `app/lamplight.ts` maps the scheme onto `--color-*` and draws the wallpaper (`app/wallpaper.ts`, SVG: a lamp with rings
