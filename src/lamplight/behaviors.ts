@@ -367,14 +367,14 @@ function backSwipe(): void {
 
 // ---------- Row menus ----------
 
-const ROWS = '[data-menu], .swipe, .check-row, .rows > li, .detail-list > li';
+const ROWS = '[data-menu], .swipe, .check-row, .rows > li, .detail-list > li, .days-row';
 const HOLD_MS = 480;
 
 type MenuItem = { label: string; run: () => void; danger: boolean };
 
 /** A row's name: the first words of the control carrying the most text (its open button), before any detail. */
 function rowTitle(row: HTMLElement): string {
-  const named = row.querySelector('.check-row__title span, .row__text > span');
+  const named = row.querySelector('.check-row__title span, .row__text > span, .days-row__title');
   if (named?.textContent?.trim()) return named.textContent.trim();
   const controls = [...row.querySelectorAll<HTMLElement>('button, a[href]')].filter((el) => !el.hidden);
   const main = controls.sort((a, b) => (b.textContent?.length ?? 0) - (a.textContent?.length ?? 0))[0];

@@ -4,10 +4,13 @@
   position: relative;
   isolation: isolate;
   min-height: 100svh;
+  /* A long step (the apps, the form) scrolls inside the page, with its action held at the foot. */
+  height: 100svh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow-x: hidden;
   padding: calc(env(safe-area-inset-top) + var(--space-4)) var(--space-5)
     calc(env(safe-area-inset-bottom) + var(--space-6));
   color: var(--color-paper-ink);
@@ -15,7 +18,7 @@
 }
 
 .onboarding-background {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: -1;
   background: var(--color-parchment);
@@ -103,6 +106,11 @@
 }
 
 .onboarding-actions {
+  /* The step's action stays on screen however long the step (as the platforms keep a primary button in reach). */
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-top: var(--space-6);
   margin-top: auto;
   width: 100%;
   max-width: 24rem;
@@ -110,6 +118,16 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
+}
+
+/* What scrolls under the action fades into the dark foot of the picture, so the button never sits on words. */
+.onboarding-actions::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 -50vw calc(-1 * (env(safe-area-inset-bottom) + var(--space-6)));
+  background: linear-gradient(180deg, rgba(23, 19, 15, 0) 0%, rgba(23, 19, 15, 0.94) 38%, #17130f 100%);
+  pointer-events: none;
 }
 
 .step-dots {

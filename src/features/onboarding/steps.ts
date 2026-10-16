@@ -18,12 +18,7 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     title: 'Capture first',
-    lines: ['Get things out of your head the moment they arrive.', 'Sorting can wait.'],
-    action: 'Continue',
-  },
-  {
-    title: 'Yours to choose',
-    lines: ['You decide what matters.', 'No scores, no streaks.'],
+    lines: ['Get things out of your head the moment they arrive.', 'Sorting can wait. You decide what matters.'],
     action: 'Continue',
   },
   {

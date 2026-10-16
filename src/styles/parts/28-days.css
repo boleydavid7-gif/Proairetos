@@ -156,6 +156,26 @@
   color: var(--color-text-faint);
 }
 
+/* Delete stays out of the way, as in the platforms' own lists: on a touch screen it is in the row's long-press menu
+   (and the item's sheet); with a pointer it shows on the row being pointed at, and when it has keyboard focus. */
+@media (hover: none) {
+  .days-row__remove {
+    display: none;
+  }
+}
+
+@media (hover: hover) {
+  .days-row__remove {
+    opacity: 0;
+    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+  }
+
+  .days-row:hover .days-row__remove,
+  .days-row__remove:focus-visible {
+    opacity: 1;
+  }
+}
+
 .days-row__remove:hover,
 .days-row__remove:focus-visible,
 .days-allday__remove:hover,

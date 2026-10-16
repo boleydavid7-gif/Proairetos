@@ -115,7 +115,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             </li>
           ) : entry.kind === 'item' ? (
             <li>
-              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => (onOpenEntry ? onOpenEntry(entry.item.id) : onOpenItem(entry.item.id))}>
+              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => onOpenItem(entry.item.id)}>
                 <span className="timeline__time">
                   {formatTimeOf(entry.start)}
                   {entry.item.endsAt && <span className="timeline__until">{formatTimeOf(new Date(entry.item.endsAt))}</span>}

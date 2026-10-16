@@ -15,6 +15,32 @@
   border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.45);
 }
 
+/* The day or time read from the words, shown before saving, with a way to keep the words as written. */
+.capture-bar {
+  flex-wrap: wrap;
+}
+
+.capture-bar__when {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 0 calc(20px + var(--space-3));
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+}
+
+.capture-bar__as-written {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(var(--color-accent-rgb, 201, 162, 116), 0.12);
+  color: inherit;
+}
+
 .capture-bar__icon {
   flex: none;
   color: var(--color-accent);
