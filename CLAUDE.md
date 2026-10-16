@@ -183,8 +183,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   and every dock item marked `data-to-header` (More / Settings, Proairetos's Apps, the family's Proairetos link,
   Hydros's gear), each pressing its original. The originals leave the page and dock on phones (visibility hidden /
   `display: none`; docks then lay out their remaining places in columns, indicators moved to four places). The bar
-  names the app only, never the page; it takes glass once scrolled and a hairline once the page's title has gone
-  under. Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
+  names the app only, never the page; it stays clear while the page's title is in view and takes its mica and a
+  hairline once the title has gone under (64 px on a page with no title); the button pill loses its own edge then. Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
   page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack through `setSwipeBack` in
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses

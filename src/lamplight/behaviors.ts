@@ -192,8 +192,10 @@ function largeTitle(): void {
     if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
-    const scrolled = scrollY > 2 || document.scrollingElement!.scrollTop > 2;
-    const folded = title ? title.getBoundingClientRect().bottom < height : scrolled;
+    // The bar stays clear while the page's own title is still in view, and takes its mica once the title has gone
+    // under it (on a page with no title, after a short scroll).
+    const folded = title ? title.getBoundingClientRect().bottom < height : y > 64;
+    const scrolled = folded;
     bar.classList.add('is-on');
     bar.classList.toggle('is-scrolled', scrolled || folded);
     bar.classList.toggle('is-folded', folded);
