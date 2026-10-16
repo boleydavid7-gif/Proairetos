@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { HomeIcon, MoonIcon, MoreIcon, WeekIcon } from '../../app/family/icons';
+import { HomeIcon, MoonIcon, SettingsIcon, WeekIcon } from '../../app/family/icons';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
@@ -25,7 +25,7 @@ const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'week', label: 'Week', Icon: WeekIcon },
   { id: 'sleep', label: 'Sleep', Icon: MoonIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

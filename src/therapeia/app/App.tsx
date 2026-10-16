@@ -3,7 +3,7 @@ import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import CirclePage, { pendingInvite } from '../screens/CirclePage';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { HomeIcon, MoreIcon, PillIcon, PulseIcon, VisitIcon } from '../../app/family/icons';
+import { HomeIcon, PillIcon, PulseIcon, SettingsIcon, VisitIcon } from '../../app/family/icons';
 import ReadingsPage from '../screens/ReadingsPage';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
@@ -25,7 +25,7 @@ const tabs: readonly TabDef<Tab>[] = [
   { id: 'medicines', label: 'Medicines', Icon: PillIcon },
   { id: 'readings', label: 'Readings', Icon: PulseIcon },
   { id: 'visits', label: 'Visits', Icon: VisitIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

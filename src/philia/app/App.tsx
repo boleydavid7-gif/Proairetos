@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { HomeIcon, MoreIcon, PeopleIcon } from '../../app/family/icons';
+import { HomeIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
 import { people, settings } from './state';
 import { readStore } from '../../app/family/read';
 import type { CompassStatement } from '../../core/compass/types';
@@ -22,7 +22,7 @@ export type PhiliaNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'home', label: 'Home', Icon: HomeIcon },
   { id: 'people', label: 'People', Icon: PeopleIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { BoxIcon, HomeIcon, MoreIcon } from '../../app/family/icons';
+import { BoxIcon, HomeIcon, SettingsIcon } from '../../app/family/icons';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
@@ -21,7 +21,7 @@ export type KtemaNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Coming up', Icon: HomeIcon },
   { id: 'things', label: 'Things', Icon: BoxIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

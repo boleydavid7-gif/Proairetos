@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import heroImage from '../../assets/images/scenes/valley.webp';
 import heroWide from '../../assets/images/scenes/valley-wide.webp';
-import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, MoreIcon, PlusIcon } from './icons';
+import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, PlusIcon, SettingsIcon } from './icons';
 
 export type Tab = 'today' | 'bills' | 'calendar' | 'capture' | 'more';
 
@@ -11,7 +11,7 @@ const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactN
   { id: 'bills', label: 'Bills', Icon: BillsIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
   { id: 'capture', label: 'Capture', Icon: PlusIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 
 export const tabNames = tabs.map((tab) => tab.id);

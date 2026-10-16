@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
-import { BackIcon, HomeIcon, LearnIcon, LogIcon, Mark, MoreIcon, TrainIcon } from './icons';
+import { BackIcon, GearIcon, HomeIcon, LearnIcon, LogIcon, Mark, TrainIcon } from './icons';
 
 export type Tab = 'home' | 'learn' | 'train' | 'log' | 'more';
 
@@ -9,7 +9,7 @@ const tabs: { id: Tab; label: string; Icon: (p: { size?: number }) => ReactNode 
   { id: 'learn', label: 'Learn', Icon: LearnIcon },
   { id: 'train', label: 'Train', Icon: TrainIcon },
   { id: 'log', label: 'Log', Icon: LogIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: GearIcon },
 ];
 
 export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: (tab: Tab) => void }) {
