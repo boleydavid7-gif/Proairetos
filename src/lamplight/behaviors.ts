@@ -186,7 +186,10 @@ function largeTitle(): void {
     root.classList.toggle('ll-bar-on', on);
     if (!on) {
       root.classList.remove('ll-tucked');
+      root.classList.remove('ll-title-folded');
+      title?.classList.remove('ll-title-folding');
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
+      bar.setAttribute('aria-hidden', 'true');
       dirty = false;
       return;
     }
@@ -239,6 +242,9 @@ function largeTitle(): void {
     bar.classList.toggle('is-scrolled', folded);
     bar.classList.toggle('is-folded', folded);
     bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
+    root.classList.toggle('ll-title-folded', folded);
+    title?.classList.toggle('ll-title-folding', folded);
+    bar.setAttribute('aria-hidden', folded ? 'false' : 'true');
   };
   const soon = () => {
     if (!frame) frame = requestAnimationFrame(update);

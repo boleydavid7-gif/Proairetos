@@ -69,6 +69,14 @@
     padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+  }
+
+  .ll-topbar.is-on.is-folded {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   /* The mica sits on a layer of its own and crossfades over the page. Opacity carries the
@@ -132,6 +140,17 @@
     letter-spacing: -0.01em;
     cursor: default;
     transition: color var(--ll-slow, 420ms) var(--ll-ease-out, ease), text-shadow var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+  }
+
+  /* The page title and the bar trade places on the same curve. The title keeps its layout
+     footprint while its words soften away under the incoming bar. */
+  :root :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title, .praxis-page-heading h1, .theoria-heading h1, main h1) {
+    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease), filter var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+  }
+
+  :root .ll-title-folding {
+    opacity: 0;
+    filter: blur(8px);
   }
 
   .ll-topbar__lead:disabled {
@@ -223,20 +242,20 @@
   }
 
   /* What the bar now carries leaves the page and the dock. */
-  :root.ll-bar-on :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
-  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
-  :root.ll-bar-on :is(.hydros-home-head, .theoria-mobile-brand),
-  :root.ll-bar-on .shell .page > .brand,
-  :root.ll-bar-on .hero .brand {
+  :root.ll-bar-on.ll-title-folded :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
+  :root.ll-bar-on.ll-title-folded :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
+  :root.ll-bar-on.ll-title-folded :is(.hydros-home-head, .theoria-mobile-brand),
+  :root.ll-bar-on.ll-title-folded .shell .page > .brand,
+  :root.ll-bar-on.ll-title-folded .hero .brand {
     visibility: hidden;
   }
 
   /* A page's top row holding only what the bar now carries (a back link, the brand, the page's actions) leaves no gap. */
-  :root.ll-bar-on .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
+  :root.ll-bar-on.ll-title-folded .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
     display: none;
   }
 
-  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
+  :root.ll-bar-on.ll-title-folded :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
     display: none !important;
   }
 
