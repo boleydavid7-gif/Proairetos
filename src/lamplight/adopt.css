@@ -35,6 +35,24 @@
   box-shadow: none;
 }
 
+:root :is(.button-main, .button-accent, .button-quiet, .button-danger).button--sm {
+  min-height: var(--ll-control-sm);
+  padding-block: 0;
+}
+
+:root :is(.button-main, .button-accent, .button-quiet, .button-danger).button--lg {
+  min-height: var(--ll-control-lg);
+}
+
+:root :is(.button-main, .button-accent, .button-quiet, .button-danger)[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+:root :is(.button-main, .button-accent, .button-quiet, .button-danger)[aria-busy='true'] {
+  cursor: progress;
+}
+
 /* Everything else is tonal: a faint fill and one hairline, never a second lamp. */
 :root .button-quiet {
   border-color: var(--ll-hair);
@@ -42,19 +60,19 @@
   border-radius: var(--ll-radius-pill);
 }
 
-:root :is(.button-main, .button-accent):is(:hover, :focus-visible):not(:disabled) {
+:root :is(.button-main, .button-accent):is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
   background-image: linear-gradient(var(--ll-state-hover), var(--ll-state-hover));
 }
 
-:root :is(.button-quiet, .button-danger):is(:hover, :focus-visible):not(:disabled) {
+:root :is(.button-quiet, .button-danger):is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
-:root :is(.button-main, .button-accent):active:not(:disabled) {
+:root :is(.button-main, .button-accent):active:not(:disabled):not([aria-disabled='true']) {
   background-image: linear-gradient(var(--ll-state-pressed), var(--ll-state-pressed));
 }
 
-:root :is(.button-quiet, .button-danger):active:not(:disabled) {
+:root :is(.button-quiet, .button-danger):active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
 }
 
@@ -79,12 +97,36 @@
   color: var(--ll-lamp);
 }
 
-:root .chip:not([aria-pressed='true']):not([aria-checked='true']):is(:hover, :focus-visible) {
+:root .chip:not([aria-pressed='true']):not([aria-checked='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
-:root .chip:active:not(:disabled) {
+:root .chip:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
+}
+
+:root .chip--sm {
+  min-height: var(--ll-chip-sm);
+  padding-inline: var(--ll-space-3);
+  font-size: var(--text-xs);
+}
+
+:root .chip--lg {
+  min-height: var(--ll-chip-lg);
+  font-size: var(--text-md);
+}
+
+:root .chip:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  :root :is(.button-main, .button-accent, .button-quiet, .button-danger).button--sm,
+  :root .chip--sm,
+  :root :is(.input, .textarea, .field-input, .row__select).field--sm {
+    min-height: var(--ll-touch-target);
+  }
 }
 
 /* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
@@ -100,6 +142,24 @@
   box-shadow: var(--ll-focus);
 }
 
+:root :is(.input, .textarea, .field-input, .row__select).field--sm {
+  min-height: var(--ll-field-sm);
+}
+
+:root :is(.input, .textarea, .field-input, .row__select).field--lg {
+  min-height: var(--ll-field-lg);
+  font-size: var(--text-lg);
+}
+
+:root :is(.input, .textarea, .field-input, .row__select):is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+:root :is(.input, .textarea, .field-input, .row__select)[aria-invalid='true'] {
+  box-shadow: 0 0 0 2px var(--ll-state-invalid);
+}
+
 :root :where(button, a, summary, [role='switch'], [tabindex]):focus-visible {
   outline: none;
   box-shadow: var(--ll-focus);
@@ -113,6 +173,11 @@
 :root .switch:focus-visible {
   outline: none;
   box-shadow: var(--ll-focus);
+}
+
+:root .switch:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* ---------- Sheets and menus: brought forward ---------- */

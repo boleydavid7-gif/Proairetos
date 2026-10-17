@@ -7,10 +7,11 @@
 /* ---------- Buttons ---------- */
 .ll-button {
   display: inline-flex;
+  align-self: center;
   align-items: center;
   justify-content: center;
   gap: var(--ll-space-2);
-  min-height: 44px;
+  min-height: var(--ll-control-md);
   padding: 0 var(--ll-space-5);
   border: 0;
   border-radius: var(--ll-radius-pill);
@@ -42,20 +43,42 @@
   box-shadow: none;
 }
 
-.ll-button--plain:is(:hover, :focus-visible),
-.ll-button--remove:is(:hover, :focus-visible),
-.ll-button--tonal:is(:hover, :focus-visible) {
+.ll-button--sm {
+  min-height: var(--ll-control-sm);
+  padding-inline: var(--ll-space-4);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.ll-button--lg {
+  min-height: var(--ll-control-lg);
+  padding-inline: var(--ll-space-6);
+  font-size: var(--text-lg, 1.15rem);
+}
+
+.ll-button--plain:is(:hover, :focus-visible):not([aria-disabled='true']),
+.ll-button--remove:is(:hover, :focus-visible):not([aria-disabled='true']),
+.ll-button--tonal:is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
-.ll-button--tonal:active:not(:disabled) {
+.ll-button--tonal:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
 }
 
-.ll-button:disabled {
+.ll-button:is(:disabled, [aria-disabled='true']) {
   opacity: 0.45;
   box-shadow: none;
-  cursor: default;
+  cursor: not-allowed;
+}
+
+.ll-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+@media (pointer: coarse) {
+  .ll-button--sm {
+    min-height: var(--ll-touch-target);
+  }
 }
 
 /* ---------- Surfaces ---------- */
@@ -124,6 +147,23 @@
   font-weight: 400;
 }
 
+.ll-row--interactive {
+  cursor: pointer;
+}
+
+.ll-row--interactive:is(:hover, :focus-within):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-row--interactive:active:not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-row--interactive[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 /* ---------- Switch ---------- */
 .ll-switch {
   position: relative;
@@ -163,10 +203,15 @@
   box-shadow: var(--ll-focus);
 }
 
+.ll-switch:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 /* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
 .ll-field {
   width: 100%;
-  min-height: 48px;
+  min-height: var(--ll-field-md);
   padding: 0 var(--ll-space-4);
   border: 0;
   border-radius: var(--ll-radius-sm);
@@ -184,11 +229,36 @@
   box-shadow: var(--ll-focus);
 }
 
+.ll-field--sm {
+  min-height: var(--ll-field-sm);
+}
+
+.ll-field--lg {
+  min-height: var(--ll-field-lg);
+  font-size: var(--text-lg, 1.15rem);
+}
+
+.ll-field:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.ll-field[aria-invalid='true'] {
+  box-shadow: 0 0 0 2px var(--ll-state-invalid);
+}
+
+@media (pointer: coarse) {
+  .ll-field--sm {
+    min-height: var(--ll-touch-target);
+  }
+}
+
 /* ---------- Chips and a segmented choice ---------- */
 .ll-chip {
   display: inline-flex;
+  align-self: center;
   align-items: center;
-  min-height: 36px;
+  min-height: var(--ll-chip-md);
   padding: 0 var(--ll-space-4);
   border: 1px solid var(--ll-hair);
   border-radius: var(--ll-radius-pill);
@@ -204,12 +274,34 @@
   color: var(--ll-lamp);
 }
 
-.ll-chip:not([aria-pressed='true']):is(:hover, :focus-visible) {
+.ll-chip:not([aria-pressed='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
-.ll-chip:active:not(:disabled) {
+.ll-chip:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
+}
+
+.ll-chip--sm {
+  min-height: var(--ll-chip-sm);
+  padding-inline: var(--ll-space-3);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.ll-chip--lg {
+  min-height: var(--ll-chip-lg);
+  font-size: var(--text-md, 1rem);
+}
+
+.ll-chip:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  .ll-chip--sm {
+    min-height: var(--ll-touch-target);
+  }
 }
 
 /* ---------- The bar: translucent, where you are marked by the lamp ---------- */
@@ -227,6 +319,7 @@
   display: grid;
   justify-items: center;
   gap: 2px;
+  min-height: var(--ll-control-md);
   padding: var(--ll-space-2) 0;
   border: 0;
   border-radius: var(--ll-radius-sm);
@@ -241,12 +334,17 @@
   color: var(--ll-lamp);
 }
 
-.ll-bar__item:not([aria-current='page']):is(:hover, :focus-visible) {
+.ll-bar__item:not([aria-current='page']):is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
-.ll-bar__item:active:not(:disabled) {
+.ll-bar__item:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
+}
+
+.ll-bar__item:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* ---------- A sheet ---------- */
@@ -346,7 +444,7 @@
   box-shadow: inset 0 1px 0 var(--ll-hair);
 }
 
-.ll-menu__item:is(:hover, :focus-visible) {
+.ll-menu__item:is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
   box-shadow: none;
   outline: none;
@@ -356,8 +454,13 @@
   box-shadow: var(--ll-focus);
 }
 
-.ll-menu__item:active:not(:disabled) {
+.ll-menu__item:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
+}
+
+.ll-menu__item:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .ll-menu__item--danger {
@@ -400,16 +503,21 @@
   cursor: pointer;
 }
 
-.ll-row-menu-trigger:focus-visible,
-.ll-row-menu-trigger:hover {
+.ll-row-menu-trigger:focus-visible:not([aria-disabled='true']),
+.ll-row-menu-trigger:hover:not([aria-disabled='true']) {
   color: var(--ll-lamp, currentColor);
   background: var(--ll-state-hover, transparent);
   opacity: 1;
   outline: none;
 }
 
-.ll-row-menu-trigger:active:not(:disabled) {
+.ll-row-menu-trigger:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
+}
+
+.ll-row-menu-trigger[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 @media (hover: hover) {

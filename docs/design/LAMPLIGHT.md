@@ -85,6 +85,22 @@ position while its material and content quiet down. Components expose their stat
 `aria-pressed`, `aria-selected`, `aria-current`, and `aria-checked`; a new component should not invent a second state
 color.
 
+### Component matrix
+
+| Component | Variants and sizes | State attributes | Minimum target |
+| --- | --- | --- | --- |
+| Button | primary, tonal, plain, remove; `--sm`, default, `--lg` | `disabled`, `aria-disabled`, `aria-busy` | 44px on touch |
+| Field | `--sm`, default, `--lg` | `disabled`, `aria-disabled`, `aria-invalid` | 44px on touch |
+| Chip | `--sm`, default, `--lg` | `aria-pressed`, `aria-checked`, `aria-disabled` | 44px on touch |
+| Row | static or `ll-row--interactive` | `aria-disabled`; focus stays on the child control | 52px row |
+| Menu item | standard 44px item | `aria-disabled`; keyboard focus remains visible | 44px |
+| Bar item | current or quiet | `aria-current="page"`, `aria-disabled` | 44px |
+| Switch | off or on | native `disabled`, `aria-checked`, `aria-disabled` | 44px hit area |
+
+The compact size is a visual size for pointer and keyboard layouts; coarse pointers promote it to the 44px touch
+target. A control that uses `aria-disabled="true"` remains discoverable to assistive technology and must also guard
+its action in code; CSS only communicates the disabled state.
+
 ## Layout
 
 `layout.css`: five patterns (home, list, detail, settings, sheet) on four numbers: `--ll-gutter` 20 (side margin),

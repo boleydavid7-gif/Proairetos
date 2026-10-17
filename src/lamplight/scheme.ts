@@ -190,6 +190,7 @@ export function schemeVars(s: Scheme): Record<string, string> {
     '--ll-on-lamp': s.onLamp,
     '--ll-glow': s.glow,
     '--ll-remove': s.remove,
+    '--ll-remove-rgb': triple(s.remove),
     '--ll-bar': s.bar,
     '--ll-mica': s.mica,
   };

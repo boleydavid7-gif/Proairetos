@@ -21,6 +21,19 @@
   --ll-space-7: 40px;
   --ll-space-8: 48px;
 
+  /* Control sizes. Compact is for pointer and keyboard layouts; coarse pointers promote it to the 44px touch
+     target in components.css. */
+  --ll-control-sm: 36px;
+  --ll-control-md: 44px;
+  --ll-control-lg: 52px;
+  --ll-touch-target: 44px;
+  --ll-field-sm: 40px;
+  --ll-field-md: 48px;
+  --ll-field-lg: 56px;
+  --ll-chip-sm: 32px;
+  --ll-chip-md: 36px;
+  --ll-chip-lg: 44px;
+
   /* Type: the serif for page titles, quotes and the person's own words; the sans for everything else. */
   --ll-serif: 'EB Garamond', Georgia, serif;
   --ll-sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -56,6 +69,7 @@
   --ll-state-focus: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.24);
   --ll-state-disabled: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.06);
   --ll-state-dragged: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18);
+  --ll-state-invalid: rgba(var(--ll-remove-rgb, 214, 95, 73), 0.22);
 
   /* Focus: a ring of the lamp. */
   --ll-focus: 0 0 0 3px var(--ll-state-focus);

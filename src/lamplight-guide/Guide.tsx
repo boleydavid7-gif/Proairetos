@@ -314,7 +314,11 @@ export default function Guide() {
                   Remove
                 </button>
               </div>
-              <p className="g-small">One lit action per screen. The rest are tonal or plain. Removing is never shown as a failure.</p>
+              <div className="g-row">
+                <button type="button" className="ll-button ll-button--sm">Compact</button>
+                <button type="button" className="ll-button ll-button--lg">Large</button>
+              </div>
+              <p className="g-small">One lit action per screen. The rest are tonal or plain. Removing is never shown as a failure. Compact controls keep a 44px target on touch devices.</p>
             </div>
 
             <div className="g-stack">
@@ -349,7 +353,8 @@ export default function Guide() {
 
             <div className="ll-card g-stack">
               <h3>Fields and chips</h3>
-              <input className="ll-field" placeholder="Write it down" aria-label="Write it down" />
+              <input className="ll-field ll-field--sm" placeholder="Compact field" aria-label="Compact field" />
+              <input className="ll-field ll-field--lg" placeholder="Write it down" aria-label="Write it down" aria-invalid="true" />
               <div className="g-row">
                 {['Day', 'Week', 'Month'].map((c) => (
                   <button key={c} type="button" className="ll-chip" aria-pressed={chip === c} onClick={() => setChip(c)}>
@@ -416,13 +421,15 @@ export default function Guide() {
           </dl>
         </Section>
 
-        <Section id="states" title="States" lead="Every control has the same five states, made the same way.">
+        <Section id="states" title="States" lead="Every control uses the same interaction states, made the same way.">
           <dl className="g-motion">
             <div><dt>Rest</dt><dd>The main action is the lamp&rsquo;s pill; everything else is tonal or quiet. One lit thing per screen.</dd></div>
             <div><dt>Pressed</dt><dd>It brightens at once (--ll-quick) and dims slowly (--ll-dim) when let go; with Gentle taps on, a light haptic too.</dd></div>
             <div><dt>Focused</dt><dd>A ring of the lamp (--ll-focus), only from the keyboard (:focus-visible).</dd></div>
             <div><dt>Chosen</dt><dd>A chip, tab or row that is chosen takes the lamp&rsquo;s glow and its icon is lit; never color alone: a check, a filled icon or bold words go with it.</dd></div>
             <div><dt>Disabled</dt><dd>Half the ink, no light, no press; it stays readable and says why nearby when it is not plain.</dd></div>
+            <div><dt>Invalid</dt><dd>A field keeps its place and gets the remove ring; its nearby message explains what needs attention.</dd></div>
+            <div><dt>Held</dt><dd>A row or sheet being held takes the dragged layer and settles back or completes with the same spring.</dd></div>
           </dl>
           <div className="g-row">
             <button className="ll-button" type="button">Rest</button>
