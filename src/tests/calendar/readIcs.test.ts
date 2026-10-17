@@ -56,7 +56,7 @@ const sample = [
   'DTSTART:20261006T120000Z',
   'DTEND:20261006T130000Z',
   'STATUS:CANCELLED',
-  'SUMMARY:Cancelled lunch',
+  'SUMMARY:Canceled lunch',
   'END:VEVENT',
   'END:VCALENDAR',
 ].join('\r\n');
@@ -83,8 +83,8 @@ describe('reading another calendar', () => {
     expect(titles).toContain('Evening class (moved)');
   });
 
-  it('keeps all-day events as dates, and drops cancelled ones', () => {
+  it('keeps all-day events as dates, and drops canceled ones', () => {
     expect(events.find((e) => e.title === 'Day off')?.allDay).toEqual({ from: '2026-10-12', until: '2026-10-13' });
-    expect(titles).not.toContain('Cancelled lunch');
+    expect(titles).not.toContain('Canceled lunch');
   });
 });

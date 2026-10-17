@@ -37,8 +37,8 @@
 }
 
 .kind-tile[aria-pressed='true'] {
-  border-color: rgba(201, 162, 116, 0.55);
-  background: linear-gradient(90deg, rgba(201, 162, 116, 0.12), var(--color-surface) 70%);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.55);
+  background: linear-gradient(90deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.12), var(--color-surface) 70%);
 }
 
 .kind-tile__icon {

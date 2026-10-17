@@ -15,7 +15,7 @@ export default function RunEntry({ entry, unit, showDay }: { entry: LogEntry; un
   return (
     <li className="timeline-entry">
       <span className="timeline-entry__mark" role="img" aria-label="A run, from Askesis">
-        <MountainIcon size={30} />
+        <MountainIcon size={32} />
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">

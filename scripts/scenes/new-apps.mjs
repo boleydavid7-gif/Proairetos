@@ -1,6 +1,7 @@
 // Run: node scripts/scenes/<file>.mjs <out-dir>; then convert each PNG to webp (ffmpeg -i x.png -quality 85 x.webp).
 // Needs Playwright with a Chromium (set CHROMIUM to its path).
 const { chromium } = await import(process.env.PLAYWRIGHT ?? 'playwright');
+import { LAMP_X, lampRing } from './engine.mjs';
 const out = process.argv[2];
 
 // Small seeded random and a smooth ridge line from summed waves.
@@ -34,16 +35,15 @@ function stars(w, h, seed, n, maxY) {
 const grain = `<filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.07 0"/></filter><filter id="blur" x="-0.2" y="-2" width="1.4" height="5"><feGaussianBlur stdDeviation="18"/></filter><filter id="soft" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="3"/></filter>`;
 
 function diaita(w, h) {
-  const sunX = w * 0.68, sunY = h * 0.6;
+  const sunX = w * LAMP_X, sunY = h * 0.6;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${grain}
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0f1e"/><stop offset="0.32" stop-color="#1c2345"/><stop offset="0.5" stop-color="#4a3d5c"/><stop offset="0.6" stop-color="#c47f4e"/><stop offset="0.66" stop-color="#f0b46a"/></linearGradient>
   <radialGradient id="sun" cx="${sunX}" cy="${sunY}" r="${w * 0.55}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffe2a8" stop-opacity="0.95"/><stop offset="0.12" stop-color="#f6b46a" stop-opacity="0.55"/><stop offset="0.5" stop-color="#d0804c" stop-opacity="0.12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   ${stars(w, h, 7, Math.round(w * h / 9000), 0.36)}
-  <circle cx="${w * 0.24}" cy="${h * 0.14}" r="${Math.min(w, h) * 0.05}" fill="#efe6d2"/><circle cx="${w * 0.24 + Math.min(w, h) * 0.022}" cy="${h * 0.14 - Math.min(w, h) * 0.012}" r="${Math.min(w, h) * 0.046}" fill="#141a33"/>
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${sunX}" cy="${sunY + h * 0.012}" r="${Math.min(w, h) * 0.045}" fill="#fff1cf"/>
+  <circle cx="${sunX}" cy="${sunY + h * 0.012}" r="${Math.min(w, h) * 0.032}" fill="#fff1cf"/>${lampRing(sunX, sunY + h * 0.012, Math.min(w, h), '#ffe2a8')}
   <path d="${ridge(w, h, 0.585, 0.025, 11, 1.2)}" fill="#7a5a74"/>
   <rect x="0" y="${h * 0.57}" width="${w}" height="${h * 0.05}" fill="#f2c487" opacity="0.25" filter="url(#blur)"/>
   <path d="${ridge(w, h, 0.63, 0.035, 23, 1)}" fill="#3d3456"/>
@@ -58,7 +58,7 @@ function diaita(w, h) {
 }
 
 function philia(w, h) {
-  const sunX = w * 0.5, sunY = h * 0.52;
+  const sunX = w * LAMP_X, sunY = h * 0.52;
   const lake = h * 0.66;
   const tree = (x, s, flip) => `<g transform="translate(${x},${lake - h * 0.005}) scale(${flip ? -s : s},${s})"><path d="M-3,0 C-3,-40 -2,-70 0,-95 C2,-70 3,-40 3,0 Z" fill="#2a1a1d"/><ellipse cx="0" cy="-118" rx="34" ry="40" fill="#3a2226"/><ellipse cx="-18" cy="-98" rx="22" ry="20" fill="#3a2226"/><ellipse cx="17" cy="-104" rx="24" ry="22" fill="#33201f"/></g>`;
   const s = Math.min(w, h) / 380;
@@ -70,7 +70,7 @@ function philia(w, h) {
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   ${stars(w, h, 3, Math.round(w * h / 30000), 0.18)}
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.06}" fill="#fff4e2" opacity="0.95"/>
+  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.032}" fill="#fff4e2" opacity="0.95"/>${lampRing(sunX, sunY, Math.min(w, h), '#fff0d8')}
   <path d="${ridge(w, h, 0.6, 0.03, 61, 1.1)}" fill="#a35e62" opacity="0.8"/>
   <path d="${ridge(w, h, 0.635, 0.025, 67, 1)}" fill="#6e3d48"/>
   <rect x="0" y="${lake}" width="${w}" height="${h - lake}" fill="url(#water)"/>
@@ -97,11 +97,11 @@ function ergon(w, h) {
   const rows = Array.from({ length: 9 }, (_, i) => `<path d="M${w * (0.05 + i * 0.03)},${h * (0.86 + i * 0.012)} Q${w * 0.35},${h * (0.8 + i * 0.012)} ${w * (0.5 - i * 0.01)},${h * (0.84 + i * 0.012)}" stroke="#2f4740" stroke-width="${Math.max(2, 3 * s)}" fill="none" opacity="0.7"/>`).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${grain}
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16232a"/><stop offset="0.3" stop-color="#3b5961"/><stop offset="0.52" stop-color="#9cb7a8"/><stop offset="0.62" stop-color="#e6dcbc"/></linearGradient>
-  <radialGradient id="sun" cx="${w * 0.25}" cy="${h * 0.56}" r="${w * 0.6}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff3d2" stop-opacity="0.85"/><stop offset="0.15" stop-color="#f1dfb0" stop-opacity="0.4"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sun" cx="${w * LAMP_X}" cy="${h * 0.56}" r="${w * 0.6}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff3d2" stop-opacity="0.85"/><stop offset="0.15" stop-color="#f1dfb0" stop-opacity="0.4"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${w * 0.25}" cy="${h * 0.565}" r="${Math.min(w, h) * 0.04}" fill="#fff6e0"/>
+  <circle cx="${w * LAMP_X}" cy="${h * 0.565}" r="${Math.min(w, h) * 0.032}" fill="#fff6e0"/>${lampRing(w * LAMP_X, h * 0.565, Math.min(w, h), '#fff3d2')}
   <path d="${ridge(w, h, 0.585, 0.03, 81, 1.2)}" fill="#7d9a8e" opacity="0.8"/>
   <rect x="0" y="${h * 0.58}" width="${w}" height="${h * 0.05}" fill="#eef0e2" opacity="0.3" filter="url(#blur)"/>
   <path d="${ridge(w, h, 0.63, 0.03, 87, 1)}" fill="#557466"/>

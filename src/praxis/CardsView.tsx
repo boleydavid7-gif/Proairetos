@@ -1,7 +1,9 @@
-import { useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
 import type { LifeItem } from '../core/life-items/types';
 import { tap } from '../app/feel';
-import { answer, cardsFromText, CARDS_SOURCE, newCard, nextDay, ready, type Card } from './cards';
+import { isAdded } from '../app/family/added';
+import { readStore } from '../app/family/read';
+import { answer, cardsCsv, cardsFromCsv, cardsFromText, CARDS_SOURCE, editCard, highlightsToOffer, newCard, nextDay, ready, type Card, type Highlight } from './cards';
 
 /*
  * The cards live in one setting, `proairetos.praxisCards`, so they go with the person's backups and (sealed)
@@ -47,6 +49,26 @@ export const useCards = () => useSyncExternalStore(subscribe, readCards);
 export const cardsReady = (today: string) => ready(readCards(), today).length;
 
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
+type BookHighlights = { title?: string; author?: string; updatedAt?: string; highlights?: { id: string; text: string; chapter?: string }[] };
+
+/** Highlights from Theoria's books, read only, the most recently changed books first. */
+async function theoriaHighlights(): Promise<Highlight[]> {
+  const books = await readStore<BookHighlights>('theoriaBooks');
+  return books
+    .filter((book) => book.title && book.highlights?.length)
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
+    .flatMap((book) => book.highlights!.map((each) => ({ id: each.id, text: each.text ?? '', chapter: each.chapter, bookTitle: book.title!, author: book.author })));
+}
+
+function download(name: string, text: string) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+  link.download = name;
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
+}
+
 const dayLabel = (key: string) => new Date(`${key}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
 export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: string; say: (message: string, undo?: () => void) => void }) {
@@ -59,6 +81,11 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
   const [many, setMany] = useState(false);
   const [lines, setLines] = useState('');
   const [listOpen, setListOpen] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; front: string; back: string }>();
+  const [highlights, setHighlights] = useState<Highlight[]>();
+  const [from, setFrom] = useState<string>();
+  const questionRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const filter = blockId || undefined;
   const withCards = blocks.filter((block) => cards.some((card) => card.blockId === block.id));
   const readyNow = ready(cards, today, filter);
@@ -92,7 +119,35 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
     saveCards([...cards, newCard(front, back, today, newId(), filter)]);
     setFront('');
     setBack('');
+    setFrom(undefined);
   };
+  const saveEdit = () => {
+    if (!editing) return;
+    const before = cards;
+    saveCards(cards.map((card) => (card.id === editing.id ? editCard(card, editing.front, editing.back) : card)));
+    setEditing(undefined);
+    say('Card changed', () => saveCards(before));
+  };
+  const bringIn = async (file: File | undefined) => {
+    if (!file) return;
+    const pairs = cardsFromCsv(await file.text(), cards);
+    if (!pairs.length) {
+      say('No new cards in that file');
+      return;
+    }
+    const before = cards;
+    saveCards([...cards, ...pairs.map((pair) => newCard(pair.front, pair.back, today, newId(), filter))]);
+    say(`${pairs.length} ${pairs.length === 1 ? 'card' : 'cards'} added`, () => saveCards(before));
+  };
+  const fromHighlight = (highlight: Highlight) => {
+    setMany(false);
+    setBack(highlight.text.trim());
+    setFront('');
+    setFrom(highlight.bookTitle);
+    setHighlights(undefined);
+    window.setTimeout(() => questionRef.current?.focus(), 0);
+  };
+  const offered = highlights ? highlightsToOffer(highlights, cards).slice(0, 30) : [];
   const remove = (card: Card) => {
     saveCards(cards.filter((each) => each.id !== card.id));
     say('Card removed', () => saveCards(cards));
@@ -103,7 +158,7 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
 
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Recall</p><h1>Cards</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Cards</h1></div></div>
       {withCards.length > 0 && (
         <div className="praxis-chips" role="group" aria-label="Which cards">
           <button type="button" className="praxis-chip" aria-pressed={!blockId} onClick={() => setBlockId('')}>All</button>
@@ -113,7 +168,8 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
         </div>
       )}
 
-      <article className="praxis-card praxis-wide-card praxis-recall">
+      {/* With no cards yet the form below is the way in; an empty card above it said only that. */}
+      {(current || listed.length > 0) && <article className="praxis-card praxis-wide-card praxis-recall">
         {current ? (
           <>
             <p className="praxis-eyebrow">{titleOf(current.blockId) ?? 'Card'}</p>
@@ -137,20 +193,37 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
             <button type="button" className="praxis-button" onClick={begin}>Look at them</button>
           </>
         ) : (
-          <p className="praxis-empty">{listed.length === 0 ? 'Add a question and its answer below.' : next ? `The next ones come round on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
+          <p className="praxis-empty">{next ? `The next ones come around on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
         )}
-      </article>
+      </article>}
 
       <form className="praxis-card praxis-wide-card praxis-card-form" onSubmit={add}>
         <div className="praxis-card-heading">
-          <p className="praxis-eyebrow">New card{filter ? ` · ${titleOf(filter)}` : ''}</p>
+          <p className="praxis-eyebrow">New card{filter ? ` · ${titleOf(filter)}` : ''}{from ? ` · from ${from}` : ''}</p>
           <button type="button" className="praxis-text-button" onClick={() => setMany(!many)}>{many ? 'One at a time' : 'Several at once'}</button>
         </div>
+        {isAdded('theoria') && (
+          <button type="button" className="praxis-text-button" aria-expanded={highlights !== undefined} onClick={() => (highlights ? setHighlights(undefined) : void theoriaHighlights().then(setHighlights))}>
+            {highlights ? 'Hide highlights' : 'From your highlights'}
+          </button>
+        )}
+        {highlights && (
+          offered.length ? (
+            <ul className="praxis-card-list praxis-highlights">
+              {offered.map((each) => (
+                <li key={each.id}>
+                  <span><strong>{each.text}</strong><small>{each.bookTitle}{each.chapter ? ` · ${each.chapter}` : ''}</small></span>
+                  <button type="button" className="praxis-text-button" onClick={() => fromHighlight(each)}>Use</button>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="praxis-empty">No highlights to use yet.</p>
+        )}
         {many ? (
           <label><span>One per line: question :: answer</span><textarea rows={5} value={lines} onChange={(event) => setLines(event.target.value)} placeholder={'Aorta :: the largest artery\nCapital of Peru :: Lima'} /></label>
         ) : (
           <>
-            <label><span>Question</span><input value={front} maxLength={300} onChange={(event) => setFront(event.target.value)} /></label>
+            <label><span>Question</span><input ref={questionRef} value={front} maxLength={300} onChange={(event) => setFront(event.target.value)} /></label>
             <label><span>Answer</span><textarea rows={2} value={back} maxLength={600} onChange={(event) => setBack(event.target.value)} /></label>
           </>
         )}
@@ -164,16 +237,35 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
           </button>
           {listOpen && (
             <ul className="praxis-card-list">
-              {listed.map((card) => (
-                <li key={card.id}>
-                  <span><strong>{card.front}</strong><small>{card.back}</small><small>Next: {card.due <= today ? 'ready' : dayLabel(card.due)}</small></span>
-                  <button type="button" className="praxis-text-button" aria-label={`Remove ${card.front}`} onClick={() => remove(card)}>Remove</button>
-                </li>
-              ))}
+              {listed.map((card) =>
+                editing?.id === card.id ? (
+                  <li key={card.id} className="praxis-card-edit">
+                    <label><span>Question</span><input value={editing.front} maxLength={300} onChange={(event) => setEditing({ ...editing, front: event.target.value })} /></label>
+                    <label><span>Answer</span><textarea rows={2} value={editing.back} maxLength={600} onChange={(event) => setEditing({ ...editing, back: event.target.value })} /></label>
+                    <div className="praxis-card-edit__actions">
+                      <button type="button" className="praxis-text-button" onClick={() => setEditing(undefined)}>Cancel</button>
+                      <button type="button" className="praxis-button praxis-button--quiet" disabled={!editing.front.trim() || !editing.back.trim()} onClick={saveEdit}>Save</button>
+                    </div>
+                  </li>
+                ) : (
+                  <li key={card.id}>
+                    <span><strong>{card.front}</strong><small>{card.back}</small><small>Next: {card.due <= today ? 'ready' : dayLabel(card.due)}</small></span>
+                    <span className="praxis-card-list__actions">
+                      <button type="button" className="praxis-text-button" aria-label={`Change ${card.front}`} onClick={() => setEditing({ id: card.id, front: card.front, back: card.back })}>Change</button>
+                      <button type="button" className="praxis-text-button" aria-label={`Remove ${card.front}`} onClick={() => remove(card)}>Remove</button>
+                    </span>
+                  </li>
+                ),
+              )}
             </ul>
           )}
         </article>
       )}
+      <div className="praxis-card-files">
+        <button type="button" className="praxis-text-button" onClick={() => fileRef.current?.click()}>Bring in a file (CSV)</button>
+        <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
+        {cards.length > 0 && <button type="button" className="praxis-text-button" onClick={() => download(`praxis-cards-${today}.csv`, cardsCsv(cards, titleOf))}>Download the cards (CSV)</button>}
+      </div>
       <p className="praxis-source">{CARDS_SOURCE}</p>
     </section>
   );

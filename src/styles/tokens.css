@@ -13,7 +13,7 @@
   --color-parchment: #f0dec3;
 
   --color-bg: var(--color-ink);
-  /* The page colour as numbers, for fades that blend into it. */
+  /* The page color as numbers, for fades that blend into it. */
   --color-bg-rgb: 10, 12, 14;
   --color-bar-rgb: 14, 17, 20;
   --hero-text: rgba(242, 236, 226, 0.82);

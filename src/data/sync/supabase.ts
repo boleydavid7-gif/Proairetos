@@ -133,19 +133,24 @@ export async function signOutRemote(): Promise<void> {
 
 // ---------- Wrapped key ----------
 
-export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey; recovery: WrappedKey } | null> {
+/** The account's wrapped data key. `passphrase` is null for an account set up with a passkey and no passphrase. */
+export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey | null; recovery: WrappedKey } | null> {
   const { data, error } = await (await supabase()).from('user_keys').select('passphrase_wrap, recovery_wrap').maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? { passphrase: data.passphrase_wrap as WrappedKey, recovery: data.recovery_wrap as WrappedKey } : null;
+  return data ? { passphrase: (data.passphrase_wrap as WrappedKey | null) ?? null, recovery: data.recovery_wrap as WrappedKey } : null;
 }
 
-export async function saveWrappedKeys(userId: string, passphrase: WrappedKey, recovery: WrappedKey): Promise<void> {
+/** Raised when the server still requires a passphrase (before migration 20261023000000_passkey_first.sql). */
+export class PassphraseRequired extends Error {}
+
+export async function saveWrappedKeys(userId: string, passphrase: WrappedKey | null, recovery: WrappedKey): Promise<void> {
   // The owner is named outright rather than left to the column default, so a
   // table set up without that default still accepts the row.
   // Insert, never overwrite: keys another device already saved must stay.
   const { error } = await (await supabase())
     .from('user_keys')
     .insert({ user_id: userId, passphrase_wrap: passphrase, recovery_wrap: recovery });
+  if (error && !passphrase && /passphrase_wrap|not-null|null value/i.test(error.message)) throw new PassphraseRequired(error.message);
   if (error) throw new Error(signInExpired(error.message));
 }
 
@@ -163,7 +168,7 @@ export async function savePassphraseWrap(userId: string, passphrase: WrappedKey)
 /** An RLS refusal here almost always means the sign-in did not reach the request. */
 function signInExpired(message: string): string {
   return /row-level security/i.test(message)
-    ? 'The server did not recognise this sign-in. Sign out, sign in again with a new email link, and try once more.'
+    ? 'The server did not recognize this sign-in. Sign out, sign in again with a new email link, and try once more.'
     : message;
 }
 
@@ -273,10 +278,15 @@ export async function removePushSubscription(endpoint: string): Promise<void> {
 /** Replaces upcoming reminder times. Only times and opaque ids are sent. */
 export async function replaceReminders(userId: string, reminders: { id: string; fire_at: string }[]): Promise<void> {
   const client = await supabase();
-  // Replace every pending row, including rows whose time has just passed. A
-  // previous lead-time setting may have left an old row scheduled after the
-  // event; keeping it lets the server deliver that stale notification later.
-  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).is('sent_at', null);
+  // Replace every pending row still to come (an old lead time may have left one at the wrong moment). A row whose
+  // time has come stays: the server sends due rows once a minute, and the new list starts from now, so clearing it
+  // here, in the minute before the server's next run, would lose that reminder.
+  const { error: clearError } = await client
+    .from('reminders')
+    .delete()
+    .eq('user_id', userId)
+    .is('sent_at', null)
+    .gt('fire_at', new Date().toISOString());
   if (clearError) throw new Error(clearError.message);
   if (reminders.length === 0) return;
   const { error } = await client
@@ -299,14 +309,33 @@ export async function replaceSourceReminders(
 ): Promise<void> {
   const client = await supabase();
   const older = (error: { code?: string; message: string }) =>
-    error.code === '42703' || error.code === 'PGRST204' || /source|sealed|preview_/.test(error.message);
-  const { error: clearError } = await client.from('reminders').delete().eq('user_id', userId).eq('source', source).is('sent_at', null);
+    error.code === '42703' || error.code === 'PGRST204' || /source|sealed/.test(error.message);
+  // Only rows still to come: one whose time has come waits for the server's next run (see replaceReminders).
+  const { error: clearError } = await client
+    .from('reminders')
+    .delete()
+    .eq('user_id', userId)
+    .eq('source', source)
+    .is('sent_at', null)
+    .gt('fire_at', new Date().toISOString());
   if (clearError) throw older(clearError) ? new OlderRemindersTable(clearError.message) : new Error(clearError.message);
   if (reminders.length === 0) return;
-  const { error } = await client
-    .from('reminders')
-    .upsert(reminders.map((r) => ({ ...r, source, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
+  const write = (rows: typeof reminders) =>
+    client.from('reminders').upsert(rows.map((r) => ({ ...r, source, user_id: userId })), { onConflict: 'user_id,id', ignoreDuplicates: true });
+  let { error } = await write(reminders);
+  // A server with sources but not yet the preview columns still takes the sealed words, so the phone shows each
+  // app's own name, icon and words; only the lock-screen preview waits for that migration.
+  if (error && /preview_/.test(error.message)) ({ error } = await write(reminders.map(({ id, fire_at, sealed }) => ({ id, fire_at, sealed }))));
   if (error) throw older(error) ? new OlderRemindersTable(error.message) : new Error(error.message);
+}
+
+/**
+ * One reminder for checking that pushes reach this account: kept under its own source, so no app's refresh clears
+ * it before the server's next run sends it.
+ */
+export async function addTestReminder(userId: string, reminder: { id: string; fire_at: string; sealed: string }): Promise<void> {
+  const { error } = await (await supabase()).from('reminders').insert({ ...reminder, source: 'test', user_id: userId });
+  if (error) throw new Error(error.message);
 }
 
 /** Whether any phone or computer on this account takes reminders, so apps without their own know to write theirs. */
@@ -456,4 +485,31 @@ export function finishPasskeySignIn(answer: {
   signature: string;
 }): Promise<{ token_hash: string; wrap: WrappedKey | null }> {
   return passkeyFunction({ step: 'finish', ...answer });
+}
+
+// ---------- Capture from anywhere (migration 20261024000000_capture_inbox.sql) ----------
+
+/** Sets up (or replaces) this account's capture inbox: the token's hash and the public key that seals what arrives. */
+export async function saveCaptureInbox(userId: string, tokenHash: string, publicKey: JsonWebKey): Promise<void> {
+  const { error } = await (await supabase())
+    .from('capture_inboxes')
+    .upsert({ user_id: userId, token_hash: tokenHash, public_key: publicKey }, { onConflict: 'user_id' });
+  if (error) throw new Error(/capture_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
+}
+
+export async function deleteCaptureInbox(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('capture_inboxes').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function fetchInboxItems(): Promise<{ id: string; sealed: string; created_at: string }[]> {
+  const { data, error } = await (await supabase()).from('capture_inbox_items').select('id, sealed, created_at').order('created_at').limit(200);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as { id: string; sealed: string; created_at: string }[];
+}
+
+export async function deleteInboxItems(ids: readonly string[]): Promise<void> {
+  if (!ids.length) return;
+  const { error } = await (await supabase()).from('capture_inbox_items').delete().in('id', ids as string[]);
+  if (error) throw new Error(error.message);
 }

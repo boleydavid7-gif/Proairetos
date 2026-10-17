@@ -1,4 +1,4 @@
-/* Phyton's colours: leaf green and moss. The look is askesis.css; Appearance follows Proairetos. */
+/* Phyton's colors: leaf green and moss. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.phyton {
   --app-name: 'Phyton';
@@ -229,4 +229,24 @@
 }
 .sitter-list__pets {
   font-weight: 600;
+}
+
+/* Plants: Identify and Add sit side by side in the header. */
+.phyton-page .page-top .button-row {
+  flex-wrap: nowrap;
+}
+
+.phyton-page .page-top .button-row > * {
+  flex: none;
+}
+
+.phyton-page .page-top .button-row > .button-quiet[aria-label] {
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  justify-content: center;
+}
+
+.phyton-page .page-top .button-row > .button-main {
+  width: auto;
 }

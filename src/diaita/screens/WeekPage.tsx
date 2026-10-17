@@ -30,7 +30,7 @@ export default function WeekPage({ nav }: { nav: DiaitaNav }) {
                 <span className="diaita-day__head">
                   <strong>{weekdayText(date, today)}</strong>
                   <span className="diaita-day__kind">{DAY_NAMES[kind]}</span>
-                  <ChevronIcon size={17} />
+                  <ChevronIcon size={18} />
                 </span>
                 <span className="diaita-day__lines">
                   {work.map((entry) => <span key={entry.key}>{entry.title} {span(entry)}</span>)}

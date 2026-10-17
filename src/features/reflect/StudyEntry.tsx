@@ -8,7 +8,7 @@ export default function StudyEntry({ session, showDay }: { session: StudySession
   return (
     <li className="timeline-entry">
       <span className="timeline-entry__mark" role="img" aria-label="Study, from Praxis">
-        <BookIcon size={30} />
+        <BookIcon size={32} />
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">

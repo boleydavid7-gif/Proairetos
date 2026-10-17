@@ -1,6 +1,6 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v16';
+const CACHE = 'proairetos-v17';
 const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png','/theoria/manifest.webmanifest','/theoria/icons/icon-192.png','/theoria/icons/icon-512.png','/theoria/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
@@ -37,7 +37,8 @@ const STATIC_PAGES = ['/privacy', '/privacy.html', '/welcome', '/welcome/', '/we
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
   // By path, so /praxis/?open=start still finds the page offline.
-  const key = STATIC_PAGES.includes(path) ? path : '/index.html';
+  // The front page's pages (/welcome/soma/, /welcome/thanks/) are kept as themselves too.
+  const key = STATIC_PAGES.includes(path) || path.startsWith('/welcome/') ? path : '/index.html';
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -73,8 +74,9 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'POST' && new URL(request.url).pathname === '/theoria/share') return takeShare(event, 'theoria', 'add');
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  // Askesis, the training app, has its own service worker and cache.
-  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton)(\/|$)/.test(url.pathname)) return;
+  // Askesis, the training app, has its own service worker and cache; the other apps too, and the Lamplight guide
+  // is a plain page of its own (never cached as Proairetos).
+  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton|lamplight)(\/|$)/.test(url.pathname)) return;
 
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
@@ -147,12 +149,25 @@ function accountKey() {
     try {
       const request = indexedDB.open('proairetos');
       request.onerror = () => resolve(null);
+      // Opened without a version: on a device that never synced it would make an empty database, so stop there.
+      request.onupgradeneeded = () => request.transaction.abort();
       request.onsuccess = () => {
         const db = request.result;
-        if (!db.objectStoreNames.contains('syncMeta')) return resolve(null);
-        const get = db.transaction('syncMeta', 'readonly').objectStore('syncMeta').get('dataKey');
-        get.onsuccess = () => resolve((get.result && get.result.value) || null);
-        get.onerror = () => resolve(null);
+        try {
+          if (!db.objectStoreNames.contains('syncMeta')) {
+            db.close();
+            return resolve(null);
+          }
+          const get = db.transaction('syncMeta', 'readonly').objectStore('syncMeta').get('dataKey');
+          get.onsuccess = () => {
+            db.close();
+            resolve((get.result && get.result.value) || null);
+          };
+          get.onerror = () => resolve(null);
+        } catch {
+          db.close();
+          resolve(null);
+        }
       };
     } catch {
       resolve(null);

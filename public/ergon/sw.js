@@ -1,6 +1,6 @@
 // Ergon's app shell is scoped to /ergon/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'ergon-v2';
+const CACHE = 'ergon-v3';
 const SHELL = ['/ergon/', '/ergon/index.html', '/ergon/manifest.webmanifest', '/ergon/icon.svg', '/ergon/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

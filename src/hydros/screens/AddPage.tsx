@@ -70,7 +70,7 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
               </button>
             ))}
             <button type="button" className="hydros-custom-drink" onClick={() => nav.go({ name: 'add', custom: true })}>
-              <PlusIcon size={27} />
+              <PlusIcon size={28} />
               <span>Custom drink</span>
             </button>
           </div>

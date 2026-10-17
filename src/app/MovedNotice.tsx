@@ -12,7 +12,7 @@ export default function MovedNotice() {
     <div className="storage-notice moved-notice" role="status">
       <p>
         Proairetos now lives at <strong>proairetos.com</strong>. What you saved is kept in this browser at this address,
-        so bring it along: back up here, then restore it there under Settings → Back up and restore.
+        so bring it along: back up here, then restore it there under Settings → Your data.
       </p>
       <div className="chip-row">
         <button type="button" className="chip chip--accent" onClick={() => navigate('settings')}>

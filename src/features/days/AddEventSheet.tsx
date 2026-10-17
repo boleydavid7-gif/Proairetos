@@ -86,7 +86,7 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
       });
       close();
     } catch {
-      setError('Could not add that just now.');
+      setError('Couldn’t add that. Try again.');
     }
   }
 

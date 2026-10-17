@@ -7,7 +7,7 @@ import type { Forecast } from '../core/outdoors';
 /*
  * Weather for plants outside, from Open-Meteo (free, no account): the last two weeks of daily rainfall and the
  * next three days' lows and highs at the place chosen here, or the place set for weather in Proairetos. Kept on this device only; only the place,
- * rounded to about a kilometre, is sent.
+ * rounded to about a kilometer, is sent.
  */
 
 type Place = { name: string; lat: number; lon: number };

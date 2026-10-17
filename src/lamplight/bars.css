@@ -1,0 +1,406 @@
+/*
+ * Lamplight's materials, after Fluent's: no blur anywhere (it renders unevenly on phones). Solid for cards; mica for
+ * bars and docks, opaque, the room's hue a little stronger than the page, with the lamp's light washing in faintly
+ * from above; smoke, a plain dim, behind dialogs and sheets. Where content passes under a bar it fades into the mica
+ * (the scroll edge) instead of meeting a hard line.
+ */
+:root {
+  --ll-mica-surface: radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.07), transparent 62%) var(--ll-mica, var(--ll-page, #14120f));
+  --ll-edge-below: 0 12px 16px -6px var(--ll-mica, var(--ll-page, #14120f));
+  --ll-edge-above: 0 -12px 16px -6px var(--ll-mica, var(--ll-page, #14120f));
+}
+
+:root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-bar) {
+  background: var(--ll-mica-surface) !important;
+}
+
+@media (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    box-shadow: var(--ll-edge-above);
+    transition: translate var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+    /* Its own layer, so tucking away moves a picture of it rather than painting the dock again each frame. */
+    will-change: translate;
+  }
+
+  /* Reading down a page, the dock steps aside; scrolling up, or reaching the top or the foot, brings it back. */
+  :root.ll-tucked :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    translate: 0 calc(100% + 24px);
+  }
+}
+
+/*
+ * Where every app's top begins: the phone's status area, and while the bar is on, a few points more, so the bar and
+ * the page under it sit clear of the edge iOS blurs behind the status bar. Full-screen moments turn the bar off and
+ * keep the plain inset.
+ */
+:root {
+  --ll-safe-top: env(safe-area-inset-top, 0px);
+  /* iPhones enlarge some text on their own (text autosizing) and drop it back when a style changes, so the bar's
+     name changed size as the page scrolled under it. Text stays the size the styles give it, in every app. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 61.99rem) {
+  :root.ll-bar-on {
+    --ll-safe-top: calc(env(safe-area-inset-top, 0px) + 6px);
+  }
+}
+
+/*
+ * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
+ * on the left; the page's actions, Settings and the family's places on the right. Glass once the page scrolls, a
+ * hairline once the page's title has gone under. It names the app only. Computers keep their rail.
+ */
+.ll-topbar {
+  display: none;
+}
+
+@media (max-width: 61.99rem) {
+  .ll-topbar.is-on {
+    position: fixed;
+    z-index: 6;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    box-sizing: border-box;
+    height: calc(var(--ll-safe-top) + 48px);
+    padding: var(--ll-safe-top) 10px 0 14px;
+    color: var(--ll-ink, var(--text, var(--color-text)));
+    background: transparent;
+  }
+
+  /* The mica sits on a layer of its own that fades in by opacity alone, so a long page scrolls without repainting
+     the bar (a fading shadow or background is painted again on every frame). */
+  .ll-topbar.is-on::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: var(--ll-mica-surface);
+    box-shadow: inset 0 -1px 0 var(--ll-hair, rgba(255, 255, 255, 0.08)), var(--ll-edge-below);
+    opacity: 0;
+    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+    will-change: opacity;
+    pointer-events: none;
+  }
+
+  .ll-topbar.is-scrolled::before {
+    opacity: 1;
+  }
+
+  /* Left: the app's name, or the chevron and where it goes. */
+  .ll-topbar__lead {
+    grid-column: 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: 600 var(--text-lg, 1.15rem) / 1.2 var(--ll-sans);
+    letter-spacing: -0.01em;
+    cursor: default;
+  }
+
+  .ll-topbar__lead:disabled {
+    color: inherit;
+    opacity: 1;
+  }
+
+  .ll-topbar__lead span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Over a home picture's shaded top the mark and name stay light, as the in-page brand was. */
+  .ll-topbar.is-over-picture .ll-topbar__lead:not(.is-back) {
+    color: #fbf6ec;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.3);
+  }
+
+  /* The app's symbolic mark, then its name. */
+  .ll-topbar__lead:not(.is-back) {
+    gap: 8px;
+  }
+
+  .ll-topbar__lead .ll-topbar__mark {
+    display: inline-flex;
+    flex: none;
+    overflow: visible;
+  }
+
+  .ll-topbar__mark svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .ll-topbar__lead.is-back {
+    margin-left: -6px;
+    color: var(--ll-lamp, currentColor);
+    /* The same size as the app's name, so the bar's title holds its size from page to page. */
+    font: 400 var(--text-lg, 1.15rem) / 1.2 var(--ll-sans);
+    cursor: pointer;
+  }
+
+  /* Right: the page's actions, then Settings and the family's places. */
+  /* The bar's buttons share one mica pill, as iOS groups a toolbar's actions on one piece of glass. */
+  .ll-topbar__actions {
+    grid-column: 2;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 4px;
+    border-radius: var(--ll-radius-pill, 999px);
+    background: var(--ll-mica-surface);
+    box-shadow: inset 0 0 0 1px var(--ll-hair, rgba(255, 255, 255, 0.08));
+  }
+
+  /* Once the bar has its own mica, the pill is part of it: no edge of its own. */
+  .ll-topbar.is-scrolled .ll-topbar__actions {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .ll-topbar__actions:empty {
+    display: none;
+  }
+
+  .ll-topbar__action {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ll-ink-2, currentColor);
+    cursor: pointer;
+  }
+
+  .ll-topbar__action svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .ll-topbar__action.is-on {
+    color: var(--ll-lamp, currentColor);
+  }
+
+  .ll-topbar__action .profile-button__face {
+    width: 30px;
+    height: 30px;
+    font-size: var(--text-sm, 0.875rem);
+  }
+
+  /* What the bar now carries leaves the page and the dock. */
+  :root.ll-bar-on :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
+  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
+  :root.ll-bar-on :is(.hydros-home-head, .theoria-mobile-brand),
+  :root.ll-bar-on .shell .page > .brand,
+  :root.ll-bar-on .hero .brand {
+    visibility: hidden;
+  }
+
+  /* A page's top row holding only what the bar now carries (a back link, the brand, the page's actions) leaves no gap. */
+  :root.ll-bar-on .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
+    display: none;
+  }
+
+  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
+    display: none !important;
+  }
+
+  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav .praxis-nav-list, .theoria-bottom-nav .theoria-nav-list) {
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  /* The docks' moving marks, now over four places. */
+  :root.ll-bar-on .app-shell[data-route='today'] .tab-bar::before { --tab-indicator-left: calc(12.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell:is([data-route='reflect'], [data-route='compass'], [data-route='meditate'], [data-route='journal'], [data-route='insights'], [data-route='review']) .tab-bar::before { --tab-indicator-left: calc(37.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell:is([data-route='plan'], [data-route='calendar']) .tab-bar::before { --tab-indicator-left: calc(62.5% - 0.9rem); }
+  :root.ll-bar-on .app-shell[data-route='capture'] .tab-bar::before { --tab-indicator-left: calc(87.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::before { left: calc(12.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::before { left: calc(37.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::before { left: calc(62.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::before { left: calc(87.5% - 0.9rem); }
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::after,
+  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { opacity: 0; }
+
+  /* Room for the bar where a page's title begins at the very top. */
+  :root.ll-bar-on .shell .page:not(.page--under-hero):not(:has(> .back-link:first-child)):not(:has(> .brand:first-child)) {
+    padding-top: calc(var(--ll-safe-top) + 56px);
+  }
+
+  :root.ll-bar-on .hydros-screen {
+    padding-top: calc(var(--ll-safe-top) + 48px);
+  }
+
+  :root.ll-bar-on :is(.praxis-main, .theoria-app:not(.theoria-app--reader) .theoria-main) {
+    padding-top: calc(var(--ll-safe-top) + 52px);
+  }
+}
+
+@media print {
+  .ll-topbar.is-on {
+    display: none;
+  }
+}
+
+/* A page held by the back swipe: it rides the finger, casting a soft shade on what it uncovers. */
+.ll-swiping,
+.ll-leaving,
+.ll-springing {
+  box-shadow: -18px 0 40px -18px rgba(0, 0, 0, 0.45);
+  will-change: transform;
+}
+
+.ll-leaving {
+  transition: transform 180ms var(--ll-ease-in-out, ease);
+}
+
+/* Let go short: back with a little overshoot, as a spring would. */
+.ll-springing {
+  transition: transform var(--ll-slow, 420ms) cubic-bezier(0.25, 1.35, 0.4, 1);
+}
+
+/* After a swipe the old page has already gone with the finger; only the new one comes forward. */
+html[data-swiped]::view-transition-old(app-content),
+html[data-swiped]::view-transition-old(root) {
+  animation: none;
+  opacity: 0;
+}
+
+/* A held sheet: the room comes back as it is pulled down, and let go short it springs home past its place and
+   settles (useSheet). */
+.sheet:not(.sheet--closing)::backdrop {
+  opacity: calc(1 - var(--sheet-pull, 0));
+}
+
+.sheet__panel--spring {
+  transition: transform var(--ll-slow, 420ms) cubic-bezier(0.25, 1.35, 0.4, 1) !important;
+}
+
+/* A sheet opened from the top bar drops from the top and leaves upward (useSheet({ from: 'top' })). */
+@media (max-width: 61.99rem) {
+  .sheet.sheet--top {
+    margin: 0 auto auto;
+  }
+
+  .sheet.sheet--top .sheet__panel {
+    padding-top: calc(var(--ll-safe-top) + var(--space-5, 24px));
+    padding-bottom: var(--space-3, 12px);
+    border-top: 0;
+    border-bottom: 1px solid var(--color-border, var(--ll-hair));
+    border-radius: 0 0 var(--radius-lg, 22px) var(--radius-lg, 22px);
+  }
+
+  .sheet.sheet--top[open] .sheet__panel {
+    animation: sheet-down var(--ll-slow, 420ms) var(--ll-ease-out, ease) backwards;
+  }
+
+  .sheet.sheet--top.sheet--closing .sheet__panel {
+    transform: translateY(-105%);
+  }
+
+  .sheet.sheet--top .sheet__close {
+    top: calc(var(--ll-safe-top) + var(--space-3, 12px));
+  }
+
+  .sheet__grabber--foot {
+    margin: var(--space-2, 8px) auto 0;
+  }
+}
+
+@media (min-width: 62rem) {
+  .sheet__grabber--foot {
+    display: none;
+  }
+}
+
+@keyframes sheet-down {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+/* ---------- Tablets (48 to 62rem) ---------- */
+/* The page keeps its reading column; the dock floats as a pill under it rather than stretching edge to edge, and
+   the top bar lines up with the column. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  :root .ll-topbar.is-on {
+    padding-inline: max(14px, calc((100vw - 40rem) / 2));
+  }
+
+  :root :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
+    inset: auto 0 calc(env(safe-area-inset-bottom) + 14px) 0;
+    width: min(34rem, calc(100% - 48px));
+    margin-inline: auto;
+    border: 0;
+    border-radius: var(--ll-radius-pill, 999px);
+    box-shadow: var(--ll-light-2), inset 0 0 0 1px var(--ll-hair);
+  }
+
+  :root .hydros-tabs {
+    left: 0;
+    translate: none;
+    transform: none;
+  }
+
+  :root.ll-tucked :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
+    translate: 0 calc(100% + 40px);
+  }
+}
+
+/* ---------- Windows high contrast (forced colors) ---------- */
+/* The system's own colors take over: every surface keeps an edge, where you are is marked by the highlight, and
+   nothing relies on a tint, a glow or a shade. */
+@media (forced-colors: active) {
+  .ll-icon__lit,
+  .ll-waiting__light {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .ll-icon__lit {
+    display: none;
+  }
+
+  :root :is(.card, .ll-card, .rows, .settings-card, .sheet__panel, .ll-menu, .ll-topbar.is-scrolled, .tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-topbar__actions) {
+    border: 1px solid CanvasText;
+  }
+
+  .ll-topbar.is-scrolled::before {
+    background: Canvas;
+  }
+
+  :root :is(.button-main, .button-accent, .button-quiet, .ll-button, .chip, .switch) {
+    border: 1px solid ButtonText;
+  }
+
+  :root :is([aria-current='page'], [aria-pressed='true'], [aria-selected='true'], .is-active) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  :root :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+}

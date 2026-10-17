@@ -2,9 +2,9 @@ import type { Notice } from '../../core/notify/notices';
 import type { Entry } from './rhythm';
 import { timeText } from './rhythm';
 
-export type RhythmNoticeChoices = { windDown: boolean; worry: boolean; nap: boolean; caffeine: boolean };
+export type RhythmNoticeChoices = { windDown: boolean; worry: boolean; nap: boolean; caffeine: boolean; daylight?: boolean };
 
-export const defaultRhythmNotices: RhythmNoticeChoices = { windDown: true, worry: true, nap: true, caffeine: false };
+export const defaultRhythmNotices: RhythmNoticeChoices = { windDown: true, worry: true, nap: true, caffeine: false, daylight: false };
 
 /** Notices for the plan's wind-downs, naps and last caffeine, as the person chose; at the time itself. */
 export function rhythmNotices(entries: readonly Entry[], choices: RhythmNoticeChoices, now: Date, until: Date): Notice[] {
@@ -18,6 +18,8 @@ export function rhythmNotices(entries: readonly Entry[], choices: RhythmNoticeCh
       notices.push({ key: `diaita:${entry.key}`, kind: 'rhythm', at: entry.start, title: 'Worry time', body: 'Write down worries and one next step.', open: 'diaita:worry' });
     } else if (entry.kind === 'nap' && choices.nap) {
       notices.push({ key: `diaita:${entry.key}`, kind: 'rhythm', at: entry.start, title: 'Nap', body: entry.end ? `Until ${timeText(entry.end)}.` : '', open: 'diaita' });
+    } else if (entry.kind === 'light' && entry.key.startsWith('daylight:') && choices.daylight) {
+      notices.push({ key: `diaita:${entry.key}`, kind: 'rhythm', at: entry.start, title: 'Morning daylight', body: '15 to 30 minutes, outside if you can.', open: 'diaita' });
     } else if (entry.kind === 'caffeine' && choices.caffeine) {
       notices.push({ key: `diaita:${entry.key}`, kind: 'rhythm', at: entry.start, title: 'Last caffeine', body: sleep ? `Sleep at ${timeText(sleep.start)}.` : '', open: 'diaita' });
     }

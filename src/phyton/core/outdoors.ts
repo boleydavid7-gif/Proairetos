@@ -4,7 +4,7 @@ import type { Plant } from './plants';
 /*
  * The forecast for plants outside: frost at night and hot days. Frost (2 °C or below, the usual frost-warning
  * line, as at ground level it is colder than the air) can kill tender plants in one night; on hot days pots dry
- * fast, so plants outside come round a day sooner. Plain words, the person decides what to do.
+ * fast, so plants outside come around a day sooner. Plain words, the person decides what to do.
  */
 
 /** Lowest and highest temperature by day, in °C. */

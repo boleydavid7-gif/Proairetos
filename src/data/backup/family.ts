@@ -34,6 +34,10 @@ const LEFT_OUT = new Set([
   // The passcode belongs to this device only.
   'proairetos.lock',
   'askesis:startTest',
+  // Askesis's Strava connection holds a sign-in token: each device connects for itself.
+  'askesis:strava',
+  // Capture from anywhere: the inbox's private key and token stay on the device that made them.
+  'proairetos.captureInbox',
 ]);
 
 /** Whether a stored setting belongs in a backup. */

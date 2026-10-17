@@ -82,7 +82,7 @@ export function StorageChoice() {
           <p className="section-description">
             {picked === 'proairetos'
               ? `Your data moves back to Proairetos's server. The files in ${now ? storageName(now) : 'your storage'} stay there until you remove them.`
-              : `Proairetos asks for its own folder in your ${storageName(picked)}. Your data moves there, locked on this phone first; the copy on Proairetos's server is removed. Every app and device follows.`}
+              : `Proairetos asks for its own folder in your ${storageName(picked)}. Your data moves there, locked on this device first; the copy on Proairetos's server is removed. Every app and device follows.`}
           </p>
           <div className="chip-row">
             <button type="button" className="button-quiet" onClick={() => setPicked(undefined)}>

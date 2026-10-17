@@ -1,7 +1,7 @@
 import StorageFacts from '../../app/family/StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
-import { takeRequestedView, viewTitles, type View } from './settingsViews';
+import { shownView, takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
 import { promptText } from '../reflect/prompts';
@@ -9,6 +9,8 @@ import { notifications } from '../../app/notify/notifications';
 import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
+import InboxSection from './InboxSection';
+import { inboxHere } from '../../app/capture/inbox';
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { lock } from '../../app/lock/lock';
@@ -16,14 +18,19 @@ import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
+import { LAMP_COLORS, ROOMS, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
+import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
   BellIcon,
+  BriefcaseIcon,
+  CaptureIcon,
   BookIcon,
   CalendarIcon,
   ChevronRightIcon,
+  ClockIcon,
   CloudIcon,
   CompassIcon,
   HeartIcon,
@@ -70,6 +77,7 @@ import { weatherSettings } from '../../app/weather/weather';
 import { calendarSources } from '../../app/calendars/otherCalendars';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
+import { Waiting } from '../../lamplight/Waiting';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -119,7 +127,7 @@ function ExportSection() {
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
       <p className="section-description">
-        One file for all the apps, with their settings, photos and files. Keep it somewhere off this phone.
+        One file for every app, with settings, photos and files. Keep it off this device.
       </p>
       <label className="plan-field">
         <span>Password (recommended)</span>
@@ -147,8 +155,7 @@ function ExportSection() {
       </p>
       <h2 className="section-label">A readable copy</h2>
       <p className="section-description">
-        Your reflections, decisions, Compass and captures as a plain Markdown file you can open anywhere. It is not a
-        backup and has no password, so keep it somewhere private.
+        Reflections, decisions, Compass and captures as Markdown. Not a backup, and no password.
       </p>
       <button
         type="button"
@@ -174,7 +181,7 @@ function DailySection() {
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Keep a copy each day</span>
-          <span className="toggle-row__detail">On this device, the last seven days, for the family apps.</span>
+          <span className="toggle-row__detail">On this device, the last seven days</span>
         </span>
       </button>
       {copies.length > 0 && (
@@ -208,7 +215,7 @@ function DailySection() {
                 try {
                   await restore(chosen);
                 } catch {
-                  setError('Restoring stopped partway. Try again.');
+                  setError('Restoring stopped partway. Your backup file is unchanged. Try again.');
                   setBusy(false);
                 }
               }}
@@ -273,7 +280,7 @@ function ImportSection() {
       await backupService.replaceAll(ready.data);
       window.location.reload();
     } catch {
-      setError('Restoring stopped partway. Your backup file is unchanged; try again.');
+      setError('Restoring stopped partway. Your backup file is unchanged. Try again.');
       setBusy(false);
     }
   }
@@ -282,7 +289,7 @@ function ImportSection() {
     <section className="settings-card" aria-label="Restore">
       <h2 className="section-label">Restore from a backup</h2>
       <p className="section-description">
-        Replaces what is on this device, in the family apps, with the backup. Nothing changes until you confirm.
+        Replaces what is on this device, in every app, with the backup.
       </p>
       <input
         ref={input}
@@ -313,7 +320,7 @@ function ImportSection() {
             onChange={(event) => setPassword(event.target.value)}
           />
           <button type="submit" className="button-accent" disabled={!password || busy}>
-            {busy ? 'Opening…' : 'Open'}
+            {busy ? <Waiting>Opening…</Waiting> : 'Open'}
           </button>
         </form>
       )}
@@ -374,8 +381,8 @@ function DeleteSection() {
     <section className="settings-card" aria-label="Delete everything">
       <h2 className="section-label">Delete everything</h2>
       <p className="section-description">
-        Removes all your items, reflections, decisions, values, and schedules from this device. If you use sync, this
-        device is signed out first, so your other devices and encrypted account are not affected.
+        Removes everything from this device. With sync on, this device signs out first, so other devices and your
+        account keep their copy.
       </p>
       {confirming ? (
         <div className="chip-row">
@@ -426,10 +433,12 @@ function SettingsGroup({ label, children }: { label: string; children: ReactNode
   );
 }
 
-function Row({ icon, title, value, onClick }: { icon: ReactNode; title: string; value?: string; onClick: () => void }) {
+type Tone = 'gold' | 'blue' | 'indigo' | 'teal' | 'green' | 'orange' | 'red' | 'pink' | 'gray' | 'app';
+
+function Row({ icon, tone = 'gray', title, value, onClick }: { icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void }) {
   return (
     <button type="button" className="settings-row" onClick={onClick}>
-      <span className="settings-row__icon">{icon}</span>
+      <span className={`settings-row__icon settings-tile settings-tile--${tone}`}>{icon}</span>
       <span className="settings-row__text">{title}</span>
       {value && <span className="settings-row__value">{value}</span>}
       <ChevronRightIcon size={18} className="settings-row__chevron" />
@@ -450,10 +459,9 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         onDone();
       }}
     >
-      <p className="section-description">Greets you in every app.</p>
+      <p className="sheet__label">Your name</p>
       <input
         className="field-input"
-        autoFocus
         autoComplete="given-name"
         aria-label="Name"
         placeholder="What would you like to be called?"
@@ -461,14 +469,13 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         value={name}
         onChange={(event) => setName(event.target.value)}
       />
-      <div className="composer__actions">
-        <button type="button" className="button-quiet" onClick={onDone}>
-          Cancel
-        </button>
-        <button type="submit" className="button-accent">
-          Save
-        </button>
-      </div>
+      {name.trim() !== displayName() && (
+        <div className="composer__actions">
+          <button type="submit" className="button-accent">
+            Save
+          </button>
+        </div>
+      )}
     </form>
   );
 }
@@ -485,7 +492,7 @@ function DaySection() {
   return (
     <section className="settings-card" aria-label="When your day starts">
       <p className="section-description">
-        Today, Plan, your path, and your intention all belong to one day. This sets when that day turns over.
+        When Today turns over to a new day.
       </p>
       <button
         type="button"
@@ -494,7 +501,7 @@ function DaySection() {
         onClick={() => update({ ...settings, followShifts: !settings.followShifts })}
       >
         <span className={`toggle-switch${settings.followShifts ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span>Let late hours count as the same day</span>
+        <span>Late hours count as the same day</span>
       </button>
       <p className="sheet__hint">
         When something in your schedule runs past the turnover, like a late or overnight stretch of work, the day keeps
@@ -535,7 +542,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
         parts: [
           { part: 'line', label: 'The daily line' },
           { part: 'intention', label: 'Today’s intention' },
-          { part: 'path', label: 'Today’s path' },
+          { part: 'path', label: 'Today’s to-do' },
           { part: 'capture', label: 'Capture line' },
           { part: 'close-day', label: 'Close the day' },
           { part: 'three-good-things', label: 'Three good things' },
@@ -648,7 +655,7 @@ const helpTopics: { title: string; body: string }[] = [
   },
   {
     title: 'Today',
-    body: 'A greeting, a line for the day, and the parts you choose: an intention, up to three things, your schedule. Tap the leaf for a lighter view.',
+    body: 'A greeting, a line for the day, and the parts you choose: an intention, a to-do for the day, your schedule. Tap the leaf for a lighter view.',
   },
   {
     title: 'Days ahead',
@@ -664,7 +671,7 @@ const helpTopics: { title: string; body: string }[] = [
   },
   {
     title: 'Your data',
-    body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Back up and restore live in Settings.',
+    body: 'Everything stays on this device unless you turn on sync, which is encrypted here first. Backups live in Settings > Your data.',
   },
 ];
 
@@ -691,6 +698,11 @@ function HelpSection() {
 
 function AppearanceSection() {
   const [appearance, setAppearance] = useState(loadAppearance);
+  const mode =
+    appearance.theme === 'light' ||
+    (appearance.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches)
+      ? 'light'
+      : 'dark';
   const update = (next: typeof appearance) => {
     setAppearance(next);
     saveAppearance(next);
@@ -712,6 +724,78 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
+      <p className="sheet__label">Room</p>
+      <div className="room-grid" role="radiogroup" aria-label="Room">
+        {ROOMS.map((room) => (
+          <button
+            key={room}
+            type="button"
+            role="radio"
+            className="room-tile"
+            aria-checked={appearance.room === room}
+            onClick={() => update({ ...appearance, room })}
+          >
+            <span
+              className="room-tile__art"
+              style={{ backgroundImage: wallpaperOf(room, mode) }}
+              aria-hidden="true"
+            />
+            <span className="room-tile__name">{room}</span>
+          </button>
+        ))}
+      </div>
+      <p className="sheet__label">Color</p>
+      <div className="lamp-colors" role="radiogroup" aria-label="Color">
+        <button
+          type="button"
+          role="radio"
+          className="lamp-color lamp-color--match"
+          aria-checked={appearance.color === 'match'}
+          onClick={() => update({ ...appearance, color: 'match' })}
+        >
+          <span
+            className="lamp-color__dot"
+            style={{ background: swatchOf(colorFor(appearance.room, 'match'), mode, appearance.room) }}
+            aria-hidden="true"
+          />
+          Match
+        </button>
+        {LAMP_COLORS.map((color) => (
+          <button
+            key={color}
+            type="button"
+            role="radio"
+            className="lamp-color"
+            aria-checked={appearance.color === color}
+            onClick={() => update({ ...appearance, color })}
+          >
+            <span className="lamp-color__dot" style={{ background: swatchOf(color, mode, appearance.room) }} aria-hidden="true" />
+            {color}
+          </button>
+        ))}
+        <button
+          type="button"
+          role="radio"
+          className="lamp-color"
+          aria-checked={ownHue(appearance.color) !== null}
+          onClick={() => update({ ...appearance, color: `hue:${ownHue(appearance.color) ?? 200}` })}
+        >
+          <span className="lamp-color__dot lamp-color__dot--own" style={{ background: swatchOf(`hue:${ownHue(appearance.color) ?? 200}`, mode, appearance.room) }} aria-hidden="true" />
+          Your own
+        </button>
+      </div>
+      {ownHue(appearance.color) !== null && (
+        <label className="lamp-hue">
+          <span className="sheet__label">Hue</span>
+          <input
+            type="range"
+            min={0}
+            max={359}
+            value={ownHue(appearance.color) ?? 200}
+            onChange={(event) => update({ ...appearance, color: `hue:${Number(event.target.value)}` })}
+          />
+        </label>
+      )}
       <p className="sheet__label">Text size</p>
       <div className="chip-row" role="group" aria-label="Text size">
         {(Object.keys(sizeLabels) as (keyof typeof sizeLabels)[]).map((size) => (
@@ -735,7 +819,7 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
-          <span className="toggle-row__detail">A light tap when you tick or switch something.</span>
+          <span className="toggle-row__detail">When you tick or switch something</span>
         </span>
       </button>
     </section>
@@ -765,19 +849,19 @@ function TodaySection() {
     </button>
   );
   return (
-    <section className="settings-card" aria-label="What’s included">
-      <p className="section-description">
-        Switch anything off or back on at any time. Nothing you recorded is lost.
-      </p>
-      {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).map(({ app, sections }) => (
-        <div key={app} className="stack-tight">
-          <h2 className="settings-group__label">{app}</h2>
-          {sections.map((section) => {
-            const main = section.parts.filter((entry) => !entry.rare);
-            const rare = section.parts.filter((entry) => entry.rare);
-            return (
-              <div key={section.label ?? app} className="stack-tight">
-                {section.label && <p className="sheet__label">{section.label}</p>}
+    <div className="settings-sections" aria-label="What’s included">
+      {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).flatMap(({ app, sections }) =>
+        sections.map((section) => {
+          const main = section.parts.filter((entry) => !entry.rare);
+          const rare = section.parts.filter((entry) => entry.rare);
+          const icon = familyApps.find((each) => each.name === app)?.icon;
+          return (
+            <section key={`${app}-${section.label ?? ''}`} className="settings-group" aria-label={section.label ?? app}>
+              <h2 className="settings-group__label">
+                {!section.label && icon && <img src={icon} alt="" width={18} height={18} />}
+                {section.label ?? app}
+              </h2>
+              <div className="settings-card settings-card--rows">
                 {main.map(row)}
                 {rare.length > 0 && (
                   <details className="sheet__more">
@@ -786,12 +870,11 @@ function TodaySection() {
                   </details>
                 )}
               </div>
-            );
-          })}
-        </div>
-      ))}
-      <p className="sheet__hint">Tap the leaf on Today for a lighter view.</p>
-    </section>
+            </section>
+          );
+        }),
+      )}
+    </div>
   );
 }
 
@@ -800,9 +883,9 @@ function OffersSection() {
   const [hidden, setHidden] = useState(hiddenOffers);
   const [showSetAside, setShowSetAside] = useState(showNotForMe);
   return (
-    <section className="settings-card" aria-label="Quiet offers">
-      <h2 className="section-label">Quiet offers</h2>
-      <p className="section-description">Offers appear at most once a day.</p>
+    <section className="settings-group settings-sections" aria-label="Quiet offers">
+      <h2 className="settings-group__label">Quiet offers</h2>
+      <div className="settings-card settings-card--rows">
       <button
         type="button"
         className="toggle-row"
@@ -826,9 +909,7 @@ function OffersSection() {
         }}
       >
         <span className={`toggle-switch${showSetAside ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-        <span className="toggle-row__text">
-          <span>Show “Not for me” on cards</span>
-        </span>
+        <span>Show “Not for me” on cards</span>
       </button>
       {hidden.length > 0 && (
         <button
@@ -842,7 +923,7 @@ function OffersSection() {
           Bring back the {hidden.length === 1 ? 'one' : hidden.length} you set aside
         </button>
       )}
-      <p className="sheet__hint">The practices are always there under Pause → Another way to pause.</p>
+      </div>
     </section>
   );
 }
@@ -890,7 +971,6 @@ function SourcesSection() {
   return (
     <section className="settings-card" aria-label="Where this comes from">
       <h2 className="section-label">Where this comes from</h2>
-      <p className="section-description">Sources for the practices in Proairetos.</p>
       {sources.map((source) => (
         <div key={source.tradition} className="sources">
           <p className="sheet__label">{source.tradition}</p>
@@ -929,7 +1009,7 @@ function LockSection() {
         aria-label="Lock Reflect"
         onSubmit={async (event) => {
           event.preventDefault();
-          if (code !== again) return setMessage('The two do not match.');
+          if (code !== again) return setMessage('The passphrases don’t match.');
           try {
             await lock.turnOn(code);
             setCode('');
@@ -941,8 +1021,8 @@ function LockSection() {
         }}
       >
         <p className="section-description">
-          Ask for a passcode before Reflect, Journal, Insights and the weekly review open, and keep Reflect writing out of
-          search. Privacy on this phone, not encryption.
+          A passcode before Reflect, Journal, Insights and the weekly review; Reflect stays out of search. Privacy on
+          this device, not encryption.
         </p>
         <input
           className="field-input"
@@ -1000,7 +1080,7 @@ function LockSection() {
         onClick={async () => {
           if (await lock.check(current)) lock.turnOff();
           else {
-            setMessage('That is not the passcode.');
+            setMessage('That passcode isn’t right.');
             setCurrent('');
           }
         }}
@@ -1033,9 +1113,10 @@ export default function SettingsPage() {
   const status = useSyncStatus();
   const { openSupport } = useOverlays();
   const [find, setFind] = useState('');
-  const [view, setView] = useState<View | null>(() => {
+  const [view, setShown] = useState<View | null>(() => {
     return takeRequestedView();
   });
+  const setView = (next: View | null) => setShown(next && shownView(next));
   // Re-read after the name page closes.
   const name = view === null ? displayName() : '';
   const [mode, setMode] = useState<'device' | 'memory'>('device');
@@ -1059,9 +1140,7 @@ export default function SettingsPage() {
           </button>
         )}
         <PageHeader title={viewTitles[view]} />
-        {view === 'profile' && <ProfileSection onDone={() => setView(null)} />}
         {view === 'day' && <DaySection />}
-        {view === 'offers' && <OffersSection />}
         {view === 'today' && (
           <>
             <TodaySection />
@@ -1069,7 +1148,6 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'appearance' && <AppearanceSection />}
-        {view === 'lock' && <LockSection />}
         {view === 'help' && <HelpSection />}
         {view === 'calendars' && (
           <>
@@ -1080,21 +1158,22 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'weather' && <WeatherSection />}
-        {view === 'sources' && <SourcesSection />}
-        {view === 'calendar' && <CalendarSection onOpenAccount={() => setView('account')} />}
-        {view === 'account' && <ProfileSection onDone={() => undefined} />}
+        {view === 'inbox' && <InboxSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
+        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
-        {view === 'import' && <BringInSection />}
         {view === 'backup' && (
           <>
             <StorageFacts className="section-description" />
             <ExportSection />
             <DailySection />
             <ImportSection />
+            <h2 className="settings-group__label">Bring things in</h2>
+            <BringInSection />
+            <DeleteSection />
           </>
         )}
-        {view === 'delete' && <DeleteSection />}
+        {view === 'privacy' && <LockSection />}
         {view === 'privacy' && (
           <section className="settings-card" aria-label="Privacy">
             <p className="section-description">
@@ -1142,25 +1221,27 @@ export default function SettingsPage() {
 
   if (view && !wide) return <div className="page">{detail}</div>;
 
-  type Entry = { id: string; icon: ReactNode; title: string; value?: string; onClick: () => void; words?: string };
+  type Entry = { id: string; icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void; words?: string };
   const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
   const groups: { label: string; entries: Entry[] }[] = [
     {
       label: 'Your days',
       entries: [
-        { id: 'schedule', icon: <CalendarIcon size={22} />, title: 'Your schedule', onClick: () => navigate('schedule'), words: 'work shifts study rotation' },
-        { id: 'day', icon: <MoonIcon size={22} />, title: 'Day starts', value: daySummary(), onClick: () => setView('day'), words: 'midnight turnover morning' },
+        { id: 'schedule', icon: <BriefcaseIcon size={18} />, tone: 'indigo', title: 'Your schedule', onClick: () => navigate('schedule'), words: 'work shifts study rotation' },
         {
           id: 'calendars',
-          icon: <CalendarIcon size={22} />,
+          icon: <CalendarIcon size={18} />,
+          tone: 'red',
           title: 'Calendars',
           value: calendarSources().length ? String(calendarSources().length) : undefined,
           onClick: () => setView('calendars'),
-          words: 'google outlook ics subscription feed',
+          words: 'google outlook ics subscription feed share',
         },
+        { id: 'day', icon: <ClockIcon size={18} />, tone: 'orange', title: 'Day starts', value: daySummary(), onClick: () => setView('day'), words: 'midnight turnover morning night shift' },
         {
           id: 'weather',
-          icon: <PartlyCloudyIcon size={22} />,
+          icon: <PartlyCloudyIcon size={18} />,
+          tone: 'blue',
           title: 'Weather',
           value: weatherSettings().on ? 'On' : 'Off',
           onClick: () => setView('weather'),
@@ -1173,16 +1254,19 @@ export default function SettingsPage() {
       entries: [
         {
           id: 'notifications',
-          icon: <BellIcon size={22} />,
+          icon: <BellIcon size={18} />,
+          tone: 'red',
           title: 'Notifications',
           value: notifications.permission() === 'granted' ? 'On' : 'Off',
           onClick: () => setView('notifications'),
           words: 'reminders quiet hours lock screen push',
         },
-        { id: 'today', icon: <SunIcon size={22} />, title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers' },
+        { id: 'inbox', icon: <CaptureIcon size={18} />, tone: 'teal', title: 'Capture from anywhere', value: inboxHere() ? 'On' : undefined, onClick: () => setView('inbox'), words: 'siri shortcut back tap watch quick add inbox' },
+        { id: 'today', icon: <SunIcon size={18} />, tone: 'gold', title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers not for me' },
         {
           id: 'appearance',
-          icon: <MoonIcon size={22} />,
+          icon: <MoonIcon size={18} />,
+          tone: 'indigo',
           title: 'Appearance',
           value: themeLabels[loadAppearance().theme],
           onClick: () => setView('appearance'),
@@ -1193,36 +1277,34 @@ export default function SettingsPage() {
     {
       label: 'Account and data',
       entries: [
-        { id: 'lock', icon: <ShieldIcon size={22} />, title: 'Lock Reflect', value: lock.isOn() ? 'On' : 'Off', onClick: () => setView('lock'), words: 'passcode pin privacy journal' },
-        { id: 'account', icon: <CloudIcon size={22} />, title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key' },
+        { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey passphrase storage google drive dropbox onedrive' },
+        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock' },
         {
           id: 'backup',
-          icon: <InboxIcon size={22} />,
-          title: 'Back up and restore',
+          icon: <InboxIcon size={18} />,
+          tone: 'green',
+          title: 'Your data',
           value: lastCopyLabel(lastBackupDate()),
           onClick: () => setView('backup'),
-          words: 'export download markdown readable daily copies restore file',
+          words: 'back up backup export download markdown readable daily copies restore file import todoist csv google tasks bring in delete erase',
         },
-        { id: 'import', icon: <InboxIcon size={22} />, title: 'Bring things in', value: 'From other apps', onClick: () => setView('import'), words: 'import todoist csv calendar google tasks' },
-        { id: 'privacy', icon: <ShieldIcon size={22} />, title: 'Privacy', onClick: () => setView('privacy') },
-        { id: 'delete', icon: <span className="settings-row__danger">×</span>, title: 'Delete everything', onClick: () => setView('delete'), words: 'erase remove account data' },
       ],
     },
     {
       label: 'Apps',
       entries: [
-        { id: 'store', icon: <CompassIcon size={22} />, title: 'Store', value: 'Add apps to Proairetos', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema phyton running recipes bills water study reading sleep people chores medicines strength upkeep warranty plants garden' },
+        { id: 'store', icon: <CompassIcon size={18} />, tone: 'gold', title: 'Store', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema phyton running recipes bills water study reading sleep people chores medicines strength upkeep warranty plants garden' },
         ...familyApps
           .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
-          .map((each) => ({ id: each.id, icon: app(each.icon), title: each.name, value: each.line, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),
+          .map((each) => ({ id: each.id, icon: app(each.icon), tone: 'app' as Tone, title: each.name, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),
       ],
     },
     {
       label: 'About',
       entries: [
-        { id: 'help', icon: <NoteIcon size={22} />, title: 'Help & feedback', onClick: () => setView('help') },
-        { id: 'news', icon: <StarIcon size={22} />, title: 'What’s new', onClick: () => setView('news'), words: 'changes updates new features' },
-        { id: 'about', icon: <BookIcon size={22} />, title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
+        { id: 'help', icon: <NoteIcon size={18} />, tone: 'teal', title: 'Help and feedback', onClick: () => setView('help') },
+        { id: 'news', icon: <StarIcon size={18} />, tone: 'pink', title: 'What’s new', onClick: () => setView('news'), words: 'changes updates new features' },
+        { id: 'about', icon: <BookIcon size={18} />, tone: 'gray', title: 'About Proairetos', onClick: () => setView('about'), words: 'sources credits' },
       ],
     },
   ];
@@ -1230,7 +1312,7 @@ export default function SettingsPage() {
   const matches = needle
     ? [
         ...groups.flatMap((group) => group.entries),
-        { id: 'name', icon: <PenIcon size={22} />, title: 'Your name', onClick: () => setView('account'), words: 'profile greeting called' } as Entry,
+        { id: 'name', icon: <PenIcon size={18} />, tone: 'gold', title: 'Your name', onClick: () => setView('account'), words: 'profile greeting called' } as Entry,
       ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
     : [];
 
@@ -1255,7 +1337,7 @@ export default function SettingsPage() {
         <div className="settings-list">
           {matches.length === 0 && <p className="empty-note">Nothing matches that.</p>}
           {matches.map((entry) => (
-            <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+            <Row key={entry.id} icon={entry.icon} tone={entry.tone} title={entry.title} value={entry.value} onClick={entry.onClick} />
           ))}
         </div>
       ) : (
@@ -1274,13 +1356,13 @@ export default function SettingsPage() {
           {groups.map((group) => (
             <SettingsGroup key={group.label} label={group.label}>
               {group.entries.map((entry) => (
-                <Row key={entry.id} icon={entry.icon} title={entry.title} value={entry.value} onClick={entry.onClick} />
+                <Row key={entry.id} icon={entry.icon} tone={entry.tone} title={entry.title} value={entry.value} onClick={entry.onClick} />
               ))}
             </SettingsGroup>
           ))}
 
           <div className="settings-list">
-            <Row icon={<HeartIcon size={22} />} title="If things feel like too much" onClick={openSupport} />
+            <Row icon={<HeartIcon size={18} />} tone="pink" title="If things feel like too much" onClick={openSupport} />
           </div>
 
         </>

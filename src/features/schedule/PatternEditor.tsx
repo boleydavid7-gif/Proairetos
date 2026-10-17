@@ -8,6 +8,7 @@ import type { SchedulePattern, ScheduleSegment, TimeBlock } from '../../core/sch
 import { ScheduleValidationError, type PatternInput } from '../../services/schedule/scheduleService';
 import SchedulePreview from './SchedulePreview';
 import { weekdayNames } from './format';
+import { Sym } from '../../lamplight/icons';
 
 type Props = {
   patternId?: string;
@@ -82,7 +83,7 @@ function RunCard({
             ↓
           </button>
           <button type="button" className="icon-button" aria-label={`Remove ${name}`} disabled={count === 1} onClick={onRemove}>
-            ×
+            <Sym name="close" />
           </button>
         </span>
       </div>
@@ -131,7 +132,7 @@ function RunCard({
 }
 
 /**
- * Gives a shift its colour, and every other shift with the same name too,
+ * Gives a shift its color, and every other shift with the same name too,
  * so all of a rotation's Nights match with one choice.
  */
 export function colorShift(segments: ScheduleSegment[], index: number, color: TagColor | undefined): ScheduleSegment[] {

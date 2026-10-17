@@ -36,7 +36,7 @@ export function PlantRow({ plant, today, onOpen, place = true }: { plant: Plant;
   return (
     <SwipeItem className="chore plant-row" label="Watered" onSwipe={() => watered(plant, today)}>
       <button type="button" className="tick" aria-label={`${plant.name}: watered`} onClick={() => watered(plant, today)}>
-        <DropIcon size={19} />
+        <DropIcon size={20} />
       </button>
       <button type="button" className="chore__open" onClick={onOpen}>
         <span className="chore__name">

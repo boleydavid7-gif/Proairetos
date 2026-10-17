@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /storage-connected/
+
+Sitemap: https://proairetos.com/sitemap.xml

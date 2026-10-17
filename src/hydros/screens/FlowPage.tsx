@@ -7,6 +7,7 @@ import { useDays } from '../app/day';
 import DrinkEntry from '../app/DrinkEntry';
 import { defaultDrinkProfiles, drinkDay, effectiveGoalOz, formatVolume, hydrationOz, localDate, monthDates, startOfWeek, weekDates, weekNumber, type HydrosUnit } from '../core/drinks';
 import { ScreenHeader, Segmented } from '../app/ui';
+import { Sym } from '../../lamplight/icons';
 
 type Span = 'Week' | 'Month';
 const PAGE = 30;
@@ -30,7 +31,9 @@ export default function FlowPage({ nav }: { nav: Nav }) {
   const values = useMemo(() => range.map((day) => hydrationOz(drinks.filter((drink) => days.get(drink.id) === day), profiles)), [drinks, days, profiles, range.join(',')]);
   const periodDrinks = useMemo(() => drinks.filter((drink) => range.includes(days.get(drink.id) ?? '')), [drinks, days, range.join(',')]);
   const goal = settings.goalChosen ? effectiveGoalOz(settings) : undefined;
-  const max = Math.max(goal ?? 0, ...values, 1) * 1.1;
+  // About a liter at least (amounts are in ounces), so an empty or light week keeps a readable scale; no target is
+  // drawn from it.
+  const max = Math.max(goal ?? 0, ...values, 32) * 1.1;
   const periodTitle = span === 'Week'
     ? `Week ${weekNumber(weekCursor)} · ${weekCursor.getFullYear()}`
     : monthCursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
@@ -52,9 +55,9 @@ export default function FlowPage({ nav }: { nav: Nav }) {
     <ScreenHeader title="Your flow" onBack={nav.back} />
     <Segmented items={['Week', 'Month'] as const} selected={span} onSelect={(next) => { setSpan(next); setShown(PAGE); }} />
     <div className="flow-period" aria-label={`${span} to show`}>
-      <button type="button" className="flow-period__button" aria-label={`Previous ${span.toLowerCase()}`} onClick={() => movePeriod(-1)}>‹</button>
+      <button type="button" className="flow-period__button" aria-label={`Previous ${span.toLowerCase()}`} onClick={() => movePeriod(-1)}><Sym name="back" /></button>
       <strong>{periodTitle}</strong>
-      <button type="button" className="flow-period__button" aria-label={`Next ${span.toLowerCase()}`} onClick={() => movePeriod(1)}>›</button>
+      <button type="button" className="flow-period__button" aria-label={`Next ${span.toLowerCase()}`} onClick={() => movePeriod(1)}><Sym name="chevron" /></button>
     </div>
     <div className="flow-chart-card">
       {span === 'Week'

@@ -230,7 +230,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
             value={goal.color}
             onChange={async (color) => {
               await compassService.updateGoal(goal.id, { color: color ?? null });
-              // Its time takes the same colour, so the week reads as one.
+              // Its time takes the same color, so the week reads as one.
               const pattern = goal.patternId ? await scheduleService.getPattern(goal.patternId) : null;
               if (pattern) await scheduleService.updatePattern(pattern.id, { ...inputOf(pattern), color: color ?? 'sage' });
             }}
@@ -307,7 +307,7 @@ function Goal({ goal }: { goal: CompassStatement }) {
                 const savedTime = pattern ? inputOf(pattern) : undefined;
                 if (pattern) await scheduleService.removePattern(pattern.id);
                 const removal = await compassService.removeStatement(goal.id);
-                offerUndo(`Set down: ${goal.body}`, async () => {
+                offerUndo(`“${goal.body}” set down`, async () => {
                   await removal.undo();
                   if (savedTime) {
                     const restored = await scheduleService.createPattern(savedTime);

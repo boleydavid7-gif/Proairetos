@@ -82,7 +82,7 @@ describe('what can I make tonight', () => {
     expect(fits.find((fit) => fit.recipe.title === 'Toast')!.facts).toContain('not cooked yet');
   });
 
-  it('shows three at a time and comes round again', () => {
+  it('shows three at a time and comes around again', () => {
     expect(threeFrom([1, 2, 3, 4, 5], 0)).toEqual([1, 2, 3]);
     expect(threeFrom([1, 2, 3, 4, 5], 1)).toEqual([4, 5, 1]);
     expect(threeFrom([1, 2], 3)).toEqual([1, 2]);

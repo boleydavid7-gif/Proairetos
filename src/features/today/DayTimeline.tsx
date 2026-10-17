@@ -2,7 +2,7 @@ import { Fragment, type KeyboardEvent } from 'react';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatTimeOf } from '../schedule/format';
 import type { DayChangeTarget } from './DayChangeSheet';
-import { blockTitle, type TimelineEntry } from './timeline';
+import { blockTitle, untilText, type TimelineEntry } from './timeline';
 
 type Props = {
   date: string;
@@ -27,6 +27,8 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
   const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday');
   const nowIndex = now ? timed.findIndex((entry) => 'start' in entry && entry.start > now) : -1;
   const markerAt = now ? (nowIndex === -1 ? timed.length : nowIndex) : -1;
+  const until = (entry: TimelineEntry, index: number) =>
+    now && index === nowIndex && 'start' in entry ? `in ${untilText(entry.start.getTime() - now.getTime())}` : '';
   const marker = now && (
     <li className="timeline__now" aria-label={`Now, ${formatTimeOf(now)}`}>
       <span>Now · {formatTimeOf(now)}</span>
@@ -84,7 +86,9 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                 </span>
                 <span className="timeline__body">
                   <span className="timeline__title">{blockTitle(entry.occurrence)}</span>
-                  {shiftDetail(entry, date) && <span className="timeline__detail">{shiftDetail(entry, date)}</span>}
+                  {[until(entry, index), shiftDetail(entry, date)].filter(Boolean).length > 0 && (
+                    <span className="timeline__detail">{[until(entry, index), shiftDetail(entry, date)].filter(Boolean).join(' · ')}</span>
+                  )}
                   {goalLines?.get(entry.occurrence.patternId) && (
                     <span className="timeline__detail timeline__detail--goal">{goalLines.get(entry.occurrence.patternId)}</span>
                   )}
@@ -104,20 +108,21 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                 <span className="timeline__body">
                   <span className="timeline__title">{entry.event.title}</span>
                   <span className="timeline__detail">
-                    {[entry.event.source, entry.event.location].filter(Boolean).join(' · ')}
+                    {[until(entry, index), entry.event.source, entry.event.location].filter(Boolean).join(' · ')}
                   </span>
                 </span>
               </div>
             </li>
           ) : entry.kind === 'item' ? (
             <li>
-              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => (onOpenEntry ? onOpenEntry(entry.item.id) : onOpenItem(entry.item.id))}>
+              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => onOpenItem(entry.item.id)}>
                 <span className="timeline__time">
                   {formatTimeOf(entry.start)}
                   {entry.item.endsAt && <span className="timeline__until">{formatTimeOf(new Date(entry.item.endsAt))}</span>}
                 </span>
                 <span className="timeline__body">
                   <span className="timeline__title">{entry.item.title}</span>
+                  {until(entry, index) && <span className="timeline__detail">{until(entry, index)}</span>}
                 </span>
               </button>
             </li>

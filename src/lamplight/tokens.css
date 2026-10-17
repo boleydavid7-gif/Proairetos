@@ -1,0 +1,97 @@
+/*
+ * Lamplight's tokens: every value a rule may use, by role. Colors (--ll-page, --ll-ink, --ll-lamp, …) are made
+ * from seeds by scheme.ts and set on the root by applyLamplight; everything else is here. The fallbacks keep a
+ * page readable before the scheme arrives. Write rules against these names, never a raw value.
+ */
+:root {
+  /* Shape: a few radii, nested smaller inside larger. */
+  --ll-radius-xs: 8px;
+  --ll-radius-sm: 12px;
+  --ll-radius-md: 16px;
+  --ll-radius-lg: 22px;
+  --ll-radius-pill: 999px;
+
+  /* Space, on a 4-point grid. */
+  --ll-space-1: 4px;
+  --ll-space-2: 8px;
+  --ll-space-3: 12px;
+  --ll-space-4: 16px;
+  --ll-space-5: 24px;
+  --ll-space-6: 32px;
+  --ll-space-7: 40px;
+  --ll-space-8: 48px;
+
+  /* Type: the serif for page titles, quotes and the person's own words; the sans for everything else. */
+  --ll-serif: 'EB Garamond', Georgia, serif;
+  --ll-sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ll-type-display: 400 var(--text-4xl, 2.3rem) / 1.05 var(--ll-serif);
+  --ll-type-headline: 400 var(--text-2xl, 1.6rem) / 1.15 var(--ll-serif);
+  --ll-type-title: 600 var(--text-lg, 1.15rem) / 1.3 var(--ll-sans);
+  --ll-type-body: 400 var(--text-md, 1rem) / 1.5 var(--ll-sans);
+  --ll-type-label: 600 var(--text-sm, 0.875rem) / 1.3 var(--ll-sans);
+  --ll-type-caption: 400 var(--text-xs, 0.75rem) / 1.4 var(--ll-sans);
+
+  /* Light, in place of elevation: a surface is lit from above (a faint top edge) and rests on the page (a soft
+     shade under it). Three steps: a card, something lifted (a menu), something brought forward (a sheet). */
+  --ll-light-1: inset 0 1px 0 rgba(var(--ll-ink-rgb, 255, 255, 255), 0.05), 0 1px 2px rgba(0, 0, 0, 0.16);
+  --ll-light-2: inset 0 1px 0 rgba(var(--ll-ink-rgb, 255, 255, 255), 0.07), 0 10px 28px -14px rgba(0, 0, 0, 0.5);
+  --ll-light-3: inset 0 1px 0 rgba(var(--ll-ink-rgb, 255, 255, 255), 0.08), 0 24px 60px -24px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--ll-hair, rgba(255, 255, 255, 0.07));
+  /* The lamp's own light on what it marks: the main action, the place you are. */
+  --ll-lamp-light: 0 6px 22px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+
+  /* Motion. Light turns up fast and down slowly. */
+  --ll-quick: 120ms;
+  --ll-calm: 240ms;
+  --ll-slow: 420ms;
+  --ll-dim: 640ms;
+  --ll-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ll-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ll-ease-light: cubic-bezier(0.3, 0, 0, 1);
+
+  /* Focus: a ring of the lamp. */
+  --ll-focus: 0 0 0 3px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.5);
+}
+
+/* In daylight the shade under a surface is softer and takes the room's ink rather than black. */
+:root[data-theme='light'] {
+  --ll-light-1: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
+  --ll-light-2: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 28px -14px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
+  --ll-light-3: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 60px -24px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.3), 0 0 0 1px var(--ll-hair, rgba(35, 29, 21, 0.09));
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --ll-light-1: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
+    --ll-light-2: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 28px -14px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
+    --ll-light-3: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 60px -24px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.3), 0 0 0 1px var(--ll-hair, rgba(35, 29, 21, 0.09));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ll-quick: 0ms;
+    --ll-calm: 0ms;
+    --ll-slow: 0ms;
+    --ll-dim: 0ms;
+  }
+}
+
+/* Springs. Movement settles like a damped spring rather than following a fixed curve, as Material's expressive
+   motion and iOS do: `--ll-spring` lands with a hair of overshoot (things that move into place), `--ll-spring-lively`
+   with a visible one (a lift, a pop, an indicator sliding along). Sampled curves of real springs (CSS linear()); the
+   family's older easing names take them too, so every app moves the same way. */
+:root {
+  --ll-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ll-spring-lively: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root:root {
+    --ll-spring: linear(0, 0.157 6.25%, 0.438 12.5%, 0.666 18.75%, 0.82 25%, 0.915 31.25%, 0.968 37.5%, 0.995 43.75%, 1.007 50%, 1.01 56.25%, 1.008 62.5%, 1.004 75%, 1);
+    --ll-spring-lively: linear(0, 0.21 6.25%, 0.59 12.5%, 0.9 18.75%, 1.07 25%, 1.12 31.25%, 1.1 37.5%, 1.05 43.75%, 1.01 50%, 0.99 56.25%, 0.985 62.5%, 0.995 75%, 1.001 87.5%, 1);
+    --ll-ease-out: var(--ll-spring);
+    --ease-out: var(--ll-spring);
+    --ease: var(--ll-spring);
+    --ease-spring: var(--ll-spring-lively);
+  }
+}

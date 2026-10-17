@@ -11,24 +11,24 @@ import '@fontsource/eb-garamond/latin-500.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
-// The family's shared look (from Askesis), then Soma's own warmer colours.
+// The family's shared look (from Askesis), then Soma's own warmer colors.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'soma'));
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { startLaunchFiles } from '../app/family/launchFiles';
 import AddedOnly from '../app/family/AddedOnly';
 import { readInvite } from './core/sharedList';
 import { keepInvite } from './screens/SharedList';
 
-// The same theme and text size as Proairetos, with Soma's own bar colour.
-function appearance() {
-  applyAppearance();
-  const theme = document.documentElement.dataset.theme;
-  const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#121a16' : '#f3ede2');
-}
+// The same theme and text size as Proairetos, with Soma's own bar color.
+const appearance = () => applyAppearance();
 appearance();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', appearance);
 window.addEventListener('storage', appearance);
@@ -50,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     );
     void startSync();
     startDailyCopies();
+    startLaunchFiles();
   });
 
 // Its own service worker, scoped to /soma/, so it installs and opens offline as its own app.

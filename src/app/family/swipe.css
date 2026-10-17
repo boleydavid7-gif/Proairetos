@@ -45,3 +45,22 @@
 .check-list .swipe + .swipe {
   border-top: 0;
 }
+
+/* A pull that removes (Days ahead): the warning tone behind, as in the platforms' lists. */
+.swipe--remove .swipe__action {
+  background: var(--color-danger-soft, rgba(201, 138, 122, 0.22));
+  color: var(--color-danger, #c98a7a);
+}
+
+/* Proairetos's day rows have their own surface and corners; the row moves on the page itself. */
+.days-list .swipe__front {
+  background: transparent;
+}
+
+.days-list .swipe__action {
+  border-radius: var(--radius-md);
+}
+
+.days-list .swipe + .swipe {
+  border-top: 0;
+}

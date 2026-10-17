@@ -1,5 +1,6 @@
 import { tap } from './feel';
 import { loadAppearance, type Appearance } from '../data/storage/preferences';
+import { startLamplightBehaviors } from '../lamplight/behaviors';
 
 const textScale: Record<Appearance['textSize'], string> = { default: '100%', large: '112.5%', larger: '125%' };
 
@@ -16,12 +17,21 @@ function listenForSwitches(): void {
   });
 }
 
+/** Each app lays its Lamplight room and color over the theme (its main hands it over: Proairetos with the
+ *  person's color, the others with their own). It returns the page color for the browser bar. */
+let lamplight: ((appearance: Appearance, light: boolean) => string) | null = null;
+export function withLamplight(apply: (appearance: Appearance, light: boolean) => string): void {
+  lamplight = apply;
+}
+
 export function applyAppearance(appearance: Appearance = loadAppearance()): void {
   listenForSwitches();
+  startLamplightBehaviors();
   const root = document.documentElement;
   root.dataset.theme = appearance.theme;
   root.style.fontSize = textScale[appearance.textSize];
   const light =
     appearance.theme === 'light' || (appearance.theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f4ecdf' : '#0a0c0e');
+  const page = lamplight?.(appearance, Boolean(light));
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', page ?? (light ? '#f4ecdf' : '#0a0c0e'));
 }

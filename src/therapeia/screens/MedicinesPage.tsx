@@ -3,7 +3,7 @@ import { PillIcon, PlusIcon, PrintIcon, ShareIcon } from '../../app/family/icons
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
-import { medicines, readings, settings } from '../app/state';
+import { readings, settings, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { latestLines } from '../core/readings';
 import { daysLeft, daysText, isCurrent, listText, timeText, type Medicine } from '../core/medicines';
@@ -23,7 +23,7 @@ function MedicineRow({ medicine, onOpen }: { medicine: Medicine; onOpen: () => v
 }
 
 export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
-  const all = medicines.use();
+  const all = useMedicines();
   const today = toLocalDate(new Date());
   const byName = [...all].sort((a, b) => a.name.localeCompare(b.name));
   const current = byName.filter((medicine) => isCurrent(medicine, today));
@@ -54,7 +54,7 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
       {current.length ? (
         <ul className="chore-list">{current.map((medicine) => <MedicineRow key={medicine.id} medicine={medicine} onOpen={() => open(medicine)} />)}</ul>
       ) : (
-        <Empty icon={<PillIcon size={26} />} title="No medicines yet" line="Each one with its times, so Today can list the doses." />
+        <Empty icon={<PillIcon size={28} />} title="No medicines yet" line="Each one with its times, so Today can list the doses." />
       )}
       {(card.allergies || card.conditions) && (
         <section className="card">

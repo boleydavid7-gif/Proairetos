@@ -1,7 +1,7 @@
 import { people } from '../../philia/app/state';
 import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
-import { appointments as therapeiaVisits, medicines as therapeiaMedicines } from '../../therapeia/app/state';
+import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } from '../../therapeia/app/state';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { allPlants } from '../../phyton/app/state';
 import { speciesBy } from '../../phyton/core/species';
@@ -148,7 +148,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     labels.set(chore.id, 'Chore in Ergon');
     things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
   }
-  for (const medicine of isAdded('therapeia') ? therapeiaMedicines.list() : []) {
+  for (const medicine of isAdded('therapeia') ? therapeiaMedicines() : []) {
     labels.set(medicine.id, 'Medicine in Therapeia');
     things.push({ id: medicine.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`medicine:${medicine.id}`)}`, title: medicine.name, fields: [{ name: 'Dose', text: medicine.dose }, { name: 'Note', text: medicine.note }], at: medicine.createdAt });
   }

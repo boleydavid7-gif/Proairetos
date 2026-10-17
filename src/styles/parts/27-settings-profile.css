@@ -42,41 +42,7 @@
   white-space: nowrap;
 }
 
-/* An on/off switch drawn beside a toggle-row label. */
-.toggle-switch {
-  flex: none;
-  position: relative;
-  width: 2.6rem;
-  height: 1.5rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  transition: background 150ms ease;
-}
-
-.toggle-switch::after {
-  content: '';
-  position: absolute;
-  top: 0.15rem;
-  left: 0.15rem;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background: var(--color-text-muted);
-  transition:
-    transform 150ms ease,
-    background 150ms ease;
-}
-
-.toggle-switch--on {
-  background: var(--color-accent-soft);
-  border-color: rgba(201, 162, 116, 0.5);
-}
-
-.toggle-switch--on::after {
-  transform: translateX(1.1rem);
-  background: var(--color-accent);
-}
+/* The on/off switch is drawn in premium.css, the same in every app. */
 
 /* ---------- Calendar subscription ---------- */
 
@@ -238,27 +204,10 @@
   flex-direction: column;
 }
 
-.notify-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.notify-group + .notify-group {
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
-}
-
 .notify-group__label {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin: 0;
-  color: var(--color-text);
-  font-size: var(--text-md);
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .notify-group__label img {
@@ -294,8 +243,9 @@
 
 .notify-row__choice {
   display: flex;
+  flex-basis: 100%;
   gap: var(--space-2);
-  margin-left: auto;
+  padding-bottom: var(--space-2);
 }
 
 .notify-row__choice--below {

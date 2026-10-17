@@ -30,7 +30,7 @@ export default function Overlaps({ overlaps, moveTo }: { overlaps: Overlap[]; mo
                 onClick={async () => {
                   const before = item.scheduledAt;
                   await lifeService.schedule(item.id, moveTo.toISOString());
-                  offerUndo(`Moved to ${formatTimeOf(moveTo)}: ${item.title}`, async () => {
+                  offerUndo(`“${item.title}” moved to ${formatTimeOf(moveTo)}`, async () => {
                     await lifeService.schedule(item.id, before);
                   });
                 }}

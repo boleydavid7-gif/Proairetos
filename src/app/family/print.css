@@ -135,6 +135,16 @@
   break-inside: avoid;
 }
 
+.print-total {
+  margin-top: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-table tbody tr:last-child:has(th:first-child) {
+  font-weight: 600;
+}
+
 .print-note {
   margin-top: 1.5rem;
   color: var(--ink-soft);
@@ -170,7 +180,6 @@
     box-shadow: none !important;
     transform: none !important;
     filter: none !important;
-    backdrop-filter: none !important;
   }
 
   body *:has(.print-sheet)::before,

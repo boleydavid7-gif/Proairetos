@@ -24,7 +24,7 @@ export type CalendarSource = {
    * shift); or as protected time (reminders wait until it ends).
    */
   role?: CalendarRole;
-  /** A colour the person gave it, for the days-ahead view. */
+  /** A color the person gave it, for the days-ahead view. */
   color?: TagColor;
   refreshedAt?: string;
   error?: string;

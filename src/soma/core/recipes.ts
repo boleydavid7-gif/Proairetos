@@ -9,7 +9,7 @@ export type Recipe = {
   /** Where it came from: a site's name, a book, a person. */
   source?: string;
   url?: string;
-  /** A photo: a web address from the import, or a small picture kept on the phone (data URL). */
+  /** A photo: a web address from the import, or a small picture kept on the device (data URL). */
   image?: string;
   /** How many it serves, as written ("4", "6 to 8"). */
   servings?: string;

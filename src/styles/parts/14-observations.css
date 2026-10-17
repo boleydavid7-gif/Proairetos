@@ -96,7 +96,7 @@
   padding: var(--space-4);
   border-left: 2px solid var(--color-accent);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  background: linear-gradient(90deg, rgba(201, 162, 116, 0.12), var(--color-surface) 70%);
+  background: linear-gradient(90deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.12), var(--color-surface) 70%);
 }
 
 .decision-choice__text {
@@ -147,7 +147,7 @@
   align-items: baseline;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.3);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.3);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-accent-strong);

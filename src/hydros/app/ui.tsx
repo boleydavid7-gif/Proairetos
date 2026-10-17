@@ -2,6 +2,7 @@ import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import { ChartIcon, DropIcon, PlusIcon } from './icons';
+import { Sym } from '../../lamplight/icons';
 
 export type Tab = 'today' | 'add' | 'flow';
 const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactNode }[] = [
@@ -35,7 +36,7 @@ export function Brand({ light = false }: { light?: boolean }) {
 }
 
 export function ScreenHeader({ title, onBack, action }: { title: string; onBack?: () => void; action?: ReactNode }) {
-  return <header className="hydros-header"><button type="button" className="hydros-icon-button" aria-label={onBack ? 'Back' : 'Close'} onClick={onBack}><span aria-hidden="true">{onBack ? '‹' : '×'}</span></button><h1>{title}</h1><span className="hydros-header__action">{action}</span></header>;
+  return <header className="hydros-header"><button type="button" className="hydros-icon-button" aria-label={onBack ? 'Back' : 'Close'} onClick={onBack}><span aria-hidden="true">{onBack ? <Sym name="back" size={22} /> : <Sym name="close" size={22} />}</span></button><h1>{title}</h1><span className="hydros-header__action">{action}</span></header>;
 }
 
 export function Segmented<T extends string>({ items, selected, onSelect }: { items: readonly T[]; selected: T; onSelect: (value: T) => void }) {

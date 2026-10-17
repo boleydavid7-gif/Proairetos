@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Privacy · Proairetos</title>
+    <link rel="canonical" href="https://proairetos.com/privacy.html" />
     <meta name="description" content="How Proairetos treats what you write: it stays on your device, encrypted if you sync, never read or sold." />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <style>
@@ -81,9 +82,17 @@
         Your phone works out what to remind you of. The server holds only when each reminder is due and its words, encrypted with your key, so it cannot read them. Your phone opens them when the reminder arrives.
       </p>
 
-      <h2>A shared grocery list or household (only if you make or join one)</h2>
+      <h2>Capture from anywhere (only if you turn it on)</h2>
       <p>
-        Each grocery line in Soma, each chore in an Ergon household, and each plant in a shared Phyton home, is encrypted with that list’s own key, which
+        A Shortcut on your phone sends your words to this site with your inbox token. They are locked at once with a key
+        only your phone holds, and kept that way until Proairetos opens them and deletes the locked copy. The server keeps
+        a fingerprint of the token, never the token itself.
+      </p>
+
+      <h2>A shared list, household or care circle (only if you make or join one)</h2>
+      <p>
+        Each grocery line in Soma, each chore in an Ergon household, each plant in a shared Phyton home, and each medicine
+        in a Therapeia care circle, is encrypted with that list’s own key, which
         travels only inside the invite link. The server stores them without being able to read them, and only people
         who joined with the link can see them.
       </p>
@@ -112,6 +121,21 @@
         TheMealDB, and a recipe link you bring in passes through proairetos.com without being stored. Distance by GPS
         in Askesis stays on your phone: only the distance is saved, never where you ran. A bank statement you bring
         into Oikonomia is read on your phone, and only money out is kept.
+      </p>
+
+      <h2 id="waitlist">The waitlist (only if you join it)</h2>
+      <p>
+        If you leave your email on the front page, it is kept with the apps you ticked and the date, and used only to
+        tell you about Proairetos and its apps. It is never sold or shared. To be taken off, reply to any email we send
+        or write to us, and it is deleted.
+      </p>
+
+      <h2>Buying an app (only when you buy one)</h2>
+      <p>
+        Proairetos is free. Buying an add-on opens Stripe's own payment page (stripe.com); your card details go to Stripe,
+        never to Proairetos. Stripe tells proairetos.com that the payment went through, and your account keeps a note of
+        which app you bought, the amount and the date, so it opens on every device you sign in on. Nothing about what is
+        inside your apps is involved.
       </p>
 
       <h2>Identifying a plant (only when you tap Identify)</h2>
@@ -164,7 +188,7 @@
 
       <h2>What the app never does</h2>
       <p>
-        It does not read, analyse, or score what you write, guess your mood, or show you advertising. Nothing you write
+        It does not read, analyze, or score what you write, guess your mood, or show you advertising. Nothing you write
         is used to train AI.
       </p>
 

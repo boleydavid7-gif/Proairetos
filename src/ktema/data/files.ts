@@ -1,7 +1,7 @@
 import { readArchiveJson, readZip } from '../../app/family/downloadZip';
 
 /*
- * Photos and files for things (a receipt, the rating plate, a manual as PDF), kept on this phone only, in their own
+ * Photos and files for things (a receipt, the rating plate, a manual as PDF), kept on this device only, in their own
  * IndexedDB database, like Theoria's books: not in backups or sync, which carry the details instead.
  */
 

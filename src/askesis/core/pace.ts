@@ -51,7 +51,7 @@ export function formatDistance(meters: number, unit: Unit): string {
   return `${value >= 100 ? Math.round(value) : value.toFixed(1)} ${unit}`;
 }
 
-/** Seconds per mile or kilometre. */
+/** Seconds per mile or kilometer. */
 export function paceOf(seconds: number, meters: number, unit: Unit): number | undefined {
   if (!(seconds > 0) || !(meters > 0)) return undefined;
   return seconds / inUnit(meters, unit);

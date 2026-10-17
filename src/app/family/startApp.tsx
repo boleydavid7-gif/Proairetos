@@ -1,7 +1,8 @@
 import React, { type ComponentType } from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../ErrorBoundary';
-import { applyAppearance } from '../appearance';
+import { applyAppearance, withLamplight } from '../appearance';
+import { applyLamplight } from '../lamplight';
 import { startSync } from '../sync/syncController';
 import { startDailyCopies } from './dailyCopy';
 import { startLaunchFiles } from './launchFiles';
@@ -9,17 +10,14 @@ import AddedOnly from './AddedOnly';
 import { notifications } from '../notify/notifications';
 
 /**
- * How the newer apps (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton) open: their colours on the root, appearance shared with Proairetos, the app,
+ * How the newer apps (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton) open: Lamplight on the root, appearance shared with Proairetos, the app,
  * sync, daily copies, notices through Proairetos's scheduler, and their own worker for working offline.
  */
-export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton', App: ComponentType, colours: { light: string; dark: string }): void {
+export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton', App: ComponentType): void {
   document.documentElement.classList.add(app);
-  const appearance = () => {
-    applyAppearance();
-    const theme = document.documentElement.dataset.theme;
-    const light = theme === 'light' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? colours.light : colours.dark);
-  };
+  // Lamplight: the person's room on every surface, this app's own lamp (src/lamplight); it also sets the bar color.
+  withLamplight((look, light) => applyLamplight(look, light, app));
+  const appearance = () => applyAppearance();
   appearance();
   window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);
   window.addEventListener('storage', appearance);

@@ -45,7 +45,7 @@ export function TranslateRecipe({ recipe, onKeep }: { recipe: Recipe; onKeep: (t
                   steps: lines.slice(1 + recipe.ingredients.length),
                 }),
               )
-              .catch(() => setProblem('The translation could not be made here.'))
+              .catch(() => setProblem('Couldn’t translate it here.'))
               .finally(() => setBusy(false));
           }}
         >

@@ -18,8 +18,8 @@ describe('brain dump', () => {
   it('makes a first guess, feelings and worries before tasks', () => {
     expect(guessKind('I need to call the bank')).toBe('TODO');
     expect(guessKind('renew passport')).toBe('TODO');
-    expect(guessKind('worried about mum’s appointment')).toBe('CONCERN');
-    expect(guessKind('call mum, worried about her')).toBe('CONCERN');
+    expect(guessKind('worried about mom’s appointment')).toBe('CONCERN');
+    expect(guessKind('call mom, worried about her')).toBe('CONCERN');
     expect(guessKind('I’m feeling really tired')).toBe('FEELING');
     expect(guessKind('maybe a herb garden')).toBe('IDEA');
     expect(guessKind('the blue folder is in the car')).toBe('REMEMBER');

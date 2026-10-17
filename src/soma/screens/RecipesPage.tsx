@@ -69,7 +69,7 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
         small
       />
       {recipes && recipes.length === 0 ? (
-        <Empty icon={<BookIcon size={26} />} title="No recipes yet" line="Bring one in from a link, paste one, or write your own.">
+        <Empty icon={<BookIcon size={28} />} title="No recipes yet" line="Bring one in from a link, paste one, or write your own.">
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'import' })}>
               Import

@@ -9,7 +9,7 @@ import { choreNotices } from '../../ergon/core/notices';
 import { allChores, myName as ergonName, settings as ergonSettings } from '../../ergon/app/state';
 import { careNotices } from '../../therapeia/core/notices';
 import { anchorsFrom } from '../../therapeia/core/medicines';
-import { appointments, medicines, settings as therapeiaSettings } from '../../therapeia/app/state';
+import { allMedicines, appointments, settings as therapeiaSettings } from '../../therapeia/app/state';
 import { mainSleeps } from '../../diaita/core/rhythm';
 import { trainingNotices } from '../../dynamis/core/notices';
 import { nextSession } from '../../dynamis/core/plan';
@@ -53,7 +53,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
     notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon));
   }
 
-  const meds = medicines.list();
+  const meds = allMedicines();
   const visits = appointments.list();
   if ((meds.length || visits.length) && isAdded('therapeia')) {
     // Times after waking and before sleep follow the schedule, as Diaita plans the person's sleep.

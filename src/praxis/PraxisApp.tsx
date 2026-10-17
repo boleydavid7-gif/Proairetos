@@ -42,12 +42,6 @@ const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
 const STARTERS_BEFORE = '2026-10-11';
 const SOUND_KEY = 'proairetos.praxisSound';
 
-function greeting(name: string, now: Date): string {
-  const hour = now.getHours();
-  const time = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  return name ? `${time}, ${name}` : time;
-}
-
 function usePraxisEvents(): ItemEvent[] | undefined {
   const local = useServiceData(lifeService.subscribe, () => lifeService.historyForAll(true));
   const [, setRemoteTick] = useState(0);
@@ -246,7 +240,7 @@ export default function PraxisApp() {
   // Start begins the timer, the sound and the end bell together.
   const [ready, setReady] = useState(opening === 'start');
 
-  // From Theoria's "Read for a while": the book as a block (made once, 20 minutes), ready to start.
+  // From Theoria's "Open Praxis": the book as a block (made once, 20 minutes), ready to start.
   const fromTheoria = useRef(false);
   useEffect(() => {
     if (fromTheoria.current || !items || !opening?.startsWith('read:')) return;
@@ -337,7 +331,6 @@ export default function PraxisApp() {
         <div className="praxis-page">
           {view === 'today' && (
             <TodayView
-              greeting={greeting(name, clock)}
               ready={ready && !session}
               today={today}
               blocks={blocks}
@@ -418,5 +411,5 @@ export default function PraxisApp() {
 
 
 function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {
-  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<ProairetosTab className="praxis-nav-item" size={18} /></div>;
+  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<ProairetosTab className="praxis-nav-item" size={18} /></div>;
 }

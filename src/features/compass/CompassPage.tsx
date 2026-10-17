@@ -17,6 +17,7 @@ import PeopleSection from './PeopleSection';
 import GoalsSection from './GoalsSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
+import { Sym } from '../../lamplight/icons';
 
 /**
  * Offered when a value is opened: one small thing for today, in the
@@ -34,7 +35,7 @@ function HonourToday({ value }: { value: ChosenValue }) {
     setText('');
     const item = await lifeService.capture(title, 'DO', { plannedFor: today });
     await lifeService.connectValue(item.id, value.id);
-    offerUndo(`For today: ${title}`, async () => {
+    offerUndo(`“${title}” is on today’s to-do`, async () => {
       await lifeService.deleteItem(item.id);
     });
   }
@@ -47,12 +48,12 @@ function HonourToday({ value }: { value: ChosenValue }) {
         void save();
       }}
     >
-      <label className="daily-line__label" htmlFor={`honour-${value.id}`}>
+      <label className="daily-line__label" htmlFor={`honor-${value.id}`}>
         What would {value.name.toLowerCase()} look like today?
       </label>
       <div className="field-row">
         <input
-          id={`honour-${value.id}`}
+          id={`honor-${value.id}`}
           className="field-input"
           placeholder="One small thing"
           value={text}
@@ -104,10 +105,10 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
           aria-label={`Remove ${value.name}`}
           onClick={async () => {
             const removal = await compassService.removeValue(value.id);
-            offerUndo(`Removed ${value.name}`, removal.undo);
+            offerUndo(`“${value.name}” removed`, removal.undo);
           }}
         >
-          ×
+          <Sym name="close" />
         </button>
       )}
     </li>
@@ -145,7 +146,7 @@ export default function CompassPage() {
 
   return (
     <div className="page">
-      <PageHero title="Compass" focus="peaks" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
+      <PageHero title="Compass" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>

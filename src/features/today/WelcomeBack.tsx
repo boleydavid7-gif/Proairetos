@@ -26,8 +26,8 @@ export default function WelcomeBack({ days, earlier, onDismiss, onCleared }: Pro
       {earlier.length > 0 && (
         <>
           <p className="welcome-back__text">
-            {earlier.length} {earlier.length === 1 ? 'thing had a time' : 'things had times'} on earlier days. You can
-            clear those times and keep the items, or look at them first.
+            {earlier.length} {earlier.length === 1 ? 'thing had a time' : 'things had times'} on earlier days. Clear the
+            times and keep the items, or look at them first.
           </p>
           {looking && (
             <ul className="welcome-back__list">

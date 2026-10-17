@@ -59,7 +59,7 @@ export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynami
     stoic: [
       { text: 'It is part of the cure to wish to be cured.', by: 'Seneca, Phaedra' },
       { text: 'Sickness is an impediment to the body, but not to the will, unless itself pleases.', by: 'Epictetus, Enchiridion 9 (tr. Elizabeth Carter)' },
-      { text: 'On the occasion of every pain let this thought be present, that there is no dishonour in it.', by: `Marcus Aurelius, Meditations 7.64 (${LONG})` },
+      { text: 'On the occasion of every pain let this thought be present, that there is no dishonor in it.', by: `Marcus Aurelius, Meditations 7.64 (${LONG})` },
       { text: 'Take away thy opinion, and then there is taken away the complaint, "I have been harmed."', by: `Marcus Aurelius, Meditations 4.7 (${LONG})` },
     ],
     buddhist: [
@@ -104,8 +104,8 @@ export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynami
       { text: 'An old man planting olive trees, for a shade he will never sit in, is not wasting his work.', by: 'After Seneca, Letters 86 (paraphrase)' },
     ],
     buddhist: [
-      { text: 'As a bee gathers honey from the flower without injuring its colour or fragrance, even so the sage goes on his alms-round in the village.', by: `The Buddha, Dhammapada 49 (${BUDDHARAKKHITA})` },
-      { text: 'Like a beautiful flower full of colour but without fragrance, even so, fruitless are the fair words of one who does not practise them.', by: `The Buddha, Dhammapada 51 (${BUDDHARAKKHITA})` },
+      { text: 'As a bee gathers honey from the flower without injuring its color or fragrance, even so the sage goes on his alms-round in the village.', by: `The Buddha, Dhammapada 49 (${BUDDHARAKKHITA})` },
+      { text: 'Like a beautiful flower full of color but without fragrance, even so, fruitless are the fair words of one who does not practice them.', by: `The Buddha, Dhammapada 51 (${BUDDHARAKKHITA})` },
       { text: 'Seeds come to growth and increase when there is earth and there is water.', by: 'After the Bija Sutta, SN 22.54 (paraphrase)' },
     ],
   },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayText, everyNow, feed, grouped, learnedEvery, nextCheck, nextFeed, seasonFactor, stillMoist, toFeed, water, wateredText, type Plant } from './plants';
+import { dayText, everyNow, feed, grouped, learnedEvery, nextCheck, nextFeed, seasonFactor, stillMoist, toFeed, water, wateredText, journal, fitForSharing, type Plant } from './plants';
 import { findSpecies, speciesForLatin, SPECIES } from './species';
 import { plantNotices, defaultPlantNotices } from './notices';
 import { frostTonight, hotDays, isAway } from './outdoors';
@@ -9,7 +9,7 @@ import { phytonYear } from './year';
 const plant = (patch: Partial<Plant> = {}): Plant => ({ id: 'p1', name: 'Pothos', species: 'pothos', every: 7, log: [], createdAt: '2026-06-01T10:00:00.000Z', ...patch });
 const watered = (...dates: string[]) => dates.map((date) => ({ date, kind: 'water' as const }));
 
-describe('when a plant comes round', () => {
+describe('when a plant comes around', () => {
   it('starts on the day it was added, then counts from the last watering', () => {
     expect(nextCheck(plant(), '2026-06-01')).toBe('2026-06-01');
     expect(nextCheck(water(plant(), '2026-06-03'), '2026-06-03')).toBe('2026-06-10');
@@ -47,7 +47,7 @@ describe('when a plant comes round', () => {
     expect(nextCheck({ ...p, outside: false }, '2026-06-06', 'north', rain)).toBe('2026-06-08');
   });
 
-  it('groups plants by the day they come round and never calls them late', () => {
+  it('groups plants by the day they come around and never calls them late', () => {
     const today = '2026-06-20';
     const g = grouped([plant({ id: 'a', name: 'A', log: watered('2026-06-01') }), plant({ id: 'b', name: 'B', log: watered('2026-06-18') }), plant({ id: 'c', name: 'C', every: 30, log: watered('2026-06-19') })], today);
     expect(g.now.map((p) => p.name)).toEqual(['A']);
@@ -58,7 +58,7 @@ describe('when a plant comes round', () => {
 });
 
 describe('feeding', () => {
-  it('comes round in spring and summer and waits for spring otherwise', () => {
+  it('comes around in spring and summer and waits for spring otherwise', () => {
     const p = feed(plant({ feedEvery: 4 }), '2026-06-01');
     expect(nextFeed(p, '2026-06-02')).toBe('2026-06-29');
     const late = feed(plant({ feedEvery: 4 }), '2026-09-20');
@@ -145,7 +145,7 @@ describe('outside: frost, hot days and days away', () => {
     expect(frostTonight([list[1]], forecast, '2026-10-21')).toBeUndefined();
   });
 
-  it('says nothing while away and names what came round the day after', () => {
+  it('says nothing while away and names what came around the day after', () => {
     const list = [plant({ id: 'a', name: 'Fern', log: watered('2026-06-14') }), plant({ id: 'b', name: 'Cactus', every: 30, log: watered('2026-06-14') })];
     const away = { from: '2026-06-19', to: '2026-06-24' };
     const notices = plantNotices(list, defaultPlantNotices, undefined, '2026-06-18', 10, new Date(2026, 5, 18, 8), { away });
@@ -163,5 +163,30 @@ describe('the sheet for whoever waters', () => {
     expect(rows[1]).toMatchObject({ name: 'Lily', place: 'Bedroom', often: 'About every 5 days', pets: 'Toxic to cats and dogs' });
     expect(rows[0].often).toBe('About every 2 days, less after rain');
     expect(sitterText(rows, { from: '2026-07-02', to: '2026-07-09' }, (day) => day)).toMatch(/^Plants, 2026-07-02 to 2026-07-09\n\nTomatoes \(Balcony, outside\)/);
+  });
+});
+
+describe('care journal', () => {
+  const plant: Plant = { id: 'p', name: 'Pothos', every: 7, log: [], createdAt: '2026-01-01T00:00:00Z' };
+
+  it('keeps pruned, pests and notes without moving the watering', () => {
+    const pruned = journal(plant, '2026-10-01', 'prune');
+    const pests = journal(pruned, '2026-10-02', 'pest', '  Fungus gnats  ');
+    const noted = journal(pests, '2026-10-03', 'note', 'x'.repeat(200));
+    expect(noted.log.map((entry) => entry.kind)).toEqual(['prune', 'pest', 'note']);
+    expect(noted.log[1].text).toBe('Fungus gnats');
+    expect(noted.log[2].text).toHaveLength(140);
+    expect(noted.tally).toBeUndefined();
+    expect(nextCheck(noted, '2026-10-03')).toBe(nextCheck(plant, '2026-10-03'));
+  });
+
+  it('gives way oldest first to fit a shared record, never below ten marks', () => {
+    let full = plant;
+    for (let day = 1; day <= 40; day += 1) full = journal(full, `2026-09-${String((day % 28) + 1).padStart(2, '0')}`, 'note', 'A long line about the new growth on the left side');
+    const fitted = fitForSharing(full);
+    expect(JSON.stringify(fitted).length).toBeLessThanOrEqual(2700);
+    expect(fitted.log.at(-1)).toEqual(full.log.at(-1));
+    expect(fitForSharing(full, 10).log).toHaveLength(10);
+    expect(fitForSharing(plant)).toBe(plant);
   });
 });

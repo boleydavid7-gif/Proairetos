@@ -23,7 +23,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
         <h1 className="title">Chores</h1>
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>
       </div>
-      {all.length === 0 && <Empty icon={<BroomIcon size={26} />} title="No chores yet" line="Each comes round on its own rhythm." />}
+      {all.length === 0 && <Empty icon={<BroomIcon size={28} />} title="No chores yet" line="Each comes around on its own rhythm." />}
       {ordered.map(([room, chores]) => (
         <section key={room} className="chore-group">
           <p className="label">{room}</p>

@@ -3,7 +3,7 @@ import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
 import { skip, take, takeNow, unmark, type Dose, type Medicine } from '../core/medicines';
-import { putMedicine } from './state';
+import { putMedicine, restoreMedicine } from './state';
 import PillMark from './PillMark';
 
 export const at = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -17,18 +17,18 @@ export function dayWord(date: Date, today: string): string {
 export function markTaken(dose: Dose): void {
   tap();
   putMedicine(take(dose.medicine, dose.slot, new Date()));
-  offerUndo(`${dose.medicine.name} taken`, () => putMedicine(dose.medicine));
+  offerUndo(`${dose.medicine.name} taken`, () => restoreMedicine(dose.medicine));
 }
 
 export function markSkipped(dose: Dose): void {
   putMedicine(skip(dose.medicine, dose.slot, new Date()));
-  offerUndo(`${dose.medicine.name} skipped`, () => putMedicine(dose.medicine));
+  offerUndo(`${dose.medicine.name} skipped`, () => restoreMedicine(dose.medicine));
 }
 
 export function takeOneNow(medicine: Medicine): void {
   tap();
   putMedicine(takeNow(medicine, new Date()));
-  offerUndo(`${medicine.name} taken`, () => putMedicine(medicine));
+  offerUndo(`${medicine.name} taken`, () => restoreMedicine(medicine));
 }
 
 export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
@@ -43,7 +43,7 @@ export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
         onClick={() => {
           if (marked) {
             putMedicine(unmark(dose.medicine, dose.slot));
-            offerUndo('Mark cleared', () => putMedicine(dose.medicine));
+            offerUndo('Mark cleared', () => restoreMedicine(dose.medicine));
           } else markTaken(dose);
         }}
       >

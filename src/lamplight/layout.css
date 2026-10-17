@@ -1,0 +1,144 @@
+/*
+ * Lamplight's layout: one rhythm for every screen in the family. Five patterns share it:
+ *   home     a picture band or title, then sections
+ *   list     a title, then one grouped list or cards, sections apart
+ *   detail   a back link, a title, facts, then actions at the foot
+ *   settings section labels outside, grouped lists inside
+ *   sheet    a title row, a body on the same gutter, actions last
+ * Every pattern uses the same four numbers: the gutter (side margin), the gap between things in a section, the
+ * gap between sections, and the gap from a section's label to what it labels (small, so a label reads as part of
+ * what follows). Text never goes below --ll-text-min; tab labels never below --ll-tab-min.
+ * The family's own page classes (.page, .section-head, .app-shell__content, …) are put on this rhythm below, so
+ * screens follow it without each being rewritten.
+ */
+:root {
+  --ll-gutter: 20px;
+  --ll-gap: 16px;
+  --ll-section-gap: 28px;
+  --ll-label-gap: 8px;
+  --ll-measure: 36rem;
+  --ll-text-min: 12px;
+  --ll-tab-min: 11px;
+}
+
+/* ---------- The patterns, for new screens ---------- */
+.ll-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ll-gap);
+  padding: calc(var(--ll-safe-top) + var(--ll-gutter)) var(--ll-gutter) var(--ll-section-gap);
+}
+
+.ll-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ll-label-gap);
+}
+
+.ll-section + .ll-section {
+  margin-top: calc(var(--ll-section-gap) - var(--ll-gap));
+}
+
+.ll-section-label {
+  margin: 0 0 0 4px;
+  color: var(--ll-ink-2, var(--muted, var(--color-text-muted)));
+  font: var(--ll-type-label);
+  font-weight: 500;
+}
+
+/* ---------- The family's pages on the rhythm ---------- */
+
+/* Pages of the shell apps (Askesis, Soma, Oikonomia and the newer apps). */
+:root .shell .page {
+  gap: var(--ll-gap);
+  padding-inline: var(--ll-gutter);
+}
+
+/* A section's head sits a section away from what came before and close to what it heads. */
+:root .shell .page > .section-head:not(:first-child),
+:root .shell .page > .ll-section-label:not(:first-child) {
+  margin-top: calc(var(--ll-section-gap) - var(--ll-gap));
+}
+
+:root .shell .page > .section-head,
+:root .shell .page > .ll-section-label {
+  margin-bottom: calc(var(--ll-label-gap) - var(--ll-gap));
+}
+
+/* Proairetos: the same gutter; its page's children are sections, so they stand a section apart. */
+:root .app-shell__content {
+  padding-inline: var(--ll-gutter);
+}
+
+:root .app-shell .page {
+  gap: var(--ll-section-gap);
+}
+
+:root .settings-group {
+  gap: var(--ll-label-gap);
+}
+
+/* Reading lines stay a comfortable length on wide screens. */
+:root :is(.article p, .contents__lead, .page-header__subtitle) {
+  max-width: var(--ll-measure);
+}
+
+/* Praxis and Theoria (a study room and a library with side navigation on computers) and Hydros (its glass) keep
+   their own pages; on phones they take the family's gutter and section rhythm too. The reader keeps its own edges. */
+:root .hydros-screen,
+:root .hydros-add {
+  padding-inline: var(--ll-gutter);
+}
+
+:root :is(.praxis-page-heading, .theoria-heading) {
+  margin-bottom: var(--ll-section-gap);
+}
+
+@media (max-width: 900px) {
+  :root .praxis-main,
+  :root .theoria-app:not(.theoria-app--reader) .theoria-main {
+    padding-inline: var(--ll-gutter);
+  }
+}
+
+/* Praxis and Theoria set their own pages: text and controls take Lamplight's sans (headings keep their serif). */
+:root :is(.praxis-app, .theoria-app) {
+  font-family: var(--ll-sans);
+}
+
+:root :is(.praxis-app, .theoria-app) :is(button, input, select, textarea) {
+  font-family: inherit;
+}
+
+/* Concentric corners, as Apple draws them: what touches a container's edge takes the container's own corner, and
+   what sits inset takes that corner less the inset (never under the smallest radius), so curves run parallel. */
+:root {
+  --ll-concentric: max(var(--ll-radius-xs), calc(var(--ll-outer, var(--ll-radius-md)) - var(--ll-inset, 12px)));
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places, .today-apps) {
+  --ll-outer: var(--ll-radius-md);
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :first-child,
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :first-child > :is(a, button, .row) {
+  border-top-left-radius: var(--ll-outer);
+  border-top-right-radius: var(--ll-outer);
+}
+
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :last-child,
+:root :is(.rows, .settings-card--rows, .kind-list, .reflect-places) > :last-child > :is(a, button, .row) {
+  border-bottom-left-radius: var(--ll-outer);
+  border-bottom-right-radius: var(--ll-outer);
+}
+
+/* A picture or tile set just inside a card's corner follows it. */
+:root :is(.card, .ll-card) > :is(img, .place-row__thumb, .card__media):first-child {
+  border-radius: var(--ll-concentric);
+}
+
+/* Inside a sheet, its own corner (22) less the panel's padding. */
+:root .sheet__panel {
+  --ll-outer: var(--ll-radius-lg);
+  --ll-inset: 16px;
+}

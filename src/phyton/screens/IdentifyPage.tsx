@@ -128,7 +128,7 @@ export default function IdentifyPage({ nav, plantId }: { nav: PhytonNav; plantId
                           <span className="row__detail">{[common ? match.latin : match.family, known && (exact ? 'Care notes' : `Care as for ${known.name}`)].filter(Boolean).join(' · ')}</span>
                         </span>
                         <span className="match-score">{scoreText(match.score)}</span>
-                        <ChevronIcon size={17} />
+                        <ChevronIcon size={18} />
                       </button>
                     </li>
                   );

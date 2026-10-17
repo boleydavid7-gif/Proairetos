@@ -4,15 +4,35 @@
   min-height: 100svh;
   min-height: 100dvh;
   background:
-    radial-gradient(120% 50% at 50% -10%, rgba(201, 162, 116, 0.06), transparent 60%),
+    radial-gradient(120% 50% at 50% -10%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.06), transparent 60%),
     var(--color-bg);
+}
+
+/* Lamplight's room: its wallpaper fills the top of the first screen and fades into the page color halfway down,
+   above where Today's landscape begins. */
+:root[data-room] .app-shell {
+  --room-height: 52lvh;
+  background:
+    linear-gradient(rgba(var(--color-bg-rgb), 0) 45%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
+    var(--room-wall) top / 100% var(--room-height) no-repeat,
+    var(--color-bg);
+}
+
+@media (min-width: 62rem) {
+  :root[data-room] .app-shell {
+    --room-height: 45lvh;
+    background:
+      linear-gradient(rgba(var(--color-bg-rgb), 0) 50%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
+      var(--room-wall-wide) top / 100% var(--room-height) no-repeat,
+      var(--color-bg);
+  }
 }
 
 .app-shell__content {
   width: 100%;
   max-width: 34rem;
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + var(--space-6) + var(--space-4)) var(--space-5)
+  padding: calc(var(--ll-safe-top) + var(--space-6) + var(--space-4)) var(--space-5)
     calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
 }
 
@@ -25,7 +45,6 @@
   grid-template-columns: repeat(5, 1fr);
   padding: var(--space-2) var(--space-1) calc(var(--space-2) + env(safe-area-inset-bottom));
   background: rgba(var(--color-bar-rgb), 0.92);
-  backdrop-filter: blur(16px);
   border-top: 1px solid var(--color-border);
 }
 

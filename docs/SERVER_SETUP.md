@@ -252,6 +252,14 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   only that device.
 - Keep using **Back up** now and then. It is independent of the server.
 
+## Theoria's account copies (migration 20261014000000)
+
+Run `supabase/migrations/20261014000000_theoria_storage.sql`. It creates the private `theoria-books` and `theoria-covers`
+buckets, each person reaching only their own folder. Books arrive already sealed on the phone. Without it, "Keep a sealed
+copy in my account" says the account copies are not set up and the book stays on the phone. Do not run
+`20261015000000_theoria_sync.sql` on a server that has `20261016000000` or later: those already allow Theoria's records,
+and the older file would narrow the list again.
+
 ## Settings and files sync (migration 20261016000000)
 
 Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets settings and photo/file details sync, and creates the private `proairetos-files` bucket (12 MB limit; files arrive already encrypted). Redeploy `delete-account` so it also clears a person's files: `supabase functions deploy delete-account`. Until the migration runs, these are held on the device and everything else syncs as before.
@@ -390,3 +398,46 @@ Phyton names a plant from a photo through Pl@ntNet. Without a key the app works 
 2. In Cloudflare, open the Worker (proairetos) > Settings > Variables and Secrets > Add, type **Secret**, name `PLANTNET_KEY`, value the key. (Or from a computer: `npx wrangler secret put PLANTNET_KEY`.)
 
 The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.
+
+## The Store: paid add-ons (optional, migration 20261025000000)
+
+Proairetos stays free; each add-on is bought once for $4.99 through Stripe Checkout and kept with the account
+(`purchases` table), so it opens on every device. Until all the secrets below are set, `/api/store` says the Store is
+free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/family/purchases.ts`.
+
+1. Run `supabase/migrations/20261025000000_purchases.sql` in the SQL editor. Each person can only read their own rows;
+   only the Worker (service role) writes them.
+2. Stripe: make an account at https://dashboard.stripe.com and finish activation (business details, bank account).
+   Developers > API keys: copy the **Secret key** (`sk_live_…`; use `sk_test_…` first to try it with card 4242 4242 4242 4242).
+3. Stripe > Developers > Webhooks > Add endpoint: `https://proairetos.com/api/store/webhook`, events
+   `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Copy its **Signing secret** (`whsec_…`).
+4. Cloudflare > the proairetos Worker > Settings > Variables and Secrets, each as type **Secret** (never plain text,
+   never in the repo):
+   - `STRIPE_SECRET_KEY`: the secret key from step 2.
+   - `STRIPE_WEBHOOK_SECRET`: the signing secret from step 3.
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase > Project Settings > API keys > service_role (secret).
+   - `SUPABASE_URL` and `SUPABASE_ANON_KEY` should already be there from Capture from anywhere.
+5. Beta testers (optional): add a Secret `STORE_TESTERS` with their emails separated by commas, for example
+   `you@example.com, friend@example.com`. Anyone signed in with one of those emails gets every add-on without paying.
+   Edit the secret to add or remove someone; their apps follow the next time the Store or a held-back app opens.
+   Put your own email in it too.
+6. Refunds: refund in Stripe, then remove the row: `delete from purchases where app = 'soma' and user_id = '…';`.
+
+Once the Worker has every secret, the Store shows prices, Buy opens Stripe's own page, and the person comes back to
+the Store, which adds the app as soon as Stripe has told the Worker. People must be signed in to buy (the purchase
+belongs to the account). With the Store paid, an app that is added but not bought shows its welcome card with
+"Get it · $4.99" in place of the app; its records are kept.
+
+Note: Pl@ntNet's free plan (Phyton's Identify) is for non-commercial use; once Phyton is sold, its paid plan is needed.
+
+## The waitlist (migration 20261026000000)
+
+The front page (`/welcome/`) and each app's page (`/welcome/<app>/`) have a "Hear when it opens" form. It posts to
+`/api/waitlist` (`worker/waitlist.ts`), which keeps the email and the apps ticked through the RPC `join_waitlist` with
+the publishable key, then sends the visitor to `/welcome/thanks/`. Nobody can read the table through the API.
+
+1. Run `supabase/migrations/20261026000000_waitlist.sql` in the SQL editor.
+2. `SUPABASE_URL` and `SUPABASE_ANON_KEY` must be set on the Worker (they are, if Capture from anywhere is set up).
+3. Read it: `select email, apps, source, created_at from public.waitlist order by created_at;` (`source` is the page it
+   came from: `welcome` or an app's name). Export with the SQL editor's Download CSV.
+4. On launch day, email the list, then add early testers' emails to `STORE_TESTERS` if you want them to keep the apps free.

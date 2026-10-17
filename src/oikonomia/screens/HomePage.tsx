@@ -6,6 +6,7 @@ import { payBill } from '../app/payBill';
 import { useBills, useBudget, useSettings, useSomaRecipes, useToday } from '../app/state';
 import { budgetTotals, monthKey } from '../core/budget';
 import { Brand, Hero } from '../app/ui';
+import PayCard from './PayCard';
 
 function billRow(bill: Bill, date: string, nav: Nav, today: string) {
   return (
@@ -28,7 +29,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const today = useToday();
   const all = bills ?? [];
   const recipes = useSomaRecipes();
-  // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes round.
+  // The next bill is the nearest one that has not been paid for; paid bills wait until their turn comes around.
   const next = all
     .map((bill) => ({ bill, stand: standing(bill, today) }))
     .filter(({ stand }) => !stand.settled)
@@ -71,7 +72,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
               ) : (
                 <span className="oiko-budget-home__line"><span>Set a monthly amount</span></span>
               )}
-              <span className="muted"><ChevronIcon size={17} /></span>
+              <span className="muted"><ChevronIcon size={18} /></span>
             </button>
           </>
         ) : (
@@ -89,6 +90,8 @@ export default function HomePage({ nav }: { nav: Nav }) {
                 </button>
               </section>
             )}
+
+            <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
 
             <div className="oiko-section-head">
               <h2>This month</h2>
@@ -112,7 +115,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly plan</span>
               <span className="oiko-budget-home__line"><strong>{formatMoney(budgetSummary.plannedCents, budget?.currency ?? settings.currency)}</strong><span>{budget?.totalCents ? `of ${formatMoney(budget.totalCents, budget.currency)}` : 'Set a monthly amount'}</span></span>
-              <span className="muted"><ChevronIcon size={17} /></span>
+              <span className="muted"><ChevronIcon size={18} /></span>
             </button>
           </>
         )}

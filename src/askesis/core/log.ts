@@ -25,6 +25,8 @@ export type LogEntry = {
   /** The plan session this was, if any. */
   workoutId?: string;
   workoutTitle?: string;
+  /** Brought in from Strava: its activity id, so it is never brought in twice. */
+  stravaId?: number;
   createdAt: string;
 };
 

@@ -41,6 +41,7 @@ import { DRAG_TYPE } from '../items/CheckRow';
 import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
 import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
+import SwipeItem from '../../app/family/SwipeItem';
 import { entryLook, setDaysAheadOpening, takeDaysAheadOpening, type EntryIcon, type Timed } from './daysAhead';
 
 export type DaysView = 'list' | 'calendar';
@@ -107,7 +108,7 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
 
 /**
  * Days ahead: up to a week, as a list or a calendar. Shows what is already
- * there and lets the person add something with a day and time. Colours are
+ * there and lets the person add something with a day and time. Colors are
  * the person's own labels.
  */
 /** Bills with a date on one day: a quiet line each, opening Oikonomia. A paid one says so. */
@@ -333,10 +334,10 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
     try {
       if (entry.kind === 'item') {
         const deletion = await lifeService.deleteItem(entry.item.id);
-        offerUndo(`Deleted: ${entry.item.title}`, deletion.undo);
+        offerUndo(`“${entry.item.title}” deleted`, deletion.undo);
       } else if (entry.kind === 'shift') {
         const deletion = await scheduleService.removeDay(entry.occurrence.patternId, entry.occurrence.date);
-        offerUndo(`Removed: ${entry.occurrence.patternName}`, deletion.undo);
+        offerUndo(`“${entry.occurrence.patternName}” removed`, deletion.undo);
       } else {
         const deletion = otherCalendars.removeEvent(entry.event.sourceId, entry.event.key);
         offerUndo(`Removed from ${entry.event.source}`, deletion.undo);
@@ -382,7 +383,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </div>
         <span className="days-header__actions">
           <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
-            <PlusIcon size={26} />
+            <PlusIcon size={28} />
           </button>
         </span>
       </header>
@@ -504,7 +505,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         <span className="days-row__title">{look.title}</span>
                         {look.location && (
                           <span className="days-row__where">
-                            <PinIcon size={14} /> {look.location}
+                            <PinIcon size={16} /> {look.location}
                           </span>
                         )}
                         {look.detail && <span className="days-row__where">{look.detail}</span>}
@@ -513,10 +514,15 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     </>
                   );
                   return (
-                    <li
+                    // Pull a row to the left to delete it, as in Reminders; the undo comes with it.
+                    <SwipeItem
                       key={entry.key}
-                      ref={markRef(entry.key)}
+                      frontRef={markRef(entry.key)}
                       className={`days-row tag--${look.color ?? 'none'}${entry.key === focusKey ? ' days-row--focus' : ''}`}
+                      label="Delete"
+                      tone="remove"
+                      off={removing === entry.key}
+                      onSwipe={() => void remove(entry)}
                     >
                       {tappable ? (
                         <button type="button" className="days-row__button" onClick={() => open(entry)}>
@@ -537,7 +543,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       >
                         <TrashIcon size={18} />
                       </button>
-                    </li>
+                    </SwipeItem>
                   );
                 })}
               </ul>
@@ -719,7 +725,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                               void remove(entry);
                             }}
                           >
-                            <TrashIcon size={12} />
+                            <TrashIcon size={16} />
                           </button>
                         </div>
                       );
@@ -836,7 +842,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                             </span>
                             {look.location && (
                               <span className="days-row__where">
-                                <PinIcon size={14} /> {look.location}
+                                <PinIcon size={16} /> {look.location}
                               </span>
                             )}
                           </span>
@@ -846,7 +852,14 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       </>
                     );
                     return (
-                      <li key={entry.key} className={`days-row month-row tag--${look.color ?? 'none'}`}>
+                      <SwipeItem
+                        key={entry.key}
+                        className={`days-row month-row tag--${look.color ?? 'none'}`}
+                        label="Delete"
+                        tone="remove"
+                        off={removing === entry.key}
+                        onSwipe={() => void remove(entry)}
+                      >
                         {tappable ? (
                           <button type="button" className="days-row__button" onClick={() => open(entry)}>
                             {body}
@@ -866,7 +879,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         >
                           <TrashIcon size={18} />
                         </button>
-                      </li>
+                      </SwipeItem>
                     );
                   })}
                 </ul>

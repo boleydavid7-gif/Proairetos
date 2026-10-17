@@ -60,7 +60,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
   const matches = needle
     ? commands.filter((command) => needle.split(/\s+/).every((word) => `${command.label} ${command.words ?? ''}`.toLowerCase().includes(word)))
     : commands.slice(0, 8);
-  const parsed = needle ? parseQuickAdd(query, today) : null;
+  const parsed = needle ? parseQuickAdd(query, today, new Date()) : null;
   // The typed words become a row of their own, after any matching commands.
   const rows = [...matches.map((command) => ({ kind: 'command' as const, command })), ...(parsed ? [{ kind: 'add' as const }] : [])];
   const chosen = Math.min(active, Math.max(0, rows.length - 1));
@@ -78,7 +78,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
         const end = parsed.minutes ? new Date(start.getTime() + parsed.minutes * 60_000) : undefined;
         await lifeService.scheduleSpan(item.id, start.toISOString(), end?.toISOString());
       }
-      offerUndo(`Saved “${parsed.title}”`, async () => {
+      offerUndo(`“${parsed.title}” added`, async () => {
         await lifeService.deleteItem(item.id);
       });
       close();

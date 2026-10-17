@@ -145,7 +145,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       <div className="card">
         {confirming ? (
           <>
-            <p>Remove every recipe and the grocery list from this phone?</p>
+            <p>Remove every recipe and the grocery list from this device?</p>
             <div className="button-row">
               <button
                 type="button"
@@ -179,7 +179,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">About Soma</h1>
       <p>
-        Sōma is Greek for the body. Your recipes, a grocery list, and small ideas for cooking more simply. Each recipe shows its Nutri-Score and what is in a serving, worked out from its ingredients.
+        Sōma is Greek for the body. Your recipes and groceries, with each recipe’s Nutri-Score and what’s in a serving.
       </p>
       <h2 className="label">Ways to try it draw on</h2>
       <ul className="tips">

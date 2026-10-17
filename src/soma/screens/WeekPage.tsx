@@ -6,8 +6,10 @@ import { BackLink, dayLabel, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { isHeading, marks, searchRecipes, type Mark, type Recipe } from '../core/recipes';
-import { plannedAhead, plannedOn, togglePlanned, weekFrom } from '../core/week';
+import { plannedAhead, plannedOn, repeatWeekBefore, togglePlanned, weekFrom } from '../core/week';
+import { addDays } from '../../core/scheduling/dates';
 import { loadSettings, putRecipe, saveGroceries } from '../data/store';
+import { Sym } from '../../lamplight/icons';
 
 /** A loose week: a few recipes placed on days, nothing to fill. Their groceries in one tap. */
 export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
@@ -16,8 +18,12 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
   const today = useToday();
   const undo = useUndo();
   const [picking, setPicking] = useState<string>();
-  const days = weekFrom(today);
-  const ahead = plannedAhead(recipes, today);
+  // This week and up to three ahead; each shows seven days from its start.
+  const [offset, setOffset] = useState(0);
+  const start = addDays(today, offset * 7);
+  const days = weekFrom(start);
+  const ahead = plannedAhead(recipes, start);
+  const again = repeatWeekBefore(recipes, start, today);
 
   const toggle = (recipe: Recipe, day: string) => {
     const before = recipe;
@@ -41,7 +47,27 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
   return (
     <div className="page">
       <BackLink label="Home" onBack={nav.back} />
-      <h1 className="title">This week</h1>
+      <div className="week-steps">
+        <button type="button" className="chip" aria-label="Week before" disabled={offset === 0} onClick={() => setOffset(offset - 1)}><Sym name="back" /></button>
+        <h1 className="title">{offset === 0 ? 'This week' : offset === 1 ? 'Next week' : `From ${dayLabel(start, today, true)}`}</h1>
+        <button type="button" className="chip" aria-label="Week after" disabled={offset === 3} onClick={() => setOffset(offset + 1)}><Sym name="chevron" /></button>
+      </div>
+      {again.length > 0 && (
+        <button
+          type="button"
+          className="text-link week-repeat"
+          onClick={() => {
+            const before = recipes.filter((recipe) => again.some((each) => each.id === recipe.id));
+            const now = new Date().toISOString();
+            for (const recipe of again) void putRecipe({ ...recipe, updatedAt: now });
+            undo(again.length === 1 ? 'One meal placed again' : `${again.length} meals placed again`, () => {
+              for (const recipe of before) void putRecipe({ ...recipe, updatedAt: new Date().toISOString() });
+            });
+          }}
+        >
+          Repeat the week before
+        </button>
+      )}
       <ul className="week">
         {days.map((day) => {
           const on = plannedOn(recipes, day);
@@ -63,9 +89,7 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
                     className="week__remove"
                     aria-label={`Take ${recipe.title} off ${dayLabel(day, today, true)}`}
                     onClick={() => undo(`${recipe.title} taken off`, toggle(recipe, day))}
-                  >
-                    ×
-                  </button>
+                  ><Sym name="close" /></button>
                 </div>
               ))}
             </li>

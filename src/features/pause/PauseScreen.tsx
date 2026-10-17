@@ -16,7 +16,7 @@ const anchors: { id: PauseSettings['anchor']; label: string; gather: string }[] 
 ];
 
 /**
- * Modelled on the MBCT three-minute breathing space: notice what is here,
+ * Modeled on the MBCT three-minute breathing space: notice what is here,
  * gather attention on one anchor, then widen. One or three minutes, and the
  * anchor need not be the breath.
  */

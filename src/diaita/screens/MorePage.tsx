@@ -77,37 +77,38 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         <Switch on={current.meals} label="Meals" onToggle={() => change({ meals: !current.meals })} />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.windDown} label="Wind down" onToggle={() => notice({ windDown: !current.notices.windDown })} />
         <Switch on={current.notices.worry} label="Worry time" onToggle={() => notice({ worry: !current.notices.worry })} />
         <Switch on={current.notices.nap} label="Nap" onToggle={() => notice({ nap: !current.notices.nap })} />
         <Switch on={current.notices.caffeine} label="Last caffeine" onToggle={() => notice({ caffeine: !current.notices.caffeine })} />
+        <Switch on={Boolean(current.notices.daylight)} label="Morning daylight" onToggle={() => notice({ daylight: !current.notices.daylight })} />
       </section>
 
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'worry' })}>
-            <span className="row__icon"><BookIcon size={21} /></span>
+            <span className="row__icon"><BookIcon size={22} /></span>
             <span className="row__text"><span>Worry time</span><span className="row__detail">Write worries down before bed</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'sources' })}>
-            <span className="row__icon"><BookIcon size={21} /></span>
+            <span className="row__icon"><BookIcon size={22} /></span>
             <span className="row__text"><span>Sources</span></span>
           </button>
         </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
+            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

@@ -1,6 +1,6 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { familyWorker } from '../notify/familyWorker';
-import { KeyError, createKeys, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPasskey, unlockWithPassphrase, unlockWithRecoveryKey, wrapWithPasskey, type KeySetup } from '../../data/sync/keys';
+import { KeyError, createKeys, createKeysForPasskey, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPasskey, unlockWithPassphrase, unlockWithRecoveryKey, wrapWithPasskey, type KeySetup, type PasskeyKeySetup, type WrappedKey } from '../../data/sync/keys';
 import { createPasskey, deviceLabel, passkeysHere, askForPasskey } from '../../data/sync/passkeys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
@@ -23,6 +23,7 @@ import {
   removePushSubscription,
   replaceReminders,
   replaceSourceReminders,
+  addTestReminder,
   hasPushSubscription,
   OlderRemindersTable,
   saveWrappedKeys,
@@ -427,6 +428,80 @@ export async function confirmCode(email: string, codeOrLink: string): Promise<vo
   if (status.phase === 'ready') void syncNow();
 }
 
+/** The passphrase's wrap, or a plain word when the account was set up with a passkey and has none. */
+function passphraseOf(wrapped: { passphrase: WrappedKey | null }): WrappedKey {
+  if (!wrapped.passphrase) throw new KeyError('This account has no passphrase. Open it with your passkey or your recovery key.');
+  return wrapped.passphrase;
+}
+
+/** Whether the account has a passphrase (an account set up with a passkey may have none). */
+export async function hasPassphrase(): Promise<boolean> {
+  return Boolean((await fetchWrappedKeys().catch(() => null))?.passphrase);
+}
+
+// ---------- First device, with a passkey ----------
+// Keys are made before the tap (Safari allows a passkey only straight after one); nothing reaches the server until
+// the recovery key has been shown and the person says they saved it.
+
+let setupKeys: PasskeyKeySetup | null = null;
+let setupPasskey: { made: Awaited<ReturnType<typeof createPasskey>>; wrap: WrappedKey | null } | null = null;
+
+/** Makes the keys in memory, ahead of the tap that makes the passkey. */
+export async function prepareKeysForPasskey(): Promise<void> {
+  setupKeys ??= await createKeysForPasskey();
+}
+
+/**
+ * Tap one: makes the passkey. 'recovery' when it can already open the data; 'continue' when this device gives the
+ * passkey's secret only when it is used (iPhone), so one more tap; 'no-secret' when it never will (a passphrase then).
+ */
+export async function makeSetupPasskey(): Promise<'recovery' | 'continue' | 'no-secret'> {
+  if (!userId || !setupKeys) throw new Error('Sign in first.');
+  const made = await createPasskey({ id: userId, email: status.email ?? 'Proairetos' }, []);
+  const wrap = made.secret ? await wrapWithPasskey(setupKeys.exportable, made.secret) : null;
+  setupPasskey = { made, wrap };
+  return wrap ? 'recovery' : made.secretOnUse ? 'continue' : 'no-secret';
+}
+
+/** Tap two, on iPhone: the new passkey gives its secret. False when it does not. */
+export async function continueSetupPasskey(): Promise<boolean> {
+  if (!setupKeys || !setupPasskey) throw new Error('Make the passkey first.');
+  const used = await askForPasskey({ allow: [setupPasskey.made.credentialId] });
+  if (!used.secret) return false;
+  setupPasskey.wrap = await wrapWithPasskey(setupKeys.exportable, used.secret);
+  return true;
+}
+
+/** The recovery key to show once, while setting up with a passkey. */
+export function setupRecoveryKey(): string {
+  return setupKeys?.recoveryKey ?? '';
+}
+
+async function savePasskeyMade(wrap: WrappedKey | null): Promise<void> {
+  if (!userId || !setupPasskey) return;
+  const { made } = setupPasskey;
+  await savePasskey(userId, {
+    credential_id: made.credentialId,
+    public_key: made.publicKey,
+    algorithm: made.algorithm,
+    rp_id: made.rpId,
+    wrap,
+    label: deviceLabel(),
+  });
+  setupPasskey = null;
+  passkeyChanges.notify();
+}
+
+/** After "I've saved it": the keys and the passkey go to the server, the key stays here, and syncing starts. */
+export async function finishSetupWithPasskey(): Promise<void> {
+  if (!userId || !setupKeys || !setupPasskey?.wrap) throw new Error('Make the passkey first.');
+  await saveWrappedKeys(userId, null, setupKeys.recoveryWrap);
+  await savePasskeyMade(setupPasskey.wrap);
+  const key = setupKeys.dataKey;
+  setupKeys = null;
+  await keepKey(key);
+}
+
 /**
  * First device, step 1: creates the keys in memory only, so the recovery key
  * can be shown. Nothing is saved or uploaded yet.
@@ -442,6 +517,8 @@ export function prepareEncryption(passphrase: string): Promise<KeySetup> {
 export async function confirmEncryption(setup: KeySetup): Promise<void> {
   if (!userId) throw new Error('This device is not signed in any more. Sign in again, then set up once more.');
   await saveWrappedKeys(userId, setup.passphraseWrap, setup.recoveryWrap);
+  await savePasskeyMade(null).catch(() => undefined);
+  setupKeys = null;
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
   set({ phase: 'ready' });
@@ -457,7 +534,7 @@ export async function unlock(secret: string, method: 'passphrase' | 'recovery', 
   const exportable = forPasskey || Boolean(finishing);
   let key =
     method === 'passphrase'
-      ? await unlockWithPassphrase(wrapped.passphrase, secret, exportable)
+      ? await unlockWithPassphrase(passphraseOf(wrapped), secret, exportable)
       : await unlockWithRecoveryKey(wrapped.recovery, secret, exportable);
   if (finishing) {
     passkeyToFinish = null;
@@ -487,7 +564,7 @@ export async function changePassphrase(secret: string, method: 'passphrase' | 'r
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
   const key =
     method === 'passphrase'
-      ? await unlockWithPassphrase(wrapped.passphrase, secret, true)
+      ? await unlockWithPassphrase(passphraseOf(wrapped), secret, true)
       : await unlockWithRecoveryKey(wrapped.recovery, secret, true);
   await savePassphraseWrap(userId, await rewrapWithPassphrase(key, next));
 }
@@ -503,7 +580,7 @@ export async function handoffReady(): Promise<boolean> {
 export async function enableHandoff(passphrase: string): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
-  const key = await unlockWithPassphrase(wrapped.passphrase, passphrase, true);
+  const key = await unlockWithPassphrase(passphraseOf(wrapped), passphrase, true);
   await (await localState())!.setMeta(HANDOFF_META, key);
 }
 
@@ -550,6 +627,11 @@ async function keepKey(key: CryptoKey, email?: string): Promise<void> {
   await syncNow();
 }
 
+/** The signed-in account's id, or null. */
+export function currentUserId(): string | null {
+  return userId;
+}
+
 /** Whether passkeys can be offered here: a browser that has them, and sync set up. */
 export function passkeysAvailable(): boolean {
   return isSyncConfigured && passkeysHere();
@@ -578,7 +660,7 @@ export async function listPasskeys(): Promise<PasskeyEntry[]> {
 export async function preparePasskey(passphrase: string): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
-  passkeyKey = await unlockWithPassphrase(wrapped.passphrase, passphrase, true);
+  passkeyKey = await unlockWithPassphrase(passphraseOf(wrapped), passphrase, true);
 }
 
 /** Whether a passkey can be made with one tap: the passphrase was just given, or this device keeps the copy for passes. */
@@ -842,6 +924,20 @@ async function keepPushSubscription(): Promise<void> {
   await (await localState())!.setMeta(REMINDERS_META, subscription.endpoint);
   accountTakesReminders = true;
   subscriptionKept = true;
+}
+
+/**
+ * Puts one reminder on the server for the next minute, sealed like any other, so the person can close the app and
+ * see a push arrive the way their own reminders do. Returns when it is due.
+ */
+export async function testReminderThroughServer(): Promise<Date> {
+  if (!userId || !dataKey || status.reminders !== 'on') throw new Error('Turn on “Also when the app is closed” first.');
+  await keepPushSubscription().catch(() => undefined);
+  const at = new Date(Date.now() + 60_000);
+  const key = `server-test:${at.getTime()}`;
+  const sealed = await sealNoticeWords(dataKey, wordsOf({ key, title: 'Test', body: 'This one came through the server.', open: 'today' }));
+  await addTestReminder(userId, { id: key.replace(/[^a-z0-9-]/gi, '-'), fire_at: at.toISOString(), sealed });
+  return at;
 }
 
 export async function disableReminders(): Promise<void> {

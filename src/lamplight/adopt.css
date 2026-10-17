@@ -1,0 +1,92 @@
+/*
+ * The family's shared pieces, wearing Lamplight's components. Rather than rewrite every screen, the classes the
+ * apps already use (askesis.css for Askesis, Soma, Oikonomia and the newer apps; Proairetos's parts) take their
+ * shape, light, type and focus from the tokens, so each one matches its `.ll-*` twin in components.css. Colors
+ * come from each app's own scheme (family.ts). Prefixed with :root so these win over the older rules without
+ * !important; layout (sizes, padding, widths) is left as it was.
+ */
+
+/* ---------- Surfaces, not outlines: one hairline at most, lit along the top ---------- */
+:root :is(.card, .rows, .settings-card, .family-surface .rows) {
+  border-color: var(--ll-hair);
+  border-radius: var(--ll-radius-md);
+  box-shadow: var(--ll-light-1);
+}
+
+:root .rows li + li {
+  border-top-color: var(--ll-hair);
+}
+
+/* A card that is a button lifts a step under the pointer. */
+@media (hover: hover) {
+  :root :is(a.card, button.card, .card--link):hover {
+    box-shadow: var(--ll-light-2);
+  }
+}
+
+/* ---------- The one lit action: the lamp's pill, with its own light ---------- */
+:root :is(.button-main, .button-accent) {
+  border-radius: var(--ll-radius-pill);
+  box-shadow: var(--ll-lamp-light);
+  letter-spacing: 0;
+}
+
+:root :is(.button-main, .button-accent):disabled {
+  box-shadow: none;
+}
+
+/* Everything else is tonal: a faint fill and one hairline, never a second lamp. */
+:root .button-quiet {
+  border-color: var(--ll-hair);
+  background: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.04);
+  border-radius: var(--ll-radius-pill);
+}
+
+/* Removing is a plain red word on a quiet pill, never a filled warning. */
+:root .button-danger {
+  border: 1px solid var(--ll-hair);
+  background: transparent;
+  color: var(--ll-remove);
+  border-radius: var(--ll-radius-pill);
+}
+
+/* ---------- Chips: a chosen chip is tonal, so the lamp stays the one light ---------- */
+:root .chip {
+  border-color: var(--ll-hair);
+  border-radius: var(--ll-radius-pill);
+}
+
+:root .chip[aria-pressed='true'],
+:root .chip[aria-checked='true'] {
+  border-color: transparent;
+  background: var(--ll-glow);
+  color: var(--ll-lamp);
+}
+
+/* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
+:root :is(.input, .textarea, .field-input, .row__select) {
+  border-color: transparent;
+  border-radius: var(--ll-radius-sm);
+  background: var(--ll-inset);
+}
+
+:root :is(.input, .textarea, .field-input, .row__select):focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: var(--ll-focus);
+}
+
+:root :where(button, a, summary, [role='switch'], [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--ll-focus);
+}
+
+/* ---------- Switches: the lamp when on (the deeper one in daylight, so it stands out on a pale card) ---------- */
+:root :is(.switch[aria-checked='true'], .switch--on) {
+  background: var(--ll-lamp);
+}
+
+/* ---------- Sheets and menus: brought forward ---------- */
+:root :is(.sheet__panel, .family-sheet, .menu, .popover) {
+  box-shadow: var(--ll-light-3);
+}

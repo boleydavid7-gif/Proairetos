@@ -22,7 +22,7 @@ export default function PdfPages({ blob, startPage = 1 }: { blob: Blob; startPag
         if (live) setDoc(next);
         else void next.destroy();
       })
-      .catch(() => live && setProblem('This PDF could not be opened.'));
+      .catch(() => live && setProblem('Couldn’t open this PDF.'));
     return () => {
       live = false;
       void opened?.destroy();

@@ -1,3 +1,12 @@
+/* Lamplight: the family's tokens, components and motion (src/lamplight). */
+@import '../lamplight/tokens.css';
+@import '../lamplight/components.css';
+@import '../lamplight/motion.css';
+@import '../lamplight/adopt.css';
+@import '../lamplight/icons.css';
+@import '../lamplight/layout.css';
+@import '../lamplight/bars.css';
+
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */
 :root {
@@ -13,7 +22,7 @@
 
 /*
  * One finish for every app in the family. Loaded after each app's own styles, so it only adds
- * depth, type care and small touches; it never changes layout or colours of the apps themselves.
+ * depth, type care and small touches; it never changes layout or colors of the apps themselves.
  */
 
 :root {
@@ -138,7 +147,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 /* ---------- Light mode photos ---------- */
-/* The same places that show a landscape in dark show the morning one in light, left true to its colours. */
+/* The same places that show a landscape in dark show the morning one in light, left true to its colors. */
 
 :root[data-theme='light'] [style*='--photo-light'] {
   background-image: var(--photo-light) !important;
@@ -176,8 +185,6 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 
 .app-shell .tab-bar {
   background: rgba(var(--color-bar-rgb), 0.8);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  backdrop-filter: blur(20px) saturate(1.2);
 }
 
 /* Meditate keeps light words over its photo, so the bright morning lake is toned down there. */
@@ -192,7 +199,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 /* ---------- The bar along the bottom ---------- */
-/* Labels a little larger, and the page you are on marked by a short line above it, not only by colour. */
+/* Labels a little larger, and the page you are on marked by a short line above it, not only by color. */
 @media (max-width: 61.99rem) {
   .app-shell .tab-bar {
     --tab-indicator-left: calc(10% - 0.9rem);
@@ -241,7 +248,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 
   .app-shell .tab-bar__item {
     position: relative;
-    font-size: min(0.8rem, 3vw);
+    font-size: clamp(11px, 3vw, 0.8rem);
     white-space: nowrap;
   }
 
@@ -294,12 +301,6 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
    Increase contrast: muted and faint words as strong as the main text, clearer edges. Every app loads this file last. */
 
 @media (prefers-reduced-transparency: reduce) {
-  *,
-  *::before,
-  *::after {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
   .app-shell :is(.list-card, .item-card, .now-card, .intention, .settings-card, .settings-list, .profile-card,
     .insight-card, .kind-tile, .statement, .goal, .person, .run-card, .date-card, .observations, .decision-note,
     .timeline__entry, .three-item, .look-back, .sort-card, .add-reflection, .week-ahead__day, .composer),
@@ -321,7 +322,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 @media (prefers-contrast: more) {
-  /* Repeated so it outweighs each app's own colours (:root.soma, :root[data-theme='light'] and the like). */
+  /* Repeated so it outweighs each app's own colors (:root.soma, :root[data-theme='light'] and the like). */
   :root:root:root:root {
     --color-text-muted: var(--color-text);
     --color-text-faint: var(--color-text);
@@ -384,4 +385,383 @@ blockquote.daily-line {
   font-size: var(--text-base, 1rem);
   line-height: 1.5;
   color: var(--muted, var(--color-text-muted));
+}
+
+/* ---------- Settings, one look ----------
+   Grouped lists as on iPhone: a colored tile per row, hairlines that start after the tile, a chevron.
+   Switches sit at the end of their row with iOS proportions and a Material-style filled track. The same
+   classes serve every app's settings, so the family reads as one. */
+:root {
+  --tile-gold: #b0844c;
+  --tile-blue: #3a78c9;
+  --tile-indigo: #5a5cc2;
+  --tile-teal: #2b8580;
+  --tile-green: #3a8650;
+  --tile-orange: #c9722a;
+  --tile-red: #c8463f;
+  --tile-pink: #c04b78;
+  --tile-gray: #74777e;
+}
+
+.settings-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+  color: #fff;
+  background: var(--tile-gray);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+.settings-tile--gold { background: var(--tile-gold); }
+.settings-tile--blue { background: var(--tile-blue); }
+.settings-tile--indigo { background: var(--tile-indigo); }
+.settings-tile--teal { background: var(--tile-teal); }
+.settings-tile--green { background: var(--tile-green); }
+.settings-tile--orange { background: var(--tile-orange); }
+.settings-tile--red { background: var(--tile-red); }
+.settings-tile--pink { background: var(--tile-pink); }
+.settings-tile--app {
+  background: none;
+  box-shadow: none;
+}
+.settings-tile--app img {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+}
+
+.settings-list {
+  border-radius: 14px;
+}
+.settings-list .settings-row {
+  gap: var(--space-3);
+  min-height: 3rem;
+  padding-block: var(--space-2);
+  border-bottom: 0;
+}
+/* The hairline starts where the words do, as on iPhone. */
+.settings-list .settings-row:not(:last-child) {
+  background-image: linear-gradient(var(--color-border), var(--color-border));
+  background-size: calc(100% - 3.9rem) 1px;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+.settings-row__text {
+  font-size: var(--text-base, 1rem);
+}
+
+.toggle-switch {
+  flex: none;
+  position: relative;
+  width: 3.1rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  transition: background 200ms ease;
+  background: color-mix(in srgb, var(--color-text, currentColor) 20%, transparent);
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  top: 0.17rem;
+  left: 0.17rem;
+  width: 1.56rem;
+  height: 1.56rem;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.toggle-switch--on {
+  background: var(--color-accent);
+}
+.toggle-switch--on::after {
+  transform: translateX(1.2rem);
+  background: #fff;
+}
+
+/* In settings the label leads and the switch ends the row; rows part with a hairline. */
+.settings-card .toggle-row {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: 3rem;
+  color: var(--color-text);
+  text-align: left;
+}
+.settings-card .toggle-row > :not(.toggle-switch) {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+.settings-card .toggle-row[aria-pressed='true'] {
+  color: var(--color-text);
+}
+.settings-card .toggle-row + .toggle-row,
+.notify-list > .notify-row + .notify-row {
+  border-top: 1px solid var(--color-border);
+}
+.notify-row .toggle-row {
+  flex-basis: 100%;
+}
+
+/* A settings page made of several short lists, each under its own label. */
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.settings-sections .settings-group__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.settings-sections .settings-group__label img {
+  border-radius: 5px;
+}
+
+/* ---------- The same settings look in every app ----------
+   The other apps' More and Settings pages use `.rows` and `Switch` (askesis.css). Here they take the look of
+   Proairetos's settings: a colored tile per row (by position, so every app's lists vary the same way), hairlines
+   that start after the tile, and switches with iOS proportions and a filled track. `:root` keeps these ahead of
+   the app sheets whatever order the chunks load in. */
+:root .rows .row__icon {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+  color: #fff;
+  background: var(--tile-blue);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+:root .rows .row__icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+:root .rows li:nth-child(6n + 2) .row__icon { background: var(--tile-teal); }
+:root .rows li:nth-child(6n + 3) .row__icon { background: var(--tile-orange); }
+:root .rows li:nth-child(6n + 4) .row__icon { background: var(--tile-indigo); }
+:root .rows li:nth-child(6n + 5) .row__icon { background: var(--tile-green); }
+:root .rows li:nth-child(6n + 6) .row__icon { background: var(--tile-pink); }
+/* Another app's own icon stays as it is. */
+:root .rows .row__icon:has(.row__app, img),
+:root .rows li .row__icon.row__icon:has(.row__app, img) {
+  background: none;
+  box-shadow: none;
+}
+:root .rows .row {
+  min-height: 3.25rem;
+}
+:root .rows li + li {
+  position: relative;
+  border-top: 0;
+}
+:root .rows li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: calc(14px + 32px + 12px);
+  border-top: 1px solid var(--line, var(--color-border));
+  pointer-events: none;
+}
+
+:root .switch {
+  width: 3.1rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text, var(--color-text, currentColor)) 20%, transparent);
+}
+:root .switch::after {
+  top: 0.17rem;
+  left: 0.17rem;
+  width: 1.56rem;
+  height: 1.56rem;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+:root .switch--on {
+  background: var(--mint, var(--color-accent-strong, var(--color-accent)));
+}
+:root .switch--on::after {
+  transform: translateX(1.2rem);
+  background: #fff;
+}
+:root .switches .switch-row {
+  min-height: 3.25rem;
+}
+
+/* A choice inside a row: the label leads, the chosen value ends the row as plain text with its own arrow. */
+:root .rows .row--select {
+  cursor: pointer;
+}
+:root .row__select {
+  max-width: 11rem;
+  min-height: 2.75rem;
+  padding: 0 1.4rem 0 0.4rem;
+  border: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 0.2rem center;
+  color: var(--muted, var(--color-text-muted));
+  font: inherit;
+  text-align: right;
+  text-overflow: ellipsis;
+  appearance: none;
+}
+
+/* ---------- Settings behind your initial, Today as grouped lists ---------- */
+/* Like Apple's own apps: a round button with the person's initial opens Settings, and Today's rows from the
+   other apps sit in one inset grouped list with separators that start after the icon. */
+
+.profile-button__face {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 22%, var(--color-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  color: var(--color-accent-strong, var(--color-accent));
+  font-family: var(--font-sans, system-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.profile-button:hover .profile-button__face {
+  background: color-mix(in srgb, var(--color-accent) 32%, var(--color-surface));
+}
+
+.profile-button:active .profile-button__face {
+  transform: scale(0.94);
+}
+
+.today-apps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Nothing from the other apps today: no heading, no empty card. */
+.today-apps:not(:has(.quiet-row, .check-row)) {
+  display: none;
+}
+
+.today-group {
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.today-group .check-list {
+  margin: 0;
+}
+
+.today-group .quiet-row-wrap,
+.today-group .check-row {
+  position: relative;
+}
+
+.today-group .quiet-row,
+.today-group .check-row {
+  min-height: 3.25rem;
+  border: 0;
+}
+
+.today-group .quiet-row {
+  padding: var(--space-3) 0;
+}
+
+/* One hairline between rows, starting where the words start. */
+.today-group :is(.quiet-row-wrap, .check-row)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2.15rem;
+  right: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.today-group > :first-child::before,
+.today-group > .check-list:first-child > .check-row:first-child::before {
+  display: none;
+}
+
+.today-group .check-row__title {
+  padding: var(--space-3) 0;
+}
+
+.today-group .quiet-row-wrap .not-for-me {
+  align-self: flex-end;
+  margin: 0 0 var(--space-2);
+}
+
+/* Today's path before anything is chosen: three open circles and one line, a single tap to choose. */
+.path-empty {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: 16px;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+}
+
+.path-empty__dots {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.path-empty__dots span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid var(--color-text-faint);
+  border-radius: 50%;
+}
+
+.path-empty:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+}
+
+/* ---------- Light home pictures ----------
+   In light, a home picture fades into the pale page, so white words at its foot lost their contrast. As in iOS, the
+   title and line there turn dark with a soft light halo; the top keeps its shade, so the app's name stays light.
+   Inside the picture `--text` is the light photo color (askesis.css), so the page's own ink is kept here first. */
+:root {
+  --page-ink: var(--text, var(--color-text));
+  --page-ink-soft: var(--text-soft, var(--page-ink));
+}
+
+:root[data-theme='light'] .hero .hero__shade {
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, color-mix(in srgb, var(--bg) 55%, transparent) 62%, var(--bg) 100%);
+}
+
+:root[data-theme='light'] .hero :is(.home__words, .home__title) {
+  color: var(--page-ink);
+  text-shadow: 0 0 18px rgb(255 255 255 / 0.75);
+}
+
+:root[data-theme='light'] .hero .hero__content .home__sub {
+  color: var(--page-ink-soft);
+  text-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] .hero .hero__shade {
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, color-mix(in srgb, var(--bg) 55%, transparent) 62%, var(--bg) 100%);
+  }
+
+  :root[data-theme='system'] .hero :is(.home__words, .home__title) {
+    color: var(--page-ink);
+    text-shadow: 0 0 18px rgb(255 255 255 / 0.75);
+  }
+
+  :root[data-theme='system'] .hero .hero__content .home__sub {
+    color: var(--page-ink-soft);
+    text-shadow: none;
+  }
 }

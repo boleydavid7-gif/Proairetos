@@ -41,7 +41,7 @@ export default function LighterView({ items, today }: { items: LifeItem[]; today
               className="chip chip--accent"
               onClick={async () => {
                 const change = await lifeService.setStatus(next.id, 'DONE');
-                offerUndo(`Done: ${next.title}`, change.undo);
+                offerUndo(`“${next.title}” done`, change.undo);
               }}
             >
               Done

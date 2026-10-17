@@ -9,6 +9,8 @@ import { howItFelt, runDays, stageBuilds, thenAndNow, weeksToAim } from '../core
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
+import { useOwnSessions } from '../app/own';
+import { ownWorkout } from '../core/own';
 
 /**
  * The whole path, one continuous line of weeks grouped by stage. Every week
@@ -16,6 +18,7 @@ import type { PlanState } from '../data/store';
  */
 export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const settings = useSettings();
+  const own = useOwnSessions();
   const today = useToday();
   const entries = useEntries() ?? [];
   const change = thenAndNow(entries, today);
@@ -37,7 +40,7 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
       <li key={week.n} className={`weeks__item${here ? ' weeks__item--current' : ''}`}>
         <button type="button" className="weeks__head" aria-expanded={open === week.n} onClick={() => setOpen(open === week.n ? undefined : week.n)}>
           <span className={`weeks__dot${past ? ' weeks__dot--past' : ''}${here ? ' weeks__dot--current' : ''}`} aria-hidden="true">
-            {past && <CheckIcon size={14} />}
+            {past && <CheckIcon size={16} />}
           </span>
           <span className="weeks__text">
             <span className="weeks__name">
@@ -144,6 +147,33 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
           <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
         </section>
       ))}
+
+      <section className="stage own-sessions" aria-label="Your sessions">
+        <div className="stage__head">
+          <h2 className="stage__name">Your sessions</h2>
+        </div>
+        {own.length > 0 && (
+          <ul className="weeks__sessions">
+            {own.map((session) => {
+              const workout = ownWorkout(session);
+              return (
+                <li key={session.id}>
+                  <button type="button" className="session-row" onClick={() => nav.go({ name: 'own', id: session.id })}>
+                    <span className="session-row__text">
+                      <span className="session-row__title">{workout.title}</span>
+                      <SessionBar parts={workout.parts} small />
+                    </span>
+                    <span className="session-row__len">{lengthLabel(totalMinutes(workout.parts))}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <button type="button" className="button-quiet own-new" onClick={() => nav.go({ name: 'own' })}>
+          New session
+        </button>
+      </section>
 
       <button type="button" className={plan ? 'button-quiet' : 'button-main'} onClick={() => nav.go({ name: 'plan' })}>
         {plan ? 'Change your aim' : 'Set your aim'}

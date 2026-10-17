@@ -16,6 +16,7 @@ import {
   signInWithPasskey,
   stopPasskeyAutofill,
 } from '../sync/syncController';
+import { Waiting } from '../../lamplight/Waiting';
 
 /*
  * Passkeys on the sign-in and unlock steps of every app: one Face ID, fingerprint or PIN signs in and opens the
@@ -111,7 +112,7 @@ export function PasskeyOpen({ className = 'button-main', errorClass = 'hint', ro
   return (
     <>
       <button type="button" className={className} disabled={busy} onClick={() => void run(() => openDataWithPasskey(rows))}>
-        {busy ? 'Opening…' : 'Open with a passkey'}
+        {busy ? <Waiting>Opening…</Waiting> : 'Open with a passkey'}
       </button>
       {error && (
         <p className={errorClass} role="alert">

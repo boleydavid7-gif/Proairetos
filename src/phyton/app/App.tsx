@@ -3,7 +3,7 @@ import { shareOutsideWithWorker } from './background';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { HomeIcon, LeafIcon, MoreIcon } from '../../app/family/icons';
+import { HomeIcon, LeafIcon, SettingsIcon } from '../../app/family/icons';
 import { settings, usePlants } from './state';
 import { refreshRain } from './rain';
 import WelcomePage from '../screens/WelcomePage';
@@ -32,7 +32,7 @@ export type PhytonNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'plants', label: 'Plants', Icon: LeafIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

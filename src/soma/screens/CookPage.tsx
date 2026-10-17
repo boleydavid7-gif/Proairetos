@@ -16,7 +16,7 @@ function say(text: string) {
     speechSynthesis.cancel();
     speechSynthesis.speak(new SpeechSynthesisUtterance(text));
   } catch {
-    // No voice on this phone.
+    // No voice on this device.
   }
 }
 

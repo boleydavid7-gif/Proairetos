@@ -57,7 +57,7 @@ const VERBS = new Set(
   ).split(' '),
 );
 
-/** A first guess at what a line is. Feelings and worries come first, so "call mum, worried about her" is not read as a task. */
+/** A first guess at what a line is. Feelings and worries come first, so "call mom, worried about her" is not read as a task. */
 export function guessKind(text: string): DumpKind {
   if (FEELING.test(text)) return 'FEELING';
   if (CONCERN.test(text)) return 'CONCERN';

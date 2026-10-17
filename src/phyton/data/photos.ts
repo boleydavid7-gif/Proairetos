@@ -1,5 +1,5 @@
 /*
- * Photos of each plant over time, kept on this phone only in their own IndexedDB database, like Ktema's files:
+ * Photos of each plant over time, kept on this device only in their own IndexedDB database, like Ktema's files:
  * not in backups or sync. Each is made small (1200 px on its long side, JPEG) before it is kept.
  */
 import { useEffect, useState } from 'react';
@@ -73,7 +73,7 @@ export async function smallPhoto(file: Blob, side = SIDE): Promise<Blob> {
   canvas.height = Math.round(bitmap.height * scale);
   canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
-  if (!blob) throw new Error('That photo could not be read.');
+  if (!blob) throw new Error('Couldn’t read that photo.');
   return blob;
 }
 

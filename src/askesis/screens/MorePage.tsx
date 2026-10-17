@@ -1,8 +1,9 @@
 import type { Nav, Route } from '../app/App';
 import { HistoryIcon } from '../../app/family/icons';
-import { BoxIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon } from '../app/icons';
+import { BoxIcon, PulseIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { useSettings } from '../app/state';
+import { stravaLink } from '../app/strava';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyApps from '../../app/family/FamilyApps';
 import { aimWords, type Plan } from '../core/plans';
@@ -23,6 +24,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
       detail: settings.music === 'mine' ? 'Songs here' : settings.music === 'other' ? 'Another app' : 'Songs for your sessions',
       route: { name: 'music' },
     },
+    { icon: <PulseIcon />, title: 'Strava', detail: stravaLink()?.refresh ? 'Connected' : 'Workouts from your watch', route: { name: 'strava' } },
     { icon: <HeartIcon />, title: 'Heart rate zones', detail: 'Set zones for each effort', route: { name: 'zones' } },
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: 'Pace, time and distance', route: { name: 'pace' } },
     { icon: <ShieldIcon />, title: 'Before you start', detail: 'When to check with a doctor', route: { name: 'safety' } },

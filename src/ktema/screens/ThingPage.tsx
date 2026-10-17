@@ -69,8 +69,9 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         </div>
       </fieldset>
       <label className="field">
-        <span className="field__label">Where (optional)</span>
-        <input className="input" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
+        <span className="field__label">Room (optional)</span>
+        <input className="input" list="ktema-rooms" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
+        <datalist id="ktema-rooms">{[...new Set(things.list().map((each) => each.place?.trim()).filter((each): each is string => Boolean(each)))].map((each) => <option key={each} value={each} />)}</datalist>
       </label>
       <ReadFromPhoto
         label="Read the model and serial from a photo"
@@ -141,7 +142,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
       </div>
 
       <div className="detail-head">
-        <span className="detail-head__mark"><BoxIcon size={30} /></span>
+        <span className="detail-head__mark"><BoxIcon size={32} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
           <p className="muted">{[existing.category === existing.name ? undefined : existing.category, existing.place].filter(Boolean).join(' · ')}</p>
@@ -184,7 +185,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
             setReading('');
           }}>
             <input className="input" inputMode="numeric" aria-label={`Reading in ${unit}`} placeholder={`Reading today, ${unit}`} value={reading} onChange={(event) => setReading(event.target.value)} />
-            <button type="submit" className="button-quiet" disabled={!reading.trim()}>Keep</button>
+            <button type="submit" className="button-quiet" disabled={!reading.trim()}>Save</button>
           </form>
         </section>
       )}
@@ -217,7 +218,7 @@ export default function ThingPage({ nav, id }: { nav: KtemaNav; id?: string }) {
     return (
       <div className="page ktema-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }

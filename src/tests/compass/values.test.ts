@@ -6,7 +6,7 @@ describe('choosing values', () => {
   const { context } = testContext();
   const pick = (name: string, current: ChosenValue[] = []) => chooseValue(context, 'u', name, current);
 
-  it('recognises presets regardless of case, and keeps custom values as written', () => {
+  it('recognizes presets regardless of case, and keeps custom values as written', () => {
     expect(pick('  courage ')).toMatchObject({ name: 'Courage', source: 'PRESET' });
     expect(pick('Being  outdoors')).toMatchObject({ name: 'Being outdoors', source: 'CUSTOM' });
   });

@@ -66,6 +66,6 @@ export function nfcHere(): boolean {
 /** Writes a link onto an NFC tag held to the phone. Any phone that reads the tag opens the link. */
 export async function writeTag(url: string): Promise<void> {
   const Reader = (window as unknown as { NDEFReader?: new () => NdefWriter }).NDEFReader;
-  if (!Reader) throw new Error('This phone cannot write NFC tags.');
+  if (!Reader) throw new Error('This device cannot write NFC tags.');
   await new Reader().write({ records: [{ recordType: 'url', data: url }] });
 }

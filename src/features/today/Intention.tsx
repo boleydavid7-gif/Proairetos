@@ -41,9 +41,11 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
         {!editing && (
           <span className="section-heading__actions">
             {!current && isToday && <NotForMe part="intention" />}
-            <button type="button" className="text-link" onClick={edit}>
-              {current ? 'Edit' : 'Set'}
-            </button>
+            {current && (
+              <button type="button" className="text-link" onClick={edit}>
+                Edit
+              </button>
+            )}
           </span>
         )}
       </div>

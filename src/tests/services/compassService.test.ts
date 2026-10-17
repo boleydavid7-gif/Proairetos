@@ -76,12 +76,12 @@ describe('people who matter', () => {
   it('adds people, keeps a note and an in-touch date, and keeps them apart from statements', async () => {
     const { service } = setup();
     await service.writeStatement('REMEMBER', 'Begin again');
-    const mum = await service.addPerson('  Mum ');
-    expect(mum).toMatchObject({ type: 'PERSON', body: 'Mum' });
+    const mum = await service.addPerson('  Mom ');
+    expect(mum).toMatchObject({ type: 'PERSON', body: 'Mom' });
 
     await service.updatePerson(mum.id, { note: 'Sunday calls', inTouchAt: '2026-10-02T10:00:00.000Z' });
     let [person] = (await service.statements()).filter((s) => s.type === 'PERSON');
-    expect(person).toMatchObject({ body: 'Mum', note: 'Sunday calls', inTouchAt: '2026-10-02T10:00:00.000Z', createdAt: mum.createdAt });
+    expect(person).toMatchObject({ body: 'Mom', note: 'Sunday calls', inTouchAt: '2026-10-02T10:00:00.000Z', createdAt: mum.createdAt });
 
     await service.updatePerson(mum.id, { note: '', inTouchAt: null });
     [person] = (await service.statements()).filter((s) => s.type === 'PERSON');

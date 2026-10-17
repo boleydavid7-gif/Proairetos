@@ -31,7 +31,7 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
 
   async function place(item: LifeItem) {
     await lifeService.schedule(item.id, at.toISOString());
-    offerUndo(`Set for ${formatTimeOf(at)}: ${item.title}`, async () => {
+    offerUndo(`“${item.title}” set for ${formatTimeOf(at)}`, async () => {
       await lifeService.schedule(item.id, undefined);
     });
     close();

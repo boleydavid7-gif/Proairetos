@@ -184,7 +184,7 @@ describe('paths toward an aim', () => {
     expect(buildPath({ aim, days: 4, gentler: true }).weeks.length).toBeGreaterThan(buildPath({ aim, days: 4 }).weeks.length);
   });
 
-  it('goes round a steady rhythm without end', () => {
+  it('goes around a steady rhythm without end', () => {
     const plan = buildPath({ aim: { kind: 'steady' }, days: 3 });
     expect(plan.cycleFrom).toBeDefined();
     const later = weekAt(plan, plan.weeks.length + 5);

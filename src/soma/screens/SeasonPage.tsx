@@ -20,6 +20,7 @@ import {
   type ProduceKind,
 } from '../core/seasons';
 import { loadSettings, saveGroceries } from '../data/store';
+import { Waiting } from '../../lamplight/Waiting';
 
 const monthShort = (m: number) => new Date(2026, m - 1, 1).toLocaleDateString(undefined, { month: 'short' });
 
@@ -111,7 +112,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
     setProblem(undefined);
     mealsWith(item.lookup ?? item.photo ?? item.name)
       .then((found) => live && setIdeas(found.slice(0, 8)))
-      .catch(() => live && setProblem('Ideas need a connection. Your own recipes work without one.'));
+      .catch(() => live && setProblem('Ideas need a connection. Your recipes work offline.'));
     return () => {
       live = false;
     };
@@ -181,7 +182,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
           <h2>Ideas with {item.name.toLowerCase()}</h2>
         </div>
         {problem && <p className="muted">{problem}</p>}
-        {!problem && !ideas && <p className="muted">Looking…</p>}
+        {!problem && !ideas && <p className="muted"><Waiting>Looking…</Waiting></p>}
         {ideas && ideas.length === 0 && <p className="muted">None in TheMealDB yet.</p>}
         <ul className="recipe-rows">
           {ideas?.map((meal) => (
@@ -196,7 +197,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
                     await draftFrom(meal);
                     nav.go({ name: 'edit' });
                   } catch {
-                    setProblem('That recipe could not be opened just now.');
+                    setProblem('Couldn’t open that recipe. Try again.');
                   } finally {
                     setBusy(false);
                   }

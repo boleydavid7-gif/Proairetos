@@ -10,6 +10,7 @@ import type { DynamisNav } from '../app/App';
 import { draft, isSetup, newId, plan, savePlan, workouts, type Draft, type DraftSet } from '../app/state';
 import { alternatives } from '../core/library';
 import ExerciseFigure from '../app/ExerciseFigure';
+import { BARBELL, BARS, platesFor, platesText } from '../core/history';
 import { awayDays, warmUp, lighterWeight, nextSession, sessionsFor, setsText, targetsFor, type Felt, type Target, type Workout } from '../core/plan';
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
@@ -34,7 +35,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   const [felt, setFelt] = useState<Felt>();
   // Once finished or put aside, leaving the page never starts another session.
   const leaving = useRef(false);
-  // "Done" and "skip" said instead of tapped, when chosen (kept on this phone only).
+  // "Done" and "skip" said instead of tapped, when chosen (kept on this device only).
   const [listen, setListen] = useState(() => {
     try {
       return localStorage.getItem(LISTEN_KEY) === 'true';
@@ -62,7 +63,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   );
   const away = ready ? awayDays(done, toLocalDate(new Date())) : undefined;
 
-  // A session begins the first time this page opens, and is kept on this phone until finished or put aside.
+  // A session begins the first time this page opens, and is kept on this device until finished or put aside.
   useEffect(() => {
     if (!ready || !session || current || leaving.current) return;
     const sets: Draft['sets'] = {};
@@ -207,6 +208,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
               </div>
             </div>
             {target.last && <p className="fine">Last time: {setsText(target.last, setup.unit, target.measure)}</p>}
+            {BARBELL.has(target.exercise) && target.weight !== undefined && target.weight > (setup.bar ?? BARS[setup.unit][0]) && <p className="fine">Plates: {platesText(platesFor(target.weight, setup.bar ?? BARS[setup.unit][0], setup.unit).side)}</p>}
             {warmUp(target, setup.unit).length > 0 && !sets.some((set) => set.done) && (
               <p className="fine">Warm-up (optional): {warmUp(target, setup.unit).map((set) => `${set.reps} × ${set.weight} ${setup.unit}`).join(', then ')}</p>
             )}

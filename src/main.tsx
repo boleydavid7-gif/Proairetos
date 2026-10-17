@@ -12,14 +12,16 @@ import '@fontsource/inter/latin-600.css';
 import './styles/globals.css';
 import './styles/premium.css';
 import './app/family/account.css';
-import { applyAppearance } from './app/appearance';
+import { applyAppearance, withLamplight } from './app/appearance';
+import { applyLamplight } from './app/lamplight';
 import { startDailyCopies } from './app/family/dailyCopy';
 import { startLaunchFiles } from './app/family/launchFiles';
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
 startLaunchFiles();
 
-// Theme and text size before the first paint, and again when the phone switches light or dark.
+// Theme, text size, room and color before the first paint, and again when the phone switches light or dark.
+withLamplight((appearance, light) => applyLamplight(appearance, light, 'proairetos'));
 applyAppearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
 
@@ -31,7 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 
-// A copy of everything, once a day, kept on this phone (Settings > Your data).
+// A copy of everything, once a day, kept on this device (Settings > Your data).
 startDailyCopies();
 
 // Offline support in production builds only, so development always loads fresh code.

@@ -15,7 +15,7 @@ export const NUTRITION_SOURCE =
 export type Nutrients = { kcal: number; protein: number; fat: number; saturated: number; carbs: number; sugars: number; fibre: number; sodium: number };
 /** Nutri-Score's five grades; its last, E, is shown as F (the owner's choice, like a school grade). */
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';
-/** Each part of the score: points against (energy, sugars, saturated fat, salt) and for (protein, fibre, fruit and vegetables). */
+/** Each part of the score: points against (energy, sugars, saturated fat, salt) and for (protein, fiber, fruit and vegetables). */
 export type ScoreParts = { energy: number; sugars: number; saturated: number; salt: number; protein: number; fibre: number; fvl: number; proteinCounted: boolean };
 export type Nutrition = {
   /** Totals for the whole recipe. */

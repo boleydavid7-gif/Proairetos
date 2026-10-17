@@ -6,6 +6,7 @@ import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
 import { scene } from '../app/scenes';
 import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
+import { recipesUsing, soonItems, shownUseBy } from '../core/soon';
 import { latitude, useBlocks } from '../app/proairetos';
 import { dayShape } from '../core/dayShape';
 import { inSeason, seasonal as seasonalNow, seasonalRecipes } from '../core/seasons';
@@ -36,8 +37,10 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const today = useToday();
   const line = lineFor(today);
   const [query, setQuery] = useState('');
-  const favourites = recipes.filter((recipe) => recipe.favorite);
-  useGroceries();
+  const favorites = recipes.filter((recipe) => recipe.favorite);
+  const groceries = useGroceries() ?? [];
+  const soon = soonItems(groceries, today);
+  const soonRecipes = soon.length ? recipesUsing(recipes, soon) : [];
   const blocks = useBlocks(today);
   const shape = settings.fitsYourDay ? dayShape(blocks, today, new Date()) : undefined;
   const week = weekFrom(today)
@@ -74,6 +77,18 @@ export default function HomePage({ nav }: { nav: Nav }) {
             {shape?.today && <span className="muted">{shape.today}</span>}
           </button>
         )}
+        {soon.length > 0 && (
+          <section className="card use-soon" aria-label="Use soon">
+            <span className="card__eyebrow">Use soon</span>
+            <p className="use-soon__things">{soon.map((item) => `${item.name} (${(shownUseBy(item.useBy, today) ?? '').replace(/^Use by /, '').replace(/^Use-by was /, 'was ')})`).join(', ')}</p>
+            {soonRecipes.map(({ recipe, uses }) => (
+              <button key={recipe.id} type="button" className="use-soon__recipe" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
+                <span>{recipe.title}</span>
+                <span className="muted">{uses.join(', ')}</span>
+              </button>
+            ))}
+          </section>
+        )}
         {shape && shape.lateDays.length >= 2 && recipes.length > 0 && (
           <button type="button" className="card card--link" onClick={() => nav.go({ name: 'week', mark: recipes.some((recipe) => recipe.marks?.includes('ahead')) ? 'ahead' : undefined })}>
             <span className="card__eyebrow">Late ones {listDays(shape.lateDays)}</span>
@@ -90,16 +105,16 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </button>
         </div>
 
-        {(favourites.length > 0 || recipes.length > 0) && (
+        {(favorites.length > 0 || recipes.length > 0) && (
           <>
             <div className="section-head">
-              <h2>{favourites.length ? 'Favorites' : 'Recently added'}</h2>
+              <h2>{favorites.length ? 'Favorites' : 'Recently added'}</h2>
               <button type="button" className="text-link" onClick={() => nav.swap({ name: 'recipes' })}>
                 All
               </button>
             </div>
             <div className="recipe-scroll">
-              {(favourites.length ? favourites : recipes).slice(0, 8).map((recipe) => (
+              {(favorites.length ? favorites : recipes).slice(0, 8).map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />
               ))}
             </div>

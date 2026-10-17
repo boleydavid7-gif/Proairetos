@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: KtemaNav }) {
       name="Ktema"
       mark={<AppMark app="ktema" size={44} light />}
       line="Home, car and belongings."
-      about="Models, serial numbers, receipts and warranties, and the upkeep that comes round by date or by mileage."
+      about="Models, serial numbers, receipts and warranties, and the upkeep that comes around by date or by mileage."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {

@@ -102,6 +102,13 @@ export function formatDuration(ms: number): string {
   return `${days} day${days === 1 ? '' : 's'}`;
 }
 
+/** How long until something, as a person would say it: exact within three hours, then to the hour ("about 12 h"). */
+export function untilText(ms: number): string {
+  const minutes = Math.max(1, Math.ceil(ms / 60_000));
+  if (minutes < 180 || minutes >= 24 * 60) return formatDuration(ms);
+  return `about ${Math.round(minutes / 60)} h`;
+}
+
 /** "Today", "Tomorrow", "Yesterday", or the weekday for nearby dates. */
 export function dayTitle(date: string, today: string): string {
   if (date === today) return 'Today';

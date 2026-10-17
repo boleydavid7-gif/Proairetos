@@ -124,7 +124,7 @@ export default function WindDownPage({ nav }: { nav: DiaitaNav }) {
         <button type="button" className="diaita-wind-down-screen__leave" onClick={nav.back}>{finished ? 'Close' : 'End'}</button>
         {finished ? (
           <div className="diaita-wind-down-screen__center">
-            <MoonIcon size={34} />
+            <MoonIcon size={32} />
             <h1>Wind down complete</h1>
             <p>Let the room stay dim and go to bed when you are ready.</p>
             <button type="button" className="button-main" onClick={nav.back}>Done</button>
@@ -157,7 +157,7 @@ export default function WindDownPage({ nav }: { nav: DiaitaNav }) {
           return (
             <div key={id} className={`diaita-piece${on ? ' diaita-piece--on' : ''}`}>
               <button type="button" className="diaita-piece__main" aria-pressed={on} onClick={() => toggle(id)}>
-                <span className="diaita-piece__icon">{on ? <CheckIcon size={19} /> : <span />}</span>
+                <span className="diaita-piece__icon">{on ? <CheckIcon size={20} /> : <span />}</span>
                 <span className="diaita-piece__words"><strong>{piece.title}</strong><small>{piece.line}</small></span>
                 <span className="diaita-piece__minutes">{piece.minutes} min</span>
               </button>
@@ -180,12 +180,12 @@ export default function WindDownPage({ nav }: { nav: DiaitaNav }) {
           ))}
         </div>
         <button type="button" className="diaita-option-row" role="switch" aria-checked={spoken} onClick={() => setSpoken((before) => !before)}>
-          <span><BookIcon size={19} />Spoken cues</span><span>{spoken ? 'On' : 'Off'}</span>
+          <span><BookIcon size={20} />Spoken cues</span><span>{spoken ? 'On' : 'Off'}</span>
         </button>
       </section>
 
       <button type="button" className="button-main diaita-wind-down__start" disabled={!validLength} onClick={start}><TimerIcon size={18} />Start</button>
-      <button type="button" className="button-quiet diaita-wind-down__cant" onClick={() => nav.go({ name: 'cant-sleep' })}><MoonIcon size={17} />Can’t sleep</button>
+      <button type="button" className="button-quiet diaita-wind-down__cant" onClick={() => nav.go({ name: 'cant-sleep' })}><MoonIcon size={18} />Can’t sleep</button>
       <p className="hint">Leave at any point.</p>
     </div>
   );

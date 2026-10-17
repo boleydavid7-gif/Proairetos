@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { decisionService, lifeService } from '../../app/services';
 import { MAX_DECISION_OPTIONS, confidenceLabels, type DecisionConfidence } from '../../core/decisions/types';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
+import { Sym } from '../../lamplight/icons';
 
 export type DecideFrom = { itemId: string; title: string };
 
@@ -104,7 +105,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
                       setChosen(chosen === index ? null : chosen !== null && chosen > index ? chosen - 1 : chosen);
                     }}
                   >
-                    ×
+                    <Sym name="close" />
                   </button>
                 )}
               </li>

@@ -29,6 +29,7 @@ import {
   type DayAt,
   type PraxisQuote,
 } from './data';
+import { Sym } from '../lamplight/icons';
 
 export const PRAXIS_SOUND_IDS = ['none', 'forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
 
@@ -38,7 +39,6 @@ export type Break = { endsAt: number; minutes: number };
 /* ---------- Today ---------- */
 
 type TodayProps = {
-  greeting: string;
   /** Opened from "Start my next block": the Start button waits for the one tap phones need for sound. */
   ready?: boolean;
   today: string;
@@ -71,7 +71,7 @@ type TodayProps = {
 };
 
 export function TodayView(props: TodayProps) {
-  const { greeting, today, blocks, selected, session, remaining, finished, minutes, rest, restLeft, after, quote } = props;
+  const { today, blocks, selected, session, remaining, finished, minutes, rest, restLeft, after, quote } = props;
   const open = blocks.filter((block) => block.status !== 'DONE');
   const done = blocks.filter((block) => block.status === 'DONE');
   const again = open.filter((block) => block.plannedFor && block.plannedFor <= today);
@@ -81,9 +81,9 @@ export function TodayView(props: TodayProps) {
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   return (
     <section className="praxis-view praxis-today-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Today</p><h1>{greeting}</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Today</h1></div></div>
       <div className="praxis-today-grid">
-        <article className="praxis-card praxis-focus-card">
+        <article className={`praxis-card praxis-focus-card${!after && !rest && !session && !selected ? ' praxis-focus-card--empty' : ''}`}>
           {after && !session && !rest ? (
             <AfterBlock after={after} onRest={props.onRest} onKeepLine={props.onKeepLine} onLookAgain={props.onLookAgain} onClose={props.onCloseAfter} />
           ) : (
@@ -181,11 +181,11 @@ function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove
     <div className={`praxis-task${selected ? ' is-selected' : ''}${block.status === 'DONE' ? ' is-done' : ''}`}>
       <div className="praxis-task__row">
         <button type="button" className="praxis-task-main" onClick={() => onSelect(block)} aria-pressed={selected}>
-          <span className="praxis-task-icon"><BookIcon size={17} /></span>
+          <span className="praxis-task-icon"><BookIcon size={18} /></span>
           <span><strong>{block.title}</strong><small>{block.plannedMinutes ?? 25} min{goal ? ` · ${goal.body}` : ''}</small></span>
         </button>
-        <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={15} /></button>
-        <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={14} /></button>
+        <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
+        <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
       </div>
       {editing && (
         <form className="praxis-block-form" onSubmit={save}>
@@ -249,7 +249,7 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
         {kept ? <a className="praxis-text-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a> : (
           <form onSubmit={(event) => { event.preventDefault(); if (!line.trim()) return; onKeepLine(line.trim()); setKept(true); }} className="praxis-add__row">
             <input aria-label="One line to keep" placeholder="A note (optional)" value={line} onChange={(event) => setLine(event.target.value)} />
-            <button type="submit" className="praxis-button praxis-button--quiet" disabled={!line.trim()}>Keep</button>
+            <button type="submit" className="praxis-button praxis-button--quiet" disabled={!line.trim()}>Save</button>
           </form>
         )}
       </div>
@@ -279,14 +279,14 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
   }
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">As recorded</p><h1>Sessions</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Sessions</h1></div></div>
       {groups.length === 0 ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : groups.map((group) => (
         <article className="praxis-card praxis-wide-card praxis-day-group" key={group.day}>
           <p className="praxis-eyebrow">{formatDay(group.day)}</p>
           {group.events.map((event) => (
             <div key={event.id}>
               <div className="praxis-history-row">
-                <span className="praxis-history-icon"><BookIcon size={17} /></span>
+                <span className="praxis-history-icon"><BookIcon size={18} /></span>
                 <span><strong>{titles.get(event.itemId) ?? 'A block'}</strong><small>{formatSessionTime(event.timestamp)}</small></span>
                 <button type="button" className="praxis-history-duration" onClick={() => { setEditing(editing === event.id ? undefined : event.id); setValue(String(focusMinutes(event))); }}>{focusMinutes(event)} min</button>
               </div>
@@ -325,14 +325,14 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
   if (showYear) return <section className="praxis-view"><div className="family-surface"><YearPage dates={praxisFocusEvents(events).map((event) => sessionDay(event, dayAt))} build={(year) => praxisYear(events, titles, year, dayAt)} onBack={() => setShowYear(false)} /></div></section>;
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">As recorded</p><h1>Time</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Time</h1></div></div>
       <div className="praxis-stats-grid">
         <article className="praxis-card praxis-wide-card">
           <div className="praxis-card-heading">
             <div><p className="praxis-eyebrow">{label}</p><h2>{total ? formatMinutes(total) : 'Nothing recorded'}</h2></div>
             <div className="praxis-week-step">
-              <button type="button" aria-label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}>‹</button>
-              <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}>›</button>
+              <button type="button" aria-label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}><Sym name="back" /></button>
+              <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}><Sym name="chevron" /></button>
             </div>
           </div>
           <div className={total ? 'praxis-chart' : 'praxis-chart praxis-chart--empty'}>
@@ -348,7 +348,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
         <article className="praxis-card praxis-wide-card">
           <p className="praxis-eyebrow">By block</p>
           {blocks.length === 0 ? <p className="praxis-empty">No time recorded in this week.</p> : blocks.map((each) => (
-            <div className="praxis-history-row" key={each.itemId}><span className="praxis-history-icon"><ClockIcon size={17} /></span><span><strong>{titles.get(each.itemId) ?? 'A block'}</strong></span><span className="praxis-history-duration">{formatMinutes(each.minutes)}</span></div>
+            <div className="praxis-history-row" key={each.itemId}><span className="praxis-history-icon"><ClockIcon size={18} /></span><span><strong>{titles.get(each.itemId) ?? 'A block'}</strong></span><span className="praxis-history-duration">{formatMinutes(each.minutes)}</span></div>
           ))}
         </article>
       </div>
@@ -362,7 +362,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
 export function SoundsView({ sound, soundState, onSound }: { sound: string; soundState: PlayerState; onSound: (sound: string) => void }) {
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">While you study</p><h1>Sounds</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Sounds</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-sound-grid">
           {PRAXIS_SOUND_IDS.map((id, index) => {
@@ -390,7 +390,7 @@ export function SoundsView({ sound, soundState, onSound }: { sound: string; soun
 export function SettingsView({ notices, onNotices }: { notices: string; onNotices: () => void }) {
   return (
     <section className="praxis-view">
-      <div className="praxis-page-heading"><div><p className="praxis-eyebrow">Praxis</p><h1>Settings</h1></div></div>
+      <div className="praxis-page-heading"><div><h1>Settings</h1></div></div>
       <article className="praxis-card praxis-wide-card">
         <div className="praxis-setting">
           <span><strong>A notice when a block ends</strong></span>

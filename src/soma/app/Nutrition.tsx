@@ -3,11 +3,12 @@ import { choiceLine, choiceName, estimateServings, foodFor, gramsOf, NUTRITION_S
 import { FOODS } from '../core/nutritionTable';
 import { readIngredient } from '../core/ingredients';
 import { loadFoodChoices, saveFoodChoices, useFoodChoices } from '../data/foodChoices';
+import { Sym } from '../../lamplight/icons';
 
 const GRADES: Grade[] = ['A', 'B', 'C', 'D', 'F'];
 const WORDS: Record<Grade, string> = { A: 'Healthiest', B: 'Healthier', C: 'Middle of the scale', D: 'Less healthy', F: 'Least healthy' };
 
-/** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fibre is EFSA's adequate intake. */
+/** EU reference intakes for an adult (Regulation 1169/2011, Annex XIII); fiber is EFSA's adequate intake. */
 const REFERENCE = { kcal: 2000, protein: 50, fat: 70, saturated: 20, carbs: 260, sugars: 90, fibre: 25, salt: 6 };
 const REFERENCE_SOURCE = 'Day’s reference: EU reference intakes for an adult (Regulation 1169/2011); fiber, EFSA’s adequate intake of 25 g.';
 
@@ -173,9 +174,9 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
     <div className="nutri-serves">
       <span>{estimated ? `Serves about ${servings} (estimated)` : `Serves ${servings}`}</span>
       <span className="nutri-serves__step">
-        <button type="button" className="chip" aria-label="Fewer servings" disabled={servings <= 1} onClick={() => onServings(servings - 1)}>−</button>
-        <button type="button" className="chip" aria-label="More servings" onClick={() => onServings(servings + 1)}>+</button>
-        {estimated && <button type="button" className="chip" onClick={() => onServings(servings)}>Keep</button>}
+        <button type="button" className="chip" aria-label="Fewer servings" disabled={servings <= 1} onClick={() => onServings(servings - 1)}><Sym name="minus" /></button>
+        <button type="button" className="chip" aria-label="More servings" onClick={() => onServings(servings + 1)}><Sym name="plus" /></button>
+        {estimated && <button type="button" className="chip" onClick={() => onServings(servings)}>Save</button>}
       </span>
     </div>
   );

@@ -11,6 +11,11 @@ export type SealedKind = 'book' | 'cover';
 const bucket = (kind: SealedKind) => (kind === 'book' ? THEORIA_BOOK_BUCKET : THEORIA_COVER_BUCKET);
 const label = (kind: SealedKind, bookId: string) => `theoria:${kind}:${bookId}`;
 
+/** A server without Theoria's storage (migration 20261014000000) answers "Bucket not found"; say so plainly. */
+function plain(message: string): string {
+  return /bucket not found/i.test(message) ? 'Account copies are not set up on the server yet. The book stays on this device.' : message;
+}
+
 export async function uploadSealed(kind: SealedKind, bookId: string, blob: Blob): Promise<string> {
   if (!isSyncConfigured) throw new Error('This copy of the site has no account storage.');
   if (blob.size > MAX_BOOK_BYTES) throw new Error('That file is larger than 50 MB, so it stays on this device only.');
@@ -18,13 +23,13 @@ export async function uploadSealed(kind: SealedKind, bookId: string, blob: Blob)
   if (!result) throw new Error('Sign in and unlock sync to keep a copy in your account.');
   const path = `${result.userId}/${bookId}/${kind}.sealed`;
   const { error } = await (await supabase()).storage.from(bucket(kind)).upload(path, new Blob([result.sealed], { type: 'application/octet-stream' }), { upsert: true, contentType: 'application/octet-stream' });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(plain(error.message));
   return path;
 }
 
 export async function downloadSealed(kind: SealedKind, bookId: string, path: string, type = ''): Promise<Blob> {
   const { data, error } = await (await supabase()).storage.from(bucket(kind)).download(path);
-  if (error || !data) throw new Error(error?.message ?? 'The copy could not be fetched.');
+  if (error || !data) throw new Error(error ? plain(error.message) : 'The copy could not be fetched.');
   const opened = await openWithAccount(label(kind, bookId), await data.arrayBuffer());
   if (!opened) throw new Error('Unlock sync on this device to open the copy.');
   return new Blob([opened], { type });

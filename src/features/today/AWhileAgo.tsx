@@ -25,7 +25,7 @@ export default function AWhileAgo({ items, onKeep }: Props) {
               className="chip chip--small"
               onClick={async () => {
                 const change = await lifeService.setStatus(item.id, 'LET_GO');
-                offerUndo(`Let go: ${item.title}`, change.undo);
+                offerUndo(`“${item.title}” let go`, change.undo);
               }}
             >
               Let it go

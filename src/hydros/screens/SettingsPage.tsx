@@ -23,6 +23,9 @@ import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import FamilyApps from '../../app/family/FamilyApps';
 import { isAdded } from '../../app/family/added';
+import { listDrinks, loadSettings } from '../data/store';
+import { drinksCsv } from '../core/export';
+import { Sym } from '../../lamplight/icons';
 
 const intervals = [60, 90, 120, 180] as const;
 
@@ -36,7 +39,7 @@ function Icon({ children }: { children: React.ReactNode }) {
 }
 
 function Chevron() {
-  return <span className="hydros-settings-row__chevron" aria-hidden="true">›</span>;
+  return <span className="hydros-settings-row__chevron" aria-hidden="true"><Sym name="chevron" /></span>;
 }
 
 function Switch({ on }: { on: boolean }) {
@@ -156,7 +159,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
             <input aria-label={`Amount in ${unit}`} type="number" inputMode="decimal" min="0" step={unit === 'L' ? .05 : 1} defaultValue={formatVolume(glass.amountOz, unit)} onBlur={(event) => { const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) changeGlass(glass.id, { amountOz: unitToOunces(value, unit) }); }} />
             <b>{unit}</b>
             <select aria-label="Drink" value={glass.profileId} onChange={(event) => changeGlass(glass.id, { profileId: event.target.value })}>{profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select>
-            <button type="button" aria-label={`Remove ${glass.label}`} onClick={() => removeGlass(glass)}>×</button>
+            <button type="button" aria-label={`Remove ${glass.label}`} onClick={() => removeGlass(glass)}><Sym name="close" /></button>
           </div>
         ))}
         {glasses.length < 6 && <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={addGlass}><Icon><CupIcon /></Icon><span className="hydros-settings-row__name">Add a glass or bottle</span><Chevron /></button>}
@@ -186,11 +189,25 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <div className="family-surface"><FamilyApps current="hydros" /></div>
 
       <SettingsGroup title="More">
+        <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={() => void downloadLog()}><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">Download the log (CSV)</span><Chevron /></button>
         <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Aprivacy"><Icon><GearIcon /></Icon><span className="hydros-settings-row__name">Privacy</span><Chevron /></a>
         <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Ahelp"><Icon><LeafIcon /></Icon><span className="hydros-settings-row__name">Help</span><Chevron /></a>
       </SettingsGroup>
     </div>
   );
+}
+
+/** Every drink as a CSV file, for a spreadsheet. */
+async function downloadLog() {
+  const settings = loadSettings();
+  const profiles = settings.drinkProfiles?.length ? settings.drinkProfiles : defaultDrinkProfiles();
+  const csv = drinksCsv(await listDrinks(), profiles, (settings.unit ?? 'oz') as HydrosUnit);
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  link.download = `hydros-log-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
 }
 
 function SettingsGroup({ title, children }: { title: string; children: React.ReactNode }) {

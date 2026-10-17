@@ -1,4 +1,4 @@
-/* Diaita's colours: dusk blue with lamp amber. The look is askesis.css; Appearance follows Proairetos. */
+/* Diaita's colors: dusk blue with lamp amber. The look is askesis.css; Appearance follows Proairetos. */
 
 :root.diaita {
   --app-name: 'Diaita';
@@ -193,11 +193,6 @@
 }
 
 .diaita-more .diaita-settings .field__label,
-.diaita-more .diaita-switches-label {
-  color: var(--text-soft);
-  font-weight: 600;
-}
-
 .diaita-side-by-side__comparison + .diaita-side-by-side__comparison {
   padding-top: 12px;
   border-top: 1px solid var(--line);
@@ -393,7 +388,7 @@
 
 .diaita-wind-down-screen {
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 20px) 24px calc(env(safe-area-inset-bottom) + 24px);
+  padding: calc(var(--ll-safe-top) + 20px) 24px calc(env(safe-area-inset-bottom) + 24px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -406,7 +401,7 @@
 
 .diaita-wind-down-screen__leave {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 16px);
+  top: calc(var(--ll-safe-top) + 16px);
   right: 20px;
   min-height: 44px;
   padding: 0 8px;
@@ -461,7 +456,7 @@
 
 .diaita-cant-sleep {
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 24px);
+  padding: calc(var(--ll-safe-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 24px);
   background: #090405;
   color: #f2dedd;
 }

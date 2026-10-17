@@ -10,6 +10,12 @@
   background: var(--color-surface);
 }
 
+/* A short list of switches: rows edge to edge, a hairline between them. */
+.settings-card--rows {
+  gap: 0;
+  padding: var(--space-1) var(--space-4);
+}
+
 .settings-card .section-description {
   margin-top: calc(var(--space-2) * -1);
 }
@@ -19,7 +25,7 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.3);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.3);
   border-radius: var(--radius-sm);
 }
 
@@ -40,7 +46,7 @@
 .recovery-key {
   margin: 0;
   padding: var(--space-4);
-  border: 1px dashed rgba(201, 162, 116, 0.5);
+  border: 1px dashed rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
   border-radius: var(--radius-sm);
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   font-size: var(--text-md);
@@ -73,4 +79,58 @@
   padding-left: var(--space-4);
   font-size: var(--text-sm);
   line-height: 1.7;
+}
+
+/* Account: who is signed in and when it last synced, then the few things people do here. */
+.account-head__email {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.account-head .sheet__hint {
+  margin: 0;
+}
+
+.account-head__sync {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+}
+
+/* Signing in and setting up: each step's buttons span the card, the main one in gold. */
+.account-wide {
+  width: 100%;
+  min-height: 2.9rem;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+/* Capture from anywhere: the Shortcut's steps and the two values to copy into it. */
+.inbox-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  line-height: 1.5;
+}
+
+.inbox-copy {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.inbox-copy .sheet__label {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.inbox-copy__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }

@@ -10,6 +10,7 @@ import { asGrocery, inviteLink, toShared, type SharedItem, type SharedList } fro
 import { convertAmountText } from '../core/ingredients';
 import { loadSettings } from '../data/store';
 import { changeItem, createList, joinList, leaveList, refreshList, sharedItems, sharedLists, sharedVersion, subscribeShared } from '../data/sharedLists';
+import { Sym } from '../../lamplight/icons';
 
 const INVITE = 'somaShared.invite';
 
@@ -273,15 +274,13 @@ function SharedRow({ item, units, onToggle, onRemove }: { item: GroceryItem; uni
   return (
     <li className="grocery-row">
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
-        <span className="check-row__box">{item.checked ? '✓' : ''}</span>
+        <span className="check-row__box">{item.checked ? <Sym name="check" size={16} /> : null}</span>
         <span className="check-row__text">
           {item.name}
           {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, units)).join(' + ')}</span>}
         </span>
       </button>
-      <button type="button" className="grocery-row__more" aria-label={`Remove ${item.name}`} onClick={onRemove}>
-        ×
-      </button>
+      <button type="button" className="grocery-row__more" aria-label={`Remove ${item.name}`} onClick={onRemove}><Sym name="close" /></button>
     </li>
   );
 }

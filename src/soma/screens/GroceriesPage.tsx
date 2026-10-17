@@ -8,18 +8,21 @@ import { Brand, Segmented, useUndo } from '../app/ui';
 import { aisles, type Aisle } from '../core/aisles';
 import { addToList, byAisle, byRecipe, cleanLine, isGrocery, listAsText, onList, type GroceryItem } from '../core/groceries';
 import { boughtLabel, bringHome, kitchenByAge } from '../core/kitchen';
+import { KEEPS_SOURCE, guessUseBy, shownUseBy } from '../core/soon';
+import { addDays } from '../../core/scheduling/dates';
 import { convertAmountText, type UnitSystem } from '../core/ingredients';
 import { loadSettings, saveGroceries, saveSettings } from '../data/store';
 import { pendingInvite, SharedLists } from './SharedList';
 import { sharingAvailable } from '../data/sharedLists';
 import Empty from '../../app/family/Empty';
 import SwipeItem from '../../app/family/SwipeItem';
+import { Sym } from '../../lamplight/icons';
 
 function Row({ item, unitSystem, onToggle, onMore }: { item: GroceryItem; unitSystem: UnitSystem; onToggle: () => void; onMore: () => void }) {
   return (
     <SwipeItem className="grocery-row" label="Got it" off={item.checked} onSwipe={onToggle}>
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
-        <span className="check-row__box">{item.checked ? '✓' : ''}</span>
+        <span className="check-row__box">{item.checked ? <Sym name="check" size={16} /> : null}</span>
         <span className="check-row__text">
           {item.name}
           {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, unitSystem)).join(' + ')}</span>}
@@ -123,7 +126,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
       )}
 
       {toBuy.length === 0 ? (
-        <Empty icon={<BasketIcon size={26} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
+        <Empty icon={<BasketIcon size={28} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
       ) : (
         <>
           <Segmented
@@ -245,9 +248,22 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
 }
 
 /** What is at home: added by hand or put away from the list; the longest there first, each with a plain fact. */
+const USE_BY_IN: { label: string; days: number }[] = [
+  { label: 'Today', days: 0 },
+  { label: 'Tomorrow', days: 1 },
+  { label: '3 days', days: 3 },
+  { label: 'A week', days: 7 },
+  { label: '2 weeks', days: 14 },
+];
+
 function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string; change: (next: GroceryItem[], words?: string) => void }) {
   const [adding, setAdding] = useState('');
+  const [open, setOpen] = useState<string>();
   const here = kitchenByAge(items);
+  const setUseBy = (item: GroceryItem, useBy: string | undefined) => {
+    change(items.map((each) => (each.id === item.id ? { ...each, useBy } : each)));
+    setOpen(undefined);
+  };
   return (
     <>
       <form
@@ -259,6 +275,7 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
             ...item,
             place: 'kitchen' as const,
             boughtAt: today,
+            useBy: guessUseBy(item.name, today),
           }));
           change([...items, ...added]);
           setAdding('');
@@ -274,20 +291,35 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
       ) : (
         <ul className="check-list">
           {here.map((item) => (
-            <li key={item.id} className="grocery-row">
-              <span className="check-row">
+            <li key={item.id} className="grocery-row kitchen-row">
+              <button type="button" className="check-row kitchen-row__main" aria-expanded={open === item.id} onClick={() => setOpen(open === item.id ? undefined : item.id)}>
                 <span className="check-row__text">
                   {item.name}
-                  <span className="check-row__amount">{boughtLabel(item.boughtAt, today)}</span>
+                  <span className={`check-row__amount${item.useBy && item.useBy <= today ? ' kitchen-row__soon' : ''}`}>
+                    {shownUseBy(item.useBy, today) ?? boughtLabel(item.boughtAt, today)}
+                  </span>
                 </span>
-              </span>
+              </button>
               <button type="button" className="text-link" onClick={() => change(items.filter((each) => each.id !== item.id), `${item.name} used up`)}>
                 Used up
               </button>
+              {open === item.id && (
+                <div className="chip-row kitchen-row__when" role="group" aria-label={`Use ${item.name} by`}>
+                  {USE_BY_IN.map((choice) => (
+                    <button key={choice.label} type="button" className="chip" aria-pressed={item.useBy === addDays(today, choice.days)} onClick={() => setUseBy(item, addDays(today, choice.days))}>
+                      {choice.label}
+                    </button>
+                  ))}
+                  <button type="button" className="chip" aria-pressed={!item.useBy} onClick={() => setUseBy(item, undefined)}>
+                    No date
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
+      {here.some((item) => item.useBy) && <p className="hint kitchen-source">First guesses for fresh food: {KEEPS_SOURCE}.</p>}
     </>
   );
 }

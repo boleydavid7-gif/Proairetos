@@ -11,9 +11,11 @@ import { useForecast, useRain } from '../app/rain';
 import { hotDays } from '../core/outdoors';
 import { takeHeldPhoto } from '../app/identify';
 import { moist, PlantThumb, watered } from '../app/ui';
-import { dayText, everyNow, everyText, feed, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
+import { dayText, everyNow, everyText, feed, journal, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
 import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
 import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
+import { Sym } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 async function keepPhoto(plantId: string, file: Blob): Promise<void> {
   const small = await smallPhoto(file);
@@ -88,9 +90,9 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
       <fieldset className="field">
         <legend className="field__label">Check the soil</legend>
         <div className="stepper">
-          <button type="button" className="stepper__button" aria-label="Fewer days" onClick={() => setEvery(Math.max(1, every - 1))}>−</button>
+          <button type="button" className="stepper__button" aria-label="Fewer days" onClick={() => setEvery(Math.max(1, every - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">{everyText(every)}</span>
-          <button type="button" className="stepper__button" aria-label="More days" onClick={() => setEvery(Math.min(60, every + 1))}>+</button>
+          <button type="button" className="stepper__button" aria-label="More days" onClick={() => setEvery(Math.min(60, every + 1))}><Sym name="plus" /></button>
         </div>
         <p className="hint">In spring and summer; longer in winter. Your waterings take over from here.</p>
       </fieldset>
@@ -98,9 +100,9 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
       <fieldset className="field">
         <legend className="field__label">Feed</legend>
         <div className="stepper">
-          <button type="button" className="stepper__button" aria-label="Less often" onClick={() => setFeedEvery(Math.max(0, feedEvery - 1))}>−</button>
+          <button type="button" className="stepper__button" aria-label="Less often" onClick={() => setFeedEvery(Math.max(0, feedEvery - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">{feedEvery === 0 ? 'Not reminded' : feedEvery === 1 ? 'Every week' : `Every ${feedEvery} weeks`}</span>
-          <button type="button" className="stepper__button" aria-label="More often" onClick={() => setFeedEvery(Math.min(12, feedEvery + 1))}>+</button>
+          <button type="button" className="stepper__button" aria-label="More often" onClick={() => setFeedEvery(Math.min(12, feedEvery + 1))}><Sym name="plus" /></button>
         </div>
       </fieldset>
 
@@ -147,7 +149,7 @@ function Photos({ plant }: { plant: Plant }) {
       <div className="section-head">
         <h2 className="card__title card__title--small">Photos</h2>
         <div className="chip-row">
-          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Saving…' : 'Save a copy'}</button>}
+          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>}
           <button type="button" className="text-link" disabled={restoring} onClick={() => restorePicker.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
           <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
         </div>
@@ -160,7 +162,7 @@ function Photos({ plant }: { plant: Plant }) {
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = '';
-          if (file) void keepPhoto(plant.id, file).catch(() => say('That photo could not be read.'));
+          if (file) void keepPhoto(plant.id, file).catch(() => say('Couldn’t read that photo.'));
         }}
       />
       <input ref={restorePicker} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
@@ -172,13 +174,13 @@ function Photos({ plant }: { plant: Plant }) {
           const count = await importPhotos(file, plant.id);
           say(count ? `${count} ${count === 1 ? 'photo' : 'photos'} restored` : 'No photos were found in that archive');
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoring(false);
         }
       }} />
-      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this phone.</p>}
-      {photos.length > 0 && <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>}
+      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this device.</p>}
+      {photos.length > 0 && <p className="fine">Kept on this device, not in backups or sync. Save a copy before changing devices.</p>}
       {photos.length > 1 && (
         <figure className="then-now">
           <div className="then-now__pair">
@@ -246,6 +248,14 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
     putPlant(next);
     offerUndo(words, () => putPlant(plant));
   };
+  const [writing, setWriting] = useState<'pest' | 'note'>();
+  const [words, setWords] = useState('');
+  const keepLine = () => {
+    if (!writing || (writing === 'note' && !words.trim())) return;
+    mark(journal(plant, today, writing, words, me), writing === 'pest' ? 'Pests noted' : 'Note kept');
+    setWriting(undefined);
+    setWords('');
+  };
 
   return (
     <div className="page phyton-page">
@@ -284,8 +294,24 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
       <div className="chip-row">
         <button type="button" className="chip" onClick={() => mark(feed(plant, today, me), `${plant.name} fed`)}>Fed</button>
         <button type="button" className="chip" onClick={() => mark(repot(plant, today, me), `${plant.name} repotted`)}>Repotted</button>
-        {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={15} />Identify</button>}
+        <button type="button" className="chip" onClick={() => mark(journal(plant, today, 'prune', undefined, me), `${plant.name} pruned`)}>Pruned</button>
+        <button type="button" className="chip" aria-pressed={writing === 'pest'} onClick={() => setWriting(writing === 'pest' ? undefined : 'pest')}>Pests seen</button>
+        <button type="button" className="chip" aria-pressed={writing === 'note'} onClick={() => setWriting(writing === 'note' ? undefined : 'note')}>Note</button>
+        {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={16} />Identify</button>}
       </div>
+
+      {writing && (
+        <form className="card plant-journal" onSubmit={(event) => { event.preventDefault(); keepLine(); }}>
+          <label className="field">
+            <span className="field__label">{writing === 'pest' ? 'What and where (optional)' : 'Note'}</span>
+            <input className="input" value={words} maxLength={140} autoComplete="off" placeholder={writing === 'pest' ? 'Fungus gnats in the soil' : 'New leaf unfurling'} onChange={(event) => setWords(event.target.value)} />
+          </label>
+          <div className="button-row">
+            <button type="button" className="button-quiet" onClick={() => { setWriting(undefined); setWords(''); }}>Cancel</button>
+            <button type="submit" className="button-main" disabled={writing === 'note' && !words.trim()}>Save</button>
+          </div>
+        </form>
+      )}
 
       {type ? (
         <section className="card">
@@ -300,7 +326,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           <p className="fine">{CARE_SOURCE}</p>
         </section>
       ) : (
-        <p className="muted">No care notes for this one. The days you set, then your waterings, decide when it comes round.</p>
+        <p className="muted">No care notes for this one. The days you set, then your waterings, decide when it comes around.</p>
       )}
 
       <Photos plant={plant} />
@@ -311,7 +337,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           <ul className="notes-list">
             {[...plant.log].reverse().slice(0, 12).map((each, index) => (
               <li key={`${each.date}-${index}`} className="note-line">
-                <span>{new Date(`${each.date}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} · {LOG_TEXT[each.kind]}</span>
+                <span>{new Date(`${each.date}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} · {each.kind === 'note' && each.text ? each.text : LOG_TEXT[each.kind]}{each.kind === 'pest' && each.text ? `: ${each.text}` : ''}</span>
                 <span className="muted">{each.by ?? ''}</span>
               </li>
             ))}
@@ -347,7 +373,7 @@ export default function PlantPage({ nav, id, species, latin, given }: { nav: Phy
     return (
       <div className="page phyton-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted"><LeafIcon size={18} /> Not found on this phone.</p>
+        <p className="muted"><LeafIcon size={18} /> Not found on this device.</p>
       </div>
     );
   }

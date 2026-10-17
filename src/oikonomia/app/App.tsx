@@ -11,6 +11,7 @@ import HomePage from '../screens/HomePage';
 import BillsPage from '../screens/BillsPage';
 import CalendarPage from '../screens/CalendarPage';
 import CapturePage from '../screens/CapturePage';
+import PayPage from '../screens/PayPage';
 import MorePage from '../screens/MorePage';
 import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
@@ -24,7 +25,8 @@ export type Route =
   | { name: 'budget' }
   | { name: 'spent' }
   | { name: 'about' }
-  | { name: 'year' };
+  | { name: 'year' }
+  | { name: 'pay' };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -41,6 +43,7 @@ export default function App() {
     const opening = takeOpening();
     if (opening?.startsWith('bill:')) return { name: 'bill', id: opening.slice(5) };
     if (opening === 'spent') return { name: 'spent' };
+    if (opening === 'pay') return { name: 'pay' };
     if (opening && (tabNames as string[]).includes(opening)) return { name: opening as Tab };
     return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
   });
@@ -117,6 +120,8 @@ export default function App() {
         return <MorePage nav={nav} about />;
       case 'year':
         return <YearScreen nav={nav} />;
+      case 'pay':
+        return <PayPage nav={nav} />;
     }
   })();
 

@@ -1,5 +1,5 @@
 /*
- * A photo for a person, kept on this phone only in its own IndexedDB database, like Ktema's files: not in backups
+ * A photo for a person, kept on this device only in its own IndexedDB database, like Ktema's files: not in backups
  * or sync. Photos are cropped square and made small before they are kept.
  */
 import { useEffect, useState } from 'react';

@@ -60,7 +60,7 @@
 
 .journal__input:focus {
   outline: none;
-  border-color: rgba(201, 162, 116, 0.5);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
 }
 
 .weather-picker {
@@ -87,7 +87,7 @@
 }
 
 .weather-picker__option[aria-pressed='true'] {
-  border-color: rgba(201, 162, 116, 0.45);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.45);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);
 }

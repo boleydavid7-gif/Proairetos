@@ -22,9 +22,9 @@ export default function AddPage({ nav }: { nav: PhytonNav }) {
       </div>
 
       <button type="button" className="row identify-row" onClick={() => nav.swap({ name: 'identify' })}>
-        <span className="row__icon"><CameraIcon size={21} /></span>
+        <span className="row__icon"><CameraIcon size={22} /></span>
         <span className="row__text"><span>Identify from a photo</span><span className="row__detail">By Pl@ntNet</span></span>
-        <ChevronIcon size={17} />
+        <ChevronIcon size={18} />
       </button>
 
       <label className="field">
@@ -45,7 +45,7 @@ export default function AddPage({ nav }: { nav: PhytonNav }) {
             <li key={each.key}>
               <button type="button" className="row row--plain" onClick={() => nav.swap({ name: 'plant', species: each.key })}>
                 <span className="row__text"><span>{each.name}</span><span className="row__detail">{[each.latin, ...(each.also ?? []).slice(0, 2)].join(' · ')}</span></span>
-                <ChevronIcon size={17} />
+                <ChevronIcon size={18} />
               </button>
             </li>
           ))}

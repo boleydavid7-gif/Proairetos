@@ -82,7 +82,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         ) : !plan || !planState || !week ? (
           <div className="home-top">
           <section className="card">
-            <h2 className="card__title">Set your aim</h2>
+            <h2 className="card__title">Your plan</h2>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
               Set your aim
             </button>
@@ -190,11 +190,11 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                       <span className="focus__facts">
                         {focus.workout.kind !== 'race' && (
                           <span>
-                            <ClockIcon size={15} /> {lengthLabel(totalMinutes(focus.workout.parts))}
+                            <ClockIcon size={16} /> {lengthLabel(totalMinutes(focus.workout.parts))}
                           </span>
                         )}
                         <span>
-                          <PulseIcon size={15} /> {efforts[mainEffort(focus.workout.parts)].name}
+                          <PulseIcon size={16} /> {efforts[mainEffort(focus.workout.parts)].name}
                         </span>
                       </span>
                     </span>

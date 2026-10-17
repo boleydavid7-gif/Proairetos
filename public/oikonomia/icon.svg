@@ -1,11 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="oikonomia-tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c08f35"/><stop offset="1" stop-color="#9f701b"/></linearGradient>
-    <radialGradient id="oikonomia-light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-    <filter id="oikonomia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.22"/></filter>
+    <linearGradient id="oikonomia-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#c08f35"/><stop offset="1" stop-color="#9f701b"/></linearGradient>
+    <radialGradient id="oikonomia-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f1dbb1" stop-opacity="0.42"/><stop offset=".28" stop-color="#f1dbb1" stop-opacity="0.1596"/><stop offset="1" stop-color="#f1dbb1" stop-opacity="0"/></radialGradient>
+    <filter id="oikonomia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
+    <clipPath id="oikonomia-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#oikonomia-tile)"/>
-  <rect width="1024" height="1024" rx="229" fill="url(#oikonomia-light)"/>
+  <g clip-path="url(#oikonomia-clip)">
+    <rect width="1024" height="1024" fill="url(#oikonomia-light)"/>
+    <circle cx="770" cy="170" r="250" fill="none" stroke="#f1dbb1" stroke-opacity="0.1" stroke-width="6"/>
+  </g>
   <g filter="url(#oikonomia-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
         <path d="M292 620 v70 a220 70 0 0 0 440 0 v-70Z" fill="#e0c79a"/>
         <ellipse cx="512" cy="620" rx="220" ry="70" fill="#fbf6ec"/>

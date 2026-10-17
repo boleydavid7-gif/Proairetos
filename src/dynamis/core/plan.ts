@@ -38,6 +38,8 @@ export type Setup = {
   swaps?: Partial<Record<Pattern, string>>;
   /** Usual time on training days, for a reminder (optional). */
   at?: string;
+  /** The bar's own weight, for the plate calculator. */
+  bar?: number;
 };
 
 export type SetLog = { weight?: number; reps: number };

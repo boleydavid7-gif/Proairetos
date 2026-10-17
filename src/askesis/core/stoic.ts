@@ -12,7 +12,7 @@ export const trainingLines: { text: string; by: string }[] = [
   { text: 'Some things are up to us and some are not.', by: 'Epictetus, Enchiridion 1' },
   { text: 'Confine yourself to the present.', by: 'Marcus Aurelius, Meditations 8.36' },
   { text: 'Begin at once to live.', by: 'Seneca, Letters 101' },
-  { text: 'Practise yourself, for heaven’s sake, in little things, and then proceed to greater.', by: 'Epictetus, Discourses 1.18' },
+  { text: 'Practice yourself, for heaven’s sake, in little things, and then proceed to greater.', by: 'Epictetus, Discourses 1.18' },
   { text: 'Hold every hour in your grasp.', by: 'Seneca, Letters 1' },
   { text: 'Do every act of your life as if it were the last.', by: 'Marcus Aurelius, Meditations 2.5' },
   { text: 'Difficulties show what a person is made of.', by: 'Epictetus, Discourses 1.24' },

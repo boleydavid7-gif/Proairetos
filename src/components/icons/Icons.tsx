@@ -1,60 +1,19 @@
+import { LampIcon, glyphIcon } from '../../lamplight/icons';
 import type { SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
 function Icon({ size = 24, children, ...props }: IconProps) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      {children}
-    </svg>
-  );
+  return <LampIcon glyph={{ line: children }} size={size} {...props} />;
 }
 
-export function SunIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
-    </Icon>
-  );
-}
+export const SunIcon = glyphIcon('today', 24);
 
-export function MoonIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
-    </Icon>
-  );
-}
+export const MoonIcon = glyphIcon('moon', 24);
 
-export function BookIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 6.5C10.3 5 7.8 4.5 4 4.5v13c3.8 0 6.3.5 8 2 1.7-1.5 4.2-2 8-2v-13c-3.8 0-6.3.5-8 2z" />
-      <path d="M12 6.5v13" />
-    </Icon>
-  );
-}
+export const BookIcon = glyphIcon('book', 24);
 
-export function CaptureIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 8v8M8 12h8" />
-    </Icon>
-  );
-}
+export const CaptureIcon = glyphIcon('capture', 24);
 
 export function CompassIcon(props: IconProps) {
   return (
@@ -65,21 +24,9 @@ export function CompassIcon(props: IconProps) {
   );
 }
 
-export function ChevronRightIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M9.5 6l6 6-6 6" />
-    </Icon>
-  );
-}
+export const ChevronRightIcon = glyphIcon('chevron', 24);
 
-export function ArrowLeftIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M19 12H5M11 6l-6 6 6 6" />
-    </Icon>
-  );
-}
+export const ArrowLeftIcon = glyphIcon('arrowLeft', 24);
 
 export function StarIcon({ filled = false, ...props }: IconProps & { filled?: boolean }) {
   return (
@@ -89,14 +36,7 @@ export function StarIcon({ filled = false, ...props }: IconProps & { filled?: bo
   );
 }
 
-export function ClockIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7.5V12l3 2" />
-    </Icon>
-  );
-}
+export const ClockIcon = glyphIcon('clock', 24);
 
 export function HourglassIcon(props: IconProps) {
   return (
@@ -115,23 +55,9 @@ export function InboxIcon(props: IconProps) {
   );
 }
 
-export function PenIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M15.5 4.5l4 4L9 19H5v-4z" />
-    </Icon>
-  );
-}
+export const PenIcon = glyphIcon('pencil', 24);
 
-export function GearIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6" />
-      <circle cx="12" cy="12" r="6.6" />
-    </Icon>
-  );
-}
+export const GearIcon = glyphIcon('gear', 24);
 
 export function BreatheIcon(props: IconProps) {
   return (
@@ -141,14 +67,7 @@ export function BreatheIcon(props: IconProps) {
   );
 }
 
-export function CalendarIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
-      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
-    </Icon>
-  );
-}
+export const CalendarIcon = glyphIcon('calendar', 24);
 
 export function FeatherIcon(props: IconProps) {
   return (
@@ -158,22 +77,9 @@ export function FeatherIcon(props: IconProps) {
   );
 }
 
-export function SproutIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 20.5V11M12 13c0-4-2.5-6.5-7-6.5 0 4 2.5 6.5 7 6.5zM12 11c0-3.5 2.2-5.5 6.5-5.5 0 3.5-2.2 5.5-6.5 5.5z" />
-    </Icon>
-  );
-}
+export const SproutIcon = glyphIcon('sprout', 24);
 
-export function ShieldIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6.3z" />
-      <path d="M12 3.5v17" />
-    </Icon>
-  );
-}
+export const ShieldIcon = glyphIcon('shield', 24);
 
 export function MountainIcon(props: IconProps) {
   return (
@@ -184,13 +90,7 @@ export function MountainIcon(props: IconProps) {
   );
 }
 
-export function HeartIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 19.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7a4.2 4.2 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z" />
-    </Icon>
-  );
-}
+export const HeartIcon = glyphIcon('heart', 24);
 
 export function ScalesIcon(props: IconProps) {
   return (
@@ -210,29 +110,11 @@ export function ChecklistIcon(props: IconProps) {
   );
 }
 
-export function MoreIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M6 12h.01M12 12h.01M18 12h.01" strokeWidth={2.6} />
-    </Icon>
-  );
-}
+export const MoreIcon = glyphIcon('more', 24);
 
-export function TrashIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5 7h14M9 7V4.5h6V7M7 7l.8 13h8.4L17 7M10 10.5v6M14 10.5v6" />
-    </Icon>
-  );
-}
+export const TrashIcon = glyphIcon('trash', 24);
 
-export function CheckIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5.5 12.5l4 4 9-9" />
-    </Icon>
-  );
-}
+export const CheckIcon = glyphIcon('check', 24);
 
 export function NoteIcon(props: IconProps) {
   return (
@@ -340,30 +222,11 @@ export function PinIcon(props: IconProps) {
   );
 }
 
-export function PlusIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M12 5v14M5 12h14" />
-    </Icon>
-  );
-}
+export const PlusIcon = glyphIcon('plus', 24);
 
-export function ListIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" />
-    </Icon>
-  );
-}
+export const ListIcon = glyphIcon('list', 24);
 
-export function SearchIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4 4" />
-    </Icon>
-  );
-}
+export const SearchIcon = glyphIcon('search', 24);
 
 export function LotusIcon(props: IconProps) {
   return (
@@ -374,40 +237,13 @@ export function LotusIcon(props: IconProps) {
   );
 }
 
-export function LeafIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5 19c0-8 5-13.5 14.5-14-0.5 9.5-6 14.5-14 14z" />
-      <path d="M5 19 13.5 10.5" />
-    </Icon>
-  );
-}
+export const LeafIcon = glyphIcon('leaf', 24);
 
-export function TargetIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="8" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="12" cy="12" r="0.6" fill="currentColor" />
-    </Icon>
-  );
-}
+export const TargetIcon = glyphIcon('target', 24);
 
-export function PlayIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M8.5 5.8v12.4a.6.6 0 0 0 .9.5l9.6-6.2a.6.6 0 0 0 0-1L9.4 5.3a.6.6 0 0 0-.9.5z" fill="currentColor" />
-    </Icon>
-  );
-}
+export const PlayIcon = glyphIcon('play', 24);
 
-export function PauseIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M8.5 5.5v13M15.5 5.5v13" strokeWidth={2.4} />
-    </Icon>
-  );
-}
+export const PauseIcon = glyphIcon('pause', 24);
 
 export function StopIcon(props: IconProps) {
   return (
@@ -519,11 +355,4 @@ export function CelloIcon(props: IconProps) {
   );
 }
 
-export function BellIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z" />
-      <path d="M10 20.5a2 2 0 0 0 4 0" />
-    </Icon>
-  );
-}
+export const BellIcon = glyphIcon('bell', 24);

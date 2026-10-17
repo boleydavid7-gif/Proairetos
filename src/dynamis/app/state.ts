@@ -18,7 +18,7 @@ export function savePlan(next: Setup): void {
   notifications.refreshSoon();
 }
 
-/** A session in progress on this phone: kept through a reload, never synced or backed up. */
+/** A session in progress on this device: kept through a reload, never synced or backed up. */
 export type DraftSet = SetLog & { done?: boolean };
 export type Draft = { session: string; started: string; sets: Record<string, DraftSet[]>; steps: Record<string, number>; lighter?: boolean };
 export const draft = stored<{ current?: Draft }>('dynamisDraft', () => ({}));

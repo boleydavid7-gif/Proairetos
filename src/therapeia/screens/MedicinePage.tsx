@@ -6,9 +6,11 @@ import { offerUndo } from '../../app/family/shell';
 import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
-import { medicines, newId, putMedicine, removeMedicine } from '../app/state';
+import { changeText } from '../core/history';
+import { newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
+import { Sym } from '../../lamplight/icons';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const OFFSETS = [0, 15, 30, 60, 120];
@@ -96,7 +98,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
       look,
     };
     putMedicine(next);
-    if (existing) offerUndo('Saved', () => putMedicine(existing));
+    if (existing) offerUndo('Saved', () => restoreMedicine(existing));
     onDone();
   };
 
@@ -146,16 +148,16 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
           ))}
         </div>
         {look && (
-          <div className="pill-colours" role="group" aria-label="Color">
+          <div className="pill-colors" role="group" aria-label="Color">
             {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-colour" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
+              <button key={key} type="button" className="pill-color" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
             ))}
           </div>
         )}
         {look && (look.shape === 'capsule' || look.shape === 'inhaler' || look.shape === 'patch' || look.shape === 'injection') && (
-          <div className="pill-colours" role="group" aria-label="Second color">
+          <div className="pill-colors" role="group" aria-label="Second color">
             {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-colour pill-colour--small" style={{ background: value }} aria-label={`${key}, second color`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
+              <button key={key} type="button" className="pill-color pill-color--small" style={{ background: value }} aria-label={`${key}, second color`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
             ))}
           </div>
         )}
@@ -193,9 +195,9 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
           )}
           {daysKind === 'every' && (
             <div className="stepper">
-              <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(2, every - 1))}>−</button>
+              <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setEvery(Math.max(2, every - 1))}><Sym name="minus" /></button>
               <span className="stepper__value">Every {every} days</span>
-              <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(30, every + 1))}>+</button>
+              <button type="button" className="stepper__button" aria-label="More" onClick={() => setEvery(Math.min(30, every + 1))}><Sym name="plus" /></button>
             </div>
           )}
         </fieldset>
@@ -296,13 +298,27 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               const added = Number(refillCount);
               if (!(added > 0)) return;
               putMedicine(refill(existing, added, new Date()));
-              offerUndo(`${added} added`, () => putMedicine(existing));
+              offerUndo(`${added} added`, () => restoreMedicine(existing));
               setRefillCount('');
             }}
           >
             <input className="input" inputMode="numeric" aria-label="How many came" placeholder="Refill: how many" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>
           </form>
+        </section>
+      )}
+
+      {(existing.changes?.length ?? 0) > 0 && (
+        <section className="card">
+          <h2 className="card__title card__title--small">History</h2>
+          <ul className="notes-list">
+            {[...(existing.changes ?? [])].reverse().map((change, index) => (
+              <li key={`${change.on}-${change.what}-${index}`} className="note-line">
+                <span>{new Date(`${change.on}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                <span className="muted">{changeText(change)}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -325,18 +341,18 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
           {existing.stopped && existing.stopped <= today ? (
             <button type="button" className="button-quiet" onClick={() => {
               putMedicine({ ...existing, stopped: undefined });
-              offerUndo(`${existing.name} back on the list`, () => putMedicine(existing));
+              offerUndo(`${existing.name} back on the list`, () => restoreMedicine(existing));
             }}>Taking it again</button>
           ) : (
             <button type="button" className="button-quiet" onClick={() => {
               putMedicine({ ...existing, stopped: today });
-              offerUndo(`${existing.name} stopped`, () => putMedicine(existing));
+              offerUndo(`${existing.name} stopped`, () => restoreMedicine(existing));
               nav.back();
             }}>Stopped taking it</button>
           )}
           <button type="button" className="text-link remove-link" onClick={() => {
             removeMedicine(existing.id);
-            offerUndo(`${existing.name} removed`, () => putMedicine(existing));
+            offerUndo(`${existing.name} removed`, () => restoreMedicine(existing));
             nav.back();
           }}>Remove</button>
         </div>
@@ -346,13 +362,13 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
 }
 
 export default function MedicinePage({ nav, id }: { nav: TherapeiaNav; id?: string }) {
-  const existing = medicines.use().find((medicine) => medicine.id === id);
+  const existing = useMedicines().find((medicine) => medicine.id === id);
   const [editing, setEditing] = useState(!id);
   if (id && !existing) {
     return (
       <div className="page therapeia-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }

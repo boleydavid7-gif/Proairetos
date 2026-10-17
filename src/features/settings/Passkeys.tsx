@@ -14,6 +14,7 @@ import {
   restorePasskey,
   type PasskeyEntry,
 } from '../../app/sync/syncController';
+import { Waiting } from '../../lamplight/Waiting';
 
 const day = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '');
 
@@ -89,7 +90,7 @@ export function Passkeys() {
                       void run(async () => {
                         await removePasskey(entry.id);
                         setEntries((all) => all?.filter((each) => each.id !== entry.id));
-                        overlays?.offerUndo(`Passkey removed: ${entry.label}`, async () => {
+                        overlays?.offerUndo(`Passkey “${entry.label}” removed`, async () => {
                           await restorePasskey(entry.row);
                           await load();
                         });
@@ -188,7 +189,7 @@ export function Passkeys() {
                   Cancel
                 </button>
                 <button type="submit" className="chip chip--accent" disabled={!passphrase || busy}>
-                  {busy ? 'Checking…' : 'Continue'}
+                  {busy ? <Waiting>Checking…</Waiting> : 'Continue'}
                 </button>
               </div>
             </form>

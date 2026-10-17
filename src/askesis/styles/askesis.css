@@ -99,7 +99,7 @@ img {
 }
 
 .page {
-  padding: calc(env(safe-area-inset-top) + 20px) 20px 24px;
+  padding: calc(var(--ll-safe-top) + 20px) 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -221,7 +221,7 @@ p {
 .hero__content {
   position: relative;
   height: 100%;
-  padding: calc(env(safe-area-inset-top) + 16px) 20px 20px;
+  padding: calc(var(--ll-safe-top) + 16px) 20px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -453,7 +453,6 @@ p {
   justify-content: space-around;
   align-items: flex-start;
   background: var(--bar);
-  backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
 }
 
@@ -475,47 +474,50 @@ p {
   color: var(--mint);
 }
 
-/* The phone dock keeps one moving mark, like a Material navigation bar, while the selected
-   symbol lifts a little like an iOS tab. The route stays selected on its deeper screens. */
-.askesis .tab-bar {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  justify-content: initial;
-  isolation: isolate;
-}
+/* Phones only: on computers the bar becomes the rail (the wide-screen block at the end). */
+@media (max-width: 61.99rem) {
+  /* The phone dock keeps one moving mark, like a Material navigation bar, while the selected
+     symbol lifts a little like an iOS tab. The route stays selected on its deeper screens. */
+  .askesis .tab-bar {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    justify-content: initial;
+    isolation: isolate;
+  }
 
-.askesis .tab-bar::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: -1px;
-  left: calc(8.3333% - 0.9rem);
-  width: 1.8rem;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--mint);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 45%, transparent);
-  opacity: 0;
-  transition: left 340ms var(--ease-spring), opacity 180ms ease;
-}
+  .askesis .tab-bar::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -1px;
+    left: calc(8.3333% - 0.9rem);
+    width: 1.8rem;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--mint);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 45%, transparent);
+    opacity: 0;
+    transition: left 340ms var(--ease-spring), opacity 180ms ease;
+  }
 
-.askesis .tab-bar:has(> :nth-child(1)[aria-current='page'])::after { left: calc(8.3333% - 0.9rem); opacity: 1; }
-.askesis .tab-bar:has(> :nth-child(2)[aria-current='page'])::after { left: calc(25% - 0.9rem); opacity: 1; }
-.askesis .tab-bar:has(> :nth-child(3)[aria-current='page'])::after { left: calc(41.6667% - 0.9rem); opacity: 1; }
-.askesis .tab-bar:has(> :nth-child(4)[aria-current='page'])::after { left: calc(58.3333% - 0.9rem); opacity: 1; }
-.askesis .tab-bar:has(> :nth-child(5)[aria-current='page'])::after { left: calc(75% - 0.9rem); opacity: 1; }
+  .askesis .tab-bar:has(> :nth-child(1)[aria-current='page'])::after { left: calc(8.3333% - 0.9rem); opacity: 1; }
+  .askesis .tab-bar:has(> :nth-child(2)[aria-current='page'])::after { left: calc(25% - 0.9rem); opacity: 1; }
+  .askesis .tab-bar:has(> :nth-child(3)[aria-current='page'])::after { left: calc(41.6667% - 0.9rem); opacity: 1; }
+  .askesis .tab-bar:has(> :nth-child(4)[aria-current='page'])::after { left: calc(58.3333% - 0.9rem); opacity: 1; }
+  .askesis .tab-bar:has(> :nth-child(5)[aria-current='page'])::after { left: calc(75% - 0.9rem); opacity: 1; }
 
-.askesis .tab-bar__item {
-  width: 100%;
-  min-width: 0;
-}
+  .askesis .tab-bar__item {
+    width: 100%;
+    min-width: 0;
+  }
 
-.askesis .tab-bar__item svg {
-  transition: translate 280ms var(--ease-spring);
-}
+  .askesis .tab-bar__item svg {
+    transition: translate 280ms var(--ease-spring);
+  }
 
-.askesis .tab-bar__item[aria-current='page'] svg {
-  translate: 0 -2px;
+  .askesis .tab-bar__item[aria-current='page'] svg {
+    translate: 0 -2px;
+  }
 }
 
 /* ---------- Welcome ---------- */
@@ -543,7 +545,7 @@ p {
 .welcome__content {
   position: relative;
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 48px) 28px calc(env(safe-area-inset-bottom) + 28px);
+  padding: calc(var(--ll-safe-top) + 48px) 28px calc(env(safe-area-inset-bottom) + 28px);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -902,7 +904,7 @@ input[type='date'].input {
   font-variant-numeric: lining-nums;
 }
 .focus__length small {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
   color: var(--muted);
 }
@@ -1237,7 +1239,7 @@ input[type='date'].input {
 
 .guide {
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 12px) 24px calc(env(safe-area-inset-bottom) + 20px);
+  padding: calc(var(--ll-safe-top) + 12px) 24px calc(env(safe-area-inset-bottom) + 20px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1745,12 +1747,6 @@ input[type='date'].input {
   gap: 10px;
 }
 
-.log-page__export {
-  align-self: flex-start;
-  width: auto;
-  min-height: 44px;
-}
-
 .records {
   gap: 14px;
 }
@@ -1836,7 +1832,7 @@ input[type='date'].input {
 
 .bars__value,
 .bars__label {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1947,6 +1943,14 @@ input[type='date'].input {
   margin: 16px 0 0;
   padding: 20px 4px 4px;
   border-top: 1px solid var(--line);
+}
+
+.more__foot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 14px;
+  border-radius: var(--radius);
 }
 
 .more__foot figcaption {
@@ -2587,7 +2591,7 @@ html[data-nav='back']::view-transition-new(root) {
   justify-content: center;
 }
 
-/* ---------- Desktop: a side rail, wider pages, centred sheets ----------
+/* ---------- Desktop: a side rail, wider pages, centered sheets ----------
    Shared by Askesis, Soma and Oikonomia (they load this file). Phones are unchanged. */
 
 :root {
@@ -2608,9 +2612,15 @@ html[data-nav='back']::view-transition-new(root) {
     max-width: none;
   }
 
+  /* The words sit in from the edge and Begin stays under them, as on a phone. */
+  .welcome__content {
+    padding-inline: max(28px, 8vw);
+    padding-bottom: 64px;
+  }
+
   .welcome__actions {
     max-width: 26rem;
-    align-self: center;
+    align-self: flex-start;
   }
 
   .shell--tabs {
@@ -2655,7 +2665,6 @@ html[data-nav='back']::view-transition-new(root) {
     padding: 28px 14px;
     border-top: 0;
     border-right: 1px solid var(--line);
-    backdrop-filter: none;
   }
 
   .tab-bar::before {
@@ -2721,7 +2730,7 @@ html[data-nav='back']::view-transition-new(root) {
   padding: 18px 20px 6px;
   isolation: isolate;
 }
-/* A soft light in the colour of the session's main effort. */
+/* A soft light in the color of the session's main effort. */
 .session-head::before {
   content: '';
   position: absolute;
@@ -2789,4 +2798,37 @@ html[data-nav='back']::view-transition-new(root) {
 .entry-view__words .label {
   display: block;
   margin-bottom: 2px;
+}
+
+/* Strava's own orange for its button, as its brand guidelines ask; "Powered by Strava" under the page. */
+.strava-connect {
+  background: #fc4c02;
+  color: #fff;
+}
+.strava-powered {
+  margin-top: 16px;
+  font-size: var(--text-sm, 0.875rem);
+}
+
+/* Your own sessions: the builder's repeat count and the preview under it. */
+.own-stepper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.own-stepper__value {
+  min-width: 2ch;
+  text-align: center;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.own-preview__length {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+.own-new {
+  align-self: flex-start;
+}
+.own-builder .field + .field {
+  margin-top: 6px;
 }

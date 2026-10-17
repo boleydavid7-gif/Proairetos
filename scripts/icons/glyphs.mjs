@@ -1,5 +1,5 @@
 /*
- * The family's icons as one system: a 1024 canvas, a tile in the app's own colour lit from the top, and one solid
+ * The family's icons as one system: a 1024 canvas, a tile in the app's own color lit by Lamplight's lamp from the upper right, and one solid
  * glyph in warm white with a tinted second layer. Every glyph keeps inside the central circle a maskable crop keeps
  * (radius 410) and sits on the same keylines: about 560 across for round shapes, 500 for square ones.
  */
@@ -8,7 +8,7 @@ export const WHITE = '#fbf6ec';
 
 const hex = (c) => c.match(/\w\w/g).map((h) => parseInt(h, 16));
 const out = (rgb) => '#' + rgb.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
-/** Mix colour a toward b by t (0..1). */
+/** Mix color a toward b by t (0..1). */
 export const mix = (a, b, t) => out(hex(a).map((v, i) => v + (hex(b)[i] - v) * t));
 
 const sprig = (x, y, s, leaf, stem) => `
@@ -18,7 +18,7 @@ const sprig = (x, y, s, leaf, stem) => `
     <path d="M2 -120 C70 -120 120 -160 128 -222 C66 -222 14 -192 2 -120Z" fill="${leaf}"/>
   </g>`;
 
-/** Each app: tile colour, and its glyph drawn from (white, tint, deep). */
+/** Each app: tile color, and its glyph drawn from (white, tint, deep). */
 export const APPS = {
   proairetos: {
     tile: '#18202b',
@@ -156,14 +156,22 @@ export function iconSvg(name, shape = 'square') {
   const tint = mix(app.tile, '#ffffff', 0.55);
   const deep = mix(app.tile, '#000000', 0.25);
   const rx = shape === 'rounded' ? RADIUS : 0;
+  // Lamplight: the tile is lit by one lamp toward the upper right, where the wallpaper keeps it, with one faint
+  // ring of its light; the symbol's shadow falls away from it, down and to the left.
+  const lamp = mix(app.tile, '#fff1d6', 0.8);
+  const glow = app.light ? 0.5 : 0.42;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient>
-    <radialGradient id="light" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity="${app.light ? 0.35 : 0.12}"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-    <filter id="lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="${app.light ? 0.12 : 0.22}"/></filter>
+    <linearGradient id="tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient>
+    <radialGradient id="light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${lamp}" stop-opacity="${glow}"/><stop offset=".28" stop-color="${lamp}" stop-opacity="${glow * 0.38}"/><stop offset="1" stop-color="${lamp}" stop-opacity="0"/></radialGradient>
+    <filter id="lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="${app.light ? 0.12 : 0.24}"/></filter>
+    <clipPath id="clip"><rect width="1024" height="1024" rx="${rx}"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="${rx}" fill="url(#tile)"/>
-  <rect width="1024" height="1024" rx="${rx}" fill="url(#light)"/>
+  <g clip-path="url(#clip)">
+    <rect width="1024" height="1024" fill="url(#light)"/>
+    <circle cx="770" cy="170" r="250" fill="none" stroke="${lamp}" stroke-opacity="${app.light ? 0.16 : 0.1}" stroke-width="6"/>
+  </g>
   <g filter="url(#lift)"><g transform="translate(512 512) scale(${app.scale ?? 1}) translate(-512 -512)">${app.glyph(WHITE, tint, deep)}</g></g>
 </svg>`.replace(/id="(\w+)"/g, `id="${name}-$1"`).replace(/url\(#(\w+)\)/g, `url(#${name}-$1)`);
 }

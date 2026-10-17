@@ -13,6 +13,7 @@ import {
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
+import { Sym } from '../../lamplight/icons';
 
 type Props = {
   decisionId: string;
@@ -110,7 +111,7 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
                       aria-label="Delete this note"
                       onClick={async () => offerUndo('Note deleted', (await reflectionService.remove(note.id)).undo)}
                     >
-                      ×
+                      <Sym name="close" />
                     </button>
                   </div>
                   <p>{note.body}</p>

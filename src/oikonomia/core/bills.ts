@@ -20,7 +20,7 @@ export type Bill = {
   autopay: boolean;
   reminderDays: number;
   notes?: string;
-  /** The last date this bill has; after it, no more dates come (a cancelled subscription). History stays. */
+  /** The last date this bill has; after it, no more dates come (a canceled subscription). History stays. */
   endedOn?: string;
   payments: BillPayment[];
   createdAt: string;

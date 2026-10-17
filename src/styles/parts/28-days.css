@@ -1,4 +1,4 @@
-/* ---------- Colours the person chose ---------- */
+/* ---------- Colors the person chose ---------- */
 
 .tag--amber { --tag: var(--tag-amber); }
 .tag--violet { --tag: var(--tag-violet); }
@@ -51,7 +51,7 @@
   border-radius: 50%;
   background: var(--color-accent);
   color: var(--color-accent-ink);
-  box-shadow: 0 6px 24px rgba(201, 162, 116, 0.35);
+  box-shadow: 0 6px 24px rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
 }
 
 .days-page .segmented__option {
@@ -156,6 +156,26 @@
   color: var(--color-text-faint);
 }
 
+/* Delete stays out of the way, as in the platforms' own lists: on a touch screen it is in the row's long-press menu
+   (and the item's sheet); with a pointer it shows on the row being pointed at, and when it has keyboard focus. */
+@media (hover: none) {
+  .days-row__remove {
+    display: none;
+  }
+}
+
+@media (hover: hover) {
+  .days-row__remove {
+    opacity: 0;
+    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+  }
+
+  .days-row:hover .days-row__remove,
+  .days-row__remove:focus-visible {
+    opacity: 1;
+  }
+}
+
 .days-row__remove:hover,
 .days-row__remove:focus-visible,
 .days-allday__remove:hover,
@@ -256,16 +276,14 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: var(--color-surface);
 }
 
 .days-calendar .cal-scroll {
   max-height: 68svh;
 }
 
-/* A warm light at the top of the page, the colour of the photos. */
+/* A warm light at the top of the page, the color of the photos. */
 .days-page {
   position: relative;
   isolation: isolate;
@@ -279,7 +297,7 @@
   z-index: -1;
   inset: -3rem -2rem auto;
   height: 22rem;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 116, 0.13), transparent 75%);
+  background: radial-gradient(60% 100% at 50% 0%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.13), transparent 75%);
   pointer-events: none;
 }
 
@@ -384,7 +402,7 @@
 
 .month__day[aria-selected='true'] {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-accent), 0 0 14px rgba(201, 162, 116, 0.35);
+  box-shadow: 0 0 0 1px var(--color-accent), 0 0 14px rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
 }
 
 .month__num {
@@ -418,7 +436,7 @@
   padding: 2px 0;
   border-radius: 6px;
   background: color-mix(in srgb, var(--tag) 22%, transparent);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   line-height: 1.15;
 }
 
@@ -515,7 +533,7 @@
   aspect-ratio: 1;
   border-radius: 50%;
   color: var(--color-text-muted);
-  font-size: 0.55rem;
+  font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -694,7 +712,7 @@
   align-items: center;
   gap: 0.2rem;
   padding: 0.3rem;
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   text-align: center;
   word-break: break-word;
 }
@@ -715,7 +733,7 @@
   border-radius: var(--radius-sm);
 }
 
-/* A shift with its own colour, on Today's timeline. */
+/* A shift with its own color, on Today's timeline. */
 .timeline__entry--colored {
   border-left-color: var(--tag);
   background: linear-gradient(90deg, color-mix(in srgb, var(--tag) 14%, transparent), var(--color-surface) 60%);
@@ -815,7 +833,7 @@
   }
 }
 
-/* On a computer each day is roomy enough to name what is in it, in the person's colours. */
+/* On a computer each day is roomy enough to name what is in it, in the person's colors. */
 @media (min-width: 62rem) {
   .month__grid {
     gap: 6px;
@@ -825,7 +843,7 @@
     min-height: 6.6rem;
     padding: 8px;
     border-radius: var(--radius-md);
-    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    background: var(--color-surface);
   }
 
   .month__num {
@@ -923,9 +941,7 @@
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: var(--color-surface);
 }
 
 .mini__head {
@@ -1003,9 +1019,7 @@
 
 .year__month {
   padding: var(--space-3);
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: var(--color-surface);
   transition: border-color 150ms ease, transform 150ms ease;
 }
 
@@ -1029,7 +1043,7 @@
   font-size: var(--text-xs);
 }
 
-/* A day with something on it carries its colour; with none of its own, the gold. */
+/* A day with something on it carries its color; with none of its own, the gold. */
 .year__day--marked {
   --tag: var(--color-accent);
   background: color-mix(in srgb, var(--tag) 34%, transparent);

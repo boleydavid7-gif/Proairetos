@@ -212,7 +212,7 @@
 
 .form-problems {
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 116, 0.35);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.35);
   border-radius: var(--radius-sm);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);

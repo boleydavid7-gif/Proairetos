@@ -2,11 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import type { Found } from '../../core/ocr/labels';
 import { readPhotoText } from './ocr';
 import './readFromPhoto.css';
+import { LampIcon } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 /**
- * "Read from a photo" on a form: a photo of a label, plate or bill is read on the phone, and what was found is shown
+ * "Read from a photo" on a form: a photo of a label, plate or bill is read on the device, and what was found is shown
  * to look over (each value can be changed or left out) before it fills the form. Nothing is saved by this.
  */
+/** Text read from a photo: the corners of a frame around two lines. */
+const SCAN = { line: <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 10h8M8 14h5" />, lit: <></> };
+
 export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initialFile }: { find: (text: string) => Found[]; onUse: (values: Record<string, string>) => void; label?: string; initialFile?: File }) {
   const input = useRef<HTMLInputElement>(null);
   const [reading, setReading] = useState<number>();
@@ -28,7 +33,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
         setText(words);
         setFound(find(words).map((each) => ({ ...each, use: true })));
       })
-      .catch(() => setProblem('The photo could not be read here. Check the connection the first time (the reader is about 7 MB), then try again.'))
+      .catch(() => setProblem('Couldn’t read the photo. The reader downloads once (about 7 MB), so check the connection and try again.'))
       .finally(() => setReading(undefined));
   };
 
@@ -53,10 +58,8 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
       />
       {text === undefined && (
         <button type="button" className="read-photo__start" disabled={reading !== undefined} onClick={() => input.current?.click()}>
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 10h8M8 14h5" />
-          </svg>
-          {reading !== undefined ? `Reading… ${Math.round(reading * 100)}%` : label}
+          <LampIcon glyph={SCAN} size={18} />
+          {reading !== undefined ? <Waiting>{`Reading… ${Math.round(reading * 100)}%`}</Waiting> : label}
         </button>
       )}
       {problem && <p className="read-photo__note" role="alert">{problem}</p>}

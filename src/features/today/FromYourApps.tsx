@@ -10,7 +10,7 @@ import { hotDays } from '../../phyton/core/outdoors';
 import { nextCheck, water, dayText } from '../../phyton/core/plants';
 import { useChores, putChore, myName as ergonName } from '../../ergon/app/state';
 import { markDone as choreDone, nextDay as choreDay } from '../../ergon/core/chores';
-import { appointments, medicines, putMedicine, useAnchors } from '../../therapeia/app/state';
+import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
 import { dosesOn, isCurrent, take } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../../ktema/app/state';
 import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/core/things';
@@ -35,7 +35,7 @@ function markIn(mark: Mark, today: string): () => void {
     case 'dose': {
       const before = mark.dose.medicine;
       putMedicine(take(before, mark.dose.slot, new Date()));
-      return () => putMedicine(before);
+      return () => restoreMedicine(before);
     }
     case 'upkeep': {
       const before = mark.upkeep;
@@ -80,14 +80,14 @@ function Row({ row, today }: { row: FromAppsRow; today: string }) {
  * From your apps: plants to check, chores, today's doses, upkeep and a training day, as one list. Each can be
  * marked here; the mark goes into the app it belongs to, with undo. Nothing is kept here.
  */
-export default function FromYourApps({ today }: { today: string }) {
+export default function FromYourApps({ today, embedded = false }: { today: string; embedded?: boolean }) {
   const shows = useTodayParts();
   const plants = usePlants();
   const phyton = phytonSettings.use();
   const rain = useRain(phyton.rain);
   const forecast = useForecast(phyton.rain);
   const chores = useChores();
-  const allMedicines = medicines.use();
+  const allMedicines = useMedicines();
   const visits = appointments.use();
   const calendarToday = toLocalDate(new Date());
   const { anchors, dayAt } = useAnchors(addDays(calendarToday, -1), addDays(calendarToday, 1));
@@ -115,6 +115,13 @@ export default function FromYourApps({ today }: { today: string }) {
       : undefined,
   });
   if (!rows.length) return null;
+  if (embedded) {
+    return (
+      <ul className="check-list">
+        {rows.map((row) => <Row key={row.key} row={row} today={today} />)}
+      </ul>
+    );
+  }
 
   return (
     <section className="from-apps" aria-labelledby="from-apps-title">

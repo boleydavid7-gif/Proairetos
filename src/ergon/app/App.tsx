@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { BroomIcon, HomeIcon, MoreIcon } from '../../app/family/icons';
+import { BroomIcon, HomeIcon, SettingsIcon } from '../../app/family/icons';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
@@ -19,7 +19,7 @@ export type ErgonNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'chores', label: 'Chores', Icon: BroomIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 

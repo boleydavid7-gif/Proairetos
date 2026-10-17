@@ -12,14 +12,18 @@ import '../styles/tokens.css';
 import './praxis.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'praxis'));
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import PraxisApp from './PraxisApp';
 import { notifications } from '../app/notify/notifications';
 
 // Praxis is a dark study room in either appearance (like Theoria's library): the text size follows
-// Proairetos, the colours stay, so nothing goes dark on dark.
+// Proairetos, the colors stay, so nothing goes dark on dark.
 const appearance = () => {
   applyAppearance();
   document.documentElement.dataset.theme = 'dark';

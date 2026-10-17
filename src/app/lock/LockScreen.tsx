@@ -44,7 +44,7 @@ export default function LockScreen() {
             setCode(event.target.value.replace(/\D/g, ''));
           }}
         />
-        {wrong && <p className="sheet__hint" role="status">That is not the passcode.</p>}
+        {wrong && <p className="sheet__hint" role="status">That passcode isn’t right.</p>}
         <button type="submit" className="chip chip--accent chip--wide" disabled={busy || code.length < 4}>
           Unlock
         </button>

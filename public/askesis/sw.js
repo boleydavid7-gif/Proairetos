@@ -1,6 +1,6 @@
 // Askesis service worker: lets the app open and work without a connection.
 // Scoped to /askesis/. Workouts live in IndexedDB on the device; this only caches the app.
-const CACHE = 'askesis-v2';
+const CACHE = 'askesis-v3';
 const SHELL = ['/askesis/', '/askesis/manifest.webmanifest', '/askesis/icon.svg', '/askesis/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

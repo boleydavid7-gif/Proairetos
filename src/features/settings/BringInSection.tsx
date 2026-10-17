@@ -12,6 +12,7 @@ import {
   type ImportRow,
 } from '../../core/import/readers';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
+import { Waiting } from '../../lamplight/Waiting';
 
 const DAY = 86_400_000;
 
@@ -71,7 +72,7 @@ export default function BringInSection() {
       setChosen(new Set(next.rows.flatMap((row, index) => (row.done ? [] : [index]))));
       if (next.rows.length === 0) setError('Nothing to bring in from that.');
     } catch {
-      setError('That file could not be read. A calendar file, a spreadsheet (CSV), Google Tasks, or a plain list works.');
+      setError('Couldn’t read that file. Use a calendar file, a CSV, a Google Tasks export, or a plain list.');
     }
   }
 
@@ -145,7 +146,7 @@ export default function BringInSection() {
         {error && <p className="form-error">{error}</p>}
         <div className="chip-row">
           <button type="button" className="button-accent" disabled={busy || chosen.size === 0} onClick={bringIn}>
-            {busy ? 'Bringing in…' : `Bring in ${chosen.size}`}
+            {busy ? <Waiting>Bringing in…</Waiting> : `Bring in ${chosen.size}`}
           </button>
           <button type="button" className="button-quiet" onClick={() => setResult(null)}>
             Cancel
@@ -200,7 +201,7 @@ export default function BringInSection() {
       </button>
       {error && <p className="form-error">{error}</p>}
       {message && <p className="sheet__hint">{message}</p>}
-      <p className="sheet__hint">To move everything from another Proairetos, use Back up and restore instead.</p>
+      <p className="sheet__hint">To move everything from another Proairetos, restore a backup above.</p>
     </section>
   );
 }

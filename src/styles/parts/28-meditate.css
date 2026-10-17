@@ -773,7 +773,7 @@
 }
 
 .sound-choice__row[aria-checked='true'] {
-  border-color: rgba(201, 162, 116, 0.5);
+  border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
   color: var(--color-accent-strong);
 }
 
@@ -792,7 +792,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(env(safe-area-inset-top) + var(--space-6)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-5));
+  padding: calc(var(--ll-safe-top) + var(--space-6)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-5));
   text-align: center;
   background: #07090d;
   animation: page-in 500ms var(--ease-out, ease) both;
@@ -809,7 +809,7 @@
 .sit-screen__leave {
   position: absolute;
   z-index: 1;
-  top: calc(env(safe-area-inset-top) + var(--space-4));
+  top: calc(var(--ll-safe-top) + var(--space-4));
   right: var(--space-4);
   min-height: 2.75rem;
   padding: 0 var(--space-4);

@@ -12,7 +12,7 @@ afterEach(cleanup);
 
 describe('adding a book to Theoria', () => {
   it("fills in the book's own title and author from the file, not its file name", async () => {
-    render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onLookup={async () => ({})} />);
+    render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onMany={() => undefined} onLookup={async () => ({})} />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'mistakes-were-made-3e.epub', { type: 'application/epub+zip' });
     fireEvent.change(input, { target: { files: [file] } });
@@ -21,7 +21,7 @@ describe('adding a book to Theoria', () => {
   });
 
   it('keeps a title the reader has already typed', async () => {
-    render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onLookup={async () => ({})} />);
+    render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onMany={() => undefined} onLookup={async () => ({})} />);
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'My own name for it' } });
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(input, { target: { files: [new File(['x'], 'book.epub')] } });

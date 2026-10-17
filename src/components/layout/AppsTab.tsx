@@ -4,24 +4,25 @@ import { openSettingsAt } from '../../features/settings/settingsViews';
 import { useSheet } from '../ui/useSheet';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps } from '../../app/family/added';
+import { LampIcon, Sym } from '../../lamplight/icons';
 
 export function AppsIcon({ size = 22 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true">
-      {[5, 12, 19].flatMap((x) => [5, 12, 19].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.6} />))}
-    </svg>
+    <LampIcon
+      size={size}
+      glyph={{ line: <>{[5, 12, 19].flatMap((x) => [5, 12, 19].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.7} fill="currentColor" stroke="none" />))}</>, lit: <></> }}
+    />
   );
 }
 
 function AppsSheet({ onClose }: { onClose: () => void }) {
-  const { dialog, panel, close } = useSheet();
+  const { dialog, panel, close } = useSheet({ from: 'top' });
   const navigate = useNavigate();
   const added = useAddedApps();
   const apps = familyApps.filter((app) => added.includes(app.id as never));
   return (
-    <dialog ref={dialog} className="sheet" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
+    <dialog ref={dialog} className="sheet sheet--top" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
       <div ref={panel} className="sheet__panel">
-        <div className="sheet__grabber" aria-hidden="true" />
         <button type="button" className="sheet__close" onClick={close}>
           Close
         </button>
@@ -45,11 +46,12 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
                 navigate('settings');
               }}
             >
-              <span className="apps-grid__store" aria-hidden="true">+</span>
+              <span className="apps-grid__store" aria-hidden="true"><Sym name="plus" /></span>
               <span>Store</span>
             </button>
           </li>
         </ul>
+        <div className="sheet__grabber sheet__grabber--foot" aria-hidden="true" />
       </div>
     </dialog>
   );
@@ -60,7 +62,7 @@ export default function AppsTab() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className="tab-bar__item" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      <button type="button" className="tab-bar__item" data-to-header="" aria-label="Apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <AppsIcon size={24} />
         <span>Apps</span>
       </button>

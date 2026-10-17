@@ -14,7 +14,6 @@
 
 .sheet::backdrop {
   background: rgba(4, 5, 6, 0.6);
-  backdrop-filter: blur(2px);
 }
 
 .sheet[open] .sheet__panel {
@@ -67,7 +66,7 @@
 }
 
 .sheet__title:focus {
-  border-bottom-color: rgba(201, 162, 116, 0.45);
+  border-bottom-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.45);
 }
 
 .sheet__status {

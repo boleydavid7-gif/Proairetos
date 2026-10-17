@@ -12,4 +12,4 @@ import '../app/family/account.css';
 import App from './app/App';
 import { startApp } from '../app/family/startApp';
 
-startApp('diaita', App, { light: '#f1eee8', dark: '#0e1014' });
+startApp('diaita', App);

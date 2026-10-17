@@ -16,6 +16,8 @@ import GuidePage from '../screens/GuidePage';
 import WelcomePage from '../screens/WelcomePage';
 import PlanPage from '../screens/PlanPage';
 import AfterPage from '../screens/AfterPage';
+import StravaPage, { StravaOnOpen } from '../screens/StravaPage';
+import OwnPage from '../screens/OwnPage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
 
 export type Route =
@@ -35,7 +37,9 @@ export type Route =
   | { name: 'data' }
   | { name: 'about' }
   | { name: 'after'; id: string }
-  | { name: 'year' };
+  | { name: 'year' }
+  | { name: 'strava' }
+  | { name: 'own'; id?: string };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -74,6 +78,7 @@ export default function App() {
       const [kind, id] = open.split(':');
       if (kind === 'workout' && id) go({ name: 'workout', id });
       else if (kind === 'entry' && id) go({ name: 'entry', id });
+      else if (kind === 'strava') go({ name: 'strava' });
       else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
     }
     return () => window.removeEventListener('popstate', onPop);
@@ -150,6 +155,10 @@ export default function App() {
         return <AboutPage nav={nav} />;
       case 'year':
         return <YearScreen nav={nav} />;
+      case 'strava':
+        return <StravaPage nav={nav} />;
+      case 'own':
+        return <OwnPage key={route.id ?? 'new'} nav={nav} id={route.id} />;
       case 'after':
         return <AfterPage nav={nav} id={route.id} />;
     }
@@ -162,6 +171,7 @@ export default function App() {
         <main key={JSON.stringify(route)} className="page-enter">
           {page}
         </main>
+        {route.name !== 'strava' && <StravaOnOpen />}
         {showTabs && <TabBar current={isTab(route.name) ? route.name : lastTab} onPick={(tab) => swap({ name: tab })} />}
       </div>
     </UndoProvider>

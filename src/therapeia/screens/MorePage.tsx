@@ -2,11 +2,11 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { HistoryIcon, SettingsIcon } from '../../app/family/icons';
+import { HistoryIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { TherapeiaNav } from '../app/App';
-import { settings, type TherapeiaSettings } from '../app/state';
+import { settings, useCircle, type TherapeiaSettings } from '../app/state';
 import { settings as diaitaSettings } from '../../diaita/app/state';
 import { useAddedApps } from '../../app/family/added';
 
@@ -18,6 +18,7 @@ const LEADS = [
 ];
 
 export default function MorePage({ nav }: { nav: TherapeiaNav }) {
+  const circle = useCircle();
   const current = settings.use();
   const rhythm = diaitaSettings.use();
   const diaitaAdded = useAddedApps().includes('diaita');
@@ -54,11 +55,11 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
           <span className="field__label">Emergency contact (optional)</span>
           <input className="input" value={current.card.contact ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, contact: event.target.value || undefined } })} placeholder="Name and number" />
         </label>
-        <p className="fine">Shown in Medicines and included when you share the list.</p>
+        <p className="fine">Shown on Medicines and added when you share the list.</p>
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.doses} label="Doses" onToggle={() => notice({ doses: !current.notices.doses })} />
         <Switch on={current.notices.names} label="Names on the lock screen" onToggle={() => notice({ names: !current.notices.names })} />
         <Switch on={current.notices.refills} label="Refills" onToggle={() => notice({ refills: !current.notices.refills })} />
@@ -75,21 +76,27 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
 
       <ul className="rows">
         <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'circle' })}>
+            <span className="row__icon"><PeopleIcon size={22} /></span>
+            <span className="row__text"><span>Share with someone who helps</span>{circle && <span className="row__detail">{circle.name}</span>}</span>
+          </button>
+        </li>
+        <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
+            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
         {diaitaAdded && (
           <li>
             <a className="row" href="/diaita/?open=more">
-              <span className="row__icon"><SettingsIcon size={21} /></span>
+              <span className="row__icon"><SettingsIcon size={22} /></span>
               <span className="row__text"><span>Waking and sleep</span><span className="row__detail">Set in Diaita</span></span>
             </a>
           </li>
@@ -111,11 +118,11 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
               </select>
             </label>
           </div>
-          <p className="fine">Dose times follow these settings and your Proairetos work schedule.</p>
+          <p className="fine">Doses after waking and before sleep follow these, and your work schedule in Proairetos.</p>
         </section>
       )}
 
-      <p className="fine">Follow the directions given by your clinician. Therapeia reminds and records; it does not give medical advice.</p>
+      <p className="fine">Follow the directions you were given. Therapeia reminds and records; it gives no medical advice.</p>
 
       <section>
         <p className="label">Your data</p>

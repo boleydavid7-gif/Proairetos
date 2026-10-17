@@ -64,7 +64,7 @@ export const produce: Produce[] = [
   { id: 'spinach', name: 'Spinach', kind: 'vegetable', months: [3, 4, 5, 9, 10], words: ['spinach'], photo: 'Spinach', keep: 'In the fridge, dry; best within a few days.' },
   { id: 'squash', name: 'Winter squash', kind: 'vegetable', months: range(9, 2), words: ['squash', 'butternut'], photo: 'Butternut Squash', keep: 'Whole, somewhere cool and dark, not the fridge; it keeps for weeks.' },
   { id: 'sweet-potatoes', name: 'Sweet potatoes', kind: 'vegetable', months: range(9, 12), words: ['sweet potato'], photo: 'Sweet Potatoes', keep: 'Somewhere cool and dark, not the fridge.' },
-  { id: 'tomatoes', name: 'Tomatoes', kind: 'vegetable', months: range(7, 9), words: ['tomato'], photo: 'Tomato', keep: 'At room temperature, out of the sun; the fridge dulls their flavour.' },
+  { id: 'tomatoes', name: 'Tomatoes', kind: 'vegetable', months: range(7, 9), words: ['tomato'], photo: 'Tomato', keep: 'At room temperature, out of the sun; the fridge dulls their flavor.' },
   { id: 'zucchini', name: 'Zucchini', kind: 'vegetable', months: range(6, 9), words: ['zucchini', 'courgette'], photo: 'Zucchini', keep: 'In the fridge; best within a week.' },
   { id: 'rhubarb', name: 'Rhubarb', kind: 'vegetable', months: range(4, 6), words: ['rhubarb'], photo: 'Rhubarb', keep: 'Stalks in the fridge for a week or two; the leaves are not eaten.' },
   // Fruit

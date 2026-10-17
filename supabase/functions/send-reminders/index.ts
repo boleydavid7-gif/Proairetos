@@ -92,7 +92,9 @@ async function handle(request: Request): Promise<Response> {
   type Row = { user_id: string; id: string; sealed?: string | null; source?: string | null; preview_title?: string | null; preview_body?: string | null; preview_open?: string | null };
   type Result = { data: Row[] | null; error: { message: string } | null };
   let { data: due, error } = (await dueRows('user_id, id, sealed, source, preview_title, preview_body, preview_open')) as unknown as Result;
-  // Before the reminder-sources or preview migration there is no sealed/source/preview column: plain pushes as before.
+  // Before the preview migration: sealed words and sources still go out, so the phone shows each app's own words.
+  if (error) ({ data: due, error } = (await dueRows('user_id, id, sealed, source')) as unknown as Result);
+  // Before the reminder-sources migration there is no sealed/source column: plain pushes as before.
   if (error) ({ data: due, error } = (await dueRows('user_id, id')) as unknown as Result);
   if (error) return new Response(error.message, { status: 500 });
 
@@ -112,8 +114,11 @@ async function handle(request: Request): Promise<Response> {
       sealed.push(row.sealed);
       size += row.sealed.length + 3;
     }
-    const first = (due ?? []).find((row) => row.user_id === userId);
-    const declarativeRow = (due ?? []).find((row) => row.user_id === userId && row.preview_title) ?? first;
+    const mine = (due ?? []).filter((row) => row.user_id === userId);
+    // Labeled by a row that has an app of its own rather than Proairetos's catch-all, so a push for Ergon or Therapeia
+    // carries that app's name and icon even when the phone shows the push itself.
+    const first = mine.find((row) => row.source && row.source !== 'proairetos') ?? mine[0];
+    const declarativeRow = mine.find((row) => row.preview_title) ?? first;
     const source = declarativeRow?.source ?? 'proairetos';
     const preview = declarativeRow?.preview_title ? declarativeRow : undefined;
     const payload = JSON.stringify({ ...declarative(source, preview), v: 1, n: sealed });
@@ -127,7 +132,9 @@ async function handle(request: Request): Promise<Response> {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           payload, // the app's name, sealed words, and an opt-in lock-screen preview
-          { TTL: 3600, urgency: 'normal' },
+          // High: a reminder is time-bound, and at normal urgency Android's Doze and an iPhone in Low Power Mode may
+          // hold a push back for many minutes.
+          { TTL: 3600, urgency: 'high' },
         );
         sent++;
       } catch (cause) {

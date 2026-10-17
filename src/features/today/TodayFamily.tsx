@@ -30,10 +30,13 @@ export default function TodayFamily({ today }: { today: string }) {
           <span>
             {soon
               .slice(0, 2)
-              .map((bill) => `${bill.name} ${bill.when}`)
-              .join(' · ')}
+              .map((bill) => bill.name)
+              .join(', ')}
+            {soon.length > 2 ? ` and ${soon.length - 2} more` : ''}
           </span>
-          <span className="quiet-row__detail">{soon.length > 2 ? `And ${soon.length - 2} more in Oikonomia.` : 'Coming up in Oikonomia.'}</span>
+          <span className="quiet-row__detail">
+            {soon.every((bill) => bill.when === soon[0].when) ? `Bills due ${soon[0].when}` : `Bills from ${soon[0].when}`} · Oikonomia
+          </span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
@@ -57,7 +60,7 @@ export function TodayStudy({ today }: { today: string }) {
         </span>
         <span className="quiet-row__text">
           <span>{again.map((block) => block.title).slice(0, 2).join(' · ')}</span>
-          <span className="quiet-row__detail">To look at again, in Praxis</span>
+          <span className="quiet-row__detail">To look at again · Praxis</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>

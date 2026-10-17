@@ -1,6 +1,7 @@
 // Phyton's scene: a glasshouse in a green valley at morning, broad leaves in the foreground.
 // Run: CHROMIUM=/opt/pw-browsers/chromium PLAYWRIGHT=<path to playwright> node scripts/scenes/phyton.mjs <out-dir>; then webp at quality 85.
 const { chromium } = await import(process.env.PLAYWRIGHT ?? 'playwright');
+import { LAMP_X, lampRing } from './engine.mjs';
 const out = process.argv[2];
 
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32); }
@@ -34,7 +35,7 @@ function leaf(x, y, len, angle, fill, rib) {
 
 function phyton(w, h) {
   const s = Math.min(w, h) / 380;
-  const sunX = w * 0.66, sunY = h * 0.55;
+  const sunX = w * LAMP_X, sunY = h * 0.55;
   const gx = w * 0.4, gy = h * 0.765;
   const panes = Array.from({ length: 7 }, (_, i) => `<path d="M${-48 + i * 16},0 L${-48 + i * 16},-34" stroke="#dfe9d2" stroke-width="1.6" opacity="0.7"/>`).join('');
   const house = `<g transform="translate(${gx},${gy}) scale(${s})">
@@ -55,7 +56,7 @@ function phyton(w, h) {
   </defs>
   <rect width="${w}" height="${h}" fill="url(#sky)"/>
   <rect width="${w}" height="${h}" fill="url(#sun)"/>
-  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.045}" fill="#fffce8"/>
+  <circle cx="${sunX}" cy="${sunY}" r="${Math.min(w, h) * 0.032}" fill="#fffce8"/>${lampRing(sunX, sunY, Math.min(w, h), '#fffbe2')}
   <path d="${ridge(w, h, 0.6, 0.03, 201, 1.1)}" fill="#86a97c" opacity="0.8"/>
   <rect x="0" y="${h * 0.6}" width="${w}" height="${h * 0.045}" fill="#f4f6dc" opacity="0.35" filter="url(#blur)"/>
   <path d="${ridge(w, h, 0.66, 0.028, 207, 1)}" fill="#5f8458"/>

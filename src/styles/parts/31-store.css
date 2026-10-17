@@ -152,7 +152,7 @@
   }
 }
 
-/* From your apps (Today): what came round in the other apps, marked here. */
+/* From your apps (Today): what came around in the other apps, marked here. */
 .from-apps .check-list {
   margin: var(--space-2) 0 0;
   padding: 0;
@@ -230,4 +230,16 @@
   border-color: var(--color-accent, #d9b46a);
   box-shadow: inset 0 0 0 4px var(--color-surface, #1b2027);
   background: var(--color-accent, #d9b46a);
+}
+
+/* Paying: a short line under an app after Buy, and one plain line under the list. */
+.store__note {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.store__fine {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }

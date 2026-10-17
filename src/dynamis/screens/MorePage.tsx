@@ -25,32 +25,33 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'plan' })}>
-            <span className="row__icon"><WeightIcon size={21} /></span>
+            <span className="row__icon"><WeightIcon size={22} /></span>
             <span className="row__text">
               <span>Your plan</span>
               <span className="row__detail">{ready ? `${AIM_NAMES[setup.aim]} · ${PLACE[setup.place]} · ${[...setup.days].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map((day) => DAY[day]).join(', ')}` : 'Not made yet'}</span>
             </span>
-            <ChevronIcon size={17} />
+            <ChevronIcon size={18} />
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'why' })}>
-            <span className="row__icon"><BookIcon size={21} /></span>
-            <span className="row__text"><span>How the plan is built</span></span>
-            <ChevronIcon size={17} />
+            <span className="row__icon"><BookIcon size={22} /></span>
+            <span className="row__text"><span>How the plan is built</span><span className="row__detail">With its sources</span></span>
+            <ChevronIcon size={18} />
           </button>
         </li>
       </ul>
 
       {ready && (
+        <>
+        <p className="ll-section-label">Reminders</p>
         <section className="card switches">
-          <p className="label diaita-switches-label">Reminders</p>
           <Switch on={current.reminders} label="Training days" onToggle={() => { settings.save({ ...settings.load(), reminders: !current.reminders }); notifications.refreshSoon(); }} />
           {current.reminders && (
             <label className="field">
@@ -59,6 +60,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
             </label>
           )}
         </section>
+        </>
       )}
 
       <section className="card switches">
@@ -68,8 +70,8 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
       <ul className="rows">
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
+            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

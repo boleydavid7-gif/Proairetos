@@ -20,7 +20,7 @@
 .praxis-sidebar__label { padding: 0 12px 10px; }
 .praxis-nav-list { display: grid; gap: 4px; }
 .praxis-nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 12px; color: var(--color-text-muted); background: transparent; cursor: pointer; text-align: left; transition: .2s ease; }
-.praxis-nav-item:hover { color: var(--color-text); background: var(--color-surface-soft); }
+@media (hover: hover) { .praxis-nav-item:hover { color: var(--color-text); background: var(--color-surface-soft); } }
 .praxis-nav-item.is-active { border-color: rgba(201, 162, 116, .28); color: var(--color-accent-strong); background: var(--color-accent-soft); }
 .praxis-nav-item span { font-size: 13px; font-weight: 600; }
 .praxis-sidebar__spacer { flex: 1; }
@@ -110,7 +110,7 @@
 .praxis-chart--empty { height: 96px; padding-top: 12px; }
 .praxis-bar-group { height: 100%; display: flex; flex: 1; flex-direction: column; justify-content: end; align-items: center; gap: 8px; }
 .praxis-bar { width: min(30px, 100%); min-height: 6px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--color-accent-strong), var(--color-accent)); }
-.praxis-bar-group span { color: var(--color-text-faint); font-size: 11px; }
+.praxis-bar-group span { color: var(--color-text-faint); font-size: 12px; }
 .praxis-stat-stack { display: grid; align-content: start; gap: 12px; }
 .praxis-stat-card { padding: 21px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(14, 33, 27, .68); }
 .praxis-stat-card span, .praxis-stat-card strong { display: block; }
@@ -145,13 +145,13 @@
   .praxis-sidebar { display: none; }
   /* The standalone mobile shell draws under the status bar on iOS. Keep the
      family link and greeting below that inset instead of hiding them behind it. */
-  .praxis-main { padding: calc(17px + env(safe-area-inset-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
+  .praxis-main { padding: calc(17px + var(--ll-safe-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
   .praxis-topbar { margin-bottom: 30px; }
-  .praxis-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 4; display: block; padding: 6px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(11, 29, 24, .91); box-shadow: 0 18px 45px rgba(0,0,0,.28); backdrop-filter: blur(15px); }
+  .praxis-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 4; display: block; padding: 6px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(11, 29, 24, .91); box-shadow: 0 18px 45px rgba(0,0,0,.28); }
   .praxis-bottom-nav .praxis-nav-list { grid-template-columns: repeat(7,1fr); }
   .praxis-bottom-nav .praxis-nav-list { gap: 0; }
   .praxis-bottom-nav .praxis-nav-item { display: grid; justify-items: center; gap: 4px; min-width: 0; padding: 7px 0; }
-  .praxis-bottom-nav .praxis-nav-item span { max-width: 100%; overflow: hidden; font-size: 9.5px; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
+  .praxis-bottom-nav .praxis-nav-item span { max-width: 100%; overflow: hidden; font-size: 11px; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
   .praxis-today-grid, .praxis-stats-grid { grid-template-columns: 1fr; }
   .praxis-focus-card { min-height: 500px; }
   .praxis-timer { width: min(330px, 70vw); }
@@ -165,7 +165,7 @@
   .praxis-planned-chip { margin-top: 17px; }
   .praxis-focus-card { padding: 20px; }
   .praxis-card-heading { gap: 10px; }
-  .praxis-ready-pill { padding: 6px 8px; font-size: 11px; }
+  .praxis-ready-pill { padding: 6px 8px; font-size: 12px; }
   .praxis-focus-stage { min-height: 385px; }
   .praxis-timer { width: min(320px, 76vw); }
   .praxis-focus-actions { margin-top: 22px; }
@@ -266,6 +266,15 @@ html, body { margin: 0; }
 .praxis-card-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--color-border); }
 .praxis-card-list span { display: grid; gap: 2px; min-width: 0; }
 .praxis-card-list small { color: var(--color-text-muted); font-size: 13px; overflow-wrap: anywhere; }
+.praxis-card-list span.praxis-card-list__actions { display: flex; gap: 4px; flex: none; }
+.praxis-card-list li.praxis-card-edit { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: stretch; justify-content: stretch; }
+.praxis-card-edit label { display: grid; gap: 6px; }
+.praxis-card-edit label span { color: var(--color-text-muted); font-size: 13px; }
+.praxis-card-edit input, .praxis-card-edit textarea { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-soft); color: var(--color-text); font: inherit; font-size: 16px; }
+.praxis-card-edit__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.praxis-highlights { max-height: 340px; overflow-y: auto; }
+.praxis-highlights strong { font-weight: 500; }
+.praxis-card-files { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; margin: 12px 0 4px; }
 .praxis-chips button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-text); background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
 .praxis-wide-card.praxis-card:has(> .praxis-text-button:only-child) { padding: 6px 20px; }
 
@@ -275,3 +284,8 @@ html, body { margin: 0; }
   margin: 12px auto 0;
   min-height: 44px;
 }
+
+/* With no block yet, the card holds one line and is as tall as that. */
+.praxis-focus-card.praxis-focus-card--empty { min-height: 0; }
+/* With no blocks yet, Your blocks below is the way in; the empty focus card said only that. */
+.praxis-focus-card.praxis-focus-card--empty:not(:has(.praxis-focus-stage)) { display: none; }

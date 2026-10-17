@@ -21,7 +21,7 @@ export function placeableGroups(items: readonly LifeItem[], today: string, energ
     return found;
   };
   const groups: PlaceGroup[] = [
-    { id: 'path', label: 'On today’s path', items: take((item) => item.pickedFor === today) },
+    { id: 'path', label: 'On today’s to-do', items: take((item) => item.pickedFor === today) },
     { id: 'planned', label: 'Planned for today', items: take((item) => item.plannedFor === today) },
   ];
   if (energy === 'low' || energy === 'some') {

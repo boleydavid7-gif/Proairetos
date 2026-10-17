@@ -73,7 +73,7 @@ describe('the log', () => {
 describe('laying a plan week over the calendar', () => {
   const plan = buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 3 });
 
-  it('puts sessions on the chosen weekdays and honours a move', () => {
+  it('puts sessions on the chosen weekdays and honors a move', () => {
     const week = plan.weeks[0];
     const days = layOut(week, '2026-10-02', [1, 3, 5], {}, []);
     expect(days.map((day) => day.date)).toEqual(['2026-09-29', '2026-10-01', '2026-10-03']);

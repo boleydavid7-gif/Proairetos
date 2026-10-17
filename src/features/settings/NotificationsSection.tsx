@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { notifications } from '../../app/notify/notifications';
-import { disableReminders, enableReminders, refreshReminders } from '../../app/sync/syncController';
+import { disableReminders, enableReminders, refreshReminders, testReminderThroughServer } from '../../app/sync/syncController';
 import { noticeLeadChoices, noticeLeadLabel, type NoticeSettings } from '../../core/notify/notices';
 import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
@@ -95,13 +95,13 @@ const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: str
 
 function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {
   return (
-    <div className="notify-group">
-      <h3 className="settings-group__label notify-group__label">
+    <section className="settings-group notify-group" aria-label={label}>
+      <h2 className="settings-group__label notify-group__label">
         {icon && <img src={icon} alt="" width={18} height={18} />}
         {label}
-      </h3>
-      <div className="notify-list">{children}</div>
-    </div>
+      </h2>
+      <div className="settings-card settings-card--rows notify-list">{children}</div>
+    </section>
   );
 }
 
@@ -115,6 +115,7 @@ export default function NotificationsSection() {
   const [settings, setSettings] = useState(notifications.settings);
   const [quiet, setQuiet] = useState(loadQuietHours);
   const [error, setError] = useState('');
+  const [serverTest, setServerTest] = useState('');
   const added = useAddedApps();
   const permission = notifications.permission();
   const upcoming = notifications.next();
@@ -139,7 +140,7 @@ export default function NotificationsSection() {
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
-    <section className="settings-card notify-settings" aria-label="Notifications">
+    <div className="settings-sections notify-settings">
       {permission === 'default' && (
         <button type="button" className="button-accent" onClick={() => void notifications.ask()}>
           Allow notifications
@@ -288,10 +289,13 @@ export default function NotificationsSection() {
             }
           />
         )}
+        {permission === 'granted' && sync.phase !== 'ready' && (
+          <p className="sheet__hint">Only while the app is open. To get them when it’s closed, sign in under Account and sync.</p>
+        )}
         {error && <p className="form-error">{error}</p>}
       </NotifyGroup>
 
-      <details className="notify-coming">
+      <details className="settings-card notify-coming">
         <summary>Coming up</summary>
         {upcoming.length === 0 ? (
           <p className="sheet__hint">Nothing in the next two weeks.</p>
@@ -308,10 +312,30 @@ export default function NotificationsSection() {
       </details>
 
       {permission === 'granted' && (
-        <button type="button" className="text-link" onClick={() => void notifications.test()}>
-          Show one now
-        </button>
+        <div className="button-row">
+          <button type="button" className="text-link" onClick={() => void notifications.test()}>
+            Show one now
+          </button>
+          {sync.phase === 'ready' && sync.reminders === 'on' && (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() =>
+                void testReminderThroughServer()
+                  .then((at) =>
+                    setServerTest(
+                      `Close the app. It arrives at ${at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}, about a minute from now.`,
+                    ),
+                  )
+                  .catch((cause) => setServerTest(cause instanceof Error ? cause.message : 'That did not work just now.'))
+              }
+            >
+              Send one through the server
+            </button>
+          )}
+        </div>
       )}
-    </section>
+      {serverTest && <p className="sheet__hint" role="status">{serverTest}</p>}
+    </div>
   );
 }

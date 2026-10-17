@@ -185,7 +185,7 @@
     width: 100%;
   }
 
-  /* Guide and other full-screen pages stay centred and calm. */
+  /* Guide and other full-screen pages stay centered and calm. */
   :root.askesis .shell:not(.shell--tabs):not(:has(.welcome)) {
     max-width: 52rem;
   }

@@ -36,7 +36,7 @@ export function Timeline({ entries, now }: { entries: readonly Entry[]; now?: Da
           <li key={entry.key} className={`diaita-entry diaita-entry--${entry.kind}${past ? ' diaita-entry--past' : ''}${index === nowAt ? ' diaita-entry--next' : ''}`}>
             <button type="button" className="diaita-entry__main" aria-expanded={entry.source ? isOpen : undefined} disabled={!entry.source} onClick={() => setOpen(isOpen ? undefined : entry.key)}>
               <span className="diaita-entry__time">{span(entry)}</span>
-              <span className="diaita-entry__icon"><Icon size={19} /></span>
+              <span className="diaita-entry__icon"><Icon size={20} /></span>
               <span className="diaita-entry__text">
                 <strong>{entry.title}</strong>
                 {entry.detail && <small>{entry.detail}</small>}

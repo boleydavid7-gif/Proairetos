@@ -1,9 +1,9 @@
 import { isSyncConfigured, supabase } from '../../data/sync/supabase';
 
 /*
- * Lists shared with other people, sealed on the phone with each list's own key (migration
+ * Lists shared with other people, sealed on the device with each list's own key (migration
  * 20261018000000_shared_lists.sql). The key travels only in the invite link, after `#`. The lists this person
- * has are a setting (synced and backed up like any setting); each list's items are cached on this phone with
+ * has are a setting (synced and backed up like any setting); each list's items are cached on this device with
  * any changes not yet sent, so a list works offline and catches up when it can. Soma's grocery lists and
  * Ergon's households both use this, each with its own storage keys and sealing label.
  */
@@ -24,7 +24,7 @@ export type ListOptions<T> = {
 
 export const sharingAvailable = isSyncConfigured;
 
-/** The server's copy with this phone's unsent changes laid over it. */
+/** The server's copy with this device's unsent changes laid over it. */
 export function withPendingChanges<T extends { id: string }>(fromServer: readonly T[], pending: readonly PendingChange<T>[], order?: (a: T, b: T) => number): T[] {
   const byId = new Map(fromServer.map((item) => [item.id, item]));
   for (const change of pending) {
@@ -173,7 +173,7 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     return list;
   }
 
-  /** Leaves a list: it goes from this phone; the others keep it. */
+  /** Leaves a list: it goes from this device; the others keep it. */
   async function leaveList(list: SharedList): Promise<void> {
     const userId = await me();
     plain((await (await supabase()).from('shared_list_members').delete().eq('list_id', list.id).eq('user_id', userId)).error);
@@ -184,7 +184,7 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
 
   // ---------- Items ----------
 
-  /** What to show now: the last copy from the server with this phone's unsent changes over it. */
+  /** What to show now: the last copy from the server with this device's unsent changes over it. */
   function sharedItems(list: SharedList): SharedItem[] {
     return withPending(read<SharedItem[]>(cacheKey(list.id), []), read<Pending[]>(pendingKey(list.id), []));
   }

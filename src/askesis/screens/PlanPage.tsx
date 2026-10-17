@@ -26,6 +26,7 @@ import {
 } from '../core/plans';
 import { savePlan, saveSettings } from '../data/store';
 import GoalLink, { moveGoalTime } from './GoalLink';
+import { Sym } from '../../lamplight/icons';
 
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -39,7 +40,7 @@ const levelNames: Record<Level, string> = { beginner: 'Beginner', intermediate: 
 const sameAim = (a: Aim, b: Aim) => JSON.stringify(a) === JSON.stringify(b);
 const isKnown = (meters: number) => aimDistances.some((d) => Math.abs(d.meters - meters) < 5);
 
-/** The answers so far, kept on the phone so a test run can come back to them. */
+/** The answers so far, kept on the device so a test run can come back to them. */
 const TEST_KEY = 'askesis:startTest';
 type Draft = { walk?: WalkNow; run?: RunNow };
 function readDraft(): Draft {
@@ -369,11 +370,11 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             </div>
             <div className="stepper">
               <button type="button" className="stepper__button" aria-label="Less" onClick={() => setMinutes(Math.max(10, minutes - 5))}>
-                −
+                <Sym name="minus" />
               </button>
               <span className="stepper__value">{minutes} minutes</span>
               <button type="button" className="stepper__button" aria-label="More" onClick={() => setMinutes(Math.min(180, minutes + 5))}>
-                +
+                <Sym name="plus" />
               </button>
             </div>
           </section>

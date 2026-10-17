@@ -58,7 +58,7 @@ export default function GratitudePage({ onBack }: { onBack: () => void }) {
           onChange={(event) => setText(event.target.value)}
         />
         <button type="submit" className="button-quiet" disabled={!text.trim()}>
-          Keep
+          Save
         </button>
       </form>
 

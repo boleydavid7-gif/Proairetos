@@ -4,6 +4,7 @@ import { useSettings, updateSettings } from '../app/state';
 import { defaultDrinkProfiles, HYDRATION_SOURCE, type HydrosDrinkProfile } from '../core/drinks';
 import { ScreenHeader } from '../app/ui';
 import { BoltIcon, CupIcon, DropIcon, LeafIcon, MoreIcon } from '../app/icons';
+import { Sym } from '../../lamplight/icons';
 
 function iconForProfile(profile: HydrosDrinkProfile) {
   if (profile.kind === 'coffee') return <CupIcon />;
@@ -51,7 +52,7 @@ function ProfileEditor({ profile, returnTo, onChange, onUse }: {
       <summary>
         <span className="hydros-profile-card__icon">{iconForProfile(profile)}</span>
         <span className="hydros-profile-card__title"><strong>{profile.label}</strong><small>{Math.round(profile.hydrationCoefficient * 100)}% counted · {profile.caffeineMg} mg caffeine</small></span>
-        <span className="hydros-settings-row__chevron" aria-hidden="true">›</span>
+        <span className="hydros-settings-row__chevron" aria-hidden="true"><Sym name="chevron" /></span>
       </summary>
       <div className="hydros-profile-fields">
         <label><span>Name</span><input value={profile.label} maxLength={40} onChange={(event) => onChange(profile.id, { label: event.target.value })} /></label>

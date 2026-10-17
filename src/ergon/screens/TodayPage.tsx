@@ -9,7 +9,7 @@ import photoWide from '../../assets/images/scenes/ergon-wide.webp';
 import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
 import { ChoreList } from '../app/ui';
-import { IDEAS, grouped, type Chore } from '../core/chores';
+import { IDEAS, grouped, markDone, roomsOf, type Chore } from '../core/chores';
 
 
 export function Ideas({ chores }: { chores: readonly Chore[] }) {
@@ -44,8 +44,18 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const [whose, setWhose] = useState<'mine' | 'all'>('all');
   const me = myName(current);
   const mineOnly = whose === 'mine' && me;
-  const shown = mineOnly ? all.filter((chore) => !chore.who || chore.who === me) : all;
+  const [room, setRoom] = useState('');
+  const whoseShown = mineOnly ? all.filter((chore) => !chore.who || chore.who === me) : all;
+  const rooms = roomsOf(grouped(whoseShown, today).now.concat(grouped(whoseShown, today).week));
+  const inRoom = room && rooms.includes(room) ? room : '';
+  const shown = inRoom ? whoseShown.filter((chore) => chore.room === inRoom) : whoseShown;
   const groups = grouped(shown, today);
+  const allDone = () => {
+    const before = groups.now;
+    const by = myName() || undefined;
+    for (const chore of before) putChore(markDone(chore, today, by ?? chore.who));
+    offerUndo(`${inRoom} done`, () => before.forEach((chore) => putChore(chore)));
+  };
   const open = (chore: Chore) => nav.go({ name: 'chore', id: chore.id });
 
   return (
@@ -83,6 +93,13 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
               <h2>Today</h2>
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'chore' })}>Add</button>
             </div>
+            {rooms.length > 1 && (
+              <div className="chip-row" role="group" aria-label="Room">
+                <button type="button" className="chip" aria-pressed={!inRoom} onClick={() => setRoom('')}>All rooms</button>
+                {rooms.map((each) => <button key={each} type="button" className="chip" aria-pressed={inRoom === each} onClick={() => setRoom(each)}>{each}</button>)}
+              </div>
+            )}
+            {inRoom && groups.now.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
             {groups.now.length ? <ChoreList chores={groups.now} today={today} onOpen={open} /> : <p className="muted">Nothing today.</p>}
             {groups.week.length > 0 && (
               <>

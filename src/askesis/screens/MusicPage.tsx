@@ -6,6 +6,7 @@ import { addSongs, exportSongs, importSongs, playSongs, removeSong, stopSongs, u
 import { useSettings } from '../app/state';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { saveSettings } from '../data/store';
+import { Waiting } from '../../lamplight/Waiting';
 
 /** Music for guided sessions: songs kept here, another app's, or none. */
 export default function MusicPage({ nav }: { nav: Nav }) {
@@ -89,7 +90,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                   } finally {
                     setSaving(false);
                   }
-                }}>{saving ? 'Saving…' : 'Save a copy'}</button>
+                }}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
               </div>}
             </div>
             {trying && song.name && <p className="hint">♪ {song.name}</p>}
@@ -121,7 +122,7 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                 const files = [...(event.target.files ?? [])];
                 event.target.value = '';
                 const count = await addSongs(files);
-                setAdded(count === 0 ? 'Those files are not songs this phone can play.' : undefined);
+                setAdded(count === 0 ? 'Those files are not songs this device can play.' : undefined);
                 if (count > 0 && settings.music === 'none') saveSettings({ ...settings, music: 'mine' });
               }}
             />
@@ -143,13 +144,13 @@ export default function MusicPage({ nav }: { nav: Nav }) {
                 const count = await importSongs(file);
                 setSaved(count ? `${count} ${count === 1 ? 'song' : 'songs'} restored.` : 'No songs were found in that archive.');
               } catch {
-                setSaved('That archive could not be opened here.');
+                setSaved('Couldn’t open that archive.');
               } finally {
                 setRestoring(false);
               }
             }} />
             <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-            <p className="hint">From your phone’s files, kept on this phone. Songs in streaming apps stay in those apps.</p>
+            <p className="hint">From your phone’s files, kept on this device. Songs in streaming apps stay in those apps.</p>
           </section>
         </>
       )}

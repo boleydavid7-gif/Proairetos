@@ -5,7 +5,7 @@ import { peopleNotices, defaultPeopleNotices } from './notices';
 const now = new Date('2026-10-10T12:00:00');
 const person = (patch: Partial<Person>): Person => ({ ...newPerson(patch.id ?? 'p', patch.name ?? 'Sam', now), ...patch });
 
-describe('dates that come round', () => {
+describe('dates that come around', () => {
   it('finds the next one, today included', () => {
     expect(nextOccurrence('10-10', '2026-10-10')).toBe('2026-10-10');
     expect(nextOccurrence('1990-03-02', '2026-10-10')).toBe('2027-03-02');
@@ -41,7 +41,7 @@ describe('dates that come round', () => {
 });
 
 describe('keeping in touch', () => {
-  it('comes round only for a rhythm the person chose', () => {
+  it('comes around only for a rhythm the person chose', () => {
     expect(touchDate(person({}), '2026-10-10')).toBeUndefined();
     const rhythm = person({ keepInTouch: 14, lastInTouch: '2026-09-20' });
     expect(touchDate(rhythm, '2026-10-10')).toBe('2026-10-04');

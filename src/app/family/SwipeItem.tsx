@@ -1,5 +1,5 @@
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { CheckIcon } from './icons';
+import { CheckIcon, TrashIcon } from './icons';
 import './swipe.css';
 
 const REVEAL = 96;
@@ -10,14 +10,32 @@ const COMMIT = 0.38;
  * enough does it; letting go early puts the row back. The left arrow key on the focused row does the same, and up and
  * down still scroll. `className` is the row's own class (e.g. `chore`), put on the part that moves.
  */
-export default function SwipeItem({ children, label, onSwipe, className, off = false }: { children: ReactNode; label: string; onSwipe: () => void; className: string; off?: boolean }) {
+export default function SwipeItem({
+  children,
+  label,
+  onSwipe,
+  className,
+  off = false,
+  tone = 'mark',
+  frontRef,
+}: {
+  children: ReactNode;
+  label: string;
+  onSwipe: () => void;
+  className: string;
+  off?: boolean;
+  /** Mark (done, taken) or remove (a delete that offers undo, as in Reminders and Mail). */
+  tone?: 'mark' | 'remove';
+  /** The moving part, for a page that scrolls a row into view. */
+  frontRef?: (element: HTMLElement | null) => void;
+}) {
   const [dx, setDx] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const start = useRef<{ x: number; y: number; width: number } | null>(null);
   const pulling = useRef(false);
   const moved = useRef(false);
 
-  if (off) return <li className={className}>{children}</li>;
+  if (off) return <li ref={frontRef} className={className}>{children}</li>;
 
   const finish = (go: boolean) => {
     start.current = null;
@@ -26,7 +44,7 @@ export default function SwipeItem({ children, label, onSwipe, className, off = f
       setLeaving(true);
       window.setTimeout(() => {
         onSwipe();
-        // The same row may stay on the page (a chore that comes round again): bring it back in.
+        // The same row may stay on the page (a chore that comes around again): bring it back in.
         setLeaving(false);
         setDx(0);
       }, 180);
@@ -43,12 +61,18 @@ export default function SwipeItem({ children, label, onSwipe, className, off = f
   };
 
   return (
-    <li className={`swipe${leaving ? ' swipe--leaving' : ''}`} aria-keyshortcuts="ArrowLeft">
-      <div className="swipe__action" aria-hidden="true">
-        <CheckIcon size={20} />
+    <li className={`swipe swipe--${tone}${leaving ? ' swipe--leaving' : ''}`} aria-keyshortcuts="ArrowLeft">
+      {/* Shown only while the row is pulled, so it never shows through a row's own gaps. */}
+      <div className="swipe__action" aria-hidden="true" style={{ opacity: dx < 0 || leaving ? 1 : 0 }}>
+        {tone === 'remove' ? <TrashIcon size={20} /> : <CheckIcon size={20} />}
         <span>{label}</span>
       </div>
+      {/* The swipe's action for the row's long-press menu (lamplight/behaviors.ts), first in its list. */}
+      <button type="button" hidden data-menu-first onClick={() => finish(true)}>
+        {label}
+      </button>
       <div
+        ref={frontRef}
         className={`swipe__front ${className}`}
         style={{ transform: leaving ? 'translateX(-110%)' : `translateX(${dx}px)`, transition: pulling.current ? 'none' : undefined }}
         onKeyDown={onKeyDown}

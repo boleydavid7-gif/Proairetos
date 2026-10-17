@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CameraIcon, LeafIcon, PlusIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -19,6 +20,8 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
     places.set(place, [...(places.get(place) ?? []), plant]);
   }
   const ordered = [...places].sort(([a], [b]) => (a === 'Anywhere' ? 1 : b === 'Anywhere' ? -1 : a.localeCompare(b)));
+  const [only, setOnly] = useState('');
+  const shownPlace = only && places.has(only) ? only : '';
 
   return (
     <div className="page phyton-page">
@@ -29,8 +32,14 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>
         </div>
       </div>
-      {all.length === 0 && <Empty icon={<LeafIcon size={26} />} title="No plants yet" line="Add one by its type, or identify it from a photo." />}
-      {ordered.map(([place, plants]) => (
+      {all.length === 0 && <Empty icon={<LeafIcon size={28} />} title="No plants yet" line="Add one by its type, or identify it from a photo." />}
+      {ordered.length > 1 && (
+        <div className="chip-row" role="group" aria-label="Place">
+          <button type="button" className="chip" aria-pressed={!shownPlace} onClick={() => setOnly('')}>All places</button>
+          {ordered.map(([place]) => <button key={place} type="button" className="chip" aria-pressed={shownPlace === place} onClick={() => setOnly(place)}>{place}</button>)}
+        </div>
+      )}
+      {ordered.filter(([place]) => !shownPlace || place === shownPlace).map(([place, plants]) => (
         <section key={place} className="chore-group">
           <div className="section-head plant-room">
             <p className="label">{place}</p>

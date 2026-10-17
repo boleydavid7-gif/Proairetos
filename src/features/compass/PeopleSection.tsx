@@ -85,7 +85,7 @@ function Person({ person }: { person: CompassStatement }) {
               className="button-quiet"
               onClick={async () => {
                 const removal = await compassService.removeStatement(person.id);
-                offerUndo(`Removed ${person.body}`, removal.undo);
+                offerUndo(`“${person.body}” removed`, removal.undo);
               }}
             >
               Remove
@@ -98,7 +98,7 @@ function Person({ person }: { person: CompassStatement }) {
 }
 
 /**
- * People who matter, kept in view. Friendship sits near the centre of a good
+ * People who matter, kept in view. Friendship sits near the center of a good
  * life for Aristotle and Epicurus alike. The app never prompts contact or
  * measures it; "in touch" is only a note the person chooses to make.
  */

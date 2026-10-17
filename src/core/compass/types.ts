@@ -18,7 +18,7 @@ export interface CompassStatement {
   inTouchAt?: string;
   /** For a goal: when the person said it was reached. Their mark; the app never decides it. */
   reachedAt?: string;
-  /** For a goal: a colour the person gave it; steps and its time take it too. */
+  /** For a goal: a color the person gave it; steps and its time take it too. */
   color?: TagColor;
   /** For a goal: the protected-time schedule the person set aside for it. */
   patternId?: string;

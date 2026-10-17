@@ -4,7 +4,7 @@ import { createListeners } from '../../services/listeners';
 /**
  * Outdoor weather from Open-Meteo (free, no account, no tracking). Off until
  * the person turns it on. The place is kept on this device, rounded to about
- * a kilometre; only that rounded place is sent, to ask for the forecast.
+ * a kilometer; only that rounded place is sent, to ask for the forecast.
  */
 export type WeatherSettings = {
   on: boolean;
@@ -120,7 +120,7 @@ export async function findPlace(name: string): Promise<{ name: string; lat: numb
   }));
 }
 
-/** Uses the phone's location once, rounded to about a kilometre. */
+/** Uses the phone's location once, rounded to about a kilometer. */
 export function placeFromDevice(): Promise<{ name: string; lat: number; lon: number }> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('This browser cannot share a location. Type a town instead.'));

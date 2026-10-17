@@ -7,7 +7,7 @@ import { filesFor, importFiles, putFile, removeFile, type KtemaFile } from '../d
 
 const LIMIT = 10_000_000;
 
-/** A thing's photos and files: add from the camera or files, open, remove with undo. On this phone only. */
+/** A thing's photos and files: add from the camera or files, open, remove with undo. On this device only. */
 export default function ThingFiles({ thingId }: { thingId: string }) {
   const [files, setFiles] = useState<KtemaFile[]>([]);
   const [viewing, setViewing] = useState<KtemaFile>();
@@ -84,13 +84,13 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
           say(count ? `${count} ${count === 1 ? 'file' : 'files'} restored` : 'No files were found in that archive');
           reload();
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoring(false);
         }
       }} />
       <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-      <p className="fine">Kept on this phone, not in backups or sync. Save a copy before changing phones.</p>
+      <p className="fine">Kept on this device, not in backups or sync. Save a copy before changing devices.</p>
       {viewing && (
         <div className="ktema-viewer" role="dialog" aria-label={viewing.name} onClick={() => setViewing(undefined)}>
           <img src={urls.get(viewing.id)} alt={viewing.name} />

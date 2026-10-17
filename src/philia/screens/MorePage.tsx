@@ -68,8 +68,8 @@ export default function MorePage({ nav }: { nav: PhiliaNav }) {
         <DailyLineSwitch app="philia" />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.dates} label="Birthdays and dates" onToggle={() => notice({ dates: !current.notices.dates })} />
         {current.notices.dates && (
           <select className="input" aria-label="When" value={current.notices.dateLead} onChange={(event) => notice({ dateLead: Number(event.target.value) })}>
@@ -86,14 +86,14 @@ export default function MorePage({ nav }: { nav: PhiliaNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
+            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

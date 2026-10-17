@@ -24,19 +24,23 @@ const CLOCK_24 = /\bat\s+(\d{1,2}):(\d{2})\b/i;
 const NOON = /\b(?:at\s+)?(noon|midday)\b/i;
 const LENGTH = /\b(?:for\s+)?(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m)\b/i;
 
-function dayFor(word: string, today: string): string {
+/**
+ * Today's own weekday means today, as Reminders and Todoist read it, unless "next" was said or the time named has
+ * already gone by (then the same day next week).
+ */
+function dayFor(word: string, today: string, next: boolean, passed: boolean): string {
   const lower = word.toLowerCase();
   if (lower === 'today' || lower === 'tonight') return today;
   if (lower === 'tomorrow') return addDays(today, 1);
   const target = WEEKDAYS.indexOf(lower);
-  const ahead = (target - parseLocalDate(today).getDay() + 7) % 7 || 7;
-  return addDays(today, ahead);
+  const ahead = (target - parseLocalDate(today).getDay() + 7) % 7;
+  return addDays(today, ahead === 0 && (next || passed) ? 7 : ahead);
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** What a typed line means as an item, or null when it is empty. */
-export function parseQuickAdd(input: string, today: string): QuickAdd | null {
+export function parseQuickAdd(input: string, today: string, now?: Date): QuickAdd | null {
   let rest = input.trim();
   if (!rest) return null;
   let day: string | undefined;
@@ -82,7 +86,9 @@ export function parseQuickAdd(input: string, today: string): QuickAdd | null {
     });
   }
   take(DAY, (m) => {
-    day = dayFor(m[1], today);
+    const [hour, minute] = (time ?? '').split(':').map(Number);
+    const passed = Boolean(time && now && hour * 60 + minute <= now.getHours() * 60 + now.getMinutes());
+    day = dayFor(m[1], today, /^next\s/i.test(m[0]), passed);
     return true;
   });
 

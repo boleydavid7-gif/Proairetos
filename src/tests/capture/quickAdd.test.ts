@@ -15,8 +15,8 @@ describe('parseQuickAdd', () => {
   });
 
   it('knows tomorrow, am times, half hours and hours', () => {
-    expect(parseQuickAdd('call mum tomorrow at 9:30 am for 1 hour', today)).toMatchObject({
-      title: 'Call mum',
+    expect(parseQuickAdd('call mom tomorrow at 9:30 am for 1 hour', today)).toMatchObject({
+      title: 'Call mom',
       kind: 'TODO',
       day: '2026-10-10',
       time: '09:30',
@@ -44,5 +44,14 @@ describe('parseQuickAdd', () => {
 
   it('keeps the original words when only a day was typed', () => {
     expect(parseQuickAdd('friday', today)?.title).toBe('Friday');
+  });
+
+  it('reads today’s own weekday as today, unless next is said or the time has gone by', () => {
+    const morning = new Date(2026, 9, 9, 9, 0);
+    const evening = new Date(2026, 9, 9, 21, 0);
+    expect(parseQuickAdd('dentist friday 3pm', today, morning)?.day).toBe('2026-10-09');
+    expect(parseQuickAdd('dentist friday 3pm', today, evening)?.day).toBe('2026-10-16');
+    expect(parseQuickAdd('dentist next friday', today, morning)?.day).toBe('2026-10-16');
+    expect(parseQuickAdd('call mom friday', today, evening)?.day).toBe('2026-10-09');
   });
 });

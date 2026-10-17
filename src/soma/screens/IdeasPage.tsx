@@ -3,6 +3,7 @@ import type { Nav } from '../app/App';
 import { SearchIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { ask, draftFrom, type Found } from '../app/mealdb';
+import { Waiting } from '../../lamplight/Waiting';
 
 const shelves = ['Vegetarian', 'Vegan', 'Seafood', 'Chicken', 'Breakfast', 'Pasta', 'Side', 'Starter'];
 
@@ -20,7 +21,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
       const { meals } = await ask<{ meals: Found[] | null }>(path);
       setFound(meals ?? []);
     } catch {
-      setProblem('Ideas need a connection. Your own recipes work without one.');
+      setProblem('Ideas need a connection. Your recipes work offline.');
       setFound(undefined);
     } finally {
       setBusy(false);
@@ -37,7 +38,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
       await draftFrom(meal);
       nav.go({ name: 'edit' });
     } catch {
-      setProblem('That recipe could not be opened just now.');
+      setProblem('Couldn’t open that recipe. Try again.');
     } finally {
       setBusy(false);
     }
@@ -75,7 +76,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
       </div>
 
       {problem && <p className="muted">{problem}</p>}
-      {busy && !found && <p className="muted">Looking…</p>}
+      {busy && !found && <p className="muted"><Waiting>Looking…</Waiting></p>}
       {found && found.length === 0 && <p className="muted">Nothing found for that.</p>}
       <ul className="recipe-rows">
         {found?.slice(0, 40).map((meal) => (

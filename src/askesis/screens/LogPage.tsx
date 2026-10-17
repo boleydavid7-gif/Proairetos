@@ -59,19 +59,14 @@ export default function LogPage({ nav }: { nav: Nav }) {
     <div className="page log-page">
       <div className="page-top">
         <Brand />
-        <button type="button" className="round-button" aria-label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>
-          <PlusIcon size={22} />
-        </button>
+        <span data-header-actions>
+          <button type="button" className="round-button" aria-label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>
+            <PlusIcon size={22} />
+          </button>
+        </span>
       </div>
       <h1 className="title">Progress</h1>
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-      <button type="button" className="text-link" onClick={() => file.current?.click()}>
-        From a watch file
-      </button>
-      <button type="button" className="button-quiet log-page__export" onClick={exportLog} disabled={!list.length}>
-        Export log (CSV)
-      </button>
-      {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
       <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
 
       <div className="tiles">
@@ -115,7 +110,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
         </p>
       )}
 
-      <ColumnChart
+      {list.length > 0 && <ColumnChart
         title={byDistance ? `Distance (${unit}), each week` : 'Minutes, each week'}
         days={weeks.map((week) => {
           const start = new Date(`${week.from}T12:00:00`);
@@ -125,12 +120,12 @@ export default function LogPage({ nav }: { nav: Nav }) {
             value: byDistance ? Math.round(inUnit(week.meters, unit) * 10) / 10 : Math.round(week.seconds / 60),
           };
         })}
-      />
+      />}
 
       <section aria-label="Workouts" className="entries">
         <h2 className="label">Workouts</h2>
         {entries && list.length === 0 && (
-          <Empty icon={<LogIcon size={26} />} title="Nothing logged yet" line="Runs, walks and anything else, with time and distance.">
+          <Empty icon={<LogIcon size={28} />} title="Nothing logged yet" line="Runs, walks and anything else, with time and distance.">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>
               Log a workout
             </button>
@@ -157,6 +152,19 @@ export default function LogPage({ nav }: { nav: Nav }) {
           );
         })}
       </section>
+
+      {/* Bringing in and taking out sit at the foot, after what they act on. */}
+      <div className="button-row">
+        <button type="button" className="button-quiet" onClick={() => file.current?.click()}>
+          From a watch file
+        </button>
+        {list.length > 0 && (
+          <button type="button" className="button-quiet" onClick={exportLog}>
+            Export log (CSV)
+          </button>
+        )}
+      </div>
+      {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
     </div>
   );
 }

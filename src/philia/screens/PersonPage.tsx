@@ -6,9 +6,10 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhiliaNav } from '../app/App';
 import { newId, people } from '../app/state';
 import { AddLine, Initials } from '../app/ui';
-import { RHYTHMS, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
-import { markInTouch } from './HomePage';
+import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
 import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
+import { Sym } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -27,16 +28,19 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [restoringPhoto, setRestoringPhoto] = useState(false);
   const restorePhotoInput = useRef<HTMLInputElement>(null);
+  const [justLogged, setJustLogged] = useState<string>();
+  const [showAll, setShowAll] = useState(false);
 
   if (!person) {
     return (
       <div className="page philia-page">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Back</button></div>
-        <p className="muted">Not found on this phone.</p>
+        <p className="muted">Not found on this device.</p>
       </div>
     );
   }
 
+  const history = timeline(person);
   const change = (patch: Partial<Person>, message?: string) => {
     const before = person;
     people.put({ ...person, ...patch });
@@ -65,7 +69,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
               try {
                 await putPhoto({ personId: person.id, ...(await squarePhoto(file)), at: new Date().toISOString() });
               } catch {
-                say('That picture could not be read');
+                say('Couldn’t read that photo');
                 return;
               }
               offerUndo('Photo saved', () => void (before ? putPhoto(before) : removePhoto(person.id)));
@@ -88,7 +92,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                 } finally {
                   setSavingPhoto(false);
                 }
-              }}>{savingPhoto ? 'Saving…' : 'Save a copy'}</button>
+              }}>{savingPhoto ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
               <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>
               <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
                 void removePhoto(person.id);
@@ -108,12 +112,12 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           const restored = await importPhoto(file, person.id);
           say(restored ? 'Photo restored' : 'No photo was found in that archive');
         } catch {
-          say('That archive could not be opened here');
+          say('Couldn’t open that archive');
         } finally {
           setRestoringPhoto(false);
         }
       }} />
-      {photo && <p className="fine">This photo stays on this phone. Save a copy before changing phones.</p>}
+      {photo && <p className="fine">This photo stays on this device. Save a copy before changing devices.</p>}
 
       {(person.phone || person.email) && (
         <div className="chip-row philia-contact">
@@ -148,10 +152,37 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           <option value="">No reminder</option>
           {RHYTHMS.map((rhythm) => <option key={rhythm.days} value={rhythm.days}>{rhythm.label}</option>)}
         </select>
-        <div className="section-head">
-          <span className="muted">{sinceText(person.lastInTouch, today)}</span>
-          {person.lastInTouch?.slice(0, 10) !== today && <button type="button" className="button-quiet" onClick={() => markInTouch(person, today)}>In touch today</button>}
+        <span className="muted">{sinceText(person.lastInTouch, today)}</span>
+        <div className="chip-row" role="group" aria-label="In touch today">
+          {CONTACTS.map((contact) => (
+            <button
+              key={contact.id}
+              type="button"
+              className="chip"
+              onClick={() => {
+                const before = person;
+                const entry = newId();
+                people.put(logContact(person, contact.id, today, entry));
+                setJustLogged(entry);
+                offerUndo(contact.id === 'visit' ? `Saw ${person.name}` : `${contact.done} ${person.name}`, () => {
+                  people.put(before);
+                  setJustLogged(undefined);
+                });
+              }}
+            >
+              {contact.label}
+            </button>
+          ))}
         </div>
+        {justLogged && person.times.some((time) => time.id === justLogged && !time.text) && (
+          <AddLine
+            label="A line about it (optional)"
+            onAdd={(text) => {
+              change({ times: person.times.map((time) => (time.id === justLogged ? { ...time, text } : time)) });
+              setJustLogged(undefined);
+            }}
+          />
+        )}
       </Section>
 
       <Section title="Remember">
@@ -160,7 +191,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             {person.notes.map((note) => (
               <li key={note.id} className="note-line">
                 <span>{note.text}</span>
-                <button type="button" aria-label={`Remove ${note.text}`} onClick={() => change({ notes: person.notes.filter((each) => each.id !== note.id) }, 'Removed')}>✕</button>
+                <button type="button" aria-label={`Remove ${note.text}`} onClick={() => change({ notes: person.notes.filter((each) => each.id !== note.id) }, 'Removed')}><Sym name="close" /></button>
               </li>
             ))}
           </ul>
@@ -187,7 +218,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
                   >
                     <CheckIcon size={18} />
                   </button>
-                  <button type="button" aria-label={`Remove ${gift.text}`} onClick={() => change({ gifts: person.gifts.filter((each) => each.id !== gift.id) }, 'Removed')}>✕</button>
+                  <button type="button" aria-label={`Remove ${gift.text}`} onClick={() => change({ gifts: person.gifts.filter((each) => each.id !== gift.id) }, 'Removed')}><Sym name="close" /></button>
                 </span>
               </li>
             ))}
@@ -196,19 +227,26 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         <AddLine label="A gift idea" onAdd={(text) => change({ gifts: [...person.gifts, { id: newId(), text, at: at() }] })} />
       </Section>
 
-      <Section title="Times together">
-        {person.times.length > 0 && (
+      <Section title="Together and in touch">
+        {history.length > 0 && (
           <ul className="notes-list">
-            {[...person.times].sort((a, b) => b.date.localeCompare(a.date)).map((time) => (
-              <li key={time.id} className="note-line">
+            {history.slice(0, showAll ? undefined : 8).map((entry) => (
+              <li key={`${entry.kind}-${entry.id}`} className="note-line">
                 <span>
-                  {time.text}
-                  <small>{shortDate(time.date)}</small>
+                  {timelineText(entry)}
+                  <small>{shortDate(entry.date)}</small>
                 </span>
-                <button type="button" aria-label={`Remove ${time.text}`} onClick={() => change({ times: person.times.filter((each) => each.id !== time.id) }, 'Removed')}>✕</button>
+                {entry.kind !== 'gift' && (
+                  <button type="button" aria-label={`Remove ${timelineText(entry)}`} onClick={() => change({ times: person.times.filter((each) => each.id !== entry.id) }, 'Removed')}><Sym name="close" /></button>
+                )}
               </li>
             ))}
           </ul>
+        )}
+        {history.length > 8 && !showAll && (
+          <button type="button" className="text-link" onClick={() => setShowAll(true)}>
+            All {history.length}
+          </button>
         )}
         <input className="input" type="date" aria-label="Day" value={timeDate} max={today} onChange={(event) => setTimeDate(event.target.value || today)} />
         <AddLine

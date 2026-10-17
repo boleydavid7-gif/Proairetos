@@ -1,5 +1,5 @@
 /**
- * A copy of everything, made once a day on this phone, the last seven kept.
+ * A copy of everything, made once a day on this device, the last seven kept.
  * It is the same backup file as the one saved by hand (the family apps, their
  * settings), so any day can be restored. It guards against mistakes; sync
  * and a saved file guard against losing the phone.

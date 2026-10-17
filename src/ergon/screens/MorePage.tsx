@@ -31,15 +31,15 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'year' })}>
-            <span className="row__icon"><HistoryIcon size={21} /></span>
+            <span className="row__icon"><HistoryIcon size={22} /></span>
             <span className="row__text"><span>Your year</span></span>
           </button>
         </li>
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'household' })}>
-            <span className="row__icon"><PeopleIcon size={21} /></span>
+            <span className="row__icon"><PeopleIcon size={22} /></span>
             <span className="row__text"><span>Household</span><span className="row__detail">{home ? home.name : 'Share chores with the people you live with'}</span></span>
-            <ChevronIcon size={17} />
+            <ChevronIcon size={18} />
           </button>
         </li>
       </ul>
@@ -47,7 +47,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and activity history"} />
+          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and for who did what"} />
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
       </section>
@@ -56,8 +56,8 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         <DailyLineSwitch app="ergon" />
       </section>
 
+      <p className="ll-section-label">Reminders</p>
       <section className="card switches">
-        <p className="label diaita-switches-label">Reminders</p>
         <Switch on={current.notices.on} label="Chores" onToggle={() => notice({ on: !current.notices.on })} />
         {current.notices.on && myName(current) && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
         {current.notices.on && (
@@ -82,8 +82,8 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <ul className="rows">
         <li>
           <a className="row" href="/?open=settings:notifications">
-            <span className="row__icon"><SettingsIcon size={21} /></span>
-            <span className="row__text"><span>Notifications</span><span className="row__detail">In Proairetos</span></span>
+            <span className="row__icon"><SettingsIcon size={22} /></span>
+            <span className="row__text"><span>Notifications and appearance</span><span className="row__detail">In Proairetos</span></span>
           </a>
         </li>
       </ul>

@@ -16,7 +16,11 @@ import '../askesis/styles/askesis.css';
 import './styles/oikonomia.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
-import { applyAppearance } from '../app/appearance';
+import { applyAppearance, withLamplight } from '../app/appearance';
+import { applyLamplight } from '../app/lamplight';
+
+// Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
+withLamplight((look, light) => applyLamplight(look, light, 'oikonomia'));
 import { startLaunchFiles } from '../app/family/launchFiles';
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
@@ -24,12 +28,7 @@ startLaunchFiles();
 
 document.documentElement.classList.add('oikonomia');
 
-function appearance() {
-  applyAppearance();
-  const theme = document.documentElement.dataset.theme;
-  const light = theme === 'light' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#f2eee6' : '#0d1110');
-}
+const appearance = () => applyAppearance();
 
 appearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', appearance);

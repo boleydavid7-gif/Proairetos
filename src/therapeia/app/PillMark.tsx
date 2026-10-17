@@ -1,11 +1,11 @@
 import { PILL_COLORS, type PillLook } from '../core/medicines';
 
-const colour = (key?: string) => (key && PILL_COLORS[key]) || '#c8d0dc';
+const color = (key?: string) => (key && PILL_COLORS[key]) || '#c8d0dc';
 
-/** A small drawing of how a medicine looks: its shape in its colour(s). */
+/** A small drawing of how a medicine looks: its shape in its color(s). */
 export default function PillMark({ look, size = 28 }: { look?: PillLook; size?: number }) {
-  const a = colour(look?.color);
-  const b = colour(look?.color2 ?? look?.color);
+  const a = color(look?.color);
+  const b = color(look?.color2 ?? look?.color);
   const edge = 'rgb(0 0 0 / 0.28)';
   const shape = look?.shape ?? 'round';
   return (

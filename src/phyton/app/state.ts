@@ -4,7 +4,7 @@ import { createSharedLists, joinProof, sharingAvailable, type SharedListRef } fr
 import { notifications } from '../../app/notify/notifications';
 import { displayName } from '../../data/storage/preferences';
 import { defaultPlantNotices, type PlantNoticeChoices } from '../core/notices';
-import type { Hemisphere, Plant } from '../core/plants';
+import { fitForSharing, type Hemisphere, type Plant } from '../core/plants';
 import type { Away } from '../core/outdoors';
 
 /** `rain` is the switch for weather outside (rain, frost, hot days); the name stays for settings already kept. */
@@ -27,7 +27,7 @@ function guessHemisphere(): Hemisphere {
 
 export const settings = stored<PhytonSettings>('phyton:settings', () => ({ started: false, me: '', notices: { ...defaultPlantNotices }, hemisphere: guessHemisphere(), rain: false }));
 
-/** Plants kept on this phone (and in the person's own account) while there is no shared home. */
+/** Plants kept on this device (and in the person's own account) while there is no shared home. */
 export const ownPlants = collection<Plant>('phyton:plant:');
 
 /** A shared home: every plant sealed with the home's key; everyone with the invite sees and waters them. */
@@ -61,7 +61,7 @@ export function useHome(): SharedListRef | undefined {
   return useSyncExternalStore(homes.subscribeShared, () => snapshot().value);
 }
 
-/** Every plant to show: the shared home's while there is one, else this phone's own. */
+/** Every plant to show: the shared home's while there is one, else this device's own. */
 export function usePlants(): Plant[] {
   const own = ownPlants.use();
   const shared = useSyncExternalStore(homes.subscribeShared, () => snapshot());
@@ -87,7 +87,7 @@ export function allPlants(): Plant[] {
 
 export function putPlant(plant: Plant): void {
   const list = home();
-  if (list) homes.changeItem(list, plant.id, plant);
+  if (list) homes.changeItem(list, plant.id, fitForSharing(plant));
   else ownPlants.put(plant);
   notifications.refreshSoon();
 }

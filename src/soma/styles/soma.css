@@ -1,4 +1,4 @@
-/* Soma: the family's look (askesis.css) in warmer colours: cream and olive in
+/* Soma: the family's look (askesis.css) in warmer colors: cream and olive in
    light, deep forest in dark. Follows Proairetos's Appearance setting. */
 
 :root.soma {
@@ -71,48 +71,51 @@
   color: #f1ece2;
 }
 
-/* The phone dock uses one moving selection mark, so the active place is easy
-   to find without shifting the dock itself. */
-.soma .tab-bar {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  justify-content: initial;
-  position: fixed;
-  isolation: isolate;
-}
+/* Phones only: on computers the shared rail (end of askesis.css) takes over. */
+@media (max-width: 61.99rem) {
+  /* The phone dock uses one moving selection mark, so the active place is easy
+     to find without shifting the dock itself. */
+  .soma .tab-bar {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    justify-content: initial;
+    position: fixed;
+    isolation: isolate;
+  }
 
-.soma .tab-bar::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: -1px;
-  left: calc(8.3333% - 0.9rem);
-  width: 1.8rem;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--mint);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 45%, transparent);
-  opacity: 0;
-  transition: left 340ms var(--ease-spring), opacity 180ms ease;
-}
+  .soma .tab-bar::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -1px;
+    left: calc(8.3333% - 0.9rem);
+    width: 1.8rem;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--mint);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 45%, transparent);
+    opacity: 0;
+    transition: left 340ms var(--ease-spring), opacity 180ms ease;
+  }
 
-.soma .tab-bar:has(> :nth-child(1)[aria-current='page'])::before { left: calc(8.3333% - 0.9rem); opacity: 1; }
-.soma .tab-bar:has(> :nth-child(2)[aria-current='page'])::before { left: calc(25% - 0.9rem); opacity: 1; }
-.soma .tab-bar:has(> :nth-child(3)[aria-current='page'])::before { left: calc(41.6667% - 0.9rem); opacity: 1; }
-.soma .tab-bar:has(> :nth-child(4)[aria-current='page'])::before { left: calc(58.3333% - 0.9rem); opacity: 1; }
-.soma .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { left: calc(75% - 0.9rem); opacity: 1; }
+  .soma .tab-bar:has(> :nth-child(1)[aria-current='page'])::before { left: calc(8.3333% - 0.9rem); opacity: 1; }
+  .soma .tab-bar:has(> :nth-child(2)[aria-current='page'])::before { left: calc(25% - 0.9rem); opacity: 1; }
+  .soma .tab-bar:has(> :nth-child(3)[aria-current='page'])::before { left: calc(41.6667% - 0.9rem); opacity: 1; }
+  .soma .tab-bar:has(> :nth-child(4)[aria-current='page'])::before { left: calc(58.3333% - 0.9rem); opacity: 1; }
+  .soma .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { left: calc(75% - 0.9rem); opacity: 1; }
 
-.soma .tab-bar__item {
-  min-width: 0;
-  width: 100%;
-}
+  .soma .tab-bar__item {
+    min-width: 0;
+    width: 100%;
+  }
 
-.soma .tab-bar__item svg {
-  transition: translate 280ms var(--ease-spring);
-}
+  .soma .tab-bar__item svg {
+    transition: translate 280ms var(--ease-spring);
+  }
 
-.soma .tab-bar__item[aria-current='page'] svg {
-  translate: 0 -2px;
+  .soma .tab-bar__item[aria-current='page'] svg {
+    translate: 0 -2px;
+  }
 }
 
 .soma .soma-search:focus-within {
@@ -345,7 +348,7 @@
 
 .recipe-hero {
   position: relative;
-  margin: calc(-20px - env(safe-area-inset-top, 0px)) -20px 0;
+  margin: calc(-20px - var(--ll-safe-top)) -20px 0;
 }
 
 .recipe-hero img {
@@ -357,7 +360,7 @@
 
 .recipe-hero__bar {
   position: absolute;
-  top: calc(12px + env(safe-area-inset-top, 0px));
+  top: calc(12px + var(--ll-safe-top));
   left: 12px;
   right: 12px;
   display: flex;
@@ -378,7 +381,6 @@
   background: rgba(20, 26, 22, 0.55);
   color: #f6f1e7;
   font: inherit;
-  backdrop-filter: blur(6px);
 }
 
 .round-button[aria-pressed='true'] {
@@ -689,7 +691,7 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: calc(14px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: calc(14px + var(--ll-safe-top)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
 }
 
@@ -980,7 +982,7 @@
   margin: 4px 0 8px;
 }
 
-/* ---------- A recipe without a photo: its colour and first letter ---------- */
+/* ---------- A recipe without a photo: its color and first letter ---------- */
 
 .dish-card--sage { --dish: #6f9a78; }
 .dish-card--olive { --dish: #8f9548; }
@@ -1039,7 +1041,7 @@
 
 /* Without a photo the top of the recipe is a soft band, with the buttons on it. */
 .recipe-hero--plain {
-  height: calc(76px + env(safe-area-inset-top, 0px));
+  height: calc(76px + var(--ll-safe-top));
   border: 0;
   background: radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--dish) 30%, transparent), transparent 75%);
 }
@@ -1224,7 +1226,7 @@
   cursor: pointer;
 }
 
-/* Nutri-Score: the published colours, A to E (shown as F here). Dark letters on the light ones so each passes contrast. */
+/* Nutri-Score: the published colors, A to E (shown as F here). Dark letters on the light ones so each passes contrast. */
 .nutri--A { background: #038141; color: #ffffff; }
 .nutri--B { background: #85bb2f; color: #14210a; }
 .nutri--C { background: #fecb02; color: #2a2100; }
@@ -1285,7 +1287,7 @@ button.nutri-badge {
 
 .nutri-badge__label {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -1660,4 +1662,68 @@ button.nutri-badge {
   margin: 8px 0;
   padding-left: 1.3rem;
   line-height: 1.5;
+}
+
+/* Use soon: kitchen things with a day to use them by, and recipes that use them. */
+.use-soon {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.use-soon__things {
+  margin: 0;
+}
+.use-soon__recipe {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.kitchen-row {
+  flex-wrap: wrap;
+}
+.kitchen-row__main {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 0;
+}
+.kitchen-row__when {
+  flex-basis: 100%;
+  padding-bottom: 8px;
+}
+.kitchen-row__soon {
+  color: var(--accent, inherit);
+}
+.kitchen-source {
+  margin-top: 12px;
+}
+
+/* The week page steps a week at a time, up to three ahead. */
+.week-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.week-steps .title {
+  margin: 0;
+  text-align: center;
+}
+.week-repeat {
+  align-self: flex-start;
+  min-height: 44px;
 }

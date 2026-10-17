@@ -5,7 +5,7 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  padding: max(24px, var(--ll-safe-top)) 16px max(24px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   color: var(--ink);
   background:

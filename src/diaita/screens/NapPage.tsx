@@ -7,7 +7,7 @@ import { SOURCES } from '../core/rhythm';
 
 /*
  * A nap timer: a length, then a bell on the audio clock so it rings with the screen locked. Lengths come with what
- * the research found; the person chooses. The end is kept on this phone, so leaving and coming back keeps the timer.
+ * the research found; the person chooses. The end is kept on this device, so leaving and coming back keeps the timer.
  */
 const LENGTHS = [
   { minutes: 10, line: 'Short: alert soon after waking.', source: 'short-nap' as const },

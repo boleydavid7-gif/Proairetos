@@ -20,7 +20,7 @@
 
 @keyframes mic-breathe {
   50% {
-    box-shadow: 0 0 0 6px rgba(201, 162, 116, 0.12);
+    box-shadow: 0 0 0 6px rgba(var(--color-accent-rgb, 201, 162, 116), 0.12);
   }
 }
 
@@ -191,7 +191,7 @@
   width: 100%;
   max-width: 30rem;
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + var(--space-6)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-6));
+  padding: calc(var(--ll-safe-top) + var(--space-6)) var(--space-5) calc(env(safe-area-inset-bottom) + var(--space-6));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);

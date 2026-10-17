@@ -57,3 +57,22 @@ describe('your own storage', () => {
     expect((await handleStorageRequest(post({ provider: 'dropbox', refresh: 'R' }), env, fake)).status).toBe(401);
   });
 });
+
+describe("Theoria's library folder sign-in", () => {
+  it('uses the Dropbox library app and the read scope for OneDrive when asked', async () => {
+    resetRateLimit();
+    const sent: URLSearchParams[] = [];
+    const fake = (async (_url: string, init: RequestInit) => {
+      sent.push(init.body as URLSearchParams);
+      return new Response(JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_in: 3600 }));
+    }) as unknown as typeof fetch;
+    const withLibrary = { ...env, ONEDRIVE_CLIENT_SECRET: 'o-secret', DROPBOX_LIBRARY_APP_KEY: 'd-library' };
+    await handleStorageRequest(post({ provider: 'dropbox', code: 'C', verifier: 'V', scope: 'library' }), withLibrary, fake);
+    await handleStorageRequest(post({ provider: 'dropbox', code: 'C', verifier: 'V' }), withLibrary, fake);
+    await handleStorageRequest(post({ provider: 'onedrive', refresh: 'R', scope: 'library' }), withLibrary, fake);
+    expect(sent.map((form) => form.get('client_id'))).toEqual(['d-library', 'd-key', 'o-id']);
+    expect(sent[2].get('scope')).toBe('Files.Read offline_access');
+    const listed = await (await handleStorageRequest(new Request('https://proairetos.com/api/storage'), withLibrary)).json();
+    expect(listed.library).toEqual({ dropbox: 'd-library' });
+  });
+});

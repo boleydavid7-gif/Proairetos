@@ -55,7 +55,7 @@ function Nudge({ item }: { item: LifeItem }) {
           <button
             type="button"
             className="chip"
-            onClick={async () => offerUndo(`Let go: ${item.title}`, (await lifeService.setStatus(item.id, 'LET_GO')).undo)}
+            onClick={async () => offerUndo(`“${item.title}” let go`, (await lifeService.setStatus(item.id, 'LET_GO')).undo)}
           >
             Let go
           </button>

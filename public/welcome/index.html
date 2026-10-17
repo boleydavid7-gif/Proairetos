@@ -6,86 +6,94 @@
     <title>Proairetos and its family</title>
     <meta name="description" content="Fourteen apps that work together: planning and reflection, running, recipes, bills, water, study, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks." />
     <meta property="og:title" content="Proairetos and its family" />
-    <meta property="og:description" content="Fourteen apps that work together. Private, with no scores or streaks." />
-    <meta property="og:image" content="/screenshots/wide-1.webp" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:description" content="Fourteen apps that work together: planning and reflection, running, recipes, bills, water, study, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks." />
+    <meta property="og:image" content="https://proairetos.com/social/proairetos.png" />
+    <meta property="og:url" content="https://proairetos.com/welcome/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://proairetos.com/welcome/" />
+    <link rel="icon" href="/favicon.svg" />
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0a0c0e;
-        --card: #13171a;
-        --text: #f2ece2;
-        --muted: #b3ada3;
-        --accent: #c9a274;
-        --on-accent: #1a140d;
+        --bg: #0a0c0e; --card: #13171a; --text: #f2ece2; --muted: #b3ada3; --accent: #c9a274; --on-accent: #1a140d;
         --border: rgba(255, 255, 255, 0.1);
       }
       @media (prefers-color-scheme: light) {
         :root {
           color-scheme: light;
-          --bg: #f6efe4;
-          --card: #fffaf2;
-          --text: #2b251f;
-          --muted: #5f5448;
-          --accent: #8a6a46;
-          --on-accent: #fffaf2;
+          --bg: #f6efe4; --card: #fffaf2; --text: #2b251f; --muted: #5f5448; --accent: #8a6a46; --on-accent: #fffaf2;
           --border: rgba(43, 37, 31, 0.14);
         }
       }
       * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font: 17px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
-      }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif; }
       a { color: inherit; }
       .wrap { max-width: 64rem; margin: 0 auto; padding: 0 16px; }
-      header { padding: 4.5rem 0 2.5rem; text-align: center; }
-      header img { width: 64px; height: 64px; border-radius: 16px; }
       h1, h2, h3 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; line-height: 1.15; margin: 0; }
-      h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); margin-top: 1rem; }
-      .lead { max-width: 34rem; margin: 1rem auto 0; color: var(--muted); font-size: 1.1rem; }
-      .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 1.8rem; }
+      h2 { font-size: 2rem; margin-bottom: 1.2rem; }
+      .lead { color: var(--muted); font-size: 1.1rem; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1.8rem; }
       .button {
         display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px;
-        border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid var(--border);
+        border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid var(--border); font: inherit; font-weight: 600;
+        background: transparent; color: inherit; cursor: pointer;
       }
       .button--main { background: var(--accent); color: var(--on-accent); border-color: transparent; }
-      section { padding: 2.5rem 0; border-top: 1px solid var(--border); }
-      h2 { font-size: 2rem; margin-bottom: 1.2rem; }
-      .apps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
-      .app {
-        display: grid; grid-template-rows: auto 1fr auto; gap: 12px; padding: 18px; border-radius: 20px;
-        background: var(--card); border: 1px solid var(--border);
+      section.wrap { padding: 2.5rem 16px; border-top: 1px solid var(--border); }
+      .notes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+      .notes p { margin: 0.3rem 0 0; color: var(--muted); }
+      .notes h3 { font-size: 1.3rem; }
+      .waitlist { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 24px; }
+      .waitlist h2 { margin-bottom: 0.4rem; }
+      .waitlist > p { margin: 0 0 1.2rem; color: var(--muted); }
+      .waitlist__row { display: flex; flex-wrap: wrap; gap: 12px; }
+      .waitlist input[type='email'] {
+        flex: 1 1 16rem; min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border);
+        background: var(--bg); color: var(--text); font: inherit;
       }
+      .waitlist fieldset { border: 0; padding: 0; margin: 1.2rem 0 0; }
+      .waitlist legend { font-weight: 600; margin-bottom: 0.6rem; padding: 0; }
+      .picks { display: flex; flex-wrap: wrap; gap: 8px; }
+      .picks label {
+        display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px;
+        border: 1px solid var(--border); cursor: pointer;
+      }
+      .picks input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+      .picks label:has(input:checked) { border-color: var(--accent); }
+      .waitlist small { display: block; margin-top: 1rem; color: var(--muted); font-size: 0.9rem; }
+      .hidden-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+      footer { padding: 2rem 0 3rem; color: var(--muted); font-size: 0.95rem; border-top: 1px solid var(--border); }
+      footer a { margin-right: 18px; display: inline-block; min-height: 44px; line-height: 44px; }
+      header { padding: 4.5rem 16px 2.5rem; text-align: center; }
+      header img { width: 64px; height: 64px; border-radius: 16px; }
+      header .lead { max-width: 34rem; margin: 1rem auto 0; }
+      header .actions { justify-content: center; }
+      h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); margin-top: 1rem; }
+      .apps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+      .app { display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px; padding: 18px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); }
       .app__head { display: flex; align-items: center; gap: 12px; }
       .app__head img { width: 44px; height: 44px; border-radius: 12px; }
       .app__name { font-size: 1.35rem; }
       .app p { margin: 0; color: var(--muted); }
-      .app__shot { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; object-position: top; border-radius: 14px; border: 1px solid var(--border); max-height: 22rem; }
-      .app .button { width: 100%; }
+      .app__shot { width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: cover; object-position: top; border-radius: 14px; border: 1px solid var(--border); max-height: 22rem; }
+      .app__actions { display: flex; gap: 8px; align-self: end; }
+      .app__actions .button { flex: 1; }
       details { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
       summary { cursor: pointer; padding: 16px 18px; font-weight: 600; min-height: 48px; }
       details ol { margin: 0; padding: 0 18px 16px 40px; color: var(--muted); }
       details li { margin: 6px 0; }
-      .notes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
-      .notes p { margin: 0.3rem 0 0; color: var(--muted); }
-      .notes h3 { font-size: 1.3rem; }
-      footer { padding: 2rem 0 3rem; color: var(--muted); font-size: 0.95rem; border-top: 1px solid var(--border); }
-      footer a { margin-right: 18px; }
     </style>
   </head>
   <body>
     <header class="wrap">
       <img src="/icons/icon-192.png" alt="" />
       <h1>Proairetos and its family</h1>
-      <p class="lead">
-        Fourteen apps that work together: planning and reflection, running, recipes, bills, water, study, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks.
-      </p>
+      <p class="lead">Fourteen apps that work together: planning and reflection, running, recipes, bills, water, study, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks.</p>
       <div class="actions">
         <a class="button button--main" href="/">Open Proairetos</a>
-        <a class="button" href="#install">Add to your Home Screen</a>
+        <a class="button" href="#waitlist">Hear when it opens</a>
       </div>
     </header>
 
@@ -94,86 +102,165 @@
         <h2 id="apps">The apps</h2>
         <ul class="apps">
           <li class="app">
-            <div class="app__head"><img src="/icons/icon-192.png" alt="" /><h3 class="app__name">Proairetos</h3></div>
+            <div class="app__head"><img src="/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Proairetos</h3></div>
             <p>To-dos, your calendar and a journal. Works with any schedule, including night shifts.</p>
-            <img class="app__shot" src="/screenshots/narrow-1.webp" alt="Proairetos Today on a phone" />
-            <a class="button button--main" href="/">Open</a>
+            <img class="app__shot" src="/screenshots/narrow-1.webp" alt="Proairetos on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button button--main" href="/">Open</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/askesis/icons/icon-192.png" alt="" /><h3 class="app__name">Askesis</h3></div>
+            <div class="app__head"><img src="/askesis/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Askesis</h3></div>
             <p>A running plan from your first walk-run to the goal you set.</p>
-            <img class="app__shot" src="/askesis/screenshots/narrow-1.webp" alt="Askesis on a phone" />
-            <a class="button" href="/askesis/">Open</a>
+            <img class="app__shot" src="/askesis/screenshots/narrow-1.webp" alt="Askesis on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/askesis/">Open</a>
+              <a class="button" href="/welcome/askesis/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/soma/icons/icon-192.png" alt="" /><h3 class="app__name">Soma</h3></div>
+            <div class="app__head"><img src="/soma/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Soma</h3></div>
             <p>Recipes, a grocery list sorted by aisle, and each recipe’s Nutri-Score.</p>
-            <img class="app__shot" src="/soma/screenshots/narrow-1.webp" alt="Soma on a phone" />
-            <a class="button" href="/soma/">Open</a>
+            <img class="app__shot" src="/soma/screenshots/narrow-1.webp" alt="Soma on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/soma/">Open</a>
+              <a class="button" href="/welcome/soma/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/oikonomia/icons/icon-192.png" alt="" /><h3 class="app__name">Oikonomia</h3></div>
+            <div class="app__head"><img src="/oikonomia/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Oikonomia</h3></div>
             <p>Bills and subscriptions, with reminders before they’re due.</p>
-            <img class="app__shot" src="/oikonomia/screenshots/narrow-1.webp" alt="Oikonomia on a phone" />
-            <a class="button" href="/oikonomia/">Open</a>
+            <img class="app__shot" src="/oikonomia/screenshots/narrow-1.webp" alt="Oikonomia on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/oikonomia/">Open</a>
+              <a class="button" href="/welcome/oikonomia/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/hydros/icons/icon-192.png" alt="" /><h3 class="app__name">Hydros</h3></div>
+            <div class="app__head"><img src="/hydros/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Hydros</h3></div>
             <p>Log a glass in one tap, with reminders during your waking hours or work.</p>
-            <img class="app__shot" src="/hydros/screenshots/narrow-1.webp" alt="Hydros on a phone" />
-            <a class="button" href="/hydros/">Open</a>
+            <img class="app__shot" src="/hydros/screenshots/narrow-1.webp" alt="Hydros on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/hydros/">Open</a>
+              <a class="button" href="/welcome/hydros/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/praxis/icons/icon-192.png" alt="" /><h3 class="app__name">Praxis</h3></div>
+            <div class="app__head"><img src="/praxis/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Praxis</h3></div>
             <p>Timed study blocks, flashcards and a record of your study time.</p>
-            <img class="app__shot" src="/praxis/screenshots/narrow-1.webp" alt="Praxis on a phone" />
-            <a class="button" href="/praxis/">Open</a>
+            <img class="app__shot" src="/praxis/screenshots/narrow-1.webp" alt="Praxis on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/praxis/">Open</a>
+              <a class="button" href="/welcome/praxis/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/theoria/icons/icon-192.png" alt="" /><h3 class="app__name">Theoria</h3></div>
+            <div class="app__head"><img src="/theoria/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Theoria</h3></div>
             <p>Read your books and PDFs and keep your highlights and notes.</p>
-            <img class="app__shot" src="/theoria/screenshots/narrow-1.webp" alt="Theoria on a phone" />
-            <a class="button" href="/theoria/">Open</a>
+            <img class="app__shot" src="/theoria/screenshots/narrow-1.webp" alt="Theoria on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/theoria/">Open</a>
+              <a class="button" href="/welcome/theoria/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/diaita/icons/icon-192.png" alt="" /><h3 class="app__name">Diaita</h3></div>
+            <div class="app__head"><img src="/diaita/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Diaita</h3></div>
             <p>Sleep, naps, light, caffeine and meals planned around your schedule.</p>
-            <img class="app__shot" src="/diaita/screenshots/narrow-1.webp" alt="Diaita on a phone" />
-            <a class="button" href="/diaita/">Open</a>
+            <img class="app__shot" src="/diaita/screenshots/narrow-1.webp" alt="Diaita on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/diaita/">Open</a>
+              <a class="button" href="/welcome/diaita/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/philia/icons/icon-192.png" alt="" /><h3 class="app__name">Philia</h3></div>
+            <div class="app__head"><img src="/philia/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Philia</h3></div>
             <p>Birthdays, gift ideas and times together with the people in your life.</p>
-            <img class="app__shot" src="/philia/screenshots/narrow-1.webp" alt="Philia on a phone" />
-            <a class="button" href="/philia/">Open</a>
+            <img class="app__shot" src="/philia/screenshots/narrow-1.webp" alt="Philia on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/philia/">Open</a>
+              <a class="button" href="/welcome/philia/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/ergon/icons/icon-192.png" alt="" /><h3 class="app__name">Ergon</h3></div>
-            <p>Household chores that come round, shared with the people you live with.</p>
-            <img class="app__shot" src="/ergon/screenshots/narrow-1.webp" alt="Ergon on a phone" />
-            <a class="button" href="/ergon/">Open</a>
+            <div class="app__head"><img src="/ergon/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Ergon</h3></div>
+            <p>Household chores that come around, shared with the people you live with.</p>
+            <img class="app__shot" src="/ergon/screenshots/narrow-1.webp" alt="Ergon on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/ergon/">Open</a>
+              <a class="button" href="/welcome/ergon/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/therapeia/icons/icon-192.png" alt="" /><h3 class="app__name">Therapeia</h3></div>
+            <div class="app__head"><img src="/therapeia/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Therapeia</h3></div>
             <p>Medicines at the times you set or around your sleep, refills, and visits with your questions.</p>
-            <a class="button" href="/therapeia/">Open</a>
+            <img class="app__shot" src="/therapeia/screenshots/narrow-1.webp" alt="Therapeia on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/therapeia/">Open</a>
+              <a class="button" href="/welcome/therapeia/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/dynamis/icons/icon-192.png" alt="" /><h3 class="app__name">Dynamis</h3></div>
+            <div class="app__head"><img src="/dynamis/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Dynamis</h3></div>
             <p>Strength and mobility sessions built from the research, with every set logged.</p>
-            <a class="button" href="/dynamis/">Open</a>
+            <img class="app__shot" src="/dynamis/screenshots/narrow-1.webp" alt="Dynamis on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/dynamis/">Open</a>
+              <a class="button" href="/welcome/dynamis/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/ktema/icons/icon-192.png" alt="" /><h3 class="app__name">Ktema</h3></div>
+            <div class="app__head"><img src="/ktema/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Ktema</h3></div>
             <p>Warranties, models and manuals, and the upkeep your home and car need.</p>
-            <a class="button" href="/ktema/">Open</a>
+            <img class="app__shot" src="/ktema/screenshots/narrow-1.webp" alt="Ktema on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/ktema/">Open</a>
+              <a class="button" href="/welcome/ktema/">More</a>
+            </div>
           </li>
           <li class="app">
-            <div class="app__head"><img src="/phyton/icons/icon-192.png" alt="" /><h3 class="app__name">Phyton</h3></div>
-            <p>Your plants, each checked when its soil is likely dry, from its type and your own waterings. Identify a plant from a photo.</p>
-            <a class="button" href="/phyton/">Open</a>
+            <div class="app__head"><img src="/phyton/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Phyton</h3></div>
+            <p>Your plants, each checked when its soil is likely dry. Identify a plant from a photo.</p>
+            <img class="app__shot" src="/phyton/screenshots/narrow-1.webp" alt="Phyton on a phone" width="300" height="533" />
+            <div class="app__actions">
+              <a class="button" href="/phyton/">Open</a>
+              <a class="button" href="/welcome/phyton/">More</a>
+            </div>
           </li>
         </ul>
+      </section>
+
+      <section class="wrap" id="waitlist" aria-labelledby="waitlist-title">
+        <form class="waitlist" method="post" action="/api/waitlist">
+          <h2 id="waitlist-title">Hear when it opens</h2>
+          <p>The family is in early use. Leave your email to hear when it opens, and be first to try what comes next.</p>
+          <input type="hidden" name="source" value="welcome" />
+          <div class="hidden-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <div class="waitlist__row">
+            <label class="hidden-field" for="waitlist-email">Email</label>
+            <input id="waitlist-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" />
+            <button class="button button--main" type="submit">Keep me posted</button>
+          </div>
+          <fieldset>
+            <legend>Apps you’re curious about (optional)</legend>
+            <div class="picks">
+              <label><input type="checkbox" name="apps" value="proairetos" /> Proairetos</label>
+              <label><input type="checkbox" name="apps" value="askesis" /> Askesis</label>
+              <label><input type="checkbox" name="apps" value="soma" /> Soma</label>
+              <label><input type="checkbox" name="apps" value="oikonomia" /> Oikonomia</label>
+              <label><input type="checkbox" name="apps" value="hydros" /> Hydros</label>
+              <label><input type="checkbox" name="apps" value="praxis" /> Praxis</label>
+              <label><input type="checkbox" name="apps" value="theoria" /> Theoria</label>
+              <label><input type="checkbox" name="apps" value="diaita" /> Diaita</label>
+              <label><input type="checkbox" name="apps" value="philia" /> Philia</label>
+              <label><input type="checkbox" name="apps" value="ergon" /> Ergon</label>
+              <label><input type="checkbox" name="apps" value="therapeia" /> Therapeia</label>
+              <label><input type="checkbox" name="apps" value="dynamis" /> Dynamis</label>
+              <label><input type="checkbox" name="apps" value="ktema" /> Ktema</label>
+              <label><input type="checkbox" name="apps" value="phyton" /> Phyton</label>
+            </div>
+          </fieldset>
+          <small>Only used to tell you about Proairetos and its apps. <a href="/privacy.html#waitlist">Privacy</a></small>
+        </form>
       </section>
 
       <section class="wrap" id="install" aria-labelledby="install-title">
@@ -214,7 +301,7 @@
           </div>
           <div>
             <h3>Encrypted if you sync</h3>
-            <p>With sync on, your data is encrypted on your phone with a passphrase only you know. The server can’t read it.</p>
+            <p>With sync on, your data is encrypted on your phone with a key only you hold. The server can’t read it.</p>
           </div>
           <div>
             <h3>No scores</h3>
@@ -225,7 +312,9 @@
     </main>
 
     <footer class="wrap">
+      <a href="/welcome/">All the apps</a>
       <a href="/">Proairetos</a>
+      <a href="/lamplight/">Lamplight</a>
       <a href="/privacy.html">Privacy</a>
     </footer>
   </body>

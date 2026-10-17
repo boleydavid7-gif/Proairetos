@@ -13,7 +13,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
   const stands = new Map((bills ?? []).map((bill) => [bill.id, standing(bill, today)]));
   const byDate = (a: Bill, b: Bill) => (stands.get(a.id)?.date ?? '').localeCompare(stands.get(b.id)?.date ?? '');
   const ordered = (bills ?? []).filter((bill) => !stands.get(bill.id)?.settled).sort(byDate);
-  // Paid bills step out of the list until their next date comes round.
+  // Paid bills step out of the list until their next date comes around.
   const settled = (bills ?? []).filter((bill) => stands.get(bill.id)?.settled).sort(byDate);
 
   return (
@@ -28,7 +28,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       {!bills ? (
         <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /><div className="skeleton" /></div>
       ) : ordered.length === 0 && settled.length === 0 ? (
-        <Empty icon={<BillsIcon size={26} />} title="No bills yet" line="Bills, subscriptions and anything that comes round, with their dates.">
+        <Empty icon={<BillsIcon size={28} />} title="No bills yet" line="Bills, subscriptions and anything that comes around, with their dates.">
           <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>
         </Empty>
       ) : (

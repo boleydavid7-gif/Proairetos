@@ -32,7 +32,7 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
   return (
     <div className="page dynamis-page">
       <div className="page-top"><h1 className="title">Log</h1></div>
-      {sorted.length === 0 && stretched.length === 0 && <Empty icon={<HistoryIcon size={26} />} title="No sessions yet" line="Saved sessions, with every set." />}
+      {sorted.length === 0 && stretched.length === 0 && <Empty icon={<HistoryIcon size={28} />} title="No sessions yet" line="Saved sessions, with every set." />}
       {sorted.length > 0 && (
         <ul className="chore-list">
           {sorted.slice(0, 40).map((workout) => (
@@ -73,9 +73,11 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
               if (!facts.first || !facts.latest) return null;
               return (
                 <li key={id} className="note-line dynamis-then">
-                  <span>{facts.latest.log.name}</span>
-                  <small className="muted">{dayText(facts.first.date)}: {setsText(facts.first.log, unit)}</small>
-                  {facts.times > 1 && <small className="muted">{dayText(facts.latest.date)}: {setsText(facts.latest.log, unit)}</small>}
+                  <button type="button" className="dynamis-then__open" onClick={() => nav.go({ name: 'exercise', id })}>
+                    <span>{facts.latest.log.name}</span>
+                    <small className="muted">{dayText(facts.first.date)}: {setsText(facts.first.log, unit)}</small>
+                    {facts.times > 1 && <small className="muted">{dayText(facts.latest.date)}: {setsText(facts.latest.log, unit)}</small>}
+                  </button>
                 </li>
               );
             })}

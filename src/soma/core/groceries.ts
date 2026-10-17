@@ -21,6 +21,8 @@ export type GroceryItem = {
   place?: 'kitchen';
   /** When it came home (YYYY-MM-DD). */
   boughtAt?: string;
+  /** In the kitchen: the day the person means to use it by (YYYY-MM-DD), if they set one. */
+  useBy?: string;
 };
 
 /** Still to buy, as opposed to already in the kitchen. */

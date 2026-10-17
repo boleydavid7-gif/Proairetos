@@ -4,6 +4,7 @@ import { compassService, decisionService, lifeService, scheduleService } from '.
 import { observePeriod, type ObservationKind } from '../../core/reflections/observations';
 import { insightRange, type InsightPeriod } from '../../core/reflections/insights';
 import { hiddenObservationKinds, setHiddenObservationKinds } from '../../data/storage/preferences';
+import { Sym } from '../../lamplight/icons';
 
 async function load(period: InsightPeriod) {
   const now = new Date();
@@ -60,7 +61,7 @@ export default function Observations({ period }: { period: InsightPeriod }) {
                 aria-label={`Hide "${observation.text}"`}
                 onClick={() => hide(observation.kind)}
               >
-                ×
+                <Sym name="close" />
               </button>
             </li>
           ))}

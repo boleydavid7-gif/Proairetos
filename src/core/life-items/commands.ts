@@ -186,7 +186,7 @@ export function setImportant(ctx: DomainContext, item: LifeItem, important: bool
   return { item: touch(item, ctx.now().toISOString(), { important }), events: [] };
 }
 
-/** Where and what colour: the person's own labels for the days-ahead view. Not logged as history. */
+/** Where and what color: the person's own labels for the days-ahead view. Not logged as history. */
 export function setLook(ctx: DomainContext, item: LifeItem, look: { location?: string; color?: TagColor | null }): ItemChange {
   const next: LifeItem = { ...item };
   if ('location' in look) {
@@ -383,9 +383,8 @@ export function skipRoutine(ctx: DomainContext, item: LifeItem): ItemChange {
   return { item: touch(item, ctx.now().toISOString(), movedTo(item, nextOccurrence(item.repeat, item.scheduledAt))), events: [] };
 }
 
-export const MAX_TODAY_PICKS = 3;
 
-/** Marks an item as one of the person's up to three for a day, or clears it. */
+/** Puts an item on the person's to-do for a day, or takes it off. */
 export function setPickedFor(ctx: DomainContext, item: LifeItem, date: string | undefined): ItemChange {
   if (item.pickedFor === date) return { item, events: [] };
   const timestamp = ctx.now().toISOString();

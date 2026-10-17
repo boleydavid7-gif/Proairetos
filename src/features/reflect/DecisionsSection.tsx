@@ -24,7 +24,7 @@ export default function DecisionsSection() {
         </button>
       </div>
       {decisions.length === 0 && (
-        <p className="empty-note">Choices you write down will be here, so you can look back on how they went.</p>
+        <p className="empty-note">Decisions you write down show here, to look back on later.</p>
       )}
       {decisions.slice(0, SHOWN).map((decision) => (
         <button key={decision.id} type="button" className="list-card list-card--button" onClick={() => openDecision(decision.id)}>

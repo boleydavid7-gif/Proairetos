@@ -1,6 +1,6 @@
 /**
  * Which part of the shop an ingredient is usually in, from a word list kept
- * on the phone. The first matching phrase wins, so "chicken stock" is found
+ * on the device. The first matching phrase wins, so "chicken stock" is found
  * before "chicken" and "bell pepper" before "pepper". The person can move
  * any item, and the app remembers their choice (`AisleChoices`).
  */

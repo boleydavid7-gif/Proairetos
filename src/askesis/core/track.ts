@@ -7,7 +7,7 @@ export type Fix = { lat: number; lon: number; at: number; accuracy?: number };
 const EARTH = 6_371_000;
 const rad = (degrees: number) => (degrees * Math.PI) / 180;
 
-/** Metres between two points on the earth (haversine). */
+/** Meters between two points on the earth (haversine). */
 export function between(a: Pick<Fix, 'lat' | 'lon'>, b: Pick<Fix, 'lat' | 'lon'>): number {
   const dLat = rad(b.lat - a.lat);
   const dLon = rad(b.lon - a.lon);
@@ -15,7 +15,7 @@ export function between(a: Pick<Fix, 'lat' | 'lon'>, b: Pick<Fix, 'lat' | 'lon'>
   return 2 * EARTH * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-/** Fixes worse than this are set aside: indoors or under trees a phone can wander tens of metres. */
+/** Fixes worse than this are set aside: indoors or under trees a phone can wander tens of meters. */
 export const ROUGH_FIX = 35;
 /** Faster than this is a jump in the signal, not a runner (about 36 km/h). */
 const TOO_FAST = 10;
