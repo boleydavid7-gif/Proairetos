@@ -42,6 +42,22 @@
   border-radius: var(--ll-radius-pill);
 }
 
+:root :is(.button-main, .button-accent):is(:hover, :focus-visible):not(:disabled) {
+  background-image: linear-gradient(var(--ll-state-hover), var(--ll-state-hover));
+}
+
+:root :is(.button-quiet, .button-danger):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--ll-state-hover);
+}
+
+:root :is(.button-main, .button-accent):active:not(:disabled) {
+  background-image: linear-gradient(var(--ll-state-pressed), var(--ll-state-pressed));
+}
+
+:root :is(.button-quiet, .button-danger):active:not(:disabled) {
+  background: var(--ll-state-pressed);
+}
+
 /* Removing is a plain red word on a quiet pill, never a filled warning. */
 :root .button-danger {
   border: 1px solid var(--ll-hair);
@@ -59,8 +75,16 @@
 :root .chip[aria-pressed='true'],
 :root .chip[aria-checked='true'] {
   border-color: transparent;
-  background: var(--ll-glow);
+  background: var(--ll-state-selected);
   color: var(--ll-lamp);
+}
+
+:root .chip:not([aria-pressed='true']):not([aria-checked='true']):is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+:root .chip:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 /* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
@@ -84,6 +108,11 @@
 /* ---------- Switches: the lamp when on (the deeper one in daylight, so it stands out on a pale card) ---------- */
 :root :is(.switch[aria-checked='true'], .switch--on) {
   background: var(--ll-lamp);
+}
+
+:root .switch:focus-visible {
+  outline: none;
+  box-shadow: var(--ll-focus);
 }
 
 /* ---------- Sheets and menus: brought forward ---------- */

@@ -74,7 +74,16 @@ three bands; Today's foot is three ridges in the same colors with no sun of thei
 - Light: `--ll-light-1` (a card), `-2` (a menu), `-3` (a sheet), `--ll-lamp-light` (the main action).
 - Motion: `--ll-quick` 120, `--ll-calm` 240, `--ll-slow` 420, `--ll-dim` 640 ms; `--ll-ease-out`,
   `--ll-ease-in-out`, `--ll-ease-light`. Zero with reduced motion.
-- Focus: `--ll-focus`, a ring of the lamp.
+- States: `--ll-state-hover` (quiet ink layer), `--ll-state-pressed` (lamp layer), `--ll-state-selected` (the
+  chosen place), `--ll-state-focus` (keyboard ring), `--ll-state-disabled` (quiet resting material), and
+  `--ll-state-dragged` (held or moving item).
+- Focus: `--ll-focus`, a ring made from `--ll-state-focus`.
+
+Every interactive component follows the same contract: hover adds the quiet ink layer, pressing adds the lamp layer,
+selection uses the chosen-place layer, and keyboard focus uses the lamp ring. A disabled control keeps its shape and
+position while its material and content quiet down. Components expose their state through native controls or
+`aria-pressed`, `aria-selected`, `aria-current`, and `aria-checked`; a new component should not invent a second state
+color.
 
 ## Layout
 

@@ -24,7 +24,7 @@
 }
 
 .ll-button--tonal {
-  background: var(--ll-glow);
+  background: var(--ll-state-selected);
   color: var(--ll-lamp);
   box-shadow: none;
 }
@@ -40,6 +40,16 @@
   background: transparent;
   color: var(--ll-remove);
   box-shadow: none;
+}
+
+.ll-button--plain:is(:hover, :focus-visible),
+.ll-button--remove:is(:hover, :focus-visible),
+.ll-button--tonal:is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+.ll-button--tonal:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 .ll-button:disabled {
@@ -148,6 +158,11 @@
   transform: translateX(20px);
 }
 
+.ll-switch:focus-visible {
+  outline: none;
+  box-shadow: var(--ll-focus);
+}
+
 /* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
 .ll-field {
   width: 100%;
@@ -185,8 +200,16 @@
 
 .ll-chip[aria-pressed='true'] {
   border-color: transparent;
-  background: var(--ll-glow);
+  background: var(--ll-state-selected);
   color: var(--ll-lamp);
+}
+
+.ll-chip:not([aria-pressed='true']):is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+.ll-chip:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 /* ---------- The bar: translucent, where you are marked by the lamp ---------- */
@@ -214,8 +237,16 @@
 }
 
 .ll-bar__item[aria-current='page'] {
-  background: var(--ll-glow);
+  background: var(--ll-state-selected);
   color: var(--ll-lamp);
+}
+
+.ll-bar__item:not([aria-current='page']):is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+.ll-bar__item:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 /* ---------- A sheet ---------- */
@@ -316,9 +347,17 @@
 }
 
 .ll-menu__item:is(:hover, :focus-visible) {
-  background: var(--ll-glow);
+  background: var(--ll-state-hover);
   box-shadow: none;
   outline: none;
+}
+
+.ll-menu__item:focus-visible {
+  box-shadow: var(--ll-focus);
+}
+
+.ll-menu__item:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 .ll-menu__item--danger {
@@ -364,9 +403,13 @@
 .ll-row-menu-trigger:focus-visible,
 .ll-row-menu-trigger:hover {
   color: var(--ll-lamp, currentColor);
-  background: var(--ll-glow, transparent);
+  background: var(--ll-state-hover, transparent);
   opacity: 1;
   outline: none;
+}
+
+.ll-row-menu-trigger:active:not(:disabled) {
+  background: var(--ll-state-pressed);
 }
 
 @media (hover: hover) {
