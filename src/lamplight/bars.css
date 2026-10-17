@@ -35,6 +35,10 @@
  */
 :root {
   --ll-safe-top: env(safe-area-inset-top, 0px);
+  /* iPhones enlarge some text on their own (text autosizing) and drop it back when a style changes, so the bar's
+     name changed size as the page scrolled under it. Text stays the size the styles give it, in every app. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @media (max-width: 61.99rem) {
