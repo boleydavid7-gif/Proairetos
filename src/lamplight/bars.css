@@ -71,8 +71,8 @@
     background: transparent;
   }
 
-  /* The mica sits on a layer of its own that fades in by opacity alone, so a long page scrolls without repainting
-     the bar (a fading shadow or background is painted again on every frame). */
+  /* The mica sits on a layer of its own and crossfades over the page. Opacity carries the
+     handoff, so the solid surface and its edge arrive together instead of snapping in. */
   .ll-topbar.is-on::before {
     content: '';
     position: absolute;
@@ -85,7 +85,7 @@
     backdrop-filter: blur(18px) saturate(1.12);
     box-shadow: var(--ll-edge-below);
     opacity: 0;
-    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
     will-change: opacity;
     pointer-events: none;
   }
@@ -105,7 +105,7 @@
     height: 1px;
     background: var(--ll-hair, rgb(255 255 255 / 0.12));
     opacity: 0;
-    transition: opacity var(--ll-calm, 240ms) var(--ll-ease-out, ease);
+    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
     pointer-events: none;
   }
 
@@ -131,6 +131,7 @@
     font: 600 var(--text-lg, 1.15rem) / 1.2 var(--ll-sans);
     letter-spacing: -0.01em;
     cursor: default;
+    transition: color var(--ll-slow, 420ms) var(--ll-ease-out, ease), text-shadow var(--ll-slow, 420ms) var(--ll-ease-out, ease);
   }
 
   .ll-topbar__lead:disabled {
@@ -186,12 +187,7 @@
     border-radius: var(--ll-radius-pill, 999px);
     background: var(--ll-mica-surface);
     box-shadow: inset 0 0 0 1px var(--ll-hair, rgba(255, 255, 255, 0.08));
-  }
-
-  /* Once the bar has its own mica, the pill is part of it: no edge of its own. */
-  .ll-topbar.is-scrolled .ll-topbar__actions {
-    background: transparent;
-    box-shadow: none;
+    transition: background var(--ll-slow, 420ms) var(--ll-ease-out, ease), box-shadow var(--ll-slow, 420ms) var(--ll-ease-out, ease);
   }
 
   .ll-topbar__actions:empty {
