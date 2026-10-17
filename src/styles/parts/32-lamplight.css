@@ -162,3 +162,40 @@
   background: var(--ll-lamp-fill, var(--color-accent));
   box-shadow: 0 0 0 3px var(--color-surface), 0 2px 8px rgb(0 0 0 / 0.3);
 }
+
+/* Native touch targets: the drawing can stay quiet, while the control gets a full 44px tap area. */
+@media (pointer: coarse) {
+  :root .day-stepper__tools .chip--small {
+    min-height: 44px;
+  }
+
+  :root :is(.hydros-icon-button, .hydros-section-title > button) {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  :root :is(.praxis-task-edit, .praxis-week-step button) {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  :root :is(.praxis-add__from button, .praxis-chips button, .praxis-again__row > button:first-child, .praxis-adjust button) {
+    min-height: 44px;
+  }
+
+  :root :is(.praxis-add input, .praxis-block-form input, .praxis-block-form select, .praxis-after input, .praxis-adjust__other input) {
+    min-height: 44px;
+  }
+
+  :root :is(.theoria-primary-button, .theoria-secondary-button, .theoria-danger-button, .theoria-add-button, .theoria-quiet-button) {
+    min-height: 44px;
+  }
+
+  :root :is(.theoria-shelf-tabs button, .theoria-category-row button) {
+    min-height: 44px;
+  }
+}

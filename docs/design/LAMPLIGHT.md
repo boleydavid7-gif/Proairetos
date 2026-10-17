@@ -108,8 +108,10 @@ the guide with States and Accessibility sections.
 
 After Fluent: **solid** for cards; **mica** for bars and docks (`--ll-mica`, opaque, the room's hue a little stronger than
 the page, `--ll-mica-surface` adds the lamp washing in from above); **smoke**, a plain dim, behind dialogs and sheets.
-Never blur: it renders unevenly on phones (a test keeps `backdrop-filter` out). Content passing under a bar fades into it
-(`--ll-edge-below`, `--ll-edge-above`) rather than meeting a hard line.
+The phone top bar is the one glass exception: once its title has passed underneath, a soft room-tinted blur fades in
+behind the controls and tapers toward the lower edge, with a semi-transparent hairline. No other surface uses
+`backdrop-filter`. Content passing under a dock fades into it (`--ll-edge-below`, `--ll-edge-above`) rather than
+meeting a hard line.
 
 ## Touch and motion
 

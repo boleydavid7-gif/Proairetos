@@ -82,6 +82,11 @@ export const defaultDrinkProfiles = (): HydrosDrinkProfile[] => [
   { id: 'juice', kind: 'other', label: 'Juice', caffeineMg: 0, electrolytesMg: 0, sugarG: 24, hydrationCoefficient: 1 },
 ];
 
+/** Profiles people can choose for a new usual glass; the old catch-all stays readable in saved records. */
+export function selectableDrinkProfiles(profiles: readonly HydrosDrinkProfile[]): HydrosDrinkProfile[] {
+  return profiles.filter((profile) => profile.id !== 'other' || profile.label !== 'Other');
+}
+
 function validNonNegative(value: unknown, fallback: number): number {
   return Number.isFinite(value) && Number(value) >= 0 ? Math.round(Number(value) * 10) / 10 : fallback;
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { useSettings, updateSettings } from '../app/state';
-import { defaultDrinkProfiles, HYDRATION_SOURCE, type HydrosDrinkProfile } from '../core/drinks';
+import { defaultDrinkProfiles, HYDRATION_SOURCE, selectableDrinkProfiles, type HydrosDrinkProfile } from '../core/drinks';
 import { ScreenHeader } from '../app/ui';
 import { BoltIcon, CupIcon, DropIcon, LeafIcon, MoreIcon } from '../app/icons';
 import { Sym } from '../../lamplight/icons';
@@ -34,7 +34,7 @@ export default function DrinkTypesPage({ nav, returnTo }: { nav: Nav; returnTo?:
       <ScreenHeader title="Drink types" onBack={nav.back} />
 
       <section className="hydros-profile-list" aria-label="Drink types">
-        {profiles.filter((profile) => profile.id !== 'other' || profile.label !== 'Other').map((profile) => <ProfileEditor key={profile.id} profile={profile} returnTo={returnTo} onChange={changeProfile} onUse={useProfile} />)}
+        {selectableDrinkProfiles(profiles).map((profile) => <ProfileEditor key={profile.id} profile={profile} returnTo={returnTo} onChange={changeProfile} onUse={useProfile} />)}
       </section>
       <p className="hydros-settings-lede">Counted means how much of a drink adds to the day; each counts in full unless you change it. {HYDRATION_SOURCE}.</p>
     </div>

@@ -160,7 +160,9 @@ function largeTitle(): void {
         const copy = document.createElement('button');
         copy.type = 'button';
         copy.className = 'll-topbar__action';
-        copy.setAttribute('aria-label', original.getAttribute('aria-label') || original.textContent?.trim() || '');
+        const label = original.getAttribute('aria-label') || original.textContent?.trim() || '';
+        copy.setAttribute('aria-label', label);
+        copy.title = label;
         if (original.hasAttribute('aria-pressed')) copy.setAttribute('aria-pressed', original.getAttribute('aria-pressed')!);
         copy.dataset.copy = String(index);
         if (original.getAttribute('aria-pressed') === 'true' || original.getAttribute('aria-current') === 'page' || original.classList.contains('is-active'))
@@ -368,7 +370,10 @@ function backSwipe(): void {
 // ---------- Row menus ----------
 
 const ROWS = '[data-menu], .swipe, .check-row, .rows > li, .detail-list > li, .days-row';
+const TRIGGER_ROWS = '[data-menu], .swipe, .days-row';
 const HOLD_MS = 480;
+const MENU_ICON =
+  '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>';
 
 type MenuItem = { label: string; run: () => void; danger: boolean };
 
@@ -393,7 +398,7 @@ function itemsFor(row: HTMLElement): MenuItem[] {
   const seen = new Set<string>();
   const items: MenuItem[] = [];
   const controls = [...row.querySelectorAll<HTMLElement>('[data-menu-first], button, a[href]')].filter(
-    (el, index, all) => all.indexOf(el) === index && own(el) && !(el as HTMLButtonElement).disabled,
+    (el, index, all) => all.indexOf(el) === index && own(el) && !el.classList.contains('ll-row-menu-trigger') && !(el as HTMLButtonElement).disabled,
   );
   controls.sort((a, b) => Number(b.hasAttribute('data-menu-first')) - Number(a.hasAttribute('data-menu-first')));
   for (const control of controls) {
@@ -462,11 +467,36 @@ function rowMenus(): void {
     return true;
   };
 
+  const ensureTriggers = () => {
+    document.querySelectorAll<HTMLElement>(TRIGGER_ROWS).forEach((row) => {
+      if (row.closest('dialog, nav, .ll-topbar') || row.querySelector('.ll-row-menu-trigger') || !shown(row)) return;
+      if (itemsFor(row).length < 2) return;
+      const title = rowTitle(row);
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'll-row-menu-trigger';
+      trigger.setAttribute('aria-label', title ? `More actions for ${title}` : 'More actions');
+      trigger.setAttribute('aria-haspopup', 'menu');
+      trigger.innerHTML = MENU_ICON;
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const box = trigger.getBoundingClientRect();
+        show(row, box.left + box.width / 2, box.bottom);
+      });
+      row.append(trigger);
+    });
+  };
+
+  ensureTriggers();
+  new MutationObserver(ensureTriggers).observe(document.body, { childList: true, subtree: true });
+
   addEventListener(
     'pointerdown',
     (event) => {
       if (open && !open.contains(event.target as Node)) close();
       if (event.pointerType === 'mouse') return;
+      if (event.target instanceof Element && event.target.closest('.ll-row-menu-trigger')) return;
       const row = event.target instanceof Element ? event.target.closest<HTMLElement>(ROWS) : null;
       if (!row || row.closest('dialog, nav, .ll-topbar')) return;
       start = { x: event.clientX, y: event.clientY };

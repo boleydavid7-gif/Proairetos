@@ -2653,6 +2653,12 @@ html[data-nav='back']::view-transition-new(root) {
     padding-inline: max(28px, calc((100% - 52rem) / 2 + 20px));
   }
 
+  /* The rail already removes the brand from the picture. Keep the page name at the readable
+     lower fade instead of leaving a lone dark title over the trees. */
+  .shell--tabs .hero__content .home__words {
+    margin-top: auto;
+  }
+
   /* The tab bar becomes a rail down the left side. */
   .tab-bar {
     inset: 0 auto 0 0;

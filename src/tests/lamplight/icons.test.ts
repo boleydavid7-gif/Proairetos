@@ -34,13 +34,13 @@ describe('Lamplight icons', () => {
 });
 
 describe('Lamplight materials', () => {
-  it('never blurs what is behind a surface (mica, not glass)', () => {
+  it('keeps blur to the phone top bar exception', () => {
     const css = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? css(path) : path.endsWith('.css') ? [path] : [];
       });
-    const blurred = css('src').filter((path) => /backdrop-filter\s*:/.test(readFileSync(path, 'utf8')));
-    expect(blurred).toEqual([]);
+    const blurred = css('src').filter((path) => /(?:-webkit-)?backdrop-filter\s*:/.test(readFileSync(path, 'utf8')));
+    expect(blurred).toEqual(['src/lamplight/bars.css']);
   });
 });

@@ -335,6 +335,51 @@
   -webkit-touch-callout: none;
 }
 
+/* Actionable rows expose the same menu that long press opens. It stays quiet on a mouse until
+   hover, but remains visible on touch where a long press is otherwise hidden knowledge. */
+:is(.swipe, .days-row, [data-menu]) {
+  position: relative;
+}
+
+.ll-row-menu-trigger {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ll-radius-pill, 999px);
+  color: var(--ll-ink-3, currentColor);
+  background: transparent;
+  opacity: 0.72;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.ll-row-menu-trigger:focus-visible,
+.ll-row-menu-trigger:hover {
+  color: var(--ll-lamp, currentColor);
+  background: var(--ll-glow, transparent);
+  opacity: 1;
+  outline: none;
+}
+
+@media (hover: hover) {
+  .ll-row-menu-trigger {
+    opacity: 0;
+  }
+
+  :is(.swipe, .check-row, .days-row, [data-menu]):hover .ll-row-menu-trigger,
+  :is(.swipe, .check-row, .days-row, [data-menu]):focus-within .ll-row-menu-trigger {
+    opacity: 0.82;
+  }
+}
+
 @keyframes ll-menu-in {
   from {
     opacity: 0;

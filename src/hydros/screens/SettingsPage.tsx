@@ -8,6 +8,7 @@ import {
   id,
   REFERENCE_SOURCE,
   referenceAmounts,
+  selectableDrinkProfiles,
   unitToOunces,
   volumeLabel,
   type Glass,
@@ -158,7 +159,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
             <input aria-label="Name" value={glass.label} maxLength={30} onChange={(event) => changeGlass(glass.id, { label: event.target.value })} />
             <input aria-label={`Amount in ${unit}`} type="number" inputMode="decimal" min="0" step={unit === 'L' ? .05 : 1} defaultValue={formatVolume(glass.amountOz, unit)} onBlur={(event) => { const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) changeGlass(glass.id, { amountOz: unitToOunces(value, unit) }); }} />
             <b>{unit}</b>
-            <select aria-label="Drink" value={glass.profileId} onChange={(event) => changeGlass(glass.id, { profileId: event.target.value })}>{profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select>
+            <select aria-label="Drink" value={glass.profileId} onChange={(event) => changeGlass(glass.id, { profileId: event.target.value })}>{selectableDrinkProfiles(profiles).map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select>
             <button type="button" aria-label={`Remove ${glass.label}`} onClick={() => removeGlass(glass)}><Sym name="close" /></button>
           </div>
         ))}
