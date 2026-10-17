@@ -238,7 +238,12 @@ function largeTitle(): void {
       // using the viewport coordinate there would fold the scroll offset into the layout shift.
       const scrollTop = document.scrollingElement?.scrollTop ?? scrollY;
       const previousShift = Number.parseFloat(titleFrame.style.getPropertyValue('--ll-title-shift')) || 0;
-      const titleDocumentTop = title.getBoundingClientRect().top + scrollTop - previousShift;
+      // A direct title uses padding to keep the handoff in the document flow. Its border-box top does not move
+      // when that padding is applied, so subtracting the previous shift here feeds the padding back into the next
+      // measurement and grows the page forever. Wrapped titles use translate/padding on their frame, so their prior
+      // shift still needs removing from the measured position.
+      const previousVisualShift = titleFrame === title && titleFrame.classList.contains('ll-title-anchored--down') ? 0 : previousShift;
+      const titleDocumentTop = title.getBoundingClientRect().top + scrollTop - previousVisualShift;
       const shift = anchorTop - titleDocumentTop;
       const marginTop = Number.parseFloat(getComputedStyle(title).marginTop) || 0;
       const frameShift = shift > 0 ? shift - marginTop : shift;
