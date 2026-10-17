@@ -336,11 +336,12 @@
   :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(5)[aria-current='page'])::after { left: calc(64.285714% - 14px); opacity: 1; }
   :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(6)[aria-current='page'])::after { left: calc(78.571429% - 14px); opacity: 1; }
 
-  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(1).is-active)::after { left: calc(8.333333% - 14px); opacity: 1; }
-  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(2).is-active)::after { left: calc(25% - 14px); opacity: 1; }
-  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(3).is-active)::after { left: calc(41.666667% - 14px); opacity: 1; }
-  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(4).is-active)::after { left: calc(58.333333% - 14px); opacity: 1; }
-  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(5).is-active)::after { left: calc(75% - 14px); opacity: 1; }
+  /* Settings and the Proairetos link move into the top bar on phones, leaving four visible Theoria places. */
+  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(1).is-active)::after { left: calc(12.5% - 14px); opacity: 1; }
+  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(2).is-active)::after { left: calc(37.5% - 14px); opacity: 1; }
+  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(3).is-active)::after { left: calc(62.5% - 14px); opacity: 1; }
+  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(4).is-active)::after { left: calc(87.5% - 14px); opacity: 1; }
+  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(5).is-active)::after { opacity: 0; }
 
   :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {
     transition: translate var(--ll-calm) var(--ll-spring);
