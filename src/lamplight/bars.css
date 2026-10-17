@@ -151,6 +151,13 @@
     transition: none;
   }
 
+  /* The serif greeting has descenders that sit close to its line box on iOS. Give the live title a little
+     more leading and a small lower cushion so the final glyph is never tucked into the following content. */
+  :root.ll-bar-on .today-header .page-header__title {
+    line-height: 1.18;
+    padding-block-end: 4px;
+  }
+
   :root .ll-title-folding {
     opacity: var(--ll-title-opacity, 1);
     filter: blur(var(--ll-title-blur, 0px));
