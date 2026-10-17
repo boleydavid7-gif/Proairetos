@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
 import type { CompassStatement } from '../core/compass/types';
@@ -75,9 +75,10 @@ export function TodayView(props: TodayProps) {
   const open = blocks.filter((block) => block.status !== 'DONE');
   const done = blocks.filter((block) => block.status === 'DONE');
   const again = open.filter((block) => block.plannedFor && block.plannedFor <= today);
-  const startButton = (node: HTMLButtonElement | null) => {
-    if (node && props.ready) node.scrollIntoView({ block: 'center' });
-  };
+  const startButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (props.ready && selected) startButton.current?.scrollIntoView({ block: 'center' });
+  }, [props.ready, selected?.id]);
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   return (
     <section className="praxis-view praxis-today-view">
