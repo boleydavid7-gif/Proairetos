@@ -3,7 +3,7 @@ import { contrast } from '../lamplight/color';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampName, type Mode, type RoomName, type Scheme } from '../lamplight/scheme';
 import { THEMED_APPS, appTheme } from '../lamplight/apps';
 import { wallpaperSvg } from '../app/wallpaper';
-import { GLYPHS, LampIcon, type GlyphName } from '../lamplight/icons';
+import { GLYPHS, IconButton, LampIcon, type GlyphName } from '../lamplight/icons';
 import { LAMPLIGHT_CHANGES, LAMPLIGHT_VERSION } from '../lamplight/version';
 
 const ROOM_NAMES = Object.keys(ROOM_SEEDS) as RoomName[];
@@ -415,7 +415,46 @@ export default function Guide() {
           </div>
         </Section>
 
-        <Section id="icons" title="Icons" lead="One drawing rule for every app: a 24 grid, one 1.7 stroke, round ends and joins. The icon of the page you are on is lit: it fills softly with the lamp from inside.">
+        <Section id="primitives" title="System primitives" lead="These states are shared contracts for the apps: icon actions, segmented choices, progress, loading, messages and empty states.">
+          <div className="g-components">
+            <div className="ll-card g-stack">
+              <h3>Icon actions</h3>
+              <div className="g-row">
+                <IconButton label="Search"><LampIcon glyph={GLYPHS.search} size={20} /></IconButton>
+                <IconButton label="Favorite" aria-pressed="true"><LampIcon glyph={GLYPHS.heart} size={20} /></IconButton>
+                <IconButton label="More" size="sm"><LampIcon glyph={GLYPHS.more} size={18} /></IconButton>
+              </div>
+              <p className="g-small">The button owns the accessible name and the 44px touch target; the icon remains decorative.</p>
+            </div>
+
+            <div className="ll-card g-stack">
+              <h3>Segmented choice</h3>
+              <div className="ll-segmented" role="tablist" aria-label="Range">
+                {['Day', 'Week', 'Month'].map((name) => <button key={name} type="button" className="ll-segmented__item" role="tab" aria-selected={name === 'Week'}>{name}</button>)}
+              </div>
+              <div className="ll-progress" role="progressbar" aria-label="Weekly progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={68} style={{ '--ll-progress': '68%' } as CSSProperties}><span className="ll-progress__value" /></div>
+            </div>
+
+            <div className="ll-card g-stack">
+              <h3>Loading and feedback</h3>
+              <span className="ll-skeleton" style={{ width: '72%' }} />
+              <span className="ll-skeleton" style={{ width: '94%' }} />
+              <div className="ll-snackbar"><span>Saved on this device</span><button type="button" className="ll-snackbar__action">Undo</button></div>
+            </div>
+
+            <div className="ll-card g-stack">
+              <h3>Dialog and empty state</h3>
+              <div className="ll-dialog">
+                <h4 className="ll-dialog__title">Delete this entry?</h4>
+                <p className="ll-dialog__body">It will be removed from this device.</p>
+                <div className="ll-dialog__actions"><button type="button" className="ll-button ll-button--plain">Cancel</button><button type="button" className="ll-button ll-button--remove">Delete</button></div>
+              </div>
+              <div className="ll-empty"><span className="ll-empty__icon"><LampIcon glyph={GLYPHS.book} size={28} /></span><h4 className="ll-empty__title">Nothing here yet</h4><p className="ll-empty__body">A short explanation and one clear next action.</p></div>
+            </div>
+          </div>
+        </Section>
+
+        <Section id="icons" title="Icons" lead="One drawing rule for every app: a 24 grid, optical sizes from inline to hero, one scaled stroke, round ends and joins. Icon actions supply the touch target and accessible name; the icon of the page you are on fills softly with the lamp from inside.">
           <ul className="g-icons">
             {(Object.keys(GLYPHS) as GlyphName[]).map((name) => (
               <li key={name}>

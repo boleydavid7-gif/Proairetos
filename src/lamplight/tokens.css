@@ -32,6 +32,13 @@
   --ll-field-sm: 40px;
   --ll-field-md: 48px;
   --ll-field-lg: 56px;
+  /* Optical icon sizes: the drawing can stay on a 24 grid while its touch wrapper stays larger. */
+  --ll-icon-inline: 16px;
+  --ll-icon-control: 20px;
+  --ll-icon-nav: 22px;
+  --ll-icon-tab: 24px;
+  --ll-icon-feature: 28px;
+  --ll-icon-hero: 32px;
   --ll-chip-sm: 32px;
   --ll-chip-md: 36px;
   --ll-chip-lg: 44px;
@@ -84,6 +91,21 @@
   --ll-state-disabled: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.06);
   --ll-state-dragged: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18);
   --ll-state-invalid: rgba(var(--ll-remove-rgb, 214, 95, 73), 0.22);
+
+  /* Semantic surface roles: these mirror Material's surface-container vocabulary while keeping Lamplight's room
+     story. Components should use roles instead of reaching for a private card or app color. */
+  --ll-surface-container-lowest: var(--ll-wall, #0d0b09);
+  --ll-surface-container-low: var(--ll-page, #14100b);
+  --ll-surface-container: var(--ll-card, #1d1914);
+  --ll-surface-container-high: var(--ll-inset, #211c16);
+  --ll-surface-container-highest: var(--ll-raised, #282119);
+  --ll-on-surface: var(--ll-ink, #f4ede6);
+  --ll-on-surface-variant: var(--ll-ink-2, #d3c8bc);
+  --ll-outline: var(--ll-ink-2, #d3c8bc);
+  --ll-outline-variant: var(--ll-hair, rgba(255, 255, 255, 0.08));
+  --ll-inverse-surface: var(--ll-ink, #f4ede6);
+  --ll-inverse-on-surface: var(--ll-page, #14100b);
+  --ll-scrim: var(--ll-smoke, rgba(4, 5, 6, 0.68));
 
   /* Focus: a ring of the lamp. */
   --ll-focus-width: 2px;

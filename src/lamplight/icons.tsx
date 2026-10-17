@@ -1,4 +1,4 @@
-import type { ReactNode, SVGProps } from 'react';
+import type { ButtonHTMLAttributes, ReactNode, SVGProps } from 'react';
 
 /*
  * Lamplight's icons. One drawing rule for the whole family: a 24 grid with a 2-unit margin, one weight of line at
@@ -10,6 +10,12 @@ import type { ReactNode, SVGProps } from 'react';
  */
 
 export type LampIconProps = Omit<SVGProps<SVGSVGElement>, 'children'> & { size?: number };
+
+export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
+  label: string;
+  children: ReactNode;
+  size?: 'sm' | 'md' | 'lg';
+};
 
 export type Glyph = { line: ReactNode; lit?: ReactNode };
 
@@ -46,6 +52,20 @@ export function LampIcon({ glyph, size = 24, className, ...props }: LampIconProp
       </g>
       {glyph.line}
     </svg>
+  );
+}
+
+/** A labeled icon action with a reliable touch target. Keep the icon itself decorative; the button owns the name. */
+export function IconButton({ label, size = 'md', className, type = 'button', children, ...props }: IconButtonProps) {
+  return (
+    <button
+      {...props}
+      type={type}
+      aria-label={label}
+      className={['ll-icon-button', `ll-icon-button--${size}`, className].filter(Boolean).join(' ')}
+    >
+      {children}
+    </button>
   );
 }
 

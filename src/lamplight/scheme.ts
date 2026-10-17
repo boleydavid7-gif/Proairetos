@@ -198,5 +198,17 @@ export function schemeVars(s: Scheme): Record<string, string> {
     '--ll-smoke': s.smoke,
     '--ll-bar': s.bar,
     '--ll-mica': s.mica,
+    '--ll-surface-container-lowest': s.wall,
+    '--ll-surface-container-low': s.page,
+    '--ll-surface-container': s.card,
+    '--ll-surface-container-high': s.inset,
+    '--ll-surface-container-highest': s.raised,
+    '--ll-on-surface': s.ink,
+    '--ll-on-surface-variant': s.ink2,
+    '--ll-outline': s.ink2,
+    '--ll-outline-variant': s.hair,
+    '--ll-inverse-surface': s.ink,
+    '--ll-inverse-on-surface': s.page,
+    '--ll-scrim': s.smoke,
   };
 }

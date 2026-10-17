@@ -339,6 +339,11 @@ body {
   gap: var(--ll-space-4);
 }
 
+.g-components .ll-dialog,
+.g-components .ll-snackbar {
+  width: auto;
+}
+
 .g-radii {
   display: flex;
   flex-wrap: wrap;

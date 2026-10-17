@@ -83,6 +83,64 @@
   cursor: progress;
 }
 
+/* ---------- Icon action ---------- */
+.ll-icon-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--ll-touch-target);
+  height: var(--ll-touch-target);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-ink-2);
+  cursor: pointer;
+}
+
+.ll-icon-button--sm {
+  width: var(--ll-control-sm);
+  height: var(--ll-control-sm);
+}
+
+.ll-icon-button--lg {
+  width: var(--ll-control-lg);
+  height: var(--ll-control-lg);
+}
+
+.ll-icon-button:is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+  color: var(--ll-lamp);
+}
+
+.ll-icon-button:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+  scale: 0.96;
+}
+
+.ll-icon-button:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+  box-shadow: var(--ll-focus);
+}
+
+.ll-icon-button:is([aria-pressed='true'], [aria-selected='true'], [aria-checked='true']) {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+}
+
+.ll-icon-button:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  .ll-icon-button--sm {
+    width: var(--ll-touch-target);
+    height: var(--ll-touch-target);
+  }
+}
+
 @media (pointer: coarse) {
   .ll-button--sm {
     min-height: var(--ll-touch-target);
@@ -333,6 +391,96 @@
   }
 }
 
+/* ---------- Segmented choice ---------- */
+.ll-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--ll-space-1);
+  padding: var(--ll-space-1);
+  border: 1px solid var(--ll-outline-variant);
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-surface-container-low);
+}
+
+.ll-segmented__item {
+  min-height: var(--ll-control-md);
+  padding-inline: var(--ll-space-3);
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-on-surface-variant);
+  font: var(--ll-type-label);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ll-segmented__item:is([aria-selected='true'], [aria-pressed='true']) {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+  font-weight: 600;
+}
+
+.ll-segmented__item:is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-segmented__item:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+}
+
+/* ---------- Progress and loading ---------- */
+.ll-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-surface-container-high);
+}
+
+.ll-progress__value {
+  display: block;
+  width: var(--ll-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ll-lamp-fill);
+  box-shadow: var(--ll-lamp-light);
+  transition: width var(--ll-calm) var(--ll-ease-out);
+}
+
+.ll-progress--indeterminate .ll-progress__value {
+  width: 35%;
+  animation: ll-progress 1.2s var(--ll-ease-in-out) infinite;
+}
+
+@keyframes ll-progress {
+  from { translate: -120% 0; }
+  to { translate: 320% 0; }
+}
+
+.ll-skeleton {
+  display: block;
+  min-height: 1em;
+  border-radius: var(--ll-radius-xs);
+  background: linear-gradient(100deg, var(--ll-surface-container-high) 20%, var(--ll-surface-container-highest) 38%, var(--ll-surface-container-high) 56%);
+  background-size: 240% 100%;
+  animation: ll-skeleton 1.5s var(--ll-ease-in-out) infinite;
+}
+
+@keyframes ll-skeleton {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-progress__value,
+  .ll-skeleton {
+    animation: none;
+  }
+}
+
 /* ---------- The bar: translucent, where you are marked by the lamp ---------- */
 .ll-bar {
   display: grid;
@@ -391,6 +539,103 @@
   margin: 0 auto var(--ll-space-4);
   border-radius: var(--ll-radius-pill);
   background: var(--ll-hair);
+}
+
+/* ---------- Dialog, snackbar and empty state ---------- */
+.ll-dialog {
+  width: min(32rem, calc(100vw - var(--ll-space-6)));
+  max-height: min(80vh, 42rem);
+  padding: var(--ll-space-5);
+  border: 1px solid var(--ll-outline-variant);
+  border-radius: var(--ll-radius-lg);
+  background: var(--ll-surface-container-highest);
+  color: var(--ll-on-surface);
+  box-shadow: var(--ll-light-3);
+}
+
+.ll-dialog::backdrop {
+  background: var(--ll-scrim);
+}
+
+.ll-dialog__title {
+  margin: 0;
+  font: var(--ll-type-headline);
+}
+
+.ll-dialog__body {
+  margin: var(--ll-space-3) 0 0;
+  color: var(--ll-on-surface-variant);
+  font: var(--ll-type-body);
+}
+
+.ll-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ll-space-2);
+  margin-top: var(--ll-space-5);
+}
+
+.ll-snackbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ll-space-4);
+  width: min(32rem, calc(100vw - var(--ll-space-6)));
+  min-height: var(--ll-control-lg);
+  padding: var(--ll-space-2) var(--ll-space-3) var(--ll-space-2) var(--ll-space-4);
+  border: 1px solid var(--ll-outline-variant);
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-surface-container-highest);
+  color: var(--ll-on-surface);
+  box-shadow: var(--ll-light-2);
+}
+
+.ll-snackbar__action {
+  flex: none;
+  min-height: var(--ll-control-sm);
+  padding-inline: var(--ll-space-3);
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-lamp);
+  font: var(--ll-type-label);
+  cursor: pointer;
+}
+
+.ll-snackbar__action:is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+.ll-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--ll-space-3);
+  padding: var(--ll-space-8) var(--ll-space-5);
+  border: 1px dashed var(--ll-outline-variant);
+  border-radius: var(--ll-radius-lg);
+  color: var(--ll-on-surface-variant);
+  text-align: center;
+}
+
+.ll-empty__icon {
+  display: grid;
+  width: var(--ll-icon-feature);
+  height: var(--ll-icon-feature);
+  place-items: center;
+  color: var(--ll-lamp);
+}
+
+.ll-empty__title {
+  margin: 0;
+  color: var(--ll-on-surface);
+  font: var(--ll-type-headline);
+}
+
+.ll-empty__body {
+  max-width: 30rem;
+  margin: 0;
+  font: var(--ll-type-body);
 }
 
 /* ---------- Waiting: one small light that breathes (Waiting.tsx) ---------- */

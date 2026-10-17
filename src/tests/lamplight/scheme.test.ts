@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contrast } from '../../lamplight/color';
-import { LAMP_SEEDS, ROOM_SEEDS, makeScheme, ownLamp, type LampName, type Mode, type RoomName } from '../../lamplight/scheme';
+import { LAMP_SEEDS, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampName, type Mode, type RoomName } from '../../lamplight/scheme';
 import { THEMED_APPS, appTheme } from '../../lamplight/apps';
 
 const rooms = Object.keys(ROOM_SEEDS) as RoomName[];
@@ -15,6 +15,19 @@ describe('Lamplight scheme', () => {
     const l = makeScheme(ROOM_SEEDS.Hearth, LAMP_SEEDS.Amber, 'light');
     expect([l.page, l.card, l.lamp, l.lampFill]).toEqual(['#fcf2e7', '#fefcfa', '#895c05', '#e6ab52']);
     expect(makeScheme(ROOM_SEEDS.Harbor, LAMP_SEEDS.Ink, 'dark').page).toBe('#07111d');
+  });
+
+  it('exposes the semantic surface roles used by shared components', () => {
+    const s = makeScheme(ROOM_SEEDS.Hearth, LAMP_SEEDS.Amber, 'dark');
+    const vars = schemeVars(s);
+    expect(vars['--ll-surface-container-lowest']).toBe(s.wall);
+    expect(vars['--ll-surface-container-low']).toBe(s.page);
+    expect(vars['--ll-surface-container']).toBe(s.card);
+    expect(vars['--ll-surface-container-high']).toBe(s.inset);
+    expect(vars['--ll-surface-container-highest']).toBe(s.raised);
+    expect(vars['--ll-on-surface']).toBe(s.ink);
+    expect(vars['--ll-on-surface-variant']).toBe(s.ink2);
+    expect(vars['--ll-outline-variant']).toBe(s.hair);
   });
 
   // Every preset, and a lamp of the person's own at every 15 degrees: what is read passes on every surface.
