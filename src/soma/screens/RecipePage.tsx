@@ -12,7 +12,7 @@ import { BackLink, dayLabel, Segmented, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { convertLine, scaleLine } from '../core/ingredients';
-import { NutriBadge, NutritionPanel } from '../app/Nutrition';
+import { NutritionPanel } from '../app/Nutrition';
 import { recipeNutrition } from '../core/nutrition';
 import { headingText, isHeading, marks, minutesLabel, servingsNumber, timeOf, timersIn, type Recipe } from '../core/recipes';
 import { stepsWithAmounts, timerName } from '../core/cookAids';
@@ -187,83 +187,87 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             <button type="button" className="round-button" aria-label="Share this recipe" onClick={() => void share()}>
               <ShareIcon size={20} />
             </button>
-            <button type="button" className="round-button" onClick={() => nav.go({ name: 'edit', id: recipe.id })}>
-              Edit
+            <button type="button" className="round-button" aria-label="Edit recipe" onClick={() => nav.go({ name: 'edit', id: recipe.id })}>
+              <Sym name="pencil" size={20} />
             </button>
           </span>
         </div>
       </div>
 
-      <h1 className="title">{recipe.title}</h1>
-      <TranslateRecipe
-        recipe={recipe}
-        onKeep={(translated) => {
-          const before = recipe;
-          save(translated);
-          undo('Translation kept', () => void putRecipe({ ...before, updatedAt: new Date().toISOString() }));
-        }}
-      />
-      <div className="recipe-meta">
-        {time && (
-          <span>
-            <ClockIcon size={16} /> {time}
-          </span>
-        )}
-        {recipe.servings && (
-          <span>
-            <ServesIcon size={16} /> {recipe.servings}
-          </span>
-        )}
-        {recipe.estimatedCostCents !== undefined && (
-          <span>
-            Estimated cost · {formatMoney(recipe.estimatedCostCents, recipe.estimatedCostCurrency ?? loadOikonomiaSettings().currency)}
-          </span>
-        )}
-        {recipe.url ? (
-          <a href={recipe.url} target="_blank" rel="noreferrer">
-            {recipe.source ?? 'Source'}
-          </a>
-        ) : (
-          recipe.source && <span>{recipe.source}</span>
-        )}
-      </div>
-      <RecipeBudgetHint recipe={recipe} recipes={recipes} />
-      {settings.healthRating && nutrition.grade && <NutriBadge grade={nutrition.grade} onClick={() => setTab('nutrition')} />}
-      {copied && (
-        <p className="hint" role="status">
-          Copied, ready to paste.
-        </p>
-      )}
-      {note && tab !== 'notes' && (
-        <button type="button" className="recipe-note" onClick={() => setTab('notes')}>
-          {note.split('\n')[0]}
-        </button>
-      )}
-      <div className="chip-grid recipe-marks" role="group" aria-label="Your marks">
-        {marks.map((mark) => {
-          const on = Boolean(recipe.marks?.includes(mark.id));
-          return (
-            <button
-              key={mark.id}
-              type="button"
-              className="chip chip--small"
-              aria-pressed={on}
-              onClick={() => void save({ marks: on ? recipe.marks!.filter((each) => each !== mark.id) : [...(recipe.marks ?? []), mark.id] })}
-            >
-              {mark.label}
-            </button>
-          );
-        })}
-      </div>
-      {recipe.tags.length > 0 && (
-        <div className="tags">
-          {recipe.tags.map((tag) => (
-            <span key={tag} className="tag">
-              {tag}
+      <section className="recipe-summary" aria-label="Recipe summary" data-no-title-anchor>
+        <h1 className="title">{recipe.title}</h1>
+        <TranslateRecipe
+          recipe={recipe}
+          onKeep={(translated) => {
+            const before = recipe;
+            save(translated);
+            undo('Translation kept', () => void putRecipe({ ...before, updatedAt: new Date().toISOString() }));
+          }}
+        />
+        <div className="recipe-meta">
+          {time && (
+            <span>
+              <ClockIcon size={16} /> {time}
             </span>
-          ))}
+          )}
+          {recipe.servings && (
+            <span>
+              <ServesIcon size={16} /> {recipe.servings}
+            </span>
+          )}
+          {recipe.estimatedCostCents !== undefined && (
+            <span>
+              Estimated cost · {formatMoney(recipe.estimatedCostCents, recipe.estimatedCostCurrency ?? loadOikonomiaSettings().currency)}
+            </span>
+          )}
+          {recipe.url ? (
+            <a href={recipe.url} target="_blank" rel="noreferrer">
+              {recipe.source ?? 'Source'}
+            </a>
+          ) : (
+            recipe.source && <span>{recipe.source}</span>
+          )}
         </div>
-      )}
+        <button type="button" className="button-main recipe-start" onClick={() => (recipe.steps.length ? nav.go({ name: 'cook', id: recipe.id, servings: serves }) : setTab('steps'))}>
+          <PotIcon size={20} /> {recipe.steps.length ? 'Start cooking' : 'See the steps'} <Sym name="chevron" size={18} />
+        </button>
+        <RecipeBudgetHint recipe={recipe} recipes={recipes} />
+        {copied && (
+          <p className="hint" role="status">
+            Copied, ready to paste.
+          </p>
+        )}
+        {note && tab !== 'notes' && (
+          <button type="button" className="recipe-note" onClick={() => setTab('notes')}>
+            {note.split('\n')[0]}
+          </button>
+        )}
+        <div className="chip-grid recipe-marks" role="group" aria-label="Your marks">
+          {marks.map((mark) => {
+            const on = Boolean(recipe.marks?.includes(mark.id));
+            return (
+              <button
+                key={mark.id}
+                type="button"
+                className="chip chip--small"
+                aria-pressed={on}
+                onClick={() => void save({ marks: on ? recipe.marks!.filter((each) => each !== mark.id) : [...(recipe.marks ?? []), mark.id] })}
+              >
+                {mark.label}
+              </button>
+            );
+          })}
+        </div>
+        {recipe.tags.length > 0 && (
+          <div className="tags">
+            {recipe.tags.map((tag) => (
+              <span key={tag} className="tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
 
       <Segmented
         label="Recipe"
@@ -280,28 +284,30 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
       {tab === 'ingredients' && (
         <section aria-label="Ingredients">
-          {base && serves && (
-            <div className="servings">
-              <span>Servings</span>
-              <span className="stepper">
-                <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
-                <span className="stepper__value">{serves}</span>
-                <button type="button" className="stepper__button" aria-label="More" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
-              </span>
+          <div className="recipe-controls">
+            {base && serves && (
+              <div className="recipe-controls__servings">
+                <span>Servings</span>
+                <span className="stepper">
+                  <button type="button" className="stepper__button" aria-label="Fewer servings" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
+                  <span className="stepper__value">{serves}</span>
+                  <button type="button" className="stepper__button" aria-label="More servings" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
+                </span>
+              </div>
+            )}
+            <div className="units-row">
+              <Segmented
+                label="Units"
+                value={settings.units}
+                options={[
+                  { id: 'original', label: 'As written' },
+                  { id: 'metric', label: 'Metric' },
+                  { id: 'us', label: 'US' },
+                ]}
+                onChange={(units) => saveSettings({ ...loadSettings(), units })}
+                small
+              />
             </div>
-          )}
-          <div className="units-row">
-            <Segmented
-              label="Units"
-              value={settings.units}
-              options={[
-                { id: 'original', label: 'As written' },
-                { id: 'metric', label: 'Metric' },
-                { id: 'us', label: 'US' },
-              ]}
-              onChange={(units) => saveSettings({ ...loadSettings(), units })}
-              small
-            />
           </div>
           <ul className="check-list">
             {lines.map((line, i) =>

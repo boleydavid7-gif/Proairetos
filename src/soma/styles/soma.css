@@ -346,6 +346,11 @@
 
 /* ---------- One recipe ---------- */
 
+.recipe {
+  gap: 12px;
+  padding-bottom: calc(32px + var(--tab-height) + env(safe-area-inset-bottom, 0px));
+}
+
 .recipe-hero {
   position: relative;
   margin: calc(-20px - var(--ll-safe-top)) -20px 0;
@@ -354,7 +359,7 @@
 .recipe-hero img {
   display: block;
   width: 100%;
-  height: 280px;
+  height: 232px;
   object-fit: cover;
 }
 
@@ -387,11 +392,31 @@
   color: #f2a38b;
 }
 
+.recipe-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.recipe-summary > .title {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 2.35rem);
+  line-height: 1.04;
+}
+
+.recipe-start {
+  gap: 10px;
+  text-align: center;
+}
+
+.recipe-start svg:last-child {
+  margin-left: auto;
+}
+
 .recipe-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 14px;
-  margin: 6px 0 14px;
+  margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -440,6 +465,54 @@
   align-items: center;
   justify-content: space-between;
   margin: 14px 0 6px;
+}
+
+.recipe-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  gap: 8px;
+  align-items: center;
+  margin: 2px 0 6px;
+}
+
+.recipe-controls__servings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 4px;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.recipe-controls__servings .stepper {
+  gap: 2px;
+}
+
+.recipe-controls__servings .stepper__button {
+  width: 40px;
+  height: 40px;
+}
+
+.recipe-controls .units-row {
+  min-width: 0;
+  margin: 0;
+}
+
+.recipe-controls .segmented {
+  min-width: 0;
+}
+
+.recipe-controls .segmented__option {
+  min-width: 0;
+  padding-inline: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recipe-controls .segmented--small .segmented__option {
+  padding-inline: 4px;
+  font-size: 0.76rem;
 }
 
 .check-list {
@@ -982,6 +1055,25 @@
   margin: 4px 0 8px;
 }
 
+/* The header's marks and source tags stay one calm row; the person can reveal the rest with a horizontal swipe. */
+.recipe-summary .recipe-marks,
+.recipe-summary .tags {
+  flex-wrap: nowrap;
+  margin: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.recipe-summary .recipe-marks::-webkit-scrollbar,
+.recipe-summary .tags::-webkit-scrollbar {
+  display: none;
+}
+
+.recipe-summary .recipe-marks > *,
+.recipe-summary .tags > * {
+  flex: 0 0 auto;
+}
+
 /* ---------- A recipe without a photo: its color and first letter ---------- */
 
 .dish-card--sage { --dish: #6f9a78; }
@@ -1041,7 +1133,7 @@
 
 /* Without a photo the top of the recipe is a soft band, with the buttons on it. */
 .recipe-hero--plain {
-  height: calc(76px + var(--ll-safe-top));
+  height: calc(112px + var(--ll-safe-top));
   border: 0;
   background: radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--dish) 30%, transparent), transparent 75%);
 }

@@ -222,7 +222,7 @@ function largeTitle(): void {
       titleFrame = nextFrame;
       anchoredTitle = title;
     }
-    const anchorTitle = Boolean(title && titleFrame && !titleFrame.matches('.hydros-add__stage > .hydros-header'));
+    const anchorTitle = Boolean(title && titleFrame && !titleFrame.matches('.hydros-add__stage > .hydros-header') && !title.closest('[data-no-title-anchor]'));
     if (!anchorTitle) {
       // Hydros's add screen deliberately floats its header over a full-screen illustration. Its own title band is
       // positioned by hydros.css; the family-wide anchor would add padding to that absolute frame and cover the
