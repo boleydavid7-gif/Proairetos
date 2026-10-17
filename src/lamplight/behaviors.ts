@@ -24,6 +24,7 @@ const TITLE = [
   '.title',
   '.praxis-page-heading h1',
   '.theoria-heading h1',
+  '.hydros-header h1',
   'main h1',
 ].join(', ');
 
@@ -115,6 +116,7 @@ function largeTitle(): void {
   bar.append(lead, actions);
 
   let title: HTMLElement | undefined;
+  let titleFrame: HTMLElement | undefined;
   let originals: HTMLElement[] = [];
   let copied = '';
   let leadKey = '';
@@ -188,6 +190,10 @@ function largeTitle(): void {
       root.classList.remove('ll-tucked');
       root.classList.remove('ll-title-folded');
       title?.classList.remove('ll-title-folding');
+      titleFrame?.classList.remove('ll-title-anchored');
+      titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
+      titleFrame?.style.removeProperty('--ll-title-shift');
+      titleFrame = undefined;
       root.style.removeProperty('--ll-bar-progress');
       root.style.removeProperty('--ll-hair-progress');
       root.style.removeProperty('--ll-title-opacity');
@@ -205,6 +211,22 @@ function largeTitle(): void {
   const structure = () => {
     dirty = false;
     if (!title?.isConnected || !shown(title)) title = first(TITLE);
+    titleFrame?.classList.remove('ll-title-anchored');
+    titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
+    titleFrame?.style.removeProperty('--ll-title-shift');
+    titleFrame = undefined;
+    if (title) {
+      titleFrame = title.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header') ?? title;
+      const anchorTop = Number.parseFloat(getComputedStyle(root).getPropertyValue('--ll-title-anchor-top')) || 148;
+      const shift = anchorTop - title.getBoundingClientRect().top;
+      const marginTop = Number.parseFloat(getComputedStyle(title).marginTop) || 0;
+      const frameShift = shift > 0 ? shift - marginTop : shift;
+      if (Math.abs(frameShift) > 0.5) {
+        titleFrame.style.setProperty('--ll-title-shift', `${frameShift.toFixed(2)}px`);
+        titleFrame.classList.add('ll-title-anchored');
+        titleFrame.classList.add(frameShift > 0 ? 'll-title-anchored--down' : 'll-title-anchored--up');
+      }
+    }
     picture = first(PICTURE);
     // Mid-transition a page's title or picture can measure empty; look again once the move has settled.
     const unseen = (!title && document.querySelector(TITLE)) || (!picture && document.querySelector(PICTURE));

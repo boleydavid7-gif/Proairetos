@@ -157,6 +157,21 @@
     will-change: opacity, filter;
   }
 
+  /* All mobile title containers enter the same visual band before the handoff starts. The frame moves as a unit so
+     an eyebrow, subtitle or page action keeps its relationship with the title. */
+  :root.ll-bar-on .ll-title-anchored {
+    will-change: translate;
+  }
+
+  :root.ll-bar-on .ll-title-anchored--down {
+    padding-block-start: var(--ll-title-shift, 0px);
+    will-change: padding-block-start;
+  }
+
+  :root.ll-bar-on .ll-title-anchored--up {
+    translate: 0 var(--ll-title-shift, 0px);
+  }
+
   .ll-topbar__lead:disabled {
     color: inherit;
     opacity: 1;
