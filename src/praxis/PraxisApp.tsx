@@ -311,7 +311,7 @@ export default function PraxisApp() {
   };
 
   return (
-    <div className="praxis-app">
+    <div className="praxis-app" data-no-title-anchor>
       <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
           <span className="praxis-brand__mark"><PraxisMark size={42} /></span>
