@@ -22,7 +22,7 @@ import { directionBetween, transition } from './transitions';
 import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
 import { useOverlays } from './overlays/OverlayContext';
-import { NavigationContext, ReturnRouteContext } from './navigationContext';
+import { NavigationContext, ReturnRouteContext, type NavigateOptions } from './navigationContext';
 import { defaultRoute, routePaths, type AppRoute } from './routes/routeTypes';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
@@ -60,9 +60,13 @@ export default function App() {
   const current = useRef(route);
   current.current = route;
   // Every move between places slides the way it goes (see transitions.ts).
-  const go = useCallback((next: AppRoute) => {
+  const go = useCallback((next: AppRoute, options?: NavigateOptions) => {
     const from = current.current;
     if (next === from) return;
+    if (options?.immediate) {
+      setRoute(next);
+      return;
+    }
     // Main-tab changes keep the real dock out of the document view
     // transition. The page swaps beneath it while the dock and its indicator
     // stay anchored to the viewport.

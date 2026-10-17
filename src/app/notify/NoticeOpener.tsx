@@ -13,28 +13,29 @@ import { linkTo } from '../family/opening';
 function useOpen() {
   const navigate = useNavigate();
   const { openItem } = useOverlays();
+  const openRoute = (route: Parameters<typeof navigate>[0]) => navigate(route, { immediate: true });
   return (open: string) => {
     if (open.startsWith('item:')) {
-      navigate('today');
+      openRoute('today');
       openItem(open.slice(5));
     } else if (open.startsWith('day:')) {
       const day = open.slice(4);
       if (day !== 'today') setDaysAheadOpening({ start: day });
-      navigate('plan');
-    } else if (open === 'reflect') navigate('reflect');
-    else if (open === 'compass') navigate('compass');
-    else if (open === 'settings') navigate('settings');
+      openRoute('plan');
+    } else if (open === 'reflect') openRoute('reflect');
+    else if (open === 'compass') openRoute('compass');
+    else if (open === 'settings') openRoute('settings');
     else if (open.startsWith('settings:')) {
       openSettingsAt(open.slice(9) as Parameters<typeof openSettingsAt>[0]);
-      navigate('settings');
+      openRoute('settings');
     } else if (open === 'hydros') window.location.assign('/hydros/');
     else if (open === 'praxis') window.location.assign('/praxis/');
     else if (open === 'account') {
       openSettingsAt('account');
-      navigate('settings');
+      openRoute('settings');
     } else if (open === 'askesis') window.location.assign('/askesis/');
     else if (open.startsWith('oikonomia:')) window.location.assign(linkTo('oikonomia', open.slice(10)));
-    else navigate('today');
+    else openRoute('today');
   };
 }
 
@@ -47,6 +48,8 @@ export default function NoticeOpener() {
     if (target) {
       // The fragment stays: it can carry an answer for the page being opened (storage connected).
       window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+      // A companion app can have just handed the browser to this document. Open the route immediately so it does not
+      // compete with the browser's navigation transition.
       open(target);
     }
     const onMessage = (event: MessageEvent) => {

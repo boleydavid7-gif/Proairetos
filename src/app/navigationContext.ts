@@ -1,12 +1,14 @@
 import { createContext, useContext } from 'react';
 import type { AppRoute } from './routes/routeTypes';
 
-export const NavigationContext = createContext<(route: AppRoute) => void>(() => undefined);
+export type NavigateOptions = { immediate?: boolean };
+
+export const NavigationContext = createContext<(route: AppRoute, options?: NavigateOptions) => void>(() => undefined);
 
 /** The main tab the person was last on, so screens opened from any tab return there. */
 export const ReturnRouteContext = createContext<AppRoute>('today');
 
-export function useNavigate(): (route: AppRoute) => void {
+export function useNavigate(): (route: AppRoute, options?: NavigateOptions) => void {
   return useContext(NavigationContext);
 }
 
