@@ -11,7 +11,7 @@
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
-  padding: calc(env(safe-area-inset-top) + var(--space-4)) var(--space-5)
+  padding: calc(var(--ll-safe-top) + var(--space-4)) var(--space-5)
     calc(env(safe-area-inset-bottom) + var(--space-6));
   color: var(--color-paper-ink);
   text-align: center;

@@ -348,7 +348,7 @@
 
 .recipe-hero {
   position: relative;
-  margin: calc(-20px - env(safe-area-inset-top, 0px)) -20px 0;
+  margin: calc(-20px - var(--ll-safe-top)) -20px 0;
 }
 
 .recipe-hero img {
@@ -360,7 +360,7 @@
 
 .recipe-hero__bar {
   position: absolute;
-  top: calc(12px + env(safe-area-inset-top, 0px));
+  top: calc(12px + var(--ll-safe-top));
   left: 12px;
   right: 12px;
   display: flex;
@@ -691,7 +691,7 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: calc(14px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: calc(14px + var(--ll-safe-top)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
 }
 
@@ -1041,7 +1041,7 @@
 
 /* Without a photo the top of the recipe is a soft band, with the buttons on it. */
 .recipe-hero--plain {
-  height: calc(76px + env(safe-area-inset-top, 0px));
+  height: calc(76px + var(--ll-safe-top));
   border: 0;
   background: radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--dish) 30%, transparent), transparent 75%);
 }

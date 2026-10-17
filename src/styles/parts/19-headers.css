@@ -113,7 +113,7 @@
 
 /* On a short day the landscape still rests at the bottom of the screen. */
 .page--landscape {
-  min-height: calc(100svh - env(safe-area-inset-top) - var(--tab-bar-height) - env(safe-area-inset-bottom) - var(--space-6) * 2);
+  min-height: calc(100svh - var(--ll-safe-top) - var(--tab-bar-height) - env(safe-area-inset-bottom) - var(--space-6) * 2);
 }
 
 /* Extends under the bottom padding and the translucent tab bar. */
@@ -178,7 +178,7 @@
 
 /* The hero reaches the screen edges and the top, then fades into the page. */
 .page-hero {
-  --hero-top: calc(env(safe-area-inset-top) + var(--space-6));
+  --hero-top: calc(var(--ll-safe-top) + var(--space-6));
   position: relative;
   isolation: isolate;
   min-height: calc(var(--hero-top) + 9rem);

@@ -156,7 +156,7 @@
 @media (max-width: 900px) {
   .theoria-app { display: block; }
   .theoria-sidebar { display: none; }
-  .theoria-main { padding: calc(17px + env(safe-area-inset-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
+  .theoria-main { padding: calc(17px + var(--ll-safe-top)) 16px calc(89px + env(safe-area-inset-bottom)); }
   .theoria-topbar { margin-bottom: 30px; }
   .theoria-mobile-brand { display: flex; }
   .theoria-date { display: none; }
@@ -382,7 +382,7 @@
 
   html, body, #root { min-width: 0; max-width: 100%; overflow-x: hidden; }
   .theoria-app { display: block; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
-  .theoria-main { width: 100%; min-height: 100vh; min-height: 100dvh; padding: max(14px, calc(14px + env(safe-area-inset-top))) 14px calc(92px + env(safe-area-inset-bottom)); }
+  .theoria-main { width: 100%; min-height: 100vh; min-height: 100dvh; padding: max(14px, calc(14px + var(--ll-safe-top))) 14px calc(92px + env(safe-area-inset-bottom)); }
   .theoria-topbar { width: 100%; min-height: 38px; margin: 0 0 22px; }
   .theoria-mobile-brand { min-width: 0; }
   .theoria-mobile-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -441,7 +441,7 @@
   .theoria-app--reader { height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
   .theoria-app--reader .theoria-main { height: 100vh; height: 100dvh; min-height: 0; padding-top: 0; padding-bottom: 0; }
   .theoria-app--reader .theoria-page { height: 100%; }
-  .theoria-reader { --theoria-reader-header-height: 116px; --theoria-reader-top-offset: calc(env(safe-area-inset-top) + 14px); height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; margin: 0 -14px; padding: var(--theoria-reader-top-offset) 16px 0; }
+  .theoria-reader { --theoria-reader-header-height: 116px; --theoria-reader-top-offset: calc(var(--ll-safe-top) + 14px); height: 100vh; height: 100dvh; min-height: 100vh; min-height: 100dvh; margin: 0 -14px; padding: var(--theoria-reader-top-offset) 16px 0; }
   .theoria-app--reader .theoria-bottom-nav { display: none; }
   .theoria-reader-header { gap: 8px; padding: 12px 0 10px; }
   .theoria-reader-header-top { gap: 7px; }

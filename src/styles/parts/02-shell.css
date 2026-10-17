@@ -32,7 +32,7 @@
   width: 100%;
   max-width: 34rem;
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + var(--space-6) + var(--space-4)) var(--space-5)
+  padding: calc(var(--ll-safe-top) + var(--space-6) + var(--space-4)) var(--space-5)
     calc(var(--tab-bar-height) + env(safe-area-inset-bottom) + var(--space-6));
 }
 

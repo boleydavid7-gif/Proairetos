@@ -104,7 +104,7 @@
 /* The rest between sets stays in view at the top while scrolling. */
 .dynamis-rest {
   position: sticky;
-  top: max(8px, env(safe-area-inset-top));
+  top: max(8px, var(--ll-safe-top));
   z-index: 5;
   display: flex;
   align-items: center;

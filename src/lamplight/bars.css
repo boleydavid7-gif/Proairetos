@@ -29,6 +29,21 @@
 }
 
 /*
+ * Where every app's top begins: the phone's status area, and while the bar is on, a few points more, so the bar and
+ * the page under it sit clear of the edge iOS blurs behind the status bar. Full-screen moments turn the bar off and
+ * keep the plain inset.
+ */
+:root {
+  --ll-safe-top: env(safe-area-inset-top, 0px);
+}
+
+@media (max-width: 61.99rem) {
+  :root.ll-bar-on {
+    --ll-safe-top: calc(env(safe-area-inset-top, 0px) + 6px);
+  }
+}
+
+/*
  * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
  * on the left; the page's actions, Settings and the family's places on the right. Glass once the page scrolls, a
  * hairline once the page's title has gone under. It names the app only. Computers keep their rail.
@@ -45,8 +60,9 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    height: calc(env(safe-area-inset-top) + 48px);
-    padding: env(safe-area-inset-top) 10px 0 14px;
+    box-sizing: border-box;
+    height: calc(var(--ll-safe-top) + 48px);
+    padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
   }
@@ -224,15 +240,15 @@
 
   /* Room for the bar where a page's title begins at the very top. */
   :root.ll-bar-on .shell .page:not(.page--under-hero):not(:has(> .back-link:first-child)):not(:has(> .brand:first-child)) {
-    padding-top: calc(env(safe-area-inset-top) + 56px);
+    padding-top: calc(var(--ll-safe-top) + 56px);
   }
 
   :root.ll-bar-on .hydros-screen {
-    padding-top: calc(env(safe-area-inset-top) + 48px);
+    padding-top: calc(var(--ll-safe-top) + 48px);
   }
 
   :root.ll-bar-on :is(.praxis-main, .theoria-app:not(.theoria-app--reader) .theoria-main) {
-    padding-top: calc(env(safe-area-inset-top) + 52px);
+    padding-top: calc(var(--ll-safe-top) + 52px);
   }
 }
 
@@ -283,7 +299,7 @@ html[data-swiped]::view-transition-old(root) {
   }
 
   .sheet.sheet--top .sheet__panel {
-    padding-top: calc(env(safe-area-inset-top) + var(--space-5, 24px));
+    padding-top: calc(var(--ll-safe-top) + var(--space-5, 24px));
     padding-bottom: var(--space-3, 12px);
     border-top: 0;
     border-bottom: 1px solid var(--color-border, var(--ll-hair));
@@ -299,7 +315,7 @@ html[data-swiped]::view-transition-old(root) {
   }
 
   .sheet.sheet--top .sheet__close {
-    top: calc(env(safe-area-inset-top) + var(--space-3, 12px));
+    top: calc(var(--ll-safe-top) + var(--space-3, 12px));
   }
 
   .sheet__grabber--foot {

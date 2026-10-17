@@ -190,6 +190,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
+- The top inset is `--ll-safe-top` (`bars.css`): the status area, plus 6 px on phones while the bar is on, so the bar
+  and the page under it sit clear of the edge iOS blurs behind the status bar. Every app's CSS uses the variable, never
+  `env(safe-area-inset-top)` directly (the Lamplight guide aside); full-screen moments turn the bar off and get the plain inset.
 - Scroll cost (checked with 400 chores and people, a year of reflections, 4x CPU slowdown): a scroll frame in
   `behaviors.ts` reads only the scroll and one rectangle; querying the page (full-screen check, actions, back link,
   title, picture) runs only after the page changed (`dirty`). The bar's mica is a `::before` that fades by opacity and
