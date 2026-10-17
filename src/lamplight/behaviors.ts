@@ -222,7 +222,17 @@ function largeTitle(): void {
       titleFrame = nextFrame;
       anchoredTitle = title;
     }
-    if (title && titleFrame) {
+    const anchorTitle = Boolean(title && titleFrame && !titleFrame.matches('.hydros-add__stage > .hydros-header'));
+    if (!anchorTitle) {
+      // Hydros's add screen deliberately floats its header over a full-screen illustration. Its own title band is
+      // positioned by hydros.css; the family-wide anchor would add padding to that absolute frame and cover the
+      // drink picker below it.
+      if (titleFrame?.classList.contains('ll-title-anchored')) titleFrame.classList.remove('ll-title-anchored');
+      if (titleFrame?.classList.contains('ll-title-anchored--down')) titleFrame.classList.remove('ll-title-anchored--down');
+      if (titleFrame?.classList.contains('ll-title-anchored--up')) titleFrame.classList.remove('ll-title-anchored--up');
+      if (titleFrame?.style.getPropertyValue('--ll-title-shift')) titleFrame.style.removeProperty('--ll-title-shift');
+    }
+    if (anchorTitle && title && titleFrame) {
       const anchorTop = Number.parseFloat(getComputedStyle(root).getPropertyValue('--ll-title-anchor-top')) || 148;
       // Measure in document coordinates. The structure pass can happen while the page is already scrolled;
       // using the viewport coordinate there would fold the scroll offset into the layout shift.
@@ -293,7 +303,7 @@ function largeTitle(): void {
     const titleBottom = titleRect?.bottom;
     const progress = titleBottom === undefined
       ? Math.min(1, Math.max(0, (y - 36) / fadeDistance))
-      : Math.min(1, Math.max(0, (height + (titleRect?.height ?? 40) + fadeDistance - titleBottom) / fadeDistance));
+      : Math.min(1, Math.max(0, (height + fadeDistance - titleBottom) / fadeDistance));
     const folded = progress >= 0.999;
     root.style.setProperty('--ll-bar-progress', progress.toFixed(3));
     root.style.setProperty('--ll-hair-progress', (progress * 0.78).toFixed(3));

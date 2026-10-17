@@ -189,7 +189,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 /* Keep Add Drink controls tied to the glass and rock landmarks in the wallpaper. */
 .hydros-add { padding: 0; }
 .hydros-add__stage { position: relative; height: calc(100dvh - var(--tab-height)); min-height: calc(100dvh - var(--tab-height)); overflow: hidden; }
-.hydros-add__stage > .hydros-header { position: absolute; z-index: 4; top: calc(var(--ll-safe-top) + 8px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); margin: 0; }
+.hydros-add__stage > .hydros-header { position: absolute; z-index: 4; top: calc(var(--ll-safe-top) + 56px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); margin: 0; }
 .hydros-add__stage > .drink-types { position: absolute; z-index: 3; top: clamp(100px, 15%, 144px); right: clamp(16px, 5.1vw, 28px); left: clamp(16px, 5.1vw, 28px); grid-auto-rows: clamp(94px, 12.5vh, 110px); gap: clamp(8px, 1.3vh, 12px); }
 .hydros-add__stage .drink-types button { position: relative; min-height: 0; height: 100%; border: 0; border-radius: 0; background: transparent; color: var(--text-soft); font-size: clamp(.69rem, 2.9vw, .8rem); }
 .hydros-add__stage .drink-types button { --type-circle: clamp(70px, 19vw, 90px); }
