@@ -33,6 +33,8 @@
   --ll-chip-sm: 32px;
   --ll-chip-md: 36px;
   --ll-chip-lg: 44px;
+  --ll-nav-indicator-width: 28px;
+  --ll-nav-indicator-height: 3px;
 
   /* Type: the serif for page titles, quotes and the person's own words; the sans for everything else. */
   --ll-serif: 'EB Garamond', Georgia, serif;

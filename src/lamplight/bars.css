@@ -307,6 +307,51 @@
   :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::after,
   :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { opacity: 0; }
 
+  /* Every phone dock carries the same small moving mark. The selected color is the app's lamp; a line leaves room
+     for the icon and label to remain calm, and the spring makes the mark travel rather than blink between places. */
+  :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -1px;
+    left: calc(100% + 1rem);
+    width: var(--ll-nav-indicator-width);
+    height: var(--ll-nav-indicator-height);
+    border-radius: var(--ll-radius-pill);
+    background: var(--ll-lamp, var(--cyan, currentColor));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ll-lamp, currentColor) 48%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: left var(--ll-calm) var(--ll-spring), opacity var(--ll-quick) var(--ll-ease-out);
+  }
+
+  :root .hydros-tabs:has(> :nth-child(1)[aria-current='page'])::after { left: calc(12.5% - 14px); opacity: 1; }
+  :root .hydros-tabs:has(> :nth-child(2)[aria-current='page'])::after { left: calc(37.5% - 14px); opacity: 1; }
+  :root .hydros-tabs:has(> :nth-child(3)[aria-current='page'])::after { left: calc(62.5% - 14px); opacity: 1; }
+
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(1)[aria-current='page'])::after { left: calc(7.142857% - 14px); opacity: 1; }
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(2)[aria-current='page'])::after { left: calc(21.428571% - 14px); opacity: 1; }
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(3)[aria-current='page'])::after { left: calc(35.714286% - 14px); opacity: 1; }
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(4)[aria-current='page'])::after { left: calc(50% - 14px); opacity: 1; }
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(5)[aria-current='page'])::after { left: calc(64.285714% - 14px); opacity: 1; }
+  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(6)[aria-current='page'])::after { left: calc(78.571429% - 14px); opacity: 1; }
+
+  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(1).is-active)::after { left: calc(8.333333% - 14px); opacity: 1; }
+  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(2).is-active)::after { left: calc(25% - 14px); opacity: 1; }
+  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(3).is-active)::after { left: calc(41.666667% - 14px); opacity: 1; }
+  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(4).is-active)::after { left: calc(58.333333% - 14px); opacity: 1; }
+  :root .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(5).is-active)::after { left: calc(75% - 14px); opacity: 1; }
+
+  :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {
+    transition: translate var(--ll-calm) var(--ll-spring);
+  }
+
+  :root .hydros-tabs__item[aria-current='page'] svg,
+  :root .praxis-bottom-nav .praxis-nav-item[aria-current='page'] svg,
+  :root .theoria-bottom-nav .theoria-nav-list button.is-active span {
+    translate: 0 -2px;
+  }
+
   /* Room for the bar where a page's title begins at the very top. */
   :root.ll-bar-on .shell .page:not(.page--under-hero):not(:has(> .back-link:first-child)):not(:has(> .brand:first-child)) {
     padding-top: calc(var(--ll-safe-top) + 56px);

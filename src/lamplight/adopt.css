@@ -204,3 +204,13 @@
 :root :is(.sheet__panel, .family-sheet, .menu, .popover) {
   box-shadow: var(--ll-light-3);
 }
+
+:root .sheet::backdrop {
+  background: var(--ll-material-smoke);
+}
+
+:root :is(.sheet__panel, .family-sheet) {
+  border-color: var(--ll-hair);
+  background: var(--ll-material-raised);
+  color: var(--ll-ink);
+}
