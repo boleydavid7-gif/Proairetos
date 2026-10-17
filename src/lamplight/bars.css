@@ -151,9 +151,10 @@
     transition: none;
   }
 
-  /* The serif greeting has descenders that sit close to its line box on iOS. Give the live title a little
-     more leading and a small lower cushion so the final glyph is never tucked into the following content. */
-  :root.ll-bar-on .today-header .page-header__title {
+  /* Every app's large title needs the same small breathing room on iOS. A tight line box can clip serif
+     descenders when the title fades under the top bar, especially on pages whose title has a short subtitle. */
+  :root.ll-bar-on :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title,
+    .praxis-page-heading h1, .theoria-heading h1, .hydros-header h1, .hydros-hero__words > p, main h1) {
     line-height: 1.18;
     padding-block-end: 4px;
   }
