@@ -17,8 +17,7 @@
   border-radius: var(--ll-radius-pill);
   background: var(--ll-lamp-fill);
   color: var(--ll-on-lamp);
-  font: var(--ll-type-label);
-  font-size: var(--text-md, 1rem);
+  font: var(--ll-type-button);
   text-decoration: none;
   box-shadow: var(--ll-lamp-light);
   cursor: pointer;
@@ -47,7 +46,8 @@
 .ll-chip:focus-visible,
 .ll-row--interactive:focus-visible,
 .ll-card--interactive:focus-visible {
-  outline: none;
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
   box-shadow: var(--ll-focus);
 }
 
@@ -222,7 +222,8 @@
 }
 
 .ll-switch:focus-visible {
-  outline: none;
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
   box-shadow: var(--ll-focus);
 }
 
@@ -250,6 +251,11 @@
 .ll-field:focus {
   outline: none;
   box-shadow: var(--ll-focus);
+}
+
+.ll-field:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
 }
 
 .ll-field--sm {
@@ -291,13 +297,13 @@
   cursor: pointer;
 }
 
-.ll-chip[aria-pressed='true'] {
+.ll-chip:is([aria-pressed='true'], [aria-selected='true'], [aria-checked='true']) {
   border-color: transparent;
   background: var(--ll-state-selected);
   color: var(--ll-lamp);
 }
 
-.ll-chip:not([aria-pressed='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
+.ll-chip:not([aria-pressed='true']):not([aria-selected='true']):not([aria-checked='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 
@@ -352,12 +358,12 @@
   cursor: pointer;
 }
 
-.ll-bar__item[aria-current='page'] {
+.ll-bar__item:is([aria-current='page'], [aria-selected='true']) {
   background: var(--ll-state-selected);
   color: var(--ll-lamp);
 }
 
-.ll-bar__item:not([aria-current='page']):is(:hover, :focus-visible):not([aria-disabled='true']) {
+.ll-bar__item:not([aria-current='page']):not([aria-selected='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
   background: var(--ll-state-hover);
 }
 

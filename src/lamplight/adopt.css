@@ -162,6 +162,11 @@
   box-shadow: var(--ll-focus);
 }
 
+:root :is(.input, .textarea, .field-input, .row__select):focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+}
+
 :root :is(.input, .textarea, .field-input, .row__select).field--sm {
   min-height: var(--ll-field-sm);
 }
@@ -181,8 +186,15 @@
 }
 
 :root :where(button, a, summary, [role='switch'], [tabindex]):focus-visible {
-  outline: none;
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
   box-shadow: var(--ll-focus);
+}
+
+/* The same selected state can be expressed with the ARIA attribute a control already owns. */
+:root :is(.button-main, .button-accent, .button-quiet, .button-danger, .chip)[aria-selected='true'] {
+  color: var(--ll-lamp);
+  background: var(--ll-state-selected);
 }
 
 /* ---------- Switches: the lamp when on (the deeper one in daylight, so it stands out on a pale card) ---------- */
@@ -191,7 +203,8 @@
 }
 
 :root .switch:focus-visible {
-  outline: none;
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
   box-shadow: var(--ll-focus);
 }
 
