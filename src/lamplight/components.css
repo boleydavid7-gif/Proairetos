@@ -43,6 +43,14 @@
   box-shadow: none;
 }
 
+.ll-button:focus-visible,
+.ll-chip:focus-visible,
+.ll-row--interactive:focus-visible,
+.ll-card--interactive:focus-visible {
+  outline: none;
+  box-shadow: var(--ll-focus);
+}
+
 .ll-button--sm {
   min-height: var(--ll-control-sm);
   padding-inline: var(--ll-space-4);
@@ -98,6 +106,21 @@
 .ll-card--raised {
   background: var(--ll-material-raised);
   box-shadow: var(--ll-light-2);
+}
+
+.ll-card--interactive {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .ll-card--interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ll-light-2);
+  }
+}
+
+.ll-card--interactive:active {
+  transform: scale(0.99);
 }
 
 /* ---------- A grouped list (iOS-style): rows with an icon tile and hairlines that start after it ---------- */

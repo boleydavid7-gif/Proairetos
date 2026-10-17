@@ -60,6 +60,13 @@
   --ll-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ll-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ll-ease-light: cubic-bezier(0.3, 0, 0, 1);
+  /* State changes settle together: surfaces, text, borders and focus light move as one. */
+  --ll-state-transition:
+    background-color var(--ll-calm) var(--ll-ease-out),
+    color var(--ll-calm) var(--ll-ease-out),
+    border-color var(--ll-calm) var(--ll-ease-out),
+    box-shadow var(--ll-calm) var(--ll-ease-out),
+    transform var(--ll-quick) var(--ll-ease-out);
 
   /* Interaction states: layers over a control's resting material, never replacement colors. The ink carries
      quiet hover feedback; the lamp marks a press, selection and keyboard focus. */

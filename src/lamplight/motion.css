@@ -5,17 +5,17 @@
  * with reduced motion the durations are zero (tokens.css), so the light simply comes and goes.
  */
 
-:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .row, .place-row, .settings-row) {
-  transition: filter var(--ll-dim) var(--ll-ease-light);
+:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row) {
+  transition: var(--ll-state-transition), filter var(--ll-dim) var(--ll-ease-light);
 }
 
-:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .row, .place-row, .settings-row):active:not(:disabled) {
+:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
   filter: brightness(1.12) drop-shadow(0 0 10px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.35));
   transition-duration: var(--ll-quick);
 }
 
 /* In daylight a brighter surface would wash out; the lamp's edge alone carries the press. */
-:root[data-theme='light'] :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .row, .place-row, .settings-row):active:not(:disabled) {
+:root[data-theme='light'] :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
   filter: drop-shadow(0 0 8px rgba(var(--ll-lamp-rgb, 217, 163, 82), 0.45));
 }
 
@@ -28,7 +28,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .row, .place-row, .settings-row):active:not(:disabled) {
+  :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
     filter: none;
   }
 }
