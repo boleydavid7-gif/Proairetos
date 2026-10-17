@@ -103,7 +103,7 @@ function largeTitle(): void {
   const phone = matchMedia(PHONE);
   const root = document.documentElement;
   const bar = document.createElement('div');
-  bar.className = 'll-topbar';
+  bar.className = 'll-topbar ll-mica';
   // The bar holds the only visible copy of these controls on a phone, so it is the one people and screen readers use.
   bar.setAttribute('role', 'toolbar');
   const lead = document.createElement('button');

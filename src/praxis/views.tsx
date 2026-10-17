@@ -30,6 +30,7 @@ import {
   type PraxisQuote,
 } from './data';
 import { Sym } from '../lamplight/icons';
+import IconButton from '../components/ui/IconButton';
 
 export const PRAXIS_SOUND_IDS = ['none', 'forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
 
@@ -332,8 +333,8 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
           <div className="praxis-card-heading">
             <div><p className="praxis-eyebrow">{label}</p><h2>{total ? formatMinutes(total) : 'Nothing recorded'}</h2></div>
             <div className="praxis-week-step">
-              <button type="button" aria-label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}><Sym name="back" /></button>
-              <button type="button" aria-label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}><Sym name="chevron" /></button>
+              <IconButton size="sm" label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}><Sym name="back" /></IconButton>
+              <IconButton size="sm" label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}><Sym name="chevron" /></IconButton>
             </div>
           </div>
           <div className={total ? 'praxis-chart' : 'praxis-chart praxis-chart--empty'}>

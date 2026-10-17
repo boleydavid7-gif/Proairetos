@@ -6,6 +6,7 @@ import { payBill } from '../app/payBill';
 import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
 import Empty from '../../app/family/Empty';
+import IconButton from '../../components/ui/IconButton';
 
 export default function BillsPage({ nav }: { nav: Nav }) {
   const bills = useBills();
@@ -22,7 +23,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Bills</h1>
         </div>
-        <button type="button" className="round-button" aria-label="Add a bill" onClick={() => nav.swap({ name: 'capture' })}><PlusIcon size={22} /></button>
+        <IconButton className="round-button" label="Add a bill" onClick={() => nav.swap({ name: 'capture' })}><PlusIcon size={22} /></IconButton>
       </PageTop>
 
       {!bills ? (

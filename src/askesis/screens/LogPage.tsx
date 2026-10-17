@@ -10,6 +10,7 @@ import { Brand, dayLabel, Segmented } from '../app/ui';
 import { activities, feelings, logCsv, newestFirst, periodRange, recordFacts, totalsBetween, weeklyTotals, type Period } from '../core/log';
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
 import Empty from '../../app/family/Empty';
+import IconButton from '../../components/ui/IconButton';
 
 const periods: { id: Period; label: string }[] = [
   { id: 'week', label: 'Week' },
@@ -60,9 +61,9 @@ export default function LogPage({ nav }: { nav: Nav }) {
       <div className="page-top">
         <Brand />
         <span data-header-actions>
-          <button type="button" className="round-button" aria-label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>
+          <IconButton className="round-button" label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>
             <PlusIcon size={22} />
-          </button>
+          </IconButton>
         </span>
       </div>
       <h1 className="title">Progress</h1>

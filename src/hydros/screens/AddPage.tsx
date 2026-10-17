@@ -5,6 +5,7 @@ import { logDrink } from '../app/log';
 import { MinusIcon, PlusIcon, iconForKind } from '../app/icons';
 import { ScreenHeader } from '../app/ui';
 import { updateSettings, useSettings } from '../app/state';
+import IconButton from '../../components/ui/IconButton';
 
 type Props = { nav: Nav; profileId?: string; custom?: boolean };
 
@@ -76,9 +77,9 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
           </div>
         )}
         <div className="amount-picker">
-          <button type="button" aria-label="Decrease amount" onClick={() => changeAmount(-1)}><MinusIcon /></button>
+          <IconButton size="md" label="Decrease amount" onClick={() => changeAmount(-1)}><MinusIcon /></IconButton>
           <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
-          <button type="button" aria-label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></button>
+          <IconButton size="md" label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></IconButton>
         </div>
         <button type="button" className="hydros-save" disabled={custom && !name.trim()} onClick={() => void (custom ? saveCustom() : save())}>Save</button>
       </div>
