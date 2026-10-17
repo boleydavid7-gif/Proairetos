@@ -43,6 +43,8 @@ export type Scheme = {
   glow: string;
   /** Removing something (never a failure color): a warm red, read as text on every surface. */
   remove: Hex;
+  /** The room dim under a sheet or dialog: dark in either appearance, but still carrying the room's hue. */
+  smoke: string;
   /** Bars and docks: mica, an opaque surface tinted a little more by the room than the page is, never blurred. */
   bar: string;
   mica: Hex;
@@ -147,6 +149,7 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: De
   const mica = deep && dark ? oklch(0.17, c * 1.6 + 0.006, h) : dark ? oklch(0.195, c * 1.6 + 0.006, h) : oklch(0.978, c * 1.4 + 0.006, h);
 
   const remove = readable(dark ? 0.78 : 0.5, dark ? 0.11 : 0.15, 25, surfaces, 4.5, !dark);
+  const smoke = dark ? rgba(tones.wall, 0.72) : rgba(ink, 0.28);
 
   return {
     mode,
@@ -161,6 +164,7 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: De
     onLamp,
     glow: rgba(dark ? lampText : fill, dark ? 0.15 : 0.18),
     remove,
+    smoke,
     bar: mica,
     mica,
     art: dark
@@ -191,6 +195,7 @@ export function schemeVars(s: Scheme): Record<string, string> {
     '--ll-glow': s.glow,
     '--ll-remove': s.remove,
     '--ll-remove-rgb': triple(s.remove),
+    '--ll-smoke': s.smoke,
     '--ll-bar': s.bar,
     '--ll-mica': s.mica,
   };

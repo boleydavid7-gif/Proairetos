@@ -31,6 +31,16 @@ const PRINCIPLES: [string, string][] = [
   ['Each app its own place', 'In a family of apps, each one is a place: a garden, a path, water. Its room and lamp come from what it is about; the structure is shared.'],
 ];
 
+const MATERIALS: [string, string][] = [
+  ['wall', 'deepest room surface'],
+  ['page', 'the reading surface'],
+  ['solid', 'cards and grouped content'],
+  ['inset', 'fields and nested content'],
+  ['raised', 'menus and sheets'],
+  ['mica', 'bars and navigation chrome'],
+  ['smoke', 'the dim under a sheet'],
+];
+
 const ROLES: { key: keyof Scheme; name: string; use: string; text?: boolean }[] = [
   { key: 'wall', name: 'wall', use: 'side rail, deepest' },
   { key: 'page', name: 'page', use: 'the page' },
@@ -293,6 +303,17 @@ export default function Guide() {
               <strong>--ll-lamp-light</strong>
               <span>The lamp&rsquo;s own light, on the main action</span>
             </div>
+          </div>
+        </Section>
+
+        <Section id="materials" title="Material tiers" lead="Choose the surface's place in the room first. Shape, light and motion can then stay consistent across apps.">
+          <div className="g-materials">
+            {MATERIALS.map(([name, use]) => (
+              <div key={name} className={`g-material ll-material--${name}`}>
+                <strong>--ll-material-{name}</strong>
+                <span>{use}</span>
+              </div>
+            ))}
           </div>
         </Section>
 

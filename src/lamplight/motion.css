@@ -24,7 +24,7 @@
 .ll-dim {
   background:
     radial-gradient(120% 60% at 70% 0%, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1), transparent 60%),
-    rgba(var(--ll-page-rgb, 4, 5, 6), 0.68);
+    var(--ll-material-smoke, rgba(var(--ll-page-rgb, 4, 5, 6), 0.68));
 }
 
 @media (prefers-reduced-motion: reduce) {

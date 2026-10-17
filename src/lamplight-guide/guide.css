@@ -412,6 +412,30 @@ body {
   color: var(--ll-on-lamp);
 }
 
+.g-materials {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--ll-space-3);
+}
+
+.g-material {
+  display: grid;
+  min-height: 96px;
+  align-content: end;
+  gap: var(--ll-space-1);
+  padding: var(--ll-space-4);
+  border-radius: var(--ll-radius-md);
+}
+
+.g-material strong {
+  font: var(--ll-type-label);
+}
+
+.g-material span {
+  color: var(--ll-ink-2);
+  font: var(--ll-type-caption);
+}
+
 .g-stack {
   display: grid;
   align-content: start;

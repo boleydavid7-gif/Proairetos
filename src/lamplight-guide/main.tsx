@@ -6,6 +6,7 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import '../lamplight/tokens.css';
+import '../lamplight/materials.css';
 import '../lamplight/components.css';
 import '../lamplight/motion.css';
 import '../lamplight/icons.css';

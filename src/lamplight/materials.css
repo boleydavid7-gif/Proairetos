@@ -1,0 +1,58 @@
+/*
+ * Lamplight's material contract. A material describes how a surface belongs to the room; light and shape describe
+ * how far it sits above that surface. Solid content never becomes glass. Mica is reserved for navigation chrome, and
+ * smoke is reserved for the dim behind a dialog or sheet.
+ */
+:root {
+  --ll-material-wall: var(--ll-wall, #0d0b09);
+  --ll-material-page: var(--ll-page, #14100b);
+  --ll-material-solid: var(--ll-card, #1d1914);
+  --ll-material-inset: var(--ll-inset, #211c16);
+  --ll-material-raised: var(--ll-raised, #282119);
+  --ll-material-mica: var(--ll-mica, var(--ll-page, #14100b));
+  --ll-material-mica-surface: var(--ll-mica-surface, var(--ll-material-mica));
+  --ll-material-smoke: var(--ll-smoke, rgba(var(--ll-page-rgb, 4, 5, 6), 0.68));
+}
+
+/* New screens can opt into a tier without borrowing an app's private color names. */
+.ll-material--wall {
+  background: var(--ll-material-wall);
+  color: var(--ll-ink);
+}
+
+.ll-material--solid {
+  background: var(--ll-material-solid);
+  color: var(--ll-ink);
+  box-shadow: var(--ll-light-1);
+}
+
+.ll-material--page {
+  background: var(--ll-material-page);
+  color: var(--ll-ink);
+}
+
+.ll-material--inset {
+  background: var(--ll-material-inset);
+  color: var(--ll-ink);
+}
+
+.ll-material--raised {
+  background: var(--ll-material-raised);
+  color: var(--ll-ink);
+  box-shadow: var(--ll-light-2);
+}
+
+.ll-material--mica {
+  background: var(--ll-material-mica-surface);
+  color: var(--ll-ink);
+}
+
+.ll-material--smoke {
+  background: var(--ll-material-smoke);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ll-material--mica {
+    background: var(--ll-material-mica);
+  }
+}

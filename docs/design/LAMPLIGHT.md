@@ -25,6 +25,7 @@ uses the same code as the apps.
 | --- | --- |
 | `src/lamplight/color.ts` | OKLCH to sRGB (chroma lowered until it fits), hex to OKLCH, WCAG contrast |
 | `src/lamplight/scheme.ts` | Seeds (`ROOM_SEEDS`, `LAMP_SEEDS`, `ROOM_LAMP`, `ownLamp`), `makeScheme(room, lamp, mode)`, `schemeVars` (`--ll-*`) |
+| `src/lamplight/materials.css` | The material contract: wall, page, solid, inset, raised, mica and smoke roles, with reduced-transparency fallbacks |
 | `src/lamplight/apps.ts` | Each app's theme (`appTheme`): a room and lamp from its page colors and accent |
 | `src/lamplight/family.ts` | The bridge: each app's own color names set from the scheme (`familyVars`); `ALWAYS_DARK` (Praxis, Theoria) |
 | `src/lamplight/tokens.css` | Shape, space, type roles, light (depth), motion, focus |
@@ -35,7 +36,7 @@ uses the same code as the apps.
 | `src/app/lamplight.ts` | `applyLamplight(appearance, light, app)`: sets the scheme on the root, Proairetos's wallpaper and foot |
 
 Every app's `main` (or `startApp`) registers `withLamplight((look, light) => applyLamplight(look, light, app))`;
-`premium.css` imports the three stylesheets, so every app has the tokens, components and motion. Tests:
+`premium.css` imports the shared stylesheets, so every app has the materials, tokens, components and motion. Tests:
 `src/tests/lamplight/scheme.test.ts` (presets kept, every room × 32 lamps × dark/light readable, every app theme
 readable).
 
@@ -54,6 +55,7 @@ readable).
 | `--ll-lamp-fill`, `--ll-on-lamp` | the main action and the words on it |
 | `--ll-lamp-soft`, `--ll-glow` | hover; soft tints |
 | `--ll-remove` | removing something (never a failure color) |
+| `--ll-smoke` | the room-colored dim behind a sheet or dialog |
 | `--ll-bar` | translucent bars |
 
 Plus `--ll-page-rgb`, `--ll-ink-rgb` and `--ll-lamp-rgb` for `rgba()` tints.
@@ -132,12 +134,14 @@ the guide with States and Accessibility sections.
 
 ## Materials
 
-After Fluent: **solid** for cards; **mica** for bars and docks (`--ll-mica`, opaque, the room's hue a little stronger than
-the page, `--ll-mica-surface` adds the lamp washing in from above); **smoke**, a plain dim, behind dialogs and sheets.
-The phone top bar is the one glass exception: once its title has passed underneath, a soft room-tinted blur fades in
-as a solid bar over the page, with the page edge and a semi-transparent hairline settling into it. No other surface
-uses `backdrop-filter`. Content passing under a dock fades into it (`--ll-edge-below`, `--ll-edge-above`) rather than
-meeting a hard line.
+After Fluent: **solid** for content (`--ll-material-solid`); **mica** for bars and docks (`--ll-material-mica`, opaque,
+the room's hue a little stronger than the page, `--ll-material-mica-surface` adds the lamp washing in from above);
+**smoke** (`--ll-material-smoke`), a plain room-colored dim, behind dialogs and sheets. The public classes
+`.ll-material--wall`, `--page`, `--solid`, `--inset`, `--raised`, `--mica`, and `--smoke` let a new screen choose a
+material without reaching into an app's private palette. The phone top bar is the one glass exception: once its title
+has passed underneath, a soft room-tinted blur fades in as a solid bar over the page, with the page edge and a
+semi-transparent hairline settling into it. No other surface uses `backdrop-filter`. Content passing under a dock
+fades into it (`--ll-edge-below`, `--ll-edge-above`) rather than meeting a hard line.
 
 ## Touch and motion
 
