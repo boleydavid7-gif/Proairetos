@@ -113,6 +113,17 @@
     opacity: var(--ll-hair-progress, 0);
   }
 
+  /* Once the title has completely handed off, the bar and page should read as one
+     uninterrupted surface. The edge shadow and hairline are useful during the
+     handoff, but become a visible seam when the titlebar is fully settled. */
+  .ll-topbar.is-folded::before {
+    box-shadow: none;
+  }
+
+  .ll-topbar.is-folded::after {
+    opacity: 0;
+  }
+
   /* Left: the app's name, or the chevron and where it goes. */
   .ll-topbar__lead {
     grid-column: 1;
