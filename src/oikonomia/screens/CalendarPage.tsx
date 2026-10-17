@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '../app/icons';
 import { amountFor, formatDate, formatMoney, formatMonth, monthBounds, monthCells, nextMonth, occurrencesBetween, paidForOccurrence, remainingSummary, weekBounds, weekdayLabels, type BillOccurrence } from '../core/bills';
 import { useBills, useSettings, useToday } from '../app/state';
 import { formatFrequency, PageTop } from '../app/ui';
+import IconButton from '../../components/ui/IconButton';
 
 const byDay = (a: BillOccurrence, b: BillOccurrence) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name);
 
@@ -42,9 +43,9 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
 
       <section className="card oiko-calendar-card" aria-label={formatMonth(month)}>
         <div className="oiko-calendar-head">
-          <button type="button" className="icon-button" aria-label="Previous month" onClick={() => setMonth((current) => nextMonth(current, -1))}><ArrowLeftIcon size={20} /></button>
+          <IconButton size="sm" className="icon-button" label="Previous month" onClick={() => setMonth((current) => nextMonth(current, -1))}><ArrowLeftIcon size={20} /></IconButton>
           <h2>{formatMonth(month)}</h2>
-          <button type="button" className="icon-button" aria-label="Next month" onClick={() => setMonth((current) => nextMonth(current, 1))}><ArrowRightIcon size={20} /></button>
+          <IconButton size="sm" className="icon-button" label="Next month" onClick={() => setMonth((current) => nextMonth(current, 1))}><ArrowRightIcon size={20} /></IconButton>
         </div>
         <div className="oiko-calendar-weekdays">{labels.map((label) => <span key={label}>{label}</span>)}</div>
         <div className="oiko-calendar-grid">

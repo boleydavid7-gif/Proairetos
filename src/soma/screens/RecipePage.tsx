@@ -27,6 +27,7 @@ import { budgetTotals, monthKey, recipeBudgetComparison } from '../../oikonomia/
 import { formatMoney } from '../../oikonomia/core/bills';
 import { isAdded } from '../../app/family/added';
 import { Sym } from '../../lamplight/icons';
+import IconButton from '../../components/ui/IconButton';
 
 type Tab = 'ingredients' | 'steps' | 'nutrition' | 'notes';
 
@@ -173,25 +174,24 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       <div className={`recipe-hero${recipe.image ? '' : ` recipe-hero--plain dish-card--${tintOf(recipe.id)}`}`}>
         {recipe.image && <img src={recipe.image} alt="" />}
         <div className="recipe-hero__bar">
-          <button type="button" className="round-button" onClick={nav.back} aria-label="Back">
+          <IconButton className="round-button" label="Back" onClick={nav.back}>
             <Sym name="back" size={20} />
-          </button>
+          </IconButton>
           <span style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
+            <IconButton
               className="round-button"
               aria-pressed={Boolean(recipe.favorite)}
-              aria-label={recipe.favorite ? 'Take out of favorites' : 'Keep as a favorite'}
+              label={recipe.favorite ? 'Take out of favorites' : 'Keep as a favorite'}
               onClick={() => void save({ favorite: !recipe.favorite })}
             >
               <HeartIcon size={20} filled={recipe.favorite} />
-            </button>
-            <button type="button" className="round-button" aria-label="Share this recipe" onClick={() => void share()}>
+            </IconButton>
+            <IconButton className="round-button" label="Share this recipe" onClick={() => void share()}>
               <ShareIcon size={20} />
-            </button>
-            <button type="button" className="round-button" aria-label="Edit recipe" onClick={() => nav.go({ name: 'edit', id: recipe.id })}>
+            </IconButton>
+            <IconButton className="round-button" label="Edit recipe" onClick={() => nav.go({ name: 'edit', id: recipe.id })}>
               <Sym name="pencil" size={20} />
-            </button>
+            </IconButton>
           </span>
         </div>
       </div>

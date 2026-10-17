@@ -11,6 +11,7 @@ import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCateg
 import { byArea, guessArea, newLines, readStatement, type Spent } from '../core/statements';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
 import Empty from '../../app/family/Empty';
+import IconButton from '../../components/ui/IconButton';
 
 const areaName = (area: BudgetCategory) => budgetCategories.find((each) => each.id === area)?.label ?? 'Other';
 const shiftMonth = (month: string, by: number) => {
@@ -105,8 +106,8 @@ export default function SpentPage({ nav }: { nav: Nav }) {
           <h1 className="title">{formatMonthKey(month)}</h1>
         </div>
         <div className="oiko-budget__switch">
-          <button type="button" className="round-button" aria-label="Previous month" onClick={() => setMonth(shiftMonth(month, -1))}><ArrowLeftIcon size={18} /></button>
-          <button type="button" className="round-button" aria-label="Next month" onClick={() => setMonth(shiftMonth(month, 1))}><ArrowRightIcon size={18} /></button>
+          <IconButton size="md" className="round-button" label="Previous month" onClick={() => setMonth(shiftMonth(month, -1))}><ArrowLeftIcon size={18} /></IconButton>
+          <IconButton size="md" className="round-button" label="Next month" onClick={() => setMonth(shiftMonth(month, 1))}><ArrowRightIcon size={18} /></IconButton>
         </div>
       </div>
 

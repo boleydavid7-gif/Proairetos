@@ -9,6 +9,7 @@ import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
+import IconButton from '../../components/ui/IconButton';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
   const all = useDrinks();
@@ -42,9 +43,9 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <section className="hydros-hero hydros-hero--today">
         <div className="hydros-home-head">
           <Brand light />
-          <button type="button" className="hydros-settings-button" data-to-header="" aria-label="Settings" onClick={() => nav.go({ name: 'settings' })}>
+          <IconButton className="hydros-settings-button" data-to-header="" label="Settings" onClick={() => nav.go({ name: 'settings' })}>
             <GearIcon size={22} />
-          </button>
+          </IconButton>
         </div>
         <div className="hydros-hero__words">
           <p>Today</p>

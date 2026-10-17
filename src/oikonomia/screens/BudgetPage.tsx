@@ -7,6 +7,7 @@ import { formatMoney, nextMonth } from '../core/bills';
 import { budgetCategories, budgetTotals, emptyLimits, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, type BudgetCategory, type BudgetPlan } from '../core/budget';
 import { putBudget } from '../data/store';
 import { PageTop } from '../app/ui';
+import IconButton from '../../components/ui/IconButton';
 
 const amountText = (value: number) => (value ? (value / 100).toFixed(2) : '');
 const areaCategories = budgetCategories.filter(({ id }) => id !== 'food' && id !== 'utilities');
@@ -120,8 +121,8 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           <h1 className="title">{formatMonthKey(month)}</h1>
         </div>
         <div className="oiko-budget__switch">
-          <button type="button" className="round-button" aria-label="Previous month" onClick={() => changeMonth(-1)}><ArrowLeftIcon size={18} /></button>
-          <button type="button" className="round-button" aria-label="Next month" onClick={() => changeMonth(1)}><ArrowRightIcon size={18} /></button>
+          <IconButton size="md" className="round-button" label="Previous month" onClick={() => changeMonth(-1)}><ArrowLeftIcon size={18} /></IconButton>
+          <IconButton size="md" className="round-button" label="Next month" onClick={() => changeMonth(1)}><ArrowRightIcon size={18} /></IconButton>
         </div>
       </div>
 
