@@ -52,18 +52,20 @@ for (const viewport of viewports) {
         return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
       };
       const title = selectors.flatMap((selector) => [...document.querySelectorAll(selector)].filter(visible)).at(0);
+      const titleRect = title?.getBoundingClientRect();
       return {
         overflow: document.documentElement.scrollWidth > innerWidth + 1,
         roots: document.querySelectorAll('#root > *').length,
         title: title?.textContent?.trim() ?? null,
-        titleRect: title?.getBoundingClientRect().toJSON() ?? null,
+        titleRect: titleRect?.toJSON() ?? null,
+        titleClipped: Boolean(titleRect && (titleRect.top < 0 || titleRect.bottom > innerHeight)),
       };
     }, titleSelectors);
     const name = `${app}-${viewport.name}`;
     await page.screenshot({ path: join(outputDir, `${name}.png`), fullPage: false });
     const result = { app, viewport: viewport.name, errors, ...state };
     results.push(result);
-    if (errors.length || state.overflow || state.roots !== 1 || !state.title) failures.push(result);
+    if (errors.length || state.overflow || state.roots !== 1 || !state.title || state.titleClipped) failures.push(result);
     await page.close();
   }
   await context.close();

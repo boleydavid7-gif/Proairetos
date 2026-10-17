@@ -87,6 +87,7 @@
   background:
     radial-gradient(140% 100% at 74% -45%, color-mix(in srgb, var(--ll-lamp-fill) 12%, transparent), transparent 62%),
     var(--ll-material-raised);
+  color: var(--ll-ink);
 }
 
 .ll-material--smoke {
@@ -94,7 +95,10 @@
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .ll-material--mica {
+  .ll-material--mica,
+  .ll-mica {
     background: var(--ll-material-mica);
   }
+
+  .ll-mica--strong { background: var(--ll-material-raised); }
 }
