@@ -9,6 +9,7 @@ import { ScheduleValidationError, type PatternInput } from '../../services/sched
 import SchedulePreview from './SchedulePreview';
 import { weekdayNames } from './format';
 import { Sym } from '../../lamplight/icons';
+import IconButton from '../../components/ui/IconButton';
 
 type Props = {
   patternId?: string;
@@ -76,15 +77,15 @@ function RunCard({
       <div className="run-card__header">
         <span className="run-card__title">{name}</span>
         <span className="run-card__tools">
-          <button type="button" className="icon-button" aria-label={`Move ${name} up`} disabled={index === 0} onClick={() => onMove(-1)}>
-            ↑
-          </button>
-          <button type="button" className="icon-button" aria-label={`Move ${name} down`} disabled={index === count - 1} onClick={() => onMove(1)}>
-            ↓
-          </button>
-          <button type="button" className="icon-button" aria-label={`Remove ${name}`} disabled={count === 1} onClick={onRemove}>
+          <IconButton size="sm" className="icon-button" label={`Move ${name} up`} disabled={index === 0} onClick={() => onMove(-1)}>
+            <Sym name="arrowUp" />
+          </IconButton>
+          <IconButton size="sm" className="icon-button" label={`Move ${name} down`} disabled={index === count - 1} onClick={() => onMove(1)}>
+            <Sym name="arrowDown" />
+          </IconButton>
+          <IconButton size="sm" className="icon-button" label={`Remove ${name}`} disabled={count === 1} onClick={onRemove}>
             <Sym name="close" />
-          </button>
+          </IconButton>
         </span>
       </div>
 

@@ -20,6 +20,7 @@ import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
+import IconButton from '../../components/ui/IconButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { dailyLineFor } from '../../core/stoic/dailyLine';
@@ -182,15 +183,14 @@ export default function NowPage() {
       <header className="page-header today-header">
         <div className="page-header__actions">
           <TodayWeather />
-          <button
-            type="button"
+          <IconButton
             className="header-action"
-            aria-label={lighter ? 'Show everything' : 'Lighter today'}
+            label={lighter ? 'Show everything' : 'Lighter today'}
             aria-pressed={lighter}
             onClick={() => setLighterToday(!lighter, today)}
           >
             <SproutIcon size={22} />
-          </button>
+          </IconButton>
           <SearchButton />
           <SettingsButton />
         </div>

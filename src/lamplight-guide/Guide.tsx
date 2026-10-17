@@ -314,6 +314,14 @@ export default function Guide() {
                 <span>{use}</span>
               </div>
             ))}
+            <div className="g-material ll-mica">
+              <strong>.ll-mica</strong>
+              <span>optional room-tinted depth for new chrome</span>
+            </div>
+            <div className="g-material ll-mica--strong">
+              <strong>.ll-mica--strong</strong>
+              <span>raised Mica fallback for a forward surface</span>
+            </div>
           </div>
         </Section>
 

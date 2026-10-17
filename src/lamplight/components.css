@@ -21,6 +21,7 @@
   text-decoration: none;
   box-shadow: var(--ll-lamp-light);
   cursor: pointer;
+  transition: var(--ll-state-transition);
 }
 
 .ll-button--tonal {
@@ -96,6 +97,7 @@
   background: transparent;
   color: var(--ll-ink-2);
   cursor: pointer;
+  transition: var(--ll-state-transition);
 }
 
 .ll-icon-button--sm {
@@ -115,7 +117,7 @@
 
 .ll-icon-button:active:not(:disabled):not([aria-disabled='true']) {
   background: var(--ll-state-pressed);
-  scale: 0.96;
+  transform: scale(0.96);
 }
 
 .ll-icon-button:focus-visible {
@@ -413,6 +415,7 @@
   font: var(--ll-type-label);
   white-space: nowrap;
   cursor: pointer;
+  transition: var(--ll-state-transition);
 }
 
 .ll-segmented__item:is([aria-selected='true'], [aria-pressed='true']) {
@@ -504,6 +507,7 @@
   color: var(--ll-ink-3);
   font: var(--ll-type-caption);
   cursor: pointer;
+  transition: var(--ll-state-transition);
 }
 
 .ll-bar__item:is([aria-current='page'], [aria-selected='true']) {

@@ -131,6 +131,8 @@ export const GLYPHS = {
   more: { line: <>{dot(6)}{dot(12)}{dot(18)}</>, lit: <></> },
   back: { line: <path d="M14.5 5.5 8 12l6.5 6.5" />, lit: <></> },
   chevron: { line: <path d="M9.5 5.5 16 12l-6.5 6.5" />, lit: <></> },
+  arrowUp: { line: <path d="M12 19V5M6 11l6-6 6 6" />, lit: <></> },
+  arrowDown: { line: <path d="M12 5v14M6 13l6 6 6-6" />, lit: <></> },
   arrowLeft: { line: <path d="M19 12H5M11 6l-6 6 6 6" />, lit: <></> },
   close: { line: <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />, lit: <></> },
   check: { line: <path d="M5.5 12.5l4 4 9-9" />, lit: <></> },

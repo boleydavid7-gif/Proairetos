@@ -74,6 +74,21 @@
   color: var(--ll-ink);
 }
 
+/* Optional Mica depth for new chrome: an opaque room tint with a soft light field. It has the layered feel of
+   Fluent Mica without depending on backdrop blur, so the same surface stays stable in a mobile WebView. */
+.ll-mica {
+  background:
+    radial-gradient(125% 90% at 70% -35%, var(--ll-glow, transparent), transparent 64%),
+    var(--ll-material-mica);
+  color: var(--ll-ink);
+}
+
+.ll-mica--strong {
+  background:
+    radial-gradient(140% 100% at 74% -45%, color-mix(in srgb, var(--ll-lamp-fill) 12%, transparent), transparent 62%),
+    var(--ll-material-raised);
+}
+
 .ll-material--smoke {
   background: var(--ll-material-smoke);
 }
