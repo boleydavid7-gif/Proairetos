@@ -142,7 +142,8 @@
   .ll-topbar__lead.is-back {
     margin-left: -6px;
     color: var(--ll-lamp, currentColor);
-    font: 400 var(--text-base, 1rem) / 1.2 var(--ll-sans);
+    /* The same size as the app's name, so the bar's title holds its size from page to page. */
+    font: 400 var(--text-lg, 1.15rem) / 1.2 var(--ll-sans);
     cursor: pointer;
   }
 
