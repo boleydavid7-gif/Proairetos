@@ -20,6 +20,14 @@ type ViewTransitionDocument = Document & {
 type ViewTransitionHandle = { finished: Promise<void>; skipTransition?: () => void };
 
 export function canTransition(): boolean {
+  // The companion shells still have their own root-level transition rules. On iOS Safari and
+  // embedded web views those rules can leave the document snapshot moving after navigation,
+  // which looks like the new page falling forever. Keep their normal keyed-page enter motion,
+  // but commit the route without a document-wide snapshot. Proairetos' app shell has the
+  // stable, content-only transition setup below and continues to use view transitions.
+  if (typeof document !== 'undefined' && document.querySelector('.shell, .hydros-shell, .praxis-app, .theoria-app')) {
+    return false;
+  }
   return (
     typeof document !== 'undefined' &&
     typeof (document as ViewTransitionDocument).startViewTransition === 'function' &&
