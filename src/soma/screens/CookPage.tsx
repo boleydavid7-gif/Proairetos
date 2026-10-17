@@ -56,8 +56,11 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
     };
   }, []);
 
-  const base = servingsNumber(recipe?.servings);
-  const factor = base && servings ? servings / base : 1;
+  // A recipe without a numeric yield is treated as one serving, matching the
+  // amount control on the recipe page.
+  const parsedBase = servingsNumber(recipe?.servings);
+  const base = parsedBase && parsedBase > 0 ? parsedBase : 1;
+  const factor = servings ? servings / base : 1;
   const steps = recipe ? stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units).filter((step) => !isHeading(step)) : [];
   const step = at >= 0 ? steps[at] : undefined;
 

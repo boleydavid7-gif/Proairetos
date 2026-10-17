@@ -108,8 +108,12 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const undo = useUndo();
   const [tab, setTab] = useState<Tab>('ingredients');
   const [gathered, setGathered] = useState<Set<number>>(new Set());
-  const base = servingsNumber(recipe?.servings);
-  const [serves, setServes] = useState<number | undefined>(base);
+  // Imported and hand-entered recipes may not include a yield. Keep the
+  // amount control useful for those recipes by treating the written recipe
+  // as one serving until the person chooses another amount.
+  const parsedBase = servingsNumber(recipe?.servings);
+  const base = parsedBase && parsedBase > 0 ? parsedBase : 1;
+  const [serves, setServes] = useState<number>(base);
   const [picking, setPicking] = useState(false);
   const [notes, setNotes] = useState(recipe?.notes ?? '');
   const [afterLine, setAfterLine] = useState<string>();
@@ -123,8 +127,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
   useEffect(() => {
     setNotes(recipe?.notes ?? '');
-    setServes(servingsNumber(recipe?.servings));
-  }, [recipe?.id]);
+    const nextBase = servingsNumber(recipe?.servings);
+    setServes(nextBase && nextBase > 0 ? nextBase : 1);
+  }, [recipe?.id, recipe?.servings]);
 
   if (!recipes) return null;
   if (!recipe)
@@ -135,7 +140,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       </div>
     );
 
-  const factor = base && serves ? serves / base : 1;
+  const factor = serves / base;
   // Worked out from the recipe as written (not as scaled), so a serving stays a serving.
   const nutrition = recipeNutrition(recipe.ingredients, choices);
   const sourceLines = recipe.ingredients.map((line) => scaleLine(line, factor));
@@ -285,16 +290,14 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       {tab === 'ingredients' && (
         <section aria-label="Ingredients">
           <div className="recipe-controls">
-            {base && serves && (
-              <div className="recipe-controls__servings">
-                <span>Servings</span>
-                <span className="stepper">
-                  <button type="button" className="stepper__button" aria-label="Fewer servings" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
-                  <span className="stepper__value">{serves}</span>
-                  <button type="button" className="stepper__button" aria-label="More servings" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
-                </span>
-              </div>
-            )}
+            <div className="recipe-controls__servings">
+              <span>Servings</span>
+              <span className="stepper">
+                <button type="button" className="stepper__button" aria-label="Fewer servings" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
+                <span className="stepper__value">{serves}</span>
+                <button type="button" className="stepper__button" aria-label="More servings" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
+              </span>
+            </div>
             <div className="units-row">
               <Segmented
                 label="Units"
