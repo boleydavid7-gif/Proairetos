@@ -117,6 +117,7 @@ function largeTitle(): void {
 
   let title: HTMLElement | undefined;
   let titleFrame: HTMLElement | undefined;
+  let anchoredTitle: HTMLElement | undefined;
   let originals: HTMLElement[] = [];
   let copied = '';
   let leadKey = '';
@@ -194,6 +195,7 @@ function largeTitle(): void {
       titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
       titleFrame?.style.removeProperty('--ll-title-shift');
       titleFrame = undefined;
+      anchoredTitle = undefined;
       root.style.removeProperty('--ll-bar-progress');
       root.style.removeProperty('--ll-hair-progress');
       root.style.removeProperty('--ll-title-opacity');
@@ -211,20 +213,43 @@ function largeTitle(): void {
   const structure = () => {
     dirty = false;
     if (!title?.isConnected || !shown(title)) title = first(TITLE);
-    titleFrame?.classList.remove('ll-title-anchored');
-    titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
-    titleFrame?.style.removeProperty('--ll-title-shift');
-    titleFrame = undefined;
-    if (title) {
-      titleFrame = title.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header') ?? title;
+    const nextFrame =
+      title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header') ?? title;
+    if (titleFrame !== nextFrame || anchoredTitle !== title) {
+      titleFrame?.classList.remove('ll-title-anchored');
+      titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
+      titleFrame?.style.removeProperty('--ll-title-shift');
+      titleFrame = nextFrame;
+      anchoredTitle = title;
+    }
+    if (title && titleFrame) {
       const anchorTop = Number.parseFloat(getComputedStyle(root).getPropertyValue('--ll-title-anchor-top')) || 148;
-      const shift = anchorTop - title.getBoundingClientRect().top;
+      // Measure in document coordinates. The structure pass can happen while the page is already scrolled;
+      // using the viewport coordinate there would fold the scroll offset into the layout shift.
+      const scrollTop = document.scrollingElement?.scrollTop ?? scrollY;
+      const previousShift = Number.parseFloat(titleFrame.style.getPropertyValue('--ll-title-shift')) || 0;
+      const titleDocumentTop = title.getBoundingClientRect().top + scrollTop - previousShift;
+      const shift = anchorTop - titleDocumentTop;
       const marginTop = Number.parseFloat(getComputedStyle(title).marginTop) || 0;
       const frameShift = shift > 0 ? shift - marginTop : shift;
-      if (Math.abs(frameShift) > 0.5) {
-        titleFrame.style.setProperty('--ll-title-shift', `${frameShift.toFixed(2)}px`);
-        titleFrame.classList.add('ll-title-anchored');
-        titleFrame.classList.add(frameShift > 0 ? 'll-title-anchored--down' : 'll-title-anchored--up');
+      const anchored = Math.abs(frameShift) > 0.5;
+      const down = frameShift > 0;
+      const shiftValue = `${frameShift.toFixed(2)}px`;
+      if (titleFrame.classList.contains('ll-title-anchored') !== anchored) {
+        titleFrame.classList.toggle('ll-title-anchored', anchored);
+      }
+      if (titleFrame.classList.contains('ll-title-anchored--down') !== (anchored && down)) {
+        titleFrame.classList.toggle('ll-title-anchored--down', anchored && down);
+      }
+      if (titleFrame.classList.contains('ll-title-anchored--up') !== (anchored && !down)) {
+        titleFrame.classList.toggle('ll-title-anchored--up', anchored && !down);
+      }
+      if (anchored) {
+        if (titleFrame.style.getPropertyValue('--ll-title-shift') !== shiftValue) {
+          titleFrame.style.setProperty('--ll-title-shift', shiftValue);
+        }
+      } else if (titleFrame.style.getPropertyValue('--ll-title-shift')) {
+        titleFrame.style.removeProperty('--ll-title-shift');
       }
     }
     picture = first(PICTURE);
