@@ -86,14 +86,13 @@
     -webkit-backdrop-filter: blur(18px) saturate(1.12);
     backdrop-filter: blur(18px) saturate(1.12);
     box-shadow: var(--ll-edge-below);
-    opacity: 0;
-    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+    opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
     pointer-events: none;
   }
 
   .ll-topbar.is-scrolled::before {
-    opacity: 1;
+    opacity: var(--ll-bar-progress, 0);
   }
 
   /* A separate hairline settles in after the title has passed under the bar. Keeping it outside
@@ -106,13 +105,12 @@
     left: 0;
     height: 1px;
     background: var(--ll-hair, rgb(255 255 255 / 0.12));
-    opacity: 0;
-    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+    opacity: var(--ll-hair-progress, 0);
     pointer-events: none;
   }
 
   .ll-topbar.is-scrolled::after {
-    opacity: 0.78;
+    opacity: var(--ll-hair-progress, 0);
   }
 
   /* Left: the app's name, or the chevron and where it goes. */
@@ -139,12 +137,13 @@
   /* The page title and the bar trade places on the same curve. The title keeps its layout
      footprint while its words soften away under the incoming bar. */
   :root :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title, .praxis-page-heading h1, .theoria-heading h1, main h1) {
-    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease), filter var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+    transition: none;
   }
 
   :root .ll-title-folding {
-    opacity: 0;
-    filter: blur(8px);
+    opacity: var(--ll-title-opacity, 1);
+    filter: blur(var(--ll-title-blur, 0px));
+    will-change: opacity, filter;
   }
 
   .ll-topbar__lead:disabled {
@@ -286,6 +285,15 @@
 
   :root.ll-bar-on :is(.praxis-main, .theoria-app:not(.theoria-app--reader) .theoria-main) {
     padding-top: calc(var(--ll-safe-top) + 52px);
+  }
+}
+
+/* Some platforms expose a reduced-transparency preference separately from reduced motion. Keep
+   the same solid handoff while removing the expensive backdrop effect. */
+@media (prefers-reduced-transparency: reduce) {
+  .ll-topbar.is-on::before {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

@@ -188,6 +188,10 @@ function largeTitle(): void {
       root.classList.remove('ll-tucked');
       root.classList.remove('ll-title-folded');
       title?.classList.remove('ll-title-folding');
+      root.style.removeProperty('--ll-bar-progress');
+      root.style.removeProperty('--ll-hair-progress');
+      root.style.removeProperty('--ll-title-opacity');
+      root.style.removeProperty('--ll-title-blur');
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
       bar.setAttribute('aria-hidden', 'true');
       dirty = false;
@@ -235,15 +239,24 @@ function largeTitle(): void {
     if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
-    // The bar stays clear while the page's own title is still in view, and takes its mica once the title has gone
-    // under it (on a page with no title, after a short scroll).
-    const folded = title ? title.getBoundingClientRect().bottom < height : y > 64;
+    // Follow the title continuously instead of waiting for a binary crossing. The handoff begins
+    // 28px before the title reaches the bar and finishes 28px after it passes underneath.
+    const fadeDistance = 56;
+    const titleBottom = title?.getBoundingClientRect().bottom;
+    const progress = titleBottom === undefined
+      ? Math.min(1, Math.max(0, (y - 36) / fadeDistance))
+      : Math.min(1, Math.max(0, (height + fadeDistance / 2 - titleBottom) / fadeDistance));
+    const folded = progress >= 0.999;
+    root.style.setProperty('--ll-bar-progress', progress.toFixed(3));
+    root.style.setProperty('--ll-hair-progress', (progress * 0.78).toFixed(3));
+    root.style.setProperty('--ll-title-opacity', (1 - progress).toFixed(3));
+    root.style.setProperty('--ll-title-blur', `${(progress * 8).toFixed(2)}px`);
     bar.classList.add('is-on');
-    bar.classList.toggle('is-scrolled', folded);
+    bar.classList.toggle('is-scrolled', progress > 0.001);
     bar.classList.toggle('is-folded', folded);
     bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
     root.classList.toggle('ll-title-folded', folded);
-    title?.classList.toggle('ll-title-folding', folded);
+    title?.classList.add('ll-title-folding');
     bar.setAttribute('aria-hidden', 'false');
   };
   const soon = () => {
