@@ -15,8 +15,9 @@ import type { AppRoute } from './routes/routeTypes';
 export type Direction = 'left' | 'right' | 'forward' | 'back';
 
 type ViewTransitionDocument = Document & {
-  startViewTransition?: (update: () => void) => { finished: Promise<void> };
+  startViewTransition?: (update: () => void) => { finished: Promise<void>; skipTransition?: () => void };
 };
+type ViewTransitionHandle = { finished: Promise<void>; skipTransition?: () => void };
 
 export function canTransition(): boolean {
   return (
@@ -83,20 +84,40 @@ export function transition(direction: Direction, update: () => void, scope: 'pag
   const source = direction === 'forward' ? morphSource() : undefined;
   let head: HTMLElement | null = null;
   name(source, MORPH);
-  const running = (document as ViewTransitionDocument).startViewTransition!(() => {
+  let running: ViewTransitionHandle;
+  try {
+    running = (document as ViewTransitionDocument).startViewTransition!(() => {
+      name(source, '');
+      flushSync(update);
+      if (!source) return;
+      head = [...document.querySelectorAll<HTMLElement>(HEAD)].find((each) => {
+        const box = each.getBoundingClientRect();
+        return box.height > 0 && box.top < innerHeight && !each.closest('nav, .tab-bar, dialog');
+      }) ?? null;
+      name(head, MORPH);
+    });
+  } catch {
+    // Some WebViews expose the API but reject a transition at runtime. Commit the route normally in that case.
     name(source, '');
-    flushSync(update);
-    if (!source) return;
-    head = [...document.querySelectorAll<HTMLElement>(HEAD)].find((each) => {
-      const box = each.getBoundingClientRect();
-      return box.height > 0 && box.top < innerHeight && !each.closest('nav, .tab-bar, dialog');
-    }) ?? null;
-    name(head, MORPH);
-  });
-  running.finished.finally(() => {
+    delete root.dataset.nav;
+    update();
+    return;
+  }
+  let cleaned = false;
+  const clean = () => {
+    if (cleaned) return;
+    cleaned = true;
     name(head, '');
     if (root.dataset.nav?.endsWith(direction)) delete root.dataset.nav;
-  });
+  };
+  void running.finished.then(clean, clean);
+  // Safari and embedded web views can expose View Transitions but fail to settle their promise. Never leave the
+  // page's navigation state or a shared-element name attached indefinitely; the committed DOM remains usable.
+  window.setTimeout(() => {
+    if (cleaned) return;
+    running.skipTransition?.();
+    clean();
+  }, 1000);
 }
 
 /** The tabs in the bar, left to right; Days ahead's calendar sits just right of its list. */
