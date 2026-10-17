@@ -240,12 +240,12 @@ function largeTitle(): void {
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
     // Follow the title continuously instead of waiting for a binary crossing. The handoff begins
-    // 28px before the title reaches the bar and finishes 28px after it passes underneath.
+    // 56px before the title reaches the bar and finishes at the bar edge, so glyphs never get clipped.
     const fadeDistance = 56;
     const titleBottom = title?.getBoundingClientRect().bottom;
     const progress = titleBottom === undefined
       ? Math.min(1, Math.max(0, (y - 36) / fadeDistance))
-      : Math.min(1, Math.max(0, (height + fadeDistance / 2 - titleBottom) / fadeDistance));
+      : Math.min(1, Math.max(0, (height + fadeDistance - titleBottom) / fadeDistance));
     const folded = progress >= 0.999;
     root.style.setProperty('--ll-bar-progress', progress.toFixed(3));
     root.style.setProperty('--ll-hair-progress', (progress * 0.78).toFixed(3));

@@ -209,8 +209,8 @@
     padding: 0 4px;
     border-radius: var(--ll-radius-pill, 999px);
     background: var(--ll-material-mica-surface);
-    box-shadow: inset 0 0 0 1px var(--ll-hair, rgba(255, 255, 255, 0.08));
-    transition: background var(--ll-slow, 420ms) var(--ll-ease-out, ease), box-shadow var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+    box-shadow: none;
+    transition: background var(--ll-slow, 420ms) var(--ll-ease-out, ease);
   }
 
   .ll-topbar__actions:empty {
