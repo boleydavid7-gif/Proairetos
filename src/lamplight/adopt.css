@@ -13,6 +13,26 @@
   box-shadow: var(--ll-light-1);
 }
 
+/* Text over a photo needs a local edge even when its palette role is readable on a solid surface. The shadow is
+   deliberately small: it keeps the image visible while separating letters from bright sky and water. Daylight uses
+   a pale halo because the copy itself is dark; night uses the room's deeper edge. */
+:root :is(.hero .home__words, .hero__content .home__greeting, .hero__content .home__title, .hero__content .home__sub,
+  .page-hero .page-header__title, .page-hero .page-header__subtitle, .hydros-hero__words > *) {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.52), 0 0 10px rgb(0 0 0 / 0.22);
+}
+
+:root[data-theme='light'] :is(.hero .home__words, .hero__content .home__greeting, .hero__content .home__title, .hero__content .home__sub,
+  .page-hero .page-header__title, .page-hero .page-header__subtitle, .hydros-hero__words > *) {
+  text-shadow: 0 1px 2px rgb(255 255 255 / 0.86), 0 0 9px rgb(255 255 255 / 0.38);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] :is(.hero .home__words, .hero__content .home__greeting, .hero__content .home__title, .hero__content .home__sub,
+    .page-hero .page-header__title, .page-hero .page-header__subtitle, .hydros-hero__words > *) {
+    text-shadow: 0 1px 2px rgb(255 255 255 / 0.86), 0 0 9px rgb(255 255 255 / 0.38);
+  }
+}
+
 :root .rows li + li {
   border-top-color: var(--ll-hair);
 }
