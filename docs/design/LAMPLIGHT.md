@@ -97,9 +97,9 @@ the light off: the new picture lights in `--ll-quick` and the old dims over `--l
 `behaviors.ts` (started once by `applyAppearance` in every app; `bars.css`): on phones one bar (`.ll-topbar`) runs
 across the top of every page: the app's symbolic mark and name on the left (kept light over a home picture's shaded top), or a chevron with the back link's words; on the right the
 page's header actions and the dock's `data-to-header` places (More or Settings, Apps, the way to Proairetos), copies
-that press the originals, which leave the page and the dock. It stays out of the way while the page title is in view,
-then fades in as that title blurs away and takes the solid room-tinted surface and hairline; welcome, onboarding and
-full-screen moments have none. In an installed app a swipe from the left edge holds the page: it
+that press the originals, which leave the page and the dock. The app identity and actions stay in the bar while the
+page title remains in the page; when that title passes underneath, its words blur away as the solid room-tinted
+surface and hairline settle in. Welcome, onboarding and full-screen moments have none. In an installed app a swipe from the left edge holds the page: it
 follows the finger and finishes past a third of the width or on a flick, else springs back with a slight overshoot;
 after it, only the new page's view transition plays (`data-swiped`). Sheets (`useSheet`) take a flick down, resist
 upward, and let the room brighten as they are pulled (`--sheet-pull`). Version and changes: `version.ts`, shown on

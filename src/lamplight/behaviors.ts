@@ -244,7 +244,7 @@ function largeTitle(): void {
     bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
     root.classList.toggle('ll-title-folded', folded);
     title?.classList.toggle('ll-title-folding', folded);
-    bar.setAttribute('aria-hidden', folded ? 'false' : 'true');
+    bar.setAttribute('aria-hidden', 'false');
   };
   const soon = () => {
     if (!frame) frame = requestAnimationFrame(update);

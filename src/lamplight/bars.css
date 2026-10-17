@@ -69,12 +69,6 @@
     padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--ll-slow, 420ms) var(--ll-ease-out, ease);
-  }
-
-  .ll-topbar.is-on.is-folded {
     opacity: 1;
     pointer-events: auto;
   }
@@ -242,20 +236,20 @@
   }
 
   /* What the bar now carries leaves the page and the dock. */
-  :root.ll-bar-on.ll-title-folded :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
-  :root.ll-bar-on.ll-title-folded :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
-  :root.ll-bar-on.ll-title-folded :is(.hydros-home-head, .theoria-mobile-brand),
-  :root.ll-bar-on.ll-title-folded .shell .page > .brand,
-  :root.ll-bar-on.ll-title-folded .hero .brand {
+  :root.ll-bar-on :is(.page-header__actions, .page-hero__actions, .meditate-page__actions, [data-header-actions]),
+  :root.ll-bar-on :is(.back-link, .page-hero__back, .meditate-page__back, .theoria-back-button, .hydros-header .hydros-icon-button),
+  :root.ll-bar-on :is(.hydros-home-head, .theoria-mobile-brand),
+  :root.ll-bar-on .shell .page > .brand,
+  :root.ll-bar-on .hero .brand {
     visibility: hidden;
   }
 
   /* A page's top row holding only what the bar now carries (a back link, the brand, the page's actions) leaves no gap. */
-  :root.ll-bar-on.ll-title-folded .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
+  :root.ll-bar-on .page > .page-top:not(:has(> :not(.back-link, .brand, .page-header__actions, [data-header-actions]))) {
     display: none;
   }
 
-  :root.ll-bar-on.ll-title-folded :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
+  :root.ll-bar-on :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [data-to-header] {
     display: none !important;
   }
 
