@@ -4,7 +4,7 @@ import { headingText, isHeading } from './recipes';
 /**
  * Help while cooking, read from the recipe itself: what to take out first,
  * the oven heat, each ingredient's amount beside its first mention in a
- * step, and measured amounts in steps scaled with the servings.
+ * step, and measured amounts in steps scaled with the recipe scale.
  */
 
 /** Oven heats a recipe names: "350°F", "180 °C", "400 degrees". */

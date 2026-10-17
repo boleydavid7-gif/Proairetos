@@ -27,7 +27,7 @@ export type Route =
   | { name: 'recipe'; id: string }
   | { name: 'edit'; id?: string }
   | { name: 'import'; how?: 'app' }
-  | { name: 'cook'; id: string; servings?: number }
+  | { name: 'cook'; id: string; scale?: number }
   | { name: 'tonight'; time?: TimeChoice }
   | { name: 'week'; mark?: Mark }
   | { name: 'pause'; id: string }
@@ -118,7 +118,7 @@ export default function App() {
       case 'import':
         return <ImportPage nav={nav} how={route.how} />;
       case 'cook':
-        return <CookPage nav={nav} id={route.id} servings={route.servings} />;
+        return <CookPage nav={nav} id={route.id} scale={route.scale} />;
       case 'tonight':
         return <TonightPage nav={nav} time={route.time} />;
       case 'week':

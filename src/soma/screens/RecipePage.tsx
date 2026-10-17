@@ -108,12 +108,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
   const undo = useUndo();
   const [tab, setTab] = useState<Tab>('ingredients');
   const [gathered, setGathered] = useState<Set<number>>(new Set());
-  // Imported and hand-entered recipes may not include a yield. Keep the
-  // amount control useful for those recipes by treating the written recipe
-  // as one serving until the person chooses another amount.
-  const parsedBase = servingsNumber(recipe?.servings);
-  const base = parsedBase && parsedBase > 0 ? parsedBase : 1;
-  const [serves, setServes] = useState<number>(base);
+  // Scaling is independent of a recipe's stated yield. Every recipe starts
+  // at its written amounts (1×), even when no yield was recorded.
+  const [scale, setScale] = useState(1);
   const [picking, setPicking] = useState(false);
   const [notes, setNotes] = useState(recipe?.notes ?? '');
   const [afterLine, setAfterLine] = useState<string>();
@@ -127,9 +124,8 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
 
   useEffect(() => {
     setNotes(recipe?.notes ?? '');
-    const nextBase = servingsNumber(recipe?.servings);
-    setServes(nextBase && nextBase > 0 ? nextBase : 1);
-  }, [recipe?.id, recipe?.servings]);
+    setScale(1);
+  }, [recipe?.id]);
 
   if (!recipes) return null;
   if (!recipe)
@@ -140,8 +136,9 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       </div>
     );
 
-  const factor = serves / base;
-  // Worked out from the recipe as written (not as scaled), so a serving stays a serving.
+  const factor = scale;
+  // Nutrition remains based on the recipe as written; the scale only changes
+  // the ingredient and cooking amounts shown below.
   const nutrition = recipeNutrition(recipe.ingredients, choices);
   const sourceLines = recipe.ingredients.map((line) => scaleLine(line, factor));
   const lines = sourceLines.map((line) => (isHeading(line) ? line : convertLine(line, settings.units)));
@@ -233,7 +230,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             recipe.source && <span>{recipe.source}</span>
           )}
         </div>
-        <button type="button" className="button-main recipe-start" onClick={() => (recipe.steps.length ? nav.go({ name: 'cook', id: recipe.id, servings: serves }) : setTab('steps'))}>
+        <button type="button" className="button-main recipe-start" onClick={() => (recipe.steps.length ? nav.go({ name: 'cook', id: recipe.id, scale }) : setTab('steps'))}>
           <PotIcon size={20} /> {recipe.steps.length ? 'Start cooking' : 'See the steps'} <Sym name="chevron" size={18} />
         </button>
         <RecipeBudgetHint recipe={recipe} recipes={recipes} />
@@ -290,13 +287,16 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
       {tab === 'ingredients' && (
         <section aria-label="Ingredients">
           <div className="recipe-controls">
-            <div className="recipe-controls__servings">
-              <span>Servings</span>
-              <span className="stepper">
-                <button type="button" className="stepper__button" aria-label="Fewer servings" onClick={() => setServes(Math.max(1, serves - 1))}><Sym name="minus" /></button>
-                <span className="stepper__value">{serves}</span>
-                <button type="button" className="stepper__button" aria-label="More servings" onClick={() => setServes(serves + 1)}><Sym name="plus" /></button>
-              </span>
+            <div className="recipe-scale" aria-label="Recipe scale">
+              <div className="recipe-scale__copy">
+                <span className="recipe-scale__label">Scale</span>
+                <span className="recipe-scale__hint">{scale === 1 ? 'As written' : scale === 0.5 ? 'Half batch' : scale === 2 ? 'Double batch' : 'Batch size'}</span>
+              </div>
+              <div className="recipe-scale__stepper">
+                <button type="button" className="recipe-scale__button" aria-label="Decrease recipe scale" disabled={scale <= 0.5} onClick={() => setScale(Math.max(0.5, scale - 0.5))}><Sym name="minus" size={18} /></button>
+                <output className="recipe-scale__value" aria-live="polite">{scale}×</output>
+                <button type="button" className="recipe-scale__button" aria-label="Increase recipe scale" onClick={() => setScale(scale + 0.5)}><Sym name="plus" size={18} /></button>
+              </div>
             </div>
             <div className="units-row">
               <Segmented
@@ -355,7 +355,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
         <section aria-label="Steps">
           <StepList steps={stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units)} />
           {recipe.steps.length > 0 && (
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'cook', id: recipe.id, servings: serves })}>
+            <button type="button" className="button-main" onClick={() => nav.go({ name: 'cook', id: recipe.id, scale })}>
               <PotIcon size={20} /> Cook, step by step
             </button>
           )}

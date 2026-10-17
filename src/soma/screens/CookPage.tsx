@@ -3,7 +3,7 @@ import type { Nav } from '../app/App';
 import { useRecipes, useSettings, useToday } from '../app/state';
 import { BackLink } from '../app/ui';
 import { gatherList, ovenHeats, stepsWithAmounts } from '../core/cookAids';
-import { isHeading, servingsNumber } from '../core/recipes';
+import { isHeading } from '../core/recipes';
 import { loadSettings, saveSettings } from '../data/store';
 import { StepTimers, TimerTray } from './RecipePage';
 import { listeningHere, says, useListening } from '../../app/family/voice';
@@ -26,7 +26,7 @@ function say(text: string) {
  * stays awake, timers run together, steps can be read aloud and "next" or
  * "back" said instead of tapped.
  */
-export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; servings?: number }) {
+export default function CookPage({ nav, id, scale = 1 }: { nav: Nav; id: string; scale?: number }) {
   const recipe = useRecipes()?.find((each) => each.id === id);
   const settings = useSettings();
   const today = useToday();
@@ -56,12 +56,7 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
     };
   }, []);
 
-  // A recipe without a numeric yield is treated as one serving, matching the
-  // amount control on the recipe page.
-  const parsedBase = servingsNumber(recipe?.servings);
-  const base = parsedBase && parsedBase > 0 ? parsedBase : 1;
-  const factor = servings ? servings / base : 1;
-  const steps = recipe ? stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units).filter((step) => !isHeading(step)) : [];
+  const steps = recipe ? stepsWithAmounts(recipe.steps, recipe.ingredients, scale, settings.units).filter((step) => !isHeading(step)) : [];
   const step = at >= 0 ? steps[at] : undefined;
 
   // Read each step aloud as it comes, when chosen.
@@ -121,7 +116,7 @@ export default function CookPage({ nav, id, servings }: { nav: Nav; id: string; 
           {heats.length > 0 && <p className="cook__step cook__step--small">Heat the oven to {heats[0]}.</p>}
           <h2 className="label">Take out</h2>
           <ul className="check-list">
-            {gatherList(recipe.ingredients, factor, settings.units).map((each, i) =>
+            {gatherList(recipe.ingredients, scale, settings.units).map((each, i) =>
               each.heading ? (
                 <li key={i} className="check-list__heading">
                   {each.heading}
