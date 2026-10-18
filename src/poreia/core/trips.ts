@@ -87,6 +87,17 @@ export type PlaceIdea = {
   name: string;
   location?: string;
   note?: string;
+  category?: string;
+  collection?: string;
+  source?: 'curated' | 'manual' | 'maps' | 'external';
+  provider?: string;
+  providerId?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  externalUrl?: string;
+  itineraryItemId?: string;
+  recentViewedAt?: string;
   tripId?: string;
   createdAt: string;
   updatedAt: string;

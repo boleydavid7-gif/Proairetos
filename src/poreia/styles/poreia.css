@@ -190,6 +190,44 @@
 .poreia-vacation-conflicts span { font-size: 0.86rem; }
 .poreia-vacation-suggestions { gap: 8px; }
 .poreia-vacation-suggestions > .poreia-row { background: var(--surface); }
+.poreia-discover-page { gap: 20px; }
+.poreia-discover-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; padding: 14px; border: 1px solid color-mix(in srgb, var(--mint) 30%, var(--line)); border-radius: var(--radius); background: var(--surface); }
+.poreia-discover-search .field, .poreia-discover-location .field { margin: 0; }
+.poreia-discover-search .button-main { min-height: 48px; white-space: nowrap; }
+.poreia-discover-location { display: flex; align-items: end; justify-content: space-between; gap: 14px; }
+.poreia-discover-location .hint { padding-bottom: 9px; white-space: nowrap; }
+.poreia-collection-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.poreia-collection-card { display: flex; min-height: 76px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--text); background: var(--surface); font: inherit; text-align: left; cursor: pointer; }
+.poreia-collection-card:hover, .poreia-collection-card.is-selected { border-color: var(--mint); background: var(--mint-soft); }
+.poreia-collection-card span { font-weight: 500; line-height: 1.25; }
+.poreia-collection-card small { color: var(--muted); }
+.poreia-discover-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.poreia-discover-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.poreia-discover-card__open { display: flex; min-width: 0; flex: 1; flex-direction: column; padding: 0; border: 0; color: inherit; background: transparent; text-align: left; cursor: pointer; }
+.poreia-discover-card__art { display: grid; min-height: 74px; place-items: center; color: var(--mint); background: linear-gradient(145deg, var(--surface-2), var(--mint-soft)); }
+.poreia-discover-card__body { display: flex; min-width: 0; flex-direction: column; gap: 5px; padding: 12px; }
+.poreia-discover-card__body strong { line-height: 1.2; }
+.poreia-discover-card__body small { color: var(--muted); }
+.poreia-discover-card__body span { color: var(--text-soft); font-size: 0.84rem; line-height: 1.35; }
+.poreia-discover-card__actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px 11px; }
+.poreia-discover-detail { gap: 16px; }
+.poreia-discover-detail__hero { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.poreia-discover-detail__hero .poreia-discover-card__art { min-height: 88px; border-radius: calc(var(--radius) - 4px); }
+.poreia-discover-detail__hero h2 { margin: 4px 0 6px; font-family: var(--serif); font-size: 1.85rem; font-weight: 400; }
+.poreia-discover-detail__hero p:last-child { margin: 0; color: var(--text-soft); line-height: 1.4; }
+.poreia-discover-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.poreia-discover-facts span { display: flex; min-width: 0; flex-direction: column; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); font-size: 0.8rem; line-height: 1.3; }
+.poreia-discover-facts strong { color: var(--text); font-size: 0.75rem; }
+.poreia-discover-save { gap: 14px; }
+.poreia-discover-save > svg { color: var(--mint); }
+.poreia-discover-compare { display: flex; flex-direction: column; gap: 12px; }
+.poreia-discover-compare__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.poreia-discover-compare__grid > div { display: flex; min-width: 0; flex-direction: column; gap: 5px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.poreia-discover-compare__grid small, .poreia-discover-compare__grid span { color: var(--muted); font-size: 0.78rem; line-height: 1.3; }
+.poreia-discover-manual { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.poreia-discover-manual p { margin: 4px 0 0; color: var(--text-soft); }
+.poreia-discover-manual-form { gap: 14px; }
+.poreia-discover-recent-searches { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .poreia-more { display: flex; flex-direction: column; gap: 24px; }
 .poreia-list--menu .poreia-row svg:first-child { flex: 0 0 auto; color: var(--mint); }
 .poreia-list--menu .poreia-row > .poreia-row__text { flex: 1; }
@@ -218,4 +256,14 @@
   .poreia-calendar-day strong { width: 26px; height: 26px; }
   .poreia-page__overlay { padding-inline: 0; }
   .poreia-vacation-review { grid-template-columns: 1fr; }
+  .poreia-discover-search { grid-template-columns: 1fr; }
+  .poreia-discover-search .button-main { width: 100%; }
+  .poreia-discover-location { display: block; }
+  .poreia-discover-location .hint { display: block; padding: 6px 0 0; }
+  .poreia-discover-detail__hero { grid-template-columns: 64px minmax(0, 1fr); }
+  .poreia-discover-detail__hero .poreia-discover-card__art { min-height: 64px; }
+  .poreia-discover-detail__hero h2 { font-size: 1.55rem; }
+  .poreia-discover-facts { grid-template-columns: 1fr; }
+  .poreia-discover-compare__grid { grid-template-columns: 1fr; }
+  .poreia-discover-manual { align-items: flex-start; flex-direction: column; }
 }
