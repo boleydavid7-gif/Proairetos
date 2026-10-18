@@ -1,0 +1,8 @@
+import { DiscoverIcon } from '../app/icons';
+import type { ItineraryItem, Trip } from '../core/trips';
+
+export default function TripMap({ trip, items }: { trip: Trip; items: ItineraryItem[] }) {
+  const places = items.filter((item) => item.status !== 'canceled' && (item.location || item.address));
+  const mapLink = (place: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+  return <section className="poreia-section poreia-trip-map"><div className="poreia-map-surface"><DiscoverIcon size={32} /><div><p className="label">Route planning</p><h2>{trip.destination || 'Your route starts here'}</h2><p>{places.length ? `${places.length} itinerary stop${places.length === 1 ? '' : 's'} ready to open on a map.` : 'Add destinations or itinerary stops to see them here.'}</p></div></div>{places.length ? <div className="poreia-list">{places.map((item, index) => { const place = item.address || item.location || ''; return <div className="poreia-row" key={item.id}><span className="poreia-map-stop">{index + 1}</span><span className="poreia-row__text"><strong>{item.title}</strong><small>{place}</small></span><a className="text-link" href={mapLink(place)} target="_blank" rel="noreferrer">Open map</a></div>; })}</div> : <div className="card poreia-empty"><DiscoverIcon size={28} /><p className="muted">Add a place in Discover or add an itinerary stop to begin mapping this trip.</p><a className="button-quiet" href={trip.destination ? mapLink(trip.destination) : 'https://www.google.com/maps'} target="_blank" rel="noreferrer">Explore maps</a></div>}</section>;
+}

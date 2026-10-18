@@ -1,0 +1,23 @@
+import { useState } from 'react';
+import { CheckIcon, PlusIcon } from '../app/icons';
+import type { PackingCategory, PackingItem, Trip } from '../core/trips';
+import { newId } from '../core/id';
+import { putTrip } from '../data/store';
+
+const categories: Array<{ id: PackingCategory; label: string }> = [
+  { id: 'clothing', label: 'Clothing' }, { id: 'essentials', label: 'Essentials' }, { id: 'toiletries', label: 'Toiletries' }, { id: 'electronics', label: 'Electronics' }, { id: 'documents', label: 'Documents' }, { id: 'other', label: 'Other' },
+];
+const starter = ['Passport or ID', 'Phone charger', 'Toiletries', 'Comfortable clothes'];
+
+export default function TripPacking({ trip }: { trip: Trip }) {
+  const [adding, setAdding] = useState(false);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState<PackingCategory>('essentials');
+  const items = trip.packingItems ?? [];
+  const packed = items.filter((item) => item.packed).length;
+  const update = async (packingItems: PackingItem[]) => putTrip({ ...trip, packingItems, updatedAt: new Date().toISOString() });
+  const generate = async () => { const now = new Date().toISOString(); await update(starter.map((item, index) => ({ id: `${trip.id}-pack-${index}`, name: item, category: index === 2 ? 'toiletries' : index === 3 ? 'clothing' : 'essentials', quantity: 1, packed: false, createdAt: now, updatedAt: now }))); };
+  const toggle = async (item: PackingItem) => update(items.map((each) => each.id === item.id ? { ...each, packed: !each.packed, updatedAt: new Date().toISOString() } : each));
+  const add = async () => { if (!name.trim()) return; const now = new Date().toISOString(); await update([...items, { id: newId(), name: name.trim(), category, quantity: 1, packed: false, createdAt: now, updatedAt: now }]); setName(''); setAdding(false); };
+  return <section className="poreia-section poreia-trip-packing"><div className="poreia-checklist-summary"><div><p className="label">Packing progress</p><h2>{items.length ? `${packed} of ${items.length} packed` : 'Pack at your own pace'}</h2><p>{items.length ? `${items.length - packed} item${items.length - packed === 1 ? '' : 's'} remaining.` : 'Start with a suggested list or add what you know you will need.'}</p></div>{items.length > 0 && <span className="poreia-checklist-summary__percent">{Math.round(packed / items.length * 100)}%</span>}</div>{items.length > 0 && <div className="poreia-progress"><span style={{ width: `${packed / items.length * 100}%` }} /></div>}{!items.length ? <div className="card poreia-empty"><CheckIcon size={28} /><p className="muted">Use a short starter list, then make it fit this trip.</p><div className="button-row"><button type="button" className="button-main" onClick={() => void generate()}>Generate packing list</button><button type="button" className="button-quiet" onClick={() => setAdding(true)}>Add first item</button></div></div> : <div className="poreia-checklist-groups">{categories.map((group) => { const groupItems = items.filter((item) => item.category === group.id); if (!groupItems.length) return null; return <section className="poreia-checklist-group" key={group.id}><div className="poreia-section-head"><h3>{group.label}</h3><span className="label">{groupItems.filter((item) => item.packed).length}/{groupItems.length}</span></div>{groupItems.map((item) => <label className="poreia-checklist-item" key={item.id}><input type="checkbox" checked={item.packed} onChange={() => void toggle(item)} /><span className="poreia-checklist-item__mark">{item.packed && <CheckIcon size={16} />}</span><span>{item.name}{item.quantity > 1 ? ` · ${item.quantity}` : ''}</span></label>)}</section>; })}</div>}{adding && <form className="card poreia-form poreia-checklist-add" onSubmit={(event) => { event.preventDefault(); void add(); }}><div className="poreia-section-head"><h3>Add an item</h3><button type="button" className="text-link" onClick={() => setAdding(false)}>Cancel</button></div><label className="field"><span className="field__label">Item</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Light jacket" autoFocus required /></label><label className="field"><span className="field__label">Category</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value as PackingCategory)}>{categories.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label><button type="submit" className="button-main"><PlusIcon size={18} /> Add item</button></form>}{items.length > 0 && <button type="button" className="button-quiet" onClick={() => setAdding(true)}><PlusIcon size={18} /> Add item</button>}</section>;
+}
