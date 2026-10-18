@@ -131,6 +131,15 @@ function SavingsPlanner({ trip, items, bookings, plan }: { trip: Trip; items: It
     if (!plan && !target && estimated > 0) setTarget((estimated / 100).toFixed(2));
   }, [estimated, plan, target]);
 
+  useEffect(() => {
+    if (!plan || !oikonomiaAvailable || plan.envelopeId) return;
+    let live = true;
+    void syncPlanToOikonomia(plan).then((linked) => {
+      if (live && linked.envelope) void putSavingsPlan({ ...plan, envelopeId: linked.envelope.id, updatedAt: new Date().toISOString() });
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, [oikonomiaAvailable, plan]);
+
   const targetCents = moneyCents(target) ?? 0;
   const savedCents = moneyCents(saved) ?? 0;
   const contribution = savingsContribution(targetCents, savedCents, startDate, trip.startDate, cadence);
