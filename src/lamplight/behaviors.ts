@@ -25,6 +25,7 @@ const TITLE = [
   '.praxis-page-heading h1',
   '.theoria-heading h1',
   '.hydros-header h1',
+  '.poreia-header__title',
   'main h1',
 ].join(', ');
 
@@ -214,7 +215,7 @@ function largeTitle(): void {
     dirty = false;
     if (!title?.isConnected || !shown(title)) title = first(TITLE);
     const nextFrame =
-      title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header') ?? title;
+      title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header, .poreia-header__words') ?? title;
     if (titleFrame !== nextFrame || anchoredTitle !== title) {
       titleFrame?.classList.remove('ll-title-anchored');
       titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');

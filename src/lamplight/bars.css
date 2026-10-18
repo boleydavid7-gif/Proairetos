@@ -147,14 +147,14 @@
 
   /* The page title and the bar trade places on the same curve. The title keeps its layout
      footprint while its words soften away under the incoming bar. */
-  :root :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title, .praxis-page-heading h1, .theoria-heading h1, main h1) {
+  :root :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title, .praxis-page-heading h1, .theoria-heading h1, .poreia-header__title, main h1) {
     transition: none;
   }
 
   /* Every app's large title needs the same small breathing room on iOS. A tight line box can clip serif
      descenders when the title fades under the top bar, especially on pages whose title has a short subtitle. */
   :root.ll-bar-on :is(.page-header__title, .page-hero__title, .home__title, .hero__title, .title,
-    .praxis-page-heading h1, .theoria-heading h1, .hydros-header h1, .hydros-hero__words > p, main h1) {
+    .praxis-page-heading h1, .theoria-heading h1, .hydros-header h1, .hydros-hero__words > p, .poreia-header__title, main h1) {
     line-height: 1.18;
     padding-block-end: 4px;
   }

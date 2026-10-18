@@ -51,7 +51,7 @@ export function PoreiaHeader({ eyebrow, title, description, compact = false, chi
       <Brand />
       <div className="poreia-header__words">
         {eyebrow && <p className="label">{eyebrow}</p>}
-        <h1>{title}</h1>
+        <h1 className="poreia-header__title">{title}</h1>
         {description && <p className="poreia-header__description">{description}</p>}
       </div>
       {children}
