@@ -11,9 +11,10 @@ import type { Trip } from '../core/trips';
 import { newId } from '../core/id';
 import { putLeaveRequest, putTrip, putVacation } from '../data/store';
 import { formatDate } from '../../oikonomia/core/bills';
-import { PageTop, PoreiaHeader } from '../app/ui';
+import { PoreiaHeader } from '../app/ui';
 
 type CalendarEventType = 'work' | 'trip' | 'booking' | 'itinerary' | 'leave' | 'vacation' | 'holiday' | 'personal';
+type CalendarView = 'month' | 'week' | 'agenda';
 type AppCalendarEvent = {
   id: string;
   type: CalendarEventType;
@@ -253,6 +254,7 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
   const current = today();
   const [monthKey, setMonthKey] = useState(monthKeyFor(current));
   const [selectedDate, setSelectedDate] = useState(current);
+  const [view, setView] = useState<CalendarView>('month');
   const [workOccurrences, setWorkOccurrences] = useState<ScheduleOccurrence[]>([]);
   const [schedulePatterns, setSchedulePatterns] = useState<SchedulePattern[]>([]);
   const [externalEvents, setExternalEvents] = useState<ExternalCalendarEvent[]>([]);
@@ -273,8 +275,13 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
     let live = true;
     const load = async () => {
       try {
-        const from = parseDate(gridStart);
-        const until = parseDate(addDays(gridEnd, 1));
+        // Include the selected week when it straddles the visible month so Week
+        // view does not lose work shifts at a month boundary.
+        const selectedWeek = mondayWeek(selectedDate);
+        const scheduleStart = selectedWeek.startDate < gridStart ? selectedWeek.startDate : gridStart;
+        const scheduleEnd = selectedWeek.endDate > gridEnd ? selectedWeek.endDate : gridEnd;
+        const from = parseDate(scheduleStart);
+        const until = parseDate(addDays(scheduleEnd, 1));
         const [occurrences, patterns, imported, items] = await Promise.all([scheduleService.occurrencesBetween(from, until), scheduleService.patterns(), Promise.resolve(otherCalendars.eventsBetween(from, until)), lifeService.list()]);
         if (!live) return;
         setWorkOccurrences(occurrences);
@@ -291,7 +298,7 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
     const offCalendars = otherCalendars.subscribe(() => void load());
     const offLife = lifeService.subscribe(() => void load());
     return () => { live = false; offSchedule(); offCalendars(); offLife(); };
-  }, [gridEnd, gridStart]);
+  }, [gridEnd, gridStart, selectedDate]);
 
   const events = useMemo(() => {
     const next: AppCalendarEvent[] = [];
@@ -343,6 +350,9 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
 
   const selectedEvents = useMemo(() => events.filter((event) => overlapsDate(event, selectedDate)).sort(eventSort), [events, selectedDate]);
   const eventDates = useMemo(() => new Map(gridDates.map((date) => [date, events.filter((event) => overlapsDate(event, date))])), [events, gridDates]);
+  const weekRange = useMemo(() => mondayWeek(selectedDate), [selectedDate]);
+  const weekDates = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekRange.startDate, index)), [weekRange.startDate]);
+  const agendaDates = useMemo(() => gridDates.filter((date) => date.startsWith(monthKey) && (eventDates.get(date)?.length ?? 0) > 0), [eventDates, gridDates, monthKey]);
   const goMonth = (offset: number) => {
     const currentMonth = parseDate(`${monthKey}-01`);
     currentMonth.setMonth(currentMonth.getMonth() + offset);
@@ -351,16 +361,30 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
     setSelectedDate(`${nextMonth}-01`);
   };
   const goToday = () => { setMonthKey(monthKeyFor(current)); setSelectedDate(current); };
+  const goPeriod = (offset: number) => {
+    if (view === 'week') {
+      const next = addDays(selectedDate, offset * 7);
+      setSelectedDate(next);
+      setMonthKey(monthKeyFor(next));
+      return;
+    }
+    goMonth(offset);
+  };
   const openPlanner = (vacation?: VacationPlan) => { setEditingVacation(vacation); setPlannerOpen(true); };
   const onSaved = (message: string) => { setPlannerOpen(false); setEditingVacation(undefined); setStatusMessage(message); };
+  const openEvent = (event: AppCalendarEvent) => { if (event.vacationId) openPlanner(vacations.find((vacation) => vacation.id === event.vacationId)); else if (event.tripId) nav.go({ name: 'trip', id: event.tripId }); };
+  const eventRow = (event: AppCalendarEvent) => <button type="button" className="poreia-row poreia-row--button poreia-calendar-event-row" key={event.id} onClick={() => openEvent(event)}><span className={`poreia-calendar-event__marker poreia-calendar-event__marker--${event.type}`} /><span className="poreia-row__text"><strong>{event.title}</strong><small>{eventTime(event)} · {event.detail}</small></span><ChevronIcon size={18} /></button>;
 
-  return <div className="page poreia-page"><PageTop><button type="button" className="back-link" onClick={nav.back}>Back</button></PageTop><PoreiaHeader compact eyebrow="Travel and commitments" title="Calendar" description="Plan your time away."><div className="poreia-calendar-header-actions"><button type="button" className="button-quiet" onClick={goToday}>Today</button><button type="button" className="button-quiet" onClick={() => nav.go({ name: 'vacation' })}><PtoIcon size={18} /> Vacation Time</button></div></PoreiaHeader>
+  return <div className="page poreia-page poreia-calendar-shell"><PoreiaHeader compact noTitleAnchor eyebrow="Travel and commitments" title="Calendar" description="Plan your time away."><div className="poreia-calendar-header-actions"><button type="button" className="button-quiet" onClick={goToday}>Today</button><button type="button" className="button-quiet" onClick={() => nav.go({ name: 'vacation' })}><PtoIcon size={18} /> Vacation Time</button></div></PoreiaHeader>
     <div className="page page--under-hero poreia-calendar-page">
       {statusMessage && <p className="form-success" role="status">{statusMessage}</p>}
-      <section className="poreia-calendar-toolbar" aria-label="Calendar controls"><button type="button" className="poreia-icon-button" aria-label="Previous month" onClick={() => goMonth(-1)}><ChevronIcon size={20} /></button><h2>{monthLabel(monthKey)}</h2><div className="poreia-calendar-toolbar__actions"><button type="button" className="text-link" onClick={goToday}>Today</button><button type="button" className="poreia-icon-button" aria-label="Next month" onClick={() => goMonth(1)}><ChevronIcon size={20} /></button></div></section>
-      <section className="poreia-calendar-grid" aria-label={monthLabel(monthKey)}><div className="poreia-calendar-weekdays" aria-hidden="true">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <span key={day}>{day}</span>)}</div><div className="poreia-calendar-days">{gridDates.map((date) => { const dayEvents = eventDates.get(date) ?? []; const inMonth = date.startsWith(monthKey); const selected = date === selectedDate; const isToday = date === current; return <button type="button" className={`poreia-calendar-day${inMonth ? '' : ' poreia-calendar-day--outside'}${selected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`} key={date} aria-label={`${dayLabel(date)}${dayEvents.length ? `, ${dayEvents.length} events` : ''}`} aria-pressed={selected} onClick={() => setSelectedDate(date)}><strong>{parseDate(date).getDate()}</strong>{dayEvents.length > 0 && <span className="poreia-calendar-day__dots" aria-hidden="true">{[...new Set(dayEvents.map((event) => event.type))].slice(0, 3).map((type) => <i className={`poreia-calendar-dot poreia-calendar-dot--${type}`} key={type} />)}</span>}</button>; })}</div></section>
+      <div className="poreia-calendar-view-tabs" role="tablist" aria-label="Calendar view">{(['month', 'week', 'agenda'] as CalendarView[]).map((item) => <button type="button" role="tab" aria-selected={view === item} key={item} onClick={() => setView(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
+      <section className="poreia-calendar-toolbar" aria-label="Calendar controls"><button type="button" className="poreia-icon-button" aria-label={view === 'week' ? 'Previous week' : 'Previous month'} onClick={() => goPeriod(-1)}><ChevronIcon size={20} /></button><h2>{view === 'week' ? `${shortDateLabel(weekRange.startDate)} – ${shortDateLabel(weekRange.endDate)}` : monthLabel(monthKey)}</h2><div className="poreia-calendar-toolbar__actions"><button type="button" className="text-link" onClick={goToday}>Today</button><button type="button" className="poreia-icon-button" aria-label={view === 'week' ? 'Next week' : 'Next month'} onClick={() => goPeriod(1)}><ChevronIcon size={20} /></button></div></section>
+      {view === 'month' && <section className="poreia-calendar-grid" aria-label={monthLabel(monthKey)}><div className="poreia-calendar-weekdays" aria-hidden="true">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <span key={day}>{day}</span>)}</div><div className="poreia-calendar-days">{gridDates.map((date) => { const dayEvents = eventDates.get(date) ?? []; const inMonth = date.startsWith(monthKey); const selected = date === selectedDate; const isToday = date === current; return <button type="button" className={`poreia-calendar-day${inMonth ? '' : ' poreia-calendar-day--outside'}${selected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`} key={date} aria-label={`${dayLabel(date)}${dayEvents.length ? `, ${dayEvents.length} events` : ''}`} aria-pressed={selected} onClick={() => setSelectedDate(date)}><strong>{parseDate(date).getDate()}</strong>{dayEvents.length > 0 && <span className="poreia-calendar-day__dots" aria-hidden="true">{[...new Set(dayEvents.map((event) => event.type))].slice(0, 3).map((type) => <i className={`poreia-calendar-dot poreia-calendar-dot--${type}`} key={type} />)}</span>}</button>; })}</div></section>}
+      {view === 'week' && <section className="poreia-calendar-week-view" aria-label="Week view">{weekDates.map((date) => { const dayEvents = events.filter((event) => overlapsDate(event, date)).sort(eventSort); return <div className={`poreia-calendar-week-day${date === selectedDate ? ' is-selected' : ''}`} key={date}><button type="button" className="poreia-calendar-week-day__head" onClick={() => setSelectedDate(date)}><strong>{new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(parseDate(date))}</strong><span>{parseDate(date).getDate()}</span></button>{dayEvents.length ? <div className="poreia-list">{dayEvents.slice(0, 4).map(eventRow)}</div> : <p className="muted">No plans</p>}</div>; })}</section>}
+      {view === 'agenda' && <section className="poreia-calendar-agenda-view" aria-label="Agenda view">{agendaDates.length ? agendaDates.map((date) => <section className="poreia-section" key={date}><div className="poreia-section-head"><h2>{dayLabel(date)}</h2><span className="label">{eventDates.get(date)?.length ?? 0}</span></div><div className="poreia-list">{(eventDates.get(date) ?? []).sort(eventSort).map(eventRow)}</div></section>) : <div className="card poreia-empty"><CalendarIcon size={28} /><h2 className="card__title">Nothing on the calendar yet</h2><p className="muted">Connect your Proairetos calendar to see work shifts and vacation windows, or add a trip.</p><div className="button-row"><button type="button" className="button-main" onClick={() => nav.swap({ name: 'trips' })}>Plan a trip</button><button type="button" className="button-quiet" onClick={() => openPlanner()}>Choose vacation dates</button></div></div>}</section>}
       <CalendarLegend />
-      <section className="poreia-section poreia-calendar-agenda"><div className="poreia-section-head"><div><p className="label">Selected day</p><h2>{dayLabel(selectedDate)}</h2></div><span className="label">{selectedEvents.length} {selectedEvents.length === 1 ? 'event' : 'events'}</span></div>{selectedEvents.length === 0 ? <div className="card poreia-empty"><CalendarIcon size={28} /><p className="muted">No plans for this day yet.</p><div className="button-row"><button type="button" className="button-main" onClick={() => openPlanner()}>Plan vacation</button><button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'trips' })}>Plan a trip</button></div></div> : <div className="poreia-list">{selectedEvents.map((event) => { const content = <><span className={`poreia-calendar-event__marker poreia-calendar-event__marker--${event.type}`} /><span className="poreia-row__text"><strong>{event.title}</strong><small>{eventTime(event)} · {event.detail}</small></span><ChevronIcon size={18} /></>; if (event.type === 'vacation' && event.vacationId) return <button type="button" className="poreia-row poreia-row--button poreia-calendar-event-row" key={event.id} onClick={() => openPlanner(vacations.find((vacation) => vacation.id === event.vacationId))}>{content}</button>; if (event.tripId && ['trip', 'booking', 'itinerary'].includes(event.type)) return <button type="button" className="poreia-row poreia-row--button poreia-calendar-event-row" key={event.id} onClick={() => nav.go({ name: 'trip', id: event.tripId! })}>{content}</button>; return <div className="poreia-row poreia-calendar-event-row" key={event.id}>{content}</div>; })}</div>}</section>
+      {view !== 'agenda' && <section className="poreia-section poreia-calendar-agenda"><div className="poreia-section-head"><div><p className="label">Selected day</p><h2>{dayLabel(selectedDate)}</h2></div><span className="label">{selectedEvents.length} {selectedEvents.length === 1 ? 'event' : 'events'}</span></div>{selectedEvents.length === 0 ? <div className="card poreia-empty"><CalendarIcon size={28} /><p className="muted">No plans for this day yet.</p><div className="button-row"><button type="button" className="button-main" onClick={() => openPlanner()}>Plan vacation</button><button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'trips' })}>Plan a trip</button></div></div> : <div className="poreia-list">{selectedEvents.map(eventRow)}</div>}</section>}
       <section className="poreia-section poreia-calendar-actions"><div className="poreia-section-head"><h2>Make the dates work</h2></div><div className="poreia-action-grid"><button type="button" className="poreia-action-tile" onClick={() => openPlanner()}><CalendarIcon size={22} /><span><strong>Choose vacation dates</strong><small>Review work shifts and PTO first</small></span></button><button type="button" className="poreia-action-tile" onClick={() => nav.swap({ name: 'trips' })}><DiscoverIcon size={22} /><span><strong>Continue a trip</strong><small>Connect dates to a travel plan</small></span></button></div></section>
       {schedulePatterns.length === 0 && !profile && <section className="card poreia-sync-note"><WorkIcon size={22} /><div><strong>Make your vacation dates work for you</strong><p>Connect your Proairetos calendar to see work shifts and find vacation windows that fit your schedule.</p></div><button type="button" className="button-quiet" onClick={() => nav.go({ name: 'vacation' })}>Connect calendar</button></section>}
       {loadError && <p className="form-error" role="alert">{loadError}</p>}

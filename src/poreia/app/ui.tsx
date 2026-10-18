@@ -45,9 +45,9 @@ export function BackLink({ onBack }: { onBack: () => void }) {
   return <button type="button" className="back-link" onClick={onBack}><ArrowLeftIcon size={20} /> Back</button>;
 }
 
-export function PoreiaHeader({ eyebrow, title, description, compact = false, children, style }: { eyebrow?: string; title: string; description?: string; compact?: boolean; children?: ReactNode; style?: CSSProperties }) {
+export function PoreiaHeader({ eyebrow, title, description, compact = false, children, style, noTitleAnchor = false }: { eyebrow?: string; title: string; description?: string; compact?: boolean; children?: ReactNode; style?: CSSProperties; noTitleAnchor?: boolean }) {
   return (
-    <header className={`poreia-header${compact ? ' poreia-header--compact' : ''}`} style={style}>
+    <header className={`poreia-header${compact ? ' poreia-header--compact' : ''}`} style={style} data-no-title-anchor={noTitleAnchor ? '' : undefined}>
       <Brand />
       <div className="poreia-header__words">
         {eyebrow && <p className="label">{eyebrow}</p>}
