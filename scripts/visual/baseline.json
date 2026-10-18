@@ -44,8 +44,8 @@
     {
       "app": "hydros",
       "viewport": "phone-dark",
-      "titleY": 130,
-      "titleHeight": 47,
+      "titleY": 92,
+      "titleHeight": 43,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -184,8 +184,8 @@
     {
       "app": "hydros",
       "viewport": "phone-light",
-      "titleY": 130,
-      "titleHeight": 47,
+      "titleY": 92,
+      "titleHeight": 43,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -324,8 +324,8 @@
     {
       "app": "hydros",
       "viewport": "iphone-touch",
-      "titleY": 130,
-      "titleHeight": 47,
+      "titleY": 92,
+      "titleHeight": 43,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -464,8 +464,8 @@
     {
       "app": "hydros",
       "viewport": "desktop-dark",
-      "titleY": 124,
-      "titleHeight": 40,
+      "titleY": 86,
+      "titleHeight": 34,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,

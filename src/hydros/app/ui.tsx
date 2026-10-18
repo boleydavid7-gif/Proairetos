@@ -37,7 +37,7 @@ export function Brand({ light = false }: { light?: boolean }) {
 }
 
 export function ScreenHeader({ title, onBack, action }: { title: string; onBack?: () => void; action?: ReactNode }) {
-  return <header className="hydros-header"><IconButton className="hydros-icon-button" label={onBack ? 'Back' : 'Close'} onClick={onBack}><Sym name={onBack ? 'back' : 'close'} size={22} /></IconButton><h1>{title}</h1><span className="hydros-header__action">{action}</span></header>;
+  return <header className="hydros-header" data-no-title-anchor=""><IconButton className="hydros-icon-button" label={onBack ? 'Back' : 'Close'} onClick={onBack}><Sym name={onBack ? 'back' : 'close'} size={22} /></IconButton><h1>{title}</h1><span className="hydros-header__action">{action}</span></header>;
 }
 
 export function Segmented<T extends string>({ items, selected, onSelect }: { items: readonly T[]; selected: T; onSelect: (value: T) => void }) {

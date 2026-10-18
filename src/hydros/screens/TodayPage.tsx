@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import type { Nav } from '../app/App';
 import { useDrinks, useSettings, useTraining } from '../app/state';
 import { useDays, useNow } from '../app/day';
@@ -28,6 +28,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   const extra = settings.runDayExtra === false ? 0 : range.extra;
   const goal = effectiveGoalOz(settings) + extra;
   const percent = goal > 0 ? Math.min(100, Math.max(0, (amount / goal) * 100)) : 0;
+  const remaining = Math.max(0, goal - amount);
   const quote = hydrosQuoteFor(today);
   const caffeine = caffeineFacts(todays);
   const last = drinks[0];
@@ -50,24 +51,28 @@ export default function TodayPage({ nav }: { nav: Nav }) {
         <div className="hydros-hero__words">
           <p>Today</p>
           <span>{dateLabel(now)}</span>
-          <blockquote className="hydros-quote">“{quote.text}”<cite>— {quote.source}</cite></blockquote>
         </div>
+      </section>
+
+      <section className="hydros-home__content">
         {settings.goalChosen ? (
-          <div className="hydros-orb" aria-label={`${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}`}>
-            <div className="hydros-orb__water" style={{ height: `${percent}%` }} />
-            <strong>{formatVolume(amount, unit)}<small>/{formatVolume(goal, unit)} {unit}</small></strong>
-            <span>{todays.length ? 'of your daily amount' : 'Daily amount'}</span>
-            {extra > 0 && <em>{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</em>}
-          </div>
+          <article className="hydros-goal-card" aria-label={`${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}`}>
+            <div className="hydros-goal-ring" style={{ '--hydros-progress': `${percent}%` } as CSSProperties}>
+              <div className="hydros-goal-ring__inner"><strong>{formatVolume(amount, unit)}</strong><span>of {formatVolume(goal, unit)} {unit}</span></div>
+            </div>
+            <div className="hydros-goal-card__stats">
+              <span className="hydros-eyebrow">Daily goal</span>
+              <strong>{Math.round(percent)}% complete</strong>
+              <span>{remaining > 0 ? `${formatVolume(remaining, unit)} remaining` : 'Daily amount reached'}</span>
+              {extra > 0 && <small>{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</small>}
+            </div>
+          </article>
         ) : (
-          // No amount has been chosen yet, so nothing is measured against a number the app made up.
-          <div className="hydros-orb" aria-label={`${formatVolume(amount, unit)} ${unit} today`}>
-            <div className="hydros-orb__water" style={{ height: amount > 0 ? '22%' : '0%' }} />
-            <strong>{formatVolume(amount, unit)}<small> {unit}</small></strong>
-            <span>today</span>
-            <button type="button" className="hydros-orb__set" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button>
-          </div>
+          <article className="hydros-goal-card hydros-goal-card--empty">
+            <div className="hydros-goal-card__stats"><span className="hydros-eyebrow">Daily goal</span><strong>{formatVolume(amount, unit)} logged today</strong><span>Choose an amount to see what remains.</span><button type="button" className="hydros-inline-action" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button></div>
+          </article>
         )}
+
         <div className="hydros-quick" aria-label="Log a drink">
           {glasses.map((glass) => (
             <button type="button" key={glass.id} onClick={() => void logDrink(glass, profiles, unit)}>
@@ -82,7 +87,6 @@ export default function TodayPage({ nav }: { nav: Nav }) {
             </button>
           )}
         </div>
-      </section>
 
       {history.length > 0 && (
         <section className="hydros-history" aria-label="History">
@@ -106,6 +110,12 @@ export default function TodayPage({ nav }: { nav: Nav }) {
         </div>
         {all && todays.length === 0 && <p className="pattern-empty">Nothing logged yet.</p>}
         {todays.map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />)}
+      </section>
+
+      <section className="hydros-insights" aria-label="Hydration insights">
+        <article className="hydros-insight-card hydros-insight-card--quote"><span className="hydros-eyebrow">A line for today</span><p>“{quote.text}”</p><small>— {quote.source}</small></article>
+        {caffeine.mg > 0 && <article className="hydros-insight-card"><span className="hydros-eyebrow">Caffeine today</span><strong>{caffeine.mg} mg</strong><small>{caffeine.lastAt ? `Last at ${hourLabel(caffeine.lastAt)}` : 'From what you logged'}</small></article>}
+      </section>
       </section>
     </div>
   );

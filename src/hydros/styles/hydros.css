@@ -395,3 +395,98 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-settings-group .account-card, .hydros-settings-group .card { margin: 0; }
 
 .hydros-orb__set { min-height: 44px; padding: 6px 16px; }
+
+/* ---------- Hydros utility surfaces ----------
+   The scene belongs to Today. Logging, charts and settings use the same quiet water room as the rest of the family,
+   so the data stays in front and the illustration becomes a place rather than a competing surface. */
+.hydros-home { min-height: 100dvh; background: var(--bg); }
+.hydros-hero--today { height: auto; min-height: 0; padding: calc(var(--ll-safe-top) + 14px) 20px 22px; border-radius: 0 0 28px 28px; background: linear-gradient(180deg, rgba(3, 17, 24, .28), rgba(3, 17, 24, .72)), url('../../assets/images/scenes/hydros-sunset.webp') center 22% / cover; }
+.hydros-hero--today::before { background: linear-gradient(180deg, rgba(3,17,24,.18), rgba(3,17,24,.74)), url('../../assets/images/scenes/hydros-sunset.webp') center 22% / cover; transform: none; }
+.hydros-hero--today::after { background: linear-gradient(180deg, transparent 35%, rgba(3,17,24,.26)); }
+.hydros-hero--today .hydros-home-head { min-height: 42px; }
+.hydros-hero--today .hydros-settings-button { width: 42px; height: 42px; }
+.hydros-hero--today .hydros-hero__words { margin-top: 30px; }
+.hydros-hero--today .hydros-hero__words p { font-size: 2.05rem; line-height: 1.05; }
+.hydros-hero--today .hydros-hero__words > span { margin-top: 6px; padding: 0; text-align: left; font-size: .82rem; font-weight: 500; }
+.hydros-home__content { display: flex; flex-direction: column; gap: 18px; padding: 18px 20px calc(var(--tab-height) + 28px); }
+.hydros-goal-card { display: grid; grid-template-columns: 124px minmax(0, 1fr); align-items: center; gap: 18px; padding: 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface-solid); box-shadow: var(--ll-light-1); }
+.hydros-goal-card--empty { display: block; }
+.hydros-goal-ring { display: grid; width: 124px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(var(--cyan) var(--hydros-progress), rgba(134, 170, 180, .22) 0); }
+.hydros-goal-ring__inner { display: grid; width: calc(100% - 12px); aspect-ratio: 1; place-items: center; align-content: center; border-radius: 50%; background: var(--surface-solid); text-align: center; }
+.hydros-goal-ring__inner strong { color: var(--text); font: 400 1.8rem/1 var(--serif); }
+.hydros-goal-ring__inner span { margin-top: 5px; color: var(--muted); font-size: .68rem; }
+.hydros-goal-card__stats { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.hydros-eyebrow { color: var(--muted); font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.hydros-goal-card__stats strong { color: var(--text); font-size: 1.05rem; font-weight: 600; }
+.hydros-goal-card__stats > span:not(.hydros-eyebrow) { color: var(--text-soft); font-size: .82rem; }
+.hydros-goal-card__stats small { color: var(--muted); font-size: .72rem; line-height: 1.35; }
+.hydros-inline-action { align-self: flex-start; min-height: 40px; margin-top: 5px; padding: 0 13px; border: 1px solid var(--cyan); border-radius: 20px; background: transparent; color: var(--cyan); font-size: .78rem; font-weight: 600; }
+.hydros-home__content > .hydros-quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.hydros-home__content > .hydros-quick button { min-height: 66px; padding: 7px 5px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--text); }
+.hydros-home__content > .hydros-quick button strong { overflow: hidden; max-width: 100%; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-home__content > .hydros-quick button small { color: var(--muted); font-size: .68rem; }
+.hydros-history, .hydros-today-list { padding: 0; }
+.hydros-history { gap: 9px; }
+.hydros-history .hydros-section-title h2, .hydros-today-list .hydros-section-title h2 { font-size: 1.15rem; font-weight: 600; }
+.hydros-history__items { gap: 8px; }
+.hydros-history__items button { min-width: 112px; background: var(--surface); }
+.hydros-today-list { gap: 9px; }
+.hydros-today-list .hydros-section-title { padding: 0; }
+.hydros-today-list .hydros-section-title > button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
+.hydros-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.hydros-insight-card--quote { grid-column: 1 / -1; }
+.hydros-insight-card { display: flex; min-width: 0; min-height: 112px; flex-direction: column; gap: 6px; padding: 13px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }
+.hydros-insight-card p { margin: 3px 0 0; color: var(--text); font: 400 .95rem/1.24 var(--serif); }
+.hydros-insight-card strong { color: var(--text); font: 400 1.4rem var(--serif); }
+.hydros-insight-card small { color: var(--muted); font-size: .7rem; line-height: 1.35; }
+
+/* Utility pages use a page surface and one title frame; the scene remains a Today affordance. */
+.hydros-screen, .hydros-add { background: var(--bg); }
+.hydros-screen { min-height: 100dvh; padding: calc(var(--ll-safe-top) + 14px) 20px calc(var(--tab-height) + 24px); }
+.hydros-screen .hydros-header { margin-bottom: 18px; }
+.hydros-screen .hydros-header h1 { font-size: 1.5rem; }
+.hydros-add { min-height: 100dvh; height: auto; }
+.hydros-add__stage { height: auto; min-height: 100dvh; overflow: visible; padding: calc(var(--ll-safe-top) + 14px) 20px calc(var(--tab-height) + 26px); }
+.hydros-add__stage > .hydros-header { position: relative; top: auto; right: auto; left: auto; margin: 0 0 18px; }
+.hydros-add__stage > .hydros-header h1 { position: relative; z-index: 7; opacity: 1 !important; filter: none !important; }
+.hydros-add__stage > .drink-types, .hydros-custom-fields { position: relative; top: auto; right: auto; left: auto; }
+.hydros-add__stage > .drink-types { grid-auto-rows: auto; gap: 9px; }
+.hydros-add__stage .drink-types button { height: 82px; min-height: 82px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text-soft); font-size: .76rem; }
+.hydros-add__stage .drink-types button::before { display: none; }
+.hydros-add__stage .drink-types button svg { position: static; width: 27px; height: 27px; transform: none; color: currentColor; }
+.hydros-add__stage .drink-types button span, :root.hydros .hydros-add__stage .drink-types button span { position: static; max-width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: currentColor; font-weight: 500; text-shadow: none; transform: none; white-space: normal; }
+.hydros-add__stage .drink-types button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
+.hydros-add__stage .drink-types button.is-selected::before { display: none; }
+.hydros-add__stage .drink-types button.hydros-custom-drink { border-color: rgba(58, 202, 245, .45); background: rgba(58, 202, 245, .08); }
+.hydros-custom-fields { display: grid; gap: 10px; padding: 15px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: var(--ll-light-1); }
+.hydros-custom-fields label { min-height: 42px; }
+.hydros-add__stage .amount-picker { position: relative; top: auto; right: auto; left: auto; margin: 18px 0 0; }
+.hydros-add__stage .hydros-save { position: relative; top: auto; right: auto; left: auto; width: 100%; margin-top: 18px; }
+.hydros-flow .hydros-segmented { margin-bottom: 14px; }
+.hydros-flow .flow-period, .hydros-flow .flow-chart-card { border-color: var(--line); background: var(--surface-solid); box-shadow: var(--ll-light-1); }
+.hydros-flow .flow-period { margin-top: 0; }
+.hydros-flow .flow-chart-card { border-radius: 20px; }
+.hydros-flow .recent-entries { margin-top: 22px; }
+.hydros-settings-group { gap: 8px; }
+.hydros-settings-group h2 { margin-inline: 2px; color: var(--muted); font-size: .72rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+.hydros-settings-list { border-color: var(--line); border-radius: 18px; background: var(--surface-solid); box-shadow: var(--ll-light-1); }
+.hydros-settings-row { min-height: 52px; padding: 9px 13px; }
+.hydros-settings-row__name { font-size: .86rem; }
+.hydros-settings-row__value, .hydros-settings-row > b { font-size: .78rem; }
+.hydros-reference { margin: 8px; border-color: var(--line); background: var(--cyan-soft); }
+.hydros-profile-list { gap: 10px; }
+.hydros-profile-card { border-color: var(--line); border-radius: 18px; background: var(--surface-solid); box-shadow: var(--ll-light-1); }
+.hydros-profile-card summary { min-height: 62px; padding-inline: 13px; }
+.hydros-profile-fields { padding: 12px 13px 14px; }
+
+@media (min-width: 62rem) {
+  .hydros-home__content { max-width: 44rem; margin-inline: auto; padding-inline: 0; }
+  .hydros-hero--today { border-radius: 0; }
+  .hydros-screen, .hydros-add__stage { padding-inline: max(20px, calc((100% - 44rem) / 2)); }
+}
+
+@media (max-width: 61.99rem) {
+  /* The shared top bar owns the back affordance on a phone; leave the page title below it instead of stacking two arrows. */
+  .hydros-add__stage > .hydros-header { margin-top: 30px; }
+  .hydros-add__stage > .hydros-header .hydros-icon-button { visibility: hidden; pointer-events: none; }
+}
