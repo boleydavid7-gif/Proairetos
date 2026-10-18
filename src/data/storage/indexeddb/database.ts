@@ -14,7 +14,8 @@ export const DB_NAME = 'proairetos';
 // Version 14: oikonomiaEnvelopes (persistent savings goals shared with Oikonomia).
 // Version 15: Poreia trip and PTO records.
 // Version 16: Poreia itinerary items and booking records.
-export const DB_VERSION = 16;
+// Version 17: Poreia trip savings plans.
+export const DB_VERSION = 17;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -43,6 +44,7 @@ export const stores = {
   poreiaLeaveRequests: 'poreiaLeaveRequests',
   poreiaItineraryItems: 'poreiaItineraryItems',
   poreiaBookings: 'poreiaBookings',
+  poreiaSavingsPlans: 'poreiaSavingsPlans',
   hydrosDrinks: 'hydrosDrinks',
   theoriaBooks: 'theoriaBooks',
   theoriaNotebooks: 'theoriaNotebooks',
@@ -114,7 +116,7 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       if (!db.objectStoreNames.contains(stores.oikonomiaEnvelopes)) {
         db.createObjectStore(stores.oikonomiaEnvelopes, { keyPath: 'id' });
       }
-      for (const name of [stores.poreiaTrips, stores.poreiaPlaces, stores.poreiaWorkProfiles, stores.poreiaPtoAccounts, stores.poreiaPtoLedger, stores.poreiaLeaveRequests, stores.poreiaItineraryItems, stores.poreiaBookings]) {
+      for (const name of [stores.poreiaTrips, stores.poreiaPlaces, stores.poreiaWorkProfiles, stores.poreiaPtoAccounts, stores.poreiaPtoLedger, stores.poreiaLeaveRequests, stores.poreiaItineraryItems, stores.poreiaBookings, stores.poreiaSavingsPlans]) {
         if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {

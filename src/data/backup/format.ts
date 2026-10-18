@@ -117,7 +117,7 @@ export function validateData(value: unknown): BackupData {
     !lists(family.oikonomia, ['bills', 'budgets', 'envelopes']) ||
     !lists(family.hydros, ['drinks']) ||
     !lists(family.theoria, ['books', 'notebooks'])
-    || !lists(family.poreia, ['trips', 'places', 'workProfiles', 'ptoAccounts', 'ptoLedger', 'leaveRequests', 'itineraryItems', 'bookings'])
+    || !lists(family.poreia, ['trips', 'places', 'workProfiles', 'ptoAccounts', 'ptoLedger', 'leaveRequests', 'itineraryItems', 'bookings', 'savingsPlans'])
   ) {
     throw new BackupError('Some of the other apps’ records in this file are damaged.');
   }
@@ -142,7 +142,7 @@ export function parseBackupFile(text: string): BackupFile {
   return { ...(parsed as unknown as PlainBackup), data: validateData(parsed.data) };
 }
 
-export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets' | 'envelopes' | 'drinks' | 'books' | 'notebooks' | 'trips' | 'places' | 'ptoAccounts' | 'ptoLedger' | 'leaveRequests' | 'itineraryItems' | 'bookings', number>;
+export type RecordCounts = Record<(typeof backupKeys)[number] | 'attachments' | 'workouts' | 'recipes' | 'bills' | 'budgets' | 'envelopes' | 'drinks' | 'books' | 'notebooks' | 'trips' | 'places' | 'ptoAccounts' | 'ptoLedger' | 'leaveRequests' | 'itineraryItems' | 'bookings' | 'savingsPlans', number>;
 
 export function countRecords(data: BackupData): RecordCounts {
   return {
@@ -163,5 +163,6 @@ export function countRecords(data: BackupData): RecordCounts {
     leaveRequests: data.poreia?.leaveRequests?.length ?? 0,
     itineraryItems: data.poreia?.itineraryItems?.length ?? 0,
     bookings: data.poreia?.bookings?.length ?? 0,
+    savingsPlans: data.poreia?.savingsPlans?.length ?? 0,
   } as RecordCounts;
 }

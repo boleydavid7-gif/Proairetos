@@ -12,7 +12,7 @@ alter table public.records add constraint records_collection_check check (collec
   'somaRecipes', 'somaGroceries',
   'oikonomiaBills', 'oikonomiaBudgets', 'oikonomiaEnvelopes',
   'poreiaTrips', 'poreiaPlaces', 'poreiaWorkProfiles', 'poreiaPtoAccounts', 'poreiaPtoLedger', 'poreiaLeaveRequests',
-  'poreiaItineraryItems', 'poreiaBookings',
+  'poreiaItineraryItems', 'poreiaBookings', 'poreiaSavingsPlans',
   'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks',
   'preferences', 'attachments'
 ));
@@ -256,7 +256,7 @@ alter table public.records add constraint records_collection_check check (collec
   'somaRecipes', 'somaGroceries',
   'oikonomiaBills', 'oikonomiaBudgets', 'oikonomiaEnvelopes',
   'poreiaTrips', 'poreiaPlaces', 'poreiaWorkProfiles', 'poreiaPtoAccounts', 'poreiaPtoLedger', 'poreiaLeaveRequests',
-  'poreiaItineraryItems', 'poreiaBookings',
+  'poreiaItineraryItems', 'poreiaBookings', 'poreiaSavingsPlans',
   'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks',
   'preferences', 'attachments'
 ));

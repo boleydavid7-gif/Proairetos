@@ -72,6 +72,14 @@ export function itineraryItemsOverlap(first: ItineraryItem, second: ItineraryIte
   return first.startTime < second.endTime && second.startTime < first.endTime;
 }
 
+/** Cost still to fund: confirmed booking totals less payments, plus uncaptured itinerary estimates. */
+export function tripRemainingCost(bookings: readonly Booking[], items: readonly ItineraryItem[]): number {
+  const bookingsRemaining = bookings.reduce((sum, booking) => sum + Math.max(0, (booking.totalCents ?? 0) - (booking.amountPaidCents ?? 0)), 0);
+  const bookingIds = new Set(bookings.map((booking) => booking.id));
+  const itineraryEstimates = items.reduce((sum, item) => sum + (item.reservationId && bookingIds.has(item.reservationId) ? 0 : (item.expectedCostCents ?? 0)), 0);
+  return bookingsRemaining + itineraryEstimates;
+}
+
 export type PlaceIdea = {
   id: string;
   name: string;

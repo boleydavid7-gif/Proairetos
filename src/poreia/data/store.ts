@@ -2,6 +2,7 @@ import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
 import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
+import type { TripSavingsPlan } from '../core/savings';
 
 const listeners = new Set<() => void>();
 let version = 0;
@@ -68,6 +69,8 @@ export const listItineraryItems = () => list<ItineraryItem>(stores.poreiaItinera
 export const putItineraryItem = (item: ItineraryItem) => put(stores.poreiaItineraryItems, item);
 export const listBookings = () => list<Booking>(stores.poreiaBookings);
 export const putBooking = (booking: Booking) => put(stores.poreiaBookings, booking);
+export const listSavingsPlans = () => list<TripSavingsPlan>(stores.poreiaSavingsPlans);
+export const putSavingsPlan = (plan: TripSavingsPlan) => put(stores.poreiaSavingsPlans, plan);
 
 export async function startStore(): Promise<void> {
   await db();

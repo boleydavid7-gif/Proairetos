@@ -1,7 +1,8 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
 import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
-import { listBookings, listItineraryItems, listLeaveRequests, listPlaces, listPtoAccounts, listPtoLedger, listTrips, listWorkProfiles, storeVersion, subscribe } from '../data/store';
+import type { TripSavingsPlan } from '../core/savings';
+import { listBookings, listItineraryItems, listLeaveRequests, listPlaces, listPtoAccounts, listPtoLedger, listSavingsPlans, listTrips, listWorkProfiles, storeVersion, subscribe } from '../data/store';
 
 function useList<T>(loader: () => Promise<T[]>): T[] {
   useSyncExternalStore(subscribe, storeVersion);
@@ -24,3 +25,4 @@ export const usePtoLedger = () => useList<PtoLedgerTransaction>(listPtoLedger);
 export const useLeaveRequests = () => useList<LeaveRequest>(listLeaveRequests);
 export const useItineraryItems = () => useList<ItineraryItem>(listItineraryItems);
 export const useBookings = () => useList<Booking>(listBookings);
+export const useSavingsPlans = () => useList<TripSavingsPlan>(listSavingsPlans);

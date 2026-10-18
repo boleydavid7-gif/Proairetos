@@ -88,6 +88,15 @@
 .poreia-header__status { align-self: flex-start; padding: 7px 11px; border: 1px solid color-mix(in srgb, var(--mint) 45%, var(--line)); border-radius: 999px; color: var(--mint); background: var(--mint-soft); font-size: 0.82rem; }
 .poreia-trip-detail { display: flex; flex-direction: column; gap: 24px; }
 .poreia-trip-summary { display: flex; flex-direction: column; gap: 10px; }
+.poreia-readiness-list { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.poreia-readiness-item { color: var(--muted); font-size: 0.86rem; }
+.poreia-readiness-item--done { color: var(--mint); }
+.poreia-readiness-marker { display: inline-flex; width: 18px; align-items: center; justify-content: center; margin-right: 4px; vertical-align: -3px; }
+.poreia-readiness-empty { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; }
+.poreia-savings { gap: 14px; }
+.poreia-savings-fact { display: flex; min-height: 46px; flex-direction: column; justify-content: center; gap: 4px; }
+.poreia-savings-fact strong { color: var(--mint); font-variant-numeric: tabular-nums; }
+.poreia-savings .form-success { margin: 0; color: var(--mint); }
 
 @media (min-width: 62rem) {
   .poreia-header { min-height: 340px; padding-inline: max(48px, calc((100% - 74rem) / 2 + 48px)); }

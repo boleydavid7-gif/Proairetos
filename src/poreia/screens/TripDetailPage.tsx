@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { CalendarIcon, TripsIcon } from '../app/icons';
-import { useBookings, useItineraryItems, useTrips } from '../app/state';
+import { CalendarIcon, CheckIcon, TripsIcon } from '../app/icons';
+import { useAddedApps } from '../../app/family/added';
+import { useBookings, useItineraryItems, useSavingsPlans, useTrips } from '../app/state';
 import { newId } from '../core/id';
-import { bookingRemaining, type Booking, type BookingStatus, type BookingType, type ItineraryItem, type ItineraryItemStatus } from '../core/trips';
-import { putBooking, putItineraryItem } from '../data/store';
+import { savingsContribution, type SavingsCadence, type TripSavingsPlan } from '../core/savings';
+import { dateText } from '../core/pto';
+import { bookingRemaining, tripRemainingCost, type Booking, type BookingStatus, type BookingType, type ItineraryItem, type ItineraryItemStatus, type Trip } from '../core/trips';
+import { putBooking, putItineraryItem, putSavingsPlan } from '../data/store';
+import { syncPlanToOikonomia } from '../data/oikonomiaBridge';
 import { formatDate, formatMoney } from '../../oikonomia/core/bills';
+import { loadSettings } from '../../oikonomia/data/store';
 import { BackLink, PageTop, PoreiaHeader } from '../app/ui';
 
 const itineraryStatuses: ItineraryItemStatus[] = ['planned', 'confirmed', 'completed', 'canceled'];
@@ -99,19 +104,70 @@ function BookingList({ bookings }: { bookings: Booking[] }) {
   return <div className="poreia-list">{bookings.map((booking) => { const remaining = bookingRemaining(booking); return <div className="poreia-row poreia-row--stack" key={booking.id}><div className="poreia-row__text"><strong>{booking.provider}</strong><small>{labelFor(booking.type)} · {dateLabel(booking.startDate)}{booking.endDate && booking.endDate !== booking.startDate ? ` – ${dateLabel(booking.endDate)}` : ''}{booking.confirmationNumber ? ` · ${booking.confirmationNumber}` : ''}</small></div><span className="poreia-balance">{labelFor(booking.status)}</span>{booking.totalCents !== undefined && <small className="poreia-row__amount">{remaining > 0 ? `${formatMoney(remaining, booking.currency)} left` : 'Paid'}</small>}</div>; })}</div>;
 }
 
+function TripReadiness({ trip, items, bookings, plan }: { trip: Trip; items: ItineraryItem[]; bookings: Booking[]; plan?: TripSavingsPlan }) {
+  const checks = [
+    { label: 'Dates chosen', done: Boolean(trip.startDate && trip.endDate) },
+    { label: 'A reservation recorded', done: bookings.length > 0 },
+    { label: 'Itinerary started', done: items.length > 0 },
+    { label: 'Savings plan set', done: Boolean(plan) },
+  ];
+  const complete = checks.filter((check) => check.done).length;
+  return <section className="card poreia-card poreia-section"><div className="poreia-section-head"><h2>Trip readiness</h2><span className="label">{complete} of {checks.length}</span></div><div className="poreia-progress" role="progressbar" aria-label="Trip readiness" aria-valuemin={0} aria-valuemax={checks.length} aria-valuenow={complete}><span style={{ width: `${(complete / checks.length) * 100}%` }} /></div><div className="poreia-readiness-list">{checks.map((check) => <span key={check.label} className={check.done ? 'poreia-readiness-item poreia-readiness-item--done' : 'poreia-readiness-item'} aria-label={`${check.label}: ${check.done ? 'complete' : 'not started'}`}><span className="poreia-readiness-marker" aria-hidden="true">{check.done ? <CheckIcon size={16} /> : <span className="poreia-readiness-empty" />}</span>{check.label}</span>)}</div></section>;
+}
+
+function SavingsPlanner({ trip, items, bookings, plan }: { trip: Trip; items: ItineraryItem[]; bookings: Booking[]; plan?: TripSavingsPlan }) {
+  const added = useAddedApps();
+  const oikonomiaAvailable = added.includes('oikonomia');
+  const currency = bookings.find((booking) => booking.currency)?.currency ?? (oikonomiaAvailable ? loadSettings().currency : 'USD');
+  const estimated = tripRemainingCost(bookings, items);
+  const [target, setTarget] = useState(plan ? (plan.targetCents / 100).toFixed(2) : '');
+  const [startDate, setStartDate] = useState(plan?.startDate ?? dateText(new Date()));
+  const [cadence, setCadence] = useState<SavingsCadence>(plan?.cadence ?? 'monthly');
+  const [saved, setSaved] = useState(plan ? (plan.savedCents / 100).toFixed(2) : '');
+  const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!plan && !target && estimated > 0) setTarget((estimated / 100).toFixed(2));
+  }, [estimated, plan, target]);
+
+  const targetCents = moneyCents(target) ?? 0;
+  const savedCents = moneyCents(saved) ?? 0;
+  const contribution = savingsContribution(targetCents, savedCents, startDate, trip.startDate, cadence);
+  const save = async () => {
+    if (targetCents <= 0 || (trip.startDate && startDate > trip.startDate)) {
+      setMessage(trip.startDate && startDate > trip.startDate ? 'Start saving on or before the trip date.' : 'Add a trip savings target first.');
+      return;
+    }
+    setSaving(true); setMessage('');
+    const now = new Date().toISOString();
+    const next: TripSavingsPlan = { id: plan?.id ?? newId(), tripId: trip.id, targetCents, currency, startDate, targetDate: trip.startDate, cadence, contributionCents: contribution, savedCents, ...(plan?.createdAt ? { createdAt: plan.createdAt } : { createdAt: now }), updatedAt: now };
+    const linked = oikonomiaAvailable ? await syncPlanToOikonomia(next) : { available: false };
+    await putSavingsPlan({ ...next, ...(linked.envelope ? { envelopeId: linked.envelope.id } : {}) });
+    setSaving(false);
+    setMessage(linked.available ? 'Saved and linked to Oikonomia’s Vacation envelope.' : 'Saved in Poreia. Add Oikonomia later to mirror this plan.');
+  };
+
+  return <section className="card poreia-card poreia-section poreia-savings"><div className="poreia-section-head"><h2>Save for this trip</h2><span className="label">{oikonomiaAvailable ? 'Oikonomia linked' : 'Poreia plan'}</span></div><p className="muted">{estimated > 0 ? `${formatMoney(estimated, currency)} is still estimated or unpaid.` : 'Set a target now; you can refine it as reservations are added.'}{trip.startDate ? ` Trip date: ${dateLabel(trip.startDate)}.` : ' Add trip dates to calculate a schedule.'}</p><div className="poreia-form__pair"><label className="field"><span className="field__label">Savings target ({currency})</span><input className="input" inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="2,000" /></label><label className="field"><span className="field__label">Start saving</span><input className="input" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label></div><div className="poreia-form__pair"><label className="field"><span className="field__label">Contribution cadence</span><select className="input" value={cadence} onChange={(event) => setCadence(event.target.value as SavingsCadence)}><option value="weekly">Every week</option><option value="biweekly">Every two weeks</option><option value="monthly">Every month</option></select></label>{oikonomiaAvailable ? <div className="poreia-savings-fact"><span className="field__label">Suggested contribution</span><strong>{formatMoney(contribution, currency)} {cadence === 'monthly' ? 'monthly' : cadence === 'weekly' ? 'weekly' : 'every two weeks'}</strong></div> : <label className="field"><span className="field__label">Already saved ({currency})</span><input className="input" inputMode="decimal" value={saved} onChange={(event) => setSaved(event.target.value)} placeholder="0" /></label>}</div>{!oikonomiaAvailable && <p className="hint">Poreia will keep this plan here until Oikonomia is added. Its Vacation envelope is never created while that app is unavailable.</p>}{message && <p className="form-success" role="status">{message}</p>}<button type="button" className="button-main" onClick={() => void save()} disabled={saving}>{saving ? 'Saving…' : plan ? 'Update savings plan' : 'Create savings plan'}</button></section>;
+}
+
 export default function TripDetailPage({ nav, tripId }: { nav: Nav; tripId: string }) {
   const trips = useTrips();
   const items = useItineraryItems();
   const bookings = useBookings();
+  const savingsPlans = useSavingsPlans();
   const trip = trips.find((item) => item.id === tripId);
   const tripItems = useMemo(() => items.filter((item) => item.tripId === tripId).sort((a, b) => `${a.date ?? '9999'}${a.startTime ?? ''}`.localeCompare(`${b.date ?? '9999'}${b.startTime ?? ''}`)), [items, tripId]);
   const tripBookings = useMemo(() => bookings.filter((item) => item.tripId === tripId).sort((a, b) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999')), [bookings, tripId]);
+  const savingsPlan = savingsPlans.find((item) => item.tripId === tripId);
 
   if (!trip) return <div className="page poreia-page"><PageTop><BackLink onBack={nav.back} /></PageTop><PoreiaHeader eyebrow="Trip workspace" title="Trip not found" /><div className="page page--under-hero"><div className="card poreia-empty"><p className="muted">This trip may have been removed on another device.</p><button type="button" className="button-main" onClick={nav.back}>Back to trips</button></div></div></div>;
 
   return <div className="page poreia-page"><PageTop><BackLink onBack={nav.back} /></PageTop><PoreiaHeader eyebrow={trip.destination || 'Trip workspace'} title={trip.name}><span className="poreia-header__status">{labelFor(trip.status)}</span></PoreiaHeader>
     <div className="page page--under-hero poreia-trip-detail">
       <section className="card poreia-card poreia-trip-summary"><div className="poreia-section-head"><h2>Trip overview</h2><span className="label">{tripItems.length} itinerary · {tripBookings.length} reservations</span></div><p className="muted">{trip.startDate && trip.endDate ? `${dateLabel(trip.startDate)} – ${dateLabel(trip.endDate)}` : 'Dates are still open'}{trip.destination ? ` · ${trip.destination}` : ''}</p></section>
+      <TripReadiness trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} />
+      <SavingsPlanner trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} />
       <ItineraryForm tripId={trip.id} />
       <section className="poreia-section"><div className="poreia-section-head"><h2>Itinerary</h2><span className="label">{tripItems.length}</span></div><ItineraryList items={tripItems} /></section>
       <BookingForm tripId={trip.id} />
