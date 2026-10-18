@@ -41,6 +41,11 @@ describe('calendar file', () => {
     expect(ics.split('\r\n').every((line) => new TextEncoder().encode(line).length <= 75)).toBe(true);
   });
 
+  it('writes a multi-day all-day range with its exclusive end', () => {
+    const ics = buildIcs([{ uid: 'trip', title: 'Vacation', date: '2026-10-20', dateEnd: '2026-10-23' }], { name: 'Proairetos', now });
+    expect(ics).toContain('DTSTART;VALUE=DATE:20261020\r\nDTEND;VALUE=DATE:20261023');
+  });
+
   it('escapes text and folds long lines without breaking characters', () => {
     expect(escapeText('Pick up milk, eggs; then\nhome')).toBe('Pick up milk\\, eggs\\; then\\nhome');
     const long = `SUMMARY:${'é'.repeat(60)}`;

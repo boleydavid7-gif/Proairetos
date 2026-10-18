@@ -3,6 +3,7 @@ import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
+import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
@@ -71,6 +72,12 @@ import UnsortedPreview from './components/UnsortedPreview';
 import WaitingItems from './components/WaitingItems';
 import { useNow } from './hooks/useNow';
 
+function subscribeCalendars(listener: () => void): () => void {
+  const offOther = otherCalendars.subscribe(listener);
+  const offPoreia = poreiaCalendar.subscribe(listener);
+  return () => { offOther(); offPoreia(); };
+}
+
 /**
  * Today, kept calm: at most one message card, then capture, what is happening
  * now, the person's own three, and the day's timeline. Everything else folds
@@ -108,10 +115,18 @@ export default function NowPage() {
   const linesForGoals = goalLines(statements, items, patterns ?? []);
 
   const calendarEvents =
-    useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(atTime(date, '00:00'), atTime(addDays(date, 1), '00:00')), [date]) ?? [];
+    useServiceData(subscribeCalendars, async () => {
+      const from = atTime(date, '00:00');
+      const until = atTime(addDays(date, 1), '00:00');
+      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until)]);
+      return [...other, ...poreia];
+    }, [date]) ?? [];
   const todayRange = rangeOf(today);
   const todayEvents =
-    useServiceData(otherCalendars.subscribe, async () => otherCalendars.eventsBetween(todayRange.start, todayRange.end), [todayRange.start.getTime()]) ?? [];
+    useServiceData(subscribeCalendars, async () => {
+      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
+      return [...other, ...poreia];
+    }, [todayRange.start.getTime()]) ?? [];
   const busy = [
     ...nearOccurrences,
     ...todayEvents.filter((event) => !event.allDay),

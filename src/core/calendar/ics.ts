@@ -11,6 +11,8 @@ export type CalendarEvent = {
   end?: Date;
   /** All-day event, local "YYYY-MM-DD". */
   date?: string;
+  /** Exclusive end date for a multi-day all-day event. */
+  dateEnd?: string;
   location?: string;
   notes?: string;
 };
@@ -69,7 +71,7 @@ export function buildIcs(events: readonly CalendarEvent[], options: { name: stri
   for (const event of events) {
     lines.push('BEGIN:VEVENT', `UID:${escapeText(event.uid)}@proairetos`, `DTSTAMP:${stamp}`);
     if (event.date) {
-      lines.push(`DTSTART;VALUE=DATE:${dateValue(event.date)}`, `DTEND;VALUE=DATE:${nextDate(event.date)}`);
+      lines.push(`DTSTART;VALUE=DATE:${dateValue(event.date)}`, `DTEND;VALUE=DATE:${dateValue(event.dateEnd ?? nextDate(event.date))}`);
     } else if (event.start && event.end) {
       lines.push(`DTSTART:${utcStamp(event.start)}`, `DTEND:${utcStamp(event.end)}`);
     } else {

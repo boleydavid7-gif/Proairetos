@@ -74,6 +74,7 @@ import {
   type StoredFeedOptions,
 } from '../../data/storage/preferences';
 import { applyAppearance } from '../appearance';
+import { notify as notifyPoreiaChanges } from '../../poreia/data/changes';
 
 export type SyncPhase =
   | 'unavailable' // not configured, or storage blocked
@@ -232,6 +233,7 @@ export function onRemoteChanges(listener: () => void): () => void {
 
 function refreshScreens() {
   for (const service of [lifeService, reflectionService, compassService, scheduleService, decisionService]) service.refresh();
+  notifyPoreiaChanges();
   remoteChanges.notify();
 }
 

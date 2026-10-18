@@ -1,5 +1,6 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
+import { notify as notifyPoreiaChanges } from './changes';
 import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
 import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
 import type { TripSavingsPlan } from '../core/savings';
@@ -15,6 +16,7 @@ function db(): Promise<IDBDatabase | undefined> {
 
 function notify(): void {
   version += 1;
+  notifyPoreiaChanges();
   listeners.forEach((listener) => listener());
 }
 
