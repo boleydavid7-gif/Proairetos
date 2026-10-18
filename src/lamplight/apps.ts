@@ -11,6 +11,7 @@ const APP_COLORS: Record<string, { dark: string; light: string; lamp: string }> 
   soma: { dark: '#111814', light: '#f3ede2', lamp: '#9cc7a6' },
   oikonomia: { dark: '#0d1110', light: '#f2eee6', lamp: '#d79572' },
   hydros: { dark: '#061219', light: '#eaf4f5', lamp: '#36c9f4' },
+  poreia: { dark: '#071c24', light: '#eaf6f4', lamp: '#4cc3c7' },
   praxis: { dark: '#0b201a', light: '#0b201a', lamp: '#c9a274' },
   theoria: { dark: '#0b1020', light: '#0b1020', lamp: '#d9b46a' },
   diaita: { dark: '#0e1014', light: '#f1eee8', lamp: '#e2b26e' },

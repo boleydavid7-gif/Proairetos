@@ -32,6 +32,14 @@
   Cache-Control: no-cache
 /hydros/index.html
   Cache-Control: no-cache
+/poreia/sw.js
+  Cache-Control: no-cache
+/poreia/
+  Cache-Control: no-cache
+/poreia/index.html
+  Cache-Control: no-cache
+/poreia/manifest.webmanifest
+  Cache-Control: no-cache
 
 /praxis/manifest.webmanifest
   Cache-Control: no-cache

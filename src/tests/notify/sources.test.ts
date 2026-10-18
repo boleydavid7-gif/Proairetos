@@ -19,6 +19,7 @@ describe('reminders from every app', () => {
     expect(appAt('/hydros/')).toBe('hydros');
     expect(appAt('/oikonomia/index.html')).toBe('oikonomia');
     expect(appAt('/theoria/')).toBe('theoria');
+    expect(appAt('/poreia/')).toBe('poreia');
     expect(appAt('/settings')).toBe('proairetos');
   });
 
@@ -26,6 +27,8 @@ describe('reminders from every app', () => {
     expect(appNameForOpen('hydros')).toBe('Hydros');
     expect(iconForOpen('askesis')).toBe('/askesis/icons/icon-192.png');
     expect(iconForOpen('oikonomia:bill:1')).toBe('/oikonomia/icons/icon-192.png');
+    expect(appNameForOpen('poreia:trip:1')).toBe('Poreia');
+    expect(iconForOpen('poreia:trip:1')).toBe('/poreia/icon.svg');
   });
 
   it('lets each app write only its own, so none removes another', () => {

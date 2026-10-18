@@ -12,7 +12,8 @@ export const DB_NAME = 'proairetos';
 // Version 12: theoriaBooks (Theoria's reading shelf and source links).
 // Version 13: theoriaNotebooks (structured notes shared by Theoria devices).
 // Version 14: oikonomiaEnvelopes (persistent savings goals shared with Oikonomia).
-export const DB_VERSION = 14;
+// Version 15: Poreia trip and PTO records.
+export const DB_VERSION = 15;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -33,6 +34,12 @@ export const stores = {
   oikonomiaBills: 'oikonomiaBills',
   oikonomiaBudgets: 'oikonomiaBudgets',
   oikonomiaEnvelopes: 'oikonomiaEnvelopes',
+  poreiaTrips: 'poreiaTrips',
+  poreiaPlaces: 'poreiaPlaces',
+  poreiaWorkProfiles: 'poreiaWorkProfiles',
+  poreiaPtoAccounts: 'poreiaPtoAccounts',
+  poreiaPtoLedger: 'poreiaPtoLedger',
+  poreiaLeaveRequests: 'poreiaLeaveRequests',
   hydrosDrinks: 'hydrosDrinks',
   theoriaBooks: 'theoriaBooks',
   theoriaNotebooks: 'theoriaNotebooks',
@@ -103,6 +110,9 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.oikonomiaEnvelopes)) {
         db.createObjectStore(stores.oikonomiaEnvelopes, { keyPath: 'id' });
+      }
+      for (const name of [stores.poreiaTrips, stores.poreiaPlaces, stores.poreiaWorkProfiles, stores.poreiaPtoAccounts, stores.poreiaPtoLedger, stores.poreiaLeaveRequests]) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
         db.createObjectStore(stores.hydrosDrinks, { keyPath: 'id' });

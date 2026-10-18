@@ -32,6 +32,7 @@ export const STORE_APPS: Record<string, string> = {
   soma: 'Soma',
   oikonomia: 'Oikonomia',
   hydros: 'Hydros',
+  poreia: 'Poreia',
   praxis: 'Praxis',
   theoria: 'Theoria',
   diaita: 'Diaita',

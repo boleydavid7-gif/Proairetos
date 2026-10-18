@@ -10,7 +10,8 @@ alter table public.records add constraint records_collection_check check (collec
   'schedulePatterns', 'scheduleExceptions', 'decisions',
   'askesisWorkouts', 'askesisPlans',
   'somaRecipes', 'somaGroceries',
-  'oikonomiaBills', 'oikonomiaBudgets',
+  'oikonomiaBills', 'oikonomiaBudgets', 'oikonomiaEnvelopes',
+  'poreiaTrips', 'poreiaPlaces', 'poreiaWorkProfiles', 'poreiaPtoAccounts', 'poreiaPtoLedger', 'poreiaLeaveRequests',
   'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks',
   'preferences', 'attachments'
 ));

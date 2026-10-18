@@ -52,6 +52,16 @@
       "unnamedButtons": 0
     },
     {
+      "app": "poreia",
+      "viewport": "phone-dark",
+      "titleY": 569,
+      "titleHeight": 44,
+      "overflow": false,
+      "roots": 1,
+      "titleClipped": false,
+      "unnamedButtons": 0
+    },
+    {
       "app": "praxis",
       "viewport": "phone-dark",
       "titleY": 148,
@@ -192,6 +202,16 @@
       "unnamedButtons": 0
     },
     {
+      "app": "poreia",
+      "viewport": "phone-light",
+      "titleY": 569,
+      "titleHeight": 44,
+      "overflow": false,
+      "roots": 1,
+      "titleClipped": false,
+      "unnamedButtons": 0
+    },
+    {
       "app": "praxis",
       "viewport": "phone-light",
       "titleY": 148,
@@ -326,6 +346,16 @@
       "viewport": "iphone-touch",
       "titleY": 92,
       "titleHeight": 43,
+      "overflow": false,
+      "roots": 1,
+      "titleClipped": false,
+      "unnamedButtons": 0
+    },
+    {
+      "app": "poreia",
+      "viewport": "iphone-touch",
+      "titleY": 577,
+      "titleHeight": 44,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -466,6 +496,16 @@
       "viewport": "desktop-dark",
       "titleY": 86,
       "titleHeight": 34,
+      "overflow": false,
+      "roots": 1,
+      "titleClipped": false,
+      "unnamedButtons": 0
+    },
+    {
+      "app": "poreia",
+      "viewport": "desktop-dark",
+      "titleY": 589,
+      "titleHeight": 44,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,

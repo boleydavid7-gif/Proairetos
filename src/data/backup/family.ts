@@ -16,6 +16,7 @@ export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
   oikonomia?: { bills: unknown[]; budgets?: unknown[]; envelopes?: unknown[] };
+  poreia?: { trips: unknown[]; places?: unknown[]; workProfiles?: unknown[]; ptoAccounts?: unknown[]; ptoLedger?: unknown[]; leaveRequests?: unknown[] };
   hydros?: { drinks: unknown[] };
   theoria?: { books: unknown[]; notebooks?: unknown[] };
   /** Settings by key, as stored. */
@@ -130,6 +131,14 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
     };
     out.hydros = { drinks: await readAll(proairetos, stores.hydrosDrinks) };
     out.theoria = { books: await readAll(proairetos, stores.theoriaBooks), notebooks: await readAll(proairetos, stores.theoriaNotebooks) };
+    out.poreia = {
+      trips: await readAll(proairetos, stores.poreiaTrips),
+      places: await readAll(proairetos, stores.poreiaPlaces),
+      workProfiles: await readAll(proairetos, stores.poreiaWorkProfiles),
+      ptoAccounts: await readAll(proairetos, stores.poreiaPtoAccounts),
+      ptoLedger: await readAll(proairetos, stores.poreiaPtoLedger),
+      leaveRequests: await readAll(proairetos, stores.poreiaLeaveRequests),
+    };
   }
   return out;
 }
@@ -155,6 +164,14 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
   if (proairetos && data.theoria) {
     await replaceStore(proairetos, stores.theoriaBooks, data.theoria.books ?? []);
     if (data.theoria.notebooks !== undefined) await replaceStore(proairetos, stores.theoriaNotebooks, data.theoria.notebooks);
+  }
+  if (proairetos && data.poreia) {
+    await replaceStore(proairetos, stores.poreiaTrips, data.poreia.trips ?? []);
+    if (data.poreia.places !== undefined) await replaceStore(proairetos, stores.poreiaPlaces, data.poreia.places);
+    if (data.poreia.workProfiles !== undefined) await replaceStore(proairetos, stores.poreiaWorkProfiles, data.poreia.workProfiles);
+    if (data.poreia.ptoAccounts !== undefined) await replaceStore(proairetos, stores.poreiaPtoAccounts, data.poreia.ptoAccounts);
+    if (data.poreia.ptoLedger !== undefined) await replaceStore(proairetos, stores.poreiaPtoLedger, data.poreia.ptoLedger);
+    if (data.poreia.leaveRequests !== undefined) await replaceStore(proairetos, stores.poreiaLeaveRequests, data.poreia.leaveRequests);
   }
   if (data.settings) restoreSettings(data.settings);
 }

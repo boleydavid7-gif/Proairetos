@@ -40,13 +40,13 @@ function vapidProblem(): string | null {
 
 const APP_NAMES: Record<string, string> = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia',
 };
 
 /** The part an iPhone can show by itself: the app's name, a plain line, and where a tap goes. Nothing personal. */
 function iconFor(source: string, site: string): string {
   const app = APP_NAMES[source] ? source : 'proairetos';
-  return `${site}${app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`}`;
+  return `${site}${app === 'proairetos' ? '/icons/icon-192.png' : app === 'poreia' ? '/poreia/icon.svg' : `/${app}/icons/icon-192.png`}`;
 }
 
 function declarative(source: string, preview?: { title?: string | null; body?: string | null; open?: string | null }) {

@@ -46,7 +46,7 @@ export default {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();
       return handlePlantRequest(request, env.PLANTNET_KEY, fetch, lang);
     }
-    // Keep the sibling app reachable at the clean family URL without requiring a trailing slash.
+    // Keep sibling apps reachable at their clean family URLs without requiring a trailing slash.
     if (url.pathname === '/praxis') {
       const praxisUrl = new URL(request.url);
       praxisUrl.pathname = '/praxis/';
@@ -56,6 +56,11 @@ export default {
       const theoriaUrl = new URL(request.url);
       theoriaUrl.pathname = '/theoria/';
       return env.ASSETS.fetch(new Request(theoriaUrl, request));
+    }
+    if (url.pathname === '/poreia') {
+      const poreiaUrl = new URL(request.url);
+      poreiaUrl.pathname = '/poreia/';
+      return env.ASSETS.fetch(new Request(poreiaUrl, request));
     }
     return env.ASSETS.fetch(request);
   },

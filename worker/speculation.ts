@@ -3,7 +3,7 @@
  * Chrome and Edge fetch another family app's page ahead when a link to it is pointed at or pressed, so it opens
  * at once. Only the page is fetched; nothing in it runs until it is opened.
  */
-const APPS = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+const APPS = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 export const SPECULATION_RULES = {
   prefetch: [

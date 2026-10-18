@@ -6,20 +6,21 @@ import type { Notice } from './notices';
  * Oikonomia the bills, Praxis the block that is running. Each writes what it owns; Proairetos also writes the
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
-export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
+export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
 export type FamilyApp = ReminderSource | 'soma' | 'theoria';
 
-export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 const APP_NAMES: Record<FamilyApp, string> = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia',
 };
 
 const appFromOpen = (open: string): FamilyApp => {
   if (open === 'askesis' || open.startsWith('askesis:')) return 'askesis';
   if (open === 'oikonomia' || open.startsWith('oikonomia:')) return 'oikonomia';
   if (open === 'hydros' || open.startsWith('hydros:')) return 'hydros';
+  if (open === 'poreia' || open.startsWith('poreia:')) return 'poreia';
   if (open === 'praxis' || open.startsWith('praxis:')) return 'praxis';
   for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'] as const) {
     if (open === app || open.startsWith(`${app}:`)) return app;
@@ -35,7 +36,7 @@ export function appNameForOpen(open: string): string {
 /** The app icon used by the shared worker and by an in-app notification. */
 export function iconForOpen(open: string): string {
   const app = appFromOpen(open);
-  return app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`;
+  return app === 'proairetos' ? '/icons/icon-192.png' : app === 'poreia' ? '/poreia/icon.svg' : `/${app}/icons/icon-192.png`;
 }
 
 export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
@@ -71,7 +72,7 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
 /** Which app this page is, from its address. */
 export function appAt(pathname: string): FamilyApp {
   const first = pathname.split('/').filter(Boolean)[0];
-  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
   return apps.find((app) => app === first) ?? 'proairetos';
 }
 

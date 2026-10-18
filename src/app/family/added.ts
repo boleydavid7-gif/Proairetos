@@ -10,7 +10,7 @@ import { mayUse, subscribePurchases } from './purchases';
 
 export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
-export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 const KEY = 'proairetos.apps';
 
@@ -22,6 +22,7 @@ const TRACES: Record<AddOn, (key: string) => boolean> = {
   soma: (key) => key.startsWith('soma:') || key.startsWith('somaShared.'),
   oikonomia: (key) => key.startsWith('oikonomia:'),
   hydros: (key) => key.startsWith('hydros:'),
+  poreia: (key) => key.startsWith('poreia:'),
   praxis: (key) => key.startsWith('proairetos.praxis'),
   theoria: (key) => key.startsWith('theoria:'),
   diaita: (key) => key.startsWith('diaita:'),

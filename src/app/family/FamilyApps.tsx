@@ -1,7 +1,7 @@
 import { useAddedApps, type AddOn } from './added';
 
 /** The apps of the family, the same list in every one (the one open is left out). */
-export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
+export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
 
 export const familyApps: readonly { id: FamilyApp; name: string; href: string; icon: string; line: string; about?: string; tint?: { ground: string; accent: string; ink: string } }[] = [
   { id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon.svg', line: 'Your days, your values, your reflections' },
@@ -9,6 +9,7 @@ export const familyApps: readonly { id: FamilyApp; name: string; href: string; i
   { id: 'soma', name: 'Soma', href: '/soma/', icon: '/soma/icon.svg', line: 'Recipes and groceries', about: 'Recipes, a grocery list sorted by aisle, a loose week of meals, a list you can share, and each recipe’s Nutri-Score from what is in it.', tint: { ground: '#f3ede2', accent: '#2f5a3e', ink: '#2f5a3e' } },
   { id: 'oikonomia', name: 'Oikonomia', href: '/oikonomia/', icon: '/oikonomia/icon.svg', line: 'Bills and household essentials', about: 'Bills and subscriptions with their dates in view, a monthly plan by area, and what went out from your statements.', tint: { ground: '#0d1110', accent: '#d79572', ink: '#f2eee6' } },
   { id: 'hydros', name: 'Hydros', href: '/hydros/', icon: '/hydros/icon.svg', line: 'What you drink, through the day', about: 'Log a glass in one tap. Reminders through your waking hours or your work, and what you drank by day.', tint: { ground: '#061b25', accent: '#36c9f4', ink: '#a9edff' } },
+  { id: 'poreia', name: 'Poreia', href: '/poreia/', icon: '/poreia/icon.svg', line: 'Vacations, from idea to departure', about: 'Find realistic vacation windows, track work leave, and keep the trip’s plans, bookings and preparation together.', tint: { ground: '#071c24', accent: '#4cc3c7', ink: '#d9fbf6' } },
   { id: 'praxis', name: 'Praxis', href: '/praxis/', icon: '/praxis/favicon.svg', line: 'Study, a block at a time', about: 'Timed study blocks with a bell, cards to look at again, and your study time by day.', tint: { ground: '#0b201a', accent: '#c9a274', ink: '#f4e9d2' } },
   { id: 'theoria', name: 'Theoria', href: '/theoria/', icon: '/theoria/favicon.svg', line: 'Reading, highlights and notes', about: 'Read your books and PDFs, keep highlights and notes, and bring in your Kindle highlights.', tint: { ground: '#0b1020', accent: '#d9b46a', ink: '#ede5d3' } },
   { id: 'diaita', name: 'Diaita', href: '/diaita/', icon: '/diaita/icon.svg', line: 'Sleep, light, food and caffeine around your schedule', about: 'Sleep, naps, light, caffeine and meals planned around your schedule, each line with its source.', tint: { ground: '#0e1014', accent: '#e2b26e', ink: '#ece8e1' } },

@@ -50,10 +50,10 @@ const ocrFiles = () => ({
 
 export default defineConfig({
   plugins: [react(), stampServiceWorker(), ocrFiles()],
-  // Fourteen apps from one codebase: Proairetos at /, Askesis at /askesis/, SOMA at /soma/, Oikonomia at /oikonomia/, Hydros at /hydros/, Praxis at /praxis/, Theoria at /theoria/, Diaita at /diaita/, Philia at /philia/, Ergon at /ergon/, Therapeia, Dynamis, Ktema and Phyton at theirs.
+  // Family apps from one codebase: Poreia lives at /poreia/ alongside the existing companions.
   build: {
     rollupOptions: {
-      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html', hydros: 'hydros/index.html', praxis: 'praxis/index.html', theoria: 'theoria/index.html', diaita: 'diaita/index.html', philia: 'philia/index.html', ergon: 'ergon/index.html', therapeia: 'therapeia/index.html', dynamis: 'dynamis/index.html', ktema: 'ktema/index.html', phyton: 'phyton/index.html', lamplight: 'lamplight/index.html' },
+      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html', hydros: 'hydros/index.html', poreia: 'poreia/index.html', praxis: 'praxis/index.html', theoria: 'theoria/index.html', diaita: 'diaita/index.html', philia: 'philia/index.html', ergon: 'ergon/index.html', therapeia: 'therapeia/index.html', dynamis: 'dynamis/index.html', ktema: 'ktema/index.html', phyton: 'phyton/index.html', lamplight: 'lamplight/index.html' },
     },
   },
   // When this copy was built, so Settings can say which build a phone is running.

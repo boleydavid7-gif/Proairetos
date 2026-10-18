@@ -21,14 +21,14 @@ const baselinePath = process.env.VISUAL_BASELINE ?? join(new URL('.', import.met
 const updateBaseline = process.env.VISUAL_BASELINE_UPDATE === '1';
 mkdirSync(outputDir, { recursive: true });
 
-const apps = ['proairetos', 'askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+const apps = ['proairetos', 'askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 const viewports = [
   { name: 'phone-dark', width: 390, height: 844, colorScheme: 'dark' },
   { name: 'phone-light', width: 390, height: 844, colorScheme: 'light' },
   { name: 'iphone-touch', width: 393, height: 852, colorScheme: 'dark', isMobile: true, hasTouch: true, deviceScaleFactor: 3 },
   { name: 'desktop-dark', width: 1440, height: 900, colorScheme: 'dark' },
 ];
-const titleSelectors = ['.page-header__title', '.page-hero__title', '.home__title', '.hero__title', '.title', '.praxis-page-heading h1', '.theoria-heading h1', '.hydros-header h1', '.hydros-hero__words > p', 'main h1'];
+const titleSelectors = ['.page-header__title', '.page-hero__title', '.home__title', '.hero__title', '.poreia-header__words h1', '.welcome__name', '.title', '.praxis-page-heading h1', '.theoria-heading h1', '.hydros-header h1', '.hydros-hero__words > p', 'main h1'];
 
 const browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] });
 const failures = [];

@@ -1,0 +1,15 @@
+{
+  "id": "/poreia/",
+  "name": "Poreia by Proairetos",
+  "short_name": "Poreia",
+  "description": "Plan vacations around work leave, family availability, bookings and preparation.",
+  "start_url": "/poreia/",
+  "scope": "/poreia/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071c24",
+  "theme_color": "#071c24",
+  "icons": [
+    { "src": "/poreia/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
