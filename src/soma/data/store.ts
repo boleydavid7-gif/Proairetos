@@ -23,7 +23,7 @@ export type Settings = {
   recipeView: 'cards' | 'list' | 'grid';
   /** How measured ingredients are shown; recipes remain stored as imported. */
   units: UnitSystem;
-  /** The daily line on Home. */
+  /** The daily thought on Home. */
   dailyLine: boolean;
   /** "Ways to try it" beside recipes. */
   waysToTry: boolean;

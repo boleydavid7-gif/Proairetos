@@ -113,7 +113,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       </section>
 
       <section className="hydros-insights" aria-label="Hydration insights">
-        <article className="hydros-insight-card hydros-insight-card--quote"><span className="hydros-eyebrow">A line for today</span><p>“{quote.text}”</p><small>— {quote.source}</small></article>
+        <article className="hydros-insight-card hydros-insight-card--quote"><span className="hydros-eyebrow">Daily thought</span><p>“{quote.text}”</p><small>— {quote.source}</small></article>
         {caffeine.mg > 0 && <article className="hydros-insight-card"><span className="hydros-eyebrow">Caffeine today</span><strong>{caffeine.mg} mg</strong><small>{caffeine.lastAt ? `Last at ${hourLabel(caffeine.lastAt)}` : 'From what you logged'}</small></article>}
       </section>
       </section>

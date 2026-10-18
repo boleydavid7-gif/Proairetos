@@ -16,7 +16,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
     { icon: <JarIcon />, title: 'Usually have', detail: 'Left off the list when adding a recipe', route: { name: 'usually' } },
     { icon: <HistoryIcon size={22} />, title: 'Your year', detail: 'What you cooked, by year', route: { name: 'year' } },
-    { icon: <GearIcon />, title: 'Settings', detail: 'Units, daily line, ways to try it', route: { name: 'settings' } },
+    { icon: <GearIcon />, title: 'Settings', detail: 'Units, daily thought, ways to try it', route: { name: 'settings' } },
     { icon: <BoxIcon />, title: 'Your data', detail: 'Back up, restore, delete', route: { name: 'data' } },
     { icon: <InfoIcon />, title: 'About and sources', detail: 'The name, the guidance', route: { name: 'about' } },
   ];
@@ -117,7 +117,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
           />
           <p className="hint">Recipes stay as written. Metric uses grams for flour, sugar, butter, oats and rice.</p>
         </div>
-        <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
+        <Switch on={settings.dailyLine} label="Daily thought" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />
         <Switch on={settings.healthRating} label="Nutri-Score and nutrition" onToggle={() => saveSettings({ ...settings, healthRating: !settings.healthRating })} />
         <Switch on={settings.fitsYourDay} label="Your day, from Proairetos" onToggle={() => saveSettings({ ...settings, fitsYourDay: !settings.fitsYourDay })} />

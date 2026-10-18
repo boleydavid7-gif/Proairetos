@@ -17,7 +17,7 @@ describe('daily Stoic line', () => {
   });
 });
 
-describe('ways to try the daily line', () => {
+describe('ways to try the daily thought', () => {
   it('pairs every line with one way to try it', async () => {
     const { stoicLines } = await import('../../core/stoic/dailyLine');
     for (let i = 0; i < 400; i++) {
@@ -28,7 +28,7 @@ describe('ways to try the daily line', () => {
   });
 });
 
-describe('Today’s wider daily line', () => {
+describe('Today’s wider daily thought', () => {
   it('rotates through Stoic, Buddhist, and mindfulness lines', () => {
     expect(dailyLines.length).toBeGreaterThan(stoicLines.length);
     const month = Array.from({ length: 90 }, (_, i) => dailyLineFor(addDays('2026-01-01', i)));

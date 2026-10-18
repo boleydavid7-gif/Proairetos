@@ -108,7 +108,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-10-12',
     lines: [
       'Askesis: setting an aim is one list per question, with a check on your answer. Praxis: a calmer top and no timer until there is a block. Therapeia: the time on a medicine shows in full.',
-      'Quieter first screens: an app with nothing in it shows one line and a small button, the daily line waits until there is something there, and only Proairetos says hello.',
+      'Quieter first screens: an app with nothing in it shows one line and a small button, the daily thought waits until there is something there, and only Proairetos says hello.',
       'Sync through your own Google Drive, Dropbox or OneDrive (Settings > Account > Where your data syncs). Everything is still locked on your phone first; every app and device follows.',
       'A passkey that only signs in now has “Let it open your data” in Settings > Account: your passphrase once, then Face ID.',
       'Signing in is simpler: with a passkey, Face ID opens your data in every app, and the passphrase and sign-in pass step aside. A passkey that only signed in before is set to open your data the next time you enter your passphrase after it.',
@@ -153,7 +153,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Therapeia: medicines at the times you set, or after waking and before sleep on any schedule; refills, visits with your questions, a health card and a list to share.',
       'Dynamis: strength sessions built from the research, every set logged, a little more offered when you are ready; short mobility routines with a bell.',
       'Ktema: warranties, models, serial numbers and documents, and upkeep that comes around by date or by mileage.',
-      'A daily line in Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema, Stoic and Buddhist in turn, on each one\u2019s subject.',
+      'A daily thought in Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema, Stoic and Buddhist in turn, on each one\u2019s subject.',
       'Philia: call, message or email someone from their page.',
       'Therapeia: readings (blood pressure, blood sugar, weight and more) with plain facts, and the latest in the shared list if you choose.',
       'Dynamis: run days from Askesis in the week, optional warm-up sets, and a line to keep in Reflect after a session.',

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { LINES, lineOf } from '../../app/family/dailyLines';
 import { addDays } from '../../core/scheduling/dates';
 
-describe('daily lines', () => {
+describe('daily thoughts', () => {
   it('gives every app Stoic and Buddhist lines, each with where it is from', () => {
     for (const lists of Object.values(LINES)) {
       expect(lists.stoic.length).toBeGreaterThanOrEqual(3);

@@ -380,7 +380,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   flex: 0 0 auto;
 }
 
-/* The daily line is a quiet foot, never the biggest thing on the page. */
+/* The daily thought is a quiet foot, never the biggest thing on the page. */
 .daily-line blockquote,
 blockquote.daily-line {
   font-size: var(--text-base, 1rem);

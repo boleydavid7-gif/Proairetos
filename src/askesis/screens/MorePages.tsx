@@ -217,7 +217,7 @@ export function SettingsPage({ nav }: { nav: Nav }) {
       </div>
       <h2 className="label">What’s included</h2>
       <div className="card switches">
-        <Switch on={settings.dailyLine} label="A line for the day" onToggle={() => flip('dailyLine')} />
+        <Switch on={settings.dailyLine} label="Daily thought" onToggle={() => flip('dailyLine')} />
         <Switch
           on={settings.afterOffers}
           label="After a workout"

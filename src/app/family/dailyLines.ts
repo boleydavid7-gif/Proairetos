@@ -121,5 +121,5 @@ export function lineOf(app: LineApp, today: string): Line {
   return list[Math.floor(day / 2) % list.length];
 }
 
-/** Which apps show their daily line: on unless the person turns it off (synced, backed up). */
+/** Which apps show their daily thought: on unless the person turns it off (synced, backed up). */
 export const dailyLines = stored<{ off: LineApp[] }>('proairetos.dailyLines', () => ({ off: [] }));

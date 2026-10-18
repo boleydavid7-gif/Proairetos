@@ -2,7 +2,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import { Switch } from '../../askesis/app/ui';
 import { dailyLines, lineOf, type LineApp } from './dailyLines';
 
-/** The app's line for today, at the foot of its first page. */
+/** The app's daily thought, at the foot of its first page. */
 export function DailyLine({ app }: { app: LineApp }) {
   const off = dailyLines.use().off;
   if (off.includes(app)) return null;
@@ -19,5 +19,5 @@ export function DailyLine({ app }: { app: LineApp }) {
 export function DailyLineSwitch({ app }: { app: LineApp }) {
   const off = dailyLines.use().off;
   const on = !off.includes(app);
-  return <Switch on={on} label="Daily line" detail="Stoic and Buddhist, in turn" onToggle={() => dailyLines.save({ off: on ? [...off, app] : off.filter((each) => each !== app) })} />;
+  return <Switch on={on} label="Daily thought" detail="Stoic and Buddhist, in turn" onToggle={() => dailyLines.save({ off: on ? [...off, app] : off.filter((each) => each !== app) })} />;
 }

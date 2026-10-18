@@ -1,7 +1,7 @@
 import { daysBetween } from '../../core/scheduling/dates';
 
 /**
- * A line for the day, from the Stoics, about practice. One a day, the same
+ * A daily thought, from the Stoics, about practice. One a day, the same
  * all day.
  */
 export const trainingLines: { text: string; by: string }[] = [
