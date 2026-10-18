@@ -1,4 +1,4 @@
-import { billsBefore, nextPay, payDates, payView, type Pay } from '../../oikonomia/core/pay';
+import { billsBefore, incomeForMonth, nextPay, payDates, payView, type Pay } from '../../oikonomia/core/pay';
 import type { Bill } from '../../oikonomia/core/bills';
 
 const pay = (over: Partial<Pay>): Pay => ({ id: 'p', name: 'Pay', currency: 'USD', rhythm: 'every-2-weeks', date: '2026-10-03', ...over });
@@ -24,6 +24,18 @@ describe('pay dates', () => {
     const found = nextPay([pay({}), pay({ id: 'q', name: 'Side', rhythm: 'monthly', date: '2026-10-12' })], '2026-10-10');
     expect(found?.date).toBe('2026-10-12');
     expect(found?.pays.map((each) => each.name)).toEqual(['Side']);
+  });
+
+  it('projects known income dates for a month and leaves unknown amounts visible', () => {
+    const totals = incomeForMonth(
+      [
+        pay({ amountCents: 180000, rhythm: 'every-2-weeks', date: '2026-10-03' }),
+        pay({ id: 'side', name: 'Side', amountCents: undefined, rhythm: 'monthly', date: '2026-10-12' }),
+      ],
+      '2026-10',
+      'USD',
+    );
+    expect(totals).toEqual({ expectedCents: 540000, knownPayDates: 3, unknownPayDates: 1, otherCurrencyDates: 0 });
   });
 });
 

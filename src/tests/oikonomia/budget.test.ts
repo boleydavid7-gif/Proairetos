@@ -1,4 +1,4 @@
-import { budgetCategory, budgetTotals, emptyLimits, moneyInputCents, newBudget, normalizeBudget, recipeBudgetComparison } from '../../oikonomia/core/budget';
+import { budgetCategory, budgetTotals, emptyLimits, moneyInputCents, newBudget, normalizeBudget, recipeBudgetComparison, spendingTotals } from '../../oikonomia/core/budget';
 import type { Bill } from '../../oikonomia/core/bills';
 import type { Recipe } from '../../soma/core/recipes';
 
@@ -51,6 +51,18 @@ describe('Oikonomia monthly planning', () => {
     expect(totals.plannedCents).toBe(45000);
   });
 
+  it('keeps actual spending separate from planned costs', () => {
+    const totals = spendingTotals([
+      { amountCents: 1200, area: 'food' },
+      { amountCents: 3500, area: 'transport' },
+    ]);
+    expect(totals).toEqual({
+      spentCents: 4700,
+      byCategory: { housing: 0, utilities: 0, transport: 3500, food: 1200, health: 0, subscriptions: 0, debt: 0, savings: 0, personal: 0, other: 0 },
+      count: 2,
+    });
+  });
+
   it('does not mix another currency into the plan', () => {
     expect(budgetTotals([bill({ currency: 'CAD' })], [], '2026-10', 'USD').plannedCents).toBe(0);
   });
@@ -64,6 +76,9 @@ describe('Oikonomia monthly planning', () => {
   it('matches words without turning care or gasoline into the wrong area', () => {
     expect(budgetCategory('Care')).toBe('health');
     expect(budgetCategory('Gasoline')).toBe('transport');
+    expect(budgetCategory('Student loan')).toBe('debt');
+    expect(budgetCategory('Emergency savings')).toBe('savings');
+    expect(budgetCategory('Haircut')).toBe('personal');
   });
 
   it('keeps amounts editable until they are saved', () => {

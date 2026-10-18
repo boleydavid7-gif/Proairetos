@@ -1,4 +1,4 @@
-import { addDays, addMonths, occurrencesBetween, paidForOccurrence, parseDate, type Bill, type BillOccurrence } from './bills';
+import { addDays, addMonths, monthBounds, occurrencesBetween, paidForOccurrence, parseDate, type Bill, type BillOccurrence } from './bills';
 
 /**
  * When pay comes in, and what is due before it. The person says how they are paid; Oikonomia lays the dates out and
@@ -57,6 +57,34 @@ export function payDates(pay: Pay, from: string, until: string): string[] {
     if (iso(first) > until) break;
   }
   return out.sort();
+}
+
+/** Usual income expected in one calendar month, from the pay schedules the person entered. */
+export function incomeForMonth(
+  pays: readonly Pay[],
+  month: string,
+  currency: string,
+): { expectedCents: number; knownPayDates: number; unknownPayDates: number; otherCurrencyDates: number } {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const bounds = monthBounds(new Date(year, monthNumber - 1, 1, 12));
+  let expectedCents = 0;
+  let knownPayDates = 0;
+  let unknownPayDates = 0;
+  let otherCurrencyDates = 0;
+  for (const pay of pays) {
+    const dates = payDates(pay, bounds.from, bounds.until);
+    if (pay.currency !== currency) {
+      otherCurrencyDates += dates.length;
+      continue;
+    }
+    if (pay.amountCents === undefined) {
+      unknownPayDates += dates.length;
+      continue;
+    }
+    knownPayDates += dates.length;
+    expectedCents += Math.max(0, pay.amountCents) * dates.length;
+  }
+  return { expectedCents, knownPayDates, unknownPayDates, otherCurrencyDates };
 }
 
 /** The next pay date on or after today, across every income; with the incomes paid that day. */

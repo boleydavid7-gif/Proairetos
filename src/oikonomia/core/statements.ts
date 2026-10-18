@@ -92,6 +92,9 @@ const AREA_WORDS: [BudgetCategory, RegExp][] = [
   ['subscriptions', /\b(netflix|spotify|hulu|disney|apple\.com|itunes|icloud|google storage|youtube|prime video|amazon prime|patreon|subscription|membership|adobe|microsoft 365|dropbox|audible)\b/i],
   ['health', /\b(pharmacy|chemist|cvs|walgreens|boots|clinic|doctor|dental|dentist|hospital|optician|medical|health|physio|therapy)\b/i],
   ['food', /\b(grocery|groceries|supermarket|market|whole foods|trader joe|safeway|kroger|aldi|lidl|tesco|sainsbury|walmart|costco|restaurant|cafe|café|coffee|starbucks|bakery|pizza|burger|doordash|uber eats|deliveroo|grubhub|just eat|takeaway|kitchen|diner|bar & grill)\b/i],
+  ['debt', /\b(loan|debt|credit card|student loan|interest|affirm|klarna)\b/i],
+  ['savings', /\b(savings?|emergency fund|retirement|401k|403b|ira|investment|brokerage)\b/i],
+  ['personal', /\b(clothing|haircut|barber|beauty|hobby|gift|entertainment|movie|concert)\b/i],
 ];
 
 /** A merchant's words without numbers and card noise, so the same shop is recognised next time. */

@@ -65,13 +65,13 @@ Most valuable gaps:
 
 ### Oikonomia
 
-Already strong: recurring bills, payments, calendar view, monthly plan by area, statement CSV import, spent view, subscriptions named in categorisation, bill calendar export, Soma meal cost connection, and year facts.
+Already strong: recurring bills, payments, calendar view, a monthly budget by area, usual pay schedules, actual-versus-planned spending, manual expense entry, statement CSV import, spent view, subscriptions named in categorisation, bill calendar export, Soma meal cost connection, and year facts.
 
 Most valuable gaps:
 
 - Bank/card connection or a maintained import workflow beyond CSV. Manual statement import is useful but not competitive with finance apps that reconcile accounts automatically.
 - Receipt capture/OCR, merchant rules, duplicate detection, and a review queue for imported transactions.
-- Cash-flow forecasting, multiple accounts, transfers, recurring income, and rollover/envelope budgeting. The current monthly plan is a single user-entered plan.
+- Cash-flow forecasting beyond the usual pay schedule, multiple accounts, transfers, and rollover/envelope budgeting. The current plan compares one month's commitments and spending; it does not reconcile account balances or roll unspent category amounts forward.
 - Shared household finances with permissions and a clear separation between private and shared records.
 - CSV/JSON export and a reconciliation history so the person can audit changes.
 

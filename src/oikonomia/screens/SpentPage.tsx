@@ -1,14 +1,14 @@
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ColumnChart } from '../../app/family/charts';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
 import { newId, useBudget, useSettings } from '../app/state';
 import { PageTop } from '../app/ui';
-import { formatMoney } from '../core/bills';
+import { formatMoney, localDate } from '../core/bills';
 import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory } from '../core/budget';
-import { byArea, guessArea, newLines, readStatement, type Spent } from '../core/statements';
+import { byArea, cents, guessArea, newLines, readStatement, type Spent } from '../core/statements';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
@@ -30,6 +30,11 @@ export default function SpentPage({ nav }: { nav: Nav }) {
   const [problem, setProblem] = useState('');
   const [open, setOpen] = useState<BudgetCategory>();
   const [moving, setMoving] = useState<Spent>();
+  const [entryOpen, setEntryOpen] = useState(false);
+  const [entryDate, setEntryDate] = useState(() => (month === monthKey() ? localDate() : `${month}-01`));
+  const [entryDescription, setEntryDescription] = useState('');
+  const [entryAmount, setEntryAmount] = useState('');
+  const [entryArea, setEntryArea] = useState<BudgetCategory>('other');
   const file = useRef<HTMLInputElement>(null);
   const currency = plan?.currency ?? settings.currency;
   const total = lines.reduce((sum, line) => sum + line.amountCents, 0);
@@ -68,6 +73,26 @@ export default function SpentPage({ nav }: { nav: Nav }) {
     saveSpent(month, lines.filter((each) => each.id !== line.id));
     offerUndo('Line removed', () => saveSpent(month, lines));
     setMoving(undefined);
+  };
+
+  useEffect(() => {
+    setEntryDate(month === monthKey() ? localDate() : `${month}-01`);
+  }, [month]);
+
+  const addExpense = () => {
+    const description = entryDescription.trim();
+    const amountCents = cents(entryAmount);
+    if (!description) return setProblem('Name the expense first.');
+    if (amountCents === undefined || amountCents <= 0) return setProblem('Use an amount greater than zero.');
+    if (!entryDate.startsWith(`${month}-`)) return setProblem('Choose a date in this month.');
+    const line: Spent = { id: newId(), date: entryDate, description, amountCents, area: entryArea };
+    const before = lines;
+    saveSpent(month, [...before, line]);
+    setEntryDescription('');
+    setEntryAmount('');
+    setEntryOpen(false);
+    setProblem('');
+    offerUndo('Expense removed', () => saveSpent(month, before));
   };
 
   if (review) {
@@ -112,11 +137,27 @@ export default function SpentPage({ nav }: { nav: Nav }) {
       </div>
 
       <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-      <button type="button" className="button-main" onClick={() => file.current?.click()}>Bring in a statement</button>
+      <div className="button-row oiko-spent-actions">
+        <button type="button" className="button-main" onClick={() => file.current?.click()}>Bring in a statement</button>
+        <button type="button" className="button-quiet" onClick={() => { setEntryOpen(!entryOpen); setProblem(''); }}>{entryOpen ? 'Cancel' : 'Add expense'}</button>
+      </div>
       {problem && <p className="form-error" role="alert">{problem}</p>}
 
+      {entryOpen && (
+        <section className="card oiko-manual-expense" aria-label="Add an expense">
+          <div className="oiko-section-head"><h2>Add an expense</h2><span className="muted">For this month</span></div>
+          <label className="field"><span className="field__label">What was it?</span><input className="input" value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} placeholder="Groceries, parking, gift" autoFocus /></label>
+          <div className="oiko-form__pair">
+            <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" /></label>
+            <label className="field"><span className="field__label">Date</span><input className="input" type="date" value={entryDate} onChange={(event) => setEntryDate(event.target.value)} /></label>
+          </div>
+          <label className="field"><span className="field__label">Area</span><select className="input" value={entryArea} onChange={(event) => setEntryArea(event.target.value as BudgetCategory)}>{budgetCategories.map((area) => <option key={area.id} value={area.id}>{area.label}</option>)}</select></label>
+          <button type="button" className="button-main" onClick={addExpense}>Save expense</button>
+        </section>
+      )}
+
       {lines.length === 0 ? (
-        <Empty icon={<WalletIcon size={28} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card; only money out is kept." />
+        <Empty icon={<WalletIcon size={28} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card, or add expenses by hand; only money out is kept." />
       ) : (
         <>
           <section className="card oiko-budget-summary">

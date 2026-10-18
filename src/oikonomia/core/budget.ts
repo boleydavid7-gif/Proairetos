@@ -2,7 +2,7 @@ import { monthBounds, occurrencesBetween, type Bill } from './bills';
 import type { Recipe } from '../../soma/core/recipes';
 
 /** A small set of household areas that can hold a monthly plan. */
-export type BudgetCategory = 'housing' | 'utilities' | 'transport' | 'food' | 'health' | 'subscriptions' | 'other';
+export type BudgetCategory = 'housing' | 'utilities' | 'transport' | 'food' | 'health' | 'subscriptions' | 'debt' | 'savings' | 'personal' | 'other';
 
 export const budgetCategories: { id: BudgetCategory; label: string }[] = [
   { id: 'housing', label: 'Home' },
@@ -11,6 +11,9 @@ export const budgetCategories: { id: BudgetCategory; label: string }[] = [
   { id: 'food', label: 'Food' },
   { id: 'health', label: 'Health' },
   { id: 'subscriptions', label: 'Subscriptions' },
+  { id: 'debt', label: 'Debt' },
+  { id: 'savings', label: 'Savings' },
+  { id: 'personal', label: 'Personal' },
   { id: 'other', label: 'Other' },
 ];
 
@@ -44,6 +47,12 @@ export type BudgetTotals = {
   byCategory: Record<BudgetCategory, number>;
   mealsWithoutEstimate: number;
   otherCurrencyCount: number;
+};
+
+export type SpendingTotals = {
+  spentCents: number;
+  byCategory: Record<BudgetCategory, number>;
+  count: number;
 };
 
 export function monthKey(date = new Date()): string {
@@ -109,6 +118,9 @@ export function budgetCategory(category: string | undefined): BudgetCategory {
   if (/\b(food|groceries|grocery|meals?|restaurants?|dining)\b/.test(value)) return 'food';
   if (/\b(health|medical|doctor|care|pharmacy|dental)\b/.test(value)) return 'health';
   if (/\b(subscriptions?|streaming|memberships?|software)\b/.test(value)) return 'subscriptions';
+  if (/\b(debt|loan|credit card|student loan|interest)\b/.test(value)) return 'debt';
+  if (/\b(savings?|save|emergency fund|retirement|ira|401k|investment)\b/.test(value)) return 'savings';
+  if (/\b(personal|clothing|haircut|beauty|hobbies|gifts?|entertainment)\b/.test(value)) return 'personal';
   return 'other';
 }
 
@@ -156,6 +168,19 @@ export function budgetTotals(
     byCategory[item.category] += amount;
   }
   return { plannedCents: billCents + mealCents + itemCents, billCents, mealCents, itemCents, byCategory, mealsWithoutEstimate, otherCurrencyCount };
+}
+
+/** Actual money out for a month, kept separate from the plan so the two can be compared plainly. */
+export function spendingTotals(lines: readonly { amountCents: number; area: BudgetCategory }[]): SpendingTotals {
+  const byCategory = emptyLimits();
+  let spentCents = 0;
+  for (const line of lines) {
+    const amount = Math.max(0, line.amountCents);
+    spentCents += amount;
+    const area = line.area && byCategory[line.area] !== undefined ? line.area : 'other';
+    byCategory[area] += amount;
+  }
+  return { spentCents, byCategory, count: lines.length };
 }
 
 /** Preview one meal without counting an already planned occurrence twice. */
