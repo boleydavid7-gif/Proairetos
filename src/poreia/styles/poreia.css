@@ -88,6 +88,11 @@
 .poreia-header__status { align-self: flex-start; padding: 7px 11px; border: 1px solid color-mix(in srgb, var(--mint) 45%, var(--line)); border-radius: 999px; color: var(--mint); background: var(--mint-soft); font-size: 0.82rem; }
 .poreia-trip-detail { display: flex; flex-direction: column; gap: 24px; }
 .poreia-trip-summary { display: flex; flex-direction: column; gap: 10px; }
+.poreia-workspace-nav { position: sticky; z-index: 2; top: var(--ll-safe-top); overflow: hidden; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--bar) 92%, transparent); }
+.poreia-workspace-nav__scroll { display: flex; min-width: max-content; }
+.poreia-workspace-nav__item { min-height: 42px; padding: 0 16px; border: 0; color: var(--muted); background: transparent; font: inherit; cursor: pointer; }
+.poreia-workspace-nav__item[aria-selected='true'] { border-radius: inherit; color: var(--mint-ink); background: var(--mint); }
+.poreia-row__map { margin-left: auto; }
 .poreia-readiness-list { display: flex; flex-wrap: wrap; gap: 8px 14px; }
 .poreia-readiness-item { color: var(--muted); font-size: 0.86rem; }
 .poreia-readiness-item--done { color: var(--mint); }
@@ -97,6 +102,9 @@
 .poreia-savings-fact { display: flex; min-height: 46px; flex-direction: column; justify-content: center; gap: 4px; }
 .poreia-savings-fact strong { color: var(--mint); font-variant-numeric: tabular-nums; }
 .poreia-savings .form-success { margin: 0; color: var(--mint); }
+.poreia-more { display: flex; flex-direction: column; gap: 24px; }
+.poreia-list--menu .poreia-row svg:first-child { flex: 0 0 auto; color: var(--mint); }
+.poreia-list--menu .poreia-row > .poreia-row__text { flex: 1; }
 
 @media (min-width: 62rem) {
   .poreia-header { min-height: 340px; padding-inline: max(48px, calc((100% - 74rem) / 2 + 48px)); }

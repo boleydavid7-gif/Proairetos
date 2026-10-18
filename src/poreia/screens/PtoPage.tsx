@@ -64,7 +64,7 @@ export default function PtoPage({ nav }: { nav: Nav }) {
       setStatusError('That leave update could not be saved. Try again.');
     }
   };
-  return <div className="page poreia-page"><PageTop><button type="button" className="back-link" onClick={nav.back}>Back</button></PageTop><PoreiaHeader eyebrow="Work leave" title="PTO" />
+  return <div className="page poreia-page"><PageTop><button type="button" className="back-link" onClick={nav.back}>Back</button></PageTop><PoreiaHeader eyebrow="Work leave" title="Vacation Time" />
     {!profile ? <WorkProfileForm onDone={(next) => void putWorkProfile(next)} /> : <section className="card poreia-card poreia-section"><div className="poreia-section-head"><h2>{profile.name}</h2><span className="label">{profile.timezone}</span></div><p className="muted">{Object.keys(profile.week).length} working days in the week.</p></section>}
     {profile && accounts.map((item) => <section className="card poreia-card poreia-section" key={item.id}><div className="poreia-section-head"><h2>{item.name}</h2><strong className="poreia-balance">{balanceAt(item, ledger, profile, today(), requests)} {item.unit}</strong></div><p className="muted">{item.category} · accrues {item.policy.amount} {item.unit} {item.policy.frequency === 'biweekly' ? 'every two weeks' : item.policy.frequency}.</p></section>)}
     {profile && (accounts.length === 0 || showAccountForm) && <AccountForm profile={profile} onDone={(next) => { void putPtoAccount(next); setShowAccountForm(false); }} />}

@@ -32,7 +32,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <PtoIcon size={28} />
             <h2 className="card__title">Set up your work leave</h2>
             <p className="muted">Poreia uses your actual schedule and leave policy to find vacation windows that fit.</p>
-            <button type="button" className="button-main" onClick={() => nav.swap({ name: 'pto' })}>Set up PTO</button>
+            <button type="button" className="button-main" onClick={() => nav.go({ name: 'vacation' })}>Set up Vacation Time</button>
           </section>
         ) : (
           <section className="card poreia-card poreia-section">

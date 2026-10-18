@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
-import { ArrowLeftIcon, CalendarIcon, DiscoverIcon, HomeIcon, PoreiaMark, PtoIcon, TripsIcon } from './icons';
+import { ArrowLeftIcon, CalendarIcon, DiscoverIcon, HomeIcon, MoreIcon, PoreiaMark, TripsIcon } from './icons';
 
-export type Tab = 'home' | 'trips' | 'calendar' | 'pto' | 'discover';
+export type Tab = 'home' | 'trips' | 'calendar' | 'discover' | 'more';
 
 const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactNode }[] = [
   { id: 'home', label: 'Home', Icon: HomeIcon },
   { id: 'trips', label: 'Trips', Icon: TripsIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
-  { id: 'pto', label: 'PTO', Icon: PtoIcon },
   { id: 'discover', label: 'Discover', Icon: DiscoverIcon },
+  { id: 'more', label: 'More', Icon: MoreIcon },
 ];
 
 export const tabNames = tabs.map((tab) => tab.id);

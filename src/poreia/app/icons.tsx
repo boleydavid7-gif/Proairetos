@@ -10,6 +10,7 @@ export const TripsIcon = (props: { size?: number }) => <Sym name="work" {...prop
 export const CalendarIcon = (props: { size?: number }) => <Sym name="calendar" {...props} />;
 export const PtoIcon = (props: { size?: number }) => <Sym name="wallet" {...props} />;
 export const DiscoverIcon = (props: { size?: number }) => <Sym name="search" {...props} />;
+export const MoreIcon = (props: { size?: number }) => <Sym name="more" {...props} />;
 export const PlusIcon = (props: { size?: number }) => <Sym name="plus" {...props} />;
 export const CheckIcon = (props: { size?: number }) => <Sym name="check" {...props} />;
 export const ArrowLeftIcon = (props: { size?: number }) => <Sym name="arrowLeft" {...props} />;

@@ -24,6 +24,17 @@ const moneyCents = (value: string): number | undefined => {
   return Number.isFinite(amount) && amount >= 0 ? Math.round(amount * 100) : undefined;
 };
 const dateLabel = (value?: string) => value ? formatDate(value, 'long') : 'Date to decide';
+type WorkspaceView = 'overview' | 'itinerary' | 'bookings' | 'savings';
+const workspaceViews: { id: WorkspaceView; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'itinerary', label: 'Itinerary' },
+  { id: 'bookings', label: 'Bookings' },
+  { id: 'savings', label: 'Savings' },
+];
+
+function WorkspaceNav({ view, onPick }: { view: WorkspaceView; onPick: (view: WorkspaceView) => void }) {
+  return <div className="poreia-workspace-nav" role="tablist" aria-label="Trip workspace"><div className="poreia-workspace-nav__scroll">{workspaceViews.map((item) => <button type="button" role="tab" aria-selected={view === item.id} className="poreia-workspace-nav__item" key={item.id} onClick={() => onPick(item.id)}>{item.label}</button>)}</div></div>;
+}
 
 function ItineraryForm({ tripId }: { tripId: string }) {
   const [title, setTitle] = useState('');
@@ -96,7 +107,7 @@ function BookingForm({ tripId }: { tripId: string }) {
 
 function ItineraryList({ items }: { items: ItineraryItem[] }) {
   if (items.length === 0) return <div className="card poreia-empty"><CalendarIcon size={28} /><p className="muted">Keep the days flexible or add the first thing you know you want to do.</p></div>;
-  return <div className="poreia-list">{items.map((item) => <div className="poreia-row poreia-row--stack" key={item.id}><div className="poreia-row__text"><strong>{item.title}</strong><small>{dateLabel(item.date)}{item.startTime ? ` · ${item.startTime}${item.endTime ? `–${item.endTime}` : ''}` : ''}{item.location ? ` · ${item.location}` : ''}</small></div><span className="poreia-balance">{labelFor(item.status)}</span>{item.expectedCostCents !== undefined && <small className="poreia-row__amount">{formatMoney(item.expectedCostCents)}</small>}</div>)}</div>;
+  return <div className="poreia-list">{items.map((item) => { const place = item.address ?? item.location; const mapLink = item.mapLink ?? (place ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}` : undefined); return <div className="poreia-row poreia-row--stack" key={item.id}><div className="poreia-row__text"><strong>{item.title}</strong><small>{dateLabel(item.date)}{item.startTime ? ` · ${item.startTime}${item.endTime ? `–${item.endTime}` : ''}` : ''}{item.location ? ` · ${item.location}` : ''}</small></div><span className="poreia-balance">{labelFor(item.status)}</span>{mapLink && <a className="text-link poreia-row__map" href={mapLink} target="_blank" rel="noreferrer">Map</a>}{item.expectedCostCents !== undefined && <small className="poreia-row__amount">{formatMoney(item.expectedCostCents)}</small>}</div>; })}</div>;
 }
 
 function BookingList({ bookings }: { bookings: Booking[] }) {
@@ -165,6 +176,7 @@ export default function TripDetailPage({ nav, tripId }: { nav: Nav; tripId: stri
   const items = useItineraryItems();
   const bookings = useBookings();
   const savingsPlans = useSavingsPlans();
+  const [view, setView] = useState<WorkspaceView>('overview');
   const trip = trips.find((item) => item.id === tripId);
   const tripItems = useMemo(() => items.filter((item) => item.tripId === tripId).sort((a, b) => `${a.date ?? '9999'}${a.startTime ?? ''}`.localeCompare(`${b.date ?? '9999'}${b.startTime ?? ''}`)), [items, tripId]);
   const tripBookings = useMemo(() => bookings.filter((item) => item.tripId === tripId).sort((a, b) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999')), [bookings, tripId]);
@@ -175,12 +187,11 @@ export default function TripDetailPage({ nav, tripId }: { nav: Nav; tripId: stri
   return <div className="page poreia-page"><PageTop><BackLink onBack={nav.back} /></PageTop><PoreiaHeader eyebrow={trip.destination || 'Trip workspace'} title={trip.name}><span className="poreia-header__status">{labelFor(trip.status)}</span></PoreiaHeader>
     <div className="page page--under-hero poreia-trip-detail">
       <section className="card poreia-card poreia-trip-summary"><div className="poreia-section-head"><h2>Trip overview</h2><span className="label">{tripItems.length} itinerary · {tripBookings.length} reservations</span></div><p className="muted">{trip.startDate && trip.endDate ? `${dateLabel(trip.startDate)} – ${dateLabel(trip.endDate)}` : 'Dates are still open'}{trip.destination ? ` · ${trip.destination}` : ''}</p></section>
-      <TripReadiness trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} />
-      <SavingsPlanner trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} />
-      <ItineraryForm tripId={trip.id} />
-      <section className="poreia-section"><div className="poreia-section-head"><h2>Itinerary</h2><span className="label">{tripItems.length}</span></div><ItineraryList items={tripItems} /></section>
-      <BookingForm tripId={trip.id} />
-      <section className="poreia-section"><div className="poreia-section-head"><h2>Reservations</h2><span className="label">{tripBookings.length}</span></div><BookingList bookings={tripBookings} /></section>
+      <WorkspaceNav view={view} onPick={setView} />
+      {view === 'overview' && <><TripReadiness trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} /><section className="card poreia-section poreia-card"><div className="poreia-section-head"><h2>Next useful action</h2><span className="label">Keep planning</span></div><p className="muted">Add the next reservation or activity you know about. Poreia keeps the trip dates, leave, costs, and calendar view connected.</p><div className="button-row"><button type="button" className="button-main" onClick={() => setView('itinerary')}>Add itinerary item</button><button type="button" className="button-quiet" onClick={() => setView('bookings')}>Add booking</button></div></section></>}
+      {view === 'itinerary' && <><ItineraryForm tripId={trip.id} /><section className="poreia-section"><div className="poreia-section-head"><h2>Day-by-day itinerary</h2><span className="label">{tripItems.length}</span></div><ItineraryList items={tripItems} /></section></>}
+      {view === 'bookings' && <><BookingForm tripId={trip.id} /><section className="poreia-section"><div className="poreia-section-head"><h2>Reservations</h2><span className="label">{tripBookings.length}</span></div><BookingList bookings={tripBookings} /></section></>}
+      {view === 'savings' && <SavingsPlanner trip={trip} items={tripItems} bookings={tripBookings} plan={savingsPlan} />}
     </div>
   </div>;
 }

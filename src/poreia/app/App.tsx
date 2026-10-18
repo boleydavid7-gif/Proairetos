@@ -9,9 +9,10 @@ import CalendarPage from '../screens/CalendarPage';
 import PtoPage from '../screens/PtoPage';
 import DiscoverPage from '../screens/DiscoverPage';
 import TripDetailPage from '../screens/TripDetailPage';
+import MorePage from '../screens/MorePage';
 import WelcomePage from '../screens/WelcomePage';
 
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'trip'; id: string };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'trip'; id: string } | { name: 'vacation' };
 export type Nav = { go: (route: Route) => void; swap: (route: Route) => void; back: () => void };
 const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).includes(name);
 
@@ -45,6 +46,6 @@ export default function App() {
   const nav: Nav = { go, swap, back };
 
   if (route.name === 'welcome') return <WelcomePage nav={nav} onStarted={() => { localStorage.setItem('poreia:started', 'yes'); setStarted(true); nav.swap({ name: 'home' }); }} />;
-  const page = route.name === 'trip' ? <TripDetailPage nav={nav} tripId={route.id} /> : route.name === 'home' ? <HomePage nav={nav} /> : route.name === 'trips' ? <TripsPage nav={nav} /> : route.name === 'calendar' ? <CalendarPage nav={nav} /> : route.name === 'pto' ? <PtoPage nav={nav} /> : <DiscoverPage nav={nav} />;
+  const page = route.name === 'trip' ? <TripDetailPage nav={nav} tripId={route.id} /> : route.name === 'vacation' ? <PtoPage nav={nav} /> : route.name === 'home' ? <HomePage nav={nav} /> : route.name === 'trips' ? <TripsPage nav={nav} /> : route.name === 'calendar' ? <CalendarPage nav={nav} /> : route.name === 'discover' ? <DiscoverPage nav={nav} /> : <MorePage nav={nav} />;
   return <div className="shell shell--tabs"><main key={route.name} className="page-enter">{page}</main><TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} /></div>;
 }
