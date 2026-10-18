@@ -127,12 +127,13 @@
 .poreia-home-trip-card__body h3 { margin: 0; font-family: var(--serif); font-size: 1.8rem; font-weight: 400; }
 .poreia-home-trip-card__body p { margin: 0; color: var(--text-soft); line-height: 1.4; }
 .poreia-home-trip-card__next { color: var(--muted); }
-.poreia-home-empty { display: flex; align-items: flex-start; gap: 12px; }
+.poreia-home-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: flex-start; gap: 12px; }
 .poreia-home-empty > svg { flex: 0 0 auto; color: var(--mint); }
 .poreia-home-empty > div:nth-child(2) { flex: 1; }
 .poreia-home-empty h3 { margin: 0 0 5px; font-family: var(--serif); font-size: 1.5rem; font-weight: 400; }
 .poreia-home-empty p { margin: 0; line-height: 1.4; }
-.poreia-home-empty .button-row { width: 100%; margin-top: 4px; }
+.poreia-home-empty .button-row { display: flex; grid-column: 1 / -1; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin-top: 4px; }
+.poreia-home-empty .button-row > * { width: min(100%, 18rem); }
 .poreia-home-suggestions { display: grid; grid-auto-columns: minmax(170px, 42%); grid-auto-flow: column; gap: 10px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 2px 2px 8px; scrollbar-width: thin; }
 .poreia-home-suggestion-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .poreia-home-suggestion-card__open { display: block; width: 100%; padding: 0; border: 0; color: inherit; background: transparent; text-align: left; cursor: pointer; }
@@ -280,9 +281,9 @@
   .poreia-home .poreia-header--compact .poreia-header__words h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
   .poreia-home-hero-media { min-height: 128px; }
   .poreia-home-trip-card__art { min-height: 112px; }
-  .poreia-home-empty { flex-wrap: wrap; }
+  .poreia-home-empty { grid-template-columns: auto minmax(0, 1fr); }
   .poreia-home-empty > div:nth-child(2) { min-width: calc(100% - 46px); }
-  .poreia-home-empty .button-row { margin-left: 40px; }
+  .poreia-home-empty .button-row { align-items: center; flex-direction: column; margin-left: 0; }
   .poreia-home-suggestions { grid-auto-columns: minmax(166px, 56%); }
   .poreia-home-availability { align-items: flex-start; flex-direction: column; }
   .poreia-home-availability .button-quiet { width: 100%; }
