@@ -16,7 +16,7 @@ export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
   oikonomia?: { bills: unknown[]; budgets?: unknown[]; envelopes?: unknown[] };
-  poreia?: { trips: unknown[]; places?: unknown[]; workProfiles?: unknown[]; ptoAccounts?: unknown[]; ptoLedger?: unknown[]; leaveRequests?: unknown[]; itineraryItems?: unknown[]; bookings?: unknown[]; savingsPlans?: unknown[] };
+  poreia?: { trips: unknown[]; places?: unknown[]; workProfiles?: unknown[]; ptoAccounts?: unknown[]; ptoLedger?: unknown[]; leaveRequests?: unknown[]; vacations?: unknown[]; itineraryItems?: unknown[]; bookings?: unknown[]; savingsPlans?: unknown[] };
   hydros?: { drinks: unknown[] };
   theoria?: { books: unknown[]; notebooks?: unknown[] };
   /** Settings by key, as stored. */
@@ -138,6 +138,7 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
       ptoAccounts: await readAll(proairetos, stores.poreiaPtoAccounts),
       ptoLedger: await readAll(proairetos, stores.poreiaPtoLedger),
       leaveRequests: await readAll(proairetos, stores.poreiaLeaveRequests),
+      vacations: await readAll(proairetos, stores.poreiaVacations),
       itineraryItems: await readAll(proairetos, stores.poreiaItineraryItems),
       bookings: await readAll(proairetos, stores.poreiaBookings),
       savingsPlans: await readAll(proairetos, stores.poreiaSavingsPlans),
@@ -175,6 +176,7 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
     if (data.poreia.ptoAccounts !== undefined) await replaceStore(proairetos, stores.poreiaPtoAccounts, data.poreia.ptoAccounts);
     if (data.poreia.ptoLedger !== undefined) await replaceStore(proairetos, stores.poreiaPtoLedger, data.poreia.ptoLedger);
     if (data.poreia.leaveRequests !== undefined) await replaceStore(proairetos, stores.poreiaLeaveRequests, data.poreia.leaveRequests);
+    if (data.poreia.vacations !== undefined) await replaceStore(proairetos, stores.poreiaVacations, data.poreia.vacations);
     if (data.poreia.itineraryItems !== undefined) await replaceStore(proairetos, stores.poreiaItineraryItems, data.poreia.itineraryItems);
     if (data.poreia.bookings !== undefined) await replaceStore(proairetos, stores.poreiaBookings, data.poreia.bookings);
     if (data.poreia.savingsPlans !== undefined) await replaceStore(proairetos, stores.poreiaSavingsPlans, data.poreia.savingsPlans);

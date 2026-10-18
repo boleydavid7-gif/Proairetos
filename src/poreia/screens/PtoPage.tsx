@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { PtoIcon, WorkIcon } from '../app/icons';
-import { useLeaveRequests, usePtoAccounts, usePtoLedger, useWorkProfiles } from '../app/state';
+import { useLeaveRequests, usePtoAccounts, usePtoLedger, useVacations, useWorkProfiles } from '../app/state';
 import { addDays, balanceAt, dateText, findVacationWindows, requestAmount, type AccrualFrequency, type LeaveCategory, type LeaveRequest, type LeaveRequestStatus, type PtoAccount, type WorkDay, type WorkProfile } from '../core/pto';
 import { newId } from '../core/id';
-import { putLeaveRequest, putPtoAccount, putWorkProfile } from '../data/store';
+import { putLeaveRequest, putPtoAccount, putVacation, putWorkProfile } from '../data/store';
 import { PageTop, PoreiaHeader } from '../app/ui';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -52,6 +52,7 @@ export default function PtoPage({ nav }: { nav: Nav }) {
   const accounts = usePtoAccounts();
   const ledger = usePtoLedger();
   const requests = useLeaveRequests();
+  const vacations = useVacations();
   const profile = profiles[0];
   const account = accounts[0];
   const [showAccountForm, setShowAccountForm] = useState(false);
@@ -60,6 +61,13 @@ export default function PtoPage({ nav }: { nav: Nav }) {
     setStatusError('');
     try {
       await putLeaveRequest({ ...request, status, updatedAt: new Date().toISOString() });
+      if (request.vacationId) {
+        const vacation = vacations.find((item) => item.id === request.vacationId);
+        if (vacation) {
+          const vacationStatus = status === 'approved' ? 'approved' : status === 'taken' || status === 'reconciled' ? 'taken' : status === 'canceled' ? 'canceled' : 'requested';
+          await putVacation({ ...vacation, status: vacationStatus, updatedAt: new Date().toISOString() });
+        }
+      }
     } catch {
       setStatusError('That leave update could not be saved. Try again.');
     }
@@ -71,6 +79,7 @@ export default function PtoPage({ nav }: { nav: Nav }) {
     {profile && accounts.length > 0 && <button type="button" className="text-link" onClick={() => setShowAccountForm((shown) => !shown)}>{showAccountForm ? 'Close account form' : 'Add another leave account'}</button>}
     {profile && account && <><RequestForm account={account} profile={profile} onDone={(next) => void putLeaveRequest(next)} /><WindowFinder account={account} profile={profile} ledger={ledger} requests={requests} /></>}
     {requests.length > 0 && <section className="poreia-section"><div className="poreia-section-head"><h2>Leave requests</h2><span className="label">Manual status</span></div>{statusError && <p className="form-error">{statusError}</p>}<div className="poreia-list">{requests.map((request) => <div className="poreia-row" key={request.id}><span className="poreia-row__text"><strong>{request.startDate} – {request.endDate}</strong><small>{request.requestedAmount} hours</small></span><select className="input poreia-status" aria-label={`Status for leave ${request.startDate}`} value={request.status} onChange={(event) => void updateStatus(request, event.target.value as LeaveRequestStatus)}>{(['draft', 'requested', 'pending', 'approved', 'denied', 'canceled', 'taken', 'reconciled'] as LeaveRequestStatus[]).map((item) => <option key={item} value={item}>{item[0].toUpperCase() + item.slice(1)}</option>)}</select></div>)}</div></section>}
+    {vacations.length > 0 && <section className="poreia-section"><div className="poreia-section-head"><h2>Planned vacations</h2><span className="label">{vacations.filter((vacation) => vacation.status !== 'canceled').length} active</span></div><div className="poreia-list">{vacations.filter((vacation) => vacation.status !== 'canceled').map((vacation) => <div className="poreia-row" key={vacation.id}><span className="poreia-row__text"><strong>{vacation.name}</strong><small>{vacation.startDate} – {vacation.endDate} · {vacation.ptoRequired} hours</small></span><span className="poreia-balance">{vacation.status}</span></div>)}</div></section>}
     <button type="button" className="text-link" onClick={() => nav.swap({ name: 'calendar' })}>Open the leave calendar</button>
   </div>;
 }

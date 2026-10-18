@@ -1,11 +1,11 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
+import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, VacationPlan, WorkProfile } from '../core/pto';
 import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
 import type { TripSavingsPlan } from '../core/savings';
-import { listBookings, listItineraryItems, listLeaveRequests, listPlaces, listPtoAccounts, listPtoLedger, listSavingsPlans, listTrips, listWorkProfiles, storeVersion, subscribe } from '../data/store';
+import { listBookings, listItineraryItems, listLeaveRequests, listPlaces, listPtoAccounts, listPtoLedger, listSavingsPlans, listTrips, listVacations, listWorkProfiles, storeVersion, subscribe } from '../data/store';
 
 function useList<T>(loader: () => Promise<T[]>): T[] {
-  useSyncExternalStore(subscribe, storeVersion);
+  const version = useSyncExternalStore(subscribe, storeVersion);
   const [records, setRecords] = useState<T[]>([]);
   useEffect(() => {
     let live = true;
@@ -13,7 +13,7 @@ function useList<T>(loader: () => Promise<T[]>): T[] {
     return () => {
       live = false;
     };
-  }, [loader]);
+  }, [loader, version]);
   return records;
 }
 
@@ -23,6 +23,7 @@ export const useWorkProfiles = () => useList<WorkProfile>(listWorkProfiles);
 export const usePtoAccounts = () => useList<PtoAccount>(listPtoAccounts);
 export const usePtoLedger = () => useList<PtoLedgerTransaction>(listPtoLedger);
 export const useLeaveRequests = () => useList<LeaveRequest>(listLeaveRequests);
+export const useVacations = () => useList<VacationPlan>(listVacations);
 export const useItineraryItems = () => useList<ItineraryItem>(listItineraryItems);
 export const useBookings = () => useList<Booking>(listBookings);
 export const useSavingsPlans = () => useList<TripSavingsPlan>(listSavingsPlans);

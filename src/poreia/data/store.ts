@@ -1,7 +1,7 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import { notify as notifyPoreiaChanges } from './changes';
-import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
+import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, VacationPlan, WorkProfile } from '../core/pto';
 import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
 import type { TripSavingsPlan } from '../core/savings';
 
@@ -67,6 +67,8 @@ export const listPtoLedger = () => list<PtoLedgerTransaction>(stores.poreiaPtoLe
 export const putPtoLedger = (entry: PtoLedgerTransaction) => put(stores.poreiaPtoLedger, entry);
 export const listLeaveRequests = () => list<LeaveRequest>(stores.poreiaLeaveRequests);
 export const putLeaveRequest = (request: LeaveRequest) => put(stores.poreiaLeaveRequests, request);
+export const listVacations = () => list<VacationPlan>(stores.poreiaVacations);
+export const putVacation = (vacation: VacationPlan) => put(stores.poreiaVacations, vacation);
 export const listItineraryItems = () => list<ItineraryItem>(stores.poreiaItineraryItems);
 export const putItineraryItem = (item: ItineraryItem) => put(stores.poreiaItineraryItems, item);
 export const listBookings = () => list<Booking>(stores.poreiaBookings);

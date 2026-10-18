@@ -1,5 +1,5 @@
 import type { CalendarEvent } from '../../core/calendar/ics';
-import type { LeaveRequest, PtoAccount } from './pto';
+import type { LeaveRequest, PtoAccount, VacationPlan } from './pto';
 import { addDays, dateText } from './pto';
 import type { Booking, ItineraryItem, Trip } from './trips';
 
@@ -36,23 +36,34 @@ export function poreiaCalendarEvents(
   accounts: readonly PtoAccount[],
   from: Date,
   until: Date,
+  vacations: readonly VacationPlan[] = [],
 ): CalendarEvent[] {
   const events: CalendarEvent[] = [];
   const fromDate = localDate(from);
   const untilDate = localDate(until);
   const activeTrips = trips.filter((trip) => trip.status !== 'canceled');
   const tripById = new Map(activeTrips.map((trip) => [trip.id, trip]));
+  const activeVacations = vacations.filter((vacation) => vacation.status !== 'canceled');
+  const linkedTripIds = new Set(activeVacations.flatMap((vacation) => vacation.tripId ? [vacation.tripId] : []));
 
   for (const trip of activeTrips) {
+    if (linkedTripIds.has(trip.id)) continue;
     const start = trip.startDate ?? trip.endDate;
     const end = trip.endDate ?? trip.startDate;
     if (!start || !end) continue;
     pushAllDay(events, { uid: `poreia-trip-${trip.id}`, title: `Vacation · ${trip.name}`, location: trip.destination, notes: 'Poreia trip' }, start, addDays(end, 1), fromDate, untilDate);
   }
 
+  for (const vacation of activeVacations) {
+    const trip = vacation.tripId ? tripById.get(vacation.tripId) : undefined;
+    pushAllDay(events, { uid: `poreia-vacation-${vacation.id}`, title: `Vacation · ${vacation.name}`, location: trip?.destination, notes: `Poreia vacation · ${vacation.status}` }, vacation.startDate, addDays(vacation.endDate, 1), fromDate, untilDate);
+  }
+
   const accountsById = new Map(accounts.map((account) => [account.id, account]));
+  const vacationLeaveIds = new Set(activeVacations.flatMap((vacation) => vacation.leaveRequestId ? [vacation.leaveRequestId] : []));
   for (const request of requests) {
     if (request.status === 'denied' || request.status === 'canceled') continue;
+    if (vacationLeaveIds.has(request.id) || request.vacationId) continue;
     const account = accountsById.get(request.accountId);
     pushAllDay(events, { uid: `poreia-leave-${request.id}`, title: `PTO · ${account?.name ?? 'Leave'}`, notes: `Poreia leave · ${request.status}` }, request.startDate, addDays(request.endDate, 1), fromDate, untilDate);
   }

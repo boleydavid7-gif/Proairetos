@@ -2,7 +2,7 @@ import { isAdded, subscribeAdded } from '../family/added';
 import { openDatabase, requestToPromise, stores } from '../../data/storage/indexeddb/database';
 import { subscribe as subscribeChanges } from '../../poreia/data/changes';
 import { poreiaCalendarEvents } from '../../poreia/core/calendar';
-import type { LeaveRequest, PtoAccount } from '../../poreia/core/pto';
+import type { LeaveRequest, PtoAccount, VacationPlan } from '../../poreia/core/pto';
 import type { Booking, ItineraryItem, Trip } from '../../poreia/core/trips';
 import type { CalendarEvent as FeedCalendarEvent } from '../../core/calendar/ics';
 import type { CalendarEvent as DisplayCalendarEvent } from './otherCalendars';
@@ -64,25 +64,26 @@ export const poreiaCalendar = {
   },
 
   async records() {
-    const [trips, bookings, items, requests, accounts] = await Promise.all([
+    const [trips, bookings, items, requests, accounts, vacations] = await Promise.all([
       read<Trip>(stores.poreiaTrips),
       read<Booking>(stores.poreiaBookings),
       read<ItineraryItem>(stores.poreiaItineraryItems),
       read<LeaveRequest>(stores.poreiaLeaveRequests),
       read<PtoAccount>(stores.poreiaPtoAccounts),
+      read<VacationPlan>(stores.poreiaVacations),
     ]);
-    return { trips, bookings, items, requests, accounts };
+    return { trips, bookings, items, requests, accounts, vacations };
   },
 
   async eventsBetween(from: Date, until: Date): Promise<DisplayCalendarEvent[]> {
     if (!isAdded('poreia')) return [];
     const records = await this.records();
-    return displayEvents(poreiaCalendarEvents(records.trips, records.bookings, records.items, records.requests, records.accounts, from, until));
+    return displayEvents(poreiaCalendarEvents(records.trips, records.bookings, records.items, records.requests, records.accounts, from, until, records.vacations));
   },
 
   async feedEvents(from: Date, until: Date): Promise<FeedCalendarEvent[]> {
     if (!isAdded('poreia')) return [];
     const records = await this.records();
-    return poreiaCalendarEvents(records.trips, records.bookings, records.items, records.requests, records.accounts, from, until).map((event) => event.date && !event.dateEnd ? { ...event, dateEnd: nextDate(event.date) } : event);
+    return poreiaCalendarEvents(records.trips, records.bookings, records.items, records.requests, records.accounts, from, until, records.vacations).map((event) => event.date && !event.dateEnd ? { ...event, dateEnd: nextDate(event.date) } : event);
   },
 };

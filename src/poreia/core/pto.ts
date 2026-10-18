@@ -59,11 +59,32 @@ export type LeaveRequestStatus = 'draft' | 'requested' | 'pending' | 'approved' 
 export type LeaveRequest = {
   id: string;
   accountId: string;
+  vacationId?: string;
   startDate: DateString;
   endDate: DateString;
   requestedAmount: number;
   status: LeaveRequestStatus;
   note?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type VacationStatus = 'planned' | 'requested' | 'approved' | 'taken' | 'canceled';
+export type CalendarSyncStatus = 'pending' | 'synced' | 'error';
+
+/** A confirmed or tentative absence plan, separate from employer approval and PTO transactions. */
+export type VacationPlan = {
+  id: string;
+  name: string;
+  startDate: DateString;
+  endDate: DateString;
+  status: VacationStatus;
+  ptoRequired: number;
+  ptoAccountId?: string;
+  leaveRequestId?: string;
+  tripId?: string;
+  calendarSync: CalendarSyncStatus;
+  syncError?: string;
   createdAt: string;
   updatedAt: string;
 };

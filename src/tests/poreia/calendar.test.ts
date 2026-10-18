@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { poreiaCalendarEvents } from '../../poreia/core/calendar';
-import type { LeaveRequest, PtoAccount } from '../../poreia/core/pto';
+import type { LeaveRequest, PtoAccount, VacationPlan } from '../../poreia/core/pto';
 import type { Booking, ItineraryItem, Trip } from '../../poreia/core/trips';
 
 const trip: Trip = { id: 'trip', name: 'Coast week', destination: 'Maine', startDate: '2026-10-20', endDate: '2026-10-22', status: 'planning', travelers: [], createdAt: 'x', updatedAt: 'x' };
@@ -24,5 +24,11 @@ describe('Poreia calendar events', () => {
     expect(events.map((event) => event.uid)).toEqual(['poreia-trip-trip', 'poreia-booking-booking', 'poreia-itinerary-item']);
     expect(events[1].start?.getHours()).toBe(15);
     expect(events[2].start?.getHours()).toBe(18);
+  });
+
+  it('uses one linked vacation event instead of duplicating the trip and leave', () => {
+    const vacation: VacationPlan = { id: 'vacation', name: 'Coast break', startDate: trip.startDate!, endDate: trip.endDate!, status: 'planned', ptoRequired: 24, tripId: trip.id, leaveRequestId: request.id, calendarSync: 'synced', createdAt: 'x', updatedAt: 'x' };
+    const events = poreiaCalendarEvents([trip], [], [], [request], [account], new Date('2026-10-19T00:00:00'), new Date('2026-10-24T00:00:00'), [vacation]);
+    expect(events.map((event) => event.uid)).toEqual(['poreia-vacation-vacation']);
   });
 });

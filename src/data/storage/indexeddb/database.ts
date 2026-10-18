@@ -15,7 +15,8 @@ export const DB_NAME = 'proairetos';
 // Version 15: Poreia trip and PTO records.
 // Version 16: Poreia itinerary items and booking records.
 // Version 17: Poreia trip savings plans.
-export const DB_VERSION = 17;
+// Version 18: Poreia vacation plans linked to trips and PTO requests.
+export const DB_VERSION = 18;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -42,6 +43,7 @@ export const stores = {
   poreiaPtoAccounts: 'poreiaPtoAccounts',
   poreiaPtoLedger: 'poreiaPtoLedger',
   poreiaLeaveRequests: 'poreiaLeaveRequests',
+  poreiaVacations: 'poreiaVacations',
   poreiaItineraryItems: 'poreiaItineraryItems',
   poreiaBookings: 'poreiaBookings',
   poreiaSavingsPlans: 'poreiaSavingsPlans',
@@ -116,7 +118,7 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       if (!db.objectStoreNames.contains(stores.oikonomiaEnvelopes)) {
         db.createObjectStore(stores.oikonomiaEnvelopes, { keyPath: 'id' });
       }
-      for (const name of [stores.poreiaTrips, stores.poreiaPlaces, stores.poreiaWorkProfiles, stores.poreiaPtoAccounts, stores.poreiaPtoLedger, stores.poreiaLeaveRequests, stores.poreiaItineraryItems, stores.poreiaBookings, stores.poreiaSavingsPlans]) {
+      for (const name of [stores.poreiaTrips, stores.poreiaPlaces, stores.poreiaWorkProfiles, stores.poreiaPtoAccounts, stores.poreiaPtoLedger, stores.poreiaLeaveRequests, stores.poreiaVacations, stores.poreiaItineraryItems, stores.poreiaBookings, stores.poreiaSavingsPlans]) {
         if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
