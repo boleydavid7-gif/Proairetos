@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import { ArrowLeftIcon, CalendarIcon, DiscoverIcon, HomeIcon, MoreIcon, PoreiaMark, TripsIcon } from './icons';
 
@@ -45,9 +45,9 @@ export function BackLink({ onBack }: { onBack: () => void }) {
   return <button type="button" className="back-link" onClick={onBack}><ArrowLeftIcon size={20} /> Back</button>;
 }
 
-export function PoreiaHeader({ eyebrow, title, description, compact = false, children }: { eyebrow?: string; title: string; description?: string; compact?: boolean; children?: ReactNode }) {
+export function PoreiaHeader({ eyebrow, title, description, compact = false, children, style }: { eyebrow?: string; title: string; description?: string; compact?: boolean; children?: ReactNode; style?: CSSProperties }) {
   return (
-    <header className={`poreia-header${compact ? ' poreia-header--compact' : ''}`}>
+    <header className={`poreia-header${compact ? ' poreia-header--compact' : ''}`} style={style}>
       <Brand />
       <div className="poreia-header__words">
         {eyebrow && <p className="label">{eyebrow}</p>}

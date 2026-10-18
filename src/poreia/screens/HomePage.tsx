@@ -118,8 +118,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
   };
 
   return <div className="home poreia-home">
-    <PoreiaHeader compact title={nextTrip ? nextTrip.name : 'Where will you go?'} description={nextTrip ? `Keep shaping ${nextTrip.destination || 'your next escape'} at your own pace.` : 'Find your next escape and make the most of your time away.'}>
-      <div className="poreia-home-hero-media" style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 28, 36, 0.08), rgba(7, 28, 36, 0.9)), url(${lakeWide})` }} aria-hidden="true" />
+    <PoreiaHeader compact title={nextTrip ? nextTrip.name : 'Where will you go?'} description={nextTrip ? `Keep shaping ${nextTrip.destination || 'your next escape'} at your own pace.` : 'Find your next escape and make the most of your time away.'} style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 28, 36, 0.16), rgba(7, 28, 36, 0.95) 92%), url(${lakeWide})` }}>
       <div className="poreia-hero-actions"><button type="button" className="button-main" onClick={() => nextTrip ? nav.go({ name: 'trip', id: nextTrip.id }) : openTripCreator(nav)}>{nextTrip ? 'Continue planning' : 'Plan a trip'}</button><button type="button" className="button-quiet" onClick={() => nextTrip ? openTripCreator(nav) : nav.swap({ name: 'discover' })}>{nextTrip ? 'Plan a new trip' : 'Explore destinations'}</button></div>
     </PoreiaHeader>
 
