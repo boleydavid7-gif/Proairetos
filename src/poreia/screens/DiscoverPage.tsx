@@ -92,6 +92,15 @@ export default function DiscoverPage({ nav }: { nav: Nav }) {
     writeList(RECENT_SEARCHES_KEY, next);
   };
   const openPlace = (place: DisplayPlace) => { setSelected(place); setManualOpen(false); setTripChoice(place.saved?.tripId || ''); setNewTripName(place.name); setMessage(''); setError(''); };
+  useEffect(() => {
+    const pendingId = localStorage.getItem('poreia.discover.open');
+    if (!pendingId || selected) return;
+    const place = allDisplays.find((item) => item.id === pendingId || item.saved?.providerId === pendingId);
+    if (place) {
+      localStorage.removeItem('poreia.discover.open');
+      openPlace(place);
+    }
+  }, [allDisplays, selected]);
   const toggleCompare = (place: DisplayPlace) => { const key = placeKey(place); setCompareKeys((current) => current.includes(key) ? current.filter((item) => item !== key) : current.length < 3 ? [...current, key] : current); };
   const ensureSaved = async (place: DisplayPlace, tripId?: string): Promise<PlaceIdea> => {
     const existing = savedPlaces.find((saved) => normalizedPlaceKey(saved.name, saved.location, saved.providerId) === normalizedPlaceKey(place.name, place.location, place.saved?.providerId || place.id));

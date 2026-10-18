@@ -17,3 +17,4 @@ export const ArrowLeftIcon = (props: { size?: number }) => <Sym name="arrowLeft"
 export const ChevronIcon = (props: { size?: number }) => <Sym name="chevron" {...props} />;
 export const TargetIcon = (props: { size?: number }) => <Sym name="target" {...props} />;
 export const WorkIcon = (props: { size?: number }) => <Sym name="work" {...props} />;
+export const HeartIcon = (props: { size?: number }) => <Sym name="heart" {...props} />;

@@ -59,6 +59,20 @@ export const listTrips = () => list<Trip>(stores.poreiaTrips);
 export const putTrip = (trip: Trip) => put(stores.poreiaTrips, trip);
 export const listPlaces = () => list<PlaceIdea>(stores.poreiaPlaces);
 export const putPlace = (place: PlaceIdea) => put(stores.poreiaPlaces, place);
+export async function removePlace(id: string): Promise<void> {
+  const handle = await db();
+  if (handle) {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = handle.transaction(stores.poreiaPlaces, 'readwrite');
+      transaction.objectStore(stores.poreiaPlaces).delete(id);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  }
+  notify();
+  syncSoon();
+}
 export const listWorkProfiles = () => list<WorkProfile>(stores.poreiaWorkProfiles);
 export const putWorkProfile = (profile: WorkProfile) => put(stores.poreiaWorkProfiles, profile);
 export const listPtoAccounts = () => list<PtoAccount>(stores.poreiaPtoAccounts);

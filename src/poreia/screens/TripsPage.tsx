@@ -86,7 +86,11 @@ export default function TripsPage({ nav }: { nav: Nav }) {
   const bookings = useBookings();
   const savings = useSavingsPlans();
   const [filter, setFilter] = useState<TripFilter>('upcoming');
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => {
+    const requested = localStorage.getItem('poreia:openTripForm') === 'yes';
+    if (requested) localStorage.removeItem('poreia:openTripForm');
+    return requested;
+  });
   const currentDay = today();
   const active = trips.filter((trip) => trip.status !== 'canceled');
   const past = active.filter((trip) => trip.status === 'completed' || (trip.endDate !== undefined && trip.endDate < currentDay && trip.status !== 'in-progress')).sort((a, b) => (b.endDate ?? b.startDate ?? '').localeCompare(a.endDate ?? a.startDate ?? ''));
