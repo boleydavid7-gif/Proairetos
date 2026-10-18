@@ -1,7 +1,7 @@
 import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { LeaveRequest, PtoAccount, PtoLedgerTransaction, WorkProfile } from '../core/pto';
-import type { PlaceIdea, Trip } from '../core/trips';
+import type { Booking, ItineraryItem, PlaceIdea, Trip } from '../core/trips';
 
 const listeners = new Set<() => void>();
 let version = 0;
@@ -64,6 +64,10 @@ export const listPtoLedger = () => list<PtoLedgerTransaction>(stores.poreiaPtoLe
 export const putPtoLedger = (entry: PtoLedgerTransaction) => put(stores.poreiaPtoLedger, entry);
 export const listLeaveRequests = () => list<LeaveRequest>(stores.poreiaLeaveRequests);
 export const putLeaveRequest = (request: LeaveRequest) => put(stores.poreiaLeaveRequests, request);
+export const listItineraryItems = () => list<ItineraryItem>(stores.poreiaItineraryItems);
+export const putItineraryItem = (item: ItineraryItem) => put(stores.poreiaItineraryItems, item);
+export const listBookings = () => list<Booking>(stores.poreiaBookings);
+export const putBooking = (booking: Booking) => put(stores.poreiaBookings, booking);
 
 export async function startStore(): Promise<void> {
   await db();

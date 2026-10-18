@@ -12,6 +12,7 @@ alter table public.records add constraint records_collection_check check (collec
   'somaRecipes', 'somaGroceries',
   'oikonomiaBills', 'oikonomiaBudgets', 'oikonomiaEnvelopes',
   'poreiaTrips', 'poreiaPlaces', 'poreiaWorkProfiles', 'poreiaPtoAccounts', 'poreiaPtoLedger', 'poreiaLeaveRequests',
+  'poreiaItineraryItems', 'poreiaBookings',
   'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks',
   'preferences', 'attachments'
 ));
@@ -244,3 +245,18 @@ revoke all on function public.inbox_key(text) from public;
 grant execute on function public.inbox_key(text) to anon, authenticated;
 revoke all on function public.inbox_add(text, text) from public;
 grant execute on function public.inbox_add(text, text) to anon, authenticated;
+
+-- ========== 20261025000000_poreia_trip_workspace ==========
+-- Poreia trip workspaces: manual itinerary items and reservation records. The records remain sealed by the existing sync layer.
+alter table public.records drop constraint if exists records_collection_check;
+alter table public.records add constraint records_collection_check check (collection in (
+  'lifeItems', 'itemEvents', 'reflections', 'values', 'statements',
+  'schedulePatterns', 'scheduleExceptions', 'decisions',
+  'askesisWorkouts', 'askesisPlans',
+  'somaRecipes', 'somaGroceries',
+  'oikonomiaBills', 'oikonomiaBudgets', 'oikonomiaEnvelopes',
+  'poreiaTrips', 'poreiaPlaces', 'poreiaWorkProfiles', 'poreiaPtoAccounts', 'poreiaPtoLedger', 'poreiaLeaveRequests',
+  'poreiaItineraryItems', 'poreiaBookings',
+  'hydrosDrinks', 'theoriaBooks', 'theoriaNotebooks',
+  'preferences', 'attachments'
+));
