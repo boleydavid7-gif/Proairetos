@@ -56,7 +56,9 @@
 
 .poreia-header__words { display: flex; flex-direction: column; gap: 6px; }
 .poreia-header__words h1 { margin: 0; max-width: 18ch; font-family: var(--serif); font-size: clamp(2.5rem, 9vw, 4.2rem); font-weight: 400; line-height: 0.98; }
+.poreia-header--compact { min-height: 190px; }
 .poreia-header__words .label { margin: 0; color: var(--mint); }
+.poreia-header__description { margin: 2px 0 0; color: var(--text-soft); font-size: 1.05rem; line-height: 1.4; }
 .poreia-header__intro { display: flex; max-width: 34rem; flex-direction: column; gap: 14px; }
 .poreia-header__intro p { max-width: 34rem; margin: 0; color: var(--text-soft); line-height: 1.45; }
 .poreia-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -117,6 +119,23 @@
 .poreia-action-tile > svg { flex: 0 0 auto; color: var(--mint); }
 .poreia-action-tile > span { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
 .poreia-action-tile small { color: var(--muted); }
+.poreia-header__plus { display: inline-grid; width: 48px; height: 48px; place-items: center; align-self: flex-end; border: 0; border-radius: 50%; color: var(--mint-ink); background: var(--mint); box-shadow: 0 8px 20px color-mix(in srgb, var(--mint) 24%, transparent); cursor: pointer; }
+.poreia-trips-page { gap: 24px; }
+.poreia-trips-page > .segmented { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
+.poreia-trips-page > .segmented .segmented__option { min-width: 0; padding-inline: 4px; font-size: 0.82rem; }
+.poreia-trip-form { gap: 14px; }
+.poreia-featured-trip { overflow: hidden; border: 1px solid color-mix(in srgb, var(--mint) 38%, var(--line)); border-radius: calc(var(--radius) + 4px); background: var(--surface); }
+.poreia-featured-trip__art { display: flex; min-height: 96px; align-items: center; justify-content: center; color: var(--mint); background: linear-gradient(145deg, var(--surface-2), var(--mint-soft)); }
+.poreia-featured-trip__body { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.poreia-featured-trip__body h2 { margin: 0; font-family: var(--serif); font-size: 1.75rem; font-weight: 400; }
+.poreia-featured-trip__body p { margin: 0; color: var(--text-soft); line-height: 1.4; }
+.poreia-featured-trip__next { color: var(--muted); }
+.poreia-trip-list { display: flex; flex-direction: column; gap: 10px; }
+.poreia-trip-card { display: flex; min-height: 76px; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); color: inherit; background: var(--surface); text-align: left; cursor: pointer; }
+.poreia-trip-card:hover { border-color: var(--mint); }
+.poreia-trip-card__icon { display: inline-grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 12px; color: var(--mint); background: var(--mint-soft); }
+.poreia-trip-card > .poreia-row__text { flex: 1; }
+.poreia-trip-card__side { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
 .poreia-more { display: flex; flex-direction: column; gap: 24px; }
 .poreia-list--menu .poreia-row svg:first-child { flex: 0 0 auto; color: var(--mint); }
 .poreia-list--menu .poreia-row > .poreia-row__text { flex: 1; }

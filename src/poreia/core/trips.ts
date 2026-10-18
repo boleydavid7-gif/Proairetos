@@ -4,6 +4,8 @@ export type Trip = {
   id: string;
   name: string;
   destination?: string;
+  tripType?: string;
+  notes?: string;
   startDate?: string;
   endDate?: string;
   status: TripStatus;
@@ -85,6 +87,7 @@ export type PlaceIdea = {
   name: string;
   location?: string;
   note?: string;
+  tripId?: string;
   createdAt: string;
   updatedAt: string;
 };
