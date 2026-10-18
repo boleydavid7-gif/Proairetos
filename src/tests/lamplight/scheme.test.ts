@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { contrast } from '../../lamplight/color';
 import { LAMP_SEEDS, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampName, type Mode, type RoomName } from '../../lamplight/scheme';
 import { THEMED_APPS, appTheme } from '../../lamplight/apps';
-import { FOUNDATION, SIGNATURE_FAMILIES, SIGNATURE_TONES, STATUS_COLORS, type SignatureFamilyName } from '../../lamplight/palette';
+import { APP_COLOR_PROFILES, FOUNDATION, SIGNATURE_FAMILIES, SIGNATURE_TONES, STATUS_COLORS, type SignatureFamilyName } from '../../lamplight/palette';
 
 const rooms = Object.keys(ROOM_SEEDS) as RoomName[];
 const lamps = Object.keys(LAMP_SEEDS) as LampName[];
@@ -22,6 +22,13 @@ describe('Lamplight scheme', () => {
       const background = FOUNDATION[mode].background;
       for (const value of Object.values(STATUS_COLORS[mode])) expect(contrast(value, background)).toBeGreaterThanOrEqual(4.5);
     }
+  });
+
+  it('keeps a distinct icon-inspired seed for each companion app', () => {
+    expect(Object.keys(APP_COLOR_PROFILES).filter((app) => app !== 'proairetos')).toEqual(THEMED_APPS);
+    const seeds = THEMED_APPS.map((app) => APP_COLOR_PROFILES[app].seed);
+    expect(new Set(seeds).size).toBe(THEMED_APPS.length);
+    for (const app of THEMED_APPS) expect(appTheme(app)).not.toBeNull();
   });
 
   // The presets, as the first palette made them (the scheme replaced that script and keeps its values).

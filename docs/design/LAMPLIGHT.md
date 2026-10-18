@@ -52,9 +52,12 @@ Lamplight's signature families are Blue `#4F78A8`, Green `#5E8B68`, Aqua `#3A9CA
 and Coral `#C27669`. Each family has a generated OKLCH scale at 50, 100, 200, 300, 400, 500, 600, 700, 800, 900 and
 950; the 500 value is its identity seed. The registry and assignments live in `src/lamplight/palette.ts`.
 
-The current assignments are: Proairetos, Praxis and Therapeia Blue; Askesis, Soma, Ergon and Phyton Green; Hydros and
-Poreia Aqua; Oikonomia, Theoria, Diaita, Dynamis and Ktema Amber; and Philia Coral. Violet remains available for a
-future reflective app. The warm assignments preserve existing identities where a recolor would be disruptive.
+Each app also keeps an icon-inspired seed in the registry so the shared family tones do not make companion apps look
+interchangeable: Askesis `#167A64`, Soma `#C4643C`, Oikonomia `#B9821F`, Hydros `#1F86CF`, Poreia `#4CC3C7`,
+Praxis `#B3343F`, Theoria `#6A2C59`, Diaita `#3B3080`, Philia `#D8644F`, Ergon `#647F5C`, Therapeia `#4C6CC0`,
+Dynamis `#DE762A`, Ktema `#7B5236`, and Phyton `#3A934B`. Proairetos keeps its user-selected room and lamp, with
+`#C9A274` as its icon-inspired Amber identity. Each seed is contrast-adjusted by the scheme before it is used as an
+accent, and the family label remains available for tonal and audit tooling.
 
 Every app receives the same semantic roles: `--app-accent`, `--app-accent-hover`, `--app-accent-pressed`,
 `--app-accent-soft`, `--app-accent-subtle`, `--app-on-accent`, surface, border, divider and text roles, plus

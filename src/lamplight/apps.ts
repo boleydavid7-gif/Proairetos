@@ -1,34 +1,17 @@
 import { toOklch } from './color';
-import { APP_SIGNATURES, FOUNDATION, SIGNATURE_FAMILIES, type SignatureFamilyName } from './palette';
+import { APP_COLOR_PROFILES, APP_SIGNATURES, FOUNDATION } from './palette';
 import type { LampSeed, RoomSeed } from './scheme';
 
 /*
  * Each companion app shares Lamplight's neutral room and carries its own signature lamp. Proairetos alone takes the
  * person's selected room and lamp. The scheme makes every role from the shared foundation and holds it to contrast.
  */
-const APP_COLORS: Record<string, { family: SignatureFamilyName }> = {
-  askesis: { family: 'green' },
-  soma: { family: 'green' },
-  oikonomia: { family: 'amber' },
-  hydros: { family: 'aqua' },
-  poreia: { family: 'aqua' },
-  praxis: { family: 'blue' },
-  theoria: { family: 'amber' },
-  diaita: { family: 'amber' },
-  philia: { family: 'coral' },
-  ergon: { family: 'green' },
-  therapeia: { family: 'blue' },
-  dynamis: { family: 'amber' },
-  ktema: { family: 'amber' },
-  phyton: { family: 'green' },
-};
-
 export function appTheme(app: string): { room: RoomSeed; lamp: LampSeed } | null {
-  const colors = APP_COLORS[app];
+  const colors = APP_COLOR_PROFILES[app];
   if (!colors) return null;
   const dark = toOklch(FOUNDATION.dark.background);
   const light = toOklch(FOUNDATION.light.background);
-  const lamp = toOklch(SIGNATURE_FAMILIES[colors.family].seed);
+  const lamp = toOklch(colors.seed);
   const lampHue = Math.round(lamp.h);
   return {
     room: {
@@ -41,6 +24,6 @@ export function appTheme(app: string): { room: RoomSeed; lamp: LampSeed } | null
   };
 }
 
-export const THEMED_APPS = Object.keys(APP_COLORS);
+export const THEMED_APPS = Object.keys(APP_COLOR_PROFILES).filter((app) => app !== 'proairetos');
 
 export { APP_SIGNATURES };

@@ -57,23 +57,26 @@ export const STATUS_COLORS = {
   light: { success: '#2F6F45' as Hex, warning: '#8B5A1E' as Hex, error: '#A83F3B' as Hex, info: '#345F93' as Hex, neutral: '#56616A' as Hex },
 } as const;
 
-/** App-to-family assignments. Existing warm identities stay Amber; Violet is available for future reflective apps. */
-export const APP_SIGNATURES: Record<string, SignatureFamilyName> = {
-  proairetos: 'blue',
-  askesis: 'green',
-  soma: 'green',
-  oikonomia: 'amber',
-  hydros: 'aqua',
-  poreia: 'aqua',
-  praxis: 'blue',
-  theoria: 'amber',
-  diaita: 'amber',
-  philia: 'coral',
-  ergon: 'green',
-  therapeia: 'blue',
-  dynamis: 'amber',
-  ktema: 'amber',
-  phyton: 'green',
+/** Icon-inspired app profiles. Each app keeps a distinct seed while staying inside a Lamplight family. */
+export const APP_COLOR_PROFILES: Record<string, { family: SignatureFamilyName; seed: Hex }> = {
+  proairetos: { family: 'amber', seed: '#C9A274' },
+  askesis: { family: 'green', seed: '#167A64' },
+  soma: { family: 'coral', seed: '#C4643C' },
+  oikonomia: { family: 'amber', seed: '#B9821F' },
+  hydros: { family: 'blue', seed: '#1F86CF' },
+  poreia: { family: 'aqua', seed: '#4CC3C7' },
+  praxis: { family: 'coral', seed: '#B3343F' },
+  theoria: { family: 'violet', seed: '#6A2C59' },
+  diaita: { family: 'violet', seed: '#3B3080' },
+  philia: { family: 'coral', seed: '#D8644F' },
+  ergon: { family: 'green', seed: '#647F5C' },
+  therapeia: { family: 'blue', seed: '#4C6CC0' },
+  dynamis: { family: 'amber', seed: '#DE762A' },
+  ktema: { family: 'amber', seed: '#7B5236' },
+  phyton: { family: 'green', seed: '#3A934B' },
 };
+
+/** The family label remains useful for documentation, future tone selection, and audit tooling. */
+export const APP_SIGNATURES: Record<string, SignatureFamilyName> = Object.fromEntries(Object.entries(APP_COLOR_PROFILES).map(([app, profile]) => [app, profile.family])) as Record<string, SignatureFamilyName>;
 
 export const SIGNATURE_TONES = TONES;
