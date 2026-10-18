@@ -329,6 +329,10 @@
   :root .hydros-tabs:has(> :nth-child(1)[aria-current='page'])::after { left: calc(12.5% - 14px); opacity: 1; }
   :root .hydros-tabs:has(> :nth-child(2)[aria-current='page'])::after { left: calc(37.5% - 14px); opacity: 1; }
   :root .hydros-tabs:has(> :nth-child(3)[aria-current='page'])::after { left: calc(62.5% - 14px); opacity: 1; }
+  /* Hydros hides the Proairetos dock item after it moves into the top bar, so its three visible tabs become thirds. */
+  :root.ll-bar-on .hydros-tabs:has(> :nth-child(1)[aria-current='page'])::after { left: calc(16.666667% - 14px); }
+  :root.ll-bar-on .hydros-tabs:has(> :nth-child(2)[aria-current='page'])::after { left: calc(50% - 14px); }
+  :root.ll-bar-on .hydros-tabs:has(> :nth-child(3)[aria-current='page'])::after { left: calc(83.333333% - 14px); }
 
   :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(1)[aria-current='page'])::after { left: calc(7.142857% - 14px); opacity: 1; }
   :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(2)[aria-current='page'])::after { left: calc(21.428571% - 14px); opacity: 1; }
