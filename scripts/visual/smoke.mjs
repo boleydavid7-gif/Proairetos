@@ -5,8 +5,8 @@
  *   npm run smoke:visual
  *
  * The runner writes screenshots to VISUAL_OUT (or /tmp/proairetos-visual) and
- * fails on page errors, horizontal overflow, duplicate roots, or a missing
- * visible title on an app that has a title frame.
+ * fails on page errors, horizontal overflow, duplicate roots, missing visible
+ * titles, or broken/undersized local graphics.
  */
 import { mkdirSync } from 'node:fs';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -99,6 +99,32 @@ for (const viewport of viewports) {
           return !(element.getAttribute('aria-label') || labelledText.trim() || element.getAttribute('title') || element.textContent?.trim());
         })
         .map((element) => element.outerHTML.slice(0, 160));
+      const graphics = [...document.images]
+        .filter(visible)
+        .map((image) => {
+          const rect = image.getBoundingClientRect();
+          const source = image.currentSrc || image.src;
+          const local = source.startsWith(location.origin) || source.startsWith('/');
+          const raster = /\.(?:avif|webp|png|jpe?g)(?:[?#]|$)/i.test(source);
+          return {
+            source,
+            local,
+            raster,
+            complete: image.complete,
+            naturalWidth: image.naturalWidth,
+            naturalHeight: image.naturalHeight,
+            renderedWidth: Math.round(rect.width),
+            renderedHeight: Math.round(rect.height),
+          };
+        });
+      const brokenGraphics = graphics.filter((image) => image.local && image.complete && image.naturalWidth === 0);
+      const lowResGraphics = graphics.filter(
+        (image) =>
+          image.local &&
+          image.raster &&
+          image.naturalWidth > 0 &&
+          (image.naturalWidth < image.renderedWidth * 1.1 || image.naturalHeight < image.renderedHeight * 1.1),
+      );
       return {
         overflow: document.documentElement.scrollWidth > innerWidth + 1,
         roots: document.querySelectorAll('#root > *').length,
@@ -106,13 +132,23 @@ for (const viewport of viewports) {
         titleRect: titleRect?.toJSON() ?? null,
         titleClipped: Boolean(titleRect && (titleRect.top < 0 || titleRect.bottom > innerHeight)),
         unnamedButtons,
+        graphics: { checked: graphics.length, broken: brokenGraphics, lowRes: lowResGraphics },
       };
     }, titleSelectors);
     const name = `${app}-${viewport.name}`;
     await page.screenshot({ path: join(outputDir, `${name}.png`), fullPage: false });
     const result = { app, viewport: viewport.name, errors, ...state };
     results.push(result);
-    if (errors.length || state.overflow || state.roots !== 1 || !state.title || state.titleClipped || state.unnamedButtons.length) failures.push(result);
+    if (
+      errors.length ||
+      state.overflow ||
+      state.roots !== 1 ||
+      !state.title ||
+      state.titleClipped ||
+      state.unnamedButtons.length ||
+      state.graphics.broken.length ||
+      state.graphics.lowRes.length
+    ) failures.push(result);
     await page.close();
   }
   await context.close();

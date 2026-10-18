@@ -8,7 +8,10 @@ import { pendingInvite } from './SharedList';
 export default function WelcomePage({ nav }: { nav: Nav }) {
   return (
     <div className="welcome">
-      <img className="welcome__image" src={scene('sunset-valley')} alt="" />
+      <picture>
+        <source media="(min-width: 62rem)" srcSet={scene('sunset-valley-wide')} />
+        <img className="welcome__image" src={scene('sunset-valley')} alt="" />
+      </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">
         <FamilyMark app="soma" size={48} color={MARK_LIGHT} />

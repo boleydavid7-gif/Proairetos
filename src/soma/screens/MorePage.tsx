@@ -39,7 +39,10 @@ export default function MorePage({ nav }: { nav: Nav }) {
       </ul>
       <FamilyApps current="soma" />
       <figure className="more__foot">
-        <img src={scene('olive-wall')} alt="" />
+        <picture>
+          <source media="(min-width: 62rem)" srcSet={scene('olive-wall-wide')} />
+          <img src={scene('olive-wall')} alt="" />
+        </picture>
         <figcaption>
           <blockquote>“Nature asks for little; it is opinion that asks for more.”</blockquote>
           <span>After Seneca</span>
