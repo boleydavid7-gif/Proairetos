@@ -3,60 +3,60 @@
 :root.ktema {
   --app-name: 'Ktema';
   color-scheme: dark;
-  --bg: #12130f;
-  --surface: #1a1b16;
-  --surface-2: #22241d;
-  --line: #31332a;
-  --text: #efece2;
-  --text-soft: #d2cfc2;
-  --muted: #a3a091;
-  --mint: #c7b37a;
-  --mint-soft: color-mix(in srgb, #c7b37a 14%, transparent);
-  --mint-ink: #211c0b;
-  --bar: rgba(18,19,15,0.95);
-  --placeholder: #807d70;
-  --glow-top: #1f2117;
-  --switch-off: #3a3c31;
-  --accent: #c7b37a;
+  --bg: var(--app-background, #12130f);
+  --surface: var(--app-surface, #1a1b16);
+  --surface-2: var(--app-surface-input, #22241d);
+  --line: var(--app-border, #31332a);
+  --text: var(--app-text-primary, #efece2);
+  --text-soft: var(--app-text-secondary, #d2cfc2);
+  --muted: var(--app-text-muted, #a3a091);
+  --mint: var(--app-accent, #c7b37a);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #c7b37a 14%, transparent));
+  --mint-ink: var(--app-on-accent, #211c0b);
+  --bar: var(--ll-mica, rgba(18,19,15,0.95));
+  --placeholder: var(--app-text-muted, #807d70);
+  --glow-top: var(--app-surface-raised, #1f2117);
+  --switch-off: var(--app-border, #3a3c31);
+  --accent: var(--app-accent, #c7b37a);
 }
 
 :root.ktema[data-theme='light'] {
   color-scheme: light;
-  --bg: #f1efe8;
-  --surface: #fbfaf6;
-  --surface-2: #e4e1d6;
-  --line: #d8d4c6;
-  --text: #25241d;
-  --text-soft: #47453b;
-  --muted: #5e5b4e;
-  --mint: #7a6526;
-  --mint-soft: color-mix(in srgb, #7a6526 14%, transparent);
-  --mint-ink: #ffffff;
-  --bar: rgba(243,241,234,0.96);
-  --placeholder: #8f8b7d;
-  --glow-top: #e5e0cd;
-  --switch-off: #d0ccbd;
-  --accent: #7a6526;
+  --bg: var(--app-background, #f1efe8);
+  --surface: var(--app-surface, #fbfaf6);
+  --surface-2: var(--app-surface-input, #e4e1d6);
+  --line: var(--app-border, #d8d4c6);
+  --text: var(--app-text-primary, #25241d);
+  --text-soft: var(--app-text-secondary, #47453b);
+  --muted: var(--app-text-muted, #5e5b4e);
+  --mint: var(--app-accent, #7a6526);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #7a6526 14%, transparent));
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --bar: var(--ll-mica, rgba(243,241,234,0.96));
+  --placeholder: var(--app-text-muted, #8f8b7d);
+  --glow-top: var(--app-surface-raised, #e5e0cd);
+  --switch-off: var(--app-border, #d0ccbd);
+  --accent: var(--app-accent, #7a6526);
 }
 
 @media (prefers-color-scheme: light) {
   :root.ktema[data-theme='system'] {
     color-scheme: light;
-    --bg: #f1efe8;
-    --surface: #fbfaf6;
-    --surface-2: #e4e1d6;
-    --line: #d8d4c6;
-    --text: #25241d;
-    --text-soft: #47453b;
-    --muted: #5e5b4e;
-    --mint: #7a6526;
-    --mint-soft: color-mix(in srgb, #7a6526 14%, transparent);
-    --mint-ink: #ffffff;
-    --bar: rgba(243,241,234,0.96);
-    --placeholder: #8f8b7d;
-    --glow-top: #e5e0cd;
-    --switch-off: #d0ccbd;
-    --accent: #7a6526;
+    --bg: var(--app-background, #f1efe8);
+    --surface: var(--app-surface, #fbfaf6);
+    --surface-2: var(--app-surface-input, #e4e1d6);
+    --line: var(--app-border, #d8d4c6);
+    --text: var(--app-text-primary, #25241d);
+    --text-soft: var(--app-text-secondary, #47453b);
+    --muted: var(--app-text-muted, #5e5b4e);
+    --mint: var(--app-accent, #7a6526);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #7a6526 14%, transparent));
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --bar: var(--ll-mica, rgba(243,241,234,0.96));
+    --placeholder: var(--app-text-muted, #8f8b7d);
+    --glow-top: var(--app-surface-raised, #e5e0cd);
+    --switch-off: var(--app-border, #d0ccbd);
+    --accent: var(--app-accent, #7a6526);
   }
 }
 

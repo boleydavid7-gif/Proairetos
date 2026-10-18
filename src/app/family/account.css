@@ -16,20 +16,20 @@
 .settings-card[aria-label='Account and sync'] .inline-form { display: flex; gap: 8px; align-items: stretch; }
 .settings-card[aria-label='Account and sync'] .inline-form > .field-input { min-width: 0; flex: 1; }
 .settings-card[aria-label='Account and sync'] .field-input { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.14))); border-radius: 10px; outline: 0; color: var(--text, var(--color-text, inherit)); background: var(--surface-2, var(--color-surface-raised, rgba(0,0,0,.16))); font-size: 16px; }
-.settings-card[aria-label='Account and sync'] .field-input:focus { border-color: var(--mint, var(--color-accent-strong, #c9a274)); }
+.settings-card[aria-label='Account and sync'] .field-input:focus { border-color: var(--mint, var(--app-accent, #4F78A8)); }
 .settings-card[aria-label='Account and sync'] .button-accent,
-.settings-card[aria-label='Account and sync'] .chip--wide { min-height: 48px; padding: 0 16px; border: 0; border-radius: 10px; color: var(--mint-ink, var(--color-accent-ink, #17120d)); background: var(--mint, var(--color-accent-strong, #d9b68a)); cursor: pointer; font-weight: 700; }
+.settings-card[aria-label='Account and sync'] .chip--wide { min-height: 48px; padding: 0 16px; border: 0; border-radius: 10px; color: var(--mint-ink, var(--app-on-accent, #101923)); background: var(--mint, var(--app-accent-pressed, #4F78A8)); cursor: pointer; font-weight: 700; }
 .settings-card[aria-label='Account and sync'] .button-accent:disabled,
 .settings-card[aria-label='Account and sync'] .chip--wide:disabled { cursor: default; opacity: .5; }
 .settings-card[aria-label='Account and sync'] .button-quiet,
 .settings-card[aria-label='Account and sync'] .chip { min-height: 44px; padding: 0 14px; border: 1px solid var(--line, var(--color-border, rgba(255,255,255,.14))); border-radius: 10px; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); background: transparent; cursor: pointer; }
 .settings-card[aria-label='Account and sync'] .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.settings-card[aria-label='Account and sync'] .text-link { align-self: flex-start; min-height: 40px; padding: 0; border: 0; color: var(--mint, var(--color-accent-strong, #d9b68a)); background: transparent; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.settings-card[aria-label='Account and sync'] .form-error { margin: 0; color: var(--danger, #e59a8a); font-size: .88rem; }
+.settings-card[aria-label='Account and sync'] .text-link { align-self: flex-start; min-height: 40px; padding: 0; border: 0; color: var(--mint, var(--app-accent, #4F78A8)); background: transparent; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.settings-card[aria-label='Account and sync'] .form-error { margin: 0; color: var(--danger, var(--status-error, #B85C56)); font-size: .88rem; }
 .settings-card[aria-label='Account and sync'] .sheet__hint { margin: 0; color: var(--muted, var(--color-text-muted, rgba(255,255,255,.65))); font-size: .84rem; line-height: 1.45; }
-.settings-card[aria-label='Account and sync'] .recovery-key { margin: 0; padding: 14px; overflow-wrap: anywhere; border: 1px dashed var(--mint, var(--color-accent-strong, #d9b68a)); border-radius: 10px; color: var(--mint, var(--color-accent-strong, #d9b68a)); font: 600 1rem/1.6 ui-monospace, monospace; letter-spacing: .04em; user-select: all; }
+.settings-card[aria-label='Account and sync'] .recovery-key { margin: 0; padding: 14px; overflow-wrap: anywhere; border: 1px dashed var(--mint, var(--app-accent, #4F78A8)); border-radius: 10px; color: var(--mint, var(--app-accent, #4F78A8)); font: 600 1rem/1.6 ui-monospace, monospace; letter-spacing: .04em; user-select: all; }
 .settings-card[aria-label='Account and sync'] .toggle-check { display: flex; align-items: center; gap: 8px; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); }
-.settings-card[aria-label='Account and sync'] .toggle-check input { width: 18px; height: 18px; accent-color: var(--mint, var(--color-accent-strong, #d9b68a)); }
+.settings-card[aria-label='Account and sync'] .toggle-check input { width: 18px; height: 18px; accent-color: var(--mint, var(--app-accent, #4F78A8)); }
 .settings-card[aria-label='Account and sync'] .settings-sub { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line, var(--color-border, rgba(255,255,255,.1))); }
 .settings-card[aria-label='Account and sync'] .setup-check { color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.75))); }
 .settings-card[aria-label='Account and sync'] .setup-check summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
@@ -61,12 +61,12 @@
 .family-surface .muted, .family-surface .hint, .family-surface .row__detail, .family-surface .switch-row__detail { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .86rem; line-height: 1.5; }
 .family-surface .field { display: grid; gap: 6px; }
 .family-surface .input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; outline: 0; color: inherit; background: rgba(0,0,0,.14); font: inherit; font-size: 16px; }
-.family-surface .input:focus-visible { border-color: var(--color-accent-strong, #c9a274); }
+.family-surface .input:focus-visible { border-color: var(--color-accent-strong, var(--app-accent, #4F78A8)); }
 .family-surface .button-main, .family-surface .button-quiet { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 16px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
-.family-surface .button-main { border: 0; color: var(--color-accent-ink, #17120d); background: var(--color-accent-strong, #d9b68a); }
+.family-surface .button-main { border: 0; color: var(--color-accent-ink, var(--app-on-accent, #101923)); background: var(--color-accent-strong, var(--app-accent-pressed, #4F78A8)); }
 .family-surface .button-quiet { border: 1px solid var(--color-border, rgba(255,255,255,.14)); color: inherit; background: transparent; }
 .family-surface .button-main:disabled, .family-surface .button-quiet:disabled { opacity: .5; cursor: default; }
-.family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, #d9b68a); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, var(--app-accent, #4F78A8)); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .family-surface .rows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; background: var(--color-surface, rgba(255,255,255,.04)); overflow: hidden; }
 .family-surface .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border: 0; color: inherit; background: none; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
 .family-surface .row > .row__text { flex: 1 1 auto; }
@@ -77,17 +77,17 @@
 .family-surface .switch-row__text { display: grid; gap: 3px; }
 .family-surface .switch { position: relative; flex: 0 0 auto; width: 46px; height: 28px; border-radius: 999px; background: var(--color-border, rgba(255,255,255,.2)); transition: background .2s ease; }
 .family-surface .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .2s ease; }
-.family-surface .switch--on { background: var(--color-accent-strong, #d9b68a); }
+.family-surface .switch--on { background: var(--color-accent-strong, var(--app-accent-pressed, #4F78A8)); }
 .family-surface .switch--on::after { transform: translateX(18px); }
 .family-surface .daily-copies { display: grid; gap: 10px; }
 
 .family-apps { display: grid; gap: 10px; margin-top: 18px; }
 .family-apps .label { margin: 0; }
 .family-surface .page-top { display: flex; align-items: center; min-height: 44px; }
-.family-surface .back-link { min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, #d9b68a); background: none; font: inherit; cursor: pointer; }
+.family-surface .back-link { min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, var(--app-accent, #4F78A8)); background: none; font: inherit; cursor: pointer; }
 .family-surface .title { margin: 0; font: 500 2rem/1.15 var(--font-serif, Georgia, serif); }
 .family-surface .chip { min-height: 40px; padding: 0 14px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 999px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
-.family-surface .chip[aria-pressed='true'] { border-color: var(--color-accent-strong, #d9b68a); color: var(--color-accent-ink, #17120d); background: var(--color-accent-strong, #d9b68a); font-weight: 600; }
+.family-surface .chip[aria-pressed='true'] { border-color: var(--color-accent-strong, var(--app-accent, #4F78A8)); color: var(--color-accent-ink, var(--app-on-accent, #101923)); background: var(--color-accent-strong, var(--app-accent-pressed, #4F78A8)); font-weight: 600; }
 
 /* "Add a passkey for next time" on the passphrase step, in every app's account card. */
 .check-line {

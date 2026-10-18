@@ -123,7 +123,7 @@
 
 .remove-link {
   align-self: center;
-  color: var(--danger, #e39b89);
+  color: var(--danger, var(--status-error, #B85C56));
 }
 
 /* ---------- Diaita ---------- */

@@ -1,36 +1,36 @@
 :root.poreia {
-  --bg: #071c24;
-  --surface: #0d2932;
-  --surface-2: #123943;
-  --line: #24505a;
-  --text: #e8f5f2;
-  --text-soft: #b8d6d4;
-  --muted: #8fb0b0;
-  --mint: #4cc3c7;
-  --mint-ink: #062127;
-  --mint-soft: rgba(76, 195, 199, 0.16);
-  --bar: rgba(7, 28, 36, 0.95);
-  --placeholder: #6f9292;
-  --glow-top: #153e47;
-  --switch-off: #31555b;
+  --bg: var(--app-background, #071c24);
+  --surface: var(--app-surface, #0d2932);
+  --surface-2: var(--app-surface-input, #123943);
+  --line: var(--app-border, #24505a);
+  --text: var(--app-text-primary, #e8f5f2);
+  --text-soft: var(--app-text-secondary, #b8d6d4);
+  --muted: var(--app-text-muted, #8fb0b0);
+  --mint: var(--app-accent, #4cc3c7);
+  --mint-ink: var(--app-on-accent, #062127);
+  --mint-soft: var(--app-accent-soft, rgba(76, 195, 199, 0.16));
+  --bar: var(--ll-mica, rgba(7, 28, 36, 0.95));
+  --placeholder: var(--app-text-muted, #6f9292);
+  --glow-top: var(--app-surface-raised, #153e47);
+  --switch-off: var(--app-border, #31555b);
   color-scheme: dark;
 }
 
 :root.poreia[data-theme='light'] {
-  --bg: #edf7f4;
-  --surface: #f8fcfa;
-  --surface-2: #dceeea;
-  --line: #c5dcd8;
-  --text: #143238;
-  --text-soft: #35565b;
-  --muted: #58777b;
-  --mint: #087f86;
-  --mint-ink: #effcf9;
-  --mint-soft: rgba(8, 127, 134, 0.12);
-  --bar: rgba(237, 247, 244, 0.96);
-  --placeholder: #789599;
-  --glow-top: #d7ece7;
-  --switch-off: #c5d8d5;
+  --bg: var(--app-background, #edf7f4);
+  --surface: var(--app-surface, #f8fcfa);
+  --surface-2: var(--app-surface-input, #dceeea);
+  --line: var(--app-border, #c5dcd8);
+  --text: var(--app-text-primary, #143238);
+  --text-soft: var(--app-text-secondary, #35565b);
+  --muted: var(--app-text-muted, #58777b);
+  --mint: var(--app-accent, #087f86);
+  --mint-ink: var(--app-on-accent, #effcf9);
+  --mint-soft: var(--app-accent-soft, rgba(8, 127, 134, 0.12));
+  --bar: var(--ll-mica, rgba(237, 247, 244, 0.96));
+  --placeholder: var(--app-text-muted, #789599);
+  --glow-top: var(--app-surface-raised, #d7ece7);
+  --switch-off: var(--app-border, #c5d8d5);
   color-scheme: light;
 }
 

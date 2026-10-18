@@ -3,60 +3,60 @@
 :root.therapeia {
   --app-name: 'Therapeia';
   color-scheme: dark;
-  --bg: #10141a;
-  --surface: #171c24;
-  --surface-2: #1e2530;
-  --line: #2a3240;
-  --text: #e8edf4;
-  --text-soft: #c8d0dc;
-  --muted: #98a3b3;
-  --mint: #9cb8e0;
-  --mint-soft: color-mix(in srgb, #9cb8e0 14%, transparent);
-  --mint-ink: #0e1a2b;
-  --bar: rgba(16,20,26,0.95);
-  --placeholder: #76808f;
-  --glow-top: #18202c;
-  --switch-off: #323b4a;
-  --accent: #9cb8e0;
+  --bg: var(--app-background, #10141a);
+  --surface: var(--app-surface, #171c24);
+  --surface-2: var(--app-surface-input, #1e2530);
+  --line: var(--app-border, #2a3240);
+  --text: var(--app-text-primary, #e8edf4);
+  --text-soft: var(--app-text-secondary, #c8d0dc);
+  --muted: var(--app-text-muted, #98a3b3);
+  --mint: var(--app-accent, #9cb8e0);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #9cb8e0 14%, transparent));
+  --mint-ink: var(--app-on-accent, #0e1a2b);
+  --bar: var(--ll-mica, rgba(16,20,26,0.95));
+  --placeholder: var(--app-text-muted, #76808f);
+  --glow-top: var(--app-surface-raised, #18202c);
+  --switch-off: var(--app-border, #323b4a);
+  --accent: var(--app-accent, #9cb8e0);
 }
 
 :root.therapeia[data-theme='light'] {
   color-scheme: light;
-  --bg: #eef1f5;
-  --surface: #fafbfd;
-  --surface-2: #e1e6ee;
-  --line: #d3dae5;
-  --text: #1f2733;
-  --text-soft: #434d5c;
-  --muted: #5a6576;
-  --mint: #2f5a8f;
-  --mint-soft: color-mix(in srgb, #2f5a8f 14%, transparent);
-  --mint-ink: #ffffff;
-  --bar: rgba(240,243,247,0.96);
-  --placeholder: #8a93a1;
-  --glow-top: #dee5ef;
-  --switch-off: #cbd3df;
-  --accent: #2f5a8f;
+  --bg: var(--app-background, #eef1f5);
+  --surface: var(--app-surface, #fafbfd);
+  --surface-2: var(--app-surface-input, #e1e6ee);
+  --line: var(--app-border, #d3dae5);
+  --text: var(--app-text-primary, #1f2733);
+  --text-soft: var(--app-text-secondary, #434d5c);
+  --muted: var(--app-text-muted, #5a6576);
+  --mint: var(--app-accent, #2f5a8f);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #2f5a8f 14%, transparent));
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --bar: var(--ll-mica, rgba(240,243,247,0.96));
+  --placeholder: var(--app-text-muted, #8a93a1);
+  --glow-top: var(--app-surface-raised, #dee5ef);
+  --switch-off: var(--app-border, #cbd3df);
+  --accent: var(--app-accent, #2f5a8f);
 }
 
 @media (prefers-color-scheme: light) {
   :root.therapeia[data-theme='system'] {
     color-scheme: light;
-    --bg: #eef1f5;
-    --surface: #fafbfd;
-    --surface-2: #e1e6ee;
-    --line: #d3dae5;
-    --text: #1f2733;
-    --text-soft: #434d5c;
-    --muted: #5a6576;
-    --mint: #2f5a8f;
-    --mint-soft: color-mix(in srgb, #2f5a8f 14%, transparent);
-    --mint-ink: #ffffff;
-    --bar: rgba(240,243,247,0.96);
-    --placeholder: #8a93a1;
-    --glow-top: #dee5ef;
-    --switch-off: #cbd3df;
-    --accent: #2f5a8f;
+    --bg: var(--app-background, #eef1f5);
+    --surface: var(--app-surface, #fafbfd);
+    --surface-2: var(--app-surface-input, #e1e6ee);
+    --line: var(--app-border, #d3dae5);
+    --text: var(--app-text-primary, #1f2733);
+    --text-soft: var(--app-text-secondary, #434d5c);
+    --muted: var(--app-text-muted, #5a6576);
+    --mint: var(--app-accent, #2f5a8f);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #2f5a8f 14%, transparent));
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --bar: var(--ll-mica, rgba(240,243,247,0.96));
+    --placeholder: var(--app-text-muted, #8a93a1);
+    --glow-top: var(--app-surface-raised, #dee5ef);
+    --switch-off: var(--app-border, #cbd3df);
+    --accent: var(--app-accent, #2f5a8f);
   }
 }
 

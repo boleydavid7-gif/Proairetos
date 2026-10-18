@@ -3,60 +3,60 @@
 :root.ergon {
   --app-name: 'Ergon';
   color-scheme: dark;
-  --bg: #0e1112;
-  --surface: #161b1c;
-  --surface-2: #1d2425;
-  --line: #2a3334;
-  --text: #e9ece8;
-  --text-soft: #c9cfca;
-  --muted: #98a19c;
-  --mint: #8fc1b5;
-  --mint-ink: #0d1d19;
-  --mint-soft: color-mix(in srgb, #8fc1b5 14%, transparent);
-  --bar: rgba(14,17,18,0.95);
-  --placeholder: #78817c;
-  --glow-top: #1a2526;
-  --switch-off: #323c3c;
-  --accent: #8fc1b5;
+  --bg: var(--app-background, #0e1112);
+  --surface: var(--app-surface, #161b1c);
+  --surface-2: var(--app-surface-input, #1d2425);
+  --line: var(--app-border, #2a3334);
+  --text: var(--app-text-primary, #e9ece8);
+  --text-soft: var(--app-text-secondary, #c9cfca);
+  --muted: var(--app-text-muted, #98a19c);
+  --mint: var(--app-accent, #8fc1b5);
+  --mint-ink: var(--app-on-accent, #0d1d19);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #8fc1b5 14%, transparent));
+  --bar: var(--ll-mica, rgba(14,17,18,0.95));
+  --placeholder: var(--app-text-muted, #78817c);
+  --glow-top: var(--app-surface-raised, #1a2526);
+  --switch-off: var(--app-border, #323c3c);
+  --accent: var(--app-accent, #8fc1b5);
 }
 
 :root.ergon[data-theme='light'] {
   color-scheme: light;
-  --bg: #eff1ed;
-  --surface: #fafbf8;
-  --surface-2: #e2e7e1;
-  --line: #d5dcd4;
-  --text: #222a27;
-  --text-soft: #45504b;
-  --muted: #5b6761;
-  --mint: #2d6a5c;
-  --mint-ink: #ffffff;
-  --mint-soft: color-mix(in srgb, #2d6a5c 14%, transparent);
-  --bar: rgba(241,243,239,0.96);
-  --placeholder: #8d9690;
-  --glow-top: #dfe6de;
-  --switch-off: #cdd5cc;
-  --accent: #2d6a5c;
+  --bg: var(--app-background, #eff1ed);
+  --surface: var(--app-surface, #fafbf8);
+  --surface-2: var(--app-surface-input, #e2e7e1);
+  --line: var(--app-border, #d5dcd4);
+  --text: var(--app-text-primary, #222a27);
+  --text-soft: var(--app-text-secondary, #45504b);
+  --muted: var(--app-text-muted, #5b6761);
+  --mint: var(--app-accent, #2d6a5c);
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #2d6a5c 14%, transparent));
+  --bar: var(--ll-mica, rgba(241,243,239,0.96));
+  --placeholder: var(--app-text-muted, #8d9690);
+  --glow-top: var(--app-surface-raised, #dfe6de);
+  --switch-off: var(--app-border, #cdd5cc);
+  --accent: var(--app-accent, #2d6a5c);
 }
 
 @media (prefers-color-scheme: light) {
   :root.ergon[data-theme='system'] {
     color-scheme: light;
-    --bg: #eff1ed;
-    --surface: #fafbf8;
-    --surface-2: #e2e7e1;
-    --line: #d5dcd4;
-    --text: #222a27;
-    --text-soft: #45504b;
-    --muted: #5b6761;
-    --mint: #2d6a5c;
-    --mint-ink: #ffffff;
-    --mint-soft: color-mix(in srgb, #2d6a5c 14%, transparent);
-    --bar: rgba(241,243,239,0.96);
-    --placeholder: #8d9690;
-    --glow-top: #dfe6de;
-    --switch-off: #cdd5cc;
-    --accent: #2d6a5c;
+    --bg: var(--app-background, #eff1ed);
+    --surface: var(--app-surface, #fafbf8);
+    --surface-2: var(--app-surface-input, #e2e7e1);
+    --line: var(--app-border, #d5dcd4);
+    --text: var(--app-text-primary, #222a27);
+    --text-soft: var(--app-text-secondary, #45504b);
+    --muted: var(--app-text-muted, #5b6761);
+    --mint: var(--app-accent, #2d6a5c);
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #2d6a5c 14%, transparent));
+    --bar: var(--ll-mica, rgba(241,243,239,0.96));
+    --placeholder: var(--app-text-muted, #8d9690);
+    --glow-top: var(--app-surface-raised, #dfe6de);
+    --switch-off: var(--app-border, #cdd5cc);
+    --accent: var(--app-accent, #2d6a5c);
   }
 }
 

@@ -1,16 +1,16 @@
 /* Hydros keeps the family's typography and calm spacing, with a deep-water palette. */
 :root.hydros {
-  --bg: #061219;
-  --surface: rgba(12, 42, 53, .82);
-  --surface-solid: #0d2c38;
-  --surface-2: #123b49;
-  --line: rgba(164, 222, 236, .16);
-  --text: #edf8fb;
-  --text-soft: #c0dbe2;
-  --muted: #86aab4;
-  --cyan: #3acaf5;
-  --cyan-soft: rgba(58, 202, 245, .17);
-  --cyan-ink: #03212a;
+  --bg: var(--app-background, #061219);
+  --surface: var(--app-surface, rgba(12, 42, 53, .82));
+  --surface-solid: var(--app-surface, #0d2c38);
+  --surface-2: var(--app-surface-input, #123b49);
+  --line: var(--app-border, rgba(164, 222, 236, .16));
+  --text: var(--app-text-primary, #edf8fb);
+  --text-soft: var(--app-text-secondary, #c0dbe2);
+  --muted: var(--app-text-muted, #86aab4);
+  --cyan: var(--app-accent, #3acaf5);
+  --cyan-soft: var(--app-accent-soft, rgba(58, 202, 245, .17));
+  --cyan-ink: var(--app-on-accent, #03212a);
   --tab-height: calc(70px + env(safe-area-inset-bottom));
   --serif: 'EB Garamond', Georgia, serif;
   --sans: Inter, system-ui, -apple-system, sans-serif;
@@ -18,17 +18,17 @@
 }
 
 :root.hydros[data-theme='light'] {
-  --bg: #eaf4f5;
-  --surface: rgba(255, 255, 255, .84);
-  --surface-solid: #ffffff;
-  --surface-2: #d6e9ed;
-  --line: rgba(16, 77, 94, .17);
-  --text: #0c2b35;
-  --text-soft: #315662;
-  --muted: #4a646d;
-  --cyan: #006690;
-  --cyan-soft: rgba(0, 126, 174, .13);
-  --cyan-ink: #effbff;
+  --bg: var(--app-background, #eaf4f5);
+  --surface: var(--app-surface, rgba(255, 255, 255, .84));
+  --surface-solid: var(--app-surface, #ffffff);
+  --surface-2: var(--app-surface-input, #d6e9ed);
+  --line: var(--app-border, rgba(16, 77, 94, .17));
+  --text: var(--app-text-primary, #0c2b35);
+  --text-soft: var(--app-text-secondary, #315662);
+  --muted: var(--app-text-muted, #4a646d);
+  --cyan: var(--app-accent, #006690);
+  --cyan-soft: var(--app-accent-soft, rgba(0, 126, 174, .13));
+  --cyan-ink: var(--app-on-accent, #effbff);
   color-scheme: light;
 }
 

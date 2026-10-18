@@ -4,6 +4,32 @@
  * page readable before the scheme arrives. Write rules against these names, never a raw value.
  */
 :root {
+  /* Shared semantic color contract. Scheme values replace these fallbacks at runtime. */
+  --app-accent: var(--ll-lamp, #4F78A8);
+  --app-accent-hover: var(--ll-lamp-soft, #7EA1C8);
+  --app-accent-pressed: var(--ll-lamp-fill, #4F78A8);
+  --app-accent-soft: var(--ll-glow, rgb(79 120 168 / 0.16));
+  --app-accent-subtle: rgb(79 120 168 / 0.08);
+  --app-on-accent: var(--ll-on-lamp, #101923);
+  --app-background: var(--ll-page, #101923);
+  --app-surface: var(--ll-card, #1B2A38);
+  --app-surface-raised: var(--ll-raised, #33434F);
+  --app-surface-overlay: var(--ll-raised, #33434F);
+  --app-surface-input: var(--ll-inset, #283642);
+  --app-border: var(--ll-hair, rgb(233 229 220 / 0.12));
+  --app-border-strong: rgb(233 229 220 / 0.24);
+  --app-divider: var(--ll-hair, rgb(233 229 220 / 0.12));
+  --app-text-primary: var(--ll-ink, #E9E5DC);
+  --app-text-secondary: var(--ll-ink-2, #C2C5C3);
+  --app-text-muted: var(--ll-ink-3, #A7ADA9);
+  --app-text-disabled: rgb(233 229 220 / 0.42);
+  --app-text-link: var(--ll-lamp, #4F78A8);
+  --status-success: #7CBF92;
+  --status-warning: #E3B86D;
+  --status-error: #F08A7E;
+  --status-info: #83A9D8;
+  --status-neutral: #A7ADA9;
+
   /* Shape: a few radii, nested smaller inside larger. */
   --ll-radius-xs: 8px;
   --ll-radius-sm: 12px;
@@ -85,27 +111,27 @@
   /* Interaction states: layers over a control's resting material, never replacement colors. The ink carries
      quiet hover feedback; the lamp marks a press, selection and keyboard focus. */
   --ll-state-hover: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.07);
-  --ll-state-pressed: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14);
-  --ll-state-selected: var(--ll-glow, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14));
-  --ll-state-focus: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.24);
+  --ll-state-pressed: rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.14);
+  --ll-state-selected: var(--ll-glow, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.14));
+  --ll-state-focus: rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.24);
   --ll-state-disabled: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.06);
-  --ll-state-dragged: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18);
-  --ll-state-invalid: rgba(var(--ll-remove-rgb, 214, 95, 73), 0.22);
+  --ll-state-dragged: rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.18);
+  --ll-state-invalid: rgba(var(--ll-remove-rgb, 184, 92, 86), 0.22);
 
   /* Semantic surface roles: these mirror Material's surface-container vocabulary while keeping Lamplight's room
      story. Components should use roles instead of reaching for a private card or app color. */
-  --ll-surface-container-lowest: var(--ll-wall, #0d0b09);
-  --ll-surface-container-low: var(--ll-page, #14100b);
-  --ll-surface-container: var(--ll-card, #1d1914);
-  --ll-surface-container-high: var(--ll-inset, #211c16);
-  --ll-surface-container-highest: var(--ll-raised, #282119);
-  --ll-on-surface: var(--ll-ink, #f4ede6);
-  --ll-on-surface-variant: var(--ll-ink-2, #d3c8bc);
-  --ll-outline: var(--ll-ink-2, #d3c8bc);
-  --ll-outline-variant: var(--ll-hair, rgba(255, 255, 255, 0.08));
-  --ll-inverse-surface: var(--ll-ink, #f4ede6);
-  --ll-inverse-on-surface: var(--ll-page, #14100b);
-  --ll-scrim: var(--ll-smoke, rgba(4, 5, 6, 0.68));
+  --ll-surface-container-lowest: var(--ll-wall, #101923);
+  --ll-surface-container-low: var(--ll-page, #101923);
+  --ll-surface-container: var(--ll-card, #1B2A38);
+  --ll-surface-container-high: var(--ll-inset, #283642);
+  --ll-surface-container-highest: var(--ll-raised, #33434F);
+  --ll-on-surface: var(--ll-ink, #E9E5DC);
+  --ll-on-surface-variant: var(--ll-ink-2, #C2C5C3);
+  --ll-outline: var(--ll-ink-2, #C2C5C3);
+  --ll-outline-variant: var(--ll-hair, rgba(233, 229, 220, 0.12));
+  --ll-inverse-surface: var(--ll-ink, #E9E5DC);
+  --ll-inverse-on-surface: var(--ll-page, #101923);
+  --ll-scrim: var(--ll-smoke, rgba(16, 25, 35, 0.68));
 
   /* Focus: a ring of the lamp. */
   --ll-focus-width: 2px;
@@ -115,6 +141,23 @@
 
 /* In daylight the shade under a surface is softer and takes the room's ink rather than black. */
 :root[data-theme='light'] {
+  --app-background: var(--ll-page, #F4F1EA);
+  --app-surface: var(--ll-card, #FFFCF7);
+  --app-surface-raised: var(--ll-raised, #F0ECE4);
+  --app-surface-overlay: var(--ll-raised, #F0ECE4);
+  --app-surface-input: var(--ll-inset, #F0ECE4);
+  --app-border: var(--ll-hair, rgb(29 39 48 / 0.18));
+  --app-border-strong: rgb(29 39 48 / 0.28);
+  --app-divider: var(--ll-hair, rgb(29 39 48 / 0.14));
+  --app-text-primary: var(--ll-ink, #1D2730);
+  --app-text-secondary: var(--ll-ink-2, #3E4B55);
+  --app-text-muted: var(--ll-ink-3, #56616A);
+  --app-text-disabled: rgb(29 39 48 / 0.42);
+  --status-success: #2F6F45;
+  --status-warning: #8B5A1E;
+  --status-error: #A83F3B;
+  --status-info: #345F93;
+  --status-neutral: #56616A;
   --ll-light-1: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
   --ll-light-2: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 28px -14px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
   --ll-light-3: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 60px -24px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.3), 0 0 0 1px var(--ll-hair, rgba(35, 29, 21, 0.09));

@@ -3,60 +3,60 @@
 :root.phyton {
   --app-name: 'Phyton';
   color-scheme: dark;
-  --bg: #0f1410;
-  --surface: #161d17;
-  --surface-2: #1d261e;
-  --line: #2a352b;
-  --text: #ecf0e6;
-  --text-soft: #cbd3c6;
-  --muted: #9ba596;
-  --mint: #9fc48a;
-  --mint-ink: #102010;
-  --mint-soft: color-mix(in srgb, #9fc48a 14%, transparent);
-  --bar: rgba(15,20,16,0.95);
-  --placeholder: #79847a;
-  --glow-top: #1b261c;
-  --switch-off: #323d33;
-  --accent: #9fc48a;
+  --bg: var(--app-background, #0f1410);
+  --surface: var(--app-surface, #161d17);
+  --surface-2: var(--app-surface-input, #1d261e);
+  --line: var(--app-border, #2a352b);
+  --text: var(--app-text-primary, #ecf0e6);
+  --text-soft: var(--app-text-secondary, #cbd3c6);
+  --muted: var(--app-text-muted, #9ba596);
+  --mint: var(--app-accent, #9fc48a);
+  --mint-ink: var(--app-on-accent, #102010);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #9fc48a 14%, transparent));
+  --bar: var(--ll-mica, rgba(15,20,16,0.95));
+  --placeholder: var(--app-text-muted, #79847a);
+  --glow-top: var(--app-surface-raised, #1b261c);
+  --switch-off: var(--app-border, #323d33);
+  --accent: var(--app-accent, #9fc48a);
 }
 
 :root.phyton[data-theme='light'] {
   color-scheme: light;
-  --bg: #eef2ea;
-  --surface: #fafcf7;
-  --surface-2: #e1e8dc;
-  --line: #d3dccd;
-  --text: #212a20;
-  --text-soft: #434f40;
-  --muted: #59665a;
-  --mint: #3a6b2c;
-  --mint-ink: #ffffff;
-  --mint-soft: color-mix(in srgb, #3a6b2c 14%, transparent);
-  --bar: rgba(239,243,235,0.96);
-  --placeholder: #8a9587;
-  --glow-top: #dfe8da;
-  --switch-off: #cbd5c6;
-  --accent: #3a6b2c;
+  --bg: var(--app-background, #eef2ea);
+  --surface: var(--app-surface, #fafcf7);
+  --surface-2: var(--app-surface-input, #e1e8dc);
+  --line: var(--app-border, #d3dccd);
+  --text: var(--app-text-primary, #212a20);
+  --text-soft: var(--app-text-secondary, #434f40);
+  --muted: var(--app-text-muted, #59665a);
+  --mint: var(--app-accent, #3a6b2c);
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #3a6b2c 14%, transparent));
+  --bar: var(--ll-mica, rgba(239,243,235,0.96));
+  --placeholder: var(--app-text-muted, #8a9587);
+  --glow-top: var(--app-surface-raised, #dfe8da);
+  --switch-off: var(--app-border, #cbd5c6);
+  --accent: var(--app-accent, #3a6b2c);
 }
 
 @media (prefers-color-scheme: light) {
   :root.phyton[data-theme='system'] {
     color-scheme: light;
-    --bg: #eef2ea;
-    --surface: #fafcf7;
-    --surface-2: #e1e8dc;
-    --line: #d3dccd;
-    --text: #212a20;
-    --text-soft: #434f40;
-    --muted: #59665a;
-    --mint: #3a6b2c;
-    --mint-ink: #ffffff;
-    --mint-soft: color-mix(in srgb, #3a6b2c 14%, transparent);
-    --bar: rgba(239,243,235,0.96);
-    --placeholder: #8a9587;
-    --glow-top: #dfe8da;
-    --switch-off: #cbd5c6;
-    --accent: #3a6b2c;
+    --bg: var(--app-background, #eef2ea);
+    --surface: var(--app-surface, #fafcf7);
+    --surface-2: var(--app-surface-input, #e1e8dc);
+    --line: var(--app-border, #d3dccd);
+    --text: var(--app-text-primary, #212a20);
+    --text-soft: var(--app-text-secondary, #434f40);
+    --muted: var(--app-text-muted, #59665a);
+    --mint: var(--app-accent, #3a6b2c);
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #3a6b2c 14%, transparent));
+    --bar: var(--ll-mica, rgba(239,243,235,0.96));
+    --placeholder: var(--app-text-muted, #8a9587);
+    --glow-top: var(--app-surface-raised, #dfe8da);
+    --switch-off: var(--app-border, #cbd5c6);
+    --accent: var(--app-accent, #3a6b2c);
   }
 }
 

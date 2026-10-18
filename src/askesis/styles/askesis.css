@@ -3,27 +3,27 @@
    every control at least 44px to tap. */
 
 :root {
-  --bg: #0b0f0e;
-  --surface: #131a18;
-  --surface-2: #19211f;
-  --line: #222b28;
-  --text: #e8ece9;
-  --text-soft: #c4cec9;
-  --muted: #97a39e;
-  --mint: #86d9b0;
-  --mint-ink: #0a1c14;
-  --mint-soft: rgba(134, 217, 176, 0.13);
-  --danger: #e59a8a;
+  --bg: var(--app-background, #0b0f0e);
+  --surface: var(--app-surface, #131a18);
+  --surface-2: var(--app-surface-input, #19211f);
+  --line: var(--app-border, #222b28);
+  --text: var(--app-text-primary, #e8ece9);
+  --text-soft: var(--app-text-secondary, #c4cec9);
+  --muted: var(--app-text-muted, #97a39e);
+  --mint: var(--app-accent, #86d9b0);
+  --mint-ink: var(--app-on-accent, #0a1c14);
+  --mint-soft: var(--app-accent-soft, rgba(134, 217, 176, 0.13));
+  --danger: var(--status-error, #e59a8a);
   --radius: 18px;
   --serif: 'EB Garamond', Georgia, serif;
   --sans: Inter, system-ui, -apple-system, sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --tab-height: calc(64px + env(safe-area-inset-bottom));
   color-scheme: dark;
-  --bar: rgba(9, 12, 11, 0.94);
-  --placeholder: #77837e;
-  --glow-top: #142019;
-  --switch-off: #2c3633;
+  --bar: var(--ll-mica, rgba(9, 12, 11, 0.94));
+  --placeholder: var(--app-text-muted, #77837e);
+  --glow-top: var(--app-surface-raised, #142019);
+  --switch-off: var(--app-border, #2c3633);
   --on-photo: #f1f4f1;
 }
 
@@ -2393,39 +2393,39 @@ html[data-nav='back']::view-transition-new(root) {
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #f3f4ef;
-  --surface: #ffffff;
-  --surface-2: #eef1ec;
-  --line: #dbe2dd;
-  --text: #17201c;
-  --text-soft: #34413b;
-  --muted: #5b6863;
-  --mint: #24724f;
-  --mint-ink: #ffffff;
-  --mint-soft: rgba(36, 114, 79, 0.1);
-  --bar: rgba(247, 248, 244, 0.95);
-  --placeholder: #8a958f;
-  --glow-top: #dcebe2;
-  --switch-off: #cfd7d2;
+  --bg: var(--app-background, #f3f4ef);
+  --surface: var(--app-surface, #ffffff);
+  --surface-2: var(--app-surface-input, #eef1ec);
+  --line: var(--app-border, #dbe2dd);
+  --text: var(--app-text-primary, #17201c);
+  --text-soft: var(--app-text-secondary, #34413b);
+  --muted: var(--app-text-muted, #5b6863);
+  --mint: var(--app-accent, #24724f);
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --mint-soft: var(--app-accent-soft, rgba(36, 114, 79, 0.1));
+  --bar: var(--ll-mica, rgba(247, 248, 244, 0.95));
+  --placeholder: var(--app-text-muted, #8a958f);
+  --glow-top: var(--app-surface-raised, #dcebe2);
+  --switch-off: var(--app-border, #cfd7d2);
 }
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
     color-scheme: light;
-    --bg: #f3f4ef;
-    --surface: #ffffff;
-    --surface-2: #eef1ec;
-    --line: #dbe2dd;
-    --text: #17201c;
-    --text-soft: #34413b;
-    --muted: #5b6863;
-    --mint: #24724f;
-    --mint-ink: #ffffff;
-    --mint-soft: rgba(36, 114, 79, 0.1);
-    --bar: rgba(247, 248, 244, 0.95);
-    --placeholder: #8a958f;
-    --glow-top: #dcebe2;
-    --switch-off: #cfd7d2;
+    --bg: var(--app-background, #f3f4ef);
+    --surface: var(--app-surface, #ffffff);
+    --surface-2: var(--app-surface-input, #eef1ec);
+    --line: var(--app-border, #dbe2dd);
+    --text: var(--app-text-primary, #17201c);
+    --text-soft: var(--app-text-secondary, #34413b);
+    --muted: var(--app-text-muted, #5b6863);
+    --mint: var(--app-accent, #24724f);
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --mint-soft: var(--app-accent-soft, rgba(36, 114, 79, 0.1));
+    --bar: var(--ll-mica, rgba(247, 248, 244, 0.95));
+    --placeholder: var(--app-text-muted, #8a958f);
+    --glow-top: var(--app-surface-raised, #dcebe2);
+    --switch-off: var(--app-border, #cfd7d2);
   }
 }
 

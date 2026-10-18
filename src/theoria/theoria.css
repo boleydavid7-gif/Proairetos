@@ -1,16 +1,16 @@
 :root {
-  --theoria-bg: #0b1020;
-  --theoria-surface: #121a2e;
-  --theoria-surface-2: #18213a;
-  --theoria-ink: #f2e7d4;
-  --theoria-muted: #a7aac1;
-  --theoria-faint: #747a99;
+  --theoria-bg: var(--app-background, #101923);
+  --theoria-surface: var(--app-surface, #1B2A38);
+  --theoria-surface-2: var(--app-surface-input, #283642);
+  --theoria-ink: var(--app-text-primary, #E9E5DC);
+  --theoria-muted: var(--app-text-secondary, #C2C5C3);
+  --theoria-faint: var(--app-text-muted, #A7ADA9);
   --theoria-parchment: #f0e3ce;
   --theoria-parchment-2: #e2d1b8;
   --theoria-violet: #b6a3d4;
   --theoria-violet-strong: #d8c9ef;
   --theoria-brass: #c8a66b;
-  --theoria-border: rgba(205, 194, 222, .16);
+  --theoria-border: var(--app-border, rgba(233, 229, 220, .16));
 }
 
 .theoria-app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); color: var(--theoria-ink); background: radial-gradient(circle at 72% -12%, rgba(70, 72, 118, .35), transparent 32rem), radial-gradient(circle at 5% 78%, rgba(104, 71, 115, .16), transparent 27rem), var(--theoria-bg); }

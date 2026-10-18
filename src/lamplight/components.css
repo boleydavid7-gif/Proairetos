@@ -687,7 +687,7 @@
   max-width: min(18rem, calc(100vw - 24px));
   padding: 6px;
   border-radius: var(--ll-radius-md, 16px);
-  background: var(--ll-material-raised, #2b2620);
+  background: var(--ll-material-raised, #33434F);
   color: var(--ll-ink, inherit);
   box-shadow: var(--ll-light-3);
   transform-origin: top center;
@@ -742,7 +742,7 @@
 }
 
 .ll-menu__item--danger {
-  color: var(--ll-remove, #e5735c);
+  color: var(--ll-remove, #B85C56);
 }
 
 /* The row held lifts a little toward the light before its menu opens. */

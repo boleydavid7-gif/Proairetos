@@ -3,60 +3,60 @@
 
 :root.soma {
   color-scheme: light;
-  --bg: #f3ede2;
-  --surface: #fbf8f2;
-  --surface-2: #ece4d6;
-  --line: #e0d6c5;
-  --text: #24302a;
-  --text-soft: #3f4a43;
-  --muted: #6c736b;
-  --mint: #3c6a4c;
-  --mint-ink: #ffffff;
-  --mint-soft: rgba(60, 106, 76, 0.12);
-  --bar: rgba(246, 241, 232, 0.96);
-  --placeholder: #979a90;
-  --glow-top: #e9e1d2;
-  --switch-off: #d6cdbc;
-  --accent: #b9773f;
+  --bg: var(--app-background, #f3ede2);
+  --surface: var(--app-surface, #fbf8f2);
+  --surface-2: var(--app-surface-input, #ece4d6);
+  --line: var(--app-border, #e0d6c5);
+  --text: var(--app-text-primary, #24302a);
+  --text-soft: var(--app-text-secondary, #3f4a43);
+  --muted: var(--app-text-muted, #6c736b);
+  --mint: var(--app-accent, #3c6a4c);
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --mint-soft: var(--app-accent-soft, rgba(60, 106, 76, 0.12));
+  --bar: var(--ll-mica, rgba(246, 241, 232, 0.96));
+  --placeholder: var(--app-text-muted, #979a90);
+  --glow-top: var(--app-surface-raised, #e9e1d2);
+  --switch-off: var(--app-border, #d6cdbc);
+  --accent: var(--app-accent, #b9773f);
 }
 
 :root.soma[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #111814;
-  --surface: #18221c;
-  --surface-2: #1f2b24;
-  --line: #2a3830;
-  --text: #ece6da;
-  --text-soft: #cfc8ba;
-  --muted: #9aa197;
-  --mint: #9cc7a6;
-  --mint-ink: #0f1d15;
-  --mint-soft: rgba(156, 199, 166, 0.14);
-  --bar: rgba(17, 24, 20, 0.95);
-  --placeholder: #7d857c;
-  --glow-top: #1d2a22;
-  --switch-off: #34433a;
-  --accent: #d79a62;
+  --bg: var(--app-background, #111814);
+  --surface: var(--app-surface, #18221c);
+  --surface-2: var(--app-surface-input, #1f2b24);
+  --line: var(--app-border, #2a3830);
+  --text: var(--app-text-primary, #ece6da);
+  --text-soft: var(--app-text-secondary, #cfc8ba);
+  --muted: var(--app-text-muted, #9aa197);
+  --mint: var(--app-accent, #9cc7a6);
+  --mint-ink: var(--app-on-accent, #0f1d15);
+  --mint-soft: var(--app-accent-soft, rgba(156, 199, 166, 0.14));
+  --bar: var(--ll-mica, rgba(17, 24, 20, 0.95));
+  --placeholder: var(--app-text-muted, #7d857c);
+  --glow-top: var(--app-surface-raised, #1d2a22);
+  --switch-off: var(--app-border, #34433a);
+  --accent: var(--app-accent, #d79a62);
 }
 
 @media (prefers-color-scheme: dark) {
   :root.soma[data-theme='system'] {
     color-scheme: dark;
-    --bg: #111814;
-    --surface: #18221c;
-    --surface-2: #1f2b24;
-    --line: #2a3830;
-    --text: #ece6da;
-    --text-soft: #cfc8ba;
-    --muted: #9aa197;
-    --mint: #9cc7a6;
-    --mint-ink: #0f1d15;
-    --mint-soft: rgba(156, 199, 166, 0.14);
-    --bar: rgba(17, 24, 20, 0.95);
-    --placeholder: #7d857c;
-    --glow-top: #1d2a22;
-    --switch-off: #34433a;
-    --accent: #d79a62;
+    --bg: var(--app-background, #111814);
+    --surface: var(--app-surface, #18221c);
+    --surface-2: var(--app-surface-input, #1f2b24);
+    --line: var(--app-border, #2a3830);
+    --text: var(--app-text-primary, #ece6da);
+    --text-soft: var(--app-text-secondary, #cfc8ba);
+    --muted: var(--app-text-muted, #9aa197);
+    --mint: var(--app-accent, #9cc7a6);
+    --mint-ink: var(--app-on-accent, #0f1d15);
+    --mint-soft: var(--app-accent-soft, rgba(156, 199, 166, 0.14));
+    --bar: var(--ll-mica, rgba(17, 24, 20, 0.95));
+    --placeholder: var(--app-text-muted, #7d857c);
+    --glow-top: var(--app-surface-raised, #1d2a22);
+    --switch-off: var(--app-border, #34433a);
+    --accent: var(--app-accent, #d79a62);
   }
 }
 

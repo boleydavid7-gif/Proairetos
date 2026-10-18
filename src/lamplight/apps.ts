@@ -1,34 +1,34 @@
 import { toOklch } from './color';
+import { APP_SIGNATURES, FOUNDATION, SIGNATURE_FAMILIES, type SignatureFamilyName } from './palette';
 import type { LampSeed, RoomSeed } from './scheme';
 
 /*
- * Each app's own theme, from what it is about: its page colors (a room) and its accent (a lamp), taken from the
- * colors it has always had. The scheme makes every role from them, so each app keeps its look and gains Lamplight's
- * structure and contrast. Proairetos alone takes the person's room and color.
+ * Each companion app shares Lamplight's neutral room and carries its own signature lamp. Proairetos alone takes the
+ * person's selected room and lamp. The scheme makes every role from the shared foundation and holds it to contrast.
  */
-const APP_COLORS: Record<string, { dark: string; light: string; lamp: string }> = {
-  askesis: { dark: '#0b0f0e', light: '#f3f4ef', lamp: '#86d9b0' },
-  soma: { dark: '#111814', light: '#f3ede2', lamp: '#9cc7a6' },
-  oikonomia: { dark: '#0d1110', light: '#f2eee6', lamp: '#d79572' },
-  hydros: { dark: '#061219', light: '#eaf4f5', lamp: '#36c9f4' },
-  poreia: { dark: '#071c24', light: '#eaf6f4', lamp: '#4cc3c7' },
-  praxis: { dark: '#0b201a', light: '#0b201a', lamp: '#c9a274' },
-  theoria: { dark: '#0b1020', light: '#0b1020', lamp: '#d9b46a' },
-  diaita: { dark: '#0e1014', light: '#f1eee8', lamp: '#e2b26e' },
-  philia: { dark: '#120f10', light: '#f6efea', lamp: '#e39a8f' },
-  ergon: { dark: '#0e1112', light: '#eff1ed', lamp: '#8fc1b5' },
-  therapeia: { dark: '#10141a', light: '#eef1f5', lamp: '#9cb8e0' },
-  dynamis: { dark: '#141110', light: '#f3efea', lamp: '#e0a36b' },
-  ktema: { dark: '#12130f', light: '#f1efe8', lamp: '#c7b37a' },
-  phyton: { dark: '#0f1410', light: '#eef2ea', lamp: '#9fc48a' },
+const APP_COLORS: Record<string, { family: SignatureFamilyName }> = {
+  askesis: { family: 'green' },
+  soma: { family: 'green' },
+  oikonomia: { family: 'amber' },
+  hydros: { family: 'aqua' },
+  poreia: { family: 'aqua' },
+  praxis: { family: 'blue' },
+  theoria: { family: 'amber' },
+  diaita: { family: 'amber' },
+  philia: { family: 'coral' },
+  ergon: { family: 'green' },
+  therapeia: { family: 'blue' },
+  dynamis: { family: 'amber' },
+  ktema: { family: 'amber' },
+  phyton: { family: 'green' },
 };
 
 export function appTheme(app: string): { room: RoomSeed; lamp: LampSeed } | null {
   const colors = APP_COLORS[app];
   if (!colors) return null;
-  const dark = toOklch(colors.dark);
-  const light = toOklch(colors.light);
-  const lamp = toOklch(colors.lamp);
+  const dark = toOklch(FOUNDATION.dark.background);
+  const light = toOklch(FOUNDATION.light.background);
+  const lamp = toOklch(SIGNATURE_FAMILIES[colors.family].seed);
   const lampHue = Math.round(lamp.h);
   return {
     room: {
@@ -42,3 +42,5 @@ export function appTheme(app: string): { room: RoomSeed; lamp: LampSeed } | null
 }
 
 export const THEMED_APPS = Object.keys(APP_COLORS);
+
+export { APP_SIGNATURES };

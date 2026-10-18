@@ -3,60 +3,60 @@
 :root.diaita {
   --app-name: 'Diaita';
   color-scheme: dark;
-  --bg: #0e1014;
-  --surface: #161a20;
-  --surface-2: #1d222a;
-  --line: #2a303a;
-  --text: #ece8e1;
-  --text-soft: #cdc7bd;
-  --muted: #9d9b97;
-  --mint: #e2b26e;
-  --mint-ink: #241a0b;
-  --mint-soft: color-mix(in srgb, #e2b26e 14%, transparent);
-  --bar: rgba(14,16,20,0.95);
-  --placeholder: #7c7f86;
-  --glow-top: #1c2230;
-  --switch-off: #343a44;
-  --accent: #e2b26e;
+  --bg: var(--app-background, #0e1014);
+  --surface: var(--app-surface, #161a20);
+  --surface-2: var(--app-surface-input, #1d222a);
+  --line: var(--app-border, #2a303a);
+  --text: var(--app-text-primary, #ece8e1);
+  --text-soft: var(--app-text-secondary, #cdc7bd);
+  --muted: var(--app-text-muted, #9d9b97);
+  --mint: var(--app-accent, #e2b26e);
+  --mint-ink: var(--app-on-accent, #241a0b);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #e2b26e 14%, transparent));
+  --bar: var(--ll-mica, rgba(14,16,20,0.95));
+  --placeholder: var(--app-text-muted, #7c7f86);
+  --glow-top: var(--app-surface-raised, #1c2230);
+  --switch-off: var(--app-border, #343a44);
+  --accent: var(--app-accent, #e2b26e);
 }
 
 :root.diaita[data-theme='light'] {
   color-scheme: light;
-  --bg: #f1eee8;
-  --surface: #fbf9f5;
-  --surface-2: #e8e2d7;
-  --line: #ddd5c8;
-  --text: #26231f;
-  --text-soft: #4d463e;
-  --muted: #645d55;
-  --mint: #87561a;
-  --mint-ink: #fffaf2;
-  --mint-soft: color-mix(in srgb, #87561a 14%, transparent);
-  --bar: rgba(244,241,235,0.96);
-  --placeholder: #9a9186;
-  --glow-top: #e6ddcf;
-  --switch-off: #d6cdc0;
-  --accent: #87561a;
+  --bg: var(--app-background, #f1eee8);
+  --surface: var(--app-surface, #fbf9f5);
+  --surface-2: var(--app-surface-input, #e8e2d7);
+  --line: var(--app-border, #ddd5c8);
+  --text: var(--app-text-primary, #26231f);
+  --text-soft: var(--app-text-secondary, #4d463e);
+  --muted: var(--app-text-muted, #645d55);
+  --mint: var(--app-accent, #87561a);
+  --mint-ink: var(--app-on-accent, #fffaf2);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #87561a 14%, transparent));
+  --bar: var(--ll-mica, rgba(244,241,235,0.96));
+  --placeholder: var(--app-text-muted, #9a9186);
+  --glow-top: var(--app-surface-raised, #e6ddcf);
+  --switch-off: var(--app-border, #d6cdc0);
+  --accent: var(--app-accent, #87561a);
 }
 
 @media (prefers-color-scheme: light) {
   :root.diaita[data-theme='system'] {
     color-scheme: light;
-    --bg: #f1eee8;
-    --surface: #fbf9f5;
-    --surface-2: #e8e2d7;
-    --line: #ddd5c8;
-    --text: #26231f;
-    --text-soft: #4d463e;
-    --muted: #645d55;
-    --mint: #87561a;
-    --mint-ink: #fffaf2;
-    --mint-soft: color-mix(in srgb, #87561a 14%, transparent);
-    --bar: rgba(244,241,235,0.96);
-    --placeholder: #9a9186;
-    --glow-top: #e6ddcf;
-    --switch-off: #d6cdc0;
-    --accent: #87561a;
+    --bg: var(--app-background, #f1eee8);
+    --surface: var(--app-surface, #fbf9f5);
+    --surface-2: var(--app-surface-input, #e8e2d7);
+    --line: var(--app-border, #ddd5c8);
+    --text: var(--app-text-primary, #26231f);
+    --text-soft: var(--app-text-secondary, #4d463e);
+    --muted: var(--app-text-muted, #645d55);
+    --mint: var(--app-accent, #87561a);
+    --mint-ink: var(--app-on-accent, #fffaf2);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #87561a 14%, transparent));
+    --bar: var(--ll-mica, rgba(244,241,235,0.96));
+    --placeholder: var(--app-text-muted, #9a9186);
+    --glow-top: var(--app-surface-raised, #e6ddcf);
+    --switch-off: var(--app-border, #d6cdc0);
+    --accent: var(--app-accent, #87561a);
   }
 }
 

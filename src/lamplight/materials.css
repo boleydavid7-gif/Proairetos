@@ -5,17 +5,17 @@
  */
 :root {
   color-scheme: dark;
-  accent-color: var(--ll-lamp-fill, #e6b366);
+  accent-color: var(--ll-lamp-fill, #4F78A8);
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
-  --ll-material-wall: var(--ll-surface-container-lowest, var(--ll-wall, #0d0b09));
-  --ll-material-page: var(--ll-surface-container-low, var(--ll-page, #14100b));
-  --ll-material-solid: var(--ll-surface-container, var(--ll-card, #1d1914));
-  --ll-material-inset: var(--ll-surface-container-high, var(--ll-inset, #211c16));
-  --ll-material-raised: var(--ll-surface-container-highest, var(--ll-raised, #282119));
-  --ll-material-mica: var(--ll-mica, var(--ll-page, #14100b));
+  --ll-material-wall: var(--ll-surface-container-lowest, var(--ll-wall, #101923));
+  --ll-material-page: var(--ll-surface-container-low, var(--ll-page, #101923));
+  --ll-material-solid: var(--ll-surface-container, var(--ll-card, #1B2A38));
+  --ll-material-inset: var(--ll-surface-container-high, var(--ll-inset, #283642));
+  --ll-material-raised: var(--ll-surface-container-highest, var(--ll-raised, #33434F));
+  --ll-material-mica: var(--ll-mica, var(--ll-page, #101923));
   --ll-material-mica-surface: var(--ll-mica-surface, var(--ll-material-mica));
-  --ll-material-smoke: var(--ll-smoke, rgba(var(--ll-page-rgb, 4, 5, 6), 0.68));
+  --ll-material-smoke: var(--ll-smoke, rgba(var(--ll-page-rgb, 16, 25, 35), 0.68));
 }
 
 :root[data-theme='light'] { color-scheme: light; }
@@ -26,8 +26,8 @@
 
 /* Native controls and selected text stay inside Lamplight's room and lamp vocabulary. */
 :root ::selection {
-  color: var(--ll-on-lamp, #211b13);
-  background: var(--ll-lamp-fill, #e6b366);
+  color: var(--ll-on-lamp, #101923);
+  background: var(--ll-lamp-fill, #4F78A8);
 }
 
 :root :where(button, a, input, textarea, select, summary, [role='button'], [role='switch']) {

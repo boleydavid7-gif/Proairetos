@@ -1,4 +1,5 @@
 import { contrast, oklch, rgba, triple, type Hex } from './color';
+import { STATUS_COLORS } from './palette';
 
 /*
  * Lamplight's scheme: every color a page uses, made from two seeds, a room (the hue every surface takes) and a lamp
@@ -175,6 +176,8 @@ export function makeScheme(room: RoomSeed, lamp: LampSeed, mode: Mode, depth: De
 
 /** The roles as CSS custom properties, `--ll-*`, the names every Lamplight rule is written against. */
 export function schemeVars(s: Scheme): Record<string, string> {
+  const dark = s.mode === 'dark';
+  const status = STATUS_COLORS[s.mode];
   return {
     '--ll-wall': s.wall,
     '--ll-page': s.page,
@@ -210,5 +213,30 @@ export function schemeVars(s: Scheme): Record<string, string> {
     '--ll-inverse-surface': s.ink,
     '--ll-inverse-on-surface': s.page,
     '--ll-scrim': s.smoke,
+    // Shared Lamplight semantic roles. App-specific aliases below point at these same values.
+    '--app-accent': s.lamp,
+    '--app-accent-hover': s.lampSoft,
+    '--app-accent-pressed': s.lampFill,
+    '--app-accent-soft': rgba(s.lamp, dark ? 0.16 : 0.12),
+    '--app-accent-subtle': rgba(s.lamp, dark ? 0.08 : 0.06),
+    '--app-on-accent': s.onLamp,
+    '--app-background': s.page,
+    '--app-surface': s.card,
+    '--app-surface-raised': s.raised,
+    '--app-surface-overlay': s.raised,
+    '--app-surface-input': s.inset,
+    '--app-border': rgba(s.ink, dark ? 0.13 : 0.16),
+    '--app-border-strong': rgba(s.ink, dark ? 0.24 : 0.25),
+    '--app-divider': s.hair,
+    '--app-text-primary': s.ink,
+    '--app-text-secondary': s.ink2,
+    '--app-text-muted': s.ink3,
+    '--app-text-disabled': rgba(s.ink, dark ? 0.42 : 0.45),
+    '--app-text-link': s.lamp,
+    '--status-success': status.success,
+    '--status-warning': status.warning,
+    '--status-error': status.error,
+    '--status-info': status.info,
+    '--status-neutral': status.neutral,
   };
 }

@@ -2,12 +2,28 @@ import { describe, expect, it } from 'vitest';
 import { contrast } from '../../lamplight/color';
 import { LAMP_SEEDS, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampName, type Mode, type RoomName } from '../../lamplight/scheme';
 import { THEMED_APPS, appTheme } from '../../lamplight/apps';
+import { FOUNDATION, SIGNATURE_FAMILIES, SIGNATURE_TONES, STATUS_COLORS, type SignatureFamilyName } from '../../lamplight/palette';
 
 const rooms = Object.keys(ROOM_SEEDS) as RoomName[];
 const lamps = Object.keys(LAMP_SEEDS) as LampName[];
 const modes: Mode[] = ['dark', 'light'];
 
 describe('Lamplight scheme', () => {
+  it('exposes the approved foundation, tonal scales, and shared status colors', () => {
+    const families = Object.keys(SIGNATURE_FAMILIES) as SignatureFamilyName[];
+    expect(Object.keys(FOUNDATION.dark)).toEqual(Object.keys(FOUNDATION.light));
+    expect(families).toEqual(['blue', 'green', 'aqua', 'violet', 'amber', 'coral']);
+    for (const family of families) {
+      const tones = SIGNATURE_FAMILIES[family].tones;
+      expect(Object.keys(tones).map(Number)).toEqual(SIGNATURE_TONES);
+      expect(tones[500]).toBe(SIGNATURE_FAMILIES[family].seed);
+    }
+    for (const mode of ['dark', 'light'] as const) {
+      const background = FOUNDATION[mode].background;
+      for (const value of Object.values(STATUS_COLORS[mode])) expect(contrast(value, background)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   // The presets, as the first palette made them (the scheme replaced that script and keeps its values).
   it('keeps the presets as they were made', () => {
     const d = makeScheme(ROOM_SEEDS.Hearth, LAMP_SEEDS.Amber, 'dark');
@@ -28,6 +44,11 @@ describe('Lamplight scheme', () => {
     expect(vars['--ll-on-surface']).toBe(s.ink);
     expect(vars['--ll-on-surface-variant']).toBe(s.ink2);
     expect(vars['--ll-outline-variant']).toBe(s.hair);
+    expect(vars['--app-background']).toBe(s.page);
+    expect(vars['--app-surface']).toBe(s.card);
+    expect(vars['--app-accent']).toBe(s.lamp);
+    expect(vars['--app-on-accent']).toBe(s.onLamp);
+    expect(vars['--status-error']).toBe(STATUS_COLORS.dark.error);
   });
 
   // Every preset, and a lamp of the person's own at every 15 degrees: what is read passes on every surface.
@@ -42,6 +63,7 @@ describe('Lamplight scheme', () => {
           for (const fg of [s.ink2, s.ink3, s.lamp, s.remove]) expect(contrast(fg, bg), where).toBeGreaterThanOrEqual(4.5);
         }
         expect(contrast(s.onLamp, s.lampFill), where).toBeGreaterThanOrEqual(4.5);
+        for (const status of Object.values(STATUS_COLORS[mode])) for (const bg of [s.page, s.card, s.inset]) expect(contrast(status, bg), `${where} status`).toBeGreaterThanOrEqual(4.5);
       }
   });
 

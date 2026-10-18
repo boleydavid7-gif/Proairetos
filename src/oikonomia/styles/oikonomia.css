@@ -1,21 +1,21 @@
 /* Oikonomia keeps the Proairetos family grammar, then gives it a clay and stone
    palette of its own. The root appearance setting is shared by every app. */
 :root.oikonomia {
-  --bg: #0d1110;
-  --surface: #151b19;
-  --surface-2: #1c2420;
-  --line: #2a332e;
-  --text: #eee8de;
-  --text-soft: #cfc7ba;
-  --muted: #9b9b91;
-  --mint: #d79572;
-  --mint-ink: #25150e;
-  --mint-soft: rgba(215, 149, 114, 0.14);
-  --danger: #e39b89;
-  --bar: rgba(13, 17, 16, 0.95);
-  --placeholder: #7d817a;
-  --glow-top: #2b211d;
-  --switch-off: #3a3631;
+  --bg: var(--app-background, #0d1110);
+  --surface: var(--app-surface, #151b19);
+  --surface-2: var(--app-surface-input, #1c2420);
+  --line: var(--app-border, #2a332e);
+  --text: var(--app-text-primary, #eee8de);
+  --text-soft: var(--app-text-secondary, #cfc7ba);
+  --muted: var(--app-text-muted, #9b9b91);
+  --mint: var(--app-accent, #d79572);
+  --mint-ink: var(--app-on-accent, #25150e);
+  --mint-soft: var(--app-accent-soft, rgba(215, 149, 114, 0.14));
+  --danger: var(--status-error, #e39b89);
+  --bar: var(--ll-mica, rgba(13, 17, 16, 0.95));
+  --placeholder: var(--app-text-muted, #7d817a);
+  --glow-top: var(--app-surface-raised, #2b211d);
+  --switch-off: var(--app-border, #3a3631);
   --on-photo: #f3eee4;
   --oiko-clay: #d79572;
   --oiko-clay-soft: rgba(215, 149, 114, 0.16);
@@ -23,20 +23,20 @@
 }
 
 :root.oikonomia[data-theme='light'] {
-  --bg: #f2eee6;
-  --surface: #fbf8f2;
-  --surface-2: #e9e0d5;
-  --line: #ded3c7;
-  --text: #2d2823;
-  --text-soft: #554b42;
-  --muted: #655d53;
-  --mint: #8e4a32;
-  --mint-ink: #fffaf2;
-  --mint-soft: rgba(166, 94, 67, 0.11);
-  --bar: rgba(246, 241, 234, 0.96);
-  --placeholder: #9b9185;
-  --glow-top: #e7d8cb;
-  --switch-off: #d4c8bb;
+  --bg: var(--app-background, #f2eee6);
+  --surface: var(--app-surface, #fbf8f2);
+  --surface-2: var(--app-surface-input, #e9e0d5);
+  --line: var(--app-border, #ded3c7);
+  --text: var(--app-text-primary, #2d2823);
+  --text-soft: var(--app-text-secondary, #554b42);
+  --muted: var(--app-text-muted, #655d53);
+  --mint: var(--app-accent, #8e4a32);
+  --mint-ink: var(--app-on-accent, #fffaf2);
+  --mint-soft: var(--app-accent-soft, rgba(166, 94, 67, 0.11));
+  --bar: var(--ll-mica, rgba(246, 241, 234, 0.96));
+  --placeholder: var(--app-text-muted, #9b9185);
+  --glow-top: var(--app-surface-raised, #e7d8cb);
+  --switch-off: var(--app-border, #d4c8bb);
   --oiko-clay: #8e4a32;
   --oiko-clay-soft: rgba(166, 94, 67, 0.1);
   --oiko-clay-border: rgba(166, 94, 67, 0.4);
@@ -45,20 +45,20 @@
 
 @media (prefers-color-scheme: light) {
   :root.oikonomia[data-theme='system'] {
-    --bg: #f2eee6;
-    --surface: #fbf8f2;
-    --surface-2: #e9e0d5;
-    --line: #ded3c7;
-    --text: #2d2823;
-    --text-soft: #554b42;
-    --muted: #655d53;
-    --mint: #8e4a32;
-    --mint-ink: #fffaf2;
-    --mint-soft: rgba(166, 94, 67, 0.11);
-    --bar: rgba(246, 241, 234, 0.96);
-    --placeholder: #9b9185;
-    --glow-top: #e7d8cb;
-    --switch-off: #d4c8bb;
+    --bg: var(--app-background, #f2eee6);
+    --surface: var(--app-surface, #fbf8f2);
+    --surface-2: var(--app-surface-input, #e9e0d5);
+    --line: var(--app-border, #ded3c7);
+    --text: var(--app-text-primary, #2d2823);
+    --text-soft: var(--app-text-secondary, #554b42);
+    --muted: var(--app-text-muted, #655d53);
+    --mint: var(--app-accent, #8e4a32);
+    --mint-ink: var(--app-on-accent, #fffaf2);
+    --mint-soft: var(--app-accent-soft, rgba(166, 94, 67, 0.11));
+    --bar: var(--ll-mica, rgba(246, 241, 234, 0.96));
+    --placeholder: var(--app-text-muted, #9b9185);
+    --glow-top: var(--app-surface-raised, #e7d8cb);
+    --switch-off: var(--app-border, #d4c8bb);
     --oiko-clay: #8e4a32;
     --oiko-clay-soft: rgba(166, 94, 67, 0.1);
     --oiko-clay-border: rgba(166, 94, 67, 0.4);

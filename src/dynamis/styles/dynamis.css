@@ -3,60 +3,60 @@
 :root.dynamis {
   --app-name: 'Dynamis';
   color-scheme: dark;
-  --bg: #141110;
-  --surface: #1c1816;
-  --surface-2: #241f1c;
-  --line: #352d28;
-  --text: #f2ebe4;
-  --text-soft: #d6ccc2;
-  --muted: #a69a8f;
-  --mint: #e0a36b;
-  --mint-soft: color-mix(in srgb, #e0a36b 14%, transparent);
-  --mint-ink: #26170a;
-  --bar: rgba(20,17,16,0.95);
-  --placeholder: #847a70;
-  --glow-top: #241b16;
-  --switch-off: #3d3430;
-  --accent: #e0a36b;
+  --bg: var(--app-background, #141110);
+  --surface: var(--app-surface, #1c1816);
+  --surface-2: var(--app-surface-input, #241f1c);
+  --line: var(--app-border, #352d28);
+  --text: var(--app-text-primary, #f2ebe4);
+  --text-soft: var(--app-text-secondary, #d6ccc2);
+  --muted: var(--app-text-muted, #a69a8f);
+  --mint: var(--app-accent, #e0a36b);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #e0a36b 14%, transparent));
+  --mint-ink: var(--app-on-accent, #26170a);
+  --bar: var(--ll-mica, rgba(20,17,16,0.95));
+  --placeholder: var(--app-text-muted, #847a70);
+  --glow-top: var(--app-surface-raised, #241b16);
+  --switch-off: var(--app-border, #3d3430);
+  --accent: var(--app-accent, #e0a36b);
 }
 
 :root.dynamis[data-theme='light'] {
   color-scheme: light;
-  --bg: #f3efea;
-  --surface: #fcfaf8;
-  --surface-2: #e8e1d9;
-  --line: #ddd3c8;
-  --text: #2a221d;
-  --text-soft: #4d4239;
-  --muted: #65584d;
-  --mint: #9a5a22;
-  --mint-soft: color-mix(in srgb, #9a5a22 14%, transparent);
-  --mint-ink: #ffffff;
-  --bar: rgba(245,241,236,0.96);
-  --placeholder: #968a7f;
-  --glow-top: #ece2d6;
-  --switch-off: #d6cbbf;
-  --accent: #9a5a22;
+  --bg: var(--app-background, #f3efea);
+  --surface: var(--app-surface, #fcfaf8);
+  --surface-2: var(--app-surface-input, #e8e1d9);
+  --line: var(--app-border, #ddd3c8);
+  --text: var(--app-text-primary, #2a221d);
+  --text-soft: var(--app-text-secondary, #4d4239);
+  --muted: var(--app-text-muted, #65584d);
+  --mint: var(--app-accent, #9a5a22);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #9a5a22 14%, transparent));
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --bar: var(--ll-mica, rgba(245,241,236,0.96));
+  --placeholder: var(--app-text-muted, #968a7f);
+  --glow-top: var(--app-surface-raised, #ece2d6);
+  --switch-off: var(--app-border, #d6cbbf);
+  --accent: var(--app-accent, #9a5a22);
 }
 
 @media (prefers-color-scheme: light) {
   :root.dynamis[data-theme='system'] {
     color-scheme: light;
-    --bg: #f3efea;
-    --surface: #fcfaf8;
-    --surface-2: #e8e1d9;
-    --line: #ddd3c8;
-    --text: #2a221d;
-    --text-soft: #4d4239;
-    --muted: #65584d;
-    --mint: #9a5a22;
-    --mint-soft: color-mix(in srgb, #9a5a22 14%, transparent);
-    --mint-ink: #ffffff;
-    --bar: rgba(245,241,236,0.96);
-    --placeholder: #968a7f;
-    --glow-top: #ece2d6;
-    --switch-off: #d6cbbf;
-    --accent: #9a5a22;
+    --bg: var(--app-background, #f3efea);
+    --surface: var(--app-surface, #fcfaf8);
+    --surface-2: var(--app-surface-input, #e8e1d9);
+    --line: var(--app-border, #ddd3c8);
+    --text: var(--app-text-primary, #2a221d);
+    --text-soft: var(--app-text-secondary, #4d4239);
+    --muted: var(--app-text-muted, #65584d);
+    --mint: var(--app-accent, #9a5a22);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #9a5a22 14%, transparent));
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --bar: var(--ll-mica, rgba(245,241,236,0.96));
+    --placeholder: var(--app-text-muted, #968a7f);
+    --glow-top: var(--app-surface-raised, #ece2d6);
+    --switch-off: var(--app-border, #d6cbbf);
+    --accent: var(--app-accent, #9a5a22);
   }
 }
 

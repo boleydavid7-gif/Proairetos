@@ -26,7 +26,8 @@ uses the same code as the apps.
 | `src/lamplight/color.ts` | OKLCH to sRGB (chroma lowered until it fits), hex to OKLCH, WCAG contrast |
 | `src/lamplight/scheme.ts` | Seeds (`ROOM_SEEDS`, `LAMP_SEEDS`, `ROOM_LAMP`, `ownLamp`), `makeScheme(room, lamp, mode)`, `schemeVars` (`--ll-*`) |
 | `src/lamplight/materials.css` | The material contract: wall, page, solid, inset, raised, mica and smoke roles, with reduced-transparency fallbacks |
-| `src/lamplight/apps.ts` | Each app's theme (`appTheme`): a room and lamp from its page colors and accent |
+| `src/lamplight/apps.ts` | Each app's theme (`appTheme`): a room and Lamplight signature lamp |
+| `src/lamplight/palette.ts` | Canonical neutral foundation, signature families and generated 50–950 tonal scales, app assignments, and status colors |
 | `src/lamplight/family.ts` | The bridge: each app's own color names set from the scheme (`familyVars`); `ALWAYS_DARK` (Praxis, Theoria) |
 | `src/lamplight/tokens.css` | Shape, space, type roles, light (depth), motion, focus |
 | `src/lamplight/components.css` | `.ll-button` (+ `--tonal`, `--plain`, `--remove`), `.ll-card`, `.ll-list`/`.ll-row`, `.ll-switch`, `.ll-field`, `.ll-chip`, `.ll-bar`, `.ll-sheet` |
@@ -39,6 +40,29 @@ Every app's `main` (or `startApp`) registers `withLamplight((look, light) => app
 `premium.css` imports the shared stylesheets, so every app has the materials, tokens, components and motion. Tests:
 `src/tests/lamplight/scheme.test.ts` (presets kept, every room × 32 lamps × dark/light readable, every app theme
 readable).
+
+## Color registry
+
+The shared neutral foundation is Midnight `#101923`, Navy `#1B2A38`, Warm Mica `#283642`, Linen `#E9E5DC` and
+Stone `#A7ADA9` in dark mode. Light mode uses warm paper `#F4F1EA`, warm white `#FFFCF7`, raised paper `#F0ECE4`,
+deep ink `#1D2730` and slate `#56616A`. App rooms may carry a restrained tint, while these values remain the canonical
+anchors and fallbacks.
+
+Lamplight's signature families are Blue `#4F78A8`, Green `#5E8B68`, Aqua `#3A9CA0`, Violet `#7E6A9E`, Amber `#B9823D`
+and Coral `#C27669`. Each family has a generated OKLCH scale at 50, 100, 200, 300, 400, 500, 600, 700, 800, 900 and
+950; the 500 value is its identity seed. The registry and assignments live in `src/lamplight/palette.ts`.
+
+The current assignments are: Proairetos, Praxis and Therapeia Blue; Askesis, Soma, Ergon and Phyton Green; Hydros and
+Poreia Aqua; Oikonomia, Theoria, Diaita, Dynamis and Ktema Amber; and Philia Coral. Violet remains available for a
+future reflective app. The warm assignments preserve existing identities where a recolor would be disruptive.
+
+Every app receives the same semantic roles: `--app-accent`, `--app-accent-hover`, `--app-accent-pressed`,
+`--app-accent-soft`, `--app-accent-subtle`, `--app-on-accent`, surface, border, divider and text roles, plus
+`--status-success`, `--status-warning`, `--status-error`, `--status-info` and `--status-neutral`. Status roles are
+independent of the app signature. Photography, illustrations, charts, Nutri-Score bands, user-selected Proairetos
+lamps, and the established always-dark Praxis and Theoria behavior are documented exceptions.
+Legacy fallback values remain beside a few app declarations only for the first paint before Lamplight runs; their
+runtime roles resolve through the shared semantic variables. They are not a second active palette.
 
 ## Color roles
 
