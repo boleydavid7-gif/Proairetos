@@ -16,6 +16,7 @@ import MorePage from '../screens/MorePage';
 import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
 import SpentPage from '../screens/SpentPage';
+import EnvelopesPage from '../screens/EnvelopesPage';
 
 export type Route =
   | { name: 'welcome' }
@@ -24,6 +25,7 @@ export type Route =
   | { name: 'edit'; id: string }
   | { name: 'budget' }
   | { name: 'spent' }
+  | { name: 'envelopes' }
   | { name: 'about' }
   | { name: 'year' }
   | { name: 'pay' };
@@ -116,6 +118,8 @@ export default function App() {
         return <BudgetPage nav={nav} />;
       case 'spent':
         return <SpentPage nav={nav} />;
+      case 'envelopes':
+        return <EnvelopesPage nav={nav} />;
       case 'about':
         return <MorePage nav={nav} about />;
       case 'year':

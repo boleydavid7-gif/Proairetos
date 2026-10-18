@@ -65,7 +65,7 @@ Most valuable gaps:
 
 ### Oikonomia
 
-Already strong: recurring bills, payments, calendar view, a monthly budget by area, usual pay schedules, actual-versus-planned spending, manual expense entry, statement CSV import, spent view, subscriptions named in categorisation, bill calendar export, Soma meal cost connection, and year facts.
+Already strong: recurring bills, payments, calendar view, a monthly budget by area, usual pay schedules, actual-versus-planned spending, manual expense entry, statement CSV import, spent view, savings envelopes with custom targets and activity, subscriptions named in categorisation, bill calendar export, Soma meal cost connection, and year facts.
 
 Most valuable gaps:
 

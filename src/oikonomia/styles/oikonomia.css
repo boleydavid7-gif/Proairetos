@@ -808,6 +808,119 @@
   border-bottom: 0;
 }
 
+.oiko-envelopes {
+  gap: 16px;
+}
+
+.oiko-envelope-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.oiko-envelope-form,
+.oiko-envelope-card {
+  gap: 14px;
+}
+
+.oiko-envelope-form .oiko-section-head,
+.oiko-envelope-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.oiko-envelope-form .oiko-section-head h2,
+.oiko-envelope-card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.oiko-envelope-card__head > strong {
+  color: var(--oiko-clay);
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.oiko-envelope-card__bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--line);
+}
+
+.oiko-envelope-card__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--oiko-clay), color-mix(in srgb, var(--oiko-clay) 58%, var(--mint)));
+}
+
+.oiko-envelope-card__facts {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.oiko-envelope-card__actions {
+  margin: 0;
+}
+
+.oiko-envelope-entry {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.oiko-envelope-entry .segmented {
+  margin-top: 4px;
+}
+
+.oiko-envelope-card__history {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.oiko-envelope-card__history summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.84rem;
+}
+
+.oiko-envelope-card__history ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.oiko-envelope-card__history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.88rem;
+}
+
+.oiko-envelope-card__history li span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oiko-envelope-card__history small {
+  color: var(--muted);
+}
+
 .oiko-spent-actions {
   margin: 0;
 }

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { syncStatus, type SyncStatus } from '../../app/sync/syncController';
 import type { Bill } from '../core/bills';
 import type { BudgetPlan } from '../core/budget';
+import type { Envelope } from '../core/envelopes';
 import type { Recipe } from '../../soma/core/recipes';
-import { listBills, listBudgets, loadSettings, storeVersion, subscribe, type Settings } from '../data/store';
+import { listBills, listBudgets, listEnvelopes, loadSettings, storeVersion, subscribe, type Settings } from '../data/store';
 import { listRecipes } from '../../soma/data/store';
 import { onRemoteChanges } from '../../app/sync/syncController';
 
@@ -41,6 +42,19 @@ export function useBudget(month: string): BudgetPlan | null {
     };
   }, [month, version]);
   return budget;
+}
+
+export function useEnvelopes(): Envelope[] {
+  const version = useStoreVersion();
+  const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
+  useEffect(() => {
+    let live = true;
+    void listEnvelopes().then((all) => live && setEnvelopes(all.sort((a, b) => a.name.localeCompare(b.name))));
+    return () => {
+      live = false;
+    };
+  }, [version]);
+  return envelopes;
 }
 
 /** Read Soma's planned meals when the shared family database changes or becomes visible. */

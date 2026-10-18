@@ -11,7 +11,8 @@ export const DB_NAME = 'proairetos';
 // Version 11: hydrosDrinks (Hydros intake entries shared with the family).
 // Version 12: theoriaBooks (Theoria's reading shelf and source links).
 // Version 13: theoriaNotebooks (structured notes shared by Theoria devices).
-export const DB_VERSION = 13;
+// Version 14: oikonomiaEnvelopes (persistent savings goals shared with Oikonomia).
+export const DB_VERSION = 14;
 
 export const stores = {
   lifeItems: 'lifeItems',
@@ -31,6 +32,7 @@ export const stores = {
   somaGroceries: 'somaGroceries',
   oikonomiaBills: 'oikonomiaBills',
   oikonomiaBudgets: 'oikonomiaBudgets',
+  oikonomiaEnvelopes: 'oikonomiaEnvelopes',
   hydrosDrinks: 'hydrosDrinks',
   theoriaBooks: 'theoriaBooks',
   theoriaNotebooks: 'theoriaNotebooks',
@@ -98,6 +100,9 @@ export function openDatabase(factory: IDBFactory = indexedDB, name = DB_NAME): P
       }
       if (!db.objectStoreNames.contains(stores.oikonomiaBudgets)) {
         db.createObjectStore(stores.oikonomiaBudgets, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(stores.oikonomiaEnvelopes)) {
+        db.createObjectStore(stores.oikonomiaEnvelopes, { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains(stores.hydrosDrinks)) {
         db.createObjectStore(stores.hydrosDrinks, { keyPath: 'id' });

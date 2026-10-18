@@ -2,6 +2,7 @@ import { onRemoteChanges, syncSoon } from '../../app/sync/syncController';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Bill } from '../core/bills';
 import { normalizeBudget, type BudgetPlan } from '../core/budget';
+import { normalizeEnvelope, type Envelope } from '../core/envelopes';
 
 const SETTINGS = 'oikonomia:settings';
 
@@ -56,6 +57,7 @@ export function storeVersion(): number {
 let database: Promise<IDBDatabase | undefined> | undefined;
 const memory = new Map<string, Bill>();
 const memoryBudgets = new Map<string, BudgetPlan>();
+const memoryEnvelopes = new Map<string, Envelope>();
 
 function db(): Promise<IDBDatabase | undefined> {
   database ??= openDatabase().catch(() => undefined);
@@ -157,6 +159,63 @@ export async function putBudget(budget: BudgetPlan): Promise<void> {
   syncSoon();
 }
 
+export async function listEnvelopes(): Promise<Envelope[]> {
+  const handle = await db();
+  if (!handle) return [...memoryEnvelopes.values()].map(normalizeEnvelope).filter((item): item is Envelope => Boolean(item));
+  return new Promise<Envelope[]>((resolve, reject) => {
+    const transaction = handle.transaction(stores.oikonomiaEnvelopes, 'readonly');
+    const request = transaction.objectStore(stores.oikonomiaEnvelopes).getAll() as IDBRequest<Envelope[]>;
+    request.onsuccess = () => resolve(request.result.map(normalizeEnvelope).filter((item): item is Envelope => Boolean(item)));
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getEnvelope(id: string): Promise<Envelope | undefined> {
+  const handle = await db();
+  if (!handle) return normalizeEnvelope(memoryEnvelopes.get(id));
+  return new Promise<Envelope | undefined>((resolve, reject) => {
+    const transaction = handle.transaction(stores.oikonomiaEnvelopes, 'readonly');
+    const request = transaction.objectStore(stores.oikonomiaEnvelopes).get(id) as IDBRequest<Envelope | undefined>;
+    request.onsuccess = () => resolve(normalizeEnvelope(request.result));
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function putEnvelope(envelope: Envelope): Promise<void> {
+  const safe = normalizeEnvelope(envelope) ?? envelope;
+  const handle = await db();
+  if (!handle) {
+    memoryEnvelopes.set(envelope.id, safe);
+  } else {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = handle.transaction(stores.oikonomiaEnvelopes, 'readwrite');
+      transaction.objectStore(stores.oikonomiaEnvelopes).put(safe);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  }
+  notify();
+  syncSoon();
+}
+
+export async function deleteEnvelope(id: string): Promise<void> {
+  const handle = await db();
+  if (!handle) {
+    memoryEnvelopes.delete(id);
+  } else {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = handle.transaction(stores.oikonomiaEnvelopes, 'readwrite');
+      transaction.objectStore(stores.oikonomiaEnvelopes).delete(id);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  }
+  notify();
+  syncSoon();
+}
+
 export function saveSettings(next: Settings): void {
   try {
     try {
@@ -175,8 +234,8 @@ export async function startStore(): Promise<void> {
   onRemoteChanges(notify);
 }
 
-export async function exportAll(): Promise<{ app: 'oikonomia'; version: 2; exportedAt: string; settings: Settings; bills: Bill[]; budgets: BudgetPlan[] }> {
-  return { app: 'oikonomia', version: 2, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills(), budgets: await listBudgets() };
+export async function exportAll(): Promise<{ app: 'oikonomia'; version: 3; exportedAt: string; settings: Settings; bills: Bill[]; budgets: BudgetPlan[]; envelopes: Envelope[] }> {
+  return { app: 'oikonomia', version: 3, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills(), budgets: await listBudgets(), envelopes: await listEnvelopes() };
 }
 
 export async function restore(file: unknown): Promise<number> {
@@ -196,6 +255,15 @@ export async function restore(file: unknown): Promise<number> {
     for (const value of budgets) {
       if (!value || typeof value !== 'object' || typeof (value as { id?: unknown }).id !== 'string') continue;
       await putBudget(value as BudgetPlan);
+      count += 1;
+    }
+  }
+  const envelopes = (file as { envelopes?: unknown }).envelopes;
+  if (Array.isArray(envelopes)) {
+    for (const value of envelopes) {
+      const envelope = normalizeEnvelope(value);
+      if (!envelope) continue;
+      await putEnvelope(envelope);
       count += 1;
     }
   }

@@ -348,6 +348,6 @@ The family can hold small, focused companions beside Proairetos:
 
 - **Askesis** records gradual physical practice without streak pressure.
 - **Soma** keeps food and groceries close to daily life, including an optional cost estimate for a recipe.
-- **Oikonomia** keeps household bills and recurring obligations visible, with calendar dates generated from the person's own records. Its monthly budget combines usual income, recurring bills, planned Soma meals, manual or imported spending, and category limits; it does not connect to bank accounts or infer financial health.
+- **Oikonomia** keeps household bills and recurring obligations visible, with calendar dates generated from the person's own records. Its monthly budget combines usual income, recurring bills, planned Soma meals, manual or imported spending, category limits, and reusable savings envelopes; it does not connect to bank accounts or infer financial health.
 
-Each companion has its own name, mark, accent colour, and navigation while sharing the family's appearance setting, encrypted account sync, backup format, and privacy boundary. Oikonomia records bills, payments, spending and monthly plans; it does not connect to bank accounts or infer financial health.
+Each companion has its own name, mark, accent colour, and navigation while sharing the family's appearance setting, encrypted account sync, backup format, and privacy boundary. Oikonomia records bills, payments, spending, monthly plans and savings goals; it does not connect to bank accounts or infer financial health.

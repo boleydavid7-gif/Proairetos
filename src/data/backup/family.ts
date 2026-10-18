@@ -15,7 +15,7 @@ import { stores } from '../storage/indexeddb/database';
 export type FamilyData = {
   askesis?: { workouts: unknown[]; plans: unknown[] };
   soma?: { recipes: unknown[]; groceries: unknown[] };
-  oikonomia?: { bills: unknown[]; budgets?: unknown[] };
+  oikonomia?: { bills: unknown[]; budgets?: unknown[]; envelopes?: unknown[] };
   hydros?: { drinks: unknown[] };
   theoria?: { books: unknown[]; notebooks?: unknown[] };
   /** Settings by key, as stored. */
@@ -123,7 +123,11 @@ export async function gatherFamily(proairetos: IDBDatabase | null | undefined): 
   if (proairetos) {
     out.askesis = { workouts: await readAll(proairetos, stores.askesisWorkouts), plans: await readAll(proairetos, stores.askesisPlans) };
     out.soma = { recipes: await readAll(proairetos, stores.somaRecipes), groceries: await readAll(proairetos, stores.somaGroceries) };
-    out.oikonomia = { bills: await readAll(proairetos, stores.oikonomiaBills), budgets: await readAll(proairetos, stores.oikonomiaBudgets) };
+    out.oikonomia = {
+      bills: await readAll(proairetos, stores.oikonomiaBills),
+      budgets: await readAll(proairetos, stores.oikonomiaBudgets),
+      envelopes: await readAll(proairetos, stores.oikonomiaEnvelopes),
+    };
     out.hydros = { drinks: await readAll(proairetos, stores.hydrosDrinks) };
     out.theoria = { books: await readAll(proairetos, stores.theoriaBooks), notebooks: await readAll(proairetos, stores.theoriaNotebooks) };
   }
@@ -145,6 +149,7 @@ export async function restoreFamily(data: FamilyData, proairetos: IDBDatabase | 
     // Budgets were added after bills. An older family backup must leave any
     // newer plans on this device alone.
     if (data.oikonomia.budgets !== undefined) await replaceStore(proairetos, stores.oikonomiaBudgets, data.oikonomia.budgets);
+    if (data.oikonomia.envelopes !== undefined) await replaceStore(proairetos, stores.oikonomiaEnvelopes, data.oikonomia.envelopes);
   }
   if (proairetos && data.hydros) await replaceStore(proairetos, stores.hydrosDrinks, data.hydros.drinks ?? []);
   if (proairetos && data.theoria) {
