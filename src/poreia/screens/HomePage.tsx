@@ -46,8 +46,7 @@ function nextAction(trip: Trip, itineraryCount: number, bookingCount: number): s
 }
 
 function openTripCreator(nav: Nav): void {
-  localStorage.setItem('poreia:openTripForm', 'yes');
-  nav.swap({ name: 'trips' });
+  nav.go({ name: 'plan' });
 }
 
 function FeaturedTrip({ trip, itineraryItems, bookings, savings, nav }: { trip: Trip; itineraryItems: ReturnType<typeof useItineraryItems>; bookings: ReturnType<typeof useBookings>; savings: ReturnType<typeof useSavingsPlans>; nav: Nav }) {

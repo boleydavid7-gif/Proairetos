@@ -267,6 +267,52 @@
 .poreia-calendar-week-day__head span { color: var(--mint); font-variant-numeric: tabular-nums; }
 .poreia-calendar-week-day > .muted { margin: 0 4px 2px; font-size: 0.84rem; }
 .poreia-calendar-agenda-view { display: flex; flex-direction: column; gap: 18px; }
+.poreia-plan { display: flex; min-height: 100dvh; flex-direction: column; gap: 18px; overflow-x: hidden; overflow-y: auto; padding: calc(var(--ll-safe-top) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 92px); color: var(--text); background-position: center top; background-size: cover; }
+.poreia:has(.poreia-plan) .ll-topbar { display: none !important; }
+.poreia-plan__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.poreia-plan__header .brand { flex: 1; color: var(--mint); }
+.poreia-plan__header .brand__name { color: var(--text); font-family: var(--serif); font-size: 2rem; }
+.poreia-plan__circle { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--mint) 54%, var(--line)); border-radius: 50%; color: var(--text); background: color-mix(in srgb, var(--bg) 70%, transparent); cursor: pointer; }
+.poreia-plan__circle:first-child svg { transform: rotate(180deg); }
+.poreia-plan__progress { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 3px 0 0; }
+.poreia-plan__progress-line { position: absolute; top: 18px; right: 10%; left: 10%; height: 2px; background: color-mix(in srgb, var(--text) 32%, transparent); }
+.poreia-plan__step { position: relative; z-index: 1; display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 7px; color: var(--text-soft); text-align: center; }
+.poreia-plan__step > span { display: grid; width: 34px; height: 34px; place-items: center; border: 2px solid color-mix(in srgb, var(--text) 36%, transparent); border-radius: 50%; color: var(--text-soft); background: color-mix(in srgb, var(--surface) 88%, transparent); font-size: 0.82rem; }
+.poreia-plan__step small { font-size: 0.78rem; white-space: nowrap; }
+.poreia-plan__step.is-current { color: var(--mint); }
+.poreia-plan__step.is-current > span, .poreia-plan__step.is-complete > span { border-color: var(--mint); color: var(--mint-ink); background: var(--mint); }
+.poreia-plan__content { width: min(100%, 42rem); flex: 1; margin: 0 auto; }
+.poreia-plan__step-content { display: flex; flex-direction: column; gap: 14px; padding-top: 24px; }
+.poreia-plan__step-content > .label { display: none; margin: 0; color: var(--mint); }
+.poreia-plan__step-content h1 { margin: 0; font-family: var(--serif); font-size: clamp(2.5rem, 10vw, 4rem); font-weight: 400; line-height: 1; }
+.poreia-plan__step-content h2 { margin: 20px 0 0; font-size: 1.25rem; font-weight: 500; }
+.poreia-plan__intro { max-width: 34rem; margin: 0; color: var(--text-soft); font-size: 1.05rem; line-height: 1.4; }
+.poreia-plan__type-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.poreia-plan__type { display: flex; min-height: 154px; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 10px; border: 1px solid color-mix(in srgb, var(--line) 90%, transparent); border-radius: 20px; color: var(--text-soft); background: color-mix(in srgb, var(--surface) 88%, transparent); font: inherit; text-align: center; cursor: pointer; }
+.poreia-plan__type svg { color: var(--text-soft); }
+.poreia-plan__type strong { color: var(--text); font-size: 1.05rem; font-weight: 500; }
+.poreia-plan__type small { color: var(--muted); }
+.poreia-plan__type.is-selected { border: 2px solid var(--mint); color: var(--mint); background: color-mix(in srgb, var(--surface) 78%, var(--mint-soft)); }
+.poreia-plan__type.is-selected svg { color: var(--mint); }
+.poreia-plan__field { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; color: var(--text); font-size: 1.02rem; }
+.poreia-plan__field > span:first-child small { color: var(--muted); font-size: 0.82em; font-weight: 400; }
+.poreia-plan__input-wrap { display: flex; min-height: 58px; align-items: center; gap: 12px; padding: 0 14px; border: 1px solid var(--line); border-radius: 18px; color: var(--muted); background: color-mix(in srgb, var(--surface) 88%, transparent); }
+.poreia-plan__input-wrap input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--text); background: transparent; font: inherit; }
+.poreia-plan__input-wrap input::placeholder, .poreia-plan__field textarea::placeholder { color: var(--muted); }
+.poreia-plan__field textarea { min-height: 120px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; outline: 0; resize: vertical; color: var(--text); background: color-mix(in srgb, var(--surface) 88%, transparent); font: inherit; }
+.poreia-plan__hint { display: flex; align-items: flex-start; gap: 12px; margin-top: 2px; padding: 14px; border-radius: 16px; color: var(--mint); background: color-mix(in srgb, var(--surface) 78%, transparent); }
+.poreia-plan__hint > span { display: flex; flex-direction: column; gap: 3px; }
+.poreia-plan__hint strong { font-weight: 500; }
+.poreia-plan__hint small { color: var(--text-soft); line-height: 1.35; }
+.poreia-plan__date-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.poreia-plan__date-pair .poreia-plan__field { margin-top: 4px; }
+.poreia-plan__review { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.poreia-plan__review > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: color-mix(in srgb, var(--surface) 88%, transparent); }
+.poreia-plan__review span { color: var(--muted); }
+.poreia-plan__review strong { color: var(--text); font-weight: 500; text-align: right; }
+.poreia-plan__footer { position: fixed; z-index: 6; right: 20px; bottom: env(safe-area-inset-bottom, 0px); left: 20px; display: flex; gap: 10px; width: auto; margin: 0 auto; padding: 8px 0 10px; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 94%, transparent) 28%); }
+.poreia-plan__footer .button-main { flex: 1; }
+.poreia-plan__footer .button-quiet { width: auto; min-width: 6rem; }
 .poreia-calendar-actions { margin-top: 2px; }
 .poreia-sync-note { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; border-color: color-mix(in srgb, var(--mint) 36%, var(--line)); }
 .poreia-sync-note > svg { color: var(--mint); }
@@ -374,6 +420,14 @@
   .poreia-calendar-day { min-height: 48px; }
   .poreia-calendar-day strong { width: 26px; height: 26px; }
   .poreia-page__overlay { padding-inline: 0; }
+  .poreia-plan { gap: 12px; padding-inline: 16px; }
+  .poreia-plan__header .brand__name { font-size: 1.8rem; }
+  .poreia-plan__progress { gap: 0; }
+  .poreia-plan__step small { font-size: 0.7rem; }
+  .poreia-plan__step-content { padding-top: 16px; }
+  .poreia-plan__step-content h1 { font-size: 2.75rem; }
+  .poreia-plan__type { min-height: 146px; }
+  .poreia-plan__footer { padding-bottom: 2px; }
   .poreia-vacation-review { grid-template-columns: 1fr; }
   .poreia-trip-quick-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .poreia-budget-facts { grid-template-columns: 1fr; }
