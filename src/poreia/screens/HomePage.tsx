@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
-import { CalendarIcon, DiscoverIcon, HeartIcon, PtoIcon, TripsIcon } from '../app/icons';
+import { CalendarIcon, ChevronIcon, DiscoverIcon, HeartIcon, PtoIcon, TripsIcon } from '../app/icons';
 import { useBookings, useItineraryItems, usePlaces, usePtoAccounts, usePtoLedger, useLeaveRequests, useSavingsPlans, useTrips, useWorkProfiles } from '../app/state';
 import { balanceAt, dateText } from '../core/pto';
 import { CURATED_PLACES, normalizedPlaceKey, type CuratedPlace } from '../core/discover';
@@ -16,8 +16,10 @@ import { PoreiaHeader } from '../app/ui';
 
 const suggestionImages = [lakeLightWide, valleyWide, morningWide, lakeWide];
 
-function tripLabel(status: string): string {
-  return status === 'in-progress' ? 'In progress' : status[0].toUpperCase() + status.slice(1);
+function tripLabel(trip: Trip): string {
+  if (trip.status === 'in-progress') return 'In progress';
+  if (trip.startDate && trip.startDate >= dateText(new Date()) && !['completed', 'canceled'].includes(trip.status)) return 'Upcoming';
+  return trip.status[0].toUpperCase() + trip.status.slice(1);
 }
 
 function tripDates(trip: Trip): string {
@@ -56,7 +58,7 @@ function FeaturedTrip({ trip, itineraryItems, bookings, savings, nav }: { trip: 
   return <article className="poreia-home-trip-card">
     <div className="poreia-home-trip-card__art" style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 28, 36, 0.04), rgba(7, 28, 36, 0.78)), url(${valleyWide})` }} aria-hidden="true"><TripsIcon size={32} /></div>
     <div className="poreia-home-trip-card__body">
-      <div className="poreia-section-head"><span className="label">{tripLabel(trip.status)}</span><span className="poreia-balance">{progress}% planned</span></div>
+      <div className="poreia-section-head"><span className="label">{tripLabel(trip)}</span><span className="poreia-balance">{progress}% planned</span></div>
       <h3>{trip.name}</h3>
       <p>{trip.destination || 'Destination to decide'} · {tripDates(trip)}{trip.travelers.length ? ` · ${trip.travelers.length} travelers` : ''}</p>
       <div className="poreia-progress" role="progressbar" aria-label={`${trip.name} planning progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{ width: `${progress}%` }} /></div>
@@ -118,19 +120,19 @@ export default function HomePage({ nav }: { nav: Nav }) {
   };
 
   return <div className="home poreia-home">
-    <PoreiaHeader compact title={nextTrip ? nextTrip.name : 'Where will you go?'} description={nextTrip ? `Keep shaping ${nextTrip.destination || 'your next escape'} at your own pace.` : 'Find your next escape and make the most of your time away.'} style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 28, 36, 0.16), rgba(7, 28, 36, 0.95) 92%), url(${lakeWide})` }} />
+    <PoreiaHeader compact eyebrow="YOUR NEXT ADVENTURE" title="Where will you go?" description="Find your next escape and make the most of your time away." style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 28, 36, 0.08), rgba(7, 28, 36, 0.96) 92%), url(${valleyWide})` }} />
 
     <div className="page page--under-hero poreia-home-content">
-      <section className="poreia-section"><div className="poreia-section-head"><h2>Upcoming trip</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'trips' })}>View all</button></div>{nextTrip ? <FeaturedTrip trip={nextTrip} itineraryItems={itineraryItems} bookings={bookings} savings={savings} nav={nav} /> : <div className="card poreia-home-empty"><TripsIcon size={28} /><div><h3>Your next adventure starts here</h3><p className="muted">Create a trip or save a destination idea while you explore.</p></div><div className="button-row"><button type="button" className="button-main" onClick={() => openTripCreator(nav)}>Plan a trip</button><button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'discover' })}>Explore destinations</button></div></div>}</section>
+      <section className="poreia-section"><div className="poreia-section-head"><h2>{nextTrip ? 'Your upcoming trip' : 'Your next adventure'}</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'trips' })}>View all <ChevronIcon size={16} /></button></div>{nextTrip ? <FeaturedTrip trip={nextTrip} itineraryItems={itineraryItems} bookings={bookings} savings={savings} nav={nav} /> : <div className="poreia-home-empty"><div className="poreia-home-empty__art" style={{ backgroundImage: `linear-gradient(180deg, rgba(4, 18, 28, 0.04), rgba(4, 18, 28, 0.9)), url(${morningWide})` }} aria-hidden="true" /><div className="poreia-home-empty__body"><h3>Your next adventure<br />starts here</h3><p>Create your first trip or save a destination idea while you explore.</p><div className="button-row"><button type="button" className="button-main" onClick={() => openTripCreator(nav)}>Plan your first trip</button><button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'discover' })}>Explore destinations</button></div></div></div>}</section>
 
       <section className="poreia-section"><div className="poreia-section-head"><h2>Quick actions</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'trips' })}>See all</button></div><div className="poreia-action-grid poreia-action-grid--home">
         <button type="button" className="poreia-action-tile" onClick={() => openTripCreator(nav)}><TripsIcon size={20} /><span><strong>Plan a trip</strong><small>Start a new adventure.</small></span></button>
         <button type="button" className="poreia-action-tile" onClick={() => nav.swap({ name: 'discover' })}><DiscoverIcon size={20} /><span><strong>Explore</strong><small>Find destinations and ideas.</small></span></button>
-        <button type="button" className="poreia-action-tile" onClick={() => nextTrip ? nav.go({ name: 'trip', id: nextTrip.id }) : openTripCreator(nav)}><CalendarIcon size={20} /><span><strong>Build itinerary</strong><small>Add places and activities.</small></span></button>
-        <button type="button" className="poreia-action-tile" onClick={() => nav.go({ name: 'vacation' })}><PtoIcon size={20} /><span><strong>Find dates</strong><small>See when you can travel.</small></span></button>
+        <button type="button" className="poreia-action-tile" onClick={() => nav.go({ name: 'vacation' })}><CalendarIcon size={20} /><span><strong>Find dates</strong><small>See when you can travel.</small></span></button>
+        <button type="button" className="poreia-action-tile" onClick={() => nextTrip ? nav.go({ name: 'trip', id: nextTrip.id }) : openTripCreator(nav)}><PtoIcon size={20} /><span><strong>Build itinerary</strong><small>Add places and activities.</small></span></button>
       </div></section>
 
-      <section className="poreia-section"><div className="poreia-section-head"><h2>Suggested destinations</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'discover' })}>See all</button></div><div className="poreia-home-suggestions" aria-label="Suggested destinations">{suggested.map((place, index) => <SuggestionCard key={place.id} place={place} image={suggestionImages[index % suggestionImages.length]} saved={savedByKey(place)} onOpen={() => openSuggestion(place)} onToggle={() => void toggleSuggestion(place)} />)}</div>{saveError && <p className="form-error" role="alert">{saveError}</p>}</section>
+      <section className="poreia-section"><div className="poreia-section-head"><h2>{nextTrip ? 'Popular destinations' : 'Suggested destinations'}</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'discover' })}>See all <ChevronIcon size={16} /></button></div><div className="poreia-home-suggestions" aria-label={nextTrip ? 'Popular destinations' : 'Suggested destinations'}>{suggested.slice(0, 3).map((place, index) => <SuggestionCard key={place.id} place={place} image={suggestionImages[index % suggestionImages.length]} saved={savedByKey(place)} onOpen={() => openSuggestion(place)} onToggle={() => void toggleSuggestion(place)} />)}</div>{saveError && <p className="form-error" role="alert">{saveError}</p>}</section>
 
       {balance !== undefined && <section className="poreia-home-availability"><div><p className="label">Vacation availability</p><h2>{balance} hours available</h2><p>Compare dates when you are ready to shape the next trip.</p></div><button type="button" className="button-quiet" onClick={() => nav.go({ name: 'vacation' })}>Compare dates</button></section>}
     </div>
