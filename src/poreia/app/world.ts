@@ -222,6 +222,13 @@ const OVERPASS = [
 /** Named places of one kind within about 2 km, nearest first, from OpenStreetMap (ODbL, credited where shown). */
 export async function nearby(category: Exclude<SpotCategory, 'event'>, lat: number, lon: number): Promise<Spot[]> {
   return cached(`near.${category}.${lat.toFixed(3)},${lon.toFixed(3)}`, 3 * DAY, async () => {
+    // The site asks first (it keeps answers and is seldom turned away); the public servers directly only if it cannot.
+    try {
+      const response = await fetch(apiUrl(`/api/travel/near?category=${category}&lat=${lat.toFixed(3)}&lon=${lon.toFixed(3)}`), { signal: AbortSignal.timeout(40_000) });
+      if (response.ok) return readOverpass((await response.json()) as Parameters<typeof readOverpass>[0], category, { lat, lon });
+    } catch {
+      // Unreached: try the servers from here.
+    }
     const query = overpassQuery(category, lat, lon);
     const asked: AbortController[] = [];
     let answered = false;

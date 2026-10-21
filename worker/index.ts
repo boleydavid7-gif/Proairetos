@@ -3,6 +3,7 @@ import { handleRecipeRequest } from './recipeProxy';
 import { handlePlantRequest } from './plantProxy';
 import { handleTravelEvents } from './travelEvents';
 import { handleTravelSearch } from './travelSearch';
+import { handleTravelNear } from './travelNear';
 import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
@@ -50,6 +51,8 @@ export default {
     }
     // Poreia's events near a trip (Ticketmaster; GET answers whether it is set up).
     if (url.pathname === '/api/travel/events') return handleTravelEvents(request, env.TICKETMASTER_KEY);
+    // Poreia's places nearby (OpenStreetMap through Overpass, kept at the edge for a day).
+    if (url.pathname === '/api/travel/near') return handleTravelNear(request);
     if (url.pathname === '/api/travel' || url.pathname.startsWith('/api/travel/')) return handleTravelSearch(request, env);
     // Keep sibling apps reachable at their clean family URLs without requiring a trailing slash.
     if (url.pathname === '/praxis') {
