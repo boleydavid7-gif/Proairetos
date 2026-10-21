@@ -86,6 +86,10 @@ export type PlanItem = {
   title: string;
   where?: string;
   note?: string;
+  /** Where it is, when it came from the map, the guide or an event, for directions and the day's map. */
+  lat?: number;
+  lon?: number;
+  url?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -215,6 +219,34 @@ export function daysOf(trip: Pick<Trip, 'start' | 'end'>, bookings: readonly Boo
     entries.sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
     return { date, entries };
   });
+}
+
+/**
+ * The next thing on a trip from now: today's first entry not yet past (untimed ones count for the whole day), else the
+ * first entry of a later day. Only days with something on them are looked at.
+ */
+export function nextUp(days: readonly { date: string; entries: DayEntry[] }[], today: string, now: string): { date: string; entry: DayEntry } | undefined {
+  for (const { date, entries } of days) {
+    if (date < today) continue;
+    const entry = date === today ? entries.find((each) => !each.time || each.time >= now) : entries[0];
+    if (entry) return { date, entry };
+  }
+  return undefined;
+}
+
+/** The plan as plain text, day by day, to send to someone or keep in notes. */
+export function planText(trip: Pick<Trip, 'name' | 'start' | 'end'>, days: readonly { date: string; entries: DayEntry[] }[], dayName: (date: string) => string, timeName: (time?: string) => string): string {
+  const lines = [trip.name];
+  for (const { date, entries } of days) {
+    if (!entries.length) continue;
+    lines.push('', dayName(date));
+    for (const entry of entries) {
+      const where = entry.kind === 'plan' ? entry.item.where : entry.ends ? undefined : entry.booking.kind === 'stay' ? entry.booking.address : [entry.booking.from, entry.booking.to].filter(Boolean).join(' → ') || entry.booking.address;
+      const code = entry.kind === 'booking' && !entry.ends && entry.booking.confirmation ? `confirmation ${entry.booking.confirmation}` : undefined;
+      lines.push(`${entry.time ? `${timeName(entry.time)} ` : '• '}${entryTitle(entry)}${[where, code].filter(Boolean).map((each) => ` · ${each}`).join('')}`);
+    }
+  }
+  return lines.join('\n');
 }
 
 /** What a booking says on its day: "Check-in", "Check-out", "Pick-up", "Return", or its title. */

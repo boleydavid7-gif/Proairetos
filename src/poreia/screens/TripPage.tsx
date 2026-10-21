@@ -4,13 +4,13 @@ import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
-import { newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
-import { datesText } from '../app/ui';
-import { nightsOf, phaseOf, phaseText, type Trip } from '../core/model';
+import { bookings, newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
+import { datesText, dayText } from '../app/ui';
+import { daysOf, nextUp, nightsOf, phaseOf, phaseText, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
 import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
-import TripDays from '../components/TripDays';
+import TripDays, { AgendaRow, openEntry } from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
 import Around from '../components/Around';
@@ -19,16 +19,22 @@ export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' |
 
 const VIEWS: { id: TripView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'around', label: 'Around' },
-  { id: 'bookings', label: 'Bookings' },
   { id: 'days', label: 'Days' },
+  { id: 'bookings', label: 'Bookings' },
+  { id: 'around', label: 'Around' },
   { id: 'packing', label: 'Packing' },
   { id: 'money', label: 'Money' },
 ];
 
+// The part of each trip last open, so coming back from a place, a booking or another tab lands where the person was.
+const lastView = new Map<string, TripView>();
+
 export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id: string; view?: TripView }) {
   const trip = trips.use().find((each) => each.id === id);
-  const [view, setView] = useState<TripView>(first ?? 'overview');
+  const [view, setView] = useState<TripView>(() => first ?? lastView.get(id) ?? (trip && phaseOf(trip, today()).kind === 'now' ? 'days' : 'overview'));
+  useEffect(() => {
+    lastView.set(id, view);
+  }, [id, view]);
   if (!trip) {
     return (
       <div className="page poreia-page">
@@ -73,7 +79,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
             <p className="muted">Add where you’re going to see the map, the guide’s places and what’s nearby.</p>
           ))}
         {view === 'bookings' && <TripBookings trip={trip} nav={nav} />}
-        {view === 'days' && <TripDays trip={trip} />}
+        {view === 'days' && <TripDays trip={trip} nav={nav} />}
         {view === 'packing' && <TripPacking trip={trip} />}
         {view === 'money' && <TripMoney trip={trip} />}
       </div>
@@ -83,13 +89,14 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
 
 function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string }) {
   const target: Target | undefined = trip.place ? { place: trip.place, from: trip.from, start: trip.start, end: trip.end, travelers: trip.travelers } : undefined;
-  const addToDays = (title: string, date?: string, where?: string) => {
-    const item = { id: newId(), tripId: trip.id, date: date && trip.start && date >= trip.start && date <= (trip.end ?? trip.start) ? date : trip.start ?? day, title, where, createdAt: nowStamp(), updatedAt: nowStamp() };
+  const addToDays = (title: string, date?: string, where?: string, extra: { time?: string; lat?: number; lon?: number; url?: string } = {}) => {
+    const item = { id: newId(), tripId: trip.id, date: date && trip.start && date >= trip.start && date <= (trip.end ?? trip.start) ? date : trip.start ?? day, title, where, ...extra, createdAt: nowStamp(), updatedAt: nowStamp() };
     plans.put(item);
     offerUndo(`“${title}” added to the days`, () => plans.remove(item.id));
   };
   return (
     <>
+      <NextUpCard trip={trip} nav={nav} day={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
         <section className="card first-run">
@@ -104,7 +111,7 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
           <SavedCard trip={trip} nav={nav} />
           <BookLinks target={target} nav={nav} tripId={trip.id} />
           <Weather target={target} today={day} />
-          <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue)} />
+          <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
         </>
@@ -237,6 +244,43 @@ function SavedCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
       <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip', id: trip.id, view: 'around' })}>
         See them on the map
       </button>
+    </section>
+  );
+}
+
+/** The next thing on the trip, a tap from its details, with the rest of today under it while away. */
+export function NextUpCard({ trip, nav, day, home = false }: { trip: Trip; nav: PoreiaNav; day: string; home?: boolean }) {
+  const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
+  const theirPlans = plans.use().filter((each) => each.tripId === trip.id);
+  if (!trip.start) return null;
+  const days = daysOf(trip, theirBookings, theirPlans);
+  const clock = new Date();
+  const now = `${String(clock.getHours()).padStart(2, '0')}:${String(clock.getMinutes()).padStart(2, '0')}`;
+  const next = nextUp(days, day, now);
+  const phase = phaseOf(trip, day);
+  if (!next || phase.kind === 'past') return null;
+  const later = next.date === day ? (days.find((each) => each.date === day)?.entries ?? []).filter((entry) => entry !== next.entry && (!entry.time || !next.entry.time || entry.time > next.entry.time)) : [];
+  return (
+    <section className="card poreia-next">
+      <h2 className="card__title">
+        {next.date === day ? 'Next today' : `Next: ${dayText(next.date)}`}
+        {home && trip.place ? ` in ${trip.place.name}` : ''}
+      </h2>
+      <ul className="poreia-agenda">
+        <li>
+          <AgendaRow entry={next.entry} onOpen={() => openEntry(nav, trip.id, next.entry)} />
+        </li>
+        {later.slice(0, 4).map((entry, index) => (
+          <li key={index}>
+            <AgendaRow entry={entry} onOpen={() => openEntry(nav, trip.id, entry)} />
+          </li>
+        ))}
+      </ul>
+      {home && (
+        <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip', id: trip.id })}>
+          Open the trip
+        </button>
+      )}
     </section>
   );
 }

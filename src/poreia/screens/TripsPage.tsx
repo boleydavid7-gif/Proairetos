@@ -4,24 +4,21 @@ import { DailyLine } from '../../app/family/DailyLine';
 import photo from '../../assets/images/scenes/poreia.webp';
 import photoWide from '../../assets/images/scenes/poreia-wide.webp';
 import type { PoreiaNav } from '../app/App';
-import { bookings, plans, settings, timeOff, today, trips } from '../app/state';
-import { datesText, dayText, TripRow, timeText } from '../app/ui';
-import { daysOf, entryTitle, phaseOf, phaseText, sortTrips } from '../core/model';
+import { settings, timeOff, today, trips } from '../app/state';
+import { NextUpCard } from './TripPage';
+import { datesText, dayText, TripRow } from '../app/ui';
+import { phaseOf, phaseText, sortTrips } from '../core/model';
 import { balanceOn, hoursText } from '../core/timeOff';
 
 export default function TripsPage({ nav }: { nav: PoreiaNav }) {
   const list = trips.use();
-  const allBookings = bookings.use();
-  const allPlans = plans.use();
   const offs = timeOff.use();
   const setup = settings.use().timeOff;
   const day = today();
   const { now, ahead, someday, past } = sortTrips(list, day);
   const lead = now[0] ?? ahead[0];
+  const leadPhase = lead ? phaseOf(lead, day) : undefined;
   const open = (id: string) => nav.go({ name: 'trip', id });
-
-  // On a trip: what is on today. Before one: its next booking.
-  const todayEntries = now[0] ? (daysOf(now[0], allBookings.filter((b) => b.tripId === now[0].id), allPlans.filter((p) => p.tripId === now[0].id)).find((d) => d.date === day)?.entries ?? []) : [];
 
   return (
     <div className="home poreia-home">
@@ -56,26 +53,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
           </section>
         ) : (
           <>
-            {now[0] && (
-              <section className="card poreia-today">
-                <h2 className="card__title">Today in {now[0].place?.name ?? now[0].name}</h2>
-                {todayEntries.length ? (
-                  <ul className="poreia-agenda">
-                    {todayEntries.map((entry, index) => (
-                      <li key={index}>
-                        <span className="poreia-agenda__time">{timeText(entry.time) || '·'}</span>
-                        <span>{entryTitle(entry)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="muted">Nothing planned today.</p>
-                )}
-                <button type="button" className="text-link" onClick={() => open(now[0].id)}>
-                  Open the trip
-                </button>
-              </section>
-            )}
+            {lead && (leadPhase?.kind === 'now' || (leadPhase?.kind === 'ahead' && leadPhase.days <= 30)) && <NextUpCard trip={lead} nav={nav} day={day} home />}
 
             <div className="section-head">
               <h2>{now.length ? 'Coming up' : 'Trips'}</h2>

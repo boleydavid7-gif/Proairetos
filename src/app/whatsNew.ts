@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-21',
     lines: [
+      'Poreia is easier to get around: each trip opens on Days while you are away and remembers the tab you were on, and Trips and Overview lead with what is next. Every line of a day opens: a booking shows its confirmation large (tap to copy), directions and the booking link before any editing; your own plans can be changed or moved to another day. Places you add keep their spot, for directions and a map of the day, and Share the plan sends the whole trip as text.',
+      'Poreia’s nearby places and guide no longer wait forever when a map server is busy: the site asks for you and keeps answers for a day.',
       'Poreia shows more inside the app: a map of each trip, the guide’s own picks to see, do, eat, drink and sleep, what is nearby (cafés, food, sights, outdoors, shops, getting around, essentials) and events in your dates. Each place has its own page with directions, hours, its website, Save to the trip and Add to a day.',
       'Poreia can also show stays and flights with prices in the app, once the site has those searches set up; booking opens on the provider’s site with your dates.',
       'The line over the current tab now sits centered over its icon in every app, and every app has one.',

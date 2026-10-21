@@ -1117,4 +1117,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   show in Find and book when `GET /api/travel` says they are set up (`worker/travelSearch.ts`, tests); booking opens on the
   provider with the stay's name or the flight numbers (`stayLinks`, `flightLink`). Amadeus's self-service APIs closed in
   July 2026, so they are not used.
+- Getting around (`screens/TripPage.tsx`, `components/TripDays.tsx`, `screens/PlanPage.tsx`): trip tabs Overview, Days, Bookings,
+  Around, Packing, Money; a trip on now opens on Days, and each trip remembers its last tab (`lastView`) as Around remembers its
+  kind (`lastShown`), so coming back from a place or booking lands where the person was. `NextUpCard` (`nextUp` in `core/model.ts`)
+  leads Overview and, for a trip on now or within 30 days, the Trips page. Every day line is an `AgendaRow` opening the booking or
+  the plan (route `plan`: change, move to another day, directions, delete with undo). A booking opens as `BookingView` (big
+  confirmation, tap to copy; directions; link) with Edit. Plans keep `lat`/`lon`/`url` when added from a place or event, for
+  directions and the day's map; Share the plan sends `planText`. Nearby places come through the Worker `/api/travel/near`
+  (`worker/travelNear.ts`: Overpass servers together, Nominatim special phrases after 4 s, one a second; kept at the edge a day).
 - Links: `?open=trip:ID|add|booking:TRIP|explore|time|more`.

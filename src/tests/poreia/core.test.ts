@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysOf, entryTitle, moneyText, nightsOf, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
+import { daysOf, entryTitle, moneyText, nextUp, nightsOf, planText, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
 import { accrualDates, balanceOn, daysOff, hoursFor, leftAfter, shiftsToReplace, type TimeOff, type TimeOffSetup } from '../../poreia/core/timeOff';
 import { searchLinks } from '../../poreia/core/links';
 import { datesIn, readConfirmation, timesIn } from '../../poreia/core/confirmations';
@@ -201,5 +201,41 @@ describe('calendar for Proairetos', () => {
     expect(events.map((e) => e.title)).toEqual(['Lisbon', 'Time off', 'Time off (planned)', 'Flight: DL 104']);
     expect(events[0]).toMatchObject({ date: '2026-11-02', dateEnd: '2026-11-09', location: 'Lisbon, Portugal' });
     expect(events[3]).toMatchObject({ location: 'JFK → LIS' });
+  });
+});
+
+describe('next up and the plan as text', () => {
+  const t = trip({ start: '2026-11-10', end: '2026-11-12' });
+  const plan = (over: Partial<PlanItem>): PlanItem => ({ id: 'p', tripId: 't1', date: '2026-11-10', title: 'x', createdAt: stamp, updatedAt: stamp, ...over });
+  const days = daysOf(
+    t,
+    [booking({ id: 'f', kind: 'flight', title: 'TP 210', startDate: '2026-11-10', startTime: '08:10', from: 'JFK', to: 'LIS', confirmation: 'ABC123' }), booking({ id: 's', kind: 'stay', title: 'Casa Azul', startDate: '2026-11-10', startTime: '15:00', endDate: '2026-11-12', address: 'Rua A 1' })],
+    [plan({ id: 'a', title: 'Fado night', date: '2026-11-11', time: '21:30', where: 'Alfama' }), plan({ id: 'b', title: 'Pastéis', date: '2026-11-11' })],
+  );
+
+  it('finds the next entry from now', () => {
+    expect(nextUp(days, '2026-11-01', '12:00')?.entry).toMatchObject({ kind: 'booking', booking: { id: 'f' } });
+    expect(nextUp(days, '2026-11-10', '09:00')?.entry).toMatchObject({ kind: 'booking', booking: { id: 's' } });
+    expect(nextUp(days, '2026-11-10', '16:00')).toMatchObject({ date: '2026-11-11', entry: { kind: 'plan', item: { id: 'a' } } });
+    expect(nextUp(days, '2026-11-11', '22:00')?.entry).toMatchObject({ kind: 'plan', item: { id: 'b' } });
+    expect(nextUp(days, '2026-11-13', '09:00')).toBeUndefined();
+  });
+
+  it('writes the plan day by day', () => {
+    const text = planText(t, days, (date) => date, (time) => time ?? '');
+    expect(text.split('\n')).toEqual([
+      'Lisbon',
+      '',
+      '2026-11-10',
+      '08:10 TP 210 · JFK → LIS · confirmation ABC123',
+      '15:00 Check-in: Casa Azul · Rua A 1',
+      '',
+      '2026-11-11',
+      '21:30 Fado night · Alfama',
+      '• Pastéis',
+      '',
+      '2026-11-12',
+      '• Check-out: Casa Azul',
+    ]);
   });
 });

@@ -126,12 +126,46 @@
 }
 
 .poreia-agenda > li,
-.poreia-agenda .poreia-agenda__plan .swipe__front {
+.poreia-agenda .poreia-agenda__plan.swipe__front {
+  padding: 0;
+}
+
+/* Each line opens its booking or plan: time, then what and where, then a chevron. */
+.poreia-agenda__row {
   display: grid;
-  grid-template-columns: 4.6rem 1fr;
+  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
   gap: 10px;
-  align-items: baseline;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
   padding: 10px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-agenda__row > svg {
+  color: var(--faint, var(--muted));
+}
+
+.poreia-agenda__what {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.poreia-agenda__what > .muted {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poreia-agenda__row--booking .poreia-agenda__what > span:first-child {
+  color: var(--mint);
 }
 
 .poreia-agenda > li + li {
@@ -144,9 +178,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.poreia-agenda__booking > span:last-child {
-  color: var(--mint);
-}
 
 .poreia-days {
   display: grid;
@@ -171,7 +202,7 @@
 
 .poreia-add-day {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 6.5rem) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 5.9rem) auto;
   margin-top: 6px;
 }
 
@@ -680,6 +711,36 @@
 .poreia-pin--essentials { --pin: #f06a6a; }
 .poreia-pin--event { --pin: #ff8fd0; }
 .poreia-pin--saved { --pin: var(--mint); }
+.poreia-pin--plan { --pin: var(--mint); }
+
+/* A booking's confirmation, large enough to show at a desk, copied with a tap. */
+.poreia-code {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin: 0 0 var(--ll-gap, 16px);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-code__value {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.poreia-day > .text-link {
+  margin-bottom: 8px;
+}
 
 .poreia-spots__photo,
 .poreia-spots__dot {

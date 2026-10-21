@@ -12,6 +12,9 @@ import MapView, { type Pin } from './MapView';
 
 type Shown = SpotCategory | 'saved';
 
+// The kind last shown for each place, so coming back from a place's page shows the same list.
+const lastShown = new Map<string, Shown>();
+
 /*
  * What is around a place, in the app: a map and a list under one row of kinds. Each kind joins the guide's own
  * listings (Wikivoyage) with what OpenStreetMap has nearby; Events come from Ticketmaster when the site has its key;
@@ -20,7 +23,12 @@ type Shown = SpotCategory | 'saved';
 export default function Around({ place, tripId, start, end, nav }: { place: Place; tripId?: string; start?: string; end?: string; nav: PoreiaNav }) {
   const unit = settings.use().temperature;
   const saved = spots.use().filter((each) => tripId && each.tripId === tripId);
-  const [shown, setShown] = useState<Shown>(saved.length ? 'saved' : 'see');
+  const memory = tripId ?? place.label ?? place.name;
+  const [shown, setShownState] = useState<Shown>(() => lastShown.get(memory) ?? (saved.length ? 'saved' : 'see'));
+  const setShown = (next: Shown) => {
+    lastShown.set(memory, next);
+    setShownState(next);
+  };
   const [chosen, setChosen] = useState<string>();
   const center = place.lat !== undefined && place.lon !== undefined ? { lat: place.lat, lon: place.lon } : undefined;
   const placeKey = center ? `${center.lat.toFixed(3)},${center.lon.toFixed(3)}` : undefined;

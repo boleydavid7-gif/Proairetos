@@ -20,6 +20,7 @@ import TimeOffSetupPage from '../screens/TimeOffSetupPage';
 import MorePage from '../screens/MorePage';
 import FreshPage from '../screens/FreshPage';
 import PlacePage from '../screens/PlacePage';
+import PlanPage from '../screens/PlanPage';
 
 export type Tab = 'trips' | 'explore' | 'time' | 'more';
 export type Route =
@@ -31,7 +32,8 @@ export type Route =
   | { name: 'booking'; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }
   | { name: 'time-off'; id?: string; tripId?: string }
   | { name: 'time-setup' }
-  | { name: 'place'; spot: Spot; tripId?: string };
+  | { name: 'place'; spot: Spot; tripId?: string }
+  | { name: 'plan'; id: string };
 export type PoreiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -91,6 +93,8 @@ export default function App() {
         return <TimeOffSetupPage nav={nav} />;
       case 'place':
         return <PlacePage nav={nav} spot={route.spot} tripId={route.tripId} />;
+      case 'plan':
+        return <PlanPage nav={nav} id={route.id} />;
     }
   })();
 

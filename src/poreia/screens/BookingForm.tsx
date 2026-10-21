@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { offerUndo } from '../../app/family/shell';
+import { offerUndo, say } from '../../app/family/shell';
+import { deviceKind } from '../../app/install/installPrompt';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { bookings, newId, nowStamp, settings, trips } from '../app/state';
-import { MoneyField } from '../app/ui';
+import { dayText, MoneyField, timeText } from '../app/ui';
 import { readConfirmation } from '../core/confirmations';
-import { BOOKING_KINDS, type Booking, type BookingKind } from '../core/model';
+import { directionsTo } from '../core/links';
+import { BOOKING_KINDS, kindLabel, moneyText, type Booking, type BookingKind } from '../core/model';
 
 const TRAVEL: BookingKind[] = ['flight', 'train', 'bus', 'cruise'];
 
@@ -18,6 +20,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
   const [pasted, setPasted] = useState('');
   const [readNote, setReadNote] = useState('');
   const [showPaste, setShowPaste] = useState(Boolean(paste) && !existing);
+  const [editing, setEditing] = useState(!existing);
   const set = (patch: Partial<Booking>) => setForm((current) => ({ ...current, ...patch }));
 
   const read = () => {
@@ -45,16 +48,30 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
       updatedAt: now,
     };
     bookings.put(record);
-    if (!existing) offerUndo(`“${record.title}” added`, () => bookings.remove(record.id));
+    if (existing) {
+      offerUndo('Saved', () => bookings.put(existing));
+      setEditing(false);
+      return;
+    }
+    offerUndo(`“${record.title}” added`, () => bookings.remove(record.id));
     nav.back();
   };
+
+  const remove = () => {
+    if (!existing) return;
+    bookings.remove(existing.id);
+    offerUndo(`“${existing.title}” deleted`, () => bookings.put(existing));
+    nav.back();
+  };
+
+  if (existing && !editing) return <BookingView nav={nav} booking={bookings.get(existing.id) ?? existing} tripName={trip?.name} onEdit={() => { setForm(bookings.get(existing.id) ?? existing); setEditing(true); }} onRemove={remove} />;
 
   const travel = TRAVEL.includes(form.kind);
 
   return (
     <div className="page poreia-page">
-      <BackLink label={trip?.name ?? 'Trip'} onBack={nav.back} />
-      <h1 className="title">{existing ? existing.title : 'New booking'}</h1>
+      <BackLink label={existing ? 'Done' : trip?.name ?? 'Trip'} onBack={existing ? () => setEditing(false) : nav.back} />
+      <h1 className="title">{existing ? `Edit ${existing.title}` : 'New booking'}</h1>
 
       {showPaste ? (
         <section className="card">
@@ -160,20 +177,91 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
             Save
           </button>
           {existing && (
-            <button
-              type="button"
-              className="text-link remove-link"
-              onClick={() => {
-                bookings.remove(existing.id);
-                offerUndo(`“${existing.title}” deleted`, () => bookings.put(existing));
-                nav.back();
-              }}
-            >
+            <button type="button" className="text-link remove-link" onClick={remove}>
               Delete booking
             </button>
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/** A booking as it is needed on the way: the confirmation to show or copy, when, where, and the way there. */
+function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: PoreiaNav; booking: Booking; tripName?: string; onEdit: () => void; onRemove: () => void }) {
+  const apple = deviceKind() === 'iphone' || /Mac/.test(navigator.platform);
+  const travel = TRAVEL.includes(booking.kind);
+  const at = (date?: string, time?: string) => (date ? `${dayText(date)}${time ? `, ${timeText(time)}` : ''}` : undefined);
+  const startLabel = booking.kind === 'stay' ? 'Check-in' : booking.kind === 'car' ? 'Pick-up' : travel ? 'Departs' : 'When';
+  const endLabel = booking.kind === 'stay' ? 'Check-out' : booking.kind === 'car' ? 'Return' : travel ? 'Arrives' : 'Until';
+  const goTo = booking.address ?? (travel ? booking.from : undefined);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(booking.confirmation!);
+      say('Confirmation copied');
+    } catch {
+      say('Couldn’t copy. Press and hold the code to copy it.');
+    }
+  };
+  const rows: [string, string | undefined][] = [
+    [startLabel, at(booking.startDate, booking.startTime)],
+    [endLabel, booking.endDate && (booking.endDate !== booking.startDate || booking.endTime) ? at(booking.endDate, booking.endTime) : undefined],
+    ['Route', travel ? [booking.from, booking.to].filter(Boolean).join(' → ') || undefined : undefined],
+    ['Address', booking.address],
+    ['With', booking.provider],
+    ['Cost', booking.cost ? moneyText(booking.cost) : undefined],
+  ];
+  return (
+    <div className="page poreia-page">
+      <BackLink label={tripName ?? 'Trip'} onBack={nav.back} />
+      <div className="detail-head poreia-trip__head">
+        <h1 className="title">{booking.title}</h1>
+        <p className="muted">{[kindLabel(booking.kind), booking.provider].filter(Boolean).join(' · ')}</p>
+      </div>
+
+      {booking.confirmation && (
+        <button type="button" className="poreia-code" onClick={copy} aria-label={`Confirmation ${booking.confirmation}. Copy`}>
+          <span className="label">Confirmation</span>
+          <span className="poreia-code__value">{booking.confirmation}</span>
+          <span className="muted">Tap to copy</span>
+        </button>
+      )}
+
+      {(goTo || booking.link) && (
+        <div className="button-row">
+          {goTo && (
+            <a className="button-main" href={directionsTo(goTo, undefined, undefined, apple)} target="_blank" rel="noopener noreferrer">
+              Directions
+            </a>
+          )}
+          {booking.link && (
+            <a className="button-quiet" href={booking.link} target="_blank" rel="noopener noreferrer">
+              Open the booking
+            </a>
+          )}
+        </div>
+      )}
+
+      <dl className="detail-list">
+        {rows
+          .filter((row): row is [string, string] => Boolean(row[1]))
+          .map(([label, value]) => (
+            <span key={label} style={{ display: 'contents' }}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </span>
+          ))}
+      </dl>
+      {booking.notes && <p className="poreia-notes">{booking.notes}</p>}
+
+      <div className="button-row">
+        <button type="button" className="button-quiet" onClick={onEdit}>
+          Edit
+        </button>
+      </div>
+      <button type="button" className="text-link remove-link" onClick={onRemove}>
+        Delete booking
+      </button>
     </div>
   );
 }

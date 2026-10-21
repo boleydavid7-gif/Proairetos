@@ -26,7 +26,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
   const ref = spot.ref ?? spot.id;
   const saved = savedList.find((each) => each.tripId === chosenTrip && (each.ref ?? each.id) === ref);
   const dates = trip ? tripDates(trip) : [];
-  const [date, setDate] = useState(dates[0] ?? '');
+  const [date, setDate] = useState(dates.includes(today()) ? today() : (dates[0] ?? ''));
   const [time, setTime] = useState('');
   const apple = deviceKind() === 'iphone' || /Mac/.test(navigator.platform);
 
@@ -43,7 +43,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
   };
   const addToDay = () => {
     if (!trip || !date) return;
-    const item = { id: newId(), tripId: trip.id, date, time: time || undefined, title: spot.name, where: spot.address, note: spot.url, createdAt: nowStamp(), updatedAt: nowStamp() };
+    const item = { id: newId(), tripId: trip.id, date, time: time || undefined, title: spot.name, where: spot.address, lat: spot.lat, lon: spot.lon, url: spot.url, createdAt: nowStamp(), updatedAt: nowStamp() };
     plans.put(item);
     offerUndo(`“${spot.name}” added, ${dayText(date)}`, () => plans.remove(item.id));
   };
