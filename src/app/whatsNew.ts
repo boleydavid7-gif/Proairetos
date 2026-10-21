@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-21',
     lines: [
+      'The line over the current tab now sits centered over its icon in every app, and every app has one.',
       'Scrolling under the bar at the top is smoother in every app: the page now blurs softly into the bar as it passes beneath, with no hard edge, and the title fades as it slides under.',
       'Poreia starts over: plan trips; search stays, flights, cars, cruises, events and tours on Booking.com, Airbnb, Google Flights and others with your place and dates filled in; paste a confirmation to keep a booking; and see each trip’s days, packing and money.',
       'Poreia tracks time off: your balance and how it grows, with each trip’s hours counted from your work shifts in Proairetos. Once marked approved, those shifts come off your schedule (canceling puts them back), and trips and time off show in Days ahead.',

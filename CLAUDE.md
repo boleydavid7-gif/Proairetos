@@ -183,7 +183,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   chevron with the back link's words; on the right copies of the page's header actions (`.page-header__actions` etc.)
   and every dock item marked `data-to-header` (More / Settings, Proairetos's Apps, the family's Proairetos link,
   Hydros's gear), each pressing its original. The originals leave the page and dock on phones (visibility hidden /
-  `display: none`; docks then lay out their remaining places in columns, indicators moved to four places). The bar
+  `display: none`; docks then lay out their remaining places in columns). Every phone dock (all fifteen apps) marks the
+  current place with one line along its top edge in the app's color, centered over the `[aria-current=page]` item:
+  `dockMarks` in `behaviors.ts` measures it into `--ll-dock-x` and `bars.css` draws `::after` (never fixed percentages,
+  which drifted with each dock's padding); it slides only after the first placement (`ll-dock-ready`). The bar
   names the app only, never the page; it stays clear while the page's title is in view, and its glass fades in over
   40 px of scroll as the title's top edge passes under it while the title fades out (from 8 px on a page with no
   title). The glass is the one blur in Lamplight: the mica at 74% over `backdrop-filter: blur(16px) saturate(1.5)`,

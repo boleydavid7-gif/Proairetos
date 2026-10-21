@@ -485,27 +485,6 @@ p {
     isolation: isolate;
   }
 
-  .askesis .tab-bar::after {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    top: -1px;
-    left: calc(8.3333% - 0.9rem);
-    width: 1.8rem;
-    height: 3px;
-    border-radius: 0 0 3px 3px;
-    background: var(--mint);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 45%, transparent);
-    opacity: 0;
-    transition: left 340ms var(--ease-spring), opacity 180ms ease;
-  }
-
-  .askesis .tab-bar:has(> :nth-child(1)[aria-current='page'])::after { left: calc(8.3333% - 0.9rem); opacity: 1; }
-  .askesis .tab-bar:has(> :nth-child(2)[aria-current='page'])::after { left: calc(25% - 0.9rem); opacity: 1; }
-  .askesis .tab-bar:has(> :nth-child(3)[aria-current='page'])::after { left: calc(41.6667% - 0.9rem); opacity: 1; }
-  .askesis .tab-bar:has(> :nth-child(4)[aria-current='page'])::after { left: calc(58.3333% - 0.9rem); opacity: 1; }
-  .askesis .tab-bar:has(> :nth-child(5)[aria-current='page'])::after { left: calc(75% - 0.9rem); opacity: 1; }
-
   .askesis .tab-bar__item {
     width: 100%;
     min-width: 0;

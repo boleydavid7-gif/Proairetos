@@ -269,61 +269,45 @@
     grid-auto-columns: minmax(0, 1fr);
   }
 
-  /* The docks' moving marks, now over four places. */
-  :root.ll-bar-on .app-shell[data-route='today'] .tab-bar::before { --tab-indicator-left: calc(12.5% - 0.9rem); }
-  :root.ll-bar-on .app-shell:is([data-route='reflect'], [data-route='compass'], [data-route='meditate'], [data-route='journal'], [data-route='insights'], [data-route='review']) .tab-bar::before { --tab-indicator-left: calc(37.5% - 0.9rem); }
-  :root.ll-bar-on .app-shell:is([data-route='plan'], [data-route='calendar']) .tab-bar::before { --tab-indicator-left: calc(62.5% - 0.9rem); }
-  :root.ll-bar-on .app-shell[data-route='capture'] .tab-bar::before { --tab-indicator-left: calc(87.5% - 0.9rem); }
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::after,
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(1)[aria-current='page'])::before { left: calc(12.5% - 0.9rem); }
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::after,
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(2)[aria-current='page'])::before { left: calc(37.5% - 0.9rem); }
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::after,
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(3)[aria-current='page'])::before { left: calc(62.5% - 0.9rem); }
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::after,
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(4)[aria-current='page'])::before { left: calc(87.5% - 0.9rem); }
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::after,
-  :root.ll-bar-on:is(.askesis, .soma) .tab-bar:has(> :nth-child(5)[aria-current='page'])::before { opacity: 0; }
+  /* Every phone dock marks the place you are on with one short line along its top edge, in the app's own color,
+     centered over that place's icon. Where it goes is measured (--ll-dock-x, dockMarks in behaviors.ts), since each
+     dock has its own padding and loses places to the top bar; it slides between places once placed. */
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    --ll-dock-mark: var(--mint, var(--ll-lamp, currentColor));
+  }
 
-  /* Every phone dock carries the same small moving mark. The selected color is the app's lamp; a line leaves room
-     for the icon and label to remain calm, and the spring makes the mark travel rather than blink between places. */
-  :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
+  :root .app-shell .tab-bar {
+    --ll-dock-mark: var(--color-accent, var(--ll-lamp, currentColor));
+  }
+
+  :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    --ll-dock-mark: var(--ll-lamp, var(--cyan, currentColor));
+  }
+
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
     content: '';
     position: absolute;
     z-index: 2;
     top: -1px;
-    left: calc(100% + 1rem);
-    width: var(--ll-nav-indicator-width);
-    height: var(--ll-nav-indicator-height);
-    border-radius: var(--ll-radius-pill);
-    background: var(--ll-lamp, var(--cyan, currentColor));
-    box-shadow: 0 0 12px color-mix(in srgb, var(--ll-lamp, currentColor) 48%, transparent);
+    left: var(--ll-dock-x, 50%);
+    width: var(--ll-nav-indicator-width, 28px);
+    height: var(--ll-nav-indicator-height, 3px);
+    border-radius: 0 0 3px 3px;
+    background: var(--ll-dock-mark);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ll-dock-mark) 45%, transparent);
+    translate: -50% 0;
     opacity: 0;
     pointer-events: none;
-    transition: left var(--ll-calm) var(--ll-spring), opacity var(--ll-quick) var(--ll-ease-out);
+    transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
   }
 
-  :root .hydros-tabs:has(> :nth-child(1)[aria-current='page'])::after { left: calc(12.5% - 14px); opacity: 1; }
-  :root .hydros-tabs:has(> :nth-child(2)[aria-current='page'])::after { left: calc(37.5% - 14px); opacity: 1; }
-  :root .hydros-tabs:has(> :nth-child(3)[aria-current='page'])::after { left: calc(62.5% - 14px); opacity: 1; }
-  /* Hydros hides the Proairetos dock item after it moves into the top bar, so its three visible tabs become thirds. */
-  :root.ll-bar-on .hydros-tabs:has(> :nth-child(1)[aria-current='page'])::after { left: calc(16.666667% - 14px); }
-  :root.ll-bar-on .hydros-tabs:has(> :nth-child(2)[aria-current='page'])::after { left: calc(50% - 14px); }
-  :root.ll-bar-on .hydros-tabs:has(> :nth-child(3)[aria-current='page'])::after { left: calc(83.333333% - 14px); }
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-marked::after {
+    opacity: 1;
+  }
 
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(1)[aria-current='page'])::after { left: calc(7.142857% - 14px); opacity: 1; }
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(2)[aria-current='page'])::after { left: calc(21.428571% - 14px); opacity: 1; }
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(3)[aria-current='page'])::after { left: calc(35.714286% - 14px); opacity: 1; }
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(4)[aria-current='page'])::after { left: calc(50% - 14px); opacity: 1; }
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(5)[aria-current='page'])::after { left: calc(64.285714% - 14px); opacity: 1; }
-  :root .praxis-bottom-nav:has(.praxis-nav-item:nth-child(6)[aria-current='page'])::after { left: calc(78.571429% - 14px); opacity: 1; }
-
-  /* Settings and the Proairetos link move into the top bar on phones, leaving four visible Theoria places. */
-  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(1).is-active)::after { left: calc(12.5% - 14px); opacity: 1; }
-  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(2).is-active)::after { left: calc(37.5% - 14px); opacity: 1; }
-  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(3).is-active)::after { left: calc(62.5% - 14px); opacity: 1; }
-  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(4).is-active)::after { left: calc(87.5% - 14px); opacity: 1; }
-  :root.ll-bar-on .theoria-bottom-nav:has(.theoria-nav-list > :nth-child(5).is-active)::after { opacity: 0; }
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-ready::after {
+    transition: left var(--ll-calm, 360ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)), opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+  }
 
   :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {
     transition: translate var(--ll-calm) var(--ll-spring);

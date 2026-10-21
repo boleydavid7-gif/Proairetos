@@ -45,6 +45,7 @@ export function startLamplightBehaviors(): void {
   if (started || typeof window === 'undefined' || typeof document === 'undefined' || typeof matchMedia !== 'function') return;
   started = true;
   largeTitle();
+  dockMarks();
   backSwipe();
   rowMenus();
 }
@@ -362,6 +363,44 @@ function largeTitle(): void {
     if (!title?.isConnected) title = undefined;
     changed();
   }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['aria-current', 'aria-pressed', 'class'] });
+  soon();
+}
+
+// ---------- The dock's mark ----------
+
+const DOCKS = '.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav';
+
+/*
+ * Every phone dock marks the place you are on with one short line along its top edge, centered over that place's
+ * icon. Where the place sits is measured, not assumed: docks have their own padding and gaps, and lose places to the
+ * top bar on phones, so fixed fractions of the width drifted off center. The center goes on the dock as --ll-dock-x
+ * (bars.css draws the line); the line slides between places only once it has been placed the first time.
+ */
+function dockMarks(): void {
+  let frame = 0;
+  const place = () => {
+    frame = 0;
+    for (const dock of document.querySelectorAll<HTMLElement>(DOCKS)) {
+      const current = [...dock.querySelectorAll<HTMLElement>('[aria-current="page"]')].find((each) => each.getClientRects().length > 0);
+      const marked = Boolean(current) && dock.getClientRects().length > 0;
+      if (current && marked) {
+        const box = dock.getBoundingClientRect();
+        const item = current.getBoundingClientRect();
+        const x = `${(item.left + item.width / 2 - box.left - dock.clientLeft).toFixed(1)}px`;
+        if (dock.style.getPropertyValue('--ll-dock-x') !== x) dock.style.setProperty('--ll-dock-x', x);
+      }
+      if (dock.classList.contains('ll-dock-marked') !== marked) dock.classList.toggle('ll-dock-marked', marked);
+      // The first placement lands at once; after that the line travels.
+      if (marked && !dock.classList.contains('ll-dock-ready')) requestAnimationFrame(() => dock.classList.add('ll-dock-ready'));
+    }
+  };
+  const soon = () => {
+    if (!frame) frame = requestAnimationFrame(place);
+  };
+  addEventListener('resize', soon);
+  matchMedia(PHONE).addEventListener?.('change', soon);
+  document.fonts?.ready.then(soon, () => undefined);
+  new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-current', 'class'] });
   soon();
 }
 
