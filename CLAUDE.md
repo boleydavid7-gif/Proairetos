@@ -184,8 +184,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   and every dock item marked `data-to-header` (More / Settings, Proairetos's Apps, the family's Proairetos link,
   Hydros's gear), each pressing its original. The originals leave the page and dock on phones (visibility hidden /
   `display: none`; docks then lay out their remaining places in columns, indicators moved to four places). The bar
-  names the app only, never the page; it stays clear while the page's title is in view and takes its mica and a
-  hairline once the title has gone under (64 px on a page with no title); the button pill loses its own edge then. Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
+  names the app only, never the page; it stays clear while the page's title is in view, and its glass fades in over
+  40 px of scroll as the title's top edge passes under it while the title fades out (from 8 px on a page with no
+  title). The glass is the one blur in Lamplight: the mica at 74% over `backdrop-filter: blur(16px) saturate(1.5)`,
+  solid behind the status bar, reaching 24 px below the bar with that foot masked away (no hairline, no hard edge);
+  solid mica with less transparency. Scrolling writes `--ll-bar-progress` on the bar and `--ll-title-opacity` on the
+  title only, and only when they change (on the root they restyled the whole page each frame and stuttered); a title
+  pushed down by padding is measured from its words (`titleInset`). Hidden on welcome, onboarding, `AddedOnly` and full-screen moments. The edge swipe (installed apps) holds the
   page, finishing on a third or a flick, springing back otherwise (Proairetos's back stack through `setSwipeBack` in
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
@@ -201,7 +206,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   been still for 1.5 s and the browser is idle (`whenStill` in `dailyCopy.ts`). A `.page-top` holding only what the bar
   carries is removed on phones (no gap above the title).
 - Lamplight 1.3 (materials and touch, `bars.css`, `layout.css`, `tokens.css`, `components.css`, `behaviors.ts`): no blur
-  anywhere (`backdrop-filter` is banned by a test): bars and docks are mica (`--ll-mica` from the scheme, `--ll-mica-surface`
+  except the phone top bar's glass (a test allows `backdrop-filter` in `bars.css` only): docks are mica (`--ll-mica` from the scheme, `--ll-mica-surface`
   with the lamp washing in; `--color-bar-rgb` and Askesis's `--bar` follow it), content fades into a bar (`--ll-edge-below` /
   `--ll-edge-above`), backdrops are a plain dim. Docks tuck away reading down a page and come back scrolling up
   (`:root.ll-tucked`); the top bar's buttons share one mica pill. Long-press or right-click a row (`.swipe`, `.check-row`,

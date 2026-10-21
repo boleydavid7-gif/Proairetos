@@ -33,6 +33,9 @@ const BACK = '.back-link, .page-hero__back, .theoria-back-button, .meditate-page
 const OUTSIDE = 'dialog, nav, .tab-bar, .ll-topbar, [data-no-topbar]';
 const PAGE = '.app-shell__content, .page, main';
 const PHONE = '(max-width: 61.99rem)';
+/** How much scroll the title's handoff to the top bar takes, in CSS pixels. */
+const HANDOFF = 40;
+const clamp = (value: number) => Math.min(1, Math.max(0, value));
 /** Full-screen moments with no bar of their own to fold into. */
 const FULL = '.theoria-reader-back, .sit-screen__leave, .focus-screen, .pause-screen, .guide, .welcome, .onboarding-layout, .added-only';
 
@@ -123,6 +126,10 @@ function largeTitle(): void {
   let copied = '';
   let leadKey = '';
   let frame = 0;
+  let shownProgress = '';
+  // Where the title's words begin inside its box: a title moved down by padding (the anchoring below) starts higher
+  // than its words. Read once per page change, never per scroll frame.
+  let titleInset = 0;
   let lastY = 0;
   let tucked = false;
   // Reading the page's controls (and serialising them to see whether they changed) happens only after the page
@@ -190,17 +197,15 @@ function largeTitle(): void {
     root.classList.toggle('ll-bar-on', on);
     if (!on) {
       root.classList.remove('ll-tucked');
-      root.classList.remove('ll-title-folded');
       title?.classList.remove('ll-title-folding');
       titleFrame?.classList.remove('ll-title-anchored');
       titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
       titleFrame?.style.removeProperty('--ll-title-shift');
       titleFrame = undefined;
       anchoredTitle = undefined;
-      root.style.removeProperty('--ll-bar-progress');
-      root.style.removeProperty('--ll-hair-progress');
-      root.style.removeProperty('--ll-title-opacity');
-      root.style.removeProperty('--ll-title-blur');
+      bar.style.removeProperty('--ll-bar-progress');
+      title?.style.removeProperty('--ll-title-opacity');
+      shownProgress = '';
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
       bar.setAttribute('aria-hidden', 'true');
       dirty = false;
@@ -213,7 +218,15 @@ function largeTitle(): void {
 
   const structure = () => {
     dirty = false;
-    if (!title?.isConnected || !shown(title)) title = first(TITLE);
+    if (!title?.isConnected || !shown(title)) {
+      const next = first(TITLE);
+      if (next !== title) {
+        title?.classList.remove('ll-title-folding');
+        title?.style.removeProperty('--ll-title-opacity');
+        shownProgress = '';
+      }
+      title = next;
+    }
     const nextFrame =
       title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header, .poreia-header__words') ?? title;
     if (titleFrame !== nextFrame || anchoredTitle !== title) {
@@ -268,6 +281,7 @@ function largeTitle(): void {
         titleFrame.style.removeProperty('--ll-title-shift');
       }
     }
+    titleInset = title ? Number.parseFloat(getComputedStyle(title).paddingTop) || 0 : 0;
     picture = first(PICTURE);
     // Mid-transition a page's title or picture can measure empty; look again once the move has settled.
     const unseen = (!title && document.querySelector(TITLE)) || (!picture && document.querySelector(PICTURE));
@@ -302,25 +316,26 @@ function largeTitle(): void {
     if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
-    // Follow the title continuously instead of waiting for a binary crossing. The handoff finishes
-    // before the title's top edge reaches the bar, so glyphs never get clipped by the fixed chrome.
-    const fadeDistance = 36;
-    const titleRect = title?.getBoundingClientRect();
-    const titleBottom = titleRect?.bottom;
-    const progress = titleBottom === undefined
-      ? Math.min(1, Math.max(0, (y - 36) / fadeDistance))
-      : Math.min(1, Math.max(0, (height + fadeDistance - titleBottom) / fadeDistance));
+    // The handoff follows the title's top edge over a short stretch of scroll: it starts just below the bar and is
+    // done once the title's top has slipped under it, so the title fades as it passes beneath the bar's glass rather
+    // than sitting half there under the app's name. The values go on the bar and the title alone, and only when
+    // they change: written on the root they restyled the whole page every frame, which made scrolling stutter.
+    const titleTop = title?.isConnected ? title.getBoundingClientRect().top + titleInset : undefined;
+    const progress = titleTop === undefined
+      ? clamp((y - 8) / HANDOFF)
+      : clamp((height + HANDOFF / 2 - titleTop) / HANDOFF);
+    const value = progress.toFixed(3);
+    if (value !== shownProgress) {
+      shownProgress = value;
+      bar.style.setProperty('--ll-bar-progress', value);
+      title?.style.setProperty('--ll-title-opacity', (1 - progress).toFixed(3));
+    }
     const folded = progress >= 0.999;
-    root.style.setProperty('--ll-bar-progress', progress.toFixed(3));
-    root.style.setProperty('--ll-hair-progress', (progress * 0.78).toFixed(3));
-    root.style.setProperty('--ll-title-opacity', (1 - progress).toFixed(3));
-    root.style.setProperty('--ll-title-blur', `${(progress * 8).toFixed(2)}px`);
     bar.classList.add('is-on');
     bar.classList.toggle('is-scrolled', progress > 0.001);
     bar.classList.toggle('is-folded', folded);
     bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
-    root.classList.toggle('ll-title-folded', folded);
-    title?.classList.add('ll-title-folding');
+    if (title && !title.classList.contains('ll-title-folding')) title.classList.add('ll-title-folding');
     bar.setAttribute('aria-hidden', 'false');
   };
   const soon = () => {

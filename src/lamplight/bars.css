@@ -1,6 +1,6 @@
 /*
- * Lamplight's materials, after Fluent's: no blur anywhere (it renders unevenly on phones). Solid for cards; mica for
- * bars and docks, opaque, the room's hue a little stronger than the page, with the lamp's light washing in faintly
+ * Lamplight's materials, after Fluent's: one blur only, the phone's top bar (below). Solid for cards; mica for
+ * the docks, opaque, the room's hue a little stronger than the page, with the lamp's light washing in faintly
  * from above; smoke, a plain dim, behind dialogs and sheets. Where content passes under a bar it fades into the mica
  * (the scroll edge) instead of meeting a hard line.
  */
@@ -49,8 +49,8 @@
 
 /*
  * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
- * on the left; the page's actions, Settings and the family's places on the right. Glass once the page scrolls, a
- * hairline once the page's title has gone under. It names the app only. Computers keep their rail.
+ * on the left; the page's actions, Settings and the family's places on the right. Glass fades in as the page's
+ * title passes under it. It names the app only. Computers keep their rail.
  */
 .ll-topbar {
   display: none;
@@ -73,55 +73,33 @@
     pointer-events: auto;
   }
 
-  /* The mica sits on a layer of its own and crossfades over the page. Opacity carries the
-     handoff, so the solid surface and its edge arrive together instead of snapping in. */
+  /* The bar's glass, on a layer of its own that fades in with the scroll (--ll-bar-progress, set on the bar by
+     behaviors.ts). It is the one blur in Lamplight, as on iOS: the room's mica, a little see-through, over a blur of
+     whatever passes beneath, so the page melts into the bar instead of meeting a band; solid behind the status bar,
+     where the blur has nothing above the screen to draw from and text would show through sharp. The layer reaches a little
+     below the bar and its foot is masked away, so the blur thins out gradually rather than ending on a line. Only its
+     opacity changes while scrolling, which the compositor carries without repainting. */
   .ll-topbar.is-on::before {
     content: '';
     position: absolute;
     z-index: -1;
-    inset: 0;
-    /* The top bar is the one deliberate glass exception in Lamplight. The blur softens the
-       handoff, but the surface that settles over the page is fully solid and room-tinted. */
-    background: var(--ll-material-mica-surface);
-    -webkit-backdrop-filter: blur(18px) saturate(1.12);
-    backdrop-filter: blur(18px) saturate(1.12);
-    box-shadow: var(--ll-edge-below);
+    inset: 0 0 calc(-1 * var(--ll-bar-feather));
+    background:
+      radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%),
+      linear-gradient(to bottom,
+        var(--ll-material-mica) calc(var(--ll-safe-top) + 4px),
+        color-mix(in srgb, var(--ll-material-mica) 74%, transparent) calc(var(--ll-safe-top) + 30px));
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
     pointer-events: none;
   }
 
-  .ll-topbar.is-scrolled::before {
-    opacity: var(--ll-bar-progress, 0);
-  }
-
-  /* A separate hairline settles in after the title has passed under the bar. Keeping it outside
-     the mask makes the edge readable while the content fade remains soft. */
-  .ll-topbar.is-on::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 1px;
-    background: var(--ll-hair, rgb(255 255 255 / 0.12));
-    opacity: var(--ll-hair-progress, 0);
-    pointer-events: none;
-  }
-
-  .ll-topbar.is-scrolled::after {
-    opacity: var(--ll-hair-progress, 0);
-  }
-
-  /* Once the title has completely handed off, the bar and page should read as one
-     uninterrupted surface. The edge shadow and hairline are useful during the
-     handoff, but become a visible seam when the titlebar is fully settled. */
-  .ll-topbar.is-folded::before {
-    box-shadow: none;
-  }
-
-  .ll-topbar.is-folded::after {
-    opacity: 0;
+  .ll-topbar.is-on {
+    --ll-bar-feather: 24px;
   }
 
   /* Left: the app's name, or the chevron and where it goes. */
@@ -161,8 +139,7 @@
 
   :root .ll-title-folding {
     opacity: var(--ll-title-opacity, 1);
-    filter: blur(var(--ll-title-blur, 0px));
-    will-change: opacity, filter;
+    will-change: opacity;
   }
 
   /* All mobile title containers enter the same visual band before the handoff starts. The frame moves as a unit so
@@ -372,10 +349,10 @@
   }
 }
 
-/* Some platforms expose a reduced-transparency preference separately from reduced motion. Keep
-   the same solid handoff while removing the expensive backdrop effect. */
+/* Asked for less transparency, the bar's glass becomes the solid mica, still feathered at its foot. */
 @media (prefers-reduced-transparency: reduce) {
   .ll-topbar.is-on::before {
+    background: var(--ll-material-mica-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -512,6 +489,10 @@ html[data-swiped]::view-transition-old(root) {
 
   .ll-topbar.is-scrolled::before {
     background: Canvas;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   :root :is(.button-main, .button-accent, .button-quiet, .ll-button, .chip, .switch) {
