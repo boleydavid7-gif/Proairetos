@@ -94,6 +94,7 @@ function coins(): Shape[] {
 /** Turned or scaled as a whole (never per shape: a cut is measured inside the shape's own turn). */
 const WHOLE: Partial<Record<FamilyApp, string>> = {
   therapeia: 'rotate(-45 512 512) translate(512 512) scale(1.3) translate(-512 -512)',
+  poreia: 'rotate(45 512 512)',
 };
 
 const MARKS: Record<FamilyApp, Shape[]> = {
@@ -300,9 +301,12 @@ const MARKS: Record<FamilyApp, Shape[]> = {
     },
   ],
   poreia: [
-    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 250, fill: 'none', strokeWidth: 34 }, level: SECOND },
-    { tag: 'path', attrs: line('M318 650 C410 610 438 540 500 500 C562 460 594 390 706 344', 54), gap: 14 },
-    { tag: 'path', attrs: path('M650 286 L736 330 L672 404 L680 352 L628 326Z'), level: 0.82, gap: 12 },
+    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 262, fill: 'none', strokeWidth: 40 }, level: SECOND },
+    {
+      tag: 'path',
+      attrs: path('M512 214 C542 214 556 250 556 284 V440 L800 572 V630 L556 566 V680 L660 742 V786 L512 750 L364 786 V742 L468 680 V566 L224 630 V572 L468 440 V284 C468 250 482 214 512 214Z'),
+      gap: 16,
+    },
   ],
 };
 
@@ -322,7 +326,7 @@ export const MARK_COLOR: Record<FamilyApp, string> = {
   dynamis: '#de762a',
   ktema: '#7b5236',
   phyton: '#3a934b',
-  poreia: '#4cc3c7',
+  poreia: '#0f6f78',
 };
 
 export const MARK_LIGHT = '#fbf6ec';

@@ -48,6 +48,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Microsoft registration (Single-page application); add `GOOGLE_DRIVE_CLIENT_ID` and `GOOGLE_DRIVE_CLIENT_SECRET`
       to the proairetos Worker as secrets (steps in `docs/SERVER_SETUP.md`, "Your own storage").
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
+- [ ] (Optional) Events in Poreia: a free key from developer.ticketmaster.com (Discovery API), added as the Cloudflare Worker
+  secret `TICKETMASTER_KEY`. Without it Poreia links to Ticketmaster and SeatGeek searches instead of listing events.
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
 

@@ -144,6 +144,14 @@ export const APPS = {
       <rect x="296" y="540" width="432" height="64" rx="22" fill="${w}"/>
       <rect x="320" y="604" width="384" height="22" fill="${tint}" opacity=".6"/>`,
   },
+  poreia: {
+    tile: '#0f6f78',
+    glyph: (w, tint, deep) => `
+      <circle cx="512" cy="512" r="262" stroke="${tint}" stroke-width="40" fill="none"/>
+      <g transform="rotate(45 512 512)">
+        <path d="M512 214 C542 214 556 250 556 284 V440 L800 572 V630 L556 566 V680 L660 742 V786 L512 750 L364 786 V742 L468 680 V566 L224 630 V572 L468 440 V284 C468 250 482 214 512 214Z" fill="${w}" stroke="${deep}" stroke-width="22" paint-order="stroke"/>
+      </g>`,
+  },
 };
 
 const RADIUS = 229; // the iPhone corner (22.37 %), for the rounded versions

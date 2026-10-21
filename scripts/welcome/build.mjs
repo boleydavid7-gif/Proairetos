@@ -192,6 +192,19 @@ const apps = [
       ['Away', 'A sheet for whoever waters while you are gone.'],
     ],
   },
+  {
+    id: 'poreia', name: 'Poreia', icon: '/poreia/icons/icon-192.png', category: 'TravelApplication',
+    ground: '#071c24', accent: '#4cc3c7', ink: '#e8f5f2',
+    line: 'Trips and time off',
+    card: 'Plan trips, find stays, flights, cruises and events, and track time off with your work schedule.',
+    about: 'Plan a trip from the first idea to the last day: search stays, flights, cruises and events on the sites you already use, keep bookings and days together, and track time off against your work schedule.',
+    points: [
+      ['Find and book', 'Booking.com, Airbnb, Google Flights, cruises, Ticketmaster and more, opened with your place and dates.'],
+      ['Bookings in one place', 'Paste a confirmation email and the dates, times and number are read for you.'],
+      ['Time off', 'Your balance and how it grows, with each trip’s hours counted from your work shifts.'],
+      ['With Proairetos', 'Approved time off takes those shifts off your schedule; trips show in Days ahead.'],
+    ],
+  },
 ];
 
 const addOns = apps.filter((app) => app.id !== 'proairetos');

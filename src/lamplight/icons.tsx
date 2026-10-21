@@ -487,6 +487,37 @@ export const GLYPHS = {
       </>
     ),
   },
+  plane: {
+    line: <path d="M12 2.8c.9 0 1.5 1 1.5 2.2v5.2l7.5 4.3v2l-7.5-2.3v4.4l2.2 1.7v1.6L12 20.8l-3.7 1.1v-1.6l2.2-1.7v-4.4L3 16.5v-2l7.5-4.3V5c0-1.2.6-2.2 1.5-2.2z" />,
+    lit: <path d="M12 2.8c.9 0 1.5 1 1.5 2.2v5.2l7.5 4.3v2l-7.5-2.3v4.4l2.2 1.7v1.6L12 20.8l-3.7 1.1v-1.6l2.2-1.7v-4.4L3 16.5v-2l7.5-4.3V5c0-1.2.6-2.2 1.5-2.2z" />,
+  },
+  suitcase: {
+    line: (
+      <>
+        <rect x="4" y="7.5" width="16" height="12" rx="2.2" />
+        <path d="M9 7.5V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6v1.9M8.5 7.5v12M15.5 7.5v12" />
+      </>
+    ),
+    lit: <rect x="4" y="7.5" width="16" height="12" rx="2.2" />,
+  },
+  globe: {
+    line: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5z" />
+      </>
+    ),
+    lit: <circle cx="12" cy="12" r="8.5" />,
+  },
+  bed: {
+    line: (
+      <>
+        <path d="M3 18.5V6.5M3 15h18v3.5M21 15v-3.2a2.3 2.3 0 0 0-2.3-2.3H11V15" />
+        <circle cx="7" cy="11.5" r="1.8" />
+      </>
+    ),
+    lit: <path d="M11 9.5h7.7a2.3 2.3 0 0 1 2.3 2.3V15H11z" />,
+  },
 } satisfies Record<string, Glyph>;
 
 export type GlyphName = keyof typeof GLYPHS;

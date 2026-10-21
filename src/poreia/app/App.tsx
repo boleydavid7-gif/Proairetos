@@ -1,53 +1,93 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { startSync } from '../../app/sync/syncController';
-import { directionAlong, transition, type Direction } from '../../app/transitions';
-import { TabBar, tabNames, type Tab } from './ui';
-import { startStore } from '../data/store';
-import HomePage from '../screens/HomePage';
-import TripsPage from '../screens/TripsPage';
-import CalendarPage from '../screens/CalendarPage';
-import PtoPage from '../screens/PtoPage';
-import DiscoverPage from '../screens/DiscoverPage';
-import TripDetailPage from '../screens/TripDetailPage';
-import MorePage from '../screens/MorePage';
-import PlanTripPage from '../screens/PlanTripPage';
+import { useEffect, useState } from 'react';
+import { takeOpening } from '../../app/family/opening';
+import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
+import { ClockIcon, GlobeIcon, SettingsIcon, SuitcaseIcon } from '../../app/family/icons';
+import type { BookingKind } from '../core/model';
+import type { SearchKind } from '../core/links';
+import { countFirstVersion } from './fresh';
+import { recountPlanned } from './proairetos';
+import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
+import TripsPage from '../screens/TripsPage';
+import TripPage, { type TripView } from '../screens/TripPage';
+import TripForm from '../screens/TripForm';
+import BookingForm from '../screens/BookingForm';
+import ExplorePage from '../screens/ExplorePage';
+import TimeOffPage from '../screens/TimeOffPage';
+import TimeOffForm from '../screens/TimeOffForm';
+import TimeOffSetupPage from '../screens/TimeOffSetupPage';
+import MorePage from '../screens/MorePage';
+import FreshPage from '../screens/FreshPage';
 
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'trip'; id: string } | { name: 'vacation' } | { name: 'plan' };
-export type Nav = { go: (route: Route) => void; swap: (route: Route) => void; back: () => void };
-const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).includes(name);
+export type Tab = 'trips' | 'explore' | 'time' | 'more';
+export type Route =
+  | { name: 'welcome' }
+  | { name: 'fresh'; count: number }
+  | { name: Tab; placeId?: string; search?: SearchKind }
+  | { name: 'trip'; id: string; view?: TripView }
+  | { name: 'trip-form'; id?: string; draft?: { name?: string; place?: string } }
+  | { name: 'booking'; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }
+  | { name: 'time-off'; id?: string; tripId?: string }
+  | { name: 'time-setup' };
+export type PoreiaNav = Nav<Route>;
+
+const tabs: readonly TabDef<Tab>[] = [
+  { id: 'trips', label: 'Trips', Icon: SuitcaseIcon },
+  { id: 'explore', label: 'Explore', Icon: GlobeIcon },
+  { id: 'time', label: 'Time off', Icon: ClockIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
+];
+const tabNames = tabs.map((tab) => tab.id) as string[];
+
+function firstRoute(): Route {
+  // From a notice, a shortcut or another app: `trip:ID`, `add`, `explore`, `time`, `booking:TRIP`.
+  const opening = takeOpening();
+  if (opening?.startsWith('trip:')) return { name: 'trip', id: opening.slice(5) };
+  if (opening === 'add') return { name: 'trip-form' };
+  if (opening?.startsWith('booking:')) return { name: 'booking', tripId: opening.slice(8), paste: true };
+  if (opening && tabNames.includes(opening)) return { name: opening as Tab };
+  return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
+}
 
 export default function App() {
-  const [started, setStarted] = useState(() => localStorage.getItem('poreia:started') === 'yes');
-  const [route, setRoute] = useState<Route>(() => (started ? { name: 'home' } : { name: 'welcome' }));
-  const [lastTab, setLastTab] = useState<Tab>('home');
+  const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' });
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    history.replaceState({ poreia: route }, '');
-    const onPop = (event: PopStateEvent) => transition('back', () => setRoute((event.state as { poreia?: Route } | null)?.poreia ?? { name: 'home' }));
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    // The first Poreia's records: said once, with Save a copy, then cleared (FreshPage).
+    void countFirstVersion().then((count) => {
+      setChecked(true);
+      if (count > 0) nav.swap({ name: 'fresh', count });
+    });
+    void recountPlanned();
   }, []);
 
-  useEffect(() => {
-    if (isTab(route.name)) setLastTab(route.name);
-    window.scrollTo(0, 0);
-  }, [route]);
+  const page = (() => {
+    switch (route.name) {
+      case 'welcome':
+        return <WelcomePage nav={nav} />;
+      case 'fresh':
+        return <FreshPage nav={nav} count={route.count} />;
+      case 'trips':
+        return <TripsPage nav={nav} />;
+      case 'explore':
+        return <ExplorePage nav={nav} search={route.search} />;
+      case 'time':
+        return <TimeOffPage nav={nav} />;
+      case 'more':
+        return <MorePage nav={nav} />;
+      case 'trip':
+        return <TripPage nav={nav} id={route.id} view={route.view} />;
+      case 'trip-form':
+        return <TripForm nav={nav} id={route.id} draft={route.draft} />;
+      case 'booking':
+        return <BookingForm nav={nav} tripId={route.tripId} id={route.id} kind={route.kind} paste={route.paste} />;
+      case 'time-off':
+        return <TimeOffForm nav={nav} id={route.id} tripId={route.tripId} />;
+      case 'time-setup':
+        return <TimeOffSetupPage nav={nav} />;
+    }
+  })();
 
-  useEffect(() => {
-    void startStore().then(() => startSync()).catch(() => undefined);
-  }, []);
-
-  const current = useRef(route);
-  current.current = route;
-  const directionTo = (next: Route): Direction => isTab(current.current.name) && isTab(next.name) ? directionAlong(tabNames, current.current.name, next.name) : 'forward';
-  const go = useCallback((next: Route) => { history.pushState({ poreia: next }, ''); transition(directionTo(next), () => setRoute(next)); }, []);
-  const swap = useCallback((next: Route) => { history.replaceState({ poreia: next }, ''); transition(directionTo(next), () => setRoute(next)); }, []);
-  const back = useCallback(() => history.length > 1 ? history.back() : swap({ name: lastTab }), [lastTab, swap]);
-  const nav: Nav = { go, swap, back };
-
-  if (route.name === 'welcome') return <WelcomePage nav={nav} onStarted={() => { localStorage.setItem('poreia:started', 'yes'); setStarted(true); nav.swap({ name: 'home' }); }} />;
-  if (route.name === 'plan') return <PlanTripPage nav={nav} />;
-  const page = route.name === 'trip' ? <TripDetailPage nav={nav} tripId={route.id} /> : route.name === 'vacation' ? <PtoPage nav={nav} /> : route.name === 'home' ? <HomePage nav={nav} /> : route.name === 'trips' ? <TripsPage nav={nav} /> : route.name === 'calendar' ? <CalendarPage nav={nav} /> : route.name === 'discover' ? <DiscoverPage nav={nav} /> : <MorePage nav={nav} />;
-  return <div className="shell shell--tabs"><main key={route.name} className="page-enter">{page}</main><TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} /></div>;
+  return <Shell page={checked || route.name === 'welcome' ? page : null} routeKey={JSON.stringify(route)} tabs={tabs} current={isTab ? (route.name as Tab) : undefined} onPick={(tab) => nav.swap({ name: tab })} showTabs={route.name !== 'welcome' && route.name !== 'fresh'} />;
 }

@@ -12,7 +12,7 @@ type Lines = { stoic: Line[]; buddhist: Line[] };
 const BUDDHARAKKHITA = 'tr. Acharya Buddharakkhita';
 const LONG = 'tr. George Long';
 
-export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton', Lines> = {
+export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'poreia', Lines> = {
   diaita: {
     stoic: [
       { text: 'Indulge the body only so far as is needful for good health.', by: 'Seneca, Letters 8' },
@@ -107,6 +107,18 @@ export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynami
       { text: 'As a bee gathers honey from the flower without injuring its color or fragrance, even so the sage goes on his alms-round in the village.', by: `The Buddha, Dhammapada 49 (${BUDDHARAKKHITA})` },
       { text: 'Like a beautiful flower full of color but without fragrance, even so, fruitless are the fair words of one who does not practice them.', by: `The Buddha, Dhammapada 51 (${BUDDHARAKKHITA})` },
       { text: 'Seeds come to growth and increase when there is earth and there is water.', by: 'After the Bija Sutta, SN 22.54 (paraphrase)' },
+    ],
+  },
+  poreia: {
+    stoic: [
+      { text: 'Men seek retreats for themselves, houses in the country, sea-shores, and mountains; but it is in thy power whenever thou shalt choose to retire into thyself.', by: `Marcus Aurelius, Meditations 4.3 (${LONG})` },
+      { text: 'Travel does little for the one who takes along the trouble he set out to leave.', by: 'After Seneca, Letters 28 (paraphrase)' },
+      { text: 'Travel and a change of place give the mind fresh strength.', by: 'After Seneca, On Tranquility of Mind 17 (paraphrase)' },
+    ],
+    buddhist: [
+      { text: 'You yourselves must strive; the Buddhas only point the way.', by: `The Buddha, Dhammapada 276 (${BUDDHARAKKHITA})` },
+      { text: 'Better than a thousand useless words is one useful word, hearing which one attains peace.', by: `The Buddha, Dhammapada 100 (${BUDDHARAKKHITA})` },
+      { text: 'Just as a solid rock is not shaken by the storm, even so the wise are not affected by praise or blame.', by: `The Buddha, Dhammapada 81 (${BUDDHARAKKHITA})` },
     ],
   },
 };

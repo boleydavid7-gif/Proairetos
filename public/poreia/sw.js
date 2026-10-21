@@ -1,5 +1,5 @@
-const CACHE = 'poreia-v1';
-const SHELL = ['/poreia/', '/poreia/index.html', '/poreia/manifest.webmanifest', '/poreia/icon.svg'];
+const CACHE = 'poreia-v2';
+const SHELL = ['/poreia/', '/poreia/index.html', '/poreia/manifest.webmanifest', '/poreia/icon.svg', '/poreia/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

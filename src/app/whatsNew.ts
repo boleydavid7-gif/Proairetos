@@ -1,6 +1,13 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-21',
+    lines: [
+      'Poreia starts over: plan trips; search stays, flights, cars, cruises, events and tours on Booking.com, Airbnb, Google Flights and others with your place and dates filled in; paste a confirmation to keep a booking; and see each trip’s days, packing and money.',
+      'Poreia tracks time off: your balance and how it grows, with each trip’s hours counted from your work shifts in Proairetos. Once marked approved, those shifts come off your schedule (canceling puts them back), and trips and time off show in Days ahead.',
+    ],
+  },
+  {
     date: '2026-10-16',
     lines: [
       'Soma brings in your recipes from Paprika, Mela and Crouton: export from the other app, then Import › File. Photos, categories and favorites come along, and recipes you already have are left unchosen.',

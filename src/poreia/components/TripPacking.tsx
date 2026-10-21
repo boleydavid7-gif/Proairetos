@@ -1,23 +1,137 @@
 import { useState } from 'react';
-import { CheckIcon, PlusIcon } from '../app/icons';
-import type { PackingCategory, PackingItem, Trip } from '../core/trips';
-import { newId } from '../core/id';
-import { putTrip } from '../data/store';
+import { tap } from '../../app/feel';
+import { offerUndo } from '../../app/family/shell';
+import SwipeItem from '../../app/family/SwipeItem';
+import { Sym } from '../../lamplight/icons';
+import { Waiting } from '../../lamplight/Waiting';
+import { bookings, newId, nowStamp, packing, settings, today } from '../app/state';
+import { forecast } from '../app/world';
+import { PACK_GROUPS, nightsOf, type PackGroup, type PackItem, type Trip } from '../core/model';
+import { suggestedPacking } from '../core/packing';
+import { daysBetween } from '../../core/scheduling/dates';
 
-const categories: Array<{ id: PackingCategory; label: string }> = [
-  { id: 'clothing', label: 'Clothing' }, { id: 'essentials', label: 'Essentials' }, { id: 'toiletries', label: 'Toiletries' }, { id: 'electronics', label: 'Electronics' }, { id: 'documents', label: 'Documents' }, { id: 'other', label: 'Other' },
-];
-const starter = ['Passport or ID', 'Phone charger', 'Toiletries', 'Comfortable clothes'];
-
+/** The packing list: offered once from the trip's length, weather and bookings, then the person's own. */
 export default function TripPacking({ trip }: { trip: Trip }) {
-  const [adding, setAdding] = useState(false);
+  const list = packing.use().filter((each) => each.tripId === trip.id);
+  const home = settings.use().home;
+  const [busy, setBusy] = useState(false);
   const [name, setName] = useState('');
-  const [category, setCategory] = useState<PackingCategory>('essentials');
-  const items = trip.packingItems ?? [];
-  const packed = items.filter((item) => item.packed).length;
-  const update = async (packingItems: PackingItem[]) => putTrip({ ...trip, packingItems, updatedAt: new Date().toISOString() });
-  const generate = async () => { const now = new Date().toISOString(); await update(starter.map((item, index) => ({ id: `${trip.id}-pack-${index}`, name: item, category: index === 2 ? 'toiletries' : index === 3 ? 'clothing' : 'essentials', quantity: 1, packed: false, createdAt: now, updatedAt: now }))); };
-  const toggle = async (item: PackingItem) => update(items.map((each) => each.id === item.id ? { ...each, packed: !each.packed, updatedAt: new Date().toISOString() } : each));
-  const add = async () => { if (!name.trim()) return; const now = new Date().toISOString(); await update([...items, { id: newId(), name: name.trim(), category, quantity: 1, packed: false, createdAt: now, updatedAt: now }]); setName(''); setAdding(false); };
-  return <section className="poreia-section poreia-trip-packing"><div className="poreia-checklist-summary"><div><p className="label">Packing progress</p><h2>{items.length ? `${packed} of ${items.length} packed` : 'Pack at your own pace'}</h2><p>{items.length ? `${items.length - packed} item${items.length - packed === 1 ? '' : 's'} remaining.` : 'Start with a suggested list or add what you know you will need.'}</p></div>{items.length > 0 && <span className="poreia-checklist-summary__percent">{Math.round(packed / items.length * 100)}%</span>}</div>{items.length > 0 && <div className="poreia-progress"><span style={{ width: `${packed / items.length * 100}%` }} /></div>}{!items.length ? <div className="card poreia-empty"><CheckIcon size={28} /><p className="muted">Use a short starter list, then make it fit this trip.</p><div className="button-row"><button type="button" className="button-main" onClick={() => void generate()}>Generate packing list</button><button type="button" className="button-quiet" onClick={() => setAdding(true)}>Add first item</button></div></div> : <div className="poreia-checklist-groups">{categories.map((group) => { const groupItems = items.filter((item) => item.category === group.id); if (!groupItems.length) return null; return <section className="poreia-checklist-group" key={group.id}><div className="poreia-section-head"><h3>{group.label}</h3><span className="label">{groupItems.filter((item) => item.packed).length}/{groupItems.length}</span></div>{groupItems.map((item) => <label className="poreia-checklist-item" key={item.id}><input type="checkbox" checked={item.packed} onChange={() => void toggle(item)} /><span className="poreia-checklist-item__mark">{item.packed && <CheckIcon size={16} />}</span><span>{item.name}{item.quantity > 1 ? ` · ${item.quantity}` : ''}</span></label>)}</section>; })}</div>}{adding && <form className="card poreia-form poreia-checklist-add" onSubmit={(event) => { event.preventDefault(); void add(); }}><div className="poreia-section-head"><h3>Add an item</h3><button type="button" className="text-link" onClick={() => setAdding(false)}>Cancel</button></div><label className="field"><span className="field__label">Item</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Light jacket" autoFocus required /></label><label className="field"><span className="field__label">Category</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value as PackingCategory)}>{categories.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label><button type="submit" className="button-main"><PlusIcon size={18} /> Add item</button></form>}{items.length > 0 && <button type="button" className="button-quiet" onClick={() => setAdding(true)}><PlusIcon size={18} /> Add item</button>}</section>;
+  const [group, setGroup] = useState<PackGroup>('other');
+  const packed = list.filter((each) => each.packed).length;
+
+  const suggest = async () => {
+    setBusy(true);
+    let low: number | undefined;
+    let high: number | undefined;
+    let rain = false;
+    const { lat, lon } = trip.place ?? {};
+    if (lat !== undefined && lon !== undefined && trip.start && daysBetween(today(), trip.start) <= 14) {
+      try {
+        const days = (await forecast(lat, lon)).filter((day) => day.date >= trip.start! && day.date <= (trip.end ?? trip.start!));
+        if (days.length) {
+          low = Math.min(...days.map((day) => day.low));
+          high = Math.max(...days.map((day) => day.high));
+          rain = days.some((day) => (day.rain ?? 0) >= 50);
+        }
+      } catch {
+        // Without the forecast the list leaves weather out.
+      }
+    }
+    const abroad = Boolean(trip.place?.countryCode && home?.countryCode && trip.place.countryCode !== home.countryCode);
+    const kinds = bookings.list().filter((each) => each.tripId === trip.id).map((each) => each.kind);
+    const items: PackItem[] = suggestedPacking({ nights: nightsOf(trip), abroad, low, high, rain, kinds }).map((each) => ({ id: newId(), tripId: trip.id, name: each.name, group: each.group, packed: false, createdAt: nowStamp() }));
+    items.forEach((item) => packing.put(item));
+    setBusy(false);
+    offerUndo(`${items.length} things added`, () => items.forEach((item) => packing.remove(item.id)));
+  };
+
+  return (
+    <>
+      {list.length === 0 ? (
+        <section className="card first-run">
+          <p className="muted">A starting list from the trip’s length{trip.place?.lat !== undefined ? ', weather' : ''} and bookings.</p>
+          <button type="button" className="button-main" disabled={busy} onClick={() => void suggest()}>
+            {busy ? <Waiting>Making a list…</Waiting> : 'Suggest a list'}
+          </button>
+        </section>
+      ) : (
+        <p className="muted">
+          {packed} of {list.length} packed
+        </p>
+      )}
+
+      {PACK_GROUPS.map(({ id, label }) => {
+        const items = list.filter((each) => each.group === id).sort((a, b) => Number(a.packed) - Number(b.packed) || a.createdAt.localeCompare(b.createdAt));
+        if (!items.length) return null;
+        return (
+          <section key={id} className="poreia-pack-group">
+            <p className="ll-section-label">{label}</p>
+            <ul className="rows">
+              {items.map((item) => (
+                <SwipeItem
+                  key={item.id}
+                  className="poreia-pack"
+                  label="Delete"
+                  tone="remove"
+                  onSwipe={() => {
+                    packing.remove(item.id);
+                    offerUndo(`“${item.name}” deleted`, () => packing.put(item));
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="check-row poreia-pack__row"
+                    aria-pressed={item.packed}
+                    onClick={() => {
+                      if (!item.packed) tap();
+                      packing.put({ ...item, packed: !item.packed });
+                    }}
+                  >
+                    <span className="check-row__box">{item.packed ? <Sym name="check" size={16} /> : null}</span>
+                    <span className={item.packed ? 'poreia-pack__done' : undefined}>{item.name}</span>
+                  </button>
+                </SwipeItem>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+
+      <form
+        className="add-line"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!name.trim()) return;
+          packing.put({ id: newId(), tripId: trip.id, name: name.trim(), group, packed: false, createdAt: nowStamp() });
+          setName('');
+        }}
+      >
+        <input className="input" value={name} placeholder="Add something to pack" onChange={(event) => setName(event.target.value)} />
+        <select className="input poreia-select" value={group} aria-label="Group" onChange={(event) => setGroup(event.target.value as PackGroup)}>
+          {PACK_GROUPS.map((each) => (
+            <option key={each.id} value={each.id}>
+              {each.label}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className="button-quiet" disabled={!name.trim()}>
+          Add
+        </button>
+      </form>
+
+      {packed > 0 && (
+        <button
+          type="button"
+          className="text-link"
+          onClick={() => {
+            const before = list.filter((each) => each.packed);
+            before.forEach((item) => packing.put({ ...item, packed: false }));
+            offerUndo('Packing cleared', () => before.forEach((item) => packing.put(item)));
+          }}
+        >
+          Unpack all (for the trip home)
+        </button>
+      )}
+    </>
+  );
 }

@@ -1,17 +1,23 @@
-import type { Nav } from '../app/App';
-import { PoreiaMark } from '../app/icons';
+import { Welcome } from '../../app/family/shell';
+import { AppMark } from '../../app/family/icons';
+import photo from '../../assets/images/scenes/poreia.webp';
+import photoWide from '../../assets/images/scenes/poreia-wide.webp';
+import type { PoreiaNav } from '../app/App';
+import { settings } from '../app/state';
 
-export default function WelcomePage({ onStarted }: { nav: Nav; onStarted: () => void }) {
+export default function WelcomePage({ nav }: { nav: PoreiaNav }) {
   return (
-    <div className="welcome poreia-welcome">
-      <div className="welcome__shade" />
-      <div className="welcome__content">
-        <PoreiaMark size={52} light />
-        <h1 className="welcome__name">Poreia</h1>
-        <p className="welcome__line">A better way to get away.</p>
-        <p className="welcome__about">Plan vacation windows around your work, family, leave and the things that still need doing.</p>
-        <div className="welcome__actions"><button type="button" className="button-main" onClick={onStarted}>Begin</button></div>
-      </div>
-    </div>
+    <Welcome
+      name="Poreia"
+      mark={<AppMark app="poreia" size={44} light />}
+      line="Trips, from first idea to home again."
+      about="Plan where and when, find stays, flights, cruises and things to do, keep every booking and day in one place, and track the time off from work they take."
+      photo={photo}
+      photoWide={photoWide}
+      onBegin={() => {
+        settings.save({ ...settings.load(), started: true });
+        nav.swap({ name: 'trips' });
+      }}
+    />
   );
 }

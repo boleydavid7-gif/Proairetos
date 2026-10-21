@@ -1,5 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
-  <rect width="1024" height="1024" rx="224" fill="#071c24"/>
-  <path d="M188 742c166-73 218-176 304-242 82-63 126-176 252-228" stroke="#4cc3c7" stroke-width="64" stroke-linecap="round"/>
-  <path d="m690 206 150 78-110 130 14-92-92-42 38-74Z" fill="#d9fbf6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="poreia-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#277d86"/><stop offset="1" stop-color="#0d5f67"/></linearGradient>
+    <radialGradient id="poreia-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cfd7c3" stop-opacity="0.42"/><stop offset=".28" stop-color="#cfd7c3" stop-opacity="0.1596"/><stop offset="1" stop-color="#cfd7c3" stop-opacity="0"/></radialGradient>
+    <filter id="poreia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
+    <clipPath id="poreia-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#poreia-tile)"/>
+  <g clip-path="url(#poreia-clip)">
+    <rect width="1024" height="1024" fill="url(#poreia-light)"/>
+    <circle cx="770" cy="170" r="250" fill="none" stroke="#cfd7c3" stroke-opacity="0.1" stroke-width="6"/>
+  </g>
+  <g filter="url(#poreia-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
+      <circle cx="512" cy="512" r="262" stroke="#93bec2" stroke-width="40" fill="none"/>
+      <g transform="rotate(45 512 512)">
+        <path d="M512 214 C542 214 556 250 556 284 V440 L800 572 V630 L556 566 V680 L660 742 V786 L512 750 L364 786 V742 L468 680 V566 L224 630 V572 L468 440 V284 C468 250 482 214 512 214Z" fill="#fbf6ec" stroke="#0b535a" stroke-width="22" paint-order="stroke"/>
+      </g></g></g>
 </svg>

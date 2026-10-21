@@ -1076,3 +1076,25 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `apart`) and a sideways strip of every photo.
 - Care journal: a plant's page also marks Pruned, Pests seen (what and where, optional) and Note (`journal`, kinds `prune`, `pest`, `note` with `text` up to 140 characters, in the same record; no effect on watering). A shared home's plant is trimmed oldest marks first to fit the sealed size (`fitForSharing` in `putPlant`, never below ten marks). Plants has place chips when there are two places or more.
 - Links: `?open=today|plants|more|add|identify|home|sitter|plant:ID`.
+
+
+## Poreia (trips and time off, same repository)
+
+- An app at `/poreia/`, rebuilt from scratch on the newer apps' shell (`startApp`, `shell.tsx`); the first
+  version's IndexedDB stores are cleared once after `FreshPage` offers Save a copy (`app/fresh.ts`). Records are
+  `collection`s in browser storage (`poreia:trip:`, `booking:`, `plan:`, `pack:`, `spend:`, `off:`; `poreia:settings`),
+  backed up and synced as preferences. Scene by `scripts/scenes/poreia.mjs` (a coast at dusk with a lighthouse).
+- Core (`core/`, tests in `src/tests/poreia/`): `model.ts` (trips with idea/planning/booked, bookings by kind, days
+  from bookings and plans, money totals converted by `ratesInto`), `confirmations.ts` (`readConfirmation`: provider,
+  kind, dates, times, cost, confirmation code from a pasted email or schema.org JSON-LD), `links.ts` (`searchLinks`:
+  stays, flights, cars, trains, cruises, events, tours, food on outside sites with place and dates filled; booking
+  happens there), `packing.ts`, `timeOff.ts` (balance from a starting amount, accrual, optional cap; `hoursFor` counts
+  the work shifts in the dates, else usual day hours), `calendar.ts` (`poreiaEvents` for Proairetos).
+- Two ways with Proairetos (`app/proairetos.ts`): hours are read from the schedule (`scheduleService`); approved time
+  off replaces those days' shifts with an empty day (`changeDay`) and keeps what was there (`TimeOff.replaced`), so
+  canceling, deleting or moving restores it. Planned and requested time off only show (tentative) in Days ahead
+  through `app/calendars/poreiaCalendar.ts`.
+- Outside services (`app/world.ts`, cached in `poreiaCache.*`): Open-Meteo places, forecast and last year's weather,
+  Wikivoyage/Wikipedia, Frankfurter rates, Nager.Date holidays, REST Countries, and events through the Worker
+  `/api/travel/events` (`worker/travelEvents.ts`, secret `TICKETMASTER_KEY`, optional).
+- Links: `?open=trip:ID|add|booking:TRIP|explore|time|more`.

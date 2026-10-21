@@ -2,7 +2,7 @@
   "id": "/poreia/",
   "name": "Poreia by Proairetos",
   "short_name": "Poreia",
-  "description": "Plan vacations around work leave, family availability, bookings and preparation.",
+  "description": "Trips and time off: plan trips, search stays, flights, cruises and events, keep bookings and days together, and track time off with your work schedule.",
   "start_url": "/poreia/",
   "scope": "/poreia/",
   "display": "standalone",
@@ -10,6 +10,82 @@
   "background_color": "#071c24",
   "theme_color": "#071c24",
   "icons": [
-    { "src": "/poreia/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "/poreia/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/poreia/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/poreia/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/poreia/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Poreia"
+    },
+    {
+      "src": "/poreia/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Poreia"
+    },
+    {
+      "src": "/poreia/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Poreia"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New trip",
+      "short_name": "New trip",
+      "url": "/poreia/?open=add",
+      "icons": [
+        {
+          "src": "/poreia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Explore",
+      "short_name": "Explore",
+      "url": "/poreia/?open=explore",
+      "icons": [
+        {
+          "src": "/poreia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Time off",
+      "short_name": "Time off",
+      "url": "/poreia/?open=time",
+      "icons": [
+        {
+          "src": "/poreia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }

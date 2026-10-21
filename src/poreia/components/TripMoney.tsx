@@ -1,0 +1,120 @@
+import { useEffect, useState } from 'react';
+import { offerUndo } from '../../app/family/shell';
+import SwipeItem from '../../app/family/SwipeItem';
+import { bookings, newId, nowStamp, settings, spends, today } from '../app/state';
+import { dayText, MoneyField } from '../app/ui';
+import { ratesInto } from '../app/world';
+import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type SpendCategory, type Trip } from '../core/model';
+
+/** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
+export default function TripMoney({ trip }: { trip: Trip }) {
+  const prefs = settings.use();
+  const currency = trip.budget?.currency ?? prefs.currency;
+  const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
+  const theirSpends = spends.use().filter((each) => each.tripId === trip.id).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  const [rates, setRates] = useState<Record<string, number>>({});
+  const [ratesFailed, setRatesFailed] = useState(false);
+  const foreign = [...theirBookings.map((b) => b.cost?.currency), ...theirSpends.map((s) => s.amount.currency)].some((code) => code && code !== currency);
+
+  useEffect(() => {
+    if (!foreign) return;
+    ratesInto(currency)
+      .then(setRates)
+      .catch(() => setRatesFailed(true));
+  }, [currency, foreign]);
+
+  const totals = tripTotals(theirBookings, theirSpends, currency, rates);
+  const [what, setWhat] = useState('');
+  const [amount, setAmount] = useState<{ cents?: number; currency: string }>({ currency });
+  const [category, setCategory] = useState<SpendCategory>('food');
+  const [date, setDate] = useState(today());
+
+  return (
+    <>
+      <section className="card poreia-money-card">
+        <p className="label">So far</p>
+        <p className="poreia-money-card__total">{moneyText({ cents: totals.total, currency })}</p>
+        {trip.budget && (
+          <p className="muted">
+            Budget {moneyText(trip.budget)} · {totals.total <= trip.budget.cents ? `${moneyText({ cents: trip.budget.cents - totals.total, currency })} left` : `${moneyText({ cents: totals.total - trip.budget.cents, currency })} over`}
+          </p>
+        )}
+        <dl className="detail-list">
+          <dt>Booked</dt>
+          <dd>{moneyText({ cents: totals.booked, currency })}</dd>
+          <dt>Spent there</dt>
+          <dd>{moneyText({ cents: totals.spent, currency })}</dd>
+          {SPEND_CATEGORIES.filter((each) => totals.byCategory.get(each.id)).map((each) => (
+            <span key={each.id} style={{ display: 'contents' }}>
+              <dt>{each.label}</dt>
+              <dd>{moneyText({ cents: totals.byCategory.get(each.id)!, currency })}</dd>
+            </span>
+          ))}
+        </dl>
+        {totals.unconverted.length > 0 && <p className="fine">{ratesFailed ? 'Couldn’t get exchange rates; ' : ''}Left out until converted: {totals.unconverted.map((money) => moneyText(money)).join(', ')}.</p>}
+        {foreign && !ratesFailed && <p className="fine">Converted at the European Central Bank’s latest rates.</p>}
+      </section>
+
+      <p className="ll-section-label">Add spending</p>
+      <section className="card">
+        <label className="field">
+          <span className="field__label">What</span>
+          <input className="input" value={what} placeholder="Dinner, museum, taxi" onChange={(event) => setWhat(event.target.value)} />
+        </label>
+        <MoneyField label="Amount" cents={amount.cents} currency={amount.currency} onChange={(cents, code) => setAmount({ cents, currency: code })} />
+        <div className="input-row">
+          <label className="field">
+            <span className="field__label">Kind</span>
+            <select className="input" value={category} onChange={(event) => setCategory(event.target.value as SpendCategory)}>
+              {SPEND_CATEGORIES.map((each) => (
+                <option key={each.id} value={each.id}>
+                  {each.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span className="field__label">Day</span>
+            <input className="input" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+          </label>
+        </div>
+        <button
+          type="button"
+          className="button-main"
+          disabled={!what.trim() || !amount.cents || amount.currency.length !== 3}
+          onClick={() => {
+            const spend: Spend = { id: newId(), tripId: trip.id, date: date || today(), what: what.trim(), amount: { cents: amount.cents!, currency: amount.currency }, category, createdAt: nowStamp() };
+            spends.put(spend);
+            setWhat('');
+            setAmount({ currency: amount.currency });
+          }}
+        >
+          Save
+        </button>
+      </section>
+
+      {theirSpends.length > 0 && (
+        <ul className="rows">
+          {theirSpends.map((spend) => (
+            <SwipeItem
+              key={spend.id}
+              className="poreia-spend"
+              label="Delete"
+              tone="remove"
+              onSwipe={() => {
+                spends.remove(spend.id);
+                offerUndo(`“${spend.what}” deleted`, () => spends.put(spend));
+              }}
+            >
+              <span className="row__text">
+                <span>{spend.what}</span>
+                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label].join(' · ')}</span>
+              </span>
+              <span className="poreia-trip-row__when">{moneyText(spend.amount)}</span>
+            </SwipeItem>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}

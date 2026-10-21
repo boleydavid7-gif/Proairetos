@@ -1,6 +1,7 @@
 import { handleCalendarRequest } from './calendarProxy';
 import { handleRecipeRequest } from './recipeProxy';
 import { handlePlantRequest } from './plantProxy';
+import { handleTravelEvents } from './travelEvents';
 import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
@@ -8,7 +9,7 @@ import { handleCaptureRequest, type CaptureEnv } from './capture';
 import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -46,6 +47,8 @@ export default {
       const lang = (request.headers.get('accept-language') ?? 'en').slice(0, 2).toLowerCase();
       return handlePlantRequest(request, env.PLANTNET_KEY, fetch, lang);
     }
+    // Poreia's events near a trip (Ticketmaster; GET answers whether it is set up).
+    if (url.pathname === '/api/travel/events') return handleTravelEvents(request, env.TICKETMASTER_KEY);
     // Keep sibling apps reachable at their clean family URLs without requiring a trailing slash.
     if (url.pathname === '/praxis') {
       const praxisUrl = new URL(request.url);

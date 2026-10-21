@@ -1,60 +1,171 @@
-import type { CSSProperties, ReactNode } from 'react';
-import ProairetosTab from '../../app/family/ProairetosTab';
-import { ArrowLeftIcon, CalendarIcon, DiscoverIcon, HomeIcon, MoreIcon, PoreiaMark, TripsIcon } from './icons';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronIcon } from '../../app/family/icons';
+import { parseLocalDate } from '../../core/scheduling/dates';
+import { phaseOf, phaseText, type Place, type Trip } from '../core/model';
+import { findPlaces } from './world';
 
-export type Tab = 'home' | 'trips' | 'calendar' | 'discover' | 'more';
+/** "Nov 2", "Nov 2 – 8", "Nov 30 – Dec 3", with the year when it is not this year. */
+export function datesText(start?: string, end?: string, thisYear = new Date().getFullYear()): string {
+  if (!start) return '';
+  const a = parseLocalDate(start);
+  const b = end && end > start ? parseLocalDate(end) : undefined;
+  const year = (b ?? a).getFullYear() !== thisYear ? `, ${(b ?? a).getFullYear()}` : '';
+  const month = (d: Date) => d.toLocaleDateString(undefined, { month: 'short' });
+  if (!b) return `${month(a)} ${a.getDate()}${year}`;
+  if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()) return `${month(a)} ${a.getDate()} – ${b.getDate()}${year}`;
+  return `${month(a)} ${a.getDate()} – ${month(b)} ${b.getDate()}${year}`;
+}
 
-const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactNode }[] = [
-  { id: 'home', label: 'Home', Icon: HomeIcon },
-  { id: 'trips', label: 'Trips', Icon: TripsIcon },
-  { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
-  { id: 'discover', label: 'Discover', Icon: DiscoverIcon },
-  { id: 'more', label: 'More', Icon: MoreIcon },
-];
+/** "Mon, Nov 2". */
+export const dayText = (date: string) => parseLocalDate(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
-export const tabNames = tabs.map((tab) => tab.id);
+/** "8:05 PM" or "20:05", as the phone shows times. */
+export function timeText(time?: string): string {
+  if (!time) return '';
+  const [h, m] = time.split(':').map(Number);
+  return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
 
-export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: (tab: Tab) => void }) {
+/** A trip as one row: name, where and when, and where it stands. */
+export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; onOpen: () => void }) {
+  const phase = phaseOf(trip, today);
   return (
-    <nav className="tab-bar" aria-label="Main">
-      {tabs.map(({ id, label, Icon }) => (
-        <button key={id} type="button" className="tab-bar__item" aria-current={current === id ? 'page' : undefined} onClick={() => onPick(id)}>
-          <Icon size={22} />
-          <span>{label}</span>
-        </button>
-      ))}
-      <ProairetosTab />
-    </nav>
+    <li>
+      <button type="button" className="row poreia-trip-row" onClick={onOpen}>
+        <span className={`poreia-trip-row__badge poreia-trip-row__badge--${phase.kind}`} aria-hidden="true">
+          {trip.place?.name.slice(0, 1).toUpperCase() ?? trip.name.slice(0, 1).toUpperCase()}
+        </span>
+        <span className="row__text">
+          <span>{trip.name}</span>
+          <span className="row__detail">{[trip.place && trip.place.name !== trip.name ? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</span>
+        </span>
+        <span className="poreia-trip-row__when">{phaseText(phase)}</span>
+        <ChevronIcon size={18} />
+      </button>
+    </li>
   );
 }
 
-export function Brand({ light = false }: { light?: boolean }) {
+/** A place picked from Open-Meteo's place search, as the person types. */
+export function PlaceSearch({ label, value, onPick, placeholder = 'City, region or country' }: { label: string; value?: Place; onPick: (place: Place | undefined) => void; placeholder?: string }) {
+  const [text, setText] = useState(value?.label ?? value?.name ?? '');
+  const [results, setResults] = useState<Place[]>([]);
+  const [open, setOpen] = useState(false);
+  const [problem, setProblem] = useState('');
+  const timer = useRef(0);
+
+  useEffect(() => setText(value?.label ?? value?.name ?? ''), [value?.label, value?.name]);
+
+  const look = (query: string) => {
+    window.clearTimeout(timer.current);
+    if (query.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    timer.current = window.setTimeout(() => {
+      findPlaces(query)
+        .then((found) => {
+          setResults(found);
+          setProblem('');
+        })
+        .catch(() => setProblem('Couldn’t search places. Check the connection, or keep the name as typed.'));
+    }, 280);
+  };
+
   return (
-    <div className={`brand${light ? ' brand--light' : ''}`}>
-      <PoreiaMark size={30} light={light} />
-      <span className="brand__words"><span className="brand__name">Poreia</span></span>
+    <div className="poreia-place">
+      <label className="field">
+        <span className="field__label">{label}</span>
+        <input
+          className="input"
+          value={text}
+          placeholder={placeholder}
+          autoComplete="off"
+          onChange={(event) => {
+            setText(event.target.value);
+            setOpen(true);
+            look(event.target.value);
+            if (!event.target.value.trim()) onPick(undefined);
+          }}
+          onBlur={() => {
+            // Typed but not picked: keep the words as the place's name.
+            window.setTimeout(() => {
+              setOpen(false);
+              const typed = text.trim();
+              if (typed && typed !== (value?.label ?? value?.name)) onPick({ name: typed.split(',')[0].trim(), label: typed });
+            }, 180);
+          }}
+        />
+      </label>
+      {open && results.length > 0 && (
+        <ul className="poreia-place__list" role="listbox" aria-label={`${label}: places`}>
+          {results.map((place) => (
+            <li key={`${place.lat},${place.lon}`}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={false}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setText(place.label ?? place.name);
+                  setOpen(false);
+                  setResults([]);
+                  onPick(place);
+                }}
+              >
+                {place.label ?? place.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {problem && <p className="fine">{problem}</p>}
     </div>
   );
 }
 
-export function PageTop({ children }: { children: ReactNode }) {
-  return <div className="page-top">{children}</div>;
-}
-
-export function BackLink({ onBack }: { onBack: () => void }) {
-  return <button type="button" className="back-link" onClick={onBack}><ArrowLeftIcon size={20} /> Back</button>;
-}
-
-export function PoreiaHeader({ eyebrow, title, description, compact = false, children, style, noTitleAnchor = false }: { eyebrow?: string; title: string; description?: string; compact?: boolean; children?: ReactNode; style?: CSSProperties; noTitleAnchor?: boolean }) {
+/** An amount with its currency. */
+export function MoneyField({ label, cents, currency, onChange }: { label: string; cents?: number; currency: string; onChange: (cents: number | undefined, currency: string) => void }) {
+  const [text, setText] = useState(cents !== undefined ? String(cents / 100) : '');
   return (
-    <header className={`poreia-header${compact ? ' poreia-header--compact' : ''}`} style={style} data-no-title-anchor={noTitleAnchor ? '' : undefined}>
-      <Brand />
-      <div className="poreia-header__words">
-        {eyebrow && <p className="label">{eyebrow}</p>}
-        <h1 className="poreia-header__title">{title}</h1>
-        {description && <p className="poreia-header__description">{description}</p>}
-      </div>
+    <div className="input-row poreia-money">
+      <label className="field">
+        <span className="field__label">{label}</span>
+        <input
+          className="input"
+          inputMode="decimal"
+          value={text}
+          placeholder="0"
+          onChange={(event) => {
+            setText(event.target.value);
+            const value = Number(event.target.value.replace(/,/g, '.').replace(/[^\d.]/g, ''));
+            onChange(event.target.value.trim() && Number.isFinite(value) ? Math.round(value * 100) : undefined, currency);
+          }}
+        />
+      </label>
+      <label className="field poreia-money__currency">
+        <span className="field__label">Currency</span>
+        <input className="input" value={currency} maxLength={3} autoCapitalize="characters" onChange={(event) => onChange(cents, event.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3))} />
+      </label>
+    </div>
+  );
+}
+
+/** A labeled fact row for detail lists. */
+export function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <>
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </>
+  );
+}
+
+/** Opens outside links in the browser, away from the app. */
+export function Outbound({ href, children, className = 'poreia-out' }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <a className={className} href={href} target="_blank" rel="noopener noreferrer">
       {children}
-    </header>
+    </a>
   );
 }

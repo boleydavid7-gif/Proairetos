@@ -78,6 +78,22 @@ export const DropIcon = glyphIcon('drop', 22);
 
 export const CameraIcon = glyphIcon('camera', 22);
 
+export const PlaneIcon = glyphIcon('plane', 22);
+
+export const SuitcaseIcon = glyphIcon('suitcase', 22);
+
+export const GlobeIcon = glyphIcon('globe', 22);
+
+export const BedIcon = glyphIcon('bed', 22);
+
+export const SearchIcon = glyphIcon('search', 22);
+
+export const ClockIcon = glyphIcon('clock', 22);
+
+export const LinkIcon = glyphIcon('link', 22);
+
+export const WalletIcon = glyphIcon('wallet', 22);
+
 /** Each app's mark: its icon's symbol without the tile (`marks.tsx`), light over pictures, else the text color. */
 export function AppMark({ app, size = 30, light = false }: { app: FamilyApp; size?: number; light?: boolean }) {
   return <FamilyMark app={app} size={size} color={light ? MARK_LIGHT : 'currentColor'} />;
