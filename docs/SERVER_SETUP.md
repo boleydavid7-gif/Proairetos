@@ -441,3 +441,22 @@ the publishable key, then sends the visitor to `/welcome/thanks/`. Nobody can re
 3. Read it: `select email, apps, source, created_at from public.waitlist order by created_at;` (`source` is the page it
    came from: `welcome` or an app's name). Export with the SQL editor's Download CSV.
 4. On launch day, email the list, then add early testers' emails to `STORE_TESTERS` if you want them to keep the apps free.
+
+## Poreia's live searches (optional)
+
+Each is a free sign-up whose key becomes a **Secret** on the proairetos Worker (runtime, not a build variable):
+Cloudflare → **Workers & Pages** → **proairetos** → **Settings** → **Variables and Secrets** → **+ Add** → Type
+**Secret**, the name below, paste the key → **Deploy**. Or from a computer: `npx wrangler secret put NAME`.
+Check with https://proairetos.com/api/travel: each one set up reads `true`.
+
+1. **Events — `TICKETMASTER_KEY`.** Register at developer.ticketmaster.com, sign in, open **My Apps**; the app made for
+   you shows a **Consumer Key**: that is the key. Free: 5,000 calls a day.
+2. **Stays with prices — `LITEAPI_KEY`.** Sign up at dashboard.liteapi.travel. **Profile** shows a sandbox key (sample
+   prices, to try it). For real prices add a card under **Payment Methods**, which unlocks the production key; use that.
+   Searching is free within a fair search-to-booking ratio.
+3. **Flights with prices — `DUFFEL_KEY`.** Sign up at app.duffel.com. With the dashboard in **Test mode**, open
+   **Developers → Access tokens → Create token** (it starts `duffel_test_`; results are Duffel's sample airline). For real
+   flights complete activation (card details under billing), switch to live mode and create a live token. Searches are free
+   up to a search-to-booking ratio; above it Duffel charges per search.
+
+Keep the keys only in Cloudflare; never in the repository or a plain variable.
