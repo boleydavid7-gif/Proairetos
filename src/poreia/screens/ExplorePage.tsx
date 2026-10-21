@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, settings, today, trips } from '../app/state';
 import { PlaceSearch } from '../app/ui';
-import { BookLinks, CountryCard, EventsCard, GuideCard, SightsCard, Weather, type Target } from '../components/Destination';
+import { BookLinks, CountryCard, GuideCard, Weather, type Target } from '../components/Destination';
+import Around from '../components/Around';
 import type { SearchKind } from '../core/links';
 import type { Place, Trip } from '../core/model';
 
@@ -75,10 +76,9 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
           >
             Make it a trip
           </button>
-          <BookLinks target={target} initial={search} />
+          <BookLinks target={target} initial={search} nav={nav} />
+          <Around place={target.place} start={target.start} end={target.end} nav={nav} />
           <Weather target={target} today={today()} />
-          <EventsCard target={target} />
-          <SightsCard place={target.place} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
         </>

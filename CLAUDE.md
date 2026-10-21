@@ -1105,4 +1105,16 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
 - Outside services (`app/world.ts`, cached in `poreiaCache.*`): Open-Meteo places, forecast and last year's weather,
   Wikivoyage/Wikipedia, Frankfurter rates, Nager.Date holidays, REST Countries, and events through the Worker
   `/api/travel/events` (`worker/travelEvents.ts`, secret `TICKETMASTER_KEY`, optional).
+- In the app as much as allowed (no provider lets its site be framed, and booking is theirs): Around (trip view `around`,
+  and in Explore; `components/Around.tsx`) is a map (`MapView`: MapLibre loaded only when a map shows, OpenFreeMap
+  `dark`/`positron` styles, no key; pins by category, credit folded) over one row of kinds; each kind joins Wikivoyage's own
+  listings (`readListings` in `core/spots.ts` reads `{{see|do|buy|eat|drink|sleep|listing}}` from the page's wikitext, with
+  district pages when the main page has few; `{{EUR|25}}` kept) and OpenStreetMap through Overpass (`overpassQuery`,
+  `readOverpass`; three public servers tried in turn). Events come from Ticketmaster. A place opens `PlacePage` (route
+  `place`): map, directions (Apple Maps on Apple devices), website, call, hours, price, Save to a trip (collection
+  `poreia:spot:`, `ref` keeps the found id; Overview's Saved places) and Add to a day. Stays with prices (LiteAPI, Worker
+  `/api/travel/stays`, secret `LITEAPI_KEY`) and flights (Duffel, `/api/travel/flights` and `/airports`, secret `DUFFEL_KEY`)
+  show in Find and book when `GET /api/travel` says they are set up (`worker/travelSearch.ts`, tests); booking opens on the
+  provider with the stay's name or the flight numbers (`stayLinks`, `flightLink`). Amadeus's self-service APIs closed in
+  July 2026, so they are not used.
 - Links: `?open=trip:ID|add|booking:TRIP|explore|time|more`.

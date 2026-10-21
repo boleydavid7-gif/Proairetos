@@ -4,9 +4,11 @@ import { addDays, daysBetween } from '../../core/scheduling/dates';
 import { Waiting } from '../../lamplight/Waiting';
 import { settings } from '../app/state';
 import { dayText, Outbound, timeText } from '../app/ui';
-import { countryFacts, degrees, eventsNear, eventsReady, forecast, guideFor, holidays, lastYear, ratesInto, sightsNear, skyWord, type Country, type DayWeather, type Guide, type Holiday, type LiveEvent, type Sight } from '../app/world';
+import { travelReady, countryFacts, degrees, eventsNear, eventsReady, forecast, guideFor, holidays, lastYear, ratesInto, sightsNear, skyWord, type Country, type DayWeather, type Guide, type Holiday, type LiveEvent, type Sight } from '../app/world';
 import { SEARCH_KINDS, searchLinks, type SearchKind } from '../core/links';
 import type { Place } from '../core/model';
+import type { PoreiaNav } from '../app/App';
+import { FlightSearch, StayResults } from './Searches';
 
 /*
  * The parts of a place Poreia shows on a trip and in Explore: weather for the dates, booking searches, the guide,
@@ -15,7 +17,7 @@ import type { Place } from '../core/model';
 
 export type Target = { place: Place; from?: Place; start?: string; end?: string; travelers: number };
 
-function useLoad<T>(key: string | undefined, load: () => Promise<T>): { value?: T; unreached: boolean; loading: boolean } {
+export function useLoad<T>(key: string | undefined, load: () => Promise<T>): { value?: T; unreached: boolean; loading: boolean } {
   const [state, setState] = useState<{ key?: string; value?: T; unreached: boolean }>({ unreached: false });
   useEffect(() => {
     if (!key) return;
@@ -72,8 +74,9 @@ export function Weather({ target, today }: { target: Target; today: string }) {
 }
 
 /** Searches on the booking sites, filled in from the trip. */
-export function BookLinks({ target, initial }: { target: Target; initial?: SearchKind }) {
+export function BookLinks({ target, initial, nav, tripId }: { target: Target; initial?: SearchKind; nav?: PoreiaNav; tripId?: string }) {
   const [kind, setKind] = useState<SearchKind>(initial ?? 'stays');
+  const ready = useLoad('travel-ready', travelReady);
   const home = settings.use().home;
   const links = searchLinks(kind, {
     to: target.place.label ?? target.place.name,
@@ -92,6 +95,9 @@ export function BookLinks({ target, initial }: { target: Target; initial?: Searc
           </button>
         ))}
       </div>
+      {kind === 'stays' && ready.value?.stays && nav && <StayResults target={target} nav={nav} tripId={tripId} />}
+      {kind === 'flights' && ready.value?.flights && <FlightSearch target={target} />}
+      {((kind === 'stays' && ready.value?.stays && nav) || (kind === 'flights' && ready.value?.flights)) && <p className="label">Also on</p>}
       <ul className="poreia-links">
         {links.map((link) => (
           <li key={link.site + link.url}>

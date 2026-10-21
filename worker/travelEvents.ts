@@ -6,7 +6,7 @@ import { tooOften } from './safeFetch';
  * trip's dates are passed on; nothing is stored. GET with no question answers whether it is set up.
  */
 
-export type TravelEvent = { id: string; name: string; date?: string; time?: string; venue?: string; url: string; image?: string; kind?: string; price?: string };
+export type TravelEvent = { id: string; name: string; date?: string; time?: string; venue?: string; url: string; image?: string; kind?: string; price?: string; lat?: number; lon?: number };
 
 function reply(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -25,7 +25,7 @@ type Upstream = {
       images?: { url: string; width: number; ratio?: string }[];
       classifications?: { segment?: { name?: string }; genre?: { name?: string } }[];
       priceRanges?: { min?: number; max?: number; currency?: string }[];
-      _embedded?: { venues?: { name?: string; city?: { name?: string } }[] };
+      _embedded?: { venues?: { name?: string; city?: { name?: string }; location?: { latitude?: string; longitude?: string } }[] };
     }[];
   };
 };
@@ -45,6 +45,8 @@ export function readEvents(data: Upstream): TravelEvent[] {
       url: event.url,
       image: image?.url,
       kind: genre && genre !== 'Undefined' ? genre : event.classifications?.[0]?.segment?.name,
+      lat: Number.parseFloat(event._embedded?.venues?.[0]?.location?.latitude ?? '') || undefined,
+      lon: Number.parseFloat(event._embedded?.venues?.[0]?.location?.longitude ?? '') || undefined,
       price: price?.min ? `${price.currency ?? ''} ${Math.round(price.min)}${price.max && price.max !== price.min ? `–${Math.round(price.max)}` : ''}`.trim() : undefined,
     };
   });

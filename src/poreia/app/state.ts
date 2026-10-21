@@ -1,6 +1,7 @@
 import { collection, stored } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { Booking, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
+import type { Spot } from '../core/spots';
 import { defaultSetup, type TimeOff, type TimeOffSetup } from '../core/timeOff';
 
 /*
@@ -37,6 +38,8 @@ export const plans = collection<PlanItem>('poreia:plan:');
 export const packing = collection<PackItem>('poreia:pack:');
 export const spends = collection<Spend>('poreia:spend:');
 export const timeOff = collection<TimeOff>('poreia:off:');
+/** Places saved to a trip, from the map, the guide, events and stays. */
+export const spots = collection<Spot>('poreia:spot:');
 
 export const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
 export const today = () => toLocalDate(new Date());
@@ -52,17 +55,20 @@ export function removeTrip(trip: Trip): () => void {
     plans: plans.list().filter((each) => each.tripId === trip.id),
     packing: packing.list().filter((each) => each.tripId === trip.id),
     spends: spends.list().filter((each) => each.tripId === trip.id),
+    spots: spots.list().filter((each) => each.tripId === trip.id),
   };
   trips.remove(trip.id);
   its.bookings.forEach((each) => bookings.remove(each.id));
   its.plans.forEach((each) => plans.remove(each.id));
   its.packing.forEach((each) => packing.remove(each.id));
   its.spends.forEach((each) => spends.remove(each.id));
+  its.spots.forEach((each) => spots.remove(each.id));
   return () => {
     trips.put(trip);
     its.bookings.forEach((each) => bookings.put(each));
     its.plans.forEach((each) => plans.put(each));
     its.packing.forEach((each) => packing.put(each));
     its.spends.forEach((each) => spends.put(each));
+    its.spots.forEach((each) => spots.put(each));
   };
 }

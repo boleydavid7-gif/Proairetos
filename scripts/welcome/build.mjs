@@ -199,8 +199,8 @@ const apps = [
     card: 'Plan trips, find stays, flights, cruises and events, and track time off with your work schedule.',
     about: 'Plan a trip from the first idea to the last day: search stays, flights, cruises and events on the sites you already use, keep bookings and days together, and track time off against your work schedule.',
     points: [
-      ['Find and book', 'Booking.com, Airbnb, Google Flights, cruises, Ticketmaster and more, opened with your place and dates.'],
-      ['Bookings in one place', 'Paste a confirmation email and the dates, times and number are read for you.'],
+      ['Around you', 'A map of each trip with the guide’s picks, what is nearby and events in your dates, each with directions.'],
+      ['Find and book', 'Stays and flights with prices, then Booking.com, Airbnb, Google Flights, cruises and more with your dates.'],
       ['Time off', 'Your balance and how it grows, with each trip’s hours counted from your work shifts.'],
       ['With Proairetos', 'Approved time off takes those shifts off your schedule; trips show in Days ahead.'],
     ],

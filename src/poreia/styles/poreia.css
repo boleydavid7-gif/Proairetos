@@ -241,7 +241,7 @@
 }
 
 /* Chips that scroll sideways on a phone instead of wrapping into rows. */
-.poreia-scroll-chips {
+.chip-row.poreia-scroll-chips {
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
@@ -249,7 +249,7 @@
   padding-inline: var(--ll-gutter, 20px);
 }
 
-.poreia-scroll-chips::-webkit-scrollbar {
+.chip-row.poreia-scroll-chips::-webkit-scrollbar {
   display: none;
 }
 
@@ -572,4 +572,203 @@
 
 :root.poreia .row > svg {
   flex: none;
+}
+
+/* ---------- The map and what is around ---------- */
+
+.poreia-around {
+  display: grid;
+  gap: 12px;
+  margin-bottom: var(--ll-gap, 16px);
+}
+
+.poreia-map {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface-2);
+  margin-bottom: 12px;
+}
+
+.poreia-map__canvas {
+  /* MapLibre makes its container position: relative, so it is sized directly rather than by insets. */
+  width: 100%;
+  height: 100%;
+}
+
+.poreia-map__note {
+  position: absolute;
+  inset: auto 12px 12px;
+  margin: 0;
+}
+
+/* The map's own controls take the room's colors instead of plain white. */
+.poreia-map .maplibregl-ctrl-group {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.poreia-map .maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+
+.poreia-map .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--line);
+}
+
+:root.poreia:not([data-theme='light']) .poreia-map .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.4);
+}
+
+.poreia-map .maplibregl-ctrl-attrib,
+.poreia-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.poreia-map .maplibregl-ctrl-attrib a {
+  color: var(--text-soft);
+}
+
+.poreia-map .maplibregl-cooperative-gesture-screen {
+  background: rgb(0 0 0 / 0.45);
+  font-size: var(--text-sm);
+}
+
+/* Pins: a dot in the kind's color with a ring of the surface, larger when chosen. */
+.poreia-pin {
+  --pin: var(--mint);
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--pin);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  cursor: pointer;
+  transition: width var(--ll-quick, 180ms) ease, height var(--ll-quick, 180ms) ease;
+}
+
+.poreia-pin.is-chosen {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+/* A larger, invisible target than the dot. */
+.poreia-pin::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+
+.poreia-pin--home { --pin: var(--text); width: 12px; height: 12px; }
+.poreia-pin--see { --pin: #e3b35c; }
+.poreia-pin--do { --pin: #c58cf0; }
+.poreia-pin--eat { --pin: #ef7d6a; }
+.poreia-pin--coffee { --pin: #c49a6c; }
+.poreia-pin--drink { --pin: #e889b7; }
+.poreia-pin--outdoors { --pin: #6fcf8a; }
+.poreia-pin--sleep { --pin: #6fa8ff; }
+.poreia-pin--shop { --pin: #f0a35c; }
+.poreia-pin--around { --pin: #8fb3c7; }
+.poreia-pin--essentials { --pin: #f06a6a; }
+.poreia-pin--event { --pin: #ff8fd0; }
+.poreia-pin--saved { --pin: var(--mint); }
+
+.poreia-spots__photo,
+.poreia-spots__dot {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.poreia-spots__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.poreia-spots__dot::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pin, var(--mint));
+}
+
+.poreia-spots .row.is-chosen {
+  background: var(--mint-soft);
+}
+
+.poreia-place-page__photo {
+  display: block;
+  width: 100%;
+  max-height: 14rem;
+  margin: 0 0 12px;
+  border-radius: var(--ll-outer, 18px);
+  object-fit: cover;
+}
+
+/* Flight results: price first, then the airline and each way's times. */
+.poreia-flights {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-flight {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-flight__price {
+  grid-column: 2;
+  grid-row: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-flight__airline {
+  grid-column: 1;
+  grid-row: 1;
+  font-weight: 600;
+}
+
+.poreia-flight__slice {
+  grid-column: 1 / -1;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-flight__more {
+  padding: 8px 14px 4px;
+}
+
+.poreia-map .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface);
+}
+
+:root.poreia:not([data-theme='light']) .poreia-map .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
 }

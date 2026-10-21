@@ -48,6 +48,12 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Microsoft registration (Single-page application); add `GOOGLE_DRIVE_CLIENT_ID` and `GOOGLE_DRIVE_CLIENT_SECRET`
       to the proairetos Worker as secrets (steps in `docs/SERVER_SETUP.md`, "Your own storage").
 - [ ] Calendar subscription: its migration and the `calendar-feed` function (download a file already works without them).
+- [ ] (Optional) Stays with prices in Poreia: an account at liteapi.travel (free to search; it earns on bookings), then the
+  Cloudflare Worker secret `LITEAPI_KEY` (sandbox key first to try it, live key after). Without it Poreia links to Booking.com,
+  Airbnb and the rest.
+- [ ] (Optional) Flights with prices in Poreia: an account at duffel.com (searches are free up to a search-to-booking ratio),
+  then the Worker secret `DUFFEL_KEY` (test key shows sample airlines; live needs Duffel's checks). Without it Poreia links to
+  Google Flights, Kayak and the rest.
 - [ ] (Optional) Events in Poreia: a free key from developer.ticketmaster.com (Discovery API), added as the Cloudflare Worker
   secret `TICKETMASTER_KEY`. Without it Poreia links to Ticketmaster and SeatGeek searches instead of listing events.
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`

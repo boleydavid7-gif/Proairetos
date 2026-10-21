@@ -4,6 +4,7 @@ import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell'
 import { ClockIcon, GlobeIcon, SettingsIcon, SuitcaseIcon } from '../../app/family/icons';
 import type { BookingKind } from '../core/model';
 import type { SearchKind } from '../core/links';
+import type { Spot } from '../core/spots';
 import { countFirstVersion } from './fresh';
 import { recountPlanned } from './proairetos';
 import { settings } from './state';
@@ -18,6 +19,7 @@ import TimeOffForm from '../screens/TimeOffForm';
 import TimeOffSetupPage from '../screens/TimeOffSetupPage';
 import MorePage from '../screens/MorePage';
 import FreshPage from '../screens/FreshPage';
+import PlacePage from '../screens/PlacePage';
 
 export type Tab = 'trips' | 'explore' | 'time' | 'more';
 export type Route =
@@ -28,7 +30,8 @@ export type Route =
   | { name: 'trip-form'; id?: string; draft?: { name?: string; place?: string } }
   | { name: 'booking'; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }
   | { name: 'time-off'; id?: string; tripId?: string }
-  | { name: 'time-setup' };
+  | { name: 'time-setup' }
+  | { name: 'place'; spot: Spot; tripId?: string };
 export type PoreiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -86,6 +89,8 @@ export default function App() {
         return <TimeOffForm nav={nav} id={route.id} tripId={route.tripId} />;
       case 'time-setup':
         return <TimeOffSetupPage nav={nav} />;
+      case 'place':
+        return <PlacePage nav={nav} spot={route.spot} tripId={route.tripId} />;
     }
   })();
 

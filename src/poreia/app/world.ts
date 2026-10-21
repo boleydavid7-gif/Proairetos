@@ -1,5 +1,6 @@
 import { apiUrl } from '../../app/apiBase';
 import type { Place } from '../core/model';
+import { overpassQuery, readListings, readOverpass, type Spot, type SpotCategory } from '../core/spots';
 
 /*
  * What Poreia reads from the outside world. Every source here is free and needs no account: Open-Meteo (places and
@@ -185,7 +186,7 @@ export async function countryFacts(countryCode: string): Promise<Country | undef
 
 // ---------- Live events ----------
 
-export type LiveEvent = { id: string; name: string; date?: string; time?: string; venue?: string; url: string; image?: string; kind?: string; price?: string };
+export type LiveEvent = { id: string; name: string; date?: string; time?: string; venue?: string; url: string; image?: string; kind?: string; price?: string; lat?: number; lon?: number };
 
 /** Whether the site has its events key (Ticketmaster's free Discovery key). */
 export async function eventsReady(): Promise<boolean> {
@@ -202,5 +203,119 @@ export async function eventsNear(lat: number, lon: number, start: string, end: s
     const response = await fetch(apiUrl(`/api/travel/events?lat=${lat}&lon=${lon}&start=${start}&end=${end}`));
     if (!response.ok) throw new Error(`${response.status}`);
     return ((await response.json()) as { events: LiveEvent[] }).events;
+  });
+}
+
+// ---------- Around a place ----------
+
+// Overpass's public servers, tried in turn: the main one is often busy.
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
+
+/** Named places of one kind within about 2 km, nearest first, from OpenStreetMap (ODbL, credited where shown). */
+export async function nearby(category: Exclude<SpotCategory, 'event'>, lat: number, lon: number): Promise<Spot[]> {
+  return cached(`near.${category}.${lat.toFixed(3)},${lon.toFixed(3)}`, 3 * DAY, async () => {
+    const query = overpassQuery(category, lat, lon);
+    let last: unknown;
+    for (const server of OVERPASS) {
+      try {
+        const response = await fetch(server, { method: 'POST', body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(25_000) });
+        if (!response.ok) throw new Error(`${response.status}`);
+        return readOverpass((await response.json()) as Parameters<typeof readOverpass>[0], category, { lat, lon });
+      } catch (error) {
+        last = error;
+      }
+    }
+    throw last instanceof Error ? last : new Error('unreached');
+  });
+}
+
+/** Wikivoyage's own listings for a place (and its districts' pages when the main page has few), with their page. */
+export async function guideSpots(place: Place): Promise<{ page: string; url: string; spots: Spot[] } | undefined> {
+  type Parse = { parse?: { title: string; wikitext?: string }; error?: unknown };
+  const read = async (title: string) => {
+    const data = await json<Parse>(`https://en.wikivoyage.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=wikitext&redirects=1&format=json&formatversion=2&origin=*`);
+    return data.parse?.wikitext ? { title: data.parse.title, text: data.parse.wikitext } : undefined;
+  };
+  return cached(`listings.${place.label ?? place.name}`, 14 * DAY, async () => {
+    const main = await read(place.name);
+    if (!main) return undefined;
+    let spots = readListings(main.text, main.title);
+    if (spots.length < 12) {
+      // Big cities keep their listings on district pages, named in a {{Regionlist}} or as "Place/District" links.
+      const districts = [...new Set([...main.text.matchAll(/\[\[([^\]|#]+\/[^\]|#]+)/g)].map((match) => match[1].trim()).filter((title) => title.startsWith(`${main.title}/`)))].slice(0, 6);
+      for (const district of districts) {
+        const page = await read(district).catch(() => undefined);
+        if (page) spots = [...spots, ...readListings(page.text, page.title)];
+      }
+    }
+    return { page: main.title, url: `https://en.wikivoyage.org/wiki/${encodeURIComponent(main.title.replace(/ /g, '_'))}`, spots };
+  });
+}
+
+// ---------- Searches with prices (through the site) ----------
+
+export type TravelReady = { events: boolean; stays: boolean; flights: boolean };
+
+/** Which of the searches with prices the site has keys for. */
+export async function travelReady(): Promise<TravelReady> {
+  try {
+    const response = await fetch(apiUrl('/api/travel'));
+    if (!response.ok) throw new Error(`${response.status}`);
+    const data = (await response.json()) as Partial<TravelReady>;
+    return { events: Boolean(data.events), stays: Boolean(data.stays), flights: Boolean(data.flights) };
+  } catch {
+    return { events: false, stays: false, flights: false };
+  }
+}
+
+export type StayOffer = {
+  id: string;
+  name: string;
+  address?: string;
+  stars?: number;
+  rating?: number;
+  reviews?: number;
+  photo?: string;
+  lat?: number;
+  lon?: number;
+  price?: { amount: number; currency: string };
+  room?: string;
+  board?: string;
+  refundable?: boolean;
+};
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(apiUrl(path), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const data = (await response.json().catch(() => ({}))) as T & { error?: string };
+  if (!response.ok) throw new Error(data.error ?? `${response.status}`);
+  return data;
+}
+
+/** Stays near a place with prices for the whole stay (LiteAPI, through the site). */
+export async function searchStays(ask: { lat: number; lon: number; checkin: string; checkout: string; adults: number; currency: string; nationality?: string }): Promise<StayOffer[]> {
+  return cached(`stays.${ask.lat.toFixed(3)},${ask.lon.toFixed(3)}.${ask.checkin}.${ask.checkout}.${ask.adults}.${ask.currency}`, 3_600_000, async () => (await post<{ stays: StayOffer[] }>('/api/travel/stays', ask)).stays);
+}
+
+export type FlightOffer = {
+  id: string;
+  airline: string;
+  price: { amount: number; currency: string };
+  slices: { from: string; to: string; departs: string; arrives: string; minutes: number; stops: number; flights: string[] }[];
+};
+
+/** Flight offers between two airports (Duffel, through the site), cheapest first. */
+export async function searchFlights(ask: { from: string; to: string; depart: string; return?: string; adults: number; cabin?: string }): Promise<FlightOffer[]> {
+  return cached(`flights.${ask.from}.${ask.to}.${ask.depart}.${ask.return ?? ''}.${ask.adults}.${ask.cabin ?? ''}`, 1_800_000, async () => (await post<{ flights: FlightOffer[] }>('/api/travel/flights', ask)).flights);
+}
+
+export type Airport = { code: string; name: string; city?: string; country?: string };
+
+export async function findAirports(query: string): Promise<Airport[]> {
+  const text = query.trim();
+  if (text.length < 2) return [];
+  return cached(`airports.${text.toLowerCase()}`, 30 * DAY, async () => {
+    const response = await fetch(apiUrl(`/api/travel/airports?q=${encodeURIComponent(text)}`));
+    if (!response.ok) throw new Error(`${response.status}`);
+    return ((await response.json()) as { airports: Airport[] }).airports;
   });
 }

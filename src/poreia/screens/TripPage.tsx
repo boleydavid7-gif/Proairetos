@@ -4,20 +4,22 @@ import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
-import { newId, nowStamp, plans, settings, timeOff, today, trips } from '../app/state';
+import { newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
 import { datesText } from '../app/ui';
 import { nightsOf, phaseOf, phaseText, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
-import { BookLinks, CountryCard, EventsCard, GuideCard, SightsCard, Weather, type Target } from '../components/Destination';
+import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
 import TripDays from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
+import Around from '../components/Around';
 
-export type TripView = 'overview' | 'bookings' | 'days' | 'packing' | 'money';
+export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
 const VIEWS: { id: TripView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
+  { id: 'around', label: 'Around' },
   { id: 'bookings', label: 'Bookings' },
   { id: 'days', label: 'Days' },
   { id: 'packing', label: 'Packing' },
@@ -64,6 +66,12 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
 
       <div className="vt-panel" key={view}>
         {view === 'overview' && <Overview trip={trip} nav={nav} day={day} />}
+        {view === 'around' &&
+          (trip.place?.lat !== undefined ? (
+            <Around place={trip.place} tripId={trip.id} start={trip.start} end={trip.end} nav={nav} />
+          ) : (
+            <p className="muted">Add where you’re going to see the map, the guide’s places and what’s nearby.</p>
+          ))}
         {view === 'bookings' && <TripBookings trip={trip} nav={nav} />}
         {view === 'days' && <TripDays trip={trip} />}
         {view === 'packing' && <TripPacking trip={trip} />}
@@ -93,10 +101,10 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
       )}
       {target && (
         <>
-          <BookLinks target={target} />
+          <SavedCard trip={trip} nav={nav} />
+          <BookLinks target={target} nav={nav} tripId={trip.id} />
           <Weather target={target} today={day} />
           <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue)} />
-          <SightsCard place={target.place} onAdd={(sight) => addToDays(sight.title)} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
         </>
@@ -202,6 +210,33 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
           Set up your balance
         </button>
       )}
+    </section>
+  );
+}
+
+/** What this trip kept from the map, the guide, events and stays; each opens its page. */
+function SavedCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
+  const kept = spots.use().filter((each) => each.tripId === trip.id);
+  if (!kept.length) return null;
+  return (
+    <section className="card">
+      <h2 className="card__title">Saved places</h2>
+      <ul className="rows poreia-spots">
+        {kept.slice(0, 8).map((spot) => (
+          <li key={spot.id}>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'place', spot, tripId: trip.id })}>
+              {spot.image ? <img className="poreia-spots__photo" src={spot.image} alt="" /> : <span className={`poreia-spots__dot poreia-pin--${spot.category}`} aria-hidden="true" />}
+              <span className="row__text">
+                <span>{spot.name}</span>
+                <span className="row__detail">{[spot.kind, spot.price].filter(Boolean).join(' · ')}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip', id: trip.id, view: 'around' })}>
+        See them on the map
+      </button>
     </section>
   );
 }

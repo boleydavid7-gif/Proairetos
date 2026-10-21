@@ -120,3 +120,26 @@ export const mapLink = (place: string, lat?: number, lon?: number) =>
 
 /** Directions between two places. */
 export const directionsLink = (from: string, to: string) => `https://www.google.com/maps/dir/?api=1&origin=${q(from)}&destination=${q(to)}`;
+
+/** One stay found in Poreia, on the sites where it can be booked, with the dates and party. */
+export function stayLinks(name: string, city: string, start?: string, end?: string, travelers = 1): SearchLink[] {
+  const dates = start && end;
+  const words = `${name} ${city}`.trim();
+  return [
+    { site: 'Booking.com', url: `https://www.booking.com/searchresults.html?ss=${q(words)}${dates ? `&checkin=${start}&checkout=${end}` : ''}&group_adults=${travelers}&no_rooms=1` },
+    { site: 'Google Hotels', url: `https://www.google.com/travel/search?q=${q(words)}${dates ? `&checkin=${start}&checkout=${end}` : ''}` },
+    { site: 'Expedia', url: `https://www.expedia.com/Hotel-Search?destination=${q(words)}&adults=${travelers}${dates ? `&startDate=${start}&endDate=${end}` : ''}` },
+  ];
+}
+
+/** One flight found in Poreia, searched on Google Flights by its flight numbers and date. */
+export function flightLink(flights: readonly string[], from: string, to: string, date: string, back?: string): SearchLink {
+  const words = `Flights from ${from} to ${to} on ${date}${back ? ` returning ${back}` : ''} ${flights.join(' ')}`;
+  return { site: 'Google Flights', url: `https://www.google.com/travel/flights?q=${q(words)}` };
+}
+
+/** Directions to a point: Apple Maps on Apple devices, Google Maps elsewhere. */
+export function directionsTo(name: string, lat?: number, lon?: number, apple = false): string {
+  const where = lat !== undefined && lon !== undefined ? `${lat},${lon}` : name;
+  return apple ? `https://maps.apple.com/?daddr=${q(where)}&q=${q(name)}` : `https://www.google.com/maps/dir/?api=1&destination=${q(where)}`;
+}

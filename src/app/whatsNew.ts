@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-21',
     lines: [
+      'Poreia shows more inside the app: a map of each trip, the guide’s own picks to see, do, eat, drink and sleep, what is nearby (cafés, food, sights, outdoors, shops, getting around, essentials) and events in your dates. Each place has its own page with directions, hours, its website, Save to the trip and Add to a day.',
+      'Poreia can also show stays and flights with prices in the app, once the site has those searches set up; booking opens on the provider’s site with your dates.',
       'The line over the current tab now sits centered over its icon in every app, and every app has one.',
       'Scrolling under the bar at the top is smoother in every app: the page now blurs softly into the bar as it passes beneath, with no hard edge, and the title fades as it slides under.',
       'Poreia starts over: plan trips; search stays, flights, cars, cruises, events and tours on Booking.com, Airbnb, Google Flights and others with your place and dates filled in; paste a confirmation to keep a booking; and see each trip’s days, packing and money.',
