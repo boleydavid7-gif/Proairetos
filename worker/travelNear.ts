@@ -42,7 +42,7 @@ export async function askOverpass(query: string, fetchImpl: typeof fetch = fetch
         body: new URLSearchParams({ data: query }),
         signal: one.signal,
       });
-      if (!response.ok) throw new Error(`${response.status}`);
+      if (!response.ok) throw new Error(`${new URL(server).host} ${response.status}`);
       const data = (await response.json()) as Elements;
       // A server that ran out of time still answers 200, with a remark and no places.
       if (!data.elements?.length && data.remark) throw new Error(data.remark);
@@ -78,8 +78,9 @@ export async function handleTravelNear(request: Request, fetchImpl: typeof fetch
   let data: Elements;
   try {
     data = await askOverpass(overpassQuery(category as Exclude<SpotCategory, 'event'>, Number(lat.toFixed(3)), Number(lon.toFixed(3))), fetchImpl);
-  } catch {
-    return reply(502, { error: 'OpenStreetMap could not be reached. Try again later.' });
+  } catch (error) {
+    const why = error instanceof AggregateError ? error.errors.map((each) => String(each instanceof Error ? each.message : each).slice(0, 80)) : [String(error).slice(0, 80)];
+    return reply(502, { error: 'OpenStreetMap could not be reached. Try again later.', why });
   }
   const response = reply(200, { elements: data.elements ?? [] }, 'public, max-age=86400');
   await cache?.put(key, response.clone()).catch(() => undefined);
