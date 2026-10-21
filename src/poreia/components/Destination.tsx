@@ -18,19 +18,21 @@ import { FlightSearch, StayResults } from './Searches';
 export type Target = { place: Place; from?: Place; start?: string; end?: string; travelers: number };
 
 export function useLoad<T>(key: string | undefined, load: () => Promise<T>): { value?: T; unreached: boolean; loading: boolean } {
-  const [state, setState] = useState<{ key?: string; value?: T; unreached: boolean }>({ unreached: false });
+  // `done` marks an answer, even an empty one: a place with no guide is finished, not still loading.
+  const [state, setState] = useState<{ key?: string; value?: T; unreached: boolean; done: boolean }>({ unreached: false, done: false });
   useEffect(() => {
     if (!key) return;
     let live = true;
-    setState({ key, unreached: false });
+    setState({ key, unreached: false, done: false });
     load()
-      .then((value) => live && setState({ key, value, unreached: false }))
-      .catch(() => live && setState({ key, unreached: true }));
+      .then((value) => live && setState({ key, value, unreached: false, done: true }))
+      .catch(() => live && setState({ key, unreached: true, done: true }));
     return () => {
       live = false;
     };
   }, [key]);
-  return { value: state.key === key ? state.value : undefined, unreached: state.key === key && state.unreached, loading: Boolean(key) && state.key === key && state.value === undefined && !state.unreached };
+  const current = state.key === key;
+  return { value: current ? state.value : undefined, unreached: current && state.unreached, loading: Boolean(key) && !(current && state.done) };
 }
 
 /** The forecast for the trip's days when they are near, else the same days last year as recorded. */

@@ -17,13 +17,15 @@ async function cached<T>(key: string, maxAge: number, load: () => Promise<T>): P
   try {
     const raw = localStorage.getItem(name);
     if (raw) {
-      const { at, value } = JSON.parse(raw) as { at: number; value: T };
-      if (Date.now() - at < maxAge) return value;
+      const { at, value } = JSON.parse(raw) as { at: number; value?: T };
+      // An empty answer is never kept, so one bad moment does not hide a place's guide for weeks.
+      if (value !== undefined && Date.now() - at < maxAge) return value;
     }
   } catch {
     // Unreadable: load again.
   }
   const value = await load();
+  if (value === undefined) return value;
   try {
     localStorage.setItem(name, JSON.stringify({ at: Date.now(), value }));
   } catch {
@@ -33,7 +35,7 @@ async function cached<T>(key: string, maxAge: number, load: () => Promise<T>): P
 }
 
 async function json<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
   if (!response.ok) throw new Error(`${response.status}`);
   return (await response.json()) as T;
 }
@@ -208,24 +210,42 @@ export async function eventsNear(lat: number, lon: number, start: string, end: s
 
 // ---------- Around a place ----------
 
-// Overpass's public servers, tried in turn: the main one is often busy.
-const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
+// Overpass's public servers. The main one is often busy, so after a short wait the others are asked too and the first
+// answer is used.
+const OVERPASS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+];
 
 /** Named places of one kind within about 2 km, nearest first, from OpenStreetMap (ODbL, credited where shown). */
 export async function nearby(category: Exclude<SpotCategory, 'event'>, lat: number, lon: number): Promise<Spot[]> {
   return cached(`near.${category}.${lat.toFixed(3)},${lon.toFixed(3)}`, 3 * DAY, async () => {
     const query = overpassQuery(category, lat, lon);
-    let last: unknown;
-    for (const server of OVERPASS) {
-      try {
-        const response = await fetch(server, { method: 'POST', body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(25_000) });
-        if (!response.ok) throw new Error(`${response.status}`);
-        return readOverpass((await response.json()) as Parameters<typeof readOverpass>[0], category, { lat, lon });
-      } catch (error) {
-        last = error;
-      }
+    const asked: AbortController[] = [];
+    let answered = false;
+    const ask = async (server: string, wait: number) => {
+      if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+      if (answered) throw new Error('answered');
+      const one = new AbortController();
+      asked.push(one);
+      const timer = setTimeout(() => one.abort(), 25_000);
+      const response = await fetch(server, { method: 'POST', body: new URLSearchParams({ data: query }), signal: one.signal }).finally(() => clearTimeout(timer));
+      if (!response.ok) throw new Error(`${response.status}`);
+      const data = (await response.json()) as Parameters<typeof readOverpass>[0] & { remark?: string };
+      // A server that ran out of time still answers 200, with a remark and no places.
+      if (!data.elements?.length && data.remark) throw new Error(data.remark);
+      return readOverpass(data, category, { lat, lon });
+    };
+    try {
+      return await Promise.any(OVERPASS.map((server, index) => ask(server, index * 2_500)));
+    } catch {
+      throw new Error('unreached');
+    } finally {
+      answered = true;
+      asked.forEach((each) => each.abort());
     }
-    throw last instanceof Error ? last : new Error('unreached');
   });
 }
 
