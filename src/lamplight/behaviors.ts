@@ -372,10 +372,10 @@ function largeTitle(): void {
 export const DOCKS = '.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav';
 
 /*
- * Every phone dock marks the place you are on with one short line along its top edge, centered over that place's
- * icon. Where the place sits is measured, not assumed: docks have their own padding and gaps, and lose places to the
- * top bar on phones, so fixed fractions of the width drifted off center. The center goes on the dock as --ll-dock-x
- * (bars.css draws the line); the line slides between places only once it has been placed the first time.
+ * Every phone dock marks the place you are on with a tonal pill centered on that place's icon. Where the place sits is measured, not assumed: docks have their own padding and gaps, and lose places to the
+ * top bar on phones, so fixed fractions of the width drifted off center, and a fixed top left the pill above or below
+ * the icon. The icon's center goes on the dock as --ll-dock-x and --ll-dock-y (material.css draws the pill); it
+ * slides between places only once it has been placed the first time.
  */
 function dockMarks(): void {
   let frame = 0;
@@ -386,9 +386,13 @@ function dockMarks(): void {
       const marked = Boolean(current) && dock.getClientRects().length > 0;
       if (current && marked) {
         const box = dock.getBoundingClientRect();
-        const item = current.getBoundingClientRect();
-        const x = `${(item.left + item.width / 2 - box.left - dock.clientLeft).toFixed(1)}px`;
+        // Centered on the icon itself, both ways: each dock puts its icons at its own height within the place.
+        const icon = current.querySelector('svg, img') ?? current;
+        const mark = icon.getBoundingClientRect();
+        const x = `${(mark.left + mark.width / 2 - box.left - dock.clientLeft).toFixed(1)}px`;
+        const y = `${(mark.top + mark.height / 2 - box.top - dock.clientTop).toFixed(1)}px`;
         if (dock.style.getPropertyValue('--ll-dock-x') !== x) dock.style.setProperty('--ll-dock-x', x);
+        if (dock.style.getPropertyValue('--ll-dock-y') !== y) dock.style.setProperty('--ll-dock-y', y);
       }
       if (dock.classList.contains('ll-dock-marked') !== marked) dock.classList.toggle('ll-dock-marked', marked);
       // The first placement lands at once; after that the line travels.
@@ -401,6 +405,8 @@ function dockMarks(): void {
   addEventListener('resize', soon);
   matchMedia(PHONE).addEventListener?.('change', soon);
   document.fonts?.ready.then(soon, () => undefined);
+  // A current icon that lifts or grows settles after a transition: measure it again where it came to rest.
+  document.addEventListener('transitionend', (event) => (event.target as Element).closest?.(DOCKS) && soon(), true);
   new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-current', 'class'] });
   soon();
 }

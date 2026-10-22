@@ -56,7 +56,7 @@
 @media (max-width: 61.99rem) {
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
     z-index: 0;
-    top: var(--ll-nav-pill-top, 6px);
+    top: calc(var(--ll-dock-y, 21px) - 15px);
     width: 58px;
     height: 30px;
     border-radius: var(--ll-radius-pill, 999px);

@@ -224,7 +224,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   structure on opaque, room-tinted surfaces, very little transparency): cards and grouped lists are filled tonal surfaces
   with no outline; `.button-quiet` is Material's tonal button (`--ll-tonal`, the lamp mixed 16% into the card, opaque);
   chips take 8 px corners with the tonal container when chosen; every phone dock marks the current place with a tonal
-  pill behind its icon (the `::after` measured by `dockMarks`, 58 x 30); the phone top bar's mica is 94% solid; `--text-xs`
+  pill behind its icon (the `::after` measured by `dockMarks`, 58 x 30, centered on the icon itself both ways: `--ll-dock-x`/`--ll-dock-y`, re-measured after a dock transition ends; a fixed top left it up to 6 px off); the phone top bar's mica is 94% solid; `--text-xs`
   is 13 px and `--text-sm` 15 px.
   Round 2: Hydros's Today rebuilt on the family hero (`hero hero--tall` with `hydros-sunset`, `home__title`), the day's amount as
   one large figure with a bar (`.hydros-amount`), usual glasses as full-size tonal buttons (`.hydros-glass`), drinks as one
