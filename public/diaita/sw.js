@@ -1,6 +1,6 @@
 // Diaita's app shell is scoped to /diaita/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'diaita-v3';
+const CACHE = 'diaita-v4';
 const SHELL = ['/diaita/', '/diaita/index.html', '/diaita/manifest.webmanifest', '/diaita/icon.svg', '/diaita/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

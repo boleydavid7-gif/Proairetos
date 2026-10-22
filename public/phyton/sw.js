@@ -1,6 +1,6 @@
 // Phyton's app shell is scoped to /phyton/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'phyton-v3';
+const CACHE = 'phyton-v4';
 const SHELL = ['/phyton/', '/phyton/index.html', '/phyton/manifest.webmanifest', '/phyton/icon.svg', '/phyton/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

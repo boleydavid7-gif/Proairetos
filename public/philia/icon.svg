@@ -1,18 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="philia-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#dc7461"/><stop offset="1" stop-color="#ba5644"/></linearGradient>
-    <radialGradient id="philia-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7d5bb" stop-opacity="0.42"/><stop offset=".28" stop-color="#f7d5bb" stop-opacity="0.1596"/><stop offset="1" stop-color="#f7d5bb" stop-opacity="0"/></radialGradient>
+    <radialGradient id="philia-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f7d5bb" stop-opacity="0.32"/><stop offset=".45" stop-color="#f7d5bb" stop-opacity="0.096"/><stop offset="1" stop-color="#f7d5bb" stop-opacity="0"/></radialGradient>
     <filter id="philia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
     <clipPath id="philia-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#philia-tile)"/>
   <g clip-path="url(#philia-clip)">
     <rect width="1024" height="1024" fill="url(#philia-light)"/>
-    <circle cx="770" cy="170" r="250" fill="none" stroke="#f7d5bb" stroke-opacity="0.1" stroke-width="6"/>
   </g>
   <g filter="url(#philia-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
-      <defs><clipPath id="philia-left"><circle cx="420" cy="512" r="196"/></clipPath></defs>
-      <circle cx="420" cy="512" r="196" fill="#fbf6ec"/>
-      <circle cx="604" cy="512" r="196" fill="#edb9b0"/>
-      <circle cx="604" cy="512" r="196" fill="#b9786c" clip-path="url(#philia-left)"/></g></g>
+      <defs><clipPath id="philia-left"><circle cx="404" cy="512" r="216"/></clipPath></defs>
+      <circle cx="620" cy="512" r="216" fill="#edb9b0"/>
+      <circle cx="404" cy="512" r="216" fill="#fbf6ec"/>
+      <circle cx="620" cy="512" r="216" fill="#d7988d" clip-path="url(#philia-left)"/></g></g>
 </svg>

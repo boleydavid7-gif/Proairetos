@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'New app icons: every symbol drawn larger and cleaner at the same visual size, a softer light on each tile, a steaming bowl for Soma so it no longer looks like Phyton, a clearer box for Ktema and a simpler plane for Poreia. Installed apps pick them up on their next update.',
       'Theoria and Hydros take their colors from the family\'s design, so your chosen look carries into them; in Hydros the family list reads clearly in light mode, its switches show when off, and section names are no longer in capitals.',
       'Capture sits at the top of Today, so writing something down never needs a scroll.',
       'Adding a bill, medicine, chore, person, trip or thing asks only what it needs; everything else waits under More details.',

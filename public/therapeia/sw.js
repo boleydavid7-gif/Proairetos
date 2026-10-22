@@ -1,6 +1,6 @@
 // Therapeia's app shell is scoped to /therapeia/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'therapeia-v3';
+const CACHE = 'therapeia-v4';
 const SHELL = ['/therapeia/', '/therapeia/index.html', '/therapeia/manifest.webmanifest', '/therapeia/icon.svg', '/therapeia/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

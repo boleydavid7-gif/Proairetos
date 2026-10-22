@@ -1,6 +1,6 @@
 // Philia's app shell is scoped to /philia/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'philia-v3';
+const CACHE = 'philia-v4';
 const SHELL = ['/philia/', '/philia/index.html', '/philia/manifest.webmanifest', '/philia/icon.svg', '/philia/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

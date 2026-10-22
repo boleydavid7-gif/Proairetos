@@ -1,16 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="phyton-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#4e9e5d"/><stop offset="1" stop-color="#327e41"/></linearGradient>
-    <radialGradient id="phyton-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d8deba" stop-opacity="0.42"/><stop offset=".28" stop-color="#d8deba" stop-opacity="0.1596"/><stop offset="1" stop-color="#d8deba" stop-opacity="0"/></radialGradient>
+    <radialGradient id="phyton-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d8deba" stop-opacity="0.32"/><stop offset=".45" stop-color="#d8deba" stop-opacity="0.096"/><stop offset="1" stop-color="#d8deba" stop-opacity="0"/></radialGradient>
     <filter id="phyton-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
     <clipPath id="phyton-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#phyton-tile)"/>
   <g clip-path="url(#phyton-clip)">
     <rect width="1024" height="1024" fill="url(#phyton-light)"/>
-    <circle cx="770" cy="170" r="250" fill="none" stroke="#d8deba" stroke-opacity="0.1" stroke-width="6"/>
   </g>
-  <g filter="url(#phyton-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
+  <g filter="url(#phyton-lift)"><g transform="translate(512 512) scale(1.1) translate(-512 -512)">
       <path d="M512 560 C512 500 506 440 512 380" stroke="#fbf6ec" stroke-width="26" stroke-linecap="round" fill="none"/>
       <path d="M510 470 C420 474 336 420 320 330 C410 326 494 380 510 470Z" fill="#a6ceae"/>
       <path d="M514 420 C606 420 690 370 708 270 C612 270 528 330 514 420Z" fill="#fbf6ec"/>

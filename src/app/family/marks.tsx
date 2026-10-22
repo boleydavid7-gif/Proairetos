@@ -118,25 +118,19 @@ const MARKS: Record<FamilyApp, Shape[]> = {
     },
   ],
   soma: [
-    { tag: 'path', attrs: line('M572 520 C572 450 580 380 572 300', 22) },
-    {
+    ...[404, 512, 620].map((x, index): Shape => ({
       tag: 'path',
-      attrs: path('M572 440 C490 440 432 394 422 324 C490 324 556 358 572 440Z'),
+      attrs: line(`M${x} ${index === 1 ? 190 : 230} c-52 60 52 110 0 170 s36 70 0 110`, 46),
       level: SECOND,
-      gap: 0,
-    },
+    })),
     {
       tag: 'path',
-      attrs: path('M574 382 C652 382 710 336 720 264 C648 264 588 298 574 382Z'),
-    },
-    {
-      tag: 'path',
-      attrs: path('M268 540 H756 C756 664 650 772 512 772 C374 772 268 664 268 540Z'),
+      attrs: path('M200 548 H824 C824 712 684 836 512 836 C340 836 200 712 200 548Z'),
       gap: 22,
     },
     {
       tag: 'rect',
-      attrs: { x: 236, y: 486, width: 552, height: 46, rx: 23 },
+      attrs: { x: 176, y: 518, width: 672, height: 56, rx: 28 },
       gap: 18,
     },
   ],

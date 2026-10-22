@@ -1,4 +1,4 @@
-const CACHE = 'poreia-v2';
+const CACHE = 'poreia-v3';
 const SHELL = ['/poreia/', '/poreia/index.html', '/poreia/manifest.webmanifest', '/poreia/icon.svg', '/poreia/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

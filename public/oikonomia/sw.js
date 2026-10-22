@@ -1,6 +1,6 @@
 // Oikonomia's app shell is scoped to /oikonomia/. Bills live in the shared
 // IndexedDB; this worker only makes the interface open without a connection.
-const CACHE = 'oikonomia-v3';
+const CACHE = 'oikonomia-v4';
 const SHELL = ['/oikonomia/', '/oikonomia/index.html', '/oikonomia/manifest.webmanifest', '/oikonomia/icon.svg', '/oikonomia/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

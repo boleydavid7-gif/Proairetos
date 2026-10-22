@@ -1,18 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="poreia-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#277d86"/><stop offset="1" stop-color="#0d5f67"/></linearGradient>
-    <radialGradient id="poreia-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cfd7c3" stop-opacity="0.42"/><stop offset=".28" stop-color="#cfd7c3" stop-opacity="0.1596"/><stop offset="1" stop-color="#cfd7c3" stop-opacity="0"/></radialGradient>
+    <radialGradient id="poreia-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cfd7c3" stop-opacity="0.32"/><stop offset=".45" stop-color="#cfd7c3" stop-opacity="0.096"/><stop offset="1" stop-color="#cfd7c3" stop-opacity="0"/></radialGradient>
     <filter id="poreia-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
     <clipPath id="poreia-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#poreia-tile)"/>
   <g clip-path="url(#poreia-clip)">
     <rect width="1024" height="1024" fill="url(#poreia-light)"/>
-    <circle cx="770" cy="170" r="250" fill="none" stroke="#cfd7c3" stroke-opacity="0.1" stroke-width="6"/>
   </g>
   <g filter="url(#poreia-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
-      <circle cx="512" cy="512" r="262" stroke="#93bec2" stroke-width="40" fill="none"/>
-      <g transform="rotate(45 512 512)">
-        <path d="M512 214 C542 214 556 250 556 284 V440 L800 572 V630 L556 566 V680 L660 742 V786 L512 750 L364 786 V742 L468 680 V566 L224 630 V572 L468 440 V284 C468 250 482 214 512 214Z" fill="#fbf6ec" stroke="#0b535a" stroke-width="22" paint-order="stroke"/>
-      </g></g></g>
+      <defs><mask id="poreia-cut"><rect width="1024" height="1024" fill="white"/><g transform="rotate(45 512 512)"><path d="M512 196 C544 196 560 234 560 270 V436 L816 574 V638 L560 570 V690 L668 754 V800 L512 762 L356 800 V754 L464 690 V570 L208 638 V574 L464 436 V270 C464 234 480 196 512 196Z" fill="black" stroke="black" stroke-width="56" stroke-linejoin="round"/></g></mask></defs>
+      <circle cx="512" cy="512" r="300" stroke="#93bec2" stroke-width="30" fill="none" mask="url(#poreia-cut)"/>
+      <g transform="rotate(45 512 512)"><path d="M512 196 C544 196 560 234 560 270 V436 L816 574 V638 L560 570 V690 L668 754 V800 L512 762 L356 800 V754 L464 690 V570 L208 638 V574 L464 436 V270 C464 234 480 196 512 196Z" fill="#fbf6ec" stroke="#fbf6ec" stroke-width="12" stroke-linejoin="round"/></g></g></g>
 </svg>

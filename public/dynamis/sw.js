@@ -1,6 +1,6 @@
 // Dynamis's app shell is scoped to /dynamis/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'dynamis-v3';
+const CACHE = 'dynamis-v4';
 const SHELL = ['/dynamis/', '/dynamis/index.html', '/dynamis/manifest.webmanifest', '/dynamis/icon.svg', '/dynamis/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {

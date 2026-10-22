@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="ergon-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#748c6c"/><stop offset="1" stop-color="#566d4f"/></linearGradient>
-    <radialGradient id="ergon-light" cx="770" cy="170" r="720" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e0dabe" stop-opacity="0.42"/><stop offset=".28" stop-color="#e0dabe" stop-opacity="0.1596"/><stop offset="1" stop-color="#e0dabe" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ergon-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e0dabe" stop-opacity="0.32"/><stop offset=".45" stop-color="#e0dabe" stop-opacity="0.096"/><stop offset="1" stop-color="#e0dabe" stop-opacity="0"/></radialGradient>
     <filter id="ergon-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
     <clipPath id="ergon-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
   </defs>
   <rect width="1024" height="1024" rx="229" fill="url(#ergon-tile)"/>
   <g clip-path="url(#ergon-clip)">
     <rect width="1024" height="1024" fill="url(#ergon-light)"/>
-    <circle cx="770" cy="170" r="250" fill="none" stroke="#e0dabe" stroke-opacity="0.1" stroke-width="6"/>
   </g>
   <g filter="url(#ergon-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
       <path d="M512 236 L792 486 H732 V770 H292 V486 H232Z" fill="#fbf6ec" stroke="#fbf6ec" stroke-width="20" stroke-linejoin="round"/>
