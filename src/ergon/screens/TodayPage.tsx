@@ -109,6 +109,13 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
             )}
           </>
         )}
+        {/* While the list is still being set up, the ideas stay one tap away (the Chores page always has them). */}
+        {all.length > 0 && all.length < 5 && (
+          <>
+            <p className="label">Ideas</p>
+            <Ideas chores={all} />
+          </>
+        )}
         {all.length > 0 && <DailyLine app="ergon" />}
       </div>
     </div>

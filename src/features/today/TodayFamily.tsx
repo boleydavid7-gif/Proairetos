@@ -10,8 +10,8 @@ import type { TheoriaBook } from '../../theoria/core/books';
 import { BookIcon } from '../../components/icons/Icons';
 
 /**
- * Bills with a date in the next few days and no payment recorded, only if the person switched them on in
- * Settings > What's included, and only when there is one. It opens Oikonomia. Nothing here counts, scores
+ * Bills with a date in the next few days and no payment recorded (Settings > What's included can set them aside),
+ * only when there is one. It opens Oikonomia. Nothing here counts, scores
  * or advises.
  */
 export default function TodayFamily({ today }: { today: string }) {

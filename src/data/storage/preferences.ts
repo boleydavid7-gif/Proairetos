@@ -420,7 +420,7 @@ export type TodayPart =
   | 'trips';
 
 /** Parts that stay off until the person turns them on in Settings. */
-const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];
+const OPT_IN_PARTS: readonly TodayPart[] = ['on-this-day', 'water', 'highlight'];
 const TODAY_OPT_IN_KEY = 'proairetos.todayOptIn';
 
 const TODAY_HIDDEN_KEY = 'proairetos.todayHidden';

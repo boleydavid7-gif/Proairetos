@@ -39,11 +39,11 @@ describe('parts that start off', () => {
   beforeEach(() => localStorage.clear());
 
   it('stay off until chosen, and can be set aside again', () => {
-    expect(todayHiddenSnapshot().split(',')).toEqual(expect.arrayContaining(['bills', 'on-this-day']));
-    setTodayPartShown('bills', true);
-    expect(todayHiddenSnapshot().split(',')).not.toContain('bills');
-    setTodayPartShown('bills', false);
-    expect(todayHiddenSnapshot().split(',')).toContain('bills');
+    expect(todayHiddenSnapshot().split(',')).toEqual(expect.arrayContaining(['highlight', 'on-this-day']));
+    setTodayPartShown('highlight', true);
+    expect(todayHiddenSnapshot().split(',')).not.toContain('highlight');
+    setTodayPartShown('highlight', false);
+    expect(todayHiddenSnapshot().split(',')).toContain('highlight');
   });
 });
 
