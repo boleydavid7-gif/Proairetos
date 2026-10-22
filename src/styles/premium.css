@@ -221,6 +221,8 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
+    /* lamplight/motion.css gives moves between apps their own motion by this type. */
+    types: app;
   }
 }
 

@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import type { AppRoute } from './routes/routeTypes';
 
@@ -36,6 +37,20 @@ export function canTransition(): boolean {
 }
 
 let panelTimer: number | undefined;
+let enterTimer: number | undefined;
+
+/**
+ * For moves made without a snapshot (the add-on apps, where Safari left document snapshots sliding): the new page
+ * enters from the side the move came from. The mark is set before the new page mounts and only sets where it starts
+ * (`--ll-enter-x`, motion.css), so lifting it afterwards never restarts the animation.
+ */
+export function markEnter(direction: Direction): void {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  root.dataset.enter = direction;
+  window.clearTimeout(enterTimer);
+  enterTimer = window.setTimeout(() => delete root.dataset.enter, 700);
+}
 
 /*
  * The shared element: going into a page from a card or row, the thing tapped grows into the new page's head, so
@@ -85,6 +100,7 @@ export function transition(direction: Direction, update: () => void, scope: 'pag
     return;
   }
   if (!canTransition()) {
+    markEnter(direction);
     update();
     return;
   }
@@ -126,6 +142,24 @@ export function transition(direction: Direction, update: () => void, scope: 'pag
     running.skipTransition?.();
     clean();
   }, 1000);
+}
+
+/**
+ * For apps that switch views themselves (Praxis, Theoria): marks each change's direction just before the new view
+ * paints. Places on the bar move sideways by their order; anything else is a page in front of them.
+ */
+export function useEnterMark<T>(view: T, tabs: readonly T[]): void {
+  const last = useRef(view);
+  useLayoutEffect(() => {
+    const from = last.current;
+    last.current = view;
+    if (from === view) return;
+    const a = tabs.indexOf(from);
+    const b = tabs.indexOf(view);
+    markEnter(a >= 0 && b >= 0 ? (b > a ? 'right' : 'left') : b >= 0 ? 'back' : 'forward');
+    // The tabs are fixed per app.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
 }
 
 /** The tabs in the bar, left to right; Days ahead's calendar sits just right of its list. */

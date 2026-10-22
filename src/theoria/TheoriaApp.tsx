@@ -26,6 +26,7 @@ import type { TheoriaChapter } from './core/books';
 import { takeOpening } from '../app/family/opening';
 import { reflectionService } from '../app/services';
 import { downloadBookNotes } from './core/export';
+import { useEnterMark } from '../app/transitions';
 
 type View = 'library' | 'shelf' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search' | 'year';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
@@ -70,6 +71,7 @@ function withLock<T>(name: string, work: () => Promise<T>): Promise<T> {
 
 export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
+  useEnterMark(view, ['library', 'reader', 'notes', 'reflections'] as View[]);
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
   const [launched, setLaunched] = useState<File>();

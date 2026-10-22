@@ -27,6 +27,7 @@ import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
 import { SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
 import { isAdded } from '../app/family/added';
+import { useEnterMark } from '../app/transitions';
 
 type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings';
 
@@ -57,6 +58,7 @@ const opening = takeOpening();
 
 export default function PraxisApp() {
   const [view, setView] = useState<View>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings'].includes(opening) ? (opening as View) : 'today'));
+  useEnterMark(view, ['today', 'cards', 'sessions', 'time', 'sounds'] as View[]);
   const [name] = useState(displayName);
   const [session, setSession] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
   const [selectedId, setSelectedId] = useState<string | undefined>();

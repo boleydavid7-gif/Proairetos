@@ -19,7 +19,7 @@ import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, Sc
 import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
 import { notifications } from './notify/notifications';
-import { directionBetween, transition } from './transitions';
+import { directionBetween, markEnter, transition } from './transitions';
 import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
 import { useOverlays } from './overlays/OverlayContext';
@@ -72,6 +72,8 @@ export default function App() {
     // transition. The page swaps beneath it while the dock and its indicator
     // stay anchored to the viewport.
     if (mainTabs.has(from) && mainTabs.has(next)) {
+      // No snapshot: the new page fades in (opacity only, so Today's fixed landscape stays put).
+      markEnter(directionBetween(from, next));
       setRoute(next);
       return;
     }

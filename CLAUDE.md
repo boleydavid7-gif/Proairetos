@@ -285,6 +285,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Praxis uses `--color-accent-rgb`, `--color-surface(-raised)`, `--color-bar-rgb`; its sound pictures stay drawn content.
   Askesis, Soma, Oikonomia and Poreia keep fixed colors only for categories (effort, dish tints, map pins, Strava's
   orange) and the shades over their pictures.
+- Page motion: `transition()` (app/transitions.ts) uses view transitions only in Proairetos; elsewhere (and for
+  Proairetos's main tabs, which keep the dock out of a snapshot) it calls `markEnter(direction)`, which sets
+  `html[data-enter]` before the new page mounts; `lamplight/motion.css` runs one `ll-enter` (from `--ll-enter-x/y`: forward
+  +40px, back -40px, tabs ±22px, a first look rising 8px) on `.shell .page-enter`, `.hydros-page-enter`, `.theoria-view`,
+  `.praxis-app .praxis-view`; Proairetos's main tabs fade by opacity only (`ll-fade-in`, Today's landscape is fixed). Praxis
+  and Theoria mark their own view changes with `useEnterMark(view, tabs)`. Between apps: `@view-transition { navigation:
+  auto; types: app }` (premium.css); motion.css names every dock `tab-bar` and the top bar `ll-topbar` so they hold
+  still, and under `:active-view-transition-type(app)` the old app eases back (280 ms) while the new one, a live picture
+  that fills in as it draws, settles in from 90 ms. Headless Chromium skips many cross-document transitions; check on a phone.
 - `scripts/visual-check/` catches visual drift: `shoot.mjs <dir>` photographs every app's places (each dock, rail or
   sidebar item) dark and light, phone (390) and computer (1440), motion reduced and clock fixed; `compare.mjs <before>
   <after>` lists the pictures that changed and writes magenta diffs to `<after>/diff`. Shoot the old build before a change,

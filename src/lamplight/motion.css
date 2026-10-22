@@ -132,3 +132,85 @@
     opacity: 0;
   }
 }
+
+/* ---------- Moving between pages inside an app (no snapshot) ----------
+   The add-on apps change pages without a document snapshot (Safari could leave one sliding). The new page enters from
+   the side the move came from: a page in front from the right, back from the left, along the bar by its order, a
+   first look rising a little. `markEnter` (app/transitions.ts) sets `data-enter` before the page mounts; it only moves
+   the starting point, so lifting it later never restarts the animation. Proairetos keeps its snapshot transitions. */
+:root {
+  --ll-enter-x: 0px;
+  --ll-enter-y: 8px;
+}
+:root[data-enter='forward'] { --ll-enter-x: 40px; --ll-enter-y: 0px; }
+:root[data-enter='back'] { --ll-enter-x: -40px; --ll-enter-y: 0px; }
+:root[data-enter='right'] { --ll-enter-x: 22px; --ll-enter-y: 0px; }
+:root[data-enter='left'] { --ll-enter-x: -22px; --ll-enter-y: 0px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root :is(.shell .page-enter, .hydros-shell .hydros-page-enter, .theoria-view, .theoria-detail-view, .praxis-app .praxis-view) {
+    animation: ll-enter 380ms var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+  }
+}
+
+/* Proairetos's main tabs swap beneath a still dock without a snapshot; the page fades in by opacity alone, since a
+   moving page would carry Today's fixed landscape with it. Its other moves keep their snapshot transitions. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-enter] .app-shell .page-enter {
+    animation: ll-fade-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes ll-fade-in {
+  from {
+    opacity: 0.25;
+  }
+}
+
+@keyframes ll-enter {
+  from {
+    opacity: 0;
+    translate: var(--ll-enter-x) var(--ll-enter-y);
+  }
+  45% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Moving between apps ----------
+   Opening another app of the family is a page load; the browser carries it over (cross-document view transitions,
+   `@view-transition` in premium.css). The dock and the top bar keep their place and change in it; the page itself
+   eases back and the new app settles in, rather than one cutting to the other. Same-page moves are untouched: this
+   only applies to the `app` type every page gives its cross-document transitions (`@view-transition`, premium.css). */
+:root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+  view-transition-name: tab-bar;
+}
+:root .ll-topbar {
+  view-transition-name: ll-topbar;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* The new app's picture is live: it fills in as the app draws, so it starts a beat after the old one begins to
+     fade and the two overlap rather than passing through an empty page. */
+  html:active-view-transition-type(app)::view-transition-old(root) {
+    animation: ll-app-out 280ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+  html:active-view-transition-type(app)::view-transition-new(root) {
+    animation: ll-app-in 380ms var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)) 90ms both;
+  }
+  html:active-view-transition-type(app)::view-transition-group(tab-bar),
+  html:active-view-transition-type(app)::view-transition-group(ll-topbar) {
+    animation-duration: 300ms;
+  }
+}
+@keyframes ll-app-out {
+  to {
+    opacity: 0;
+    scale: 0.985;
+  }
+}
+@keyframes ll-app-in {
+  from {
+    opacity: 0;
+    scale: 1.012;
+  }
+}
