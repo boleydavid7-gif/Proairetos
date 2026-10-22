@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { daysOf, entryTitle, moneyText, nextUp, nightsOf, planText, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
+import { daysOf, entryTitle, moneyText, moveAmong, nextUp, nightsOf, planText, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
 import { accrualDates, balanceOn, daysOff, hoursFor, leftAfter, shiftsToReplace, type TimeOff, type TimeOffSetup } from '../../poreia/core/timeOff';
 import { searchLinks } from '../../poreia/core/links';
 import { datesIn, readConfirmation, timesIn } from '../../poreia/core/confirmations';
 import { suggestedPacking } from '../../poreia/core/packing';
-import { poreiaEvents } from '../../poreia/core/calendar';
+import { poreiaEvents, tripEvents } from '../../poreia/core/calendar';
+import { buildIcs } from '../../core/calendar/ics';
 
 const stamp = '2026-10-01T00:00:00.000Z';
 const trip = (over: Partial<Trip> = {}): Trip => ({ id: 't1', name: 'Lisbon', travelers: 2, stage: 'planning', createdAt: stamp, updatedAt: stamp, ...over });
@@ -237,5 +238,35 @@ describe('next up and the plan as text', () => {
       '2026-11-12',
       '• Check-out: Casa Azul',
     ]);
+  });
+});
+
+describe('the order of a day and the trip as a calendar file', () => {
+  const plan = (over: Partial<PlanItem>): PlanItem => ({ id: 'p', tripId: 't1', date: '2026-11-10', title: 'x', createdAt: stamp, updatedAt: stamp, ...over });
+  const t = trip({ start: '2026-11-10', end: '2026-11-12' });
+
+  it('keeps timed things by time and the rest in the order given', () => {
+    const a = plan({ id: 'a', title: 'A', createdAt: '2026-10-01T01:00:00Z' });
+    const b = plan({ id: 'b', title: 'B', createdAt: '2026-10-01T02:00:00Z' });
+    const c = plan({ id: 'c', title: 'C', time: '09:00' });
+    const titles = (list: PlanItem[]) => daysOf(t, [], list)[0].entries.map(entryTitle);
+    expect(titles([a, b, c])).toEqual(['C', 'A', 'B']);
+    const moved = moveAmong([a, b], 'b', 0);
+    expect(moved.map((item) => [item.id, item.order])).toEqual([['b', 0], ['a', 1]]);
+    expect(titles([...moved, c])).toEqual(['C', 'B', 'A']);
+  });
+
+  it('writes every booking, the check-out and the plans', () => {
+    const events = tripEvents(
+      t,
+      [booking({ id: 'f', kind: 'flight', title: 'TP 210', startDate: '2026-11-10', startTime: '08:10', confirmation: 'ABC123' }), booking({ id: 's', kind: 'stay', title: 'Casa Azul', startDate: '2026-11-10', endDate: '2026-11-12', endTime: '11:00' })],
+      [plan({ id: 'a', title: 'Fado night', date: '2026-11-11', time: '21:30' }), plan({ id: 'b', title: 'Pastéis', date: '2026-11-11' })],
+    );
+    const titles = events.map((event) => event.title).sort();
+    expect(titles).toEqual(['Check-out: Casa Azul', 'Fado night', 'Flight: TP 210', 'Lisbon', 'Pastéis', 'Stay: Casa Azul']);
+    const text = buildIcs(events, { name: 'Lisbon', now: new Date('2026-10-22T00:00:00Z') });
+    expect(text).toContain('SUMMARY:Flight: TP 210');
+    expect(text).toContain('DESCRIPTION:Confirmation ABC123');
+    expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(6);
   });
 });

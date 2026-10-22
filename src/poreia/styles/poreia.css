@@ -130,6 +130,38 @@
   padding: 0;
 }
 
+.poreia-agenda .poreia-agenda__plan {
+  display: flex;
+  align-items: center;
+}
+
+.poreia-agenda .poreia-agenda__plan > .poreia-agenda__row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A plan without a time can be pulled to another place among the day's others by its grip (arrow keys too). */
+.poreia-grip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.poreia-agenda li.is-dragging {
+  position: relative;
+  z-index: 2;
+  background: var(--surface-2, var(--surface));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+  cursor: grabbing;
+}
+
 /* Each line opens its booking or plan: time, then what and where, then a chevron. */
 .poreia-agenda__row {
   display: grid;
@@ -832,4 +864,33 @@
 
 :root.poreia:not([data-theme='light']) .poreia-map .maplibregl-ctrl-attrib-button {
   filter: invert(1);
+}
+
+/* The clock at the place and how far apart it is from home. */
+.poreia-time__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.poreia-time__row p {
+  margin: 0;
+}
+
+.poreia-time__clock {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-time .poreia-fold {
+  margin: 12px 0 0;
+}
+
+.poreia-agenda > li.poreia-shift {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 10px;
+  padding: 10px 0;
 }

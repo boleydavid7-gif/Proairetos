@@ -14,6 +14,8 @@ import TripDays, { AgendaRow, openEntry } from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
 import Around from '../components/Around';
+import TimeThere from '../components/TimeThere';
+import OfflineCard from '../components/OfflineCard';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -97,6 +99,7 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
   return (
     <>
       <NextUpCard trip={trip} nav={nav} day={day} />
+      <TimeThere trip={trip} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
         <section className="card first-run">
@@ -114,6 +117,7 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
           <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
+          {phaseOf(trip, day).kind !== 'past' && <OfflineCard trip={trip} />}
         </>
       )}
       {trip.notes && (
