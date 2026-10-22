@@ -2,7 +2,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import { occurrencesBetween } from '../../core/scheduling/patterns';
 import { scheduleTemplates } from '../../core/scheduling/templates';
 import type { SchedulePattern } from '../../core/scheduling/types';
-import { buildDayTimeline, dayTitle, formatDuration, nowStatus } from '../../features/today/timeline';
+import { buildDayTimeline, dayTitle, formatDuration, nowStatus, whenText } from '../../features/today/timeline';
 
 const rotation: SchedulePattern = {
   id: 'work',
@@ -88,5 +88,12 @@ describe('wording', () => {
     expect(dayTitle('2026-10-01', '2026-10-01')).toBe('Today');
     expect(dayTitle('2026-10-02', '2026-10-01')).toBe('Tomorrow');
     expect(dayTitle('2026-09-30', '2026-10-01')).toBe('Yesterday');
+  });
+
+  it('counts down to the next thing today and names the day when it is later', () => {
+    const now = new Date(2026, 9, 22, 10, 40);
+    expect(whenText(new Date(2026, 9, 22, 11, 20), now)).toBe('in 40 min');
+    expect(whenText(new Date(2026, 9, 23, 14, 0), now)).toBe('tomorrow');
+    expect(whenText(new Date(2026, 9, 25, 9, 0), now)).toBe('Sunday');
   });
 });

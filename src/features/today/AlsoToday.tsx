@@ -3,8 +3,9 @@ import { useState, type ReactNode } from 'react';
 export type AlsoSection = { id: string; label: string; count: number; content: ReactNode };
 
 /**
- * Everything secondary, folded into one line of counts so Today stays
- * short. One section opens at a time.
+ * Everything secondary, folded into one line of names so Today stays
+ * short. One section opens at a time. No counts: a number that grows reads
+ * as a pile to catch up on, and nothing here needs catching up.
  */
 export default function AlsoToday({ sections }: { sections: AlsoSection[] }) {
   const present = sections.filter((section) => section.count > 0);
@@ -23,7 +24,7 @@ export default function AlsoToday({ sections }: { sections: AlsoSection[] }) {
             aria-expanded={openId === section.id}
             onClick={() => setOpenId(openId === section.id ? null : section.id)}
           >
-            {section.label} <span className="also-today__count">{section.count}</span>
+            {section.label}
           </button>
         ))}
       </div>

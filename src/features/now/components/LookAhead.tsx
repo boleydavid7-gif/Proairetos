@@ -4,7 +4,7 @@ import { useNavigate } from '../../../app/navigationContext';
 import { compassService, lifeService, reflectionService } from '../../../app/services';
 import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
-import { isLookAheadSetAside, setLookAheadAside } from '../../../data/storage/preferences';
+import { isLookAheadSetAside, isValuesInviteSetAside, setLookAheadAside, setValuesInviteAside } from '../../../data/storage/preferences';
 import NotForMe from '../../today/NotForMe';
 import { weather } from '../../../app/weather/weather';
 
@@ -76,6 +76,7 @@ function Premeditation() {
 export default function LookAhead() {
   const navigate = useNavigate();
   const [hidden, setHidden] = useState(() => isLookAheadSetAside());
+  const [inviteAside, setInviteAside] = useState(isValuesInviteSetAside);
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements());
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
@@ -89,6 +90,8 @@ export default function LookAhead() {
   };
 
   if (orientation.values.length === 0 && orientation.remember.length === 0) {
+    // Offered, never asked twice: once turned down it stays away until values are chosen in Compass.
+    if (inviteAside) return null;
     return (
       <section className="look-ahead look-ahead--invite" aria-label="Look ahead">
         <CompassRose size={44} tone="dark" />
@@ -99,10 +102,16 @@ export default function LookAhead() {
             <button type="button" className="chip chip--accent" onClick={() => navigate('compass')}>
               Choose
             </button>
-            <button type="button" className="button-quiet" onClick={setAside}>
-              Not today
+            <button
+              type="button"
+              className="button-quiet"
+              onClick={() => {
+                setValuesInviteAside();
+                setInviteAside(true);
+              }}
+            >
+              Not now
             </button>
-            <NotForMe part="look-ahead" />
           </div>
         </div>
       </section>

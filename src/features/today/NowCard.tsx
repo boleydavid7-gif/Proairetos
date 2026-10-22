@@ -3,7 +3,7 @@ import { ClockIcon } from '../../components/icons/Icons';
 import type { LifeItem } from '../../core/life-items/types';
 import type { ScheduleOccurrence } from '../../core/scheduling/types';
 import { formatTimeOf } from '../schedule/format';
-import { blockTitle, formatDuration, nowStatus, untilText } from './timeline';
+import { blockTitle, formatDuration, nowStatus, whenText } from './timeline';
 
 type Props = {
   now: Date;
@@ -46,7 +46,7 @@ export default function NowCard({ now, occurrences, items, showNext = true }: Pr
             <span className="now-card__label">Next</span> {next.title}
           </span>
           <span className="now-card__when">
-            in {untilText(next.start.getTime() - now.getTime())}
+            {whenText(next.start, now)}
             <span className="now-card__at"> · {formatTimeOf(next.start)}</span>
           </span>
         </button>

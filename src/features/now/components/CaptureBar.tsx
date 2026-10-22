@@ -8,6 +8,8 @@ import MicButton from '../../../components/dictation/MicButton';
 import { CaptureIcon } from '../../../components/icons/Icons';
 import type { ItemKind } from '../../../core/life-items/kinds';
 import type { LifeItem } from '../../../core/life-items/types';
+import { notifications } from '../../../app/notify/notifications';
+import { markRemindOfferSeen, remindOfferSeen } from '../../../data/storage/preferences';
 
 type Props = {
   /** A kind chosen above the box; it tags the next capture only. */
@@ -22,6 +24,8 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
   const [text, setText] = useState('');
   // "Keep as written": the day or time read from the words is set aside until the box is cleared.
   const [asWritten, setAsWritten] = useState(false);
+  // Something given a time is only reminded once the phone allows it: the first time, that is said once, with Allow.
+  const [offerReminders, setOfferReminders] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const overlays = useContext(OverlayContext);
   const today = toLocalDate(new Date());
@@ -51,6 +55,7 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
         const start = atTime(read.day ?? today, read.time);
         const end = read.minutes ? new Date(start.getTime() + read.minutes * 60_000) : undefined;
         await lifeService.scheduleSpan(item.id, start.toISOString(), end?.toISOString());
+        if (notifications.permission() === 'default' && !remindOfferSeen()) setOfferReminders(true);
       }
       onCaptured?.(item);
       // On Today the new line is not in view, so say it was kept, with a way back.
@@ -89,6 +94,32 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
           <span>{when}</span>
           <button type="button" className="capture-bar__as-written" aria-label="Keep the words as written" onClick={() => setAsWritten(true)}>
             <Sym name="close" />
+          </button>
+        </p>
+      )}
+      {offerReminders && !when && (
+        <p className="capture-bar__when capture-bar__remind">
+          <span>Reminders need your permission on this phone.</span>
+          <button
+            type="button"
+            className="chip chip--small chip--accent"
+            onClick={() => {
+              markRemindOfferSeen();
+              setOfferReminders(false);
+              void notifications.ask();
+            }}
+          >
+            Allow
+          </button>
+          <button
+            type="button"
+            className="text-link"
+            onClick={() => {
+              markRemindOfferSeen();
+              setOfferReminders(false);
+            }}
+          >
+            Not now
           </button>
         </p>
       )}

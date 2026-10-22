@@ -22,6 +22,42 @@ export function markOnboarded(): void {
 }
 
 const LOOK_AHEAD_KEY = 'proairetos.lookAheadSetAside';
+const VALUES_INVITE_KEY = 'proairetos.valuesInviteAside';
+const REMIND_OFFER_KEY = 'proairetos.remindOfferSeen';
+
+/** The one offer to allow reminders, made the first time something is saved with a time; never made twice. */
+export function remindOfferSeen(): boolean {
+  try {
+    return localStorage.getItem(REMIND_OFFER_KEY) === 'yes';
+  } catch {
+    return true;
+  }
+}
+
+export function markRemindOfferSeen(): void {
+  try {
+    localStorage.setItem(REMIND_OFFER_KEY, 'yes');
+  } catch {
+    // Without storage the offer may come once more; harmless.
+  }
+}
+
+/** The invitation to choose values is offered until it is turned down once; Compass stays the way in. */
+export function isValuesInviteSetAside(): boolean {
+  try {
+    return localStorage.getItem(VALUES_INVITE_KEY) === 'yes';
+  } catch {
+    return false;
+  }
+}
+
+export function setValuesInviteAside(): void {
+  try {
+    localStorage.setItem(VALUES_INVITE_KEY, 'yes');
+  } catch {
+    // It shows again on the next visit; harmless.
+  }
+}
 
 export function localDayKey(day: Date): string {
   return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;

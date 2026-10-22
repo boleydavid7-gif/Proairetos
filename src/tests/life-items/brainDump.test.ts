@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guessKind, namedDay, readDump, splitDump } from '../../core/capture/brainDump';
+import { cleanTitle, guessKind, namedDay, readDump, splitDump } from '../../core/capture/brainDump';
 
 describe('brain dump', () => {
   it('splits on lines, bullets, semicolons, sentences, and short comma lists', () => {
@@ -29,11 +29,17 @@ describe('brain dump', () => {
     const lines = readDump('I need to call the garage tomorrow\nidea: a reading corner', '2026-10-02');
     expect(lines).toEqual([
       { text: 'Call the garage tomorrow', kind: 'TODO', plannedFor: '2026-10-03' },
-      { text: 'Idea: a reading corner', kind: 'IDEA' },
+      { text: 'A reading corner', kind: 'IDEA' },
     ]);
     // 2026-10-02 is a Friday: "Friday" means next week's, "Monday" the coming one.
     expect(namedDay('pay rent on Friday', '2026-10-02')).toBe('2026-10-09');
     expect(namedDay('book it Monday', '2026-10-02')).toBe('2026-10-05');
     expect(namedDay('nothing here', '2026-10-02')).toBeUndefined();
+  });
+
+  it('drops an "Idea:" label from an idea and lead-ins from a to-do, keeping the rest as written', () => {
+    expect(cleanTitle('Idea: automate the weekly report', 'IDEA')).toBe('Automate the weekly report');
+    expect(cleanTitle('need to email Priya', 'TODO')).toBe('Email Priya');
+    expect(cleanTitle('worried about the review', 'CONCERN')).toBe('Worried about the review');
   });
 });

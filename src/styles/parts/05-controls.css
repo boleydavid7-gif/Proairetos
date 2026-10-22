@@ -30,6 +30,11 @@
   font-size: var(--text-sm);
 }
 
+.capture-bar__remind {
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+}
+
 .capture-bar__as-written {
   display: inline-grid;
   place-items: center;

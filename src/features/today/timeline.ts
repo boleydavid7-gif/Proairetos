@@ -109,6 +109,15 @@ export function untilText(ms: number): string {
   return `about ${Math.round(minutes / 60)} h`;
 }
 
+/** When the next thing is: a countdown on the same day ("in 40 min"), else the day it falls on ("tomorrow", "Friday"). */
+export function whenText(start: Date, now: Date): string {
+  const day = toLocalDate(start);
+  const today = toLocalDate(now);
+  if (day === today) return `in ${untilText(start.getTime() - now.getTime())}`;
+  const title = dayTitle(day, today);
+  return title === 'Tomorrow' ? 'tomorrow' : title;
+}
+
 /** "Today", "Tomorrow", "Yesterday", or the weekday for nearby dates. */
 export function dayTitle(date: string, today: string): string {
   if (date === today) return 'Today';

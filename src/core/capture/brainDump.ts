@@ -67,9 +67,10 @@ export function guessKind(text: string): DumpKind {
   return VERBS.has(first) ? 'TODO' : 'REMEMBER';
 }
 
-/** "I need to call the garage" becomes "Call the garage"; other lines keep the person's words. */
+/** "I need to call the garage" becomes "Call the garage", "Idea: …" loses its label; other lines keep the person's words. */
 export function cleanTitle(text: string, kind: DumpKind): string {
-  const words = kind === 'TODO' ? text.replace(LEAD_IN, '') : text;
+  // "Idea: automate the report" is filed as an idea; the label itself need not stay in the title.
+  const words = kind === 'TODO' ? text.replace(LEAD_IN, '') : kind === 'IDEA' ? text.replace(/^idea\s*:\s*/i, '') : text;
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 

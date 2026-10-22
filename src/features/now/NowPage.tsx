@@ -232,6 +232,8 @@ export default function NowPage() {
       ) : (
         <>
 
+      {/* The thing done most, so it sits first, above everything the day brings. */}
+      {shows('capture') && <CaptureBar variant="quiet" />}
       {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {message === 'welcome' && (
         <WelcomeBack
@@ -243,8 +245,6 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      {/* The thing done most, so it sits first, above everything the day brings. */}
-      {shows('capture') && <CaptureBar variant="quiet" />}
       {shows('intention') && <Intention date={date} isToday />}
       {shows('path') && <TodayThree date={today} items={items} />}
       {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
