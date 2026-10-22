@@ -145,6 +145,12 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   - From the Home Screen app, swipe from the left edge slowly, let go early (springs back), then all the way.
   - Pull a sheet down slowly and let go (springs back), then flick it (closes).
 
+## Phone apps (iOS and Android), when you are ready
+- [ ] On a Mac: `npx cap add ios`, then `npm run cap:sync` with `VITE_API_BASE=https://proairetos.com`, open in Xcode, run on your iPhone.
+- [ ] Android Studio: `npx cap add android`, add `SCHEDULE_EXACT_ALARM` to `AndroidManifest.xml`, run on a phone.
+- [ ] In the app: allow notifications, set a to-do 2 minutes ahead, close the app, and check the reminder arrives and opens it.
+- [ ] Apple Developer ($99/yr) and Play Console ($25) accounts; your Apple Team ID (needed for sign-in links into the app).
+
 ## To look over
 
 - [ ] Phyton's pet toxicity list (`src/phyton/core/species.ts`): spot-check a few against the ASPCA list

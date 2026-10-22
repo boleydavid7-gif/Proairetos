@@ -6,6 +6,12 @@ import { refreshReminders } from '../sync/syncController';
 import { familyWorker } from './familyWorker';
 import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
 import { appNameForOpen, iconForOpen } from '../../core/notify/sources';
+import { isNativeApp } from '../native/platform';
+
+/** The phone app's own notifications, loaded only inside it (the website never fetches this). */
+const native = () => import('../native/localReminders');
+/** The phone app's permission, read once it is known (asking the phone is not instant). */
+let nativeState: Permission = 'default';
 
 /**
  * Notifications, written on this device. The app works out what is due
@@ -71,6 +77,10 @@ async function shownKeys(): Promise<string[]> {
 
 async function show(notice: Notice, details: boolean): Promise<void> {
   if (notifications.permission() !== 'granted') return;
+  if (isNativeApp()) {
+    await (await native()).showNativeNow(notice, details);
+    return;
+  }
   const shown = details ? notice : privateNotice(notice);
   const registration = await familyWorker();
   if (!registration) return;
@@ -142,12 +152,19 @@ export const notifications = {
   },
 
   permission(): Permission {
+    if (isNativeApp()) return nativeState;
     if (!supported()) return 'unsupported';
     return Notification.permission as Permission;
   },
 
   /** Asks the phone once, from a tap. */
   async ask(): Promise<Permission> {
+    if (isNativeApp()) {
+      nativeState = await (await native()).askNative();
+      notify();
+      await notifications.refresh();
+      return nativeState;
+    }
     if (!supported()) return 'unsupported';
     const answer = (await Notification.requestPermission()) as Permission;
     notify();
@@ -190,7 +207,12 @@ export const notifications = {
     upcoming.push(...(await hydrationUpcoming(new Date()).catch(() => [])));
     upcoming.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
     await store(upcoming, settings.details);
-    if (notifications.permission() === 'granted') {
+    if (isNativeApp()) {
+      // The phone keeps them and shows them with the app closed: no timer, nothing to catch up.
+      const phone = await native();
+      nativeState = await phone.nativePermission().catch(() => nativeState);
+      if (nativeState === 'granted') await phone.scheduleNative(upcoming, settings.details).catch(() => undefined);
+    } else if (notifications.permission() === 'granted') {
       await catchUp(upcomingNotices, settings.details).catch(() => undefined);
       arm();
     }
@@ -229,6 +251,7 @@ export const notifications = {
   /** Starts watching for changes; call once when the app opens. */
   start(): void {
     if (!runningInBrowser()) return;
+    if (isNativeApp()) void native().then((phone) => phone.listenForTaps()).catch(() => undefined);
     for (const service of [lifeService, decisionService, scheduleService, otherCalendars])
       service.subscribe(() => notifications.refreshSoon());
     document.addEventListener('visibilitychange', () => {

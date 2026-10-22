@@ -1,4 +1,5 @@
 import { smallPhoto } from '../data/photos';
+import { apiUrl } from '../../app/apiBase';
 
 /** What Pl@ntNet thinks a plant is, best first, with its score from 0 to 1. */
 export type Match = { score: number; latin: string; genus?: string; family?: string; common: string[] };
@@ -15,7 +16,7 @@ export async function identify(photos: { file: Blob; organ: Organ }[]): Promise<
   }
   let response: Response;
   try {
-    response = await fetch('/api/plant', { method: 'POST', body: form });
+    response = await fetch(apiUrl('/api/plant'), { method: 'POST', body: form });
   } catch {
     throw new Error('No connection. Try again when online.');
   }

@@ -9,6 +9,7 @@
  * `Files.Read`, Google `drive.readonly`, and a Dropbox app with Full Dropbox access (`DROPBOX_LIBRARY_APP_KEY`; with
  * only the app-folder key, Dropbox shows that app folder alone).
  */
+import { apiUrl } from '../../app/apiBase';
 
 export type CloudProvider = 'onedrive' | 'google' | 'dropbox';
 export const CLOUD_NAMES: Record<CloudProvider, string> = { onedrive: 'OneDrive', google: 'Google Drive', dropbox: 'Dropbox' };
@@ -58,7 +59,7 @@ function write(key: string, value: unknown): void {
 
 let site: Promise<Site> | undefined;
 function siteStorage(): Promise<Site> {
-  site ??= fetch('/api/storage')
+  site ??= fetch(apiUrl('/api/storage'))
     .then((response) => (response.ok ? (response.json() as Promise<Partial<Site>>) : {}))
     .then((data: Partial<Site>) => ({ providers: data.providers ?? {}, direct: data.direct ?? [], library: data.library ?? {} }))
     .catch(() => ({ providers: {}, direct: [], library: {} }));
@@ -138,7 +139,7 @@ async function trade(provider: CloudProvider, body: { code?: string; verifier?: 
       }
       response = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', { method: 'POST', body: form });
     } else {
-      response = await fetch('/api/storage', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider, scope: 'library', ...body }) });
+      response = await fetch(apiUrl('/api/storage'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider, scope: 'library', ...body }) });
     }
   } catch {
     throw new Error(`${CLOUD_NAMES[provider]} could not be reached. Try again.`);

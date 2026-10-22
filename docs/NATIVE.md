@@ -22,10 +22,24 @@ What is not done, and needs your accounts and computers:
    archive and upload.
 5. After each change to the web app, `npm run cap:sync` again.
 
+## What is ready for the phone apps (the website is unchanged by all of it)
+- **One app holds the family.** The whole `dist/` goes in, so every app's page (`/askesis/`, `/soma/`, …) opens inside
+  the one store app, with one storage: no separate sign-in per app.
+- **Server helpers.** Every `/api/…` call goes through `apiUrl` (`app/apiBase.ts`), so with `VITE_API_BASE` set the
+  app reaches the live site. The Worker answers the app's own origins (`capacitor://localhost`, `https://localhost`)
+  on every `/api` route, as if from the site; other websites stay kept out (`worker/index.ts`, test
+  `src/tests/worker/nativeOrigins.test.ts`).
+- **Reminders on the phone.** Inside the app (`app/native/platform.ts` `isNativeApp`), `app/notify/notifications.ts`
+  hands the same notices it works out for the web to the phone's own notifications (`app/native/localReminders.ts`,
+  `@capacitor/local-notifications`, loaded only in the app): the soonest 60 (iPhone keeps at most 64), set again on
+  every opening and change, worded as on the web, and a tap opens the notice's page (`core/notify/place.ts`, the same
+  rules as `sw.js`). They arrive with the app closed, without the server. Android also needs the exact-alarm
+  permission line in `AndroidManifest.xml` (`SCHEDULE_EXACT_ALARM`), added after `npx cap add android`.
+
 ## Known gaps before a store release
-- **Reminders when the app is closed.** Web push does not work inside the phone app's web view. Notifications
-  there need `@capacitor/local-notifications` (and, for the server's reminders, Apple and Firebase push),
-  wired to the same lists the web app builds (`app/notify/`). Not done.
+- **Reminders past the next 60.** The phone keeps the soonest 60; they are set again whenever the app opens or
+  something changes. Someone who does not open the app for weeks gets the first 60. Server push to the phone (Apple
+  and Firebase, through `send-reminders`) would cover that; not done.
 - **Sign-in link.** The email link opens the website, not the app. Add universal links (iOS) and app links
   (Android) for `proairetos.com`, or keep signing in by pasting the link, which works inside the app.
 - **Widgets** (home and lock screen) are native code (WidgetKit on iPhone, Glance on Android) and are not

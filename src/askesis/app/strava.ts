@@ -7,6 +7,7 @@ import { layOut } from '../core/week';
 import { listEntries, loadPlan, putEntry, deleteEntry } from '../data/store';
 import { pathFor } from './state';
 import type { LogEntry } from '../core/log';
+import { apiUrl } from '../../app/apiBase';
 
 /*
  * Strava, so runs from any watch arrive without typing: Garmin, Apple Watch, Wear OS, COROS and Polar all send their
@@ -44,7 +45,7 @@ function saveLink(next: StravaLink | undefined) {
 let setUp: Promise<string | null> | null = null;
 /** The site's Strava client id, or null when Strava is not set up on this site. */
 export function stravaHere(): Promise<string | null> {
-  setUp ??= fetch('/api/strava')
+  setUp ??= fetch(apiUrl('/api/strava'))
     .then((response) => (response.ok ? (response.json() as Promise<{ clientId: string | null }>) : { clientId: null }))
     .then((data) => data.clientId ?? null)
     .catch(() => null);
@@ -73,7 +74,7 @@ export function keepStravaReturn(search = location.search): void {
 class StravaRefused extends Error {}
 
 async function trade(body: { code?: string; refresh?: string }): Promise<{ access: string; refresh?: string; expiresAt?: number; name?: string }> {
-  const response = await fetch('/api/strava', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+  const response = await fetch(apiUrl('/api/strava'), { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
   const data = (await response.json().catch(() => ({}))) as { access?: string; refresh?: string; expiresAt?: number; name?: string; error?: string };
   if (response.status === 401) throw new StravaRefused(data.error ?? 'Strava did not accept this connection. Connect it again.');
   if (!response.ok || !data.access) throw new Error(data.error ?? 'Strava could not be reached. Try again.');
@@ -134,7 +135,7 @@ export function bringInFromStrava(soon = false): Promise<LogEntry[]> {
   running ??= (async () => {
     try {
       const token = await accessToken(link);
-      const response = await fetch(`/api/strava/activities?after=${link.after ?? 0}`, { headers: { authorization: `Bearer ${token}` } });
+      const response = await fetch(apiUrl(`/api/strava/activities?after=${link.after ?? 0}`), { headers: { authorization: `Bearer ${token}` } });
       if (response.status === 401) throw new StravaRefused('Strava did not accept this connection. Connect it again.');
       if (!response.ok) throw new Error('Strava could not be reached. Try again.');
       const { activities } = (await response.json()) as { activities: StravaActivity[] };

@@ -1,4 +1,5 @@
 import type { StorageProvider } from './storageProviders';
+import { apiUrl } from '../../app/apiBase';
 
 /*
  * Connecting the person's own storage: they allow Proairetos one private folder in their Google Drive, Dropbox or
@@ -19,7 +20,7 @@ type SiteStorage = { providers: Partial<Record<StorageProvider, string>>; direct
 let known: Promise<SiteStorage> | null = null;
 
 function siteStorage(): Promise<SiteStorage> {
-  known ??= fetch('/api/storage')
+  known ??= fetch(apiUrl('/api/storage'))
     .then((response) => (response.ok ? (response.json() as Promise<Partial<SiteStorage>>) : {}))
     .then((data: Partial<SiteStorage>) => ({ providers: data.providers ?? {}, direct: data.direct ?? [] }))
     .catch(() => ({ providers: {}, direct: [] }));
@@ -83,7 +84,7 @@ export async function finishConnect(params: URLSearchParams): Promise<{ provider
 export async function askForTokens(body: { provider: StorageProvider; code?: string; verifier?: string; refresh?: string }): Promise<StorageTokens> {
   const site = await siteStorage();
   if (site.direct.includes(body.provider)) return askMicrosoft(site.providers[body.provider] ?? '', body);
-  const response = await fetch('/api/storage', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+  const response = await fetch(apiUrl('/api/storage'), { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
   const data = (await response.json().catch(() => ({}))) as Partial<StorageTokens> & { error?: string };
   if (response.status === 401) throw new StorageRefused(data.error ?? 'The storage did not accept this sign-in. Connect it again.');
   if (!response.ok || !data.access) throw new Error(data.error ?? 'The storage could not be reached. Try again.');

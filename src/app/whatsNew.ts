@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Groundwork for the iPhone and Android apps: the same apps, reminders that come from the phone itself, and every connection to the site ready. Nothing changes on the web.',
       'Bills due in the next few days show on Today without switching them on first (What\'s included can still set them aside); Ergon keeps its chore ideas on Today until you have five chores.',
       'A shared list: Settings > Shared list makes one to-do list for the people at home and an invite link for them. It shows on Today for everyone on it; anyone adds, ticks and removes, each line encrypted on the device. Done ones fold away after two days.',
       'Therapeia keeps medicines and visits for the people you look after: "For someone else" on a medicine or visit names a child or parent. Their doses, refills and visits say whose they are on Today, in notices, in search and on Proairetos\'s Today, and Medicines can show one person\'s list to share or print.',

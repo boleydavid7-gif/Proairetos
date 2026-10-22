@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { AddOn } from './added';
+import { apiUrl } from '../apiBase';
 
 /*
  * The Store's payments, on the device side. Proairetos is free; each add-on is bought once ($4.99) and kept with the
@@ -65,7 +66,7 @@ export const mayUse = (app: AddOn | string): boolean => !storePaid() || isTester
 async function askTester(token: string | undefined): Promise<boolean> {
   if (!token) return false;
   try {
-    const response = await fetch('/api/store/mine', { headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
+    const response = await fetch(apiUrl('/api/store/mine'), { headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
     if (!response.ok) return isTester();
     return ((await response.json()) as { tester?: boolean }).tester === true;
   } catch {
@@ -76,7 +77,7 @@ async function askTester(token: string | undefined): Promise<boolean> {
 /** Asks the server whether the Store takes payments. */
 export async function refreshStore(): Promise<void> {
   try {
-    const response = await fetch('/api/store', { cache: 'no-store' });
+    const response = await fetch(apiUrl('/api/store'), { cache: 'no-store' });
     if (!response.ok) return;
     const info = (await response.json()) as StoreInfo;
     if (typeof info.paid === 'boolean') writeJson(STORE_KEY, info);
@@ -116,7 +117,7 @@ export async function buy(app: AddOn): Promise<'owned' | 'left'> {
   const { data } = await (await supabase()).auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new NeedsSignIn('Sign in to buy an app.');
-  const response = await fetch('/api/store/checkout', {
+  const response = await fetch(apiUrl('/api/store/checkout'), {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ app }),
