@@ -130,6 +130,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Once passkeys are set up: tap the email field on a signed-out app; your passkey shows above the keyboard.
 - [ ] Android, if you have one: share a photo into Ktema and Therapeia, a PDF into Theoria.
 - [ ] From your apps on Today: tick a plant, chore and dose, and see it marked in the app itself.
+- [ ] Shared list: Settings > Shared list, make it, send the invite to your partner's phone, join there, and add and tick from both (it uses the same server tables as Soma's shared groceries).
+- [ ] Therapeia: add a medicine for a child (For someone else), and check its dose notice says whose it is.
 
 - [ ] Design round (Oct 16), on your iPhone with the apps installed. Tell me anything that feels off:
   - Open a few apps' More pages: margins line up with Proairetos, "Reminders" sits above its card.

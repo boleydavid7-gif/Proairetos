@@ -21,7 +21,8 @@ export type View =
   | 'news'
   | 'store'
   | 'about'
-  | 'inbox';
+  | 'inbox'
+  | 'together';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -69,6 +70,7 @@ export const viewTitles: Record<View, string> = {
   store: 'Store',
   about: 'About Proairetos',
   inbox: 'Capture from anywhere',
+  together: 'Shared list',
 };
 
 /** The page asked for, once. */

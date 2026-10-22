@@ -1147,6 +1147,13 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Therapeia's pages, Proairetos's From your apps, notices and search); a shared medicine is trimmed to fit one sealed
   item (`forSharing`: ten days and at most 30 marks, 12 changes, the supply recounted from the oldest mark kept so what is
   left stays the same). Readings, visits and the health card stay on the phone. Leaving keeps a copy.
+- Shared list (Proairetos, `app/together/together.ts`, `core/together/sharedTodos.ts`, tests `src/tests/together/`): one
+  to-do list kept with the people at home through `createSharedLists` (`proairetos.together` setting, cache
+  `proairetosTogether`, AD `proairetos-list`; invite `/?open=together:ID#k=KEY&n=NAME`, read in `main.tsx` into
+  sessionStorage and taken out of the address). `TodayTogether` sits after Today's to-do once a list exists (or a join
+  card for an invite): add, tick (`doneAt`, `doneBy`, with undo), remove (undo), done ones from the last two days folded
+  (`arrange`), pulled every 15 s while in view. Settings > The app > Shared list (view `together`, `TogetherSection`):
+  make, invite, join, leave (open to-dos kept as the person's own to-dos, one undo). Needs sign-in, not the passphrase.
 - Therapeia for the family: `Medicine.who` / `Appointment.who` (absent = the person's own; `whoOf`, `peopleIn`, `withWho`
   "Mia: Amoxicillin", `sameWho` in `core/medicines.ts`). `WhoChoice` (`app/ui.tsx`) in the medicine and visit forms: a
   "For someone else" link until a name exists anywhere, then chips Me / names / Someone else. Shown in dose rows (a

@@ -16,6 +16,15 @@ import { applyAppearance, withLamplight } from './app/appearance';
 import { applyLamplight } from './app/lamplight';
 import { startDailyCopies } from './app/family/dailyCopy';
 import { startLaunchFiles } from './app/family/launchFiles';
+import { keepInvite } from './app/together/together';
+import { readInvite } from './core/together/sharedTodos';
+
+// A shared list's invite: the key is after `#`, read here once and taken out of the address; Today offers to join.
+const invite = readInvite(location.search, location.hash);
+if (invite) {
+  keepInvite(invite);
+  history.replaceState(history.state, '', '/');
+}
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
 startLaunchFiles();

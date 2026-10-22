@@ -49,6 +49,7 @@ import DoneToday from '../today/DoneToday';
 import NowCard from '../today/NowCard';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import TodayThree from '../today/TodayThree';
+import TodayTogether from '../today/TodayTogether';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
@@ -247,6 +248,7 @@ export default function NowPage() {
 
       {shows('intention') && <Intention date={date} isToday />}
       {shows('path') && <TodayThree date={today} items={items} />}
+      <TodayTogether />
       {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
 
       {entries.length > 0 && (
