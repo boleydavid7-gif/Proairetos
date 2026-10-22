@@ -99,6 +99,9 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   (back up first if that app is signed out; signed-in apps sync back). Android picks them up by itself over a few days.
 - [ ] Your own storage: connect one, check every app follows (another device, an iPhone Home Screen app), then move
       back, once on your own account (tested so far with a stand-in folder, not the real providers).
+- [ ] Backups in your own storage: with your account syncing through Drive, Dropbox or OneDrive, open any app the
+      next day and check a `backup-<date>.sealed` file appears in the Proairetos folder; then on an iPhone, Settings >
+      Back up and restore > Restore should list that day and open it.
 - [ ] Swipe gestures: edge swipe back, pulling a row to mark it.
 - [ ] Fonts, and the sign-in emails.
 - [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).
