@@ -3,6 +3,7 @@ import FamilyBackup from '../../app/family/FamilyBackup';
 import AccountSection from '../../features/settings/AccountSection';
 import type { Nav } from '../app/App';
 import { useSettings } from '../app/state';
+import { setWeatherAside, weatherSetAside } from '../app/runWeather';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { article, articles } from '../core/learn';
 import { formatDuration, formatPace, METERS, parseDuration, raceDistances, timeFor, type Unit } from '../core/pace';
@@ -185,6 +186,7 @@ export function PacePage({ nav }: { nav: Nav }) {
 
 export function SettingsPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
+  const [weather, setWeather] = useState(() => !weatherSetAside());
   const flip = (key: 'voice' | 'bells' | 'keepAwake' | 'gps' | 'readSchedule' | 'afterOffers' | 'dailyLine') =>
     saveSettings({ ...settings, [key]: !settings[key] });
   return (
@@ -218,6 +220,15 @@ export function SettingsPage({ nav }: { nav: Nav }) {
       <h2 className="label">What’s included</h2>
       <div className="card switches">
         <Switch on={settings.dailyLine} label="Daily thought" onToggle={() => flip('dailyLine')} />
+        <Switch
+          on={weather}
+          label="Weather at your run"
+          detail="From where you are, rounded to about a kilometer."
+          onToggle={() => {
+            setWeatherAside(weather);
+            setWeather(!weather);
+          }}
+        />
         <Switch
           on={settings.afterOffers}
           label="After a workout"

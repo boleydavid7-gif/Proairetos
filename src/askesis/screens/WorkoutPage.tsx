@@ -16,6 +16,7 @@ import { heartRange } from '../core/zones';
 import type { PlanState } from '../data/store';
 import { asToday, canLighten } from '../core/gentler';
 import { updatePlan } from '../app/state';
+import RunWeather from '../app/RunWeather';
 
 /** Finds a session in the person's plan, or in any plan when browsing. */
 /** Finds a session in the person's path, or in the example path shown before an aim is set. */
@@ -56,7 +57,10 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
   const race = workout.kind === 'race';
   const mine = Boolean(plan && planState && found.plan.id === plan.id);
   const effort = mainEffort(workout.parts);
-  const weekday = weekdayNames[sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1]];
+  const dayIndex = sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1];
+  // The weather shows on the day the session falls on (or was moved to), while it is still to run.
+  const onDay = planState?.moves?.[full.id] ?? (dayIndex === (new Date(`${today}T12:00`).getDay() + 6) % 7 ? today : undefined);
+  const weekday = weekdayNames[dayIndex];
 
   return (
     <div className="workout">
@@ -124,6 +128,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
           </div>
           {lighter && <p className="hint">Just for today.</p>}
         </div>
+        {mine && !done && onDay === today && <RunWeather date={today} runAt={planState?.runAt} />}
 
         {!race && (
           <details className="more-about">

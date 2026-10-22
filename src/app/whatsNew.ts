@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Askesis shows the weather at your run time on the day’s session (and a line on Home): temperature, feels like, rain and wind, with what ACSM, WHO and the EPA say about heat, cold, ice, UV and air quality. It uses where you are, once you allow it; turn it off in Settings.',
       'Poreia: forward booking emails to your own address and they land on their trip; flight status on the day; a notice for when to leave for the airport; packing for the weather; where you’ve been on a map and Your year; the route for trips with stops; phrases, your embassy and a currency converter; loyalty numbers on bookings; Google ratings, hours and photos on places (when set up).',
       'Poreia’s Find and book has more sites (Momondo, Turo, Trainline, Omio, FlixBus, Amtrak, Hostelworld, Eventbrite, Klook, Yelp and more), a Ferries search, each site’s strengths in a line, and the nearest airports found from the map so flight and car searches open filled in.',
       'Poreia counts a whole week away as a full week off (set it under Your balance) and leaves public holidays at home out, naming them.',

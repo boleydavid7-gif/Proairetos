@@ -16,6 +16,7 @@ import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
+import RunWeather from '../app/RunWeather';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -204,6 +205,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                   {(planState.runAt || planState.place) && (
                     <p className="muted">{[planState.runAt && clock(planState.runAt), planState.place].filter(Boolean).join(' · ')}</p>
                   )}
+                  {focus.date === today && <RunWeather date={today} runAt={planState.runAt} compact />}
                   {focus.date === today && planState.ifThen && (
                     <p className="hint">If something gets in the way: {planState.ifThen}</p>
                   )}

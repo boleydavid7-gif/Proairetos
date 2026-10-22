@@ -741,6 +741,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   3%), a run or walk counts as that day's open session once. The connection (`askesis:strava`) stays on the device, out of
   backups and sync. Strava's orange button and "Powered by Strava" as its guidelines ask. On hold: since June 2026 a
   Strava API app needs its owner's paid subscription; without the secrets the page says it is not set up.
+- Weather at your run (`core/runWeather.ts` `runNotes`, `hourLine`, `runHourFor`; `app/runWeather.ts`, `app/RunWeather.tsx`):
+  on the day a session falls on (or was moved to) and is still open, the session page (below Start) and Home's focus card show
+  the forecast for `runAt` rounded to the hour, else the next whole hour (Open-Meteo hourly + air quality, kept an hour). Notes
+  only from sources (`WEATHER_SOURCES`: ACSM heat 2007 and cold 2006, WHO UV, EPA AQI), the existing Lighter today stays the way
+  to ease off. The place: the phone's location once allowed ("Use where I am" from a tap; refreshed silently after 3 h when
+  already granted), rounded to 0.01 and kept in `askesisDevice.place` (device only), else Proairetos's weather place. "Not for
+  me" sets `askesisDevice.weatherAside`; Settings > What's included has the switch.
 - Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
   a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
   `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log
