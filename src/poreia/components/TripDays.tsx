@@ -8,7 +8,7 @@ import type { PoreiaNav } from '../app/App';
 import { bookings, newId, nowStamp, plans } from '../app/state';
 import { dayText, timeText } from '../app/ui';
 import { tripEvents } from '../core/calendar';
-import { daysOf, entryTitle, moveAmong, planText, type DayEntry, type PlanItem, type Trip } from '../core/model';
+import { daysOf, entryTitle, moveAmong, placeLine, planText, type DayEntry, type PlanItem, type Trip } from '../core/model';
 import MapView from './MapView';
 
 /** One line of a day: its time, what it is and where; tapping opens the booking or the plan. */
@@ -131,7 +131,10 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
         return (
           <section key={date} className="poreia-day" id={`day-${date}`}>
             <h2 className="poreia-day__head">
-              <span>{dayText(date)}</span>
+              <span>
+                {dayText(date)}
+                {placeLine(trip, date) && <span className="poreia-day__place">{placeLine(trip, date)}</span>}
+              </span>
               {date >= trip.start! && date <= (trip.end ?? trip.start!) && <span className="muted">Day {daysBetween(trip.start!, date) + 1}</span>}
             </h2>
             {placed.length > 0 && (

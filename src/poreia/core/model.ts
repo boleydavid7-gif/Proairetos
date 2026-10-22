@@ -22,10 +22,16 @@ export type Place = {
 /** Where the person is with it. Being there and being back follow from the dates. */
 export type TripStage = 'idea' | 'planning' | 'booked';
 
+/** One place on a trip of several, with its own dates (the day of moving on belongs to both). */
+export type Stop = { id: string; place: Place; start?: string; end?: string };
+
 export type Trip = {
   id: string;
   name: string;
+  /** The place, or the first stop when there are several. */
   place?: Place;
+  /** Two or more places in order, each with its dates; absent for a trip to one place. */
+  stops?: Stop[];
   /** Where it starts from, when not the home place in Settings. */
   from?: Place;
   start?: string;
@@ -168,6 +174,48 @@ export function phaseText(phase: Phase): string {
     case 'past':
       return phase.daysAgo <= 1 ? 'Back yesterday' : `Back ${phase.daysAgo} days`;
   }
+}
+
+/** Every place on the trip with its dates: the stops in order, or the one place across the trip's dates. */
+export function placesOf(trip: Pick<Trip, 'place' | 'stops' | 'start' | 'end'>): Stop[] {
+  if (trip.stops && trip.stops.length > 0) return trip.stops;
+  return trip.place ? [{ id: 'main', place: trip.place, start: trip.start, end: trip.end }] : [];
+}
+
+/** Where the trip is on a day: the stop whose dates hold it (on a day of moving on, the one arrived at). */
+export function stopOn(trip: Pick<Trip, 'place' | 'stops' | 'start' | 'end'>, date: string): Stop | undefined {
+  const all = placesOf(trip);
+  return [...all].reverse().find((stop) => stop.start && date >= stop.start && date <= (stop.end ?? stop.start)) ?? (all.length === 1 ? all[0] : undefined);
+}
+
+/** The stop to show first: where the trip is today, else the next one, else the first. */
+export function stopNow(trip: Pick<Trip, 'place' | 'stops' | 'start' | 'end'>, today: string): Stop | undefined {
+  const all = placesOf(trip);
+  return stopOn(trip, today) ?? all.find((stop) => (stop.start ?? '') >= today) ?? all[0];
+}
+
+/** A day's place line: "Porto", or "Lisbon → Porto" on a day of moving on. */
+export function placeLine(trip: Pick<Trip, 'place' | 'stops' | 'start' | 'end'>, date: string): string | undefined {
+  const all = placesOf(trip);
+  if (all.length < 2) return undefined;
+  const here = all.filter((stop) => stop.start && date >= stop.start && date <= (stop.end ?? stop.start));
+  if (here.length >= 2) return `${here[0].place.name} → ${here[here.length - 1].place.name}`;
+  return here[0]?.place.name;
+}
+
+/** Stops in date order; the trip's place and dates follow them. */
+export function withStops<T extends Pick<Trip, 'place' | 'stops' | 'start' | 'end'>>(trip: T, stops: Stop[]): T {
+  const sorted = [...stops].filter((stop) => stop.place).sort((a, b) => (a.start ?? '9999').localeCompare(b.start ?? '9999'));
+  if (sorted.length < 2) return { ...trip, stops: undefined, place: sorted[0]?.place ?? trip.place };
+  const starts = sorted.map((stop) => stop.start).filter((each): each is string => Boolean(each));
+  const ends = sorted.map((stop) => stop.end ?? stop.start).filter((each): each is string => Boolean(each));
+  return {
+    ...trip,
+    stops: sorted,
+    place: sorted[0].place,
+    start: starts.length ? starts.sort()[0] : trip.start,
+    end: ends.length ? ends.sort()[ends.length - 1] : trip.end,
+  };
 }
 
 /** Nights away: the end date minus the start. */

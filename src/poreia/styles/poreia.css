@@ -942,3 +942,31 @@
   width: auto;
   margin: 0;
 }
+
+/* A trip of several places: each stop in the form, and the chips that pick one on Overview and Around. */
+.poreia-stops {
+  display: grid;
+  gap: var(--ll-gap, 16px);
+}
+
+.poreia-stop {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface);
+}
+
+.poreia-stop .section-head {
+  margin: 0 0 4px;
+}
+
+.poreia-stop-chips .chip .muted {
+  font-size: var(--text-sm);
+}
+
+.poreia-day__place {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}

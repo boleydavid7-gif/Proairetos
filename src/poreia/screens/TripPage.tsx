@@ -6,7 +6,7 @@ import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
 import { bookings, newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
-import { daysOf, nextUp, nightsOf, phaseOf, phaseText, type Trip } from '../core/model';
+import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, stopNow, type Stop, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
 import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
@@ -38,6 +38,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   useEffect(() => {
     lastView.set(id, view);
   }, [id, view]);
+  const [stopId, setStopId] = useState<string>();
   if (!trip) {
     return (
       <div className="page poreia-page">
@@ -48,6 +49,8 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   }
   const day = today();
   const phase = phaseOf(trip, day);
+  const stops = placesOf(trip);
+  const stop = stops.find((each) => each.id === stopId) ?? stopNow(trip, day);
   const nights = nightsOf(trip);
   const pick = (next: TripView) => transition(VIEWS.findIndex((each) => each.id === next) < VIEWS.findIndex((each) => each.id === view) ? 'back' : 'forward', () => setView(next), 'panel');
 
@@ -56,7 +59,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
       <BackLink label="Trips" onBack={nav.back} />
       <div className="detail-head poreia-trip__head">
         <h1 className="title">{trip.name}</h1>
-        <p>{[trip.place && trip.place.name !== trip.name ? trip.place.label ?? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</p>
+        <p>{[stops.length > 1 ? stops.map((each) => each.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.label ?? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</p>
         <p className="muted">
           {[phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, trip.stage === 'idea' ? 'Idea' : trip.stage === 'planning' ? 'Planning' : 'Booked'].filter(Boolean).join(' · ')}
         </p>
@@ -73,11 +76,22 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         ))}
       </div>
 
+      {stops.length > 1 && (view === 'overview' || view === 'around') && (
+        <div className="chip-row poreia-scroll-chips poreia-stop-chips" role="group" aria-label="Stop">
+          {stops.map((each) => (
+            <button key={each.id} type="button" className="chip" aria-pressed={each.id === stop?.id} onClick={() => setStopId(each.id)}>
+              {each.place.name}
+              {each.start && <span className="muted"> {datesText(each.start, each.end)}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="vt-panel" key={view}>
-        {view === 'overview' && <Overview trip={trip} nav={nav} day={day} />}
+        {view === 'overview' && <Overview trip={trip} stop={stop} nav={nav} day={day} />}
         {view === 'around' &&
-          (trip.place?.lat !== undefined ? (
-            <Around place={trip.place} tripId={trip.id} start={trip.start} end={trip.end} nav={nav} />
+          (stop?.place.lat !== undefined ? (
+            <Around key={stop.id} place={stop.place} tripId={trip.id} start={stop.start} end={stop.end} nav={nav} />
           ) : (
             <p className="muted">Add where you’re going to see the map, the guide’s places and what’s nearby.</p>
           ))}
@@ -90,8 +104,9 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   );
 }
 
-function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string }) {
-  const target: Target | undefined = trip.place ? { place: trip.place, from: trip.from, start: trip.start, end: trip.end, travelers: trip.travelers } : undefined;
+function Overview({ trip, stop, nav, day }: { trip: Trip; stop?: Stop; nav: PoreiaNav; day: string }) {
+  // With several stops, the place cards follow the chosen stop and its dates.
+  const target: Target | undefined = stop ? { place: stop.place, from: trip.from, start: stop.start ?? trip.start, end: stop.end ?? trip.end, travelers: trip.travelers } : undefined;
   const addToDays = (title: string, date?: string, where?: string, extra: { time?: string; lat?: number; lon?: number; url?: string } = {}) => {
     const item = { id: newId(), tripId: trip.id, date: date && trip.start && date >= trip.start && date <= (trip.end ?? trip.start) ? date : trip.start ?? day, title, where, ...extra, createdAt: nowStamp(), updatedAt: nowStamp() };
     plans.put(item);
@@ -100,7 +115,7 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
   return (
     <>
       <NextUpCard trip={trip} nav={nav} day={day} />
-      <TimeThere trip={trip} today={day} />
+      <TimeThere trip={trip} place={stop?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
         <section className="card first-run">

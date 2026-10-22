@@ -1,5 +1,5 @@
 import { SPOT_CATEGORIES, type SpotCategory } from '../core/spots';
-import type { Trip } from '../core/model';
+import { placesOf, type Place, type Trip } from '../core/model';
 import { countryFacts, forecast, guideFor, guideSpots, nearby } from './world';
 
 /*
@@ -56,7 +56,7 @@ export function tilesAround(lat: number, lon: number, zoom: number, km: number):
 type Style = { sources?: Record<string, { url?: string; tiles?: string[] }>; sprite?: string | { url: string }[]; glyphs?: string; layers?: { layout?: Record<string, unknown> }[] };
 
 /** Every address the map needs around the place: styles, symbols, fonts and tiles. */
-async function mapAddresses(lat: number, lon: number): Promise<string[]> {
+async function mapAddresses(centers: readonly { lat: number; lon: number }[]): Promise<string[]> {
   const addresses = new Set<string>(STYLES);
   const templates = new Set<string>();
   for (const url of STYLES) {
@@ -78,7 +78,8 @@ async function mapAddresses(lat: number, lon: number): Promise<string[]> {
       }
     }
   }
-  const tiles = REACH.flatMap(([zoom, km]) => tilesAround(lat, lon, zoom, km)).slice(0, MOST_TILES);
+  // Each place gets its share of the tiles, closest zooms first within it.
+  const tiles = centers.flatMap(({ lat, lon }) => REACH.flatMap(([zoom, km]) => tilesAround(lat, lon, zoom, km)).slice(0, Math.floor(MOST_TILES / Math.max(1, centers.length)) + 60));
   for (const template of templates) for (const [z, x, y] of tiles) addresses.add(template.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y)));
   return [...addresses];
 }
@@ -101,22 +102,23 @@ async function inTurn(jobs: (() => Promise<unknown>)[], at: number, onStep: () =
 }
 
 export async function keepForOffline(trip: Trip, onProgress: (done: number, total: number) => void): Promise<{ missed: number }> {
-  const place = trip.place;
-  if (!place || place.lat === undefined || place.lon === undefined) return { missed: 0 };
-  const { lat, lon } = place;
+  const places = placesOf(trip)
+    .map((stop) => stop.place)
+    .filter((place): place is Place & { lat: number; lon: number } => place.lat !== undefined && place.lon !== undefined);
+  if (!places.length) return { missed: 0 };
   const kinds = SPOT_CATEGORIES.map((each) => each.id).filter((id): id is Exclude<SpotCategory, 'event'> => id !== 'event');
-  const data: (() => Promise<unknown>)[] = [
+  const data: (() => Promise<unknown>)[] = places.flatMap((place) => [
     () => guideFor(place),
     () => guideSpots(place),
-    () => forecast(lat, lon),
+    () => forecast(place.lat, place.lon),
     ...(place.countryCode ? [() => countryFacts(place.countryCode!)] : []),
-    ...kinds.map((kind) => () => nearby(kind, lat, lon)),
-  ];
+    ...kinds.map((kind) => () => nearby(kind, place.lat, place.lon)),
+  ]);
   let total = data.length + 1;
   let done = 0;
   const step = () => onProgress(++done, total);
   onProgress(0, total);
-  const addresses = await mapAddresses(lat, lon).catch(() => [] as string[]);
+  const addresses = await mapAddresses(places).catch(() => [] as string[]);
   total += addresses.length - 1;
   onProgress(done, total);
   // The map's files go straight into the cache Poreia's worker reads (so this works before the worker is in charge);

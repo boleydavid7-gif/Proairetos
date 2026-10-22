@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { settings } from '../app/state';
 import { dayText, timeText } from '../app/ui';
-import { phaseOf, type Trip } from '../core/model';
+import { phaseOf, type Place, type Trip } from '../core/model';
 import { apartText, clockIn, hoursApart, SHIFT_SOURCE, sleepShift } from '../core/timeZones';
 
 const deviceZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -24,9 +24,9 @@ function usualNight(): { bedtime: string; sleepHours: number } {
  * The clock at the place (or at home, while away) and how far apart they are; for three hours or more, an optional
  * sleep shift for the days before leaving.
  */
-export default function TimeThere({ trip, today }: { trip: Trip; today: string }) {
+export default function TimeThere({ trip, place = trip.place, today }: { trip: Trip; place?: Place; today: string }) {
   const home = settings.use().home?.timezone ?? deviceZone();
-  const there = trip.place?.timezone;
+  const there = place?.timezone;
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 30_000);
@@ -43,7 +43,7 @@ export default function TimeThere({ trip, today }: { trip: Trip; today: string }
     <section className="card poreia-time">
       <div className="poreia-time__row">
         <div>
-          <p className="label">{away ? 'At home' : `In ${trip.place?.name}`}</p>
+          <p className="label">{away ? 'At home' : `In ${place?.name}`}</p>
           <p className="poreia-time__clock">{clockIn(away ? home : there, now)}</p>
         </div>
         <p className="muted">{apartText(apart)}</p>

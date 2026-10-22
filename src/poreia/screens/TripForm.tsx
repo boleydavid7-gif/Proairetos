@@ -4,7 +4,9 @@ import { BackLink, Segmented } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, removeTrip, settings, trips } from '../app/state';
 import { MoneyField, PlaceSearch } from '../app/ui';
-import type { Place, Trip, TripStage } from '../core/model';
+import { withStops, type Place, type Stop, type Trip, type TripStage } from '../core/model';
+
+type StopDraft = { id: string; place?: Place; start: string; end: string };
 
 const STAGES: { id: TripStage; label: string }[] = [
   { id: 'idea', label: 'Idea' },
@@ -25,12 +27,33 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
   const [stage, setStage] = useState<TripStage>(existing?.stage ?? 'idea');
   const [budget, setBudget] = useState<{ cents?: number; currency: string }>({ cents: existing?.budget?.cents, currency: existing?.budget?.currency ?? prefs.currency });
   const [notes, setNotes] = useState(existing?.notes ?? '');
-  const title = name.trim() || place?.name || '';
+  // Two or more stops replace the one place and the trip's own dates.
+  const [stops, setStops] = useState<StopDraft[]>(() => (existing?.stops ?? []).map((stop) => ({ id: stop.id, place: stop.place, start: stop.start ?? '', end: stop.end ?? '' })));
+  const several = stops.length >= 2;
+  const changeStop = (index: number, patch: Partial<StopDraft>) => setStops((list) => list.map((stop, at) => (at === index ? { ...stop, ...patch } : stop)));
+  const addStop = () =>
+    setStops((list) => {
+      const base = list.length ? list : [{ id: newId(), place, start, end }];
+      const last = base[base.length - 1];
+      return [...base, { id: newId(), start: last.end || last.start, end: '' }];
+    });
+  const removeStop = (index: number) =>
+    setStops((list) => {
+      const next = list.filter((_, at) => at !== index);
+      if (next.length === 1) {
+        setPlace(next[0].place);
+        setStart(next[0].start);
+        setEnd(next[0].end);
+        return [];
+      }
+      return next;
+    });
+  const title = name.trim() || (several ? stops.map((stop) => stop.place?.name).filter(Boolean).join(' and ') : place?.name) || '';
 
   const save = () => {
     if (!title) return;
     const now = nowStamp();
-    const trip: Trip = {
+    const base: Trip = {
       id: existing?.id ?? newId(),
       name: title,
       place,
@@ -44,6 +67,10 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
+    const trip = withStops(
+      base,
+      several ? stops.filter((stop): stop is StopDraft & { place: Place } => Boolean(stop.place)).map((stop): Stop => ({ id: stop.id, place: stop.place, start: stop.start || undefined, end: stop.end && stop.start && stop.end >= stop.start ? stop.end : stop.start || undefined })) : [],
+    );
     trips.put(trip);
     if (existing) nav.back();
     else nav.swap({ name: 'trip', id: trip.id });
@@ -54,22 +81,58 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       <BackLink label={existing ? existing.name : 'Trips'} onBack={nav.back} />
       <h1 className="title">{existing ? 'Edit trip' : 'New trip'}</h1>
 
-      <PlaceSearch label="Where" value={place} onPick={setPlace} />
+      {several ? (
+        <section className="poreia-stops" aria-label="Stops">
+          {stops.map((stop, index) => (
+            <div key={stop.id} className="poreia-stop">
+              <div className="section-head">
+                <p className="label">Stop {index + 1}</p>
+                <button type="button" className="text-link" onClick={() => removeStop(index)}>
+                  Remove
+                </button>
+              </div>
+              <PlaceSearch label="Where" value={stop.place} onPick={(picked) => changeStop(index, { place: picked })} />
+              <div className="input-row">
+                <label className="field">
+                  <span className="field__label">From</span>
+                  <input className="input" type="date" value={stop.start} onChange={(event) => changeStop(index, { start: event.target.value })} />
+                </label>
+                <label className="field">
+                  <span className="field__label">Until</span>
+                  <input className="input" type="date" value={stop.end} min={stop.start || undefined} onChange={(event) => changeStop(index, { end: event.target.value })} />
+                </label>
+              </div>
+            </div>
+          ))}
+          <button type="button" className="button-quiet" onClick={addStop}>
+            Add another stop
+          </button>
+        </section>
+      ) : (
+        <>
+          <PlaceSearch label="Where" value={place} onPick={setPlace} />
+          <button type="button" className="text-link" onClick={addStop}>
+            Add another stop
+          </button>
+        </>
+      )}
       <label className="field">
         <span className="field__label">Name (optional)</span>
-        <input className="input" value={name} placeholder={place?.name ?? 'Summer by the sea'} onChange={(event) => setName(event.target.value)} />
+        <input className="input" value={name} placeholder={several ? 'Portugal by train' : (place?.name ?? 'Summer by the sea')} onChange={(event) => setName(event.target.value)} />
       </label>
 
-      <div className="input-row">
-        <label className="field">
-          <span className="field__label">From</span>
-          <input className="input" type="date" value={start} onChange={(event) => setStart(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field__label">Until</span>
-          <input className="input" type="date" value={end} min={start || undefined} onChange={(event) => setEnd(event.target.value)} />
-        </label>
-      </div>
+      {!several && (
+        <div className="input-row">
+          <label className="field">
+            <span className="field__label">From</span>
+            <input className="input" type="date" value={start} onChange={(event) => setStart(event.target.value)} />
+          </label>
+          <label className="field">
+            <span className="field__label">Until</span>
+            <input className="input" type="date" value={end} min={start || undefined} onChange={(event) => setEnd(event.target.value)} />
+          </label>
+        </div>
+      )}
 
       <label className="field">
         <span className="field__label">Travelers</span>

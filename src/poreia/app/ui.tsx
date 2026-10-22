@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronIcon } from '../../app/family/icons';
 import { parseLocalDate } from '../../core/scheduling/dates';
-import { phaseOf, phaseText, type Place, type Trip } from '../core/model';
+import { phaseOf, phaseText, placesOf, type Place, type Trip } from '../core/model';
 import { findPlaces } from './world';
 
 /** "Nov 2", "Nov 2 – 8", "Nov 30 – Dec 3", with the year when it is not this year. */
@@ -37,7 +37,7 @@ export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; on
         </span>
         <span className="row__text">
           <span>{trip.name}</span>
-          <span className="row__detail">{[trip.place && trip.place.name !== trip.name ? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</span>
+          <span className="row__detail">{[placesOf(trip).length > 1 ? placesOf(trip).map((stop) => stop.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</span>
         </span>
         <span className="poreia-trip-row__when">{phaseText(phase)}</span>
         <ChevronIcon size={18} />
