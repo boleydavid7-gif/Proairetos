@@ -466,3 +466,12 @@ export async function missionsIn(home: string, there: string): Promise<import('.
     return readMissions(data);
   });
 }
+
+/** Google's details for a place (rating, hours, reviews, photos), kept a week; null when Google has no match. */
+export async function googlePlace(name: string, lat: number, lon: number): Promise<import('../core/googlePlace').GooglePlace | null> {
+  return cached(`google.${name.toLowerCase()}.${lat.toFixed(4)},${lon.toFixed(4)}`, 7 * DAY, async () => {
+    const response = await fetch(apiUrl(`/api/travel/place?q=${encodeURIComponent(name)}&lat=${lat.toFixed(5)}&lon=${lon.toFixed(5)}`), { signal: AbortSignal.timeout(20_000) });
+    if (!response.ok) throw new Error(`${response.status}`);
+    return ((await response.json()) as { place: import('../core/googlePlace').GooglePlace | null }).place;
+  });
+}

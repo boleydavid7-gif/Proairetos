@@ -1198,6 +1198,33 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `pickAirport`: IATA aerodromes within 90 km, international first, no military or private; `airportFor` in `world.ts`,
   kept 180 days), so Kayak, Skyscanner, Momondo and Kayak cars open with airports, dates and travelers. Trains and buses
   pick North American or other sites by the destination's country. The card lists From, To, When and Travelers.
+- Forwarding address (migration `20261027000000_trip_inbox.sql`, Email Routing catch-all to the Worker's `email` handler,
+  `worker/tripMail.ts`: `tokenFrom` reads `trips.<token>@`, postal-mime parses, `mailWords` keeps subject, sender, words and
+  JSON-LD, sealed by `sealForInbox(..., 'poreia-mail')` through RPCs `trip_inbox_key`/`trip_inbox_add`; at most 100 waiting).
+  The device (`app/mailInbox.ts`, key and lower-case base32 token in `poreiaMail`, device only) opens them in `useMailOpener`
+  (start, sync ready, coming into view): `core/mail.ts` `readMail` (JSON-LD, subject, words), `tripFor` (the one trip whose
+  dates hold the booking's day; with no date, the one trip still to come named in it), `alreadyThere`, `bookingFrom` (one
+  undo for all added); the rest wait on Trips under From your email (collection `poreia:mail:`: add to a trip, new trip
+  from it, remove with undo). More has Forward booking emails (Copy, New address, Turn off).
+- Flight status (`worker/flightStatus.ts`, AeroDataBox via RapidAPI, secret `AERODATABOX_KEY`, `/api/travel/flight`, edge 5 min;
+  `core/flights.ts` `flightNumberOf`, `statusWords`, `minutesLate`, `changes`; `components/FlightNow.tsx`): flights today or
+  tomorrow show on the trip and booking page, looked at every 5 min while in view; a change (delay, gate, terminal,
+  belt, boarding, canceled) shows as a notice through `notifications.showNow` while Poreia is open. Leave for the airport
+  (`tripNotices` `poreia:go:`): flight time less `atAirport` (default 120 min) and `toAirport.minutes`, for flights from
+  home's airport (`toAirport.code`, else a trip's first-day flight); More works the drive out (`airportFor` + `driveMinutes`:
+  OSRM's public router, else distance at 50 km/h + 10 min). Packing for the weather (`weatherOffers`, `offersLeft` in
+  `core/packing.ts`, `components/WeatherPacking.tsx`): rain, cold, heat, swings and snow from the forecast within 15 days, else
+  last year, each with why; one tap adds, "Not for this trip" sets aside (`poreiaPackAside.<trip>`, device only).
+- Places been and Your year (`core/year.ts` `placesBeen`, `countriesBeen`, `poreiaYear`; `screens/BeenPage.tsx`, routes `been`
+  and `year`, `?open=been|year`): a map of every place from trips begun (`MapView fit`), countries with their places, and the
+  family YearPage. Route (`components/RouteCard.tsx`): a trip's stops numbered on a map with a dashed line (`MapView line`), each
+  leg's distance and, under 1,200 km, its drive. `components/PlaceExtras.tsx`: phrases (`core/phrases.ts` `readPhrases` from
+  Wikivoyage's "<Language> phrasebook", everyday first, kept 90 days, not when home speaks it), home's embassies and consulates
+  (`core/embassy.ts`, Wikidata SPARQL, P297 codes, diplomatic missions Q7843791), and Convert on Money (the country's currency
+  to Poreia's, Frankfurter). Loyalty numbers are Documents of kind `loyalty`; `loyaltyFor` shows them on a booking whose
+  provider shares a word with the program. Google details (`worker/placeDetails.ts`, Places API (New) Text Search with a field
+  mask, secret `GOOGLE_PLACES_KEY`, photos as `photoUri` so the key stays on the Worker, edge a day; `components/GoogleDetails.tsx`
+  on PlacePage, device cache a week): rating, reviews count, price, open now, hours, photos with authors, three reviews.
 - Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
   dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`

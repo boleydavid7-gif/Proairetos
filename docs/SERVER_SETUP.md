@@ -464,6 +464,13 @@ Check with https://proairetos.com/api/travel: each one set up reads `true`.
    **X-RapidAPI-Key** shown on its **Endpoints** page. Poreia looks at a flight every five minutes only while a trip page
    with a flight today or tomorrow is open, and the Worker keeps each answer five minutes, so use stays small.
 
+5. **Google ratings, hours and photos — `GOOGLE_PLACES_KEY`.** In console.cloud.google.com make a project, turn on
+   billing, open **APIs & Services → Library**, enable **Places API (New)**, then **Credentials → Create credentials → API
+   key**. Restrict it: **API restrictions → Places API (New)** only (no website restriction: the Worker calls it, not the
+   browser). Each place page asks once a week per device and the Worker keeps answers a day. Google charges per request
+   above a monthly free amount (Text Search with reviews and photos is its higher tier); set a budget alert under
+   **Billing → Budgets**.
+
 Keep the keys only in Cloudflare; never in the repository or a plain variable.
 
 ## Poreia's forwarding address (migration 20261027000000)

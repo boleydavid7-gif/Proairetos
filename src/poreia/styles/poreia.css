@@ -1860,3 +1860,44 @@
   border-left: 2px dashed color-mix(in oklab, var(--mint) 45%, transparent);
   font-size: var(--text-sm);
 }
+
+/* Google's details on a place: the line of facts, a sideways strip of photos, hours and reviews folded. */
+.poreia-google__line {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-google__photos {
+  display: flex;
+  gap: 8px;
+  margin: 8px calc(var(--ll-gutter, 20px) * -1) 0;
+  padding: 0 var(--ll-gutter, 20px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.poreia-google__photos figure {
+  flex: 0 0 auto;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.poreia-google__photos img {
+  display: block;
+  width: 220px;
+  height: 150px;
+  border-radius: var(--ll-inset, 12px);
+  object-fit: cover;
+}
+
+.poreia-google__hours,
+.poreia-google__reviews {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-google__reviews li + li {
+  margin-top: 12px;
+}

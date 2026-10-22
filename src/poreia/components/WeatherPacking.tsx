@@ -20,15 +20,17 @@ async function tripWeather(trip: Trip): Promise<WeatherDays | undefined> {
   if (!trip.start) return undefined;
   const end = trip.end ?? trip.start;
   const near = daysBetween(today(), trip.start) <= 15;
-  const days: WeatherDays['days'][number][] = [];
+  // A changeover day belongs to both stops; each date counts once.
+  const byDate = new Map<string, WeatherDays['days'][number]>();
   for (const stop of placesOf(trip)) {
     const { lat, lon } = stop.place;
     if (lat === undefined || lon === undefined) continue;
     const from = stop.start ?? trip.start;
     const until = stop.end ?? end;
     const found = near ? (await forecast(lat, lon)).filter((day) => day.date >= from && day.date <= until) : await lastYear(lat, lon, from, until);
-    days.push(...found);
+    for (const day of found) if (!byDate.has(day.date)) byDate.set(day.date, day);
   }
+  const days = [...byDate.values()];
   return days.length ? { source: near ? 'forecast' : 'last-year', days } : undefined;
 }
 

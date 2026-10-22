@@ -6,6 +6,7 @@ import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, plans, spots, today, trips } from '../app/state';
 import { dayText, Outbound } from '../app/ui';
 import MapView from '../components/MapView';
+import { GoogleDetails } from '../components/GoogleDetails';
 import { directionsTo, stayLinks } from '../core/links';
 import { tripDates } from '../core/model';
 import { categoryLabel, type Spot } from '../core/spots';
@@ -78,6 +79,8 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
       </div>
 
       {spot.about && <p>{spot.about}</p>}
+
+      <GoogleDetails name={spot.name} lat={spot.lat} lon={spot.lon} />
 
       {(spot.address || spot.hours || spot.price || spot.phone || spot.details?.length) && (
         <dl className="detail-list">

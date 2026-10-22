@@ -5,6 +5,7 @@ import { handleTravelEvents } from './travelEvents';
 import { handleTravelSearch } from './travelSearch';
 import { handleTravelNear } from './travelNear';
 import { handleFlightStatus } from './flightStatus';
+import { handlePlaceDetails } from './placeDetails';
 import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
@@ -57,6 +58,8 @@ export default {
     if (url.pathname === '/api/travel/near') return handleTravelNear(request);
     // Poreia's flight status on the day (AeroDataBox; only the number and date are sent).
     if (url.pathname === '/api/travel/flight') return handleFlightStatus(request, env.AERODATABOX_KEY);
+    // Poreia's Google details for a place (rating, hours, photos; only its name and rough point are sent).
+    if (url.pathname === '/api/travel/place') return handlePlaceDetails(request, env.GOOGLE_PLACES_KEY);
     if (url.pathname === '/api/travel' || url.pathname.startsWith('/api/travel/')) return handleTravelSearch(request, env);
     // Keep sibling apps reachable at their clean family URLs without requiring a trailing slash.
     if (url.pathname === '/praxis') {
