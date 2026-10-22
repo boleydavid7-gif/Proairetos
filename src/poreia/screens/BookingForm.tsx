@@ -6,7 +6,7 @@ import { offerUndo, say } from '../../app/family/shell';
 import { deviceKind } from '../../app/install/installPrompt';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
-import { bookings, newId, nowStamp, settings, trips, today } from '../app/state';
+import { bookings, docs, newId, nowStamp, settings, trips, today } from '../app/state';
 import { dayText, MoneyField, timeText } from '../app/ui';
 import { readConfirmation, type ReadBooking } from '../core/confirmations';
 import { directionsTo } from '../core/links';
@@ -14,6 +14,7 @@ import { BOOKING_KINDS, kindLabel, moneyText, type Booking, type BookingKind } f
 import { peopleOf } from '../components/Together';
 import { FlightStatusCard } from '../components/FlightNow';
 import { addDays } from '../../core/scheduling/dates';
+import { loyaltyFor } from '../core/documents';
 
 const TRAVEL: BookingKind[] = ['flight', 'train', 'bus', 'cruise'];
 
@@ -292,6 +293,8 @@ function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: Poreia
         </button>
       )}
 
+      <LoyaltyNumbers provider={booking.provider ?? booking.title} />
+
       {booking.kind === 'flight' && booking.startDate && booking.startDate >= today() && booking.startDate <= addDays(today(), 1) && <FlightStatusCard booking={booking} />}
 
       {(goTo || booking.link) && (
@@ -330,5 +333,37 @@ function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: Poreia
         Delete booking
       </button>
     </div>
+  );
+}
+
+/** The person's loyalty numbers for this provider (from Documents), each a tap to copy. */
+function LoyaltyNumbers({ provider }: { provider?: string }) {
+  const mine = loyaltyFor(docs.use(), provider);
+  if (!mine.length) return null;
+  return (
+    <section className="card">
+      <h2 className="card__title">Your loyalty number</h2>
+      <ul className="rows">
+        {mine.map((doc) => (
+          <li key={doc.id}>
+            <button
+              type="button"
+              className="row"
+              onClick={() =>
+                void navigator.clipboard
+                  ?.writeText(doc.number!)
+                  .then(() => say('Number copied'))
+                  .catch(() => say('Couldn’t copy. Press and hold the number to copy it.'))
+              }
+            >
+              <span className="row__text">
+                <span>{doc.name}</span>
+                <span className="row__detail poreia-code__value">{doc.number}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

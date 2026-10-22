@@ -27,6 +27,8 @@ import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
 import { HolidaysLine } from '../components/References';
 import { TripFlights } from '../components/FlightNow';
+import { RouteCard } from '../components/RouteCard';
+import { EmbassyCard, PhrasesCard } from '../components/PlaceExtras';
 import type { Holiday } from '../app/world';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
@@ -153,7 +155,11 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
           {ahead && <WhenToGo place={target.place} start={target.start} end={target.end} />}
           <SavedCard trip={trip} nav={nav} />
           <GuideCard place={target.place} />
-          <CountryCard target={target}>{ahead && <ArrivingCard place={target.place} />}</CountryCard>
+          <CountryCard target={target}>
+            {ahead && <ArrivingCard place={target.place} />}
+            <PhrasesCard place={target.place} />
+            <EmbassyCard place={target.place} />
+          </CountryCard>
         </>
       )}
       {ahead && <DocumentsCard trip={trip} nav={nav} />}
@@ -187,6 +193,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
     <>
       <NextUpCard trip={trip} nav={nav} day={day} />
       <TripFlights trip={trip} />
+      <RouteCard trip={trip} />
       <TimeThere trip={trip} place={target?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (

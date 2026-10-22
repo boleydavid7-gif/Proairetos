@@ -10,6 +10,7 @@ import { balances, settleUp } from '../core/split';
 import { Balances, peopleOf } from './Together';
 import { SavingCard } from './TripGoals';
 import { YearBudgetLine } from './References';
+import { ConverterCard } from './PlaceExtras';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
 export default function TripMoney({ trip }: { trip: Trip }) {
@@ -75,6 +76,7 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         {totals.unconverted.length > 0 && <p className="fine">{ratesFailed ? 'Couldn’t get exchange rates; ' : ''}Left out until converted: {totals.unconverted.map((money) => moneyText(money)).join(', ')}.</p>}
         {foreign && !ratesFailed && <p className="fine">Converted at the European Central Bank’s latest rates.</p>}
       </section>
+      {trip.place && <ConverterCard place={trip.place} />}
 
       <SavingCard trip={trip} />
 

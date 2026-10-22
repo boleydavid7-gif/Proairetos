@@ -4,7 +4,7 @@
  * without (a passport) shows on every trip.
  */
 
-export type DocKind = 'passport' | 'id' | 'visa' | 'insurance' | 'license' | 'health' | 'ticket' | 'other';
+export type DocKind = 'passport' | 'id' | 'visa' | 'insurance' | 'license' | 'health' | 'ticket' | 'loyalty' | 'other';
 
 export const DOC_KINDS: { id: DocKind; label: string }[] = [
   { id: 'passport', label: 'Passport' },
@@ -14,6 +14,7 @@ export const DOC_KINDS: { id: DocKind; label: string }[] = [
   { id: 'license', label: 'Driving license' },
   { id: 'health', label: 'Health or vaccination' },
   { id: 'ticket', label: 'Ticket or pass' },
+  { id: 'loyalty', label: 'Loyalty program' },
   { id: 'other', label: 'Other' },
 ];
 
@@ -76,3 +77,13 @@ export function needsLook(doc: TravelDoc, trip?: { start?: string; end?: string 
 
 /** A number shown with all but its last four hidden. */
 export const masked = (number: string) => (number.length <= 4 ? number : `•••• ${number.slice(-4)}`);
+
+const COMMON = new Set(['air', 'airlines', 'airline', 'airways', 'hotel', 'hotels', 'resorts', 'the', 'and', 'cruise', 'cruises', 'line', 'rail', 'rent', 'car', 'international']);
+const wordsOf = (text: string) => text.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((word) => word.length >= 3 && !COMMON.has(word));
+
+/** The person's loyalty numbers that go with a booking: a program whose name shares a word with the provider. */
+export function loyaltyFor(all: readonly TravelDoc[], provider?: string): TravelDoc[] {
+  if (!provider) return [];
+  const words = new Set(wordsOf(provider));
+  return all.filter((doc) => doc.kind === 'loyalty' && doc.number && wordsOf(doc.name).some((word) => words.has(word)));
+}

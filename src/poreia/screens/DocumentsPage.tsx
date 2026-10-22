@@ -115,10 +115,10 @@ export function DocumentPage({ nav, id, tripId }: { nav: PoreiaNav; id?: string;
           </label>
           <label className="field">
             <span className="field__label">Name</span>
-            <input className="input" value={form.name} placeholder={form.kind === 'insurance' ? 'The insurer' : 'Whose, or what it is'} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+            <input className="input" value={form.name} placeholder={form.kind === 'insurance' ? 'The insurer' : form.kind === 'loyalty' ? 'Delta SkyMiles, Marriott Bonvoy' : 'Whose, or what it is'} onChange={(event) => setForm({ ...form, name: event.target.value })} />
           </label>
           <label className="field">
-            <span className="field__label">{form.kind === 'insurance' ? 'Policy number' : 'Number'}</span>
+            <span className="field__label">{form.kind === 'insurance' ? 'Policy number' : form.kind === 'loyalty' ? 'Member number' : 'Number'}</span>
             <input className="input" value={form.number} autoComplete="off" spellCheck={false} onChange={(event) => setForm({ ...form, number: event.target.value })} />
           </label>
           {form.kind === 'insurance' && (

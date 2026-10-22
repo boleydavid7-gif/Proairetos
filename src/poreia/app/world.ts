@@ -443,3 +443,26 @@ export async function driveMinutes(from: { lat: number; lon: number }, to: { lat
     return { minutes: Math.round((km / 50) * 60 + 10), estimated: true };
   });
 }
+
+// ---------- Phrases and embassies ----------
+
+/** Phrases for a language from its Wikivoyage phrasebook, kept 90 days (so they are there offline too). */
+export async function phrasesFor(language: string): Promise<{ phrases: import('../core/phrases').Phrase[]; url: string } | undefined> {
+  const title = `${language} phrasebook`;
+  return cached(`phrases.${language}`, 90 * DAY, async () => {
+    const data = await json<{ parse?: { title: string; wikitext?: string } }>(`https://en.wikivoyage.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=wikitext&redirects=1&format=json&formatversion=2&origin=*`);
+    if (!data.parse?.wikitext) return undefined;
+    const { readPhrases } = await import('../core/phrases');
+    const phrases = readPhrases(data.parse.wikitext);
+    return phrases.length ? { phrases, url: `https://en.wikivoyage.org/wiki/${encodeURIComponent(data.parse.title.replace(/ /g, '_'))}` } : undefined;
+  });
+}
+
+/** Home's embassies and consulates in a country (Wikidata), kept 30 days. */
+export async function missionsIn(home: string, there: string): Promise<import('../core/embassy').Mission[]> {
+  const { missionQuery, readMissions } = await import('../core/embassy');
+  return cached(`missions.${home}.${there}`, 30 * DAY, async () => {
+    const data = await json<{ results?: { bindings?: Record<string, { value: string } | undefined>[] } }>(`https://query.wikidata.org/sparql?format=json&query=${encodeURIComponent(missionQuery(home, there))}`);
+    return readMissions(data);
+  });
+}
