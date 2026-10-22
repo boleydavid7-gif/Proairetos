@@ -1,22 +1,53 @@
 /*
- * Motion as light. Where Material answers a touch with a ripple, Lamplight answers with light: a pressed control
- * brightens at once, its edge catching the lamp, and dims slowly when let go, the way a filament fades. Sheets
- * dim the room around them and leave the lamp's light at the top. Opacity, filter and shadow only, never layout;
- * with reduced motion the durations are zero (tokens.css), so the light simply comes and goes.
+ * Motion. A pressed control squeezes a little and springs back when let go, and its tonal state layer comes up
+ * (adopt.css); rows and cards give less. Lists glide when something is added, done, removed or put back
+ * (`listMotion` in behaviors.ts), chips grow a check, switches travel with a little give. Sheets dim the room and
+ * leave the lamp's light at the top. Scale, translate and opacity only, never layout; with reduced motion the
+ * durations are zero (tokens.css).
  */
 
-:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row) {
-  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), filter var(--ll-dim) var(--ll-ease-light);
+:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row, a.card, button.card, .card--link) {
+  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale var(--ll-slow) var(--ll-spring-lively);
 }
 
-:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
-  filter: brightness(1.12) drop-shadow(0 0 10px rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.35));
-  transition-duration: var(--ll-quick);
+/* A press squeezes the control a little under the finger and springs it back on release, as native controls do;
+   rows and cards give less. Only `scale` moves, so nothing is laid out or painted again. */
+:where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip):active:not(:disabled):not([aria-disabled='true']) {
+  scale: 0.96;
+  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale 90ms var(--ll-ease-out);
 }
 
-/* In daylight a brighter surface would wash out; the lamp's edge alone carries the press. */
-:root[data-theme='light'] :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
-  filter: drop-shadow(0 0 8px rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.45));
+:where(.ll-row, .ll-card--interactive, .row, .place-row, .settings-row, a.card, button.card, .card--link):active {
+  scale: 0.985;
+  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale 90ms var(--ll-ease-out);
+}
+
+/* A chosen chip grows a check at its start (Material's filter chip); the chip widens to take it. */
+:root .chip {
+  display: inline-flex;
+  align-items: center;
+}
+
+:root .chip::before {
+  content: '';
+  flex: none;
+  width: 0;
+  height: 16px;
+  margin-inline-end: 0;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+  transition: width var(--ll-calm) var(--ll-spring), margin var(--ll-calm) var(--ll-spring);
+}
+
+:root :is(.chip[aria-pressed='true'], .chip[aria-checked='true'])::before {
+  width: 16px;
+  margin-inline-end: 6px;
+}
+
+/* Switches: the knob travels with a little give, and stretches for a moment while pressed. */
+:root :is(.switch, .toggle-switch, .ll-switch)::after {
+  transition: transform var(--ll-slow) var(--ll-spring-lively), width var(--ll-calm) var(--ll-spring), background var(--ll-calm) var(--ll-ease-out);
 }
 
 /* A sheet dims the room; the lamp's light stays at the top of what is left. */
@@ -39,8 +70,8 @@
     scroll-behavior: auto !important;
   }
 
-  :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row):active:not(:disabled) {
-    filter: none;
+  :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip, .ll-row, .ll-card--interactive, .row, .place-row, .settings-row, a.card, button.card, .card--link):active {
+    scale: 1;
   }
 }
 

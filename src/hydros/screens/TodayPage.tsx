@@ -11,6 +11,7 @@ import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import IconButton from '../../components/ui/IconButton';
 import scene from '../../assets/images/scenes/hydros-sunset.webp';
+import { RollingNumber } from '../../lamplight/RollingNumber';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
   const all = useDrinks();
@@ -62,7 +63,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <section className="hydros-home__content">
         <article className="hydros-amount" aria-label={settings.goalChosen ? `${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}` : `${formatVolume(amount, unit)} ${unit} today`}>
           <p className="hydros-amount__figure">
-            <strong>{formatVolume(amount, unit)}</strong>
+            <strong><RollingNumber value={amount} format={(n) => formatVolume(n, unit)} /></strong>
             <span>{settings.goalChosen ? `of ${formatVolume(goal, unit)} ${unit}` : `${unit} today`}</span>
           </p>
           {settings.goalChosen ? (

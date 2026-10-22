@@ -13,7 +13,7 @@ function listenForSwitches(): void {
   switchTaps = true;
   document.addEventListener('click', (event) => {
     const target = event.target as Element | null;
-    if (target?.closest?.('[role="switch"], .toggle-row, .switch-row')) tap();
+    if (target?.closest?.('[role="switch"], .toggle-row, .switch-row, .tick, .chip[aria-pressed], .hydros-glass')) tap();
   });
 }
 

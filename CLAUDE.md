@@ -231,6 +231,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   grouped list (`.hydros-drinks`), the daily thought at the foot once something is logged (`.hydros-thought`); Proairetos's
   own surfaces lose their outlines too; Praxis's add row puts the name on its own line; Theoria shows the sync tag only when
   signed in; Ktema's empty home shows four upkeep ideas and More ideas.
+- Lamplight 1.4 motion (`motion.css`, `behaviors.ts` `listMotion`, `lamplight/RollingNumber.tsx`): a press squeezes controls to
+  0.96 (rows and cards 0.985) and springs back on release (`scale` only; the old glow filter is gone); lists glide when a tap
+  or key adds, finishes, removes or puts back a row (FLIP: positions noted on pointerdown/keydown, replayed as `translate` in
+  the next frame for rows in `LIST_ROWS`, new rows fade up; within 1.5 s of the input); a chosen `.chip` grows a check
+  (`::before`, masked SVG); switch knobs travel on `--ll-spring-lively`; `RollingNumber` rolls a figure to its new value
+  (Hydros's amount); `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).

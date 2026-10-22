@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Buttons give a little under your finger and spring back, lists glide when you add, finish or undo something, chosen chips show a check, and Hydros’s total counts up.',
       'Hydros has a new Today: the day’s amount in large type, your usual glasses as big one-tap buttons, and the drinks as one list.',
       'A new finish across every app: filled cards without outlines, solid tonal buttons, a pill around the icon of the tab you are on, slightly larger small text, and a more solid bar at the top.',
       'Philia: Add a date from Home or a person’s page, for a birthday, an anniversary or any other event, every year or once, with a time if it has one. They show in Proairetos too: dates under their day in Days ahead, and events with a time on Today and in the calendar.',

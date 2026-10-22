@@ -48,6 +48,7 @@ export function startLamplightBehaviors(): void {
   dockMarks();
   backSwipe();
   rowMenus();
+  listMotion();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -688,4 +689,70 @@ function rowMenus(): void {
     }
   });
   addEventListener('scroll', close, { passive: true, capture: true });
+}
+
+// ---------- Lists that glide ----------
+
+/*
+ * When a tap or a key adds, finishes, removes or puts back a row, the rows of that list glide to their new places
+ * and a new row fades up into its gap (FLIP: where each row was is noted as the finger goes down, where it is after
+ * the change is read in the next frame, and the difference is played back as a translate). Rows that are gone simply
+ * leave; a whole new page (other lists) is left to the page transition. Translate and opacity only.
+ */
+const LIST_ROWS = 'ul > li, ol > li, [role="list"] > *, .rows > *, .hydros-drinks > *, .coming-up > *, .chore-list > *';
+const MAX_ROWS = 160;
+
+function listMotion(): void {
+  let before = new Map<Element, DOMRect>();
+  let parents = new Set<Element>();
+  let takenAt = 0;
+  let queued = false;
+
+  const visible = (): Element[] => {
+    const out: Element[] = [];
+    const bottom = innerHeight + 80;
+    for (const row of document.querySelectorAll(LIST_ROWS)) {
+      const box = row.getBoundingClientRect();
+      if (box.height === 0 || box.bottom < -80 || box.top > bottom) continue;
+      out.push(row);
+      if (out.length >= MAX_ROWS) break;
+    }
+    return out;
+  };
+
+  const take = () => {
+    if (reduced()) return;
+    before = new Map(visible().map((row) => [row, row.getBoundingClientRect()]));
+    parents = new Set([...before.keys()].map((row) => row.parentElement).filter((parent): parent is HTMLElement => Boolean(parent)));
+    takenAt = performance.now();
+  };
+
+  const play = () => {
+    queued = false;
+    if (!before.size || performance.now() - takenAt > 1500) return;
+    const easing = getComputedStyle(document.documentElement).getPropertyValue('--ll-spring').trim() || 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+    for (const row of visible()) {
+      const now = row.getBoundingClientRect();
+      const was = before.get(row);
+      if (was) {
+        const dy = was.top - now.top;
+        if (Math.abs(dy) > 1 && Math.abs(dy) < 600 && Math.abs(was.left - now.left) < 2) {
+          row.animate([{ translate: `0 ${dy}px` }, { translate: '0 0' }], { duration: 340, easing });
+        }
+      } else if (row.parentElement && parents.has(row.parentElement)) {
+        row.animate([{ opacity: 0, translate: '0 8px' }, { opacity: 1, translate: '0 0' }], { duration: 260, easing });
+      }
+    }
+    // Later steps of the same change (a list that settles in two renders) start from where things are now.
+    before = new Map(visible().map((row) => [row, row.getBoundingClientRect()]));
+  };
+
+  document.addEventListener('pointerdown', take, { capture: true, passive: true });
+  document.addEventListener('keydown', take, { capture: true, passive: true });
+  new MutationObserver((records) => {
+    if (queued || !before.size || performance.now() - takenAt > 1500) return;
+    if (!records.some((record) => record.addedNodes.length || record.removedNodes.length)) return;
+    queued = true;
+    requestAnimationFrame(play);
+  }).observe(document.body, { childList: true, subtree: true });
 }
