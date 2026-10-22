@@ -10,7 +10,7 @@
 }
 
 .praxis-app { min-height: 100vh; display: grid; grid-template-columns: 238px minmax(0, 1fr); }
-.praxis-sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 28px 16px 22px; border-right: 1px solid var(--color-border); background: rgba(8, 20, 18, .78); }
+.praxis-sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 28px 16px 22px; border-right: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-ink-raised) 78%, transparent); }
 .praxis-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 34px; }
 .praxis-brand__mark { width: 42px; height: 42px; display: grid; place-items: center; }
 .praxis-brand__mark svg { width: 42px; height: 42px; }
@@ -21,7 +21,7 @@
 .praxis-nav-list { display: grid; gap: 4px; }
 .praxis-nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 1px solid transparent; border-radius: 12px; color: var(--color-text-muted); background: transparent; cursor: pointer; text-align: left; transition: .2s ease; }
 @media (hover: hover) { .praxis-nav-item:hover { color: var(--color-text); background: var(--color-surface-soft); } }
-.praxis-nav-item.is-active { border-color: rgba(201, 162, 116, .28); color: var(--color-accent-strong); background: var(--color-accent-soft); }
+.praxis-nav-item.is-active { border-color: rgba(var(--color-accent-rgb), .28); color: var(--color-accent-strong); background: var(--color-accent-soft); }
 .praxis-nav-item span { font-size: 13px; font-weight: 600; }
 .praxis-sidebar__spacer { flex: 1; }
 .praxis-sidebar__note { display: flex; gap: 10px; padding: 14px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-surface-soft); }
@@ -48,23 +48,23 @@
 .praxis-subtitle { margin: 9px 0 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.5; }
 .praxis-planned-chip { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid var(--color-border); border-radius: 10px; color: var(--color-text-muted); font-size: 13px; }
 .praxis-planned-chip svg { color: var(--color-accent-strong); }
-.praxis-card { border: 1px solid var(--color-border); border-radius: 22px; background: linear-gradient(145deg, rgba(26, 52, 43, .88), rgba(11, 27, 23, .95)); box-shadow: 0 24px 70px rgba(0,0,0,.18); }
+.praxis-card { border: 1px solid var(--color-border); border-radius: 22px; background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface)); box-shadow: 0 24px 70px rgba(0,0,0,.18); }
 .praxis-today-grid { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(300px, .78fr); gap: 16px; }
-.praxis-focus-card { min-height: 525px; padding: 27px; overflow: hidden; background: radial-gradient(circle at 74% 22%, rgba(201,162,116,.16), transparent 15rem), linear-gradient(145deg, rgba(26, 52, 43, .95), rgba(11, 27, 23, .97)); }
+.praxis-focus-card { min-height: 525px; padding: 27px; overflow: hidden; background: radial-gradient(circle at 74% 22%, rgba(var(--color-accent-rgb), .16), transparent 15rem), linear-gradient(145deg, var(--color-surface-raised), var(--color-surface)); }
 .praxis-card-heading { display: flex; align-items: start; justify-content: space-between; gap: 15px; }
 .praxis-card-heading h2 { margin: 8px 0 0; font: 500 23px var(--font-serif); }
 .praxis-card-heading p:not(.praxis-eyebrow) { margin: 6px 0 0; color: var(--color-text-muted); font-size: 14px; }
 .praxis-ready-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 99px; color: #b8c7ad; background: rgba(157,180,147,.1); font-size: 12px; white-space: nowrap; }
 .praxis-ready-pill i { width: 6px; height: 6px; display: block; border-radius: 50%; background: #9db493; }
 .praxis-focus-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 390px; padding-top: 8px; }
-.praxis-timer { --praxis-progress: 0deg; width: clamp(246px, 30vw, 330px); aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--color-accent-strong) 0 var(--praxis-progress), rgba(213, 224, 204, .12) var(--praxis-progress) 360deg); box-shadow: 0 0 0 1px rgba(201,162,116,.08), 0 22px 55px rgba(0,0,0,.24); }
-.praxis-timer__inner { width: calc(100% - 18px); height: calc(100% - 18px); display: grid; place-items: center; align-content: center; border-radius: 50%; background: #112a22; box-shadow: inset 0 0 0 1px rgba(255,255,255,.035); text-align: center; }
+.praxis-timer { --praxis-progress: 0deg; width: clamp(246px, 30vw, 330px); aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--color-accent-strong) 0 var(--praxis-progress), rgba(213, 224, 204, .12) var(--praxis-progress) 360deg); box-shadow: 0 0 0 1px rgba(var(--color-accent-rgb), .08), 0 22px 55px rgba(0,0,0,.24); }
+.praxis-timer__inner { width: calc(100% - 18px); height: calc(100% - 18px); display: grid; place-items: center; align-content: center; border-radius: 50%; background: var(--color-surface-raised); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-text) 3.5%, transparent); text-align: center; }
 .praxis-timer__time { display: block; font: 500 clamp(48px, 6vw, 70px)/1 var(--font-serif); letter-spacing: -.04em; }
 .praxis-focus-actions { display: flex; gap: 9px; margin-top: 25px; }
 .praxis-button { min-height: 42px; padding: 0 17px; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: .18s ease; }
 .praxis-button:disabled { opacity: .45; cursor: default; }
-.praxis-button--primary { color: var(--color-accent-ink); background: var(--color-accent-strong); box-shadow: 0 9px 22px rgba(201,162,116,.16); }
-.praxis-button--primary:hover:not(:disabled) { background: #e2c09b; transform: translateY(-1px); }
+.praxis-button--primary { color: var(--color-accent-ink); background: var(--color-accent-strong); box-shadow: 0 9px 22px rgba(var(--color-accent-rgb), .16); }
+.praxis-button--primary:hover:not(:disabled) { background: color-mix(in srgb, var(--color-accent-strong) 80%, white); transform: translateY(-1px); }
 .praxis-button--quiet { border-color: var(--color-border); color: var(--color-text-muted); background: var(--color-surface-soft); }
 .praxis-button--quiet:hover:not(:disabled) { color: var(--color-text); }
 .praxis-adjust { display: flex; gap: 5px; margin-top: 11px; padding: 4px; border: 1px solid var(--color-border); border-radius: 9px; background: rgba(0,0,0,.12); }
@@ -74,8 +74,8 @@
 .praxis-plan-card { padding: 24px; }
 .praxis-plan-count { color: var(--color-accent-strong); font: 500 20px var(--font-serif); }
 .praxis-task-list { display: grid; gap: 9px; margin-top: 24px; }
-.praxis-task { display: grid; grid-template-columns: minmax(0,1fr) 22px; align-items: center; gap: 8px; padding: 10px; border: 1px solid transparent; border-radius: 13px; background: rgba(255,255,255,.035); }
-.praxis-task.is-selected { border-color: rgba(201,162,116,.4); background: rgba(201,162,116,.09); }
+.praxis-task { display: grid; grid-template-columns: minmax(0,1fr) 22px; align-items: center; gap: 8px; padding: 10px; border: 1px solid transparent; border-radius: 13px; background: color-mix(in srgb, var(--color-text) 3.5%, transparent); }
+.praxis-task.is-selected { border-color: rgba(var(--color-accent-rgb), .4); background: rgba(var(--color-accent-rgb), .09); }
 .praxis-task.is-done { opacity: .55; }
 .praxis-task.is-done strong { text-decoration: line-through; }
 .praxis-task-main { min-width: 0; display: flex; align-items: center; gap: 11px; padding: 0; border: 0; color: inherit; background: none; cursor: pointer; text-align: left; }
@@ -83,17 +83,17 @@
 .praxis-task-main strong, .praxis-task-main small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .praxis-task-main strong { font-size: 14px; }
 .praxis-task-main small { margin-top: 4px; color: var(--color-text-faint); font-size: 12px; }
-.praxis-task-check { width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(220,224,207,.28); border-radius: 50%; color: transparent; background: transparent; cursor: pointer; }
+.praxis-task-check { width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent); border-radius: 50%; color: transparent; background: transparent; cursor: pointer; }
 .praxis-task.is-done .praxis-task-check { border-color: var(--color-accent-strong); color: var(--color-accent-ink); background: var(--color-accent-strong); }
 .praxis-plan-foot { margin: 21px 0 0; padding-top: 16px; border-top: 1px solid var(--color-border); color: var(--color-text-faint); font-size: 12px; line-height: 1.45; }
 .praxis-empty { color: var(--color-text-muted); font-size: 13px; }
 
 .praxis-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 16px; }
-.praxis-metric { min-height: 118px; display: grid; grid-template-columns: 22px 1fr; grid-template-rows: auto auto; align-content: center; gap: 6px; padding: 19px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(14, 33, 27, .68); }
+.praxis-metric { min-height: 118px; display: grid; grid-template-columns: 22px 1fr; grid-template-rows: auto auto; align-content: center; gap: 6px; padding: 19px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface); }
 .praxis-metric__icon { grid-row: 1 / 3; padding-top: 2px; color: var(--color-accent-strong); }
 .praxis-metric strong { font: 500 26px/1 var(--font-serif); }
 .praxis-metric > span:last-child { color: var(--color-text-muted); font-size: 13px; }
-.praxis-quote { margin: 16px 0 0; padding: 22px 24px; border: 1px solid rgba(201,162,116,.18); border-radius: 16px; background: linear-gradient(100deg, rgba(201,162,116,.1), rgba(201,162,116,.025)); }
+.praxis-quote { margin: 16px 0 0; padding: 22px 24px; border: 1px solid rgba(var(--color-accent-rgb), .18); border-radius: 16px; background: linear-gradient(100deg, rgba(var(--color-accent-rgb), .1), rgba(var(--color-accent-rgb), .025)); }
 .praxis-quote p { margin: 0; color: var(--color-text); font: italic 18px/1.45 var(--font-serif); }
 .praxis-quote cite { display: block; margin-top: 10px; color: var(--color-text-faint); font-size: var(--text-sm); font-style: normal; letter-spacing: 0; text-transform: none; }
 
@@ -112,15 +112,15 @@
 .praxis-bar { width: min(30px, 100%); min-height: 6px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--color-accent-strong), var(--color-accent)); }
 .praxis-bar-group span { color: var(--color-text-faint); font-size: 12px; }
 .praxis-stat-stack { display: grid; align-content: start; gap: 12px; }
-.praxis-stat-card { padding: 21px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(14, 33, 27, .68); }
+.praxis-stat-card { padding: 21px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface); }
 .praxis-stat-card span, .praxis-stat-card strong { display: block; }
 .praxis-stat-card span { color: var(--color-text-muted); font-size: 13px; }
 .praxis-stat-card strong { margin-top: 15px; font: 500 34px var(--font-serif); }
 .praxis-sound-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-.praxis-sound { padding: 12px; border: 1px solid var(--color-border); border-radius: 14px; color: inherit; background: rgba(255,255,255,.035); cursor: pointer; text-align: left; }
+.praxis-sound { padding: 12px; border: 1px solid var(--color-border); border-radius: 14px; color: inherit; background: color-mix(in srgb, var(--color-text) 3.5%, transparent); cursor: pointer; text-align: left; }
 .praxis-sound:disabled { cursor: default; opacity: .58; }
-.praxis-sound.is-selected { border-color: rgba(201,162,116,.65); background: var(--color-accent-soft); }
-.praxis-sound.is-playing { box-shadow: 0 0 0 2px rgba(201,162,116,.22); }
+.praxis-sound.is-selected { border-color: rgba(var(--color-accent-rgb), .65); background: var(--color-accent-soft); }
+.praxis-sound.is-playing { box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), .22); }
 .praxis-sound-art { display: block; height: 64px; margin-bottom: 11px; border-radius: 9px; background: radial-gradient(circle at 70% 25%, rgba(201,162,116,.6), transparent 20%), linear-gradient(145deg,#2c5148,#10251e); }
 .praxis-sound-art--1 { background: radial-gradient(circle at 25% 30%, rgba(159,196,197,.55), transparent 18%), linear-gradient(145deg,#274451,#0f2524); }
 .praxis-sound-art--2 { background: radial-gradient(circle at 70% 70%, rgba(132,170,199,.5), transparent 23%), linear-gradient(145deg,#183a48,#0d2525); }
@@ -149,7 +149,7 @@
   /* Praxis owns its study-room header spacing. Keep it fixed instead of letting
      the family title anchor add and recalculate padding while the page updates. */
   .praxis-page-heading { padding-block-start: 52px; }
-  .praxis-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 4; display: block; padding: 6px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(11, 29, 24, .91); box-shadow: 0 18px 45px rgba(0,0,0,.28); }
+  .praxis-bottom-nav { position: fixed; right: 12px; bottom: max(12px, calc(12px + env(safe-area-inset-bottom))); left: 12px; z-index: 4; display: block; padding: 6px; border: 1px solid var(--color-border); border-radius: 16px; background: rgba(var(--color-bar-rgb), .94); box-shadow: 0 18px 45px rgba(0,0,0,.28); }
   .praxis-bottom-nav .praxis-nav-list { grid-template-columns: repeat(7,1fr); }
   .praxis-bottom-nav .praxis-nav-list { gap: 0; }
   .praxis-bottom-nav .praxis-nav-item { display: grid; justify-items: center; gap: 4px; min-width: 0; padding: 7px 0; }
@@ -212,7 +212,7 @@ html, body { margin: 0; }
 .praxis-done { margin-top: 14px; color: var(--color-text-muted); font-size: 13px; }
 .praxis-done summary { cursor: pointer; padding: 6px 0; }
 .praxis-done .praxis-task { margin-top: 7px; }
-.praxis-again { display: grid; gap: 7px; margin-top: 16px; padding: 10px 12px; border: 1px solid rgba(201,162,116,.3); border-radius: 12px; }
+.praxis-again { display: grid; gap: 7px; margin-top: 16px; padding: 10px 12px; border: 1px solid rgba(var(--color-accent-rgb), .3); border-radius: 12px; }
 .praxis-again__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .praxis-adjust { flex-wrap: wrap; justify-content: center; }
 .praxis-adjust button { min-height: 34px; font-size: 13px; }
@@ -245,8 +245,8 @@ html, body { margin: 0; }
 .praxis-after input { box-sizing: border-box; min-width: 0; width: 100%; min-height: 38px; padding: 6px 9px; border: 1px solid var(--color-border); border-radius: 9px; outline: none; color: var(--color-text); background: rgba(0,0,0,.14); font: inherit; font-size: 14px; }
 .praxis-after input:focus-visible { border-color: var(--color-accent-strong); }
 /* Opened from "Start my next block": one tap starts it. */
-.praxis-button--ready { min-height: 56px; padding: 0 34px; font-size: 14px; box-shadow: 0 0 0 6px rgba(201,162,116,.18), 0 12px 28px rgba(201,162,116,.22); animation: praxis-ready 2.4s ease-in-out infinite; }
-@keyframes praxis-ready { 50% { box-shadow: 0 0 0 11px rgba(201,162,116,.08), 0 12px 28px rgba(201,162,116,.22); } }
+.praxis-button--ready { min-height: 56px; padding: 0 34px; font-size: 14px; box-shadow: 0 0 0 6px rgba(var(--color-accent-rgb), .18), 0 12px 28px rgba(var(--color-accent-rgb), .22); animation: praxis-ready 2.4s ease-in-out infinite; }
+@keyframes praxis-ready { 50% { box-shadow: 0 0 0 11px rgba(var(--color-accent-rgb), .08), 0 12px 28px rgba(var(--color-accent-rgb), .22); } }
 @media (prefers-reduced-motion: reduce) { .praxis-button--ready { animation: none; } }
 /* Room to tap the family link without changing how it looks. */
 .praxis-family-link { align-items: center; min-height: 44px; }
@@ -293,6 +293,6 @@ html, body { margin: 0; }
    family's field height and 16 px type (which also keeps iPhones from zooming in on the field). */
 .praxis-add__row { grid-template-columns: 88px minmax(0, 1fr); gap: 8px; }
 .praxis-add__row > input:first-child { grid-column: 1 / -1; }
-.praxis-add input { min-height: 44px; padding: 8px 12px; border-color: transparent; border-radius: 12px; background: rgba(255, 255, 255, 0.06); font-size: 16px; }
+.praxis-add input { min-height: 44px; padding: 8px 12px; border-color: transparent; border-radius: 12px; background: color-mix(in srgb, var(--color-text) 6%, transparent); font-size: 16px; }
 .praxis-add__row > .praxis-button { min-height: 44px; border-radius: 999px; }
 .praxis-add__row > .praxis-button:not(:disabled) { border-color: transparent; background: var(--ll-lamp-fill, var(--color-accent)); color: var(--ll-on-lamp, #101923); }

@@ -363,7 +363,7 @@ p {
 }
 
 .card--offer {
-  border-color: rgba(134, 217, 176, 0.45);
+  border-color: color-mix(in srgb, var(--mint) 45%, transparent);
 }
 
 .card__eyebrow {
@@ -1046,7 +1046,7 @@ input[type='date'].input {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid #3a4542;
+  border: 2px solid color-mix(in srgb, var(--text) 28%, transparent);
   display: grid;
   place-items: center;
   color: var(--mint-ink);
@@ -1397,7 +1397,7 @@ input[type='date'].input {
 .guide__seg {
   min-width: 3px;
   border-radius: 4px;
-  background: #2c3633;
+  background: var(--switch-off);
   opacity: 0.9;
 }
 
@@ -1563,7 +1563,7 @@ input[type='date'].input {
   color: var(--mint-ink);
   display: grid;
   place-items: center;
-  box-shadow: 0 0 40px rgba(134, 217, 176, 0.25);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--mint) 25%, transparent);
 }
 
 .guide__end {
@@ -1999,7 +1999,7 @@ input[type='date'].input {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #c9d2ce;
+  background: #fff;
   transition: transform 180ms var(--ease);
 }
 
@@ -2176,7 +2176,7 @@ input[type='date'].input {
 
 @keyframes now-glow {
   50% {
-    box-shadow: 0 0 12px rgba(134, 217, 176, 0.55);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--mint) 55%, transparent);
   }
 }
 
@@ -2328,7 +2328,7 @@ html[data-nav='back']::view-transition-new(root) {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(134, 217, 176, 0.55) 0%, rgba(134, 217, 176, 0.18) 55%, transparent 72%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--mint) 55%, transparent) 0%, color-mix(in srgb, var(--mint) 18%, transparent) 55%, transparent 72%);
   will-change: transform;
 }
 
@@ -2436,7 +2436,7 @@ html[data-nav='back']::view-transition-new(root) {
   min-height: 44px;
   min-width: 56px;
   color: var(--mint);
-  border-color: rgba(134, 217, 176, 0.4);
+  border-color: color-mix(in srgb, var(--mint) 40%, transparent);
 }
 
 /* ---------- The path, by stage ---------- */

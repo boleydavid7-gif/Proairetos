@@ -282,6 +282,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   only covers and the reader's papers (`--theoria-paper-ink`, `--theoria-night-paper`, `--theoria-sepia-paper`) stay content colors.
   Hydros's page parts use `--surface-solid`, `--surface-2`, `--cyan` mixes and `--ll-mica` (dock); what sits over its pictures (hero,
   orb, add stage) keeps its photo ink. `hydrosVars` also sets the `--color-*` names the shared family pieces read.
+  Praxis uses `--color-accent-rgb`, `--color-surface(-raised)`, `--color-bar-rgb`; its sound pictures stay drawn content.
+  Askesis, Soma, Oikonomia and Poreia keep fixed colors only for categories (effort, dish tints, map pins, Strava's
+  orange) and the shades over their pictures.
 - `scripts/layout-check/check.mjs` measures the dock line over its icon, top-bar icons centered and 44 px, and the undo
   bar clear of the dock, in every app, dark and light; run it after layout changes. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
