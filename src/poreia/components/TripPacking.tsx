@@ -10,6 +10,7 @@ import { PACK_GROUPS, nightsOf, type PackGroup, type PackItem, type Trip } from 
 import { suggestedPacking } from '../core/packing';
 import { daysBetween } from '../../core/scheduling/dates';
 import RouteEmpty from './RouteEmpty';
+import { WeatherPacking } from './WeatherPacking';
 
 /** The packing list: offered once from the trip's length, weather and bookings, then the person's own. */
 export default function TripPacking({ trip }: { trip: Trip }) {
@@ -57,6 +58,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
       ) : (
         <PackedBar packed={packed} total={list.length} />
       )}
+      {list.length > 0 && <WeatherPacking trip={trip} />}
 
       {PACK_GROUPS.map(({ id, label }) => {
         const items = list.filter((each) => each.group === id).sort((a, b) => Number(a.packed) - Number(b.packed) || a.createdAt.localeCompare(b.createdAt));

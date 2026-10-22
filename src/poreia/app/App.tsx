@@ -25,6 +25,7 @@ import PlacePage from '../screens/PlacePage';
 import PlanPage from '../screens/PlanPage';
 import DocumentsPage, { DocumentPage } from '../screens/DocumentsPage';
 import { useMailOpener } from '../components/MailBox';
+import BeenPage, { YearScreen } from '../screens/BeenPage';
 
 export type Tab = 'trips' | 'explore' | 'time' | 'more';
 export type Route =
@@ -36,6 +37,8 @@ export type Route =
   | { name: 'booking'; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }
   | { name: 'time-off'; id?: string; tripId?: string }
   | { name: 'time-setup' }
+  | { name: 'been' }
+  | { name: 'year' }
   | { name: 'place'; spot: Spot; tripId?: string }
   | { name: 'plan'; id: string }
   | { name: 'documents'; tripId?: string }
@@ -70,6 +73,8 @@ function firstRoute(): Route {
     return { name: 'trip-form' };
   }
   if (opening === 'documents') return { name: 'documents' };
+  if (opening === 'been') return { name: 'been' };
+  if (opening === 'year') return { name: 'year' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
 }
@@ -113,6 +118,10 @@ export default function App() {
         return <TimeOffForm nav={nav} id={route.id} tripId={route.tripId} />;
       case 'time-setup':
         return <TimeOffSetupPage nav={nav} />;
+      case 'been':
+        return <BeenPage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'place':
         return <PlacePage nav={nav} spot={route.spot} tripId={route.tripId} />;
       case 'plan':

@@ -90,6 +90,9 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
               <details className="poreia-fold">
                 <summary>Been</summary>
                 <ul className="rows">{past.map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
+                <button type="button" className="text-link" onClick={() => nav.go({ name: 'been' })}>
+                  Where you’ve been
+                </button>
               </details>
             )}
           </>

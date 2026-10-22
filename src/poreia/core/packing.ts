@@ -50,3 +50,55 @@ export function suggestedPacking(context: PackContext): PackSuggestion[] {
   add('other', 'Reusable water bottle', 'Snacks for the journey');
   return list;
 }
+
+/** The trip's days at the place: a forecast (rain as a chance in %) or the same days last year (rain in mm). */
+export type WeatherDays = { source: 'forecast' | 'last-year'; days: readonly { high: number; low: number; rain?: number; code?: number }[] };
+
+/** One thing offered for the weather, with the reason in plain words. */
+export type WeatherOffer = PackSuggestion & { why: string };
+
+const SNOW = new Set([71, 73, 75, 77, 85, 86]);
+
+/**
+ * What the weather points to, each with why: rain, cold, heat, wide swings and snow. Read from the forecast when the
+ * trip is near, else from the same days last year (said so). `°` is the person's own unit, given as a formatter.
+ */
+export function weatherOffers(weather: WeatherDays, degrees: (celsius: number) => string): WeatherOffer[] {
+  const days = weather.days;
+  if (!days.length) return [];
+  const offers: WeatherOffer[] = [];
+  const add = (group: PackGroup, why: string, ...names: string[]) => names.forEach((name) => offers.push({ name, group, why }));
+  const lastYear = weather.source === 'last-year';
+  const of = (count: number) => `${count} of ${days.length} ${days.length === 1 ? 'day' : 'days'}`;
+
+  const wet = days.filter((day) => (lastYear ? (day.rain ?? 0) >= 1 : (day.rain ?? 0) >= 50)).length;
+  if (wet > 0) add('clothes', lastYear ? `Rain on ${of(wet)} last year` : `Rain likely on ${of(wet)}`, 'Umbrella', 'Rain jacket');
+  if (wet >= 3) add('clothes', lastYear ? `Rain on ${of(wet)} last year` : `Rain likely on ${of(wet)}`, 'Waterproof shoes');
+
+  const low = Math.min(...days.map((day) => day.low));
+  const high = Math.max(...days.map((day) => day.high));
+  const lowWhy = `Lows down to ${degrees(low)}${lastYear ? ' last year' : ''}`;
+  const highWhy = `Highs up to ${degrees(high)}${lastYear ? ' last year' : ''}`;
+  if (low <= 10) add('clothes', lowWhy, 'Warm jacket', 'Sweater');
+  if (low <= 2) add('clothes', lowWhy, 'Hat and gloves', 'Thermal layer');
+  if (high >= 27) {
+    add('clothes', highWhy, 'Sun hat', 'Light, breathable clothes');
+    add('wash', highWhy, 'Sunscreen');
+    add('other', highWhy, 'Reusable water bottle');
+  }
+  if (days.some((day) => day.high - day.low >= 12)) add('clothes', 'Cool mornings, warm afternoons', 'Layers for cool mornings');
+  if (days.some((day) => day.code !== undefined && SNOW.has(day.code))) add('clothes', 'Snow in the forecast', 'Boots for snow');
+  return offers;
+}
+
+/** The offers not on the list yet (by name, case ignored) and not set aside for this trip. */
+export function offersLeft(offers: readonly WeatherOffer[], listed: readonly string[], setAside: readonly string[]): WeatherOffer[] {
+  const taken = new Set([...listed, ...setAside].map((name) => name.trim().toLowerCase()));
+  const seen = new Set<string>();
+  return offers.filter((offer) => {
+    const key = offer.name.toLowerCase();
+    if (taken.has(key) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}

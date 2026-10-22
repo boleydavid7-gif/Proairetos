@@ -20,6 +20,10 @@ type Props = {
   zoom?: number;
   height?: string;
   label: string;
+  /** Bring every pin into view (a whole trip, or every place been). */
+  fit?: boolean;
+  /** A line through these points in order: a trip's route from stop to stop. */
+  line?: readonly { lat: number; lon: number }[];
 };
 
 const STYLE = { dark: 'https://tiles.openfreemap.org/styles/dark', light: 'https://tiles.openfreemap.org/styles/positron' };
@@ -35,7 +39,7 @@ const loadLibrary = () => {
   return library;
 };
 
-export default function MapView({ center, pins, chosen, onPick, zoom = 13, height = '18rem', label }: Props) {
+export default function MapView({ center, pins, chosen, onPick, zoom = 13, height = '18rem', label, fit = false, line }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | undefined>(undefined);
   const markers = useRef(new Map<string, Marker>());
@@ -116,6 +120,29 @@ export default function MapView({ center, pins, chosen, onPick, zoom = 13, heigh
       }
     });
   }, [pins, chosen, state]);
+
+  // Every pin in view, once the map is ready and whenever the pins change.
+  useEffect(() => {
+    const instance = map.current;
+    if (!fit || state !== 'ready' || !instance || pins.length < 2) return;
+    const lats = pins.map((pin) => pin.lat);
+    const lons = pins.map((pin) => pin.lon);
+    instance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 48, maxZoom: 10, duration: 0 });
+  }, [fit, state, pins.map((pin) => `${pin.lat},${pin.lon}`).join(';')]);
+
+  // The route, drawn under the pins in the app's accent.
+  useEffect(() => {
+    const instance = map.current;
+    if (!instance || state !== 'ready') return;
+    const data = { type: 'Feature' as const, properties: {}, geometry: { type: 'LineString' as const, coordinates: (line ?? []).map((point) => [point.lon, point.lat]) } };
+    const source = instance.getSource('poreia-route') as { setData?: (value: unknown) => void } | undefined;
+    if (source?.setData) source.setData(data);
+    else if (line?.length) {
+      instance.addSource('poreia-route', { type: 'geojson', data });
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--mint').trim() || '#5fd4c4';
+      instance.addLayer({ id: 'poreia-route', type: 'line', source: 'poreia-route', paint: { 'line-color': accent, 'line-width': 3, 'line-dasharray': [2, 1.5] }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    }
+  }, [state, (line ?? []).map((point) => `${point.lat},${point.lon}`).join(';')]);
 
   useEffect(() => {
     const pin = pins.find((each) => each.id === chosen);
