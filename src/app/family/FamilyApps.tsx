@@ -1,4 +1,5 @@
 import { useAddedApps, type AddOn } from './added';
+import { Sym } from '../../lamplight/icons';
 
 /** The apps of the family, the same list in every one (the one open is left out). */
 export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
@@ -43,8 +44,8 @@ export default function FamilyApps({ current }: { current: FamilyApp }) {
           ))}
         <li>
           <a className="row" href="/?open=settings:store">
-            <span className="row__icon">
-              <img className="row__app" src="/icons/icon.svg" alt="" width={26} height={26} />
+            <span className="row__icon family-apps__store" aria-hidden="true">
+              <Sym name="plus" />
             </span>
             <span className="row__text">
               <span>Store</span>

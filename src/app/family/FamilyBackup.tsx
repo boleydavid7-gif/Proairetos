@@ -1,7 +1,10 @@
 import StorageFacts from './StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup, packBackup } from '../../data/backup/packing';
 import { localDayKey } from '../../data/storage/preferences';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { GLYPHS, LampIcon, Sym } from '../../lamplight/icons';
+import './familyBackup.css';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import { lastBackupDate, recordBackup } from '../../data/storage/preferences';
 import { backupService } from '../services';
@@ -28,8 +31,79 @@ function describe(data: BackupData): string {
   return parts.join(', ') || 'Settings only';
 }
 
-/** `older`: reads a backup file this app made before there was one for all three; returns what it brought in, or undefined if it is not one. */
-export default function FamilyBackup({ older }: { older?: (text: string) => Promise<string | undefined> }) {
+type Older = (text: string) => Promise<string | undefined>;
+
+/**
+ * One row on an app's settings page, "Back up and restore" with the last backup's date; it opens the backup,
+ * daily copies, backup folder and restore as a page of their own over the app. Back, Escape and the back gesture
+ * close it (the page holds one history entry while open).
+ * `older`: reads a backup file this app made before there was one for all three; returns what it brought in, or undefined if it is not one.
+ * `inline`: on a page that is already about the person's data, the cards themselves.
+ */
+export default function FamilyBackup({ older, inline }: { older?: Older; inline?: boolean }) {
+  if (inline) return <BackupCards older={older} />;
+  return <BackupRow older={older} />;
+}
+
+function BackupRow({ older }: { older?: Older }) {
+  const [open, setOpen] = useState(false);
+  const [surface, setSurface] = useState(false);
+  const row = useRef<HTMLButtonElement>(null);
+  const last = lastBackupDate();
+
+  useEffect(() => {
+    if (!open) return;
+    window.history.pushState({ familyData: true }, '');
+    const onPop = () => setOpen(false);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') window.history.back();
+    };
+    window.addEventListener('popstate', onPop);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const show = () => {
+    // Apps without the shared stylesheet style these pieces inside `.family-surface`; the page keeps that look.
+    setSurface(Boolean(row.current?.closest('.family-surface')));
+    setOpen(true);
+  };
+
+  return (
+    <>
+      <ul className="rows family-data-row">
+        <li>
+          <button ref={row} type="button" className="row" aria-haspopup="dialog" onClick={show}>
+            <span className="row__icon"><LampIcon glyph={GLYPHS.download} size={22} /></span>
+            <span className="row__text">
+              <span>Back up and restore</span>
+              <span className="row__detail">{last ? `Last backup ${when(last)}` : 'No backup yet'}</span>
+            </span>
+            <Sym name="chevron" className="family-data-row__chevron" />
+          </button>
+        </li>
+      </ul>
+      {open &&
+        createPortal(
+          <div className={`family-data${surface ? ' family-surface' : ''}`} role="dialog" aria-modal="true" aria-labelledby="family-data-title">
+            <div className="family-data__inner">
+              <button type="button" className="family-data__back" onClick={() => window.history.back()}>
+                <Sym name="back" /> Back
+              </button>
+              <h1 id="family-data-title" className="family-data__title">Back up and restore</h1>
+              <BackupCards older={older} />
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
+function BackupCards({ older }: { older?: Older }) {
   const [password, setPassword] = useState('');
   const added = useAddedApps();
   const [busy, setBusy] = useState(false);

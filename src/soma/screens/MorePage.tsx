@@ -138,6 +138,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
       <FamilyBackup
+        inline
         older={async (text: string) => {
           const file = JSON.parse(text) as Backup;
           if (file.app !== 'soma') return undefined;

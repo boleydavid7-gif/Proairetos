@@ -290,6 +290,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).
+- Back up and restore (`app/family/FamilyBackup.tsx`, `familyBackup.css`): on an app's settings page `FamilyBackup` is one row
+  (last backup date) opening a full page over the app (portal, `.family-data`, one history entry so Back, Escape and the back
+  gesture close it; it takes `.family-surface` when the row sits in one). `inline` shows the cards directly, for pages already
+  about the person's data (Askesis's and Soma's Your data). Card headings there are the sans (`.family-backup .card__title`);
+  `.family-surface` buttons and fields follow Lamplight (pill main action with the lamp, tonal quiet buttons, filled fields).
+  The family list's Store row is a plus on the lamp's tile (`.family-apps__store`). Praxis's lamp seed is brass `#B08D57`.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

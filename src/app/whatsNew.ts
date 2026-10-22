@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Settings are shorter in every app: backup, daily copies, the backup folder and restore are gathered under one Back up and restore row with your last backup date, and open as their own page.',
+      'Hydros Settings has the large title and text sizes of the other apps, and one arrow on each choice; card headings and buttons on the backup page look the same in every app; the Store row in the family list has its own mark; Praxis is lit in brass instead of pink.',
       'New app icons: every symbol drawn larger and cleaner at the same visual size, a softer light on each tile, a steaming bowl for Soma so it no longer looks like Phyton, a clearer box for Ktema and a simpler plane for Poreia. Installed apps pick them up on their next update.',
       'Praxis\'s cards, sidebar and bar take the room\'s own colors instead of a fixed green; Askesis\'s switches and checks match the rest of the family in light mode.',
       'Theoria and Hydros take their colors from the family\'s design, so your chosen look carries into them; in Hydros the family list reads clearly in light mode, its switches show when off, and section names are no longer in capitals.',

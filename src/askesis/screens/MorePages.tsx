@@ -263,6 +263,7 @@ export function DataPage({ nav }: { nav: Nav }) {
       <h1 className="title">Your data</h1>
       <p className="lead">On this device, and synced when signed in to Proairetos.</p>
       <FamilyBackup
+        inline
         older={async (text: string) => {
           const old = readBackup(text);
           await restore(old);

@@ -522,3 +522,13 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-drinks .recent-entry { margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .hydros-drinks .recent-entry + .recent-entry { border-top: 1px solid var(--ll-hair, var(--line)); }
 .hydros-drinks .recent-entry__edit { border: 0; background: transparent; }
+
+/* Settings reads like the family's other settings pages: back on its own line, a large title at the left,
+   rows at the family's text sizes, one arrow on a choice. */
+.hydros-settings > .hydros-header { grid-template-columns: 42px 1fr; grid-template-areas: 'back action' 'title title'; row-gap: 6px; }
+.hydros-settings > .hydros-header > :first-child { grid-area: back; }
+.hydros-settings > .hydros-header h1 { grid-area: title; font: 400 var(--text-4xl, 2.3rem)/1.05 var(--serif); text-align: left; }
+.hydros-settings > .hydros-header .hydros-header__action { grid-area: action; justify-self: end; }
+.hydros-settings .hydros-settings-row__name { font-size: var(--text-md, 1rem); }
+.hydros-settings .hydros-settings-row__value, .hydros-settings .hydros-settings-row > b, .hydros-settings .hydros-settings-row select { font-size: var(--text-sm); }
+.hydros-settings-row select { appearance: none; -webkit-appearance: none; padding-right: 2px; }

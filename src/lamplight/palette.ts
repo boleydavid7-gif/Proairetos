@@ -65,7 +65,7 @@ export const APP_COLOR_PROFILES: Record<string, { family: SignatureFamilyName; s
   oikonomia: { family: 'amber', seed: '#B9821F' },
   hydros: { family: 'blue', seed: '#1F86CF' },
   poreia: { family: 'aqua', seed: '#4CC3C7' },
-  praxis: { family: 'coral', seed: '#B3343F' },
+  praxis: { family: 'amber', seed: '#B08D57' },
   theoria: { family: 'violet', seed: '#6A2C59' },
   diaita: { family: 'violet', seed: '#3B3080' },
   philia: { family: 'coral', seed: '#D8644F' },

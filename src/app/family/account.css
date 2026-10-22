@@ -10,7 +10,7 @@
   background: var(--surface, var(--color-surface, rgba(255,255,255,.04)));
 }
 
-.settings-card[aria-label='Account and sync'] .section-label { margin: 0; color: var(--text, var(--color-text, inherit)); font: 500 1.1rem/1.2 var(--serif, var(--font-serif, Georgia, serif)); }
+.settings-card[aria-label='Account and sync'] .section-label { margin: 0; color: var(--text, var(--color-text, inherit)); font: 600 var(--text-lg, 1.1rem)/1.3 var(--ll-sans, var(--font-sans, Inter, system-ui, sans-serif)); }
 .settings-card[aria-label='Account and sync'] .section-description { margin: 0; color: var(--text-soft, var(--color-text-muted, rgba(255,255,255,.7))); line-height: 1.5; }
 .settings-card[aria-label='Account and sync'] .stack-tight { display: flex; flex-direction: column; gap: 12px; }
 .settings-card[aria-label='Account and sync'] .inline-form { display: flex; gap: 8px; align-items: stretch; }
@@ -60,11 +60,11 @@
 .family-surface .label { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .family-surface .muted, .family-surface .hint, .family-surface .row__detail, .family-surface .switch-row__detail { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .86rem; line-height: 1.5; }
 .family-surface .field { display: grid; gap: 6px; }
-.family-surface .input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; outline: 0; color: inherit; background: rgba(0,0,0,.14); font: inherit; font-size: 16px; }
+.family-surface .input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid transparent; border-radius: var(--ll-radius-sm, 10px); outline: 0; color: inherit; background: var(--ll-inset, rgba(0,0,0,.14)); font: inherit; font-size: 16px; }
 .family-surface .input:focus-visible { border-color: var(--color-accent-strong, var(--app-accent, #4F78A8)); }
-.family-surface .button-main, .family-surface .button-quiet { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 16px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
-.family-surface .button-main { border: 0; color: var(--color-accent-ink, var(--app-on-accent, #101923)); background: var(--color-accent-strong, var(--app-accent-pressed, #4F78A8)); }
-.family-surface .button-quiet { border: 1px solid var(--color-border, rgba(255,255,255,.14)); color: inherit; background: transparent; }
+.family-surface .button-main, .family-surface .button-quiet { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 16px; border-radius: var(--ll-radius-pill, 999px); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+.family-surface .button-main { border: 0; color: var(--ll-on-lamp, var(--color-accent-ink, var(--app-on-accent, #101923))); background: var(--ll-lamp-fill, var(--color-accent-strong, var(--app-accent-pressed, #4F78A8))); box-shadow: var(--ll-lamp-light, none); }
+.family-surface .button-quiet { border: 1px solid transparent; color: var(--ll-on-tonal, inherit); background: var(--ll-tonal, transparent); }
 .family-surface .button-main:disabled, .family-surface .button-quiet:disabled { opacity: .5; cursor: default; }
 .family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, var(--app-accent, #4F78A8)); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .family-surface .rows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; background: var(--color-surface, rgba(255,255,255,.04)); overflow: hidden; }
@@ -117,3 +117,5 @@
   flex-direction: column;
   gap: 8px;
 }
+/* The Store row: the same plus as the Apps sheet's Store tile, lit by the app's lamp. */
+:root .family-apps .rows li .row__icon.family-apps__store { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; color: var(--ll-on-lamp, #101923); background: var(--ll-lamp, #c9a274); }
