@@ -2,7 +2,7 @@
  * Lamplight 1.4, Material meets Mica: Material 3's structure on opaque, room-tinted surfaces, with very little
  * see-through anywhere. Cards are filled tonal surfaces without outlines (Material's filled card); the tonal button
  * is an opaque secondary container; chips take Material's 8 px corners; the current place in a phone dock sits on a
- * tonal pill behind its icon (Material's navigation-bar indicator) instead of a line; and the phone top bar's mica is
+ * tonal pill under its icon (Material's navigation-bar indicator) instead of a line; and the phone top bar's mica is
  * nearly solid. Imported after bars.css, so these win over the earlier shapes without !important.
  */
 
@@ -52,7 +52,7 @@
   color: var(--ll-on-tonal);
 }
 
-/* ---------- Phone docks: a tonal pill behind the current place's icon ---------- */
+/* ---------- Phone docks: a tonal pill under the current place's icon ---------- */
 @media (max-width: 61.99rem) {
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
     z-index: 0;
