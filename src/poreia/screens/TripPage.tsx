@@ -371,7 +371,7 @@ export function NextUpCard({ trip, nav, day, home = false }: { trip: Trip; nav: 
   const next = nextUp(days, day, now);
   const phase = phaseOf(trip, day);
   if (!next || phase.kind === 'past') return null;
-  const later = next.date === day ? (days.find((each) => each.date === day)?.entries ?? []).filter((entry) => entry !== next.entry && (!entry.time || !next.entry.time || entry.time > next.entry.time)) : [];
+  const later = next.date === day ? (days.find((each) => each.date === day)?.entries ?? []).filter((entry) => entry !== next.entry && (!entry.time || entry.time >= now) && (!entry.time || !next.entry.time || entry.time > next.entry.time)) : [];
   return (
     <section className="card poreia-next">
       <h2 className="card__title">

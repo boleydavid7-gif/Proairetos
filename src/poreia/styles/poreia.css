@@ -594,10 +594,26 @@
 
 @media (min-width: 48rem) {
   .poreia-tabs__tab {
-    grid-auto-flow: column;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-size: var(--text-sm);
+  }
+}
+
+/* On computers the trip's picture is a band across the top of the column, with the title under it. */
+@media (min-width: 62rem) {
+  :root .page.poreia-page.poreia-trip {
+    padding-top: 196px;
+  }
+
+  .poreia-scene {
+    top: 0;
+    height: 220px;
+    border-radius: 0 0 var(--ll-outer, 24px) var(--ll-outer, 24px);
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent);
   }
 }
 
