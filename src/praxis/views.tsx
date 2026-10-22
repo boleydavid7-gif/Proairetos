@@ -30,7 +30,7 @@ import {
   type DayAt,
   type PraxisQuote,
 } from './data';
-import { Sym } from '../lamplight/icons';
+import { GLYPHS, LampIcon, Sym } from '../lamplight/icons';
 import IconButton from '../components/ui/IconButton';
 
 export const PRAXIS_SOUND_IDS = ['none', 'forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
@@ -394,13 +394,16 @@ export function SettingsView({ notices, onNotices }: { notices: string; onNotice
   return (
     <section className="praxis-view">
       <div className="praxis-page-heading"><div><h1>Settings</h1></div></div>
-      <article className="praxis-card praxis-wide-card">
-        <div className="praxis-setting">
-          <span><strong>A notice when a block ends</strong></span>
-          {notices === 'granted' ? <span className="praxis-muted">On</span> : notices === 'denied' ? <span className="praxis-muted">Blocked in the browser</span> : notices === 'unsupported' ? <span className="praxis-muted">Not on this browser</span> : <button type="button" className="praxis-button praxis-button--quiet" onClick={onNotices}>Allow</button>}
-        </div>
-      </article>
       <div className="family-surface">
+        <ul className="rows">
+          <li>
+            <div className="row praxis-notice-row">
+              <span className="row__icon" aria-hidden="true"><LampIcon glyph={GLYPHS.bell} size={20} /></span>
+              <span className="row__text"><span>A notice when a block ends</span></span>
+              {notices === 'granted' ? <span className="praxis-muted">On</span> : notices === 'denied' ? <span className="praxis-muted">Blocked in the browser</span> : notices === 'unsupported' ? <span className="praxis-muted">Not on this browser</span> : <button type="button" className="button-quiet button--sm" onClick={onNotices}>Allow</button>}
+            </div>
+          </li>
+        </ul>
         <AccountCard app="Praxis" what="Your blocks and the time on them" waiting="Blocks" />
         <FamilyBackup />
         <FamilyApps current="praxis" />
