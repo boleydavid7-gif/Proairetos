@@ -23,6 +23,7 @@ import MorePage from '../screens/MorePage';
 import FreshPage from '../screens/FreshPage';
 import PlacePage from '../screens/PlacePage';
 import PlanPage from '../screens/PlanPage';
+import DocumentsPage, { DocumentPage } from '../screens/DocumentsPage';
 
 export type Tab = 'trips' | 'explore' | 'time' | 'more';
 export type Route =
@@ -35,7 +36,9 @@ export type Route =
   | { name: 'time-off'; id?: string; tripId?: string }
   | { name: 'time-setup' }
   | { name: 'place'; spot: Spot; tripId?: string }
-  | { name: 'plan'; id: string };
+  | { name: 'plan'; id: string }
+  | { name: 'documents'; tripId?: string }
+  | { name: 'document'; id?: string; tripId?: string };
 export type PoreiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -65,6 +68,7 @@ function firstRoute(): Route {
     if (trip) return { name: 'booking', tripId: trip.id, paste: true };
     return { name: 'trip-form' };
   }
+  if (opening === 'documents') return { name: 'documents' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
 }
@@ -111,6 +115,10 @@ export default function App() {
         return <PlacePage nav={nav} spot={route.spot} tripId={route.tripId} />;
       case 'plan':
         return <PlanPage nav={nav} id={route.id} />;
+      case 'documents':
+        return <DocumentsPage nav={nav} tripId={route.tripId} />;
+      case 'document':
+        return <DocumentPage key={route.id ?? 'new'} nav={nav} id={route.id} tripId={route.tripId} />;
     }
   })();
 

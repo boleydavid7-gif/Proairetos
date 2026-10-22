@@ -63,6 +63,10 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         </div>
       </section>
 
+      <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'documents' })}>
+        Documents
+      </button>
+
       <p className="ll-section-label">Reminders</p>
       <section className="card switches">
         <Switch on={current.notices.on} label="Bookings and plans" onToggle={() => notice({ on: !current.notices.on })} />

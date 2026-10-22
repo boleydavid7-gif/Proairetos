@@ -1,6 +1,7 @@
 import { apiUrl } from '../../app/apiBase';
 import type { Place } from '../core/model';
 import { overpassQuery, readListings, readOverpass, type Spot, type SpotCategory } from '../core/spots';
+import { wikiSection } from '../core/arriving';
 
 /*
  * What Poreia reads from the outside world. Every source here is free and needs no account: Open-Meteo (places and
@@ -184,6 +185,16 @@ export async function countryFacts(countryCode: string): Promise<Country | undef
   } catch {
     return undefined;
   }
+}
+
+/** Wikivoyage's words on tipping for a country, from its own section of the country's page. */
+export async function tippingIn(countryName: string): Promise<{ text: string; url: string } | undefined> {
+  type Parse = { parse?: { title: string; wikitext?: string } };
+  return cached(`tipping.${countryName}`, 60 * DAY, async () => {
+    const data = await json<Parse>(`https://en.wikivoyage.org/w/api.php?action=parse&page=${encodeURIComponent(countryName)}&prop=wikitext&redirects=1&format=json&formatversion=2&origin=*`);
+    const text = data.parse?.wikitext ? wikiSection(data.parse.wikitext, /^(tipping|tips)$/i) : undefined;
+    return text ? { text, url: `https://en.wikivoyage.org/wiki/${encodeURIComponent(data.parse!.title.replace(/ /g, '_'))}#Tipping` } : undefined;
+  });
 }
 
 // ---------- Live events ----------

@@ -18,6 +18,7 @@ import TimeThere from '../components/TimeThere';
 import OfflineCard from '../components/OfflineCard';
 import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
+import { ArrivingCard, DocumentsCard } from '../components/Arriving';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -133,11 +134,13 @@ function Overview({ trip, stop, nav, day }: { trip: Trip; stop?: Stop; nav: Pore
           <Weather target={target} today={day} />
           <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />
           <CountryCard target={target} />
+          {phaseOf(trip, day).kind !== 'past' && <ArrivingCard place={target.place} />}
           <GuideCard place={target.place} />
           {phaseOf(trip, day).kind !== 'past' && <TripWithApps trip={trip} />}
           {phaseOf(trip, day).kind !== 'past' && <OfflineCard trip={trip} />}
         </>
       )}
+      {phaseOf(trip, day).kind !== 'past' && <DocumentsCard trip={trip} nav={nav} />}
       <TogetherCard trip={trip} />
       {trip.notes && (
         <section className="card">

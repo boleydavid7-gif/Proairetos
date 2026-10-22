@@ -1,6 +1,7 @@
 import { collection, stored } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { Booking, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
+import type { TravelDoc } from '../core/documents';
 import type { Spot } from '../core/spots';
 import { defaultSetup, type TimeOff, type TimeOffSetup } from '../core/timeOff';
 import { defaultTripNotices, type TripNoticeChoices } from '../core/notices';
@@ -45,6 +46,8 @@ export const spends = collection<Spend>('poreia:spend:');
 export const timeOff = collection<TimeOff>('poreia:off:');
 /** Places saved to a trip, from the map, the guide, events and stays. */
 export const spots = collection<Spot>('poreia:spot:');
+/** Passports, visas, insurance: on this person's own devices only, never in a shared trip. */
+export const docs = collection<TravelDoc>('poreia:doc:');
 
 export const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
 export const today = () => toLocalDate(new Date());
@@ -61,6 +64,7 @@ export function removeTrip(trip: Trip): () => void {
     packing: packing.list().filter((each) => each.tripId === trip.id),
     spends: spends.list().filter((each) => each.tripId === trip.id),
     spots: spots.list().filter((each) => each.tripId === trip.id),
+    docs: docs.list().filter((each) => each.tripId === trip.id),
   };
   trips.remove(trip.id);
   its.bookings.forEach((each) => bookings.remove(each.id));
@@ -68,6 +72,7 @@ export function removeTrip(trip: Trip): () => void {
   its.packing.forEach((each) => packing.remove(each.id));
   its.spends.forEach((each) => spends.remove(each.id));
   its.spots.forEach((each) => spots.remove(each.id));
+  its.docs.forEach((each) => docs.remove(each.id));
   return () => {
     trips.put(trip);
     its.bookings.forEach((each) => bookings.put(each));
@@ -75,6 +80,7 @@ export function removeTrip(trip: Trip): () => void {
     its.packing.forEach((each) => packing.put(each));
     its.spends.forEach((each) => spends.put(each));
     its.spots.forEach((each) => spots.put(each));
+    its.docs.forEach((each) => docs.put(each));
   };
 }
 

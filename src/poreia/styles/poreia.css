@@ -1022,3 +1022,64 @@
   list-style: none;
   font-variant-numeric: tabular-nums;
 }
+
+/* Documents and arriving. */
+.poreia-doc__fact.is-near {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.poreia-doc__number {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-doc__photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.poreia-doc__photo {
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line, rgba(127, 127, 127, 0.25));
+  border-radius: var(--ll-inset, 12px);
+  background: var(--surface-2, transparent);
+  color: inherit;
+}
+
+.poreia-doc__photo img,
+.poreia-doc__big img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poreia-doc__big {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.poreia-doc__big img {
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: var(--ll-inset, 12px);
+}
+
+.poreia-arriving__line {
+  display: block;
+}
+
+.poreia-arriving__tipping {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
