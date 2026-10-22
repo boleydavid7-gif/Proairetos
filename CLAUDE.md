@@ -1125,4 +1125,24 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   confirmation, tap to copy; directions; link) with Edit. Plans keep `lat`/`lon`/`url` when added from a place or event, for
   directions and the day's map; Share the plan sends `planText`. Nearby places come through the Worker `/api/travel/near`
   (`worker/travelNear.ts`: Overpass servers together, Nominatim special phrases after 4 s, one a second; kept at the edge a day).
-- Links: `?open=trip:ID|add|booking:TRIP|explore|time|more`.
+- Reminders (`core/notices.ts` `tripNotices`, kind `trip`, source `poreia`, NoticeSettings `trips` "Bookings and plans",
+  choices in Poreia More: `settings.notices` travel lead, other lead, flight check-in 24 h before, the evening before at
+  18:00 with the first thing and what is left to pack); a tap opens `poreia:booked:ID`, `poreia:plan:ID` or the trip. Times
+  are the phone's local time. Timed plans also show in Proairetos (`poreiaEvents` takes plans).
+- Days: Add to your calendar (`tripEvents` + `buildIcs`: the trip, every booking, a stay's check-out, the plans); untimed
+  plans keep `order` and are pulled by a grip on the left (`.poreia-grip`, pointer capture, arrow keys too, `moveAmong`,
+  undo; `data-menu-skip` keeps it out of the long-press menu, a hook in `behaviors.ts`).
+- Time there (`core/timeZones.ts`, `components/TimeThere.tsx`): the clock at the place (or home while away) and hours apart,
+  from `Place.timezone` and the home place or the device; for 3 h or more, `sleepShift` (an hour a day for up to three days,
+  morning light going east, evening going west; Eastman & Burgess 2009), from Diaita's bedtime when it is added.
+- Keep for offline (`app/offline.ts`, `OfflineCard`): guide, listings, every kind nearby, forecast and country facts kept
+  as answers, and the map around the place (`tilesAround`, zooms 10-16, at most 450 tiles, both styles' symbols and fonts)
+  put straight into Cache Storage `poreia-map`, which `public/poreia/sw.js` answers tiles from first (styles and the tile
+  index fresh when online); when kept is noted in `poreiaOffline.<trip>` (device only).
+- With the family (all only when added, all asked first, undo): Proairetos Today part `trips` (`TodayTrip`: under way or
+  within 3 days, its next thing, what is left to pack), search (trips, bookings by confirmation, plans), and
+  `app/connections.ts` (loaded only when a trip page asks, so Poreia's first chunk carries no other app): Phyton's away
+  dates, Therapeia's medicines with the doses the days take onto the packing list (`TripWithApps`), the trip's spends into
+  Oikonomia's Spent by month in its currency (ids `poreia-<spend>`, `ToOikonomia` on Money). Back from a trip in the last
+  14 days, the Trips page offers one line kept in Reflect (`LookBack`, promptKey `after-trip`, `Trip.lookedBack`).
+- Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|explore|time|more`.

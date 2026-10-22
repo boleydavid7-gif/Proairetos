@@ -535,7 +535,7 @@ function itemsFor(row: HTMLElement): MenuItem[] {
   const seen = new Set<string>();
   const items: MenuItem[] = [];
   const controls = [...row.querySelectorAll<HTMLElement>('[data-menu-first], button, a[href]')].filter(
-    (el, index, all) => all.indexOf(el) === index && own(el) && !el.classList.contains('ll-row-menu-trigger') && !(el as HTMLButtonElement).disabled,
+    (el, index, all) => all.indexOf(el) === index && own(el) && !el.classList.contains('ll-row-menu-trigger') && !el.hasAttribute('data-menu-skip') && !(el as HTMLButtonElement).disabled,
   );
   controls.sort((a, b) => Number(b.hasAttribute('data-menu-first')) - Number(a.hasAttribute('data-menu-first')));
   for (const control of controls) {

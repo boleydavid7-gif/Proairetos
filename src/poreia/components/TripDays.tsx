@@ -163,12 +163,12 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
                       offerUndo(`“${item.title}” deleted`, () => plans.put(item));
                     }}
                   >
-                    <AgendaRow entry={entry} onOpen={() => openEntry(nav, trip.id, entry)} />
                     {!entry.item.time && loose.length > 1 && (
                       <button
                         type="button"
                         className="poreia-grip"
                         data-untimed={entry.item.id}
+                        data-menu-skip
                         aria-label={`Move ${entry.item.title}`}
                         aria-keyshortcuts="ArrowUp ArrowDown"
                         onPointerDown={(event) => startDrag(event, entry.item, loose)}
@@ -180,6 +180,7 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
                         <GripIcon size={20} />
                       </button>
                     )}
+                    <AgendaRow entry={entry} onOpen={() => openEntry(nav, trip.id, entry)} />
                   </SwipeItem>
                 ) : (
                   <li key={`${entry.booking.id}-${index}`}>

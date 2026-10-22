@@ -379,7 +379,9 @@ export type TodayPart =
   // Upkeep whose day has come, from Ktema.
   | 'upkeep'
   // Plants to check today, from Phyton.
-  | 'plants';
+  | 'plants'
+  // A trip under way or a few days off, from Poreia.
+  | 'trips';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['bills', 'on-this-day', 'water', 'highlight'];

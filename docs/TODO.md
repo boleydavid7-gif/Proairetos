@@ -77,6 +77,13 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 
 ## On a real phone
 
+- [ ] Poreia reminders: add a timed booking an hour or two ahead (Lead "30 minutes"), close Poreia, and check the notice
+  arrives as Poreia with its icon; tapping it should open that booking.
+- [ ] Poreia offline: on a trip's Overview tap Keep for offline, turn on airplane mode, reopen Poreia and check the map,
+  Around and the guide still show.
+- [ ] Poreia Days: pull an untimed plan by its grip (left edge) to a new place; check it doesn't also start the row's
+  swipe-to-delete.
+
 - [ ] Reminders arrive with the apps closed, and a tap opens the right app. Quickest check: Settings > Notifications >
   "Send one through the server", then close the app; it comes within about a minute (after redeploying
   `send-reminders`). If it does not, the reply in `net._http_response` says why.

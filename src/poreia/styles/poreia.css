@@ -140,18 +140,29 @@
   min-width: 0;
 }
 
+/* The row's own menu button sits at its end (Lamplight's long-press menu), where the chevron would be. */
+.poreia-agenda .swipe:has(.ll-row-menu-trigger) .poreia-agenda__row > svg {
+  visibility: hidden;
+}
+
 /* A plan without a time can be pulled to another place among the day's others by its grip (arrow keys too). */
 .poreia-grip {
   display: grid;
   flex: none;
   place-items: center;
-  width: 44px;
+  width: 36px;
   height: 44px;
+  margin-left: -10px;
+  margin-right: -26px;
+  position: relative;
+  z-index: 1;
   border: 0;
   background: none;
   color: var(--muted);
   cursor: grab;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .poreia-agenda li.is-dragging {
@@ -160,6 +171,8 @@
   background: var(--surface-2, var(--surface));
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
   cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Each line opens its booking or plan: time, then what and where, then a chevron. */
@@ -893,4 +906,39 @@
   grid-template-columns: 6.5rem 1fr;
   gap: 10px;
   padding: 10px 0;
+}
+
+/* A row offering something with another app, its button at the end. */
+.poreia-with-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-with {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.poreia-with + .poreia-with {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-with__text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.poreia-with__text > .muted {
+  font-size: var(--text-sm);
+}
+
+.poreia-with > .button-quiet {
+  flex: none;
+  width: auto;
+  margin: 0;
 }

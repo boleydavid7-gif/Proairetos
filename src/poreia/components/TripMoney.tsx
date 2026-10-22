@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { offerUndo } from '../../app/family/shell';
+import { isAdded } from '../../app/family/added';
+import { offerUndo, say } from '../../app/family/shell';
 import SwipeItem from '../../app/family/SwipeItem';
 import { bookings, newId, nowStamp, settings, spends, today } from '../app/state';
 import { dayText, MoneyField } from '../app/ui';
@@ -93,6 +94,8 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         </button>
       </section>
 
+      {theirSpends.length > 0 && <ToOikonomia trip={trip} spends={theirSpends} />}
+
       {theirSpends.length > 0 && (
         <ul className="rows">
           {theirSpends.map((spend) => (
@@ -116,5 +119,40 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         </ul>
       )}
     </>
+  );
+}
+
+/** With Oikonomia added: the trip's spending into its Spent, by month and in its currency, when asked. */
+function ToOikonomia({ trip, spends: list }: { trip: Trip; spends: Spend[] }) {
+  const [apps, setApps] = useState<typeof import('../app/connections')>();
+  const [busy, setBusy] = useState(false);
+  const [, redraw] = useState(0);
+  const added = isAdded('oikonomia');
+  useEffect(() => {
+    if (added) void import('../app/connections').then(setApps);
+  }, [added]);
+  if (!apps) return null;
+  const waiting = apps.notInOikonomia(list);
+  if (!waiting.length) return <p className="fine">In Oikonomia’s Spent.</p>;
+  return (
+    <button
+      type="button"
+      className="button-quiet"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          const { sent, undo } = await apps.sendToOikonomia(trip, waiting);
+          redraw((count) => count + 1);
+          if (sent) offerUndo(`${sent} added to Oikonomia’s Spent`, () => { undo(); redraw((count) => count + 1); });
+          if (sent < waiting.length) say('Some amounts couldn’t be converted. Try again later.');
+        } catch {
+          say('Couldn’t get exchange rates. Try again later.');
+        }
+        setBusy(false);
+      }}
+    >
+      Add to Oikonomia’s Spent ({waiting.length})
+    </button>
   );
 }

@@ -5,6 +5,8 @@ import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } f
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { allPlants } from '../../phyton/app/state';
 import { speciesBy } from '../../phyton/core/species';
+import { bookings as poreiaBookings, plans as poreiaPlans, trips as poreiaTrips } from '../../poreia/app/state';
+import { kindLabel as bookingKindLabel } from '../../poreia/core/model';
 import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
@@ -168,6 +170,21 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     labels.set(plant.id, 'Plant in Phyton');
     const type = speciesBy(plant.species);
     things.push({ id: plant.id, kind: 'app', href: `/phyton/?open=${encodeURIComponent(`plant:${plant.id}`)}`, title: plant.name, fields: [{ name: 'Type', text: [type?.name, plant.latin ?? type?.latin].filter(Boolean).join(' ') }, { name: 'Where', text: plant.place }, { name: 'Note', text: plant.note }], at: plant.createdAt });
+  }
+  if (isAdded('poreia')) {
+    const tripNames = new Map(poreiaTrips.list().map((trip) => [trip.id, trip.name]));
+    for (const trip of poreiaTrips.list()) {
+      labels.set(trip.id, 'Trip in Poreia');
+      things.push({ id: trip.id, kind: 'app', href: `/poreia/?open=${encodeURIComponent(`trip:${trip.id}`)}`, title: trip.name, fields: [{ name: 'Where', text: trip.place?.label ?? trip.place?.name }, { name: 'Note', text: trip.notes }], at: trip.createdAt });
+    }
+    for (const booking of poreiaBookings.list()) {
+      labels.set(booking.id, `${bookingKindLabel(booking.kind)} in ${tripNames.get(booking.tripId) ?? 'Poreia'}`);
+      things.push({ id: booking.id, kind: 'app', href: `/poreia/?open=${encodeURIComponent(`booked:${booking.id}`)}`, title: booking.title, fields: [{ name: 'With', text: booking.provider }, { name: 'Confirmation', text: booking.confirmation }, { name: 'Where', text: [booking.address, booking.from, booking.to].filter(Boolean).join(' ') }, { name: 'Note', text: booking.notes }], at: booking.createdAt });
+    }
+    for (const item of poreiaPlans.list()) {
+      labels.set(item.id, `Plan in ${tripNames.get(item.tripId) ?? 'Poreia'}`);
+      things.push({ id: item.id, kind: 'app', href: `/poreia/?open=${encodeURIComponent(`plan:${item.id}`)}`, title: item.title, fields: [{ name: 'Where', text: item.where }, { name: 'Note', text: item.note }], at: item.createdAt });
+    }
   }
   return { things, labels };
 }

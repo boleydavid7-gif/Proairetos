@@ -9,7 +9,7 @@ import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
 import TodayFamily, { TodayHighlight, TodayStudy } from '../today/TodayFamily';
-import { TodayBirthdays, TodayRhythm } from '../today/TodayNewFamily';
+import { TodayBirthdays, TodayRhythm, TodayTrip } from '../today/TodayNewFamily';
 import FromYourApps from '../today/FromYourApps';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -286,6 +286,7 @@ export default function NowPage() {
         <div className="today-group">
           <FromYourApps today={today} embedded />
           {shows('askesis') && <TodayRun today={today} />}
+          <TodayTrip now={clock} today={today} />
           <TodayRhythm now={clock} today={today} blocks={blocks} />
           <TodayFamily today={today} />
           <TodayBirthdays today={today} />

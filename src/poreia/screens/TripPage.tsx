@@ -16,6 +16,7 @@ import TripMoney from '../components/TripMoney';
 import Around from '../components/Around';
 import TimeThere from '../components/TimeThere';
 import OfflineCard from '../components/OfflineCard';
+import TripWithApps from '../components/TripWithApps';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -117,6 +118,7 @@ function Overview({ trip, nav, day }: { trip: Trip; nav: PoreiaNav; day: string 
           <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
+          {phaseOf(trip, day).kind !== 'past' && <TripWithApps trip={trip} />}
           {phaseOf(trip, day).kind !== 'past' && <OfflineCard trip={trip} />}
         </>
       )}

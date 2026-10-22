@@ -1,6 +1,16 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-22',
+    lines: [
+      'Poreia reminds you about your trips: a chosen time before a flight, train, bus or cruise leaves, a flight’s check-in a day ahead, check-in and check-out, car pick-up, timed tickets and plans, and the evening before a trip with its first thing and what is left to pack. Choices are in Poreia’s More; switch them off in Settings › Notifications.',
+      'Each trip can go into any calendar (Add to your calendar in Days), and plans without a time can be pulled into a new order by their grip.',
+      'Overview shows the clock at the place and how far apart it is from home; for three hours or more there is an optional sleep shift for the days before you leave.',
+      'Keep for offline saves a trip’s map, guide and places nearby on your phone, for the plane or a place without signal.',
+      'Poreia works with your other apps when they are added: a trip under way or a few days off shows on Proairetos’s Today, search finds trips, bookings (by confirmation too) and plans, Phyton can take the trip as its away dates, Therapeia’s medicines go onto the packing list with the doses the days take, the trip’s spending can go into Oikonomia’s Spent, and after a trip one line can be kept in Reflect.',
+    ],
+  },
+  {
     date: '2026-10-21',
     lines: [
       'Poreia is easier to get around: each trip opens on Days while you are away and remembers the tab you were on, and Trips and Overview lead with what is next. Every line of a day opens: a booking shows its confirmation large (tap to copy), directions and the booking link before any editing; your own plans can be changed or moved to another day. Places you add keep their spot, for directions and a map of the day, and Share the plan sends the whole trip as text.',

@@ -34,6 +34,8 @@ export type Trip = {
   stage: TripStage;
   budget?: Money;
   notes?: string;
+  /** The look back after the trip was kept or set aside, so it is not offered again. */
+  lookedBack?: boolean;
   createdAt: string;
   updatedAt: string;
 };

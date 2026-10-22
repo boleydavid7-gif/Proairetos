@@ -20,6 +20,7 @@ export function promptText(key: string | undefined): string | undefined {
   if (key === 'after-run') return 'After a run, in Askesis';
   if (key === 'after-meal') return 'After a meal, in Soma';
   if (key === 'after-strength') return 'After strength training, in Dynamis';
+  if (key === 'after-trip') return 'After a trip, in Poreia';
   if (key === 'gratitude') return 'Grateful for';
   if (key === 'three-good-things') return 'Three good things';
   return reflectionPrompts.find((prompt) => prompt.key === key)?.text;

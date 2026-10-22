@@ -19,6 +19,7 @@ export const PART_APP: Partial<Record<TodayPart, AddOn>> = {
   training: 'dynamis',
   upkeep: 'ktema',
   plants: 'phyton',
+  trips: 'poreia',
 };
 
 /** Which parts of Today the person keeps. Read live, so a change or an undo shows at once. */

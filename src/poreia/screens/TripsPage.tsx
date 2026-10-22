@@ -6,6 +6,7 @@ import photoWide from '../../assets/images/scenes/poreia-wide.webp';
 import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';
+import LookBack from '../components/LookBack';
 import { datesText, dayText, TripRow } from '../app/ui';
 import { phaseOf, phaseText, sortTrips } from '../core/model';
 import { balanceOn, hoursText } from '../core/timeOff';
@@ -53,6 +54,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
           </section>
         ) : (
           <>
+            <LookBack list={list} today={day} nav={nav} />
             {lead && (leadPhase?.kind === 'now' || (leadPhase?.kind === 'ahead' && leadPhase.days <= 30)) && <NextUpCard trip={lead} nav={nav} day={day} home />}
 
             <div className="section-head">
