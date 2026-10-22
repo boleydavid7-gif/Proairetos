@@ -7,12 +7,13 @@
 @import '../lamplight/icons.css';
 @import '../lamplight/layout.css';
 @import '../lamplight/bars.css';
+@import '../lamplight/material.css';
 
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */
 :root {
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
   --text-md: 1rem;
   --text-lg: 1.15rem;
   --text-xl: 1.35rem;

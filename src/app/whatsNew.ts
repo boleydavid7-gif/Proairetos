@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'A new finish across every app: filled cards without outlines, solid tonal buttons, a pill behind the tab you are on, slightly larger small text, and a more solid bar at the top.',
       'Philia: Add a date from Home or a person’s page, for a birthday, an anniversary or any other event, every year or once, with a time if it has one. They show in Proairetos too: dates under their day in Days ahead, and events with a time on Today and in the calendar.',
       'Times offered for a run or workout keep clear of sleep: never in the hour before bed or the wind-down (from Diaita when added), and out of naps if you turn on Scheduled naps in Diaita.',
       'When something you set in Proairetos, or a change to your work schedule, lands on a planned run or strength session, Proairetos offers to keep it: the nearest times that day that still fit, or the day your training week would give it instead, with undo.',

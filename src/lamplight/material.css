@@ -1,0 +1,76 @@
+/*
+ * Lamplight 1.4, Material meets Mica: Material 3's structure on opaque, room-tinted surfaces, with very little
+ * see-through anywhere. Cards are filled tonal surfaces without outlines (Material's filled card); the tonal button
+ * is an opaque secondary container; chips take Material's 8 px corners; the current place in a phone dock sits on a
+ * tonal pill behind its icon (Material's navigation-bar indicator) instead of a line; and the phone top bar's mica is
+ * nearly solid. Imported after bars.css, so these win over the earlier shapes without !important.
+ */
+
+:root {
+  /* Material's secondary container, from the lamp mixed into the card: opaque, never glass. */
+  --ll-tonal: color-mix(in srgb, var(--ll-lamp, #4F78A8) 16%, var(--ll-card, #1B2A38));
+  --ll-tonal-strong: color-mix(in srgb, var(--ll-lamp, #4F78A8) 24%, var(--ll-card, #1B2A38));
+  --ll-on-tonal: var(--ll-ink, #E9E5DC);
+}
+
+/* ---------- Filled surfaces: a tonal step from the page, no outline ---------- */
+:root :is(.card, .rows, .settings-card, .family-surface .rows) {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  :root :is(a.card, button.card, .card--link):hover {
+    box-shadow: none;
+    background-image: linear-gradient(var(--ll-state-hover), var(--ll-state-hover));
+  }
+}
+
+/* ---------- Buttons: filled (the lamp), tonal, text ---------- */
+:root .button-quiet {
+  border-color: transparent;
+  background: var(--ll-tonal);
+  color: var(--ll-on-tonal);
+}
+
+:root .button-quiet:is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-tonal-strong);
+}
+
+:root .button-quiet:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-tonal-strong);
+}
+
+/* ---------- Chips: Material's filter chips, 8 px corners; chosen is the tonal container ---------- */
+:root .chip {
+  border-radius: var(--ll-radius-xs, 8px);
+}
+
+:root .chip[aria-pressed='true'],
+:root .chip[aria-checked='true'] {
+  background: var(--ll-tonal);
+  color: var(--ll-on-tonal);
+}
+
+/* ---------- Phone docks: a tonal pill behind the current place's icon ---------- */
+@media (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
+    z-index: 0;
+    top: var(--ll-nav-pill-top, 6px);
+    width: 58px;
+    height: 30px;
+    border-radius: var(--ll-radius-pill, 999px);
+    background: color-mix(in srgb, var(--ll-dock-mark) 22%, var(--ll-material-mica, #101923));
+    box-shadow: none;
+  }
+
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* The current place's label and icon in the app's own color, a little heavier, as Material marks it. */
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [aria-current='page'] {
+    font-weight: 650;
+  }
+}

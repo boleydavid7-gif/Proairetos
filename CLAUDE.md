@@ -220,6 +220,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   mark: `Waiting` (`src/lamplight/Waiting.tsx`, a breathing light) beside "Saving…", "Opening…" etc. Tablets (48-62rem): a
   floating dock pill and a top bar aligned to the column. `forced-colors` gives every surface an edge and marks the current
   place with Highlight. Right to left: `Sym` back/chevron/arrow carry `ll-icon--flip`, and the back swipe comes from the right.
+- Lamplight 1.4, Material meets Mica (`src/lamplight/material.css`, imported after `bars.css`; the owner's choice: Material 3
+  structure on opaque, room-tinted surfaces, very little transparency): cards and grouped lists are filled tonal surfaces
+  with no outline; `.button-quiet` is Material's tonal button (`--ll-tonal`, the lamp mixed 16% into the card, opaque);
+  chips take 8 px corners with the tonal container when chosen; every phone dock marks the current place with a tonal
+  pill behind its icon (the `::after` measured by `dockMarks`, 58 x 30); the phone top bar's mica is 94% solid; `--text-xs`
+  is 13 px and `--text-sm` 15 px.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).
