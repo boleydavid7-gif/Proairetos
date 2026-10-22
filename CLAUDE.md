@@ -1192,6 +1192,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   a way there booked, dates, or neither; `Trip.stage` kept for older records). Travelers follow `Trip.people` once there are
   two names. The Time off page lists the year's trips with their time off and budgets (`TripsThisYear`). Amounts typed anywhere are read by `core/money/readAmount.ts` (shared with Oikonomia's
   `moneyInputCents`: "3,500" and "3.500,00").
+- Find and book (`BookLinks` in `components/Destination.tsx`, `searchLinks` in `core/links.ts`): kinds include Ferries; each
+  site has a line on what it is for (`SITE_ABOUT`); a site whose search address is not known opens at its front page
+  (`front: true`, "Opens the site"), others open filled. Airport codes come from OpenStreetMap (`core/airports.ts`
+  `pickAirport`: IATA aerodromes within 90 km, international first, no military or private; `airportFor` in `world.ts`,
+  kept 180 days), so Kayak, Skyscanner, Momondo and Kayak cars open with airports, dates and travelers. Trains and buses
+  pick North American or other sites by the destination's country. The card lists From, To, When and Travelers.
 - Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
   dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`

@@ -1779,3 +1779,14 @@
   font-size: var(--text-sm);
   font-weight: 600;
 }
+
+/* What a search opens with: from, to, when, who, so a site opened at its front page is quick to fill. */
+.poreia-search-for {
+  margin: 4px 0 0;
+  font-size: var(--text-sm);
+}
+
+:root .poreia-links .poreia-out .fine {
+  margin: 0;
+  padding: 0;
+}

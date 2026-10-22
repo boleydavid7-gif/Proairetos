@@ -3,6 +3,7 @@ import type { Place } from '../core/model';
 import { overpassQuery, readListings, readOverpass, type Spot, type SpotCategory } from '../core/spots';
 import { wikiSection } from '../core/arriving';
 import { pastYearRange } from '../core/climate';
+import { airportQuery, pickAirport } from '../core/airports';
 
 /*
  * What Poreia reads from the outside world. Every source here is free and needs no account: Open-Meteo (places and
@@ -298,6 +299,26 @@ export async function nearby(category: Exclude<SpotCategory, 'event'>, lat: numb
     } finally {
       answered = true;
       asked.forEach((each) => each.abort());
+    }
+  });
+}
+
+/** The airport a place flies from (an IATA code from OpenStreetMap), kept half a year; undefined when none is in range. */
+export async function airportFor(lat: number, lon: number): Promise<Airport | undefined> {
+  return cached(`airport.${lat.toFixed(2)},${lon.toFixed(2)}`, 180 * DAY, async () => {
+    const query = airportQuery(lat, lon);
+    const ask = async (server: string, wait: number) => {
+      if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+      const response = await fetch(server, { method: 'POST', body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(25_000) });
+      if (!response.ok) throw new Error(`${response.status}`);
+      const data = (await response.json()) as { elements?: Parameters<typeof pickAirport>[0]; remark?: string };
+      if (!data.elements?.length && data.remark) throw new Error(data.remark);
+      return pickAirport(data.elements ?? [], lat, lon);
+    };
+    try {
+      return await Promise.any(OVERPASS.map((server, index) => ask(server, index * 2_500)));
+    } catch {
+      return undefined;
     }
   });
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { daysOf, entryTitle, moneyText, moveAmong, nextUp, nightsOf, planText, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
 import { accrualDates, balanceOn, daysOff, hoursFor, leftAfter, shiftsToReplace, type TimeOff, type TimeOffSetup } from '../../poreia/core/timeOff';
 import { searchLinks } from '../../poreia/core/links';
+import { pickAirport, type Element as AirportElement } from '../../poreia/core/airports';
 import { datesIn, readConfirmation, timesIn } from '../../poreia/core/confirmations';
 import { suggestedPacking } from '../../poreia/core/packing';
 import { poreiaEvents, tripEvents } from '../../poreia/core/calendar';
@@ -121,9 +122,19 @@ describe('booking links', () => {
     expect(stays[0].url).toBe('https://www.booking.com/searchresults.html?ss=Lisbon%2C%20Portugal&checkin=2026-11-02&checkout=2026-11-08&group_adults=2&no_rooms=1');
     expect(stays.find((l) => l.site === 'Airbnb')!.url).toContain('/s/Lisbon%2C%20Portugal/homes?adults=2&checkin=2026-11-02&checkout=2026-11-08');
     const flights = searchLinks('flights', { to: 'LIS', from: 'JFK', start: '2026-11-02', end: '2026-11-08', travelers: 2 });
-    expect(flights.map((l) => l.site)).toEqual(['Google Flights', 'Expedia', 'Kayak', 'Skyscanner']);
-    expect(flights[2].url).toBe('https://www.kayak.com/flights/JFK-LIS/2026-11-02/2026-11-08/2adults');
-    expect(searchLinks('flights', { to: 'Lisbon' }).map((l) => l.site)).toEqual(['Google Flights']);
+    expect(flights.map((l) => l.site)).toEqual(['Google Flights', 'Kayak', 'Skyscanner', 'Momondo', 'Expedia']);
+    expect(flights[1].url).toBe('https://www.kayak.com/flights/JFK-LIS/2026-11-02/2026-11-08/2adults');
+    expect(flights[3].url).toBe('https://www.momondo.com/flight-search/JFK-LIS/2026-11-02/2026-11-08/2adults');
+    // Without codes, the sites that need them open at their front page.
+    const plain = searchLinks('flights', { to: 'Lisbon' });
+    expect(plain.map((l) => [l.site, Boolean(l.front)])).toEqual([['Google Flights', false], ['Kayak', true], ['Skyscanner', true]]);
+    // Codes found from the map fill the same searches as typed ones.
+    const found = searchLinks('flights', { to: 'Lisbon, Portugal', from: 'Denver', toCode: 'LIS', fromCode: 'DEN', start: '2026-11-02' });
+    expect(found.find((l) => l.site === 'Kayak')!.url).toBe('https://www.kayak.com/flights/DEN-LIS/2026-11-02/1adults');
+    expect(searchLinks('cars', { to: 'Lisbon', toCode: 'LIS', start: '2026-11-02', end: '2026-11-08' })[0].url).toBe('https://www.kayak.com/cars/LIS/2026-11-02/2026-11-08');
+    expect(searchLinks('trains', { to: 'Boston', from: 'New York', country: 'us' }).map((l) => l.site)).toContain('Amtrak');
+    expect(searchLinks('trains', { to: 'Porto', from: 'Lisbon', country: 'PT' }).map((l) => l.site)).toContain('Trainline');
+    expect(searchLinks('ferries', { to: 'Naxos', from: 'Athens' })[0].site).toBe('Rome2rio');
     expect(searchLinks('stays', { to: ' ' })).toEqual([]);
   });
 });
@@ -276,5 +287,19 @@ describe('the order of a day and the trip as a calendar file', () => {
     expect(text).toContain('SUMMARY:Flight: TP 210');
     expect(text).toContain('DESCRIPTION:Confirmation ABC123');
     expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(6);
+  });
+});
+
+describe('airports from the map', () => {
+  it('takes an international airport in range before a nearer small one, and skips military fields', () => {
+    const elements: AirportElement[] = [
+      { lat: 38.78, lon: -9.13, tags: { iata: 'LIS', name: 'Humberto Delgado Airport', 'aerodrome:type': 'international' } },
+      { lat: 38.72, lon: -9.14, tags: { iata: 'XXX', name: 'Small field' } },
+      { lat: 38.7, lon: -9.15, tags: { iata: 'MIL', name: 'Base', 'aerodrome:type': 'military' } },
+      { center: { lat: 38.8, lon: -9.2 }, tags: { name: 'No code' } },
+    ];
+    expect(pickAirport(elements, 38.72, -9.14)).toEqual({ code: 'LIS', name: 'Humberto Delgado Airport' });
+    expect(pickAirport(elements.slice(1), 38.72, -9.14)?.code).toBe('XXX');
+    expect(pickAirport([], 0, 0)).toBeUndefined();
   });
 });

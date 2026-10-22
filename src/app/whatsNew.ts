@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia’s Find and book has more sites (Momondo, Turo, Trainline, Omio, FlixBus, Amtrak, Hostelworld, Eventbrite, Klook, Yelp and more), a Ferries search, each site’s strengths in a line, and the nearest airports found from the map so flight and car searches open filled in.',
       'Poreia counts a whole week away as a full week off (set it under Your balance) and leaves public holidays at home out, naming them.',
       'Poreia reads where a trip stands from its dates and bookings, travelers follow the names on a shared trip, and the Time off page lists the year’s trips with their time off and budgets.',
       'Poreia: a travel budget for the year in More, shown beside each trip’s budget; the trip form says how much time off its dates take and what it leaves. Time off moved off the Trips page.',

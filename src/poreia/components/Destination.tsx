@@ -4,9 +4,9 @@ import { PlusIcon } from '../../app/family/icons';
 import { addDays, daysBetween } from '../../core/scheduling/dates';
 import { Waiting } from '../../lamplight/Waiting';
 import { settings } from '../app/state';
-import { dayText, Outbound, timeText } from '../app/ui';
-import { travelReady, countryFacts, degrees, eventsNear, eventsReady, forecast, guideFor, holidays, lastYear, ratesInto, sightsNear, skyWord, type Country, type DayWeather, type Guide, type Holiday, type LiveEvent, type Sight } from '../app/world';
-import { SEARCH_KINDS, searchLinks, type SearchKind } from '../core/links';
+import { datesText, dayText, Outbound, timeText } from '../app/ui';
+import { airportFor, type Airport, travelReady, countryFacts, degrees, eventsNear, eventsReady, forecast, guideFor, holidays, lastYear, ratesInto, sightsNear, skyWord, type Country, type DayWeather, type Guide, type Holiday, type LiveEvent, type Sight } from '../app/world';
+import { SEARCH_KINDS, SITE_ABOUT, searchLinks, type SearchKind } from '../core/links';
 import type { Place } from '../core/model';
 import type { PoreiaNav } from '../app/App';
 import { FlightSearch, StayResults } from './Searches';
@@ -76,18 +76,36 @@ export function Weather({ target, today }: { target: Target; today: string }) {
   );
 }
 
+/** The airport a place flies from, once it has a map point; undefined until found or when none is near. */
+function useAirport(place?: Place): Airport | undefined {
+  const lat = place?.lat;
+  const lon = place?.lon;
+  const { value } = useLoad<Airport | undefined>(lat !== undefined && lon !== undefined ? `airport.${lat.toFixed(2)},${lon.toFixed(2)}` : undefined, () => airportFor(lat!, lon!));
+  return value;
+}
+
 /** Searches on the booking sites, filled in from the trip. */
 export function BookLinks({ target, initial, nav, tripId }: { target: Target; initial?: SearchKind; nav?: PoreiaNav; tripId?: string }) {
   const [kind, setKind] = useState<SearchKind>(initial ?? 'stays');
   const ready = useLoad('travel-ready', travelReady);
   const home = settings.use().home;
+  const origin = target.from ?? home;
+  // Airports only matter to flights and cars; looked up when one of those is chosen, kept half a year.
+  const wantsCodes = kind === 'flights' || kind === 'cars';
+  const toAirport = useAirport(wantsCodes ? target.place : undefined);
+  const fromAirport = useAirport(kind === 'flights' ? origin : undefined);
   const links = searchLinks(kind, {
     to: target.place.label ?? target.place.name,
-    from: (target.from ?? home)?.label ?? (target.from ?? home)?.name,
+    from: origin?.label ?? origin?.name,
     start: target.start,
     end: target.end,
     travelers: target.travelers,
+    fromCode: fromAirport?.code,
+    toCode: toAirport?.code,
+    country: target.place.countryCode,
   });
+  const nights = target.start && target.end && target.end > target.start ? daysBetween(target.start, target.end) : 0;
+  const filled = [kind === 'flights' && fromAirport && toAirport ? 'airports' : 'place', target.start ? 'dates' : undefined, target.travelers > 1 ? 'travelers' : undefined].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' and $1');
   return (
     <section className="card">
       <h2 className="card__title">Find and book</h2>
@@ -101,12 +119,32 @@ export function BookLinks({ target, initial, nav, tripId }: { target: Target; in
       {kind === 'stays' && ready.value?.stays && nav && <StayResults target={target} nav={nav} tripId={tripId} />}
       {kind === 'flights' && ready.value?.flights && <FlightSearch target={target} />}
       {((kind === 'stays' && ready.value?.stays && nav) || (kind === 'flights' && ready.value?.flights)) && <p className="label">Also on</p>}
+      <dl className="detail-list poreia-search-for">
+        {kind === 'flights' || kind === 'trains' || kind === 'ferries' ? (
+          <>
+            <dt>From</dt>
+            <dd>{fromAirport && kind === 'flights' ? `${fromAirport.name} (${fromAirport.code})` : (origin?.label ?? origin?.name ?? 'Not set')}</dd>
+            <dt>To</dt>
+            <dd>{toAirport && kind === 'flights' ? `${toAirport.name} (${toAirport.code})` : (target.place.label ?? target.place.name)}</dd>
+          </>
+        ) : (
+          <>
+            <dt>Where</dt>
+            <dd>{toAirport && kind === 'cars' ? `${target.place.label ?? target.place.name}, from ${toAirport.code}` : (target.place.label ?? target.place.name)}</dd>
+          </>
+        )}
+        <dt>When</dt>
+        <dd>{target.start ? `${datesText(target.start, target.end)}${nights > 0 ? ` · ${nights} ${nights === 1 ? 'night' : 'nights'}` : ''}` : 'No dates yet'}</dd>
+        <dt>Travelers</dt>
+        <dd>{target.travelers}</dd>
+      </dl>
       <ul className="poreia-links">
         {links.map((link) => (
           <li key={link.site + link.url}>
             <Outbound href={link.url}>
               <span>{link.site}</span>
-              <span className="muted">Opens with your place{target.start ? ' and dates' : ''}</span>
+              {SITE_ABOUT[link.site] && <span className="muted">{SITE_ABOUT[link.site]}</span>}
+              <span className="fine">{link.front ? 'Opens the site' : `Opens with your ${filled}`}</span>
             </Outbound>
           </li>
         ))}
