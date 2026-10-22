@@ -130,3 +130,33 @@ describe('steps and rooms', () => {
     expect(roomsOf([{ ...base, room: 'Garage' }, { ...base, room: 'Bathroom' }, base, { ...base, room: undefined }])).toEqual(['Kitchen', 'Bathroom', 'Garage']);
   });
 });
+
+describe('days off', () => {
+  // Work on Mon 12, Tue 13 and Wed 14 October 2026.
+  const work = new Set(['2026-10-12', '2026-10-13', '2026-10-14']);
+  const daysOff = { isWork: (date: string) => work.has(date), me: 'Sam' };
+
+  it('moves a weekly chore from a work day to the next day off', () => {
+    expect(nextDay(chore({ history: [{ date: '2026-10-05' }] }), daysOff)).toBe('2026-10-15');
+    expect(nextDay(chore({ history: [{ date: '2026-10-08' }] }), daysOff)).toBe('2026-10-15');
+    expect(nextDay(chore({ history: [{ date: '2026-10-09' }] }), daysOff)).toBe('2026-10-16');
+  });
+
+  it('keeps set weekdays, every day, and someone else’s turn where they are', () => {
+    expect(nextDay(chore({ repeat: { kind: 'weekdays', days: [2] }, start: '2026-10-11' }), daysOff)).toBe('2026-10-13');
+    expect(nextDay(chore({ repeat: { kind: 'days', every: 1 }, history: [{ date: '2026-10-11' }] }), daysOff)).toBe('2026-10-12');
+    expect(nextDay(chore({ who: 'Alex', history: [{ date: '2026-10-05' }] }), daysOff)).toBe('2026-10-12');
+    expect(nextDay(chore({ who: 'Sam', history: [{ date: '2026-10-05' }] }), daysOff)).toBe('2026-10-15');
+  });
+
+  it('counts the next time from when it was done, not from the day off', () => {
+    const done = markDone(chore({ history: [{ date: '2026-10-05' }] }), '2026-10-15');
+    expect(nextDay(done, daysOff)).toBe('2026-10-22');
+  });
+
+  it('groups by the moved day', () => {
+    const groups = grouped([chore({ history: [{ date: '2026-10-05' }] })], '2026-10-12', daysOff);
+    expect(groups.now).toHaveLength(0);
+    expect(groups.week).toHaveLength(1);
+  });
+});

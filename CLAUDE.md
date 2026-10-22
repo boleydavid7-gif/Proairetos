@@ -964,6 +964,11 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Steps (`Chore.steps`, optional, one per line in the form, `stepsFromText`, at most 20): ticked on the chore's page
   (`toggleStep`), cleared by `markDone`. Today shows room chips when its chores span two rooms or more (`roomsOf`) and, in one
   room, "Mark all of these done" with one undo.
+- Ergon days off (More > "On days off", `ErgonSettings.daysOff`, off until chosen): `nextDay(chore, daysOff)` moves a chore
+  that comes round on a work day to the next day off within two weeks (`dayOffFrom`); only chores every 2+ days, weeks,
+  monthly or once, and not someone else's turn (`movesToDayOff`); counting still runs from when it was done. Work days are
+  committed blocks of 4 h+ on the day they begin (`core/scheduling/workDays.ts` `workDates`), read by `ergon/app/daysOff.ts`
+  (`useDaysOff` for pages and Proairetos's From your apps, `daysOffNow` for notices). The chore page says "Moved from Tue, a work day."
 - In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
   from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
   `app/notify/familyNotices.ts`); What's included parts `diaita` (tonight's sleep on Today), `birthdays`

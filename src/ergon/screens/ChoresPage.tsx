@@ -5,13 +5,15 @@ import type { ErgonNav } from '../app/App';
 import { useChores } from '../app/state';
 import { ChoreList } from '../app/ui';
 import { nextDay, type Chore } from '../core/chores';
+import { useDaysOff } from '../app/daysOff';
 import { Ideas } from './TodayPage';
 
 export default function ChoresPage({ nav }: { nav: ErgonNav }) {
   const all = useChores();
+  const daysOff = useDaysOff();
   const today = toLocalDate(new Date());
   const rooms = new Map<string, Chore[]>();
-  for (const chore of [...all].sort((a, b) => (nextDay(a) ?? '9999').localeCompare(nextDay(b) ?? '9999') || a.name.localeCompare(b.name))) {
+  for (const chore of [...all].sort((a, b) => (nextDay(a, daysOff) ?? '9999').localeCompare(nextDay(b, daysOff) ?? '9999') || a.name.localeCompare(b.name))) {
     const room = chore.room || 'Anywhere';
     rooms.set(room, [...(rooms.get(room) ?? []), chore]);
   }
@@ -27,7 +29,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
       {ordered.map(([room, chores]) => (
         <section key={room} className="chore-group">
           <p className="label">{room}</p>
-          <ChoreList chores={chores} today={today} room={room === 'Anywhere'} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} />
+          <ChoreList chores={chores} today={today} room={room === 'Anywhere'} daysOff={daysOff} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} />
         </section>
       ))}
       {all.length > 0 && (

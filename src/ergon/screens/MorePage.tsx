@@ -53,6 +53,12 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       </section>
 
       <section className="card switches">
+        <Switch
+          on={Boolean(current.daysOff)}
+          label="On days off"
+          detail="A chore that comes round on a work day in your schedule waits for your next day off. Chores on set weekdays or every day stay put."
+          onToggle={() => change({ daysOff: !current.daysOff })}
+        />
         <DailyLineSwitch app="ergon" />
       </section>
 

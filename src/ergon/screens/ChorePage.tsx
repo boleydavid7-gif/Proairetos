@@ -2,11 +2,12 @@ import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import { Segmented } from '../../askesis/app/ui';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
 import { findChore, newId, putChore, removeChore, settings, useChores, myName } from '../app/state';
 import { done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
+import { useDaysOff } from '../app/daysOff';
 import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
 import { CheckIcon } from '../../app/family/icons';
 import { Sym } from '../../lamplight/icons';
@@ -191,7 +192,9 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 
 function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Chore; onEdit: () => void }) {
   const today = toLocalDate(new Date());
-  const day = nextDay(existing);
+  const daysOff = useDaysOff();
+  const plain = nextDay(existing);
+  const day = nextDay(existing, daysOff);
   const who = existing.rota?.length ? `Taking turns: ${existing.rota.join(', ')}${existing.who ? ` (next ${existing.who})` : ''}` : existing.who;
 
   return (
@@ -213,6 +216,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
       {day && (
         <section className="card">
           <span className="card__eyebrow">{dayText(day, today)}</span>
+          {plain && day !== plain && <p className="muted">Moved from {parseLocalDate(plain).toLocaleDateString(undefined, { weekday: 'short' })}, a work day.</p>}
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => { done(existing, today); nav.back(); }}>Done</button>
             {day <= today && existing.repeat.kind !== 'once' && (

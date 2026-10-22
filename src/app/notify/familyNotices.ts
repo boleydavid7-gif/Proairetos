@@ -7,6 +7,7 @@ import { peopleNotices } from '../../philia/core/notices';
 import { people, settings as philiaSettings } from '../../philia/app/state';
 import { choreNotices } from '../../ergon/core/notices';
 import { allChores, myName as ergonName, settings as ergonSettings } from '../../ergon/app/state';
+import { daysOffNow as ergonDaysOff } from '../../ergon/app/daysOff';
 import { careNotices } from '../../therapeia/core/notices';
 import { anchorsFrom } from '../../therapeia/core/medicines';
 import { allMedicines, appointments, settings as therapeiaSettings } from '../../therapeia/app/state';
@@ -52,7 +53,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const chores = allChores();
   if (chores.length && isAdded('ergon')) {
     const ergon = ergonSettings.load();
-    notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon));
+    notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon, await ergonDaysOff().catch(() => undefined)));
   }
 
   const meds = allMedicines();

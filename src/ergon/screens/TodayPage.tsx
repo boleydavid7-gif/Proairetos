@@ -9,6 +9,7 @@ import photoWide from '../../assets/images/scenes/ergon-wide.webp';
 import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
 import { ChoreList } from '../app/ui';
+import { useDaysOff } from '../app/daysOff';
 import { IDEAS, grouped, markDone, roomsOf, type Chore } from '../core/chores';
 
 
@@ -38,6 +39,7 @@ export function Ideas({ chores }: { chores: readonly Chore[] }) {
 
 export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const all = useChores();
+  const daysOff = useDaysOff();
   const current = settings.use();
   const home = useHome();
   const today = toLocalDate(new Date());
@@ -46,10 +48,10 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const mineOnly = whose === 'mine' && me;
   const [room, setRoom] = useState('');
   const whoseShown = mineOnly ? all.filter((chore) => !chore.who || chore.who === me) : all;
-  const rooms = roomsOf(grouped(whoseShown, today).now.concat(grouped(whoseShown, today).week));
+  const rooms = roomsOf(grouped(whoseShown, today, daysOff).now.concat(grouped(whoseShown, today, daysOff).week));
   const inRoom = room && rooms.includes(room) ? room : '';
   const shown = inRoom ? whoseShown.filter((chore) => chore.room === inRoom) : whoseShown;
-  const groups = grouped(shown, today);
+  const groups = grouped(shown, today, daysOff);
   const allDone = () => {
     const before = groups.now;
     const by = myName() || undefined;
@@ -100,11 +102,11 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
               </div>
             )}
             {inRoom && groups.now.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
-            {groups.now.length ? <ChoreList chores={groups.now} today={today} onOpen={open} /> : <p className="muted">Nothing today.</p>}
+            {groups.now.length ? <ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} /> : <p className="muted">Nothing today.</p>}
             {groups.week.length > 0 && (
               <>
                 <div className="section-head"><h2>This week</h2></div>
-                <ChoreList chores={groups.week} today={today} onOpen={open} />
+                <ChoreList chores={groups.week} today={today} daysOff={daysOff} onOpen={open} />
               </>
             )}
           </>

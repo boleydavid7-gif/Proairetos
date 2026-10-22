@@ -86,8 +86,35 @@ function monthDayOnOrAfter(date: string, day: number): string {
   return date;
 }
 
+/**
+ * Days off: with the person's schedule, a chore that comes round on a work day shows on the next day off. Only chores
+ * counted in days (two or more), weeks, months or once move; chosen weekdays and every day stay where they are, and a
+ * chore that is someone else's turn keeps its day.
+ */
+export type DaysOff = { isWork: (date: string) => boolean; me?: string };
+
+export function movesToDayOff(chore: Chore, daysOff: DaysOff): boolean {
+  if (daysOff.me && chore.who && chore.who !== daysOff.me) return false;
+  const repeat = chore.repeat;
+  return repeat.kind === 'weeks' || repeat.kind === 'monthly' || repeat.kind === 'once' || (repeat.kind === 'days' && repeat.every >= 2);
+}
+
+/** The first day on or after `day` that is not a work day, looking two weeks ahead; else the day itself. */
+export function dayOffFrom(day: string, isWork: (date: string) => boolean): string {
+  for (let step = 0; step <= 14; step += 1) {
+    const candidate = addDays(day, step);
+    if (!isWork(candidate)) return candidate;
+  }
+  return day;
+}
+
 /** The chore's next day: may be today or a day that has come and is still open. Undefined for a one-off already done. */
-export function nextDay(chore: Chore): string | undefined {
+export function nextDay(chore: Chore, daysOff?: DaysOff): string | undefined {
+  const day = plainNextDay(chore);
+  return day && daysOff && movesToDayOff(chore, daysOff) ? dayOffFrom(day, daysOff.isWork) : day;
+}
+
+function plainNextDay(chore: Chore): string | undefined {
   const from = anchor(chore);
   const repeat = chore.repeat;
   if (!from) {
@@ -121,8 +148,8 @@ function firstWeekdayFrom(date: string, days: readonly number[]): string {
 export type Grouped = { now: Chore[]; week: Chore[]; later: Chore[] };
 
 /** Chores whose day has come; then the next seven days; then later. One-offs that are done drop out. */
-export function grouped(chores: readonly Chore[], today: string): Grouped {
-  const withDay = chores.map((chore) => ({ chore, day: nextDay(chore) })).filter((each): each is { chore: Chore; day: string } => Boolean(each.day));
+export function grouped(chores: readonly Chore[], today: string, daysOff?: DaysOff): Grouped {
+  const withDay = chores.map((chore) => ({ chore, day: nextDay(chore, daysOff) })).filter((each): each is { chore: Chore; day: string } => Boolean(each.day));
   withDay.sort((a, b) => a.day.localeCompare(b.day) || a.chore.name.localeCompare(b.chore.name));
   const week = addDays(today, 7);
   return {

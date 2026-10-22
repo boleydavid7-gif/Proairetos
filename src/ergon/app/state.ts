@@ -6,7 +6,7 @@ import { defaultChoreNotices, type ChoreNoticeChoices } from '../core/notices';
 import type { Chore } from '../core/chores';
 import { displayName } from '../../data/storage/preferences';
 
-export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices };
+export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices; /** Chores that come round on a work day show on the next day off (from the Proairetos schedule). */ daysOff?: boolean };
 
 /** The name used for Mine and for who did what: the one given here, else the name set in Proairetos. */
 export function myName(current: ErgonSettings = settings.load()): string {

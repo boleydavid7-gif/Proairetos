@@ -1,19 +1,19 @@
 import type { Notice } from '../../core/notify/notices';
 import { addDays, atTime } from '../../core/scheduling/dates';
-import { nextDay, type Chore } from './chores';
+import { nextDay, type Chore, type DaysOff } from './chores';
 
 export type ChoreNoticeChoices = { on: boolean; at: string; onlyMine: boolean };
 
 export const defaultChoreNotices: ChoreNoticeChoices = { on: true, at: '09:00', onlyMine: false };
 
 /** One notice on each day chores come around, at the chosen time, naming them. A day already come is not said again. */
-export function choreNotices(chores: readonly Chore[], choices: ChoreNoticeChoices, me: string | undefined, today: string, horizon: number): Notice[] {
+export function choreNotices(chores: readonly Chore[], choices: ChoreNoticeChoices, me: string | undefined, today: string, horizon: number, daysOff?: DaysOff): Notice[] {
   if (!choices.on) return [];
   // Grouped by day and time: chores with their own reminder time are said at that time.
   const byDay = new Map<string, Chore[]>();
   for (const chore of chores) {
     if (choices.onlyMine && me && chore.who && chore.who !== me) continue;
-    const day = nextDay(chore);
+    const day = nextDay(chore, daysOff);
     if (!day || day < today || day > addDays(today, horizon)) continue;
     const slot = `${day} ${chore.remindAt ?? choices.at}`;
     byDay.set(slot, [...(byDay.get(slot) ?? []), chore]);
