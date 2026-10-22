@@ -1083,3 +1083,22 @@
   margin: 0 0 8px;
   line-height: 1.5;
 }
+
+/* Days that fit: the day's sky, walks between placed plans, stretches with nothing set. */
+.poreia-day__sky {
+  margin: -4px 0 8px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-agenda > li.poreia-agenda__between {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  padding: 0 0 8px calc(4.6rem + 10px);
+  border: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  list-style: none;
+}
