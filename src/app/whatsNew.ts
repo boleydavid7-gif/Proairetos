@@ -3,6 +3,13 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia trips can have several stops, each with its own dates; days, map, guide and weather follow the stop.',
+      'Bring a booking in from a file: a PDF, a screenshot, a calendar invite or an email. On Android, share a confirmation to Poreia.',
+      'Travel together: share a trip with the people going, and everyone sees and changes the same days, bookings, packing and spending. Mark who paid; Who paid shows the fewest payments that even it out.',
+      'Documents in Poreia: passports, visas and insurance with numbers, end dates and photos kept on the phone. A trip says when a passport ends within six months of coming back.',
+      'Arriving: emergency numbers, plugs and current, where your government keeps entry rules, and tipping notes from Wikivoyage.',
+      'Days shows each day’s forecast in the two weeks ahead, the walk between two places, and the stretches with nothing set.',
+      'A trip can be a goal in Compass and saved for in an Oikonomia envelope; without Oikonomia, Poreia keeps what you have saved.',
       'Poreia reminds you about your trips: a chosen time before a flight, train, bus or cruise leaves, a flight’s check-in a day ahead, check-in and check-out, car pick-up, timed tickets and plans, and the evening before a trip with its first thing and what is left to pack. Choices are in Poreia’s More; switch them off in Settings › Notifications.',
       'Each trip can go into any calendar (Add to your calendar in Days), and plans without a time can be pulled into a new order by their grip.',
       'Overview shows the clock at the place and how far apart it is from home; for three hours or more there is an optional sleep shift for the days before you leave.',

@@ -81,6 +81,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   arrives as Poreia with its icon; tapping it should open that booking.
 - [ ] Poreia offline: on a trip's Overview tap Keep for offline, turn on airplane mode, reopen Poreia and check the map,
   Around and the guide still show.
+- [ ] Poreia together: share a trip from one phone (signed in), open the invite on another phone (signed in to another
+  account), join, add a spend on each and check both see both within half a minute.
+- [ ] Poreia bringing bookings in: on Android share a confirmation email or PDF to Poreia; on iPhone choose a PDF or a
+  screenshot with "A file or screenshot" on a new booking.
 - [ ] Poreia Days: pull an untimed plan by its grip (left edge) to a new place; check it doesn't also start the row's
   swipe-to-delete.
 

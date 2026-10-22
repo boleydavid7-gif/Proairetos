@@ -1145,4 +1145,29 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   dates, Therapeia's medicines with the doses the days take onto the packing list (`TripWithApps`), the trip's spends into
   Oikonomia's Spent by month in its currency (ids `poreia-<spend>`, `ToOikonomia` on Money). Back from a trip in the last
   14 days, the Trips page offers one line kept in Reflect (`LookBack`, promptKey `after-trip`, `Trip.lookedBack`).
-- Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|explore|time|more`.
+- Stops (`Stop`, `Trip.stops`, `placesOf`, `stopOn`, `stopNow`, `placeLine`, `withStops` in `core/model.ts`): a trip can
+  have several places with their own dates (fewer than two stops are dropped); Overview and Around have stop chips, each
+  day's head names its place, offline keeps every stop's map.
+- Bookings from files (`app/readFiles.ts`, `readBookingFile`): images by on-device OCR, PDFs by `pdfText`, `.ics` by
+  `readIcs`, `.eml`/`.txt`/`.html` to `readConfirmation`; "A file or screenshot" on the booking form, the manifest's
+  `share_target` (POST to `/poreia/share`, `takeShare` in its worker, then `?open=shared`) and `file_handlers`.
+- Travel together (`core/tripSync.ts` `mergeTrip`, `app/sharedTrips.ts`, `components/Together.tsx`): a trip shared through
+  `createSharedLists` (`poreia:sharedTrips`, cache `poreiaShared`, AD `poreia-list`, invite
+  `/poreia/?open=join:ID#k=KEY&n=NAME`, read in `main.tsx`): every record of the trip (trip, bookings, plans, packing,
+  spending, saved places) is one sealed item; against the fingerprints last seen (`poreiaShared.seen.<list>`) the side that
+  changed wins, both changed: later `updatedAt`; a removal carries across. `useTripSharing` passes every 4 s when something
+  changed and pulls every 20 s. `Trip.people` (names, `peopleOf`, `myName`), `paidBy` on spends and bookings, Who paid
+  (`core/split.ts` `balances`, `settleUp`: even shares to the cent, fewest payments).
+- Documents (`core/documents.ts`, collection `poreia:doc:`, `screens/DocumentsPage.tsx`, routes `documents`/`document`,
+  `?open=documents`): never in a shared trip; photos in IndexedDB `poreia-files` (`app/docFiles.ts`, device only, removed
+  after the undo window); `expiryFact` / `needsLook` (ends before the trip, or a passport under six months after it).
+  Arriving (`core/arriving.ts`, `components/Arriving.tsx`): emergency numbers and plugs as tables, `adviceFor` the home
+  government's entry advice (else IATA), tipping from the country's Wikivoyage section (`wikiSection`, `tippingIn`).
+- Days that fit (`core/dayFit.ts`): `between` (walk at 80 m/min with a 1.3 detour up to 3 km, else distance apart),
+  `openStretches` (2 h+ with nothing set, after a booking's end when known); each day's forecast (`useDayWeather` in
+  `TripDays`, from the stop that day, within 16 days).
+- Compass and Oikonomia (`app/goalsAndSaving.ts`, loaded on demand; `components/TripGoals.tsx`): the person's own links
+  per trip in `poreia:links` (`TripLinks`: `goalId`, `envelopeId`, `saved`), never in the shared trip record. GoalCard adds
+  the trip as a GOAL and offers "Mark it reached" after it; SavingCard on Money makes or links an Oikonomia envelope (target
+  the budget, date the start; Oikonomia `?open=envelopes`) when Oikonomia is added, else keeps "Saved for it" here.
+- Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|join:LIST|documents|shared|explore|time|more`.
