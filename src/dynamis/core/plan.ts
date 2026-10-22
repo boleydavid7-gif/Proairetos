@@ -243,7 +243,7 @@ export function weekDays(setup: Pick<Setup, 'days'>, date: string): string[] {
 
 /** A planned training day: a chosen weekday, or with "Around my week" a day placed for it (`placed`, when known). */
 export function isTrainingDay(setup: Pick<Setup, 'days' | 'fit'>, date: string, placed?: readonly string[]): boolean {
-  if (setup.fit && placed) return placed.includes(date);
+  if (placed && (setup.fit || placed.length)) return placed.includes(date);
   return setup.days.includes(parseLocalDate(date).getDay());
 }
 

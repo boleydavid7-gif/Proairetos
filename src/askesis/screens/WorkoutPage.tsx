@@ -18,6 +18,7 @@ import { asToday, canLighten } from '../core/gentler';
 import { updatePlan } from '../app/state';
 import RunWeather from '../app/RunWeather';
 import { useRunsPlaced } from '../app/fitted';
+import { trainingTimeOn } from '../../app/family/trainingWeek';
 
 /** Finds a session in the person's plan, or in any plan when browsing. */
 /** Finds a session in the person's path, or in the example path shown before an aim is set. */
@@ -132,7 +133,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
           </div>
           {lighter && <p className="hint">Just for today.</p>}
         </div>
-        {mine && !done && onDay === today && <RunWeather date={today} runAt={planState?.runAt} />}
+        {mine && !done && onDay === today && <RunWeather date={today} runAt={trainingTimeOn('askesis', today, full.id) ?? planState?.runAt} />}
 
         {!race && (
           <details className="more-about">

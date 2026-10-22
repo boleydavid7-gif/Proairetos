@@ -18,6 +18,7 @@ import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
 import { useRunsPlaced } from '../app/fitted';
+import { trainingTimeOn } from '../../app/family/trainingWeek';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -55,6 +56,8 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
       : undefined;
   const focus =
     days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
+
+  const focusTime = focus ? trainingTimeOn('askesis', focus.date, focus.workout.id) ?? planState?.runAt : undefined;
 
   const move = (workoutId: string, date: string) => {
     if (!planState) return;
@@ -204,10 +207,10 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                     <ChevronIcon size={18} />
                   </button>
                   {focus.workout.kind !== 'race' && <SessionBar parts={focus.workout.parts} small />}
-                  {(planState.runAt || planState.place) && (
-                    <p className="muted">{[planState.runAt && clock(planState.runAt), planState.place].filter(Boolean).join(' · ')}</p>
+                  {(focusTime || planState.place) && (
+                    <p className="muted">{[focusTime && clock(focusTime), planState.place].filter(Boolean).join(' · ')}</p>
                   )}
-                  {focus.date === today && <RunWeather date={today} runAt={planState.runAt} compact />}
+                  {focus.date === today && <RunWeather date={today} runAt={focusTime} compact />}
                   {focus.date === today && planState.ifThen && (
                     <p className="hint">If something gets in the way: {planState.ifThen}</p>
                   )}

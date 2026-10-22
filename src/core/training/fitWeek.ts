@@ -16,8 +16,9 @@ import { addDays } from '../scheduling/dates';
 export type WorkDays = 'free' | 'needed' | 'any';
 export type RunKind = 'easy' | 'long' | 'hard';
 export type FitDay = { date: string; work: boolean; afterNight: boolean };
-export type RunToFit = { id: string; run: RunKind; prefer?: string };
-export type LiftToFit = { id: string; legs: boolean; prefer?: string };
+/** `avoid`: days this session is not to go on (the person moved it off them). */
+export type RunToFit = { id: string; run: RunKind; prefer?: string; avoid?: readonly string[] };
+export type LiftToFit = { id: string; legs: boolean; prefer?: string; avoid?: readonly string[] };
 export type Fixed = { date: string; run?: RunKind; lift?: { legs: boolean } };
 export type FitInput = {
   /** The week's days, Monday first. */
@@ -132,6 +133,7 @@ export function fitWeek(input: FitInput): Fit {
     const kept = chooseRuns(input.runs, chosen.length);
     const left = input.runs.filter((run) => !kept.includes(run)).reduce((sum, run) => sum + UNPLACED[run.run], 0);
     for (const order of orders(kept)) {
+      if (order.some((run, at) => run.avoid?.includes(chosen[at].date))) continue;
       const prefer = order.reduce((sum, run, at) => sum + (run.prefer && run.prefer !== chosen[at].date ? 2 : 0), 0);
       runPlans.push({ days: chosen.map((day) => day.at), order, score: left + prefer });
     }
@@ -139,9 +141,10 @@ export function fitWeek(input: FitInput): Fit {
   const liftPlans = masks(n, Math.max(0, Math.min(input.lifts.length, n) - 1), input.lifts.length).map((mask) => {
     const chosen = picked(mask, n).map((at) => open[at]);
     const lifts = input.lifts.slice(0, chosen.length);
+    if (lifts.some((lift, at) => lift.avoid?.includes(chosen[at].date))) return undefined;
     const prefer = lifts.reduce((sum, lift, at) => sum + (lift.prefer && lift.prefer !== chosen[at].date ? 2 : 0), 0);
     return { days: chosen.map((day) => day.at), lifts, score: (input.lifts.length - lifts.length) * UNPLACED.lift + prefer };
-  });
+  }).filter((plan) => plan !== undefined);
 
   const scratch = counts();
   const keys = ['easy', 'hard', 'long', 'legs', 'upper'] as const;

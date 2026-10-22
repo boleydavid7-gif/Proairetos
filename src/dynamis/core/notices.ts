@@ -3,12 +3,12 @@ import { addDays, atTime } from '../../core/scheduling/dates';
 import { isTrainingDay, type Setup } from './plan';
 
 /** One notice on each planned training day, at the person's time, if they chose it. */
-export function trainingNotices(setup: Setup, on: boolean, sessionName: string, today: string, horizon: number, now: Date, placed?: (date: string) => readonly string[] | undefined): Notice[] {
+export function trainingNotices(setup: Setup, on: boolean, sessionName: string, today: string, horizon: number, now: Date, placed?: (date: string) => readonly string[] | undefined, timeOn?: (date: string) => string | undefined): Notice[] {
   if (!on) return [];
   const notices: Notice[] = [];
   for (let day = today; day <= addDays(today, horizon); day = addDays(day, 1)) {
     if (!isTrainingDay(setup, day, placed?.(day))) continue;
-    const at = atTime(day, setup.at ?? '17:30');
+    const at = atTime(day, timeOn?.(day) ?? setup.at ?? '17:30');
     if (at < now) continue;
     notices.push({ key: `dynamis:${day}`, kind: 'training', at, title: sessionName, body: 'A training day.', open: 'dynamis:session' });
   }

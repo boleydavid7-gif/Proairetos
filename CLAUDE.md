@@ -760,6 +760,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Workout, Entry, Strava, Proairetos `todaysRun`/`runTimes`), `isTrainingDay(setup, date, placed)` (Dynamis Today, notices,
   From your apps), Hydros's run day. `useFittedWeek` recomputes on open, sync and changes; `fitAhead` before reminders (this
   week and next). Askesis's plan code is imported only when it runs.
+- Keeping training when life comes up (`features/training/TrainingClash.tsx` in App, `app/family/trainingClash.ts`,
+  `core/training/clash.ts`, tests `src/tests/training/clash.test.ts`): when a timed item is set or moved in Proairetos (any
+  way in; changes from sync are skipped) and it overlaps a planned run or strength session (15 min either side), or leaves
+  no stretch of 06:00-21:00 that holds a session with no time, a sheet offers once: the two nearest times that day clear of
+  work, events, timed items, quiet hours and the other session (`timesThatFit`), the day the week would give it
+  (`fitWeekOf` trying a `notOn`), or keep both. Choices go in the synced `proairetos.trainingChanges` (`at`: a session's
+  time that day; `notOn`: kept off a day, `avoid` in `fitWeek`, so a session on set days is placed again and its week is
+  recorded in full), with undo; Askesis Home/Workout, `runTimes` and Dynamis notices use `trainingTimeOn`.
 - Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
   a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
   `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log

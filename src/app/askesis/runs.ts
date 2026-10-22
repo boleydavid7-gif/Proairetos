@@ -6,6 +6,7 @@ import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pa
 import { ownPath, weekAt } from '../../askesis/core/plans';
 import { layOut } from '../../askesis/core/week';
 import { runsPlaced } from '../../askesis/app/fitted';
+import { trainingTimeOn } from '../family/trainingWeek';
 import { addDays, atTime, mondayOnOrBefore as mondayOf, toLocalDate } from '../../core/scheduling/dates';
 import type { RunTime } from '../../core/notify/notices';
 import { lengthLabel, totalMinutes, type Workout } from '../../askesis/core/workouts';
@@ -89,7 +90,7 @@ export function todaysRun(runs: Runs | undefined, today: string): Workout | unde
  */
 export function runTimes(runs: Runs, now: Date, until: Date): RunTime[] {
   const state = runs.plan;
-  if (!state?.runAt) return [];
+  if (!state) return [];
   const plan = ownPath(state);
   const today = toLocalDate(now);
   const thisMonday = mondayOf(today);
@@ -105,9 +106,11 @@ export function runTimes(runs: Runs, now: Date, until: Date): RunTime[] {
     );
     if (!session) continue;
     const workout = asToday(session.workout, state.lighter, day);
+    const time = trainingTimeOn('askesis', day, session.workout.id) ?? state.runAt;
+    if (!time) continue;
     out.push({
-      key: `${day}:${state.runAt}`,
-      at: atTime(day, state.runAt),
+      key: `${day}:${time}`,
+      at: atTime(day, time),
       title: later ? 'Run day' : [workout.title, runLength(workout)].filter(Boolean).join(' · '),
       place: state.place,
     });

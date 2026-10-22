@@ -13,6 +13,7 @@ import CompassPage from '../features/compass/CompassPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
 import SharedSheet from '../features/share/SharedSheet';
 import InboxOpener from './capture/InboxOpener';
+import TrainingClash from '../features/training/TrainingClash';
 import { takeShared } from '../features/share/shared';
 import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview } from './laterPages';
 import AppShell from './AppShell';
@@ -125,6 +126,7 @@ export default function App() {
       <UrlOverlayOpener />
       <NoticeOpener />
       <InboxOpener />
+      <TrainingClash />
       <AppShell route={route} onNavigate={go}>
       <Suspense fallback={null}>
       {route === 'today' && <NowPage />}

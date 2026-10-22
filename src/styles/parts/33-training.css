@@ -1,0 +1,7 @@
+/* Keeping a run or strength session when something new lands on it (features/training/TrainingClash.tsx). */
+.clash-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ll-label-gap, 8px);
+  margin-top: var(--ll-gap, 16px);
+}
