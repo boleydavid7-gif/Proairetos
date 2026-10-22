@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useEffect, useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
@@ -140,7 +141,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
 
       <section className="card oiko-budget-summary">
         <span className="oiko-budget-summary__eyebrow">Planned this month</span>
-        <strong className="oiko-budget-summary__amount">{formatMoney(plannedTotal, planCurrency)}</strong>
+        <strong className="oiko-budget-summary__amount"><RollingNumber key={planCurrency} value={plannedTotal} format={(cents) => formatMoney(Math.round(cents), planCurrency)} /></strong>
         {limit > 0 ? <p className="muted">{formatMoney(Math.abs(plannedRemaining), planCurrency)} {plannedRemaining >= 0 ? 'left after planned costs' : 'over the usual amount'}</p> : <p className="muted">Set a monthly amount or add usual pay to see what remains.</p>}
         <div className="oiko-budget-summary__bar" aria-label={`${formatMoney(plannedTotal, planCurrency)} planned of ${limit ? formatMoney(limit, planCurrency) : 'no amount set'}`} role="meter" aria-valuemin={0} aria-valuemax={limit || undefined} aria-valuenow={Math.min(plannedTotal, limit || plannedTotal)}><span style={{ width: `${limit ? Math.min(100, (plannedTotal / limit) * 100) : 0}%` }} /></div>
         <div className="oiko-budget-summary__facts">

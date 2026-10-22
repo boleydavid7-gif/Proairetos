@@ -230,11 +230,12 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 /* The undo bar in the newer family apps (Diaita, Philia, Ergon): above the tab bar, or bottom right on computers. */
 .family-toast {
   position: fixed; left: 50%; bottom: calc(var(--tab-height, 64px) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 60;
-  transform: translateX(-50%); display: flex; align-items: center; gap: 16px; max-width: calc(100vw - 32px);
+  transform: translateX(-50%); display: flex; align-items: center; gap: 16px; width: max-content; max-width: min(560px, calc(100vw - 32px));
   padding: 10px 10px 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22); font-size: var(--text-md);
 }
-.family-toast button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--mint-soft); color: var(--mint); font: inherit; font-weight: 600; cursor: pointer; }
+.family-toast > span { flex: 1 1 auto; min-width: 0; }
+.family-toast button { flex: none; white-space: nowrap; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--mint-soft); color: var(--mint); font: inherit; font-weight: 600; cursor: pointer; }
 @media (min-width: 62rem) { .family-toast { left: auto; right: 28px; bottom: 28px; transform: none; } }
 
 /* The way back to Proairetos on every other app's bar is a link; it looks like the places beside it. */

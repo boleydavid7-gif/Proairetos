@@ -299,15 +299,22 @@ export function hasPassed(bill: Bill, date: string, today = localDate()): boolea
 export const stillToCome = (occurrences: readonly BillOccurrence[], today = localDate()): BillOccurrence[] =>
   occurrences.filter(({ bill, date }) => !paidForOccurrence(bill, date, today) && !hasPassed(bill, date, today));
 
-/** What is left to pay, and the whole, for a set of bill dates, as text. */
-export function remainingSummary(occurrences: readonly BillOccurrence[], today = localDate()): { main: string; note: string } {
+/**
+ * What is left to pay, and the whole, for a set of bill dates, as text. `figure` is the main amount as a number when it
+ * is in one currency, so a page can roll it to a new value.
+ */
+export function remainingSummary(occurrences: readonly BillOccurrence[], today = localDate()): { main: string; note: string; figure?: { currency: string; cents: number } } {
   const open = stillToCome(occurrences, today);
   const whole = formatTotals(occurrences);
   if (occurrences.length === 0) return { main: '', note: '' };
+  const single = (set: readonly BillOccurrence[]) => {
+    const totals = totalsOf(set);
+    return totals.length === 1 ? { figure: totals[0] } : {};
+  };
   if (open.length === 0) {
     const allPaid = occurrences.every(({ bill, date }) => paidForOccurrence(bill, date, today));
-    return { main: whole, note: allPaid ? 'all paid' : '' };
+    return { main: whole, note: allPaid ? 'all paid' : '', ...single(occurrences) };
   }
-  if (open.length === occurrences.length) return { main: whole, note: 'left to pay' };
-  return { main: formatTotals(open), note: `left to pay, of ${whole}` };
+  if (open.length === occurrences.length) return { main: whole, note: 'left to pay', ...single(occurrences) };
+  return { main: formatTotals(open), note: `left to pay, of ${whole}`, ...single(open) };
 }

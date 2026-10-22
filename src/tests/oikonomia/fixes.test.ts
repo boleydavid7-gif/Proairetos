@@ -75,7 +75,7 @@ describe('what was actually paid', () => {
   it('records the amount and counts it in totals', () => {
     const electric = withPayment(bill({ amountCents: 8000, dueDate: '2026-11-01' }), '2026-11-01', 'p', new Date(), 9240);
     expect(electric.payments[0].amountCents).toBe(9240);
-    expect(remainingSummary([{ bill: electric, date: '2026-11-01' }], '2026-10-10')).toEqual({ main: '$92.40', note: 'all paid' });
+    expect(remainingSummary([{ bill: electric, date: '2026-11-01' }], '2026-10-10')).toEqual({ main: '$92.40', note: 'all paid', figure: { currency: 'USD', cents: 9240 } });
   });
 
   it('says what it usually comes to when that differs', () => {

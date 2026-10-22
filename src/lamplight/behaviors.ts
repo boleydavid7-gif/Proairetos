@@ -696,8 +696,8 @@ function rowMenus(): void {
 /*
  * When a tap or a key adds, finishes, removes or puts back a row, the rows of that list glide to their new places
  * and a new row fades up into its gap (FLIP: where each row was is noted as the finger goes down, where it is after
- * the change is read in the next frame, and the difference is played back as a translate). Rows that are gone simply
- * leave; a whole new page (other lists) is left to the page transition. Translate and opacity only.
+ * the change is read in the next frame, and the difference is played back as a translate). A row taken away fades
+ * where it was; a whole new page (other lists) is left to the page transition. Translate, scale and opacity only.
  */
 const LIST_ROWS = 'ul > li, ol > li, [role="list"] > *, .rows > *, .hydros-drinks > *, .coming-up > *, .chore-list > *';
 const MAX_ROWS = 160;
@@ -713,6 +713,7 @@ function listMotion(): void {
     const bottom = innerHeight + 80;
     for (const row of document.querySelectorAll(LIST_ROWS)) {
       const box = row.getBoundingClientRect();
+      if (row.hasAttribute('data-ll-ghost')) continue;
       if (box.height === 0 || box.bottom < -80 || box.top > bottom) continue;
       out.push(row);
       if (out.length >= MAX_ROWS) break;
@@ -749,8 +750,37 @@ function listMotion(): void {
 
   document.addEventListener('pointerdown', take, { capture: true, passive: true });
   document.addEventListener('keydown', take, { capture: true, passive: true });
+  // A row taken away fades where it was (a copy, left in its list out of the flow) while the rows below glide up.
+  const fadeOut = (row: Element, list: Element, was: DOMRect) => {
+    const ghost = row.cloneNode(true) as HTMLElement;
+    ghost.setAttribute('data-ll-ghost', '');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.inert = true;
+    Object.assign(ghost.style, { position: 'fixed', top: `${was.top}px`, left: `${was.left}px`, width: `${was.width}px`, height: `${was.height}px`, margin: '0', pointerEvents: 'none', zIndex: '1' });
+    list.appendChild(ghost);
+    // A transformed ancestor moves what is fixed: put it back where the row was.
+    const at = ghost.getBoundingClientRect();
+    if (Math.abs(at.top - was.top) > 0.5 || Math.abs(at.left - was.left) > 0.5) {
+      ghost.style.top = `${2 * was.top - at.top}px`;
+      ghost.style.left = `${2 * was.left - at.left}px`;
+    }
+    const fade = ghost.animate([{ opacity: 1, scale: '1' }, { opacity: 0, scale: '0.97' }], { duration: 220, easing: 'ease-out', fill: 'forwards' });
+    const remove = () => ghost.remove();
+    fade.onfinish = remove;
+    fade.oncancel = remove;
+  };
+
   new MutationObserver((records) => {
-    if (queued || !before.size || performance.now() - takenAt > 1500) return;
+    if (!before.size || performance.now() - takenAt > 1500) return;
+    const gone = records.flatMap((record) =>
+      [...record.removedNodes].flatMap((node) => {
+        const was = node instanceof Element && !node.hasAttribute('data-ll-ghost') ? before.get(node) : undefined;
+        return was && record.target.isConnected && parents.has(record.target as Element) ? [{ row: node as Element, list: record.target as Element, was }] : [];
+      }),
+    );
+    // Many rows at once is a whole list changing (a filter, another month), not a row taken away.
+    if (gone.length && gone.length <= 3) for (const { row, list, was } of gone) fadeOut(row, list, was);
+    if (queued) return;
     if (!records.some((record) => record.addedNodes.length || record.removedNodes.length)) return;
     queued = true;
     requestAnimationFrame(play);

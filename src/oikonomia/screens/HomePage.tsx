@@ -1,3 +1,4 @@
+import { Total } from '../app/Total';
 import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
@@ -108,7 +109,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
             </div>
             {thisMonth.length > 0 && (
               <p className="oiko-total">
-                <strong>{remainingSummary(thisMonth, today).main}</strong>
+                <strong><Total summary={remainingSummary(thisMonth, today)} /></strong>
                 <span>{remainingSummary(thisMonth, today).note}</span>
               </p>
             )}

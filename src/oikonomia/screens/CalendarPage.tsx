@@ -1,3 +1,4 @@
+import { Total } from '../app/Total';
 import { useMemo, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon } from '../app/icons';
@@ -68,7 +69,7 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
         <div className="oiko-section-head"><h2>{range === 'month' ? 'Due this month' : 'Due this week'}</h2><span className="muted">{occurrences.length} {occurrences.length === 1 ? 'bill' : 'bills'}</span></div>
         {occurrences.length > 0 && (
           <p className="oiko-total">
-            <strong>{summary.main}</strong>
+            <strong><Total summary={summary} /></strong>
             <span>{summary.note}</span>
           </p>
         )}

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'A row you take away now fades out while the rows below close the gap, Oikonomia’s totals count to their new amount, and undo messages keep to one line where there is room.',
       'Buttons give a little under your finger and spring back, lists glide when you add, finish or undo something, chosen chips show a check, and Hydros’s total counts up.',
       'Hydros has a new Today: the day’s amount in large type, your usual glasses as big one-tap buttons, and the drinks as one list.',
       'A new finish across every app: filled cards without outlines, solid tonal buttons, a pill around the icon of the tab you are on, slightly larger small text, and a more solid bar at the top.',

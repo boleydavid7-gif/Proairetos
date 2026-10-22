@@ -236,7 +236,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   or key adds, finishes, removes or puts back a row (FLIP: positions noted on pointerdown/keydown, replayed as `translate` in
   the next frame for rows in `LIST_ROWS`, new rows fade up; within 1.5 s of the input); a chosen `.chip` grows a check
   (`::before`, masked SVG); switch knobs travel on `--ll-spring-lively`; `RollingNumber` rolls a figure to its new value
-  (Hydros's amount); `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
+  (Hydros's amount; Oikonomia's left to pay and plan total via `oikonomia/app/Total.tsx`, when one currency: `remainingSummary().figure`);
+  a removed row fades out in place (`fadeOut`: an inert `data-ll-ghost` copy, fixed at its old rect, at most 3 per change)
+  while the rest glide; `.family-toast` is `max-content` up to 560 px, its button never wraps; `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).
