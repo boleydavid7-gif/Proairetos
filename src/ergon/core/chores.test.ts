@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayText, grouped, markDone, namesIn, nextDay, repeatText, skip, whoDidWhat, stepsFromText, toggleStep, roomsOf, type Chore } from './chores';
+import { dayText, grouped, markDone, namesIn, nextDay, repeatText, skip, whoDidWhat, stepsFromText, toggleStep, roomsOf, shownDay, type Chore } from './chores';
 import { choreNotices, defaultChoreNotices } from './notices';
 
 const chore = (patch: Partial<Chore>): Chore => ({ id: 'c', name: 'Vacuum', repeat: { kind: 'weeks', every: 1 }, history: [], createdAt: '2026-10-01T10:00:00', ...patch });
@@ -158,5 +158,19 @@ describe('days off', () => {
     const groups = grouped([chore({ history: [{ date: '2026-10-05' }] })], '2026-10-12', daysOff);
     expect(groups.now).toHaveLength(0);
     expect(groups.week).toHaveLength(1);
+  });
+});
+
+describe('the day a chore shows as', () => {
+  it('reads a day long gone as its latest turn, so nothing looks piled up', () => {
+    const daily = chore({ repeat: { kind: 'days', every: 1 }, start: '2026-09-01' });
+    expect(shownDay(daily, nextDay(daily)!, '2026-10-22')).toBe('2026-10-22');
+    const weekly = chore({ repeat: { kind: 'weeks', every: 1 }, start: '2026-09-01' });
+    expect(shownDay(weekly, nextDay(weekly)!, '2026-10-22')).toBe('2026-10-20');
+    const mondays = chore({ repeat: { kind: 'weekdays', days: [1] }, start: '2026-09-01' });
+    expect(shownDay(mondays, nextDay(mondays)!, '2026-10-22')).toBe('2026-10-19');
+    const monthly = chore({ repeat: { kind: 'monthly', day: 25 }, start: '2026-08-01' });
+    expect(shownDay(monthly, nextDay(monthly)!, '2026-10-22')).toBe('2026-09-25');
+    expect(shownDay(daily, '2026-10-25', '2026-10-22')).toBe('2026-10-25');
   });
 });

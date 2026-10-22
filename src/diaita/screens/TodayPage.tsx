@@ -4,7 +4,6 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, ChevronIcon } from '../../app/family/icons';
 import { energyFor, setEnergy, subscribePreferences, type Energy } from '../../data/storage/preferences';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
-import photo from '../../assets/images/scenes/diaita.webp';
 import photoWide from '../../assets/images/scenes/diaita-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
@@ -32,6 +31,7 @@ function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string
   const [bed, setBed] = useState(planned?.bed ?? '23:00');
   const [up, setUp] = useState(planned?.up ?? '07:00');
   const [how, setHow] = useState<SleepQuality>();
+  const [changing, setChanging] = useState(false);
   const energy = useSyncExternalStore(subscribePreferences, () => energyFor(date));
 
   const energyRow = (
@@ -61,38 +61,44 @@ function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string
     );
   }
 
+  // One tap keeps the night with the planned times; the times can be changed first, and energy follows once kept.
+  const keep = (quality?: SleepQuality) => {
+    sleeps.put({ id: date, date, bed, up, how: quality });
+    offerUndo('Sleep saved', () => sleeps.remove(date));
+  };
+
   return (
     <section className="card diaita-checkin">
       <h2 className="card__title">How did you sleep?</h2>
       <div className="chip-row" role="group" aria-label="How you slept">
         {(['well', 'okay', 'poorly'] as const).map((option) => (
-          <button key={option} type="button" className="chip" aria-pressed={how === option} onClick={() => setHow(how === option ? undefined : option)}>
+          <button key={option} type="button" className="chip" aria-pressed={how === option} onClick={() => (changing ? setHow(how === option ? undefined : option) : keep(option))}>
             {QUALITY_NAMES[option]}
           </button>
         ))}
       </div>
-      <div className="input-row">
-        <label className="field">
-          <span className="field__label">Bed</span>
-          <input className="input" type="time" value={bed} onChange={(event) => setBed(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field__label">Up</span>
-          <input className="input" type="time" value={up} onChange={(event) => setUp(event.target.value)} />
-        </label>
-      </div>
-      {energyRow}
-      <button
-        type="button"
-        className="button-main"
-        disabled={!bed || !up}
-        onClick={() => {
-          sleeps.put({ id: date, date, bed, up, how });
-          offerUndo('Sleep saved', () => sleeps.remove(date));
-        }}
-      >
-        Save
-      </button>
+      {changing ? (
+        <>
+          <div className="input-row">
+            <label className="field">
+              <span className="field__label">Bed</span>
+              <input className="input" type="time" value={bed} onChange={(event) => setBed(event.target.value)} />
+            </label>
+            <label className="field">
+              <span className="field__label">Up</span>
+              <input className="input" type="time" value={up} onChange={(event) => setUp(event.target.value)} />
+            </label>
+          </div>
+          <button type="button" className="button-main" disabled={!bed || !up} onClick={() => keep(how)}>
+            Save
+          </button>
+        </>
+      ) : (
+        <p className="diaita-checkin__times">
+          <span className="muted">{clockText(bed)}–{clockText(up)}</span>
+          <button type="button" className="text-link" onClick={() => setChanging(true)}>Other times</button>
+        </p>
+      )}
     </section>
   );
 }
@@ -113,8 +119,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
     <div className="home diaita-home">
       <div className="hero hero--tall diaita-hero">
         <picture>
-          <source media="(min-width: 62rem)" srcSet={photoWide} />
-          <img className="hero__image" src={photo} alt="" />
+          <img className="hero__image" src={photoWide} alt="" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

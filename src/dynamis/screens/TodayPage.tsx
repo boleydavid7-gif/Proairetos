@@ -1,7 +1,6 @@
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, CheckIcon } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/dynamis.webp';
 import photoWide from '../../assets/images/scenes/dynamis-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
@@ -122,8 +121,7 @@ function Hero({ title, sub }: { title: string; sub: string }) {
   return (
     <div className="hero hero--tall hero-shade-soft">
       <picture>
-        <source media="(min-width: 62rem)" srcSet={photoWide} />
-        <img className="hero__image" src={photo} alt="" />
+        <img className="hero__image" src={photoWide} alt="" />
       </picture>
       <div className="hero__shade" />
       <div className="hero__content">

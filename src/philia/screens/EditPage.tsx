@@ -1,4 +1,5 @@
 import { FromContacts } from '../../app/family/DeviceExtras';
+import MoreDetails from '../../app/family/MoreDetails';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import type { PhiliaNav } from '../app/App';
@@ -67,6 +68,8 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
         <span className="field__label">Name</span>
         <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} autoComplete="off" />
       </label>
+      <DateFields label="Birthday (optional)" value={birthday} onChange={setBirthday} />
+      <MoreDetails open={Boolean(existing && (existing.relation || existing.phone || existing.email || existing.dates?.length))}>
       <label className="field">
         <span className="field__label">Who they are (optional)</span>
         <input className="input" placeholder="Sister, friend, neighbor" value={relation} onChange={(event) => setRelation(event.target.value)} />
@@ -81,7 +84,6 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
           <input className="input" type="email" inputMode="email" autoComplete="off" value={email} onChange={(event) => setEmail(event.target.value)} />
         </label>
       </div>
-      <DateFields label="Birthday (optional)" value={birthday} onChange={setBirthday} />
 
       {dates.map((each, index) => (
         <div key={each.id} className="card">
@@ -104,6 +106,7 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
         </div>
       ))}
       <button type="button" className="button-quiet" onClick={() => setDates([...dates, { id: newId(), label: '', parts: empty }])}>Add a date</button>
+      </MoreDetails>
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
     </div>

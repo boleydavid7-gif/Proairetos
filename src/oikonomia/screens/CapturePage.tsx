@@ -1,3 +1,4 @@
+import MoreDetails from '../../app/family/MoreDetails';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { billFromText } from '../../core/ocr/labels';
 import { FormEvent, useEffect, useState } from 'react';
@@ -97,6 +98,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
           <label className="field"><span className="field__label">Next due</span><input className="input" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label>
           <label className="field"><span className="field__label">Repeats</span><select className="input" value={frequency} onChange={(event) => setFrequency(event.target.value as BillFrequency)}>{(['once', 'weekly', 'monthly', 'quarterly', 'yearly'] as BillFrequency[]).map((value) => <option key={value} value={value}>{formatFrequency(value)}</option>)}</select></label>
         </div>
+        <MoreDetails open={Boolean(id)}>
         <label className="field"><span className="field__label">Area</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value)}><option value="">None</option>{areas.map((area) => <option key={area} value={area}>{area}</option>)}</select></label>
 
         <div className="oiko-form-card">
@@ -105,6 +107,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
         </div>
 
         <label className="field"><span className="field__label">Note</span><textarea className="input oiko-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Account number, where you pay it" /></label>
+        </MoreDetails>
 
         {error && <p className="oiko-error" role="alert">{error}</p>}
         <button type="submit" className="button-main">{id ? 'Save changes' : 'Add bill'}</button>

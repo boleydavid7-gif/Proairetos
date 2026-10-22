@@ -268,6 +268,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `--ll-calm`/`--ll-slow`/`--ll-spring`; `.ll-figure` (RollingNumber) follows numerals; `.ll-signature` takes the shape
   accent (Hydros amount bar, Askesis session bar, Oikonomia plan bar). The guide shows every identity (`#identity`) and
   live charts. Only these choices vary; add an app's identity there, never per-app overrides of shared parts.
+- Busy-person audit fixes: Today's `CaptureBar` sits first (above the intention). Add forms show only what makes the
+  record work and fold the rest under `MoreDetails` (`app/family/MoreDetails.tsx`, `moreDetails.css`; open when editing
+  something that has any of them): Ktema thing (name, kind), Oikonomia bill (name, amount, due, repeats), Therapeia
+  medicine (name, dose, times, days), Ergon chore (name, repeats, from), Philia person (name, birthday), Poreia trip (where,
+  name, dates). Ergon shows a chore's latest turn (`shownDay`: a daily chore left undone reads Today, a weekly one since its
+  latest week) in its lists and in From your apps; counting still runs from `nextDay`. Diaita's check-in keeps the night in
+  one tap on Well/Okay/Poorly with the planned times ("Other times" opens the fields). Askesis's Begin goes straight to the
+  plan; its first step carries the doctor line with a link to Before you start, and "Start now, aim later" starts the
+  suggested path. Home heroes (`hero--tall`) use the wide scene on phones too (the band is landscape; the portrait showed
+  only sky); Hydros keeps its portrait sunset, which has no wide version.
 - `scripts/layout-check/check.mjs` measures the dock line over its icon, top-bar icons centered and 44 px, and the undo
   bar clear of the dock, in every app, dark and light; run it after layout changes. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,

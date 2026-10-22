@@ -2,7 +2,6 @@ import { Brand } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { useNow } from '../../hydros/app/day';
-import photo from '../../assets/images/scenes/therapeia.webp';
 import photoWide from '../../assets/images/scenes/therapeia-wide.webp';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
@@ -29,8 +28,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
     <div className="home therapeia-home">
       <div className="hero hero--tall hero-shade-soft">
         <picture>
-          <source media="(min-width: 62rem)" srcSet={photoWide} />
-          <img className="hero__image" src={photo} alt="" />
+          <img className="hero__image" src={photoWide} alt="" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

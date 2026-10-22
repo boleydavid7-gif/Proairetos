@@ -4,7 +4,6 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, CameraIcon, PlusIcon } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
-import photo from '../../assets/images/scenes/phyton.webp';
 import photoWide from '../../assets/images/scenes/phyton-wide.webp';
 import type { PhytonNav } from '../app/App';
 import { myName, putPlant, settings, useHome, usePlants } from '../app/state';
@@ -41,8 +40,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
     <div className="home phyton-home">
       <div className="hero hero--tall hero-shade-soft">
         <picture>
-          <source media="(min-width: 62rem)" srcSet={photoWide} />
-          <img className="hero__image" src={photo} alt="" />
+          <img className="hero__image" src={photoWide} alt="" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

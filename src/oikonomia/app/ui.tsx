@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
-import heroImage from '../../assets/images/scenes/valley.webp';
 import heroWide from '../../assets/images/scenes/valley-wide.webp';
 import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, PlusIcon, SettingsIcon } from './icons';
 
@@ -44,10 +43,7 @@ export function Brand({ light = false }: { light?: boolean }) {
 export function Hero({ children }: { children: ReactNode }) {
   return (
     <div className="hero hero--tall oiko-hero">
-      <picture>
-        <source media="(min-width: 62rem)" srcSet={heroWide} />
-        <img className="hero__image" src={heroImage} alt="" />
-      </picture>
+      <img className="hero__image" src={heroWide} alt="" />
       <div className="hero__shade" />
       <div className="hero__content">{children}</div>
     </div>

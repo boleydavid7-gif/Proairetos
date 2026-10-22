@@ -1,3 +1,4 @@
+import MoreDetails from '../../app/family/MoreDetails';
 import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
@@ -92,11 +93,6 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <span className="field__label">Chore</span>
         <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Take out the trash" />
       </label>
-      <label className="field">
-        <span className="field__label">Room (optional)</span>
-        <input className="input" list="ergon-rooms" value={room} onChange={(event) => setRoom(event.target.value)} />
-        <datalist id="ergon-rooms">{ROOMS.map((each) => <option key={each} value={each} />)}</datalist>
-      </label>
 
       <fieldset className="field">
         <legend className="field__label">Repeats</legend>
@@ -138,6 +134,12 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         </label>
       )}
 
+      <MoreDetails open={Boolean(existing && (existing.room || existing.who || existing.rota?.length || existing.remindAt || existing.steps?.length || existing.note))}>
+      <label className="field">
+        <span className="field__label">Room (optional)</span>
+        <input className="input" list="ergon-rooms" value={room} onChange={(event) => setRoom(event.target.value)} />
+        <datalist id="ergon-rooms">{ROOMS.map((each) => <option key={each} value={each} />)}</datalist>
+      </label>
       <fieldset className="field">
         <legend className="field__label">Who (optional)</legend>
         <Segmented label="Who" value={turns ? 'turns' : 'one'} options={[{ id: 'one', label: 'One person' }, { id: 'turns', label: 'Take turns' }]} onChange={(value) => setTurns(value === 'turns')} small />
@@ -183,6 +185,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <span className="field__label">Note (optional)</span>
         <input className="input" value={note} onChange={(event) => setNote(event.target.value)} />
       </label>
+      </MoreDetails>
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 

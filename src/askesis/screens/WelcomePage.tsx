@@ -15,7 +15,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
           A running plan from your first walk-run to a marathon, built on endurance research.
         </p>
         <div className="welcome__actions">
-          <button type="button" className="button-main" onClick={() => nav.go({ name: 'safety', first: true })}>
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan', first: true })}>
             Begin
           </button>
         </div>

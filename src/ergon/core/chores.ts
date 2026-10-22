@@ -200,6 +200,40 @@ export function skip(chore: Chore, today: string): Chore {
   return { ...chore, skipped: today };
 }
 
+/**
+ * The day a chore shows as. A day that came a while ago reads as the chore's latest turn, so a daily chore left
+ * undone says Today, not "Since Sep 1", and a weekly one says since its latest week: nothing looks piled up. Counting
+ * still runs from when it was last done (`nextDay`).
+ */
+export function shownDay(chore: Chore, day: string, today: string): string {
+  if (day >= today) return day;
+  const repeat = chore.repeat;
+  switch (repeat.kind) {
+    case 'days':
+    case 'weeks': {
+      const step = repeat.kind === 'days' ? Math.max(1, repeat.every) : 7 * Math.max(1, repeat.every);
+      return addDays(day, Math.floor(daysBetween(day, today) / step) * step);
+    }
+    case 'weekdays': {
+      for (let back = 0; back < 7 && repeat.days.length; back += 1) {
+        const candidate = addDays(today, -back);
+        if (candidate < day) break;
+        if (repeat.days.includes(weekday(candidate))) return candidate;
+      }
+      return day;
+    }
+    case 'monthly': {
+      const year = Number(today.slice(0, 4));
+      const month = Number(today.slice(5, 7)) - 1;
+      const thisMonth = toLocalDate(new Date(year, month, Math.min(repeat.day, lastDayOfMonth(year, month))));
+      const latest = thisMonth <= today ? thisMonth : toLocalDate(new Date(year, month - 1, Math.min(repeat.day, lastDayOfMonth(year, month - 1))));
+      return latest > day ? latest : day;
+    }
+    default:
+      return day;
+  }
+}
+
 /** "Today", "Tomorrow", "Fri", "12 Oct"; a day that has come says since when, never "late". */
 export function dayText(date: string, today: string): string {
   const days = daysBetween(today, date);

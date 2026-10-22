@@ -1,3 +1,4 @@
+import MoreDetails from '../../app/family/MoreDetails';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { thingFromText } from '../../core/ocr/labels';
 import { useEffect, useRef, useState } from 'react';
@@ -73,6 +74,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         <input className="input" list="ktema-rooms" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
         <datalist id="ktema-rooms">{[...new Set(things.list().map((each) => each.place?.trim()).filter((each): each is string => Boolean(each)))].map((each) => <option key={each} value={each} />)}</datalist>
       </label>
+      <MoreDetails open={Boolean(existing && (existing.make || existing.model || existing.serial || existing.boughtOn || existing.price || existing.store || existing.warrantyUntil || existing.link || existing.note))}>
       <ReadFromPhoto
         label="Read the model and serial from a photo"
         find={thingFromText}
@@ -114,6 +116,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         </div>
       </label>
       <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
+      </MoreDetails>
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 

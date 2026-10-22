@@ -9,7 +9,7 @@ import { useForecast, useRain } from '../../phyton/app/rain';
 import { hotDays } from '../../phyton/core/outdoors';
 import { nextCheck, water, dayText } from '../../phyton/core/plants';
 import { useChores, putChore, myName as ergonName } from '../../ergon/app/state';
-import { markDone as choreDone, nextDay as choreDay } from '../../ergon/core/chores';
+import { markDone as choreDone, nextDay as choreDay, shownDay as choreShownDay } from '../../ergon/core/chores';
 import { useDaysOff } from '../../ergon/app/daysOff';
 import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
@@ -107,7 +107,7 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
     dayText,
     clock,
     plants: shows('plants') ? plants.map((plant) => ({ plant, day: nextCheck(plant, today, phyton.hemisphere, rain, hot) })).filter((each) => each.day <= today).sort((a, b) => a.day.localeCompare(b.day) || a.plant.name.localeCompare(b.plant.name)) : [],
-    chores: shows('chores') ? chores.map((chore) => ({ chore, day: choreDay(chore, choresOff) })).filter((each): each is { chore: (typeof chores)[number]; day: string } => Boolean(each.day && each.day <= today)).sort((a, b) => a.day.localeCompare(b.day) || a.chore.name.localeCompare(b.chore.name)) : [],
+    chores: shows('chores') ? chores.map((chore) => { const day = choreDay(chore, choresOff); return { chore, day: day && choreShownDay(chore, day, today) }; }).filter((each): each is { chore: (typeof chores)[number]; day: string } => Boolean(each.day && each.day <= today)).sort((a, b) => a.day.localeCompare(b.day) || a.chore.name.localeCompare(b.chore.name)) : [],
     doses: shows('medicines') ? dosesOn(allMedicines.filter((medicine) => isCurrent(medicine, doseDay)), doseDay, anchors).filter((dose) => !dose.taken) : [],
     visits: shows('medicines') ? visits.filter((visit) => visit.at.slice(0, 10) === calendarToday) : [],
     upkeep: shows('upkeep') ? upkeepGrouped(upkeeps, owned, today).now.map((each) => ({ ...each, thing: owned.find((thing) => thing.id === each.upkeep.thingId)?.name })) : [],

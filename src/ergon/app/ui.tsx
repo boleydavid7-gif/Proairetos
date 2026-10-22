@@ -2,7 +2,7 @@ import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
-import { dayText, markDone, nextDay, repeatText, type Chore, type DaysOff } from '../core/chores';
+import { dayText, markDone, nextDay, repeatText, shownDay, type Chore, type DaysOff } from '../core/chores';
 import { myName, putChore } from './state';
 
 export function done(chore: Chore, today: string): void {
@@ -25,7 +25,7 @@ export function ChoreRow({ chore, today, onOpen, room = true, daysOff }: { chore
         </span>
         <small>{[room ? chore.room : undefined, repeatText(chore.repeat)].filter(Boolean).join(' · ')}</small>
       </button>
-      <span className="chore__when">{day ? dayText(day, today) : ''}</span>
+      <span className="chore__when">{day ? dayText(shownDay(chore, day, today), today) : ''}</span>
     </SwipeItem>
   );
 }

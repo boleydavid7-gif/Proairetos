@@ -6,6 +6,7 @@ import { newId, nowStamp, removeTrip, settings, trips } from '../app/state';
 import { MoneyField, PlaceSearch } from '../app/ui';
 import { withStops, type Place, type Stop, type Trip } from '../core/model';
 import DateRange from '../components/DateRange';
+import MoreDetails from '../../app/family/MoreDetails';
 import { TimeOffLine, YearBudgetLine } from '../components/References';
 
 type StopDraft = { id: string; place?: Place; start: string; end: string };
@@ -127,7 +128,8 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       )}
       {!several && <TimeOffLine start={spanStart} end={spanEnd} tripId={existing?.id} />}
 
-{(existing?.people?.length ?? 0) > 1 ? (
+      <MoreDetails open={Boolean(existing)}>
+      {(existing?.people?.length ?? 0) > 1 ? (
         <p className="muted">
           {existing!.people!.length} travelers: {existing!.people!.join(', ')}
         </p>
@@ -145,6 +147,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
         <span className="field__label">Notes</span>
         <textarea className="input area" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />
       </label>
+      </MoreDetails>
 
       <button type="button" className="button-main" disabled={!title} onClick={save}>
         Save

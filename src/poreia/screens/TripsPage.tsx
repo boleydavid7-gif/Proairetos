@@ -1,7 +1,6 @@
 import { Brand } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { DailyLine } from '../../app/family/DailyLine';
-import photo from '../../assets/images/scenes/poreia.webp';
 import photoWide from '../../assets/images/scenes/poreia-wide.webp';
 import type { PoreiaNav } from '../app/App';
 import { today, trips } from '../app/state';
@@ -25,8 +24,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
     <div className="home poreia-home">
       <div className="hero hero--tall hero-shade-soft">
         <picture>
-          <source media="(min-width: 62rem)" srcSet={photoWide} />
-          <img className="hero__image" src={photo} alt="" />
+          <img className="hero__image" src={photoWide} alt="" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

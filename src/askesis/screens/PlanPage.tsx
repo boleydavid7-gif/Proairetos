@@ -339,9 +339,24 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
           </section>
         )}
 
+        {first && (
+          <p className="hint">
+            Check with a doctor first if you have a heart condition, chest pain, dizziness or a long-term condition, or are pregnant.{' '}
+            <button type="button" className="text-link" onClick={() => nav.go({ name: 'safety' })}>
+              Before you start
+            </button>
+          </p>
+        )}
+
         <button type="button" className="button-main" onClick={() => goTo('aim')} disabled={!tested}>
           Next
         </button>
+        {/* In a hurry: the suggested path toward 30 minutes of running, three days a week; the aim, days and words can be set later. */}
+        {first && tested && path && (
+          <button type="button" className="button-quiet" onClick={save}>
+            Start now, aim later
+          </button>
+        )}
       </div>
     );
 

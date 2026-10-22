@@ -3,6 +3,12 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Capture sits at the top of Today, so writing something down never needs a scroll.',
+      'Adding a bill, medicine, chore, person, trip or thing asks only what it needs; everything else waits under More details.',
+      'A chore that comes round every day says Today, not the date it was first due.',
+      'Diaita: one tap on Well, Okay or Poorly keeps last night with your planned times; Other times if they were different.',
+      'Askesis: start straight away with the suggested path (Start now, aim later), and the note on when to check with a doctor sits on the first step.',
+      'The pictures at the top of each app show their scene (the house, the lighthouse, the glasshouse) instead of the sky above it.',
       'Each app has a little more of its own character: the color of its light at the top of a page, a faint pattern in the wall (water lines in Hydros, a ledger in Oikonomia, stars in Diaita, leaves in Phyton), and its own pace of movement.',
       'Charts and bars come alive: columns rise one after another with light on their tops, lines draw themselves in, and new values glide into place. Touch a column to read it while the others step back.',
       'The tab you are on is marked by a line again, centered over its icon, which glides and stretches a little as you move between tabs.',

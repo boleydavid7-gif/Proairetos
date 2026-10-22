@@ -1,4 +1,5 @@
 import { useLaunchedFile } from '../../app/family/launchFiles';
+import MoreDetails from '../../app/family/MoreDetails';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { medicineFromText } from '../../core/ocr/labels';
 import { useEffect, useRef, useState } from 'react';
@@ -138,30 +139,6 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
         </label>
       </div>
 
-      <fieldset className="field">
-        <legend className="field__label">Looks like (optional)</legend>
-        <div className="pill-choices" role="group" aria-label="Shape">
-          {PILL_SHAPES.map((shape) => (
-            <button key={shape} type="button" className="pill-choice" aria-pressed={look?.shape === shape} aria-label={shape} onClick={() => setLook(look?.shape === shape ? undefined : { shape, color: look?.color ?? 'white', color2: look?.color2 })}>
-              <PillMark look={{ shape, color: look?.color ?? 'white', color2: look?.color2 }} size={30} />
-            </button>
-          ))}
-        </div>
-        {look && (
-          <div className="pill-colors" role="group" aria-label="Color">
-            {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-color" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
-            ))}
-          </div>
-        )}
-        {look && (look.shape === 'capsule' || look.shape === 'inhaler' || look.shape === 'patch' || look.shape === 'injection') && (
-          <div className="pill-colors" role="group" aria-label="Second color">
-            {Object.entries(PILL_COLORS).map(([key, value]) => (
-              <button key={key} type="button" className="pill-color pill-color--small" style={{ background: value }} aria-label={`${key}, second color`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
-            ))}
-          </div>
-        )}
-      </fieldset>
 
       <fieldset className="field">
         <legend className="field__label">Times</legend>
@@ -202,6 +179,32 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
           )}
         </fieldset>
       )}
+
+      <MoreDetails open={Boolean(existing)}>
+      <fieldset className="field">
+        <legend className="field__label">Looks like (optional)</legend>
+        <div className="pill-choices" role="group" aria-label="Shape">
+          {PILL_SHAPES.map((shape) => (
+            <button key={shape} type="button" className="pill-choice" aria-pressed={look?.shape === shape} aria-label={shape} onClick={() => setLook(look?.shape === shape ? undefined : { shape, color: look?.color ?? 'white', color2: look?.color2 })}>
+              <PillMark look={{ shape, color: look?.color ?? 'white', color2: look?.color2 }} size={30} />
+            </button>
+          ))}
+        </div>
+        {look && (
+          <div className="pill-colors" role="group" aria-label="Color">
+            {Object.entries(PILL_COLORS).map(([key, value]) => (
+              <button key={key} type="button" className="pill-color" style={{ background: value }} aria-label={key} aria-pressed={look.color === key} onClick={() => setLook({ ...look, color: key })} />
+            ))}
+          </div>
+        )}
+        {look && (look.shape === 'capsule' || look.shape === 'inhaler' || look.shape === 'patch' || look.shape === 'injection') && (
+          <div className="pill-colors" role="group" aria-label="Second color">
+            {Object.entries(PILL_COLORS).map(([key, value]) => (
+              <button key={key} type="button" className="pill-color pill-color--small" style={{ background: value }} aria-label={`${key}, second color`} aria-pressed={(look.color2 ?? look.color) === key} onClick={() => setLook({ ...look, color2: key })} />
+            ))}
+          </div>
+        )}
+      </fieldset>
 
       <div className="input-row">
         <label className="field">
@@ -249,6 +252,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
         <span className="field__label">Note (optional)</span>
         <input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Prescribed by, what it is for" />
       </label>
+      </MoreDetails>
 
       <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
 

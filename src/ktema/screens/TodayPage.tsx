@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/ktema.webp';
 import photoWide from '../../assets/images/scenes/ktema-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
@@ -52,8 +51,7 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
     <div className="home ktema-home">
       <div className="hero hero--tall hero-shade-soft">
         <picture>
-          <source media="(min-width: 62rem)" srcSet={photoWide} />
-          <img className="hero__image" src={photo} alt="" />
+          <img className="hero__image" src={photoWide} alt="" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

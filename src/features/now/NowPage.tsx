@@ -243,6 +243,8 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
+      {/* The thing done most, so it sits first, above everything the day brings. */}
+      {shows('capture') && <CaptureBar variant="quiet" />}
       {shows('intention') && <Intention date={date} isToday />}
       {shows('path') && <TodayThree date={today} items={items} />}
       {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
@@ -317,7 +319,6 @@ export default function NowPage() {
         </div>
       )}
 
-      {shows('capture') && <CaptureBar variant="quiet" />}
       {<BackupOffer today={today} recordCount={items.length} />}
       {<AlsoToday sections={alsoSections} />}
       {<DoneToday today={today} range={rangeOf(today)} />}
