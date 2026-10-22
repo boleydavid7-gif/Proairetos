@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'On a computer: Askesis\'s home stays one column until there is a plan, Hydros\'s title lines up with its page, pages without a picture start with room above their title, and an empty list\'s button keeps a button\'s width. Hydros Settings uses the same rows, tiles and switches as the other apps.',
       'When your account syncs through your own Google Drive, Dropbox or OneDrive, backups go there too: each day\'s copy and any backup you save, sealed with your key, the last two weeks kept. Restore lists them on any of your devices, iPhone included.',
       'Settings are shorter in every app: backup, daily copies, the backup folder and restore are gathered under one Back up and restore row with your last backup date, and open as their own page.',
       'Hydros Settings has the large title and text sizes of the other apps, and one arrow on each choice; card headings and buttons on the backup page look the same in every app; the Store row in the family list has its own mark; Praxis is lit in brass instead of pink.',

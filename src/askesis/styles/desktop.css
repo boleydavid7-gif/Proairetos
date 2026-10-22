@@ -80,6 +80,13 @@
     padding-top: 32px;
   }
 
+  /* Nothing planned yet: the plan card and the daily line stand in one centered column, not beside an empty one. */
+  :root.askesis .home-grid:not(:has(.home-main > *)) {
+    grid-template-columns: minmax(0, 36rem);
+    grid-template-areas: 'top' 'bottom';
+    justify-content: center;
+  }
+
   :root.askesis .home-top { grid-area: top; display: flex; flex-direction: column; gap: 16px; }
   :root.askesis .home-main { grid-area: main; display: flex; flex-direction: column; gap: 20px; }
   :root.askesis .home-bottom { grid-area: bottom; margin: 0; align-self: start; }

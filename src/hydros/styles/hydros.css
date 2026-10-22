@@ -144,19 +144,15 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .pattern-empty { padding: 14px 0 6px; color: var(--muted); font-size: .82rem; }
 
 /* Settings follows the same quiet, grouped controls as the reference. */
-.hydros-settings { gap: 10px; padding-bottom: 30px; overflow-y: auto; background: var(--bg); }
+.hydros-settings { margin-top: 0; gap: 22px; padding-bottom: 30px; overflow-y: auto; background: var(--bg); }
 :root.hydros[data-theme='light'] .hydros-settings { background: var(--bg); }
 .hydros-settings-lede { margin: -4px 4px 3px; color: var(--muted); font-size: .78rem; }
 .hydros-settings-group { display: flex; flex-direction: column; gap: 6px; }
 .hydros-settings-group h2 { margin: 0 4px; color: var(--muted); font-size: var(--text-sm); font-weight: 500; letter-spacing: 0; text-transform: none; }
-.hydros-settings-list { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: var(--surface-solid); }
 .hydros-settings-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 7px 12px; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent); background: transparent; color: var(--text); text-align: left; }
-.hydros-settings-row:last-child { border-bottom: 0; }
 .hydros-settings-row--button { cursor: pointer; }
 .hydros-settings-row--link { text-decoration: none; }
 .hydros-settings-row--static { cursor: default; }
-.hydros-settings-row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 24px; height: 24px; color: var(--cyan); }
-.hydros-settings-row__icon svg { width: 21px; height: 21px; }
 .hydros-settings-row__name { min-width: 0; flex: 1; font-size: .81rem; }
 .hydros-settings-row__input { width: 64px; padding: 2px 0; border: 0; outline: 0; background: transparent; color: var(--text-soft); font: inherit; text-align: right; }
 .hydros-settings-row__input::placeholder { color: var(--muted); }
@@ -165,9 +161,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-settings-row select:disabled { opacity: .48; }
 .hydros-settings-row__value { color: var(--text-soft); font-size: .76rem; text-align: right; }
 .hydros-settings-row__chevron { flex: 0 0 auto; color: var(--muted); font-size: 1.6rem; font-weight: 300; line-height: 1; }
-.hydros-switch { display: inline-flex; align-items: center; width: 43px; height: 25px; flex: 0 0 auto; padding: 3px; border-radius: 14px; background: color-mix(in srgb, var(--text) 28%, transparent); transition: background .2s ease; }
-.hydros-switch span { width: 19px; height: 19px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s ease; }
-.hydros-switch.is-on { justify-content: flex-end; background: var(--cyan); }
 .hydros-recommendation { display: flex; align-items: center; gap: 11px; margin: 8px; padding: 10px 10px; border: 1px solid color-mix(in srgb, var(--cyan) 30%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--cyan) 12%, transparent); }
 .hydros-recommendation > svg { flex: 0 0 auto; color: var(--cyan); }
 .hydros-recommendation > div { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
@@ -467,7 +460,6 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-flow .recent-entries { margin-top: 22px; }
 .hydros-settings-group { gap: 8px; }
 .hydros-settings-group h2 { margin-inline: 2px; color: var(--muted); font-size: var(--text-sm); font-weight: 600; }
-.hydros-settings-list { border-color: var(--line); border-radius: 18px; background: var(--surface-solid); box-shadow: var(--ll-light-1); }
 .hydros-settings-row { min-height: 52px; padding: 9px 13px; }
 .hydros-settings-row__name { font-size: .86rem; }
 .hydros-settings-row__value, .hydros-settings-row > b { font-size: .78rem; }
@@ -481,6 +473,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
   .hydros-home__content { max-width: 44rem; margin-inline: auto; padding-inline: 0; }
   .hydros-hero--today { border-radius: 0; }
   .hydros-screen, .hydros-add__stage { padding-inline: max(20px, calc((100% - 44rem) / 2)); }
+  /* The title over the picture lines up with the column below it. */
+  .hydros-home-hero .hero__content { padding-inline: max(20px, calc((100% - 44rem) / 2)); }
+  .hydros-screen { padding-top: 40px; }
 }
 
 @media (max-width: 61.99rem) {
@@ -525,10 +520,16 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 /* Settings reads like the family's other settings pages: back on its own line, a large title at the left,
    rows at the family's text sizes, one arrow on a choice. */
-.hydros-settings > .hydros-header { grid-template-columns: 42px 1fr; grid-template-areas: 'back action' 'title title'; row-gap: 6px; }
-.hydros-settings > .hydros-header > :first-child { grid-area: back; }
-.hydros-settings > .hydros-header h1 { grid-area: title; font: 400 var(--text-4xl, 2.3rem)/1.05 var(--serif); text-align: left; }
-.hydros-settings > .hydros-header .hydros-header__action { grid-area: action; justify-self: end; }
+.hydros-screen > .hydros-header { grid-template-columns: 42px 1fr; grid-template-areas: 'back action' 'title title'; row-gap: 6px; }
+.hydros-screen > .hydros-header > :first-child { grid-area: back; }
+.hydros-screen > .hydros-header h1 { grid-area: title; font: 400 var(--text-4xl, 2.3rem)/1.05 var(--serif); text-align: left; }
+.hydros-screen > .hydros-header .hydros-header__action { grid-area: action; justify-self: end; }
 .hydros-settings .hydros-settings-row__name { font-size: var(--text-md, 1rem); }
 .hydros-settings .hydros-settings-row__value, .hydros-settings .hydros-settings-row > b, .hydros-settings .hydros-settings-row select { font-size: var(--text-sm); }
 .hydros-settings-row select { appearance: none; -webkit-appearance: none; padding-right: 2px; }
+
+/* Settings rows are the family's grouped rows (`.family-surface .rows`); these keep only what Hydros adds inside them. */
+.hydros-settings .rows { border: 0; background: var(--surface-solid); }
+.hydros-settings-group .label { margin: 0 4px; }
+.hydros-settings .hydros-glass-row { padding: 10px 14px; border-bottom: 0; }
+.hydros-settings .hydros-reference { margin: 10px 14px; border: 0; }

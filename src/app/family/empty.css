@@ -38,3 +38,12 @@
   color: var(--muted);
   font-size: 0.92rem;
 }
+
+/* On a computer the one action keeps a button's own width instead of the whole column. */
+@media (min-width: 62rem) {
+  .list-empty :is(.button-main, .button-quiet, .button-accent) {
+    width: auto;
+    min-width: 14rem;
+    padding-inline: 28px;
+  }
+}

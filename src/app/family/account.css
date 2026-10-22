@@ -55,8 +55,8 @@
  */
 .family-surface, .family-surface * { box-sizing: border-box; }
 .family-surface { display: grid; gap: 14px; margin-top: 16px; color: var(--color-text, inherit); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
-.family-surface .card { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 16px; background: var(--color-surface, rgba(255,255,255,.04)); }
-.family-surface .card__title { margin: 0; font: 500 1.15rem/1.25 var(--font-serif, Georgia, serif); }
+.family-surface .card { display: grid; gap: 12px; padding: 18px; border: 0; border-radius: 16px; background: var(--color-surface, rgba(255,255,255,.04)); }
+.family-surface .card__title { margin: 0; font: 600 var(--text-lg, 1.1rem)/1.3 var(--ll-sans, var(--font-sans, Inter, system-ui, sans-serif)); }
 .family-surface .label { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .family-surface .muted, .family-surface .hint, .family-surface .row__detail, .family-surface .switch-row__detail { margin: 0; color: var(--color-text-muted, rgba(255,255,255,.7)); font-size: .86rem; line-height: 1.5; }
 .family-surface .field { display: grid; gap: 6px; }
@@ -67,7 +67,7 @@
 .family-surface .button-quiet { border: 1px solid transparent; color: var(--ll-on-tonal, inherit); background: var(--ll-tonal, transparent); }
 .family-surface .button-main:disabled, .family-surface .button-quiet:disabled { opacity: .5; cursor: default; }
 .family-surface .text-link { justify-self: start; min-height: 44px; padding: 0; border: 0; color: var(--color-accent-strong, var(--app-accent, #4F78A8)); background: none; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.family-surface .rows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--color-border, rgba(255,255,255,.12)); border-radius: 14px; background: var(--color-surface, rgba(255,255,255,.04)); overflow: hidden; }
+.family-surface .rows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 0; border-radius: 14px; background: var(--color-surface, rgba(255,255,255,.04)); overflow: hidden; }
 .family-surface .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; border: 0; color: inherit; background: none; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
 .family-surface .row > .row__text { flex: 1 1 auto; }
 .family-surface .row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; }

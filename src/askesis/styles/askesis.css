@@ -2584,6 +2584,11 @@ html[data-nav='back']::view-transition-new(root) {
     width: 100%;
   }
 
+  /* A page with no picture at its head starts with room above its title, as the pages with one do. */
+  .shell--tabs .page:not(:has(.hero)) {
+    padding-top: 40px;
+  }
+
   .shell--tabs .hero {
     height: 300px;
   }

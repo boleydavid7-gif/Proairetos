@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { Children, Fragment, isValidElement, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import type { Nav } from '../app/App';
 import { useSettings, updateSettings } from '../app/state';
 import { offerUndo } from '../app/undo';
@@ -36,7 +36,7 @@ function intervalLabel(minutes: number): string {
 }
 
 function Icon({ children }: { children: React.ReactNode }) {
-  return <span className="hydros-settings-row__icon" aria-hidden="true">{children}</span>;
+  return <span className="row__icon" aria-hidden="true">{children}</span>;
 }
 
 function Chevron() {
@@ -44,7 +44,7 @@ function Chevron() {
 }
 
 function Switch({ on }: { on: boolean }) {
-  return <span className={`hydros-switch${on ? ' is-on' : ''}`} aria-hidden="true"><span /></span>;
+  return <span className={`switch${on ? ' switch--on' : ''}`} aria-hidden="true" />;
 }
 
 export default function SettingsPage({ nav }: { nav: Nav }) {
@@ -134,11 +134,11 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
   const addGlass = () => updateSettings({ glasses: [...glasses, { id: id(), label: 'Cup', amountOz: unit === 'oz' ? 12 : unitToOunces(350, 'ml'), profileId: 'water' }] });
 
   return (
-    <div className="hydros-screen hydros-settings">
+    <div className="hydros-screen hydros-settings family-surface">
       <ScreenHeader title="Settings" onBack={nav.back} />
 
       <SettingsGroup title="Daily amount">
-        <label className="hydros-settings-row"><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">From drinks each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} placeholder="None" onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
+        <label className="row hydros-settings-row"><Icon><DropIcon /></Icon><span className="row__text hydros-settings-row__name">From drinks each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} placeholder="None" onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
         <div className="hydros-reference">
           <span>Reference amounts from drinks</span>
           {referenceAmounts.map((reference) => (
@@ -149,8 +149,8 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
           ))}
           <small className="hydros-reference__source">{REFERENCE_SOURCE}. Heat, effort, pregnancy and health change it.</small>
         </div>
-        {settings.goalChosen && <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={clearGoal}><Icon><MoreIcon /></Icon><span className="hydros-settings-row__name">No daily amount</span><Chevron /></button>}
-        {isAdded('askesis') && <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="hydros-settings-row__name">Extra on run days (Askesis)</span><Switch on={settings.runDayExtra !== false} /></button>}
+        {settings.goalChosen && <button type="button" className="row hydros-settings-row hydros-settings-row--button" onClick={clearGoal}><Icon><MoreIcon /></Icon><span className="row__text hydros-settings-row__name">No daily amount</span><Chevron /></button>}
+        {isAdded('askesis') && <button type="button" className="row hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={settings.runDayExtra !== false} onClick={() => updateSettings({ runDayExtra: settings.runDayExtra === false })}><Icon><WaveIcon /></Icon><span className="row__text hydros-settings-row__name">Extra on run days (Askesis)</span><Switch on={settings.runDayExtra !== false} /></button>}
       </SettingsGroup>
 
       <SettingsGroup title="Your glasses">
@@ -163,36 +163,36 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
             <button type="button" aria-label={`Remove ${glass.label}`} onClick={() => removeGlass(glass)}><Sym name="close" /></button>
           </div>
         ))}
-        {glasses.length < 6 && <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={addGlass}><Icon><CupIcon /></Icon><span className="hydros-settings-row__name">Add a glass or bottle</span><Chevron /></button>}
-        <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={() => nav.go({ name: 'drinkTypes' })}><Icon><LeafIcon /></Icon><span className="hydros-settings-row__name">Drink types</span><span className="hydros-settings-row__value">Caffeine and more</span><Chevron /></button>
+        {glasses.length < 6 && <button type="button" className="row hydros-settings-row hydros-settings-row--button" onClick={addGlass}><Icon><CupIcon /></Icon><span className="row__text hydros-settings-row__name">Add a glass or bottle</span><Chevron /></button>}
+        <button type="button" className="row hydros-settings-row hydros-settings-row--button" onClick={() => nav.go({ name: 'drinkTypes' })}><Icon><LeafIcon /></Icon><span className="row__text hydros-settings-row__name">Drink types</span><span className="hydros-settings-row__value">Caffeine and more</span><Chevron /></button>
       </SettingsGroup>
 
       <SettingsGroup title="Reminders">
-        <button type="button" className="hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={reminders} onClick={() => void toggleReminders()}><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">Reminders</span><Switch on={reminders} /></button>
+        <button type="button" className="row hydros-settings-row hydros-settings-row--button" role="switch" aria-checked={reminders} onClick={() => void toggleReminders()}><Icon><ClockIcon /></Icon><span className="row__text hydros-settings-row__name">Reminders</span><Switch on={reminders} /></button>
         {reminders && <>
-          <label className="hydros-settings-row"><Icon><ClockIcon /></Icon><span className="hydros-settings-row__name">How often</span><select aria-label="How often" value={interval} onChange={(event) => { const next = Number(event.target.value); updateSettings({ reminderIntervalMinutes: next }); schedule({ intervalMinutes: next }); }}>{intervals.map((value) => <option value={value} key={value}>{intervalLabel(value)}</option>)}</select><Chevron /></label>
-          <label className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">When</span><select aria-label="When" value={when} onChange={(event) => { const next = event.target.value === 'work' ? 'work' : 'waking'; updateSettings({ reminderWhen: next }); schedule({ when: next }); }}><option value="waking">Waking hours</option><option value="work">During work</option></select><Chevron /></label>
-          <details className="hydros-settings-details"><summary className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">Quiet hours</span><span className="hydros-settings-row__value">{quiet.start} – {quiet.end}</span><Chevron /></summary><div className="hydros-time-fields"><label>From <input type="time" value={quiet.start} onChange={(event) => updateQuiet({ start: event.target.value })} /></label><label>Until <input type="time" value={quiet.end} onChange={(event) => updateQuiet({ end: event.target.value })} /></label></div></details>
+          <label className="row hydros-settings-row"><Icon><ClockIcon /></Icon><span className="row__text hydros-settings-row__name">How often</span><select aria-label="How often" value={interval} onChange={(event) => { const next = Number(event.target.value); updateSettings({ reminderIntervalMinutes: next }); schedule({ intervalMinutes: next }); }}>{intervals.map((value) => <option value={value} key={value}>{intervalLabel(value)}</option>)}</select><Chevron /></label>
+          <label className="row hydros-settings-row"><Icon><SunIcon /></Icon><span className="row__text hydros-settings-row__name">When</span><select aria-label="When" value={when} onChange={(event) => { const next = event.target.value === 'work' ? 'work' : 'waking'; updateSettings({ reminderWhen: next }); schedule({ when: next }); }}><option value="waking">Waking hours</option><option value="work">During work</option></select><Chevron /></label>
+          <details className="hydros-settings-details"><summary className="row hydros-settings-row"><Icon><SunIcon /></Icon><span className="row__text hydros-settings-row__name">Quiet hours</span><span className="hydros-settings-row__value">{quiet.start} – {quiet.end}</span><Chevron /></summary><div className="hydros-time-fields"><label>From <input type="time" value={quiet.start} onChange={(event) => updateQuiet({ start: event.target.value })} /></label><label>Until <input type="time" value={quiet.end} onChange={(event) => updateQuiet({ end: event.target.value })} /></label></div></details>
         </>}
         {permission === 'denied' ? <p className="hydros-settings-hint">Notifications are blocked for this site. Allow them in your browser settings.</p> : permission === 'unsupported' && reminders ? <p className="hydros-settings-hint">This browser cannot show notifications. Add Hydros to your Home Screen to receive them.</p> : null}
       </SettingsGroup>
 
-      <SettingsGroup title="Units"><div className="hydros-settings-row hydros-settings-row--static"><Icon><CupIcon /></Icon><span className="hydros-settings-row__name">Measurement units</span><div className="hydros-unit-switch">{(['oz', 'ml', 'L'] as HydrosUnit[]).map((value) => <button type="button" key={value} className={unit === value ? 'is-selected' : ''} onClick={() => chooseUnit(value)}>{value}</button>)}</div></div></SettingsGroup>
+      <SettingsGroup title="Units"><div className="row hydros-settings-row hydros-settings-row--static"><Icon><CupIcon /></Icon><span className="row__text hydros-settings-row__name">Measurement units</span><div className="hydros-unit-switch">{(['oz', 'ml', 'L'] as HydrosUnit[]).map((value) => <button type="button" key={value} className={unit === value ? 'is-selected' : ''} onClick={() => chooseUnit(value)}>{value}</button>)}</div></div></SettingsGroup>
 
-      <SettingsGroup title="Appearance"><label className="hydros-settings-row"><Icon><SunIcon /></Icon><span className="hydros-settings-row__name">Theme</span><select aria-label="Theme" value={theme} onChange={(event) => chooseTheme(event.target.value as Appearance['theme'])}><option value="system">Automatic</option><option value="dark">Dark</option><option value="light">Light</option></select><Chevron /></label></SettingsGroup>
+      <SettingsGroup title="Appearance"><label className="row hydros-settings-row"><Icon><SunIcon /></Icon><span className="row__text hydros-settings-row__name">Theme</span><select aria-label="Theme" value={theme} onChange={(event) => chooseTheme(event.target.value as Appearance['theme'])}><option value="system">Automatic</option><option value="dark">Dark</option><option value="light">Light</option></select><Chevron /></label></SettingsGroup>
 
       <section className="hydros-settings-group" aria-label="Your data">
-        <h2>Your data</h2>
+        <h2 className="label">Your data</h2>
         <AccountCard app="Hydros" what="What you drink and your settings" waiting="Drinks" />
         <FamilyBackup />
       </section>
 
-      <div className="family-surface"><FamilyApps current="hydros" /></div>
+      <FamilyApps current="hydros" />
 
       <SettingsGroup title="More">
-        <button type="button" className="hydros-settings-row hydros-settings-row--button" onClick={() => void downloadLog()}><Icon><DropIcon /></Icon><span className="hydros-settings-row__name">Download the log (CSV)</span><Chevron /></button>
-        <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Aprivacy"><Icon><GearIcon /></Icon><span className="hydros-settings-row__name">Privacy</span><Chevron /></a>
-        <a className="hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Ahelp"><Icon><LeafIcon /></Icon><span className="hydros-settings-row__name">Help</span><Chevron /></a>
+        <button type="button" className="row hydros-settings-row hydros-settings-row--button" onClick={() => void downloadLog()}><Icon><DropIcon /></Icon><span className="row__text hydros-settings-row__name">Download the log (CSV)</span><Chevron /></button>
+        <a className="row hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Aprivacy"><Icon><GearIcon /></Icon><span className="row__text hydros-settings-row__name">Privacy</span><Chevron /></a>
+        <a className="row hydros-settings-row hydros-settings-row--link" href="/?open=settings%3Ahelp"><Icon><LeafIcon /></Icon><span className="row__text hydros-settings-row__name">Help</span><Chevron /></a>
       </SettingsGroup>
     </div>
   );
@@ -211,6 +211,17 @@ async function downloadLog() {
   window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
 }
 
+/** The rows inside a group, with fragments opened up so each row gets its own place in the list. */
+function rowsOf(children: ReactNode): ReactNode[] {
+  return Children.toArray(children).flatMap((child) => (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment ? rowsOf(child.props.children) : [child]));
+}
+
+/** One labeled group of the family's grouped rows; each child is a row of its own. */
 function SettingsGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="hydros-settings-group" aria-label={title}><h2>{title}</h2><div className="hydros-settings-list">{children}</div></section>;
+  return (
+    <section className="hydros-settings-group" aria-label={title}>
+      <h2 className="label">{title}</h2>
+      <ul className="rows">{rowsOf(children).map((child, index) => <li key={index}>{child}</li>)}</ul>
+    </section>
+  );
 }

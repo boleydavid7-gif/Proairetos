@@ -285,6 +285,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Praxis uses `--color-accent-rgb`, `--color-surface(-raised)`, `--color-bar-rgb`; its sound pictures stay drawn content.
   Askesis, Soma, Oikonomia and Poreia keep fixed colors only for categories (effort, dish tints, map pins, Strava's
   orange) and the shades over their pictures.
+- `scripts/visual-check/` catches visual drift: `shoot.mjs <dir>` photographs every app's places (each dock, rail or
+  sidebar item) dark and light, phone (390) and computer (1440), motion reduced and clock fixed; `compare.mjs <before>
+  <after>` lists the pictures that changed and writes magenta diffs to `<after>/diff`. Shoot the old build before a change,
+  the new one after (runs in `.visual/`, ignored by git; SIZES/THEMES/APPS narrow a run, four runs in parallel take ~2 min).
+  Hydros Settings is the family's `.family-surface` grouped rows (`row`, `row__icon`, `row__text`, `switch`); its own
+  classes only add what sits inside them (glass editor, units, reference amounts).
 - `scripts/layout-check/check.mjs` measures the dock line over its icon, top-bar icons centered and 44 px, and the undo
   bar clear of the dock, in every app, dark and light; run it after layout changes. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
