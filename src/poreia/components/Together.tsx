@@ -183,9 +183,9 @@ export function Balances({ list, transfers, currency, leftOut }: { list: Balance
         {list.map((each) => (
           <span key={each.person} style={{ display: 'contents' }}>
             <dt>{each.person}</dt>
-            <dd>
-              {moneyText({ cents: each.paid, currency })} paid
-              <span className="muted"> · share {moneyText({ cents: each.share, currency })}</span>
+            <dd className="poreia-balance">
+              <span>Paid {moneyText({ cents: each.paid, currency })}</span>
+              <span className="muted">Share {moneyText({ cents: each.share, currency })}</span>
             </dd>
           </span>
         ))}

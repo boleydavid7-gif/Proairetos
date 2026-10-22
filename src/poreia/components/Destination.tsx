@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { PlusIcon } from '../../app/family/icons';
 import { addDays, daysBetween } from '../../core/scheduling/dates';
@@ -134,7 +135,7 @@ export function GuideCard({ place }: { place: Place }) {
 }
 
 /** Currency, language, driving side and public holidays in the trip's dates, for a trip abroad. */
-export function CountryCard({ target }: { target: Target }) {
+export function CountryCard({ target, children }: { target: Target; children?: ReactNode }) {
   const prefs = settings.use();
   const code = target.place.countryCode;
   const facts = useLoad<Country | undefined>(code, () => countryFacts(code!));
@@ -142,7 +143,7 @@ export function CountryCard({ target }: { target: Target }) {
   const days = useLoad<Holiday[]>(code && years.length ? `${code}.${years.join(',')}` : undefined, async () => (await Promise.all(years.map((year) => holidays(code!, Number(year))))).flat());
   const currency = facts.value?.currencies[0];
   const rates = useLoad<Record<string, number>>(currency && currency.code !== prefs.currency ? prefs.currency : undefined, () => ratesInto(prefs.currency));
-  if (!code || !facts.value) return null;
+  if (!code || !facts.value) return children ? <section className="card">{children}</section> : null;
   const during = (days.value ?? []).filter((day) => target.start && day.date >= target.start && day.date <= (target.end ?? target.start));
   const rate = currency && rates.value?.[currency.code];
   return (
@@ -191,6 +192,7 @@ export function CountryCard({ target }: { target: Target }) {
           </ul>
         </>
       )}
+      {children}
       <p className="fine">
         From <Outbound href="https://restcountries.com/">REST Countries</Outbound>, <Outbound href="https://date.nager.at/">Nager.Date</Outbound> and the European Central Bank’s rates.
       </p>

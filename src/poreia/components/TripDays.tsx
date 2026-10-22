@@ -12,6 +12,7 @@ import { dayText, timeText } from '../app/ui';
 import { tripEvents } from '../core/calendar';
 import { daysOf, entryTitle, moveAmong, placeLine, placesOf, planText, stopOn, type DayEntry, type PlanItem, type Trip } from '../core/model';
 import MapView from './MapView';
+import { Sym } from '../../lamplight/icons';
 
 /** One line of a day: its time, what it is and where; tapping opens the booking or the plan. */
 export function AgendaRow({ entry, onOpen }: { entry: DayEntry; onOpen: () => void }) {
@@ -208,9 +209,23 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
   );
 }
 
+/** A quiet "Add a plan" under each day, opening to a field and a time only when tapped. */
 function AddToDay({ tripId, date }: { tripId: string; date: string }) {
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
+  const field = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) field.current?.focus();
+  }, [open]);
+  if (!open) {
+    return (
+      <button type="button" className="poreia-add-day__open" onClick={() => setOpen(true)}>
+        <Sym name="plus" size={18} />
+        Add a plan
+      </button>
+    );
+  }
   return (
     <form
       className="add-line poreia-add-day"
@@ -221,12 +236,19 @@ function AddToDay({ tripId, date }: { tripId: string; date: string }) {
         plans.put(item);
         setTitle('');
         setTime('');
+        setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') setOpen(false);
       }}
     >
-      <input className="input" value={title} placeholder="Add a plan" aria-label={`Add to ${dayText(date)}`} onChange={(event) => setTitle(event.target.value)} />
+      <input ref={field} className="input" value={title} placeholder="Add a plan" aria-label={`Add to ${dayText(date)}`} onChange={(event) => setTitle(event.target.value)} />
       <input className="input poreia-add-day__time" type="time" value={time} aria-label="Time (optional)" onChange={(event) => setTime(event.target.value)} />
       <button type="submit" className="button-quiet" disabled={!title.trim()}>
         Add
+      </button>
+      <button type="button" className="poreia-add-day__close" aria-label="Close" onClick={() => setOpen(false)}>
+        <Sym name="close" size={18} />
       </button>
     </form>
   );

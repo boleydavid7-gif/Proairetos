@@ -76,8 +76,37 @@ export default function TripMoney({ trip }: { trip: Trip }) {
 
       <SavingCard trip={trip} />
 
-      <p className="ll-section-label">Add spending</p>
+      {shared && <Balances list={shared.balances} transfers={settleUp(shared.balances)} currency={currency} leftOut={shared.leftOut} />}
+
+      {theirSpends.length > 0 && (
+        <>
+        <p className="ll-section-label">Spending</p>
+        <ul className="rows">
+          {theirSpends.map((spend) => (
+            <SwipeItem
+              key={spend.id}
+              className="poreia-spend"
+              label="Delete"
+              tone="remove"
+              onSwipe={() => {
+                spends.remove(spend.id);
+                offerUndo(`“${spend.what}” deleted`, () => spends.put(spend));
+              }}
+            >
+              <span className="row__text">
+                <span>{spend.what}</span>
+                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label, together && spend.paidBy].filter(Boolean).join(' · ')}</span>
+              </span>
+              <span className="poreia-spend__amount">{moneyText(spend.amount)}</span>
+            </SwipeItem>
+          ))}
+        </ul>
+        </>
+      )}
+      {theirSpends.length > 0 && <ToOikonomia trip={trip} spends={theirSpends} />}
+
       <section className="card">
+        <h2 className="card__title">Add spending</h2>
         <label className="field">
           <span className="field__label">What</span>
           <input className="input" value={what} placeholder="Dinner, museum, taxi" onChange={(event) => setWhat(event.target.value)} />
@@ -126,32 +155,6 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         </button>
       </section>
 
-      {shared && <Balances list={shared.balances} transfers={settleUp(shared.balances)} currency={currency} leftOut={shared.leftOut} />}
-
-      {theirSpends.length > 0 && <ToOikonomia trip={trip} spends={theirSpends} />}
-
-      {theirSpends.length > 0 && (
-        <ul className="rows">
-          {theirSpends.map((spend) => (
-            <SwipeItem
-              key={spend.id}
-              className="poreia-spend"
-              label="Delete"
-              tone="remove"
-              onSwipe={() => {
-                spends.remove(spend.id);
-                offerUndo(`“${spend.what}” deleted`, () => spends.put(spend));
-              }}
-            >
-              <span className="row__text">
-                <span>{spend.what}</span>
-                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label, together && spend.paidBy].filter(Boolean).join(' · ')}</span>
-              </span>
-              <span className="poreia-trip-row__when">{moneyText(spend.amount)}</span>
-            </SwipeItem>
-          ))}
-        </ul>
-      )}
     </>
   );
 }

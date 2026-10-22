@@ -39,8 +39,8 @@ export function ArrivingCard({ place }: { place: Place }) {
   const note = power && abroad ? plugNote(powerIn(home), power) : undefined;
 
   return (
-    <section className="card poreia-arriving">
-      <h2 className="card__title">Arriving</h2>
+    <div className="poreia-arriving">
+      <p className="label">Arriving</p>
       <dl className="detail-list">
         {numbers && (
           <>
@@ -89,7 +89,7 @@ export function ArrivingCard({ place }: { place: Place }) {
           </p>
         </>
       )}
-    </section>
+    </div>
   );
 }
 

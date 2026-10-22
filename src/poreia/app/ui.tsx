@@ -37,9 +37,17 @@ export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; on
         </span>
         <span className="row__text">
           <span>{trip.name}</span>
-          <span className="row__detail">{[placesOf(trip).length > 1 ? placesOf(trip).map((stop) => stop.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</span>
+          {(() => {
+            const places = placesOf(trip).length > 1 ? placesOf(trip).map((stop) => stop.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.name : undefined;
+            const when = [phaseText(phase), datesText(trip.start, trip.end)].filter(Boolean).join(' · ');
+            return (
+              <>
+                {places && <span className="row__detail">{places}</span>}
+                <span className="row__detail poreia-trip-row__dates">{when || 'No place or dates yet'}</span>
+              </>
+            );
+          })()}
         </span>
-        <span className="poreia-trip-row__when">{phaseText(phase)}</span>
         <ChevronIcon size={18} />
       </button>
     </li>

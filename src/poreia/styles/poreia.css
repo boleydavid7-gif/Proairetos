@@ -247,8 +247,31 @@
 
 .poreia-add-day {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 5.9rem) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 5.9rem) auto auto;
+  align-items: center;
+  gap: 6px;
   margin-top: 6px;
+}
+
+.poreia-add-day__open,
+.poreia-add-day__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mint);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.poreia-add-day__close {
+  justify-content: center;
+  width: 36px;
+  color: var(--muted);
 }
 
 .poreia-add-day .input.poreia-add-day__time {
@@ -524,6 +547,38 @@
   list-style: none;
 }
 
+.poreia-pack__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-pack__row .check-row__box {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--muted);
+  border-radius: 999px;
+  color: var(--mint-ink);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.poreia-pack__row[aria-pressed='true'] .check-row__box {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
 .poreia-pack__done {
   color: var(--muted);
   text-decoration: line-through;
@@ -539,11 +594,25 @@
   line-height: 1.1;
 }
 
-.poreia-spend .swipe__front {
+.poreia-spend.swipe__front {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  min-height: 56px;
+  padding: 10px 16px;
+}
+
+.poreia-spend .row__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.poreia-spend__amount {
+  flex: none;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* The year at a glance: twelve small months. */
@@ -1131,4 +1200,37 @@
   margin: 0;
   font-family: var(--serif, inherit);
   font-size: var(--text-lg);
+}
+
+.poreia-trip-row__dates {
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-balance {
+  display: grid;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Weather rows keep one line each; the sky's word gives way first. */
+.poreia-weather li {
+  grid-template-columns: 6.2rem minmax(0, 1fr) auto auto;
+}
+
+.poreia-weather li > .muted {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Packing's add line: the words across, then the group and Add. */
+.poreia-pack-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-pack-add > .input:first-child {
+  grid-column: 1 / -1;
 }

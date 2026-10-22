@@ -98,7 +98,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
       })}
 
       <form
-        className="add-line"
+        className="poreia-pack-add"
         onSubmit={(event) => {
           event.preventDefault();
           if (!name.trim()) return;
