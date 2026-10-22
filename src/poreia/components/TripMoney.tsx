@@ -8,6 +8,7 @@ import { ratesInto } from '../app/world';
 import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type SpendCategory, type Trip } from '../core/model';
 import { balances, settleUp } from '../core/split';
 import { Balances, peopleOf } from './Together';
+import { SavingCard } from './TripGoals';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
 export default function TripMoney({ trip }: { trip: Trip }) {
@@ -72,6 +73,8 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         {totals.unconverted.length > 0 && <p className="fine">{ratesFailed ? 'Couldn’t get exchange rates; ' : ''}Left out until converted: {totals.unconverted.map((money) => moneyText(money)).join(', ')}.</p>}
         {foreign && !ratesFailed && <p className="fine">Converted at the European Central Bank’s latest rates.</p>}
       </section>
+
+      <SavingCard trip={trip} />
 
       <p className="ll-section-label">Add spending</p>
       <section className="card">

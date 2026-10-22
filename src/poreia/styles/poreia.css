@@ -1102,3 +1102,33 @@
   font-size: var(--text-xs);
   list-style: none;
 }
+
+/* Saving toward a trip, and its goal in Compass. */
+.poreia-saving__add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.poreia-saving__bar {
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.poreia-saving__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent, currentColor);
+}
+
+.poreia-goal {
+  margin: 0;
+  font-family: var(--serif, inherit);
+  font-size: var(--text-lg);
+}

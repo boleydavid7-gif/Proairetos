@@ -46,6 +46,7 @@ export default function App() {
     if (opening?.startsWith('bill:')) return { name: 'bill', id: opening.slice(5) };
     if (opening === 'spent') return { name: 'spent' };
     if (opening === 'pay') return { name: 'pay' };
+    if (opening === 'envelopes') return { name: 'envelopes' };
     if (opening && (tabNames as string[]).includes(opening)) return { name: opening as Tab };
     return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
   });

@@ -19,6 +19,7 @@ import OfflineCard from '../components/OfflineCard';
 import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { ArrivingCard, DocumentsCard } from '../components/Arriving';
+import { GoalCard } from '../components/TripGoals';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -141,6 +142,7 @@ function Overview({ trip, stop, nav, day }: { trip: Trip; stop?: Stop; nav: Pore
         </>
       )}
       {phaseOf(trip, day).kind !== 'past' && <DocumentsCard trip={trip} nav={nav} />}
+      <GoalCard trip={trip} />
       <TogetherCard trip={trip} />
       {trip.notes && (
         <section className="card">

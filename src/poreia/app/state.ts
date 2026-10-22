@@ -49,6 +49,19 @@ export const spots = collection<Spot>('poreia:spot:');
 /** Passports, visas, insurance: on this person's own devices only, never in a shared trip. */
 export const docs = collection<TravelDoc>('poreia:doc:');
 
+/**
+ * This person's own links for each trip, kept apart from the trip so a shared trip never carries them: its Compass
+ * goal, its Oikonomia envelope, and, without Oikonomia, what is saved toward it here.
+ */
+export type TripLinks = { goalId?: string; envelopeId?: string; saved?: { cents: number; currency: string } };
+export const links = stored<Record<string, TripLinks>>('poreia:links', () => ({}));
+export const linksOf = (tripId: string): TripLinks => links.load()[tripId] ?? {};
+export function setLinks(tripId: string, patch: Partial<TripLinks>): () => void {
+  const before = links.load();
+  links.save({ ...before, [tripId]: { ...before[tripId], ...patch } });
+  return () => links.save(before);
+}
+
 export const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
 export const today = () => toLocalDate(new Date());
 export const nowStamp = () => new Date().toISOString();
