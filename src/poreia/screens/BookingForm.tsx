@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useLaunchedFile } from '../../app/family/launchFiles';
+import { Waiting } from '../../lamplight/Waiting';
+import { BOOKING_FILES, fitsBooking, readBookingFile } from '../app/readFiles';
 import { offerUndo, say } from '../../app/family/shell';
 import { deviceKind } from '../../app/install/installPrompt';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { bookings, newId, nowStamp, settings, trips } from '../app/state';
 import { dayText, MoneyField, timeText } from '../app/ui';
-import { readConfirmation } from '../core/confirmations';
+import { readConfirmation, type ReadBooking } from '../core/confirmations';
 import { directionsTo } from '../core/links';
 import { BOOKING_KINDS, kindLabel, moneyText, type Booking, type BookingKind } from '../core/model';
 
@@ -13,8 +16,13 @@ const TRAVEL: BookingKind[] = ['flight', 'train', 'bus', 'cruise'];
 
 /** A booking: pasted from its confirmation (read on the device, shown here to check) or written by hand. */
 export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }: { nav: PoreiaNav; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }) {
-  const trip = trips.get(tripId);
   const existing = id ? bookings.get(id) : undefined;
+  const allTrips = trips.use();
+  // A new booking can go to any trip; it starts on the one it was opened from.
+  const [chosenTrip, setChosenTrip] = useState(tripId);
+  const trip = allTrips.find((each) => each.id === (existing?.tripId ?? chosenTrip));
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState<number>();
   const currency = settings.load().currency;
   const [form, setForm] = useState<Omit<Booking, 'id' | 'tripId' | 'createdAt' | 'updatedAt'>>(() => existing ?? { kind: firstKind ?? 'stay', title: '', startDate: trip?.start });
   const [pasted, setPasted] = useState('');
@@ -23,8 +31,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
   const [editing, setEditing] = useState(!existing);
   const set = (patch: Partial<Booking>) => setForm((current) => ({ ...current, ...patch }));
 
-  const read = () => {
-    const found = readConfirmation(pasted);
+  const take = (found: ReadBooking | undefined) => {
     if (!found) {
       setReadNote('Nothing to read there. Paste the whole confirmation email, or fill in the details below.');
       return;
@@ -34,6 +41,21 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
     setReadNote(got.length ? `Read: ${got.join(', ')}. Check them below.` : 'Read what it could. Check the details below.');
     setShowPaste(false);
   };
+  const read = () => take(readConfirmation(pasted));
+
+  // A screenshot, PDF, calendar invite or saved email: read here, then shown to check like a pasted one.
+  const readFile = (file: File) => {
+    setReadNote('');
+    setReading(0);
+    readBookingFile(file, setReading)
+      .then(({ booking }) => take(booking))
+      .catch(() => setReadNote('Couldn’t read that file. Paste the confirmation, or fill in the details below.'))
+      .finally(() => setReading(undefined));
+  };
+  // Shared into Poreia from another app (Android, computers), or opened with it.
+  useLaunchedFile(fitsBooking, (file) => {
+    if (!existing) readFile(file);
+  });
 
   const save = () => {
     if (!form.title.trim()) return;
@@ -43,7 +65,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
       title: form.title.trim(),
       endDate: form.endDate && form.startDate && form.endDate < form.startDate ? form.startDate : form.endDate || undefined,
       id: existing?.id ?? newId(),
-      tripId,
+      tripId: existing?.tripId ?? chosenTrip,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
@@ -83,11 +105,25 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
             <button type="button" className="button-main" disabled={!pasted.trim()} onClick={read}>
               Read it
             </button>
-            <button type="button" className="button-quiet" onClick={() => setShowPaste(false)}>
+            <button type="button" className="button-quiet" disabled={reading !== undefined} onClick={() => fileInput.current?.click()}>
+              {reading !== undefined ? <Waiting>Reading{reading ? ` ${Math.round(reading * 100)}%` : '…'}</Waiting> : 'A file or screenshot'}
+            </button>
+            <button type="button" className="text-link" onClick={() => setShowPaste(false)}>
               Fill in by hand
             </button>
           </div>
-          <p className="fine">Read on this device; nothing is sent.</p>
+          <input
+            ref={fileInput}
+            type="file"
+            accept={BOOKING_FILES}
+            hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              if (file) readFile(file);
+            }}
+          />
+          <p className="fine">A screenshot, PDF, calendar invite or saved email works too. Read on this device; nothing is sent.</p>
         </section>
       ) : (
         !existing && (
@@ -97,6 +133,19 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
         )
       )}
       {readNote && <p className="muted" role="status">{readNote}</p>}
+
+      {!existing && allTrips.length > 1 && (
+        <label className="field">
+          <span className="field__label">Trip</span>
+          <select className="input" value={chosenTrip} onChange={(event) => setChosenTrip(event.target.value)}>
+            {allTrips.map((each) => (
+              <option key={each.id} value={each.id}>
+                {each.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {!showPaste && (
         <>

@@ -58,8 +58,27 @@ async function networkFirst(request) {
   }
 }
 
+// A confirmation shared into Poreia from another app (Android, computers: the manifest's share_target): files, and the
+// shared words as a text file, wait in a cache for the page, which takes them out on opening a new booking.
+function takeShare(event) {
+  event.respondWith((async () => {
+    try {
+      const form = await event.request.formData();
+      const cache = await caches.open('proairetos-share-inbox');
+      const files = form.getAll('files').filter((file) => typeof file === 'object');
+      const words = ['title', 'text', 'url'].map((name) => form.get(name)).filter((value) => typeof value === 'string' && value.trim()).join('\n');
+      if (words) files.push(new File([words], 'shared.txt', { type: 'text/plain' }));
+      await Promise.all(files.map((file, i) => cache.put(`/share-inbox/poreia/${Date.now()}-${i}`, new Response(file, { headers: { 'content-type': file.type || 'application/octet-stream', 'x-name': encodeURIComponent(file.name || 'shared') } }))));
+    } catch {
+      // Nothing readable was shared; the app opens as usual.
+    }
+    return Response.redirect('/poreia/?open=shared', 303);
+  })());
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
+  if (request.method === 'POST' && new URL(request.url).pathname === '/poreia/share') return takeShare(event);
   if (request.method === 'GET' && new URL(request.url).host === MAP_HOST) {
     event.respondWith(mapRequest(request));
     return;

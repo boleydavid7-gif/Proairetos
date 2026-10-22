@@ -7,7 +7,8 @@ import type { SearchKind } from '../core/links';
 import type { Spot } from '../core/spots';
 import { countFirstVersion } from './fresh';
 import { recountPlanned } from './proairetos';
-import { bookings, settings } from './state';
+import { bookings, settings, today, trips } from './state';
+import { sortTrips } from '../core/model';
 import WelcomePage from '../screens/WelcomePage';
 import TripsPage from '../screens/TripsPage';
 import TripPage, { type TripView } from '../screens/TripPage';
@@ -56,6 +57,13 @@ function firstRoute(): Route {
     if (booking) return { name: 'booking', tripId: booking.tripId, id: booking.id };
   }
   if (opening?.startsWith('plan:')) return { name: 'plan', id: opening.slice(5) };
+  // A confirmation shared in, or a file opened with Poreia: a new booking on the trip under way or next (the form reads it).
+  if (opening === 'shared') {
+    const { now, ahead, someday } = sortTrips(trips.list(), today());
+    const trip = now[0] ?? ahead[0] ?? someday[0];
+    if (trip) return { name: 'booking', tripId: trip.id, paste: true };
+    return { name: 'trip-form' };
+  }
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
 }

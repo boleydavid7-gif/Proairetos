@@ -87,5 +87,47 @@
         }
       ]
     }
+  ],
+  "share_target": {
+    "action": "/poreia/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/*",
+            "application/pdf",
+            ".pdf",
+            "text/calendar",
+            ".ics",
+            "message/rfc822",
+            ".eml",
+            "text/plain",
+            "text/html"
+          ]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/poreia/?open=shared",
+      "accept": {
+        "application/pdf": [
+          ".pdf"
+        ],
+        "text/calendar": [
+          ".ics"
+        ],
+        "message/rfc822": [
+          ".eml"
+        ]
+      }
+    }
   ]
 }
