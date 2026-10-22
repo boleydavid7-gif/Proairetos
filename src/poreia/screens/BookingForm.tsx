@@ -11,6 +11,7 @@ import { dayText, MoneyField, timeText } from '../app/ui';
 import { readConfirmation, type ReadBooking } from '../core/confirmations';
 import { directionsTo } from '../core/links';
 import { BOOKING_KINDS, kindLabel, moneyText, type Booking, type BookingKind } from '../core/model';
+import { peopleOf } from '../components/Together';
 
 const TRAVEL: BookingKind[] = ['flight', 'train', 'bus', 'cruise'];
 
@@ -209,6 +210,19 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
             </label>
           )}
           <MoneyField label="Cost (optional)" cents={form.cost?.cents} currency={form.cost?.currency ?? currency} onChange={(cents, code) => set({ cost: cents ? { cents, currency: code || currency } : undefined })} />
+          {form.cost && trip && peopleOf(trip).length > 1 && (
+            <label className="field">
+              <span className="field__label">Paid by (optional)</span>
+              <select className="input" value={form.paidBy ?? ''} onChange={(event) => set({ paidBy: event.target.value || undefined })}>
+                <option value="">Not said</option>
+                {peopleOf(trip).map((person) => (
+                  <option key={person} value={person}>
+                    {person}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="field">
             <span className="field__label">Link (optional)</span>
             <input className="input" type="url" inputMode="url" value={form.link ?? ''} placeholder="https://" onChange={(event) => set({ link: event.target.value || undefined })} />

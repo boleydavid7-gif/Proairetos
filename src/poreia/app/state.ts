@@ -19,6 +19,8 @@ export type PoreiaSettings = {
   temperature: 'C' | 'F';
   /** Time off is set up once its balance and growth are given. */
   timeOff?: TimeOffSetup;
+  /** The person's own name on shared trips and in who paid; Proairetos's name when not set. */
+  me?: string;
   /** Reminders for bookings and plans, sent through Proairetos's notices. */
   notices: TripNoticeChoices;
 };
@@ -74,4 +76,16 @@ export function removeTrip(trip: Trip): () => void {
     its.spends.forEach((each) => spends.put(each));
     its.spots.forEach((each) => spots.put(each));
   };
+}
+
+/** The person's name for who paid: their own here, else the one Proairetos greets them with. */
+export function myName(): string {
+  const own = settings.load().me?.trim();
+  if (own) return own;
+  try {
+    const greeted = localStorage.getItem('proairetos.displayName');
+    return (greeted ? (JSON.parse(greeted) as string) : '').trim() || 'Me';
+  } catch {
+    return 'Me';
+  }
 }

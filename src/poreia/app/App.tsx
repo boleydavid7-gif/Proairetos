@@ -6,6 +6,7 @@ import type { BookingKind } from '../core/model';
 import type { SearchKind } from '../core/links';
 import type { Spot } from '../core/spots';
 import { countFirstVersion } from './fresh';
+import { useTripSharing } from './sharedTrips';
 import { recountPlanned } from './proairetos';
 import { bookings, settings, today, trips } from './state';
 import { sortTrips } from '../core/model';
@@ -70,6 +71,7 @@ function firstRoute(): Route {
 
 export default function App() {
   const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' });
+  useTripSharing();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {

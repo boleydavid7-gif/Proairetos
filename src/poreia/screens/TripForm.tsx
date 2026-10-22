@@ -155,9 +155,14 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
         <button
           type="button"
           className="text-link remove-link"
-          onClick={() => {
-            const undo = removeTrip(existing);
-            offerUndo(`“${existing.name}” deleted`, undo);
+          onClick={async () => {
+            // A shared trip is left first, so the others keep theirs; this phone's copy then goes, with undo.
+            if (existing.sharedList) {
+              const { leaveTrip } = await import('../app/sharedTrips');
+              await leaveTrip(existing).catch(() => undefined);
+            }
+            const undo = removeTrip({ ...existing, sharedList: undefined });
+            offerUndo(existing.sharedList ? `“${existing.name}” deleted here; the others keep it` : `“${existing.name}” deleted`, undo);
             nav.swap({ name: 'trips' });
           }}
         >

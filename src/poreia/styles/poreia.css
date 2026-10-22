@@ -970,3 +970,55 @@
   font-size: var(--text-sm);
   font-weight: 500;
 }
+
+/* Travel together: who is going, as chips; the fewest payments that even things out. */
+.poreia-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-people .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.poreia-people__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: -4px -8px -4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.poreia-together .add-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.poreia-together .add-line .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.poreia-settle {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}

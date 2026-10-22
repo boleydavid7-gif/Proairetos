@@ -42,6 +42,10 @@ export type Trip = {
   notes?: string;
   /** The look back after the trip was kept or set aside, so it is not offered again. */
   lookedBack?: boolean;
+  /** Who is going, by name, for who paid what. */
+  people?: string[];
+  /** The shared list this trip is kept in step with, when it is shared. */
+  sharedList?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -80,6 +84,8 @@ export type Booking = {
   to?: string;
   address?: string;
   cost?: Money;
+  /** Who paid it, on a trip with people. */
+  paidBy?: string;
   link?: string;
   notes?: string;
   createdAt: string;
@@ -142,7 +148,11 @@ export type Spend = {
   what: string;
   amount: Money;
   category: SpendCategory;
+  /** Who paid, and who it was for (everyone when absent), on a trip with people. */
+  paidBy?: string;
+  for?: string[];
   createdAt: string;
+  updatedAt?: string;
 };
 
 // ---------- Trips ----------

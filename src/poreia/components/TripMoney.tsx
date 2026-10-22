@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { offerUndo, say } from '../../app/family/shell';
 import SwipeItem from '../../app/family/SwipeItem';
-import { bookings, newId, nowStamp, settings, spends, today } from '../app/state';
+import { bookings, myName, newId, nowStamp, settings, spends, today } from '../app/state';
 import { dayText, MoneyField } from '../app/ui';
 import { ratesInto } from '../app/world';
 import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type SpendCategory, type Trip } from '../core/model';
+import { balances, settleUp } from '../core/split';
+import { Balances, peopleOf } from './Together';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
 export default function TripMoney({ trip }: { trip: Trip }) {
@@ -29,6 +31,21 @@ export default function TripMoney({ trip }: { trip: Trip }) {
   const [amount, setAmount] = useState<{ cents?: number; currency: string }>({ currency });
   const [category, setCategory] = useState<SpendCategory>('food');
   const [date, setDate] = useState(today());
+  const people = peopleOf(trip);
+  const together = people.length > 1;
+  const [payer, setPayer] = useState(myName());
+  const paidBy = people.includes(payer) ? payer : people[0];
+  const shared = together
+    ? balances(
+        [
+          ...theirBookings.filter((each) => each.cost && each.paidBy).map((each) => ({ amount: each.cost!, paidBy: each.paidBy })),
+          ...theirSpends.map((each) => ({ amount: each.amount, paidBy: each.paidBy, for: each.for })),
+        ],
+        people,
+        currency,
+        rates,
+      )
+    : undefined;
 
   return (
     <>
@@ -79,12 +96,24 @@ export default function TripMoney({ trip }: { trip: Trip }) {
             <input className="input" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
           </label>
         </div>
+        {together && (
+          <label className="field">
+            <span className="field__label">Paid by</span>
+            <select className="input" value={paidBy} onChange={(event) => setPayer(event.target.value)}>
+              {people.map((person) => (
+                <option key={person} value={person}>
+                  {person}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <button
           type="button"
           className="button-main"
           disabled={!what.trim() || !amount.cents || amount.currency.length !== 3}
           onClick={() => {
-            const spend: Spend = { id: newId(), tripId: trip.id, date: date || today(), what: what.trim(), amount: { cents: amount.cents!, currency: amount.currency }, category, createdAt: nowStamp() };
+            const spend: Spend = { id: newId(), tripId: trip.id, date: date || today(), what: what.trim(), amount: { cents: amount.cents!, currency: amount.currency }, category, createdAt: nowStamp(), ...(together ? { paidBy } : {}) };
             spends.put(spend);
             setWhat('');
             setAmount({ currency: amount.currency });
@@ -93,6 +122,8 @@ export default function TripMoney({ trip }: { trip: Trip }) {
           Save
         </button>
       </section>
+
+      {shared && <Balances list={shared.balances} transfers={settleUp(shared.balances)} currency={currency} leftOut={shared.leftOut} />}
 
       {theirSpends.length > 0 && <ToOikonomia trip={trip} spends={theirSpends} />}
 
@@ -111,7 +142,7 @@ export default function TripMoney({ trip }: { trip: Trip }) {
             >
               <span className="row__text">
                 <span>{spend.what}</span>
-                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label].join(' · ')}</span>
+                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label, together && spend.paidBy].filter(Boolean).join(' · ')}</span>
               </span>
               <span className="poreia-trip-row__when">{moneyText(spend.amount)}</span>
             </SwipeItem>

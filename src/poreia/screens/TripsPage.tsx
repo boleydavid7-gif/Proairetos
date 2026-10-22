@@ -7,6 +7,7 @@ import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';
 import LookBack from '../components/LookBack';
+import { InviteCard } from '../components/Together';
 import { datesText, dayText, TripRow } from '../app/ui';
 import { phaseOf, phaseText, sortTrips } from '../core/model';
 import { balanceOn, hoursText } from '../core/timeOff';
@@ -39,6 +40,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
       </div>
 
       <div className="page page--under-hero">
+        <InviteCard nav={nav} />
         {list.length === 0 ? (
           <section className="card first-run">
             <p className="muted">Start with a place, or just an idea.</p>
