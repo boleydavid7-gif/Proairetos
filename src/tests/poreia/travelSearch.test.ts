@@ -9,7 +9,7 @@ describe('travel searches through the site', () => {
 
   it('says which searches are set up', async () => {
     const response = await handleTravelSearch(new Request('https://proairetos.com/api/travel'), { LITEAPI_KEY: 'k' });
-    expect(await response.json()).toEqual({ events: false, stays: true, flights: false });
+    expect(await response.json()).toEqual({ events: false, stays: true, flights: false, status: false, places: false });
   });
 
   it('answers plainly without a key, and refuses other sites', async () => {
