@@ -31,7 +31,7 @@ export function RollingNumber({ value, format = (n) => String(Math.round(n)) }: 
   }, [value]);
   return (
     <>
-      <span aria-hidden="true">{format(shown)}</span>
+      <span className="ll-figure" aria-hidden="true">{format(shown)}</span>
       <span style={HIDDEN}>{format(value)}</span>
     </>
   );

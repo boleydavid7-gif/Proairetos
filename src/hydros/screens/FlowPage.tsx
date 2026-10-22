@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import YearPage from '../../app/family/YearPage';
 import { hydrosYear } from '../core/year';
 import type { Nav } from '../app/App';
@@ -79,7 +79,7 @@ function DailyChart({ range, values, max, goal, unit }: { range: string[]; value
   return <div className="flow-chart" aria-label="Week chart, one bar a day">
     <div className="flow-chart__grid"><span>{formatVolume(max, unit)} {unit}</span><span>{formatVolume(max * .75, unit)} {unit}</span><span>{formatVolume(max * .5, unit)} {unit}</span><span>0</span></div>
     {goal ? <div className="flow-chart__goal" style={{ bottom: `calc(26px + (100% - 26px) * ${goal / max})` }} aria-hidden="true" /> : null}
-    <div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className="flow-chart__bar" style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%` }} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'narrow' })}</small></div>)}</div>
+    <div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className={value ? 'flow-chart__bar ll-rise ll-lit ll-travel' : 'flow-chart__bar'} style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%`, '--i': index } as CSSProperties} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'narrow' })}</small></div>)}</div>
   </div>;
 }
 
@@ -100,8 +100,8 @@ function MonthlyLineChart({ range, values, max, goal, unit }: { range: string[];
     <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-hidden="true">
       {[0, .25, .5, .75, 1].map((fraction) => <g key={fraction}><line className="flow-line-chart__grid" x1={left} x2={width - right} y1={top + plotHeight * (1 - fraction)} y2={top + plotHeight * (1 - fraction)} /><text className="flow-line-chart__value" x={left - 7} y={top + plotHeight * (1 - fraction) + 3} textAnchor="end">{formatVolume(max * fraction, unit)}</text></g>)}
       {goal ? <line className="flow-line-chart__goal" x1={left} x2={width - right} y1={y(goal)} y2={y(goal)} /> : null}
-      <polyline className="flow-line-chart__line" points={points} />
-      {values.map((value, index) => <circle className="flow-line-chart__point" key={range[index]} cx={x(index)} cy={y(value)} r="2.5" />)}
+      <polyline className="flow-line-chart__line ll-draw" points={points} pathLength={1} />
+      {values.map((value, index) => <circle className="flow-line-chart__point ll-land" key={range[index]} cx={x(index)} cy={y(value)} r="2.5" style={{ '--i': index } as CSSProperties} />)}
       {labelIndexes.map((index) => <text className="flow-line-chart__axis" key={range[index]} x={x(index)} y={height - 7} textAnchor="middle">{index + 1}</text>)}
     </svg>
   </div>;

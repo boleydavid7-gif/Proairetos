@@ -1,10 +1,15 @@
 import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { easeOut, easeSpring, useTweened } from '../../lamplight/tween';
 import './charts.css';
 
 /*
- * Plain charts for the newer apps: what was recorded, over time, with no targets, ranges or verdicts. Thin marks,
+ * Plain charts for the family: what was recorded, over time, with no targets, ranges or verdicts. Thin marks,
  * hairline grid, the series in the app's accent (two series get a legend and their own validated pair), and a
  * readout on hover, touch or the arrow keys. Every value shown is also in the list beside the chart.
+ *
+ * Lit by the lamp: columns rise from their baseline one after another and carry a little light on their caps; a
+ * line draws itself in over a soft wash, its newest point gives one ripple; new values travel rather than jump; the
+ * readout glides from point to point and the other columns step back while one is read (useTweened, charts.css).
  */
 
 export type ChartPoint = { at: number; values: (number | undefined)[]; label?: string };
@@ -29,8 +34,14 @@ const number = (value: number) => (Math.abs(value) >= 1000 ? value.toLocaleStrin
 export function LineChart({ title, points, series, unit = '', height = 170 }: { title: string; points: ChartPoint[]; series: ChartSeries[]; unit?: string; height?: number }) {
   const [at, setAt] = useState<number>();
   const id = useId();
-  const sorted = [...points].sort((a, b) => a.at - b.at);
-  const all = sorted.flatMap((point) => point.values.filter((value): value is number => value !== undefined));
+  const ordered = [...points].sort((a, b) => a.at - b.at);
+  const flat = ordered.flatMap((point) => series.map((_, index) => point.values[index] ?? Number.NaN));
+  const moving = useTweened(flat.map((value) => (Number.isNaN(value) ? 0 : value)), { ms: 620, ease: easeOut });
+  const sorted = ordered.map((point, row) => ({
+    ...point,
+    values: series.map((_, index) => (Number.isNaN(flat[row * series.length + index]) ? undefined : moving[row * series.length + index])),
+  }));
+  const all = ordered.flatMap((point) => point.values.filter((value): value is number => value !== undefined));
   if (sorted.length < 2 || all.length < 2) return null;
   const low = Math.min(...all);
   const high = Math.max(...all);
@@ -48,6 +59,7 @@ export function LineChart({ title, points, series, unit = '', height = 170 }: { 
       .map((point, step) => `${step ? 'L' : 'M'}${x(point.at).toFixed(1)},${y(point.values[index]!).toFixed(1)}`)
       .join(' ');
   const wash = series.length === 1 ? `${path(0)} L${x(t1).toFixed(1)},${height - PAD.bottom} L${x(t0).toFixed(1)},${height - PAD.bottom} Z` : undefined;
+  const fade = `${id.replace(/:/g, '')}-wash`;
   const focus = at === undefined ? undefined : sorted[at];
 
   const pick = (event: PointerEvent<SVGSVGElement>) => {
@@ -96,16 +108,31 @@ export function LineChart({ title, points, series, unit = '', height = 170 }: { 
           ))}
           <text className="family-chart__tick" x={PAD.left} y={height - 6}>{short(t0)}</text>
           <text className="family-chart__tick" x={W - PAD.right} y={height - 6} textAnchor="end">{short(t1)}</text>
-          {wash && <path className="family-chart__wash" d={wash} />}
-          {series.map((each, index) => <path key={each.name} className={`family-chart__line family-chart__line--${index}`} d={path(index)} />)}
+          {wash && (
+            <>
+              <defs>
+                <linearGradient id={fade} x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" className="family-chart__wash-top" />
+                  <stop offset="1" className="family-chart__wash-foot" />
+                </linearGradient>
+              </defs>
+              <path className="family-chart__wash" d={wash} fill={`url(#${fade})`} />
+            </>
+          )}
+          {series.map((each, index) => <path key={each.name} className={`family-chart__line family-chart__line--${index}`} d={path(index)} pathLength={1} />)}
           {series.map((each, index) => {
             const last = [...sorted].reverse().find((point) => point.values[index] !== undefined);
-            return last ? <circle key={each.name} className={`family-chart__dot family-chart__dot--${index}`} cx={x(last.at)} cy={y(last.values[index]!)} r={4} /> : null;
+            return last ? (
+              <g key={each.name}>
+                <circle className={`family-chart__ripple family-chart__ripple--${index}`} cx={x(last.at)} cy={y(last.values[index]!)} r={4} />
+                <circle className={`family-chart__dot family-chart__dot--${index} family-chart__dot--end`} cx={x(last.at)} cy={y(last.values[index]!)} r={4} />
+              </g>
+            ) : null;
           })}
           {focus && (
-            <g>
-              <line className="family-chart__cross" x1={x(focus.at)} x2={x(focus.at)} y1={PAD.top} y2={height - PAD.bottom} />
-              {focus.values.map((value, index) => (value === undefined ? null : <circle key={index} className={`family-chart__dot family-chart__dot--${index}`} cx={x(focus.at)} cy={y(value)} r={4} />))}
+            <g className="family-chart__focus" style={{ transform: `translateX(${x(focus.at).toFixed(1)}px)` }}>
+              <line className="family-chart__cross" x1={0} x2={0} y1={PAD.top} y2={height - PAD.bottom} />
+              {focus.values.map((value, index) => (value === undefined ? null : <circle key={index} className={`family-chart__dot family-chart__dot--${index}`} cx={0} cy={y(value)} r={4} />))}
             </g>
           )}
         </svg>
@@ -133,8 +160,11 @@ export function ColumnChart({ title, days, unit = '', height = 150 }: { title: s
   const [at, setAt] = useState<number>();
   const id = useId();
   const values = days.map((day) => day.value).filter((value): value is number => value !== undefined);
+  const heights = useTweened(days.map((day) => day.value ?? 0), { from: 0, ms: 640, stagger: 28, ease: easeSpring });
   if (values.length < 2) return null;
   const top = Math.max(...values) * 1.1;
+  const lit = `${id.replace(/:/g, '')}-lit`;
+  const latest = days.reduce((found, day, index) => (day.value !== undefined && day.value > 0 ? index : found), -1);
   const ticks = niceTicks(0, top).filter((tick) => tick <= top);
   const slot = (W - PAD.left - PAD.right) / days.length;
   const bar = Math.min(24, slot - 4);
@@ -149,10 +179,16 @@ export function ColumnChart({ title, days, unit = '', height = 150 }: { title: s
   };
 
   return (
-    <figure className="family-chart" aria-labelledby={id}>
+    <figure className={`family-chart${at !== undefined ? ' is-reading' : ''}`} aria-labelledby={id}>
       <figcaption id={id} className="family-chart__title">{title}</figcaption>
       <div className="family-chart__plot">
         <svg viewBox={`0 0 ${W} ${height}`} role="img" aria-label={`${title}. Use the arrow keys to read each day.`} tabIndex={0} onKeyDown={keys} onBlur={() => setAt(undefined)} onPointerLeave={() => setAt(undefined)}>
+          <defs>
+            <linearGradient id={lit} x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" className="family-chart__bar-top" />
+              <stop offset="1" className="family-chart__bar-foot" />
+            </linearGradient>
+          </defs>
           {ticks.map((tick) => (
             <g key={tick}>
               <line className="family-chart__grid" x1={PAD.left} x2={W - PAD.right} y1={y(tick)} y2={y(tick)} />
@@ -165,12 +201,19 @@ export function ColumnChart({ title, days, unit = '', height = 150 }: { title: s
             return (
               <g key={day.long} onPointerEnter={() => setAt(index)} onPointerDown={() => setAt(index)}>
                 <rect className="family-chart__hit" x={cx - slot / 2} y={PAD.top} width={slot} height={base - PAD.top} />
-                {day.value !== undefined && day.value > 0 && (
-                  <path
-                    className={`family-chart__bar${at === index ? ' is-on' : ''}`}
-                    d={`M${cx - bar / 2},${base} V${y(day.value) + 4} q0,-4 4,-4 H${cx + bar / 2 - 4} q4,0 4,4 V${base} Z`}
-                  />
-                )}
+                {day.value !== undefined && day.value > 0 && heights[index] > 0 && (() => {
+                  const capY = Math.min(base - 0.5, y(heights[index]));
+                  const r = Math.min(4, (base - capY) / 2);
+                  return (
+                    <g className={`family-chart__column${at === index ? ' is-on' : ''}`}>
+                      <path className="family-chart__bar" fill={`url(#${lit})`} d={`M${cx - bar / 2},${base} V${capY + r} q0,-${r} ${r},-${r} H${cx + bar / 2 - r} q${r},0 ${r},${r} V${base} Z`} />
+                      <path className="family-chart__cap" d={`M${cx - bar / 2 + r},${capY + 0.75} H${cx + bar / 2 - r}`} />
+                      {index === latest && at === undefined && (
+                        <text className="family-chart__value" x={cx} y={capY - 6} textAnchor="middle">{number(day.value)}</text>
+                      )}
+                    </g>
+                  );
+                })()}
                 {show && <text className="family-chart__tick" x={cx} y={height - 6} textAnchor="middle">{day.label}</text>}
               </g>
             );

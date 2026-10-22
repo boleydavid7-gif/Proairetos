@@ -9,6 +9,8 @@
 @import '../lamplight/bars.css';
 @import '../lamplight/material.css';
 @import '../lamplight/undo.css';
+@import '../lamplight/charts.css';
+@import '../lamplight/identity.css';
 
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */
@@ -113,35 +115,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
   background-size: 180px 180px;
 }
 
-/* ---------- Waiting ---------- */
-
-.skeleton-stack { display: grid; gap: 12px; padding: 4px 0; }
-
-.skeleton {
-  min-height: 72px;
-  border-radius: 16px;
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0.035) 30%, rgba(255, 255, 255, 0.085) 50%, rgba(255, 255, 255, 0.035) 70%);
-  background-size: 220% 100%;
-  animation: premium-shimmer 1.5s linear infinite;
-}
-
-.skeleton-stack--lines { gap: 14px; }
-.skeleton--lines { min-height: 0; height: 14px; border-radius: 7px; }
-.skeleton--rows { min-height: 56px; border-radius: 14px; }
-.skeleton--cards { min-height: 120px; }
-
-:root[data-theme='light'] .skeleton {
-  background: linear-gradient(100deg, rgba(0, 0, 0, 0.04) 30%, rgba(0, 0, 0, 0.09) 50%, rgba(0, 0, 0, 0.04) 70%);
-  background-size: 220% 100%;
-}
-
-@keyframes premium-shimmer {
-  from { background-position: 110% 0; }
-  to { background-position: -110% 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .skeleton { animation: none; }
   .list-card--button:hover, .card--link:hover { transform: none; }
 }
 

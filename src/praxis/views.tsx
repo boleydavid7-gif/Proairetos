@@ -342,7 +342,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
             {days.map((day, index) => (
               <div className="praxis-bar-group" key={day}>
                 <small className="praxis-bar-value">{minutes[index] ? formatMinutes(minutes[index]) : ''}</small>
-                {minutes[index] > 0 ? <div className="praxis-bar" style={{ height: `${Math.max(6, (minutes[index] / max) * 100)}%` }} /> : <div className="praxis-bar praxis-bar--none" />}
+                {minutes[index] > 0 ? <div className="praxis-bar ll-rise ll-lit ll-travel" style={{ height: `${Math.max(6, (minutes[index] / max) * 100)}%`, '--i': index } as CSSProperties} /> : <div className="praxis-bar praxis-bar--none" />}
                 <span className={day === today ? 'is-today' : undefined}>{formatDay(day).slice(0, 2)}</span>
               </div>
             ))}

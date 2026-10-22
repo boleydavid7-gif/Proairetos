@@ -1,4 +1,4 @@
-/* Plain charts (charts.tsx): hairline grid, 2 px lines, ringed dots, a quiet wash for one series. */
+/* Plain charts (charts.tsx): hairline grid, 2 px lines, ringed dots, a quiet wash for one series, lit by the lamp. */
 
 .family-chart {
   margin: 0;
@@ -7,6 +7,8 @@
   --chart-surface: var(--surface, #171c24);
   --chart-0: var(--mint, #9cb8e0);
   --chart-1: #c27632;
+  /* The lamp's light catching the top of a mark: the series color lifted toward white, never another hue. */
+  --chart-lit: color-mix(in srgb, var(--chart-0) 62%, white);
 }
 
 /* Two series take a validated pair (blood pressure); one series keeps the app's accent. */
@@ -100,10 +102,39 @@
   stroke: var(--chart-1);
 }
 
+.family-chart__wash-top { stop-color: var(--chart-0); stop-opacity: 0.2; }
+.family-chart__wash-foot { stop-color: var(--chart-0); stop-opacity: 0; }
+
 .family-chart__wash {
-  fill: var(--chart-0);
-  opacity: 0.1;
+  animation: family-chart-fade 700ms 200ms var(--ll-ease-out, ease-out) both;
 }
+
+/* The line draws itself in once, left to right. */
+.family-chart__line {
+  animation: family-chart-draw 900ms var(--ll-ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) backwards;
+}
+
+/* The newest point lands with one ripple of light. */
+.family-chart__dot--end {
+  animation: family-chart-fade 240ms 760ms ease-out both;
+}
+
+.family-chart__ripple {
+  fill: none;
+  stroke: var(--chart-0);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: family-chart-ripple 1100ms 820ms var(--ll-ease-out, ease-out) both;
+}
+
+.family-chart__ripple--1 { stroke: var(--chart-1); }
+
+/* The dash exists only while drawing, so the finished line reaches its last point exactly. */
+@keyframes family-chart-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
+@keyframes family-chart-fade { from { opacity: 0; } }
+@keyframes family-chart-ripple { 0% { opacity: 0.7; scale: 1; } 100% { opacity: 0; scale: 3.2; } }
 
 .family-chart__dot {
   fill: var(--chart-0);
@@ -113,6 +144,14 @@
 
 .family-chart__dot--1 {
   fill: var(--chart-1);
+}
+
+.family-chart__focus {
+  transition: transform 180ms var(--ll-ease-out, ease-out);
+}
+
+.family-chart__focus circle {
+  transition: cy 180ms var(--ll-ease-out, ease-out);
 }
 
 .family-chart__cross {
@@ -125,12 +164,32 @@
   fill: transparent;
 }
 
-.family-chart__bar {
-  fill: var(--chart-0);
+.family-chart__bar-top { stop-color: var(--chart-lit); }
+.family-chart__bar-foot { stop-color: var(--chart-0); }
+
+/* Columns: lit from the top, a hairline of light on the cap; while one is read the others step back. */
+.family-chart__column {
+  transition: opacity 200ms var(--ll-ease-out, ease-out);
 }
 
-.family-chart__bar.is-on {
-  opacity: 0.8;
+.family-chart.is-reading .family-chart__column:not(.is-on) {
+  opacity: 0.42;
+}
+
+.family-chart__cap {
+  stroke: white;
+  stroke-opacity: 0.55;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.family-chart__value {
+  fill: var(--text-soft, var(--muted));
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  animation: family-chart-fade 300ms 650ms ease-out both;
 }
 
 .family-chart__tip {
@@ -149,6 +208,23 @@
   white-space: nowrap;
   pointer-events: none;
   box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+  transition: left 180ms var(--ll-ease-out, ease-out);
+  animation: family-chart-fade 160ms ease-out both;
+}
+
+:root[data-theme='light'] .family-chart__cap { stroke-opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .family-chart__line,
+  .family-chart__wash,
+  .family-chart__dot--end,
+  .family-chart__value,
+  .family-chart__tip { animation: none; }
+  .family-chart__ripple { display: none; }
+  .family-chart__focus,
+  .family-chart__focus circle,
+  .family-chart__tip,
+  .family-chart__column { transition: none; }
 }
 
 .family-chart__tip-row {

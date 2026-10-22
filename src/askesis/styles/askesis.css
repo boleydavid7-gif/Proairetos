@@ -18,7 +18,7 @@
   --serif: 'EB Garamond', Georgia, serif;
   --sans: Inter, system-ui, -apple-system, sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --tab-height: calc(64px + env(safe-area-inset-bottom));
+  --tab-height: calc(68px + env(safe-area-inset-bottom));
   color-scheme: dark;
   --bar: var(--ll-mica, rgba(9, 12, 11, 0.94));
   --placeholder: var(--app-text-muted, #77837e);
@@ -447,7 +447,7 @@ p {
   bottom: 0;
   z-index: 10;
   height: var(--tab-height);
-  padding: 6px max(8px, env(safe-area-inset-left)) env(safe-area-inset-bottom);
+  padding: 10px max(8px, env(safe-area-inset-left)) env(safe-area-inset-bottom);
   display: flex;
   justify-content: space-around;
   align-items: flex-start;

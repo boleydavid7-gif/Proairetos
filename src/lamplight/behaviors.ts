@@ -372,10 +372,10 @@ function largeTitle(): void {
 export const DOCKS = '.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav';
 
 /*
- * Every phone dock marks the place you are on with a tonal pill centered on that place's icon. Where the place sits is measured, not assumed: docks have their own padding and gaps, and lose places to the
+ * Every phone dock marks the place you are on with the lamp's line along its top edge, over that place's icon. Where the place sits is measured, not assumed: docks have their own padding and gaps, and lose places to the
  * top bar on phones, so fixed fractions of the width drifted off center, and a fixed top left the pill above or below
- * the icon. The icon's center goes on the dock as --ll-dock-x and --ll-dock-y (material.css draws the pill); it
- * slides between places only once it has been placed the first time.
+ * the icon. The icon's center goes on the dock as --ll-dock-x (and --ll-dock-y, for anything drawn at the icon's
+ * height); bars.css draws the line, which slides, stretching a little on the way, once placed the first time.
  */
 function dockMarks(): void {
   let frame = 0;
@@ -391,7 +391,15 @@ function dockMarks(): void {
         const mark = icon.getBoundingClientRect();
         const x = `${(mark.left + mark.width / 2 - box.left - dock.clientLeft).toFixed(1)}px`;
         const y = `${(mark.top + mark.height / 2 - box.top - dock.clientTop).toFixed(1)}px`;
-        if (dock.style.getPropertyValue('--ll-dock-x') !== x) dock.style.setProperty('--ll-dock-x', x);
+        const was = dock.style.getPropertyValue('--ll-dock-x');
+        if (was !== x) {
+          dock.style.setProperty('--ll-dock-x', x);
+          if (was && dock.classList.contains('ll-dock-ready') && Math.abs(parseFloat(was) - parseFloat(x)) > 4) {
+            dock.classList.add('ll-dock-moving');
+            window.clearTimeout(Number(dock.dataset.llMoving));
+            dock.dataset.llMoving = String(window.setTimeout(() => dock.classList.remove('ll-dock-moving'), 200));
+          }
+        }
         if (dock.style.getPropertyValue('--ll-dock-y') !== y) dock.style.setProperty('--ll-dock-y', y);
       }
       if (dock.classList.contains('ll-dock-marked') !== marked) dock.classList.toggle('ll-dock-marked', marked);

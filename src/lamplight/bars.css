@@ -306,7 +306,16 @@
   }
 
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-ready::after {
-    transition: left var(--ll-calm, 360ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)), opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+    transition:
+      left var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)),
+      width var(--ll-calm, 240ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)),
+      opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+  }
+
+  /* On its way to another place the line stretches a little, like light drawn across, and settles back on arrival
+     (dockMarks sets ll-dock-moving for the first part of the slide). */
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-moving::after {
+    width: calc(var(--ll-nav-indicator-width, 28px) * 1.75);
   }
 
   :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {

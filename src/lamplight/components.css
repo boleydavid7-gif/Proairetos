@@ -472,6 +472,13 @@
   animation: ll-skeleton 1.5s var(--ll-ease-in-out) infinite;
 }
 
+/* A stack of them standing in for what is on its way (Placeholder.tsx): lines of text, list rows or cards. */
+.ll-skeleton-stack { display: grid; gap: 12px; padding: 4px 0; }
+.ll-skeleton-stack--lines { gap: 14px; }
+.ll-skeleton--lines { height: 14px; min-height: 0; border-radius: 7px; }
+.ll-skeleton--rows { min-height: 56px; border-radius: var(--ll-radius-md, 14px); }
+.ll-skeleton--cards { min-height: 120px; border-radius: var(--ll-radius-lg, 18px); }
+
 @keyframes ll-skeleton {
   from { background-position: 100% 0; }
   to { background-position: -100% 0; }
@@ -580,35 +587,42 @@
   margin-top: var(--ll-space-5);
 }
 
+/* The snackbar: a raised tonal pill with one action, the family's undo bar (undo.tsx places and moves it). */
 .ll-snackbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ll-space-4);
-  width: min(32rem, calc(100vw - var(--ll-space-6)));
-  min-height: var(--ll-control-lg);
-  padding: var(--ll-space-2) var(--ll-space-3) var(--ll-space-2) var(--ll-space-4);
-  border: 1px solid var(--ll-outline-variant);
-  border-radius: var(--ll-radius-md);
-  background: var(--ll-surface-container-highest);
-  color: var(--ll-on-surface);
-  box-shadow: var(--ll-light-2);
+  gap: var(--ll-space-3);
+  width: max-content;
+  max-width: min(35rem, calc(100vw - var(--ll-space-6)));
+  min-height: 52px;
+  padding: 6px 6px 6px 18px;
+  border-radius: var(--ll-radius-pill, 999px);
+  background: var(--ll-surface-container-highest, var(--ll-raised, #26323f));
+  color: var(--ll-on-surface, #eef2f6);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), var(--ll-light-2, 0 0 0 transparent);
+  font-family: var(--ll-sans, inherit);
+  font-size: var(--text-md, 1rem);
+  line-height: 1.3;
 }
+.ll-snackbar:not(:has(.ll-snackbar__action)) { padding-right: 18px; }
+.ll-snackbar__text { flex: 1 1 auto; min-width: 0; padding: 6px 0; }
 
 .ll-snackbar__action {
   flex: none;
-  min-height: var(--ll-control-sm);
-  padding-inline: var(--ll-space-3);
+  min-height: 40px;
+  padding: 0 16px;
   border: 0;
-  border-radius: var(--ll-radius-pill);
-  background: transparent;
-  color: var(--ll-lamp);
-  font: var(--ll-type-label);
+  border-radius: var(--ll-radius-pill, 999px);
+  background: var(--ll-tonal, rgba(255, 255, 255, 0.08));
+  color: var(--ll-lamp, currentColor);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
 .ll-snackbar__action:is(:hover, :focus-visible) {
-  background: var(--ll-state-hover);
+  background: var(--ll-tonal-strong, var(--ll-state-hover));
 }
 
 .ll-empty {

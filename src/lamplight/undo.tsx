@@ -79,6 +79,7 @@ function dockTop(): number | undefined {
 }
 
 function fixedAt(y: number): Element | undefined {
+  if (typeof document.elementFromPoint !== 'function') return undefined;
   for (let element = document.elementFromPoint(innerWidth / 2, y); element && element !== document.body; element = element.parentElement) {
     if (element.classList.contains('ll-undo')) return undefined;
     const position = getComputedStyle(element).position;
@@ -99,16 +100,16 @@ export function UndoBar() {
   if (!offer) return null;
   return (
     <div
-      className={`ll-undo${offer.leaving ? ' is-leaving' : ''}`}
+      className={`ll-snackbar ll-undo${offer.leaving ? ' is-leaving' : ''}`}
       role="status"
       key={offer.id}
       style={lift === undefined ? undefined : ({ '--ll-undo-lift': `${lift}px` } as CSSProperties)}
     >
-      <span className="ll-undo__text">{offer.message}</span>
+      <span className="ll-snackbar__text">{offer.message}</span>
       {offer.run && (
         <button
           type="button"
-          className="ll-undo__action"
+          className="ll-snackbar__action"
           onClick={() => {
             window.clearTimeout(timer);
             const run = offer.run;

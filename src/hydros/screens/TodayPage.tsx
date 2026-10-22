@@ -68,7 +68,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
           </p>
           {settings.goalChosen ? (
             <>
-              <div className="hydros-amount__bar" role="presentation"><span style={{ width: `${percent}%` } as CSSProperties} /></div>
+              <div className="hydros-amount__bar ll-signature" role="presentation"><span className="ll-grow ll-lit ll-lit--end" style={{ width: `${percent}%` } as CSSProperties} /></div>
               <p className="hydros-amount__line">{remaining > 0 ? `${formatVolume(remaining, unit)} ${unit} to go` : 'Daily amount reached'}</p>
               {extra > 0 && <p className="hydros-amount__note">{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</p>}
             </>

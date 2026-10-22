@@ -1,11 +1,12 @@
+import type { CSSProperties } from 'react';
 import { flatten, type Part } from '../core/workouts';
 
-/** The session at a glance: one block per stretch, as long as it lasts, colored by effort. */
+/** The session at a glance: one block per stretch, as long as it lasts, colored by effort; the stretches grow in, in order. */
 export default function SessionBar({ parts, small, large }: { parts: readonly Part[]; small?: boolean; large?: boolean }) {
   return (
-    <div className={`session-bar${small ? ' session-bar--small' : ''}${large ? ' session-bar--large' : ''}`} aria-hidden="true">
+    <div className={`session-bar ll-signature${small ? ' session-bar--small' : ''}${large ? ' session-bar--large' : ''}`} aria-hidden="true">
       {flatten(parts).map((item, i) => (
-        <span key={i} className={`session-bar__seg session-bar__seg--${item.effort}`} style={{ flexGrow: item.minutes }} />
+        <span key={i} className={`session-bar__seg session-bar__seg--${item.effort}${small ? '' : ' ll-grow ll-lit'}`} style={{ flexGrow: item.minutes, '--i': i } as CSSProperties} />
       ))}
     </div>
   );

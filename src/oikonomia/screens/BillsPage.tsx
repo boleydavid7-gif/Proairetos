@@ -1,3 +1,4 @@
+import { Placeholder } from '../../lamplight/Placeholder';
 import type { Nav } from '../app/App';
 import { ChevronIcon, PlusIcon, BillsIcon } from '../app/icons';
 import { formatDate, formatMoney, relativeDue, standing, type Bill } from '../core/bills';
@@ -27,7 +28,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       </PageTop>
 
       {!bills ? (
-        <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /><div className="skeleton" /></div>
+        <Placeholder label="Gathering what you keep here" count={3} />
       ) : ordered.length === 0 && settled.length === 0 ? (
         <Empty icon={<BillsIcon size={28} />} title="No bills yet" line="Bills, subscriptions and anything that comes around, with their dates.">
           <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>

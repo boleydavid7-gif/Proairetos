@@ -1,3 +1,4 @@
+import { Placeholder } from '../../lamplight/Placeholder';
 import { useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, BellIcon, CalendarIcon, CheckIcon, RepeatIcon, WalletIcon } from '../app/icons';
@@ -23,7 +24,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
     if (found) setPaidText(amountText(found.amountCents));
   }, [found?.amountCents]);
 
-  if (!bills) return <div className="page oiko-page"><div className="skeleton-stack" role="status" aria-label="Gathering this bill"><div className="skeleton" /><div className="skeleton" /></div></div>;
+  if (!bills) return <div className="page oiko-page"><Placeholder label="Gathering this bill" count={2} /></div>;
   if (!found) return <div className="page oiko-page"><PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button></PageTop><h1 className="title">That bill is not here</h1></div>;
   const bill = found;
   const stand = standing(bill, today);

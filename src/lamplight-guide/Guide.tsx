@@ -5,18 +5,22 @@ import { THEMED_APPS, appTheme } from '../lamplight/apps';
 import { wallpaperSvg } from '../app/wallpaper';
 import { GLYPHS, IconButton, LampIcon, type GlyphName } from '../lamplight/icons';
 import { LAMPLIGHT_CHANGES, LAMPLIGHT_VERSION } from '../lamplight/version';
+import { APP_IDENTITY, LIGHT_TINTS, patternImage } from '../lamplight/identity';
+import { Placeholder } from '../lamplight/Placeholder';
+import { RollingNumber } from '../lamplight/RollingNumber';
+import { ColumnChart, LineChart } from '../app/family/charts';
 
 const ROOM_NAMES = Object.keys(ROOM_SEEDS) as RoomName[];
 const LAMP_NAMES = Object.keys(LAMP_SEEDS) as LampName[];
 
 const APP_NAMES: Record<string, string> = {
   askesis: 'Askesis', soma: 'Soma', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', theoria: 'Theoria', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia',
 };
 const APP_PLACES: Record<string, string> = {
   askesis: 'a lakeside path at sunset', soma: 'a kitchen garden', oikonomia: 'a valley at dusk', hydros: 'water at evening', praxis: 'a green study',
   theoria: 'a reading room at night', diaita: 'a night sky turning to dawn', philia: 'two trees by a warm lake', ergon: 'a house with a lit window',
-  therapeia: 'a misty blue lake', dynamis: 'amber peaks', ktema: 'a barn in golden fields', phyton: 'a glasshouse in a green valley',
+  therapeia: 'a misty blue lake', dynamis: 'amber peaks', ktema: 'a barn in golden fields', phyton: 'a glasshouse in a green valley', poreia: 'a coast at dusk with a lighthouse',
 };
 
 type LampChoice = LampName | 'match' | 'own';
@@ -86,6 +90,11 @@ export default function Guide() {
   const [lampChoice, setLampChoice] = useState<LampChoice>('match');
   const [hue, setHue] = useState(200);
   const [mode, setMode] = useState<Mode>(() => (window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  // Example figures for the motion pieces: a total that counts, a week of columns and a line that travel to new values.
+  const [figure, setFigure] = useState(1250);
+  const [round, setRound] = useState(0);
+  const week = useMemo(() => [20, 45, 30, 60, 0, 35, 50].map((value, index) => Math.max(0, value + ((round * 17 + index * 23) % 40) - 15)), [round]);
+  const trend = useMemo(() => [72.4, 72.1, 71.9, 72.2, 71.6, 71.3, 71.5, 70.9].map((value, index) => Math.round((value + (((round * 7 + index * 3) % 9) - 4) / 10) * 10) / 10), [round]);
   const [switchOn, setSwitchOn] = useState(true);
   const [chip, setChip] = useState('Week');
 
@@ -225,6 +234,30 @@ export default function Guide() {
                     <i style={{ background: a.inset }} />
                     <i style={{ background: a.lampFill }} />
                   </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+
+        <Section id="identity" title="Each app its own character" lead="Inside the shared system an app makes only these choices: the quality of its light, one faint wall pattern, its tempo, how its figures sit, one shape accent, and the one element only it has. Everything else stays shared, and every choice is held to the same contrast.">
+          <ul className="g-identities">
+            {['proairetos', ...THEMED_APPS].map((app) => {
+              const identity = APP_IDENTITY[app];
+              if (!identity) return null;
+              return (
+                <li key={app} className="g-identity">
+                  <span className="g-identity__wall" aria-hidden="true" style={{ backgroundImage: `radial-gradient(ellipse 80% 90px at 64% -20px, color-mix(in srgb, ${LIGHT_TINTS[identity.light]} 30%, transparent), transparent 75%), ${patternImage(identity.pattern, mode)}` }} />
+                  <strong>{APP_NAMES[app] ?? 'Proairetos'}</strong>
+                  <span className="g-identity__line">{identity.character}</span>
+                  <dl>
+                    <div><dt>Light</dt><dd><i style={{ background: LIGHT_TINTS[identity.light] }} />{identity.light}</dd></div>
+                    <div><dt>Pattern</dt><dd>{identity.pattern}</dd></div>
+                    <div><dt>Tempo</dt><dd>{identity.tempo}</dd></div>
+                    <div><dt>Figures</dt><dd>{identity.numerals}</dd></div>
+                    <div><dt>Shape</dt><dd>{identity.shape}</dd></div>
+                    <div><dt>Signature</dt><dd>{identity.signature}</dd></div>
+                  </dl>
                 </li>
               );
             })}
@@ -445,9 +478,19 @@ export default function Guide() {
 
             <div className="ll-card g-stack">
               <h3>Loading and feedback</h3>
-              <span className="ll-skeleton" style={{ width: '72%' }} />
-              <span className="ll-skeleton" style={{ width: '94%' }} />
-              <div className="ll-snackbar"><span>Saved on this device</span><button type="button" className="ll-snackbar__action">Undo</button></div>
+              <Placeholder label="An example of waiting" kind="lines" count={3} />
+              <div className="ll-snackbar"><span className="ll-snackbar__text">“Stretch” deleted</span><button type="button" className="ll-snackbar__action">Undo</button></div>
+              <p className="g-figure">
+                <RollingNumber value={figure} format={(n) => `${Math.round(n).toLocaleString()} ml`} />
+                <button type="button" className="ll-button ll-button--tonal" onClick={() => setFigure((value) => value + 250)}>Add 250</button>
+              </p>
+            </div>
+
+            <div className="ll-card g-stack g-charts">
+              <h3>Charts</h3>
+              <ColumnChart title="Minutes, last 7 days" unit="min" days={week.map((value, index) => ({ label: 'MTWTFSS'[index], long: `Day ${index + 1}`, value }))} />
+              <LineChart title="Weight, kg" series={[{ name: 'Weight' }]} points={trend.map((value, index) => ({ at: Date.UTC(2026, 8, 1 + index * 4), values: [value] }))} />
+              <button type="button" className="ll-button ll-button--tonal" onClick={() => setRound((value) => value + 1)}>New values</button>
             </div>
 
             <div className="ll-card g-stack">
@@ -485,6 +528,11 @@ export default function Guide() {
             <div><dt>A card opens</dt><dd>The card tapped grows into the new page&rsquo;s title while the page arrives</dd></div>
             <div><dt>The tab hands off</dt><dd>The new tab lights at once and the old one dims slowly, so the light passes along the bar</dd></div>
             <div><dt>Held</dt><dd>A sheet pulled down or a page swiped from the left edge follows the finger; a third of the way or a flick finishes it, less springs back past its place and settles</dd></div>
+            <div><dt>Lists</dt><dd>When a tap adds, finishes or takes away a row, the rows around it glide to their places; a new one fades up, one taken away fades where it was</dd></div>
+            <div><dt>Figures</dt><dd>A total counts to its new value; screen readers hear only where it lands</dd></div>
+            <div><dt>Bars and lines</dt><dd>Columns rise from their baseline one after another, lit on their caps; a line draws itself in and its newest point gives one ripple; new values travel rather than jump</dd></div>
+            <div><dt>Where you are</dt><dd>The lamp&rsquo;s line along the dock&rsquo;s top edge glides to the new place and stretches a little on the way</dd></div>
+            <div><dt>Pulled far enough</dt><dd>A row pulled to its action lights up and gives one small tap as the line is crossed</dd></div>
             <div><dt>The large title</dt><dd>On phones a page&rsquo;s title folds into a compact bar as it scrolls under the top, with a back chevron when there is a way back</dd></div>
           </dl>
         </Section>

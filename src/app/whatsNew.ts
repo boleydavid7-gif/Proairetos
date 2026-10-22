@@ -3,7 +3,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
-      'The pill that marks the tab you are on now sits centered on its icon in every app.',
+      'Each app has a little more of its own character: the color of its light at the top of a page, a faint pattern in the wall (water lines in Hydros, a ledger in Oikonomia, stars in Diaita, leaves in Phyton), and its own pace of movement.',
+      'Charts and bars come alive: columns rise one after another with light on their tops, lines draw themselves in, and new values glide into place. Touch a column to read it while the others step back.',
+      'The tab you are on is marked by a line again, centered over its icon, which glides and stretches a little as you move between tabs.',
       'One undo bar in every app, in the same place with the same timing; totals count up in Praxis, Askesis, Dynamis and Poreia; recipe and book grids glide when something is added or taken away; a row pulled far enough lights up and gives a small tap; and pages that take a moment show the shape of what is coming.',
       'A row you take away now fades out while the rows below close the gap, Oikonomia’s totals count to their new amount, and undo messages keep to one line where there is room.',
       'Buttons give a little under your finger and spring back, lists glide when you add, finish or undo something, chosen chips show a check, and Hydros’s total counts up.',

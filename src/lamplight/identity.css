@@ -1,0 +1,102 @@
+/*
+ * Each app's identity (identity.ts), set on the root by applyLamplight as data-ll-* attributes and two variables.
+ * Only these choices vary between apps; everything else in Lamplight is shared.
+ */
+
+/* ---------- Light and pattern: the top of the wall ---------- */
+/* A pool of the app's light at the top of the page (where the one lamp sits, LAMP_X .64) over its faint pattern.
+   Both scroll with the page and fade out within the first screen; pictures and heroes cover them where they sit. */
+:root[data-ll-pattern] body {
+  background-image:
+    radial-gradient(ellipse 70% 340px at 64% -60px, color-mix(in srgb, var(--ll-light-tint) 15%, transparent), transparent 72%),
+    var(--ll-pattern-image, none);
+  background-repeat: no-repeat, repeat-x;
+  background-size: 100% 460px, auto 440px;
+  background-position: 0 0, 0 0;
+}
+
+:root[data-ll-pattern][data-theme='light'] body {
+  background-image:
+    radial-gradient(ellipse 70% 340px at 64% -60px, color-mix(in srgb, var(--ll-light-tint) 22%, transparent), transparent 72%),
+    var(--ll-pattern-image, none);
+}
+
+/* Proairetos draws its own wallpaper (app/wallpaper.ts); its body keeps that. */
+:root[data-ll-pattern='none'][data-ll-light='lamp'] body {
+  background-image: none;
+}
+
+/* Lit marks take the app's light, not plain white. */
+:root[data-ll-light] .ll-lit::after {
+  background: linear-gradient(var(--ll-lit-angle, 180deg), color-mix(in srgb, var(--ll-light-tint) 34%, transparent), transparent 70%);
+}
+
+:root[data-ll-light] .family-chart {
+  --chart-lit: color-mix(in srgb, var(--chart-0) 60%, var(--ll-light-tint));
+}
+
+/* ---------- Tempo: which spring the app moves on ---------- */
+:root[data-ll-tempo='crisp'] {
+  --ll-calm: 200ms;
+  --ll-slow: 340ms;
+  --ll-spring: cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+:root[data-ll-tempo='fluid'] {
+  --ll-calm: 300ms;
+  --ll-slow: 560ms;
+  --ll-spring: cubic-bezier(0.25, 0.75, 0.2, 1);
+}
+
+:root[data-ll-tempo='slow'] {
+  --ll-calm: 340ms;
+  --ll-slow: 640ms;
+  --ll-spring: cubic-bezier(0.3, 0.7, 0.2, 1);
+  --ll-spring-lively: cubic-bezier(0.3, 1.15, 0.5, 1);
+}
+
+/* Nearly still: things settle without overshoot, quickly. */
+:root[data-ll-tempo='still'] {
+  --ll-calm: 200ms;
+  --ll-slow: 300ms;
+  --ll-spring-lively: var(--ll-spring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-ll-tempo] {
+    --ll-calm: 0ms;
+    --ll-slow: 0ms;
+  }
+}
+
+/* ---------- Numerals ---------- */
+:root[data-ll-numerals='tabular'] :is(.ll-figure, .family-chart__value) {
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-ll-numerals='clock'] :is(.ll-figure, .family-chart__value) {
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.01em;
+}
+
+:root[data-ll-numerals='plain'] .ll-figure {
+  font-variant-numeric: proportional-nums;
+}
+
+/* ---------- Shape accent: the signature element only ---------- */
+:root { --ll-signature-radius: var(--ll-radius-md, 14px); }
+:root[data-ll-shape='pill'], :root[data-ll-shape='drop'] { --ll-signature-radius: 999px; }
+:root[data-ll-shape='page'] { --ll-signature-radius: 4px; }
+:root[data-ll-shape='tile'] { --ll-signature-radius: 8px; }
+:root[data-ll-shape='soft'] { --ll-signature-radius: 18px; }
+:root[data-ll-shape='leaf'] { --ll-signature-radius: 999px 3px; }
+
+.ll-signature,
+.ll-signature > * {
+  border-radius: var(--ll-signature-radius);
+}
+
+/* A drop's fill ends in a round bead of light. */
+:root[data-ll-shape='drop'] .ll-signature > .ll-lit--end {
+  box-shadow: inset -1.5px 0 0 rgba(255, 255, 255, 0.5), 4px 0 10px -2px color-mix(in srgb, var(--ll-light-tint) 55%, transparent);
+}

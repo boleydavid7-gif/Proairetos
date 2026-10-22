@@ -1,9 +1,8 @@
 /*
  * Lamplight 1.4, Material meets Mica: Material 3's structure on opaque, room-tinted surfaces, with very little
  * see-through anywhere. Cards are filled tonal surfaces without outlines (Material's filled card); the tonal button
- * is an opaque secondary container; chips take Material's 8 px corners; the current place in a phone dock sits on a
- * tonal pill under its icon (Material's navigation-bar indicator) instead of a line; and the phone top bar's mica is
- * nearly solid. Imported after bars.css, so these win over the earlier shapes without !important.
+ * is an opaque secondary container; chips take Material's 8 px corners; and the phone top bar's mica is nearly
+ * solid. The current place in a phone dock keeps the lamp's line (bars.css): a pill was tried and set aside. Imported after bars.css, so these win over the earlier shapes without !important.
  */
 
 :root {
@@ -52,24 +51,10 @@
   color: var(--ll-on-tonal);
 }
 
-/* ---------- Phone docks: a tonal pill under the current place's icon ---------- */
+/* ---------- Phone docks ---------- */
+/* The current place is marked by the lamp's line along the dock's top edge (bars.css), not a pill (the owner's
+   choice); its label is a little heavier, in the app's own color. */
 @media (max-width: 61.99rem) {
-  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
-    z-index: 0;
-    top: calc(var(--ll-dock-y, 21px) - 15px);
-    width: 58px;
-    height: 30px;
-    border-radius: var(--ll-radius-pill, 999px);
-    background: color-mix(in srgb, var(--ll-dock-mark) 22%, var(--ll-material-mica, #101923));
-    box-shadow: none;
-  }
-
-  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* The current place's label and icon in the app's own color, a little heavier, as Material marks it. */
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) [aria-current='page'] {
     font-weight: 650;
   }

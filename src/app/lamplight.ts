@@ -1,3 +1,4 @@
+import { identityFor } from '../lamplight/identity';
 import type { Appearance } from '../data/storage/preferences';
 import { footSvg, wallpaperSvg } from './wallpaper';
 import { ownHue, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
@@ -87,6 +88,10 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s) : familyVars(s, app)) };
   for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
   root.dataset.room = appearance.room;
+  // The app's identity inside Lamplight: light, wall pattern, tempo, numerals, shape (lamplight/identity.ts).
+  const identity = identityFor(app, mode);
+  for (const [name, value] of Object.entries(identity.data)) root.dataset[name] = value;
+  for (const [name, value] of Object.entries(identity.vars)) root.style.setProperty(name, value);
   if (isFamilyApp(app)) setBarMark(familyMarkSvg(app));
   return s.page;
 }

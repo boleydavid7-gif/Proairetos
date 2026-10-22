@@ -1,3 +1,4 @@
+import { Placeholder } from '../../lamplight/Placeholder';
 import { Total } from '../app/Total';
 import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
@@ -64,7 +65,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
 
       <div className="page page--under-hero">
         {!bills ? (
-          <div className="skeleton-stack" role="status" aria-label="Gathering what you keep here"><div className="skeleton" /><div className="skeleton" /></div>
+          <Placeholder label="Gathering what you keep here" count={2} />
         ) : all.length === 0 ? (
           <>
             <section className="card oiko-empty first-run">

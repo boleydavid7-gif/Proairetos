@@ -223,8 +223,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Lamplight 1.4, Material meets Mica (`src/lamplight/material.css`, imported after `bars.css`; the owner's choice: Material 3
   structure on opaque, room-tinted surfaces, very little transparency): cards and grouped lists are filled tonal surfaces
   with no outline; `.button-quiet` is Material's tonal button (`--ll-tonal`, the lamp mixed 16% into the card, opaque);
-  chips take 8 px corners with the tonal container when chosen; every phone dock marks the current place with a tonal
-  pill behind its icon (the `::after` measured by `dockMarks`, 58 x 30, centered on the icon itself both ways: `--ll-dock-x`/`--ll-dock-y`, re-measured after a dock transition ends; a fixed top left it up to 6 px off); the phone top bar's mica is 94% solid; `--text-xs`
+  chips take 8 px corners with the tonal container when chosen; every phone dock marks the current place with the lamp's
+  line along its top edge (the owner preferred it to a tonal pill): `dockMarks` centers it on the icon itself (`--ll-dock-x`, also
+  `--ll-dock-y`; re-measured after a dock transition ends), it slides on `--ll-spring` and stretches 1.75x while moving
+  (`ll-dock-moving`, 200 ms); the phone top bar's mica is 94% solid; `--text-xs`
   is 13 px and `--text-sm` 15 px.
   Round 2: Hydros's Today rebuilt on the family hero (`hero hero--tall` with `hydros-sunset`, `home__title`), the day's amount as
   one large figure with a bar (`.hydros-amount`), usual glasses as full-size tonal buttons (`.hydros-glass`), drinks as one
@@ -250,7 +252,24 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `app/undo.tsx` and Askesis/Soma's `UndoProvider` re-export or wrap it, Proairetos's `OverlayProvider.offerUndo`
   passes through, Praxis and Theoria call it, Passkeys calls it directly. It sits 12 px above whatever fixed bar is at
   the foot (measured, stacked bars too), bottom right from 62rem; enters on the lively spring, leaves in 200 ms.
-  Do not add another toast. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
+  Do not add another toast.
+- Lamplight 1.5: the undo bar is the `.ll-snackbar` component (components.css; `undo.css` only places and moves it);
+  `Placeholder` draws `.ll-skeleton` stacks (the older `.skeleton` is gone). Charts (`app/family/charts.tsx`, `charts.css`):
+  values travel through `useTweened` (`lamplight/tween.ts`: `from`, `stagger`, `easeSpring`), columns rise from 0 one after
+  another with a lit gradient and a hairline cap, the latest column's value on its cap, others step back (0.42) while one is
+  read; a line draws in once (`pathLength=1`, the dash only during the animation, fill `backwards`), its wash fades down,
+  the newest point ripples once, the readout glides. Bars each app draws itself use `lamplight/charts.css`: `.ll-rise`
+  (`--i` stagger), `.ll-grow`, `.ll-lit` (an `::after` light layer, `--ll-lit-angle`, `.ll-lit--end`), `.ll-travel`,
+  `.ll-draw`, `.ll-land` (Praxis Time, Hydros Flow and amount, Oikonomia plan, Askesis session bar).
+- App identity (`lamplight/identity.ts`, `identity.css`): `APP_IDENTITY` per app (light, wall pattern, tempo, numerals,
+  shape accent, signature, character), set by `applyLamplight` as `data-ll-light|pattern|tempo|numerals|shape` and
+  `--ll-light-tint`, `--ll-pattern-image` (a 120 x 440 SVG tile fading downward, ink at 5.5% dark / 5% light). The body
+  gets the light's pool at the top and the pattern (Proairetos keeps its wallpaper: `none`/`lamp`); tempo overrides
+  `--ll-calm`/`--ll-slow`/`--ll-spring`; `.ll-figure` (RollingNumber) follows numerals; `.ll-signature` takes the shape
+  accent (Hydros amount bar, Askesis session bar, Oikonomia plan bar). The guide shows every identity (`#identity`) and
+  live charts. Only these choices vary; add an app's identity there, never per-app overrides of shared parts.
+- `scripts/layout-check/check.mjs` measures the dock line over its icon, top-bar icons centered and 44 px, and the undo
+  bar clear of the dock, in every app, dark and light; run it after layout changes. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).

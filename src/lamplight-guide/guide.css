@@ -552,3 +552,58 @@ body {
 .g-icons__lit {
   color: var(--ll-lamp);
 }
+
+/* Each app's character: its wall (light and pattern) above the choices it makes. */
+.g-identities { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.g-identity { position: relative; display: grid; gap: 4px; padding: 76px 16px 16px; overflow: hidden; border-radius: var(--ll-radius-lg, 18px); background: var(--ll-card, #1b2633); color: var(--ll-ink, inherit); }
+.g-identity__wall { position: absolute; inset: 0 0 auto; height: 120px; background-repeat: no-repeat, repeat-x; background-size: 100% 120px, auto 440px; pointer-events: none; }
+.g-identity strong { position: relative; font-size: var(--text-lg, 1.1rem); }
+.g-identity__line { position: relative; color: var(--ll-ink-2, inherit); font-size: var(--text-sm, .95rem); }
+.g-identity dl { position: relative; display: grid; gap: 4px; margin: 8px 0 0; font-size: var(--text-sm, .95rem); }
+.g-identity dl div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 8px; }
+.g-identity dt { color: var(--ll-ink-2, inherit); }
+.g-identity dd { margin: 0; display: flex; align-items: center; gap: 6px; }
+.g-identity dd i { width: 12px; height: 12px; border-radius: 50%; }
+.g-figure { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; font-size: var(--text-2xl, 1.6rem); font-weight: 600; }
+
+/* The family's charts read the apps' color names; here they take the scheme's roles. */
+.g-charts .family-chart {
+  --text: var(--ll-ink);
+  --text-soft: var(--ll-ink-2);
+  --muted: var(--ll-ink-3, var(--ll-ink-2));
+  --line: var(--ll-hair);
+  --surface: var(--ll-card);
+  --surface-2: var(--ll-raised);
+  --mint: var(--ll-lamp);
+}
+
+/* The guide puts its live scheme on .g, not the root, so the roles derived from the scheme are worked out again here
+   (on the root they resolve before the scheme exists and fall back to the dark defaults). */
+.g {
+  --ll-surface-container-lowest: var(--ll-wall);
+  --ll-surface-container-low: var(--ll-page);
+  --ll-surface-container: var(--ll-card);
+  --ll-surface-container-high: var(--ll-inset);
+  --ll-surface-container-highest: var(--ll-raised);
+  --ll-on-surface: var(--ll-ink);
+  --ll-on-surface-variant: var(--ll-ink-2);
+  --ll-outline: var(--ll-ink-2);
+  --ll-outline-variant: var(--ll-hair);
+  --ll-inverse-surface: var(--ll-ink);
+  --ll-inverse-on-surface: var(--ll-page);
+  --ll-material-wall: var(--ll-wall);
+  --ll-material-page: var(--ll-page);
+  --ll-material-solid: var(--ll-card);
+  --ll-material-inset: var(--ll-inset);
+  --ll-material-raised: var(--ll-raised);
+  --ll-material-mica: var(--ll-mica, var(--ll-page));
+  --ll-material-mica-surface: var(--ll-mica-surface, var(--ll-material-mica));
+  --ll-tonal: color-mix(in srgb, var(--ll-lamp) 16%, var(--ll-card));
+  --ll-tonal-strong: color-mix(in srgb, var(--ll-lamp) 24%, var(--ll-card));
+  --app-accent: var(--ll-lamp);
+  --app-background: var(--ll-page);
+  --app-surface: var(--ll-card);
+  --app-surface-raised: var(--ll-raised);
+  --app-surface-overlay: var(--ll-raised);
+  --app-text-link: var(--ll-lamp);
+}
