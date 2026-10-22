@@ -102,6 +102,12 @@
 }
 
 
+.also-today__count {
+  margin-left: var(--space-1);
+  color: var(--color-accent-strong);
+  font-weight: 600;
+}
+
 .also-today .chip[aria-expanded='true'] {
   border-color: rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
   background: var(--color-accent-soft);

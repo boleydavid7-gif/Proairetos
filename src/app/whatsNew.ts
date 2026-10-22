@@ -4,7 +4,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-10-22',
     lines: [
       'The first time you write down something with a time, Today offers once to allow reminders on this phone, so a time you set is a time you hear about.',
-      'Today: the capture box stays first even when Today has a card to show; the next thing says tomorrow or its weekday rather than "in 1 day"; the folded lists show their names, not running counts; choosing values is offered until you say Not now, then left to Compass.',
+      'Today: the capture box stays first even when Today has a card to show; the next thing says tomorrow or its weekday rather than "in 1 day"; choosing values is offered until you say Not now, then left to Compass.',
       'Empty your head files "Idea: …" as an idea without keeping the label in its title.',
       'Smoother moves: in every app a new page comes in from the side you went (forward from the right, back from the left, tabs by their order); Proairetos\'s main tabs fade in instead of cutting; and going from one app to another, the old one eases back while the new one settles in, with the bar staying in place.',
       'On a computer: Askesis\'s home stays one column until there is a plan, Hydros\'s title lines up with its page, pages without a picture start with room above their title, and an empty list\'s button keeps a button\'s width. Hydros Settings uses the same rows, tiles and switches as the other apps.',

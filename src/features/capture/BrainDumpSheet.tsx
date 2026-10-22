@@ -69,7 +69,7 @@ export default function BrainDumpSheet({ onClose }: { onClose: () => void }) {
         {rows === null ? (
           <>
             <p className="sheet__hint">
-              Everything at once, in any order. Nothing is saved until you say so.
+              Everything at once, in any order.
             </p>
             <div className="dump-box">
               <textarea

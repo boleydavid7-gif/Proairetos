@@ -24,6 +24,8 @@ rule: **the system records life; it does not interpret life.**
   demanding test case, not the target.
 - Never a chore: everything is offered, never asked twice; nothing
   piles up or needs catching up; one tap, under a minute.
+- No reassurance lines anywhere, the welcome back included (owner's rule): say the fact ("It has been 17 days.") and the
+  actions. Things that pile up are what sorting is for; counts on Today's folded chips stay.
 - Wording: short and functional, like Things, Todoist, Apple Reminders, Strava, Paprika, Kindle. Optional fields say "(optional)", not "if you like"; titles are names ("New highlight", "Add a book"), not sentences with a full stop; no reassurance lines ("nothing is counted", "whenever you like"), no "quietly", "gently" or poetic taglines outside the welcome screens.
 - American English everywhere (color, center, favorite, tire, canceled, practice, "comes around", cilantro, fiber).
   Readers of outside text (Soma's ingredient lines, statements, photo text, calendar files) still accept British
@@ -288,8 +290,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - ADHD audit fixes: `CaptureBar` offers notification permission once, after the first capture with a time while
   permission is `default` (`remindOfferSeen` / `markRemindOfferSeen`, Allow asks from the tap); on Today the capture box
   sits above the day's one message (pause offer, welcome back, values); `NowCard` says when the next thing is with
-  `whenText` (a countdown today, else "tomorrow" or the weekday); Today's folded chips (`AlsoToday`) carry names only, no
-  counts; the values invitation's "Not now" sets it aside for good (`isValuesInviteSetAside`) until values are chosen.
+  `whenText` (a countdown today, else "tomorrow" or the weekday); the values invitation's "Not now" sets it aside for good (`isValuesInviteSetAside`) until values are chosen.
 - Page motion: `transition()` (app/transitions.ts) uses view transitions only in Proairetos; elsewhere (and for
   Proairetos's main tabs, which keep the dock out of a snapshot) it calls `markEnter(direction)`, which sets
   `html[data-enter]` before the new page mounts; `lamplight/motion.css` runs one `ll-enter` (from `--ll-enter-x/y`: forward

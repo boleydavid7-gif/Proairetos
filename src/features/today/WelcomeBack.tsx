@@ -18,9 +18,9 @@ export default function WelcomeBack({ days, earlier, onDismiss, onCleared }: Pro
 
   return (
     <section className="welcome-back" aria-label="Welcome back">
-      <p className="welcome-back__title">Welcome back.</p>
+      <p className="welcome-back__title">Welcome back</p>
       <p className="welcome-back__text">
-        It has been {days} days. Nothing here is late. Start wherever you like.
+        It has been {days} days.
       </p>
 
       {earlier.length > 0 && (
