@@ -1528,3 +1528,15 @@
   margin-left: auto;
   text-align: right;
 }
+
+/* The trip at the top of Trips opens it. */
+.poreia-home__lead {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}

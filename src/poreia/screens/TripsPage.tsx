@@ -33,10 +33,18 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
         <div className="hero__shade" />
         <div className="hero__content">
           <Brand name="Poreia" mark={<AppMark app="poreia" size={30} light />} light />
-          <div className="home__words">
-            <h1 className="home__title">{lead ? lead.name : 'Trips'}</h1>
-            <p className="home__sub">{lead ? [phaseText(phaseOf(lead, day)), datesText(lead.start, lead.end)].filter(Boolean).join(' · ') : 'Where to next?'}</p>
-          </div>
+          {lead ? (
+            // The trip under way or next is a way into it, not only its name.
+            <button type="button" className="home__words poreia-home__lead" onClick={() => open(lead.id)}>
+              <h1 className="home__title">{lead.name}</h1>
+              <p className="home__sub">{[phaseText(phaseOf(lead, day)), datesText(lead.start, lead.end)].filter(Boolean).join(' · ')}</p>
+            </button>
+          ) : (
+            <div className="home__words">
+              <h1 className="home__title">Trips</h1>
+              <p className="home__sub">Where to next?</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -58,13 +66,14 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
             {lead && (leadPhase?.kind === 'now' || (leadPhase?.kind === 'ahead' && leadPhase.days <= 30)) && <NextUpCard trip={lead} nav={nav} day={day} home />}
 
             <div className="section-head">
-              <h2>{now.length ? 'Coming up' : 'Trips'}</h2>
+              <h2>Trips</h2>
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form' })}>
                 Plan a trip
               </button>
             </div>
-            {[...now.slice(1), ...ahead].length > 0 ? (
-              <ul className="rows">{[...now.slice(1), ...ahead].map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
+            {/* Every trip under way or ahead is listed, the one at the top too, so each can be opened and changed. */}
+            {[...now, ...ahead].length > 0 ? (
+              <ul className="rows">{[...now, ...ahead].map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
             ) : (
               <p className="muted">Nothing booked ahead.</p>
             )}
