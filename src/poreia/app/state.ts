@@ -3,6 +3,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { Booking, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
 import type { Spot } from '../core/spots';
 import { defaultSetup, type TimeOff, type TimeOffSetup } from '../core/timeOff';
+import { defaultTripNotices, type TripNoticeChoices } from '../core/notices';
 
 /*
  * Poreia keeps one record per key in browser storage, under `poreia:`, so each syncs (sealed) and backs up on its own.
@@ -18,6 +19,8 @@ export type PoreiaSettings = {
   temperature: 'C' | 'F';
   /** Time off is set up once its balance and growth are given. */
   timeOff?: TimeOffSetup;
+  /** Reminders for bookings and plans, sent through Proairetos's notices. */
+  notices: TripNoticeChoices;
 };
 
 const usesFahrenheit = () => typeof navigator !== 'undefined' && /^en-(US|LR|MM)/.test(navigator.language);
@@ -30,7 +33,7 @@ const localCurrency = () => {
   }
 };
 
-export const settings = stored<PoreiaSettings>('poreia:settings', () => ({ started: false, currency: localCurrency(), travelers: 1, temperature: usesFahrenheit() ? 'F' : 'C' }));
+export const settings = stored<PoreiaSettings>('poreia:settings', () => ({ started: false, currency: localCurrency(), travelers: 1, temperature: usesFahrenheit() ? 'F' : 'C', notices: defaultTripNotices }));
 
 export const trips = collection<Trip>('poreia:trip:');
 export const bookings = collection<Booking>('poreia:booking:');

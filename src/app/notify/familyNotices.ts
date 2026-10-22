@@ -20,6 +20,8 @@ import { plantNotices } from '../../phyton/core/notices';
 import { allPlants, myName as phytonName, settings as phytonSettings } from '../../phyton/app/state';
 import { forecastNow, rainNow } from '../../phyton/app/rain';
 import { weatherSettings } from '../weather/weather';
+import { tripNotices } from '../../poreia/core/notices';
+import { bookings as poreiaBookings, packing as poreiaPacking, plans as poreiaPlans, settings as poreiaSettings, trips as poreiaTrips } from '../../poreia/app/state';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
@@ -83,5 +85,8 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
       }),
     );
   }
+
+  const trips = poreiaTrips.list();
+  if (trips.length && isAdded('poreia')) notices.push(...tripNotices(trips, poreiaBookings.list(), poreiaPlans.list(), poreiaPacking.list(), poreiaSettings.load().notices, now, until));
   return notices;
 }

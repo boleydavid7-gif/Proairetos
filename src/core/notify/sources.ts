@@ -36,7 +36,7 @@ export function appNameForOpen(open: string): string {
 /** The app icon used by the shared worker and by an in-app notification. */
 export function iconForOpen(open: string): string {
   const app = appFromOpen(open);
-  return app === 'proairetos' ? '/icons/icon-192.png' : app === 'poreia' ? '/poreia/icon.svg' : `/${app}/icons/icon-192.png`;
+  return app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`;
 }
 
 export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
@@ -64,6 +64,8 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
       return 'ktema';
     case 'plant':
       return 'phyton';
+    case 'trip':
+      return 'poreia';
     default:
       return 'proairetos';
   }
@@ -89,7 +91,7 @@ export function sourcesToWrite(
   if (app === 'soma' || app === 'theoria') return [];
   if (app !== 'proairetos') return [app];
   const present = new Set(notices.map(sourceOf));
-  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
+  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
   return ['proairetos', ...others];
 }
 

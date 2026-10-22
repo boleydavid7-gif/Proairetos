@@ -28,7 +28,7 @@ describe('reminders from every app', () => {
     expect(iconForOpen('askesis')).toBe('/askesis/icons/icon-192.png');
     expect(iconForOpen('oikonomia:bill:1')).toBe('/oikonomia/icons/icon-192.png');
     expect(appNameForOpen('poreia:trip:1')).toBe('Poreia');
-    expect(iconForOpen('poreia:trip:1')).toBe('/poreia/icon.svg');
+    expect(iconForOpen('poreia:trip:1')).toBe('/poreia/icons/icon-192.png');
   });
 
   it('lets each app write only its own, so none removes another', () => {

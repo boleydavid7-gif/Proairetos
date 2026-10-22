@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   // Askesis, the training app, has its own service worker and cache; the other apps too, and the Lamplight guide
   // is a plain page of its own (never cached as Proairetos).
-  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton|lamplight)(\/|$)/.test(url.pathname)) return;
+  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton|poreia|lamplight)(\/|$)/.test(url.pathname)) return;
 
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
@@ -117,7 +117,7 @@ async function readJson(cache, path, fallback) {
 
 const APP_NAMES = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia',
 };
 
 function appFor(open) {
@@ -125,7 +125,7 @@ function appFor(open) {
   if (open === 'oikonomia' || (open && open.startsWith('oikonomia:'))) return 'oikonomia';
   if (open === 'hydros' || (open && open.startsWith('hydros:'))) return 'hydros';
   if (open === 'praxis' || (open && open.startsWith('praxis:'))) return 'praxis';
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton']) if (open === app || (open && open.startsWith(app + ':'))) return app;
+  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia']) if (open === app || (open && open.startsWith(app + ':'))) return app;
   return 'proairetos';
 }
 
@@ -274,14 +274,14 @@ self.addEventListener('push', (event) => {
 
 // A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; Hydros, Praxis,
 // Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
-const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/', '/therapeia/', '/dynamis/', '/ktema/', '/phyton/'];
+const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/', '/therapeia/', '/dynamis/', '/ktema/', '/phyton/', '/poreia/'];
 
 function placeFor(open) {
   if (open === 'hydros') return { app: '/hydros/', url: '/hydros/' };
   if (open === 'praxis') return { app: '/praxis/', url: '/praxis/' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton']) {
+  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia']) {
     if (open === app) return { app: '/' + app + '/', url: '/' + app + '/' };
     if (open.startsWith(app + ':')) return { app: '/' + app + '/', url: '/' + app + '/?open=' + encodeURIComponent(open.slice(app.length + 1)) };
   }

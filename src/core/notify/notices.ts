@@ -12,7 +12,7 @@ import { appNameForOpen } from './sources';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep' | 'plant';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep' | 'plant' | 'trip';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -96,6 +96,8 @@ export type NoticeSettings = {
   upkeep: boolean;
   /** Plants to check and feed, from Phyton, as chosen there. */
   plants: boolean;
+  /** Bookings, check-in and plans from Poreia, as chosen there. */
+  trips: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -122,6 +124,7 @@ export const defaultNoticeSettings: NoticeSettings = {
   training: true,
   upkeep: true,
   plants: true,
+  trips: true,
   details: true,
 };
 
@@ -268,6 +271,7 @@ export function noticesBetween(sources: Sources): Notice[] {
       training: settings.training,
       upkeep: settings.upkeep,
       plant: settings.plants,
+      trip: settings.trips,
     };
     if (on[notice.kind]) raw.push(notice);
   }

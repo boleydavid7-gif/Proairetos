@@ -1,13 +1,13 @@
 import { isAdded, subscribeAdded } from '../family/added';
 import { onRemoteChanges } from '../sync/syncController';
 import { poreiaEvents } from '../../poreia/core/calendar';
-import type { Booking, Trip } from '../../poreia/core/model';
+import type { Booking, PlanItem, Trip } from '../../poreia/core/model';
 import type { TimeOff } from '../../poreia/core/timeOff';
 import type { CalendarEvent as FeedCalendarEvent } from '../../core/calendar/ics';
 import type { CalendarEvent as DisplayCalendarEvent } from './otherCalendars';
 
 /*
- * Poreia in Proairetos, read only: trips, time off and timed bookings in Today, Days ahead and the published calendar.
+ * Poreia in Proairetos, read only: trips, time off, timed bookings and timed plans in Today, Days ahead and the published calendar.
  * Poreia keeps its records in browser storage under `poreia:` (one per key), so this reads them straight from there.
  */
 
@@ -37,7 +37,7 @@ function nextDate(value: string): string {
 
 function events(from: Date, until: Date): FeedCalendarEvent[] {
   if (!isAdded('poreia')) return [];
-  return poreiaEvents(records<Trip>('poreia:trip:'), records<TimeOff>('poreia:off:'), records<Booking>('poreia:booking:'), from, until);
+  return poreiaEvents(records<Trip>('poreia:trip:'), records<TimeOff>('poreia:off:'), records<Booking>('poreia:booking:'), from, until, records<PlanItem>('poreia:plan:'));
 }
 
 function displayEvents(list: FeedCalendarEvent[]): DisplayCalendarEvent[] {

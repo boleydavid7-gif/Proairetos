@@ -4,6 +4,8 @@ import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import { WeekIcon, ClockIcon, SettingsIcon } from '../../app/family/icons';
+import { notifications } from '../../app/notify/notifications';
+import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { settings, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
@@ -14,6 +16,12 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN
 export default function MorePage({ nav }: { nav: PoreiaNav }) {
   const current = settings.use();
   const change = (patch: Partial<PoreiaSettings>) => settings.save({ ...settings.load(), ...patch });
+  const notice = (patch: Partial<PoreiaSettings['notices']>) => {
+    change({ notices: { ...current.notices, ...patch } });
+    notifications.refreshSoon();
+  };
+  const leads = [30, 60, 90, 120, 180, 240];
+  const leadText = (minutes: number) => (minutes < 60 ? `${minutes} minutes` : minutes % 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes / 60} ${minutes === 60 ? 'hour' : 'hours'}`);
   const [events, setEvents] = useState<boolean>();
   useEffect(() => {
     void eventsReady().then(setEvents);
@@ -53,6 +61,37 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
             </button>
           ))}
         </div>
+      </section>
+
+      <p className="ll-section-label">Reminders</p>
+      <section className="card switches">
+        <Switch on={current.notices.on} label="Bookings and plans" onToggle={() => notice({ on: !current.notices.on })} />
+        {current.notices.on && (
+          <>
+            <label className="field">
+              <span className="field__label">Before a flight, train, bus or cruise</span>
+              <select className="input" value={current.notices.travelLead} onChange={(event) => notice({ travelLead: Number(event.target.value) })}>
+                {leads.map((minutes) => (
+                  <option key={minutes} value={minutes}>
+                    {leadText(minutes)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span className="field__label">Before a stay, car, ticket or plan</span>
+              <select className="input" value={current.notices.otherLead} onChange={(event) => notice({ otherLead: Number(event.target.value) })}>
+                {[15, ...leads.slice(0, 4)].map((minutes) => (
+                  <option key={minutes} value={minutes}>
+                    {leadText(minutes)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Switch on={current.notices.checkIn} label="Flight check-in" detail="24 hours before it leaves" onToggle={() => notice({ checkIn: !current.notices.checkIn })} />
+            <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="Its first thing and what is left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
+          </>
+        )}
       </section>
 
       <section className="card switches">

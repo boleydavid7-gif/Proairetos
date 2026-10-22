@@ -76,7 +76,7 @@ function Lead({
   );
 }
 
-type AppSwitch = 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants';
+type AppSwitch = 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips';
 
 /** Each added app's own notices, under its name. Hydros keeps its reminders in its own settings. */
 const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
@@ -91,6 +91,7 @@ const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: str
   { id: 'dynamis', switches: [['training', 'Training days']] },
   { id: 'ktema', switches: [['upkeep', 'Upkeep and warranties']] },
   { id: 'phyton', switches: [['plants', 'Plants to check']] },
+  { id: 'poreia', switches: [['trips', 'Bookings and plans']] },
 ];
 
 function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {

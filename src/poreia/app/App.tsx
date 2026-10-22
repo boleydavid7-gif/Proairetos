@@ -7,7 +7,7 @@ import type { SearchKind } from '../core/links';
 import type { Spot } from '../core/spots';
 import { countFirstVersion } from './fresh';
 import { recountPlanned } from './proairetos';
-import { settings } from './state';
+import { bookings, settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TripsPage from '../screens/TripsPage';
 import TripPage, { type TripView } from '../screens/TripPage';
@@ -50,6 +50,12 @@ function firstRoute(): Route {
   if (opening?.startsWith('trip:')) return { name: 'trip', id: opening.slice(5) };
   if (opening === 'add') return { name: 'trip-form' };
   if (opening?.startsWith('booking:')) return { name: 'booking', tripId: opening.slice(8), paste: true };
+  // From a reminder: one booking, or one plan.
+  if (opening?.startsWith('booked:')) {
+    const booking = bookings.get(opening.slice(7));
+    if (booking) return { name: 'booking', tripId: booking.tripId, id: booking.id };
+  }
+  if (opening?.startsWith('plan:')) return { name: 'plan', id: opening.slice(5) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
 }

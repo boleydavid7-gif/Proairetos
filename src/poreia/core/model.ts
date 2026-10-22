@@ -90,6 +90,8 @@ export type PlanItem = {
   lat?: number;
   lon?: number;
   url?: string;
+  /** Where it sits among the day's plans without a time, as the person arranged them. */
+  order?: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -216,7 +218,9 @@ export function daysOf(trip: Pick<Trip, 'start' | 'end'>, bookings: readonly Boo
         entries.push({ kind: 'booking', booking, time: booking.endTime, ends: true });
     }
     for (const item of plans) if (item.date === date) entries.push({ kind: 'plan', item, time: item.time });
-    entries.sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
+    // Timed things by their time; the rest after them, plans in the order the person gave them.
+    const rank = (entry: DayEntry) => (entry.kind === 'plan' ? (entry.item.order ?? Number.MAX_SAFE_INTEGER) : -1);
+    entries.sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99') || (a.time ? 0 : rank(a) - rank(b)) || (a.kind === 'plan' && b.kind === 'plan' ? a.item.createdAt.localeCompare(b.item.createdAt) : 0));
     return { date, entries };
   });
 }
@@ -232,6 +236,16 @@ export function nextUp(days: readonly { date: string; entries: DayEntry[] }[], t
     if (entry) return { date, entry };
   }
   return undefined;
+}
+
+/** A day's untimed plans with one moved to a new place among them, numbered afresh. */
+export function moveAmong(items: readonly PlanItem[], id: string, to: number): PlanItem[] {
+  const list = [...items];
+  const from = list.findIndex((item) => item.id === id);
+  if (from < 0) return list;
+  const [moved] = list.splice(from, 1);
+  list.splice(Math.max(0, Math.min(list.length, to)), 0, moved);
+  return list.map((item, index) => ({ ...item, order: index }));
 }
 
 /** The plan as plain text, day by day, to send to someone or keep in notes. */

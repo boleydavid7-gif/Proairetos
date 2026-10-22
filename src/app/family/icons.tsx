@@ -12,6 +12,8 @@ export const WeekIcon = glyphIcon('calendar', 22);
 
 export const MoreIcon = glyphIcon('more', 22);
 
+export const GripIcon = glyphIcon('grip', 22);
+
 export const PlusIcon = glyphIcon('plus', 22);
 
 export const ChevronIcon = glyphIcon('chevron', 22);
