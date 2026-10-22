@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'When your account syncs through your own Google Drive, Dropbox or OneDrive, backups go there too: each day\'s copy and any backup you save, sealed with your key, the last two weeks kept. Restore lists them on any of your devices, iPhone included.',
       'Settings are shorter in every app: backup, daily copies, the backup folder and restore are gathered under one Back up and restore row with your last backup date, and open as their own page.',
       'Hydros Settings has the large title and text sizes of the other apps, and one arrow on each choice; card headings and buttons on the backup page look the same in every app; the Store row in the family list has its own mark; Praxis is lit in brass instead of pink.',
       'New app icons: every symbol drawn larger and cleaner at the same visual size, a softer light on each tile, a steaming bowl for Soma so it no longer looks like Phyton, a clearer box for Ktema and a simpler plane for Poreia. Installed apps pick them up on their next update.',

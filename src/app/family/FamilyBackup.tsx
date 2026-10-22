@@ -12,6 +12,7 @@ import { dayName, useDailyCopies } from './useDailyCopies';
 import { useAddedApps } from './added';
 import { chooseBackupFolder, forgetBackupFolder, useBackupFolder, writableFolder, writeToFolder } from './backupFolder';
 import { dailyCopyToFolder } from './dailyCopy';
+import { backupToOwnStorage, openOwnStorageBackup, ownStorageBackups } from './cloudBackups';
 
 /**
  * The family's one backup, for Askesis, Soma, Oikonomia and Hydros's "Your data" pages. It is
@@ -117,6 +118,10 @@ function BackupCards({ older }: { older?: Older }) {
 
   const folder = useBackupFolder();
   const [savedTo, setSavedTo] = useState<string>();
+  // The person's own Google Drive, Dropbox or OneDrive, while the account syncs through one.
+  const [own, setOwn] = useState<{ storage: string; days: string[] } | null>(null);
+  const readOwn = () => void ownStorageBackups().then(setOwn, () => setOwn(null));
+  useEffect(readOwn, []);
   const save = async () => {
     setBusy(true);
     setSavedTo(undefined);
@@ -128,8 +133,13 @@ function BackupCards({ older }: { older?: Older }) {
       if (chosen) {
         const { blob, extension } = await packBackup(text);
         await writeToFolder(chosen, `proairetos-backup-${day}.${extension}`, blob);
-        setSavedTo(chosen.name);
+        setSavedTo(`Saved in ${chosen.name}.`);
       } else await downloadBackup(text, day);
+      const sealedIn = await backupToOwnStorage(text, day).catch(() => null);
+      if (sealedIn) {
+        setSavedTo((place) => (place ? place.replace(/\.$/, ` and ${sealedIn}.`) : `Downloaded, and saved in ${sealedIn}.`));
+        readOwn();
+      }
       recordBackup();
       setLast(lastBackupDate());
     } finally {
@@ -141,7 +151,20 @@ function BackupCards({ older }: { older?: Older }) {
     setProblem(undefined);
     setReady(undefined);
     if (!file) return;
-    const content = await backupText(file).catch(() => '');
+    await read(await backupText(file).catch(() => ''));
+  };
+
+  const chooseOwn = async (day: string) => {
+    setProblem(undefined);
+    setReady(undefined);
+    try {
+      await read(await openOwnStorageBackup(day));
+    } catch (cause) {
+      setProblem(cause instanceof Error ? cause.message : 'Couldn’t open that copy. Try again.');
+    }
+  };
+
+  const read = async (content: string) => {
     try {
       const parsed = parseBackupFile(content);
       setText(content);
@@ -173,14 +196,28 @@ function BackupCards({ older }: { older?: Older }) {
         <button type="button" className="button-main" disabled={busy} onClick={() => void save()}>
           {busy ? 'Preparing…' : 'Save a backup file'}
         </button>
-        <p className="hint">{savedTo ? `Saved in ${savedTo}.` : last ? `Last backup ${when(last)}.` : 'No backup yet.'}</p>
+        <p className="hint">{savedTo ? savedTo : last ? `Last backup ${when(last)}.` : 'No backup yet.'}</p>
       </section>
 
-      <DailyCopies />
+      <DailyCopies storage={own?.storage} />
       {folder.supported && <BackupFolder name={folder.name} />}
 
       <section className="card family-backup" aria-label="Restore">
         <h2 className="card__title card__title--small">Restore</h2>
+        {own && own.days.length > 0 && (
+          <>
+            <p className="muted">Sealed copies in {own.storage}, for any device signed in to your account.</p>
+            <ul className="daily-copies">
+              {own.days.map((day) => (
+                <li key={day}>
+                  <button type="button" className="button-quiet" onClick={() => void chooseOwn(day)}>
+                    {dayName(day)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <input ref={input} type="file" accept={BACKUP_ACCEPT} hidden aria-label="Backup file" onChange={(event) => void choose(event.target.files?.[0])} />
         <button type="button" className="button-quiet" onClick={() => input.current?.click()}>
           Choose a backup file
@@ -268,7 +305,7 @@ function BackupFolder({ name }: { name?: string }) {
   );
 }
 
-function DailyCopies() {
+function DailyCopies({ storage }: { storage?: string }) {
   const { on, turn, copies, restore } = useDailyCopies();
   const [chosen, setChosen] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -279,7 +316,7 @@ function DailyCopies() {
       <button type="button" className="switch-row" role="switch" aria-checked={on} onClick={() => void turn(!on)}>
         <span className="switch-row__text">
           <span>Keep a copy each day</span>
-          <span className="switch-row__detail">On this device, the last seven days.</span>
+          <span className="switch-row__detail">{storage ? `On this device for seven days, and sealed in ${storage} for two weeks.` : 'On this device, the last seven days.'}</span>
         </span>
         <span className={`switch${on ? ' switch--on' : ''}`} aria-hidden="true" />
       </button>

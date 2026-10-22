@@ -7,7 +7,8 @@ import { withDeviceRecords } from '../../data/sync/deviceRecords';
 import { syncAttachmentFiles } from '../../data/sync/attachmentFiles';
 import { connectReturn, finishConnect, startConnect, storageProvidersHere } from '../../data/sync/storageLink';
 import type { StorageProvider } from '../../data/sync/storageProviders';
-import { currentLink, forgetLink, holdAccess, keepLink, lastTarget, ownStorageFor, startAfresh, storageName, type StorageTarget } from './ownStorage';
+import type { CloudFolder } from '../../data/sync/folderRemote';
+import { currentLink, forgetLink, holdAccess, keepLink, lastTarget, ownFolder, ownStorageFor, startAfresh, storageName, type StorageTarget } from './ownStorage';
 import {
   calendarFeedUrl,
   createSupabaseFileStore,
@@ -224,6 +225,13 @@ export async function sealWithAccount(label: string, bytes: ArrayBuffer): Promis
 export async function openWithAccount(label: string, sealed: ArrayBuffer): Promise<ArrayBuffer | null> {
   if (!dataKey) return null;
   return openBytes(dataKey, label, sealed);
+}
+
+/** The person's own Google Drive, Dropbox or OneDrive while the account syncs through one: where sealed backups go too. */
+export async function ownBackupStorage(): Promise<{ name: string; folder: CloudFolder } | null> {
+  if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
+  const own = await ownFolder(userId, dataKey).catch(() => null);
+  return own ? { name: storageName(own.provider), folder: own.folder } : null;
 }
 
 export function onRemoteChanges(listener: () => void): () => void {

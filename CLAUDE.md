@@ -295,6 +295,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   gesture close it; it takes `.family-surface` when the row sits in one). `inline` shows the cards directly, for pages already
   about the person's data (Askesis's and Soma's Your data). Card headings there are the sans (`.family-backup .card__title`);
   `.family-surface` buttons and fields follow Lamplight (pill main action with the lamp, tonal quiet buttons, filled fields).
+  Backups in the person's own storage (`app/family/cloudBackups.ts`): while the account syncs through Drive, Dropbox or
+  OneDrive (`ownBackupStorage` in `syncController`, `ownFolder` in `ownStorage.ts`), each day's copy (once per device a day,
+  after a sync, `watchOwnStorageCopies` from `startDailyCopies`; follows the daily-copy switch; last day in device-only
+  `proairetosOwnStorageCopy`) and every "Save a backup file" go into the same folder as `backup-YYYY-MM-DD.sealed` (gzip
+  file sealed with `sealWithAccount`, AD `proairetos-backup`; 14 days kept; the sync's `log-`/`file-` names untouched).
+  Restore lists them by day (`ownStorageBackups`, `openOwnStorageBackup`); tests `src/tests/family/cloudBackups.test.ts`.
   The family list's Store row is a plus on the lamp's tile (`.family-apps__store`). Praxis's lamp seed is brass `#B08D57`.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and

@@ -74,6 +74,8 @@ export function startDailyCopies(): void {
     addEventListener(kind, touched, { passive: true, capture: true });
   window.setTimeout(() => void keepStorage(), 2000);
   window.setTimeout(() => whenStill(() => void makeDailyCopy()), 4000);
+  // The same copy, sealed, into the person's own storage once the account is open here (after a sync).
+  window.setTimeout(() => void import('./cloudBackups').then((own) => own.watchOwnStorageCopies()).catch(() => undefined), 4000);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') window.setTimeout(() => whenStill(() => void makeDailyCopy()), 2000);
   });

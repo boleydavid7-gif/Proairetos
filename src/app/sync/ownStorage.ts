@@ -1,5 +1,5 @@
 import type { FileStore } from '../../data/sync/attachmentFiles';
-import { createFolderFileStore, createFolderRemote, forgetFolder, type FolderRemote } from '../../data/sync/folderRemote';
+import { createFolderFileStore, createFolderRemote, forgetFolder, type CloudFolder, type FolderRemote } from '../../data/sync/folderRemote';
 import { openRecord, sealRecord } from '../../data/sync/keys';
 import { askForTokens } from '../../data/sync/storageLink';
 import { PROVIDER_NAMES, folderFor, type StorageProvider, type TokenSource } from '../../data/sync/storageProviders';
@@ -95,4 +95,11 @@ export async function ownStorageFor(userId: string, key: CryptoKey, state: SyncS
   if (!link) return null;
   const folder = folderFor(link.provider, tokens(userId, key, link));
   return { target: link.provider, remote: createFolderRemote({ folder, state }), files: createFolderFileStore(folder) };
+}
+
+/** The account's own storage folder, for sealed backups beside the records. Null when it syncs through Proairetos's server. */
+export async function ownFolder(userId: string, key: CryptoKey): Promise<{ provider: StorageProvider; folder: CloudFolder } | null> {
+  const link = await currentLink(userId, key);
+  if (!link) return null;
+  return { provider: link.provider, folder: folderFor(link.provider, tokens(userId, key, link)) };
 }
