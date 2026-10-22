@@ -978,6 +978,10 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `lastInTouch`, undo, then an optional line about it); Home's "In touch today" logs `touch`. "Together and in touch" is one
   timeline per person (`timeline`, `timelineText`: contacts, times together, gifts given; newest first, 8 then All).
   Your year counts calls and messages apart from times together.
+  Add a date (route `date`, `?open=date` or `date:PERSON`; `screens/AddDatePage.tsx`, from Home's Coming up and a person's
+  Dates): who (or someone new), Birthday / Anniversary / Other, every year or once (`PersonDate.once`, full date, optional
+  `time`), with undo; `withDate`, `timeText` in `core/people.ts`. Once events show in Coming up, notices and Proairetos's
+  Days ahead lines until their day; the edit form keeps and changes them.
 - Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
   week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
   late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;

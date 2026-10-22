@@ -4,7 +4,7 @@ import { offerUndo } from '../../app/family/shell';
 import type { PhiliaNav } from '../app/App';
 import { newId, people } from '../app/state';
 import { DateFields } from '../app/ui';
-import { dateParts, datePartsToText, newPerson } from '../core/people';
+import { dateParts, datePartsToText, newPerson, type PersonDate } from '../core/people';
 
 type Parts = { month: number; day: number; year?: number };
 const empty: Parts = { month: 0, day: 0 };
@@ -16,8 +16,8 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
   const [phone, setPhone] = useState(existing?.phone ?? '');
   const [email, setEmail] = useState(existing?.email ?? '');
   const [birthday, setBirthday] = useState<Parts>(dateParts(existing?.birthday) ?? empty);
-  const [dates, setDates] = useState<{ id: string; label: string; parts: Parts }[]>(
-    (existing?.dates ?? []).map((each) => ({ id: each.id, label: each.label, parts: dateParts(each.date) ?? empty })),
+  const [dates, setDates] = useState<{ id: string; label: string; parts: Parts; once?: boolean; time?: string }[]>(
+    (existing?.dates ?? []).map((each) => ({ id: each.id, label: each.label, parts: dateParts(each.date) ?? empty, once: each.once, time: each.time })),
   );
   const nameField = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -34,8 +34,13 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
       email: email.trim() || undefined,
       birthday: datePartsToText(birthday),
       dates: dates
-        .map((each) => ({ id: each.id, label: each.label.trim() || 'Date', date: datePartsToText(each.parts) }))
-        .filter((each): each is { id: string; label: string; date: string } => Boolean(each.date)),
+        .map((each) => ({
+          id: each.id,
+          label: each.label.trim() || 'Date',
+          date: each.once && !each.parts.year ? undefined : datePartsToText(each.parts),
+          ...(each.once ? { once: true, ...(each.time ? { time: each.time } : {}) } : {}),
+        }))
+        .filter((each): each is PersonDate => Boolean(each.date)),
     };
     people.put(next);
     if (existing) offerUndo('Saved', () => people.put(existing));
@@ -84,7 +89,17 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
             <span className="field__label">What</span>
             <input className="input" placeholder="Anniversary" value={each.label} onChange={(event) => setDates(dates.map((d, i) => (i === index ? { ...d, label: event.target.value } : d)))} />
           </label>
-          <DateFields label="Date" value={each.parts} onChange={(parts) => setDates(dates.map((d, i) => (i === index ? { ...d, parts } : d)))} />
+          <div className="chip-row" role="group" aria-label="How often">
+            <button type="button" className="chip" aria-pressed={!each.once} onClick={() => setDates(dates.map((d, i) => (i === index ? { ...d, once: undefined } : d)))}>Every year</button>
+            <button type="button" className="chip" aria-pressed={Boolean(each.once)} onClick={() => setDates(dates.map((d, i) => (i === index ? { ...d, once: true } : d)))}>Once</button>
+          </div>
+          <DateFields label={each.once ? 'Date (with the year)' : 'Date'} value={each.parts} onChange={(parts) => setDates(dates.map((d, i) => (i === index ? { ...d, parts } : d)))} />
+          {each.once && (
+            <label className="field">
+              <span className="field__label">Time (optional)</span>
+              <input className="input" type="time" value={each.time ?? ''} onChange={(event) => setDates(dates.map((d, i) => (i === index ? { ...d, time: event.target.value || undefined } : d)))} />
+            </label>
+          )}
           <button type="button" className="text-link remove-link" onClick={() => setDates(dates.filter((_, i) => i !== index))}>Remove date</button>
         </div>
       ))}

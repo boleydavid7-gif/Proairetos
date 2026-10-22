@@ -34,7 +34,7 @@ export function AddLine({ label, onAdd, button = 'Add' }: { label: string; onAdd
   );
 }
 
-const MONTHS = Array.from({ length: 12 }, (_, index) => new Date(2000, index, 1).toLocaleDateString(undefined, { month: 'long' }));
+const MONTHS = Array.from({ length: 12 }, (_, index) => new Date(2000, index, 1).toLocaleDateString(undefined, { month: 'short' }));
 
 /** Month and day, with the year optional. */
 export function DateFields({ label, value, onChange }: { label: string; value: { month: number; day: number; year?: number }; onChange: (next: { month: number; day: number; year?: number }) => void }) {

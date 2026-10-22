@@ -12,11 +12,12 @@ import HomePage from '../screens/HomePage';
 import PeoplePage from '../screens/PeoplePage';
 import PersonPage from '../screens/PersonPage';
 import EditPage from '../screens/EditPage';
+import AddDatePage from '../screens/AddDatePage';
 import MorePage from '../screens/MorePage';
 import YearScreen from '../screens/YearScreen';
 
 export type Tab = 'home' | 'people' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'person'; id: string } | { name: 'edit'; id?: string } | { name: 'year' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'person'; id: string } | { name: 'edit'; id?: string } | { name: 'date'; personId?: string } | { name: 'year' };
 export type PhiliaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -27,10 +28,12 @@ const tabs: readonly TabDef<Tab>[] = [
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // A link from another app or a notice: `person:ID`, `add`, or a tab.
+  // A link from another app or a notice: `person:ID`, `add`, `date`, `date:PERSON`, or a tab.
   const opening = takeOpening();
   if (opening?.startsWith('person:')) return { name: 'person', id: opening.slice(7) };
   if (opening === 'add') return { name: 'edit' };
+  if (opening === 'date') return { name: 'date' };
+  if (opening?.startsWith('date:')) return { name: 'date', personId: opening.slice(5) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'home' } : { name: 'welcome' };
 }
@@ -58,6 +61,8 @@ export default function App() {
         return <PersonPage nav={nav} id={route.id} />;
       case 'edit':
         return <EditPage nav={nav} id={route.id} />;
+      case 'date':
+        return <AddDatePage nav={nav} personId={route.personId} />;
       case 'more':
         return <MorePage nav={nav} />;
       case 'year':
@@ -72,7 +77,7 @@ export default function App() {
       tabs={tabs}
       current={isTab ? (route.name as Tab) : undefined}
       onPick={(tab) => nav.swap({ name: tab })}
-      showTabs={route.name !== 'welcome' && route.name !== 'edit'}
+      showTabs={route.name !== 'welcome' && route.name !== 'edit' && route.name !== 'date'}
     />
   );
 }

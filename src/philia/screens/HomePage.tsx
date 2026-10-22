@@ -8,7 +8,7 @@ import type { PhiliaNav } from '../app/App';
 import { newId, people } from '../app/state';
 import { Initials } from '../app/ui';
 import SwipeItem from '../../app/family/SwipeItem';
-import { comingUp, inTouchNow, logContact, shortDate, sinceText, turningText, whenText, type Person } from '../core/people';
+import { comingUp, inTouchNow, logContact, shortDate, sinceText, turningText, whenText, type Person, timeText } from '../core/people';
 
 
 export function markInTouch(person: Person, today: string) {
@@ -55,7 +55,10 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
           </section>
         ) : (
           <>
-            <div className="section-head"><h2>Coming up</h2></div>
+            <div className="section-head">
+              <h2>Coming up</h2>
+              <button type="button" className="text-link" onClick={() => nav.go({ name: 'date' })}>Add a date</button>
+            </div>
             {soon.length === 0 ? (
               <p className="muted">Nothing in the next 30 days.</p>
             ) : (
@@ -65,7 +68,7 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                     <Initials name={entry.person.name} id={entry.person.id} />
                     <span className="list-row__text">
                       <strong>{entry.person.name}</strong>
-                      <small>{[entry.label, turningText(entry)].filter(Boolean).join(' · ')}</small>
+                      <small>{[entry.label, turningText(entry), timeText(entry.time)].filter(Boolean).join(' · ')}</small>
                       <span className="coming-up__when">{whenText(entry.date, today)}</span>
                     </span>
                   </button>

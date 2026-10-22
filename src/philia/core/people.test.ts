@@ -102,3 +102,20 @@ describe('following Compass', () => {
     expect(followCompass(changed, [{ id: 'c1', body: 'Ana López' }, { id: 'c2', body: 'Benjamin' }])).toEqual([]);
   });
 });
+
+describe('dates added', () => {
+  const base = { id: 'p', name: 'Sam', notes: [], gifts: [], times: [], createdAt: '2026-01-01T00:00:00Z' };
+
+  it('sets a birthday or adds a date', async () => {
+    const { withDate } = await import('./people');
+    expect(withDate(base, { birthday: '05-04' }).birthday).toBe('05-04');
+    expect(withDate(base, { date: { id: 'd', label: 'Wedding', date: '2026-11-07', once: true, time: '15:00' } }).dates).toHaveLength(1);
+  });
+
+  it('shows an event that happens once until its day, then not again', async () => {
+    const { comingUp } = await import('./people');
+    const person = { ...base, dates: [{ id: 'd', label: 'Wedding', date: '2026-11-07', once: true, time: '15:00' }] };
+    expect(comingUp([person], '2026-10-22')).toEqual([expect.objectContaining({ label: 'Wedding', date: '2026-11-07', time: '15:00' })]);
+    expect(comingUp([person], '2026-11-08', 400)).toEqual([]);
+  });
+});

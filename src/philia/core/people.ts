@@ -17,7 +17,11 @@ export const CONTACTS: { id: Exclude<Contact, 'touch'>; label: string; done: str
   { id: 'message', label: 'Messaged', done: 'Messaged' },
   { id: 'visit', label: 'Saw them', done: 'Saw them' },
 ];
-export type PersonDate = { id: string; label: string; date: string };
+/**
+ * A date with someone: one that comes around each year ("MM-DD", or with its year), or an event that happens once
+ * (`once`, "YYYY-MM-DD"), which may have a time ("HH:MM").
+ */
+export type PersonDate = { id: string; label: string; date: string; once?: boolean; time?: string };
 
 export type Person = {
   id: string;
@@ -71,7 +75,7 @@ export function yearOf(date: string): number | undefined {
   return date.length === 10 ? Number(date.slice(0, 4)) : undefined;
 }
 
-export type ComingUp = { person: Person; label: string; date: string; turning?: number; key: string };
+export type ComingUp = { person: Person; label: string; date: string; turning?: number; key: string; /** For an event at a time. */ time?: string };
 
 /** Birthdays and dates in the next `days` days, soonest first. */
 export function comingUp(people: readonly Person[], today: string, days = 30): ComingUp[] {
@@ -84,6 +88,10 @@ export function comingUp(people: readonly Person[], today: string, days = 30): C
       if (date <= until) all.push({ person, label: 'Birthday', date, turning: born ? Number(date.slice(0, 4)) - born : undefined, key: `birthday:${person.id}:${date}` });
     }
     for (const each of person.dates ?? []) {
+      if (each.once) {
+        if (each.date >= today && each.date <= until) all.push({ person, label: each.label || 'Event', date: each.date, time: each.time, key: `date:${person.id}:${each.id}:${each.date}` });
+        continue;
+      }
       const date = nextOccurrence(each.date, today);
       const from = yearOf(each.date);
       if (date <= until) all.push({ person, label: each.label || 'Date', date, turning: from ? Number(date.slice(0, 4)) - from : undefined, key: `date:${person.id}:${each.id}:${date}` });
@@ -227,4 +235,17 @@ export function timelineText(entry: TimelineEntry): string {
   if (entry.kind === 'time') return entry.text;
   const said = entry.how === 'touch' ? 'In touch' : (CONTACTS.find((each) => each.id === entry.how)?.done ?? 'In touch');
   return entry.text ? `${said} · ${entry.text}` : said;
+}
+
+/** A birthday set, or a date added, on someone. */
+export function withDate(person: Person, added: { birthday: string } | { date: PersonDate }): Person {
+  if ('birthday' in added) return { ...person, birthday: added.birthday };
+  return { ...person, dates: [...(person.dates ?? []), added.date] };
+}
+
+/** "Sat 7 PM" style time line for an event, when it has a time. */
+export function timeText(time: string | undefined): string | undefined {
+  if (!time) return undefined;
+  const [hours, minutes] = time.split(':').map(Number);
+  return new Date(2000, 0, 1, hours, minutes).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }

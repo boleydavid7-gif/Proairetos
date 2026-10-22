@@ -6,7 +6,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhiliaNav } from '../app/App';
 import { newId, people } from '../app/state';
 import { AddLine, Initials } from '../app/ui';
-import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person } from '../core/people';
+import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person, timeText } from '../core/people';
 import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
 import { Sym } from '../../lamplight/icons';
 import { Waiting } from '../../lamplight/Waiting';
@@ -127,6 +127,10 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         </div>
       )}
 
+      <div className="section-head">
+        <h2>Dates</h2>
+        <button type="button" className="text-link" onClick={() => nav.go({ name: 'date', personId: person.id })}>Add a date</button>
+      </div>
       {(person.birthday || (person.dates ?? []).length > 0) && (
         <section className="card">
           {person.birthday && birthdayNext && (
@@ -135,15 +139,17 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
               <span className="list-row__aside">{whenText(birthdayNext, today)}</span>
             </div>
           )}
-          {(person.dates ?? []).map((each) => {
-            const next = nextOccurrence(each.date, today);
-            return (
-              <div key={each.id} className="list-row philia-date">
-                <span className="list-row__text"><span>{each.label}</span><small>{dateText(each.date)}</small></span>
-                <span className="list-row__aside">{whenText(next, today)}</span>
-              </div>
-            );
-          })}
+          {(person.dates ?? [])
+            .filter((each) => !each.once || each.date >= today)
+            .map((each) => {
+              const next = each.once ? each.date : nextOccurrence(each.date, today);
+              return (
+                <div key={each.id} className="list-row philia-date">
+                  <span className="list-row__text"><span>{each.label}</span><small>{[dateText(each.date), each.once ? timeText(each.time) : 'Every year'].filter(Boolean).join(' · ')}</small></span>
+                  <span className="list-row__aside">{whenText(next, today)}</span>
+                </div>
+              );
+            })}
         </section>
       )}
 
