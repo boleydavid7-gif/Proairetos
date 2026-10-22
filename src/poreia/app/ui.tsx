@@ -1,3 +1,4 @@
+import { SceneTile } from '../components/TripScene';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronIcon } from '../../app/family/icons';
 import { parseLocalDate } from '../../core/scheduling/dates';
@@ -33,7 +34,7 @@ export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; on
     <li>
       <button type="button" className="row poreia-trip-row" onClick={onOpen}>
         <span className={`poreia-trip-row__badge poreia-trip-row__badge--${phase.kind}`} aria-hidden="true">
-          {trip.place?.name.slice(0, 1).toUpperCase() ?? trip.name.slice(0, 1).toUpperCase()}
+          <SceneTile trip={trip} />
         </span>
         <span className="row__text">
           <span>{trip.name}</span>
@@ -96,11 +97,16 @@ export function PlaceSearch({ label, value, onPick, placeholder = 'City, region 
             if (!event.target.value.trim()) onPick(undefined);
           }}
           onBlur={() => {
-            // Typed but not picked: keep the words as the place's name.
+            // Typed but not picked: the first match, so the place has its map, weather and country; else the words.
             window.setTimeout(() => {
               setOpen(false);
               const typed = text.trim();
-              if (typed && typed !== (value?.label ?? value?.name)) onPick({ name: typed.split(',')[0].trim(), label: typed });
+              if (!typed || typed === (value?.label ?? value?.name)) return;
+              const first = results[0];
+              if (first) {
+                setText(first.label ?? first.name);
+                onPick(first);
+              } else onPick({ name: typed.split(',')[0].trim(), label: typed });
             }, 180);
           }}
         />

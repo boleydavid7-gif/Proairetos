@@ -72,25 +72,55 @@
 /* Trip rows: an initial on the sea's color, then name and when. */
 .poreia-trip-row__badge {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
+  display: block;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
   border-radius: 12px;
   background: var(--mint-soft);
-  color: var(--mint);
-  font-family: var(--serif);
-  font-size: var(--text-lg);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
+.poreia-scene-tile {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Under way: a ring in the sea's color. Back: the picture rests, a little faded. */
 .poreia-trip-row__badge--now {
-  background: var(--mint);
-  color: var(--mint-ink);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--mint);
 }
 
-.poreia-trip-row__badge--past {
-  background: var(--surface-2);
-  color: var(--muted);
+.poreia-trip-row__badge--past .poreia-scene-tile {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+/* A trip's picture across the top of its page, ending above the title. */
+.poreia-trip {
+  position: relative;
+}
+
+.poreia-scene {
+  position: absolute;
+  top: calc(-1 * var(--ll-safe-top, 0px));
+  left: 0;
+  right: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: calc(var(--ll-title-anchor-top, 156px) + var(--ll-safe-top, 0px) - 18px);
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+}
+
+.poreia-trip > :not(.poreia-scene, .poreia-tabs) {
+  position: relative;
+  z-index: 1;
 }
 
 .poreia-trip-row__when {
@@ -1392,4 +1422,109 @@
 
 .poreia-arriving a {
   color: var(--mint);
+}
+
+/* A trip under way: the day first. */
+.poreia-today {
+  background:
+    radial-gradient(120% 90% at 64% -10%, color-mix(in srgb, var(--mint) 16%, transparent), transparent 60%),
+    var(--surface);
+}
+
+.poreia-today__eyebrow {
+  margin: 0;
+  color: var(--mint);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.poreia-today__title {
+  margin: 2px 0 4px;
+  font-family: var(--serif);
+  font-size: var(--text-2xl, 1.6rem);
+  font-weight: 500;
+}
+
+.poreia-today__actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.poreia-today__action {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 10px 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mint) 6%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.poreia-today__action svg {
+  color: var(--mint);
+}
+
+.poreia-more > summary {
+  font-weight: 600;
+}
+
+/* One rhythm between blocks on every Poreia page: blocks that follow one another stand apart by the family's gap,
+   and a section's label sits close above its block. */
+.poreia-page :is(.card, .rows, .button-row, .poreia-empty, .poreia-fold, .poreia-tabs, .poreia-stop-chips, .poreia-around, .poreia-days, .poreia-packed, .poreia-pack-group, .poreia-pack-add, .list-empty, .poreia-weather-card)
+  + :is(.card, .rows, .button-row, .poreia-empty, .poreia-fold, .ll-section-label, .poreia-around, .poreia-days, .poreia-pack-group, .poreia-pack-add, .text-link, .button-quiet, .button-main, p) {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-page .ll-section-label + :is(.card, .rows) {
+  margin-top: var(--ll-label-gap, 8px);
+}
+
+.poreia-page .vt-panel > :first-child {
+  margin-top: 0;
+}
+
+.poreia-page .vt-panel {
+  padding-bottom: var(--ll-section-gap, 28px);
+}
+
+/* Rows of chips that scroll sideways fade at their ends, so a cut chip reads as "more this way". */
+.poreia-scroll-chips {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  padding-inline: 12px 24px;
+  margin-inline: -12px -4px;
+}
+
+.card .poreia-scroll-chips {
+  margin-inline: -16px;
+  padding-inline: 16px 28px;
+}
+
+.poreia-page .vt-panel > * + *,
+.poreia-page .poreia-fold > :not(summary) + * {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-page .vt-panel > .ll-section-label + * {
+  margin-top: var(--ll-label-gap, 8px);
+}
+
+.poreia-time__row {
+  flex-wrap: wrap;
+}
+
+.poreia-time__clock {
+  white-space: nowrap;
+}
+
+.poreia-time__row > .muted {
+  margin-left: auto;
+  text-align: right;
 }

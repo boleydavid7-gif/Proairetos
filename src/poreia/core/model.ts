@@ -17,6 +17,9 @@ export type Place = {
   lat?: number;
   lon?: number;
   timezone?: string;
+  /** Meters above the sea and people living there, from the place search: what the trip's picture is drawn from. */
+  elevation?: number;
+  population?: number;
 };
 
 /** Where the person is with it. Being there and being back follow from the dates. */

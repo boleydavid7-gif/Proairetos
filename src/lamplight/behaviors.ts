@@ -82,7 +82,7 @@ const ACTIONS = '.page-header__actions, .page-hero__actions, .meditate-page__act
 const TO_HEADER = '[data-to-header]';
 const SIDEBAR = '.praxis-sidebar, .theoria-sidebar, dialog';
 /** A home picture at the top of a page: the bar's mark and name stay light over its shaded top, in either look. */
-const PICTURE = '.hero, .hydros-hero';
+const PICTURE = '.hero, .hydros-hero, .poreia-scene';
 
 let barMark = '';
 let onMark: (() => void) | undefined;

@@ -218,7 +218,7 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
 }
 
 /** A quiet "Add a plan" under each day, opening to a field and a time only when tapped. */
-function AddToDay({ tripId, date }: { tripId: string; date: string }) {
+export function AddToDay({ tripId, date }: { tripId: string; date: string }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
@@ -277,7 +277,7 @@ function Between({ entries, index, open, unit }: { entries: DayEntry[]; index: n
 }
 
 /** A day's forecast, under its head. */
-function DaySky({ day, unit }: { day: DayWeather; unit: 'C' | 'F' }) {
+export function DaySky({ day, unit }: { day: DayWeather; unit: 'C' | 'F' }) {
   return (
     <p className="poreia-day__sky">
       {[skyWord(day.code), `${degrees(day.high, unit)} / ${degrees(day.low, unit)}`, day.rain ? `${day.rain}% rain` : ''].filter(Boolean).join(' · ')}
@@ -286,7 +286,7 @@ function DaySky({ day, unit }: { day: DayWeather; unit: 'C' | 'F' }) {
 }
 
 /** The forecast for each day of the trip within the next 16 days, from the place the trip is at that day. */
-function useDayWeather(trip: Trip): Map<string, DayWeather> {
+export function useDayWeather(trip: Trip): Map<string, DayWeather> {
   const [byDay, setByDay] = useState(new Map<string, DayWeather>());
   const stops = placesOf(trip).filter((stop) => stop.place.lat !== undefined && stop.place.lon !== undefined);
   const key = stops.map((stop) => `${stop.place.lat},${stop.place.lon}`).join('|') + (trip.start ?? '') + (trip.end ?? '');

@@ -7,11 +7,11 @@ import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
 import { bookings, newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
-import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, stopNow, type Trip } from '../core/model';
+import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, stopNow, stopOn, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
 import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
-import TripDays, { AgendaRow, openEntry } from '../components/TripDays';
+import TripDays, { AddToDay, AgendaRow, DaySky, openEntry, useDayWeather } from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
 import Around from '../components/Around';
@@ -21,6 +21,8 @@ import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { ArrivingCard, DocumentsCard } from '../components/Arriving';
 import { GoalCard } from '../components/TripGoals';
+import { TripScene } from '../components/TripScene';
+import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
@@ -39,11 +41,12 @@ const lastView = new Map<string, TripView>();
 
 export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id: string; view?: TripView }) {
   const trip = trips.use().find((each) => each.id === id);
-  const [view, setView] = useState<TripView>(() => first ?? lastView.get(id) ?? (trip && phaseOf(trip, today()).kind === 'now' ? 'days' : 'overview'));
+  const [view, setView] = useState<TripView>(() => first ?? lastView.get(id) ?? 'overview');
   useEffect(() => {
     lastView.set(id, view);
   }, [id, view]);
   const [stopId, setStopId] = useState<string>();
+  useLocatedTrip(trip);
   if (!trip) {
     return (
       <div className="page poreia-page">
@@ -68,6 +71,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
 
   return (
     <div className="page poreia-page poreia-trip">
+      <TripScene trip={trip} place={target?.place} />
       <BackLink label="Trips" onBack={nav.back} />
       <div className="detail-head poreia-trip__head">
         <h1 className="title">{trip.name}</h1>
@@ -81,12 +85,16 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
       </div>
 
       <div className="poreia-tabs" role="tablist" aria-label="Trip" style={{ '--at': VIEWS.findIndex((each) => each.id === view), '--count': VIEWS.length } as CSSProperties}>
-        {VIEWS.map((each) => (
-          <button key={each.id} type="button" role="tab" className="poreia-tabs__tab" aria-selected={view === each.id} onClick={() => pick(each.id)}>
-            <Sym name={each.glyph} size={22} />
-            <span>{each.label}</span>
-          </button>
-        ))}
+        {VIEWS.map((each) => {
+          // While the trip is on, its first place is the day itself.
+          const today = each.id === 'overview' && phase.kind === 'now';
+          return (
+            <button key={each.id} type="button" role="tab" className="poreia-tabs__tab" aria-selected={view === each.id} onClick={() => pick(each.id)}>
+              <Sym name={today ? 'today' : each.glyph} size={22} />
+              <span>{today ? 'Today' : each.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {stops.length > 1 && (view === 'overview' || view === 'around' || view === 'bookings') && (
@@ -101,7 +109,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
       )}
 
       <div className="vt-panel" key={view}>
-        {view === 'overview' && <Overview trip={trip} target={target} nav={nav} day={day} />}
+        {view === 'overview' && <Overview trip={trip} target={target} nav={nav} day={day} onView={pick} />}
         {view === 'around' &&
           (stop?.place.lat !== undefined ? (
             <>
@@ -129,20 +137,11 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   );
 }
 
-function Overview({ trip, target, nav, day }: { trip: Trip; target?: Target; nav: PoreiaNav; day: string }) {
-  const ahead = phaseOf(trip, day).kind !== 'past';
-  return (
+function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Target; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
+  const phase = phaseOf(trip, day);
+  const ahead = phase.kind !== 'past';
+  const about = (
     <>
-      <NextUpCard trip={trip} nav={nav} day={day} />
-      <TimeThere trip={trip} place={target?.place} today={day} />
-      <TimeOffCard trip={trip} nav={nav} />
-      {!target && (
-        <RouteEmpty glyph="pin" title="Where to?" line="Add where you’re going for weather, a guide, things nearby and booking searches.">
-          <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
-            Add a place
-          </button>
-        </RouteEmpty>
-      )}
       {target && (
         <>
           <Weather target={target} today={day} />
@@ -163,6 +162,79 @@ function Overview({ trip, target, nav, day }: { trip: Trip; target?: Target; nav
         </section>
       )}
     </>
+  );
+  // Under way: the day first, the rest of the trip one tap away.
+  if (phase.kind === 'now') {
+    return (
+      <>
+        <TodayCard trip={trip} nav={nav} day={day} onView={onView} />
+        <TimeThere trip={trip} place={target?.place} today={day} />
+        <details className="poreia-fold poreia-more">
+          <summary>More about this trip</summary>
+          {about}
+        </details>
+      </>
+    );
+  }
+  return (
+    <>
+      <NextUpCard trip={trip} nav={nav} day={day} />
+      <TimeThere trip={trip} place={target?.place} today={day} />
+      <TimeOffCard trip={trip} nav={nav} />
+      {!target && (
+        <RouteEmpty glyph="pin" title="Where to?" line="Add where you’re going for weather, a guide, things nearby and booking searches.">
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
+            Add a place
+          </button>
+        </RouteEmpty>
+      )}
+      {about}
+    </>
+  );
+}
+
+/** A day of a trip under way: where, the sky, what is set, and the next steps a tap away. */
+function TodayCard({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
+  const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
+  const theirPlans = plans.use().filter((each) => each.tripId === trip.id);
+  const unit = settings.use().temperature;
+  const weather = useDayWeather(trip);
+  const phase = phaseOf(trip, day);
+  const entries = daysOf(trip, theirBookings, theirPlans).find((each) => each.date === day)?.entries ?? [];
+  const where = stopOn(trip, day)?.place.name ?? trip.place?.name;
+  const sky = weather.get(day);
+  return (
+    <section className="card poreia-today">
+      <p className="poreia-today__eyebrow">{[phase.kind === 'now' ? `Day ${phase.day} of ${phase.of}` : undefined, where].filter(Boolean).join(' · ')}</p>
+      <h2 className="poreia-today__title">{dayText(day)}</h2>
+      {sky && <DaySky day={sky} unit={unit} />}
+      {entries.length ? (
+        <ul className="poreia-agenda">
+          {entries.map((entry, index) => (
+            <li key={index}>
+              <AgendaRow entry={entry} onOpen={() => openEntry(nav, trip.id, entry)} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="muted">Nothing set today.</p>
+      )}
+      <AddToDay tripId={trip.id} date={day} />
+      <div className="poreia-today__actions">
+        <button type="button" className="poreia-today__action" onClick={() => onView('around')}>
+          <Sym name="pin" size={20} />
+          Around me
+        </button>
+        <button type="button" className="poreia-today__action" onClick={() => onView('money')}>
+          <Sym name="wallet" size={20} />
+          Spending
+        </button>
+        <button type="button" className="poreia-today__action" onClick={() => onView('days')}>
+          <Sym name="calendar" size={20} />
+          All days
+        </button>
+      </div>
+    </section>
   );
 }
 

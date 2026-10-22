@@ -43,7 +43,7 @@ async function json<T>(url: string): Promise<T> {
 
 // ---------- Places ----------
 
-type GeoResult = { name: string; country?: string; country_code?: string; admin1?: string; latitude: number; longitude: number; timezone?: string; feature_code?: string };
+type GeoResult = { name: string; country?: string; country_code?: string; admin1?: string; latitude: number; longitude: number; timezone?: string; feature_code?: string; elevation?: number; population?: number };
 
 /** Places matching a name, biggest first (Open-Meteo's place search, from GeoNames). */
 export async function findPlaces(query: string): Promise<Place[]> {
@@ -58,7 +58,19 @@ export async function findPlaces(query: string): Promise<Place[]> {
     lat: each.latitude,
     lon: each.longitude,
     timezone: each.timezone,
+    ...(typeof each.elevation === 'number' ? { elevation: Math.round(each.elevation) } : {}),
+    ...(typeof each.population === 'number' && each.population > 0 ? { population: each.population } : {}),
   }));
+}
+
+/** Meters above the sea at a point (Open-Meteo's elevation, from Copernicus), for places kept before it was asked. */
+export async function elevationAt(lat: number, lon: number): Promise<number | undefined> {
+  try {
+    const data = await cached(`elevation.${lat.toFixed(2)},${lon.toFixed(2)}`, 365 * DAY, () => json<{ elevation?: number[] }>(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`));
+    return typeof data.elevation?.[0] === 'number' ? data.elevation[0] : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 // ---------- Weather ----------

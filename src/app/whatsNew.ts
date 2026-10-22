@@ -3,6 +3,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Each trip has its own drawn picture from its place (coast, hills, mountains, snow, a city skyline or palms), lit by the hour there; the same picture marks it in your list of trips.',
+      'While a trip is on, its first tab is Today: the day’s plans and weather, Around me, Spending and All days, with the rest of the trip folded below.',
+      'A place typed without picking it from the list now finds itself on the map, so Around, weather and the country facts show for it; trips kept that way are filled in when opened.',
       'Poreia’s trip pages have six icon tabs that fit the screen and stay at the top while you scroll; empty places show what goes there and the way in, and every kind of booking has its own mark.',
       'Poreia trips can have several stops, each with its own dates; days, map, guide and weather follow the stop.',
       'Bring a booking in from a file: a PDF, a screenshot, a calendar invite or an email. On Android, share a confirmation to Poreia.',

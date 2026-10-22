@@ -1174,4 +1174,15 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
   dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`
   (Lamplight glyphs `car`, `train`, `bus`, `ship`, `ticket`, `pin` added for them).
+- Trip pictures (`core/scene.ts`, `components/TripScene.tsx`): drawn in the browser in the family's scene style (sky, the one
+  light at LAMP_X with its ring, ridges): `sceneKindFor` from the place's `elevation` and `population` (kept from Open-Meteo's
+  place search; `elevationAt` asks once for older places): snow, mountains, city skyline, coast, tropics (palms), hills;
+  `sceneTimeAt(hourAt(timezone))` lights it as dawn, day, dusk or night at the place. `TripScene` sits across the top of a
+  trip's page (`.poreia-scene`, a `PICTURE` for the top bar, so its back link and name stay light); `SceneTile` is the
+  trip's tile in lists. A trip under way opens on Today (`TodayCard`: the day, its sky, entries, Add a plan, Around me /
+  Spending / All days) with the rest under "More about this trip".
+- Places without a map point (typed, not picked) are looked up (`app/locate.ts`: `useLocatedTrip` writes the first match's
+  facts onto the trip, keeping its name; `useLocatedPlace` for Explore); `PlaceSearch` takes the first match on leaving the field.
+- Spacing: every block in a trip tab, a fold or a page follows the family gap (`.vt-panel > * + *`); sideways chip rows fade
+  at their ends.
 - Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|join:LIST|documents|shared|explore|time|more`.

@@ -1,3 +1,4 @@
+import { useLocatedPlace } from '../app/locate';
 import { useState } from 'react';
 import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, settings, today, trips } from '../app/state';
@@ -35,7 +36,8 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
     }
   };
   const places = [...new Map(list.filter((trip) => trip.place?.lat !== undefined).map((trip) => [trip.place!.label ?? trip.place!.name, trip.place!])).values()].slice(0, 8);
-  const target: Target | undefined = state.place ? { place: state.place, start: state.start, end: state.end, travelers: state.travelers ?? prefs.travelers } : undefined;
+  const place = useLocatedPlace(state.place);
+  const target: Target | undefined = place ? { place, start: state.start, end: state.end, travelers: state.travelers ?? prefs.travelers } : undefined;
 
   return (
     <div className="page poreia-page">

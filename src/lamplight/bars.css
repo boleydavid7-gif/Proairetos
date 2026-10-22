@@ -169,7 +169,7 @@
   }
 
   /* Over a home picture's shaded top the mark and name stay light, as the in-page brand was. */
-  .ll-topbar.is-over-picture .ll-topbar__lead:not(.is-back) {
+  .ll-topbar.is-over-picture .ll-topbar__lead {
     color: #fbf6ec;
     text-shadow: 0 1px 8px rgb(0 0 0 / 0.3);
   }
