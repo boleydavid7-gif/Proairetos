@@ -9,6 +9,7 @@ import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type SpendCategory
 import { balances, settleUp } from '../core/split';
 import { Balances, peopleOf } from './Together';
 import { SavingCard } from './TripGoals';
+import { YearBudgetLine } from './References';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
 export default function TripMoney({ trip }: { trip: Trip }) {
@@ -58,6 +59,7 @@ export default function TripMoney({ trip }: { trip: Trip }) {
             Budget {moneyText(trip.budget)} · {totals.total <= trip.budget.cents ? `${moneyText({ cents: trip.budget.cents - totals.total, currency })} left` : `${moneyText({ cents: totals.total - trip.budget.cents, currency })} over`}
           </p>
         )}
+        {trip.start && <YearBudgetLine year={Number(trip.start.slice(0, 4))} />}
         <dl className="detail-list">
           <dt>Booked</dt>
           <dd>{moneyText({ cents: totals.booked, currency })}</dd>

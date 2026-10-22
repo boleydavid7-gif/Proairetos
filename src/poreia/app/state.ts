@@ -18,6 +18,8 @@ export type PoreiaSettings = {
   currency: string;
   travelers: number;
   temperature: 'C' | 'F';
+  /** What the person sets aside for travel in a year: a reference beside each trip's budget, never a limit. */
+  yearBudget?: { cents: number; currency: string };
   /** Time off is set up once its balance and growth are given. */
   timeOff?: TimeOffSetup;
   /** The person's own name on shared trips and in who paid; Proairetos's name when not set. */

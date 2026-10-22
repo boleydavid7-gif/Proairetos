@@ -1181,6 +1181,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `components/WhenToGo.tsx`): the past twelve whole months at the place as one range bar a month on one scale, a tap names
   the month, a dot marks the trip's months, a table beside; in Explore and on trips still to come. Explore's `PlaceHeader`:
   the place's picture (`PlaceScene`), hours apart and distance from home.
+- References, set in More > Budget and time off (never on the Trips page): `settings.yearBudget` (the year's travel budget,
+  in Poreia's currency when set) and the time off balance. `components/References.tsx`: `YearBudgetLine` (`core/yearBudget.ts`
+  `yearTrips`: trips starting that year, each at its budget or its costs so far when more, converted by `ratesInto`) under
+  the trip form's Budget and on Money; `TimeOffLine` (hours the dates take by `countHours`, what `leftAfter` leaves) under
+  the trip form's dates. Amounts typed anywhere are read by `core/money/readAmount.ts` (shared with Oikonomia's
+  `moneyInputCents`: "3,500" and "3.500,00").
 - Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
   dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`

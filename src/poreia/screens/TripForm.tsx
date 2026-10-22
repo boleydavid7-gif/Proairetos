@@ -6,6 +6,7 @@ import { newId, nowStamp, removeTrip, settings, trips } from '../app/state';
 import { MoneyField, PlaceSearch } from '../app/ui';
 import { withStops, type Place, type Stop, type Trip, type TripStage } from '../core/model';
 import DateRange from '../components/DateRange';
+import { TimeOffLine, YearBudgetLine } from '../components/References';
 
 type StopDraft = { id: string; place?: Place; start: string; end: string };
 
@@ -49,6 +50,11 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       }
       return next;
     });
+  // The whole stretch away, for the time off it takes and the year it counts in.
+  const dated = several ? stops.filter((stop) => stop.start) : [];
+  const spanStart = several ? dated.map((stop) => stop.start).sort()[0] : start || undefined;
+  const spanEnd = several ? dated.map((stop) => stop.end || stop.start).sort().at(-1) : end || start || undefined;
+  const year = Number((spanStart ?? new Date().toISOString()).slice(0, 4));
   const title = name.trim() || (several ? stops.map((stop) => stop.place?.name).filter(Boolean).join(' and ') : place?.name) || '';
 
   const save = () => {
@@ -96,6 +102,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
               <DateRange start={stop.start || undefined} end={stop.end || undefined} empty="Pick a day" clearable={false} onChange={(dates) => changeStop(index, { start: dates.start ?? '', end: dates.end ?? '' })} />
             </div>
           ))}
+          <TimeOffLine start={spanStart} end={spanEnd} tripId={existing?.id} />
           <button type="button" className="button-quiet" onClick={addStop}>
             Add another stop
           </button>
@@ -124,6 +131,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
           }}
         />
       )}
+      {!several && <TimeOffLine start={spanStart} end={spanEnd} tripId={existing?.id} />}
 
       <label className="field">
         <span className="field__label">Travelers</span>
@@ -134,6 +142,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
 
       <PlaceSearch label="Starting from" value={from} onPick={setFrom} placeholder={prefs.home ? `${prefs.home.name}, or another place` : 'City, region or country'} />
       <MoneyField label="Budget" cents={budget.cents} currency={budget.currency} onChange={(cents, currency) => setBudget({ cents, currency })} />
+      <YearBudgetLine year={year} except={existing?.id ?? ''} adding={budget.cents ? { cents: budget.cents, currency: budget.currency || prefs.currency } : undefined} />
       <label className="field">
         <span className="field__label">Notes</span>
         <textarea className="input area" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />

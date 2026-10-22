@@ -4,6 +4,7 @@ import { ChevronIcon } from '../../app/family/icons';
 import { parseLocalDate } from '../../core/scheduling/dates';
 import { phaseOf, phaseText, placesOf, type Place, type Trip } from '../core/model';
 import { findPlaces } from './world';
+import { readAmount } from '../../core/money/readAmount';
 
 /** "Nov 2", "Nov 2 – 8", "Nov 30 – Dec 3", with the year when it is not this year. */
 export function datesText(start?: string, end?: string, thisYear = new Date().getFullYear()): string {
@@ -152,8 +153,8 @@ export function MoneyField({ label, cents, currency, onChange }: { label: string
           placeholder="0"
           onChange={(event) => {
             setText(event.target.value);
-            const value = Number(event.target.value.replace(/,/g, '.').replace(/[^\d.]/g, ''));
-            onChange(event.target.value.trim() && Number.isFinite(value) ? Math.round(value * 100) : undefined, currency);
+            // "3,500" is three thousand five hundred, as Oikonomia reads it; blank or unreadable is no amount.
+            onChange(readAmount(event.target.value.replace(/[^\d.,\s]/g, '')) ?? undefined, currency);
           }}
         />
       </label>

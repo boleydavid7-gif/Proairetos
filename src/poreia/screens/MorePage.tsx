@@ -7,14 +7,17 @@ import { WeekIcon, ClockIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
-import { settings, type PoreiaSettings } from '../app/state';
+import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
+import { readAmount } from '../../core/money/readAmount';
+import { balanceOn, hoursText } from '../core/timeOff';
 import { eventsReady } from '../app/world';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN', 'BRL', 'INR', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR'];
 
 export default function MorePage({ nav }: { nav: PoreiaNav }) {
   const current = settings.use();
+  const offs = timeOff.use();
   const change = (patch: Partial<PoreiaSettings>) => settings.save({ ...settings.load(), ...patch });
   const notice = (patch: Partial<PoreiaSettings['notices']>) => {
     change({ notices: { ...current.notices, ...patch } });
@@ -63,6 +66,24 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         </div>
       </section>
 
+      <p className="ll-section-label">Budget and time off</p>
+      <section className="card">
+        <YearBudgetField />
+      </section>
+      <ul className="rows">
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'time-setup' })}>
+            <span className="row__icon">
+              <ClockIcon size={22} />
+            </span>
+            <span className="row__text">
+              <span>Time off balance</span>
+              <span className="row__detail">{current.timeOff ? `${hoursText(balanceOn(current.timeOff, offs, today()))} on hand` : 'Not set up'}</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+
       <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'documents' })}>
         Documents
       </button>
@@ -104,17 +125,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
 
       <ul className="rows">
         <li>
-          <button type="button" className="row" onClick={() => nav.go({ name: 'time-setup' })}>
-            <span className="row__icon">
-              <ClockIcon size={22} />
-            </span>
-            <span className="row__text">
-              <span>Time off balance</span>
-              <span className="row__detail">{current.timeOff ? 'Set' : 'Not set up'}</span>
-            </span>
-          </button>
-        </li>
-        <li>
           <a className="row" href="/?open=settings:calendars">
             <span className="row__icon">
               <WeekIcon size={22} />
@@ -150,5 +160,30 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
 
       <FamilyApps current="poreia" />
     </div>
+  );
+}
+
+/** The year's travel budget, in Poreia's currency when first set; trips show what is left of it. */
+function YearBudgetField() {
+  const current = settings.use();
+  const kept = current.yearBudget;
+  const currency = kept?.currency ?? current.currency;
+  const [text, setText] = useState(kept ? String(kept.cents / 100) : '');
+  return (
+    <label className="field">
+      <span className="field__label">Travel budget for the year ({currency})</span>
+      <input
+        className="input"
+        inputMode="decimal"
+        value={text}
+        placeholder="0"
+        onChange={(event) => {
+          setText(event.target.value);
+          const cents = readAmount(event.target.value);
+          if (cents === undefined) return;
+          settings.save({ ...settings.load(), yearBudget: cents ? { cents, currency } : undefined });
+        }}
+      />
+    </label>
   );
 }

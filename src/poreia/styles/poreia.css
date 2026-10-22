@@ -132,20 +132,11 @@
   text-align: right;
 }
 
-.poreia-glance {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--ll-outer, 18px);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+/* A reference beside a field: the time off a trip's dates take, the year's travel budget. */
+.poreia-reference {
+  margin-top: calc(var(--ll-gap, 16px) * -0.5);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 /* A day's agenda: time on the left, what on the right. */

@@ -4,19 +4,16 @@ import { DailyLine } from '../../app/family/DailyLine';
 import photo from '../../assets/images/scenes/poreia.webp';
 import photoWide from '../../assets/images/scenes/poreia-wide.webp';
 import type { PoreiaNav } from '../app/App';
-import { settings, timeOff, today, trips } from '../app/state';
+import { today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';
 import LookBack from '../components/LookBack';
 import { InviteCard } from '../components/Together';
-import { datesText, dayText, TripRow } from '../app/ui';
+import { datesText, TripRow } from '../app/ui';
 import { phaseOf, phaseText, sortTrips } from '../core/model';
-import { balanceOn, hoursText } from '../core/timeOff';
 import RouteEmpty from '../components/RouteEmpty';
 
 export default function TripsPage({ nav }: { nav: PoreiaNav }) {
   const list = trips.use();
-  const offs = timeOff.use();
-  const setup = settings.use().timeOff;
   const day = today();
   const { now, ahead, someday, past } = sortTrips(list, day);
   const lead = now[0] ?? ahead[0];
@@ -95,11 +92,6 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
             )}
           </>
         )}
-
-        <button type="button" className="poreia-glance" onClick={() => nav.swap({ name: 'time' })}>
-          <span className="label">Time off</span>
-          <span>{setup ? `${hoursText(balanceOn(setup, offs, day))} on hand${offs.some((off) => off.status !== 'canceled' && off.start > day) ? ` · next ${dayText(offs.filter((off) => off.status !== 'canceled' && off.start > day).sort((a, b) => a.start.localeCompare(b.start))[0].start)}` : ''}` : 'Set up your balance'}</span>
-        </button>
 
         {list.length > 0 && <DailyLine app="poreia" />}
       </div>

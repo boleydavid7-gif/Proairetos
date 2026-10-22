@@ -1,5 +1,6 @@
 import { monthBounds, occurrencesBetween, type Bill } from './bills';
 import type { Recipe } from '../../soma/core/recipes';
+import { readAmount } from '../../core/money/readAmount';
 
 /** A small set of household areas that can hold a monthly plan. */
 export type BudgetCategory = 'housing' | 'utilities' | 'transport' | 'food' | 'health' | 'subscriptions' | 'debt' | 'savings' | 'personal' | 'other';
@@ -74,18 +75,8 @@ export function newBudget(month: string, currency: string, now = new Date().toIS
 
 /** Money stays as text during editing; convert once when saving. Blank means no limit. */
 export function moneyInputCents(value: string): number | undefined {
-  const text = value.trim().replace(/[\s\u00a0\u202f]/g, '').replace(/[.,]$/, '');
-  if (!text) return 0;
-  // Thousands written either way: "3,500.00" and "3.500,00"; the last mark with one or two digits after it is the decimal.
-  const decimal = /[.,]\d{1,2}$/.test(text) ? text[text.search(/[.,]\d{1,2}$/)] : undefined;
-  const whole = decimal ? text.slice(0, text.lastIndexOf(decimal)) : text;
-  const cents = decimal ? text.slice(text.lastIndexOf(decimal) + 1) : '';
-  // Groups use the other mark: commas with a decimal point (or none), points with a decimal comma. "1.234" stays unread.
-  const group = decimal === ',' ? '.' : ',';
-  const grouped = new RegExp(`^\\d{1,3}(?:\\${group}\\d{3})+$`);
-  if (!/^\d+$/.test(whole) && !grouped.test(whole)) return undefined;
-  const amount = Math.round(Number(`${whole.split(group).join('')}.${cents || '0'}`) * 100);
-  return Number.isSafeInteger(amount) && amount >= 0 ? amount : undefined;
+  const amount = readAmount(value);
+  return amount === null ? 0 : amount;
 }
 
 /** Older or partially restored plans can omit areas; fill only missing amounts. */

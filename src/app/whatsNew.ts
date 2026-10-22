@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia: a travel budget for the year in More, shown beside each trip’s budget; the trip form says how much time off its dates take and what it leaves. Time off moved off the Trips page.',
       'Poreia’s dates are two tiles, From and Until, that read like dates and open the phone’s own calendar, with the nights between and Clear dates.',
       'When to go: last year’s highs, lows and rainy days at a place, month by month, in Explore and on trips still to come.',
       'Explore shows the place you pick with its picture, the time difference and how far it is from home.',
