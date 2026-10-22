@@ -981,7 +981,9 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Add a date (route `date`, `?open=date` or `date:PERSON`; `screens/AddDatePage.tsx`, from Home's Coming up and a person's
   Dates): who (or someone new), Birthday / Anniversary / Other, every year or once (`PersonDate.once`, full date, optional
   `time`), with undo; `withDate`, `timeText` in `core/people.ts`. Once events show in Coming up, notices and Proairetos's
-  Days ahead lines until their day; the edit form keeps and changes them.
+  Days ahead lines until their day; the edit form keeps and changes them. Events with a time are entries (an hour) on
+  Today's timeline and in Days ahead's calendar (`app/calendars/philiaCalendar.ts`, beside Poreia's; not in the published
+  calendar), count as busy for open time and the training offers, and leave the quiet lines (`birthdaysOn` skips them).
 - Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
   week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
   late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;

@@ -4,6 +4,7 @@ import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
+import { philiaCalendar } from '../../app/calendars/philiaCalendar';
 import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
@@ -75,7 +76,8 @@ import { useNow } from './hooks/useNow';
 function subscribeCalendars(listener: () => void): () => void {
   const offOther = otherCalendars.subscribe(listener);
   const offPoreia = poreiaCalendar.subscribe(listener);
-  return () => { offOther(); offPoreia(); };
+  const offPhilia = philiaCalendar.subscribe(listener);
+  return () => { offOther(); offPoreia(); offPhilia(); };
 }
 
 /**
@@ -118,14 +120,14 @@ export default function NowPage() {
     useServiceData(subscribeCalendars, async () => {
       const from = atTime(date, '00:00');
       const until = atTime(addDays(date, 1), '00:00');
-      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until)]);
-      return [...other, ...poreia];
+      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until)]);
+      return [...other, ...poreia, ...philia];
     }, [date]) ?? [];
   const todayRange = rangeOf(today);
   const todayEvents =
     useServiceData(subscribeCalendars, async () => {
-      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
-      return [...other, ...poreia];
+      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end), philiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
+      return [...other, ...poreia, ...philia];
     }, [todayRange.start.getTime()]) ?? [];
   const busy = [
     ...nearOccurrences,

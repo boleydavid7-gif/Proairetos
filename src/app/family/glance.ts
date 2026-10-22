@@ -74,7 +74,8 @@ export function waterDuring(
 
 /** Birthdays and dates from Philia that fall on a day (read only; each opens the person in Philia). */
 export function birthdaysOn(people: readonly Person[], date: string): { id: string; name: string; href: string }[] {
-  return comingUp(people, date, 0).map((entry) => ({
+  // Events with a time show as entries at that time (`app/calendars/philiaCalendar.ts`), not as lines.
+  return comingUp(people, date, 0).filter((entry) => !entry.time).map((entry) => ({
     id: entry.key,
     name: entry.label === 'Birthday' ? `${entry.person.name}’s birthday` : `${entry.person.name}: ${entry.label}`,
     href: `/philia/?open=${encodeURIComponent(`person:${entry.person.id}`)}`,
