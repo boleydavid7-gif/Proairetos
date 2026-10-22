@@ -74,3 +74,8 @@
     font-weight: 650;
   }
 }
+
+/* Proairetos's own surfaces take the same filled, outline-free look. */
+:root :is(.look-ahead, .intention, .today-group, .reflect-places, .add-reflection, .settings-list) {
+  border-color: transparent;
+}

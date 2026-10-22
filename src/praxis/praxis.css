@@ -292,3 +292,11 @@ html, body { margin: 0; }
 .praxis-focus-card.praxis-focus-card--empty { min-height: 0; }
 /* With no blocks yet, Your blocks below is the way in; the empty focus card said only that. */
 .praxis-focus-card.praxis-focus-card--empty:not(:has(.praxis-focus-stage)) { display: none; }
+
+/* Lamplight 1.4: the add row gets room. The block's name takes the whole line; minutes and Add sit under it, at the
+   family's field height and 16 px type (which also keeps iPhones from zooming in on the field). */
+.praxis-add__row { grid-template-columns: 88px minmax(0, 1fr); gap: 8px; }
+.praxis-add__row > input:first-child { grid-column: 1 / -1; }
+.praxis-add input { min-height: 44px; padding: 8px 12px; border-color: transparent; border-radius: 12px; background: rgba(255, 255, 255, 0.06); font-size: 16px; }
+.praxis-add__row > .praxis-button { min-height: 44px; border-radius: 999px; }
+.praxis-add__row > .praxis-button:not(:disabled) { border-color: transparent; background: var(--ll-lamp-fill, var(--color-accent)); color: var(--ll-on-lamp, #101923); }

@@ -490,3 +490,37 @@ body:has(.hydros-shell) { min-height: 100dvh; }
   .hydros-add__stage > .hydros-header { margin-top: 30px; }
   .hydros-add__stage > .hydros-header .hydros-icon-button { visibility: hidden; pointer-events: none; }
 }
+
+/* ---------- Today, in the family's look (Lamplight 1.4): the drawn scene as a home band, the day's amount as one large
+   figure, the usual glasses as full-size tonal buttons, the drinks as one grouped list, the daily thought at the foot. */
+.hydros-home-hero .hero__content { display: flex; flex-direction: column; justify-content: space-between; }
+.hydros-home-hero .hydros-home-head { display: flex; align-items: center; justify-content: space-between; }
+.hydros-home-hero .home__title { margin: 0; color: #f4fbfc; font: 400 var(--text-4xl, 2.3rem)/1.05 var(--serif); }
+.hydros-home-hero .home__sub { margin: 6px 0 0; color: rgba(231, 247, 251, 0.9); font-size: var(--text-sm); }
+.hydros-home__content { gap: var(--ll-section-gap, 28px); padding-top: var(--ll-gap, 16px); }
+.hydros-amount { display: grid; gap: 10px; padding: 18px; border-radius: var(--ll-radius-md, 16px); background: var(--surface-solid); }
+.hydros-amount__figure { display: flex; align-items: baseline; gap: 8px; margin: 0; }
+.hydros-amount__figure strong { color: var(--text); font: 400 3rem/1 var(--serif); font-variant-numeric: tabular-nums; }
+.hydros-amount__figure span { color: var(--text-soft); font-size: var(--text-md); }
+.hydros-amount__bar { height: 8px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--cyan) 16%, var(--surface-solid)); }
+.hydros-amount__bar span { display: block; height: 100%; border-radius: inherit; background: var(--cyan); transition: width var(--ll-calm, 360ms) var(--ll-spring, ease); }
+.hydros-amount__line { margin: 0; color: var(--text); font-size: var(--text-md); font-weight: 600; }
+.hydros-amount__note { margin: 0; color: var(--muted); font-size: var(--text-sm); }
+.hydros-amount .button-quiet { justify-self: start; }
+.hydros-glasses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hydros-glass { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 0; border-radius: var(--ll-radius-md, 16px); background: color-mix(in srgb, var(--cyan) 16%, var(--surface-solid)); color: var(--text); text-align: left; }
+.hydros-glass > svg { flex: none; color: var(--cyan); }
+.hydros-glass span { display: grid; min-width: 0; gap: 1px; }
+.hydros-glass strong { overflow: hidden; font-size: var(--text-md); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hydros-glass small { overflow: hidden; color: var(--text-soft); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+.hydros-glass:active { transform: scale(0.97); }
+.hydros-today-list .hydros-section-title h2, .hydros-history .hydros-section-title h2 { font: 600 var(--text-lg, 1.15rem)/1.3 var(--sans, inherit); }
+.hydros-today-list .hydros-section-title > button { border: 0; background: color-mix(in srgb, var(--cyan) 16%, var(--surface-solid)); }
+.hydros-caffeine { margin: 0; color: var(--text-soft); font-size: var(--text-sm); }
+.hydros-drinks { overflow: hidden; border-radius: var(--ll-radius-md, 16px); background: var(--surface-solid); }
+.hydros-thought { padding: 0 4px; color: var(--muted); }
+.hydros-thought p { margin: 0; font: italic 400 var(--text-md)/1.45 var(--serif); }
+.hydros-thought small { display: block; margin-top: 6px; font-size: var(--text-xs); }
+.hydros-drinks .recent-entry { margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.hydros-drinks .recent-entry + .recent-entry { border-top: 1px solid var(--ll-hair, var(--line)); }
+.hydros-drinks .recent-entry__edit { border: 0; background: transparent; }

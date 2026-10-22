@@ -10,6 +10,7 @@ import { hydrosQuoteFor } from '../core/quotes';
 import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import IconButton from '../../components/ui/IconButton';
+import scene from '../../assets/images/scenes/hydros-sunset.webp';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
   const all = useDrinks();
@@ -41,49 +42,51 @@ export default function TodayPage({ nav }: { nav: Nav }) {
 
   return (
     <div className="hydros-home">
-      <section className="hydros-hero hydros-hero--today">
-        <div className="hydros-home-head">
-          <Brand light />
-          <IconButton className="hydros-settings-button" data-to-header="" label="Settings" onClick={() => nav.go({ name: 'settings' })}>
-            <GearIcon size={22} />
-          </IconButton>
+      <header className="hero hero--tall hydros-home-hero">
+        <img className="hero__image" src={scene} alt="" />
+        <div className="hero__shade" />
+        <div className="hero__content">
+          <div className="hydros-home-head">
+            <Brand light />
+            <IconButton className="hydros-settings-button" data-to-header="" label="Settings" onClick={() => nav.go({ name: 'settings' })}>
+              <GearIcon size={22} />
+            </IconButton>
+          </div>
+          <div className="home__words">
+            <h1 className="home__title">Today</h1>
+            <p className="home__sub">{dateLabel(now)}</p>
+          </div>
         </div>
-        <div className="hydros-hero__words">
-          <p>Today</p>
-          <span>{dateLabel(now)}</span>
-        </div>
-      </section>
+      </header>
 
       <section className="hydros-home__content">
-        {settings.goalChosen ? (
-          <article className="hydros-goal-card" aria-label={`${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}`}>
-            <div className="hydros-goal-ring" style={{ '--hydros-progress': `${percent}%` } as CSSProperties}>
-              <div className="hydros-goal-ring__inner"><strong>{formatVolume(amount, unit)}</strong><span>of {formatVolume(goal, unit)} {unit}</span></div>
-            </div>
-            <div className="hydros-goal-card__stats">
-              <span className="hydros-eyebrow">Daily goal</span>
-              <strong>{Math.round(percent)}% complete</strong>
-              <span>{remaining > 0 ? `${formatVolume(remaining, unit)} remaining` : 'Daily amount reached'}</span>
-              {extra > 0 && <small>{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</small>}
-            </div>
-          </article>
-        ) : (
-          <article className="hydros-goal-card hydros-goal-card--empty">
-            <div className="hydros-goal-card__stats"><span className="hydros-eyebrow">Daily goal</span><strong>{formatVolume(amount, unit)} logged today</strong><span>Choose an amount to see what remains.</span><button type="button" className="hydros-inline-action" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button></div>
-          </article>
-        )}
+        <article className="hydros-amount" aria-label={settings.goalChosen ? `${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}` : `${formatVolume(amount, unit)} ${unit} today`}>
+          <p className="hydros-amount__figure">
+            <strong>{formatVolume(amount, unit)}</strong>
+            <span>{settings.goalChosen ? `of ${formatVolume(goal, unit)} ${unit}` : `${unit} today`}</span>
+          </p>
+          {settings.goalChosen ? (
+            <>
+              <div className="hydros-amount__bar" role="presentation"><span style={{ width: `${percent}%` } as CSSProperties} /></div>
+              <p className="hydros-amount__line">{remaining > 0 ? `${formatVolume(remaining, unit)} ${unit} to go` : 'Daily amount reached'}</p>
+              {extra > 0 && <p className="hydros-amount__note">{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</p>}
+            </>
+          ) : (
+            <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button>
+          )}
+        </article>
 
-        <div className="hydros-quick" aria-label="Log a drink">
+        <div className="hydros-glasses" aria-label="Log a drink">
           {glasses.map((glass) => (
-            <button type="button" key={glass.id} onClick={() => void logDrink(glass, profiles, unit)}>
-              <strong>{glass.label}</strong>
-              <small>{volumeLabel(glass.amountOz, unit)}</small>
+            <button type="button" key={glass.id} className="hydros-glass" onClick={() => void logDrink(glass, profiles, unit)}>
+              <PlusIcon size={18} />
+              <span><strong>{glass.label}</strong><small>{volumeLabel(glass.amountOz, unit)}</small></span>
             </button>
           ))}
           {last && !sameAsGlass && (
-            <button type="button" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
-              <strong>Same again</strong>
-              <small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small>
+            <button type="button" className="hydros-glass" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
+              <PlusIcon size={18} />
+              <span><strong>Same again</strong><small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small></span>
             </button>
           )}
         </div>
@@ -104,18 +107,24 @@ export default function TodayPage({ nav }: { nav: Nav }) {
 
       <section className="hydros-today-list" aria-label="Today’s drinks">
         <div className="hydros-section-title">
-          <h2>Today</h2>
+          <h2>Drinks</h2>
           <button type="button" aria-label="Add a custom drink" onClick={() => nav.go({ name: 'add', custom: true })}><PlusIcon size={20} /></button>
-          {caffeine.mg > 0 && <span className="hydros-caffeine">{caffeine.mg} mg caffeine{caffeine.lastAt ? ` · last ${hourLabel(caffeine.lastAt)}` : ''}</span>}
         </div>
+        {caffeine.mg > 0 && <p className="hydros-caffeine">{caffeine.mg} mg caffeine{caffeine.lastAt ? ` · last at ${hourLabel(caffeine.lastAt)}` : ''}</p>}
         {all && todays.length === 0 && <p className="pattern-empty">Nothing logged yet.</p>}
-        {todays.map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />)}
+        {todays.length > 0 && (
+          <div className="hydros-drinks">
+            {todays.map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />)}
+          </div>
+        )}
       </section>
 
-      <section className="hydros-insights" aria-label="Hydration insights">
-        <article className="hydros-insight-card hydros-insight-card--quote"><span className="hydros-eyebrow">Daily thought</span><p>“{quote.text}”</p><small>— {quote.source}</small></article>
-        {caffeine.mg > 0 && <article className="hydros-insight-card"><span className="hydros-eyebrow">Caffeine today</span><strong>{caffeine.mg} mg</strong><small>{caffeine.lastAt ? `Last at ${hourLabel(caffeine.lastAt)}` : 'From what you logged'}</small></article>}
-      </section>
+      {todays.length > 0 && (
+        <footer className="hydros-thought">
+          <p>“{quote.text}”</p>
+          <small>{quote.source}</small>
+        </footer>
+      )}
       </section>
     </div>
   );

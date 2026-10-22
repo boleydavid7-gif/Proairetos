@@ -226,6 +226,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   chips take 8 px corners with the tonal container when chosen; every phone dock marks the current place with a tonal
   pill behind its icon (the `::after` measured by `dockMarks`, 58 x 30); the phone top bar's mica is 94% solid; `--text-xs`
   is 13 px and `--text-sm` 15 px.
+  Round 2: Hydros's Today rebuilt on the family hero (`hero hero--tall` with `hydros-sunset`, `home__title`), the day's amount as
+  one large figure with a bar (`.hydros-amount`), usual glasses as full-size tonal buttons (`.hydros-glass`), drinks as one
+  grouped list (`.hydros-drinks`), the daily thought at the foot once something is logged (`.hydros-thought`); Proairetos's
+  own surfaces lose their outlines too; Praxis's add row puts the name on its own line; Theoria shows the sync tag only when
+  signed in; Ktema's empty home shows four upkeep ideas and More ideas.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).

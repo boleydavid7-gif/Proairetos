@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
@@ -13,7 +14,9 @@ import { IDEAS, IDEAS_NOTE, grouped, warrantiesEnding, warrantyText, type Upkeep
 export function Ideas({ list, few = false }: { list: readonly Upkeep[]; few?: boolean }) {
   const unit = settings.use().distance;
   const today = toLocalDate(new Date());
-  const left = IDEAS.filter((idea) => !list.some((each) => each.name.toLowerCase() === idea.name.toLowerCase())).slice(0, few ? 4 : undefined);
+  const [all, setAll] = useState(false);
+  const every = IDEAS.filter((idea) => !list.some((each) => each.name.toLowerCase() === idea.name.toLowerCase()));
+  const left = every.slice(0, few || !all ? 4 : undefined);
   if (!left.length) return null;
   return (
     <>
@@ -25,6 +28,9 @@ export function Ideas({ list, few = false }: { list: readonly Upkeep[]; few?: bo
             offerUndo(`${idea.name} added`, () => upkeeps.remove(upkeep.id));
           }}>+ {idea.name}</button>
         ))}
+        {!few && !all && every.length > left.length && (
+          <button type="button" className="text-link" onClick={() => setAll(true)}>More ideas</button>
+        )}
       </div>
       <p className="fine">{IDEAS_NOTE}</p>
     </>

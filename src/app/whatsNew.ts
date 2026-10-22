@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Hydros has a new Today: the day’s amount in large type, your usual glasses as big one-tap buttons, and the drinks as one list.',
       'A new finish across every app: filled cards without outlines, solid tonal buttons, a pill around the icon of the tab you are on, slightly larger small text, and a more solid bar at the top.',
       'Philia: Add a date from Home or a person’s page, for a birthday, an anniversary or any other event, every year or once, with a time if it has one. They show in Proairetos too: dates under their day in Days ahead, and events with a time on Today and in the calendar.',
       'Times offered for a run or workout keep clear of sleep: never in the hour before bed or the wind-down (from Diaita when added), and out of naps if you turn on Scheduled naps in Diaita.',
