@@ -6,6 +6,7 @@ import { BookLinks, CountryCard, GuideCard, Weather, type Target } from '../comp
 import Around from '../components/Around';
 import type { SearchKind } from '../core/links';
 import type { Place, Trip } from '../core/model';
+import RouteEmpty from '../components/RouteEmpty';
 
 const KEPT = 'poreiaExplore';
 
@@ -83,7 +84,7 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
           <GuideCard place={target.place} />
         </>
       ) : (
-        <p className="muted">Pick a place to see its weather, stays, flights, cruises, events, sights and the guide.</p>
+        <RouteEmpty glyph="globe" title="Where to?" line="Pick a place to see its weather, stays, flights, events, sights and the guide." />
       )}
     </div>
   );

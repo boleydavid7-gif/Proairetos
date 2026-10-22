@@ -1170,4 +1170,8 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   per trip in `poreia:links` (`TripLinks`: `goalId`, `envelopeId`, `saved`), never in the shared trip record. GoalCard adds
   the trip as a GOAL and offers "Mark it reached" after it; SavingCard on Money makes or links an Oikonomia envelope (target
   the budget, date the start; Oikonomia `?open=envelopes`) when Oikonomia is added, else keeps "Saved for it" here.
+- Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
+  top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
+  dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`
+  (Lamplight glyphs `car`, `train`, `bus`, `ship`, `ticket`, `pin` added for them).
 - Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|join:LIST|documents|shared|explore|time|more`.

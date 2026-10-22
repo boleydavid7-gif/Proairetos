@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { Sym, type GlyphName } from '../../lamplight/icons';
 import { offerUndo } from '../../app/family/shell';
 import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
@@ -20,16 +21,17 @@ import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { ArrivingCard, DocumentsCard } from '../components/Arriving';
 import { GoalCard } from '../components/TripGoals';
+import RouteEmpty from '../components/RouteEmpty';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
-const VIEWS: { id: TripView; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'days', label: 'Days' },
-  { id: 'bookings', label: 'Bookings' },
-  { id: 'around', label: 'Around' },
-  { id: 'packing', label: 'Packing' },
-  { id: 'money', label: 'Money' },
+const VIEWS: { id: TripView; label: string; glyph: GlyphName }[] = [
+  { id: 'overview', label: 'Overview', glyph: 'home' },
+  { id: 'days', label: 'Days', glyph: 'calendar' },
+  { id: 'bookings', label: 'Bookings', glyph: 'ticket' },
+  { id: 'around', label: 'Around', glyph: 'pin' },
+  { id: 'packing', label: 'Packing', glyph: 'suitcase' },
+  { id: 'money', label: 'Money', glyph: 'wallet' },
 ];
 
 // The part of each trip last open, so coming back from a place, a booking or another tab lands where the person was.
@@ -71,17 +73,18 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         <h1 className="title">{trip.name}</h1>
         <p>{[stops.length > 1 ? stops.map((each) => each.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.label ?? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</p>
         <p className="muted">
-          {[phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, trip.stage === 'idea' ? 'Idea' : trip.stage === 'planning' ? 'Planning' : 'Booked'].filter(Boolean).join(' · ')}
+          {[phase.kind === 'someday' ? undefined : phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, trip.stage === 'idea' ? 'Idea' : trip.stage === 'planning' ? 'Planning' : 'Booked'].filter(Boolean).join(' · ')}
         </p>
         <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
           Edit
         </button>
       </div>
 
-      <div className="chip-row poreia-scroll-chips poreia-views" role="tablist" aria-label="Trip">
+      <div className="poreia-tabs" role="tablist" aria-label="Trip" style={{ '--at': VIEWS.findIndex((each) => each.id === view), '--count': VIEWS.length } as CSSProperties}>
         {VIEWS.map((each) => (
-          <button key={each.id} type="button" role="tab" className="chip" aria-selected={view === each.id} aria-pressed={view === each.id} onClick={() => pick(each.id)}>
-            {each.label}
+          <button key={each.id} type="button" role="tab" className="poreia-tabs__tab" aria-selected={view === each.id} onClick={() => pick(each.id)}>
+            <Sym name={each.glyph} size={22} />
+            <span>{each.label}</span>
           </button>
         ))}
       </div>
@@ -106,7 +109,11 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
               {target && phase.kind !== 'past' && <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />}
             </>
           ) : (
-            <p className="muted">Add where you’re going to see the map, the guide’s places and what’s nearby.</p>
+            <RouteEmpty glyph="pin" title="No place yet" line="Add where you’re going for the map, the guide’s places and what’s nearby.">
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
+                Add a place
+              </button>
+            </RouteEmpty>
           ))}
         {view === 'bookings' && (
           <>
@@ -130,12 +137,11 @@ function Overview({ trip, target, nav, day }: { trip: Trip; target?: Target; nav
       <TimeThere trip={trip} place={target?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
-        <section className="card first-run">
-          <p className="muted">Add where you’re going for weather, a guide, things nearby and booking searches.</p>
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
+        <RouteEmpty glyph="pin" title="Where to?" line="Add where you’re going for weather, a guide, things nearby and booking searches.">
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
             Add a place
           </button>
-        </section>
+        </RouteEmpty>
       )}
       {target && (
         <>

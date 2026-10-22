@@ -4,6 +4,7 @@ import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today } from '../app/state';
 import { datesText } from '../app/ui';
 import { accrualDates, balanceOn, daysOff, daysText, hoursText, STATUS_LABEL, type TimeOff } from '../core/timeOff';
+import RouteEmpty from '../components/RouteEmpty';
 
 /** Time off: what is on hand, what is ahead and where each request stands, and the year at a glance. */
 export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
@@ -69,12 +70,11 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
           </button>
         </section>
       ) : (
-        <section className="card first-run">
-          <p className="muted">Give your balance and how it grows, and every trip shows what it leaves.</p>
+        <RouteEmpty glyph="clock" title="Your time off" line="Give your balance and how it grows, and every trip shows what it leaves.">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'time-setup' })}>
             Set up your balance
           </button>
-        </section>
+        </RouteEmpty>
       )}
 
       <div className="section-head">
@@ -83,7 +83,7 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
           <PlusIcon size={16} /> Add time off
         </button>
       </div>
-      {ahead.length ? <ul className="rows">{ahead.map(row)}</ul> : <p className="muted">Nothing planned.</p>}
+      {ahead.length ? <ul className="rows">{ahead.map(row)}</ul> : <p className="muted poreia-quiet">Nothing planned.</p>}
 
       <YearView year={year} offs={offs} />
 

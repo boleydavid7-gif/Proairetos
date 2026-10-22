@@ -1,8 +1,24 @@
-import { BedIcon, ChevronIcon, PlaneIcon, PlusIcon } from '../../app/family/icons';
+import { ChevronIcon, PlusIcon } from '../../app/family/icons';
 import type { PoreiaNav } from '../app/App';
 import { bookings } from '../app/state';
 import { dayText, timeText } from '../app/ui';
-import { kindLabel, moneyText, type Booking, type Trip } from '../core/model';
+import { kindLabel, moneyText, type Booking, type BookingKind, type Trip } from '../core/model';
+import RouteEmpty from './RouteEmpty';
+import { Sym, type GlyphName } from '../../lamplight/icons';
+
+/** Each kind of booking's own drawn mark. */
+export const KIND_GLYPH: Record<BookingKind, GlyphName> = {
+  flight: 'plane',
+  stay: 'bed',
+  car: 'car',
+  train: 'train',
+  bus: 'bus',
+  cruise: 'ship',
+  event: 'ticket',
+  tour: 'pin',
+  food: 'plate',
+  other: 'paperclip',
+};
 
 const when = (booking: Booking) => {
   if (!booking.startDate) return 'No date';
@@ -19,6 +35,7 @@ export default function TripBookings({ trip, nav }: { trip: Trip; nav: PoreiaNav
     .sort((a, b) => `${a.startDate ?? '9999'}${a.startTime ?? ''}`.localeCompare(`${b.startDate ?? '9999'}${b.startTime ?? ''}`));
   return (
     <>
+      {list.length > 0 && (
       <div className="button-row">
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'booking', tripId: trip.id, paste: true })}>
           Paste a confirmation
@@ -28,14 +45,23 @@ export default function TripBookings({ trip, nav }: { trip: Trip; nav: PoreiaNav
           Add by hand
         </button>
       </div>
+      )}
       {list.length === 0 ? (
-        <p className="muted">Flights, stays, cars, cruises, tickets: each booking keeps its confirmation, times and cost here, and shows on its day.</p>
+        <RouteEmpty glyph="plane" title="No bookings yet" line="Flights, stays, cars, tickets: paste a confirmation, bring in a file or add one by hand.">
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'booking', tripId: trip.id, paste: true })}>
+          Paste a confirmation
+        </button>
+        <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'booking', tripId: trip.id })}>
+          <PlusIcon size={18} />
+          Add by hand
+        </button>
+        </RouteEmpty>
       ) : (
         <ul className="rows poreia-bookings">
           {list.map((booking) => (
             <li key={booking.id}>
               <button type="button" className="row" onClick={() => nav.go({ name: 'booking', tripId: trip.id, id: booking.id })}>
-                <span className="row__icon">{booking.kind === 'flight' ? <PlaneIcon size={22} /> : booking.kind === 'stay' ? <BedIcon size={22} /> : <span className="poreia-kind-letter">{kindLabel(booking.kind).slice(0, 1)}</span>}</span>
+                <span className="row__icon"><Sym name={KIND_GLYPH[booking.kind]} size={22} /></span>
                 <span className="row__text">
                   <span>{booking.title}</span>
                   <span className="row__detail">{[kindLabel(booking.kind), when(booking), booking.confirmation].filter(Boolean).join(' · ')}</span>

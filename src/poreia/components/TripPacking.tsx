@@ -9,6 +9,7 @@ import { forecast } from '../app/world';
 import { PACK_GROUPS, nightsOf, type PackGroup, type PackItem, type Trip } from '../core/model';
 import { suggestedPacking } from '../core/packing';
 import { daysBetween } from '../../core/scheduling/dates';
+import RouteEmpty from './RouteEmpty';
 
 /** The packing list: offered once from the trip's length, weather and bookings, then the person's own. */
 export default function TripPacking({ trip }: { trip: Trip }) {
@@ -48,16 +49,13 @@ export default function TripPacking({ trip }: { trip: Trip }) {
   return (
     <>
       {list.length === 0 ? (
-        <section className="card first-run">
-          <p className="muted">A starting list from the trip’s length{trip.place?.lat !== undefined ? ', weather' : ''} and bookings.</p>
+        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line={`A starting list from the trip’s length${trip.place?.lat !== undefined ? ', weather' : ''} and bookings, or your own below.`}>
           <button type="button" className="button-main" disabled={busy} onClick={() => void suggest()}>
             {busy ? <Waiting>Making a list…</Waiting> : 'Suggest a list'}
           </button>
-        </section>
+        </RouteEmpty>
       ) : (
-        <p className="muted">
-          {packed} of {list.length} packed
-        </p>
+        <PackedBar packed={packed} total={list.length} />
       )}
 
       {PACK_GROUPS.map(({ id, label }) => {
@@ -133,5 +131,19 @@ export default function TripPacking({ trip }: { trip: Trip }) {
         </button>
       )}
     </>
+  );
+}
+
+/** How much is packed, as a count and a thin bar. */
+function PackedBar({ packed, total }: { packed: number; total: number }) {
+  return (
+    <div className="poreia-packed">
+      <p className="poreia-packed__count">
+        {packed === total ? 'All packed' : `${packed} of ${total} packed`}
+      </p>
+      <div className="poreia-saving__bar" aria-hidden="true">
+        <span style={{ width: `${total ? (packed / total) * 100 : 0}%` }} />
+      </div>
+    </div>
   );
 }

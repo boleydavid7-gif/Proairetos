@@ -11,6 +11,7 @@ import { InviteCard } from '../components/Together';
 import { datesText, dayText, TripRow } from '../app/ui';
 import { phaseOf, phaseText, sortTrips } from '../core/model';
 import { balanceOn, hoursText } from '../core/timeOff';
+import RouteEmpty from '../components/RouteEmpty';
 
 export default function TripsPage({ nav }: { nav: PoreiaNav }) {
   const list = trips.use();
@@ -42,9 +43,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
       <div className="page page--under-hero">
         <InviteCard nav={nav} />
         {list.length === 0 ? (
-          <section className="card first-run">
-            <p className="muted">Start with a place, or just an idea.</p>
-            <div className="button-row">
+          <RouteEmpty glyph="plane" title="No trips yet" line="Start with a place, or just an idea.">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
                 <PlusIcon size={18} />
                 Plan a trip
@@ -52,8 +51,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
               <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'explore' })}>
                 Explore places
               </button>
-            </div>
-          </section>
+          </RouteEmpty>
         ) : (
           <>
             <LookBack list={list} today={day} nav={nav} />

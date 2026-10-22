@@ -7,6 +7,7 @@ import type { PoreiaNav } from '../app/App';
 import { filesFor, putFile, removeFile, type DocFile } from '../app/docFiles';
 import { docs, newId, nowStamp, today, trips } from '../app/state';
 import { DOC_KINDS, docKindLabel, docsFor, expiryFact, masked, needsLook, type DocKind, type TravelDoc } from '../core/documents';
+import RouteEmpty from '../components/RouteEmpty';
 
 /** Passports, visas, insurance and the like: every trip's, or one trip's when opened from it. */
 export default function DocumentsPage({ nav, tripId }: { nav: PoreiaNav; tripId?: string }) {
@@ -38,11 +39,17 @@ export default function DocumentsPage({ nav, tripId }: { nav: PoreiaNav; tripId?
           })}
         </ul>
       ) : (
-        <p className="muted">Passports, visas, insurance and tickets, with their numbers and end dates. Kept on your own devices, never on a shared trip.</p>
+        <RouteEmpty glyph="shield" title="No documents yet" line="Passports, visas, insurance and tickets, with their numbers and end dates. Never on a shared trip.">
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'document', tripId })}>
+            Add a document
+          </button>
+        </RouteEmpty>
       )}
-      <button type="button" className="button-main" onClick={() => nav.go({ name: 'document', tripId })}>
-        Add a document
-      </button>
+      {shown.length > 0 && (
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'document', tripId })}>
+          Add a document
+        </button>
+      )}
     </div>
   );
 }

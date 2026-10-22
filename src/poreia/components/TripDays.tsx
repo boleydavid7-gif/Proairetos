@@ -13,6 +13,7 @@ import { tripEvents } from '../core/calendar';
 import { daysOf, entryTitle, moveAmong, placeLine, placesOf, planText, stopOn, type DayEntry, type PlanItem, type Trip } from '../core/model';
 import MapView from './MapView';
 import { Sym } from '../../lamplight/icons';
+import RouteEmpty from './RouteEmpty';
 
 /** One line of a day: its time, what it is and where; tapping opens the booking or the plan. */
 export function AgendaRow({ entry, onOpen }: { entry: DayEntry; onOpen: () => void }) {
@@ -40,7 +41,14 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
   const unit = settings.use().temperature;
   const weather = useDayWeather(trip);
   const drag = useRef<{ id: string; list: PlanItem[]; startY: number; row: HTMLElement; others: { id: string; mid: number }[]; to: number }>(undefined);
-  if (!trip.start) return <p className="muted">Give the trip dates to plan it day by day.</p>;
+  if (!trip.start)
+    return (
+      <RouteEmpty glyph="calendar" title="No dates yet" line="Give the trip dates to plan it day by day.">
+        <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
+          Add dates
+        </button>
+      </RouteEmpty>
+    );
 
   const untimed = (entries: DayEntry[]) => entries.flatMap((entry) => (entry.kind === 'plan' && !entry.item.time ? [entry.item] : []));
   const reorder = (list: PlanItem[], id: string, to: number) => {

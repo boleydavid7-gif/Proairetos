@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia’s trip pages have six icon tabs that fit the screen and stay at the top while you scroll; empty places show what goes there and the way in, and every kind of booking has its own mark.',
       'Poreia trips can have several stops, each with its own dates; days, map, guide and weather follow the stop.',
       'Bring a booking in from a file: a PDF, a screenshot, a calendar invite or an email. On Android, share a confirmation to Poreia.',
       'Travel together: share a trip with the people going, and everyone sees and changes the same days, bookings, packing and spending. Mark who paid; Who paid shows the fewest payments that even it out.',
