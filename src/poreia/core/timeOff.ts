@@ -34,7 +34,12 @@ export type TimeOffSetup = {
   dayHours: number;
   /** With no work schedule in Proairetos: the weekdays (0 Sunday … 6 Saturday) a day off counts on. Empty = every day. */
   workDays: number[];
+  /** Hours a full week off takes; unset = the usual day times the work days (five when none are chosen). */
+  weekHours?: number;
 };
+
+/** A full week off, as the person set it or from the usual day. */
+export const fullWeekHours = (setup: Pick<TimeOffSetup, 'dayHours' | 'workDays' | 'weekHours'>): number => setup.weekHours ?? round(setup.dayHours * (setup.workDays.length || 5));
 
 export type TimeOffStatus = 'planned' | 'requested' | 'approved' | 'canceled';
 
@@ -136,16 +141,34 @@ export function leftAfter(setup: TimeOffSetup, offs: readonly TimeOff[], off: Pi
 export type Shift = { patternId: string; date: string; hours: number };
 
 /**
- * Hours a stretch of days off takes: the work shifts on those days when Proairetos has a work schedule, else the
- * usual day's hours on the person's work days (every day when none are chosen).
+ * Hours a stretch of days off takes. Each whole week of it (seven days from the first) takes a full week off; the days
+ * left over take their work shifts when Proairetos has a work schedule, else the usual day's hours on the person's work
+ * days (every day when none are chosen). Public holidays take nothing: a holiday in a whole week comes off the week.
  */
-export function hoursFor(start: string, end: string, shifts: readonly Shift[], setup: Pick<TimeOffSetup, 'dayHours' | 'workDays'>, hasSchedule: boolean): number {
+export function hoursFor(
+  start: string,
+  end: string,
+  shifts: readonly Shift[],
+  setup: Pick<TimeOffSetup, 'dayHours' | 'workDays' | 'weekHours'>,
+  hasSchedule: boolean,
+  holidays: ReadonlySet<string> = new Set(),
+): number {
   if (end < start) return 0;
-  if (hasSchedule) return round(shifts.filter((shift) => shift.date >= start && shift.date <= end).reduce((sum, shift) => sum + shift.hours, 0));
+  const usualDay = (date: string) => setup.workDays.length === 0 || setup.workDays.includes(parseLocalDate(date).getDay());
+  const dayHours = (date: string) =>
+    hasSchedule ? shifts.filter((shift) => shift.date === date).reduce((sum, shift) => sum + shift.hours, 0) : usualDay(date) ? setup.dayHours : 0;
+  // What a holiday in a whole week takes off it: that day's shift, else a usual day when it falls on one.
+  const holidayHours = (date: string) => (hasSchedule && shifts.some((shift) => shift.date === date) ? dayHours(date) : usualDay(date) ? setup.dayHours : 0);
+  const days = Math.round((parseLocalDate(end).getTime() - parseLocalDate(start).getTime()) / 86_400_000) + 1;
+  const weeks = Math.floor(days / 7);
   let hours = 0;
-  for (let date = start; date <= end; date = addDays(date, 1)) {
-    if (setup.workDays.length === 0 || setup.workDays.includes(parseLocalDate(date).getDay())) hours += setup.dayHours;
+  let date = start;
+  for (let week = 0; week < weeks; week += 1) {
+    let off = 0;
+    for (let day = 0; day < 7; day += 1, date = addDays(date, 1)) if (holidays.has(date)) off += holidayHours(date);
+    hours += Math.max(0, fullWeekHours(setup) - off);
   }
+  for (; date <= end; date = addDays(date, 1)) if (!holidays.has(date)) hours += dayHours(date);
   return round(hours);
 }
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { countHours } from '../app/proairetos';
 import { bookings, settings, spends, timeOff, trips } from '../app/state';
-import { ratesInto } from '../app/world';
+import { ratesInto, type Holiday } from '../app/world';
+import { parseLocalDate } from '../../core/scheduling/dates';
 import { moneyText, type Money } from '../core/model';
 import { hoursText, leftAfter } from '../core/timeOff';
 import { currenciesIn, yearTrips } from '../core/yearBudget';
@@ -10,7 +11,7 @@ import { currenciesIn, yearTrips } from '../core/yearBudget';
  * The year's travel budget beside the trips starting that year (each at its budget, or what it cost when more). In the
  * trip form, `except` leaves out the trip being edited and `adding` is its budget as typed.
  */
-export function YearBudgetLine({ year, except, adding }: { year: number; except?: string; adding?: Money }) {
+export function YearBudgetLine({ year, except, adding, label }: { year: number; except?: string; adding?: Money; label?: string }) {
   const budget = settings.use().yearBudget;
   const list = trips.use();
   const theirBookings = bookings.use();
@@ -37,7 +38,7 @@ export function YearBudgetLine({ year, except, adding }: { year: number; except?
   const rest = used <= budget.cents ? `${money(budget.cents - used)} left${own ? ' with this one' : ''}` : `${money(used - budget.cents)} over${own ? ' with this one' : ''}`;
   return (
     <p className="muted poreia-reference">
-      {except !== undefined || adding ? `Other trips in ${year}` : `Trips in ${year}`}: {money(others.cents)} of {money(budget.cents)} · {rest}
+      {label ?? (except !== undefined || adding ? `Other trips in ${year}` : `Trips in ${year}`)}: {money(others.cents)} of {money(budget.cents)} · {rest}
     </p>
   );
 }
@@ -47,24 +48,45 @@ export function TimeOffLine({ start, end, tripId }: { start?: string; end?: stri
   const setup = settings.use().timeOff;
   const offs = timeOff.use();
   const [needed, setNeeded] = useState<number>();
+  const [skipped, setSkipped] = useState<Holiday[]>([]);
   useEffect(() => {
     setNeeded(undefined);
     if (!start) return;
     let live = true;
     void countHours(start, end ?? start)
-      .then((counted) => live && setNeeded(counted.hours))
+      .then((counted) => {
+        if (!live) return;
+        setNeeded(counted.hours);
+        setSkipped(counted.holidays);
+      })
       .catch(() => undefined);
     return () => {
       live = false;
     };
   }, [start, end]);
   if (!start || needed === undefined) return null;
-  if (needed === 0) return <p className="muted poreia-reference">No work in these dates.</p>;
+  const holidays = skipped.length ? <HolidaysLine days={skipped} /> : null;
+  if (needed === 0)
+    return (
+      <>
+        <p className="muted poreia-reference">No work in these dates.</p>
+        {holidays}
+      </>
+    );
   const linked = tripId ? offs.find((off) => off.tripId === tripId && off.status !== 'canceled') : undefined;
   const left = setup ? leftAfter(setup, offs, { id: linked?.id ?? 'new', start, hours: needed }).after : undefined;
   return (
-    <p className="muted poreia-reference">
-      Takes {hoursText(needed)} of time off{left !== undefined ? ` · ${hoursText(left)} left after` : ''}
-    </p>
+    <>
+      <p className="muted poreia-reference">
+        Takes {hoursText(needed)} of time off{left !== undefined ? ` · ${hoursText(left)} left after` : ''}
+      </p>
+      {holidays}
+    </>
   );
+}
+
+/** "Thanksgiving Day, Nov 26, not counted": public holidays at home within the dates. */
+export function HolidaysLine({ days }: { days: readonly Holiday[] }) {
+  const named = days.map((day) => `${day.name}, ${parseLocalDate(day.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`);
+  return <p className="fine poreia-reference">{named.join('; ')}: {days.length === 1 ? 'a holiday' : 'holidays'}, not counted</p>;
 }

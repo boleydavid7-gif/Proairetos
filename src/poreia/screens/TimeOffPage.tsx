@@ -1,7 +1,9 @@
 import { ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { addDays, parseLocalDate } from '../../core/scheduling/dates';
 import type { PoreiaNav } from '../app/App';
-import { settings, timeOff, today } from '../app/state';
+import { settings, timeOff, today, trips } from '../app/state';
+import { moneyText } from '../core/model';
+import { YearBudgetLine } from '../components/References';
 import { datesText } from '../app/ui';
 import { accrualDates, balanceOn, daysOff, daysText, hoursText, STATUS_LABEL, type TimeOff } from '../core/timeOff';
 import RouteEmpty from '../components/RouteEmpty';
@@ -86,6 +88,7 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
       {ahead.length ? <ul className="rows">{ahead.map(row)}</ul> : <p className="muted poreia-quiet">Nothing planned.</p>}
 
       <YearView year={year} offs={offs} />
+      <TripsThisYear year={year} offs={offs} nav={nav} />
 
       {taken.length > 0 && (
         <details className="poreia-fold">
@@ -132,6 +135,39 @@ function YearView({ year, offs }: { year: number; offs: readonly TimeOff[] }) {
       <p className="poreia-year__key">
         <span className="poreia-year__day poreia-year__day--approved" /> Approved <span className="poreia-year__day poreia-year__day--requested" /> Requested <span className="poreia-year__day poreia-year__day--planned" /> Planned
       </p>
+    </section>
+  );
+}
+
+/** The year's trips side by side: the time off each takes and its budget, with the year's travel budget beside them. */
+function TripsThisYear({ year, offs, nav }: { year: number; offs: readonly TimeOff[]; nav: PoreiaNav }) {
+  const list = trips
+    .use()
+    .filter((trip) => trip.start && Number(trip.start.slice(0, 4)) === year)
+    .sort((a, b) => a.start!.localeCompare(b.start!));
+  if (!list.length) return null;
+  return (
+    <section className="card">
+      <h2 className="card__title">Trips in {year}</h2>
+      <YearBudgetLine year={year} label="Travel budget" />
+      <ul className="rows">
+        {list.map((trip) => {
+          const off = offs.find((each) => each.tripId === trip.id && each.status !== 'canceled');
+          return (
+            <li key={trip.id}>
+              <button type="button" className="row" onClick={() => nav.go({ name: 'trip', id: trip.id })}>
+                <span className="row__text">
+                  <span>{trip.name}</span>
+                  <span className="row__detail">
+                    {[datesText(trip.start, trip.end), off ? `${hoursText(off.hours)} off, ${STATUS_LABEL[off.status].toLowerCase()}` : 'No time off planned', trip.budget ? `${moneyText(trip.budget)} budget` : undefined].filter(Boolean).join(' · ')}
+                  </span>
+                </span>
+                <ChevronIcon size={18} />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

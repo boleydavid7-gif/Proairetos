@@ -186,7 +186,14 @@ export async function ratesInto(base: string): Promise<Record<string, number>> {
   return into;
 }
 
-export type Holiday = { date: string; name: string; localName: string };
+export type Holiday = { date: string; name: string; localName: string; global?: boolean; types?: string[] };
+
+/** Days off for everyone in a country (not one region's, not bank or school days) between two dates. */
+export async function publicHolidays(countryCode: string, start: string, end: string): Promise<Holiday[]> {
+  const years = new Set([Number(start.slice(0, 4)), Number(end.slice(0, 4))]);
+  const all = (await Promise.all([...years].map((year) => holidays(countryCode, year)))).flat();
+  return all.filter((day) => day.date >= start && day.date <= end && day.global !== false && (!day.types || day.types.includes('Public')));
+}
 
 export async function holidays(countryCode: string, year: number): Promise<Holiday[]> {
   return cached(`holidays.${countryCode}.${year}`, 30 * DAY, () => json<Holiday[]>(`https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode.toUpperCase()}`)).catch(() => []);

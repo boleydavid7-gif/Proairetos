@@ -7,7 +7,7 @@ import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
 import { bookings, newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
-import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, stopNow, stopOn, type Trip } from '../core/model';
+import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, STAGE_TEXT, stageOf, stopNow, stopOn, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
 import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
@@ -25,6 +25,8 @@ import { TripScene } from '../components/TripScene';
 import WhenToGo from '../components/WhenToGo';
 import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
+import { HolidaysLine } from '../components/References';
+import type { Holiday } from '../app/world';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -79,7 +81,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         <h1 className="title">{trip.name}</h1>
         <p>{[stops.length > 1 ? stops.map((each) => each.place.name).join(' → ') : trip.place && trip.place.name !== trip.name ? trip.place.label ?? trip.place.name : undefined, datesText(trip.start, trip.end)].filter(Boolean).join(' · ') || 'No place or dates yet'}</p>
         <p className="muted">
-          {[phase.kind === 'someday' ? undefined : phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, trip.stage === 'idea' ? 'Idea' : trip.stage === 'planning' ? 'Planning' : 'Booked'].filter(Boolean).join(' · ')}
+          {[phase.kind === 'someday' ? undefined : phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, STAGE_TEXT[stageOf(trip, bookings.list().filter((each) => each.tripId === trip.id))]].filter(Boolean).join(' · ')}
         </p>
         <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
           Edit
@@ -246,7 +248,7 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
   const offs = timeOff.use();
   const setup = settings.use().timeOff;
   const linked = offs.find((off) => off.tripId === trip.id && off.status !== 'canceled');
-  const [needed, setNeeded] = useState<{ hours: number; hasSchedule: boolean }>();
+  const [needed, setNeeded] = useState<{ hours: number; hasSchedule: boolean; holidays: Holiday[] }>();
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -264,8 +266,9 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
       <section className="card poreia-off-card">
         <h2 className="card__title">Time off</h2>
         <p>
-          {needed === undefined ? 'Counting…' : needed.hours === 0 ? 'No work in these dates.' : `These dates take ${hoursText(needed.hours)} of work${needed.hasSchedule ? ', from your schedule in Proairetos' : ''}.`}
+          {needed === undefined ? 'Counting…' : needed.hours === 0 ? 'No work in these dates.' : `These dates take ${hoursText(needed.hours)} of time off.`}
         </p>
+        {needed && needed.holidays.length > 0 && <HolidaysLine days={needed.holidays} />}
         {needed && needed.hours > 0 && setup && (
           <p className="muted">{hoursText(leftAfter(setup, offs, { id: 'new', start: trip.start, hours: needed.hours }).after)} left after, with everything planned before it.</p>
         )}

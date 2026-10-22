@@ -11,6 +11,7 @@ import RouteEmpty from '../components/RouteEmpty';
 import PlaceHeader from '../components/PlaceHeader';
 import WhenToGo from '../components/WhenToGo';
 import DateRange from '../components/DateRange';
+import { TimeOffLine, YearBudgetLine } from '../components/References';
 
 const KEPT = 'poreiaExplore';
 
@@ -58,6 +59,12 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
         </div>
       )}
       <DateRange start={state.start} end={state.end} onChange={(dates) => change(dates)} />
+      {state.start && (
+        <>
+          <TimeOffLine start={state.start} end={state.end} />
+          <YearBudgetLine year={Number(state.start.slice(0, 4))} />
+        </>
+      )}
 
       {target ? (
         <>

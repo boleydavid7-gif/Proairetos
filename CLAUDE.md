@@ -1185,7 +1185,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   in Poreia's currency when set) and the time off balance. `components/References.tsx`: `YearBudgetLine` (`core/yearBudget.ts`
   `yearTrips`: trips starting that year, each at its budget or its costs so far when more, converted by `ratesInto`) under
   the trip form's Budget and on Money; `TimeOffLine` (hours the dates take by `countHours`, what `leftAfter` leaves) under
-  the trip form's dates. Amounts typed anywhere are read by `core/money/readAmount.ts` (shared with Oikonomia's
+  the trip form's dates and in Explore. Hours (`hoursFor`): each whole week (seven days from the first) is a full week off
+  (`fullWeekHours`: `weekHours`, else the usual day times the work days, five when none), other days from shifts or the
+  usual day; public holidays at home take nothing (`publicHolidays` in `world.ts`: Nager.Date, global and Public only, home's
+  country else the phone's region; `HolidaysLine` names them). Where a trip stands is read, not chosen (`stageOf`: a stay or
+  a way there booked, dates, or neither; `Trip.stage` kept for older records). Travelers follow `Trip.people` once there are
+  two names. The Time off page lists the year's trips with their time off and budgets (`TripsThisYear`). Amounts typed anywhere are read by `core/money/readAmount.ts` (shared with Oikonomia's
   `moneyInputCents`: "3,500" and "3.500,00").
 - Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a

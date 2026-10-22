@@ -21,7 +21,8 @@ export function TogetherCard({ trip }: { trip: Trip }) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const list = listOfTrip(trip);
-  const setPeople = (next: string[]) => trips.put({ ...trip, people: next, updatedAt: new Date().toISOString() });
+  // Travelers follow the names once there are two or more, so who is going is said once.
+  const setPeople = (next: string[]) => trips.put({ ...trip, people: next, travelers: next.length > 1 ? next.length : trip.travelers, updatedAt: new Date().toISOString() });
 
   const add = () => {
     const clean = name.trim();

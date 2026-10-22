@@ -3,7 +3,7 @@ import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { recountPlanned } from '../app/proairetos';
 import { settings, setupOrDefault, today } from '../app/state';
-import { ACCRUAL_CHOICES, type AccrualEvery, type TimeOffSetup } from '../core/timeOff';
+import { ACCRUAL_CHOICES, fullWeekHours, type AccrualEvery, type TimeOffSetup } from '../core/timeOff';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -78,6 +78,21 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
             </button>
           ))}
         </div>
+      </section>
+
+      <p className="ll-section-label">A full week off</p>
+      <section className="card">
+        <label className="field">
+          <span className="field__label">Hours a full week takes</span>
+          <input
+            className="input"
+            inputMode="decimal"
+            value={setup.weekHours ?? ''}
+            placeholder={String(fullWeekHours({ ...setup, weekHours: undefined }))}
+            onChange={(event) => set({ weekHours: event.target.value.trim() ? number(event.target.value) : undefined })}
+          />
+        </label>
+        <p className="fine">Each whole week of a trip counts as this. Public holidays at home are left out.</p>
       </section>
 
       <button

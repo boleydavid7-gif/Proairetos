@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia counts a whole week away as a full week off (set it under Your balance) and leaves public holidays at home out, naming them.',
+      'Poreia reads where a trip stands from its dates and bookings, travelers follow the names on a shared trip, and the Time off page lists the year’s trips with their time off and budgets.',
       'Poreia: a travel budget for the year in More, shown beside each trip’s budget; the trip form says how much time off its dates take and what it leaves. Time off moved off the Trips page.',
       'Poreia’s dates are two tiles, From and Until, that read like dates and open the phone’s own calendar, with the nights between and Clear dates.',
       'When to go: last year’s highs, lows and rainy days at a place, month by month, in Explore and on trips still to come.',

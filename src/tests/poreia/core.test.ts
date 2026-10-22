@@ -89,9 +89,17 @@ describe('time off', () => {
       { patternId: 'w', date: '2026-11-03', hours: 12 },
       { patternId: 'w', date: '2026-11-09', hours: 12 },
     ];
-    expect(hoursFor('2026-11-02', '2026-11-08', shifts, setup, true)).toBe(24);
+    expect(hoursFor('2026-11-02', '2026-11-04', shifts, setup, true)).toBe(24);
+    // A whole week takes a full week off, however the shifts fall in it.
+    expect(hoursFor('2026-11-02', '2026-11-08', shifts, setup, true)).toBe(40);
+    expect(hoursFor('2026-11-02', '2026-11-09', shifts, { ...setup, weekHours: 36 }, true)).toBe(48);
     expect(hoursFor('2026-11-02', '2026-11-08', [], { dayHours: 7.5, workDays: [1, 2, 3, 4, 5] }, false)).toBe(37.5);
     expect(hoursFor('2026-11-02', '2026-11-03', [], { dayHours: 8, workDays: [] }, false)).toBe(16);
+    // Public holidays take nothing: on a day left over, and off a whole week.
+    const weekdays = { dayHours: 8, workDays: [1, 2, 3, 4, 5] };
+    expect(hoursFor('2026-11-25', '2026-11-27', [], weekdays, false, new Set(['2026-11-26']))).toBe(16);
+    expect(hoursFor('2026-11-23', '2026-11-29', [], weekdays, false, new Set(['2026-11-26']))).toBe(32);
+    expect(hoursFor('2026-11-23', '2026-11-29', [], weekdays, false, new Set(['2026-11-28']))).toBe(40);
     expect(shiftsToReplace('2026-11-02', '2026-11-08', [...shifts, shifts[0]])).toEqual([
       { patternId: 'w', date: '2026-11-02' },
       { patternId: 'w', date: '2026-11-03' },

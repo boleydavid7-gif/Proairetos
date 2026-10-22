@@ -55,6 +55,14 @@ export type Trip = {
 
 export type BookingKind = 'flight' | 'stay' | 'car' | 'train' | 'bus' | 'cruise' | 'event' | 'tour' | 'food' | 'other';
 
+/** Where a trip stands, read from what it has: a stay or a way there booked, dates, or neither yet. */
+export function stageOf(trip: Pick<Trip, 'start'>, theirBookings: readonly Pick<Booking, 'kind'>[]): TripStage {
+  if (theirBookings.some((each) => ['stay', 'flight', 'train', 'bus', 'cruise'].includes(each.kind))) return 'booked';
+  return trip.start ? 'planning' : 'idea';
+}
+
+export const STAGE_TEXT: Record<TripStage, string> = { idea: 'Idea', planning: 'Planning', booked: 'Booked' };
+
 export const BOOKING_KINDS: { id: BookingKind; label: string }[] = [
   { id: 'flight', label: 'Flight' },
   { id: 'stay', label: 'Stay' },

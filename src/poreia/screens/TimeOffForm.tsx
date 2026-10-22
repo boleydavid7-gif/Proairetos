@@ -4,8 +4,11 @@ import { BackLink, Segmented } from '../../askesis/app/ui';
 import { Waiting } from '../../lamplight/Waiting';
 import type { PoreiaNav } from '../app/App';
 import { countHours, removeTimeOff, saveTimeOff } from '../app/proairetos';
-import { newId, nowStamp, settings, timeOff, today, trips } from '../app/state';
-import { hoursText, leftAfter, type TimeOff, type TimeOffStatus } from '../core/timeOff';
+import { newId, nowStamp, settings, setupOrDefault, timeOff, today, trips } from '../app/state';
+import { daysBetween } from '../../core/scheduling/dates';
+import { fullWeekHours, hoursText, leftAfter, type TimeOff, type TimeOffStatus } from '../core/timeOff';
+import { HolidaysLine } from '../components/References';
+import type { Holiday } from '../app/world';
 import DateRange from '../components/DateRange';
 
 const STATUSES: { id: Exclude<TimeOffStatus, 'canceled'>; label: string }[] = [
@@ -27,19 +30,22 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
   const [trip, setTrip] = useState(existing?.tripId ?? tripId ?? '');
   const [hoursSet, setHoursSet] = useState(existing?.hoursSet ?? false);
   const [hours, setHours] = useState(existing?.hours ?? 0);
-  const [counted, setCounted] = useState<{ hours: number; hasSchedule: boolean; shifts: number }>();
+  const [counted, setCounted] = useState<{ hours: number; hasSchedule: boolean; shifts: number; holidays: Holiday[] }>();
   const [busy, setBusy] = useState(false);
   const approvedAlready = existing?.status === 'approved' && existing.start === start && existing.end === end;
 
   useEffect(() => {
     if (end < start || approvedAlready) return;
     let live = true;
-    void countHours(start, end).then((result) => live && setCounted({ hours: result.hours, hasSchedule: result.hasSchedule, shifts: result.shifts.length }));
+    void countHours(start, end).then((result) => live && setCounted({ hours: result.hours, hasSchedule: result.hasSchedule, shifts: result.shifts.length, holidays: result.holidays }));
     return () => {
       live = false;
     };
   }, [start, end, approvedAlready]);
 
+  const span = end >= start ? daysBetween(start, end) + 1 : 0;
+  const weeks = Math.floor(span / 7);
+  const spare = span - weeks * 7;
   const shown = hoursSet ? hours : approvedAlready ? existing!.hours : (counted?.hours ?? existing?.hours ?? 0);
   const left = setup && end >= start ? leftAfter(setup, timeOff.list(), { id: existing?.id ?? 'new', start, hours: shown }) : undefined;
 
@@ -101,9 +107,10 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
           <p className="poreia-balance__hours">{counted || approvedAlready ? hoursText(shown) : <Waiting>Counting…</Waiting>}</p>
         )}
         {!hoursSet && counted && !approvedAlready && (
-          <p className="muted">
-            {counted.hasSchedule ? `${counted.shifts} ${counted.shifts === 1 ? 'work shift' : 'work shifts'} in Proairetos on these days.` : `No work schedule in Proairetos; ${setup?.dayHours ?? 8} h for each ${setup?.workDays.length ? 'work day' : 'day'}.`}
-          </p>
+          <>
+            <p className="muted">{countedText(weeks, spare, counted, setup?.dayHours ?? 8, Boolean(setup?.workDays.length))}</p>
+            {counted.holidays.length > 0 && <HolidaysLine days={counted.holidays} />}
+          </>
         )}
         <button
           type="button"
@@ -169,4 +176,16 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
       )}
     </div>
   );
+}
+
+/** How the hours were counted: whole weeks as a full week off, other days from shifts or the usual day. */
+function countedText(weeks: number, spare: number, counted: { hasSchedule: boolean; shifts: number }, dayHours: number, workDaysChosen: boolean): string {
+  const parts: string[] = [];
+  if (weeks > 0) parts.push(`${weeks} full ${weeks === 1 ? 'week' : 'weeks'} at ${hoursText(fullWeekHours(setupOrDefault()))} each`);
+  if (spare > 0 || weeks === 0) {
+    const where = weeks > 0 ? 'the other days' : 'these days';
+    parts.push(counted.hasSchedule ? `work shifts in Proairetos on ${where}` : `${dayHours} h for each ${workDaysChosen ? 'work day' : 'day'} on ${where}`);
+  }
+  const line = parts.join(', then ');
+  return `${line.charAt(0).toUpperCase()}${line.slice(1)}.`;
 }
