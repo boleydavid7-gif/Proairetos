@@ -85,6 +85,12 @@ describe('Oikonomia monthly planning', () => {
     expect(moneyInputCents('1')).toBe(100);
     expect(moneyInputCents('1.2')).toBe(120);
     expect(moneyInputCents('1.234')).toBeUndefined();
+    expect(moneyInputCents('3,500.00')).toBe(350000);
+    expect(moneyInputCents('3,500')).toBe(350000);
+    expect(moneyInputCents('3.500,50')).toBe(350050);
+    expect(moneyInputCents('12,50')).toBe(1250);
+    expect(moneyInputCents('3 500')).toBe(350000);
+    expect(moneyInputCents('35,00,0')).toBeUndefined();
     expect(normalizeBudget({ id: '2026-10', month: '2026-10', totalCents: 250000 })?.categoryLimits).toEqual(emptyLimits());
     expect(normalizeBudget({ id: '2026-10', month: '2026-10', items: [{ id: 'x', name: 'Childcare', amountCents: 45000, category: 'other' }] })?.items).toEqual([
       { id: 'x', name: 'Childcare', amountCents: 45000, category: 'other' },

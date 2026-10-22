@@ -1167,9 +1167,20 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `openStretches` (2 h+ with nothing set, after a booking's end when known); each day's forecast (`useDayWeather` in
   `TripDays`, from the stop that day, within 16 days).
 - Compass and Oikonomia (`app/goalsAndSaving.ts`, loaded on demand; `components/TripGoals.tsx`): the person's own links
-  per trip in `poreia:links` (`TripLinks`: `goalId`, `envelopeId`, `saved`), never in the shared trip record. GoalCard adds
-  the trip as a GOAL and offers "Mark it reached" after it; SavingCard on Money makes or links an Oikonomia envelope (target
-  the budget, date the start; Oikonomia `?open=envelopes`) when Oikonomia is added, else keeps "Saved for it" here.
+  per trip in `poreia:links` (`TripLinks`: `goalId`, `envelopeId`, `saved`, `envelopeSeen`, `envelopeGone`), never in the
+  shared trip record. GoalCard adds the trip as a GOAL and offers "Mark it reached" after it. With Oikonomia added, every trip
+  still to come gets its own envelope when its page opens (`syncEnvelope` from `useEnvelopeSync` in TripPage: name, budget as
+  target, start as date; money saved here before moves in as an entry); after that `core/envelopeSync.ts` `planEnvelopeSync`
+  passes changes against the last seen state: trip name/budget/start to the envelope, envelope name/target back to the trip
+  (never its dates); both changed, the trip wins. Money lives only in the envelope. Oikonomia's changes arrive through its
+  store's `subscribe`, `onRemoteChanges` and coming into view (`watchEnvelopes`). An envelope deleted in Oikonomia or
+  unlinked is let go (`envelopeGone`) and only made again by hand. Without Oikonomia, "Saved for it" stays here.
+- Dates (`components/DateRange.tsx`): From and Until as two tiles with the native picker unseen over each, nights (or days for
+  time off) between and Clear; used by Explore, the trip form and its stops, and time off. Poreia's labels carry no
+  "(optional)" (the owner's choice). When to go (`core/climate.ts` `monthsOf`, `pastYear` in `world.ts`,
+  `components/WhenToGo.tsx`): the past twelve whole months at the place as one range bar a month on one scale, a tap names
+  the month, a dot marks the trip's months, a table beside; in Explore and on trips still to come. Explore's `PlaceHeader`:
+  the place's picture (`PlaceScene`), hours apart and distance from home.
 - Look: a trip's places are `.poreia-tabs` (six icon-and-label columns, a lit pill sliding by `--at`, sticky under the
   top bar at `--ll-safe-top` + 54px); empty places use `RouteEmpty` (`components/RouteEmpty.tsx`: the family `Empty` with a
   dashed route ring and a dot turning around the lit mark, still under reduced motion); bookings show `KIND_GLYPH`

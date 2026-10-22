@@ -118,21 +118,21 @@ export function DocumentPage({ nav, id, tripId }: { nav: PoreiaNav; id?: string;
             <input className="input" value={form.name} placeholder={form.kind === 'insurance' ? 'The insurer' : 'Whose, or what it is'} onChange={(event) => setForm({ ...form, name: event.target.value })} />
           </label>
           <label className="field">
-            <span className="field__label">{form.kind === 'insurance' ? 'Policy number (optional)' : 'Number (optional)'}</span>
+            <span className="field__label">{form.kind === 'insurance' ? 'Policy number' : 'Number'}</span>
             <input className="input" value={form.number} autoComplete="off" spellCheck={false} onChange={(event) => setForm({ ...form, number: event.target.value })} />
           </label>
           {form.kind === 'insurance' && (
             <label className="field">
-              <span className="field__label">Phone for help (optional)</span>
+              <span className="field__label">Phone for help</span>
               <input className="input" type="tel" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
             </label>
           )}
           <label className="field">
-            <span className="field__label">Ends (optional)</span>
+            <span className="field__label">Ends</span>
             <input className="input" type="date" value={form.expires} onChange={(event) => setForm({ ...form, expires: event.target.value })} />
           </label>
           <label className="field">
-            <span className="field__label">Notes (optional)</span>
+            <span className="field__label">Notes</span>
             <textarea className="input area" rows={3} value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} />
           </label>
           {(doc?.tripId ?? tripId) && (

@@ -20,8 +20,9 @@ import OfflineCard from '../components/OfflineCard';
 import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { ArrivingCard, DocumentsCard } from '../components/Arriving';
-import { GoalCard } from '../components/TripGoals';
+import { GoalCard, useEnvelopeSync } from '../components/TripGoals';
 import { TripScene } from '../components/TripScene';
+import WhenToGo from '../components/WhenToGo';
 import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
 
@@ -47,6 +48,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   }, [id, view]);
   const [stopId, setStopId] = useState<string>();
   useLocatedTrip(trip);
+  useEnvelopeSync(trip);
   if (!trip) {
     return (
       <div className="page poreia-page">
@@ -145,6 +147,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
       {target && (
         <>
           <Weather target={target} today={day} />
+          {ahead && <WhenToGo place={target.place} start={target.start} end={target.end} />}
           <SavedCard trip={trip} nav={nav} />
           <GuideCard place={target.place} />
           <CountryCard target={target}>{ahead && <ArrivingCard place={target.place} />}</CountryCard>

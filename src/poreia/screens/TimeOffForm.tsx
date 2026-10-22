@@ -6,6 +6,7 @@ import type { PoreiaNav } from '../app/App';
 import { countHours, removeTimeOff, saveTimeOff } from '../app/proairetos';
 import { newId, nowStamp, settings, timeOff, today, trips } from '../app/state';
 import { hoursText, leftAfter, type TimeOff, type TimeOffStatus } from '../core/timeOff';
+import DateRange from '../components/DateRange';
 
 const STATUSES: { id: Exclude<TimeOffStatus, 'canceled'>; label: string }[] = [
   { id: 'planned', label: 'Planned' },
@@ -75,16 +76,19 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
         <span className="field__label">Name</span>
         <input className="input" value={title} placeholder="Time off" onChange={(event) => setTitle(event.target.value)} />
       </label>
-      <div className="input-row">
-        <label className="field">
-          <span className="field__label">First day off</span>
-          <input className="input" type="date" value={start} onChange={(event) => event.target.value && setStart(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field__label">Last day off</span>
-          <input className="input" type="date" value={end} min={start} onChange={(event) => event.target.value && setEnd(event.target.value)} />
-        </label>
-      </div>
+      <DateRange
+        start={start}
+        end={end}
+        startLabel="First day off"
+        endLabel="Last day off"
+        empty="Pick a day"
+        clearable={false}
+        count="days"
+        onChange={(dates) => {
+          if (dates.start) setStart(dates.start);
+          if (dates.end) setEnd(dates.end);
+        }}
+      />
 
       <section className="card">
         <p className="label">Hours it takes</p>
@@ -119,7 +123,7 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
 
       {allTrips.length > 0 && (
         <label className="field">
-          <span className="field__label">For a trip (optional)</span>
+          <span className="field__label">For a trip</span>
           <select className="input" value={trip} onChange={(event) => setTrip(event.target.value)}>
             <option value="">None</option>
             {allTrips.map((each) => (

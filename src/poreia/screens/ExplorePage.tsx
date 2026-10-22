@@ -8,6 +8,9 @@ import Around from '../components/Around';
 import type { SearchKind } from '../core/links';
 import type { Place, Trip } from '../core/model';
 import RouteEmpty from '../components/RouteEmpty';
+import PlaceHeader from '../components/PlaceHeader';
+import WhenToGo from '../components/WhenToGo';
+import DateRange from '../components/DateRange';
 
 const KEPT = 'poreiaExplore';
 
@@ -54,19 +57,11 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
           ))}
         </div>
       )}
-      <div className="input-row">
-        <label className="field">
-          <span className="field__label">From (optional)</span>
-          <input className="input" type="date" value={state.start ?? ''} onChange={(event) => change({ start: event.target.value || undefined })} />
-        </label>
-        <label className="field">
-          <span className="field__label">Until (optional)</span>
-          <input className="input" type="date" value={state.end ?? ''} min={state.start} onChange={(event) => change({ end: event.target.value || undefined })} />
-        </label>
-      </div>
+      <DateRange start={state.start} end={state.end} onChange={(dates) => change(dates)} />
 
       {target ? (
         <>
+          <PlaceHeader place={target.place} />
           <button
             type="button"
             className="button-main"
@@ -82,6 +77,7 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
           <BookLinks target={target} initial={search} nav={nav} />
           <Around place={target.place} start={target.start} end={target.end} nav={nav} />
           <Weather target={target} today={today()} />
+          <WhenToGo place={target.place} start={target.start} end={target.end} />
           <CountryCard target={target} />
           <GuideCard place={target.place} />
         </>

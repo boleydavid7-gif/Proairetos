@@ -36,7 +36,7 @@ export default function LookBack({ list, today, nav }: { list: readonly Trip[]; 
           void keep();
         }}
       >
-        <input className="input" aria-label="A line to keep in Reflect" placeholder="A line to keep in Reflect (optional)" value={line} onChange={(event) => setLine(event.target.value)} />
+        <input className="input" aria-label="A line to keep in Reflect" placeholder="A line to keep in Reflect" value={line} onChange={(event) => setLine(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!line.trim()}>
           Save
         </button>

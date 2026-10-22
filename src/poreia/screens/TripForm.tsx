@@ -5,6 +5,7 @@ import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, removeTrip, settings, trips } from '../app/state';
 import { MoneyField, PlaceSearch } from '../app/ui';
 import { withStops, type Place, type Stop, type Trip, type TripStage } from '../core/model';
+import DateRange from '../components/DateRange';
 
 type StopDraft = { id: string; place?: Place; start: string; end: string };
 
@@ -92,16 +93,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
                 </button>
               </div>
               <PlaceSearch label="Where" value={stop.place} onPick={(picked) => changeStop(index, { place: picked })} />
-              <div className="input-row">
-                <label className="field">
-                  <span className="field__label">From</span>
-                  <input className="input" type="date" value={stop.start} onChange={(event) => changeStop(index, { start: event.target.value })} />
-                </label>
-                <label className="field">
-                  <span className="field__label">Until</span>
-                  <input className="input" type="date" value={stop.end} min={stop.start || undefined} onChange={(event) => changeStop(index, { end: event.target.value })} />
-                </label>
-              </div>
+              <DateRange start={stop.start || undefined} end={stop.end || undefined} empty="Pick a day" clearable={false} onChange={(dates) => changeStop(index, { start: dates.start ?? '', end: dates.end ?? '' })} />
             </div>
           ))}
           <button type="button" className="button-quiet" onClick={addStop}>
@@ -117,21 +109,20 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
         </>
       )}
       <label className="field">
-        <span className="field__label">Name (optional)</span>
+        <span className="field__label">Name</span>
         <input className="input" value={name} placeholder={several ? 'Portugal by train' : (place?.name ?? 'Summer by the sea')} onChange={(event) => setName(event.target.value)} />
       </label>
 
       {!several && (
-        <div className="input-row">
-          <label className="field">
-            <span className="field__label">From</span>
-            <input className="input" type="date" value={start} onChange={(event) => setStart(event.target.value)} />
-          </label>
-          <label className="field">
-            <span className="field__label">Until</span>
-            <input className="input" type="date" value={end} min={start || undefined} onChange={(event) => setEnd(event.target.value)} />
-          </label>
-        </div>
+        <DateRange
+          start={start || undefined}
+          end={end || undefined}
+          empty="No date yet"
+          onChange={(dates) => {
+            setStart(dates.start ?? '');
+            setEnd(dates.end ?? '');
+          }}
+        />
       )}
 
       <label className="field">
@@ -141,10 +132,10 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
 
       <Segmented label="Where it stands" value={stage} options={STAGES} onChange={setStage} />
 
-      <PlaceSearch label={`Starting from (optional${prefs.home ? `, else ${prefs.home.name}` : ''})`} value={from} onPick={setFrom} />
-      <MoneyField label="Budget (optional)" cents={budget.cents} currency={budget.currency} onChange={(cents, currency) => setBudget({ cents, currency })} />
+      <PlaceSearch label="Starting from" value={from} onPick={setFrom} placeholder={prefs.home ? `${prefs.home.name}, or another place` : 'City, region or country'} />
+      <MoneyField label="Budget" cents={budget.cents} currency={budget.currency} onChange={(cents, currency) => setBudget({ cents, currency })} />
       <label className="field">
-        <span className="field__label">Notes (optional)</span>
+        <span className="field__label">Notes</span>
         <textarea className="input area" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />
       </label>
 

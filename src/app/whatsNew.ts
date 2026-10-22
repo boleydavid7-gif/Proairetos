@@ -3,6 +3,11 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Poreia’s dates are two tiles, From and Until, that read like dates and open the phone’s own calendar, with the nights between and Clear dates.',
+      'When to go: last year’s highs, lows and rainy days at a place, month by month, in Explore and on trips still to come.',
+      'Explore shows the place you pick with its picture, the time difference and how far it is from home.',
+      'With Oikonomia added, every trip still to come gets its own savings envelope. Money added in either app shows in both, and a change to the trip’s name, budget or start, or to the envelope’s name or target, carries over to the other.',
+      'Oikonomia reads amounts written with thousands, such as 3,500.00.',
       'Each trip has its own drawn picture from its place (coast, hills, mountains, snow, a city skyline or palms), lit by the hour there; the same picture marks it in your list of trips.',
       'While a trip is on, its first tab is Today: the day’s plans and weather, Around me, Spending and All days, with the rest of the trip folded below.',
       'A place typed without picking it from the list now finds itself on the map, so Around, weather and the country facts show for it; trips kept that way are filled in when opened.',

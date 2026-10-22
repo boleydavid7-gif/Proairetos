@@ -77,16 +77,16 @@ export default function PlanPage({ nav, id }: { nav: PoreiaNav; id: string }) {
             </select>
           </label>
           <label className="field">
-            <span className="field__label">Time (optional)</span>
+            <span className="field__label">Time</span>
             <input className="input" type="time" value={form.time} onChange={(event) => setForm({ ...form, time: event.target.value })} />
           </label>
         </div>
         <label className="field">
-          <span className="field__label">Where (optional)</span>
+          <span className="field__label">Where</span>
           <input className="input" value={form.where} onChange={(event) => setForm({ ...form, where: event.target.value })} />
         </label>
         <label className="field">
-          <span className="field__label">Notes (optional)</span>
+          <span className="field__label">Notes</span>
           <textarea className="input area" rows={3} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
         </label>
         <button type="button" className="button-main" disabled={!changed || !form.title.trim()} onClick={save}>

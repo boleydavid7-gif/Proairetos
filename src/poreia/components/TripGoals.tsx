@@ -34,7 +34,7 @@ export function GoalCard({ trip }: { trip: Trip }) {
     if (past) return null;
     return (
       <section className="card">
-        <h2 className="card__title">Add to Compass (optional)</h2>
+        <h2 className="card__title">Add to Compass</h2>
         <input className="input" aria-label="Goal" value={words} onChange={(event) => setWords(event.target.value)} />
         <button
           type="button"
@@ -153,14 +153,16 @@ function EnvelopeCard({ trip }: { trip: Trip }) {
     if (!apps) return;
     void apps.envelopeOf(trip).then((found) => setEnvelope(found ?? null)).catch(() => setEnvelope(null));
     void apps.freeEnvelopes().then(setChoices).catch(() => setChoices([]));
-  }, [apps, linked, round]);
+  }, [apps, linked, round, trip.updatedAt]);
+  // What Oikonomia does to the envelope (money in, a new target) shows here as it happens.
+  useEffect(() => (apps ? apps.watchEnvelopes(again) : undefined), [apps]);
   if (!apps || envelope === undefined) return null;
   const currency = trip.budget?.currency ?? settings.load().currency;
 
   if (!envelope) {
     return (
       <section className="card">
-        <h2 className="card__title">Save for it in Oikonomia (optional)</h2>
+        <h2 className="card__title">Save for it in Oikonomia</h2>
         <button
           type="button"
           className="button-quiet"
@@ -225,4 +227,21 @@ function EnvelopeCard({ trip }: { trip: Trip }) {
       </div>
     </section>
   );
+}
+
+/**
+ * With Oikonomia added, keeps the trip and its envelope in step while the trip is open: the envelope is made the first
+ * time, and changes on either side pass to the other (`syncEnvelope`).
+ */
+export function useEnvelopeSync(trip: Trip | undefined): void {
+  const on = isAdded('oikonomia') && Boolean(trip);
+  const apps = useApps(on);
+  const currency = settings.use().currency;
+  const key = trip ? `${trip.id}|${trip.name}|${trip.budget?.cents ?? ''}|${trip.budget?.currency ?? ''}|${trip.start ?? ''}` : '';
+  useEffect(() => {
+    if (!apps || !trip) return;
+    const run = () => void apps.syncEnvelope(trip, currency).catch(() => undefined);
+    run();
+    return apps.watchEnvelopes(run);
+  }, [apps, key, currency]);
 }

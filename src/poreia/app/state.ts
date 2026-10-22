@@ -53,7 +53,16 @@ export const docs = collection<TravelDoc>('poreia:doc:');
  * This person's own links for each trip, kept apart from the trip so a shared trip never carries them: its Compass
  * goal, its Oikonomia envelope, and, without Oikonomia, what is saved toward it here.
  */
-export type TripLinks = { goalId?: string; envelopeId?: string; saved?: { cents: number; currency: string } };
+export type TripLinks = {
+  goalId?: string;
+  envelopeId?: string;
+  saved?: { cents: number; currency: string };
+  /** The trip and envelope as last kept in step, to tell which side changed since (`syncEnvelope`). */
+  envelopeSeen?: EnvelopeSeen;
+  /** The envelope was deleted in Oikonomia or unlinked here: not made again by itself. */
+  envelopeGone?: boolean;
+};
+export type EnvelopeSeen = { name: string; target: number; date?: string; tripName: string; budget?: number; start?: string };
 export const links = stored<Record<string, TripLinks>>('poreia:links', () => ({}));
 export const linksOf = (tripId: string): TripLinks => links.load()[tripId] ?? {};
 export function setLinks(tripId: string, patch: Partial<TripLinks>): () => void {

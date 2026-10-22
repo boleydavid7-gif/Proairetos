@@ -50,7 +50,7 @@ export default function TimeThere({ trip, place = trip.place, today }: { trip: T
       </div>
       {shift.length > 0 && (
         <details className="poreia-fold">
-          <summary>Shift your sleep before you go (optional)</summary>
+          <summary>Shift your sleep before you go</summary>
           <ul className="poreia-agenda">
             {shift.map((day) => (
               <li key={day.date} className="poreia-shift">

@@ -1556,3 +1556,235 @@
   text-align: left;
   cursor: pointer;
 }
+
+/* Dates as two tiles: the name small, the date written out, the phone's picker over the whole tile. */
+.poreia-dates {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-dates__tiles {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.poreia-dates__arrow {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.poreia-date {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.poreia-date.is-set {
+  border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
+  background: color-mix(in srgb, var(--mint) 7%, var(--surface));
+}
+
+.poreia-date:focus-within {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.poreia-date__label {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-date__value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.poreia-date.is-set .poreia-date__value {
+  color: var(--text);
+}
+
+.poreia-date__value svg {
+  flex: none;
+  color: var(--mint);
+}
+
+/* Unseen but tappable everywhere on the tile; 16 px so iPhones do not zoom. */
+.poreia-date__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.poreia-date__input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.poreia-dates__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-dates__foot .text-link {
+  margin-left: auto;
+}
+
+/* When to go: one range bar a month on one scale; the chosen month full, the rest softer; text stays in text colors. */
+.poreia-when__picked {
+  margin: 0 0 12px;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-when__picked strong {
+  color: var(--text);
+}
+
+.poreia-when__chart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.poreia-when__month {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.poreia-when__month.is-picked {
+  background: color-mix(in srgb, var(--mint) 10%, transparent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.poreia-when__track {
+  position: relative;
+  width: 100%;
+  height: 104px;
+}
+
+.poreia-when__bar {
+  position: absolute;
+  top: var(--top);
+  left: 50%;
+  width: min(14px, 70%);
+  height: max(4px, var(--height));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--mint) 55%, transparent);
+  translate: -50% 0;
+}
+
+.poreia-when__month.is-picked .poreia-when__bar {
+  background: var(--mint);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.poreia-when__mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.poreia-when__mark.is-on {
+  background: var(--mint);
+}
+
+.poreia-when__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-when__table :is(th, td) {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.poreia-when__table :is(thead th, tbody th) {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Explore: the place picked, with its picture across the top of the card. */
+:root .card.poreia-place-scene {
+  overflow: hidden;
+  padding: 0;
+}
+
+.poreia-place-scene__image {
+  display: block;
+  width: 100%;
+  height: 132px;
+  object-fit: cover;
+}
+
+.poreia-place-scene__words {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px 16px;
+}
+
+.poreia-place-scene__words p {
+  margin: 0;
+}
+
+.poreia-place-scene__name {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--text-2xl, 1.6rem);
+  font-weight: 500;
+}
+
+.poreia-place-scene__facts {
+  color: var(--mint);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}

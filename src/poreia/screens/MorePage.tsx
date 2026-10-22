@@ -36,7 +36,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
       <AccountCard app="Poreia" what="Your trips" waiting="Trips" />
 
       <section className="card">
-        <PlaceSearch label="Home (optional)" value={current.home} onPick={(home) => change({ home })} />
+        <PlaceSearch label="Home" value={current.home} onPick={(home) => change({ home })} />
         <div className="input-row">
           <label className="field">
             <span className="field__label">Currency</span>

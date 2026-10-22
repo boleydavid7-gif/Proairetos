@@ -169,7 +169,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
                   </select>
                 </label>
                 <label className="field">
-                  <span className="field__label">Time (optional)</span>
+                  <span className="field__label">Time</span>
                   <input className="input" type="time" value={time} onChange={(event) => setTime(event.target.value)} />
                 </label>
               </div>

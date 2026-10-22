@@ -2,6 +2,7 @@ import { apiUrl } from '../../app/apiBase';
 import type { Place } from '../core/model';
 import { overpassQuery, readListings, readOverpass, type Spot, type SpotCategory } from '../core/spots';
 import { wikiSection } from '../core/arriving';
+import { pastYearRange } from '../core/climate';
 
 /*
  * What Poreia reads from the outside world. Every source here is free and needs no account: Open-Meteo (places and
@@ -100,6 +101,18 @@ export async function lastYear(lat: number, lon: number, start: string, end: str
     ),
   );
   return data.daily.time.map((date, i) => ({ date, high: data.daily.temperature_2m_max[i], low: data.daily.temperature_2m_min[i], rain: data.daily.precipitation_sum[i] }));
+}
+
+/** Every day of the past twelve whole months at a place, as recorded (°C, rain in mm), for When to go. */
+export async function pastYear(lat: number, lon: number, today: string): Promise<DayWeather[]> {
+  const { from, until } = pastYearRange(today);
+  const key = `pastyear.${lat.toFixed(1)},${lon.toFixed(1)}.${until.slice(0, 7)}`;
+  const data = await cached(key, 31 * DAY, () =>
+    json<{ daily: { time: string[]; temperature_2m_max: (number | null)[]; temperature_2m_min: (number | null)[]; precipitation_sum: (number | null)[] } }>(
+      `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${from}&end_date=${until}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto`,
+    ),
+  );
+  return data.daily.time.map((date, i) => ({ date, high: data.daily.temperature_2m_max[i] ?? Number.NaN, low: data.daily.temperature_2m_min[i] ?? Number.NaN, rain: data.daily.precipitation_sum[i] ?? undefined }));
 }
 
 /** WMO weather codes, as words. */

@@ -57,7 +57,7 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
         )}
         {setup.every !== 'none' && (
           <label className="field">
-            <span className="field__label">Most it can hold (optional)</span>
+            <span className="field__label">Most it can hold</span>
             <input className="input" inputMode="decimal" value={setup.cap ?? ''} placeholder="No cap" onChange={(event) => set({ cap: event.target.value.trim() ? number(event.target.value) : undefined })} />
           </label>
         )}

@@ -163,11 +163,11 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
           </label>
           <div className="input-row">
             <label className="field">
-              <span className="field__label">With (optional)</span>
+              <span className="field__label">With</span>
               <input className="input" value={form.provider ?? ''} placeholder={form.kind === 'stay' ? 'Airbnb, Booking.com' : 'Airline, company'} onChange={(event) => set({ provider: event.target.value || undefined })} />
             </label>
             <label className="field">
-              <span className="field__label">Confirmation (optional)</span>
+              <span className="field__label">Confirmation</span>
               <input className="input" value={form.confirmation ?? ''} autoCapitalize="characters" onChange={(event) => set({ confirmation: event.target.value || undefined })} />
             </label>
           </div>
@@ -189,30 +189,30 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
               <input className="input" type="date" value={form.startDate ?? ''} onChange={(event) => set({ startDate: event.target.value || undefined })} />
             </label>
             <label className="field">
-              <span className="field__label">Time (optional)</span>
+              <span className="field__label">Time</span>
               <input className="input" type="time" value={form.startTime ?? ''} onChange={(event) => set({ startTime: event.target.value || undefined })} />
             </label>
           </div>
           <div className="input-row">
             <label className="field">
-              <span className="field__label">{form.kind === 'stay' ? 'Check-out' : form.kind === 'car' ? 'Return' : travel ? 'Arrives' : 'Until (optional)'}</span>
+              <span className="field__label">{form.kind === 'stay' ? 'Check-out' : form.kind === 'car' ? 'Return' : travel ? 'Arrives' : 'Until'}</span>
               <input className="input" type="date" value={form.endDate ?? ''} min={form.startDate} onChange={(event) => set({ endDate: event.target.value || undefined })} />
             </label>
             <label className="field">
-              <span className="field__label">Time (optional)</span>
+              <span className="field__label">Time</span>
               <input className="input" type="time" value={form.endTime ?? ''} onChange={(event) => set({ endTime: event.target.value || undefined })} />
             </label>
           </div>
           {!travel && (
             <label className="field">
-              <span className="field__label">Address (optional)</span>
+              <span className="field__label">Address</span>
               <input className="input" value={form.address ?? ''} onChange={(event) => set({ address: event.target.value || undefined })} />
             </label>
           )}
-          <MoneyField label="Cost (optional)" cents={form.cost?.cents} currency={form.cost?.currency ?? currency} onChange={(cents, code) => set({ cost: cents ? { cents, currency: code || currency } : undefined })} />
+          <MoneyField label="Cost" cents={form.cost?.cents} currency={form.cost?.currency ?? currency} onChange={(cents, code) => set({ cost: cents ? { cents, currency: code || currency } : undefined })} />
           {form.cost && trip && peopleOf(trip).length > 1 && (
             <label className="field">
-              <span className="field__label">Paid by (optional)</span>
+              <span className="field__label">Paid by</span>
               <select className="input" value={form.paidBy ?? ''} onChange={(event) => set({ paidBy: event.target.value || undefined })}>
                 <option value="">Not said</option>
                 {peopleOf(trip).map((person) => (
@@ -224,11 +224,11 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
             </label>
           )}
           <label className="field">
-            <span className="field__label">Link (optional)</span>
+            <span className="field__label">Link</span>
             <input className="input" type="url" inputMode="url" value={form.link ?? ''} placeholder="https://" onChange={(event) => set({ link: event.target.value || undefined })} />
           </label>
           <label className="field">
-            <span className="field__label">Notes (optional)</span>
+            <span className="field__label">Notes</span>
             <textarea className="input area" rows={3} value={form.notes ?? ''} onChange={(event) => set({ notes: event.target.value || undefined })} />
           </label>
           {form.link && (

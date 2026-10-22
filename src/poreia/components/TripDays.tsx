@@ -251,7 +251,7 @@ export function AddToDay({ tripId, date }: { tripId: string; date: string }) {
       }}
     >
       <input ref={field} className="input" value={title} placeholder="Add a plan" aria-label={`Add to ${dayText(date)}`} onChange={(event) => setTitle(event.target.value)} />
-      <input className="input poreia-add-day__time" type="time" value={time} aria-label="Time (optional)" onChange={(event) => setTime(event.target.value)} />
+      <input className="input poreia-add-day__time" type="time" value={time} aria-label="Time" onChange={(event) => setTime(event.target.value)} />
       <button type="submit" className="button-quiet" disabled={!title.trim()}>
         Add
       </button>
