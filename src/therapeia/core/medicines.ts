@@ -51,6 +51,8 @@ export type PillLook = { shape: PillShape; color: string; color2?: string };
 export type Medicine = {
   id: string;
   name: string;
+  /** Someone else this is for (a child, a parent); absent for the person's own. */
+  who?: string;
   look?: PillLook;
   /** As written on the label: "1 tablet", "10 mg", "2 puffs". */
   dose?: string;
@@ -83,6 +85,8 @@ export type Appointment = {
   id: string;
   /** Who or what: "Dr Patel", "Blood test". */
   with: string;
+  /** Someone else the visit is for; absent for the person's own. */
+  who?: string;
   /** Local "YYYY-MM-DDTHH:MM". */
   at: string;
   where?: string;
@@ -299,15 +303,49 @@ export function splitAppointments(all: readonly Appointment[], now: Date): { com
 
 export type HealthCard = { allergies?: string; conditions?: string; contact?: string };
 
-/** The medicines being taken, as plain text to share with a doctor or pharmacist. */
-export function listText(medicines: readonly Medicine[], today: string, card: HealthCard = {}, readings: readonly string[] = []): string {
+/** Who a medicine or visit is for: a name, or '' for the person's own. */
+export function whoOf(record: { who?: string }): string {
+  return record.who?.trim() ?? '';
+}
+
+/** The other people named on medicines and visits, in the order first met, case ignored. */
+export function peopleIn(records: readonly { who?: string }[]): string[] {
+  const seen = new Map<string, string>();
+  for (const record of records) {
+    const name = whoOf(record);
+    if (name && !seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), name);
+  }
+  return [...seen.values()];
+}
+
+/** "Mia: Amoxicillin" for someone else's, the plain name for the person's own. */
+export function withWho(record: { who?: string }, name: string): string {
+  const who = whoOf(record);
+  return who ? `${who}: ${name}` : name;
+}
+
+/** The same person, case ignored ('' is the person's own). */
+export function sameWho(record: { who?: string }, who: string): boolean {
+  return whoOf(record).toLowerCase() === who.trim().toLowerCase();
+}
+
+/**
+ * The medicines being taken, as plain text to share with a doctor or pharmacist. With `who`, only that person's
+ * ('' for the person's own); the health card and readings are the person's own, so they go only with their list.
+ */
+export function listText(medicines: readonly Medicine[], today: string, card: HealthCard = {}, readings: readonly string[] = [], who?: string): string {
+  if (who) {
+    card = {};
+    readings = [];
+  }
   const lines = medicines
-    .filter((medicine) => isCurrent(medicine, today))
+    .filter((medicine) => isCurrent(medicine, today) && (who === undefined || sameWho(medicine, who)))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((medicine) => {
       const when = [medicine.times.length ? `${medicine.times.map(timeText).join(', ')}, ${daysText(medicine.days).toLowerCase()}` : undefined, medicine.asNeeded ? 'as needed' : undefined].filter(Boolean).join('; ');
       return `- ${[medicine.name, medicine.dose].filter(Boolean).join(' ')}${medicine.how ? ` (${medicine.how})` : ''}${when ? `: ${when}` : ''}`;
     });
   const extra = [card.allergies ? `Allergies: ${card.allergies}` : undefined, card.conditions ? `Conditions: ${card.conditions}` : undefined, card.contact ? `Contact: ${card.contact}` : undefined].filter(Boolean);
-  return [`Medicines, ${parseLocalDate(today).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, ...lines, ...(extra.length ? ['', ...extra] : []), ...(readings.length ? ['', 'Latest readings', ...readings.map((line) => `- ${line}`)] : [])].join('\n');
+  const title = who ? `Medicines for ${who.trim()}` : 'Medicines';
+  return [`${title}, ${parseLocalDate(today).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, ...lines, ...(extra.length ? ['', ...extra] : []), ...(readings.length ? ['', 'Latest readings', ...readings.map((line) => `- ${line}`)] : [])].join('\n');
 }

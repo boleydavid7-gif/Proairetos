@@ -3,11 +3,14 @@ import { offerUndo } from '../../app/family/shell';
 import { CheckIcon, VisitIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
-import { appointments, newId, putAppointment, removeAppointment } from '../app/state';
-import type { Appointment } from '../core/medicines';
+import { allMedicines, appointments, newId, putAppointment, removeAppointment } from '../app/state';
+import { peopleIn, type Appointment } from '../core/medicines';
+import { WhoChoice } from '../app/ui';
 
 function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointment; onDone: () => void }) {
   const [who, setWho] = useState(existing?.with ?? '');
+  const [forWho, setForWho] = useState(existing?.who ?? '');
+  const people = peopleIn([...allMedicines(), ...appointments.list()]);
   const [day, setDay] = useState(existing?.at.slice(0, 10) ?? addDays(toLocalDate(new Date()), 7));
   const [time, setTime] = useState(existing?.at.slice(11, 16) ?? '10:00');
   const [where, setWhere] = useState(existing?.where ?? '');
@@ -22,6 +25,7 @@ function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointme
   const build = (patch: Partial<Appointment> = {}): Appointment => ({
     ...(existing ?? { id: newId(), createdAt: new Date().toISOString() }),
     with: who.trim(),
+    who: forWho.trim() || undefined,
     at: `${day}T${time}`,
     where: where.trim() || undefined,
     questions,
@@ -51,6 +55,7 @@ function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointme
         <span className="field__label">Who or what</span>
         <input ref={whoField} className="input" value={who} onChange={(event) => setWho(event.target.value)} placeholder="Dr Patel, blood test" />
       </label>
+      <WhoChoice value={forWho} people={people} onChange={setForWho} />
       <div className="input-row">
         <label className="field">
           <span className="field__label">Day</span>
@@ -125,6 +130,7 @@ function VisitView({ nav, visit, onEdit }: { nav: TherapeiaNav; visit: Appointme
         <span className="detail-head__mark"><VisitIcon size={32} /></span>
         <div>
           <h1 className="title">{visit.with}</h1>
+          {visit.who && <p className="muted">For {visit.who}</p>}
           <p className="muted">{when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}, {when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</p>
         </div>
       </div>

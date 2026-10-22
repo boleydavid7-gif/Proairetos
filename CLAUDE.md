@@ -1147,6 +1147,13 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   Therapeia's pages, Proairetos's From your apps, notices and search); a shared medicine is trimmed to fit one sealed
   item (`forSharing`: ten days and at most 30 marks, 12 changes, the supply recounted from the oldest mark kept so what is
   left stays the same). Readings, visits and the health card stay on the phone. Leaving keeps a copy.
+- Therapeia for the family: `Medicine.who` / `Appointment.who` (absent = the person's own; `whoOf`, `peopleIn`, `withWho`
+  "Mia: Amoxicillin", `sameWho` in `core/medicines.ts`). `WhoChoice` (`app/ui.tsx`) in the medicine and visit forms: a
+  "For someone else" link until a name exists anywhere, then chips Me / names / Someone else. Shown in dose rows (a
+  `.who-chip`), Today's hero and lists, Medicines (chips Everyone / Me / names filter the page; Share and Print follow:
+  `listText(..., who)`, route `print` with `who`; another person's sheet leaves out the health card and readings), visits,
+  notices (names on: "Mia: X, 5 ml"; off: "A medicine for Mia", "A refill for Mia"), Proairetos's From your apps and search,
+  Poreia's packing line and Your year. Kept through `forSharing` for a care circle.
 - Daily thoughts (`app/family/dailyLines.ts`, `DailyLine.tsx`): Diaita, Philia, Ergon, Therapeia, Dynamis and Ktema each
   show one line a day at the foot of their first page, Stoic and Buddhist days in turn, with translator or
   "(paraphrase)"; a "Daily thought" switch in each More (`proairetos.dailyLines`). Keep banned words out of quotes.

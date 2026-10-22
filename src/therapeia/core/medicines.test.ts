@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { atTime } from '../../core/scheduling/dates';
 import { defaultRhythm, mainSleeps, type WorkBlock } from '../../diaita/core/rhythm';
-import { anchorsFrom, daysLeft, doseAt, dosesOn, isDoseDay, record, refill, refillDay, skip, spacedFrom, supplyLeft, take, takeNow, type Medicine } from './medicines';
+import { anchorsFrom, daysLeft, doseAt, dosesOn, isDoseDay, record, refill, refillDay, listText, peopleIn, sameWho, skip, spacedFrom, supplyLeft, take, takeNow, withWho, type Medicine } from './medicines';
 import { careNotices, defaultCareNotices } from './notices';
 
 const base = (patch: Partial<Medicine> = {}): Medicine => ({
@@ -141,5 +141,38 @@ describe('the shared list', () => {
     expect(text).toMatch(/Ibuprofen: as needed/);
     expect(text).not.toMatch(/Old/);
     expect(text).toMatch(/Allergies: Penicillin/);
+  });
+});
+
+describe('who a medicine is for', () => {
+  it('names someone else and leaves the person’s own plain', () => {
+    expect(withWho({ who: 'Mia' }, 'Amoxicillin')).toBe('Mia: Amoxicillin');
+    expect(withWho({}, 'Sertraline')).toBe('Sertraline');
+    expect(peopleIn([{ who: 'Mia' }, { who: ' mia ' }, {}, { who: 'Dad' }])).toEqual(['Mia', 'Dad']);
+    expect(sameWho({ who: 'Mia' }, 'mia')).toBe(true);
+    expect(sameWho({}, '')).toBe(true);
+  });
+});
+
+describe('medicines for someone else', () => {
+  const mia = base({ id: 'm2', name: 'Amoxicillin', dose: '5 ml', who: 'Mia', times: [{ kind: 'clock', at: '09:00' }] });
+  const now = atTime('2026-10-05', '07:00');
+  const until = atTime('2026-10-05', '23:00');
+
+  it('names whose dose it is, with or without medicine names', () => {
+    const named = careNotices([base(), mia], [], { ...defaultCareNotices, names: true }, now, until);
+    expect(named.map((notice) => notice.title)).toEqual(['Sertraline, 50 mg', 'Mia: Amoxicillin, 5 ml']);
+    const plain = careNotices([base(), mia], [], defaultCareNotices, now, until);
+    expect(plain.map((notice) => notice.title)).toEqual(['A medicine', 'A medicine for Mia']);
+  });
+
+  it('lists one person’s medicines, without the person’s own health card', () => {
+    const text = listText([base(), mia], '2026-10-05', { allergies: 'Penicillin' }, [], 'Mia');
+    expect(text).toMatch(/^Medicines for Mia/);
+    expect(text).toMatch(/Amoxicillin/);
+    expect(text).not.toMatch(/Sertraline|Penicillin/);
+    const own = listText([base(), mia], '2026-10-05', { allergies: 'Penicillin' }, [], '');
+    expect(own).toMatch(/Sertraline/);
+    expect(own).not.toMatch(/Amoxicillin/);
   });
 });

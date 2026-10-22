@@ -1,6 +1,6 @@
 import type { Plant } from '../../phyton/core/plants';
 import type { Chore } from '../../ergon/core/chores';
-import type { Appointment, Dose } from '../../therapeia/core/medicines';
+import { withWho, type Appointment, type Dose } from '../../therapeia/core/medicines';
 import type { Upkeep, Due } from '../../ktema/core/things';
 import type { TodayPart } from '../../data/storage/preferences';
 
@@ -50,10 +50,10 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
   for (const dose of [...(input.doses ?? [])].sort((a, b) => a.at.getTime() - b.at.getTime())) {
-    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: dose.medicine.name, detail: [clock(dose.at), dose.medicine.dose, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
+    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
   }
   for (const visit of input.visits ?? []) {
-    rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: visit.with, detail: [clock(new Date(visit.at)), visit.where, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
+    rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: withWho(visit, visit.with), detail: [clock(new Date(visit.at)), visit.where, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
   }
   for (const { chore, day } of input.chores ?? []) {
     rows.push({ key: `chore:${chore.id}`, app: 'ergon', part: 'chores', title: chore.name, detail: [since(dayText(day, today)), chore.who, 'Ergon'].filter(Boolean).join(' · '), href: open('ergon', `chore:${chore.id}`), mark: { kind: 'chore', chore }, done: 'Done' });

@@ -7,7 +7,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments, useAnchors, useMedicines } from '../app/state';
 import { at, DoseRow, dayWord, takeOneNow } from '../app/ui';
-import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments } from '../core/medicines';
+import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments, withWho } from '../core/medicines';
 
 
 export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
@@ -34,7 +34,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
         <div className="hero__content">
           <Brand name="Therapeia" mark={<AppMark app="therapeia" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{next ? next.medicine.name : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
+            <h1 className="home__title">{next ? withWho(next.medicine, next.medicine.name) : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
             <p className="home__sub">{next ? `${at(next.at)}${next.medicine.dose ? ` · ${next.medicine.dose}` : ''}` : 'Medicines'}</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
                 return (
                   <li key={medicine.id} className="chore">
                     <button type="button" className="chore__open" onClick={() => nav.go({ name: 'medicine', id: medicine.id })}>
-                      <span>{medicine.name}</span>
+                      <span>{withWho(medicine, medicine.name)}</span>
                       <small>{[last ? `Last ${dayWord(last, calendarToday).toLowerCase() === 'today' ? at(last) : `${dayWord(last, calendarToday)} ${at(last)}`}` : 'Not taken yet', from && from > now ? `Spacing until ${at(from)}` : undefined].filter(Boolean).join(' · ')}</small>
                     </button>
                     <button type="button" className="button-quiet dose__now" onClick={() => takeOneNow(medicine)}>Taken now</button>
@@ -92,7 +92,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
                 return (
                   <li key={visit.id} className="chore">
                     <button type="button" className="chore__open" onClick={() => nav.go({ name: 'visit', id: visit.id })}>
-                      <span>{visit.with}</span>
+                      <span>{withWho(visit, visit.with)}</span>
                       <small>{[visit.where, (() => { const open = visit.questions.filter((each) => !each.asked).length; return open ? (open === 1 ? '1 question' : `${open} questions`) : undefined; })()].filter(Boolean).join(' · ')}</small>
                     </button>
                     <span className="chore__when">{dayWord(when, calendarToday)} {at(when)}</span>

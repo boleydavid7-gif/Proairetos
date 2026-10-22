@@ -8,9 +8,10 @@ import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { changeText } from '../core/history';
-import { newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
+import { appointments, newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
-import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
+import { WhoChoice } from '../app/ui';
+import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, peopleIn, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
 import { Sym } from '../../lamplight/icons';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
@@ -46,6 +47,8 @@ function TimeEditor({ time, onChange, onRemove }: { time: DoseTime; onChange: (n
 function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medicine; onDone: () => void }) {
   const today = toLocalDate(new Date());
   const [name, setName] = useState(existing?.name ?? '');
+  const [who, setWho] = useState(existing?.who ?? '');
+  const people = peopleIn([...useMedicines(), ...appointments.list()]);
   const [dose, setDose] = useState(existing?.dose ?? '');
   const [how, setHow] = useState(existing?.how ?? '');
   const [times, setTimes] = useState<DoseTime[]>(existing ? existing.times : [{ kind: 'clock', at: '08:00' }]);
@@ -86,6 +89,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
     const next: Medicine = {
       ...(existing ?? { id: newId(), taken: [], createdAt: new Date().toISOString() }),
       name: name.trim(),
+      who: who.trim() || undefined,
       dose: dose.trim() || undefined,
       how: how.trim() || undefined,
       times,
@@ -128,6 +132,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
         <span className="field__label">Name</span>
         <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="As on the label" autoCapitalize="words" />
       </label>
+      <WhoChoice value={who} people={people} onChange={setWho} />
       <div className="input-row">
         <label className="field">
           <span className="field__label">Dose (optional)</span>
@@ -280,7 +285,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
         <span className="detail-head__mark"><PillMark look={existing.look} size={56} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
-          <p className="muted">{[existing.dose, existing.how].filter(Boolean).join(' · ') || (isCurrent(existing, today) ? 'Taking now' : 'Not taking now')}</p>
+          <p className="muted">{[existing.who ? `For ${existing.who}` : undefined, existing.dose, existing.how].filter(Boolean).join(' · ') || (isCurrent(existing, today) ? 'Taking now' : 'Not taking now')}</p>
         </div>
       </div>
 

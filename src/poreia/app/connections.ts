@@ -1,6 +1,6 @@
 import { settings as phytonSettings } from '../../phyton/app/state';
 import { allMedicines } from '../../therapeia/app/state';
-import { dosesBetween, isCurrent } from '../../therapeia/core/medicines';
+import { dosesBetween, isCurrent, withWho } from '../../therapeia/core/medicines';
 import { saveSpent, spentIn } from '../../oikonomia/data/spent';
 import { loadSettings as oikonomiaSettings } from '../../oikonomia/data/store';
 import type { BudgetCategory } from '../../oikonomia/core/budget';
@@ -38,7 +38,7 @@ export function medicinesFor(trip: Trip): { name: string; doses?: number }[] {
   const doses = dosesBetween(current, trip.start, until);
   return current.map((medicine) => {
     const count = doses.filter((dose) => dose.medicine.id === medicine.id).length;
-    return { name: [medicine.name, medicine.dose].filter(Boolean).join(' '), doses: count || undefined };
+    return { name: withWho(medicine, [medicine.name, medicine.dose].filter(Boolean).join(' ')), doses: count || undefined };
   });
 }
 

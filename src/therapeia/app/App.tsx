@@ -17,7 +17,7 @@ import YearScreen from '../screens/YearScreen';
 import PrintPage from '../screens/PrintPage';
 
 export type Tab = 'today' | 'medicines' | 'readings' | 'visits' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print' } | { name: 'year' } | { name: 'circle' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'medicine'; id?: string } | { name: 'visit'; id?: string } | { name: 'print'; who?: string } | { name: 'year' } | { name: 'circle' };
 export type TherapeiaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -70,7 +70,7 @@ export default function App() {
       case 'year':
         return <YearScreen nav={nav} />;
       case 'print':
-        return <PrintPage nav={nav} />;
+        return <PrintPage nav={nav} who={route.who} />;
       case 'circle':
         return <CirclePage nav={nav} />;
     }

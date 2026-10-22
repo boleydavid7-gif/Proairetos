@@ -4,14 +4,14 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments } from '../app/state';
 import { at, dayWord } from '../app/ui';
-import { splitAppointments, type Appointment } from '../core/medicines';
+import { splitAppointments, withWho, type Appointment } from '../core/medicines';
 
 function VisitRow({ visit, today, onOpen }: { visit: Appointment; today: string; onOpen: () => void }) {
   const when = new Date(visit.at);
   return (
     <li className="chore">
       <button type="button" className="chore__open" onClick={onOpen}>
-        <span>{visit.with}</span>
+        <span>{withWho(visit, visit.with)}</span>
         <small>{[visit.where, visit.notes ? 'Notes kept' : undefined].filter(Boolean).join(' · ')}</small>
       </button>
       <span className="chore__when">{dayWord(when, today)} {at(when)}</span>

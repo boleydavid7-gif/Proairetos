@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Therapeia keeps medicines and visits for the people you look after: "For someone else" on a medicine or visit names a child or parent. Their doses, refills and visits say whose they are on Today, in notices, in search and on Proairetos\'s Today, and Medicines can show one person\'s list to share or print.',
       'The first time you write down something with a time, Today offers once to allow reminders on this phone, so a time you set is a time you hear about.',
       'Today: the capture box stays first even when Today has a card to show; the next thing says tomorrow or its weekday rather than "in 1 day"; choosing values is offered until you say Not now, then left to Compass.',
       'Empty your head files "Idea: …" as an idea without keeping the label in its title.',

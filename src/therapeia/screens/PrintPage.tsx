@@ -3,7 +3,7 @@ import { PrintPart, PrintSheet, PrintTable } from '../../app/family/PrintSheet';
 import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments, readings, settings, useMedicines } from '../app/state';
-import { daysText, isCurrent, splitAppointments, timeText, type Medicine } from '../core/medicines';
+import { daysText, isCurrent, sameWho, splitAppointments, timeText, withWho, type Medicine } from '../core/medicines';
 import { latestLines } from '../core/readings';
 import { changeText } from '../core/history';
 
@@ -15,13 +15,17 @@ function when(medicine: Medicine): string {
 }
 
 /** The medicines being taken on one sheet, for a doctor, a pharmacist or a bag. */
-export default function PrintPage({ nav }: { nav: TherapeiaNav }) {
+export default function PrintPage({ nav, who }: { nav: TherapeiaNav; who?: string }) {
+  // One person's sheet ('' the person's own); the health card and readings are the person's own.
+  const theirs = (record: { who?: string }) => who === undefined || sameWho(record, who);
   const today = toLocalDate(new Date());
-  const current = useMedicines().filter((medicine) => isCurrent(medicine, today)).sort((a, b) => a.name.localeCompare(b.name));
-  const card = settings.use().card;
-  const kept = readings.use();
-  const next = splitAppointments(appointments.use(), new Date()).coming.find((visit) => visit.questions.some((question) => !question.asked));
-  const all = useMedicines();
+  const current = useMedicines().filter((medicine) => isCurrent(medicine, today) && theirs(medicine)).sort((a, b) => a.name.localeCompare(b.name));
+  const savedCard = settings.use().card;
+  const card = who ? {} : savedCard;
+  const savedReadings = readings.use();
+  const kept = who ? [] : savedReadings;
+  const next = splitAppointments(appointments.use().filter(theirs), new Date()).coming.find((visit) => visit.questions.some((question) => !question.asked));
+  const all = useMedicines().filter(theirs);
   // What changed in the last six months, newest first: what a doctor or pharmacist asks about.
   const since = toLocalDate(new Date(Date.now() - 182 * 86_400_000));
   const changes = all
@@ -34,7 +38,7 @@ export default function PrintPage({ nav }: { nav: TherapeiaNav }) {
 
   return (
     <PrintSheet
-      title="Medicines"
+      title={who ? `Medicines for ${who}` : "Medicines"}
       onBack={nav.back}
       choices={
         (kept.length > 0 || next || changes.length > 0) && (
@@ -49,7 +53,7 @@ export default function PrintPage({ nav }: { nav: TherapeiaNav }) {
       {current.length ? (
         <PrintTable
           columns={['Medicine', 'Dose', 'When', 'How', 'Since']}
-          rows={current.map((medicine) => [medicine.name, medicine.dose, when(medicine), [medicine.how, medicine.end ? `until ${day(medicine.end)}` : undefined].filter(Boolean).join('; '), day(medicine.start)])}
+          rows={current.map((medicine) => [who === undefined ? withWho(medicine, medicine.name) : medicine.name, medicine.dose, when(medicine), [medicine.how, medicine.end ? `until ${day(medicine.end)}` : undefined].filter(Boolean).join('; '), day(medicine.start)])}
         />
       ) : (
         <p>No medicines at present.</p>
@@ -65,7 +69,7 @@ export default function PrintPage({ nav }: { nav: TherapeiaNav }) {
       )}
       {withChanges && changes.length > 0 && (
         <PrintPart title="Changes in the last six months">
-          <PrintTable columns={['Date', 'Medicine', 'Change']} rows={changes.map(({ medicine, change }) => [day(change.on), medicine.name, changeText(change)])} />
+          <PrintTable columns={['Date', 'Medicine', 'Change']} rows={changes.map(({ medicine, change }) => [day(change.on), who === undefined ? withWho(medicine, medicine.name) : medicine.name, changeText(change)])} />
         </PrintPart>
       )}
       {lines.length > 0 && (
