@@ -44,6 +44,14 @@ function hydrosVars(s: Scheme): Record<string, string> {
     '--cyan': s.lamp,
     '--cyan-soft': rgba(s.lamp, dark ? 0.17 : 0.13),
     '--cyan-ink': dark ? s.onLamp : s.card,
+    // The family's shared pieces (account, backup, the family list) read Proairetos's names.
+    '--color-text': s.ink,
+    '--color-text-muted': s.ink2,
+    '--color-text-faint': s.ink3,
+    '--color-border': rgba(s.ink, 0.13),
+    '--color-surface': s.card,
+    '--color-accent-strong': s.lamp,
+    '--color-accent-ink': dark ? s.onLamp : s.card,
   };
 }
 

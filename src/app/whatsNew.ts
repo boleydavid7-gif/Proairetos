@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Theoria and Hydros take their colors from the family\'s design, so your chosen look carries into them; in Hydros the family list reads clearly in light mode, its switches show when off, and section names are no longer in capitals.',
       'Capture sits at the top of Today, so writing something down never needs a scroll.',
       'Adding a bill, medicine, chore, person, trip or thing asks only what it needs; everything else waits under More details.',
       'A chore that comes round every day says Today, not the date it was first due.',
