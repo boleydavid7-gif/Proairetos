@@ -11,6 +11,7 @@ import { nextCheck, water, dayText } from '../../phyton/core/plants';
 import { useChores, putChore, myName as ergonName } from '../../ergon/app/state';
 import { markDone as choreDone, nextDay as choreDay } from '../../ergon/core/chores';
 import { useDaysOff } from '../../ergon/app/daysOff';
+import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
 import { dosesOn, isCurrent, take } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../../ktema/app/state';
@@ -89,6 +90,7 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
   const forecast = useForecast(phyton.rain);
   const chores = useChores();
   const choresOff = useDaysOff();
+  useFittedWeek(today);
   const allMedicines = useMedicines();
   const visits = appointments.use();
   const calendarToday = toLocalDate(new Date());
@@ -109,7 +111,7 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
     doses: shows('medicines') ? dosesOn(allMedicines.filter((medicine) => isCurrent(medicine, doseDay)), doseDay, anchors).filter((dose) => !dose.taken) : [],
     visits: shows('medicines') ? visits.filter((visit) => visit.at.slice(0, 10) === calendarToday) : [],
     upkeep: shows('upkeep') ? upkeepGrouped(upkeeps, owned, today).now.map((each) => ({ ...each, thing: owned.find((thing) => thing.id === each.upkeep.thingId)?.name })) : [],
-    training: shows('training') && isSetup(training) && isTrainingDay(training, today) && !workouts.some((workout) => workout.date === today)
+    training: shows('training') && isSetup(training) && isTrainingDay(training, today, liftDays(today)) && !workouts.some((workout) => workout.date === today)
       ? (() => {
           const session = nextSession(training, workouts);
           return { name: session.name, minutes: sessionMinutes(targetsFor(training, session, workouts)) };

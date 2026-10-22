@@ -12,12 +12,14 @@ import { decisionService, lifeService, scheduleService } from '../services';
 import { hydrationNotices, hydrationWantsWork } from './hydrationSchedule';
 import { familyNotices } from './familyNotices';
 import { isAdded } from '../family/added';
+import { fitAhead } from '../family/trainingWeek';
 
 const HORIZON_DAYS = 14;
 
 /** Everything due in the next two weeks, from what is on this device. */
 export async function upcomingNotices(now = new Date(), settings: NoticeSettings = loadNotify()): Promise<Notice[]> {
   const until = new Date(now.getTime() + HORIZON_DAYS * 86_400_000);
+  await fitAhead(now).catch(() => undefined);
   const [items, decisions, own, runs, bills, study, family] = await Promise.all([
     lifeService.list(),
     decisionService.list(),

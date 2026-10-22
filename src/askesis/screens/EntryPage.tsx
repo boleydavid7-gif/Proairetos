@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { runsPlaced } from '../app/fitted';
 import type { Nav, Route } from '../app/App';
 import { FeltFace } from '../app/icons';
 import { newId, useEntries, usePlanState, useSettings, useToday } from '../app/state';
@@ -74,6 +75,8 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
           planState.weekdays,
           planState.moves,
           entries.filter((entry) => entry.date >= mondayOnOrBefore(today)),
+          [],
+          runsPlaced(planState, today),
         ).find((day) => day.date === date && !day.done)
       : undefined;
   const openWorkout = open && asToday(open.workout, planState?.lighter, today);

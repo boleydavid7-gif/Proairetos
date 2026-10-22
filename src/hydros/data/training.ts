@@ -2,8 +2,9 @@ import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Drink } from '../core/drinks';
 import { localDate } from '../core/drinks';
 import { isAdded } from '../../app/family/added';
+import { fittedWeek } from '../../app/family/trainingWeek';
 
-type TrainingPlan = { weekdays?: unknown; weekOf?: unknown; moves?: unknown };
+type TrainingPlan = { weekdays?: unknown; weekOf?: unknown; moves?: unknown; fit?: unknown };
 type TrainingEntry = { date?: unknown; activity?: unknown; seconds?: unknown; workoutId?: unknown };
 
 export type TrainingToday = {
@@ -33,7 +34,8 @@ export async function trainingToday(date = new Date()): Promise<TrainingToday> {
   const plans = await all<TrainingPlan>(stores.askesisPlans);
   const plan = plans.find((item) => item && typeof item === 'object');
   const weekdays = Array.isArray(plan?.weekdays) ? plan.weekdays.filter((item): item is number => Number.isInteger(item)) : [];
-  const planned = weekdays.includes(weekday);
+  const placed = plan?.fit ? fittedWeek(today) : undefined;
+  const planned = placed ? Object.values(placed.runs).includes(today) : weekdays.includes(weekday);
   const entries = await all<TrainingEntry>(stores.askesisWorkouts);
   const runs = entries.filter((entry) => entry.date === today && (entry.activity === 'run' || Boolean(entry.workoutId)));
   const minutes = runs.reduce((sum, entry) => sum + (typeof entry.seconds === 'number' && entry.seconds > 0 ? entry.seconds / 60 : 0), 0);

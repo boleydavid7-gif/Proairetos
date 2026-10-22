@@ -17,6 +17,7 @@ import type { PlanState } from '../data/store';
 import { asToday, canLighten } from '../core/gentler';
 import { updatePlan } from '../app/state';
 import RunWeather from '../app/RunWeather';
+import { useRunsPlaced } from '../app/fitted';
 
 /** Finds a session in the person's plan, or in any plan when browsing. */
 /** Finds a session in the person's path, or in the example path shown before an aim is set. */
@@ -39,6 +40,7 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
   const settings = useSettings();
   const today = useToday();
   const entries = useEntries() ?? [];
+  const placed = useRunsPlaced(today, planState, entries.length);
   const [intention, setIntention] = useState('');
   const found = locate(id, plan);
   if (!found)
@@ -57,10 +59,12 @@ export default function WorkoutPage({ nav, id, plan, planState }: { nav: Nav; id
   const race = workout.kind === 'race';
   const mine = Boolean(plan && planState && found.plan.id === plan.id);
   const effort = mainEffort(workout.parts);
-  const dayIndex = sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1];
+  const thisWeek = mine && planState?.week === week.n;
+  const placedOn = thisWeek ? placed?.[full.id] : undefined;
+  const dayIndex = placedOn ? (new Date(`${placedOn}T12:00`).getDay() + 6) % 7 : sessionWeekdays(mine && planState ? planState.weekdays : defaultWeekdays(found.plan.days), found.plan.days)[index - 1];
   // The weather shows on the day the session falls on (or was moved to), while it is still to run.
-  const onDay = planState?.moves?.[full.id] ?? (dayIndex === (new Date(`${today}T12:00`).getDay() + 6) % 7 ? today : undefined);
-  const weekday = weekdayNames[dayIndex];
+  const onDay = planState?.moves?.[full.id] ?? placedOn ?? (!(thisWeek && placed) && dayIndex === (new Date(`${today}T12:00`).getDay() + 6) % 7 ? today : undefined);
+  const weekday = thisWeek && placed && !placedOn && !done && !planState?.moves?.[full.id] ? 'Not placed this week' : weekdayNames[dayIndex];
 
   return (
     <div className="workout">

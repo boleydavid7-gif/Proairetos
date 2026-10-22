@@ -10,6 +10,7 @@ import { draft, isSetup, mobility, plan, savePlan, workouts } from '../app/state
 import { ROUTINES, routineMinutes, weekMobility } from '../core/mobility';
 import { useStore } from '../../app/family/read';
 import { useAddedApps } from '../../app/family/added';
+import { useFittedWeek } from '../../app/family/trainingWeek';
 import { fromRunDays, isTrainingDay, nextSession, sessionMinutes, setsOffer, targetsFor, weekDays } from '../core/plan';
 
 
@@ -20,6 +21,7 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
   const live = draft.use().current;
   const runsOn = useStore<{ id: string; weekdays?: number[] }>('askesisPlans', useAddedApps().includes('askesis'));
   const today = toLocalDate(new Date());
+  const fitted = useFittedWeek(today, [current, done.length]);
 
   if (!isSetup(current)) {
     return (
@@ -38,11 +40,14 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
 
   const session = nextSession(current, done);
   const targets = targetsFor(current, session, done);
-  const trainingToday = isTrainingDay(current, today);
+  const placedLifts = fitted && Object.values(fitted.lifts);
+  const placedRuns = fitted && Object.values(fitted.runs);
+  const trainingToday = isTrainingDay(current, today, placedLifts);
   const doneToday = done.some((workout) => workout.date === today);
   const offer = setsOffer(current, done);
   const runDays = fromRunDays(runsOn.find((record) => record.id === 'current')?.weekdays ?? []);
-  const week = weekDays({ days: [...new Set([...current.days, ...runDays])] }, today);
+  const runOn = (date: string) => (placedRuns?.length ? placedRuns.includes(date) : runDays.includes(new Date(`${date}T12:00`).getDay()));
+  const week = weekAllDays(today).filter((date) => isTrainingDay(current, date, placedLifts) || runOn(date));
   const moved = weekMobility(stretched, weekAllDays(today));
 
   return (
@@ -84,13 +89,13 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
             return (
               <li key={date} className={'dynamis-week__day' + (date === today ? ' is-today' : '') + (trained ? ' is-done' : '')}>
                 <span>{new Date(`${date}T12:00`).toLocaleDateString(undefined, { weekday: 'short' })}</span>
-                <small className="dynamis-week__what">{[isTrainingDay(current, date) ? 'Lift' : undefined, runDays.includes(new Date(`${date}T12:00`).getDay()) ? 'Run' : undefined].filter(Boolean).join(' · ')}</small>
+                <small className="dynamis-week__what">{[isTrainingDay(current, date, placedLifts) ? 'Lift' : undefined, runOn(date) ? 'Run' : undefined].filter(Boolean).join(' · ')}</small>
                 {trained ? <CheckIcon size={16} /> : <span className="dynamis-week__dot" />}
               </li>
             );
           })}
         </ul>
-        {runDays.length > 0 && <p className="fine">Runs from Askesis are shown beside your lifting days.</p>}
+        {(runDays.length > 0 || Boolean(placedRuns?.length)) && <p className="fine">{current.fit ? 'Placed around your work and your runs from Askesis.' : 'Runs from Askesis are shown beside your lifting days.'}</p>}
         {done.filter((workout) => weekAllDays(today).includes(workout.date) && !week.includes(workout.date)).length > 0 && <p className="fine">Also trained on other days this week.</p>}
 
         <div className="section-head">

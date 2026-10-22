@@ -13,6 +13,7 @@ import { anchorsFrom } from '../../therapeia/core/medicines';
 import { allMedicines, appointments, settings as therapeiaSettings } from '../../therapeia/app/state';
 import { mainSleeps } from '../../diaita/core/rhythm';
 import { trainingNotices } from '../../dynamis/core/notices';
+import { liftDays } from '../family/trainingWeek';
 import { nextSession } from '../../dynamis/core/plan';
 import { isSetup, plan as dynamisPlan, settings as dynamisSettings, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { upkeepNotices } from '../../ktema/core/notices';
@@ -66,7 +67,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
 
   const training = dynamisPlan.load();
   if (isSetup(training) && dynamisSettings.load().reminders && isAdded('dynamis')) {
-    notices.push(...trainingNotices(training, true, nextSession(training, dynamisWorkouts.list()).name, today, horizon, now));
+    notices.push(...trainingNotices(training, true, nextSession(training, dynamisWorkouts.list()).name, today, horizon, now, liftDays));
   }
 
   const upkeep = ktemaUpkeeps.list();

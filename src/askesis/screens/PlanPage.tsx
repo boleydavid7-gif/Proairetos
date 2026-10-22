@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { setWorkDayChoice, WORK_DAY_CHOICES, workDayChoice } from '../../app/family/trainingWeek';
 import { addDays, mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { pathFor, startPlan, useEntries, usePlanState, useSettings, useToday } from '../app/state';
@@ -105,6 +106,8 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
   const [gentlerPick, setGentlerPick] = useState<boolean | undefined>(current ? Boolean(current.gentler) : undefined);
   const [days, setDays] = useState(current?.days ?? 3);
   const [weekdays, setWeekdays] = useState<number[]>(current?.weekdays ?? defaultWeekdays(3));
+  const [fit, setFit] = useState(Boolean(current?.fit));
+  const [workDays, setWorkDays] = useState(workDayChoice);
 
   const pickWalk = (walk: WalkNow) => {
     setWalkNow(walk);
@@ -190,6 +193,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
       runAt: runAt || undefined,
       place: place.trim() || undefined,
       ifThen: ifThen.trim() || undefined,
+      fit: fit || undefined,
     };
     if (unchanged && current) {
       // Same path: only the days or words change; the week stays, and time set aside for the goal follows the days.
@@ -463,6 +467,30 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             </button>
           ))}
         </div>
+        <Segmented
+          label="Run days"
+          value={fit ? 'fit' : 'set'}
+          options={[
+            { id: 'set', label: 'These days' },
+            { id: 'fit', label: 'Around my week' },
+          ]}
+          onChange={(next) => setFit(next === 'fit')}
+        />
+        {fit && (
+          <>
+            <p className="hint">These days first. Runs move when work or strength training is in the way.</p>
+            <p className="label">Work days</p>
+            <Segmented
+              label="Work days"
+              value={workDays}
+              options={WORK_DAY_CHOICES}
+              onChange={(next) => {
+                setWorkDays(next);
+                setWorkDayChoice(next);
+              }}
+            />
+          </>
+        )}
       </section>
 
       <section className="field">

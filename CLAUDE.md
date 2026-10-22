@@ -748,6 +748,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   to ease off. The place: the phone's location once allowed ("Use where I am" from a tap; refreshed silently after 3 h when
   already granted), rounded to 0.01 and kept in `askesisDevice.place` (device only), else Proairetos's weather place. "Not for
   me" sets `askesisDevice.weatherAside`; Settings > What's included has the switch.
+- One training week with Dynamis (`core/training/fitWeek.ts` `fitWeek`, tests in `src/tests/training/`; `app/family/trainingWeek.ts`):
+  "Around my week" on Askesis's plan (`PlanState.fit`) or Dynamis's (`Setup.fit`) places that app's sessions still to do (from today)
+  around work days (`core/scheduling/workDays.ts`: committed 4 h+ on the day it begins; `afterNightDates`) and the other app's
+  sessions, the chosen weekdays as first choice; an app on set days is a fixed input. Costs: work days by the shared choice
+  `proairetos.training` {workDays: free|needed|any} (free = never), long/hard runs off the morning after a night, a run and
+  strength on one day only with an easy run, no leg strength the day before a long or hard run, a day between leg sessions,
+  hard runs apart (sources `FIT_SOURCES`); unplaced sessions pass with the week. Every app works it out from the same records
+  (Askesis's plan and log in the database, Dynamis's setup and workouts in browser storage, the schedule), so they agree; the
+  answer is kept per week in `trainingWeekFit` (device only) for synchronous screens: `layOut(..., placed)` (Askesis Home,
+  Workout, Entry, Strava, Proairetos `todaysRun`/`runTimes`), `isTrainingDay(setup, date, placed)` (Dynamis Today, notices,
+  From your apps), Hydros's run day. `useFittedWeek` recomputes on open, sync and changes; `fitAhead` before reminders (this
+  week and next). Askesis's plan code is imported only when it runs.
 - Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
   a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
   `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log

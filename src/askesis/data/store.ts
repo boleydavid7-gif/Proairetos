@@ -54,6 +54,8 @@ export type PlanState = {
   why?: string;
   /** Their usual time on run days ("06:30"), for the session and its reminder. */
   runAt?: string;
+  /** Run days placed around work and strength training each week, the chosen weekdays as a first choice. */
+  fit?: boolean;
   /** Where they usually run. */
   place?: string;
   /** Their own plan for when something gets in the way ("walk it instead"). */

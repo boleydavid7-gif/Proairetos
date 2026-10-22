@@ -5,6 +5,7 @@ import { asToday } from '../../askesis/core/gentler';
 import { formatDistance, formatDuration, type Unit } from '../../askesis/core/pace';
 import { ownPath, weekAt } from '../../askesis/core/plans';
 import { layOut } from '../../askesis/core/week';
+import { runsPlaced } from '../../askesis/app/fitted';
 import { addDays, atTime, mondayOnOrBefore as mondayOf, toLocalDate } from '../../core/scheduling/dates';
 import type { RunTime } from '../../core/notify/notices';
 import { lengthLabel, totalMinutes, type Workout } from '../../askesis/core/workouts';
@@ -75,7 +76,7 @@ export function todaysRun(runs: Runs | undefined, today: string): Workout | unde
   // A rest week the person chose: nothing planned.
   if (state.restWeek === mondayOf(today)) return undefined;
   const week = weekAt(plan, state.week);
-  const day = layOut(week, today, state.weekdays, state.moves, runs.workouts.filter((entry) => entry.date === today)).find(
+  const day = layOut(week, today, state.weekdays, state.moves, runs.workouts.filter((entry) => entry.date === today), [], runsPlaced(state, today)).find(
     (each) => each.date === today && !each.done,
   );
   return day && asToday(day.workout, state.lighter, today);
@@ -99,7 +100,7 @@ export function runTimes(runs: Runs, now: Date, until: Date): RunTime[] {
     if (state.restWeek === monday) continue;
     const later = monday !== thisMonday;
     const week = weekAt(plan, later ? state.week + 1 : state.week);
-    const session = layOut(week, day, state.weekdays, later ? {} : state.moves, runs.workouts).find(
+    const session = layOut(week, day, state.weekdays, later ? {} : state.moves, runs.workouts, [], runsPlaced(state, day)).find(
       (each) => each.date === day && !each.done,
     );
     if (!session) continue;

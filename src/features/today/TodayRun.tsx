@@ -2,10 +2,12 @@ import { runLength, todaysRun, useRuns } from '../../app/askesis/runs';
 import { ChevronRightIcon, MountainIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
 import { linkTo } from '../../app/family/opening';
+import { useFittedWeek } from '../../app/family/trainingWeek';
 
 /** Today's session from Askesis, if one is planned and not done yet. Opens Askesis. */
 export default function TodayRun({ today }: { today: string }) {
   const runs = useRuns();
+  useFittedWeek(today, [runs]);
   const run = todaysRun(runs, today);
   if (!run) return null;
   const length = runLength(run);

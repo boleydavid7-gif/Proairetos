@@ -38,6 +38,8 @@ export type Setup = {
   swaps?: Partial<Record<Pattern, string>>;
   /** Usual time on training days, for a reminder (optional). */
   at?: string;
+  /** Training days placed around work and runs each week, the chosen days as a first choice. */
+  fit?: boolean;
   /** The bar's own weight, for the plate calculator. */
   bar?: number;
 };
@@ -239,7 +241,9 @@ export function weekDays(setup: Pick<Setup, 'days'>, date: string): string[] {
   return Array.from({ length: 7 }, (_, index) => addDays(monday, index)).filter((each) => setup.days.includes(parseLocalDate(each).getDay()));
 }
 
-export function isTrainingDay(setup: Pick<Setup, 'days'>, date: string): boolean {
+/** A planned training day: a chosen weekday, or with "Around my week" a day placed for it (`placed`, when known). */
+export function isTrainingDay(setup: Pick<Setup, 'days' | 'fit'>, date: string, placed?: readonly string[]): boolean {
+  if (setup.fit && placed) return placed.includes(date);
   return setup.days.includes(parseLocalDate(date).getDay());
 }
 

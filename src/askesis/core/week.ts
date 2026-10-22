@@ -23,12 +23,16 @@ export function layOut(
   moves: Readonly<Record<string, string>>,
   entries: readonly LogEntry[],
   nights: readonly ScheduleOccurrence[] = [],
+  /** Days worked out around work and strength training (app/family/trainingWeek.ts): workout id -> date; a session left out passes with the week. */
+  placed?: Readonly<Record<string, string>>,
 ): DayPlan[] {
   const dates = weekDates(today);
   const days = [...weekdays].sort((a, b) => a - b);
   return week.workouts
-    .map((workout, i) => {
-      const planned = dates[days[i] ?? Math.min(6, i * 2)];
+    .filter((workout) => !placed || placed[workout.id] || moves[workout.id] || entries.some((entry) => entry.workoutId === workout.id))
+    .map((workout) => {
+      const at = week.workouts.indexOf(workout);
+      const planned = placed?.[workout.id] ?? dates[days[at] ?? Math.min(6, at * 2)];
       const date = moves[workout.id] && dates.includes(moves[workout.id]) ? moves[workout.id] : planned;
       const done = entries.find((entry) => entry.workoutId === workout.id);
       return { workout, date: done?.date ?? date, done, moved: date !== planned, note: nightNote(date, nights) };

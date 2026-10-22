@@ -11,3 +11,15 @@ export function workDates(blocks: readonly Pick<ScheduleOccurrence, 'kind' | 'da
   }
   return dates;
 }
+
+/** Days that begin straight after a night of work: a committed block that ends between midnight and noon. */
+export function afterNightDates(blocks: readonly Pick<ScheduleOccurrence, 'kind' | 'date' | 'start' | 'end'>[]): Set<string> {
+  const dates = new Set<string>();
+  for (const block of blocks) {
+    if (block.kind !== 'COMMITTED') continue;
+    const end = block.end;
+    const endDate = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+    if (endDate !== block.date && end.getHours() < 12) dates.add(endDate);
+  }
+  return dates;
+}

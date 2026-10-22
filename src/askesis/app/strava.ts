@@ -1,4 +1,5 @@
 import { mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
+import { runsPlaced } from './fitted';
 import { asToday } from '../core/gentler';
 import { entriesFromStrava, nextAfter, type StravaActivity } from '../core/strava';
 import { weekAt } from '../core/plans';
@@ -111,7 +112,7 @@ function openSessionOn(entries: readonly LogEntry[], today: string): (date: stri
   const state = loadPlan();
   if (!state) return () => undefined;
   const monday = mondayOnOrBefore(today);
-  const week = layOut(weekAt(pathFor(state), state.week), today, state.weekdays, state.moves, entries.filter((entry) => entry.date >= monday));
+  const week = layOut(weekAt(pathFor(state), state.week), today, state.weekdays, state.moves, entries.filter((entry) => entry.date >= monday), [], runsPlaced(state, today));
   return (date) => {
     const day = week.find((each) => each.date === date && !each.done);
     if (!day) return undefined;

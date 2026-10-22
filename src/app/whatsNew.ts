@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Askesis and Dynamis plan the week together: choose "Around my week" in either plan and runs and strength sessions go on your chosen days first, then move off work days (keep them free, use them if needed, or treat them like any day) and away from each other: no leg day before a long or hard run, a day between strength sessions, hard runs apart.',
       'Ergon: turn on "On days off" in More and a chore that comes round on a work day in your schedule waits for your next day off, in Ergon, its reminder and on Today. Chores on set weekdays or every day stay put.',
       'Askesis shows the weather at your run time on the day’s session (and a line on Home): temperature, feels like, rain and wind, with what ACSM, WHO and the EPA say about heat, cold, ice, UV and air quality. It uses where you are, once you allow it; turn it off in Settings.',
       'Poreia: forward booking emails to your own address and they land on their trip; flight status on the day; a notice for when to leave for the airport; packing for the weather; where you’ve been on a map and Your year; the route for trips with stops; phrases, your embassy and a currency converter; loyalty numbers on bookings; Google ratings, hours and photos on places (when set up).',

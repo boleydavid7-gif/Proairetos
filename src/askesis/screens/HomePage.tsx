@@ -17,12 +17,14 @@ import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week'
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
+import { useRunsPlaced } from '../app/fitted';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
   const settings = useSettings();
   const entries = useEntries() ?? [];
   const blocks = useWeekSchedule(today, settings.readSchedule);
+  const placed = useRunsPlaced(today, planState, entries.length);
   const [moving, setMoving] = useState<string>();
   const line = lineFor(today);
   const undo = useUndo();
@@ -40,12 +42,12 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const days: DayPlan[] = useMemo(
     () =>
       week && planState
-        ? layOut(week, today, planState.weekdays, planState.moves, thisWeeks, blocks).map((day) => ({
+        ? layOut(week, today, planState.weekdays, planState.moves, thisWeeks, blocks, placed).map((day) => ({
             ...day,
             workout: day.date === today ? asToday(day.workout, planState.lighter, today) : day.workout,
           }))
         : [],
-    [week, planState, today, thisWeeks.length, blocks],
+    [week, planState, today, thisWeeks.length, blocks, placed],
   );
   const comeBack =
     planState && !newWeek
