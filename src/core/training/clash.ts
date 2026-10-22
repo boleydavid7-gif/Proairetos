@@ -25,6 +25,32 @@ const DAY_FROM = '06:00';
 const DAY_UNTIL = '21:00';
 /** Room left either side of something else in the day. */
 export const BUFFER_MINUTES = 15;
+/**
+ * Training ends at least an hour before bed: evening exercise does not harm sleep in general, but vigorous exercise
+ * ending within an hour of bedtime can (Stutz, Eiholzer & Spengler, Sports Med 2019).
+ */
+export const BEFORE_BED_MINUTES = 60;
+export const SLEEP_SOURCE = 'Stutz, Eiholzer & Spengler, Effects of evening exercise on sleep in healthy participants: a systematic review and meta-analysis (Sports Med, 2019)';
+
+/** Time kept clear for sleep: from an hour before bed (or the wind-down, if earlier) to waking, plus naps when chosen. */
+export function sleepTaken(plan: readonly { kind: string; start: Date; end?: Date }[], naps: boolean): Span[] {
+  const out: Span[] = [];
+  for (const entry of plan) {
+    if (!entry.end) continue;
+    if (entry.kind === 'sleep') out.push({ start: new Date(entry.start.getTime() - BEFORE_BED_MINUTES * 60_000), end: entry.end });
+    else if (entry.kind === 'wind-down' || (naps && entry.kind === 'nap')) out.push({ start: entry.start, end: entry.end });
+  }
+  return out;
+}
+
+/** Without a sleep plan: the hour before quiet hours begin, each day around `date`. */
+export function beforeQuiet(date: string, quiet: QuietHours): Span[] {
+  if (!quiet.on || quiet.start === quiet.end) return [];
+  return [addDays(date, -1), date].map((day) => {
+    const start = atTime(day, quiet.start);
+    return { start: new Date(start.getTime() - BEFORE_BED_MINUTES * 60_000), end: start };
+  });
+}
 
 const overlap = (a: Span, b: Span) => a.start < b.end && b.start < a.end;
 const widened = (span: Span) => ({ start: new Date(span.start.getTime() - BUFFER_MINUTES * 60_000), end: new Date(span.end.getTime() + BUFFER_MINUTES * 60_000) });

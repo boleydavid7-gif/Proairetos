@@ -42,3 +42,32 @@ describe('a new thing on a training day', () => {
     expect(fit.runs.r1).not.toBe(day);
   });
 });
+
+describe('training and sleep', () => {
+  it('keeps the hour before bed, the wind-down and sleep clear, and naps only when chosen', async () => {
+    const { sleepTaken } = await import('../../core/training/clash');
+    const plan = [
+      { kind: 'wind-down', start: at('21:30'), end: at('22:30') },
+      { kind: 'sleep', start: at('22:30'), end: atTime('2026-10-30', '06:30') },
+      { kind: 'nap', start: at('13:00'), end: at('14:30') },
+    ];
+    expect(sleepTaken(plan, false)).toEqual([
+      { start: at('21:30'), end: at('22:30') },
+      { start: at('21:30'), end: atTime('2026-10-30', '06:30') },
+    ]);
+    expect(sleepTaken(plan, true)).toHaveLength(3);
+  });
+
+  it('never offers a time ending within an hour of bed', async () => {
+    const { sleepTaken } = await import('../../core/training/clash');
+    const late = { ...run, at: at('19:30') };
+    const sleep = sleepTaken([{ kind: 'sleep', start: at('21:00'), end: atTime('2026-10-30', '05:00') }], false);
+    const times = timesThatFit(late, [{ start: at('06:00'), end: at('18:30') }, ...sleep], quiet, now, late.at);
+    for (const start of times) expect(start.getTime() + late.minutes * 60_000 <= at('20:00').getTime()).toBe(true);
+  });
+
+  it('without a sleep plan, keeps the hour before quiet hours', async () => {
+    const { beforeQuiet } = await import('../../core/training/clash');
+    expect(beforeQuiet(day, quiet)).toContainEqual({ start: at('21:00'), end: at('22:00') });
+  });
+});

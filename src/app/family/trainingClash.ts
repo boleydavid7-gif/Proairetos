@@ -5,7 +5,9 @@ import { layOut } from '../../askesis/core/week';
 import { totalMinutes } from '../../askesis/core/workouts';
 import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
-import { crowds, timesThatFit, type Session } from '../../core/training/clash';
+import { beforeQuiet, crowds, sleepTaken, timesThatFit, type Session } from '../../core/training/clash';
+import { planBetween } from '../../diaita/core/rhythm';
+import { settings as diaitaSettings } from '../../diaita/app/state';
 import { itemSpan, type Span } from '../../core/rhythm/openTime';
 import { addDays, atTime, mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
 import type { LifeItem } from '../../core/life-items/types';
@@ -67,16 +69,27 @@ export async function sessionsOn(date: string): Promise<Session[]> {
   return out;
 }
 
-/** Everything else holding time on a date: work and protected time, other calendars, timed things in Proairetos. */
+/**
+ * Sleep kept clear on a date: Diaita's planned sleep (from an hour before bed) and wind-down, its naps only when the
+ * person chose that in Diaita; without Diaita, the hour before quiet hours.
+ */
+function sleepOn(date: string, blocks: readonly { start: Date; end: Date; kind: 'COMMITTED' | 'PROTECTED'; label?: string; patternName: string }[]): Span[] {
+  const diaita = diaitaSettings.load();
+  if (!isAdded('diaita') || !diaita.started) return beforeQuiet(date, loadQuietHours());
+  const plan = planBetween(addDays(date, -1), addDays(date, 1), blocks.map((block) => ({ start: block.start, end: block.end, kind: block.kind, label: block.label || block.patternName })), diaita);
+  return sleepTaken(plan, Boolean(diaita.trainingClearOfNaps));
+}
+
+/** Everything else holding time on a date: work and protected time, other calendars, timed things in Proairetos, sleep. */
 async function busyOn(date: string, items: readonly LifeItem[], leaveOut?: string): Promise<Span[]> {
   const from = atTime(date, '00:00');
   const until = atTime(addDays(date, 1), '00:00');
-  const blocks = await scheduleService.occurrencesBetween(new Date(from.getTime() - 86_400_000), until);
+  const blocks = await scheduleService.occurrencesBetween(new Date(from.getTime() - 2 * 86_400_000), atTime(addDays(date, 2), '00:00'));
   const events = otherCalendars.eventsBetween(from, until).filter((event) => !event.allDay);
   const timed = items
     .filter((item) => item.id !== leaveOut && item.scheduledAt && item.status !== 'DONE' && !item.repeat)
     .map((item) => itemSpan(item.scheduledAt!, item.endsAt));
-  return [...blocks, ...events, ...timed].map((span) => ({ start: span.start, end: span.end })).filter((span) => span.end > from && span.start < until);
+  return [...blocks, ...events, ...timed, ...sleepOn(date, blocks)].map((span) => ({ start: span.start, end: span.end })).filter((span) => span.end > from && span.start < until);
 }
 
 /** The session a new or moved timed item crowds out, with the ways to keep it; undefined when nothing clashes. */

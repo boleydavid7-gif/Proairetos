@@ -9,7 +9,14 @@ import type { SleepExperiment } from '../core/evidence';
 
 export type RoomCheck = { cool: boolean; dark: boolean; quiet: boolean; phoneAway: boolean; checkedAt?: string };
 
-export type DiaitaSettings = RhythmSettings & { started: boolean; notices: RhythmNoticeChoices; room: RoomCheck; dismissedSuggestions?: string[] };
+export type DiaitaSettings = RhythmSettings & {
+  started: boolean;
+  notices: RhythmNoticeChoices;
+  room: RoomCheck;
+  dismissedSuggestions?: string[];
+  /** Naps count as taken time when Proairetos offers a new time for a run or strength session (off until chosen). */
+  trainingClearOfNaps?: boolean;
+};
 
 export type Worry = { id: string; concern: string; nextStep?: string; createdAt: string };
 

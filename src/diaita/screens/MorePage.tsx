@@ -7,6 +7,7 @@ import { Switch } from '../../askesis/app/ui';
 import { notifications } from '../../app/notify/notifications';
 import type { DiaitaNav } from '../app/App';
 import { settings, type DiaitaSettings } from '../app/state';
+import { useAddedApps } from '../../app/family/added';
 
 function NumberField({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (value: number) => void }) {
   return (
@@ -34,6 +35,7 @@ function NumberField({ label, value, min, max, step, unit, onChange }: { label: 
 
 export default function MorePage({ nav }: { nav: DiaitaNav }) {
   const current = settings.use();
+  const added = useAddedApps();
   const change = (patch: Partial<DiaitaSettings>) => {
     settings.save({ ...settings.load(), ...patch });
     notifications.refreshSoon();
@@ -75,6 +77,14 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
       <section className="card switches">
         <Switch on={current.light} label="Light" onToggle={() => change({ light: !current.light })} />
         <Switch on={current.meals} label="Meals" onToggle={() => change({ meals: !current.meals })} />
+        {(added.includes('askesis') || added.includes('dynamis')) && (
+          <Switch
+            on={Boolean(current.trainingClearOfNaps)}
+            label="Keep training out of naps"
+            detail="When a run or workout is given a new time."
+            onToggle={() => change({ trainingClearOfNaps: !current.trainingClearOfNaps })}
+          />
+        )}
       </section>
 
       <p className="ll-section-label">Reminders</p>
