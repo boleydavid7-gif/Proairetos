@@ -9,6 +9,7 @@ import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
+import { ForwardingCard } from '../components/MailBox';
 import { readAmount } from '../../core/money/readAmount';
 import { balanceOn, hoursText } from '../core/timeOff';
 import { eventsReady } from '../app/world';
@@ -65,6 +66,8 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
           ))}
         </div>
       </section>
+
+      <ForwardingCard />
 
       <p className="ll-section-label">Budget and time off</p>
       <section className="card">

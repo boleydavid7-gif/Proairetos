@@ -10,6 +10,7 @@ import { handleStravaRequest, type StravaEnv } from './strava';
 import { handleCaptureRequest, type CaptureEnv } from './capture';
 import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
+import { handleTripEmail, type IncomingEmail } from './tripMail';
 
 type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
 
@@ -71,5 +72,9 @@ export default {
       return env.ASSETS.fetch(new Request(poreiaUrl, request));
     }
     return env.ASSETS.fetch(request);
+  },
+  /** Poreia's forwarding address (Email Routing sends trips.<token>@ here): booking emails sealed for the person. */
+  async email(message: IncomingEmail, env: Env): Promise<void> {
+    await handleTripEmail(message, env);
   },
 };

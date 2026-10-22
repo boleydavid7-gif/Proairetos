@@ -513,3 +513,28 @@ export async function deleteInboxItems(ids: readonly string[]): Promise<void> {
   const { error } = await (await supabase()).from('capture_inbox_items').delete().in('id', ids as string[]);
   if (error) throw new Error(error.message);
 }
+
+// Poreia's forwarding address: the same shape as the capture inbox, in its own tables (migration 20261027000000).
+export async function saveTripInbox(userId: string, tokenHash: string, publicKey: JsonWebKey): Promise<void> {
+  const { error } = await (await supabase())
+    .from('trip_inboxes')
+    .upsert({ user_id: userId, token_hash: tokenHash, public_key: publicKey }, { onConflict: 'user_id' });
+  if (error) throw new Error(/trip_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
+}
+
+export async function deleteTripInbox(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('trip_inboxes').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function fetchTripInboxItems(): Promise<{ id: string; sealed: string; created_at: string }[]> {
+  const { data, error } = await (await supabase()).from('trip_inbox_items').select('id, sealed, created_at').order('created_at').limit(100);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as { id: string; sealed: string; created_at: string }[];
+}
+
+export async function deleteTripInboxItems(ids: readonly string[]): Promise<void> {
+  if (!ids.length) return;
+  const { error } = await (await supabase()).from('trip_inbox_items').delete().in('id', ids as string[]);
+  if (error) throw new Error(error.message);
+}

@@ -21,11 +21,11 @@ function reply(status: number, body: unknown) {
 const base64 = (bytes: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(bytes)));
 
 /** The words sealed for the holder of the private key: { v, k (wrapped AES key), iv, c }, as base64 JSON. */
-export async function sealForInbox(publicJwk: JsonWebKey, words: { t: string; at: string }): Promise<string> {
+export async function sealForInbox(publicJwk: JsonWebKey, words: unknown, purpose = 'proairetos-capture'): Promise<string> {
   const publicKey = await crypto.subtle.importKey('jwk', publicJwk, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['encrypt']);
   const aes = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const c = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode('proairetos-capture') }, aes, new TextEncoder().encode(JSON.stringify(words)));
+  const c = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(purpose) }, aes, new TextEncoder().encode(JSON.stringify(words)));
   const k = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, await crypto.subtle.exportKey('raw', aes));
   return btoa(JSON.stringify({ v: 1, k: base64(k), iv: base64(iv), c: base64(c) }));
 }

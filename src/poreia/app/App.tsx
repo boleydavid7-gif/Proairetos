@@ -24,6 +24,7 @@ import FreshPage from '../screens/FreshPage';
 import PlacePage from '../screens/PlacePage';
 import PlanPage from '../screens/PlanPage';
 import DocumentsPage, { DocumentPage } from '../screens/DocumentsPage';
+import { useMailOpener } from '../components/MailBox';
 
 export type Tab = 'trips' | 'explore' | 'time' | 'more';
 export type Route =
@@ -76,6 +77,7 @@ function firstRoute(): Route {
 export default function App() {
   const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' });
   useTripSharing();
+  useMailOpener();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {

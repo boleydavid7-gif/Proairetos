@@ -75,6 +75,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       record in Cloudflare is easiest), then submit `https://proairetos.com/sitemap.xml` and
       `https://noesis.proairetos.com/sitemap.xml`.
 
+- [ ] Poreia's forwarding address: run migration `20261027000000_trip_inbox.sql`, turn on Email Routing for
+      proairetos.com with the catch-all sent to the proairetos Worker (SERVER_SETUP.md "Poreia's forwarding address"),
+      then forward one real confirmation and check it lands on its trip.
+
 ## On a real phone
 
 - [ ] Poreia reminders: add a timed booking an hour or two ahead (Lead "30 minutes"), close Poreia, and check the notice

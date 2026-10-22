@@ -3,6 +3,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { Booking, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
 import type { TravelDoc } from '../core/documents';
 import type { Spot } from '../core/spots';
+import type { ArrivedMail } from '../core/mail';
 import { defaultSetup, type TimeOff, type TimeOffSetup } from '../core/timeOff';
 import { defaultTripNotices, type TripNoticeChoices } from '../core/notices';
 
@@ -50,6 +51,8 @@ export const timeOff = collection<TimeOff>('poreia:off:');
 export const spots = collection<Spot>('poreia:spot:');
 /** Passports, visas, insurance: on this person's own devices only, never in a shared trip. */
 export const docs = collection<TravelDoc>('poreia:doc:');
+/** Booking emails that came in and wait to be placed on a trip. */
+export const mails = collection<ArrivedMail>('poreia:mail:');
 
 /**
  * This person's own links for each trip, kept apart from the trip so a shared trip never carries them: its Compass

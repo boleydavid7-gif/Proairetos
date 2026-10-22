@@ -460,3 +460,17 @@ Check with https://proairetos.com/api/travel: each one set up reads `true`.
    up to a search-to-booking ratio; above it Duffel charges per search.
 
 Keep the keys only in Cloudflare; never in the repository or a plain variable.
+
+## Poreia's forwarding address (migration 20261027000000)
+
+Booking emails forwarded to `trips.<code>@proairetos.com` become bookings on their trip. The Worker reads each email,
+seals it for the person's device and keeps only the sealed copy.
+
+1. Supabase → **SQL Editor**: run `supabase/migrations/20261027000000_trip_inbox.sql`.
+2. The Worker needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` (already set for Capture from anywhere).
+3. Cloudflare → **proairetos.com** (the domain, not the Worker) → **Email** → **Email Routing** → **Get started**; let it
+   add its MX and TXT records. If the domain already receives mail elsewhere, use a subdomain instead (ask Claude to
+   change `MAIL_DOMAIN` in `src/poreia/app/mailInbox.ts`).
+4. **Routing rules** → **Catch-all address** → Action **Send to a Worker** → **proairetos** → Save, and turn it on.
+   Addresses that are not `trips.<code>` are turned away. Any address you add as its own rule still goes where you send it.
+5. In Poreia: More → Forward booking emails → Make my address. Forward a confirmation to it and open Poreia.

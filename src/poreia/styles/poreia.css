@@ -1790,3 +1790,18 @@
   margin: 0;
   padding: 0;
 }
+
+/* Forwarded emails: the address to forward to, and each email waiting for a trip. */
+.poreia-mail__address {
+  margin: 0;
+  font-family: var(--ll-mono, ui-monospace, monospace);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.poreia-mail__row {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+}

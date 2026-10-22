@@ -52,13 +52,13 @@ export async function turnOffInbox(): Promise<void> {
 const bytes = (base64: string) => Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
 /** Opens one sealed capture (the Worker's `sealForInbox`). */
-export async function openSealed(privateJwk: JsonWebKey, sealed: string): Promise<{ t: string; at: string }> {
+export async function openSealed<T = { t: string; at: string }>(privateJwk: JsonWebKey, sealed: string, purpose = 'proairetos-capture'): Promise<T> {
   const { k, iv, c } = JSON.parse(atob(sealed)) as { k: string; iv: string; c: string };
   const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
   const raw = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, bytes(k));
   const aes = await crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['decrypt']);
-  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(iv), additionalData: new TextEncoder().encode('proairetos-capture') }, aes, bytes(c));
-  return JSON.parse(new TextDecoder().decode(plain)) as { t: string; at: string };
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(iv), additionalData: new TextEncoder().encode(purpose) }, aes, bytes(c));
+  return JSON.parse(new TextDecoder().decode(plain)) as T;
 }
 
 let opening: Promise<string[]> | null = null;
