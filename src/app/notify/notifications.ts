@@ -205,6 +205,11 @@ export const notifications = {
     pending = window.setTimeout(() => void notifications.refresh(), 800);
   },
 
+  /** Shows one notice at once (a flight's new gate or time seen while an app is open), as a reminder would read. */
+  async showNow(notice: Notice): Promise<void> {
+    await show(notice, loadNotify().details);
+  },
+
   /** Shows one now, so the person can see how they look on this device. */
   async test(): Promise<void> {
     const soonest = upcoming[0];

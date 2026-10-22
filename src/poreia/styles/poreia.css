@@ -1805,3 +1805,19 @@
   gap: 8px;
   padding: 12px 0;
 }
+
+/* Flight status: departure and arrival side by side, the time large, what changed struck through beside it. */
+.poreia-flight__ends {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.poreia-flight__end p {
+  margin: 0;
+}
+
+.poreia-flight__time {
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+}

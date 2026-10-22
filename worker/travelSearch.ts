@@ -7,7 +7,7 @@ import { tooOften } from './safeFetch';
  * Nothing is stored. Answers are reduced to what Poreia shows.
  */
 
-export type TravelKeys = { TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string };
+export type TravelKeys = { TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string };
 
 export type StayOffer = {
   id: string;
@@ -240,7 +240,7 @@ async function airports(request: Request, key: string, fetchImpl: typeof fetch):
 /** `/api/travel` (what is set up), `/api/travel/stays`, `/api/travel/flights`, `/api/travel/airports`. */
 export async function handleTravelSearch(request: Request, keys: TravelKeys, fetchImpl: typeof fetch = fetch): Promise<Response> {
   const path = new URL(request.url).pathname.replace(/\/$/, '');
-  if (path === '/api/travel') return reply(200, { events: Boolean(keys.TICKETMASTER_KEY), stays: Boolean(keys.LITEAPI_KEY), flights: Boolean(keys.DUFFEL_KEY) });
+  if (path === '/api/travel') return reply(200, { events: Boolean(keys.TICKETMASTER_KEY), stays: Boolean(keys.LITEAPI_KEY), flights: Boolean(keys.DUFFEL_KEY), status: Boolean(keys.AERODATABOX_KEY), places: Boolean(keys.GOOGLE_PLACES_KEY) });
   if (!sameSite(request)) return reply(403, { error: 'Not allowed' });
   const which = path.slice('/api/travel/'.length);
   const key = which === 'stays' ? keys.LITEAPI_KEY : which === 'flights' || which === 'airports' ? keys.DUFFEL_KEY : undefined;

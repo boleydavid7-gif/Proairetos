@@ -4,6 +4,7 @@ import { handlePlantRequest } from './plantProxy';
 import { handleTravelEvents } from './travelEvents';
 import { handleTravelSearch } from './travelSearch';
 import { handleTravelNear } from './travelNear';
+import { handleFlightStatus } from './flightStatus';
 import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
@@ -12,7 +13,7 @@ import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -54,6 +55,8 @@ export default {
     if (url.pathname === '/api/travel/events') return handleTravelEvents(request, env.TICKETMASTER_KEY);
     // Poreia's places nearby (OpenStreetMap through Overpass, kept at the edge for a day).
     if (url.pathname === '/api/travel/near') return handleTravelNear(request);
+    // Poreia's flight status on the day (AeroDataBox; only the number and date are sent).
+    if (url.pathname === '/api/travel/flight') return handleFlightStatus(request, env.AERODATABOX_KEY);
     if (url.pathname === '/api/travel' || url.pathname.startsWith('/api/travel/')) return handleTravelSearch(request, env);
     // Keep sibling apps reachable at their clean family URLs without requiring a trailing slash.
     if (url.pathname === '/praxis') {

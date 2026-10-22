@@ -459,6 +459,11 @@ Check with https://proairetos.com/api/travel: each one set up reads `true`.
    flights complete activation (card details under billing), switch to live mode and create a live token. Searches are free
    up to a search-to-booking ratio; above it Duffel charges per search.
 
+4. **Flight status on the day — `AERODATABOX_KEY`.** Sign up at rapidapi.com, open the **AeroDataBox** API, subscribe
+   to a plan (the free Basic plan allows a few hundred calls a month; Pro is a few dollars), then copy the
+   **X-RapidAPI-Key** shown on its **Endpoints** page. Poreia looks at a flight every five minutes only while a trip page
+   with a flight today or tomorrow is open, and the Worker keeps each answer five minutes, so use stays small.
+
 Keep the keys only in Cloudflare; never in the repository or a plain variable.
 
 ## Poreia's forwarding address (migration 20261027000000)

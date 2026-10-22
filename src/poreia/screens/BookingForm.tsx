@@ -6,12 +6,14 @@ import { offerUndo, say } from '../../app/family/shell';
 import { deviceKind } from '../../app/install/installPrompt';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
-import { bookings, newId, nowStamp, settings, trips } from '../app/state';
+import { bookings, newId, nowStamp, settings, trips, today } from '../app/state';
 import { dayText, MoneyField, timeText } from '../app/ui';
 import { readConfirmation, type ReadBooking } from '../core/confirmations';
 import { directionsTo } from '../core/links';
 import { BOOKING_KINDS, kindLabel, moneyText, type Booking, type BookingKind } from '../core/model';
 import { peopleOf } from '../components/Together';
+import { FlightStatusCard } from '../components/FlightNow';
+import { addDays } from '../../core/scheduling/dates';
 
 const TRAVEL: BookingKind[] = ['flight', 'train', 'bus', 'cruise'];
 
@@ -289,6 +291,8 @@ function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: Poreia
           <span className="muted">Tap to copy</span>
         </button>
       )}
+
+      {booking.kind === 'flight' && booking.startDate && booking.startDate >= today() && booking.startDate <= addDays(today(), 1) && <FlightStatusCard booking={booking} />}
 
       {(goTo || booking.link) && (
         <div className="button-row">

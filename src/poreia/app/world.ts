@@ -348,7 +348,7 @@ export async function guideSpots(place: Place): Promise<{ page: string; url: str
 
 // ---------- Searches with prices (through the site) ----------
 
-export type TravelReady = { events: boolean; stays: boolean; flights: boolean };
+export type TravelReady = { events: boolean; stays: boolean; flights: boolean; status: boolean; places: boolean };
 
 /** Which of the searches with prices the site has keys for. */
 export async function travelReady(): Promise<TravelReady> {
@@ -356,9 +356,9 @@ export async function travelReady(): Promise<TravelReady> {
     const response = await fetch(apiUrl('/api/travel'));
     if (!response.ok) throw new Error(`${response.status}`);
     const data = (await response.json()) as Partial<TravelReady>;
-    return { events: Boolean(data.events), stays: Boolean(data.stays), flights: Boolean(data.flights) };
+    return { events: Boolean(data.events), stays: Boolean(data.stays), flights: Boolean(data.flights), status: Boolean(data.status), places: Boolean(data.places) };
   } catch {
-    return { events: false, stays: false, flights: false };
+    return { events: false, stays: false, flights: false, status: false, places: false };
   }
 }
 
@@ -402,7 +402,7 @@ export async function searchFlights(ask: { from: string; to: string; depart: str
   return cached(`flights.${ask.from}.${ask.to}.${ask.depart}.${ask.return ?? ''}.${ask.adults}.${ask.cabin ?? ''}`, 1_800_000, async () => (await post<{ flights: FlightOffer[] }>('/api/travel/flights', ask)).flights);
 }
 
-export type Airport = { code: string; name: string; city?: string; country?: string };
+export type Airport = { code: string; name: string; city?: string; country?: string; lat?: number; lon?: number };
 
 export async function findAirports(query: string): Promise<Airport[]> {
   const text = query.trim();
@@ -411,5 +411,35 @@ export async function findAirports(query: string): Promise<Airport[]> {
     const response = await fetch(apiUrl(`/api/travel/airports?q=${encodeURIComponent(text)}`));
     if (!response.ok) throw new Error(`${response.status}`);
     return ((await response.json()) as { airports: Airport[] }).airports;
+  });
+}
+
+// ---------- Flight status ----------
+
+export type { FlightStatus, FlightEnd } from '../core/flights';
+
+/** One flight's status on a local date, through the site (AeroDataBox); empty when it is not found. */
+export async function flightStatus(number: string, date: string): Promise<import('../core/flights').FlightStatus[]> {
+  const response = await fetch(apiUrl(`/api/travel/flight?number=${encodeURIComponent(number)}&date=${date}`), { signal: AbortSignal.timeout(20_000) });
+  if (!response.ok) throw new Error(`${response.status}`);
+  return ((await response.json()) as { flights: import('../core/flights').FlightStatus[] }).flights;
+}
+
+/** Minutes by car between two points (OSRM's public router), else an estimate from the distance; kept a month. */
+export async function driveMinutes(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Promise<{ minutes: number; estimated: boolean }> {
+  const key = `drive.${from.lat.toFixed(3)},${from.lon.toFixed(3)}.${to.lat.toFixed(3)},${to.lon.toFixed(3)}`;
+  return cached(key, 30 * DAY, async () => {
+    try {
+      const data = await json<{ routes?: { duration: number }[] }>(`https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=false`);
+      const seconds = data.routes?.[0]?.duration;
+      if (seconds) return { minutes: Math.round(seconds / 60), estimated: false };
+    } catch {
+      // Unreached: estimated below.
+    }
+    const rad = Math.PI / 180;
+    const x = (to.lon - from.lon) * rad * Math.cos(((from.lat + to.lat) / 2) * rad);
+    const y = (to.lat - from.lat) * rad;
+    const km = Math.sqrt(x * x + y * y) * 6371 * 1.3;
+    return { minutes: Math.round((km / 50) * 60 + 10), estimated: true };
   });
 }

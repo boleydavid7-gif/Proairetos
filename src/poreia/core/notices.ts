@@ -19,9 +19,13 @@ export type TripNoticeChoices = {
   otherLead: number;
   /** The evening before a trip starts. */
   dayBefore: boolean;
+  /** Minutes before a flight to be at the airport; 0 (or unset with no trip there) leaves the notice out. */
+  atAirport?: number;
+  /** How long it takes to get from home to the airport, and which airport that is. */
+  toAirport?: { minutes: number; code?: string };
 };
 
-export const defaultTripNotices: TripNoticeChoices = { on: true, travelLead: 180, checkIn: true, otherLead: 60, dayBefore: true };
+export const defaultTripNotices: TripNoticeChoices = { on: true, travelLead: 180, checkIn: true, otherLead: 60, dayBefore: true, atAirport: 120 };
 
 const TRAVEL = new Set<Booking['kind']>(['flight', 'train', 'bus', 'cruise']);
 const MORNING = '09:00';
@@ -57,6 +61,14 @@ export function tripNotices(
       const leaves = atTime(booking.startDate, booking.startTime);
       if (TRAVEL.has(booking.kind)) {
         add({ key: `poreia:leave:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.travelLead), title: booking.title, body: words(`Leaves ${clock(booking.startTime)}`, booking.from && `from ${booking.from}`, code), open });
+        // Leave for the airport: the flight's time, less the time to be there early and the time to get there from home.
+        const early = choices.atAirport ?? defaultTripNotices.atAirport!;
+        const trip = trips.find((each) => each.id === booking.tripId);
+        const fromHome = booking.kind === 'flight' && choices.toAirport && (choices.toAirport.code ? booking.from?.toUpperCase().includes(choices.toAirport.code) : booking.startDate === trip?.start);
+        if (fromHome && early > 0 && choices.toAirport) {
+          const go = less(leaves, early + choices.toAirport.minutes);
+          add({ key: `poreia:go:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: go, title: 'Leave for the airport', body: words(booking.title, `Flight ${clock(booking.startTime)}`, `about ${choices.toAirport.minutes} min to get there`), open });
+        }
         if (booking.kind === 'flight' && choices.checkIn) {
           add({ key: `poreia:checkin:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, 24 * 60), title: booking.title, body: words('Check-in usually opens now', code), open });
         }

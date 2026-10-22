@@ -298,7 +298,7 @@ describe('airports from the map', () => {
       { lat: 38.7, lon: -9.15, tags: { iata: 'MIL', name: 'Base', 'aerodrome:type': 'military' } },
       { center: { lat: 38.8, lon: -9.2 }, tags: { name: 'No code' } },
     ];
-    expect(pickAirport(elements, 38.72, -9.14)).toEqual({ code: 'LIS', name: 'Humberto Delgado Airport' });
+    expect(pickAirport(elements, 38.72, -9.14)).toEqual({ code: 'LIS', name: 'Humberto Delgado Airport', lat: 38.78, lon: -9.13 });
     expect(pickAirport(elements.slice(1), 38.72, -9.14)?.code).toBe('XXX');
     expect(pickAirport([], 0, 0)).toBeUndefined();
   });

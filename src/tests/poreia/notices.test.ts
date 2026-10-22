@@ -53,4 +53,17 @@ describe('trip reminders', () => {
   it('goes out as Poreia', () => {
     expect(sourceOf(all[0])).toBe('poreia');
   });
+
+  it('says when to leave for the airport from home, from the drive and the time to be there early', () => {
+    const choices = { ...defaultTripNotices, atAirport: 120, toAirport: { minutes: 45, code: 'JFK' } };
+    const go = tripNotices([trip], [flight], [], [], choices, now, until).find((notice) => notice.key.startsWith('poreia:go:f'))!;
+    expect(at(go)).toBe('11/10 05:25');
+    expect(go.title).toBe('Leave for the airport');
+    expect(go.body).toContain('about 45 min to get there');
+    // A flight from another airport (the way home) has none; nor without a time to get there, or with it off.
+    const home = { ...flight, id: 'r', from: 'LIS', startDate: '2026-11-13' };
+    expect(tripNotices([trip], [home], [], [], choices, now, until).some((notice) => notice.key.startsWith('poreia:go'))).toBe(false);
+    expect(tripNotices([trip], [flight], [], [], defaultTripNotices, now, until).some((notice) => notice.key.startsWith('poreia:go'))).toBe(false);
+    expect(tripNotices([trip], [flight], [], [], { ...choices, atAirport: 0 }, now, until).some((notice) => notice.key.startsWith('poreia:go'))).toBe(false);
+  });
 });

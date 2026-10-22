@@ -12,7 +12,7 @@ import { PlaceSearch } from '../app/ui';
 import { ForwardingCard } from '../components/MailBox';
 import { readAmount } from '../../core/money/readAmount';
 import { balanceOn, hoursText } from '../core/timeOff';
-import { eventsReady } from '../app/world';
+import { airportFor, driveMinutes, eventsReady } from '../app/world';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN', 'BRL', 'INR', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR'];
 
@@ -118,6 +118,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
             </label>
             <Switch on={current.notices.checkIn} label="Flight check-in" detail="24 hours before it leaves" onToggle={() => notice({ checkIn: !current.notices.checkIn })} />
             <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="Its first thing and what is left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
+            <AirportLeave />
           </>
         )}
       </section>
@@ -188,5 +189,77 @@ function YearBudgetField() {
         }}
       />
     </label>
+  );
+}
+
+/** "Leave for the airport": how early to be there, and how long it takes from home (worked out, or as the person says). */
+function AirportLeave() {
+  const current = settings.use();
+  const choices = current.notices;
+  const early = choices.atAirport ?? 120;
+  const [working, setWorking] = useState(false);
+  const [said, setSaid] = useState('');
+  const notice = (patch: Partial<PoreiaSettings['notices']>) => {
+    settings.save({ ...settings.load(), notices: { ...settings.load().notices, ...patch } });
+    notifications.refreshSoon();
+  };
+  const workOut = async () => {
+    const home = current.home;
+    if (home?.lat === undefined || home.lon === undefined) {
+      setSaid('Set Home above first.');
+      return;
+    }
+    setWorking(true);
+    setSaid('');
+    try {
+      const airport = await airportFor(home.lat, home.lon);
+      if (!airport || airport.lat === undefined || airport.lon === undefined) {
+        setSaid('No airport found near home. Type the minutes instead.');
+        return;
+      }
+      const drive = await driveMinutes({ lat: home.lat, lon: home.lon }, { lat: airport.lat, lon: airport.lon });
+      notice({ toAirport: { minutes: drive.minutes, code: airport.code } });
+      setSaid(`${drive.estimated ? 'About' : 'Usually'} ${drive.minutes} min by car to ${airport.name} (${airport.code})${drive.estimated ? ', from the distance' : ''}.`);
+    } finally {
+      setWorking(false);
+    }
+  };
+  return (
+    <>
+      <label className="field">
+        <span className="field__label">Leave for the airport, to be there</span>
+        <select className="input" value={early} onChange={(event) => notice({ atAirport: Number(event.target.value) })}>
+          <option value={0}>Off</option>
+          {[60, 90, 120, 150, 180].map((minutes) => (
+            <option key={minutes} value={minutes}>
+              {minutes % 60 ? `${Math.floor(minutes / 60)}½ hours before` : `${minutes / 60} ${minutes === 60 ? 'hour' : 'hours'} before`}
+            </option>
+          ))}
+        </select>
+      </label>
+      {early > 0 && (
+        <>
+          <div className="input-row">
+            <label className="field">
+              <span className="field__label">Minutes from home to the airport</span>
+              <input
+                className="input"
+                inputMode="numeric"
+                value={choices.toAirport?.minutes ?? ''}
+                placeholder="45"
+                onChange={(event) => {
+                  const minutes = Number(event.target.value.replace(/\D/g, ''));
+                  notice({ toAirport: minutes ? { minutes, code: choices.toAirport?.code } : undefined });
+                }}
+              />
+            </label>
+          </div>
+          <button type="button" className="text-link" disabled={working} onClick={() => void workOut()}>
+            {working ? 'Working it out…' : 'Work it out from home'}
+          </button>
+          {said && <p className="fine">{said}</p>}
+        </>
+      )}
+    </>
   );
 }

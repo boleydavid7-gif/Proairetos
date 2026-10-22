@@ -26,6 +26,7 @@ import WhenToGo from '../components/WhenToGo';
 import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
 import { HolidaysLine } from '../components/References';
+import { TripFlights } from '../components/FlightNow';
 import type { Holiday } from '../app/world';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
@@ -173,6 +174,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
     return (
       <>
         <TodayCard trip={trip} nav={nav} day={day} onView={onView} />
+        <TripFlights trip={trip} />
         <TimeThere trip={trip} place={target?.place} today={day} />
         <details className="poreia-fold poreia-more">
           <summary>More about this trip</summary>
@@ -184,6 +186,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
   return (
     <>
       <NextUpCard trip={trip} nav={nav} day={day} />
+      <TripFlights trip={trip} />
       <TimeThere trip={trip} place={target?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
