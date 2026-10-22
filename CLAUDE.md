@@ -769,7 +769,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   time that day; `notOn`: kept off a day, `avoid` in `fitWeek`, so a session on set days is placed again and its week is
   recorded in full), with undo; Askesis Home/Workout, `runTimes` and Dynamis notices use `trainingTimeOn`.
   Sleep is taken time for every offer (`sleepOn`): with Diaita, its planned sleep from an hour before bed (`BEFORE_BED_MINUTES`,
-  Stutz 2019, `SLEEP_SOURCE`) and wind-down (`sleepTaken`), naps only with Diaita's "Keep training out of naps"
+  Stutz 2019, `SLEEP_SOURCE`) and wind-down (`sleepTaken`), naps only with Diaita's "Scheduled naps" switch
   (`trainingClearOfNaps`, off until chosen, shown when Askesis or Dynamis is added); without Diaita, the hour before quiet hours.
   A schedule change (`scheduleService.subscribe`, 0.5 s settle, sync skipped) runs `scheduleClashes`: the next 8 days'
   sessions that a work or protected block now crowds out, keyed so only new ones are offered (named after the block).

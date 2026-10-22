@@ -80,8 +80,8 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         {(added.includes('askesis') || added.includes('dynamis')) && (
           <Switch
             on={Boolean(current.trainingClearOfNaps)}
-            label="Keep training out of naps"
-            detail="When a run or workout is given a new time."
+            label="Scheduled naps"
+            detail="Runs and workouts given a new time stay out of them."
             onToggle={() => change({ trainingClearOfNaps: !current.trainingClearOfNaps })}
           />
         )}
