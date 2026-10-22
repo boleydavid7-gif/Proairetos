@@ -64,3 +64,10 @@
 .days-list .swipe + .swipe {
   border-top: 0;
 }
+
+/* Pulled far enough that letting go will do it: the action lights up and its mark grows (SwipeItem's `armed`). */
+.swipe__action { transition: background-color 160ms ease, opacity 120ms ease; }
+.swipe__action > :first-child { transition: scale 260ms var(--ll-spring-lively, ease); }
+.swipe--armed .swipe__action { background: color-mix(in srgb, var(--ll-lamp, var(--mint, #7fb69a)) 34%, var(--mint-soft, transparent)); font-weight: 600; }
+.swipe--remove.swipe--armed .swipe__action { background: color-mix(in srgb, var(--color-danger, #c98a7a) 34%, transparent); }
+.swipe--armed .swipe__action > :first-child { scale: 1.2; }

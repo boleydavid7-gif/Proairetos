@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { offerUndo } from '../../app/family/shell';
@@ -106,7 +107,7 @@ function AddMoney({ currency, onAdd }: { currency: string; onAdd: (cents: number
 function Progress({ saved, target, currency }: { saved: number; target?: number; currency: string }) {
   return (
     <>
-      <p className="poreia-money-card__total">{moneyText({ cents: saved, currency })}</p>
+      <p className="poreia-money-card__total"><RollingNumber key={currency} value={saved} format={(cents) => moneyText({ cents: Math.round(cents), currency })} /></p>
       {target ? (
         <>
           <p className="muted">

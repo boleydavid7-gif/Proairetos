@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
+import { offerUndo, UndoBar } from '../../lamplight/undo';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import { BackIcon, GearIcon, HomeIcon, LearnIcon, LogIcon, Mark, TrainIcon } from './icons';
 
@@ -113,39 +114,16 @@ export function Switch({ on, label, detail, onToggle }: { on: boolean; label: st
 
 // ---------- Undo ----------
 
-type UndoNote = { id: number; text: string; undo: () => void };
 const UndoContext = createContext<(text: string, undo: () => void) => void>(() => undefined);
 
 export const useUndo = () => useContext(UndoContext);
 
+/** The family's one undo bar (Lamplight's), offered through context as before. */
 export function UndoProvider({ children }: { children: ReactNode }) {
-  const [note, setNote] = useState<UndoNote>();
-  const timer = useRef<number>(undefined);
-  const offer = useCallback((text: string, undo: () => void) => {
-    window.clearTimeout(timer.current);
-    const id = Date.now();
-    setNote({ id, text, undo });
-    timer.current = window.setTimeout(() => setNote((current) => (current?.id === id ? undefined : current)), 8000);
-  }, []);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
   return (
-    <UndoContext.Provider value={offer}>
+    <UndoContext.Provider value={offerUndo}>
       {children}
-      {note && (
-        <div className="toast" role="status">
-          <span>{note.text}</span>
-          <button
-            type="button"
-            className="toast__undo"
-            onClick={() => {
-              note.undo();
-              setNote(undefined);
-            }}
-          >
-            Undo
-          </button>
-        </div>
-      )}
+      <UndoBar />
     </UndoContext.Provider>
   );
 }

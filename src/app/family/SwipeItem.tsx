@@ -1,3 +1,4 @@
+import { tap } from '../feel';
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { CheckIcon, TrashIcon } from './icons';
 import './swipe.css';
@@ -31,6 +32,8 @@ export default function SwipeItem({
 }) {
   const [dx, setDx] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  // Far enough that letting go will do it: the action lights and the phone gives one small tap as the line is crossed.
+  const [armed, setArmed] = useState(false);
   const start = useRef<{ x: number; y: number; width: number } | null>(null);
   const pulling = useRef(false);
   const moved = useRef(false);
@@ -40,6 +43,7 @@ export default function SwipeItem({
   const finish = (go: boolean) => {
     start.current = null;
     pulling.current = false;
+    setArmed(false);
     if (go) {
       setLeaving(true);
       window.setTimeout(() => {
@@ -61,7 +65,7 @@ export default function SwipeItem({
   };
 
   return (
-    <li className={`swipe swipe--${tone}${leaving ? ' swipe--leaving' : ''}`} aria-keyshortcuts="ArrowLeft">
+    <li className={`swipe swipe--${tone}${leaving ? ' swipe--leaving' : ''}${armed ? ' swipe--armed' : ''}`} aria-keyshortcuts="ArrowLeft">
       {/* Shown only while the row is pulled, so it never shows through a row's own gaps. */}
       <div className="swipe__action" aria-hidden="true" style={{ opacity: dx < 0 || leaving ? 1 : 0 }}>
         {tone === 'remove' ? <TrashIcon size={20} /> : <CheckIcon size={20} />}
@@ -96,7 +100,13 @@ export default function SwipeItem({
             event.currentTarget.setPointerCapture(event.pointerId);
           }
           moved.current = true;
-          setDx(Math.max(-REVEAL * 1.6, Math.min(0, across)));
+          const next = Math.max(-REVEAL * 1.6, Math.min(0, across));
+          setDx(next);
+          const over = -next > from.width * COMMIT || -next > REVEAL * 1.2;
+          if (over !== armed) {
+            setArmed(over);
+            if (over) tap();
+          }
         }}
         onPointerUp={(event) => {
           if (!pulling.current) {

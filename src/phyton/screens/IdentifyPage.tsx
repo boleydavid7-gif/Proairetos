@@ -1,3 +1,4 @@
+import { Placeholder } from '../../lamplight/Placeholder';
 import { useEffect, useRef, useState } from 'react';
 import { CameraIcon, ChevronIcon } from '../../app/family/icons';
 import { offerUndo } from '../../app/family/shell';
@@ -107,8 +108,9 @@ export default function IdentifyPage({ nav, plantId }: { nav: PhytonNav; plantId
         {shots.length > 0 && <button type="button" className="button-main" disabled={busy} onClick={() => void run()}>{busy ? 'Identifying…' : 'Identify'}</button>}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
+      {busy && <Placeholder label="Identifying" kind="rows" count={3} />}
 
-      {matches && (
+      {matches && !busy && (
         <section aria-label="Matches">
           {matches.length === 0 ? (
             <p className="muted">No match. Try a closer photo of a leaf or a flower.</p>

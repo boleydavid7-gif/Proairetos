@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { offerUndo, say } from '../../app/family/shell';
@@ -54,7 +55,7 @@ export default function TripMoney({ trip }: { trip: Trip }) {
     <>
       <section className="card poreia-money-card">
         <p className="label">So far</p>
-        <p className="poreia-money-card__total">{moneyText({ cents: totals.total, currency })}</p>
+        <p className="poreia-money-card__total"><RollingNumber key={currency} value={totals.total} format={(cents) => moneyText({ cents: Math.round(cents), currency })} /></p>
         {trip.budget && (
           <p className="muted">
             Budget {moneyText(trip.budget)} · {totals.total <= trip.budget.cents ? `${moneyText({ cents: trip.budget.cents - totals.total, currency })} left` : `${moneyText({ cents: totals.total - trip.budget.cents, currency })} over`}

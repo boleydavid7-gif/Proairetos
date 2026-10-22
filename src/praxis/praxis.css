@@ -138,7 +138,6 @@
 .praxis-account-row small { margin-top: 5px; color: var(--color-text-muted); font-size: 13px; }
 .praxis-settings-link { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; border-top: 1px solid var(--color-border); color: var(--color-accent-strong); font-size: 14px; text-decoration: none; }
 .praxis-bottom-nav { display: none; }
-.praxis-toast { position: fixed; right: 20px; bottom: 20px; z-index: 5; padding: 11px 14px; border: 1px solid rgba(201,162,116,.3); border-radius: 10px; color: var(--color-text); background: #17352b; box-shadow: 0 16px 34px rgba(0,0,0,.25); font-size: 13px; }
 
 @media (max-width: 900px) {
   .praxis-app { display: block; }
@@ -188,8 +187,7 @@
   .praxis-bottom-nav { right: 0; bottom: 0; left: 0; padding: 6px 6px max(6px, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--color-border); border-radius: 0; box-shadow: none; }
   .praxis-bottom-nav .praxis-nav-item { border-color: transparent; }
   .praxis-bottom-nav .praxis-nav-item.is-active { background: transparent; }
-  .praxis-toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; text-align: center; }
-}
+  }
 html, body { margin: 0; }
 
 /* Blocks: a row each, with change and done; editing opens below. */
@@ -240,8 +238,6 @@ html, body { margin: 0; }
 .praxis-setting { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .praxis-setting > span:first-child { display: grid; gap: 4px; }
 .praxis-setting small { color: var(--color-text-faint); font-size: 13px; }
-.praxis-toast { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.praxis-toast button { border: 0; color: var(--color-accent-strong); background: none; font: inherit; font-weight: 700; cursor: pointer; }
 .praxis-view > .account-card, .praxis-view > .card { margin-top: 14px; }
 .praxis-add input, .praxis-block-form input, .praxis-block-form select, .praxis-adjust__other input { box-sizing: border-box; outline: none; }
 .praxis-add input:focus-visible, .praxis-block-form input:focus-visible, .praxis-block-form select:focus-visible { border-color: var(--color-accent-strong); }

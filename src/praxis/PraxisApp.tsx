@@ -1,3 +1,4 @@
+import { offerUndo, say as sayOnly, UndoBar } from '../lamplight/undo';
 import { useWakeLock } from '../app/family/wakeLock';
 import { tap } from '../app/feel';
 import ProairetosTab from '../app/family/ProairetosTab';
@@ -69,9 +70,7 @@ export default function PraxisApp() {
       return 'forest';
     }
   });
-  const [notice, setNotice] = useState<{ message: string; undo?: () => void } | null>(null);
   const [permission, setPermission] = useState(notifyPermission);
-  const noticeTimer = useRef<number | undefined>(undefined);
   const recordedSession = useRef<number | undefined>(undefined);
   const clock = useClock(1000);
   const soundState = useSyncExternalStore(player.subscribe, player.state);
@@ -128,11 +127,7 @@ export default function PraxisApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.id, selected?.plannedMinutes]);
 
-  const say = useCallback((message: string, undo?: () => void) => {
-    setNotice({ message, undo });
-    window.clearTimeout(noticeTimer.current);
-    noticeTimer.current = window.setTimeout(() => setNotice(null), undo ? 7000 : 2800);
-  }, []);
+  const say = useCallback((message: string, undo?: () => void) => (undo ? offerUndo(message, undo) : sayOnly(message)), []);
 
   const playSound = (id: string) => {
     if (id === 'none') {
@@ -399,12 +394,7 @@ export default function PraxisApp() {
       </main>
 
       <nav className="praxis-bottom-nav" aria-label="Praxis navigation"><PraxisNav view={view} onView={setView} /></nav>
-      {notice && (
-        <div className="praxis-toast" role="status">
-          <span>{notice.message}</span>
-          {notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(null); }}>Undo</button>}
-        </div>
-      )}
+      <UndoBar />
     </div>
   );
 }

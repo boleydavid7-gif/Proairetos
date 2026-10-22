@@ -1,3 +1,4 @@
+import { offerUndo, say, UndoBar } from '../lamplight/undo';
 import { endsWith, useLaunchedFile } from '../app/family/launchFiles';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import ProairetosTab from '../app/family/ProairetosTab';
@@ -82,8 +83,6 @@ export default function TheoriaApp() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [noteState, setNoteState] = useState<NoteState>();
   const [selectedId, setSelectedId] = useState<string>();
-  const [notice, setNotice] = useState<{ message: string; undo?: () => void }>();
-  const noticeTimer = useRef<number | undefined>(undefined);
   const [readerText, setReaderText] = useState<{ bookId: string; chapters?: TheoriaChapter[]; pdf?: Blob; loading: boolean }>();
   const [here, setHere] = useState<Set<string>>(new Set());
   const [copyNew, setCopyNew] = useState(() => localStorage.getItem('theoria:copyNew') !== 'false');
@@ -107,11 +106,7 @@ export default function TheoriaApp() {
     return syncStatus.subscribe(() => setSync(syncStatus.get()));
   }, []);
 
-  const toast = (message: string, undo?: () => void) => {
-    setNotice({ message, undo });
-    window.clearTimeout(noticeTimer.current);
-    noticeTimer.current = window.setTimeout(() => setNotice(undefined), undo ? 7000 : 3200);
-  };
+  const toast = (message: string, undo?: () => void) => (undo ? offerUndo(message, undo) : say(message));
 
   // Books from the first version are moved once: text to this device, files sealed (see `migrateBook`).
   useEffect(() => {
@@ -667,7 +662,7 @@ export default function TheoriaApp() {
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
-    {addOpen && <AddBookDialog onMany={(files) => void saveMany(files)} initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}{notice && <div className="theoria-toast" role="status"><span>{notice.message}</span>{notice.undo && <button type="button" onClick={() => { notice.undo?.(); setNotice(undefined); }}>Undo</button>}</div>}
+    {addOpen && <AddBookDialog onMany={(files) => void saveMany(files)} initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}<UndoBar />
   </div>;
 }
 

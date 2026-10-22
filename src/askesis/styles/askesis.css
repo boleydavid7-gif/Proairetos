@@ -92,8 +92,7 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-enter,
-  .toast {
+  .page-enter {
     animation: none;
   }
 }
@@ -2073,36 +2072,6 @@ input[type='date'].input {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Undo ---------- */
-
-.toast {
-  position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: calc(var(--tab-height) + 12px);
-  z-index: 20;
-  max-width: 528px;
-  margin: 0 auto;
-  padding: 8px 8px 8px 18px;
-  border-radius: 18px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  animation: page-in 220ms var(--ease);
-}
-
-.toast__undo {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 0;
-  background: none;
-  color: var(--mint);
-  font-weight: 600;
-}
-
 /* A session whose day has gone by quietly fades; nothing marks it. */
 .week-row--passed .week-row__what {
   color: var(--muted);
@@ -2690,11 +2659,6 @@ html[data-nav='back']::view-transition-new(root) {
 
   .tab-bar__item span {
     font-size: 0.95rem;
-  }
-
-  .toast {
-    left: calc(var(--rail-width) + 16px);
-    bottom: 20px;
   }
 
   button:not(:disabled),

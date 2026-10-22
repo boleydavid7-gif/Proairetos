@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ChevronIcon } from '../../app/family/icons';
+import { Placeholder } from '../../lamplight/Placeholder';
 import { Waiting } from '../../lamplight/Waiting';
 import type { PoreiaNav } from '../app/App';
 import { settings, spots } from '../app/state';
@@ -98,7 +99,8 @@ export default function Around({ place, tripId, start, end, nav }: { place: Plac
         else setChosen(id);
       }} label={`Map of ${place.name}`} />
 
-      {loading && (
+      {loading && !list.length && <Placeholder label="Looking around" kind="rows" count={4} />}
+      {loading && list.length > 0 && (
         <p className="muted">
           <Waiting>Looking around…</Waiting>
         </p>

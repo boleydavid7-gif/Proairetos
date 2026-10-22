@@ -1,3 +1,4 @@
+import { RollingNumber } from '../lamplight/RollingNumber';
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
@@ -331,7 +332,7 @@ export function TimeView({ events, titles, today, dayAt }: { events: ItemEvent[]
       <div className="praxis-stats-grid">
         <article className="praxis-card praxis-wide-card">
           <div className="praxis-card-heading">
-            <div><p className="praxis-eyebrow">{label}</p><h2>{total ? formatMinutes(total) : 'Nothing recorded'}</h2></div>
+            <div><p className="praxis-eyebrow">{label}</p><h2>{total ? <RollingNumber value={total} format={(value) => formatMinutes(Math.round(value))} /> : 'Nothing recorded'}</h2></div>
             <div className="praxis-week-step">
               <IconButton size="sm" label="Week before" onClick={() => setAnchor(addDaysKey(days[0], -7))}><Sym name="back" /></IconButton>
               <IconButton size="sm" label="Week after" disabled={current} onClick={() => setAnchor(addDaysKey(days[0], 7))}><Sym name="chevron" /></IconButton>

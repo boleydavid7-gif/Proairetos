@@ -369,7 +369,7 @@ function largeTitle(): void {
 
 // ---------- The dock's mark ----------
 
-const DOCKS = '.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav';
+export const DOCKS = '.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav';
 
 /*
  * Every phone dock marks the place you are on with one short line along its top edge, centered over that place's
@@ -699,7 +699,9 @@ function rowMenus(): void {
  * the change is read in the next frame, and the difference is played back as a translate). A row taken away fades
  * where it was; a whole new page (other lists) is left to the page transition. Translate, scale and opacity only.
  */
-const LIST_ROWS = 'ul > li, ol > li, [role="list"] > *, .rows > *, .hydros-drinks > *, .coming-up > *, .chore-list > *';
+/** Cards laid out in a grid move sideways as well as up and down. */
+const GRID_ITEMS = '.recipe-cards > *, .recipe-grid > *, .theoria-shelf-page-grid > *, .theoria-recent-grid > *, .produce-grid > *';
+const LIST_ROWS = `ul > li, ol > li, [role="list"] > *, .rows > *, .hydros-drinks > *, .coming-up > *, .chore-list > *, ${GRID_ITEMS}`;
 const MAX_ROWS = 160;
 
 function listMotion(): void {
@@ -737,8 +739,11 @@ function listMotion(): void {
       const was = before.get(row);
       if (was) {
         const dy = was.top - now.top;
-        if (Math.abs(dy) > 1 && Math.abs(dy) < 600 && Math.abs(was.left - now.left) < 2) {
-          row.animate([{ translate: `0 ${dy}px` }, { translate: '0 0' }], { duration: 340, easing });
+        const dx = was.left - now.left;
+        const sideways = Math.abs(dx) > 1;
+        if (sideways && !row.matches(GRID_ITEMS)) continue;
+        if ((Math.abs(dy) > 1 || sideways) && Math.abs(dy) < 600 && Math.abs(dx) < 600) {
+          row.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], { duration: 340, easing });
         }
       } else if (row.parentElement && parents.has(row.parentElement)) {
         row.animate([{ opacity: 0, translate: '0 8px' }, { opacity: 1, translate: '0 0' }], { duration: 260, easing });
@@ -753,6 +758,8 @@ function listMotion(): void {
   // A row taken away fades where it was (a copy, left in its list out of the flow) while the rows below glide up.
   const fadeOut = (row: Element, list: Element, was: DOMRect) => {
     const ghost = row.cloneNode(true) as HTMLElement;
+    // A copy carries no ids, names or labels of its own, so nothing points at it while it fades.
+    for (const element of [ghost, ...ghost.querySelectorAll('[id], [name], [for]')]) for (const name of ['id', 'name', 'for']) element.removeAttribute(name);
     ghost.setAttribute('data-ll-ghost', '');
     ghost.setAttribute('aria-hidden', 'true');
     ghost.inert = true;

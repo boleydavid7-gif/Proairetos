@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useState } from 'react';
 import { offerUndo, say } from '../../app/family/shell';
 import { Sym } from '../../lamplight/icons';
@@ -185,7 +186,7 @@ export function Balances({ list, transfers, currency, leftOut }: { list: Balance
           <span key={each.person} style={{ display: 'contents' }}>
             <dt>{each.person}</dt>
             <dd className="poreia-balance">
-              <span>Paid {moneyText({ cents: each.paid, currency })}</span>
+              <span>Paid <RollingNumber key={currency} value={each.paid} format={(cents) => moneyText({ cents: Math.round(cents), currency })} /></span>
               <span className="muted">Share {moneyText({ cents: each.share, currency })}</span>
             </dd>
           </span>
@@ -195,7 +196,7 @@ export function Balances({ list, transfers, currency, leftOut }: { list: Balance
         <ul className="poreia-settle">
           {transfers.map((transfer) => (
             <li key={`${transfer.from}-${transfer.to}`}>
-              {transfer.from} → {transfer.to}: <strong>{moneyText({ cents: transfer.cents, currency })}</strong>
+              {transfer.from} → {transfer.to}: <strong><RollingNumber key={currency} value={transfer.cents} format={(cents) => moneyText({ cents: Math.round(cents), currency })} /></strong>
             </li>
           ))}
         </ul>

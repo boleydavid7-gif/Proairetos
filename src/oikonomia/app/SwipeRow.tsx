@@ -1,3 +1,4 @@
+import { tap } from '../../app/feel';
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { CheckIcon } from './icons';
 
@@ -21,6 +22,8 @@ export default function SwipeRow({
 }) {
   const [dx, setDx] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  // Far enough that letting go will do it: the action lights and the phone gives one small tap as the line is crossed.
+  const [armed, setArmed] = useState(false);
   const start = useRef<{ x: number; y: number; width: number } | null>(null);
   const pulling = useRef(false);
   const moved = useRef(false);
@@ -28,6 +31,7 @@ export default function SwipeRow({
   const finish = (go: boolean) => {
     start.current = null;
     pulling.current = false;
+    setArmed(false);
     if (go) {
       setLeaving(true);
       window.setTimeout(onSwipe, 180);
@@ -44,7 +48,7 @@ export default function SwipeRow({
   };
 
   return (
-    <div className={`oiko-swipe${leaving ? ' oiko-swipe--leaving' : ''}`} role="group" aria-label={`${label}: swipe left or press the left arrow`}>
+    <div className={`oiko-swipe${leaving ? ' oiko-swipe--leaving' : ''}${armed ? ' oiko-swipe--armed' : ''}`} role="group" aria-label={`${label}: swipe left or press the left arrow`}>
       <div className="oiko-swipe__action" aria-hidden="true">
         <CheckIcon size={20} />
         <span>{label}</span>
@@ -74,7 +78,13 @@ export default function SwipeRow({
             event.currentTarget.setPointerCapture(event.pointerId);
           }
           moved.current = true;
-          setDx(Math.max(-REVEAL * 1.6, Math.min(0, across)));
+          const next = Math.max(-REVEAL * 1.6, Math.min(0, across));
+          setDx(next);
+          const over = -next > from.width * COMMIT || -next > REVEAL * 1.2;
+          if (over !== armed) {
+            setArmed(over);
+            if (over) tap();
+          }
         }}
         onPointerUp={(event) => {
           if (!pulling.current) {

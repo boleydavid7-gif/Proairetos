@@ -150,7 +150,6 @@
 .theoria-secondary-button { color: var(--theoria-muted); background: rgba(255,255,255,.05); }
 .theoria-secondary-button:hover { background: rgba(255,255,255,.09); }
 .theoria-primary-button:disabled { cursor: default; opacity: .45; }
-.theoria-toast { position: fixed; right: 20px; bottom: 20px; z-index: 12; padding: 11px 14px; border: 1px solid rgba(182,163,212,.35); border-radius: 9px; color: var(--theoria-ink); background: #252348; box-shadow: 0 13px 32px rgba(0,0,0,.3); font-size: 13px; }
 .theoria-bottom-nav { display: none; }
 
 @media (max-width: 900px) {
@@ -504,7 +503,6 @@
   .theoria-modal input, .theoria-modal select { min-height: 44px; height: 44px; }
   .theoria-modal-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .theoria-modal-actions button { width: 100%; min-height: 44px; }
-  .theoria-toast { right: 14px; bottom: calc(82px + env(safe-area-inset-bottom)); left: 14px; text-align: center; }
 }
 
 @media (max-width: 380px) {
@@ -756,9 +754,8 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
   .theoria-bottom-nav .theoria-nav-list button.is-active { background: transparent; }
 }
 
-/* Undo on the toast; removable highlights, notes and bookmarks; where a book is kept. */
-.theoria-toast { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.theoria-toast button, .theoria-text-button { padding: 6px 2px; border: 0; color: var(--theoria-brass); background: none; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+/* Removable highlights, notes and bookmarks; where a book is kept. */
+.theoria-text-button { padding: 6px 2px; border: 0; color: var(--theoria-brass); background: none; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .theoria-text-button { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .theoria-removable { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
 .theoria-bookmark-list article { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; }

@@ -202,20 +202,6 @@
   }
 }
 
-/* ---------- Toast ---------- */
-
-.toast {
-  animation: toast-in 380ms var(--ease-spring) both;
-}
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    translate: 0 1rem;
-    scale: 0.96;
-  }
-}
-
 /* ---------- Moving between places (view transitions; see app/transitions.ts) ---------- */
 
 /* The tab bar and anything fixed above it hold still while pages move. */

@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useRef, useState } from 'react';
 import { ColumnChart } from '../../app/family/charts';
@@ -73,15 +74,15 @@ export default function LogPage({ nav }: { nav: Nav }) {
       <div className="tiles">
         <div className="tile">
           <span className="tile__label">Total distance</span>
-          <span className="tile__value">{formatDistance(totals.meters, unit)}</span>
+          <span className="tile__value"><RollingNumber value={totals.meters} format={(meters) => formatDistance(meters, unit)} /></span>
         </div>
         <div className="tile">
           <span className="tile__label">Total time</span>
-          <span className="tile__value">{formatHours(totals.seconds)}</span>
+          <span className="tile__value"><RollingNumber value={totals.seconds} format={(seconds) => formatHours(Math.round(seconds))} /></span>
         </div>
         <div className="tile">
           <span className="tile__label">Workouts</span>
-          <span className="tile__value">{totals.count}</span>
+          <span className="tile__value"><RollingNumber value={totals.count} /></span>
         </div>
         <div className="tile">
           <span className="tile__label">Longest</span>

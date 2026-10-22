@@ -1,3 +1,4 @@
+import { UndoBar } from '../../lamplight/undo';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import ProairetosTab from './ProairetosTab';
 import { directionAlong, transition, type Direction } from '../transitions';
@@ -143,57 +144,8 @@ export function collection<T extends { id: string }>(prefix: string): Collection
 
 // ---------- Undo ----------
 
-type Offer = { id: number; message: string; run?: () => void };
-let offer: Offer | null = null;
-let offerTimer = 0;
-let offerCount = 0;
-const offerListeners = new Set<() => void>();
-const offerChanged = () => offerListeners.forEach((listener) => listener());
-
-export function offerUndo(message: string, run?: () => void, seconds = 7): void {
-  window.clearTimeout(offerTimer);
-  offerCount += 1;
-  offer = { id: offerCount, message, run };
-  offerChanged();
-  offerTimer = window.setTimeout(() => {
-    offer = null;
-    offerChanged();
-  }, seconds * 1000);
-}
-
-/** A short message with no undo (a change that cannot be taken back, or plain news). */
-export function say(message: string): void {
-  offerUndo(message, undefined, 3);
-}
-
-export function UndoBar() {
-  const current = useSyncExternalStore(
-    (listener) => {
-      offerListeners.add(listener);
-      return () => offerListeners.delete(listener);
-    },
-    () => offer,
-  );
-  if (!current) return null;
-  return (
-    <div className="family-toast" role="status" key={current.id}>
-      <span>{current.message}</span>
-      {current.run && (
-        <button
-          type="button"
-          onClick={() => {
-            window.clearTimeout(offerTimer);
-            offer = null;
-            offerChanged();
-            current.run?.();
-          }}
-        >
-          Undo
-        </button>
-      )}
-    </div>
-  );
-}
+/** One undo bar for the family (Lamplight's); `say` is a short message with nothing to undo. */
+export { offerUndo, say, UndoBar } from '../../lamplight/undo';
 
 // ---------- Routes ----------
 

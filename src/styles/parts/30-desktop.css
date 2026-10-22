@@ -127,8 +127,7 @@
   }
 
   /* Floating bars sit in the page, clear of the rail. */
-  .focus-bar,
-  .toast {
+  .focus-bar {
     left: calc(var(--rail-width) + var(--space-5));
     bottom: var(--space-5);
   }

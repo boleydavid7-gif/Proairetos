@@ -238,7 +238,19 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`::before`, masked SVG); switch knobs travel on `--ll-spring-lively`; `RollingNumber` rolls a figure to its new value
   (Hydros's amount; Oikonomia's left to pay and plan total via `oikonomia/app/Total.tsx`, when one currency: `remainingSummary().figure`);
   a removed row fades out in place (`fadeOut`: an inert `data-ll-ghost` copy, fixed at its old rect, at most 3 per change)
-  while the rest glide; `.family-toast` is `max-content` up to 560 px, its button never wraps; `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
+  while the rest glide; grids glide too (`GRID_ITEMS`: Soma's recipe cards, Theoria's shelves, Soma's produce, moving sideways as well),
+  and the ghost copy drops ids, names and `for`. `RollingNumber` hides its moving figure from screen readers and reads
+  only the value it rolls to; it also counts Praxis's week, Askesis's Log tiles, Dynamis's "N of M sets", Poreia's
+  So far, Saved and Who paid. Swipe rows (`SwipeItem`, Oikonomia `SwipeRow`) arm once letting go would act
+  (`swipe--armed`: the action lights, its mark grows, one `tap()` as the line is crossed). `Placeholder`
+  (`lamplight/Placeholder.tsx`: `lines`, `rows`, `cards` on `.skeleton`) stands in while Theoria's library, notes and
+  a book open, Poreia's Around first looks and Phyton identifies.
+- One undo bar (`src/lamplight/undo.tsx`, `undo.css`): `offerUndo(message, run?, seconds = 7)`, `say` (3 s), `clearUndo`,
+  `<UndoBar />`, one offer at a time for the page. Every app uses it: the family shell, Hydros's and Oikonomia's
+  `app/undo.tsx` and Askesis/Soma's `UndoProvider` re-export or wrap it, Proairetos's `OverlayProvider.offerUndo`
+  passes through, Praxis and Theoria call it, Passkeys calls it directly. It sits 12 px above whatever fixed bar is at
+  the foot (measured, stacked bars too), bottom right from 62rem; enters on the lively spring, leaves in 200 ms.
+  Do not add another toast. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,
   28, 32); marks in controls are `<Sym name="close|back|chevron|plus|minus|check" />`, never ×, ‹, +, ✓ typed
   (tested in `src/tests/lamplight/icons.test.ts`). Settings shows a gear in every app (More tabs too).

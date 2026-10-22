@@ -1,3 +1,4 @@
+import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useWakeLock } from '../../app/family/wakeLock';
 import { listeningHere, says, useListening } from '../../app/family/voice';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -87,6 +88,8 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
   const changeSet = (exercise: string, index: number, patch: Partial<DraftSet>) =>
     change({ ...current, sets: { ...current.sets, [exercise]: setsOf(exercise).map((set, at) => (at === index ? { ...set, ...patch } : set)) } });
   const anyDone = Object.values(current.sets).some((sets) => sets.some((set) => set.done));
+  const allSets = Object.values(current.sets).flat();
+  const setsDone = allSets.filter((set) => set.done).length;
   const resting = restUntil ? Math.ceil((restUntil - now) / 1000) : 0;
 
   const tick = (target: Target, index: number) => {
@@ -173,6 +176,12 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
             Say “done”
           </button>
         </div>
+      )}
+
+      {allSets.length > 0 && (
+        <p className="dynamis-sets-done">
+          <RollingNumber value={setsDone} /> of {allSets.length} sets
+        </p>
       )}
 
       {resting > 0 && (

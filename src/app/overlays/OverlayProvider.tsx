@@ -17,9 +17,8 @@ import type { Undo } from '../../services/life/lifeService';
 import { useServiceData } from '../hooks/useServiceData';
 import { lifeService } from '../services';
 import { OverlayContext, type FocusTarget } from './OverlayContext';
-import UndoToast from './UndoToast';
+import { offerUndo as offerFamilyUndo, UndoBar } from '../../lamplight/undo';
 
-type Toast = { id: number; message: string; undo: Undo };
 
 function useFocusSession() {
   const [session, setSessionState] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
@@ -32,7 +31,6 @@ function useFocusSession() {
 
 export default function OverlayProvider({ children }: { children: ReactNode }) {
   const [itemId, setItemId] = useState<string | null>(null);
-  const [toast, setToast] = useState<Toast | null>(null);
   const [focusStart, setFocusStart] = useState<{ target?: FocusTarget } | null>(null);
   const [session, setSession] = useFocusSession();
   // After a reload, a running session comes back as the small bar, not the full screen.
@@ -53,7 +51,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
   );
 
   const offerUndo = useCallback((message: string, undo: Undo) => {
-    setToast({ id: Date.now(), message, undo });
+    offerFamilyUndo(message, undo);
   }, []);
 
   const startFocus = useCallback((target?: FocusTarget) => {
@@ -176,17 +174,7 @@ export default function OverlayProvider({ children }: { children: ReactNode }) {
       )}
       {decisionId && !deciding && <DecisionSheet decisionId={decisionId} onClose={() => setDecisionId(null)} />}
 
-      {toast && (
-        <UndoToast
-          key={toast.id}
-          message={toast.message}
-          onUndo={() => {
-            toast.undo();
-            setToast(null);
-          }}
-          onDismiss={() => setToast(null)}
-        />
-      )}
+      <UndoBar />
     </OverlayContext.Provider>
   );
 }
