@@ -768,6 +768,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`fitWeekOf` trying a `notOn`), or keep both. Choices go in the synced `proairetos.trainingChanges` (`at`: a session's
   time that day; `notOn`: kept off a day, `avoid` in `fitWeek`, so a session on set days is placed again and its week is
   recorded in full), with undo; Askesis Home/Workout, `runTimes` and Dynamis notices use `trainingTimeOn`.
+  A schedule change (`scheduleService.subscribe`, 0.5 s settle, sync skipped) runs `scheduleClashes`: the next 8 days'
+  sessions that a work or protected block now crowds out, keyed so only new ones are offered (named after the block).
 - Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
   a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
   `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log

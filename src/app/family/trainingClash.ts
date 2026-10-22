@@ -13,7 +13,7 @@ import { loadQuietHours } from '../../data/storage/preferences';
 import { otherCalendars } from '../calendars/otherCalendars';
 import { lifeService, scheduleService } from '../services';
 import { isAdded } from './added';
-import { fitWeekOf, liftDays, saveTrainingChanges, trainingChanges, trainingTimeOn, type TrainingChanges } from './trainingWeek';
+import { fitAhead, fitWeekOf, liftDays, saveTrainingChanges, trainingChanges, trainingTimeOn, type TrainingChanges } from './trainingWeek';
 
 /*
  * Something new in Proairetos that lands on a planned run (Askesis) or strength session (Dynamis): the session, the
@@ -129,4 +129,42 @@ export function keepOffDay(session: Session): () => void {
   const before = trainingChanges();
   saveTrainingChanges({ ...before, notOn: [...before.notOn, { app: session.app, id: session.id, date: session.date }] });
   return () => saveTrainingChanges(before);
+}
+
+/**
+ * Sessions in the next week that work or protected time now crowds out, after the schedule changed. Each comes with
+ * the same ways to keep it; `key` tells one clash from another, so only new ones are offered.
+ */
+export async function scheduleClashes(now = new Date()): Promise<(Clash & { key: string })[]> {
+  await fitAhead(now).catch(() => undefined);
+  const quiet = loadQuietHours();
+  const items = await lifeService.list();
+  const today = toLocalDate(now);
+  const out: (Clash & { key: string })[] = [];
+  for (let step = 0; step < 8; step += 1) {
+    const date = addDays(today, step);
+    const sessions = await sessionsOn(date);
+    if (!sessions.length) continue;
+    const blocks = (await scheduleService.occurrencesBetween(atTime(addDays(date, -1), '00:00'), atTime(addDays(date, 1), '00:00'))).filter(
+      (block) => block.end > atTime(date, '00:00') && block.start < atTime(addDays(date, 1), '00:00'),
+    );
+    for (const session of sessions) {
+      const others = sessions.filter((each) => each !== session).flatMap((each) => (each.at ? [{ start: each.at, end: new Date(each.at.getTime() + each.minutes * 60_000) }] : []));
+      const all = [...(await busyOn(date, items)), ...others];
+      for (const block of blocks) {
+        const span = { start: block.start, end: block.end };
+        const without = all.filter((each) => !(each.start.getTime() === span.start.getTime() && each.end.getTime() === span.end.getTime()));
+        if (!crowds(session, span, without, quiet, now)) continue;
+        out.push({
+          key: `${session.app}:${session.id ?? ''}:${date}:${span.start.getTime()}:${span.end.getTime()}`,
+          item: { id: `schedule:${block.patternId}:${block.date}`, title: block.label || block.patternName },
+          session,
+          times: timesThatFit(session, all, quiet, now, session.at ?? span.end).slice(0, 2),
+          day: await otherDay(session),
+        });
+        break;
+      }
+    }
+  }
+  return out;
 }

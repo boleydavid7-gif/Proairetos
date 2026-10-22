@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService } from '../../app/services';
+import { lifeService, scheduleService } from '../../app/services';
 import { onRemoteChanges } from '../../app/sync/syncController';
 import { isAdded } from '../../app/family/added';
 import { useSheet } from '../../components/ui/useSheet';
@@ -44,6 +44,25 @@ export default function TrainingClash() {
         }
       }
     };
+    // The schedule: offered only for sessions that work or protected time newly crowds out.
+    let known: Set<string> | undefined;
+    const scheduleClashes = async () => (await import('../../app/family/trainingClash')).scheduleClashes().catch(() => []);
+    void scheduleClashes().then((found) => {
+      known = new Set(found.map((each) => each.key));
+    });
+    let timer: number | undefined;
+    const checkSchedule = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(async () => {
+        const found = await scheduleClashes();
+        const before = known;
+        known = new Set(found.map((each) => each.key));
+        if (!before || Date.now() - remoteAt.current < 3000) return;
+        const fresh = found.find((each) => !before.has(each.key));
+        if (fresh && live) setClash(fresh);
+      }, 500);
+    };
+    const offSchedule = scheduleService.subscribe(checkSchedule);
     const off = lifeService.subscribe(() => void check());
     const offRemote = onRemoteChanges(() => {
       remoteAt.current = Date.now();
@@ -51,6 +70,8 @@ export default function TrainingClash() {
     return () => {
       live = false;
       off();
+      offSchedule();
+      window.clearTimeout(timer);
       offRemote();
     };
   }, []);
@@ -83,7 +104,7 @@ function ClashSheet({ clash, onClose }: { clash: Clash; onClose: () => void }) {
         <button type="button" className="sheet__close" onClick={close}>
           Close
         </button>
-        <p className="sheet__title sheet__title--static">Your {what(clash)} {session.at ? 'and' : 'on'} “{clash.item.title}”</p>
+        <p className="sheet__title sheet__title--static">Your {what(clash)} and “{clash.item.title}”</p>
         <p className="sheet__hint">
           {dayName(session.date)}: {session.title}, {span}.{' '}
           {session.at ? 'They overlap.' : 'There is no stretch left in the day that holds it.'}
