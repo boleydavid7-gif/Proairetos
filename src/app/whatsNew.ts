@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'The light behaves like light: it spills from what is lit onto the page and what sits near it, softest further away, glides to the box you type in, and fades a little quicker. The bright outline round the lit card is gone.',
       'The light fades: what is lit glows up over a moment, and when the light moves on (you leave a box, or the next thing changes) it fades away instead of switching off.',
       'Every box you type in now lights up, Today’s intention included, and the light on what comes next is softer, as are the card edges in the add-on apps.',
       'A new typeface in every app: Google Sans Flex, the open version of the Google Sans family that Gemini uses, with the spacing of its text cut at reading sizes. Titles and your own words keep the serif.',

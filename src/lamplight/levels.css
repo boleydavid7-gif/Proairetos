@@ -9,19 +9,22 @@
 
 :root {
   --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22);
-  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.24), 0 16px 48px -16px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
+  --ll-lit-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
+  --ll-lit-halo: 0 0 28px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14), 0 16px 48px -16px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
 }
 
 /* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. */
 :root[data-theme='light'] {
   --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
-  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.42), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.38);
+  --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
+  --ll-lit-halo: 0 0 24px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.34);
 }
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
     --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
-    --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.42), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.38);
+    --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
+  --ll-lit-halo: 0 0 24px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.34);
   }
 }
 
@@ -33,8 +36,8 @@
    `.family-surface .rows`, which lifts that whole rule above a plain attribute selector). */
 :root :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child),
 :root:root [data-ll-lit-now] {
-  box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
-    var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
+  box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-lit-edge), var(--ll-lit-wash), var(--ll-lit-halo),
+    var(--ll-cast, 0 0 0 transparent);
   transition: box-shadow var(--ll-glow-time) var(--ll-glow-ease);
   animation: ll-lit-in var(--ll-glow-time) var(--ll-glow-ease);
 }
@@ -42,7 +45,7 @@
 /* The light fades: it comes up over a moment when something is lit (on opening a page too) and fades away the same
    way when it moves on (`data-ll-dimming`, set for the length of the fade by behaviors.ts). */
 :root {
-  --ll-glow-time: 900ms;
+  --ll-glow-time: 650ms;
   --ll-glow-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
@@ -55,8 +58,8 @@
 
 @keyframes ll-lit-out {
   from {
-    box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
-      var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
+    box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-lit-edge), var(--ll-lit-wash), var(--ll-lit-halo),
+      var(--ll-cast, 0 0 0 transparent);
   }
 }
 
@@ -93,8 +96,79 @@
   box-shadow: var(--ll-sheen-edge, none);
 }
 
+/* ---------- The light spills ----------
+   Light does not stop at the lit thing's edge. One soft pool (`.ll-spill`, placed by behaviors.ts over whatever has
+   the light) falls on the page and on what sits near it, strongest at the lit thing and fading with distance, offset
+   down and to the left, away from the lamp. In dark rooms it adds light (`screen`); in light rooms it warms what it
+   falls on (`multiply` of a pale lamp color). It glides when the light moves and fades when the light goes. Nothing
+   is outlined. */
+/* The pool sits in a layer the size of the whole page that clips it, so it never adds scroll room. */
+html {
+  position: relative;
+}
+
+.ll-spill-layer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.ll-spill {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(closest-side, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2),
+    rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.08) 55%, transparent);
+  mix-blend-mode: screen;
+  transition:
+    opacity var(--ll-glow-time) var(--ll-glow-ease),
+    translate var(--ll-glow-time) var(--ll-glow-ease),
+    width var(--ll-glow-time) var(--ll-glow-ease),
+    height var(--ll-glow-time) var(--ll-glow-ease);
+}
+
+.ll-spill.is-on {
+  opacity: 1;
+}
+
+/* Placed for the first time, it appears where it is; only later moves glide. */
+.ll-spill.is-placing {
+  transition: opacity var(--ll-glow-time) var(--ll-glow-ease);
+}
+
+:root[data-theme='light'] .ll-spill {
+  background: radial-gradient(closest-side, color-mix(in srgb, rgb(var(--ll-lamp-rgb, 230, 179, 102)) 22%, white),
+    color-mix(in srgb, rgb(var(--ll-lamp-rgb, 230, 179, 102)) 9%, white) 55%, white);
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] .ll-spill {
+    background: radial-gradient(closest-side, color-mix(in srgb, rgb(var(--ll-lamp-rgb, 230, 179, 102)) 22%, white),
+      color-mix(in srgb, rgb(var(--ll-lamp-rgb, 230, 179, 102)) 9%, white) 55%, white);
+    mix-blend-mode: multiply;
+  }
+}
+
+/* While a pull holds the page, the pool would drift from what it lights. */
+:root:is(.ll-pulling, .ll-refreshing, .ll-pull-settling) .ll-spill {
+  opacity: 0;
+}
+
+@media (prefers-contrast: more), (forced-colors: active), print {
+  .ll-spill {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  :root :is([data-ll-lit], .ll-lit-wrap > :first-child, [data-ll-lit-now], [data-ll-dimming]) {
+  :root :is([data-ll-lit], .ll-lit-wrap > :first-child, [data-ll-lit-now], [data-ll-dimming], .ll-spill) {
     transition: none;
     animation: none;
   }

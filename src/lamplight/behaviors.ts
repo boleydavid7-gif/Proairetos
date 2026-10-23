@@ -889,6 +889,7 @@ function oneLitThing(): void {
       if (el === keep) el.removeAttribute('data-ll-lit-extra');
       else el.setAttribute('data-ll-lit-extra', '');
     }
+    spillSoon();
     if (keep !== kept) {
       // The light that was on something else fades off it as it comes up on the new one.
       const lost = kept?.classList.contains('ll-lit-wrap') ? kept.firstElementChild : kept;
@@ -904,6 +905,47 @@ function oneLitThing(): void {
     queued = true;
     requestAnimationFrame(sort);
   };
+
+  // The light spills: one pool over whatever has the light, reaching past it onto the page and its neighbors.
+  const layer = document.createElement('div');
+  layer.className = 'll-spill-layer';
+  layer.setAttribute('aria-hidden', 'true');
+  const spill = document.createElement('div');
+  spill.className = 'll-spill';
+  layer.append(spill);
+  document.body.append(layer);
+  let spillOn = false;
+  const placeSpill = () => {
+    const holder = lit?.isConnected ? lit : kept?.classList.contains('ll-lit-wrap') ? kept.firstElementChild : kept;
+    if (!holder?.isConnected || !shown(holder) || holder.closest('dialog, [inert], [hidden]')) {
+      spill.classList.remove('is-on');
+      spillOn = false;
+      return;
+    }
+    const box = holder.getBoundingClientRect();
+    const reach = Math.min(150, Math.max(64, box.height * 0.75));
+    // Away from the lamp at the upper right, the pool sits a little down and to the left of what it lights.
+    const x = box.left + scrollX - reach - 16;
+    const y = box.top + scrollY - reach + 12;
+    if (!spillOn) spill.classList.add('is-placing');
+    spill.style.translate = `${Math.round(x)}px ${Math.round(y)}px`;
+    spill.style.width = `${Math.round(box.width + reach * 2)}px`;
+    spill.style.height = `${Math.round(box.height + reach * 2)}px`;
+    spill.classList.add('is-on');
+    if (!spillOn) requestAnimationFrame(() => requestAnimationFrame(() => spill.classList.remove('is-placing')));
+    spillOn = true;
+  };
+  let spillQueued = false;
+  const spillSoon = () => {
+    if (spillQueued) return;
+    spillQueued = true;
+    requestAnimationFrame(() => {
+      spillQueued = false;
+      placeSpill();
+    });
+  };
+  new ResizeObserver(spillSoon).observe(document.body);
+  addEventListener('resize', spillSoon);
   sort();
   new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-ll-lit', 'hidden'] });
 
@@ -913,6 +955,7 @@ function oneLitThing(): void {
     lit?.removeAttribute('data-ll-lit-now');
     lit = undefined;
     document.documentElement.classList.remove('ll-typing');
+    spillSoon();
   };
   document.addEventListener('focusin', (event) => {
     const field = (event.target as Element | null)?.closest?.(TYPING);
@@ -924,6 +967,7 @@ function oneLitThing(): void {
     undim(surface);
     surface.setAttribute('data-ll-lit-now', '');
     document.documentElement.classList.add('ll-typing');
+    spillSoon();
   });
   document.addEventListener('focusout', (event) => {
     const next = (event as FocusEvent).relatedTarget as Element | null;

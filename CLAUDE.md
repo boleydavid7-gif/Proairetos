@@ -361,6 +361,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   edge, wash, then three outer places empty at rest, `--ll-no-shadow`), or the browser snaps instead of fading; the
   family edge is `--ll-surface-edge` on the element, not a separate rule. An element React replaces (Today's
   intention leaving editing) has nothing to fade.
+  The light spills (`.ll-spill` in `.ll-spill-layer`, made by `oneLitThing`): one radial pool placed in page coordinates
+  over the field being typed in, else the page's lit thing, reaching 64-150 px past it and set a little down-left
+  (away from the lamp); `screen` in dark, `multiply` of a pale lamp color in light; it glides (translate, size) and
+  fades with the light, so even a replaced element's light fades. The layer is `inset: 0` of `html` (made
+  `position: relative`) with `overflow: clip`, never adding scroll room; it hides while a pull holds the page and under
+  More contrast, forced colors and print. The lit card has no outline ring: a lit edge on the lamp's side
+  (`--ll-lit-edge`) and a soft halo. Glow time 650 ms.
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
   Light as the hierarchy (after the owner's light-first review): `data-ll-lit="fallback"` takes the light only when
   nothing else on the page has it (Today's first open to-do, `.path__step`, its light reaching `--space-3` past the row);
