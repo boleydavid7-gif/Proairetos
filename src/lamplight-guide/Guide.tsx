@@ -9,6 +9,7 @@ import { APP_IDENTITY, LIGHT_TINTS, patternImage } from '../lamplight/identity';
 import { Placeholder } from '../lamplight/Placeholder';
 import { RollingNumber } from '../lamplight/RollingNumber';
 import { ColumnChart, LineChart } from '../app/family/charts';
+import Preview from './Preview';
 
 const ROOM_NAMES = Object.keys(ROOM_SEEDS) as RoomName[];
 const LAMP_NAMES = Object.keys(LAMP_SEEDS) as LampName[];
@@ -119,6 +120,7 @@ export default function Guide() {
           <div className="g-hero__actions">
             <a className="ll-button" href="#builder">Make a scheme</a>
             <a className="ll-button ll-button--tonal" href="#principles">Principles</a>
+            <a className="ll-button ll-button--tonal" href="#next">2.0 preview</a>
           </div>
         </div>
       </header>
@@ -182,6 +184,10 @@ export default function Guide() {
               .
             </p>
           </div>
+        </Section>
+
+        <Section id="next" title="Lamplight 2.0 preview" lead="The lamp follows the person’s day, and light shows what matters now. Drag through a day; the room and lamp come from the scheme above.">
+          <Preview room={ROOM_SEEDS[room]} lamp={lamp} mode={mode} />
         </Section>
 
         <Section id="principles" title="Principles">

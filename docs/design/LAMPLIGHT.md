@@ -228,3 +228,21 @@ held to the same contrast (tested for every room and lamp). Noesis (its own repo
 `scripts/icons/` draws each app's tile lit by the lamp from the upper right, where the wallpaper keeps it: a warm
 glow, one faint ring of its light, and the symbol's shadow falling down and to the left. Noesis's icon follows the
 same rule. After changing icons, bump each worker's `CACHE`.
+
+## 2.0, in preview
+
+Shown on the guide (`#next`, `src/lamplight-guide/Preview.tsx`, `preview.css`); nothing in the apps uses it yet.
+Lamplight's own idea is light that means something, in place of borrowed surfaces:
+
+- **Day light** (`src/lamplight/daylight.ts`): the lamp follows the person's day, waking to sleep (`dayPosition`, across
+  midnight for night work), not the clock. Early it hangs high, cool and bright; late, low, warm and dimmer, with shade at
+  the room's edges (`dayLight`). The lamp turns toward amber while keeping most of its own hue (`warmedLamp`); the pool is
+  mixed straight between a cool white and the warmed lamp (`poolColor`). Text and surfaces keep the scheme's contrast.
+- **Three levels of light**: at rest (no surface, in shade), near (a vellum surface) and lit (the one thing that matters
+  now, with a halo of the pool). One lit thing per page; it moves to what is being typed in.
+- **Vellum**: matte paper with a faint fiber, brightest at the lamp's corner (`VELLUM_LIFT`, the lit thing up to
+  `LIT_STRENGTH` times), an edge of light on the lamp's side, a cast down-left. No glass, no outlines. `vellumReads` checks
+  every text role on the brightest corner, in every room, mode and hour (tests in `src/tests/lamplight/daylight.test.ts`).
+- **Motion as light**: a page brightens into place from the lamp; a tick lets the light settle, then the row goes into the
+  shade with what is done (no line through it).
+- **Your words lit**: the person's words in the serif and in the light; the app's labels in shade.

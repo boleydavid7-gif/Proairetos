@@ -1,0 +1,373 @@
+/* Lamplight 2.0, the preview on the guide. Scoped to .p2: nothing here reaches the apps yet. */
+
+@property --p2-reveal {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 160%;
+}
+
+.p2 {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 52rem) {
+  .p2 {
+    grid-template-columns: minmax(0, 1fr) 390px;
+  }
+}
+
+.p2-controls {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.p2-day {
+  display: grid;
+  gap: 8px;
+}
+
+.p2-day input[type='range'] {
+  width: 100%;
+  accent-color: var(--ll-lamp);
+}
+
+.p2-day__ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ll-ink-3);
+  font-size: var(--text-xs);
+}
+
+.p2-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.p2-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.p2-facts dt {
+  color: var(--ll-ink-2);
+}
+
+.p2-facts dd {
+  margin: 0;
+}
+
+.p2-notes {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  color: var(--ll-ink-2);
+  font-size: var(--text-sm);
+}
+
+.p2-notes strong {
+  color: var(--ll-ink);
+}
+
+/* ---------- The room ---------- */
+.p2-phone {
+  --p2-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 760px;
+  overflow: hidden;
+  border-radius: 44px;
+  background: var(--ll-page);
+  color: var(--ll-ink);
+  font: var(--ll-type-body);
+  box-shadow: 0 0 0 10px rgba(var(--ll-ink-rgb), 0.06), 0 30px 80px -30px rgba(0, 0, 0, 0.6);
+  transition: background 900ms var(--p2-ease), color 900ms var(--p2-ease);
+}
+
+/* The lamp's pool where it hangs, and shade gathering at the edges as the day gets late. */
+.p2-room {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 42% at var(--p2-x) var(--p2-y), rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.22)), rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.07)) 45%, transparent 75%),
+    radial-gradient(130% 95% at var(--p2-x) 0%, transparent 55%, rgba(0, 0, 0, calc(var(--p2-shade) * 1.6)) 100%);
+  transition: background 900ms var(--p2-ease);
+}
+
+.p2-phone[data-mode='light'] .p2-room {
+  background:
+    radial-gradient(70% 42% at var(--p2-x) var(--p2-y), rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.5)), rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.16)) 45%, transparent 75%),
+    radial-gradient(130% 95% at var(--p2-x) 0%, transparent 55%, rgba(var(--ll-ink-rgb), calc(var(--p2-shade) * 0.5)) 100%);
+}
+
+/* A page brightens into place from the lamp: the light reaches it first, the rest follows. */
+.p2-page {
+  position: relative;
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 64px 18px 24px;
+  animation: p2-brighten 620ms var(--p2-ease) both;
+  mask-image: radial-gradient(circle at var(--p2-x) var(--p2-y), #000 var(--p2-reveal), transparent calc(var(--p2-reveal) + 40%));
+}
+
+@keyframes p2-brighten {
+  from {
+    --p2-reveal: 0%;
+    opacity: 0.4;
+  }
+  to {
+    --p2-reveal: 160%;
+    opacity: 1;
+  }
+}
+
+.p2-head {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.p2 .p2-title {
+  margin: 0;
+  font: var(--ll-type-display);
+}
+
+/* The app's words sit in shade; the person's are lit. */
+.p2-shade-text,
+.p2-label {
+  color: var(--ll-ink-2);
+  font-size: var(--text-sm);
+}
+
+.p2-label {
+  margin: 8px 4px 0;
+}
+
+/* ---------- Vellum: matte paper lit from the lamp's corner ---------- */
+.p2-vellum {
+  --p2-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .35' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23f)'/%3E%3C/svg%3E");
+  --p2-strength: var(--p2-lift);
+  position: relative;
+  border-radius: 20px;
+  background:
+    radial-gradient(140% 120% at 100% 0%, rgba(var(--p2-pool-rgb), var(--p2-strength)), transparent 70%),
+    var(--p2-fiber),
+    var(--ll-card);
+  box-shadow:
+    inset -1px 1px 0 rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.1)),
+    -8px 12px 28px -18px rgba(0, 0, 0, 0.55);
+  transition: box-shadow 700ms var(--p2-ease), background 900ms var(--p2-ease);
+}
+
+.p2-phone[data-mode='light'] .p2-vellum {
+  box-shadow:
+    inset -1px 1px 0 rgba(255, 255, 255, 0.7),
+    -8px 12px 28px -20px rgba(var(--ll-ink-rgb), 0.28);
+}
+
+/* ---------- Three levels of light ---------- */
+/* Lit: the one thing that matters now. More of the pool, and a halo of it. */
+.p2-vellum[data-level='lit'] {
+  --p2-strength: var(--p2-lit);
+  box-shadow:
+    inset -1px 1px 0 rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.22)),
+    0 0 0 1px rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.18)),
+    0 14px 44px -14px rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.42)),
+    -8px 12px 28px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* At rest: no surface at all, in the room's shade. */
+[data-level='rest'] {
+  color: var(--ll-ink-2);
+}
+
+.p2-capture {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 16px;
+  color: var(--ll-ink-2);
+}
+
+.p2-capture input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--ll-ink);
+  font: inherit;
+  outline: none;
+}
+
+.p2 .p2-capture input:focus-visible {
+  box-shadow: none;
+}
+
+.p2-capture input::placeholder {
+  color: var(--ll-ink-2);
+}
+
+.p2-next {
+  display: grid;
+  gap: 2px;
+  padding: 16px 18px;
+}
+
+.p2-next__title {
+  font: var(--ll-type-headline);
+}
+
+.p2-list {
+  display: grid;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+
+.p2-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  transition: color 900ms var(--p2-ease), opacity 900ms var(--p2-ease);
+}
+
+.p2-row + .p2-row {
+  background: linear-gradient(var(--ll-hair), var(--ll-hair)) right top / calc(100% - 52px) 1px no-repeat;
+}
+
+.p2-row--app {
+  color: var(--ll-ink-2);
+}
+
+.p2-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1.5px solid var(--ll-ink-3);
+  border-radius: 50%;
+  background: none;
+  color: var(--ll-ink-2);
+  cursor: pointer;
+}
+
+.p2-box--done {
+  border-color: transparent;
+  background: rgba(var(--ll-ink-rgb), 0.08);
+}
+
+/* A tick: the light settles on the row, then it goes into the shade with what is done. */
+.p2-row[data-settling] {
+  animation: p2-settle 1100ms var(--p2-ease) both;
+}
+
+.p2-row[data-settling] .p2-box {
+  border-color: var(--ll-lamp);
+  background: var(--ll-lamp);
+}
+
+@keyframes p2-settle {
+  0% {
+    background: transparent;
+  }
+  18% {
+    background: radial-gradient(80% 140% at 18% 50%, rgba(var(--p2-pool-rgb), 0.28), transparent 70%);
+  }
+  100% {
+    background: transparent;
+    color: var(--ll-ink-3);
+  }
+}
+
+/* ---------- The person's words ---------- */
+.p2-words {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+}
+
+.p2-own {
+  margin: 0;
+  color: var(--ll-ink);
+  font: 400 var(--text-xl) / 1.35 var(--ll-serif);
+}
+
+.p2-own--near {
+  font-size: var(--text-lg);
+}
+
+.p2-own--rest {
+  color: var(--ll-ink-2);
+  font-size: var(--text-lg);
+}
+
+/* ---------- Dock: heavier paper, the current place lit ---------- */
+.p2-dock {
+  position: relative;
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  padding: 8px 12px 26px;
+  background: var(--ll-mica);
+  box-shadow: 0 -1px 0 var(--ll-hair);
+}
+
+.p2-dock button {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--ll-ink-2);
+  font: 500 var(--text-xs) / 1.2 var(--ll-sans);
+  cursor: pointer;
+}
+
+.p2-dock button[aria-current='page'] {
+  color: var(--ll-lamp);
+  text-shadow: 0 0 18px rgba(var(--p2-pool-rgb), 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p2-page,
+  .p2-row[data-settling] {
+    animation: none;
+    mask-image: none;
+  }
+
+  .p2-phone,
+  .p2-room,
+  .p2-vellum,
+  .p2-row {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .p2-vellum {
+    border: 1px solid CanvasText;
+  }
+
+  .p2-vellum[data-level='lit'] {
+    outline: 2px solid Highlight;
+  }
+}

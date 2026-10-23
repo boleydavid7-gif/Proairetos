@@ -329,6 +329,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `--ll-sheen-wash`, `--ll-cast` down-left; the sheen in each app's lamp color); keyboard focus is a warm halo (`--ll-focus`;
   More contrast keeps the ring); Today's next timeline entry carries `--ll-halo` (`.ll-next` in `DayTimeline`); a tap that
   marks a check, tick or checkbox sets `data-ll-settle` (`settleLight` in `behaviors.ts`), a glow fading over 1.1 s.
+- Lamplight 2.0 preview (guide only, `#next`; spec "2.0, in preview" in LAMPLIGHT.md): `src/lamplight/daylight.ts`
+  (`dayPosition` over the person's waking day, `dayLight`, `warmedLamp`, `poolColor`, vellum with `vellumReads`, tested in
+  every room, mode and hour) and `src/lamplight-guide/Preview.tsx` / `preview.css` (scoped `.p2`): day light, three levels
+  of light (rest, near, lit), vellum, motion as light, the person's words lit. Not used by the apps yet.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

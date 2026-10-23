@@ -11,6 +11,7 @@ import '../lamplight/components.css';
 import '../lamplight/motion.css';
 import '../lamplight/icons.css';
 import './guide.css';
+import './preview.css';
 import Guide from './Guide';
 
 // The public guide to Lamplight: a page of its own, no account, nothing stored.
