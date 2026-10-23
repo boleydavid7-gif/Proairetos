@@ -54,7 +54,7 @@ export default function WorryPage({ nav }: { nav: DiaitaNav }) {
         <button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Back</button>
         <h1 className="title">Worry time</h1>
       </div>
-      <p className="muted">A short slot at {current.worryTime}. Write each worry down with one next step, then leave it here for tomorrow.</p>
+      <p className="muted">At {current.worryTime}. One next step for each.</p>
       {!adding && <button type="button" className="button-main" onClick={() => setAdding(true)}><PlusIcon size={18} />Add a worry</button>}
       {adding && <WorryForm onDone={() => setAdding(false)} />}
       {all.length > 0 ? <ul className="rows diaita-worry-list">{all.map((worry) => <WorryRow key={worry.id} worry={worry} />)}</ul> : <p className="muted">Nothing written down yet.</p>}

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'Diaita’s Sleep page is tidier: no colored stripes on its cards, a night’s hours sit in a pill beside the date instead of over it, the ways to try something read first with the button under them, and bedtime variation shows once there are two nights. Charts label every other day without crowding the last two, Poreia’s bookings keep one quiet tile color, and open-and-close rows in every app show a small arrow in place of the browser’s triangle.',
       'The light is softer: it warms the corner of what is lit rather than the whole card, its glow stays close, the pool on the page is lighter, and the box you type in is lit a step more quietly than what comes next.',
       'The light behaves like light: it spills from what is lit onto the page and what sits near it, softest further away, glides to the box you type in, and fades a little quicker. The bright outline round the lit card is gone.',
       'The light fades: what is lit glows up over a moment, and when the light moves on (you leave a box, or the next thing changes) it fades away instead of switching off.',

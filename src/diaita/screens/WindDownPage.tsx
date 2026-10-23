@@ -148,7 +148,6 @@ export default function WindDownPage({ nav }: { nav: DiaitaNav }) {
         <button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Today</button>
       </div>
       <h1 className="title">Wind down</h1>
-      <p className="lead">Put together a short routine for tonight.</p>
 
       <div className="diaita-piece-list">
         {(['breathing', 'muscles', 'body-scan', 'park-tomorrow'] as WindDownPieceId[]).map((id) => {

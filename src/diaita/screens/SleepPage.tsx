@@ -91,7 +91,7 @@ function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; t
       <h2 className="card__title">Try something for two weeks</h2>
       <p className="hint">Choose one change. Diaita will place the recorded nights beside the two weeks before.</p>
       <div className="diaita-experiment__options">
-        {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
+        {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet button--sm" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
       </div>
     </section>
   );
@@ -195,10 +195,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
         {adding ? (
           <button type="button" className="back-link" onClick={nav.back}><BackIcon size={18} />Back</button>
         ) : (
-          <div className="diaita-sleep-head">
-            <div><h1 className="title">Sleep</h1><p>Facts from your nights, in your own words.</p></div>
-            <MoonIcon size={28} />
-          </div>
+          <h1 className="title">Sleep</h1>
         )}
       </div>
 
@@ -219,11 +216,13 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
                 <span><strong>{hoursText(weekFacts.totalMinutes)}</strong><small>Logged across {weekFacts.nights} {weekFacts.nights === 1 ? 'night' : 'nights'}</small></span>
                 <span><strong>{hoursText(weekFacts.chosenMinutes)}</strong><small>Chosen amount</small></span>
               </div>
-              <div className="diaita-fact-row diaita-fact-row--regularity">
-                <span><strong>{hoursText(weekFacts.bedSpreadMinutes)}</strong><small>Bedtime variation</small></span>
-                <span><strong>{hoursText(weekFacts.upSpreadMinutes)}</strong><small>Wake-time variation</small></span>
-              </div>
-              <p className="hint">These are the times and amount you recorded.</p>
+              {/* How much bedtimes and waking vary needs two nights to say anything. */}
+              {weekFacts.nights > 1 && (
+                <div className="diaita-fact-row diaita-fact-row--regularity">
+                  <span><strong>{hoursText(weekFacts.bedSpreadMinutes)}</strong><small>Bedtime varied by</small></span>
+                  <span><strong>{hoursText(weekFacts.upSpreadMinutes)}</strong><small>Waking varied by</small></span>
+                </div>
+              )}
             </section>
           )}
           <Suggestion records={all} chosenHours={current.sleepHours} />
@@ -251,7 +250,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               {all.map((record) => (
                 <li key={record.id}>
                   <button type="button" className="row diaita-night" onClick={() => setEditing(record.id)}>
-                    <span className="row__icon diaita-night__hours">{hoursText(sleptMinutes(record)).replace(' min', 'm').replace(' h', 'h')}</span>
+                    <span className="diaita-night__hours">{hoursText(sleptMinutes(record)).replace(' min', 'm').replace(' h', 'h')}</span>
                     <span className="row__text">
                       <span>{weekdayText(record.date, today)}</span>
                       <span className="row__detail">{clockText(record.bed)}–{clockText(record.up)}{record.how ? ` · ${QUALITY_NAMES[record.how]}` : ''}{record.note ? ` · ${record.note}` : ''}</span>

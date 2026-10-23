@@ -489,6 +489,12 @@ blockquote.daily-line {
 :root .rows li:nth-child(6n + 4) .row__icon { background: var(--tile-indigo); }
 :root .rows li:nth-child(6n + 5) .row__icon { background: var(--tile-green); }
 :root .rows li:nth-child(6n + 6) .row__icon { background: var(--tile-pink); }
+/* A list of things (not settings) keeps one quiet tone: color by position would read as meaning something. */
+:root .rows.rows--plain li .row__icon.row__icon {
+  background: var(--ll-tonal, var(--surface-2));
+  color: var(--text, inherit);
+  box-shadow: none;
+}
 /* Another app's own icon stays as it is. */
 :root .rows .row__icon:has(.row__app, img),
 :root .rows li .row__icon.row__icon:has(.row__app, img) {
@@ -749,4 +755,45 @@ blockquote.daily-line {
    body and labels take the open spacing of Google Sans Text and large figures tighten like the display cut. */
 :root {
   font-optical-sizing: auto;
+}
+
+/* ---------- Disclosure rows ----------
+   The browser's own triangle (▶) looked foreign beside Lamplight's icons, and iPhone keeps showing it even on rows laid
+   out as flex. Every summary drops it; one that brings no icon of its own gets a small chevron after its words, which
+   turns down as the row opens. */
+:root summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+:root summary::-webkit-details-marker {
+  display: none;
+}
+
+:root summary:not(:has(svg, img))::after {
+  content: '';
+  display: inline-block;
+  flex: none;
+  width: 0.7em;
+  height: 0.7em;
+  margin-inline-start: 0.45em;
+  vertical-align: -0.02em;
+  background: currentColor;
+  opacity: 0.7;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: rotate var(--ll-calm, 200ms) var(--ll-spring, ease);
+}
+
+:root details[open] > summary:not(:has(svg, img))::after {
+  rotate: 90deg;
+}
+
+:root[dir='rtl'] summary:not(:has(svg, img))::after {
+  scale: -1 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root summary::after {
+    transition: none;
+  }
 }

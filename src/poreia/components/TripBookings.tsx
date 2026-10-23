@@ -57,7 +57,7 @@ export default function TripBookings({ trip, nav }: { trip: Trip; nav: PoreiaNav
         </button>
         </RouteEmpty>
       ) : (
-        <ul className="rows poreia-bookings">
+        <ul className="rows rows--plain poreia-bookings">
           {list.map((booking) => (
             <li key={booking.id}>
               <button type="button" className="row" onClick={() => nav.go({ name: 'booking', tripId: trip.id, id: booking.id })}>

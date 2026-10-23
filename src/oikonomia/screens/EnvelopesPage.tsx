@@ -101,7 +101,6 @@ export default function EnvelopesPage({ nav }: { nav: Nav }) {
         <IconButton className="round-button" label="New envelope" onClick={() => { setEntryFor(undefined); setEditing(newEnvelope('', settings.currency, new Date().toISOString(), newId())); }}><PlusIcon size={22} /></IconButton>
       </PageTop>
       <div className="oiko-budget__heading"><div><p className="label">Savings</p><h1 className="title">Envelopes</h1></div></div>
-      <p className="lead">Give future plans a place to grow. Vacation, gifts, repairs, or anything you want to fund over time.</p>
 
       {editing && <EnvelopeForm start={editing} currency={settings.currency} onDone={(envelope) => void save(envelope)} onCancel={() => setEditing(undefined)} />}
 

@@ -410,6 +410,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `main.tsx`: weight and optical size axes, latin about 120 KB, other scripts by unicode-range; family `'Google Sans Flex
   Variable'` at the head of every sans stack, `font-optical-sizing: auto` in `premium.css`). It replaced Inter (the
   owner's choice, after Gemini). EB Garamond stays the serif for titles, quotes and the person's own words.
+- Lists and disclosure (after Diaita's Sleep page review): the colored `.row__icon` tiles by position are for settings
+  lists; a list of things uses `.rows--plain` (one tonal tile, Poreia's bookings) or its own badge (Diaita's
+  `.diaita-night__hours` pill), never text inside `.row__icon` (its fixed size made the hours overlap the words). No
+  colored accent stripes on rounded cards (a border on one side of a rounded card curves into a hook); quote bars
+  keep square left corners. Every `summary` drops the browser's triangle (premium.css "Disclosure rows"): one with no
+  icon of its own gets a small chevron that turns down when open. `ColumnChart` labels every other day counted back
+  from the newest. A fact needing two records (bedtime variation) shows only once there are two.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

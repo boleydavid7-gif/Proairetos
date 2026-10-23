@@ -197,7 +197,8 @@ export function ColumnChart({ title, days, unit = '', height = 150 }: { title: s
           ))}
           {days.map((day, index) => {
             const cx = PAD.left + slot * index + slot / 2;
-            const show = days.length <= 7 || index % 2 === days.length % 2 || index === days.length - 1;
+            // Every other day, counted back from the newest, so the last label never sits beside the one before it.
+            const show = days.length <= 7 || (days.length - 1 - index) % 2 === 0;
             return (
               <g key={day.long} onPointerEnter={() => setAt(index)} onPointerDown={() => setAt(index)}>
                 <rect className="family-chart__hit" x={cx - slot / 2} y={PAD.top} width={slot} height={base - PAD.top} />

@@ -89,36 +89,6 @@
   margin-bottom: 0;
 }
 
-.diaita-sleep-head {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.diaita-sleep-head h1 {
-  margin-bottom: 4px;
-}
-
-.diaita-sleep-head p {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.diaita-sleep-head > svg {
-  flex: 0 0 auto;
-  margin-bottom: 6px;
-  color: var(--mint);
-  opacity: .85;
-}
-
-.diaita-page .card {
-  border-color: color-mix(in srgb, var(--line) 82%, var(--mint));
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--bg) 70%, transparent);
-}
-
 .diaita-sleep-tiles {
   gap: 10px;
 }
@@ -126,8 +96,6 @@
 .diaita-sleep-tiles .tile {
   min-height: 92px;
   justify-content: center;
-  border-top: 2px solid var(--mint);
-  background: linear-gradient(145deg, var(--surface-2), color-mix(in srgb, var(--surface) 80%, var(--mint-soft)));
 }
 
 .diaita-sleep-tiles .tile__value {
@@ -142,7 +110,6 @@
 
 .diaita-week-facts {
   gap: 14px;
-  border-left: 3px solid var(--mint) !important;
 }
 
 .diaita-fact-row {
@@ -179,18 +146,6 @@
   gap: 12px;
 }
 
-.diaita-suggestion {
-  border-left: 3px solid var(--mint) !important;
-  background: linear-gradient(145deg, var(--surface), var(--mint-soft));
-}
-
-.diaita-experiment {
-  background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--surface-2) 70%, transparent));
-}
-
-.diaita-more .diaita-settings {
-  border-top: 3px solid var(--mint);
-}
 
 .diaita-more .diaita-settings .field__label,
 .diaita-side-by-side__comparison + .diaita-side-by-side__comparison {
@@ -227,7 +182,15 @@
 }
 
 .diaita-source-detail summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  list-style: none;
   cursor: pointer;
+}
+
+.diaita-source-detail summary::-webkit-details-marker {
+  display: none;
 }
 
 .diaita-source-detail span {
@@ -243,13 +206,19 @@
   border-top: 1px solid var(--line);
 }
 
+/* Each way to try reads first, its button under it: beside the words, the button squeezed them into a narrow column. */
 .diaita-experiment__option {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 0;
+  gap: 10px;
+  padding: 14px 0;
   border-bottom: 1px solid var(--line);
+}
+
+.diaita-experiment__option:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .diaita-experiment__option > div {
@@ -581,3 +550,29 @@
 
 /* The morning check-in: one tap keeps the night with the planned times shown here; Other times opens them. */
 .diaita-checkin__times { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; }
+
+/* A night's hours: one tonal pill, the same for every night (the shared row tiles color by position). */
+.diaita-night__hours {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 3.25rem;
+  height: 2rem;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--ll-tonal, var(--surface-2));
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaita-night {
+  gap: 14px;
+}
+
+.diaita-experiment__option > .button-quiet {
+  width: auto;
+  align-self: flex-start;
+  padding-inline: 20px;
+}
