@@ -64,15 +64,25 @@ function keptHere(): Kept | undefined {
   }
 }
 
-/** The token and key: this device's copy, else the account's sealed copy (another device turned it on). */
+/**
+ * The token and key as the account has them now (another device may have made a new address since), kept on this
+ * device too; this device's copy only while the server cannot be asked. Undefined when the account has no address.
+ */
 export async function healthKey(): Promise<Kept | undefined> {
   const here = keptHere();
-  if (here) return here;
-  if (syncStatus.get().phase !== 'ready') return undefined;
-  const row = await fetchHealthInbox();
-  if (!row) return undefined;
+  if (syncStatus.get().phase !== 'ready') return here;
+  let row: { sealed_key: string } | null;
+  try {
+    row = await fetchHealthInbox();
+  } catch {
+    return here;
+  }
+  if (!row) {
+    localStorage.removeItem(HERE);
+    return undefined;
+  }
   const opened = await openWithAccount('health-key', fromBase64(row.sealed_key).buffer as ArrayBuffer);
-  if (!opened) return undefined;
+  if (!opened) return here;
   const kept = JSON.parse(new TextDecoder().decode(opened)) as Kept;
   try {
     localStorage.setItem(HERE, JSON.stringify(kept));

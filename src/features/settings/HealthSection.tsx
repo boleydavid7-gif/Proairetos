@@ -42,6 +42,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   const { offerUndo } = useOverlays();
   const [choices, setChoices] = useState<HealthChoices | undefined>(healthChoices);
   const [token, setToken] = useState<string>();
+  const [looked, setLooked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
@@ -50,7 +51,11 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   useEffect(() => {
     if (!choices || status.phase !== 'ready') return;
     let live = true;
-    void healthKey().then((kept) => live && setToken(kept?.token));
+    void healthKey().then((kept) => {
+      if (!live) return;
+      setToken(kept?.token);
+      setLooked(true);
+    });
     return () => {
       live = false;
     };
@@ -160,7 +165,28 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
       <section className="settings-group" aria-label="Your address">
         <h2 className="settings-group__label">Your address</h2>
         <div className="settings-card">
-          {token ? <Copy label="Address" value={healthAddress(token)} /> : <p className="section-description">Opening…</p>}
+          {token ? (
+            <Copy label="Address" value={healthAddress(token)} />
+          ) : looked ? (
+            <>
+              <p className="section-description">Your account has no address yet.</p>
+              <button
+                type="button"
+                className="button-accent account-wide"
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    const kept = await turnOnHealth();
+                    setToken(kept.token);
+                  })
+                }
+              >
+                {busy ? 'Making it…' : 'Make the address'}
+              </button>
+            </>
+          ) : (
+            <p className="section-description">Opening…</p>
+          )}
           <p className="sheet__hint">Anyone with this address can send data to your apps, but they can’t read anything. If it gets out, make a new one.</p>
         </div>
       </section>

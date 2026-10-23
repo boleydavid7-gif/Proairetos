@@ -522,9 +522,10 @@ export async function saveHealthInbox(userId: string, tokenHash: string, publicK
   if (error) throw new Error(/health_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
 }
 
+/** The account's Apple Health address (sealed), or null when there is none. Throws when the server cannot say. */
 export async function fetchHealthInbox(): Promise<{ sealed_key: string } | null> {
   const { data, error } = await (await supabase()).from('health_inboxes').select('sealed_key').maybeSingle();
-  if (error) return null;
+  if (error) throw new Error(/health_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
   return (data as { sealed_key: string } | null) ?? null;
 }
 
