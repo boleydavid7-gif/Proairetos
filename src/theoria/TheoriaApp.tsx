@@ -20,7 +20,7 @@ import { copyBooksToFolder } from './data/toFolder';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingFile } from './data/importers';
 import { lookupBookMetadata } from './data/metadata';
-import { coverSource, dropCloudCopy, fetchCopy, forgetCloudCopy, keepFile, keepLocally, localFile, makeCloudCopy, migrateBook, readableChapters } from './data/library';
+import { coverSource, dropCloudCopy, fetchCopy, forgetCloudCopy, fromCloudFolder, keepFile, keepLocally, localFile, makeCloudCopy, migrateBook, moveServerCopies, readableChapters } from './data/library';
 import { outline, putAll, putCover, takeAll } from './data/files';
 import type { TheoriaChapter } from './core/books';
 import { takeOpening } from '../app/family/opening';
@@ -148,7 +148,7 @@ export default function TheoriaApp() {
     if (book.cloudCopy && book.filePath && book.sealed) {
       try {
         await fetchCopy(book);
-        return 'your account';
+        return 'your storage';
       } catch {
         return undefined;
       }
@@ -304,9 +304,11 @@ export default function TheoriaApp() {
     await keepLocally(book.id, input.file, imported ? { ...imported, coverFile: imported.coverFile ?? input.coverFile } : undefined);
     if (!imported && input.coverFile) await putCover({ bookId: book.id, blob: input.coverFile });
     let saved = book;
-    // A book from the library folder always gets its account copy: that is how it reaches the other devices.
-    if (input.file && (copyNew || extra.fromFolder) && sync.phase === 'ready') {
-      try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { toast(error instanceof Error ? error.message : 'The book is on this device; the account copy can be made later.'); }
+    // A book from a folder on this computer gets its copy in the person's own storage: that is how it reaches the
+    // other devices. A book from a cloud folder needs none; every device fetches it from the folder.
+    const fromLocalFolder = !!extra.fromFolder && !fromCloudFolder(book);
+    if (input.file && (copyNew || fromLocalFolder) && !fromCloudFolder(book) && sync.phase === 'ready') {
+      try { saved = await makeCloudCopy(book); await putBook(saved); } catch (error) { if (!extra.fromFolder) toast(error instanceof Error ? error.message : 'The book is on this device; the copy can be made later.'); }
     }
     return { book, saved };
   };
@@ -424,7 +426,7 @@ export default function TheoriaApp() {
         try {
           await keepFile(book, await item.get());
           let next: TheoriaBook = { ...book, fileSize: item.size, updatedAt: new Date().toISOString() };
-          if (sync.phase === 'ready') next = await makeCloudCopy(next).catch(() => next);
+          if (sync.phase === 'ready' && !fromCloudFolder(next) && next.cloudCopy !== false) next = await makeCloudCopy(next).catch(() => next);
           await putBook(next);
           known[path] = { bookId, size: item.size };
           saveFolderBooks(known);
@@ -498,10 +500,13 @@ export default function TheoriaApp() {
   const fetching = useRef(new Set<string>());
   const fetchFolderBooks = async () => {
     if (sync.phase !== 'ready') return;
-    // Books whose account copy could not be made when they were added (signed out, or the server not set up yet):
-    // made now, unless the person took the copy away from that book (`cloudCopy: false`).
+    // Copies the first versions kept on the site's server move to the person's own storage (or, for cloud-folder
+    // books, go: the folder has the file).
+    for (const moved of await moveServerCopies(await listBooks())) await putBook(moved);
+    // Books whose copy could not be made when they were added (signed out, or no storage of their own yet): made
+    // now, unless the person took the copy away from that book (`cloudCopy: false`). Cloud-folder books need none.
     for (const book of await listBooks()) {
-      const wanted = book.cloudCopy === undefined && (book.fromFolder || copyNew);
+      const wanted = book.cloudCopy === undefined && !fromCloudFolder(book) && (book.fromFolder || copyNew);
       if (!wanted || !(await localFile(book.id))) continue;
       try { await putBook(await makeCloudCopy(book)); } catch { break; }
     }
@@ -537,7 +542,7 @@ export default function TheoriaApp() {
     if (from) {
       await loadText(book);
       toast(`The book is on this device now, from ${from}.`);
-    } else toast(connectedClouds().length ? 'The book was not found in your storage or your account. Choose the file on this device.' : 'This book has no copy in your account. Connect the storage it is in (Settings), or choose the file on this device.');
+    } else toast(connectedClouds().length ? 'The book wasn’t found in your storage. Choose the file on this device.' : 'This book has no copy here. Connect the storage it is in (Settings), or choose the file on this device.');
   };
   const chooseFile = async (file: File) => {
     if (!selected) return;
@@ -552,7 +557,7 @@ export default function TheoriaApp() {
     if (!selected) return;
     try {
       await putBook(on ? await makeCloudCopy(selected) : await dropCloudCopy(selected));
-      toast(on ? 'A sealed copy is in your account.' : 'The account copy is removed; the book stays on this device.');
+      toast(on ? 'A sealed copy is in your storage.' : 'The copy is removed; the book stays on this device.');
     } catch (error) { toast(error instanceof Error ? error.message : 'That did not finish.'); }
   };
   const removeItem = async (kind: 'highlight' | 'note' | 'reflection' | 'bookmark', id: string) => {

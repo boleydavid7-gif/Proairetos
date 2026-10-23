@@ -1,7 +1,8 @@
 import type { TheoriaBook, TheoriaChapter } from '../core/books';
 import { getCover, getFile, getText, outline, putCover, putFile, putText, splitText } from './files';
 import { inspectReadingFile, PREVIEW_LENGTH, type ImportedReading } from './importers';
-import { downloadPlain, downloadSealed, removeFromAccount, uploadSealed } from './cloudCopy';
+import { downloadPlain, downloadSealed, inOwnStorage, removeFromAccount, uploadSealed } from './cloudCopy';
+import { ownBackupStorage } from '../../app/sync/syncController';
 
 /** Keeps a newly added book on this device: its full text, its file and its cover. */
 export async function keepLocally(bookId: string, file: File | undefined, read: ImportedReading | undefined): Promise<void> {
@@ -139,4 +140,46 @@ export async function migrateBook(book: TheoriaBook): Promise<TheoriaBook | unde
   } finally {
     migrating.delete(book.id);
   }
+}
+
+/** A book from a library folder in OneDrive, Google Drive or Dropbox: every device fetches it from there. */
+export const fromCloudFolder = (book: TheoriaBook) => /^(onedrive|google|dropbox):/.test(book.fromFolder ?? '');
+
+/**
+ * Copies the first versions kept on the site's server: a cloud-folder book's copy is removed (the folder has the
+ * file); any other copy moves into the person's own storage when the account syncs through one. Returns the records
+ * that changed. A copy that cannot be fetched or kept stays where it is for next time.
+ */
+export async function moveServerCopies(books: readonly TheoriaBook[]): Promise<TheoriaBook[]> {
+  const changed: TheoriaBook[] = [];
+  const onServer = (path: string | undefined, sealed: boolean | undefined) => !!path && !!sealed && !inOwnStorage(path);
+  const own = books.some((book) => onServer(book.filePath, book.sealed) && !fromCloudFolder(book)) ? await ownBackupStorage().catch(() => null) : null;
+  for (const book of books) {
+    const file = onServer(book.filePath, book.sealed);
+    const cover = onServer(book.coverPath, book.coverSealed);
+    if (!file && !cover) continue;
+    try {
+      let next: TheoriaBook = { ...book };
+      if (fromCloudFolder(book)) {
+        if (file) await removeFromAccount('book', book.filePath!);
+        if (cover) await removeFromAccount('cover', book.coverPath!);
+        next = { ...next, filePath: undefined, sealed: undefined, coverPath: undefined, coverSealed: undefined, cloudCopy: undefined };
+      } else if (own) {
+        if (file) {
+          const blob = await downloadSealed('book', book.id, book.filePath!, book.fileType ?? '');
+          next = { ...next, filePath: await uploadSealed('book', book.id, blob) };
+          await removeFromAccount('book', book.filePath!);
+        }
+        if (cover) {
+          const blob = await downloadSealed('cover', book.id, book.coverPath!, 'image/jpeg');
+          next = { ...next, coverPath: await uploadSealed('cover', book.id, blob) };
+          await removeFromAccount('cover', book.coverPath!);
+        }
+      } else continue;
+      changed.push({ ...next, updatedAt: new Date().toISOString() });
+    } catch {
+      // Offline, or the storage could not be reached: tried again next time.
+    }
+  }
+  return changed;
 }

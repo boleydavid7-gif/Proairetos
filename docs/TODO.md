@@ -29,6 +29,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Capture from anywhere: run `20261024000000_capture_inbox.sql`, then in Cloudflare > the proairetos Worker >
       Settings > Variables and Secrets add `SUPABASE_URL` (your project address) and `SUPABASE_ANON_KEY` (the publishable
       key; both are public values, plain text is fine). Then Settings > Capture from anywhere > Turn on, and make the Shortcut.
+- [ ] Supabase file storage full: Theoria's book copies no longer go there. Open Theoria once, signed in: copies of books
+      from a cloud library folder are removed from `theoria-books`, and the rest move to your own storage once Account ›
+      Where it syncs is set to Drive, Dropbox or OneDrive. Then check Storage in Supabase; anything left in
+      `theoria-books` / `theoria-covers` can be deleted by hand (the books stay on your devices and in your folder).
 - [ ] Apple Health: run `20261028000000_health_inbox.sql` in Supabase (the Worker's `SUPABASE_URL` and `SUPABASE_ANON_KEY`
       are already set for Capture from anywhere). Then Settings > The app > Apple Health > Turn on, and set up Health Auto
       Export as the page says (REST API, JSON). Send a first export with Manual Export and open any app; send Claude a JSON
