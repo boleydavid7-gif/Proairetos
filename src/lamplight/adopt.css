@@ -149,17 +149,47 @@
   }
 }
 
-/* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
+/* ---------- Fields: a filled well with a clear edge; focus is a ring of the lamp ----------
+   A field sits a step into its surface: a fill of its own, a hairline all round so it reads as a box on any card,
+   and a soft shade along the inside of its top edge, the side away from the room's light. */
+:root {
+  --ll-field-edge: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.2);
+  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.32);
+  --ll-field-well: inset 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme='light'] {
+  --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
+  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.36);
+  --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
+    --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.36);
+    --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
+  }
+}
+
 :root :is(.input, .textarea, .field-input, .row__select) {
-  border-color: transparent;
+  border: 1px solid var(--ll-field-edge);
   border-radius: var(--ll-radius-sm);
   background: var(--ll-inset);
+  box-shadow: var(--ll-field-well);
+  transition: border-color var(--ll-calm, 200ms) ease, box-shadow var(--ll-calm, 200ms) ease;
+}
+
+@media (hover: hover) {
+  :root :is(.input, .textarea, .field-input, .row__select):hover:not(:focus, :disabled) {
+    border-color: var(--ll-field-edge-hover);
+  }
 }
 
 :root :is(.input, .textarea, .field-input, .row__select):focus {
   outline: none;
-  border-color: transparent;
-  box-shadow: var(--ll-focus);
+  border-color: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.85);
+  box-shadow: var(--ll-field-well), var(--ll-focus);
 }
 
 :root :is(.input, .textarea, .field-input, .row__select):focus-visible {
