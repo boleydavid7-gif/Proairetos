@@ -36,8 +36,29 @@
 }
 
 /* While typing, the light is on the field's surface; the page's lit thing steps back to the light every surface has. */
-:root.ll-typing :is([data-ll-lit]:not(.ll-lit-wrap), .ll-lit-wrap[data-ll-lit] > :first-child):not([data-ll-lit-now]) {
+:root.ll-typing :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child):not([data-ll-lit-now]) {
   box-shadow: var(--ll-surface-light, none);
+}
+
+/* A lit row inside a list (Today's to-do) is no surface of its own: stepping back, it has no light at all. */
+:root.ll-typing .path__step[data-ll-lit] {
+  box-shadow: none;
+}
+
+/* The second level: while something on the page is lit, the context marked `data-ll-recede` (Today's From your apps)
+   steps back, and while the person types, every surface but the one they type in steps back too. Their text takes
+   the scheme's second ink, which the scheme already holds to 4.5:1 on every surface; nothing is dimmed past that. */
+:root.ll-has-lit [data-ll-recede],
+:root.ll-typing :is(.card, .rows, .settings-card, .look-ahead, .intention, .today-group, .today-apps, .reflect-places,
+  .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks, .path, .timeline):not([data-ll-lit-now], :has([data-ll-lit-now])) {
+  --color-text: var(--color-text-muted);
+  --text: var(--text-soft, var(--color-text-muted));
+  --ll-ink: var(--ll-ink-2);
+}
+
+/* A context that steps back gives up the lamp's wash on its surface too. */
+:root.ll-has-lit [data-ll-recede] :is(.today-group, .rows, .card) {
+  box-shadow: var(--ll-sheen-edge, none);
 }
 
 @media (prefers-reduced-motion: reduce) {

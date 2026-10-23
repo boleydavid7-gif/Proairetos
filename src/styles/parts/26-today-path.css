@@ -418,3 +418,15 @@ a.quiet-row {
 .path-focus__title {
   color: var(--color-text);
 }
+
+/* With nothing still to come in Your day, the first open to-do is Today's lit thing (`data-ll-lit="fallback"`). */
+/* The light reaches a little past the row on each side, so its edge clears the circle and the chevron. */
+.path__step[data-ll-lit]:not([data-ll-lit-extra]) {
+  margin-inline: calc(-1 * var(--space-3));
+  padding-inline: var(--space-3);
+  border-radius: var(--ll-radius-sm, 12px);
+}
+
+.path__step[data-ll-lit]:not([data-ll-lit-extra])::after {
+  left: calc(0.7rem + var(--space-3));
+}

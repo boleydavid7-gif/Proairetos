@@ -279,7 +279,7 @@ export default function NowPage() {
       )}
 
       {/* Everything the other apps bring today, as one grouped list: things to mark first, then the rest. */}
-      <section className="today-apps" aria-labelledby="today-apps-title">
+      <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
         <h2 id="today-apps-title" className="section-label">From your apps</h2>
         <div className="today-group">
           <FromYourApps today={today} embedded />

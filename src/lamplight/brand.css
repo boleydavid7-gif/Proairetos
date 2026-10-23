@@ -1,7 +1,7 @@
 /*
  * Lamplight's signature: one lamp, one direction, one lit thing.
  *  - Light comes from the upper right, where the wallpaper's lamp hangs: a warm sheen along a surface's top and
- *    right edges, and its shade falling down and to the left.
+ *    right edges. Only the one lit thing casts a shade, falling down and to the left.
  *  - Only one thing is lit at a time: the control you are on (keyboard focus) and, on Today, what comes next.
  *  - Ticking something off lets the light settle on it: a warm glow that fades over a second (`data-ll-settle`,
  *    set by `settleLight` in behaviors.ts). Relief, never praise.
@@ -12,7 +12,8 @@
   --ll-sheen-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14);
   --ll-sheen-wash: inset -56px 56px 72px -64px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.11);
   --ll-cast: -6px 10px 26px -16px rgba(0, 0, 0, 0.5);
-  --ll-surface-light: var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-cast);
+  /* Light alone lifts a surface: resting surfaces cast no shadow; only the one lit thing does (levels.css). */
+  --ll-surface-light: var(--ll-sheen-edge), var(--ll-sheen-wash);
   --ll-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45), 0 0 26px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
   --ll-focus: 0 0 0 4px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18), 0 0 22px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
 }

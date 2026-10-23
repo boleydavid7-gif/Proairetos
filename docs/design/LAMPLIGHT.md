@@ -241,9 +241,12 @@ Lamplight's own idea is light that means something, in place of borrowed surface
   the room's edges (`dayLight`). The lamp turns toward amber while keeping most of its own hue (`warmedLamp`); the pool is
   mixed straight between a cool white and the warmed lamp (`poolColor`). Text and surfaces keep the scheme's contrast.
 - **Three levels of light**: at rest (no surface, in shade), near (a vellum surface) and lit (the one thing that matters
-  now, with a halo of the pool). One lit thing per page; it moves to what is being typed in.
+  now, with a halo of the pool). One lit thing per page; it moves to what is being typed in. A fallback lit thing
+  (`data-ll-lit="fallback"`) takes the light only when nothing else has it. While something is lit, context marked
+  `data-ll-recede` steps back to the second ink; while typing, every other surface does. Light is the only hierarchy:
+  no hue shift for the background (temperature already means the time of day) and nothing below the scheme's contrast.
 - **Vellum**: matte paper with a faint fiber, brightest at the lamp's corner (`VELLUM_LIFT`, the lit thing up to
-  `LIT_STRENGTH` times), an edge of light on the lamp's side, a cast down-left. No glass, no outlines. `vellumReads` checks
+  `LIT_STRENGTH` times), an edge of light on the lamp's side. Only the lit thing casts a shade (down-left). No glass, no outlines. `vellumReads` checks
   every text role on the brightest corner, in every room, mode and hour (tests in `src/tests/lamplight/daylight.test.ts`).
 - **Motion as light**: a page brightens into place from the lamp; a tick lets the light settle, then the row goes into the
   shade with what is done (no line through it).

@@ -353,6 +353,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   focus, Poreia's Next up. Only the first shown on a page keeps it (`data-ll-lit-extra` on the rest); while typing, the
   field's surface takes it (`data-ll-lit-now`, `:root.ll-typing`; Today's quiet capture line glows along its line).
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
+  Light as the hierarchy (after the owner's light-first review): `data-ll-lit="fallback"` takes the light only when
+  nothing else on the page has it (Today's first open to-do, `.path__step`, its light reaching `--space-3` past the row);
+  `:root.ll-has-lit` while something is lit, and `data-ll-recede` (Today's From your apps) then steps back to the
+  scheme's second ink with no lamp wash; while typing (`ll-typing`) every surface but the one typed in steps back the
+  same way (token overrides `--color-text`, `--text`, `--ll-ink` in `levels.css`, so contrast stays the scheme's).
+  Resting surfaces cast no shadow (`--ll-surface-light` is the sheen edge and wash only); only the lit thing keeps
+  `--ll-cast`. Rejected on purpose: cool hues for the background (temperature already means the time of day, and the
+  room is the person's choice) and fixed gray text values (they fail 4.5:1).
 - Vellum and shade (Lamplight 2.0, `src/lamplight/paper.css`, after `levels.css`): plain surfaces (`.card`, grouped lists,
   `.look-ahead`, `.intention`, Hydros's amount and drinks) take `--ll-vellum` as their background image (a faint fiber and
   the lamp at the upper-right corner at 7% times `--ll-day-pool`; gradient cards on other classes keep theirs; More

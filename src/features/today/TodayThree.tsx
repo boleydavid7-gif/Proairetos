@@ -175,7 +175,11 @@ export default function TodayThree({ date, items }: Props) {
           {picks.map((item) => {
             const done = item.status === 'DONE';
             return (
-              <li key={item.id} className={`path__step${done ? ' path__step--done' : ''}`}>
+              <li
+                key={item.id}
+                className={`path__step${done ? ' path__step--done' : ''}`}
+                data-ll-lit={item.id === nextPick?.id ? 'fallback' : undefined}
+              >
                 <button
                   type="button"
                   role="checkbox"

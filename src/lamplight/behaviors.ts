@@ -854,8 +854,11 @@ function settleLight(): void {
 
 /*
  * One lit thing per page: of everything marked `data-ll-lit` and shown, only the first in the page keeps the light; the
- * rest are marked `data-ll-lit-extra` (levels.css). While the person types in a field, its surface takes the light
- * (`data-ll-lit-now`) and the root says so (`ll-typing`), so the page's lit thing steps back until they leave it.
+ * rest are marked `data-ll-lit-extra` (levels.css). `data-ll-lit="fallback"` takes the light only when nothing else on
+ * the page has it (Today's first open to-do, when Your day has nothing still to come). While a thing is lit the root
+ * carries `ll-has-lit`, so context marked `data-ll-recede` steps back a level. While the person types in a field, its
+ * surface takes the light (`data-ll-lit-now`) and the root says so (`ll-typing`), so the page's lit thing and the
+ * surfaces around it step back until they leave it.
  */
 const TYPING = 'input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="color"], [type="file"]), textarea, [contenteditable="true"]';
 const FIELD_SURFACE = '[data-ll-lit-field], .card, .ll-card, .settings-card, .intention, .capture-bar, .together__add, .p2-capture';
@@ -864,16 +867,16 @@ function oneLitThing(): void {
   let queued = false;
   const sort = () => {
     queued = false;
-    let kept = false;
-    for (const el of document.querySelectorAll('[data-ll-lit]')) {
+    const candidates = [...document.querySelectorAll('[data-ll-lit]')].filter((el) => {
       const visible = el.classList.contains('ll-lit-wrap') ? Boolean(el.firstElementChild && shown(el.firstElementChild)) : shown(el);
-      if (!kept && visible && !el.closest('[inert], [hidden]')) {
-        kept = true;
-        el.removeAttribute('data-ll-lit-extra');
-      } else {
-        el.setAttribute('data-ll-lit-extra', '');
-      }
+      return visible && !el.closest('[inert], [hidden]');
+    });
+    const keep = candidates.find((el) => el.getAttribute('data-ll-lit') !== 'fallback') ?? candidates[0];
+    for (const el of document.querySelectorAll('[data-ll-lit]')) {
+      if (el === keep) el.removeAttribute('data-ll-lit-extra');
+      else el.setAttribute('data-ll-lit-extra', '');
     }
+    document.documentElement.classList.toggle('ll-has-lit', Boolean(keep));
   };
   const soon = () => {
     if (queued) return;

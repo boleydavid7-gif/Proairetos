@@ -167,15 +167,13 @@
     var(--p2-fiber),
     var(--ll-card);
   box-shadow:
-    inset -1px 1px 0 rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.1)),
-    -8px 12px 28px -18px rgba(0, 0, 0, 0.55);
+    inset -1px 1px 0 rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.1));
   transition: box-shadow 700ms var(--p2-ease), background 900ms var(--p2-ease);
 }
 
 .p2-phone[data-mode='light'] .p2-vellum {
   box-shadow:
-    inset -1px 1px 0 rgba(255, 255, 255, 0.7),
-    -8px 12px 28px -20px rgba(var(--ll-ink-rgb), 0.28);
+    inset -1px 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 /* ---------- Three levels of light ---------- */
