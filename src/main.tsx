@@ -13,7 +13,6 @@ import './styles/globals.css';
 import './styles/premium.css';
 import './app/family/account.css';
 import { applyAppearance, withLamplight } from './app/appearance';
-import { startDayLight } from './app/dayLight';
 import { applyLamplight } from './app/lamplight';
 import { startDailyCopies } from './app/family/dailyCopy';
 import { startLaunchFiles } from './app/family/launchFiles';
@@ -34,8 +33,6 @@ startLaunchFiles();
 withLamplight((appearance, light) => applyLamplight(appearance, light, 'proairetos'));
 applyAppearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
-// Day light: the lamp follows the person's own day (Settings > Appearance can turn it off).
-startDayLight(() => applyAppearance());
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

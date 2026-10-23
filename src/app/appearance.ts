@@ -24,9 +24,23 @@ export function withLamplight(apply: (appearance: Appearance, light: boolean) =>
   lamplight = apply;
 }
 
+let followingDay = false;
+
+/** Day light (Lamplight 2.0) in every app: the worker that finds where the person is in their day loads after the
+ *  first paint, so no app's first chunk carries the schedule and sleep code; until it answers, a recent position kept
+ *  on the device (dayLightState) lights the page. */
+function followDay(): void {
+  if (followingDay) return;
+  followingDay = true;
+  window.setTimeout(() => {
+    void import('./dayLight').then(({ startDayLight }) => startDayLight(() => applyAppearance()));
+  }, 1200);
+}
+
 export function applyAppearance(appearance: Appearance = loadAppearance()): void {
   listenForSwitches();
   startLamplightBehaviors();
+  followDay();
   const root = document.documentElement;
   root.dataset.theme = appearance.theme;
   root.style.fontSize = textScale[appearance.textSize];

@@ -3,7 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
-      'Light that follows your day: Proairetos’s lamp hangs high and cool early in your day and sits lower and warmer toward the end of it. Your day runs from waking to sleep around your schedule, so a night shift moves the morning. Settings > Appearance > Light follows your day turns it off.',
+      'Light that follows your day, in every app: each app’s lamp hangs high and cool early in your day and sits lower and warmer toward the end of it, keeping its own color. Your day runs from waking to sleep around your schedule, so a night shift moves the morning. Settings > Appearance > Light follows your day turns it off.',
       'Poreia has a Budget tab: your yearly travel budget, what the year’s trips have cost and still take, each trip and each kind of spending, and a place to add spending to any trip. Poreia’s wording is shorter throughout.',
     ],
   },

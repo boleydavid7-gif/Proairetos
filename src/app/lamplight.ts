@@ -78,10 +78,15 @@ export function proairetosVars(s: Scheme, lamp?: WallLamp): Record<string, strin
  *  a room and a lamp drawn from what it is about (Phyton's greens, Hydros's water), made the same way. */
 export function pageScheme(appearance: Appearance, mode: Mode, app: string, day?: DayLight): Scheme {
   const theme = app === 'proairetos' ? null : appTheme(app);
-  if (theme) return makeScheme(theme.room, theme.lamp, mode);
+  if (theme) return makeScheme(theme.room, day ? warmedLamp(theme.lamp, day.warmth) : theme.lamp, mode);
   const lamp = lampSeed(appearance.room, appearance.color);
   return schemeOf(appearance.room, day ? warmedLamp(lamp, day.warmth) : lamp, mode);
 }
+
+/** Shade gathering at the top's edges, away from the lamp; it comes back to nothing before the bottom of its box, so
+ *  the room never ends in a line. */
+const shadeGradient = (day: DayLight, edge: string) =>
+  `radial-gradient(120% 70% at ${(day.x * 100).toFixed(0)}% 0%, transparent 45%, ${edge} 80%, transparent 125%)`;
 
 /** Day light's own pieces (Lamplight 2.0, Proairetos): the wallpaper's lamp and the shade at the room's edges. */
 function dayPieces(appearance: Appearance, s: Scheme, day: DayLight): { lamp: WallLamp; shade: string } {
@@ -89,24 +94,46 @@ function dayPieces(appearance: Appearance, s: Scheme, day: DayLight): { lamp: Wa
   const pool = poolColor(lampSeed(appearance.room, appearance.color), day.warmth, s.mode);
   const lamp = { x: day.x, y: day.y, strength: day.pool, glow: mixHex(s.art.glow, pool, 0.55), warmth: day.warmth };
   const edge = dark ? `rgba(0, 0, 0, ${(SHADE_DARK * day.shade).toFixed(3)})` : rgba(s.ink, SHADE_LIGHT * day.shade);
-  const shade = `radial-gradient(130% 95% at ${(day.x * 100).toFixed(0)}% 0%, transparent 55%, ${edge} 100%) top / 100% var(--room-height) no-repeat`;
+  const shade = `${shadeGradient(day, edge)} top / 100% var(--room-height) no-repeat`;
   return { lamp, shade };
 }
+
+/** Day light in the other apps: their pool of light at the top of the page moves, warms and dims with the day, and
+ *  shade gathers at the top's edges (identity.css). Their pictures stay as drawn. */
+function familyDayVars(app: string, s: Scheme, day: DayLight): Record<string, string> {
+  const theme = appTheme(app);
+  const pool = theme ? poolColor(theme.lamp, day.warmth, s.mode) : s.lamp;
+  const dark = s.mode === 'dark';
+  const edge = dark ? `rgba(0, 0, 0, ${(SHADE_DARK * day.shade).toFixed(3)})` : rgba(s.ink, SHADE_LIGHT * day.shade);
+  return {
+    '--ll-day-x': `${(day.x * 100 + 4).toFixed(1)}%`,
+    '--ll-day-y': `${Math.round(-60 + (day.y - 0.09) * 800)}px`,
+    '--ll-day-pool': day.pool.toFixed(3),
+    '--ll-day-tint': `color-mix(in srgb, ${pool} ${Math.round(day.warmth * 60)}%, var(--ll-light-tint))`,
+    '--ll-day-shade': shadeGradient(day, edge),
+  };
+}
+
+const FAMILY_DAY_VARS = ['--ll-day-x', '--ll-day-y', '--ll-day-pool', '--ll-day-tint', '--ll-day-shade'];
 
 /** Lays the room and color on the page; returns the page color for the browser bar. */
 export function applyLamplight(appearance: Appearance, light: boolean, app = 'proairetos'): string {
   const mode: Mode = light && !ALWAYS_DARK.has(app) ? 'light' : 'dark';
-  const day = app === 'proairetos' && appearance.dayLight ? currentDayLight() : undefined;
+  const day = appearance.dayLight ? currentDayLight() : undefined;
   const s = pageScheme(appearance, mode, app, day);
   const root = document.documentElement;
-  const pieces = day ? dayPieces(appearance, s, day) : undefined;
+  const pieces = day && app === 'proairetos' ? dayPieces(appearance, s, day) : undefined;
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp) : familyVars(s, app)) };
   if (app === 'proairetos') {
     if (pieces) root.style.setProperty('--room-shade', pieces.shade);
     else root.style.removeProperty('--room-shade');
-    if (day) root.dataset.llDay = day.name;
-    else delete root.dataset.llDay;
+  } else if (day) {
+    Object.assign(vars, familyDayVars(app, s, day));
+  } else {
+    for (const name of FAMILY_DAY_VARS) root.style.removeProperty(name);
   }
+  if (day) root.dataset.llDay = day.name;
+  else delete root.dataset.llDay;
   for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
   root.dataset.room = appearance.room;
   // The app's identity inside Lamplight: light, wall pattern, tempo, numerals, shape (lamplight/identity.ts).

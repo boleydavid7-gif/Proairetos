@@ -333,14 +333,18 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`dayPosition` over the person's waking day, `dayLight`, `warmedLamp`, `poolColor`, vellum with `vellumReads`, tested in
   every room, mode and hour) and `src/lamplight-guide/Preview.tsx` / `preview.css` (scoped `.p2`): day light, three levels
   of light (rest, near, lit), vellum, motion as light, the person's words lit.
-- Day light in Proairetos (2.0's first step; Settings > Appearance "Light follows your day", `Appearance.dayLight`, on
-  unless turned off): `app/dayLight.ts` (`startDayLight` in `main.tsx`) works out the position in the waking day from
+- Day light (2.0's first step; Settings > Appearance "Light follows your day", `Appearance.dayLight`, on
+  unless turned off, one switch for the family): `app/dayLight.ts` (`startDayLight`, from `applyAppearance`) works out the position in the waking day from
   `mainSleeps` (Diaita's core, imported only when it runs; Diaita's settings when added, else bedtime and length from quiet
   hours) around the schedule and other calendars (`positionFromSleeps`, else `dayPosition` over quiet hours), on start,
   every 5 min, on coming into view and on schedule changes; `app/dayLightState.ts` keeps it. `applyLamplight` (Proairetos
   only) warms the lamp (`warmedLamp`), moves and dims the wallpaper's lamp (`wallpaperSvg`'s `lamp`: place, strength,
   glow, no white heart late) and sets `--room-shade` (a top layer in `02-shell.css`; removed under More contrast) and
-  `data-ll-day`. The other apps keep their fixed lamp for now.
+  `data-ll-day`. Every other app too: its theme's lamp is warmed, and `familyDayVars` moves, warms and dims its pool of
+  light at the top of the page (`--ll-day-x|y|pool|tint|shade` read by `identity.css`, defaults are the fixed lamp); its
+  pictures stay as drawn. The shade (`shadeGradient`) comes back to nothing before its box ends. `applyAppearance` loads
+  the worker 1.2 s after start in every app (no first chunk carries it); the last position is kept on the device for 15
+  minutes (`proairetosDayLight`, not synced or backed up) so an app paints with the right light at once.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

@@ -7,18 +7,28 @@
 /* A pool of the app's light at the top of the page (where the one lamp sits, LAMP_X .64) over its faint pattern.
    Both scroll with the page and fade out within the first screen; pictures and heroes cover them where they sit. */
 :root[data-ll-pattern] body {
+  /* With day light (Lamplight 2.0) the pool moves, warms and dims through the person's day, and shade gathers at the
+     top's edges; without it the --ll-day-* values are unset and the defaults below are the fixed lamp. */
   background-image:
-    radial-gradient(ellipse 70% 340px at 64% -60px, color-mix(in srgb, var(--ll-light-tint) 15%, transparent), transparent 72%),
+    var(--ll-day-shade, linear-gradient(transparent, transparent)),
+    radial-gradient(ellipse 70% 340px at var(--ll-day-x, 64%) var(--ll-day-y, -60px), color-mix(in srgb, var(--ll-day-tint, var(--ll-light-tint)) calc(15% * var(--ll-day-pool, 1)), transparent), transparent 72%),
     var(--ll-pattern-image, none);
-  background-repeat: no-repeat, repeat-x;
-  background-size: 100% 460px, auto 440px;
-  background-position: 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: 100% 460px, 100% 460px, auto 440px;
+  background-position: 0 0, 0 0, 0 0;
 }
 
 :root[data-ll-pattern][data-theme='light'] body {
   background-image:
-    radial-gradient(ellipse 70% 340px at 64% -60px, color-mix(in srgb, var(--ll-light-tint) 22%, transparent), transparent 72%),
+    var(--ll-day-shade, linear-gradient(transparent, transparent)),
+    radial-gradient(ellipse 70% 340px at var(--ll-day-x, 64%) var(--ll-day-y, -60px), color-mix(in srgb, var(--ll-day-tint, var(--ll-light-tint)) calc(22% * var(--ll-day-pool, 1)), transparent), transparent 72%),
     var(--ll-pattern-image, none);
+}
+
+@media (prefers-contrast: more) {
+  :root[data-ll-pattern] body {
+    --ll-day-shade: linear-gradient(transparent, transparent);
+  }
 }
 
 /* Proairetos draws its own wallpaper (app/wallpaper.ts); its body keeps that. */
