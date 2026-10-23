@@ -43,6 +43,8 @@ export async function handleCaptureRequest(request: Request, env: CaptureEnv, fe
   const base = env.SUPABASE_URL?.trim().replace(/\/+$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) return reply(503, { error: 'Capture from anywhere is not set up yet.' });
+  // A common slip in setup: the two values swapped. Said plainly, without repeating either.
+  if (!/^https:\/\//.test(base)) return reply(503, { error: 'The Worker variable SUPABASE_URL is not a web address. It should be https://<project>.supabase.co, and SUPABASE_ANON_KEY the publishable key.' });
   if (tooOften(request)) return reply(429, { error: 'Too many requests. Try again in a minute.' });
 
   const { token, text } = await readBody(request);
@@ -66,6 +68,6 @@ export async function handleCaptureRequest(request: Request, env: CaptureEnv, fe
     if (!kept.ok || (await kept.json()) !== true) return reply(409, { error: 'The inbox is full. Open Proairetos to empty it.' });
     return reply(200, { ok: true, said: 'Captured' });
   } catch (cause) {
-    return reply(502, { error: 'The inbox could not be reached. Try again.', detail: cause instanceof Error ? cause.message.slice(0, 200) : undefined });
+    return reply(502, { error: 'The inbox could not be reached. Try again.', detail: cause instanceof Error ? cause.name : undefined });
   }
 }

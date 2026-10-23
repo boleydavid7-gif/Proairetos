@@ -47,6 +47,8 @@ export async function handleHealthRequest(request: Request, env: CaptureEnv, tok
   const base = env.SUPABASE_URL?.trim().replace(/\/+$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) return reply(503, { error: 'Apple Health is not set up on this server yet.' });
+  // A common slip in setup: the two values swapped. Said plainly, without repeating either.
+  if (!/^https:\/\//.test(base)) return reply(503, { error: 'The Worker variable SUPABASE_URL is not a web address. It should be https://<project>.supabase.co, and SUPABASE_ANON_KEY the publishable key.' });
   if (tooOften(request)) return reply(429, { error: 'Too many requests. Try again in a minute.' });
   if (token.length < 20 || token.length > 200) return reply(404, { error: 'That address was not found. Copy it again from Proairetos.' });
 
@@ -80,6 +82,6 @@ export async function handleHealthRequest(request: Request, env: CaptureEnv, tok
     }
     return reply(200, { ok: true, kept: batchSize(batch) });
   } catch (cause) {
-    return reply(502, { error: 'The inbox could not be reached. Try again.', detail: cause instanceof Error ? cause.message.slice(0, 200) : undefined });
+    return reply(502, { error: 'The inbox could not be reached. Try again.', detail: cause instanceof Error ? cause.name : undefined });
   }
 }
