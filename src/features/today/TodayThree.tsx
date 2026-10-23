@@ -5,6 +5,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService } from '../../app/services';
 import type { LifeItem } from '../../core/life-items/types';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
+import { GLYPHS, LampIcon } from '../../lamplight/icons';
 import NotForMe from './NotForMe';
 import EnergyChoice, { useEnergy } from './EnergyChoice';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -136,13 +137,15 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
  * circles. Checking one closes it with an undo; nothing carries over as a debt.
  */
 export default function TodayThree({ date, items }: Props) {
-  const { openItem, offerUndo } = useOverlays();
+  const { openItem, offerUndo, startFocus, focusSession } = useOverlays();
   const names = useValueNames();
   const [picking, setPicking] = useState(false);
   const anyOpen = items.some(isOpen);
   const picks = items
     .filter((item) => item.pickedFor === date && (isOpen(item) || item.status === 'DONE'))
     .sort((a, b) => (a.pickedAt ?? '').localeCompare(b.pickedAt ?? ''));
+  // Focus sits with the work: the first thing still open on the day's list, one tap from a timer on it.
+  const nextPick = picks.find(isOpen);
 
   // With nothing to choose from, the section waits.
   if (!anyOpen && picks.length === 0 && !picking) return null;
@@ -195,7 +198,16 @@ export default function TodayThree({ date, items }: Props) {
             );
           })}
         </ol>
-      ) : (
+      ) : null}
+      {picks.length > 0 && nextPick && !focusSession && (
+        <button type="button" className="path-focus" onClick={() => startFocus({ id: nextPick.id, title: nextPick.title })}>
+          <LampIcon glyph={GLYPHS.timer} size={18} />
+          <span className="path-focus__words">
+            Focus on <span className="path-focus__title">{nextPick.title}</span>
+          </span>
+        </button>
+      )}
+      {picks.length > 0 ? null : (
         <button type="button" className="path-empty" onClick={() => setPicking(true)}>
           <span className="path-empty__dots" aria-hidden="true"><span /></span>
           Choose from your list

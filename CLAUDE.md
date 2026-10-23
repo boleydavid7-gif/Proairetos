@@ -422,7 +422,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`useTodayParts`; `startLight()` gives new people a lighter Today).
   Compass is tabbed (Values, Goals, People, Words). The item sheet shows
   essentials and puts the rest under More. Today = `features/now/NowPage.tsx` (greeting, daily Stoic
-  line, intention, Today's to-do = as many picks as the person chooses, timeline, folded
+  line, intention, Today's to-do = as many picks as the person chooses, with "Focus on <first open pick>"
+  under it (`.path-focus` in `TodayThree`, hidden while a focus runs; Today's header has no Focus or Pause chips:
+  Pause comes from `PauseOfferCard`, the Lighter view and the palette), timeline, folded
   lists, done today, landscape at the foot). Each day in Days ahead lists its
   untimed to-dos by the person's own marks (Important, Maintenance,
   Meaningful; `features/plan/planView.ts`, `days/DayPlan`). Capture has the five kinds

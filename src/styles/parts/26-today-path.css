@@ -385,3 +385,36 @@ a.quiet-row {
 .quiet-row__detail--full {
   white-space: pre-line;
 }
+
+/* Focus sits with the work: one quiet line under Today's to-do, on the first thing still open. Its icon sits where
+   the circles are and its words where the titles are. */
+.path-focus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: var(--space-1);
+  padding: 0 0 0 0.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.path-focus svg {
+  flex: none;
+  width: 1.25rem;
+}
+
+.path-focus__words {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path-focus__title {
+  color: var(--color-text);
+}

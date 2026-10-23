@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'Focus lives with your to-do: under Today’s to-do, “Focus on …” starts a timer on the first thing still open. The separate Focus and Pause buttons at the top of Today are gone; Pause is still offered on Today when it fits, in the Lighter view and in the command palette.',
       'Pull down at the top of any app to update it: the page glides down, a ring of light fills as you pull, and letting go syncs and checks for a newer version. On Today, pulling no longer hides the top of the page under a frame, and the faint line halfway down is gone.',
       'Lamplight 2.0 in every app: cards are matte paper lit from the lamp’s corner, pages come up out of the shade as they open, and what you finish settles into the shade instead of being crossed out.',
       'One thing lit at a time: on each app’s first page, what matters now (your next entry, today’s doses or chores, the session to do) carries the lamp’s light, and while you type, the light moves to the box you are typing in. Cards in the add-on apps have clearer edges, and empty pages hold their words inside a proper card.',

@@ -89,7 +89,7 @@ function subscribeCalendars(listener: () => void): () => void {
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
-  const { openItem, startFocus, openPause } = useOverlays();
+  const { openItem } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [name] = useState(displayName);
   const [kept, setKept] = useState(keptConcerns);
@@ -216,14 +216,6 @@ export default function NowPage() {
         <div className="day-stepper">
           <span className="day-stepper__date">
             {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
-          </span>
-          <span className="day-stepper__tools">
-            <button type="button" className="chip chip--small" onClick={() => startFocus()}>
-              Focus
-            </button>
-            <button type="button" className="chip chip--small" onClick={openPause}>
-              Pause
-            </button>
           </span>
         </div>
       </header>
