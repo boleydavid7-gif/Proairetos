@@ -237,7 +237,8 @@ function largeTitle(): void {
       title = next;
     }
     const nextFrame =
-      title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header, .poreia-header__words') ?? title;
+      title?.closest<HTMLElement>('.page-header, .page-hero, .home__words, .hero__content, .praxis-page-heading, .theoria-heading, .hydros-header, .poreia-header__words') ??
+      headFrame(title);
     if (titleFrame !== nextFrame || anchoredTitle !== title) {
       titleFrame?.classList.remove('ll-title-anchored');
       titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
@@ -1150,4 +1151,15 @@ function freshInsets(): void {
   addEventListener('pageshow', refresh);
   addEventListener('orientationchange', () => setTimeout(refresh, 250));
   setTimeout(refresh, 400);
+}
+
+/*
+ * A title with a line above it in its own group (an eyebrow such as "Saturday · Week 1" in a `header`) moves with that
+ * group; moved alone, a title shifted up lay over the eyebrow. A title standing straight in the page moves alone.
+ */
+function headFrame(title: HTMLElement | undefined): HTMLElement | undefined {
+  const parent = title?.parentElement;
+  if (!title || !parent || !title.previousElementSibling) return title;
+  if (parent.matches('.page, main, body, [class*="shell"], .vt-panel')) return title;
+  return parent;
 }

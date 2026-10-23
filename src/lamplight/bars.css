@@ -166,8 +166,9 @@
     will-change: padding-block-start;
   }
 
+  /* Moved up by its margin, not by translate: a translate left the old space empty below the title. */
   :root.ll-bar-on .ll-title-anchored--up {
-    translate: 0 var(--ll-title-shift, 0px);
+    margin-block-start: var(--ll-title-shift, 0px);
   }
 
   .ll-topbar__lead:disabled {
