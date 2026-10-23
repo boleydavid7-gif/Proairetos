@@ -12,8 +12,13 @@
   --ll-sheen-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1);
   --ll-sheen-wash: inset -56px 56px 72px -64px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.11);
   --ll-cast: -6px 10px 26px -16px rgba(0, 0, 0, 0.5);
-  /* Light alone lifts a surface: resting surfaces cast no shadow; only the one lit thing does (levels.css). */
-  --ll-surface-light: var(--ll-sheen-edge), var(--ll-sheen-wash);
+  /* Light alone lifts a surface: resting surfaces cast no shadow; only the one lit thing does (levels.css).
+     Resting and lit surfaces use shadow lists of the same shape (an edge, the sheen's edge and wash, then three
+     outer places that stay empty at rest), so the light can fade between them instead of snapping. */
+  --ll-surface-edge: inset 0 0 0 0 transparent;
+  --ll-no-shadow: 0 0 0 0 transparent;
+  --ll-surface-light: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow),
+    var(--ll-no-shadow), var(--ll-no-shadow);
   --ll-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45), 0 0 26px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
   --ll-focus: 0 0 0 4px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18), 0 0 22px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
 }
@@ -35,18 +40,22 @@
 /* ---------- Light from the upper right on every surface ---------- */
 :root :is(.card, .rows, .settings-card, .family-surface .rows, .look-ahead, .intention, .today-group, .reflect-places,
   .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks) {
-  box-shadow: var(--ll-surface-light);
+  box-shadow: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow), var(--ll-no-shadow),
+    var(--ll-no-shadow);
 }
 
 /* The family apps' surfaces sit on darker, patterned pages: a fine edge all round lets each one stand off the page as
    clearly as Proairetos's do on its room. Proairetos (pattern none) keeps its own. */
 :root:not([data-ll-pattern='none']) :is(.card, .rows, .chore-list, .detail-list, .settings-card, .ll-card, .hydros-drinks, .hydros-amount) {
-  box-shadow: inset 0 0 0 1px rgba(var(--ll-ink-rgb, 233, 239, 247), 0.065), var(--ll-surface-light);
+  --ll-surface-edge: inset 0 0 0 1px rgba(var(--ll-ink-rgb, 233, 239, 247), 0.065);
+  box-shadow: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow), var(--ll-no-shadow),
+    var(--ll-no-shadow);
 }
 
 @media (hover: hover) {
   :root :is(a.card, button.card, .card--link):hover {
-    box-shadow: var(--ll-surface-light);
+    box-shadow: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow), var(--ll-no-shadow),
+      var(--ll-no-shadow);
   }
 }
 

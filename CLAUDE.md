@@ -355,6 +355,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `[data-ll-lit-now]` is written `:root:root` so it outranks brand.css's surface list (its `.family-surface .rows` lifts
   that list's specificity; Today's intention never lit). The lit ring is soft (lamp at 0.24 dark, 0.42 light) and the
   family surfaces' edge is ink at 6.5%.
+  The glow fades (`--ll-glow-time` 900 ms): the lit rule transitions and runs `ll-lit-in` (so it also comes up on a
+  page's first paint); losing the light sets `data-ll-dimming` for the fade (`dim` in `behaviors.ts`, from `sort` and
+  `clear`) and runs `ll-lit-out`. Resting and lit surfaces share one six-place shadow list (`--ll-surface-edge`, sheen
+  edge, wash, then three outer places empty at rest, `--ll-no-shadow`), or the browser snaps instead of fading; the
+  family edge is `--ll-surface-edge` on the element, not a separate rule. An element React replaces (Today's
+  intention leaving editing) has nothing to fade.
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
   Light as the hierarchy (after the owner's light-first review): `data-ll-lit="fallback"` takes the light only when
   nothing else on the page has it (Today's first open to-do, `.path__step`, its light reaching `--space-3` past the row);

@@ -33,18 +33,48 @@
    `.family-surface .rows`, which lifts that whole rule above a plain attribute selector). */
 :root :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child),
 :root:root [data-ll-lit-now] {
-  box-shadow: var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
-  transition: box-shadow var(--ll-slow, 420ms) var(--ll-spring, ease);
+  box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
+    var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
+  transition: box-shadow var(--ll-glow-time) var(--ll-glow-ease);
+  animation: ll-lit-in var(--ll-glow-time) var(--ll-glow-ease);
+}
+
+/* The light fades: it comes up over a moment when something is lit (on opening a page too) and fades away the same
+   way when it moves on (`data-ll-dimming`, set for the length of the fade by behaviors.ts). */
+:root {
+  --ll-glow-time: 900ms;
+  --ll-glow-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@keyframes ll-lit-in {
+  from {
+    box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
+      var(--ll-sheen-wash, inset 0 0 0 0 transparent), 0 0 0 0 transparent, 0 0 0 0 transparent, 0 0 0 0 transparent;
+  }
+}
+
+@keyframes ll-lit-out {
+  from {
+    box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
+      var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
+  }
+}
+
+:root [data-ll-dimming]:not([data-ll-lit-now]) {
+  animation: ll-lit-out var(--ll-glow-time) var(--ll-glow-ease);
 }
 
 /* While typing, the light is on the field's surface; the page's lit thing steps back to the light every surface has. */
 :root.ll-typing :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child):not([data-ll-lit-now]) {
-  box-shadow: var(--ll-surface-light, none);
+  box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),
+    var(--ll-sheen-wash, inset 0 0 0 0 transparent), 0 0 0 0 transparent, 0 0 0 0 transparent, 0 0 0 0 transparent;
+  transition: box-shadow var(--ll-glow-time) var(--ll-glow-ease);
 }
 
 /* A lit row inside a list (Today's to-do) is no surface of its own: stepping back, it has no light at all. */
 :root.ll-typing .path__step[data-ll-lit] {
   box-shadow: none;
+  transition: box-shadow var(--ll-glow-time) var(--ll-glow-ease);
 }
 
 /* The second level: while something on the page is lit, the context marked `data-ll-recede` (Today's From your apps)
@@ -64,8 +94,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root :is([data-ll-lit], .ll-lit-wrap > :first-child, [data-ll-lit-now]) {
+  :root :is([data-ll-lit], .ll-lit-wrap > :first-child, [data-ll-lit-now], [data-ll-dimming]) {
     transition: none;
+    animation: none;
   }
 }
 

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'The light fades: what is lit glows up over a moment, and when the light moves on (you leave a box, or the next thing changes) it fades away instead of switching off.',
       'Every box you type in now lights up, Today’s intention included, and the light on what comes next is softer, as are the card edges in the add-on apps.',
       'A new typeface in every app: Google Sans Flex, the open version of the Google Sans family that Gemini uses, with the spacing of its text cut at reading sizes. Titles and your own words keep the serif.',
       'Input boxes are easier to see in every app: each field has a fine edge all round and sits a little into its card, the edge firms up under the pointer, and it takes the lamp’s color while you type.',

@@ -863,8 +863,21 @@ function settleLight(): void {
 const TYPING = 'input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="color"], [type="file"]), textarea, [contenteditable="true"]';
 const FIELD_SURFACE = '[data-ll-lit-field], .card, .ll-card, .settings-card, .intention, .capture-bar, .together__add, .p2-capture';
 
+/** Lets the light fade off an element that had it (`data-ll-dimming`, levels.css), for as long as the fade lasts. */
+const dimTimers = new WeakMap<Element, number>();
+function dim(el: Element): void {
+  window.clearTimeout(dimTimers.get(el));
+  el.setAttribute('data-ll-dimming', '');
+  dimTimers.set(el, window.setTimeout(() => el.removeAttribute('data-ll-dimming'), 950));
+}
+function undim(el: Element): void {
+  window.clearTimeout(dimTimers.get(el));
+  el.removeAttribute('data-ll-dimming');
+}
+
 function oneLitThing(): void {
   let queued = false;
+  let kept: Element | undefined;
   const sort = () => {
     queued = false;
     const candidates = [...document.querySelectorAll('[data-ll-lit]')].filter((el) => {
@@ -875,6 +888,14 @@ function oneLitThing(): void {
     for (const el of document.querySelectorAll('[data-ll-lit]')) {
       if (el === keep) el.removeAttribute('data-ll-lit-extra');
       else el.setAttribute('data-ll-lit-extra', '');
+    }
+    if (keep !== kept) {
+      // The light that was on something else fades off it as it comes up on the new one.
+      const lost = kept?.classList.contains('ll-lit-wrap') ? kept.firstElementChild : kept;
+      if (lost?.isConnected) dim(lost);
+      const found = keep?.classList.contains('ll-lit-wrap') ? keep.firstElementChild : keep;
+      if (found) undim(found);
+      kept = keep;
     }
     document.documentElement.classList.toggle('ll-has-lit', Boolean(keep));
   };
@@ -888,6 +909,7 @@ function oneLitThing(): void {
 
   let lit: Element | undefined;
   const clear = () => {
+    if (lit) dim(lit);
     lit?.removeAttribute('data-ll-lit-now');
     lit = undefined;
     document.documentElement.classList.remove('ll-typing');
@@ -899,6 +921,7 @@ function oneLitThing(): void {
     if (surface === lit) return;
     clear();
     lit = surface;
+    undim(surface);
     surface.setAttribute('data-ll-lit-now', '');
     document.documentElement.classList.add('ll-typing');
   });
