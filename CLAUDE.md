@@ -369,6 +369,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   More contrast, forced colors and print. The lit card has no outline ring: a lit edge on the lamp's side
   (`--ll-lit-edge`) and a soft halo. Glow time 650 ms. Kept subtle (the owner's choice after seeing it on a navy room):
   the wash stays in the lamp's corner (0.12 dark, 0.15 light), the halo hugs the card, the pool peaks at 0.13 in dark;
+  A field inside a wrapper holding only icons or buttons (Soma's `.soma-search`) lights the wrapper instead (`fieldBox` in
+  `behaviors.ts`); such wrappers draw no focus ring of their own, or the box doubles.
   the field being typed in is a step quieter (`[data-ll-lit-now]` sets its own wash and halo, the pool at 0.6 opacity,
   `.is-typing`) than the page's lit thing.
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).

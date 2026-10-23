@@ -97,9 +97,9 @@
   }
 }
 
+/* Typing in it, the bar takes the lamp's light (behaviors.ts `fieldBox`); a ring of its own on top doubled the edge. */
 .soma .soma-search:focus-within {
   border-color: color-mix(in srgb, var(--mint) 65%, var(--line));
-  box-shadow: 0 0 0 3px var(--mint-soft);
 }
 
 .recipe-photo-import {

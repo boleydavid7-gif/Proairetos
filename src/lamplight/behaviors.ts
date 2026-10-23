@@ -875,6 +875,18 @@ function undim(el: Element): void {
   el.removeAttribute('data-ll-dimming');
 }
 
+/**
+ * The box a field is drawn in. A search bar is often a wrapper holding an icon and a bare input: lighting the input drew
+ * a second box inside the wrapper, so the wrapper takes the light when all else in it is icons or buttons.
+ */
+function fieldBox(field: Element): Element {
+  const parent = field.parentElement;
+  if (!parent || parent === document.body || !field.matches('input')) return field;
+  const others = [...parent.children].filter((child) => child !== field);
+  const onlyIcons = others.length > 0 && others.every((child) => child.matches('svg, button, .ll-icon, [aria-hidden="true"]') || !child.textContent?.trim());
+  return onlyIcons ? parent : field;
+}
+
 function oneLitThing(): void {
   let queued = false;
   let kept: Element | undefined;
@@ -961,7 +973,7 @@ function oneLitThing(): void {
   document.addEventListener('focusin', (event) => {
     const field = (event.target as Element | null)?.closest?.(TYPING);
     if (!field || field.closest('dialog, nav, .ll-topbar')) return clear();
-    const surface = field.closest(FIELD_SURFACE) ?? field;
+    const surface = field.closest(FIELD_SURFACE) ?? fieldBox(field);
     if (surface === lit) return;
     clear();
     lit = surface;
