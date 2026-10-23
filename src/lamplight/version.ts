@@ -1,8 +1,9 @@
 /** Lamplight's version: the minor number moves with each round of the system, the major only if a role or token
  *  name changes meaning. Shown on the public guide, with what each version brought. */
-export const LAMPLIGHT_VERSION = '1.6';
+export const LAMPLIGHT_VERSION = '2.0';
 
 export const LAMPLIGHT_CHANGES: { version: string; lines: string[] }[] = [
+  { version: '2.0', lines: ['Light that means something, in place of borrowed surfaces. Day light: the lamp follows the person’s own day, high and cool early, low, warm and dimmer late, around their schedule, so a night shift moves the morning.', 'One lit thing per page: what matters now carries the lamp’s light, and while typing the light moves to the field. Vellum: surfaces are matte paper lit from the lamp’s corner.', 'Motion as light: pages rise out of the shade as they arrive, and finished things go into the shade, with no line through them.'] },
   { version: '1.6', lines: ['One lamp, one direction, one lit thing: surfaces are lit from the upper right, where the wallpaper’s lamp hangs, and shade falls down and to the left.', 'Only one thing is lit: keyboard focus is a warm halo, and on Today what comes next carries the light.', 'Ticking something off lets the light settle on it, a warm glow fading over a second. A calmer wallpaper: color fields and silk folds.'] },
   { version: '1.5', lines: ['Each app its own character: its light, one faint wall pattern, its tempo, its figures, one shape accent and a signature element; everything else shared.', 'Charts lit by the lamp: columns rise one after another, lines draw themselves in, values travel; bars in every app grow in and glide.', 'One undo bar (the snackbar) and one way of waiting (placeholders) for every app; figures that count; lists that glide and let rows fade; the dock’s line glides and stretches.'] },
   { version: '1.4', lines: ['Canonical Midnight, Navy, Warm Mica, Linen and Stone neutrals.', 'Blue, Green, Aqua, Violet, Amber and Coral signature families with generated 50–950 tones.', 'Shared app and status color roles with contrast checks.'] },

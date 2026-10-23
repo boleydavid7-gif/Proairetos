@@ -120,7 +120,7 @@ export default function Guide() {
           <div className="g-hero__actions">
             <a className="ll-button" href="#builder">Make a scheme</a>
             <a className="ll-button ll-button--tonal" href="#principles">Principles</a>
-            <a className="ll-button ll-button--tonal" href="#next">2.0 preview</a>
+            <a className="ll-button ll-button--tonal" href="#next">Light through a day</a>
           </div>
         </div>
       </header>
@@ -186,7 +186,7 @@ export default function Guide() {
           </div>
         </Section>
 
-        <Section id="next" title="Lamplight 2.0 preview" lead="The lamp follows the person’s day, and light shows what matters now. Drag through a day; the room and lamp come from the scheme above.">
+        <Section id="next" title="Lamplight 2.0" lead="The lamp follows the person’s day, and light shows what matters now. Drag through a day; the room and lamp come from the scheme above.">
           <Preview room={ROOM_SEEDS[room]} lamp={lamp} mode={mode} />
         </Section>
 

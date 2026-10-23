@@ -1,0 +1,43 @@
+/*
+ * Lamplight 2.0, vellum and shade.
+ *
+ * Vellum: the plain surfaces (cards, grouped lists) are matte paper, a faint fiber over their fill, brightest at the
+ * corner nearest the lamp (upper right) and falling off across it, the lamp following the day where day light is on
+ * (`--ll-day-pool`). The lift stays under daylight.ts's VELLUM_LIFT, which its tests check every text role against.
+ * Surfaces that draw their own gradient (Praxis, Theoria, Hydros's chart, Today's now card) keep it: those classes are
+ * never `.card`, and a hover tint (material.css) is more specific than this.
+ *
+ * Shade: what is done goes into the shade, its words in the quieter ink, with no line through them. Relief, not a
+ * crossing out. The change of color is slow, like a light turned down.
+ */
+
+:root {
+  --ll-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .32' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
+  --ll-vellum: radial-gradient(140% 120% at 100% 0%, rgba(var(--ll-lamp-rgb, 230, 179, 102), calc(var(--ll-day-pool, 1) * 0.07)), transparent 65%), var(--ll-fiber);
+}
+
+:root :is(.card, .rows, .chore-list, .detail-list, .settings-card, .settings-list, .ll-card, .look-ahead, .intention, .today-group, .reflect-places, .hydros-drinks, .hydros-amount) {
+  background-image: var(--ll-vellum);
+}
+
+/* ---------- Into the shade ---------- */
+:root :is(.check-row__title, .check-lines__line span, .check-row .check-row__text, .poreia-pack span, .ergon-step > span:last-child, .praxis-task strong) {
+  transition: color var(--ll-slow, 560ms) var(--ll-ease-light, ease);
+}
+
+:root :is(.check-row--done .check-row__title, .check-lines__line--done span, .check-row[aria-pressed='true'] .check-row__text, .poreia-pack__done, .ergon-step.is-done > span:last-child, .praxis-task.is-done strong, .cal-bills__chip--paid) {
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root :is(.check-row__title, .check-lines__line span, .check-row .check-row__text, .poreia-pack span, .ergon-step > span:last-child, .praxis-task strong) {
+    transition: none;
+  }
+}
+
+/* More contrast, or a printed page: plain fills, no paper. */
+@media (prefers-contrast: more), print {
+  :root :is(.card, .rows, .chore-list, .detail-list, .settings-card, .settings-list, .ll-card, .look-ahead, .intention, .today-group, .reflect-places, .hydros-drinks, .hydros-amount) {
+    background-image: none;
+  }
+}

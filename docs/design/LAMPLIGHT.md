@@ -229,11 +229,11 @@ held to the same contrast (tested for every room and lamp). Noesis (its own repo
 glow, one faint ring of its light, and the symbol's shadow falling down and to the left. Noesis's icon follows the
 same rule. After changing icons, bump each worker's `CACHE`.
 
-## 2.0, in preview
+## 2.0, light that means something
 
-Shown on the guide (`#next`, `src/lamplight-guide/Preview.tsx`, `preview.css`). Day light is in every app (Settings >
-Appearance > Light follows your day, in Proairetos), and so is one lit thing (`levels.css`); vellum and the motion are
-guide only so far.
+Shown on the guide (`#next`, `src/lamplight-guide/Preview.tsx`, `preview.css`). All five are in every app: day light (Settings >
+Appearance > Light follows your day, in Proairetos), one lit thing (`levels.css`), vellum and the shade (`paper.css`), and
+pages rising out of the shade (`ll-enter` in `motion.css`).
 Lamplight's own idea is light that means something, in place of borrowed surfaces:
 
 - **Day light** (`src/lamplight/daylight.ts`): the lamp follows the person's day, waking to sleep (`dayPosition`, across

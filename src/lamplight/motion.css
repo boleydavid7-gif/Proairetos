@@ -167,13 +167,18 @@
   }
 }
 
+/* A page comes into the light (Lamplight 2.0): it rises from the shade as it arrives, the light settling last. */
 @keyframes ll-enter {
   from {
     opacity: 0;
     translate: var(--ll-enter-x) var(--ll-enter-y);
+    filter: brightness(0.72);
   }
   45% {
     opacity: 1;
+  }
+  to {
+    filter: none;
   }
 }
 

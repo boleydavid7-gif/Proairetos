@@ -7,7 +7,7 @@ import { Sym } from '../lamplight/icons';
 /*
  * Lamplight 2.0, the preview on the guide: a phone-sized room whose lamp follows a day. The five ideas, together:
  * day light, three levels of light in place of color and badges, vellum surfaces, motion as light, and the person's
- * own words lit while the app's words sit in shade. Nothing here is used by the apps yet.
+ * own words lit while the app's words sit in shade. The apps use all five (daylight.ts, levels.css, paper.css).
  */
 
 const DAYS = {

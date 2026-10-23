@@ -352,6 +352,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   focus, Poreia's Next up. Only the first shown on a page keeps it (`data-ll-lit-extra` on the rest); while typing, the
   field's surface takes it (`data-ll-lit-now`, `:root.ll-typing`; Today's quiet capture line glows along its line).
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
+- Vellum and shade (Lamplight 2.0, `src/lamplight/paper.css`, after `levels.css`): plain surfaces (`.card`, grouped lists,
+  `.look-ahead`, `.intention`, Hydros's amount and drinks) take `--ll-vellum` as their background image (a faint fiber and
+  the lamp at the upper-right corner at 7% times `--ll-day-pool`; gradient cards on other classes keep theirs; More
+  contrast and print drop it); finished things go into the shade with no line through them (Proairetos's check rows and
+  lists, Soma's groceries, Poreia's packing, Ergon's steps, Praxis's tasks, paid bill chips), their color easing slowly.
+  `ll-enter` (motion.css) also rises from `brightness(0.72)`. `LAMPLIGHT_VERSION` is 2.0.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
