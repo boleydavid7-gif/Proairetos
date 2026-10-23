@@ -1,9 +1,7 @@
 import '../app/family/decideAdded';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
-import '@fontsource/inter/latin-400.css';
-import '@fontsource/inter/latin-500.css';
-import '@fontsource/inter/latin-600.css';
+import '@fontsource-variable/google-sans-flex/opsz.css';
 import '../askesis/styles/askesis.css';
 import '../app/family/apps.css';
 import './styles/therapeia.css';

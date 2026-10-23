@@ -780,7 +780,7 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
 .theoria-check input { width: 20px; height: 20px; accent-color: var(--theoria-brass); }
 .theoria-settings-copy { display: grid; gap: 6px; padding: 16px 18px; border: 1px solid color-mix(in srgb, var(--theoria-violet) 20%, transparent); border-radius: 12px; }
-.theoria-settings-copy p:not(.theoria-eyebrow) { margin: 0; font-family: var(--font-sans, Inter, sans-serif); font-size: 13px; line-height: 1.55; opacity: .85; }
+.theoria-settings-copy p:not(.theoria-eyebrow) { margin: 0; font-family: var(--font-sans, 'Google Sans Flex Variable', 'Google Sans Flex', sans-serif); font-size: 13px; line-height: 1.55; opacity: .85; }
 .theoria-modal-close { display: grid; place-items: center; width: 44px; height: 44px; top: 8px; right: 8px; }
 .theoria-mobile-brand, .theoria-family-link { min-height: 44px; display: inline-flex; align-items: center; }
 
@@ -790,9 +790,9 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-settings-file .theoria-add-button { flex: none; pointer-events: none; }
 
 /* Look up a word: a small card over the foot of the page. */
-.theoria-lookup { position: sticky; bottom: 12px; margin: 16px 0 0; padding: 16px 44px 14px 18px; border-radius: 16px; background: var(--color-surface-raised, #1b2033); border: 1px solid var(--color-border, color-mix(in srgb, var(--theoria-ink) 12%, transparent)); box-shadow: 0 12px 30px rgba(0,0,0,.35); color: var(--color-text, #f2ece2); font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
+.theoria-lookup { position: sticky; bottom: 12px; margin: 16px 0 0; padding: 16px 44px 14px 18px; border-radius: 16px; background: var(--color-surface-raised, #1b2033); border: 1px solid var(--color-border, color-mix(in srgb, var(--theoria-ink) 12%, transparent)); box-shadow: 0 12px 30px rgba(0,0,0,.35); color: var(--color-text, #f2ece2); font-family: 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
 .theoria-lookup h3 { margin: 0 0 6px; font-family: 'EB Garamond', Georgia, serif; font-size: 22px; font-weight: 500; }
-.theoria-lookup h3 small { font-family: Inter, system-ui, sans-serif; font-size: 13px; opacity: .7; }
+.theoria-lookup h3 small { font-family: 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, sans-serif; font-size: 13px; opacity: .7; }
 .theoria-lookup ol { margin: 0; padding-left: 20px; }
 .theoria-lookup li { margin: 4px 0; }
 .theoria-lookup em { opacity: .7; }

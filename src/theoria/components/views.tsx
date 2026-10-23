@@ -243,7 +243,7 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
         <p className="label">Reading</p>
         <ul className="rows">
           <li><label className="row row--select">{icon('M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9')}<span className="row__text"><span>Reading theme</span></span><select className="row__select" value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label></li>
-          <li><label className="row row--select">{icon('M4 20 10 4l6 16M6.5 14h7M17 20h4')}<span className="row__text"><span>Reading font</span></span><select className="row__select" value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Inter</option><option value="dyslexia">Dyslexia-friendly</option></select></label></li>
+          <li><label className="row row--select">{icon('M4 20 10 4l6 16M6.5 14h7M17 20h4')}<span className="row__text"><span>Reading font</span></span><select className="row__select" value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Google Sans</option><option value="dyslexia">Dyslexia-friendly</option></select></label></li>
         </ul>
         <p className="label">Your storage</p>
         <CloudConnections />

@@ -215,7 +215,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 /* The way back to Proairetos on every other app's bar is a link; it looks like the places beside it. */
 .proairetos-tab {
   text-decoration: none;
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* ---------- Between the apps ----------
@@ -279,7 +279,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 :is(.card__title, .section-head h2, .level-card__name, .focus__title, .stage__name, .contents__title,
   .diaita-next__title, .empty-state__title, .days-day__title, .month-day__title, .practice-list__title,
   .meditate-link__title, .family-surface .card__title, .look-ahead--invite .look-ahead__title) {
-  font-family: var(--font-sans, var(--sans, Inter, system-ui, sans-serif));
+  font-family: var(--font-sans, var(--sans, 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, sans-serif));
   font-size: var(--text-lg);
   font-weight: 600;
   letter-spacing: -0.005em;
@@ -742,4 +742,11 @@ blockquote.daily-line {
 /* A plain checkbox anywhere takes the lamp's color rather than the system's black square. */
 :root input[type='checkbox']:not([role='switch']) {
   accent-color: rgb(var(--ll-lamp-rgb, 230, 179, 102));
+}
+
+/* ---------- Google Sans Flex, the family's sans ----------
+   The open, variable cut of Google Sans (SIL Open Font License). Its optical-size axis follows the size of the text, so
+   body and labels take the open spacing of Google Sans Text and large figures tighten like the display cut. */
+:root {
+  font-optical-sizing: auto;
 }

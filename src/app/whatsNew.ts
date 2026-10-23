@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'A new typeface in every app: Google Sans Flex, the open version of the Google Sans family that Gemini uses, with the spacing of its text cut at reading sizes. Titles and your own words keep the serif.',
       'Input boxes are easier to see in every app: each field has a fine edge all round and sits a little into its card, the edge firms up under the pointer, and it takes the lamp’s color while you type.',
       'Date and time fields stay inside their card on iPhone (they ran past the edge, most visibly in Diaita’s sleep log), and Diaita’s snoring and gasping marks are switches like the rest of the family.',
       'Light does more of the work: when nothing in Your day is still to come, the light falls on your first open to-do; From your apps steps back a little while something above it is lit; while you type, the rest of the page steps back; and cards no longer cast shadows, only the one lit thing does.',

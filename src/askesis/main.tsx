@@ -8,9 +8,7 @@ import { startSync } from '../app/sync/syncController';
 // Same type as Proairetos, bundled so it works offline.
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
-import '@fontsource/inter/latin-400.css';
-import '@fontsource/inter/latin-500.css';
-import '@fontsource/inter/latin-600.css';
+import '@fontsource-variable/google-sans-flex/opsz.css';
 import './styles/askesis.css';
 import '../styles/premium.css';
 import './styles/desktop.css';

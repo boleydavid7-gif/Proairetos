@@ -13,7 +13,7 @@
   --cyan-ink: var(--app-on-accent, #03212a);
   --tab-height: calc(70px + env(safe-area-inset-bottom));
   --serif: 'EB Garamond', Georgia, serif;
-  --sans: Inter, system-ui, -apple-system, sans-serif;
+  --sans: 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, -apple-system, sans-serif;
   color-scheme: dark;
 }
 

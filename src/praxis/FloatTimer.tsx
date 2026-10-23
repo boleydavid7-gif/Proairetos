@@ -42,7 +42,7 @@ export function FloatTimer({ time, title, paused, onPause, onStop }: { time: str
 
   const button = { font: 'inherit', fontSize: 14, minHeight: 36, padding: '0 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.25)', background: 'transparent', color: 'inherit', cursor: 'pointer' } as const;
   return createPortal(
-    <div style={{ boxSizing: 'border-box', height: '100vh', margin: 0, padding: 16, display: 'grid', alignContent: 'center', gap: 8, background: '#16181d', color: '#f1ede4', fontFamily: 'Inter, system-ui, sans-serif', textAlign: 'center' }}>
+    <div style={{ boxSizing: 'border-box', height: '100vh', margin: 0, padding: 16, display: 'grid', alignContent: 'center', gap: 8, background: '#16181d', color: '#f1ede4', fontFamily: "'Google Sans Flex Variable', 'Google Sans Flex', system-ui, sans-serif", textAlign: 'center' }}>
       <div style={{ fontSize: 13, opacity: 0.75, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
       <div style={{ fontSize: 44, fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em' }} role="timer">{time}</div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>

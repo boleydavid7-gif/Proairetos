@@ -387,6 +387,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   row (iOS's own width ran two fields past Diaita's sleep log card). Fields (`adopt.css`) are a filled well with a hairline edge
   (`--ll-field-edge`, firmer on hover), a soft inner shade along the top (`--ll-field-well`) and the lamp's edge and halo on focus. Plain checkboxes take the lamp's `accent-color`;
   yes/no marks in forms use the family `Switch` (`askesis/app/ui`), as Diaita's sleep signs do.
+- Type: the sans is Google Sans Flex (SIL OFL, `@fontsource-variable/google-sans-flex/opsz.css` imported first in every
+  `main.tsx`: weight and optical size axes, latin about 120 KB, other scripts by unicode-range; family `'Google Sans Flex
+  Variable'` at the head of every sans stack, `font-optical-sizing: auto` in `premium.css`). It replaced Inter (the
+  owner's choice, after Gemini). EB Garamond stays the serif for titles, quotes and the person's own words.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
@@ -1109,7 +1113,7 @@ migration + `calendar-feed` function); the download-a-file option works
 without it. Not yet tested against a live Supabase.
 
 Not yet verified on a real phone: swipe gestures, fonts (EB Garamond and
-Inter, bundled via @fontsource), real Supabase emails and push delivery.
+Google Sans Flex, bundled via @fontsource), real Supabase emails and push delivery.
 
 ## Diaita, Philia and Ergon (same repository)
 

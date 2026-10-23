@@ -8,9 +8,7 @@ import { startSync } from '../app/sync/syncController';
 // Same type as Proairetos, bundled so it works offline.
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';
-import '@fontsource/inter/latin-400.css';
-import '@fontsource/inter/latin-500.css';
-import '@fontsource/inter/latin-600.css';
+import '@fontsource-variable/google-sans-flex/opsz.css';
 // The family's shared look (from Askesis), then Soma's own warmer colors.
 import '../askesis/styles/askesis.css';
 import './styles/soma.css';
