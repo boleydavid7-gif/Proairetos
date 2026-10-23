@@ -23,9 +23,12 @@
   transition: background 150ms ease;
 }
 
-/* The hairline starts after the icon, as grouped lists do. */
+/* One hairline between kinds, from where the words start to just short of the right edge (the family's separator). */
 .kind-tile + .kind-tile {
-  box-shadow: inset calc(var(--space-4) + 22px + var(--space-3)) 0 0 var(--color-surface), inset 0 1px 0 var(--color-border);
+  background-image: linear-gradient(var(--color-border), var(--color-border));
+  background-size: calc(100% - (var(--space-4) + 22px + var(--space-3)) - var(--ll-hair-end, 16px)) 1px;
+  background-position: right var(--ll-hair-end, 16px) top;
+  background-repeat: no-repeat;
 }
 
 .kind-tile:active {

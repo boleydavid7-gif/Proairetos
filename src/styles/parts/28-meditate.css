@@ -98,8 +98,19 @@
   text-align: left;
 }
 
+/* Today's open-time list also uses .place-row, with a full-width border of its own (12-today-day.css); not here. */
+.reflect-places .place-row {
+  border-bottom: 0;
+}
+
+/* One hairline between rows, from where the words start to just short of the right edge (the family's separator,
+   `--ll-hair-end`). Drawn as its own line, not a full line covered in the card's color, which showed once cards took
+   the paper surface. */
 .place-row + .place-row {
-  box-shadow: inset calc(var(--space-3) + 3rem + var(--space-3)) 0 0 var(--color-surface), inset 0 1px 0 var(--color-border);
+  background-image: linear-gradient(var(--color-border), var(--color-border));
+  background-size: calc(100% - (var(--space-3) + 3rem + var(--space-3)) - var(--ll-hair-end, 16px)) 1px;
+  background-position: right var(--ll-hair-end, 16px) top;
+  background-repeat: no-repeat;
 }
 
 .place-row__thumb {

@@ -381,11 +381,14 @@ blockquote.daily-line {
   padding-block: var(--space-2);
   border-bottom: 0;
 }
-/* The hairline starts where the words do, as on iPhone. */
+/* The hairline starts where the words do and stops short of the right edge, like Today's From your apps. */
+:root {
+  --ll-hair-end: 16px;
+}
 .settings-list .settings-row:not(:last-child) {
   background-image: linear-gradient(var(--color-border), var(--color-border));
-  background-size: calc(100% - 3.9rem) 1px;
-  background-position: right bottom;
+  background-size: calc(100% - 3.9rem - var(--ll-hair-end)) 1px;
+  background-position: right var(--ll-hair-end) bottom;
   background-repeat: no-repeat;
 }
 .settings-row__text {
@@ -502,7 +505,7 @@ blockquote.daily-line {
   content: '';
   position: absolute;
   top: 0;
-  right: 0;
+  right: var(--ll-hair-end, 16px);
   left: calc(14px + 32px + 12px);
   border-top: 1px solid var(--line, var(--color-border));
   pointer-events: none;
@@ -615,7 +618,8 @@ blockquote.daily-line {
   padding: var(--space-3) 0;
 }
 
-/* One hairline between rows, starting where the words start. */
+/* One hairline between rows, from where the words start to the card's inner edge: the family's one separator (the
+   owner's choice), which every grouped list follows (`--ll-hair-end`). */
 .today-group :is(.quiet-row-wrap, .check-row)::before {
   content: '';
   position: absolute;

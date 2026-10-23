@@ -358,6 +358,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   contrast and print drop it); finished things go into the shade with no line through them (Proairetos's check rows and
   lists, Soma's groceries, Poreia's packing, Ergon's steps, Praxis's tasks, paid bill chips), their color easing slowly.
   `ll-enter` (motion.css) also rises from `brightness(0.72)`. `LAMPLIGHT_VERSION` is 2.0.
+- One separator (the owner's choice, Today's From your apps): a hairline between rows from where the words start to
+  `--ll-hair-end` (16 px) short of the right edge, in `--color-border`: `.today-group` rows, `.settings-list` rows,
+  Reflect's `.reflect-places`, Capture's `.kind-list`, the family `.rows`. Draw it as its own line (background or
+  `::before`), never as a full line covered in the card's color (that showed once cards took the paper surface).
+  Today's open-time list reuses `.place-row` with a full-width border; `.reflect-places .place-row` takes it off.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.
