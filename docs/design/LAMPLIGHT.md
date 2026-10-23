@@ -231,7 +231,8 @@ same rule. After changing icons, bump each worker's `CACHE`.
 
 ## 2.0, in preview
 
-Shown on the guide (`#next`, `src/lamplight-guide/Preview.tsx`, `preview.css`); nothing in the apps uses it yet.
+Shown on the guide (`#next`, `src/lamplight-guide/Preview.tsx`, `preview.css`). Day light is in Proairetos (Settings >
+Appearance > Light follows your day); the rest is guide only so far.
 Lamplight's own idea is light that means something, in place of borrowed surfaces:
 
 - **Day light** (`src/lamplight/daylight.ts`): the lamp follows the person's day, waking to sleep (`dayPosition`, across

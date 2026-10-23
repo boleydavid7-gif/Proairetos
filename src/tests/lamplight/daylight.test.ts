@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIT_STRENGTH, dayLight, dayPosition, poolColor, vellumReads, warmedLamp } from '../../lamplight/daylight';
+import { LIT_STRENGTH, dayLight, dayPosition, poolColor, positionFromSleeps, shadeReads, vellumReads, warmedLamp } from '../../lamplight/daylight';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, type RoomName } from '../../lamplight/scheme';
 
 const at = (time: string) => {
@@ -63,6 +63,37 @@ describe('vellum', () => {
           const s = makeScheme(ROOM_SEEDS[room], lamp, mode);
           expect(vellumReads(s, poolColor(lamp, light.warmth, mode), light.pool * LIT_STRENGTH).ok, `${room} ${mode} ${t}`).toBe(true);
         }
+      }
+    }
+  });
+});
+
+describe('positionFromSleeps', () => {
+  const sleep = (start: string, end: string) => ({ start: new Date(start), end: new Date(end) });
+  const nights = [sleep('2026-10-22T23:00', '2026-10-23T07:00'), sleep('2026-10-23T23:00', '2026-10-24T07:00')];
+
+  it('runs from the last sleep to the next', () => {
+    expect(positionFromSleeps(new Date('2026-10-23T07:00'), nights)).toBe(0);
+    expect(positionFromSleeps(new Date('2026-10-23T15:00'), nights)).toBe(0.5);
+  });
+
+  it('stays late inside a sleep and says nothing without one on each side', () => {
+    expect(positionFromSleeps(new Date('2026-10-24T02:00'), nights)).toBe(1);
+    expect(positionFromSleeps(new Date('2026-10-24T09:00'), nights)).toBeUndefined();
+  });
+
+  it('follows a night worker who sleeps through the morning', () => {
+    const day = [sleep('2026-10-23T08:00', '2026-10-23T15:00'), sleep('2026-10-24T08:00', '2026-10-24T15:00')];
+    expect(positionFromSleeps(new Date('2026-10-23T16:00'), day)!).toBeLessThan(0.1);
+  });
+});
+
+describe('shade', () => {
+  it('keeps secondary text readable on the page’s deepest shade', () => {
+    for (const room of Object.keys(ROOM_SEEDS) as RoomName[]) {
+      for (const mode of ['dark', 'light'] as const) {
+        const s = makeScheme(ROOM_SEEDS[room], warmedLamp(LAMP_SEEDS[ROOM_LAMP[room]], 1), mode);
+        expect(shadeReads(s, dayLight(1).shade), `${room} ${mode}`).toBe(true);
       }
     }
   });

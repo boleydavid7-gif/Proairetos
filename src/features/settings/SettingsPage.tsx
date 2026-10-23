@@ -828,6 +828,18 @@ function AppearanceSection() {
           <span className="toggle-row__detail">When you tick or switch something</span>
         </span>
       </button>
+      <button
+        type="button"
+        className="toggle-row"
+        aria-pressed={appearance.dayLight}
+        onClick={() => update({ ...appearance, dayLight: !appearance.dayLight })}
+      >
+        <span className={`toggle-switch${appearance.dayLight ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span className="toggle-row__text">
+          <span>Light follows your day</span>
+          <span className="toggle-row__detail">Lower and warmer late in your day</span>
+        </span>
+      </button>
     </section>
   );
 }

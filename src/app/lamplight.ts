@@ -1,6 +1,8 @@
 import { identityFor } from '../lamplight/identity';
 import type { Appearance } from '../data/storage/preferences';
-import { footSvg, wallpaperSvg } from './wallpaper';
+import { footSvg, wallpaperSvg, type WallLamp } from './wallpaper';
+import { SHADE_DARK, SHADE_LIGHT, mixHex, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
+import { currentDayLight } from './dayLightState';
 import { ownHue, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
 import { rgba, triple } from '../lamplight/color';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampSeed, type Mode, type Scheme } from '../lamplight/scheme';
@@ -44,7 +46,7 @@ export function footOf(room: Room, mode: Mode, wide = false): string {
 }
 
 /** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
-export function proairetosVars(s: Scheme): Record<string, string> {
+export function proairetosVars(s: Scheme, lamp?: WallLamp): Record<string, string> {
   const dark = s.mode === 'dark';
   return {
     '--color-ink': s.page,
@@ -65,8 +67,8 @@ export function proairetosVars(s: Scheme): Record<string, string> {
     '--color-accent-soft': rgba(s.lamp, dark ? 0.15 : 0.12),
     '--color-accent-ink': dark ? s.onLamp : s.card,
     '--color-accent-rgb': triple(s.lamp),
-    '--room-wall': wallpaperSvg(s.art, s.page, !dark),
-    '--room-wall-wide': wallpaperSvg(s.art, s.page, !dark, true),
+    '--room-wall': wallpaperSvg(s.art, s.page, !dark, false, lamp),
+    '--room-wall-wide': wallpaperSvg(s.art, s.page, !dark, true, lamp),
     '--room-foot': footSvg(s.art, s.page, !dark),
     '--room-foot-wide': footSvg(s.art, s.page, !dark, true),
   };
@@ -74,18 +76,37 @@ export function proairetosVars(s: Scheme): Record<string, string> {
 
 /** The scheme for this page: Proairetos takes the person's room and color; every other app keeps its own theme,
  *  a room and a lamp drawn from what it is about (Phyton's greens, Hydros's water), made the same way. */
-export function pageScheme(appearance: Appearance, mode: Mode, app: string): Scheme {
+export function pageScheme(appearance: Appearance, mode: Mode, app: string, day?: DayLight): Scheme {
   const theme = app === 'proairetos' ? null : appTheme(app);
   if (theme) return makeScheme(theme.room, theme.lamp, mode);
-  return schemeOf(appearance.room, lampSeed(appearance.room, appearance.color), mode);
+  const lamp = lampSeed(appearance.room, appearance.color);
+  return schemeOf(appearance.room, day ? warmedLamp(lamp, day.warmth) : lamp, mode);
+}
+
+/** Day light's own pieces (Lamplight 2.0, Proairetos): the wallpaper's lamp and the shade at the room's edges. */
+function dayPieces(appearance: Appearance, s: Scheme, day: DayLight): { lamp: WallLamp; shade: string } {
+  const dark = s.mode === 'dark';
+  const pool = poolColor(lampSeed(appearance.room, appearance.color), day.warmth, s.mode);
+  const lamp = { x: day.x, y: day.y, strength: day.pool, glow: mixHex(s.art.glow, pool, 0.55), warmth: day.warmth };
+  const edge = dark ? `rgba(0, 0, 0, ${(SHADE_DARK * day.shade).toFixed(3)})` : rgba(s.ink, SHADE_LIGHT * day.shade);
+  const shade = `radial-gradient(130% 95% at ${(day.x * 100).toFixed(0)}% 0%, transparent 55%, ${edge} 100%) top / 100% var(--room-height) no-repeat`;
+  return { lamp, shade };
 }
 
 /** Lays the room and color on the page; returns the page color for the browser bar. */
 export function applyLamplight(appearance: Appearance, light: boolean, app = 'proairetos'): string {
   const mode: Mode = light && !ALWAYS_DARK.has(app) ? 'light' : 'dark';
-  const s = pageScheme(appearance, mode, app);
+  const day = app === 'proairetos' && appearance.dayLight ? currentDayLight() : undefined;
+  const s = pageScheme(appearance, mode, app, day);
   const root = document.documentElement;
-  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s) : familyVars(s, app)) };
+  const pieces = day ? dayPieces(appearance, s, day) : undefined;
+  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp) : familyVars(s, app)) };
+  if (app === 'proairetos') {
+    if (pieces) root.style.setProperty('--room-shade', pieces.shade);
+    else root.style.removeProperty('--room-shade');
+    if (day) root.dataset.llDay = day.name;
+    else delete root.dataset.llDay;
+  }
   for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
   root.dataset.room = appearance.room;
   // The app's identity inside Lamplight: light, wall pattern, tempo, numerals, shape (lamplight/identity.ts).

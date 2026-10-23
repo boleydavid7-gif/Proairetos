@@ -13,6 +13,7 @@
 :root[data-room] .app-shell {
   --room-height: 52lvh;
   background:
+    var(--room-shade, linear-gradient(transparent, transparent)),
     linear-gradient(rgba(var(--color-bg-rgb), 0) 45%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
     var(--room-wall) top / 100% var(--room-height) no-repeat,
     var(--color-bg);
@@ -22,6 +23,7 @@
   :root[data-room] .app-shell {
     --room-height: 45lvh;
     background:
+      var(--room-shade, linear-gradient(transparent, transparent)),
       linear-gradient(rgba(var(--color-bg-rgb), 0) 50%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
       var(--room-wall-wide) top / 100% var(--room-height) no-repeat,
       var(--color-bg);

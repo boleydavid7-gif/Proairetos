@@ -253,6 +253,11 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 @media (prefers-contrast: more) {
+  /* Day light's shade at the room's edges goes; the lamp still follows the day. */
+  :root {
+    --room-shade: none !important;
+  }
+
   /* Repeated so it outweighs each app's own colors (:root.soma, :root[data-theme='light'] and the like). */
   :root:root:root:root {
     --color-text-muted: var(--color-text);

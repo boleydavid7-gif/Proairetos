@@ -572,6 +572,8 @@ export type Appearance = {
   /** Lamplight's room and color in Proairetos; each other app has its own room and lamp, from its content. */
   room: Room;
   color: ColorChoice;
+  /** Lamplight's day light in Proairetos: the lamp follows the person's day (on unless turned off). */
+  dayLight: boolean;
 };
 
 export function loadAppearance(): Appearance {
@@ -580,6 +582,7 @@ export function loadAppearance(): Appearance {
     theme: 'dark',
     textSize: 'default',
     taps: true,
+    dayLight: true,
     ...saved,
     room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
     color: isColorChoice(saved.color) ? saved.color : 'match',

@@ -332,7 +332,15 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Lamplight 2.0 preview (guide only, `#next`; spec "2.0, in preview" in LAMPLIGHT.md): `src/lamplight/daylight.ts`
   (`dayPosition` over the person's waking day, `dayLight`, `warmedLamp`, `poolColor`, vellum with `vellumReads`, tested in
   every room, mode and hour) and `src/lamplight-guide/Preview.tsx` / `preview.css` (scoped `.p2`): day light, three levels
-  of light (rest, near, lit), vellum, motion as light, the person's words lit. Not used by the apps yet.
+  of light (rest, near, lit), vellum, motion as light, the person's words lit.
+- Day light in Proairetos (2.0's first step; Settings > Appearance "Light follows your day", `Appearance.dayLight`, on
+  unless turned off): `app/dayLight.ts` (`startDayLight` in `main.tsx`) works out the position in the waking day from
+  `mainSleeps` (Diaita's core, imported only when it runs; Diaita's settings when added, else bedtime and length from quiet
+  hours) around the schedule and other calendars (`positionFromSleeps`, else `dayPosition` over quiet hours), on start,
+  every 5 min, on coming into view and on schedule changes; `app/dayLightState.ts` keeps it. `applyLamplight` (Proairetos
+  only) warms the lamp (`warmedLamp`), moves and dims the wallpaper's lamp (`wallpaperSvg`'s `lamp`: place, strength,
+  glow, no white heart late) and sets `--room-shade` (a top layer in `02-shell.css`; removed under More contrast) and
+  `data-ll-day`. The other apps keep their fixed lamp for now.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

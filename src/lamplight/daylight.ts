@@ -97,7 +97,7 @@ export function poolColor(lamp: LampSeed, warmth: number, mode: Mode): Hex {
   return mixHex(oklch(L, 0.025, 235), oklch(L, warm.chroma * 0.9, warm.hue), w);
 }
 
-function mixHex(a: Hex, b: Hex, t: number): Hex {
+export function mixHex(a: Hex, b: Hex, t: number): Hex {
   const [x, y] = [a, b].map((hex) => [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16)));
   return `#${x.map((value, index) => Math.round(value + (y[index] - value) * t).toString(16).padStart(2, '0')).join('')}` as Hex;
 }
@@ -121,4 +121,30 @@ export function vellumReads(s: Scheme, pool: Hex, strength: number): { ink: numb
   const ink2 = contrast(s.ink2, peak);
   const lamp = contrast(s.lamp, peak);
   return { ink, ink2, lamp, ok: ink >= 7 && ink2 >= 4.5 && lamp >= 4.5 };
+}
+
+/**
+ * Where the person is in their waking day, from their planned sleeps (Diaita's, around their schedule): from the end of
+ * the last sleep to the start of the next. Inside a sleep it is 1 (the lamp stays low and warm for a phone opened at night).
+ * Without a sleep on either side, undefined.
+ */
+export function positionFromSleeps(now: Date, sleeps: readonly { start: Date; end: Date }[]): number | undefined {
+  const time = now.getTime();
+  if (sleeps.some((sleep) => sleep.start.getTime() <= time && time < sleep.end.getTime())) return 1;
+  const woke = sleeps.filter((sleep) => sleep.end.getTime() <= time).sort((a, b) => b.end.getTime() - a.end.getTime())[0];
+  const next = sleeps.filter((sleep) => sleep.start.getTime() > time).sort((a, b) => a.start.getTime() - b.start.getTime())[0];
+  if (!woke || !next) return undefined;
+  const length = next.start.getTime() - woke.end.getTime();
+  return length > 0 ? Math.min(1, (time - woke.end.getTime()) / length) : undefined;
+}
+
+/** The most shade may darken (or, in light, tint) the page at the room's edges, at `shade` 1. */
+export const SHADE_DARK = 1.6;
+export const SHADE_LIGHT = 0.3;
+
+/** Whether secondary text still reads on the page where the shade is deepest (light mode tints toward ink). */
+export function shadeReads(s: Scheme, shade: number): boolean {
+  if (s.mode === 'dark') return true; // Darker page, more contrast.
+  const edge = mixHex(s.page, s.ink, SHADE_LIGHT * Math.min(1, Math.max(0, shade)));
+  return contrast(s.ink2, edge) >= 4.5;
 }

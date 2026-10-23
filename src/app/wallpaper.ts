@@ -11,10 +11,20 @@ export type WallArt = {
   b3: string;
 };
 
-export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = false): string {
+/** Day light (Lamplight 2.0): where the lamp hangs on the tall picture (fractions), how strong it is, and its color. */
+export type WallLamp = { x: number; y: number; strength: number; glow: string; warmth: number };
+
+export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
   const [w, h] = wide ? [2400, 1350] : [1200, 1600];
-  // Above the page title and clear of the icons at the top right, so no button sits on the lamp.
-  const [x, y] = [Math.round(w * (wide ? 0.66 : 0.6)), Math.round(h * (wide ? 0.12 : 0.09))];
+  // Above the page title and clear of the icons at the top right, so no button sits on the lamp. With day light the
+  // lamp moves through the day from there (lower and nearer the middle late), the wide picture following the tall.
+  const fx = lamp ? (wide ? 0.66 + (lamp.x - 0.6) : lamp.x) : wide ? 0.66 : 0.6;
+  const fy = lamp ? (wide ? 0.12 + (lamp.y - 0.09) * 0.8 : lamp.y) : wide ? 0.12 : 0.09;
+  const [x, y] = [Math.round(w * fx), Math.round(h * fy)];
+  const k = lamp ? 0.5 + 0.5 * lamp.strength : 1;
+  // Late in the day the lamp has no white heart, only its warm glow.
+  const core = lamp ? k * (1 - 0.85 * lamp.warmth) : 1;
+  if (lamp) art = { ...art, glow: lamp.glow };
   const unit = h / 1600;
   const big = Math.max(w, h);
   // A field of color: one radial bloom, strongest at its center and gone at its edge.
@@ -24,7 +34,7 @@ export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = 
     bloom('f1', art.b1, w * 0.04, h * 0.42, big * 0.62, light ? 0.5 : 0.55),
     bloom('f2', art.b2, w * 1.02, h * 0.66, big * 0.55, light ? 0.42 : 0.5),
     bloom('f3', art.b3, w * 0.32, h * 1.02, big * 0.6, light ? 0.45 : 0.6),
-    bloom('f4', art.glow, x, y, big * 0.62, light ? 0.7 : 0.42),
+    bloom('f4', art.glow, x, y, big * 0.62, (light ? 0.7 : 0.42) * k),
   ];
   // Two silk folds in phone units (1200 wide), scaled across for computers.
   const folds = [
@@ -48,7 +58,7 @@ export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = 
 <defs>
 <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".85" stop-color="${page}"/></linearGradient>
 ${fields.join('')}
-<radialGradient id="l" cx="${x}" cy="${y}" r="${Math.round(260 * unit)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="${light ? 0.55 : 0.28}"/><stop offset=".35" stop-color="${art.glow}" stop-opacity="${light ? 0.45 : 0.32}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
+<radialGradient id="l" cx="${x}" cy="${y}" r="${Math.round(260 * unit)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="${((light ? 0.55 : 0.28) * core).toFixed(3)}"/><stop offset=".35" stop-color="${art.glow}" stop-opacity="${((light ? 0.45 : 0.32) * k).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
 <linearGradient id="e" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${art.glow}" stop-opacity="0"/><stop offset=".6" stop-color="${art.glow}" stop-opacity="${light ? 0.35 : 0.22}"/><stop offset="1" stop-color="#fff" stop-opacity="${light ? 0.5 : 0.3}"/></linearGradient>
 ${foldDefs}
 <filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0"/></filter>
