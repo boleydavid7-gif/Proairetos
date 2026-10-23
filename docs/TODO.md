@@ -29,6 +29,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Capture from anywhere: run `20261024000000_capture_inbox.sql`, then in Cloudflare > the proairetos Worker >
       Settings > Variables and Secrets add `SUPABASE_URL` (your project address) and `SUPABASE_ANON_KEY` (the publishable
       key; both are public values, plain text is fine). Then Settings > Capture from anywhere > Turn on, and make the Shortcut.
+- [ ] Apple Health: run `20261028000000_health_inbox.sql` in Supabase (the Worker's `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+      are already set for Capture from anywhere). Then Settings > The app > Apple Health > Turn on, and set up Health Auto
+      Export as the page says (REST API, JSON). Send a first export with Manual Export and open any app; send Claude a JSON
+      export too, so the reading can be checked against the real thing.
 - [ ] (Optional, on hold: since June 2026 Strava requires the app owner's paid subscription; the code waits unused until then.) Strava for Askesis: at https://www.strava.com/settings/api create an app (Website https://proairetos.com,
       Authorization Callback Domain `proairetos.com`), then in Cloudflare > the proairetos Worker > Settings > Variables and
       Secrets add `STRAVA_CLIENT_ID` and `STRAVA_CLIENT_SECRET` (both as Secrets). A new Strava app connects only its owner

@@ -514,6 +514,37 @@ export async function deleteInboxItems(ids: readonly string[]): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// Apple Health (migration 20261028000000): the same shape, plus the token and private key sealed with the account's key.
+export async function saveHealthInbox(userId: string, tokenHash: string, publicKey: JsonWebKey, sealedKey: string): Promise<void> {
+  const { error } = await (await supabase())
+    .from('health_inboxes')
+    .upsert({ user_id: userId, token_hash: tokenHash, public_key: publicKey, sealed_key: sealedKey }, { onConflict: 'user_id' });
+  if (error) throw new Error(/health_inboxes/.test(error.message) ? 'The server is not ready for this yet.' : error.message);
+}
+
+export async function fetchHealthInbox(): Promise<{ sealed_key: string } | null> {
+  const { data, error } = await (await supabase()).from('health_inboxes').select('sealed_key').maybeSingle();
+  if (error) return null;
+  return (data as { sealed_key: string } | null) ?? null;
+}
+
+export async function deleteHealthInbox(userId: string): Promise<void> {
+  const { error } = await (await supabase()).from('health_inboxes').delete().eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function fetchHealthItems(): Promise<{ id: string; sealed: string; created_at: string }[]> {
+  const { data, error } = await (await supabase()).from('health_inbox_items').select('id, sealed, created_at').order('created_at').limit(50);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as { id: string; sealed: string; created_at: string }[];
+}
+
+export async function deleteHealthItems(ids: readonly string[]): Promise<void> {
+  if (!ids.length) return;
+  const { error } = await (await supabase()).from('health_inbox_items').delete().in('id', ids as string[]);
+  if (error) throw new Error(error.message);
+}
+
 // Poreia's forwarding address: the same shape as the capture inbox, in its own tables (migration 20261027000000).
 export async function saveTripInbox(userId: string, tokenHash: string, publicKey: JsonWebKey): Promise<void> {
   const { error } = await (await supabase())

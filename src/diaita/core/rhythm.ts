@@ -251,6 +251,8 @@ export type SleepRecord = {
   /** Optional signs the person chose to record, never interpreted as a diagnosis. */
   snoring?: boolean;
   gasping?: boolean;
+  /** Brought in from Apple Health (a night written here by hand is never replaced from there). */
+  from?: 'health';
 };
 
 export const QUALITY_NAMES: Record<SleepQuality, string> = { well: 'Well', okay: 'Okay', poorly: 'Poorly' };

@@ -473,6 +473,15 @@ Check with https://proairetos.com/api/travel: each one set up reads `true`.
 
 Keep the keys only in Cloudflare; never in the repository or a plain variable.
 
+## Apple Health (migration 20261028000000)
+
+Health Auto Export (iPhone) posts the person's Health data to `/api/health/<token>`. The Worker keeps only workouts, sleep,
+water and readings, sealed for the person's apps.
+
+1. Supabase → **SQL Editor**: run `supabase/migrations/20261028000000_health_inbox.sql`.
+2. The Worker needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` (already set for Capture from anywhere).
+3. In Proairetos: Settings → Apple Health → Turn on, and follow the steps on that page.
+
 ## Poreia's forwarding address (migration 20261027000000)
 
 Booking emails forwarded to `trips.<code>@proairetos.com` become bookings on their trip. The Worker reads each email,

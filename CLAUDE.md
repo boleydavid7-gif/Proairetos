@@ -630,6 +630,20 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   security-definer RPCs `inbox_key` / `inbox_add` (anon key only, at most 200 waiting). `InboxOpener` in App opens them on
   start, on sync ready and on coming into view, adds captures (first line title, rest note), deletes what it read, one undo.
   Items sealed for another device's key are left for it. `?capture=TEXT` also opens the Capture sheet with the words.
+- Apple Health (Settings > The app > Apple Health, view `health`, `HealthSection.tsx`; migration
+  `20261028000000_health_inbox.sql`; Worker `/api/health/<token>`, `worker/health.ts`): Health Auto Export's REST API
+  automation posts its JSON; `core/health/autoExport.ts` `readHealthExport` keeps only runs/walks/hikes/rides, nights
+  (aggregated `sleepStart`/`sleepEnd`, or stages joined when under 2 h apart; the day woken into), water (a day's total at
+  noon, one id per bucket so a grown total replaces it) and readings (weight, blood pressure, blood sugar and oxygen at most
+  one an hour, resting heart rate one a day, body temperature), wall times kept as written. The Worker seals parts of 400
+  records (`sealForInbox`, AD `proairetos-health`) through RPCs `health_inbox_key` / `health_inbox_add` (500 waiting). The
+  token and private key are sealed with the account key in `health_inboxes.sealed_key`, so every app and device opens what
+  arrives (`app/health/health.ts`, device copy `proairetosHealthKey`, device only); choices in the synced
+  `proairetos.health` (present = on). `startHealthInbox` (Proairetos, Askesis, Hydros, `startApp`) loads the work only while
+  on, on start, sync ready and coming into view (once a minute), and `applyHealth` writes to the added apps only:
+  Askesis entries `health-<id>` (`newWorkouts` skips one already logged by hand, file or Strava; runs count as the open
+  session), Diaita nights with `from: 'health'` (a night written by hand is never replaced), Hydros water and Therapeia
+  readings with `health-` ids; one undo for all (`broughtInText`). "Bring in a file" reads a saved JSON export, signed in or not.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
 - Ease of use, checked against Apple's, Google's and Microsoft's guidance: onboarding is five steps (the two pitch screens

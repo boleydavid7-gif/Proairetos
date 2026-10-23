@@ -109,7 +109,7 @@ async function accessToken(link: StravaLink): Promise<string> {
 }
 
 /** The session still open on a date in this week's plan, if any. */
-function openSessionOn(entries: readonly LogEntry[], today: string): (date: string) => { id: string; title: string } | undefined {
+export function openSessionOn(entries: readonly LogEntry[], today: string): (date: string) => { id: string; title: string } | undefined {
   const state = loadPlan();
   if (!state) return () => undefined;
   const monday = mondayOnOrBefore(today);

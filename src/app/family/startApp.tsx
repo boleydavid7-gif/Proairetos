@@ -5,6 +5,7 @@ import { applyAppearance, withLamplight } from '../appearance';
 import { applyLamplight } from '../lamplight';
 import { startSync } from '../sync/syncController';
 import { startDailyCopies } from './dailyCopy';
+import { startHealthInbox } from '../health/start';
 import { startLaunchFiles } from './launchFiles';
 import AddedOnly from './AddedOnly';
 import { notifications } from '../notify/notifications';
@@ -33,6 +34,7 @@ export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dyn
   );
   void startSync();
   startDailyCopies();
+  startHealthInbox();
   startLaunchFiles();
   notifications.start();
 

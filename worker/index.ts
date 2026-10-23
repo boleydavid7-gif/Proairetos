@@ -10,6 +10,7 @@ import { speculationResponse } from './speculation';
 import { handleStorageRequest, type StorageEnv } from './storageToken';
 import { handleStravaRequest, type StravaEnv } from './strava';
 import { handleCaptureRequest, type CaptureEnv } from './capture';
+import { handleHealthRequest } from './health';
 import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
@@ -69,6 +70,8 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
   if (url.pathname === '/api/strava' || url.pathname === '/api/strava/activities') return handleStravaRequest(request, env);
   // Capture from anywhere: a Shortcut posts words with the person's inbox token; they are sealed before they are kept.
   if (url.pathname === '/api/capture') return handleCaptureRequest(request, env);
+  // Apple Health: Health Auto Export posts to the person's own address; what the apps keep is sealed before it is kept.
+  if (url.pathname.startsWith('/api/health/')) return handleHealthRequest(request, env, url.pathname.slice('/api/health/'.length));
   // The Store: add-ons bought once through Stripe Checkout, kept with the person's account.
   if (url.pathname === '/api/store' || url.pathname.startsWith('/api/store/')) return handleStoreRequest(request, env);
   // The front page's waitlist: a plain form posts here and is sent on to a thank-you page.

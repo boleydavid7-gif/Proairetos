@@ -22,6 +22,7 @@ export type View =
   | 'store'
   | 'about'
   | 'inbox'
+  | 'health'
   | 'together';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
@@ -70,6 +71,7 @@ export const viewTitles: Record<View, string> = {
   store: 'Store',
   about: 'About Proairetos',
   inbox: 'Capture from anywhere',
+  health: 'Apple Health',
   together: 'Shared list',
 };
 

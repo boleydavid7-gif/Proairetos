@@ -10,9 +10,18 @@ import { localDayKey } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import InboxSection from './InboxSection';
+import HealthSection from './HealthSection';
 import TogetherSection from './TogetherSection';
 import { togetherList } from '../../app/together/together';
 import { inboxHere } from '../../app/capture/inbox';
+
+const healthOn = () => {
+  try {
+    return !!localStorage.getItem('proairetos.health');
+  } catch {
+    return false;
+  }
+};
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { lock } from '../../app/lock/lock';
@@ -1177,6 +1186,7 @@ export default function SettingsPage() {
         )}
         {view === 'weather' && <WeatherSection />}
         {view === 'inbox' && <InboxSection onOpenAccount={() => setView('account')} />}
+        {view === 'health' && <HealthSection onOpenAccount={() => setView('account')} onOpenStore={() => setView('store')} />}
         {view === 'together' && <TogetherSection onOpenAccount={() => setView('account')} />}
         {view === 'account' && <AccountSection />}
         {view === 'account' && <ProfileSection onDone={() => undefined} />}
@@ -1282,6 +1292,7 @@ export default function SettingsPage() {
         },
         { id: 'together', icon: <HeartIcon size={18} />, tone: 'green', title: 'Shared list', value: togetherList()?.name, onClick: () => setView('together'), words: 'partner family household share together to-do list invite' },
         { id: 'inbox', icon: <CaptureIcon size={18} />, tone: 'teal', title: 'Capture from anywhere', value: inboxHere() ? 'On' : undefined, onClick: () => setView('inbox'), words: 'siri shortcut back tap watch quick add inbox' },
+        { id: 'health', icon: <HeartIcon size={18} />, tone: 'pink', title: 'Apple Health', value: healthOn() ? 'On' : undefined, onClick: () => setView('health'), words: 'health auto export workouts sleep water weight blood pressure iphone watch' },
         { id: 'today', icon: <SunIcon size={18} />, tone: 'gold', title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers not for me' },
         {
           id: 'appearance',

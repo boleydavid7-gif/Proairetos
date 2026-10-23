@@ -13,6 +13,7 @@ import './app/family/account.css';
 import { applyAppearance, withLamplight } from './app/appearance';
 import { applyLamplight } from './app/lamplight';
 import { startDailyCopies } from './app/family/dailyCopy';
+import { startHealthInbox } from './app/health/start';
 import { startLaunchFiles } from './app/family/launchFiles';
 import { keepInvite } from './app/together/together';
 import { readInvite } from './core/together/sharedTodos';
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 // A copy of everything, once a day, kept on this device (Settings > Your data).
 startDailyCopies();
+startHealthInbox();
 
 // Offline support in production builds only, so development always loads fresh code.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

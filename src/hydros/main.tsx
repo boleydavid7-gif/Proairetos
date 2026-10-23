@@ -19,6 +19,7 @@ import { loadSettings, startStore } from './data/store';
 import { notifications } from '../app/notify/notifications';
 import App from './app/App';
 import { startDailyCopies } from '../app/family/dailyCopy';
+import { startHealthInbox } from '../app/health/start';
 import AddedOnly from '../app/family/AddedOnly';
 
 const appearance = () => applyAppearance();
@@ -31,6 +32,7 @@ notifications.start();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><AddedOnly app="hydros"><App /></AddedOnly></ErrorBoundary></React.StrictMode>);
 void startSync();
 startDailyCopies();
+startHealthInbox();
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   let refreshing = false;
