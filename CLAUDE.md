@@ -352,6 +352,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   list component's first child), Ktema's upkeep now, Diaita's Next, Dynamis's session while still to do, Askesis's
   focus, Poreia's Next up. Only the first shown on a page keeps it (`data-ll-lit-extra` on the rest); while typing, the
   field's surface takes it (`data-ll-lit-now`, `:root.ll-typing`; Today's quiet capture line glows along its line).
+  `[data-ll-lit-now]` is written `:root:root` so it outranks brand.css's surface list (its `.family-surface .rows` lifts
+  that list's specificity; Today's intention never lit). The lit ring is soft (lamp at 0.24 dark, 0.42 light) and the
+  family surfaces' edge is ink at 6.5%.
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
   Light as the hierarchy (after the owner's light-first review): `data-ll-lit="fallback"` takes the light only when
   nothing else on the page has it (Today's first open to-do, `.path__step`, its light reaching `--space-3` past the row);

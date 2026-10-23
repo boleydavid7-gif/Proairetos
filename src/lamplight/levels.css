@@ -9,19 +9,19 @@
 
 :root {
   --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22);
-  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.4), 0 14px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.5);
+  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.24), 0 16px 48px -16px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
 }
 
 /* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. */
 :root[data-theme='light'] {
   --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
-  --ll-lit-halo: 0 0 0 1.5px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.6), 0 14px 40px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.42), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.38);
 }
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
     --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
-    --ll-lit-halo: 0 0 0 1.5px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.6), 0 14px 40px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+    --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.42), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.38);
   }
 }
 
@@ -29,8 +29,10 @@
   display: contents;
 }
 
+/* `:root:root` keeps the field being typed in lit over every surface rule (brand.css's list includes
+   `.family-surface .rows`, which lifts that whole rule above a plain attribute selector). */
 :root :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child),
-:root [data-ll-lit-now] {
+:root:root [data-ll-lit-now] {
   box-shadow: var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
   transition: box-shadow var(--ll-slow, 420ms) var(--ll-spring, ease);
 }
