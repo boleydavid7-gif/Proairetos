@@ -47,18 +47,6 @@
   }
 }
 
-/* The app opened below the status bar while the phone still reports its height (topInset in behaviors.ts): the page
-   already starts clear of it, so the inset is nothing. */
-:root.ll-no-top-inset {
-  --ll-safe-top: 0px;
-}
-
-@media (max-width: 61.99rem) {
-  :root.ll-no-top-inset.ll-bar-on {
-    --ll-safe-top: 6px;
-  }
-}
-
 /*
  * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
  * on the left; the page's actions, Settings and the family's places on the right. Glass fades in as the page's

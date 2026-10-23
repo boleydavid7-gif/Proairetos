@@ -3,7 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
-      'On iPhones that open Home Screen apps below the status bar, the top bar now sits right under it instead of a band lower, and Askesis’s next session lights as one card without a tight box inside it.',
+      'Askesis’s next session lights as one card without a tight box inside it.',
       'Theoria keeps copies of your books in your own Google Drive, Dropbox or OneDrive (the place you choose in Account › Where it syncs), not on Proairetos’s server. Books from a library folder in the cloud need no copy: each device opens them from the folder. Copies kept before move over by themselves.',
       'Apple Health can fill in your apps by itself. Turn it on in Settings › Apple Health and set up Health Auto Export on your iPhone: runs and walks go to Askesis, sleep to Diaita, water to Hydros, and weight, blood pressure and other readings to Therapeia. Anything you logged yourself stays as it is, and you can bring in a saved file instead.',
       'Search boxes with an icon inside, like Soma’s, light up as one box when you type in them, not as a box inside a box.',

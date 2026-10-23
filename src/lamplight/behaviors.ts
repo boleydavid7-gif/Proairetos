@@ -44,7 +44,6 @@ let started = false;
 export function startLamplightBehaviors(): void {
   if (started || typeof window === 'undefined' || typeof document === 'undefined' || typeof matchMedia !== 'function') return;
   started = true;
-  topInset();
   largeTitle();
   dockMarks();
   backSwipe();
@@ -53,29 +52,6 @@ export function startLamplightBehaviors(): void {
   settleLight();
   oneLitThing();
   pullToUpdate();
-}
-
-/**
- * Some iPhone versions open a Home Screen app below the status bar yet still report the status bar's height as the top
- * inset, so every page added that height twice: a band of empty space above the top bar, and the bar's name and buttons
- * pushed down over the page. When the page does not reach under the status bar (the window is shorter than the screen
- * by at least the inset), the inset counts as nothing (`:root.ll-no-top-inset`, bars.css).
- */
-function topInset(): void {
-  const probe = document.createElement('div');
-  probe.setAttribute('aria-hidden', 'true');
-  probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px)';
-  document.documentElement.append(probe);
-  const check = () => {
-    const inset = probe.getBoundingClientRect().height;
-    const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    const portrait = innerHeight > innerWidth;
-    const tall = Math.max(screen.width, screen.height);
-    document.documentElement.classList.toggle('ll-no-top-inset', standalone && portrait && inset > 0 && tall - innerHeight >= inset - 2);
-  };
-  check();
-  addEventListener('resize', check);
-  addEventListener('orientationchange', () => setTimeout(check, 300));
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
