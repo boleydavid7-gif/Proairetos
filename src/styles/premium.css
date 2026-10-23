@@ -9,6 +9,7 @@
 @import '../lamplight/bars.css';
 @import '../lamplight/material.css';
 @import '../lamplight/brand.css';
+@import '../lamplight/levels.css';
 @import '../lamplight/undo.css';
 @import '../lamplight/charts.css';
 @import '../lamplight/identity.css';
@@ -284,15 +285,17 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 }
 
 /* ---------- First run (an app with nothing in it yet) ----------
-   No card around it and no full-width pill: one plain line and a compact button, left where the list will be. */
-.card.first-run {
+   A card as Proairetos's are (a solid fill, room inside, a defined lit edge) holding one plain line and a compact
+   button, never a full-width pill. (Without padding, the lit edge drew a frame right against the words.) */
+:root .card.first-run {
   display: grid;
   justify-items: start;
   gap: 12px;
-  padding: 4px 0 8px;
-  background: none;
+  padding: 20px 20px 22px;
+  background: var(--ll-card, var(--surface, var(--color-surface)));
   border: 0;
-  box-shadow: none;
+  border-radius: var(--ll-outer, 24px);
+  box-shadow: inset 0 0 0 1px rgba(var(--ll-ink-rgb, 233, 239, 247), 0.09), var(--ll-surface-light, none);
 }
 .first-run .card__title {
   margin: 0;

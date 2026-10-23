@@ -53,7 +53,7 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'medicine' })}>Add</button>
             </div>
             {doses.length ? (
-              <ul className="chore-list">
+              <ul className="chore-list" data-ll-lit>
                 {doses.map((dose) => <DoseRow key={`${dose.medicine.id}${dose.slot}`} dose={dose} onOpen={() => nav.go({ name: 'medicine', id: dose.medicine.id })} />)}
               </ul>
             ) : (

@@ -37,6 +37,12 @@
   box-shadow: var(--ll-surface-light);
 }
 
+/* The family apps' surfaces sit on darker, patterned pages: a fine edge all round lets each one stand off the page as
+   clearly as Proairetos's do on its room. Proairetos (pattern none) keeps its own. */
+:root:not([data-ll-pattern='none']) :is(.card, .rows, .chore-list, .detail-list, .settings-card, .ll-card, .hydros-drinks, .hydros-amount) {
+  box-shadow: inset 0 0 0 1px rgba(var(--ll-ink-rgb, 233, 239, 247), 0.09), var(--ll-surface-light);
+}
+
 @media (hover: hover) {
   :root :is(a.card, button.card, .card--link):hover {
     box-shadow: var(--ll-surface-light);
@@ -56,9 +62,8 @@
   box-shadow: var(--ll-focus);
 }
 
-/* On Today, what comes next carries the light. */
+/* On Today, what comes next carries the light: its entry is the page's lit thing (`data-ll-lit`, levels.css). */
 :root .ll-next > .timeline__entry {
-  box-shadow: var(--ll-halo);
   border-radius: var(--ll-radius-sm, 12px);
 }
 

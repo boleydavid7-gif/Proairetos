@@ -179,6 +179,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                   <button
                     type="button"
                     className="focus"
+                    data-ll-lit
                     onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
                   >
                     <span className={`focus__length focus__length--${mainEffort(focus.workout.parts)}`} aria-hidden="true">

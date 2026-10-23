@@ -133,7 +133,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
 
       <div className="page page--under-hero">
         {next && (
-          <section className="card diaita-next">
+          <section className="card diaita-next" data-ll-lit>
             <span className="card__eyebrow">Next</span>
             <strong className="diaita-next__title">{next.title}</strong>
             <span className="muted">{span(next)}{next.detail ? ` · ${next.detail}` : ''}</span>

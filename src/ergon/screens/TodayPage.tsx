@@ -100,7 +100,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
               </div>
             )}
             {inRoom && groups.now.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
-            {groups.now.length ? <ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} /> : <p className="muted">Nothing today.</p>}
+            {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} /></div> : <p className="muted">Nothing today.</p>}
             {groups.week.length > 0 && (
               <>
                 <div className="section-head"><h2>This week</h2></div>

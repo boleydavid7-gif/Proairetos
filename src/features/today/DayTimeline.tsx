@@ -70,6 +70,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             <li className={index === nowIndex ? 'll-next' : undefined}>
               <button
                 type="button"
+                data-ll-lit={index === nowIndex || undefined}
                 className={`timeline__entry timeline__entry--${entry.occurrence.kind.toLowerCase()}${entry.occurrence.color ? ` timeline__entry--colored tag--${entry.occurrence.color}` : ''}`}
                 onClick={() =>
                   onOpenEntry ? onOpenEntry(entry.key) : onChangeDay({
@@ -98,6 +99,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
           ) : entry.kind === 'event' ? (
             <li className={index === nowIndex ? 'll-next' : undefined}>
               <div
+                data-ll-lit={index === nowIndex || undefined}
                 className="timeline__entry timeline__entry--event"
                 {...(onOpenEntry ? { role: 'button', tabIndex: 0, onClick: () => onOpenEntry(entry.key), onKeyDown: (e: KeyboardEvent) => e.key === 'Enter' && onOpenEntry(entry.key) } : {})}
               >
@@ -115,7 +117,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             </li>
           ) : entry.kind === 'item' ? (
             <li className={index === nowIndex ? 'll-next' : undefined}>
-              <button type="button" className="timeline__entry timeline__entry--item" onClick={() => onOpenItem(entry.item.id)}>
+              <button type="button" className="timeline__entry timeline__entry--item" data-ll-lit={index === nowIndex || undefined} onClick={() => onOpenItem(entry.item.id)}>
                 <span className="timeline__time">
                   {formatTimeOf(entry.start)}
                   {entry.item.endsAt && <span className="timeline__until">{formatTimeOf(new Date(entry.item.endsAt))}</span>}

@@ -50,6 +50,7 @@ export function startLamplightBehaviors(): void {
   rowMenus();
   listMotion();
   settleLight();
+  oneLitThing();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -842,4 +843,60 @@ function settleLight(): void {
     },
     true,
   );
+}
+
+// ---------- One lit thing (Lamplight 2.0) ----------
+
+/*
+ * One lit thing per page: of everything marked `data-ll-lit` and shown, only the first in the page keeps the light; the
+ * rest are marked `data-ll-lit-extra` (levels.css). While the person types in a field, its surface takes the light
+ * (`data-ll-lit-now`) and the root says so (`ll-typing`), so the page's lit thing steps back until they leave it.
+ */
+const TYPING = 'input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="color"], [type="file"]), textarea, [contenteditable="true"]';
+const FIELD_SURFACE = '[data-ll-lit-field], .card, .ll-card, .settings-card, .intention, .capture-bar, .together__add, .p2-capture';
+
+function oneLitThing(): void {
+  let queued = false;
+  const sort = () => {
+    queued = false;
+    let kept = false;
+    for (const el of document.querySelectorAll('[data-ll-lit]')) {
+      const visible = el.classList.contains('ll-lit-wrap') ? Boolean(el.firstElementChild && shown(el.firstElementChild)) : shown(el);
+      if (!kept && visible && !el.closest('[inert], [hidden]')) {
+        kept = true;
+        el.removeAttribute('data-ll-lit-extra');
+      } else {
+        el.setAttribute('data-ll-lit-extra', '');
+      }
+    }
+  };
+  const soon = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(sort);
+  };
+  sort();
+  new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-ll-lit', 'hidden'] });
+
+  let lit: Element | undefined;
+  const clear = () => {
+    lit?.removeAttribute('data-ll-lit-now');
+    lit = undefined;
+    document.documentElement.classList.remove('ll-typing');
+  };
+  document.addEventListener('focusin', (event) => {
+    const field = (event.target as Element | null)?.closest?.(TYPING);
+    if (!field || field.closest('dialog, nav, .ll-topbar')) return clear();
+    const surface = field.closest(FIELD_SURFACE) ?? field;
+    if (surface === lit) return;
+    clear();
+    lit = surface;
+    surface.setAttribute('data-ll-lit-now', '');
+    document.documentElement.classList.add('ll-typing');
+  });
+  document.addEventListener('focusout', (event) => {
+    const next = (event as FocusEvent).relatedTarget as Element | null;
+    if (next?.closest?.(TYPING) && lit && lit.contains(next)) return;
+    clear();
+  });
 }

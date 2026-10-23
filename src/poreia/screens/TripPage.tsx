@@ -389,7 +389,7 @@ export function NextUpCard({ trip, nav, day, home = false }: { trip: Trip; nav: 
   if (!next || phase.kind === 'past') return null;
   const later = next.date === day ? (days.find((each) => each.date === day)?.entries ?? []).filter((entry) => entry !== next.entry && (!entry.time || entry.time >= now) && (!entry.time || !next.entry.time || entry.time > next.entry.time)) : [];
   return (
-    <section className="card poreia-next">
+    <section className="card poreia-next" data-ll-lit>
       <h2 className="card__title">
         {next.date === day ? 'Next today' : `Next: ${dayText(next.date)}`}
         {home && trip.place ? ` in ${trip.place.name}` : ''}

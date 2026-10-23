@@ -172,6 +172,12 @@
   color: var(--color-text-faint);
 }
 
+/* The quiet capture line has no surface: when it takes the light (typing), its line glows instead of a halo. */
+:root .capture-bar--quiet[data-ll-lit-now] {
+  border-bottom-color: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.7);
+  box-shadow: 0 14px 24px -18px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.7);
+}
+
 .capture-bar--quiet {
   min-height: 3rem;
   padding-left: 0;

@@ -77,7 +77,7 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
               <h2>Now</h2>
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep' })}>Add upkeep</button>
             </div>
-            {groups.now.length ? <ul className="chore-list">{groups.now.map(row)}</ul> : <p className="muted">Nothing today.</p>}
+            {groups.now.length ? <ul className="chore-list" data-ll-lit>{groups.now.map(row)}</ul> : <p className="muted">Nothing today.</p>}
             {groups.soon.length > 0 && (
               <>
                 <div className="section-head"><h2>Next 30 days</h2></div>

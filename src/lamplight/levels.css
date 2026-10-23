@@ -1,0 +1,56 @@
+/*
+ * Lamplight 2.0, one lit thing: on each page the one thing that matters now carries the lamp's light (`data-ll-lit`):
+ * Today's next entry, today's doses or chores, the session to do. Only the first on a page keeps it (behaviors.ts marks
+ * the rest `data-ll-lit-extra`), and while the person types, the light moves to where they are typing
+ * (`data-ll-lit-now`, `:root.ll-typing`). A wrapper (`.ll-lit-wrap`) lights its first child, for lists drawn by a shared
+ * component. The light is a wash from the lamp's corner and a halo; the surface and its text are unchanged, so contrast
+ * stays as the scheme made it.
+ */
+
+:root {
+  --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22);
+  --ll-lit-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.4), 0 14px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.5);
+}
+
+/* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. */
+:root[data-theme='light'] {
+  --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
+  --ll-lit-halo: 0 0 0 1.5px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.6), 0 14px 40px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
+    --ll-lit-halo: 0 0 0 1.5px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.6), 0 14px 40px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+  }
+}
+
+.ll-lit-wrap {
+  display: contents;
+}
+
+:root :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child),
+:root [data-ll-lit-now] {
+  box-shadow: var(--ll-lit-wash), var(--ll-lit-halo), var(--ll-cast, 0 0 0 transparent);
+  transition: box-shadow var(--ll-slow, 420ms) var(--ll-spring, ease);
+}
+
+/* While typing, the light is on the field's surface; the page's lit thing steps back to the light every surface has. */
+:root.ll-typing :is([data-ll-lit]:not(.ll-lit-wrap), .ll-lit-wrap[data-ll-lit] > :first-child):not([data-ll-lit-now]) {
+  box-shadow: var(--ll-surface-light, none);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root :is([data-ll-lit], .ll-lit-wrap > :first-child, [data-ll-lit-now]) {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :root :is([data-ll-lit]:not(.ll-lit-wrap, [data-ll-lit-extra]), .ll-lit-wrap[data-ll-lit]:not([data-ll-lit-extra]) > :first-child),
+  :root [data-ll-lit-now] {
+    box-shadow: none;
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}

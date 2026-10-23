@@ -91,7 +91,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
               <h2>Check the soil</h2>
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'add' })}>Add</button>
             </div>
-            {groups.now.length ? <PlantList plants={groups.now} today={today} onOpen={open} /> : <p className="muted">Nothing today.</p>}
+            {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><PlantList plants={groups.now} today={today} onOpen={open} /></div> : <p className="muted">Nothing today.</p>}
             {feeding.length > 0 && (
               <section className="card">
                 <span className="card__eyebrow">Feed</span>

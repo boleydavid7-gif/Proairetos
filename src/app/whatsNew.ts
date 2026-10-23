@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'One thing lit at a time: on each app’s first page, what matters now (your next entry, today’s doses or chores, the session to do) carries the lamp’s light, and while you type, the light moves to the box you are typing in. Cards in the add-on apps have clearer edges, and empty pages hold their words inside a proper card.',
       'Light that follows your day, in every app: each app’s lamp hangs high and cool early in your day and sits lower and warmer toward the end of it, keeping its own color. Your day runs from waking to sleep around your schedule, so a night shift moves the morning. Settings > Appearance > Light follows your day turns it off.',
       'Poreia has a Budget tab: your yearly travel budget, what the year’s trips have cost and still take, each trip and each kind of spending, and a place to add spending to any trip. Poreia’s wording is shorter throughout.',
     ],

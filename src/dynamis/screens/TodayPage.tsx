@@ -53,7 +53,7 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
     <div className="home dynamis-home">
       <Hero title={doneToday ? 'That’s the session' : trainingToday ? session.name : `Next: ${session.name}`} sub={doneToday ? 'Today' : `About ${sessionMinutes(targets)} min`} />
       <div className="page page--under-hero">
-        <section className="card">
+        <section className="card" data-ll-lit={!doneToday || undefined}>
           <span className="card__eyebrow">{live ? 'In progress' : doneToday ? 'Next time' : trainingToday ? 'Today' : 'Next'}</span>
           <h2 className="card__title">{session.name}</h2>
           <ul className="notes-list">
