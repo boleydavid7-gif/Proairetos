@@ -922,6 +922,8 @@ input[type='date'].input {
 .week-list {
   display: flex;
   flex-direction: column;
+  /* A section of its own after the cards: the family's section gap above its label. */
+  margin-top: calc(var(--ll-section-gap, 28px) - var(--ll-gap, 16px));
 }
 
 .week-list .label {

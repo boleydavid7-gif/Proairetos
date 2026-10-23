@@ -170,7 +170,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             </div>
 
             <div className="home-main">
-            <section className="card" aria-label="Today’s focus">
+            <section className="card" aria-label="Today’s focus" data-ll-lit={focus ? true : undefined}>
               <span className="card__eyebrow">
                 {focus?.date === today ? 'Today’s focus' : focus ? `Next: ${dayLabel(focus.date, today)}` : 'This week'}
               </span>
@@ -179,7 +179,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                   <button
                     type="button"
                     className="focus"
-                    data-ll-lit
                     onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
                   >
                     <span className={`focus__length focus__length--${mainEffort(focus.workout.parts)}`} aria-hidden="true">

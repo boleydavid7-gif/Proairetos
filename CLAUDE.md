@@ -204,6 +204,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - The top inset is `--ll-safe-top` (`bars.css`): the status area, plus 6 px on phones while the bar is on, so the bar
   and the page under it sit clear of the edge iOS blurs behind the status bar. Every app's CSS uses the variable, never
   `env(safe-area-inset-top)` directly (the Lamplight guide aside); full-screen moments turn the bar off and get the plain inset.
+  Some iPhone versions open a Home Screen app below the status bar yet still report its height: `topInset` (behaviors.ts) probes
+  `env(safe-area-inset-top)` and, in a standalone portrait window shorter than the screen by that much, sets `:root.ll-no-top-inset`
+  (the inset counts as 0, 6 px with the bar), or the bar and every page took the status bar twice.
   `:root` also sets `text-size-adjust: 100%` for every app: iOS text autosizing made the bar's name change size as it folded.
 - Scroll cost (checked with 400 chores and people, a year of reflections, 4x CPU slowdown): a scroll frame in
   `behaviors.ts` reads only the scroll and one rectangle; querying the page (full-screen check, actions, back link,
@@ -350,7 +353,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   now on a page carries `data-ll-lit` (a wash from the lamp's corner and a halo, stronger in light mode; text unchanged):
   Today's next timeline entry, Therapeia's doses, Ergon's and Phyton's lists for today (`.ll-lit-wrap` lights a shared
   list component's first child), Ktema's upkeep now, Diaita's Next, Dynamis's session while still to do, Askesis's
-  focus, Poreia's Next up. Only the first shown on a page keeps it (`data-ll-lit-extra` on the rest); while typing, the
+  focus card (the card, never the button inside it: a lit element needs its own corners and padding), Poreia's Next up. Only the first shown on a page keeps it (`data-ll-lit-extra` on the rest); while typing, the
   field's surface takes it (`data-ll-lit-now`, `:root.ll-typing`; Today's quiet capture line glows along its line).
   `[data-ll-lit-now]` is written `:root:root` so it outranks brand.css's surface list (its `.family-surface .rows` lifts
   that list's specificity; Today's intention never lit). The lit ring is soft (lamp at 0.24 dark, 0.42 light) and the
