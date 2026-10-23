@@ -369,7 +369,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   lamp's light under the top bar fills with the pull (`--ll-pull-p`) and past 110 px of finger, letting go updates:
   `setPullRefresh` (set in `appearance.ts`: `syncNow` and a service-worker update check) plus the `ll-refresh` event
   (Proairetos's App refreshes other calendars and the weather), the ring breathing, at least 0.65 s, then the page
-  settles on the spring. Not from fields, sheets, dialogs, full-screen moments or a scrolled inner list. Today's foot
+  settles on the spring. The top bar never measures the title while a pull holds the content (`structure` waits on `ll-pulling` / `ll-refreshing` / `ll-pull-settling`; the settle calls `remeasureTitle`): measured mid-pull, the title was anchored 52 px too high, under the bar. Not from fields, sheets, dialogs, full-screen moments or a scrolled inner list. Today's foot
   (`.page-landscape` with the room picture) fades in from transparent (mask and scrim) and never lays a band of page
   color over the wallpaper: that band made the wallpaper slide behind a frame mid-screen on iOS's pull. The wallpaper
   layer is drawn 2 px shorter than its fade (`02-shell.css`), or a fractional 52lvh left a faint line.

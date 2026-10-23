@@ -222,6 +222,9 @@ function largeTitle(): void {
   };
 
   const structure = () => {
+    // A pull to update holds the page's content lower for a moment; measured then, the title would be anchored that
+    // much too high once the content settles back. Measure after it has settled (pullToUpdate calls `remeasureTitle`).
+    if (root.classList.contains('ll-pulling') || root.classList.contains('ll-refreshing') || root.classList.contains('ll-pull-settling')) return;
     dirty = false;
     if (!title?.isConnected || !shown(title)) {
       const next = first(TITLE);
@@ -350,6 +353,7 @@ function largeTitle(): void {
     dirty = true;
     soon();
   };
+  remeasureTitle = changed;
 
   onMark = () => {
     leadKey = '';
@@ -914,6 +918,8 @@ function oneLitThing(): void {
 const PULL_CONTENT = '.app-shell__content, .shell > main, .praxis-view, .theoria-view, .hydros-page-enter, main';
 const PULL_ARM = 110;
 let refreshHandler: (() => Promise<unknown>) | undefined;
+/** The top bar's "the page changed, measure again" (largeTitle), for after a pull has settled. */
+let remeasureTitle: (() => void) | undefined;
 
 export function setPullRefresh(handler: (() => Promise<unknown>) | undefined): void {
   refreshHandler = handler;
@@ -950,6 +956,8 @@ function pullToUpdate(): void {
       root.classList.remove('ll-pull-settling');
       content?.style.removeProperty('translate');
       content = null;
+      // Anything the update changed is measured now, with the content back where it rests.
+      remeasureTitle?.();
     }, 420);
   };
 
