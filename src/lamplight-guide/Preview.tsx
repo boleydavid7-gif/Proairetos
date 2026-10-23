@@ -27,6 +27,15 @@ const CLOCK = (position: number, kind: DayKind) => {
 };
 
 type Todo = { id: string; title: string; done?: boolean };
+// Card textures to compare on the guide only; the apps keep the current vellum.
+const TEXTURES = [
+  ['vellum', 'Current vellum'],
+  ['grain', 'Stronger grain'],
+  ['pressed', 'Pressed paper'],
+  ['linen', 'Linen'],
+] as const;
+type Texture = (typeof TEXTURES)[number][0];
+
 const FIRST_TODOS: Todo[] = [
   { id: 'a', title: 'Call the pharmacy' },
   { id: 'b', title: 'Pack the gym bag' },
@@ -40,6 +49,7 @@ export default function Preview({ room, lamp, mode }: { room: RoomSeed; lamp: La
   const [typing, setTyping] = useState(false);
   const [todos, setTodos] = useState(FIRST_TODOS);
   const [settling, setSettling] = useState<string>();
+  const [texture, setTexture] = useState<Texture>('vellum');
   const timer = useRef<number>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -100,6 +110,13 @@ export default function Preview({ room, lamp, mode }: { room: RoomSeed; lamp: La
             Now
           </button>
         </div>
+        <div className="p2-kinds" role="group" aria-label="Card texture">
+          {TEXTURES.map(([id, label]) => (
+            <button key={id} type="button" className="ll-chip" aria-pressed={texture === id} onClick={() => setTexture(id)}>
+              {label}
+            </button>
+          ))}
+        </div>
         <dl className="p2-facts">
           <dt>Lamp height</dt>
           <dd>{Math.round((1 - light.y) * 100)}%</dd>
@@ -121,7 +138,7 @@ export default function Preview({ room, lamp, mode }: { room: RoomSeed; lamp: La
         </ul>
       </div>
 
-      <div className="p2-phone" style={style} data-mode={mode}>
+      <div className="p2-phone" style={style} data-mode={mode} data-texture={texture}>
         <div className="p2-room" aria-hidden="true" />
         <div key={page} className="p2-page">
           <header className="p2-head">

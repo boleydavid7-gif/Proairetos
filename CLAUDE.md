@@ -332,7 +332,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Lamplight 2.0 preview (guide only, `#next`; spec "2.0, in preview" in LAMPLIGHT.md): `src/lamplight/daylight.ts`
   (`dayPosition` over the person's waking day, `dayLight`, `warmedLamp`, `poolColor`, vellum with `vellumReads`, tested in
   every room, mode and hour) and `src/lamplight-guide/Preview.tsx` / `preview.css` (scoped `.p2`): day light, three levels
-  of light (rest, near, lit), vellum, motion as light, the person's words lit.
+  of light (rest, near, lit), vellum, motion as light, the person's words lit. A "Card texture" chip row (Current vellum, Stronger grain,
+  Pressed paper, Linen; `data-texture` on `.p2-phone`) compares card textures on the guide only.
 - Day light (2.0's first step; Settings > Appearance "Light follows your day", `Appearance.dayLight`, on
   unless turned off, one switch for the family): `app/dayLight.ts` (`startDayLight`, from `applyAppearance`) works out the position in the waking day from
   `mainSleeps` (Diaita's core, imported only when it runs; Diaita's settings when added, else bedtime and length from quiet

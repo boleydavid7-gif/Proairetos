@@ -347,6 +347,38 @@
   text-shadow: 0 0 18px rgba(var(--p2-pool-rgb), 0.5);
 }
 
+/* ---------- Texture variants, to compare (guide only) ---------- */
+/* Stronger grain: the same fiber, about three times as present. */
+.p2-phone[data-texture='grain'] .p2-vellum {
+  --p2-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* Pressed paper: a raised sheet, its fibers lit from the lamp's side and shaded on the other. */
+.p2-phone[data-texture='pressed'] .p2-vellum {
+  --p2-fiber: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55 .22' numOctaves='3' seed='9' result='n'/%3E%3CfeDiffuseLighting in='n' surfaceScale='1.6' lighting-color='%23fff'%3E%3CfeDistantLight azimuth='315' elevation='58'/%3E%3C/feDiffuseLighting%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 .55 0 0 0 -.38'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23f)'/%3E%3C/svg%3E");
+  box-shadow:
+    inset -1px 1px 0 rgba(var(--p2-pool-rgb), calc(var(--p2-pool) * 0.22)),
+    inset 1px -1px 0 rgba(0, 0, 0, 0.28),
+    -2px 3px 6px -2px rgba(0, 0, 0, 0.35),
+    -10px 16px 30px -16px rgba(0, 0, 0, 0.6);
+}
+
+.p2-phone[data-mode='light'][data-texture='pressed'] .p2-vellum {
+  box-shadow:
+    inset -1px 1px 0 rgba(255, 255, 255, 0.85),
+    inset 1px -1px 0 rgba(var(--ll-ink-rgb), 0.08),
+    -2px 3px 6px -2px rgba(var(--ll-ink-rgb), 0.14),
+    -10px 16px 30px -18px rgba(var(--ll-ink-rgb), 0.3);
+}
+
+/* Linen: a woven cross-hatch. */
+.p2-phone[data-texture='linen'] .p2-vellum {
+  --p2-fiber:
+    repeating-linear-gradient(0deg, rgba(var(--ll-ink-rgb), 0.045) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(var(--ll-ink-rgb), 0.035) 0 1px, transparent 1px 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .35' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
 @media (prefers-reduced-motion: reduce) {
   .p2-page,
   .p2-row[data-settling] {
