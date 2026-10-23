@@ -5,6 +5,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
 import { dynamisWorkouts, experiment, settings, sleeps, usePlan } from '../app/state';
 import { weekdayText } from '../app/ui';
+import { Switch } from '../../askesis/app/ui';
 import { ColumnChart } from '../../app/family/charts';
 import { QUALITY_NAMES, clockText, hoursText, isNight, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
 import { EXPERIMENTS, caffeineAfterCutoffDates, experimentFacts, sideBySide, suggestionFor, type ContextDates } from '../core/evidence';
@@ -148,8 +149,10 @@ function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
       </label>
       <div className="diaita-sleep-signs">
         <p className="field__label">Optional signs to record</p>
-        <label className="toggle-row"><input type="checkbox" checked={snoring} onChange={(event) => setSnoring(event.target.checked)} /><span>Loud snoring</span></label>
-        <label className="toggle-row"><input type="checkbox" checked={gasping} onChange={(event) => setGasping(event.target.checked)} /><span>Waking gasping</span></label>
+        <div className="switches">
+          <Switch on={snoring} label="Loud snoring" onToggle={() => setSnoring(!snoring)} />
+          <Switch on={gasping} label="Waking gasping" onToggle={() => setGasping(!gasping)} />
+        </div>
       </div>
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onDone}>Cancel</button>

@@ -382,6 +382,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`.page-landscape` with the room picture) fades in from transparent (mask and scrim) and never lays a band of page
   color over the wallpaper: that band made the wallpaper slide behind a frame mid-screen on iOS's pull. The wallpaper
   layer is drawn 2 px shorter than its fade (`02-shell.css`), or a fractional 52lvh left a faint line.
+- Date and time inputs (end of `premium.css`): full column width with `min-width: 0`, and on iOS (`@supports
+  (-webkit-touch-callout: none)`) no native appearance and the value from the start; `.input-row > .field` share the
+  row (iOS's own width ran two fields past Diaita's sleep log card). Plain checkboxes take the lamp's `accent-color`;
+  yes/no marks in forms use the family `Switch` (`askesis/app/ui`), as Diaita's sleep signs do.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

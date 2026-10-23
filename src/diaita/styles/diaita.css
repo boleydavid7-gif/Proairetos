@@ -212,6 +212,10 @@
   margin-bottom: 0;
 }
 
+.diaita-sleep-signs .switches {
+  padding: 0;
+}
+
 .diaita-suggestion > strong,
 .diaita-experiment > strong {
   font-size: var(--text-lg);

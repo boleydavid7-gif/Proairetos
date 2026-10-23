@@ -710,3 +710,36 @@ blockquote.daily-line {
     text-shadow: none;
   }
 }
+
+/* ---------- Date and time fields stay inside their card ----------
+   iOS gives date and time inputs a width of their own and centers the value, so two side by side ran past the card's
+   edge. They take their column's width here, the value reads from the start like every other field, and a row of
+   fields shares its width evenly. */
+:root input:is([type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week']) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+  :root input:is([type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week']) {
+    -webkit-appearance: none;
+    appearance: none;
+    text-align: start;
+  }
+
+  :root input::-webkit-date-and-time-value {
+    text-align: start;
+  }
+}
+
+:root .input-row > .field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* A plain checkbox anywhere takes the lamp's color rather than the system's black square. */
+:root input[type='checkbox']:not([role='switch']) {
+  accent-color: rgb(var(--ll-lamp-rgb, 230, 179, 102));
+}
