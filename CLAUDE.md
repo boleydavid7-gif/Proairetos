@@ -164,12 +164,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   same set). `makeScheme(..., 'deep')` is the premium cut Noesis uses (darker, more distance between layers, finer hairline). Every app's main (or `startApp`) registers
   `withLamplight((look, light) => applyLamplight(look, light, app))`, which also sets the browser bar color. Proairetos takes the
   person's Room and Color (Settings > Appearance; Color can be Your own, `hue:N` with a hue strip), kept in `proairetos.appearance`
-  (synced); `app/lamplight.ts` maps the scheme onto `--color-*` and draws the wallpaper (`app/wallpaper.ts`, SVG: a lamp with rings
-  of light and three bands; tall for phones, wide from 62rem) as `--room-wall` on `.app-shell` (`02-shell.css`). Tests in
+  (synced); `app/lamplight.ts` maps the scheme onto `--color-*` and draws the wallpaper (`app/wallpaper.ts`, SVG drawn like a system
+  wallpaper: four soft color blooms of the room, the lamp as a warm glow with no rings or hard center, two silk folds
+  with a lit top edge and a soft shade beneath, fine grain from `feTurbulence`; tall for phones, wide from 62rem) as `--room-wall` on `.app-shell` (`02-shell.css`). Tests in
   `src/tests/lamplight/`. Gold tints in Proairetos's styles use `--color-accent-rgb`.
   One light per page: the lamp sits above the title and clear of the top-right icons (x .6, y .09 tall; .66/.12 wide).
-  Today's foot (`Landscape`) is drawn from the same room (`footSvg`, `--room-foot` / `--room-foot-wide`: three ridges
-  rising toward the lamp, a rim of its light, no sun or clouds), and Compass's `PageHero` has no picture of its own
+  Today's foot (`Landscape`) is drawn from the same room (`footSvg`, `--room-foot` / `--room-foot-wide`: two silk folds
+  fading into the page over a bloom of the room's color, a rim of the lamp's light, no sun or clouds), and Compass's `PageHero` has no picture of its own
   (the title sits on the wallpaper); Reflect's Compass row shows the room's wallpaper. `sunrise`/`morning` are no
   longer used in Proairetos.
 - Lamplight layout and motion (`src/lamplight/layout.css`, imported by `premium.css`): one rhythm for every app

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'A calmer wallpaper in every room: soft fields of color and silk folds lit by the lamp, in place of rings and stripes; Today\'s foot matches it.',
       'Groundwork for the iPhone and Android apps: the same apps, reminders that come from the phone itself, and every connection to the site ready. Nothing changes on the web.',
       'Bills due in the next few days show on Today without switching them on first (What\'s included can still set them aside); Ergon keeps its chore ideas on Today until you have five chores.',
       'A shared list: Settings > Shared list makes one to-do list for the people at home and an invite link for them. It shows on Today for everyone on it; anyone adds, ticks and removes, each line encrypted on the device. Done ones fold away after two days.',

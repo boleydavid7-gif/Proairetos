@@ -91,8 +91,10 @@ Plus `--ll-page-rgb`, `--ll-ink-rgb` and `--ll-lamp-rgb` for `rgba()` tints.
 
 Settings › Appearance: Room (Hearth, Dusk, Harbor, Grove, Clay, Slate) and Color (Match, Amber, Ember, Rose, Heather,
 Ink, Tide, Sage, Pewter, or Your own: any hue, `hue:N`), kept in `proairetos.appearance` (synced). The wallpaper
-(`app/wallpaper.ts`) is drawn from the room's `art` colors: a lamp toward the upper right with rings of light and
-three bands; Today's foot is three ridges in the same colors with no sun of their own.
+(`app/wallpaper.ts`) is drawn from the room's `art` colors: drawn like a system wallpaper (iOS, Material): soft
+blooms of the room's colors, the lamp as a warm glow toward the upper right (no rings, no hard center), two silk folds
+with light along their top edges and a soft shade beneath, and a fine grain so gradients never band. Today's foot is
+two folds in the same colors fading into the page, with no sun of their own.
 
 ## Tokens
 
