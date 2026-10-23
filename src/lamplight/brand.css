@@ -1,0 +1,99 @@
+/*
+ * Lamplight's signature: one lamp, one direction, one lit thing.
+ *  - Light comes from the upper right, where the wallpaper's lamp hangs: a warm sheen along a surface's top and
+ *    right edges, and its shade falling down and to the left.
+ *  - Only one thing is lit at a time: the control you are on (keyboard focus) and, on Today, what comes next.
+ *  - Ticking something off lets the light settle on it: a warm glow that fades over a second (`data-ll-settle`,
+ *    set by `settleLight` in behaviors.ts). Relief, never praise.
+ * Imported after material.css, so these win over its flat surfaces. Reduced motion keeps the light, drops the motion.
+ */
+
+:root {
+  --ll-sheen-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14);
+  --ll-sheen-wash: inset -56px 56px 72px -64px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.11);
+  --ll-cast: -6px 10px 26px -16px rgba(0, 0, 0, 0.5);
+  --ll-surface-light: var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-cast);
+  --ll-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45), 0 0 26px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
+  --ll-focus: 0 0 0 4px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18), 0 0 22px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
+}
+
+:root[data-theme='light'] {
+  --ll-sheen-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.9);
+  --ll-sheen-wash: inset -56px 56px 72px -64px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14);
+  --ll-cast: -6px 10px 26px -18px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --ll-sheen-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.9);
+    --ll-sheen-wash: inset -56px 56px 72px -64px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14);
+    --ll-cast: -6px 10px 26px -18px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.2);
+  }
+}
+
+/* ---------- Light from the upper right on every surface ---------- */
+:root :is(.card, .rows, .settings-card, .family-surface .rows, .look-ahead, .intention, .today-group, .reflect-places,
+  .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks) {
+  box-shadow: var(--ll-surface-light);
+}
+
+@media (hover: hover) {
+  :root :is(a.card, button.card, .card--link):hover {
+    box-shadow: var(--ll-surface-light);
+  }
+}
+
+/* The lamp's own surfaces (the main action) catch it the same way. */
+:root :is(.button-main, .button-accent):not(:disabled) {
+  box-shadow: inset -1px 1px 0 rgba(255, 255, 255, 0.28), -4px 8px 20px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+}
+
+/* ---------- One lit thing ---------- */
+/* Keyboard focus is the lamp turned on the control: a warm halo rather than a ring. */
+:root :where(button, a, summary, [role='switch'], [role='checkbox'], [tabindex], .input, .textarea, .field-input, .row__select):focus-visible {
+  outline: 2px solid rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.85);
+  outline-offset: 2px;
+  box-shadow: var(--ll-focus);
+}
+
+/* On Today, what comes next carries the light. */
+:root .ll-next > .timeline__entry {
+  box-shadow: var(--ll-halo);
+  border-radius: var(--ll-radius-sm, 12px);
+}
+
+/* ---------- The light settles on what was done ---------- */
+@keyframes ll-settle {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.75), 0 0 0 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.5);
+  }
+  35% {
+    box-shadow: 0 0 0 6px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22), 0 0 28px 6px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0), 0 0 36px 10px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0);
+  }
+}
+
+:root [data-ll-settle] {
+  animation: ll-settle 1.1s var(--ll-ease-light, cubic-bezier(0.3, 0, 0, 1)) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root [data-ll-settle] {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :root :is(.card, .rows, .settings-card, .ll-next > .timeline__entry) {
+    box-shadow: none;
+  }
+}
+
+/* More contrast asked for: the plain, solid ring stays (materials.css). */
+@media (prefers-contrast: more) {
+  :root {
+    --ll-focus: 0 0 0 var(--ll-focus-width, 2px) var(--ll-lamp, currentColor), 0 0 0 5px var(--ll-page, Canvas);
+  }
+}

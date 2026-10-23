@@ -1,8 +1,9 @@
 /** Lamplight's version: the minor number moves with each round of the system, the major only if a role or token
  *  name changes meaning. Shown on the public guide, with what each version brought. */
-export const LAMPLIGHT_VERSION = '1.5';
+export const LAMPLIGHT_VERSION = '1.6';
 
 export const LAMPLIGHT_CHANGES: { version: string; lines: string[] }[] = [
+  { version: '1.6', lines: ['One lamp, one direction, one lit thing: surfaces are lit from the upper right, where the wallpaper’s lamp hangs, and shade falls down and to the left.', 'Only one thing is lit: keyboard focus is a warm halo, and on Today what comes next carries the light.', 'Ticking something off lets the light settle on it, a warm glow fading over a second. A calmer wallpaper: color fields and silk folds.'] },
   { version: '1.5', lines: ['Each app its own character: its light, one faint wall pattern, its tempo, its figures, one shape accent and a signature element; everything else shared.', 'Charts lit by the lamp: columns rise one after another, lines draw themselves in, values travel; bars in every app grow in and glide.', 'One undo bar (the snackbar) and one way of waiting (placeholders) for every app; figures that count; lists that glide and let rows fade; the dock’s line glides and stretches.'] },
   { version: '1.4', lines: ['Canonical Midnight, Navy, Warm Mica, Linen and Stone neutrals.', 'Blue, Green, Aqua, Violet, Amber and Coral signature families with generated 50–950 tones.', 'Shared app and status color roles with contrast checks.'] },
   { version: '1.3', lines: ['No blur: bars and docks are mica, an opaque tint of the room.', 'Docks tuck away on the way down; rows have long-press menus; springs; concentric corners; one waiting mark; tablets, high contrast and right to left.'] },

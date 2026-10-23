@@ -49,6 +49,7 @@ export function startLamplightBehaviors(): void {
   backSwipe();
   rowMenus();
   listMotion();
+  settleLight();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -806,4 +807,39 @@ function listMotion(): void {
     queued = true;
     requestAnimationFrame(play);
   }).observe(document.body, { childList: true, subtree: true });
+}
+
+/**
+ * The light settles on what was done: when a tap turns a check, tick or checkbox on, it glows warm and fades over a
+ * second (`[data-ll-settle]` in brand.css). Only from a tap on one that is off: things already done when a page
+ * opens stay still, and taking a mark off stays quiet.
+ */
+const CHECKS = '[role="checkbox"], input[type="checkbox"], .tick, .check-row__box';
+
+function settleLight(): void {
+  const isOn = (el: Element) =>
+    el instanceof HTMLInputElement ? el.checked : el.getAttribute('aria-checked') === 'true' || el.getAttribute('aria-pressed') === 'true';
+  const settle = (el: Element) => {
+    if (reduced()) return;
+    el.removeAttribute('data-ll-settle');
+    void (el as HTMLElement).offsetWidth;
+    el.setAttribute('data-ll-settle', '');
+    window.setTimeout(() => el.removeAttribute('data-ll-settle'), 1200);
+  };
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = (event.target as Element | null)?.closest?.(CHECKS);
+      if (!target || target.matches('.switch, [role="switch"]')) return;
+      // A checkbox has already changed when the click arrives; anything else changes after its handler (or a save).
+      if (target instanceof HTMLInputElement) {
+        if (target.checked) settle(target);
+        return;
+      }
+      // Off and tapped: it is being marked. Lit at once, since a marked row often leaves its list straight away
+      // (its fading copy carries the light out).
+      if (!isOn(target)) settle(target);
+    },
+    true,
+  );
 }

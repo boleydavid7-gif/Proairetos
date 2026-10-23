@@ -67,7 +67,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
         <Fragment key={entry.key}>
           {index === markerAt && marker}
           {entry.kind === 'shift' ? (
-            <li>
+            <li className={index === nowIndex ? 'll-next' : undefined}>
               <button
                 type="button"
                 className={`timeline__entry timeline__entry--${entry.occurrence.kind.toLowerCase()}${entry.occurrence.color ? ` timeline__entry--colored tag--${entry.occurrence.color}` : ''}`}
@@ -96,7 +96,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
               </button>
             </li>
           ) : entry.kind === 'event' ? (
-            <li>
+            <li className={index === nowIndex ? 'll-next' : undefined}>
               <div
                 className="timeline__entry timeline__entry--event"
                 {...(onOpenEntry ? { role: 'button', tabIndex: 0, onClick: () => onOpenEntry(entry.key), onKeyDown: (e: KeyboardEvent) => e.key === 'Enter' && onOpenEntry(entry.key) } : {})}
@@ -114,7 +114,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
               </div>
             </li>
           ) : entry.kind === 'item' ? (
-            <li>
+            <li className={index === nowIndex ? 'll-next' : undefined}>
               <button type="button" className="timeline__entry timeline__entry--item" onClick={() => onOpenItem(entry.item.id)}>
                 <span className="timeline__time">
                   {formatTimeOf(entry.start)}

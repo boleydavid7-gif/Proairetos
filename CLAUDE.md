@@ -324,6 +324,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   file sealed with `sealWithAccount`, AD `proairetos-backup`; 14 days kept; the sync's `log-`/`file-` names untouched).
   Restore lists them by day (`ownStorageBackups`, `openOwnStorageBackup`); tests `src/tests/family/cloudBackups.test.ts`.
   The family list's Store row is a plus on the lamp's tile (`.family-apps__store`). Praxis's lamp seed is brass `#B08D57`.
+- Lamplight 1.6, the signature (`src/lamplight/brand.css`, after `material.css`; spec "The signature" in LAMPLIGHT.md): one
+  lamp, one direction, one lit thing. Surfaces lit from the upper right (`--ll-surface-light` = `--ll-sheen-edge`,
+  `--ll-sheen-wash`, `--ll-cast` down-left; the sheen in each app's lamp color); keyboard focus is a warm halo (`--ll-focus`;
+  More contrast keeps the ring); Today's next timeline entry carries `--ll-halo` (`.ll-next` in `DayTimeline`); a tap that
+  marks a check, tick or checkbox sets `data-ll-settle` (`settleLight` in `behaviors.ts`), a glow fading over 1.1 s.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

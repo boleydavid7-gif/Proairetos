@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-22',
     lines: [
+      'Lamplight’s own look: cards and buttons are lit from the upper right, like the lamp in the wallpaper; what comes next on Today carries the light; keyboard focus is a warm halo; and ticking something off lets the light settle on it for a moment.',
       'A calmer wallpaper in every room: soft fields of color and silk folds lit by the lamp, in place of rings and stripes; Today\'s foot matches it.',
       'Groundwork for the iPhone and Android apps: the same apps, reminders that come from the phone itself, and every connection to the site ready. Nothing changes on the web.',
       'Bills due in the next few days show on Today without switching them on first (What\'s included can still set them aside); Ergon keeps its chore ideas on Today until you have five chores.',

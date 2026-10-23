@@ -96,6 +96,19 @@ blooms of the room's colors, the lamp as a warm glow toward the upper right (no 
 with light along their top edges and a soft shade beneath, and a fine grain so gradients never band. Today's foot is
 two folds in the same colors fading into the page, with no sun of their own.
 
+## The signature (1.6)
+
+One lamp, one direction, one lit thing (`src/lamplight/brand.css`, imported after `material.css`):
+- **Direction.** Every surface is lit from the upper right, where the wallpaper's lamp hangs: a warm sheen along its top
+  and right edges (`--ll-sheen-edge`, `--ll-sheen-wash`) and its shade falling down and to the left (`--ll-cast`), together
+  `--ll-surface-light` on cards, grouped lists and the shared lists; the main action catches it too. Each app's sheen is
+  its own lamp's color, so the family shares the direction and differs in the light.
+- **One lit thing.** Keyboard focus is the lamp turned on the control (`--ll-focus`: a warm halo and a soft outline; the
+  plain ring stays under More contrast). On Today the next entry carries `--ll-halo` (`.ll-next`, from `DayTimeline`).
+- **The light settles.** A tap that marks a check, tick or checkbox lights it (`[data-ll-settle]`, `ll-settle`, 1.1 s,
+  set by `settleLight` in `behaviors.ts`) and the glow fades; a row that leaves at once carries it in its fading copy.
+  Only on a tap that turns one on; never on loading; off with reduced motion.
+
 ## Tokens
 
 - Shape: `--ll-radius-xs` 8, `-sm` 12, `-md` 16, `-lg` 22, `-pill` 999. Smaller nests inside larger.
