@@ -69,7 +69,9 @@ export async function handleHealthRequest(request: Request, env: CaptureEnv, tok
     });
   try {
     const found = await rpc('health_inbox_key', { token });
-    const publicJwk = found.ok ? ((await found.json()) as JsonWebKey | null) : null;
+    // The account server's own answer when it is not a plain yes, so a setup problem can be told from a wrong address.
+    if (!found.ok) return reply(found.status === 404 ? 503 : 502, { error: 'The account server refused the lookup.', status: found.status, detail: (await found.text()).slice(0, 200) });
+    const publicJwk = (await found.json()) as JsonWebKey | null;
     if (!publicJwk) return reply(404, { error: 'That address was not found. Copy it again from Proairetos.' });
     for (const part of splitBatch(batch)) {
       const sealed = await sealForInbox(publicJwk, part, 'proairetos-health');
@@ -77,7 +79,7 @@ export async function handleHealthRequest(request: Request, env: CaptureEnv, tok
       if (!kept.ok || (await kept.json()) !== true) return reply(409, { error: 'Too much is waiting. Open one of your apps to bring it in.' });
     }
     return reply(200, { ok: true, kept: batchSize(batch) });
-  } catch {
-    return reply(502, { error: 'The inbox could not be reached. Try again.' });
+  } catch (cause) {
+    return reply(502, { error: 'The inbox could not be reached. Try again.', detail: cause instanceof Error ? cause.message.slice(0, 200) : undefined });
   }
 }
