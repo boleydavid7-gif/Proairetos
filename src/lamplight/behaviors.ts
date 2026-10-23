@@ -270,7 +270,9 @@ function largeTitle(): void {
       const titleDocumentTop = title.getBoundingClientRect().top + scrollTop - previousVisualShift;
       const shift = anchorTop - titleDocumentTop;
       const marginTop = Number.parseFloat(getComputedStyle(title).marginTop) || 0;
-      const frameShift = shift > 0 ? shift - marginTop : shift;
+      // Up only into empty room: a frame with anything shown above it (a date line, an Edit row) stays where it is,
+      // or the title would lie over that line.
+      const frameShift = shift > 0 ? shift - marginTop : shownAbove(titleFrame) ? 0 : shift;
       const anchored = Math.abs(frameShift) > 0.5;
       const down = frameShift > 0;
       const shiftValue = `${frameShift.toFixed(2)}px`;
@@ -1162,4 +1164,22 @@ function headFrame(title: HTMLElement | undefined): HTMLElement | undefined {
   if (!title || !parent || !title.previousElementSibling) return title;
   if (parent.matches('.page, main, body, [class*="shell"], .vt-panel')) return title;
   return parent;
+}
+
+/** Whether anything is shown above an element in its page (hidden back links and emptied wrappers do not count). */
+function shownAbove(el: HTMLElement): boolean {
+  for (let before = el.previousElementSibling; before; before = before.previousElementSibling) {
+    if (before instanceof HTMLElement && seen(before)) return true;
+  }
+  return false;
+}
+
+function seen(el: Element): boolean {
+  if (!el.getClientRects().length) return false;
+  const style = getComputedStyle(el);
+  if (style.visibility === 'hidden' || style.opacity === '0') {
+    return [...el.children].some((child) => getComputedStyle(child).visibility === 'visible' && seen(child));
+  }
+  if (!el.children.length) return el.getBoundingClientRect().height > 1;
+  return [...el.children].some(seen) || [...el.childNodes].some((node) => node.nodeType === 3 && Boolean(node.textContent?.trim()));
 }

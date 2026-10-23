@@ -3,7 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
-      'A page title with a line above it, such as a session’s day and week in Askesis, no longer slides over that line on iPhone.',
+      'A page title with a line above it, such as a session’s day and week or a workout’s date in Askesis, no longer slides over that line on iPhone.',
       'On iPhone, the bar at the top of each app finds its place again when you come back to the app, so it no longer sits too high now and then.',
       'Askesis’s Home keeps the same space between its cards, and Diaita’s week does too. Card titles across the apps lose their full stops.',
       'Android phones can fill in your apps too: Settings › Health data › Android shows how to set up Health Connect Webhook, which sends your Health Connect workouts, sleep, water and readings the same way Health Auto Export does on an iPhone.',
