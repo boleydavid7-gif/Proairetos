@@ -64,7 +64,7 @@ export default function GratitudePage({ onBack }: { onBack: () => void }) {
 
       {kept.length === 0 ? (
         <div className="empty-state">
-          <p className="empty-state__title">Nothing here yet.</p>
+          <p className="empty-state__title">Nothing here yet</p>
         </div>
       ) : (
         <ul className="gratitude-list">

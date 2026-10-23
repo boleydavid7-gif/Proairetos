@@ -198,7 +198,7 @@ export default function CompassPage() {
         {values.length === 0 && !picking && (
           <div className="empty-state empty-state--centered">
             <CompassRose size={80} tone="dark" />
-            <p className="empty-state__title">Choose what matters.</p>
+            <p className="empty-state__title">Choose what matters</p>
             <p className="empty-state__detail">Up to five values.</p>
           </div>
         )}

@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'Askesis’s Home keeps the same space between its cards, and Diaita’s week does too. Card titles across the apps lose their full stops.',
       'Android phones can fill in your apps too: Settings › Health data › Android shows how to set up Health Connect Webhook, which sends your Health Connect workouts, sleep, water and readings the same way Health Auto Export does on an iPhone.',
       'Diaita’s Sleep page is in one clear order: your sleep at a glance, the last 14 nights, the list of nights with Add at its head, then ways to look closer. A night’s hours sit on one line beside its date.',
       'Askesis’s next session lights as one card without a tight box inside it.',

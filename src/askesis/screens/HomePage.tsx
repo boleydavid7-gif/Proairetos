@@ -366,7 +366,7 @@ function NewWeek({
   );
   return (
     <>
-      <h2 className="card__title">{week === current ? 'A new week.' : `Week ${week} is ready.`}</h2>
+      <h2 className="card__title">{week === current ? 'A new week' : `Week ${week} is ready`}</h2>
       {ownWhy && <p className="own-words">“{ownWhy}”</p>}
       <p className="muted">{facts}</p>
       <p className="muted">{reason}</p>

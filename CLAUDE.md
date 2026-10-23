@@ -419,6 +419,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   keep square left corners. Every `summary` drops the browser's triangle (premium.css "Disclosure rows"): one with no
   icon of its own gets a small chevron that turns down when open. `ColumnChart` labels every other day counted back
   from the newest. A fact needing two records (bedtime variation) shows only once there are two.
+- Spacing between cards: a wrapper that groups cards inside a page (Askesis's `.home-top` / `.home-main`) lays them out with `--ll-gap` itself, since the page's gap stops at the wrapper; lists of cards use `--ll-gap` too (Diaita's `.diaita-week`). Empty-state and card titles carry no full stop.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

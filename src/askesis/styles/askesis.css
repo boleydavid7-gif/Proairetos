@@ -2821,3 +2821,16 @@ html[data-nav='back']::view-transition-new(root) {
 .run-weather .more-about {
   padding: 0;
 }
+
+/* Home's groups of cards keep the page's gap between their own cards (on computers desktop.css widens it). */
+.home-top,
+.home-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ll-gap, 16px);
+}
+
+.home-top:empty,
+.home-main:empty {
+  display: none;
+}

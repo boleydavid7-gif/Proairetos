@@ -256,7 +256,7 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: var(--ll-gap, 16px);
 }
 
 .diaita-day {

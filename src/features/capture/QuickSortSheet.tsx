@@ -137,7 +137,7 @@ export default function QuickSortSheet({
           </>
         ) : (
           <div className="empty-state">
-            <p className="empty-state__title">That’s everything for now.</p>
+            <p className="empty-state__title">That’s everything for now</p>
             <p className="empty-state__detail">What you chose for today is in Days ahead.</p>
           </div>
         )}

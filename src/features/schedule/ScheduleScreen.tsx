@@ -97,7 +97,7 @@ export default function ScheduleScreen() {
 
       {patterns && patterns.length === 0 && (
         <div className="empty-state">
-          <p className="empty-state__title">No schedule yet.</p>
+          <p className="empty-state__title">No schedule yet</p>
           <p className="empty-state__detail">
             Add your work hours or rotation and they will appear on Today, including days off and overnight shifts.
           </p>
