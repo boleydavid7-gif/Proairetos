@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-23',
     lines: [
+      'Pull down at the top of any app to update it: the page glides down, a ring of light fills as you pull, and letting go syncs and checks for a newer version. On Today, pulling no longer hides the top of the page under a frame, and the faint line halfway down is gone.',
       'Lamplight 2.0 in every app: cards are matte paper lit from the lamp’s corner, pages come up out of the shade as they open, and what you finish settles into the shade instead of being crossed out.',
       'One thing lit at a time: on each app’s first page, what matters now (your next entry, today’s doses or chores, the session to do) carries the lamp’s light, and while you type, the light moves to the box you are typing in. Cards in the add-on apps have clearer edges, and empty pages hold their words inside a proper card.',
       'Light that follows your day, in every app: each app’s lamp hangs high and cool early in your day and sits lower and warmer toward the end of it, keeping its own color. Your day runs from waking to sleep around your schedule, so a night shift moves the morning. Settings > Appearance > Light follows your day turns it off.',

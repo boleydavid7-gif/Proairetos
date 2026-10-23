@@ -363,6 +363,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Reflect's `.reflect-places`, Capture's `.kind-list`, the family `.rows`. Draw it as its own line (background or
   `::before`), never as a full line covered in the card's color (that showed once cards took the paper surface).
   Today's open-time list reuses `.place-row` with a full-width border; `.reflect-places .place-row` takes it off.
+- Pull to update (every app, touch screens; `pullToUpdate` in `behaviors.ts`, `lamplight/pull.css`): the browser's
+  overscroll is off (`:root.ll-pull-on`); at the top of a page a downward pull glides the page's content
+  (`PULL_CONTENT`, inline `translate`, damped to 96 px) while the wallpaper, bars and Today's foot stay put; a ring of the
+  lamp's light under the top bar fills with the pull (`--ll-pull-p`) and past 110 px of finger, letting go updates:
+  `setPullRefresh` (set in `appearance.ts`: `syncNow` and a service-worker update check) plus the `ll-refresh` event
+  (Proairetos's App refreshes other calendars and the weather), the ring breathing, at least 0.65 s, then the page
+  settles on the spring. Not from fields, sheets, dialogs, full-screen moments or a scrolled inner list. Today's foot
+  (`.page-landscape` with the room picture) fades in from transparent (mask and scrim) and never lays a band of page
+  color over the wallpaper: that band made the wallpaper slide behind a frame mid-screen on iOS's pull. The wallpaper
+  layer is drawn 2 px shorter than its fade (`02-shell.css`), or a fractional 52lvh left a faint line.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

@@ -1,6 +1,6 @@
 import { tap } from './feel';
 import { loadAppearance, type Appearance } from '../data/storage/preferences';
-import { startLamplightBehaviors } from '../lamplight/behaviors';
+import { setPullRefresh, startLamplightBehaviors } from '../lamplight/behaviors';
 
 const textScale: Record<Appearance['textSize'], string> = { default: '100%', large: '112.5%', larger: '125%' };
 
@@ -32,6 +32,15 @@ let followingDay = false;
 function followDay(): void {
   if (followingDay) return;
   followingDay = true;
+  // Pull to update, in every app: sync now (when signed in) and look for a newer version of the app. Pages that keep
+  // more of their own (Proairetos's calendars and weather) listen for `ll-refresh`.
+  setPullRefresh(async () => {
+    const { syncNow } = await import('./sync/syncController');
+    await Promise.all([
+      syncNow().catch(() => null),
+      navigator.serviceWorker?.getRegistration().then((registration) => registration?.update()).catch(() => undefined),
+    ]);
+  });
   window.setTimeout(() => {
     void import('./dayLight').then(({ startDayLight }) => startDayLight(() => applyAppearance()));
   }, 1200);

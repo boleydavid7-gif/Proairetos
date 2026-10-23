@@ -102,7 +102,16 @@ export default function App() {
       void weather.refresh();
     };
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    // Pull to update (Lamplight): other calendars and the weather come along with the sync.
+    const onPull = () => {
+      void otherCalendars.refresh(true);
+      void weather.refresh(true);
+    };
+    document.addEventListener('ll-refresh', onPull);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      document.removeEventListener('ll-refresh', onPull);
+    };
   }, []);
 
   if (!started) {

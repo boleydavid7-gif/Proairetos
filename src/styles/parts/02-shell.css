@@ -12,10 +12,12 @@
    above where Today's landscape begins. */
 :root[data-room] .app-shell {
   --room-height: 52lvh;
+  /* The picture ends two pixels before its fade: at a fractional height (52lvh) the browser drew the picture a row
+     taller than the fade over it, and that last row showed as a faint line across the middle of Today. */
   background:
     var(--room-shade, linear-gradient(transparent, transparent)),
-    linear-gradient(rgba(var(--color-bg-rgb), 0) 45%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
-    var(--room-wall) top / 100% var(--room-height) no-repeat,
+    linear-gradient(rgba(var(--color-bg-rgb), 0) 45%, var(--color-bg) 96%) top / 100% var(--room-height) no-repeat,
+    var(--room-wall) top / 100% calc(var(--room-height) - 2px) no-repeat,
     var(--color-bg);
 }
 
@@ -24,8 +26,8 @@
     --room-height: 45lvh;
     background:
       var(--room-shade, linear-gradient(transparent, transparent)),
-      linear-gradient(rgba(var(--color-bg-rgb), 0) 50%, var(--color-bg)) top / 100% var(--room-height) no-repeat,
-      var(--room-wall-wide) top / 100% var(--room-height) no-repeat,
+      linear-gradient(rgba(var(--color-bg-rgb), 0) 50%, var(--color-bg) 96%) top / 100% var(--room-height) no-repeat,
+      var(--room-wall-wide) top / 100% calc(var(--room-height) - 2px) no-repeat,
       var(--color-bg);
   }
 }

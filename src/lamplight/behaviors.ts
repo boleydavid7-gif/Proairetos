@@ -51,6 +51,7 @@ export function startLamplightBehaviors(): void {
   listMotion();
   settleLight();
   oneLitThing();
+  pullToUpdate();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -899,4 +900,135 @@ function oneLitThing(): void {
     if (next?.closest?.(TYPING) && lit && lit.contains(next)) return;
     clear();
   });
+}
+
+// ---------- Pull to update ----------
+
+/*
+ * Pull down at the top of a page and it updates: the page's content glides down by a damped amount (the wallpaper and
+ * the bars stay where they are, so nothing slides under anything), a ring of the lamp's light fills as the pull goes,
+ * and let go past the mark it breathes while the app updates (`setPullRefresh`: sync, and anything the app adds through
+ * the `ll-refresh` event), then the page settles back. The browser's own overscroll is turned off on touch screens
+ * (`ll-pull-on`), which also takes Android's reload-on-pull. Not in sheets, dialogs or full-screen moments.
+ */
+const PULL_CONTENT = '.app-shell__content, .shell > main, .praxis-view, .theoria-view, .hydros-page-enter, main';
+const PULL_ARM = 110;
+let refreshHandler: (() => Promise<unknown>) | undefined;
+
+export function setPullRefresh(handler: (() => Promise<unknown>) | undefined): void {
+  refreshHandler = handler;
+}
+
+function pullToUpdate(): void {
+  if (!matchMedia('(pointer: coarse)').matches) return;
+  const root = document.documentElement;
+  root.classList.add('ll-pull-on');
+  const mark = document.createElement('div');
+  mark.className = 'll-pull';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.innerHTML = '<span class="ll-pull__ring"></span>';
+  const said = document.createElement('div');
+  said.className = 'll-visually-hidden';
+  said.setAttribute('role', 'status');
+  document.body.append(mark, said);
+
+  let startY: number | undefined;
+  let startX = 0;
+  let content: HTMLElement | null = null;
+  let distance = 0;
+  let busy = false;
+  const damp = (dy: number) => 96 * (1 - Math.exp(-dy / 170));
+  const place = (pull: number, progress: number) => {
+    root.style.setProperty('--ll-pull', `${pull.toFixed(1)}px`);
+    root.style.setProperty('--ll-pull-p', progress.toFixed(3));
+  };
+  const settle = () => {
+    root.classList.remove('ll-pulling');
+    root.classList.add('ll-pull-settling');
+    place(0, 0);
+    window.setTimeout(() => {
+      root.classList.remove('ll-pull-settling');
+      content?.style.removeProperty('translate');
+      content = null;
+    }, 420);
+  };
+
+  document.addEventListener(
+    'touchstart',
+    (event) => {
+      startY = undefined;
+      if (busy || event.touches.length !== 1 || window.scrollY > 0) return;
+      const target = event.target as Element;
+      if (target.closest('dialog, [role="dialog"], .sheet, .ll-menu, input, textarea, select, [contenteditable="true"], [data-no-pull]')) return;
+      if (document.querySelector(FULL) || document.querySelector('dialog[open]')) return;
+      // Inside something that scrolls on its own and is not at its top, the pull belongs to it.
+      for (let el: Element | null = target; el && el !== document.body; el = el.parentElement) {
+        if (el.scrollTop > 0) return;
+      }
+      startY = event.touches[0].clientY;
+      startX = event.touches[0].clientX;
+      distance = 0;
+    },
+    { passive: true },
+  );
+
+  document.addEventListener(
+    'touchmove',
+    (event) => {
+      if (startY === undefined || busy) return;
+      const dy = event.touches[0].clientY - startY;
+      const dx = Math.abs(event.touches[0].clientX - startX);
+      if (dy <= 0 || dx > dy || window.scrollY > 0) {
+        if (distance > 0) settle();
+        distance = 0;
+        if (dy < 0 || dx > 24) startY = undefined;
+        return;
+      }
+      if (!content) {
+        content = first(PULL_CONTENT) ?? null;
+        root.classList.add('ll-pulling');
+        root.classList.remove('ll-pull-settling');
+      }
+      const wasArmed = distance >= PULL_ARM;
+      distance = dy;
+      const pull = reduced() ? 0 : damp(dy);
+      content?.style.setProperty('translate', `0 ${pull.toFixed(1)}px`);
+      place(Math.max(pull, damp(dy)), Math.min(1, dy / PULL_ARM));
+      if (!wasArmed && distance >= PULL_ARM) navigator.vibrate?.(8);
+    },
+    { passive: true },
+  );
+
+  const release = async () => {
+    if (startY === undefined) return;
+    startY = undefined;
+    if (distance < PULL_ARM || !refreshHandler) {
+      if (distance > 0) settle();
+      return;
+    }
+    busy = true;
+    root.classList.remove('ll-pulling');
+    root.classList.add('ll-pull-settling', 'll-refreshing');
+    const hold = reduced() ? 0 : 52;
+    content?.style.setProperty('translate', `0 ${hold}px`);
+    place(hold, 1);
+    said.textContent = 'Updating';
+    const started = Date.now();
+    try {
+      document.dispatchEvent(new CustomEvent('ll-refresh'));
+      await Promise.race([refreshHandler(), new Promise((resolve) => window.setTimeout(resolve, 12_000))]);
+    } catch {
+      // Offline or signed out: the page settles back as it was.
+    }
+    // Long enough to be seen, never a wait.
+    const left = 650 - (Date.now() - started);
+    if (left > 0) await new Promise((resolve) => window.setTimeout(resolve, left));
+    said.textContent = 'Up to date';
+    root.classList.remove('ll-refreshing');
+    content?.style.setProperty('translate', '0 0px');
+    settle();
+    busy = false;
+  };
+  document.addEventListener('touchend', () => void release(), { passive: true });
+  document.addEventListener('touchcancel', () => void release(), { passive: true });
 }
