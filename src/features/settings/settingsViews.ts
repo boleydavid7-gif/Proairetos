@@ -71,7 +71,7 @@ export const viewTitles: Record<View, string> = {
   store: 'Store',
   about: 'About Proairetos',
   inbox: 'Capture from anywhere',
-  health: 'Apple Health',
+  health: 'Health data',
   together: 'Shared list',
 };
 

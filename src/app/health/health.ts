@@ -176,7 +176,7 @@ export async function applyHealth(sent: HealthBatch, choices: HealthChoices | un
     for (const water of changedRecords(batch.water, kept)) {
       const id = HEALTH_ID + water.id;
       const before = drinks.find((drink) => drink.id === id);
-      await store.putDrink({ id, kind: 'water', profileId: 'water', label: 'Apple Health', amountOz: Math.round(water.ml * OZ_PER_ML * 10) / 10, loggedAt: water.at, createdAt: before?.createdAt ?? now });
+      await store.putDrink({ id, kind: 'water', profileId: 'water', label: 'Health data', amountOz: Math.round(water.ml * OZ_PER_ML * 10) / 10, loggedAt: water.at, createdAt: before?.createdAt ?? now });
       undo.push(() => (before ? store.putDrink(before) : store.removeDrink(id)));
       counts.water += 1;
     }

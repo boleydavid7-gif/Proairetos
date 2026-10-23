@@ -102,6 +102,11 @@ function nightsFrom(pieces: Piece[]): HealthSleep[] {
     .map(({ date, bed, up }) => ({ date, bed, up }));
 }
 
+/** Nights from separate pieces of sleep, one a day woken into (the longest). */
+function readSleepPieces(pieces: Piece[]): HealthSleep[] {
+  return longestPerDay(nightsFrom(pieces));
+}
+
 function readSleep(rows: Record<string, unknown>[]): HealthSleep[] {
   const nights: HealthSleep[] = [];
   const pieces: Piece[] = [];
@@ -119,7 +124,11 @@ function readSleep(rows: Record<string, unknown>[]): HealthSleep[] {
     if (from && until) pieces.push({ start: from, end: until, stage: String(row.value ?? row.stage ?? 'Asleep') });
   }
   nights.push(...nightsFrom(pieces));
-  // One night per day woken into: the longest.
+  return longestPerDay(nights);
+}
+
+/** One night per day woken into: the longest. */
+function longestPerDay(nights: HealthSleep[]): HealthSleep[] {
   const byDate = new Map<string, HealthSleep>();
   const length = (night: HealthSleep) => {
     const [bh, bm] = night.bed.split(':').map(Number);
@@ -192,13 +201,118 @@ function readReadings(kind: HealthReadingKind, rows: Record<string, unknown>[], 
   return out;
 }
 
+// ---------- Android: Health Connect, as Health Connect Webhook (HC Webhook) sends it ----------
+
+/** A UTC instant ("...Z") as the wall time in the phone's zone, when the payload names one. */
+function inZone(value: unknown, zone: string | undefined): Moment | undefined {
+  const moment = readMoment(value);
+  if (!moment || !zone || zone === 'UTC' || typeof value !== 'string' || !value.trim().endsWith('Z')) return moment;
+  try {
+    const parts = Object.fromEntries(
+      new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+        .formatToParts(new Date(moment.ms))
+        .map((part) => [part.type, part.value]),
+    );
+    return { ...moment, date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
+  } catch {
+    return moment;
+  }
+}
+
+// Health Connect's exercise and sleep-stage constants, written as numbers (or, in some builds, as words).
+const HC_EXERCISE: Record<string, string> = { '56': 'run', '57': 'run', '79': 'walk', '37': 'hike', '8': 'bike', '9': 'bike' };
+const HC_AWAKE = new Set(['1', '3', '7', 'awake', 'out_of_bed', 'awake_in_bed']);
+
+const idOf = (row: Record<string, unknown>, fallback: string) => {
+  const meta = row.metadata && typeof row.metadata === 'object' ? (row.metadata as { id?: unknown }).id : undefined;
+  return typeof meta === 'string' && meta ? meta : fallback;
+};
+
+/** Whether a payload is Health Connect Webhook's (snake_case arrays at the top level, no `data`). */
+export function isHealthConnectPayload(root: Record<string, unknown>): boolean {
+  return !('data' in root) && ['exercise', 'sleep', 'hydration', 'weight', 'blood_pressure', 'blood_glucose', 'oxygen_saturation', 'body_temperature', 'resting_heart_rate', 'app_version'].some((key) => key in root);
+}
+
+function readHealthConnect(root: Record<string, unknown>): HealthBatch {
+  const batch = emptyBatch();
+  const zone = typeof root.timezone === 'string' ? root.timezone : undefined;
+  const at = (value: unknown) => inZone(value, zone);
+
+  for (const row of rowsOf(root.exercise)) {
+    const raw = String(row.type ?? '').toLowerCase();
+    const type = HC_EXERCISE[raw] ?? workoutType(raw);
+    const start = at(row.start_time);
+    if (!type || !start) continue;
+    const end = at(row.end_time);
+    const seconds = number(row.duration_seconds) ?? (end ? (end.ms - start.ms) / 1000 : undefined);
+    const meters = number(row.distance_meters);
+    batch.workouts.push({ id: idOf(row, `${start.iso}-${type}`), type, date: start.date, at: start.iso, seconds: seconds && seconds > 0 ? Math.round(seconds) : undefined, meters: meters && meters > 0 ? Math.round(meters) : undefined });
+  }
+
+  const pieces: Piece[] = [];
+  for (const row of rowsOf(root.sleep)) {
+    const stages = rowsOf(row.stages);
+    const asleep = stages.filter((stage) => !HC_AWAKE.has(String(stage.stage ?? '').toLowerCase()));
+    for (const stage of asleep) {
+      const from = at(stage.start_time);
+      const until = at(stage.end_time);
+      if (from && until) pieces.push({ start: from, end: until, stage: 'Asleep' });
+    }
+    if (!asleep.length) {
+      // A session without stages: its end and length.
+      const end = at(row.session_end_time);
+      const seconds = number(row.duration_seconds);
+      if (end && seconds) {
+        const start = at(new Date(end.ms - seconds * 1000).toISOString());
+        if (start) pieces.push({ start, end, stage: 'Asleep' });
+      }
+    }
+  }
+  batch.sleep.push(...readSleepPieces(pieces));
+
+  for (const row of rowsOf(root.hydration)) {
+    const when = at(row.start_time ?? row.time);
+    const liters = number(row.liters);
+    if (when && liters && liters > 0) batch.water.push({ id: `water-${idOf(row, `${when.date}T${when.time}`)}`, at: when.iso, ml: Math.round(liters * 1000) });
+  }
+
+  const readings: [string, HealthReadingKind, (row: Record<string, unknown>) => number | undefined, string][] = [
+    ['weight', 'weight', (row) => number(row.kilograms), 'kg'],
+    ['blood_glucose', 'blood-sugar', (row) => number(row.mmol_per_liter), 'mmol'],
+    ['oxygen_saturation', 'oxygen', (row) => number(row.percentage ?? row.avg), '%'],
+    ['body_temperature', 'temperature', (row) => number(row.celsius), 'degC'],
+    ['resting_heart_rate', 'heart-rate', (row) => number(row.bpm), 'count/min'],
+  ];
+  for (const [key, kind, value, units] of readings) {
+    const rows = rowsOf(root[key]).map((row) => ({ date: at(row.time)?.iso, qty: value(row) }));
+    batch.readings.push(...readReadings(kind, rows.map((row) => ({ ...row, date: row.date ? localStamp(row.date, zone) : undefined })), units));
+  }
+  const pressure = rowsOf(root.blood_pressure).map((row) => ({ date: localStamp(at(row.time)?.iso, zone), systolic: row.systolic, diastolic: row.diastolic }));
+  batch.readings.push(...readReadings('blood-pressure', pressure, 'mmHg'));
+  return batch;
+}
+
+/** An instant written back as "YYYY-MM-DD HH:MM:SS +HH:MM" in the phone's zone, the form the readings reader takes. */
+function localStamp(iso: string | undefined, zone: string | undefined): string | undefined {
+  if (!iso) return undefined;
+  const ms = Date.parse(iso);
+  if (!Number.isFinite(ms)) return undefined;
+  const local = inZone(new Date(ms).toISOString(), zone);
+  if (!local) return undefined;
+  const offset = Math.round((Date.parse(`${local.date}T${local.time}:00Z`) - Math.floor(ms / 60_000) * 60_000) / 60_000);
+  const sign = offset < 0 ? '-' : '+';
+  const abs = Math.abs(offset);
+  return `${local.date} ${local.time}:00 ${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}${String(abs % 60).padStart(2, '0')}`;
+}
+
 const rowsOf = (value: unknown): Record<string, unknown>[] =>
   Array.isArray(value) ? value.filter((row): row is Record<string, unknown> => !!row && typeof row === 'object') : [];
 
 /** What the family keeps from one export. Anything that cannot be read is left out, never guessed. */
 export function readHealthExport(json: unknown): HealthBatch {
-  const batch = emptyBatch();
   const root = json && typeof json === 'object' ? (json as Record<string, unknown>) : {};
+  if (isHealthConnectPayload(root)) return readHealthConnect(root);
+  const batch = emptyBatch();
   const data = root.data && typeof root.data === 'object' ? (root.data as Record<string, unknown>) : root;
   for (const raw of rowsOf(data.workouts)) {
     const workout = readWorkout(raw);

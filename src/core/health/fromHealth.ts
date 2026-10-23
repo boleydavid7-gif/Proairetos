@@ -56,5 +56,5 @@ export function broughtInText(counts: { workouts: number; sleep: number; water: 
   if (counts.sleep) parts.push(plural(counts.sleep, 'night of sleep', 'nights of sleep'));
   if (counts.water) parts.push(plural(counts.water, 'drink of water', 'drinks of water'));
   if (counts.readings) parts.push(plural(counts.readings, 'reading', 'readings'));
-  return parts.length ? `From Apple Health: ${parts.join(', ')}` : '';
+  return parts.length ? `From your health data: ${parts.join(', ')}` : '';
 }

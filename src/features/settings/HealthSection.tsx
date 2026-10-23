@@ -33,7 +33,8 @@ function Copy({ label, value }: { label: string; value: string }) {
 }
 
 /**
- * Settings > Apple Health: Health Auto Export on the iPhone sends Health data to the person's own address, and their
+ * Settings > Health data: Health Auto Export on an iPhone, or Health Connect Webhook on Android, sends health data to the
+ * person's own address, and their
  * apps bring in what is new (workouts to Askesis, sleep to Diaita, water to Hydros, readings to Therapeia).
  */
 export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAccount: () => void; onOpenStore: () => void }) {
@@ -43,6 +44,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   const [choices, setChoices] = useState<HealthChoices | undefined>(healthChoices);
   const [token, setToken] = useState<string>();
   const [looked, setLooked] = useState(false);
+  const [phone, setPhone] = useState<'iphone' | 'android'>(() => (/android/i.test(typeof navigator === 'undefined' ? '' : navigator.userAgent) ? 'android' : 'iphone'));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
@@ -99,7 +101,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   if (!parts.length) {
     return (
       <section className="settings-card">
-        <p className="section-description">Apple Health fills in Askesis, Diaita, Hydros and Therapeia. Add one of them first.</p>
+        <p className="section-description">Health data fills in Askesis, Diaita, Hydros and Therapeia. Add one of them first.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenStore}>
           Store
         </button>
@@ -110,7 +112,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   if (status.phase !== 'ready') {
     return (
       <section className="settings-card">
-        <p className="section-description">To have Apple Health fill in your apps by itself, sign in and open your data first.</p>
+        <p className="section-description">To have your health data fill in your apps by itself, sign in and open your data first.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>
           Account and sync
         </button>
@@ -128,7 +130,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
     return (
       <section className="settings-card">
         <p className="section-description">
-          Your workouts, sleep, water and readings from Apple Health can fill in your apps by themselves. This uses Health Auto Export, an iPhone app that sends your Health data to a private address. What arrives is locked so only your apps can open it.
+          Your workouts, sleep, water and readings from Apple Health (iPhone) or Health Connect (Android) can fill in your apps by themselves. An app on your phone sends them to a private address. What arrives is locked so only your apps can open it.
         </p>
         <button
           type="button"
@@ -191,21 +193,36 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
         </div>
       </section>
 
-      <section className="settings-group" aria-label="Set up Health Auto Export">
-        <h2 className="settings-group__label">Set up Health Auto Export</h2>
+      <section className="settings-group" aria-label="Set up your phone">
+        <h2 className="settings-group__label">Set up your phone</h2>
         <div className="settings-card">
-          <ol className="inbox-steps">
-            <li>Get <strong>Health Auto Export</strong> from the App Store and let it read your Health data. Sending to an address needs its paid version.</li>
-            <li>Tap <strong>Automations</strong>, then the plus button, and choose <strong>REST API</strong>.</li>
-            <li>Paste your address into <strong>URL</strong>.</li>
-            <li>Set the format to <strong>JSON</strong>.</li>
-            <li>
-              For the data, choose <strong>Health Metrics</strong> and pick Sleep Analysis, Dietary Water, Weight & Body Mass, Blood Pressure, Blood Glucose, Body Temperature, Resting Heart Rate and Blood Oxygen Saturation. Leave out any you don’t want.
-            </li>
-            <li>Set how often it sends. Once an hour is plenty. If it asks how much to send, choose since the last sync.</li>
-            <li>Turn the automation on and tap <strong>Manual Export</strong> once to try it.</li>
-            <li>For runs and walks, make a second automation the same way and choose <strong>Workouts</strong> as the data.</li>
-          </ol>
+          <div className="chip-row" role="group" aria-label="Your phone">
+            <button type="button" className="chip" aria-pressed={phone === 'iphone'} onClick={() => setPhone('iphone')}>iPhone</button>
+            <button type="button" className="chip" aria-pressed={phone === 'android'} onClick={() => setPhone('android')}>Android</button>
+          </div>
+          {phone === 'iphone' ? (
+            <ol className="inbox-steps">
+              <li>Get <strong>Health Auto Export</strong> from the App Store and let it read your Health data. Sending to an address needs its paid version.</li>
+              <li>Tap <strong>Automations</strong>, then the plus button, and choose <strong>REST API</strong>.</li>
+              <li>Paste your address into <strong>URL</strong>.</li>
+              <li>Set the format to <strong>JSON</strong>.</li>
+              <li>
+                For the data, choose <strong>Health Metrics</strong> and pick Sleep Analysis, Dietary Water, Weight & Body Mass, Blood Pressure, Blood Glucose, Body Temperature, Resting Heart Rate and Blood Oxygen Saturation. Leave out any you don’t want.
+              </li>
+              <li>Set how often it sends. Once an hour is plenty. If it asks how much to send, choose since the last sync.</li>
+              <li>Turn the automation on and tap <strong>Manual Export</strong> once to try it.</li>
+              <li>For runs and walks, make a second automation the same way and choose <strong>Workouts</strong> as the data.</li>
+            </ol>
+          ) : (
+            <ol className="inbox-steps">
+              <li>Get <strong>Health Connect Webhook</strong> (HC Webhook) from Google Play. Your watch or fitness app has to save to Health Connect.</li>
+              <li>Open it and let it read Exercise, Sleep, Hydration, Weight, Blood pressure, Blood glucose, Oxygen saturation, Body temperature and Resting heart rate. Leave out any you don’t want.</li>
+              <li>Under <strong>Webhooks</strong>, add your address. Keep the format <strong>JSON</strong> and add no headers.</li>
+              <li>In its settings, set <strong>Payload timestamps</strong> to <strong>Local time</strong>.</li>
+              <li>Choose how often it sends. Once an hour is plenty.</li>
+              <li>Tap <strong>Sync now</strong> once to try it. Its <strong>Logs</strong> show each send.</li>
+            </ol>
+          )}
           <p className="sheet__hint">When you next open one of your apps, anything new comes in and a note at the bottom says what. Anything you logged yourself stays as it is.</p>
         </div>
       </section>
@@ -225,7 +242,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
         </div>
       </section>
 
-      <section className="settings-group" aria-label="Apple Health">
+      <section className="settings-group" aria-label="Health data">
         <div className="settings-card">
           <div className="button-row">
             <button type="button" className="button-quiet" disabled={busy} onClick={() => void run(async () => told(await openHealthInbox()))}>

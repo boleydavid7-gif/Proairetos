@@ -644,6 +644,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Askesis entries `health-<id>` (`newWorkouts` skips one already logged by hand, file or Strava; runs count as the open
   session), Diaita nights with `from: 'health'` (a night written by hand is never replaced), Hydros water and Therapeia
   readings with `health-` ids; one undo for all (`broughtInText`). "Bring in a file" reads a saved JSON export, signed in or not.
+  Android: the same address takes Health Connect Webhook's JSON (HC Webhook, Google Play; `isHealthConnectPayload`: snake_case
+  arrays at the top, no `data`; `readHealthConnect`): exercise by Health Connect's type numbers (56/57 run, 79 walk, 37 hike,
+  8/9 bike) or words, sleep stages joined into nights with awake stages (1, 3, 7) left out, hydration in liters, weight kg,
+  blood glucose mmol/L, oxygen, body temperature °C, resting heart rate, blood pressure; UTC times are placed on the
+  phone's own day by the payload's `timezone` (`inZone`). The page (now "Health data", view `health`) has iPhone/Android steps.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
 - Ease of use, checked against Apple's, Google's and Microsoft's guidance: onboarding is five steps (the two pitch screens

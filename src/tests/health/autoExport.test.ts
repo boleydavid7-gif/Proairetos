@@ -128,7 +128,64 @@ describe('what is new for each app', () => {
   });
 
   it('says what came in', () => {
-    expect(broughtInText({ workouts: 1, sleep: 2, water: 0, readings: 3 })).toBe('From Apple Health: 1 workout, 2 nights of sleep, 3 readings');
+    expect(broughtInText({ workouts: 1, sleep: 2, water: 0, readings: 3 })).toBe('From your health data: 1 workout, 2 nights of sleep, 3 readings');
     expect(broughtInText({ workouts: 0, sleep: 0, water: 0, readings: 0 })).toBe('');
+  });
+});
+
+describe('Android (Health Connect Webhook)', () => {
+  const local = {
+    timestamp: '2026-10-23T14:00:00.123-07:00',
+    app_version: '1.9.30',
+    timezone: 'America/Los_Angeles',
+    exercise: [
+      { type: '79', start_time: '2026-10-22T17:30:00-07:00', end_time: '2026-10-22T18:02:00-07:00', duration_seconds: 1920, distance_meters: 3100.4, metadata: { id: 'hc-walk-1' } },
+      { type: '13', start_time: '2026-10-22T12:00:00-07:00', end_time: '2026-10-22T12:40:00-07:00', duration_seconds: 2400 },
+    ],
+    sleep: [
+      {
+        session_end_time: '2026-10-22T06:40:00-07:00',
+        duration_seconds: 27000,
+        stages: [
+          { stage: '7', start_time: '2026-10-21T23:10:00-07:00', end_time: '2026-10-21T23:25:00-07:00' },
+          { stage: '4', start_time: '2026-10-21T23:25:00-07:00', end_time: '2026-10-22T03:00:00-07:00' },
+          { stage: '1', start_time: '2026-10-22T03:00:00-07:00', end_time: '2026-10-22T03:10:00-07:00' },
+          { stage: '5', start_time: '2026-10-22T03:10:00-07:00', end_time: '2026-10-22T06:30:00-07:00' },
+          { stage: '1', start_time: '2026-10-22T06:30:00-07:00', end_time: '2026-10-22T06:40:00-07:00' },
+        ],
+      },
+    ],
+    hydration: [{ liters: 0.5, start_time: '2026-10-22T09:00:00-07:00', end_time: '2026-10-22T09:00:00-07:00', metadata: { id: 'h1' } }],
+    weight: [{ kilograms: 72.5, time: '2026-10-22T07:01:00-07:00' }],
+    blood_pressure: [{ systolic: 121, diastolic: 79, time: '2026-10-22T07:03:00-07:00' }],
+    resting_heart_rate: [{ bpm: 54, time: '2026-10-22T00:00:00-07:00' }],
+    steps: [{ count: 9000, start_time: '2026-10-22T00:00:00-07:00', end_time: '2026-10-23T00:00:00-07:00' }],
+  };
+
+  it('reads walks, runs, hikes and rides by Health Connect’s numbers and leaves the rest', () => {
+    expect(readHealthExport(local).workouts).toEqual([{ id: 'hc-walk-1', type: 'walk', date: '2026-10-22', at: '2026-10-23T00:30:00.000Z', seconds: 1920, meters: 3100 }]);
+  });
+
+  it('joins sleep stages into a night, leaving time awake out at the edges', () => {
+    expect(readHealthExport(local).sleep).toEqual([{ date: '2026-10-22', bed: '23:25', up: '06:30' }]);
+  });
+
+  it('reads water and readings in their own units', () => {
+    const batch = readHealthExport(local);
+    expect(batch.water.map((water) => water.ml)).toEqual([500]);
+    expect(batch.readings.map((reading) => [reading.kind, reading.value, reading.value2, reading.unit])).toEqual([
+      ['weight', 72.5, undefined, 'kg'],
+      ['heart-rate', 54, undefined, 'bpm'],
+      ['blood-pressure', 121, 79, 'mmHg'],
+    ]);
+  });
+
+  it('places UTC times on the phone’s own day when the payload names its zone', () => {
+    const utc = {
+      app_version: '1.9.30',
+      timezone: 'America/Los_Angeles',
+      exercise: [{ type: 'running', start_time: '2026-10-23T00:30:00Z', end_time: '2026-10-23T01:02:00Z', duration_seconds: 1920 }],
+    };
+    expect(readHealthExport(utc).workouts[0]).toMatchObject({ type: 'run', date: '2026-10-22' });
   });
 });
