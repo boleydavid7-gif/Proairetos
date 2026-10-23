@@ -556,9 +556,10 @@
   flex: none;
   display: grid;
   place-items: center;
-  min-width: 3.25rem;
+  min-width: 4.75rem;
   height: 2rem;
   padding: 0 10px;
+  white-space: nowrap;
   border-radius: 999px;
   background: var(--ll-tonal, var(--surface-2));
   color: var(--text);
@@ -571,8 +572,31 @@
   gap: 14px;
 }
 
+/* The shared row keeps a 32 px column for a tile; a night's pill takes the room its hours need. */
+.row.diaita-night {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
 .diaita-experiment__option > .button-quiet {
   width: auto;
   align-self: flex-start;
   padding-inline: 20px;
+}
+
+/* The Sleep page's summary: the facts in rows of two, each a figure over its label. */
+.diaita-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.diaita-summary .diaita-fact-row + .diaita-fact-row {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* Add a night sits at the list's heading, with its plus. */
+.diaita-add.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }

@@ -12,6 +12,13 @@ import { EXPERIMENTS, caffeineAfterCutoffDates, experimentFacts, sideBySide, sug
 
 type Kept = SleepRecord & { id: string };
 
+/** "6h 27m", "7h": short enough to sit on one line in a night's pill. */
+const shortHours = (minutes: number) => {
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  return rest ? `${hours}h ${rest}m` : `${hours}h`;
+};
+
 function SideBySide({ records, nightDates, trainingDates, cutoffHours }: { records: readonly SleepRecord[]; nightDates: readonly string[]; trainingDates: readonly string[]; cutoffHours: number }) {
   const [runDates, setRunDates] = useState<string[]>();
   const [caffeineDates, setCaffeineDates] = useState<string[]>();
@@ -87,13 +94,13 @@ function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; t
     );
   }
   return (
-    <section className="card diaita-experiment">
-      <h2 className="card__title">Try something for two weeks</h2>
-      <p className="hint">Choose one change. Diaita will place the recorded nights beside the two weeks before.</p>
+    <details className="card diaita-experiment">
+      <summary className="card__title">Try something for two weeks</summary>
+      <p className="hint">Choose one change. Diaita places the nights you record beside the two weeks before.</p>
       <div className="diaita-experiment__options">
         {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet button--sm" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -179,6 +186,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
   const all = [...sleeps.use()].sort((a, b) => b.date.localeCompare(a.date));
   const current = settings.use();
   const [editing, setEditing] = useState<string | true | undefined>(adding);
+  const [shown, setShown] = useState(14);
   const today = toLocalDate(new Date());
   const { blocks } = usePlan(addDays(today, -14), today);
   const trainingDates = dynamisWorkouts.use().map((workout) => workout.date);
@@ -203,33 +211,31 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
         <SleepForm key={String(editing)} record={editingRecord} onDone={done} />
       ) : (
         <>
+          {/* What the log says, in one place: the last two weeks, and this week against the amount chosen. */}
           {facts && (
-            <div className="tiles diaita-sleep-tiles">
-              <div className="tile"><span className="tile__label">Average, 2 weeks</span><span className="tile__value">{hoursText(facts.averageMinutes)}</span></div>
-              <div className="tile"><span className="tile__label">Nights logged</span><span className="tile__value">{facts.nights}</span></div>
-            </div>
-          )}
-          {weekFacts && (
-            <section className="card diaita-week-facts">
-              <h2 className="card__title">This week</h2>
+            <section className="card diaita-summary">
+              <h2 className="card__title">Your sleep</h2>
               <div className="diaita-fact-row">
-                <span><strong>{hoursText(weekFacts.totalMinutes)}</strong><small>Logged across {weekFacts.nights} {weekFacts.nights === 1 ? 'night' : 'nights'}</small></span>
-                <span><strong>{hoursText(weekFacts.chosenMinutes)}</strong><small>Chosen amount</small></span>
+                <span><strong>{hoursText(facts.averageMinutes)}</strong><small>Average, last 2 weeks</small></span>
+                <span><strong>{facts.nights}</strong><small>{facts.nights === 1 ? 'Night logged' : 'Nights logged'}</small></span>
               </div>
+              {weekFacts && (
+                <div className="diaita-fact-row">
+                  <span><strong>{hoursText(weekFacts.totalMinutes)}</strong><small>This week, {weekFacts.nights} {weekFacts.nights === 1 ? 'night' : 'nights'}</small></span>
+                  <span><strong>{hoursText(weekFacts.chosenMinutes)}</strong><small>Your chosen amount</small></span>
+                </div>
+              )}
               {/* How much bedtimes and waking vary needs two nights to say anything. */}
-              {weekFacts.nights > 1 && (
-                <div className="diaita-fact-row diaita-fact-row--regularity">
+              {weekFacts && weekFacts.nights > 1 && (
+                <div className="diaita-fact-row">
                   <span><strong>{hoursText(weekFacts.bedSpreadMinutes)}</strong><small>Bedtime varied by</small></span>
                   <span><strong>{hoursText(weekFacts.upSpreadMinutes)}</strong><small>Waking varied by</small></span>
                 </div>
               )}
             </section>
           )}
-          <Suggestion records={all} chosenHours={current.sleepHours} />
-          <SideBySide records={all} nightDates={nightDates} trainingDates={trainingDates} cutoffHours={current.cutoffHours} />
-          <ExperimentCard records={all} today={today} />
           <ColumnChart
-            title="Hours slept, last 14 nights"
+            title="Last 14 nights"
             unit="h"
             days={Array.from({ length: 14 }, (_, index) => {
               const date = addDays(today, index - 13);
@@ -242,15 +248,19 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               };
             })}
           />
-          <button type="button" className="button-main diaita-add" onClick={() => setEditing(true)}><PlusIcon size={18} />Add a night</button>
+
+          <div className="section-head">
+            <h2>Nights</h2>
+            <button type="button" className="text-link diaita-add" onClick={() => setEditing(true)}><PlusIcon size={18} />Add</button>
+          </div>
           {all.length === 0 ? (
             <Empty icon={<MoonIcon size={28} />} title="No nights yet" line="Bed and up times, and how you slept (optional)." />
           ) : (
-            <ul className="rows">
-              {all.map((record) => (
+            <ul className="rows rows--plain diaita-nights">
+              {all.slice(0, shown).map((record) => (
                 <li key={record.id}>
                   <button type="button" className="row diaita-night" onClick={() => setEditing(record.id)}>
-                    <span className="diaita-night__hours">{hoursText(sleptMinutes(record)).replace(' min', 'm').replace(' h', 'h')}</span>
+                    <span className="diaita-night__hours">{shortHours(sleptMinutes(record))}</span>
                     <span className="row__text">
                       <span>{weekdayText(record.date, today)}</span>
                       <span className="row__detail">{clockText(record.bed)}–{clockText(record.up)}{record.how ? ` · ${QUALITY_NAMES[record.how]}` : ''}{record.note ? ` · ${record.note}` : ''}</span>
@@ -260,6 +270,13 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               ))}
             </ul>
           )}
+          {all.length > shown && <button type="button" className="text-link" onClick={() => setShown(all.length)}>All {all.length} nights</button>}
+
+          {/* Ways to look closer, after the log: what the log suggests, nights side by side, and a two-week try. */}
+          {all.length > 0 && <p className="ll-section-label">Look closer</p>}
+          <Suggestion records={all} chosenHours={current.sleepHours} />
+          <SideBySide records={all} nightDates={nightDates} trainingDates={trainingDates} cutoffHours={current.cutoffHours} />
+          <ExperimentCard records={all} today={today} />
         </>
       )}
     </div>

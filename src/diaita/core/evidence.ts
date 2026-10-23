@@ -1,5 +1,5 @@
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
-import { sleepWeekFacts, type SleepRecord } from './rhythm';
+import { hoursText, sleepWeekFacts, type SleepRecord } from './rhythm';
 
 export type ExperimentKind = 'wake-time' | 'caffeine' | 'morning-light';
 
@@ -66,7 +66,7 @@ export function suggestionFor(records: readonly SleepRecord[], chosenHours: numb
     return {
       id: 'regularity',
       title: 'A steadier wake time is the usual first step',
-      body: `Your recorded bedtimes varied by ${facts.bedSpreadMinutes} minutes this week.`,
+      body: `Your recorded bedtimes varied by ${hoursText(facts.bedSpreadMinutes)} this week.`,
       source: 'Phillips AJK et al. Sci Rep 2017;7:3216.',
     };
   }
