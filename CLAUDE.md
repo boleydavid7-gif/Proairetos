@@ -204,6 +204,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - The top inset is `--ll-safe-top` (`bars.css`): the status area, plus 6 px on phones while the bar is on, so the bar
   and the page under it sit clear of the edge iOS blurs behind the status bar. Every app's CSS uses the variable, never
   `env(safe-area-inset-top)` directly (the Lamplight guide aside); full-screen moments turn the bar off and get the plain inset.
+  `freshInsets` (`behaviors.ts`) writes the inset another way (`:root.ll-inset-fresh`) for two frames on coming into view, `pageshow`, turning and just after start, then fires `resize`, because iPhone Home Screen apps sometimes keep a stale inset; it measures nothing itself (an earlier fix that measured the inset misplaced the bar).
   `:root` also sets `text-size-adjust: 100%` for every app: iOS text autosizing made the bar's name change size as it folded.
 - Scroll cost (checked with 400 chores and people, a year of reflections, 4x CPU slowdown): a scroll frame in
   `behaviors.ts` reads only the scroll and one rectangle; querying the page (full-screen check, actions, back link,

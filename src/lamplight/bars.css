@@ -47,6 +47,19 @@
   }
 }
 
+/* The same values written another way, for a moment after the app comes back into view (`freshInsets` in
+   behaviors.ts): a changed declaration makes the browser read the inset again. Home Screen apps on iPhone sometimes
+   keep a stale one (zero, or the last orientation's) after opening, switching back or turning. */
+:root.ll-inset-fresh {
+  --ll-safe-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+@media (max-width: 61.99rem) {
+  :root.ll-bar-on.ll-inset-fresh {
+    --ll-safe-top: calc(max(env(safe-area-inset-top, 0px), 0px) + 6px);
+  }
+}
+
 /*
  * The bar across the top of every page on a phone (behaviors.ts). Clear at rest: the app's name (or the way back)
  * on the left; the page's actions, Settings and the family's places on the right. Glass fades in as the page's

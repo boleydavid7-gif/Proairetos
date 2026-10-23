@@ -52,6 +52,7 @@ export function startLamplightBehaviors(): void {
   settleLight();
   oneLitThing();
   pullToUpdate();
+  freshInsets();
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
@@ -1122,4 +1123,31 @@ function pullToUpdate(): void {
   };
   document.addEventListener('touchend', () => void release(), { passive: true });
   document.addEventListener('touchcancel', () => void release(), { passive: true });
+}
+
+/*
+ * Home Screen apps on iPhone sometimes keep a stale top inset (zero, or the last orientation's) after opening,
+ * switching back or turning, so the bar sat too high until something redrew the page. When the app comes back into
+ * view, the inset is written another way for two frames, which makes the browser read it again, and the bar measures
+ * once more. Nothing is measured or placed by hand here.
+ */
+function freshInsets(): void {
+  const root = document.documentElement;
+  let pending = false;
+  const refresh = () => {
+    if (pending || document.visibilityState !== 'visible') return;
+    pending = true;
+    root.classList.add('ll-inset-fresh');
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        root.classList.remove('ll-inset-fresh');
+        pending = false;
+        dispatchEvent(new Event('resize'));
+      }),
+    );
+  };
+  document.addEventListener('visibilitychange', refresh);
+  addEventListener('pageshow', refresh);
+  addEventListener('orientationchange', () => setTimeout(refresh, 250));
+  setTimeout(refresh, 400);
 }
