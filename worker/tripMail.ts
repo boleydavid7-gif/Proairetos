@@ -75,7 +75,7 @@ export async function handleTripEmail(message: IncomingEmail, env: CaptureEnv, f
     message.setReject('Too large');
     return;
   }
-  const base = env.SUPABASE_URL?.trim().replace(/\/+$/, '');
+  const base = env.SUPABASE_URL?.trim().replace(/(\/rest\/v1)?\/*$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) {
     message.setReject('Not set up');

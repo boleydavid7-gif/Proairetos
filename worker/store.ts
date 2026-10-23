@@ -56,7 +56,7 @@ function reply(status: number, body: unknown) {
 export const storeReady = (env: StoreEnv) =>
   Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.SUPABASE_SERVICE_ROLE_KEY && env.SUPABASE_URL && env.SUPABASE_ANON_KEY);
 
-const base = (env: StoreEnv) => env.SUPABASE_URL!.replace(/\/$/, '');
+const base = (env: StoreEnv) => env.SUPABASE_URL!.trim().replace(/(\/rest\/v1)?\/*$/, '');
 
 /** The signed-in person, from their own access token. */
 async function personFrom(request: Request, env: StoreEnv, fetcher: Fetcher): Promise<{ id: string; email?: string } | null> {

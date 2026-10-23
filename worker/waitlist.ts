@@ -32,7 +32,7 @@ export async function handleWaitlistRequest(request: Request, env: WaitlistEnv, 
   const source = String(form.get('source') ?? 'welcome').replace(/[^a-z-]/g, '').slice(0, 40) || 'welcome';
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return back(request, 'try-again');
   const key = env.SUPABASE_ANON_KEY;
-  const response = await fetchImpl(`${env.SUPABASE_URL.replace(/\/$/, '')}/rest/v1/rpc/join_waitlist`, {
+  const response = await fetchImpl(`${env.SUPABASE_URL.trim().replace(/(\/rest\/v1)?\/*$/, '')}/rest/v1/rpc/join_waitlist`, {
     method: 'POST',
     headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify({ email, apps, source }),

@@ -40,7 +40,7 @@ async function readBody(request: Request): Promise<{ token?: string; text?: stri
 
 export async function handleCaptureRequest(request: Request, env: CaptureEnv, fetchImpl: typeof fetch = fetch): Promise<Response> {
   if (request.method !== 'POST') return reply(405, { error: 'Not allowed' });
-  const base = env.SUPABASE_URL?.trim().replace(/\/+$/, '');
+  const base = env.SUPABASE_URL?.trim().replace(/(\/rest\/v1)?\/*$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) return reply(503, { error: 'Capture from anywhere is not set up yet.' });
   // A common slip in setup: the two values swapped. Said plainly, without repeating either.

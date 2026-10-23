@@ -44,7 +44,7 @@ async function readLimited(request: Request): Promise<string | undefined> {
 
 export async function handleHealthRequest(request: Request, env: CaptureEnv, token: string, fetchImpl: typeof fetch = fetch): Promise<Response> {
   if (request.method !== 'POST') return reply(405, { error: 'Send the export with POST.' });
-  const base = env.SUPABASE_URL?.trim().replace(/\/+$/, '');
+  const base = env.SUPABASE_URL?.trim().replace(/(\/rest\/v1)?\/*$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) return reply(503, { error: 'Apple Health is not set up on this server yet.' });
   // A common slip in setup: the two values swapped. Said plainly, without repeating either.
