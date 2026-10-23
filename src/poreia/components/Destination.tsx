@@ -53,7 +53,7 @@ export function Weather({ target, today }: { target: Target; today: string }) {
       <h2 className="card__title">{near ? 'Weather' : 'Weather a year ago'}</h2>
       {loading && <p className="muted"><Waiting>Looking…</Waiting></p>}
       {unreached && <p className="muted">Couldn’t get the weather. Check the connection.</p>}
-      {!near && days.length > 0 && <p className="fine">These dates last year, as recorded. Forecasts begin two weeks ahead.</p>}
+      {!near && days.length > 0 && <p className="fine">Last year on these dates. Forecasts start two weeks out.</p>}
       {days.length > 0 && (
         <ul className="poreia-weather">
           {days.map((day) => (
@@ -149,8 +149,8 @@ export function BookLinks({ target, initial, nav, tripId }: { target: Target; in
           </li>
         ))}
       </ul>
-      {kind === 'flights' && !(target.from ?? home) && <p className="fine">Add where you start from (a trip’s details, or home in More) for fuller flight searches.</p>}
-      <p className="fine">You book on their site; paste the confirmation here afterward.</p>
+      {kind === 'flights' && !(target.from ?? home) && <p className="fine">Set Home in More to search flights from your airport.</p>}
+      <p className="fine">Book on their site, then paste the confirmation here.</p>
     </section>
   );
 }

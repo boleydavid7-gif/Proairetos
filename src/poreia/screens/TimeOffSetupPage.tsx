@@ -65,12 +65,12 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
 
       <p className="ll-section-label">A day off</p>
       <section className="card">
-        <p className="muted">With work shifts in Proairetos, a day off takes that day’s shift hours. Without them:</p>
+        <p className="muted">Used on days with no shift in Proairetos.</p>
         <label className="field">
           <span className="field__label">Hours in a usual day</span>
           <input className="input" inputMode="decimal" value={setup.dayHours || ''} placeholder="8" onChange={(event) => set({ dayHours: number(event.target.value) || 8 })} />
         </label>
-        <p className="label">Days you usually work (none chosen: every day)</p>
+        <p className="label">Work days (none: every day)</p>
         <div className="chip-row" role="group" aria-label="Days you usually work">
           {WEEKDAYS.map((name, day) => (
             <button key={name} type="button" className="chip" aria-pressed={setup.workDays.includes(day)} onClick={() => set({ workDays: setup.workDays.includes(day) ? setup.workDays.filter((each) => each !== day) : [...setup.workDays, day].sort() })}>
@@ -92,7 +92,7 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
             onChange={(event) => set({ weekHours: event.target.value.trim() ? number(event.target.value) : undefined })}
           />
         </label>
-        <p className="fine">Each whole week of a trip counts as this. Public holidays at home are left out.</p>
+        <p className="fine">Holidays at home aren’t counted.</p>
       </section>
 
       <button

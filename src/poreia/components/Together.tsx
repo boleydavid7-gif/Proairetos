@@ -85,7 +85,7 @@ export function TogetherCard({ trip }: { trip: Trip }) {
       {sharingAvailable &&
         (list ? (
           <>
-            <p className="muted">Shared: everyone who joins sees and changes the same trip.</p>
+            <p className="muted">Shared. Everyone on it can make changes.</p>
             <div className="button-row">
               <button type="button" className="button-quiet" onClick={invite}>
                 Invite someone
@@ -95,7 +95,7 @@ export function TogetherCard({ trip }: { trip: Trip }) {
                 className="text-link"
                 onClick={async () => {
                   await leaveTrip(trip).catch(() => undefined);
-                  say('Stopped sharing on this phone; the trip stays here');
+                  say('Stopped sharing. The trip stays here.');
                 }}
               >
                 Stop sharing here
@@ -137,7 +137,7 @@ export function InviteCard({ nav }: { nav: PoreiaNav }) {
   return (
     <section className="card poreia-invite">
       <h2 className="card__title">Join “{invite.name}”</h2>
-      <p className="muted">A trip shared with you. Its days, bookings, packing and spending come to this phone and stay in step.</p>
+      <p className="muted">Shared with you. Join to see and change its days, bookings, packing and spending.</p>
       <div className="button-row">
         <button
           type="button"

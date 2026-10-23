@@ -31,7 +31,7 @@ function placeArrived(list: ReturnType<typeof readMail>[], raw: Parameters<Param
     const tripName = trips.get(first.tripId)?.name ?? 'its trip';
     offerUndo(added.length === 1 ? `“${first.title}” added to ${tripName}` : `${added.length} bookings added from your email`, () => added.forEach((each) => bookings.remove(each.id)));
   } else if (waiting.length) {
-    say(waiting.length === 1 ? 'An email came in to place on a trip' : `${waiting.length} emails came in to place on trips`);
+    say(waiting.length === 1 ? 'An email to add to a trip' : `${waiting.length} emails came in to place on trips`);
   }
 }
 
@@ -194,11 +194,11 @@ export function ForwardingCard() {
               Turn off
             </button>
           </div>
-          <p className="fine">Forward a confirmation from an airline, hotel, rental or ticket site. It lands on the trip whose dates it fits, or under From your email on Trips. Sealed for this device before it is kept.</p>
+          <p className="fine">Each confirmation goes to the trip its dates fit, or under From your email on Trips. Encrypted for this device.</p>
         </>
       ) : (
         <>
-          <p className="muted">An address to forward confirmations to; each becomes a booking on its trip.</p>
+          <p className="muted">Forward confirmation emails to your own address; each becomes a booking.</p>
           <button type="button" className="button-quiet" disabled={busy || !ready} onClick={() => void run(async () => setKept(await turnOnMail()))}>
             Make my address
           </button>

@@ -126,7 +126,7 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
       </section>
 
       <Segmented label="Where it stands" value={status === 'canceled' ? 'planned' : status} options={STATUSES} onChange={setStatus} />
-      {status === 'approved' && !approvedAlready && <p className="fine">Saving takes these days’ work shifts off your Proairetos schedule.</p>}
+      {status === 'approved' && !approvedAlready && <p className="fine">Saving clears these days’ shifts in Proairetos.</p>}
 
       {allTrips.length > 0 && (
         <label className="field">

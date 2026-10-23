@@ -1901,3 +1901,28 @@
 .poreia-google__reviews li + li {
   margin-top: 12px;
 }
+
+/* Budget: what the year has cost, then what its trips still take, on one bar. */
+.poreia-budget-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  margin: 10px 0 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--text) 10%, transparent);
+}
+
+.poreia-budget-bar span {
+  min-width: 0;
+  transition: width var(--ll-calm, 400ms) var(--ll-spring, ease);
+}
+
+.poreia-budget-bar__spent {
+  border-radius: 999px 0 0 999px;
+  background: var(--ll-lamp, var(--mint));
+}
+
+.poreia-budget-bar__planned {
+  background: color-mix(in oklab, var(--ll-lamp, var(--mint)) 38%, transparent);
+}

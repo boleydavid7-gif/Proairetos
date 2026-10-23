@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: PoreiaNav }) {
       name="Poreia"
       mark={<AppMark app="poreia" size={44} light />}
       line="Trips, from first idea to home again."
-      about="Plan where and when, find stays, flights, cruises and things to do, keep every booking and day in one place, and track the time off from work they take."
+      about="Plan trips, find stays and flights, keep every booking in one place, and track the budget and time off each takes."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {

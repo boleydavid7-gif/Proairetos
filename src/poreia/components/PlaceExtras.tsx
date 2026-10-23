@@ -102,7 +102,7 @@ export function EmbassyCard({ place }: { place: Place }) {
           </li>
         ))}
       </ul>
-      <p className="fine">From Wikidata; check the government’s own site before relying on it.</p>
+      <p className="fine">From Wikidata. Confirm on the government’s site.</p>
     </details>
   );
 }

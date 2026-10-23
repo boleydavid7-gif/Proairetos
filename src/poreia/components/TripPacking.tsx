@@ -50,7 +50,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
   return (
     <>
       {list.length === 0 ? (
-        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line={`A starting list from the trip’s length${trip.place?.lat !== undefined ? ', weather' : ''} and bookings, or your own below.`}>
+        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line={`A starting list from the trip’s length${trip.place?.lat !== undefined ? ', weather' : ''} and bookings.`}>
           <button type="button" className="button-main" disabled={busy} onClick={() => void suggest()}>
             {busy ? <Waiting>Making a list…</Waiting> : 'Suggest a list'}
           </button>

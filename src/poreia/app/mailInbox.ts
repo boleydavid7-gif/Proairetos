@@ -35,7 +35,7 @@ function lowerToken(): string {
 /** Makes the address (or a new one, which retires the old). Signed in only. */
 export async function turnOnMail(): Promise<Kept> {
   const userId = currentUserId();
-  if (!userId || syncStatus.get().phase !== 'ready') throw new Error('Sign in and open your data first, above.');
+  if (!userId || syncStatus.get().phase !== 'ready') throw new Error('Sign in and open your data first.');
   const pair = (await crypto.subtle.generateKey({ name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['encrypt', 'decrypt'])) as CryptoKeyPair;
   const token = lowerToken();
   const tokenHash = hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token)));

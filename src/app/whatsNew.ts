@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-23',
+    lines: [
+      'Poreia has a Budget tab: your yearly travel budget, what the year’s trips have cost and still take, each trip and each kind of spending, and a place to add spending to any trip. Poreia’s wording is shorter throughout.',
+    ],
+  },
+  {
     date: '2026-10-22',
     lines: [
       'Lamplight’s own look: cards and buttons are lit from the upper right, like the lamp in the wallpaper; what comes next on Today carries the light; keyboard focus is a warm halo; and ticking something off lets the light settle on it for a moment.',

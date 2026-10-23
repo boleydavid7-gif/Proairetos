@@ -37,12 +37,12 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
 
   const take = (found: ReadBooking | undefined) => {
     if (!found) {
-      setReadNote('Nothing to read there. Paste the whole confirmation email, or fill in the details below.');
+      setReadNote('Nothing found. Paste the whole email, or fill in the details.');
       return;
     }
     setForm((current) => ({ ...current, ...Object.fromEntries(Object.entries(found).filter(([, value]) => value !== undefined && value !== '')) }));
     const got = [found.confirmation && 'confirmation', found.startDate && 'dates', found.cost && 'cost', found.from && found.to && 'route'].filter(Boolean);
-    setReadNote(got.length ? `Read: ${got.join(', ')}. Check them below.` : 'Read what it could. Check the details below.');
+    setReadNote(got.length ? `Read: ${got.join(', ')}. Check below.` : 'Check the details below.');
     setShowPaste(false);
   };
   const read = () => take(readConfirmation(pasted));
@@ -53,7 +53,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
     setReading(0);
     readBookingFile(file, setReading)
       .then(({ booking }) => take(booking))
-      .catch(() => setReadNote('Couldn’t read that file. Paste the confirmation, or fill in the details below.'))
+      .catch(() => setReadNote('Couldn’t read that file. Paste the email, or fill in the details.'))
       .finally(() => setReading(undefined));
   };
   // Shared into Poreia from another app (Android, computers), or opened with it.
@@ -103,7 +103,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
         <section className="card">
           <label className="field">
             <span className="field__label">Paste the confirmation</span>
-            <textarea className="input area" rows={8} value={pasted} placeholder="The email from the airline, hotel, Airbnb, cruise line or ticket site" onChange={(event) => setPasted(event.target.value)} />
+            <textarea className="input area" rows={8} value={pasted} placeholder="Paste the confirmation email" onChange={(event) => setPasted(event.target.value)} />
           </label>
           <div className="button-row">
             <button type="button" className="button-main" disabled={!pasted.trim()} onClick={read}>
@@ -127,7 +127,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
               if (file) readFile(file);
             }}
           />
-          <p className="fine">A screenshot, PDF, calendar invite or saved email works too. Read on this device; nothing is sent.</p>
+          <p className="fine">Or a screenshot, PDF or calendar invite. Read on this device.</p>
         </section>
       ) : (
         !existing && (
@@ -266,7 +266,7 @@ function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: Poreia
       await navigator.clipboard.writeText(booking.confirmation!);
       say('Confirmation copied');
     } catch {
-      say('Couldn’t copy. Press and hold the code to copy it.');
+      say('Couldn’t copy. Press and hold to copy.');
     }
   };
   const rows: [string, string | undefined][] = [
@@ -353,7 +353,7 @@ function LoyaltyNumbers({ provider }: { provider?: string }) {
                 void navigator.clipboard
                   ?.writeText(doc.number!)
                   .then(() => say('Number copied'))
-                  .catch(() => say('Couldn’t copy. Press and hold the number to copy it.'))
+                  .catch(() => say('Couldn’t copy. Press and hold to copy.'))
               }
             >
               <span className="row__text">

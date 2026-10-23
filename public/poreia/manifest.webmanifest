@@ -76,6 +76,18 @@
       ]
     },
     {
+      "name": "Budget",
+      "short_name": "Budget",
+      "url": "/poreia/?open=budget",
+      "icons": [
+        {
+          "src": "/poreia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
       "name": "Time off",
       "short_name": "Time off",
       "url": "/poreia/?open=time",

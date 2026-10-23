@@ -47,7 +47,7 @@ export default function TripBookings({ trip, nav }: { trip: Trip; nav: PoreiaNav
       </div>
       )}
       {list.length === 0 ? (
-        <RouteEmpty glyph="plane" title="No bookings yet" line="Flights, stays, cars, tickets: paste a confirmation, bring in a file or add one by hand.">
+        <RouteEmpty glyph="plane" title="No bookings yet" line="Flights, stays, cars and tickets.">
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'booking', tripId: trip.id, paste: true })}>
           Paste a confirmation
         </button>

@@ -39,7 +39,7 @@ export default function DocumentsPage({ nav, tripId }: { nav: PoreiaNav; tripId?
           })}
         </ul>
       ) : (
-        <RouteEmpty glyph="shield" title="No documents yet" line="Passports, visas, insurance and tickets, with their numbers and end dates. Never on a shared trip.">
+        <RouteEmpty glyph="shield" title="No documents yet" line="Passports, visas, insurance and loyalty numbers.">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'document', tripId })}>
             Add a document
           </button>

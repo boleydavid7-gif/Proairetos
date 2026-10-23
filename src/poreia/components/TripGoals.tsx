@@ -220,7 +220,7 @@ function EnvelopeCard({ trip }: { trip: Trip }) {
           className="text-link"
           onClick={() => {
             const undo = apps.linkEnvelope(trip, undefined);
-            offerUndo('Envelope unlinked; it stays in Oikonomia', undo);
+            offerUndo('Envelope unlinked', undo);
           }}
         >
           Unlink

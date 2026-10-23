@@ -124,7 +124,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
               {target && phase.kind !== 'past' && <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />}
             </>
           ) : (
-            <RouteEmpty glyph="pin" title="No place yet" line="Add where you’re going for the map, the guide’s places and what’s nearby.">
+            <RouteEmpty glyph="pin" title="No place yet">
               <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
                 Add a place
               </button>
@@ -197,7 +197,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
       <TimeThere trip={trip} place={target?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
       {!target && (
-        <RouteEmpty glyph="pin" title="Where to?" line="Add where you’re going for weather, a guide, things nearby and booking searches.">
+        <RouteEmpty glyph="pin" title="Where to?">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
             Add a place
           </button>
@@ -312,7 +312,7 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
         {hoursText(linked.hours)} · {datesText(linked.start, linked.end)}
         {left ? ` · ${hoursText(left.after)} left after` : ''}
       </p>
-      {linked.status === 'approved' && (linked.replaced?.length ?? 0) > 0 && <p className="muted">Work shifts on these days are off your Proairetos schedule.</p>}
+      {linked.status === 'approved' && (linked.replaced?.length ?? 0) > 0 && <p className="muted">Shifts on these days are cleared in Proairetos.</p>}
       <div className="button-row">
         {linked.status === 'planned' && (
           <button type="button" className="button-quiet" disabled={busy} onClick={async () => { setBusy(true); await setStatus(linked, 'requested'); setBusy(false); }}>

@@ -1352,7 +1352,12 @@ Inter, bundled via @fontsource), real Supabase emails and push delivery.
   `components/WhenToGo.tsx`): the past twelve whole months at the place as one range bar a month on one scale, a tap names
   the month, a dot marks the trip's months, a table beside; in Explore and on trips still to come. Explore's `PlaceHeader`:
   the place's picture (`PlaceScene`), hours apart and distance from home.
-- References, set in More > Budget and time off (never on the Trips page): `settings.yearBudget` (the year's travel budget,
+- Budget (tab `budget`, `?open=budget`, manifest shortcut; `screens/BudgetPage.tsx`): the year's travel budget (`settings.yearBudget`,
+  set there), spent so far across the year's trips and what they still take (`yearSpending`, `budgetYears` in
+  `core/yearBudget.ts`: each trip at its budget or its costs when more), a bar, each trip (opens its Money), totals by kind,
+  Add spending with a trip picker and every spend of the year (`components/Spending.tsx` `SpendForm`, `SpendList`, shared
+  with a trip's Money; added and deleted with undo). Wording kept short: empty states name the thing, no explanation lines.
+- References (never on the Trips page): `settings.yearBudget` (the year's travel budget, set on Budget;
   in Poreia's currency when set) and the time off balance. `components/References.tsx`: `YearBudgetLine` (`core/yearBudget.ts`
   `yearTrips`: trips starting that year, each at its budget or its costs so far when more, converted by `ratesInto`) under
   the trip form's Budget and on Money; `TimeOffLine` (hours the dates take by `countHours`, what `leftAfter` leaves) under

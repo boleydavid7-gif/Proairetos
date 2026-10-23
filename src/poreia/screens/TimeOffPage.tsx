@@ -72,7 +72,7 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
           </button>
         </section>
       ) : (
-        <RouteEmpty glyph="clock" title="Your time off" line="Give your balance and how it grows, and every trip shows what it leaves.">
+        <RouteEmpty glyph="clock" title="Your time off" line="Hours on hand and how they add up.">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'time-setup' })}>
             Set up your balance
           </button>
@@ -102,7 +102,7 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
           <ul className="rows">{canceled.map(row)}</ul>
         </details>
       )}
-      <p className="fine">Approved time off takes those days’ work shifts off your schedule in Proairetos; canceling it puts them back.</p>
+      <p className="fine">Approved time off clears those shifts in Proairetos. Canceling puts them back.</p>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { ClockIcon, GlobeIcon, SettingsIcon, SuitcaseIcon } from '../../app/family/icons';
+import { ClockIcon, GlobeIcon, SettingsIcon, SuitcaseIcon, WalletIcon } from '../../app/family/icons';
 import type { BookingKind } from '../core/model';
 import type { SearchKind } from '../core/links';
 import type { Spot } from '../core/spots';
@@ -16,6 +16,7 @@ import TripPage, { type TripView } from '../screens/TripPage';
 import TripForm from '../screens/TripForm';
 import BookingForm from '../screens/BookingForm';
 import ExplorePage from '../screens/ExplorePage';
+import BudgetPage from '../screens/BudgetPage';
 import TimeOffPage from '../screens/TimeOffPage';
 import TimeOffForm from '../screens/TimeOffForm';
 import TimeOffSetupPage from '../screens/TimeOffSetupPage';
@@ -27,7 +28,7 @@ import DocumentsPage, { DocumentPage } from '../screens/DocumentsPage';
 import { useMailOpener } from '../components/MailBox';
 import BeenPage, { YearScreen } from '../screens/BeenPage';
 
-export type Tab = 'trips' | 'explore' | 'time' | 'more';
+export type Tab = 'trips' | 'explore' | 'budget' | 'time' | 'more';
 export type Route =
   | { name: 'welcome' }
   | { name: 'fresh'; count: number }
@@ -48,13 +49,14 @@ export type PoreiaNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'trips', label: 'Trips', Icon: SuitcaseIcon },
   { id: 'explore', label: 'Explore', Icon: GlobeIcon },
+  { id: 'budget', label: 'Budget', Icon: WalletIcon },
   { id: 'time', label: 'Time off', Icon: ClockIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // From a notice, a shortcut or another app: `trip:ID`, `add`, `explore`, `time`, `booking:TRIP`.
+  // From a notice, a shortcut or another app: `trip:ID`, `add`, `explore`, `budget`, `time`, `booking:TRIP`.
   const opening = takeOpening();
   if (opening?.startsWith('trip:')) return { name: 'trip', id: opening.slice(5) };
   if (opening === 'add') return { name: 'trip-form' };
@@ -104,6 +106,8 @@ export default function App() {
         return <TripsPage nav={nav} />;
       case 'explore':
         return <ExplorePage nav={nav} search={route.search} />;
+      case 'budget':
+        return <BudgetPage nav={nav} />;
       case 'time':
         return <TimeOffPage nav={nav} />;
       case 'more':

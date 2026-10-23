@@ -18,7 +18,7 @@ export default function OfflineCard({ trip }: { trip: Trip }) {
     const { missed } = await keepForOffline(trip, (done, total) => setProgress({ done, total }));
     setProgress(undefined);
     setKept(keptFor(trip.id));
-    say(missed ? `Kept for offline; ${missed} ${missed === 1 ? 'part' : 'parts'} couldn’t be reached` : 'Kept for offline');
+    say(missed ? `Kept for offline. ${missed} ${missed === 1 ? 'part' : 'parts'} couldn’t be reached.` : 'Kept for offline');
   };
 
   return (
@@ -31,7 +31,7 @@ export default function OfflineCard({ trip }: { trip: Trip }) {
           </Waiting>
         </p>
       ) : (
-        <p className="muted">{kept ? `Kept ${dayText(kept.at.slice(0, 10))}: the map around ${where}, the guide and places nearby.` : `The map around ${where}, the guide and places nearby, on this device.`}</p>
+        <p className="muted">{kept ? `Kept ${dayText(kept.at.slice(0, 10))}: the map around ${where}, the guide and places nearby.` : `The map around ${where}, the guide and places nearby.`}</p>
       )}
       <button type="button" className="button-quiet" disabled={Boolean(progress)} onClick={keep}>
         {kept ? 'Keep again' : 'Keep for offline'}

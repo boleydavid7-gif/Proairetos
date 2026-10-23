@@ -183,7 +183,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
           )}
         </section>
       ) : (
-        <p className="muted">Make a trip to save places and add them to its days.</p>
+        <p className="muted">Add a trip to save places.</p>
       )}
 
       <p className="fine">

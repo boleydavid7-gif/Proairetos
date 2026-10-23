@@ -10,7 +10,6 @@ import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
 import { ForwardingCard } from '../components/MailBox';
-import { readAmount } from '../../core/money/readAmount';
 import { balanceOn, hoursText } from '../core/timeOff';
 import { airportFor, driveMinutes, eventsReady } from '../app/world';
 
@@ -69,10 +68,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
 
       <ForwardingCard />
 
-      <p className="ll-section-label">Budget and time off</p>
-      <section className="card">
-        <YearBudgetField />
-      </section>
+      <p className="ll-section-label">Time off</p>
       <ul className="rows">
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'time-setup' })}>
@@ -125,7 +121,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
               </select>
             </label>
             <Switch on={current.notices.checkIn} label="Flight check-in" detail="24 hours before it leaves" onToggle={() => notice({ checkIn: !current.notices.checkIn })} />
-            <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="Its first thing and what is left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
+            <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="First plan and what’s left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
             <AirportLeave />
           </>
         )}
@@ -175,31 +171,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
   );
 }
 
-/** The year's travel budget, in Poreia's currency when first set; trips show what is left of it. */
-function YearBudgetField() {
-  const current = settings.use();
-  const kept = current.yearBudget;
-  const currency = kept?.currency ?? current.currency;
-  const [text, setText] = useState(kept ? String(kept.cents / 100) : '');
-  return (
-    <label className="field">
-      <span className="field__label">Travel budget for the year ({currency})</span>
-      <input
-        className="input"
-        inputMode="decimal"
-        value={text}
-        placeholder="0"
-        onChange={(event) => {
-          setText(event.target.value);
-          const cents = readAmount(event.target.value);
-          if (cents === undefined) return;
-          settings.save({ ...settings.load(), yearBudget: cents ? { cents, currency } : undefined });
-        }}
-      />
-    </label>
-  );
-}
-
 /** "Leave for the airport": how early to be there, and how long it takes from home (worked out, or as the person says). */
 function AirportLeave() {
   const current = settings.use();
@@ -235,7 +206,7 @@ function AirportLeave() {
   return (
     <>
       <label className="field">
-        <span className="field__label">Leave for the airport, to be there</span>
+        <span className="field__label">Be at the airport</span>
         <select className="input" value={early} onChange={(event) => notice({ atAirport: Number(event.target.value) })}>
           <option value={0}>Off</option>
           {[60, 90, 120, 150, 180].map((minutes) => (

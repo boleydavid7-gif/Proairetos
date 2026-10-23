@@ -190,7 +190,7 @@ export function FlightSearch({ target }: { target: Target }) {
           ))}
         </ul>
       )}
-      {state.offers && state.offers.length > 0 && <p className="fine">Prices for all travelers, from Duffel. Booked on the airline’s or an agent’s site.</p>}
+      {state.offers && state.offers.length > 0 && <p className="fine">Prices for all travelers, from Duffel.</p>}
     </>
   );
 }

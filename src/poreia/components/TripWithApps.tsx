@@ -40,7 +40,7 @@ export default function TripWithApps({ trip }: { trip: Trip }) {
           <li className="poreia-with">
             <span className="poreia-with__text">
               <span>Plants in Phyton</span>
-              <span className="muted">{away === 'same' ? `Away ${datesText(trip.start, trip.end)}: reminders wait, and one says what came round when you’re back` : 'Away dates hold plant reminders while you’re gone'}</span>
+              <span className="muted">{away === 'same' ? `Away ${datesText(trip.start, trip.end)}. Plant reminders wait until you’re back.` : 'Pause plant reminders while you’re away'}</span>
             </span>
             {away !== 'same' && (
               <button

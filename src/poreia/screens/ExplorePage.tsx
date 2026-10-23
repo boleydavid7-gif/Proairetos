@@ -48,7 +48,7 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
       <div className="page-top">
         <h1 className="title">Explore</h1>
       </div>
-      <PlaceSearch label="Where to" value={state.place} onPick={(place) => change({ place })} placeholder="Anywhere: a city, island, region" />
+      <PlaceSearch label="Where to" value={state.place} onPick={(place) => change({ place })} placeholder="City, island or region" />
       {places.length > 0 && !state.place && (
         <div className="chip-row poreia-scroll-chips" aria-label="Places from your trips">
           {places.map((place) => (
@@ -89,7 +89,7 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
           <GuideCard place={target.place} />
         </>
       ) : (
-        <RouteEmpty glyph="globe" title="Where to?" line="Pick a place to see its weather, stays, flights, events, sights and the guide." />
+        <RouteEmpty glyph="globe" title="Where to?" line="Weather, stays, flights and things to do." />
       )}
     </div>
   );

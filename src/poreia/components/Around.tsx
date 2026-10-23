@@ -105,7 +105,7 @@ export default function Around({ place, tripId, start, end, nav }: { place: Plac
           <Waiting>Looking around…</Waiting>
         </p>
       )}
-      {shown === 'event' && ready.value && !ready.value.events && <p className="muted">Live events aren’t set up on this site yet. Find and book has event searches.</p>}
+      {shown === 'event' && ready.value && !ready.value.events && <p className="muted">Events aren’t set up here. Find and book has event searches.</p>}
       {!loading && shown !== 'saved' && near.unreached && !list.length && <p className="muted">Couldn’t look around. Check the connection.</p>}
       {!loading && list.length === 0 && !near.unreached && <p className="muted">{shown === 'saved' ? 'Nothing saved yet.' : `No ${categoryLabel(shown).toLowerCase()} found here.`}</p>}
 

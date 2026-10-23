@@ -2,16 +2,15 @@ import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { offerUndo, say } from '../../app/family/shell';
-import SwipeItem from '../../app/family/SwipeItem';
-import { bookings, myName, newId, nowStamp, settings, spends, today } from '../app/state';
-import { dayText, MoneyField } from '../app/ui';
+import { bookings, settings, spends } from '../app/state';
 import { ratesInto } from '../app/world';
-import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type SpendCategory, type Trip } from '../core/model';
+import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type Trip } from '../core/model';
 import { balances, settleUp } from '../core/split';
 import { Balances, peopleOf } from './Together';
 import { SavingCard } from './TripGoals';
 import { YearBudgetLine } from './References';
 import { ConverterCard } from './PlaceExtras';
+import { SpendForm, SpendList } from './Spending';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
 export default function TripMoney({ trip }: { trip: Trip }) {
@@ -31,14 +30,8 @@ export default function TripMoney({ trip }: { trip: Trip }) {
   }, [currency, foreign]);
 
   const totals = tripTotals(theirBookings, theirSpends, currency, rates);
-  const [what, setWhat] = useState('');
-  const [amount, setAmount] = useState<{ cents?: number; currency: string }>({ currency });
-  const [category, setCategory] = useState<SpendCategory>('food');
-  const [date, setDate] = useState(today());
   const people = peopleOf(trip);
   const together = people.length > 1;
-  const [payer, setPayer] = useState(myName());
-  const paidBy = people.includes(payer) ? payer : people[0];
   const shared = together
     ? balances(
         [
@@ -85,81 +78,13 @@ export default function TripMoney({ trip }: { trip: Trip }) {
 
       {theirSpends.length > 0 && (
         <>
-        <p className="ll-section-label">Spending</p>
-        <ul className="rows">
-          {theirSpends.map((spend) => (
-            <SwipeItem
-              key={spend.id}
-              className="poreia-spend"
-              label="Delete"
-              tone="remove"
-              onSwipe={() => {
-                spends.remove(spend.id);
-                offerUndo(`“${spend.what}” deleted`, () => spends.put(spend));
-              }}
-            >
-              <span className="row__text">
-                <span>{spend.what}</span>
-                <span className="row__detail">{[dayText(spend.date), SPEND_CATEGORIES.find((each) => each.id === spend.category)?.label, together && spend.paidBy].filter(Boolean).join(' · ')}</span>
-              </span>
-              <span className="poreia-spend__amount">{moneyText(spend.amount)}</span>
-            </SwipeItem>
-          ))}
-        </ul>
+          <p className="ll-section-label">Spending</p>
+          <SpendList list={theirSpends} together={together} />
+          <ToOikonomia trip={trip} spends={theirSpends} />
         </>
       )}
-      {theirSpends.length > 0 && <ToOikonomia trip={trip} spends={theirSpends} />}
 
-      <section className="card">
-        <h2 className="card__title">Add spending</h2>
-        <label className="field">
-          <span className="field__label">What</span>
-          <input className="input" value={what} placeholder="Dinner, museum, taxi" onChange={(event) => setWhat(event.target.value)} />
-        </label>
-        <MoneyField label="Amount" cents={amount.cents} currency={amount.currency} onChange={(cents, code) => setAmount({ cents, currency: code })} />
-        <div className="input-row">
-          <label className="field">
-            <span className="field__label">Kind</span>
-            <select className="input" value={category} onChange={(event) => setCategory(event.target.value as SpendCategory)}>
-              {SPEND_CATEGORIES.map((each) => (
-                <option key={each.id} value={each.id}>
-                  {each.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span className="field__label">Day</span>
-            <input className="input" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-          </label>
-        </div>
-        {together && (
-          <label className="field">
-            <span className="field__label">Paid by</span>
-            <select className="input" value={paidBy} onChange={(event) => setPayer(event.target.value)}>
-              {people.map((person) => (
-                <option key={person} value={person}>
-                  {person}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        <button
-          type="button"
-          className="button-main"
-          disabled={!what.trim() || !amount.cents || amount.currency.length !== 3}
-          onClick={() => {
-            const spend: Spend = { id: newId(), tripId: trip.id, date: date || today(), what: what.trim(), amount: { cents: amount.cents!, currency: amount.currency }, category, createdAt: nowStamp(), ...(together ? { paidBy } : {}) };
-            spends.put(spend);
-            setWhat('');
-            setAmount({ currency: amount.currency });
-          }}
-        >
-          Save
-        </button>
-      </section>
-
+      <SpendForm trip={trip} />
     </>
   );
 }
