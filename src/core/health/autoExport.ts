@@ -215,18 +215,30 @@ export function readHealthExport(json: unknown): HealthBatch {
   return batch;
 }
 
-/** A batch in parts of at most `size` records, so each sealed part stays small. */
-export function splitBatch(batch: HealthBatch, size = 400): HealthBatch[] {
+/**
+ * A batch in parts small enough to seal and keep one each (about `maxChars` of JSON, so the sealed copy stays under
+ * the inbox's 400,000 characters), newest records first, and at most `maxParts` parts: the Worker may make only so
+ * many requests for one export, so a first export with years of history keeps its most recent records.
+ */
+export function splitBatch(batch: HealthBatch, maxChars = 250_000, maxParts = 40): HealthBatch[] {
+  type Entry = { key: keyof HealthBatch; record: HealthBatch[keyof HealthBatch][number]; when: string; size: number }
+  const when = (record: Record<string, unknown>) => String(record.at ?? record.date ?? '');
+  const entries: Entry[] = (['workouts', 'sleep', 'water', 'readings'] as const)
+    .flatMap((key) => (batch[key] as HealthBatch[keyof HealthBatch][number][]).map((record) => ({ key, record, when: when(record as Record<string, unknown>), size: JSON.stringify(record).length + 1 })))
+    .sort((a, b) => b.when.localeCompare(a.when));
   const parts: HealthBatch[] = [];
   let part = emptyBatch();
-  const push = <K extends keyof HealthBatch>(key: K, record: HealthBatch[K][number]) => {
-    (part[key] as HealthBatch[K][number][]).push(record);
-    if (batchSize(part) >= size) {
+  let chars = 0;
+  for (const entry of entries) {
+    if (chars + entry.size > maxChars && batchSize(part)) {
       parts.push(part);
+      if (parts.length >= maxParts) return parts;
       part = emptyBatch();
+      chars = 0;
     }
-  };
-  for (const key of ['workouts', 'sleep', 'water', 'readings'] as const) for (const record of batch[key]) push(key, record);
+    (part[entry.key] as HealthBatch[keyof HealthBatch][number][]).push(entry.record);
+    chars += entry.size;
+  }
   if (batchSize(part)) parts.push(part);
   return parts;
 }

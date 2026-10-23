@@ -87,8 +87,14 @@ describe('Apple Health export', () => {
   });
 
   it('splits a large batch into parts', () => {
-    const parts = splitBatch(batch, 3);
-    expect(parts.map((part) => part.workouts.length + part.sleep.length + part.water.length + part.readings.length)).toEqual([3, 3, 1]);
+    const size = (part: typeof batch) => part.workouts.length + part.sleep.length + part.water.length + part.readings.length;
+    const parts = splitBatch(batch, 300);
+    expect(parts.reduce((sum, part) => sum + size(part), 0)).toBe(7);
+    expect(parts.every((part) => JSON.stringify(part).length < 600)).toBe(true);
+    // At most so many parts: the newest records are the ones kept.
+    const capped = splitBatch(batch, 1, 2);
+    expect(capped).toHaveLength(2);
+    expect(capped[0].workouts.length).toBe(1);
   });
 
   it('reads nothing from something else', () => {

@@ -43,7 +43,7 @@ async function readLimited(request: Request): Promise<string | undefined> {
 }
 
 export async function handleHealthRequest(request: Request, env: CaptureEnv, token: string, fetchImpl: typeof fetch = fetch): Promise<Response> {
-  if (request.method !== 'POST') return reply(405, { error: 'Send the export with POST.' });
+  if (request.method !== 'POST' && request.method !== 'GET') return reply(405, { error: 'Send the export with POST.' });
   const base = env.SUPABASE_URL?.trim().replace(/(\/rest\/v1)?\/*$/, '');
   const key = env.SUPABASE_ANON_KEY?.trim();
   if (!base || !key) return reply(503, { error: 'Apple Health is not set up on this server yet.' });
@@ -51,6 +51,17 @@ export async function handleHealthRequest(request: Request, env: CaptureEnv, tok
   if (!base.startsWith('https://')) return reply(503, { error: 'The Worker variable SUPABASE_URL is not a web address. It should be https://<project>.supabase.co, and SUPABASE_ANON_KEY the publishable key.' });
   if (tooOften(request)) return reply(429, { error: 'Too many requests. Try again in a minute.' });
   if (token.length < 20 || token.length > 200) return reply(404, { error: 'That address was not found. Copy it again from Proairetos.' });
+
+  // Opened in a browser: says whether this address is ready, so a setup problem can be found from the phone.
+  if (request.method === 'GET') {
+    const found = await fetchImpl(`${base}/rest/v1/rpc/health_inbox_key`, {
+      method: 'POST',
+      headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ token }),
+    }).catch(() => null);
+    if (!found?.ok) return reply(502, { ready: false, said: 'The account server could not be reached.', status: found?.status });
+    return (await found.json()) ? reply(200, { ready: true, said: 'This address is ready for Health Auto Export.' }) : reply(404, { ready: false, said: 'This address is not known. In Proairetos › Settings › Apple Health, copy it again or make a new one.' });
+  }
 
   const text = await readLimited(request);
   if (text === undefined) return reply(413, { error: 'The export is too large. Send less at a time.' });
