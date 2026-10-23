@@ -932,6 +932,7 @@ function oneLitThing(): void {
     spill.style.width = `${Math.round(box.width + reach * 2)}px`;
     spill.style.height = `${Math.round(box.height + reach * 2)}px`;
     spill.classList.add('is-on');
+    spill.classList.toggle('is-typing', holder === lit);
     if (!spillOn) requestAnimationFrame(() => requestAnimationFrame(() => spill.classList.remove('is-placing')));
     spillOn = true;
   };

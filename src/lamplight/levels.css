@@ -8,23 +8,24 @@
  */
 
 :root {
-  --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22);
+  --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.12);
   --ll-lit-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
-  --ll-lit-halo: 0 0 28px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14), 0 16px 48px -16px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
+  --ll-lit-halo: 0 0 20px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1), 0 10px 28px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16);
 }
 
-/* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. */
+/* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. The wash keeps to the corner nearest
+   the lamp and the glow hugs the surface, so the light falls on the card rather than coming from it. */
 :root[data-theme='light'] {
-  --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
+  --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.15);
   --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
-  --ll-lit-halo: 0 0 24px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.34);
+  --ll-lit-halo: 0 0 18px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16), 0 10px 26px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2);
 }
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
-    --ll-lit-wash: inset -84px 84px 96px -72px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26);
+    --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.15);
     --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
-  --ll-lit-halo: 0 0 24px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2), 0 16px 44px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.34);
+  --ll-lit-halo: 0 0 18px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16), 0 10px 26px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2);
   }
 }
 
@@ -40,6 +41,12 @@
     var(--ll-cast, 0 0 0 transparent);
   transition: box-shadow var(--ll-glow-time) var(--ll-glow-ease);
   animation: ll-lit-in var(--ll-glow-time) var(--ll-glow-ease);
+}
+
+/* While typing, the cursor already says where you are: the field's light is a step quieter than the page's lit thing. */
+:root:root [data-ll-lit-now] {
+  --ll-lit-wash: inset -48px 48px 64px -56px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.08);
+  --ll-lit-halo: 0 0 16px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.07), 0 8px 22px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1);
 }
 
 /* The light fades: it comes up over a moment when something is lit (on opening a page too) and fades away the same
@@ -123,8 +130,8 @@ html {
   height: 0;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(closest-side, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2),
-    rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.08) 55%, transparent);
+  background: radial-gradient(closest-side, rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.13),
+    rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.05) 55%, transparent);
   mix-blend-mode: screen;
   transition:
     opacity var(--ll-glow-time) var(--ll-glow-ease),
@@ -135,6 +142,10 @@ html {
 
 .ll-spill.is-on {
   opacity: 1;
+}
+
+.ll-spill.is-on.is-typing {
+  opacity: 0.6;
 }
 
 /* Placed for the first time, it appears where it is; only later moves glide. */

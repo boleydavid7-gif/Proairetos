@@ -367,7 +367,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   fades with the light, so even a replaced element's light fades. The layer is `inset: 0` of `html` (made
   `position: relative`) with `overflow: clip`, never adding scroll room; it hides while a pull holds the page and under
   More contrast, forced colors and print. The lit card has no outline ring: a lit edge on the lamp's side
-  (`--ll-lit-edge`) and a soft halo. Glow time 650 ms.
+  (`--ll-lit-edge`) and a soft halo. Glow time 650 ms. Kept subtle (the owner's choice after seeing it on a navy room):
+  the wash stays in the lamp's corner (0.12 dark, 0.15 light), the halo hugs the card, the pool peaks at 0.13 in dark;
+  the field being typed in is a step quieter (`[data-ll-lit-now]` sets its own wash and halo, the pool at 0.6 opacity,
+  `.is-typing`) than the page's lit thing.
   The family apps' surfaces (not Proairetos, `data-ll-pattern='none'`) have a fine 1 px edge all round (`brand.css`).
   Light as the hierarchy (after the owner's light-first review): `data-ll-lit="fallback"` takes the light only when
   nothing else on the page has it (Today's first open to-do, `.path__step`, its light reaching `--space-3` past the row);
