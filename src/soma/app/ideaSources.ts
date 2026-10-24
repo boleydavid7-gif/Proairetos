@@ -18,8 +18,8 @@ export async function searchWikibooks(query: string): Promise<Idea[]> {
   const words = query.trim();
   if (words.length < 2) return [];
   const params = new URLSearchParams({
-    action: 'query', list: 'search', srnamespace: '0', srlimit: '12',
-    srsearch: `${words} incategory:Cookbook`, format: 'json', origin: '*',
+    action: 'query', list: 'search', srnamespace: '102', srlimit: '12',
+    srsearch: words, format: 'json', origin: '*',
   });
   const response = await fetch(`https://en.wikibooks.org/w/api.php?${params.toString()}`);
   if (!response.ok) throw new Error('Wikibooks did not answer just now.');
