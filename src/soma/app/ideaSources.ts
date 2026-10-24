@@ -17,11 +17,7 @@ const mealIdea = (meal: Found): Idea => ({ ...meal, sourceId: 'mealdb', sourceLa
 export async function searchWikibooks(query: string): Promise<Idea[]> {
   const words = query.trim();
   if (words.length < 2) return [];
-  const params = new URLSearchParams({
-    action: 'query', list: 'search', srnamespace: '102', srlimit: '12',
-    srsearch: words, format: 'json', origin: '*',
-  });
-  const response = await fetch(`https://en.wikibooks.org/w/api.php?${params.toString()}`);
+  const response = await fetch(apiUrl(`/api/recipe-ideas?q=${encodeURIComponent(words)}`));
   if (!response.ok) throw new Error('Wikibooks did not answer just now.');
   const body = (await response.json()) as { query?: { search?: { pageid: number; title: string }[] } };
   return (body.query?.search ?? [])

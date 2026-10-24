@@ -22,7 +22,7 @@ describe('Soma idea sources', () => {
       idMeal: 'wikibooks-42', strMeal: 'Tomato soup', sourceLabel: 'Wikibooks Cookbook', importable: false,
       url: 'https://en.wikibooks.org/wiki/Cookbook:Tomato_soup',
     })]);
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('srnamespace=102'));
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/recipe-ideas?q=tomato%20soup'));
   });
 
   it('opens an external idea in Soma review when its page has a structured recipe', async () => {
