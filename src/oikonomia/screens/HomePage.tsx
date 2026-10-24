@@ -73,6 +73,9 @@ export default function HomePage({ nav }: { nav: Nav }) {
               <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
                 Add a bill
               </button>
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>
+                Record an expense
+              </button>
             </section>
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly budget</span>
@@ -103,6 +106,11 @@ export default function HomePage({ nav }: { nav: Nav }) {
             )}
 
             <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
+
+            <div className="button-row oiko-home-actions">
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>Record an expense</button>
+              <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'spent' })}>View spending</button>
+            </div>
 
             <div className="oiko-section-head">
               <h2>This month</h2>

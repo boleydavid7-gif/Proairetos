@@ -25,6 +25,7 @@ export type Route =
   | { name: 'edit'; id: string }
   | { name: 'budget' }
   | { name: 'spent' }
+  | { name: 'expense' }
   | { name: 'envelopes' }
   | { name: 'about' }
   | { name: 'year' }
@@ -119,6 +120,8 @@ export default function App() {
         return <BudgetPage nav={nav} />;
       case 'spent':
         return <SpentPage nav={nav} />;
+      case 'expense':
+        return <SpentPage nav={nav} quick />;
       case 'envelopes':
         return <EnvelopesPage nav={nav} />;
       case 'about':

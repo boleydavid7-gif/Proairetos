@@ -21,7 +21,7 @@ const shiftMonth = (month: string, by: number) => {
 const dayOf = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
 /** What went out in a month, from statements, by area: plain totals beside the month's plan, and every line. */
-export default function SpentPage({ nav }: { nav: Nav }) {
+export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: boolean }) {
   const settings = useSettings();
   const [month, setMonth] = useState(() => monthKey());
   const lines = useSpent(month);
@@ -30,7 +30,7 @@ export default function SpentPage({ nav }: { nav: Nav }) {
   const [problem, setProblem] = useState('');
   const [open, setOpen] = useState<BudgetCategory>();
   const [moving, setMoving] = useState<Spent>();
-  const [entryOpen, setEntryOpen] = useState(false);
+  const [entryOpen, setEntryOpen] = useState(quick);
   const [entryDate, setEntryDate] = useState(() => (month === monthKey() ? localDate() : `${month}-01`));
   const [entryDescription, setEntryDescription] = useState('');
   const [entryAmount, setEntryAmount] = useState('');
@@ -93,6 +93,7 @@ export default function SpentPage({ nav }: { nav: Nav }) {
     setEntryOpen(false);
     setProblem('');
     offerUndo('Expense removed', () => saveSpent(month, before));
+    if (quick) nav.back();
   };
 
   if (review) {
@@ -128,19 +129,21 @@ export default function SpentPage({ nav }: { nav: Nav }) {
       <div className="oiko-budget__heading">
         <div>
           <p className="label">Spent</p>
-          <h1 className="title">{formatMonthKey(month)}</h1>
+          <h1 className="title">{quick ? 'Record an expense' : formatMonthKey(month)}</h1>
         </div>
-        <div className="oiko-budget__switch">
+        {!quick && <div className="oiko-budget__switch">
           <IconButton size="md" className="round-button" label="Previous month" onClick={() => setMonth(shiftMonth(month, -1))}><ArrowLeftIcon size={18} /></IconButton>
           <IconButton size="md" className="round-button" label="Next month" onClick={() => setMonth(shiftMonth(month, 1))}><ArrowRightIcon size={18} /></IconButton>
-        </div>
+        </div>}
       </div>
 
-      <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-      <div className="button-row oiko-spent-actions">
-        <button type="button" className="button-main" onClick={() => file.current?.click()}>Bring in a statement</button>
-        <button type="button" className="button-quiet" onClick={() => { setEntryOpen(!entryOpen); setProblem(''); }}>{entryOpen ? 'Cancel' : 'Add expense'}</button>
-      </div>
+      {!quick && <>
+        <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
+        <div className="button-row oiko-spent-actions">
+          <button type="button" className="button-main" onClick={() => file.current?.click()}>Bring in a statement</button>
+          <button type="button" className="button-quiet" onClick={() => { setEntryOpen(!entryOpen); setProblem(''); }}>{entryOpen ? 'Cancel' : 'Add expense'}</button>
+        </div>
+      </>}
       {problem && <p className="form-error" role="alert">{problem}</p>}
 
       {entryOpen && (

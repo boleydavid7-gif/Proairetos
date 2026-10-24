@@ -210,6 +210,10 @@
   font-weight: 400;
 }
 
+.oiko-home-actions {
+  margin: 10px 0 4px;
+}
+
 .oiko-calendar-switch {
   display: inline-flex;
   align-self: flex-start;
