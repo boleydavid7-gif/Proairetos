@@ -1016,11 +1016,34 @@
   font-size: 1.15rem;
   color: var(--text);
 }
+.week__move {
+  min-height: 36px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.week__move:hover,
+.week__move:focus-visible {
+  border-color: var(--mint);
+  color: var(--mint);
+}
 .week__remove {
   min-width: 44px;
   min-height: 44px;
   color: var(--muted);
   font-size: 1.3rem;
+}
+.move-days {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.move-days__day {
+  width: 100%;
+  text-align: left;
 }
 .idea-row__placeholder {
   display: grid;

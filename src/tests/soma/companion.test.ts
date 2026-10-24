@@ -7,7 +7,7 @@ import { dayShape, type Block } from '../../soma/core/dayShape';
 import { gatherList, ovenHeats, scaleStep, stepsWithAmounts, timerName } from '../../soma/core/cookAids';
 import { swapsFor } from '../../soma/core/swaps';
 import { inSeason, seasonalRecipes } from '../../soma/core/seasons';
-import { plannedAhead, plannedOn, togglePlanned, weekFrom } from '../../soma/core/week';
+import { movePlanned, plannedAhead, plannedOn, plannedWeek, togglePlanned, weekFrom } from '../../soma/core/week';
 import { recipeAsText } from '../../soma/core/share';
 import { fromText } from '../../soma/core/importRecipe';
 import type { Recipe } from '../../soma/core/recipes';
@@ -160,6 +160,8 @@ describe('a loose week', () => {
     expect(plannedOn([next], '2026-10-04')).toHaveLength(1);
     expect(plannedAhead([next, r], '2026-10-03').map((each) => each.title)).toEqual(['Stew']);
     expect(weekFrom('2026-10-03')).toHaveLength(7);
+    expect(plannedWeek([next, { ...next, id: 'second', planned: ['2026-10-04'] }], '2026-10-03').map((each) => each.id)).toEqual(['Stew', 'second']);
+    expect(movePlanned(next, '2026-10-04', '2026-10-05', '2026-10-03').planned).toEqual(['2026-10-05']);
   });
 });
 

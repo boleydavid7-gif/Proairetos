@@ -13,11 +13,23 @@ export function plannedOn(recipes: readonly Recipe[], day: string): Recipe[] {
   return recipes.filter((recipe) => recipe.planned?.includes(day));
 }
 
+/** Every planned meal occurrence in a week, preserving repeated recipes. */
+export function plannedWeek(recipes: readonly Recipe[], start: string, days = 7): Recipe[] {
+  return weekFrom(start, days).flatMap((day) => plannedOn(recipes, day));
+}
+
 /** The recipe with a day added or taken away; days already past are let go. */
 export function togglePlanned(recipe: Recipe, day: string, today: string): Recipe {
   const days = (recipe.planned ?? []).filter((each) => each >= today);
   const next = days.includes(day) ? days.filter((each) => each !== day) : [...days, day].sort();
   return { ...recipe, planned: next };
+}
+
+/** Moves one planned occurrence, leaving the recipe's other planned days intact. */
+export function movePlanned(recipe: Recipe, from: string, to: string, today: string): Recipe {
+  const days = (recipe.planned ?? []).filter((each) => each >= today);
+  if (!days.includes(from) || from === to) return recipe;
+  return { ...recipe, planned: [...new Set([...days.filter((each) => each !== from), to])].sort() };
 }
 
 /** Recipes planned from today on, each once, in the order of their first day. */

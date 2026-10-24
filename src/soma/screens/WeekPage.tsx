@@ -6,7 +6,7 @@ import { BackLink, dayLabel, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { isHeading, marks, searchRecipes, type Mark, type Recipe } from '../core/recipes';
-import { plannedAhead, plannedOn, repeatWeekBefore, togglePlanned, weekFrom } from '../core/week';
+import { movePlanned, plannedOn, plannedWeek, repeatWeekBefore, togglePlanned, weekFrom } from '../core/week';
 import { addDays } from '../../core/scheduling/dates';
 import { loadSettings, putRecipe, saveGroceries } from '../data/store';
 import { Sym } from '../../lamplight/icons';
@@ -18,11 +18,12 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
   const today = useToday();
   const undo = useUndo();
   const [picking, setPicking] = useState<string>();
+  const [moving, setMoving] = useState<{ recipe: Recipe; from: string }>();
   // This week and up to three ahead; each shows seven days from its start.
   const [offset, setOffset] = useState(0);
   const start = addDays(today, offset * 7);
   const days = weekFrom(start);
-  const ahead = plannedAhead(recipes, start);
+  const meals = plannedWeek(recipes, start);
   const again = repeatWeekBefore(recipes, start, today);
 
   const toggle = (recipe: Recipe, day: string) => {
@@ -31,10 +32,25 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
     return () => void putRecipe({ ...before, updatedAt: new Date().toISOString() });
   };
 
+  const move = (recipe: Recipe, from: string, to: string) => {
+    if (to === from) return;
+    const occupied = plannedOn(recipes, to).filter((each) => each.id !== recipe.id);
+    if (occupied.length > 0 && !window.confirm(`Replace ${occupied.map((each) => each.title).join(' and ')} on ${dayLabel(to, today, true)}?`)) return;
+    const affected = [recipe, ...occupied];
+    const before = affected.map((each) => ({ ...each, planned: each.planned ? [...each.planned] : undefined }));
+    const now = new Date().toISOString();
+    void putRecipe({ ...movePlanned(recipe, from, to, today), updatedAt: now });
+    for (const each of occupied) void putRecipe({ ...togglePlanned(each, to, today), updatedAt: now });
+    setMoving(undefined);
+    undo(`${recipe.title} moved to ${dayLabel(to, today, true)}`, () => {
+      for (const each of before) void putRecipe({ ...each, updatedAt: new Date().toISOString() });
+    });
+  };
+
   const buyFor = async () => {
     const have = loadSettings().usuallyHave;
     const kitchen = kitchenNames(groceries);
-    const lines = ahead.flatMap((recipe) =>
+    const lines = meals.flatMap((recipe) =>
       recipe.ingredients
         .filter((line) => !isHeading(line) && isGrocery(line) && !usuallyHave(line, have) && usesFromKitchen([line], kitchen).length === 0)
         .map((line) => ({ line, recipe: { id: recipe.id, title: recipe.title } })),
@@ -84,6 +100,9 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
                   <button type="button" className="week__title" onClick={() => nav.go({ name: 'recipe', id: recipe.id })}>
                     {recipe.title}
                   </button>
+                  <button type="button" className="week__move" onClick={() => setMoving({ recipe, from: day })}>
+                    Move
+                  </button>
                   <button
                     type="button"
                     className="week__remove"
@@ -96,9 +115,9 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
           );
         })}
       </ul>
-      {ahead.length > 0 && (
+      {meals.length > 0 && (
         <button type="button" className="button-main" onClick={() => void buyFor()}>
-          Groceries for these
+          {offset === 0 ? 'Build groceries for this week' : 'Build groceries for next week'}
         </button>
       )}
 
@@ -115,6 +134,35 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
           }}
         />
       )}
+      {moving && (
+        <MoveRecipe
+          recipe={moving.recipe}
+          from={moving.from}
+          days={days}
+          today={today}
+          onClose={() => setMoving(undefined)}
+          onMove={(to) => move(moving.recipe, moving.from, to)}
+        />
+      )}
+    </div>
+  );
+}
+
+function MoveRecipe({ recipe, from, days, today, onClose, onMove }: { recipe: Recipe; from: string; days: string[]; today: string; onClose: () => void; onMove: (day: string) => void }) {
+  return (
+    <div className="sheet-back" onClick={onClose}>
+      <div className="sheet" role="dialog" aria-label={`Move ${recipe.title}`} onClick={(event) => event.stopPropagation()}>
+        <h2 className="sheet__title">Move {recipe.title}</h2>
+        <p className="muted">Choose another day this week.</p>
+        <div className="move-days">
+          {days.filter((day) => day !== from).map((day) => (
+            <button key={day} type="button" className="button-quiet move-days__day" onClick={() => onMove(day)}>
+              {dayLabel(day, today, true)}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="button-quiet" onClick={onClose}>Cancel</button>
+      </div>
     </div>
   );
 }
