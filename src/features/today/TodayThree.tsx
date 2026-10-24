@@ -7,7 +7,6 @@ import type { LifeItem } from '../../core/life-items/types';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons/Icons';
 import { GLYPHS, LampIcon } from '../../lamplight/icons';
 import NotForMe from './NotForMe';
-import EnergyChoice, { useEnergy } from './EnergyChoice';
 import { useServiceData } from '../../app/hooks/useServiceData';
 
 /** The names of the values the person linked to an item, for showing beside it. */
@@ -24,13 +23,15 @@ type Props = {
   items: LifeItem[];
   /** Render the choices inside Today’s intention instead of as a separate section. */
   embedded?: boolean;
+  /** Let the intention editor place the picker action in its own footer. */
+  pickerOpen?: boolean;
+  onPickerOpenChange?: (open: boolean) => void;
 };
 
 const isOpen = (item: LifeItem) => item.status === 'OPEN' || item.status === 'WAITING';
 
 function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   const { dialog, panel } = useSheet();
-  const energy = useEnergy(date);
   const names = useValueNames();
   const [error, setError] = useState('');
   // Shows a tap at once; the saved value takes over when it arrives.
@@ -38,9 +39,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
   // Done ones stay on the day's list, so they are listed (and can be taken off) too.
   const open = items
     .filter((item) => isOpen(item) || (item.status === 'DONE' && item.pickedFor === date))
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    // When the person says energy is low, what they marked as light comes first. Nothing else is reordered.
-    .sort((a, b) => (energy === 'low' || energy === 'some' ? Number(Boolean(b.light)) - Number(Boolean(a.light)) : 0));
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const isPicked = (item: LifeItem) => pending[item.id] ?? item.pickedFor === date;
 
   // Drop a pending tap once the saved data agrees with it.
@@ -71,7 +70,6 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
         </button>
         <p className="sheet__title sheet__title--static">Today’s to-do</p>
         {pickedCount > 0 && <p className="sheet__status">{pickedCount} chosen · Up to 3</p>}
-        <EnergyChoice date={date} />
         {open.length === 0 && <p className="empty-note">Nothing open yet. Capture something first.</p>}
         {[
           {
@@ -141,10 +139,12 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
  * Today’s to-do: the things the person chose from their list for the day, as a short path of
  * circles. Checking one closes it with an undo; nothing carries over as a debt.
  */
-export default function TodayThree({ date, items, embedded = false }: Props) {
+export default function TodayThree({ date, items, embedded = false, pickerOpen, onPickerOpenChange }: Props) {
   const { openItem, offerUndo, startFocus, focusSession } = useOverlays();
   const names = useValueNames();
-  const [picking, setPicking] = useState(false);
+  const [internalPicking, setInternalPicking] = useState(false);
+  const picking = pickerOpen ?? internalPicking;
+  const setPicking = onPickerOpenChange ?? setInternalPicking;
   const anyOpen = items.some(isOpen);
   const picks = items
     .filter((item) => item.pickedFor === date && (isOpen(item) || item.status === 'DONE'))
@@ -176,11 +176,6 @@ export default function TodayThree({ date, items, embedded = false }: Props) {
             )}
           </span>
         </div>
-      )}
-      {embedded && picks.length > 0 && (
-        <button type="button" className="text-link intention__change" onClick={() => setPicking(true)}>
-          Change chosen things
-        </button>
       )}
       {picks.length > 0 ? (
         <ol className="path">
@@ -223,7 +218,7 @@ export default function TodayThree({ date, items, embedded = false }: Props) {
           </span>
         </button>
       )}
-      {picks.length > 0 ? null : (
+      {!embedded && picks.length === 0 && (
         <button type="button" className="path-empty" onClick={() => setPicking(true)}>
           <span className="path-empty__dots" aria-hidden="true"><span /></span>
           Choose from your list

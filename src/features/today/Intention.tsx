@@ -18,6 +18,7 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
   );
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
+  const [picking, setPicking] = useState(false);
   if (!loaded) return null;
 
   const current = loaded.body;
@@ -30,6 +31,7 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
 
   async function save() {
     await reflectionService.setIntention(date, draft);
+    setPicking(false);
     setEditing(false);
     if (current && !draft.trim()) {
       offerUndo('Intention cleared', () => reflectionService.setIntention(date, current));
@@ -68,13 +70,21 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
-          <div className="composer__actions">
-            <button type="button" className="button-quiet" onClick={() => setEditing(false)}>
-              Cancel
+          {isToday && items && (
+            <TodayThree date={date} items={items} embedded pickerOpen={picking} onPickerOpenChange={setPicking} />
+          )}
+          <div className="intention__actions">
+            <button type="button" className="button-quiet intention__choose" onClick={() => setPicking(true)}>
+              Choose from your list
             </button>
-            <button type="submit" className="button-accent">
-              Save
-            </button>
+            <span className="intention__actions-right">
+              <button type="button" className="button-quiet" onClick={() => { setPicking(false); setEditing(false); }}>
+                Cancel
+              </button>
+              <button type="submit" className="button-accent">
+                Save
+              </button>
+            </span>
           </div>
         </form>
       ) : (
@@ -83,7 +93,7 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
       )}
-      {isToday && items && <TodayThree date={date} items={items} embedded />}
+      {!editing && isToday && items && <TodayThree date={date} items={items} embedded />}
     </section>
   );
 }

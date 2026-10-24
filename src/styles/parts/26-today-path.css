@@ -54,6 +54,32 @@
   align-items: stretch;
 }
 
+.intention__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.intention__choose {
+  flex: 1;
+  min-width: 0;
+  padding-left: 0;
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.intention__actions-right {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
 .intention__input {
   width: 100%;
   padding: 0;

@@ -237,7 +237,7 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      {shows('intention') && <Intention date={date} isToday items={shows('path') ? items : undefined} />}
+      {shows('intention') && <Intention date={date} isToday items={items} />}
       <TodayTogether />
       {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
 
