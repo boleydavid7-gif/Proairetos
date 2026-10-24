@@ -1,4 +1,4 @@
-import { addMonths, monthCells, nextBills, occurrenceOnOrAfter, occurrencesBetween, weekBounds, type Bill } from '../../oikonomia/core/bills';
+import { addMonths, monthCells, needsAttention, nextBills, occurrenceOnOrAfter, occurrencesBetween, weekBounds, type Bill } from '../../oikonomia/core/bills';
 import { billCalendarText } from '../../oikonomia/core/calendar';
 import { financeLineFor } from '../../oikonomia/core/lines';
 
@@ -52,6 +52,13 @@ describe('Oikonomia bill dates', () => {
   it('uses the selected first day for the plan week', () => {
     expect(weekBounds('2026-10-05', 1)).toEqual({ from: '2026-10-05', until: '2026-10-11' });
     expect(weekBounds('2026-10-05', 3)).toEqual({ from: '2026-09-30', until: '2026-10-06' });
+  });
+
+  it('reserves attention for unpaid bills due today or earlier', () => {
+    expect(needsAttention(bill({ dueDate: '2026-10-03' }), '2026-10-03', '2026-10-03')).toBe(true);
+    expect(needsAttention(bill({ dueDate: '2026-10-02' }), '2026-10-02', '2026-10-03')).toBe(true);
+    expect(needsAttention(bill({ dueDate: '2026-10-03', autopay: true }), '2026-10-03', '2026-10-03')).toBe(false);
+    expect(needsAttention(bill({ dueDate: '2026-10-04' }), '2026-10-04', '2026-10-03')).toBe(false);
   });
 
   it('keeps one finance line for the day', () => {

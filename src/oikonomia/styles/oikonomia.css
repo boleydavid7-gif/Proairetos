@@ -236,6 +236,22 @@
   color: var(--oiko-clay);
 }
 
+.oiko-week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 2px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.oiko-week-nav strong {
+  color: var(--text);
+  font-weight: 600;
+  text-align: center;
+}
+
 .oiko-list {
   display: flex;
   flex-direction: column;

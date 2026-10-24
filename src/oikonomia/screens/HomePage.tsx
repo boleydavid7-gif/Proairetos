@@ -2,7 +2,7 @@ import { Placeholder } from '../../lamplight/Placeholder';
 import { Total } from '../app/Total';
 import type { Nav } from '../app/App';
 import { ChevronIcon, RepeatIcon } from '../app/icons';
-import { formatDate, formatMoney, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
+import { formatDate, formatMoney, needsAttention, relativeDue, monthBounds, occurrencesBetween, remainingSummary, standing, stillToCome, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
 import { payBill } from '../app/payBill';
 import { useBills, useBudget, useEnvelopes, useSettings, useSomaRecipes, useToday } from '../app/state';
@@ -89,7 +89,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
         ) : (
           <>
             {next && (
-              <section className="card oiko-next-card">
+              <section className="card oiko-next-card" data-ll-lit={needsAttention(next.bill, next.date, today) ? 'fallback' : undefined}>
                 <button type="button" className="oiko-next-card__bill" onClick={() => nav.go({ name: 'bill', id: next.bill.id })}>
                   <span className="oiko-bill-emblem"><RepeatIcon size={20} /></span>
                   <span className="oiko-next-card__words">

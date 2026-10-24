@@ -171,6 +171,11 @@ export function paidForOccurrence(bill: Bill, date: string, today = localDate())
   return undefined;
 }
 
+/** The calm attention state: only an unpaid bill due today or already past due. */
+export function needsAttention(bill: Bill, date: string, today = localDate()): boolean {
+  return date <= today && !paidForOccurrence(bill, date, today);
+}
+
 /** What a date comes to: what was paid, once it is paid, else the bill's amount. */
 export function amountFor(bill: Bill, date: string, today = localDate()): number {
   return paidForOccurrence(bill, date, today)?.amountCents ?? bill.amountCents;
