@@ -6,10 +6,9 @@ import { formatDate, formatMoney, needsAttention, relativeDue, monthBounds, occu
 import SwipeRow from '../app/SwipeRow';
 import { payBill } from '../app/payBill';
 import { useBills, useBudget, useEnvelopes, useSettings, useSomaRecipes, useToday } from '../app/state';
-import { budgetTotals, foodWeekSummary, monthKey, spendingTotals } from '../core/budget';
+import { budgetTotals, monthKey, spendingTotals } from '../core/budget';
 import { envelopeMonthlyTotal } from '../core/envelopes';
-import { monthsWithSpent, spentIn, useSpent } from '../data/spent';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { useSpent } from '../data/spent';
 import { Brand, Hero } from '../app/ui';
 import PayCard from './PayCard';
 
@@ -50,8 +49,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const spentSummary = spendingTotals(spentLines);
   const envelopeSummary = envelopeMonthlyTotal(envelopes, budget?.currency ?? settings.currency);
   const plannedSummary = budgetSummary.plannedCents + envelopeSummary;
-  const allSpent = [...new Set(monthsWithSpent())].flatMap((key) => spentIn(key));
-  const foodWeek = foodWeekSummary(allSpent, recipes, toLocalDate(new Date()), settings.planWeekStart, settings.currency);
   const thisMonth = all
     .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
@@ -109,17 +106,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
             )}
 
             <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
-
-            <button type="button" className="card oiko-food-home" onClick={() => nav.go({ name: 'budget' })}>
-              <span className="card__eyebrow">Weekly food check</span>
-              {settings.weeklyFoodBudgetCents ? (
-                <>
-                  <span className="oiko-food-home__line"><strong>{formatMoney(foodWeek.actualCents, settings.currency)}</strong><span>of {formatMoney(settings.weeklyFoodBudgetCents, settings.currency)} spent</span></span>
-                  <span className={foodWeek.actualCents > settings.weeklyFoodBudgetCents || foodWeek.paceCents > settings.weeklyFoodBudgetCents ? 'oiko-food-home__note is-over' : 'oiko-food-home__note'}>{foodWeek.actualCents > settings.weeklyFoodBudgetCents ? `Over by ${formatMoney(foodWeek.actualCents - settings.weeklyFoodBudgetCents, settings.currency)}` : foodWeek.paceCents > settings.weeklyFoodBudgetCents ? `At this pace: about ${formatMoney(foodWeek.paceCents, settings.currency)}` : `${formatMoney(settings.weeklyFoodBudgetCents - foodWeek.actualCents, settings.currency)} left this week`}</span>
-                </>
-              ) : <span className="oiko-food-home__line"><span>Set a weekly food limit</span></span>}
-              <span className="muted"><ChevronIcon size={18} /></span>
-            </button>
 
             <div className="button-row oiko-home-actions">
               <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>Record an expense</button>
