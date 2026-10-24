@@ -136,8 +136,22 @@ export function billFromText(text: string, thisYear = new Date().getFullYear()):
 
 /** Receipt values use the same on-device reader as bills, but a printed date is a transaction date, not a due date. */
 export function receiptFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
-  const found = billFromText(text, thisYear).map((each) => each.key === 'due' ? { ...each, key: 'date', label: 'Date' } : each);
-  if (found.some((each) => each.key === 'date')) return found;
-  const date = text.split(/\r?\n/).map((line) => dateIn(line, thisYear)).find(Boolean);
-  return date ? [...found, { key: 'date', label: 'Date', value: date }] : found;
+  const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due');
+  const moneyPattern = /(?:[$£€¥]\s*)?(\d{1,4}(?:[.,]\d{1,2})?)(?![\d.,])/g;
+  const moneyValue = (raw: string): number | undefined => {
+    const cleaned = raw.replace(/[$£€¥\s]/g, '');
+    const normalized = /,\d{1,2}$/.test(cleaned) ? cleaned.replace(/\./g, '').replace(',', '.') : cleaned.replace(/,/g, '');
+    const value = Number(normalized);
+    return Number.isFinite(value) ? value : undefined;
+  };
+  const labelled = lines
+    .filter((line) => /\b(?:grand\s+)?total\b(?!\s+tax)|amount\s+paid|purchase\s+total|balance\b/i.test(line))
+    .flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined));
+  const allAmounts = lines.flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined));
+  const amount = (labelled.length ? labelled : allAmounts).filter((value) => value > 0 && value < 100_000).sort((a, b) => b - a)[0];
+  if (amount !== undefined) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
+  const date = lines.map((line) => dateIn(line, thisYear)).find(Boolean);
+  if (date) found.push({ key: 'date', label: 'Date', value: date });
+  return found;
 }

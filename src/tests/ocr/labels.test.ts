@@ -59,3 +59,9 @@ it('reads a receipt total and transaction date without calling it a due date', (
   expect(value(found, 'date')).toBe('2026-10-24');
   expect(found.some((each) => each.key === 'due')).toBe(false);
 });
+
+it('prefers the labelled receipt total over an item price', () => {
+  const found = receiptFromText('Market\nItem 19.9\nTax 2.14\nTOTAL: 31.62\n10/22/26 04:34pm', 2026);
+  expect(value(found, 'amount')).toBe('31.62');
+  expect(value(found, 'date')).toBe('2026-10-22');
+});
