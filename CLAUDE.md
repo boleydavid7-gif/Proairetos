@@ -168,7 +168,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   wallpaper: four soft color blooms of the room, the lamp as a warm glow with no rings or hard center, two silk folds
   with a lit top edge and a soft shade beneath, fine grain from `feTurbulence`; tall for phones, wide from 62rem) as `--room-wall` on `.app-shell` (`02-shell.css`). Tests in
   `src/tests/lamplight/`. Gold tints in Proairetos's styles use `--color-accent-rgb`.
-  Night (the dark appearance) is a moon, not a lamp (`moonlight` in `wallpaper.ts`, the owner's choice): a small pale disc with a soft rim, a wide faint halo, a few dim stars, and the room's bloom around it at 0.14 instead of 0.42; on phones it keeps to the band between the top bar and the title (y .17-.26). Light mode keeps the lamp.
+  Night (the dark appearance) has no lamp (`nightLight` in `wallpaper.ts`, the owner's choice; a small moon disc was tried and rejected): a wide faint glow where the light would be, a few dim stars, and the room's bloom around it at 0.14 instead of 0.42. Light mode keeps the lamp.
   One light per page: the lamp sits above the title and clear of the top-right icons (x .6, y .09 tall; .66/.12 wide).
   Today's foot (`Landscape`) is drawn from the same room (`footSvg`, `--room-foot` / `--room-foot-wide`: two silk folds
   fading into the page over a bloom of the room's color, a rim of the lamp's light, no sun or clouds), and Compass's `PageHero` has no picture of its own

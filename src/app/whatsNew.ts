@@ -3,7 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-24',
     lines: [
-      'In the dark appearance, the light on Proairetos’s wallpaper is a moon with a few faint stars instead of a bright lamp.',
+      'In the dark appearance, the light on Proairetos’s wallpaper is a faint night glow with a few dim stars instead of a bright lamp.',
     ],
   },
   {
