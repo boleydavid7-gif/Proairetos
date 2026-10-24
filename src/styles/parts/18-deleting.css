@@ -8,9 +8,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  align-self: center;
+  height: 2.5rem;
+  min-height: 2.5rem;
   padding: 0 var(--space-4) 0 0;
   color: var(--color-text-faint);
   line-height: 1;
+  text-align: left;
 }
 
 .chip--quiet {

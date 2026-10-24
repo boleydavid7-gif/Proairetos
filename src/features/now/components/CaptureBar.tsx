@@ -3,6 +3,7 @@ import { lifeService } from '../../../app/services';
 import { OverlayContext } from '../../../app/overlays/OverlayContext';
 import { Sym } from '../../../lamplight/icons';
 import { describeQuickAdd, parseQuickAdd } from '../../../core/capture/quickAdd';
+import { readDump } from '../../../core/capture/brainDump';
 import { atTime, toLocalDate } from '../../../core/scheduling/dates';
 import MicButton from '../../../components/dictation/MicButton';
 import { CaptureIcon } from '../../../components/icons/Icons';
@@ -55,20 +56,33 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
     setText('');
     setAsWritten(false);
     try {
-      // Something given a day or time is something to do: it is filed as a To do rather than left not sorted.
-      const item = await lifeService.add(read ? read.title : value, read ? (kind ?? 'TODO') : kind, read?.day && !read.time ? { plannedFor: read.day } : {});
-      if (read?.time) {
-        const start = atTime(read.day ?? today, read.time);
-        const end = read.minutes ? new Date(start.getTime() + read.minutes * 60_000) : undefined;
-        await lifeService.scheduleSpan(item.id, start.toISOString(), end?.toISOString());
-        if (notifications.permission() === 'default' && !remindOfferSeen()) setOfferReminders(true);
+      // A plain unsorted capture may contain several clear actions. Keep scheduled quick-add
+      // phrases together so their date and time remain unambiguous.
+      const titles = !kind && !read ? readDump(value, today).map((line) => line.text) : [read ? read.title : value];
+      const captured: LifeItem[] = [];
+      for (const title of titles) {
+        // Something given a day or time is something to do; plain split captures stay unsorted.
+        const item = await lifeService.add(title, read ? (kind ?? 'TODO') : kind, read?.day && !read.time ? { plannedFor: read.day } : {});
+        captured.push(item);
+        if (read?.time) {
+          const start = atTime(read.day ?? today, read.time);
+          const end = read.minutes ? new Date(start.getTime() + read.minutes * 60_000) : undefined;
+          await lifeService.scheduleSpan(item.id, start.toISOString(), end?.toISOString());
+          if (notifications.permission() === 'default' && !remindOfferSeen()) setOfferReminders(true);
+        }
       }
-      onCaptured?.(item);
+      captured.forEach((item) => onCaptured?.(item));
       // On Today the new line is not in view, so say it was kept, with a way back.
-      if (variant === 'quiet')
-        overlays?.offerUndo(read ? `“${read.title}” added, ${when}` : `“${item.title}” added`, async () => {
-          await lifeService.deleteItem(item.id);
+      if (variant === 'quiet') {
+        const message = captured.length > 1
+          ? `${captured.length} things added`
+          : read
+            ? `“${captured[0].title}” added, ${when}`
+            : `“${captured[0].title}” added`;
+        overlays?.offerUndo(message, async () => {
+          for (const item of captured) await lifeService.deleteItem(item.id);
         });
+      }
     } catch {
       setText((current) => current || value);
     }
