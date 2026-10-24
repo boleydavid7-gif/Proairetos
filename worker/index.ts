@@ -1,6 +1,6 @@
 import { handleCalendarRequest } from './calendarProxy';
 import { handleRecipeRequest } from './recipeProxy';
-import { handleRecipeIdeasRequest } from './recipeIdeas';
+import { handleRecipeIdeasRequest, type RecipeIdeasEnv } from './recipeIdeas';
 import { handlePlantRequest } from './plantProxy';
 import { handleTravelEvents } from './travelEvents';
 import { handleTravelSearch } from './travelSearch';
@@ -16,7 +16,7 @@ import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 export const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -64,7 +64,7 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400' } });
     if (url.pathname === '/api/calendar') return handleCalendarRequest(request);
     if (url.pathname === '/api/recipe') return handleRecipeRequest(request);
-    return handleRecipeIdeasRequest(request);
+    return handleRecipeIdeasRequest(request, env);
   }
   if (url.pathname === '/api/speculation-rules') return speculationResponse();
   // Bring your own storage: which providers are set up, and the sign-in step that needs their secrets.

@@ -5,7 +5,7 @@ import { fromJsonLd } from '../core/importRecipe';
 
 /** A result from one of the sources shown in Soma's Ideas shelf. */
 export type Idea = Found & {
-  sourceId: 'mealdb' | 'wikibooks';
+  sourceId: 'mealdb' | 'wikibooks' | 'spoonacular' | 'tasty';
   sourceLabel: string;
   url?: string;
   importable: boolean;
@@ -19,16 +19,16 @@ export async function searchWikibooks(query: string): Promise<Idea[]> {
   if (words.length < 2) return [];
   const response = await fetch(apiUrl(`/api/recipe-ideas?q=${encodeURIComponent(words)}`));
   if (!response.ok) throw new Error('Wikibooks did not answer just now.');
-  const body = (await response.json()) as { query?: { search?: { pageid: number; title: string }[] } };
+  const body = (await response.json()) as { query?: { search?: { pageid: string; title: string; provider?: Idea['sourceId']; image?: string; url?: string }[] } };
   return (body.query?.search ?? [])
-    .filter((page) => page.title && !/^category:/i.test(page.title))
+    .filter((page) => page.title)
     .map((page) => ({
-      idMeal: `wikibooks-${page.pageid}`,
-      strMeal: page.title.replace(/^Cookbook:/i, '').trim(),
-      strMealThumb: undefined,
-      sourceId: 'wikibooks' as const,
-      sourceLabel: 'Wikibooks Cookbook',
-      url: `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`,
+      idMeal: page.pageid,
+      strMeal: page.title,
+      strMealThumb: page.image,
+      sourceId: page.provider ?? 'wikibooks',
+      sourceLabel: page.provider === 'spoonacular' ? 'Spoonacular' : page.provider === 'tasty' ? 'Tasty' : 'Wikibooks Cookbook',
+      url: page.url ?? `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`,
       importable: false,
     }));
 }

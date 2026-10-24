@@ -16,11 +16,11 @@ describe('Soma idea sources', () => {
   });
 
   it('turns Wikibooks search results into external, attributed ideas', async () => {
-    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ query: { search: [{ pageid: 42, title: 'Cookbook:Tomato soup' }, { pageid: 43, title: 'Category:Soups' }] } }), { status: 200 }));
+    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ query: { search: [{ pageid: 'wikibooks-42', title: 'Tomato soup', provider: 'wikibooks' }] } }), { status: 200 }));
     vi.stubGlobal('fetch', fetch);
     await expect(searchWikibooks('tomato soup')).resolves.toEqual([expect.objectContaining({
       idMeal: 'wikibooks-42', strMeal: 'Tomato soup', sourceLabel: 'Wikibooks Cookbook', importable: false,
-      url: 'https://en.wikibooks.org/wiki/Cookbook:Tomato_soup',
+      url: 'https://en.wikibooks.org/wiki/Tomato_soup',
     })]);
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/recipe-ideas?q=tomato%20soup'));
   });
