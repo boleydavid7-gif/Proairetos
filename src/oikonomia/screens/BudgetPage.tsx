@@ -4,15 +4,16 @@ import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
 import { newId, useBills, useBudget, useEnvelopes, useSettings, useSomaRecipes } from '../app/state';
-import { formatMoney, nextMonth } from '../core/bills';
-import { budgetCategories, budgetTotals, emptyLimits, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, spendingTotals, type BudgetCategory, type BudgetPlan } from '../core/budget';
+import { formatDate, formatMoney, nextMonth } from '../core/bills';
+import { budgetCategories, budgetTotals, emptyLimits, foodWeekSummary, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, spendingTotals, type BudgetCategory, type BudgetPlan } from '../core/budget';
 import { incomeForMonth } from '../core/pay';
 import { envelopeMonthlyTotal } from '../core/envelopes';
 import { usePays } from '../data/pay';
-import { useSpent } from '../data/spent';
-import { putBudget } from '../data/store';
+import { monthsWithSpent, spentIn, useSpent } from '../data/spent';
+import { loadSettings, putBudget, saveSettings } from '../data/store';
 import { PageTop } from '../app/ui';
 import IconButton from '../../components/ui/IconButton';
+import { toLocalDate } from '../../core/scheduling/dates';
 
 const amountText = (value: number) => (value ? (value / 100).toFixed(2) : '');
 const areaCategories = budgetCategories;
@@ -32,6 +33,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   const [itemName, setItemName] = useState('');
   const [itemAmountText, setItemAmountText] = useState('');
   const [itemCategory, setItemCategory] = useState<BudgetCategory>('other');
+  const [weeklyFoodText, setWeeklyFoodText] = useState('');
   const [message, setMessage] = useState('');
   const [dirty, setDirty] = useState(false);
 
@@ -49,6 +51,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     setItemName('');
     setItemAmountText('');
     setItemCategory('other');
+    setWeeklyFoodText(settings.weeklyFoodBudgetCents ? amountText(settings.weeklyFoodBudgetCents) : '');
   }, [month, saved, settings.currency, dirty]);
 
   const rawPlan = draft ?? saved ?? newBudget(month, settings.currency);
@@ -68,6 +71,15 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   const plannedRemaining = limit - plannedTotal;
   const actualRemaining = limit - spent.spentCents;
   const monthDateValue = monthDate(month);
+  const allSpent = useMemo(() => {
+    const months = new Set(monthsWithSpent());
+    months.add(month);
+    return [...months].flatMap((key) => spentIn(key));
+  }, [spentLines]);
+  const foodWeek = useMemo(() => foodWeekSummary(allSpent, recipes, toLocalDate(new Date()), settings.planWeekStart, planCurrency), [allSpent, recipes, settings.planWeekStart, planCurrency]);
+  const weeklyFoodLimit = settings.weeklyFoodBudgetCents ?? 0;
+  const weekSpentRemaining = weeklyFoodLimit - foodWeek.actualCents;
+  const weekPaceOver = weeklyFoodLimit > 0 && foodWeek.paceCents > weeklyFoodLimit;
 
   const changeMonth = (amount: number) => setMonth(monthKey(nextMonth(monthDateValue, amount)));
   const changeItems = (items: BudgetPlan['items']) => {
@@ -164,7 +176,24 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>Your plan</h2></div>
         <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} placeholder="0.00" /></label>
+        <label className="field"><span className="field__label">Weekly food budget</span><input className="input" type="text" inputMode="decimal" value={weeklyFoodText} onChange={(event) => setWeeklyFoodText(event.target.value)} onBlur={() => {
+          const value = weeklyFoodText.trim() ? moneyInputCents(weeklyFoodText) : 0;
+          saveSettings({ ...loadSettings(), weeklyFoodBudgetCents: value ? value : undefined });
+        }} placeholder="Optional" /></label>
+        <p className="muted">Oikonomia compares food expenses with this limit and shows a pace estimate from what you have spent so far.</p>
       </section>
+
+      {weeklyFoodLimit > 0 && (
+        <section className="card oiko-food-week" aria-label="Weekly food budget">
+          <div className="oiko-section-head"><h2>This week’s food</h2><span className="muted">{formatDate(foodWeek.from)} – {formatDate(foodWeek.until)}</span></div>
+          <div className="oiko-food-week__amount"><strong>{formatMoney(foodWeek.actualCents, planCurrency)}</strong><span>of {formatMoney(weeklyFoodLimit, planCurrency)} spent</span></div>
+          <div className="oiko-budget-summary__bar" role="meter" aria-valuemin={0} aria-valuemax={weeklyFoodLimit} aria-valuenow={Math.min(foodWeek.actualCents, weeklyFoodLimit)}><span className={weekSpentRemaining < 0 ? 'is-over' : ''} style={{ width: `${Math.min(100, (foodWeek.actualCents / weeklyFoodLimit) * 100)}%` }} /></div>
+          {foodWeek.actualCents > weeklyFoodLimit ? <p className="oiko-food-week__status is-over">Over by {formatMoney(foodWeek.actualCents - weeklyFoodLimit, planCurrency)}.</p> : weekPaceOver ? <p className="oiko-food-week__status is-over">At this pace, you may finish about {formatMoney(foodWeek.paceCents, planCurrency)} over the week.</p> : <p className="oiko-food-week__status">{formatMoney(Math.max(0, weekSpentRemaining), planCurrency)} left for this week.</p>}
+          {foodWeek.typicalCents !== undefined && <p className="muted">Typical week: {formatMoney(foodWeek.typicalCents, planCurrency)} based on {foodWeek.typicalWeeks} previous {foodWeek.typicalWeeks === 1 ? 'week' : 'weeks'} of food expenses.</p>}
+          {foodWeek.plannedCents > 0 && <p className="muted">Planned recipes: about {formatMoney(foodWeek.plannedCents, planCurrency)}{foodWeek.mealsWithoutEstimate ? ` · ${foodWeek.mealsWithoutEstimate} meal${foodWeek.mealsWithoutEstimate === 1 ? '' : 's'} have no estimate` : ''}.</p>}
+          {!foodWeek.actualCount && !foodWeek.plannedCents && <p className="muted">Add food expenses or cost your planned recipes to make this estimate more useful.</p>}
+        </section>
+      )}
 
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>Budget items</h2></div>

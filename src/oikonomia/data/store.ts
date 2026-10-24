@@ -12,6 +12,8 @@ export type Settings = {
   calendarNotice: boolean;
   /** JavaScript weekday number used as the first day of Oikonomia's plan week. */
   planWeekStart: number;
+  /** Optional recurring ceiling for food spending in one plan week (cents). */
+  weeklyFoodBudgetCents?: number;
 };
 
 export function defaultSettings(): Settings {
@@ -35,6 +37,7 @@ export function loadSettings(): Settings {
     currency: typeof saved.currency === 'string' && saved.currency.length === 3 ? saved.currency : 'USD',
     calendarNotice: saved.calendarNotice !== false,
     planWeekStart: typeof saved.planWeekStart === 'number' && Number.isInteger(saved.planWeekStart) && saved.planWeekStart >= 0 && saved.planWeekStart <= 6 ? saved.planWeekStart : 1,
+    weeklyFoodBudgetCents: typeof saved.weeklyFoodBudgetCents === 'number' && Number.isSafeInteger(saved.weeklyFoodBudgetCents) && saved.weeklyFoodBudgetCents > 0 ? saved.weeklyFoodBudgetCents : undefined,
   };
 }
 

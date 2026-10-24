@@ -1,4 +1,4 @@
-import { budgetCategory, budgetTotals, emptyLimits, moneyInputCents, newBudget, normalizeBudget, recipeBudgetComparison, spendingTotals } from '../../oikonomia/core/budget';
+import { budgetCategory, budgetTotals, emptyLimits, foodWeekBounds, foodWeekStart, foodWeekSummary, moneyInputCents, newBudget, normalizeBudget, recipeBudgetComparison, spendingTotals } from '../../oikonomia/core/budget';
 import type { Bill } from '../../oikonomia/core/bills';
 import type { Recipe } from '../../soma/core/recipes';
 
@@ -102,5 +102,21 @@ describe('Oikonomia monthly planning', () => {
     const planned = recipe({ planned: ['2026-10-05', '2026-10-06'] });
     const totals = budgetTotals([], [planned], '2026-10', 'USD');
     expect(recipeBudgetComparison(planned, plan, totals)?.remainingCents).toBe(8300);
+  });
+
+  it('uses the selected week start and keeps paid, planned, and typical food separate', () => {
+    expect(foodWeekStart('2026-10-21', 1)).toBe('2026-10-19');
+    expect(foodWeekBounds('2026-10-21', 1)).toEqual({ from: '2026-10-19', until: '2026-10-25' });
+    const summary = foodWeekSummary([
+      { date: '2026-10-06', amountCents: 1000, area: 'food' },
+      { date: '2026-10-13', amountCents: 1500, area: 'food' },
+      { date: '2026-10-20', amountCents: 2200, area: 'food' },
+      { date: '2026-10-21', amountCents: 300, area: 'transport' },
+    ], [recipe({ planned: ['2026-10-22'], estimatedCostCents: 850 })], '2026-10-21', 1, 'USD');
+    expect(summary.actualCents).toBe(2200);
+    expect(summary.actualCount).toBe(1);
+    expect(summary.plannedCents).toBe(850);
+    expect(summary.typicalCents).toBe(1250);
+    expect(summary.typicalWeeks).toBe(2);
   });
 });

@@ -139,7 +139,8 @@
 }
 
 .oiko-budget-home__line span,
-.oiko-budget-home > .muted {
+.oiko-budget-home > .muted,
+.oiko-food-home > .muted {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -836,6 +837,41 @@
   border-bottom: 0;
 }
 
+.oiko-food-week {
+  gap: 10px;
+  border-color: var(--oiko-clay-border);
+  background: linear-gradient(145deg, var(--surface), var(--oiko-clay-soft));
+}
+
+.oiko-food-week .oiko-section-head {
+  margin-bottom: 0;
+}
+
+.oiko-food-week__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.oiko-food-week__amount strong {
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 400;
+}
+
+.oiko-food-week__amount span,
+.oiko-food-week__status {
+  color: var(--muted);
+}
+
+.oiko-food-week__status {
+  margin: 0;
+}
+
+.oiko-food-week__status.is-over {
+  color: var(--oiko-clay);
+}
+
 .oiko-envelopes {
   gap: 16px;
 }
@@ -1105,6 +1141,33 @@
   top: 50%;
   right: 18px;
   transform: translateY(-50%);
+}
+
+.oiko-food-home {
+  gap: 6px;
+  border-color: var(--oiko-clay-border);
+  background: linear-gradient(145deg, var(--surface), var(--oiko-clay-soft));
+}
+
+.oiko-food-home__line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.oiko-food-home__line strong {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.oiko-food-home__note {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.oiko-food-home__note.is-over {
+  color: var(--oiko-clay);
 }
 
 /* Calendar: whole names, cut by the cell; paid ones quieter. */

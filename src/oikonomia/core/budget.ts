@@ -1,6 +1,7 @@
 import { monthBounds, occurrencesBetween, type Bill } from './bills';
 import type { Recipe } from '../../soma/core/recipes';
 import { readAmount } from '../../core/money/readAmount';
+import { addDays, daysBetween, parseLocalDate } from '../../core/scheduling/dates';
 
 /** A small set of household areas that can hold a monthly plan. */
 export type BudgetCategory = 'housing' | 'utilities' | 'transport' | 'food' | 'health' | 'subscriptions' | 'debt' | 'savings' | 'personal' | 'other';
@@ -55,6 +56,71 @@ export type SpendingTotals = {
   byCategory: Record<BudgetCategory, number>;
   count: number;
 };
+
+export type FoodWeekSummary = {
+  from: string;
+  until: string;
+  actualCents: number;
+  actualCount: number;
+  plannedCents: number;
+  mealsWithoutEstimate: number;
+  /** A seven-day projection from the food spent so far this week. */
+  paceCents: number;
+  /** Average food spending in completed weeks with at least one food expense. */
+  typicalCents?: number;
+  typicalWeeks: number;
+};
+
+/** The start of the plan week containing a local calendar date. */
+export function foodWeekStart(date: string, weekStart = 1): string {
+  const weekday = parseLocalDate(date).getDay();
+  return addDays(date, -((weekday - weekStart + 7) % 7));
+}
+
+export function foodWeekBounds(date: string, weekStart = 1): { from: string; until: string } {
+  const from = foodWeekStart(date, weekStart);
+  return { from, until: addDays(from, 6) };
+}
+
+/**
+ * Compares paid food expenses with this week's planned recipe estimates.
+ * Planned costs remain separate from actual spending; they are an estimate, not a second charge.
+ */
+export function foodWeekSummary(
+  spent: readonly { date: string; amountCents: number; area: BudgetCategory }[],
+  recipes: readonly Recipe[],
+  date: string,
+  weekStart = 1,
+  currency?: string,
+): FoodWeekSummary {
+  const { from, until } = foodWeekBounds(date, weekStart);
+  const actualLines = spent.filter((line) => line.area === 'food' && line.date >= from && line.date <= until);
+  const actualCents = actualLines.reduce((sum, line) => sum + Math.max(0, line.amountCents), 0);
+  let plannedCents = 0;
+  let mealsWithoutEstimate = 0;
+  for (const recipe of recipes) {
+    const days = (recipe.planned ?? []).filter((day) => day >= from && day <= until);
+    if (!days.length) continue;
+    if (recipe.estimatedCostCents === undefined || (currency && recipe.estimatedCostCurrency && recipe.estimatedCostCurrency !== currency)) {
+      mealsWithoutEstimate += days.length;
+      continue;
+    }
+    plannedCents += days.length * Math.max(0, recipe.estimatedCostCents);
+  }
+  const today = new Date();
+  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const elapsed = todayString < from ? 0 : todayString > until ? 7 : Math.max(1, daysBetween(from, todayString) + 1);
+  const paceCents = elapsed ? Math.ceil((actualCents * 7) / elapsed) : 0;
+  const previous = new Map<string, number>();
+  for (const line of spent) {
+    if (line.area !== 'food' || line.date >= from) continue;
+    const key = foodWeekStart(line.date, weekStart);
+    previous.set(key, (previous.get(key) ?? 0) + Math.max(0, line.amountCents));
+  }
+  const previousWeeks = [...previous.entries()].filter(([key]) => key < from).map(([, cents]) => cents).filter((cents) => cents > 0);
+  const typicalCents = previousWeeks.length ? Math.round(previousWeeks.reduce((sum, cents) => sum + cents, 0) / previousWeeks.length) : undefined;
+  return { from, until, actualCents, actualCount: actualLines.length, plannedCents, mealsWithoutEstimate, paceCents, typicalCents, typicalWeeks: previousWeeks.length };
+}
 
 export function monthKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
