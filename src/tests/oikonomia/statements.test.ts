@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { byArea, cents, guessArea, merchantKey, newLines, readStatement } from '../../oikonomia/core/statements';
+import { byArea, cents, guessArea, merchantKey, newLines, possibleDuplicate, readStatement } from '../../oikonomia/core/statements';
 import { findJudgmentLanguage } from '../../core/rules/languageRules';
 import { readFileSync } from 'node:fs';
 
@@ -51,6 +51,11 @@ describe('a statement brought in', () => {
       { id: '2', date: '2026-10-02', description: 'b', amountCents: 900, area: 'transport' },
       { id: '3', date: '2026-10-03', description: 'c', amountCents: 700, area: 'food' },
     ])).toEqual([{ area: 'food', cents: 1200, count: 2 }, { area: 'transport', cents: 900, count: 1 }]);
+  });
+
+  it('flags a likely imported duplicate with a different description', () => {
+    expect(possibleDuplicate([{ date: '2026-10-01', description: 'CARD SHOP', amountCents: 500 }], { date: '2026-10-01', description: 'SHOP #123', amountCents: 500 })).toBe(true);
+    expect(possibleDuplicate([{ date: '2026-10-01', description: 'CARD SHOP', amountCents: 500 }], { date: '2026-10-02', description: 'SHOP #123', amountCents: 500 })).toBe(false);
   });
 
   it('uses plain words', () => {

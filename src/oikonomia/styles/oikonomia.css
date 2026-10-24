@@ -256,6 +256,10 @@
   text-align: center;
 }
 
+.oiko-import-warning {
+  color: var(--oiko-clay);
+}
+
 .oiko-list {
   display: flex;
   flex-direction: column;

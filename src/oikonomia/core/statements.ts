@@ -119,6 +119,11 @@ export function newLines<T extends Pick<Spent, 'date' | 'amountCents' | 'descrip
   });
 }
 
+/** A softer duplicate warning for imports: same day and amount, but different wording. */
+export function possibleDuplicate<T extends Pick<Spent, 'date' | 'amountCents' | 'description'>>(kept: readonly T[], incoming: T): boolean {
+  return kept.some((line) => line.date === incoming.date && line.amountCents === incoming.amountCents && line.description.toLowerCase() !== incoming.description.toLowerCase());
+}
+
 /** Totals by area, largest first, areas with nothing left out. */
 export function byArea(lines: readonly Spent[]): { area: BudgetCategory; cents: number; count: number }[] {
   const totals = new Map<BudgetCategory, { cents: number; count: number }>();
