@@ -88,7 +88,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
         {found?.slice(0, 40).map((meal) => (
           <li key={meal.idMeal}>
             <button type="button" className="idea-row" onClick={() => void open(meal)} disabled={busy}>
-              {meal.strMealThumb ? <img src={`${meal.strMealThumb}/small`} alt="" /> : <span className="idea-row__placeholder" aria-hidden="true">↗</span>}
+              {meal.strMealThumb ? <img src={meal.sourceId === 'mealdb' ? `${meal.strMealThumb}/small` : meal.strMealThumb} alt="" /> : <span className="idea-row__placeholder" aria-hidden="true">↗</span>}
               <span>
                 <span className="recipe-row__title">{meal.strMeal}</span>
                 <span className="recipe-row__meta">{[meal.strArea, meal.strCategory, meal.sourceLabel].filter(Boolean).join(' · ')}</span>
