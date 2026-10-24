@@ -1982,6 +1982,63 @@ button.nutri-badge {
   text-decoration: line-through;
 }
 
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .soma-shopping,
+  .soma-shopping * {
+    visibility: visible !important;
+  }
+
+  .soma-shopping {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 24px;
+    background: #fff;
+    color: #111;
+  }
+
+  .soma-shopping__top button,
+  .soma-shopping__actions {
+    display: none;
+  }
+
+  .soma-shopping__count {
+    color: #111;
+  }
+
+  .soma-shopping__aisle h2,
+  .soma-shopping__aisle small {
+    color: #444;
+  }
+
+  .soma-shopping__aisle li,
+  .soma-shopping__actions {
+    border-color: #ccc;
+  }
+
+  .soma-shopping__aisle li > button {
+    color: #111;
+  }
+
+  .soma-shopping__check {
+    border-color: #555;
+    color: #111;
+  }
+
+  .soma-shopping__item--checked .soma-shopping__check {
+    background: #ddd;
+    border-color: #555;
+  }
+
+  .soma-shopping__item--checked strong {
+    color: #666;
+  }
+}
+
 /* The week page steps a week at a time, up to three ahead. */
 .week-steps {
   display: flex;
