@@ -192,7 +192,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
         ))}
       </ul>
       <h2 className="label">Ideas</h2>
-      <p className="muted">From TheMealDB (themealdb.com), a free and open collection of recipes.</p>
+      <p className="muted">Ideas use TheMealDB and the community Cookbook on Wikibooks. Each result keeps its source.</p>
       <h2 className="label">Lines for the day</h2>
       <p className="muted">
         Musonius Rufus, Lecture 18A; Epictetus, Enchiridion; Seneca, Letters; Epicurus, Letter to Menoeceus; Cicero, Tusculan Disputations.

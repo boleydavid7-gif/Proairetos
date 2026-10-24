@@ -11,7 +11,8 @@ import { openDatabase, stores } from '../../data/storage/indexeddb/database';
  * phone (stores somaRecipes, somaGroceries), so they sync, sealed, with the
  * same account as Proairetos and Askesis. A few settings live in
  * localStorage. Nothing else leaves the phone except a recipe page read
- * through the app's own bridge, and searches sent to TheMealDB for ideas.
+ * through the app's own bridge, and searches sent to the clearly attributed
+ * recipe sources shown in Ideas.
  */
 const RECIPES = stores.somaRecipes;
 const GROCERIES = stores.somaGroceries;

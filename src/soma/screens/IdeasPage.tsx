@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
 import { SearchIcon } from '../app/icons';
 import { Brand } from '../app/ui';
-import { ask, draftFrom, type Found } from '../app/mealdb';
+import { mergeIdeas, mealIdeas, openIdea, searchWikibooks, type Idea } from '../app/ideaSources';
 import { Waiting } from '../../lamplight/Waiting';
 
 const shelves = ['Vegetarian', 'Vegan', 'Seafood', 'Chicken', 'Breakfast', 'Pasta', 'Side', 'Starter'];
@@ -10,7 +10,7 @@ const shelves = ['Vegetarian', 'Vegan', 'Seafood', 'Chicken', 'Breakfast', 'Past
 export default function IdeasPage({ nav }: { nav: Nav }) {
   const [shelf, setShelf] = useState<string | undefined>('Vegetarian');
   const [query, setQuery] = useState('');
-  const [found, setFound] = useState<Found[]>();
+  const [found, setFound] = useState<Idea[]>();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string>();
 
@@ -18,8 +18,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
     setBusy(true);
     setProblem(undefined);
     try {
-      const { meals } = await ask<{ meals: Found[] | null }>(path);
-      setFound(meals ?? []);
+      setFound(await mealIdeas(path));
     } catch {
       setProblem('Ideas need a connection. Your recipes work offline.');
       setFound(undefined);
@@ -32,11 +31,11 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
     if (shelf) void load(`filter.php?c=${encodeURIComponent(shelf)}`);
   }, [shelf]);
 
-  const open = async (meal: Found) => {
+  const open = async (meal: Idea) => {
     setBusy(true);
     try {
-      await draftFrom(meal);
-      nav.go({ name: 'edit' });
+      const destination = await openIdea(meal);
+      if (destination === 'edit') nav.go({ name: 'edit' });
     } catch {
       setProblem('Couldn’t open that recipe. Try again.');
     } finally {
@@ -55,13 +54,17 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
           const words = query.trim();
           if (!words) return;
           setShelf(undefined);
-          // A single word is looked up as an ingredient too ("spinach").
-          void load(`search.php?s=${encodeURIComponent(words)}`).then(async () => {
-            if (!words.includes(' ')) {
-              const { meals } = await ask<{ meals: Found[] | null }>(`filter.php?i=${encodeURIComponent(words.replace(/\s+/g, '_'))}`).catch(() => ({ meals: null }));
-              if (meals?.length) setFound((before) => [...(before ?? []), ...meals.filter((meal) => !(before ?? []).some((each) => each.idMeal === meal.idMeal))]);
-            }
-          });
+          setBusy(true);
+          setProblem(undefined);
+          void Promise.allSettled([
+            mealIdeas(`search.php?s=${encodeURIComponent(words)}`),
+            searchWikibooks(words),
+            !words.includes(' ') ? mealIdeas(`filter.php?i=${encodeURIComponent(words.replace(/\s+/g, '_'))}`) : Promise.resolve([]),
+          ]).then((results) => {
+            const successful = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
+            if (successful.length === 0) setProblem('Ideas need a connection. Your recipes work offline.');
+            setFound(mergeIdeas(...successful));
+          }).finally(() => setBusy(false));
         }}
       >
         <SearchIcon size={20} />
@@ -82,16 +85,16 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
         {found?.slice(0, 40).map((meal) => (
           <li key={meal.idMeal}>
             <button type="button" className="idea-row" onClick={() => void open(meal)} disabled={busy}>
-              <img src={meal.strMealThumb ? `${meal.strMealThumb}/small` : undefined} alt="" />
+              {meal.strMealThumb ? <img src={`${meal.strMealThumb}/small`} alt="" /> : <span className="idea-row__placeholder" aria-hidden="true">↗</span>}
               <span>
                 <span className="recipe-row__title">{meal.strMeal}</span>
-                {(meal.strArea || meal.strCategory) && <span className="recipe-row__meta">{[meal.strArea, meal.strCategory].filter(Boolean).join(' · ')}</span>}
+                <span className="recipe-row__meta">{[meal.strArea, meal.strCategory, meal.sourceLabel].filter(Boolean).join(' · ')}</span>
               </span>
             </button>
           </li>
         ))}
       </ul>
-      <p className="hint">From TheMealDB, an open recipe collection.</p>
+      <p className="hint">Ideas from TheMealDB and the community Cookbook on Wikibooks. External pages stay with their source.</p>
     </div>
   );
 }

@@ -1022,6 +1022,17 @@
   color: var(--muted);
   font-size: 1.3rem;
 }
+.idea-row__placeholder {
+  display: grid;
+  width: 88px;
+  height: 72px;
+  flex: 0 0 88px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--mint);
+  font-size: 1.35rem;
+}
 .week--small .week__day {
   display: flex;
   gap: 12px;
