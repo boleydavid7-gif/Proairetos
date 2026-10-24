@@ -68,7 +68,7 @@ export function thingFromText(text: string): Found[] {
 
 // ---------- Bills ----------
 
-const MONEY = /(?:[$£€¥]\s?)?(\d{1,3}(?:[.,\s]\d{3})*(?:[.,]\d{2})|\d+[.,]\d{2})(?!\d)/g;
+const MONEY = /(?:[$£€¥]\s?)?(\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2}))(?!\d)/g;
 const DUE_WORDS = /\b(amount due|total due|balance due|due amount|amount to pay|new balance|minimum payment|total|balance|amount)\b/i;
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 

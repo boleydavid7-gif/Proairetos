@@ -41,6 +41,11 @@ describe('reading a bill', () => {
     expect(value(billFromText('Total due\n€ 1.234,56\nPay by 03/11/2026'), 'due')).toBe('2026-03-11');
   });
 
+  it('keeps grouped thousands when a bill has no cents', () => {
+    expect(value(billFromText('Amount due\n$1,000'), 'amount')).toBe('1000.00');
+    expect(value(billFromText('Total due\n$1,000.50'), 'amount')).toBe('1000.50');
+  });
+
   it('reads dates written several ways', () => {
     expect(dateIn('2026-10-01')).toBe('2026-10-01');
     expect(dateIn('25/12/2026')).toBe('2026-12-25');
