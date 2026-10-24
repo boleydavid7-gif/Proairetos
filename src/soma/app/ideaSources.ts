@@ -64,10 +64,17 @@ export async function openIdea(idea: Idea): Promise<'edit' | 'external'> {
 /** Merge sources without showing the same provider record twice. */
 export function mergeIdeas(...groups: readonly Idea[][]): Idea[] {
   const seen = new Set<string>();
-  return groups.flat().filter((idea) => {
-    const key = `${idea.sourceId}:${idea.idMeal}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const merged: Idea[] = [];
+  const longest = Math.max(0, ...groups.map((group) => group.length));
+  for (let index = 0; index < longest; index += 1) {
+    for (const group of groups) {
+      const idea = group[index];
+      if (!idea) continue;
+      const key = `${idea.sourceId}:${idea.idMeal}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(idea);
+    }
+  }
+  return merged;
 }

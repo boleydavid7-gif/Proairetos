@@ -15,6 +15,12 @@ describe('Soma idea sources', () => {
     ]);
   });
 
+  it('surfaces other providers before a large first-source shelf is clipped', () => {
+    const mealdb = Array.from({ length: 50 }, (_, index) => idea(`meal-${index}`));
+    const tasty = idea('tasty-1', 'tasty');
+    expect(mergeIdeas(mealdb, [tasty]).slice(0, 4).map((each) => each.sourceId)).toEqual(['mealdb', 'tasty', 'mealdb', 'mealdb']);
+  });
+
   it('turns Wikibooks search results into external, attributed ideas', async () => {
     const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ query: { search: [{ pageid: 'wikibooks-42', title: 'Tomato soup', provider: 'wikibooks' }] } }), { status: 200 }));
     vi.stubGlobal('fetch', fetch);
