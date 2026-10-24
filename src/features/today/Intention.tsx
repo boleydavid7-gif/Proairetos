@@ -74,7 +74,7 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
             <TodayThree date={date} items={items} embedded pickerOpen={picking} onPickerOpenChange={setPicking} />
           )}
           <div className="intention__actions">
-            <button type="button" className="button-quiet intention__choose" onClick={() => setPicking(true)}>
+            <button type="button" className="text-link intention__choose" onClick={() => setPicking(true)}>
               Choose from your list
             </button>
             <span className="intention__actions-right">
