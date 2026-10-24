@@ -22,6 +22,8 @@ const linkedValues = (item: LifeItem, names: ReadonlyMap<string, string>) =>
 type Props = {
   date: string;
   items: LifeItem[];
+  /** Render the choices inside Today’s intention instead of as a separate section. */
+  embedded?: boolean;
 };
 
 const isOpen = (item: LifeItem) => item.status === 'OPEN' || item.status === 'WAITING';
@@ -52,6 +54,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
     });
   }, [items, date]);
   const pickedCount = open.filter(isPicked).length;
+  const atLimit = pickedCount >= 3;
 
   return (
     <dialog
@@ -67,7 +70,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
           Done
         </button>
         <p className="sheet__title sheet__title--static">Today’s to-do</p>
-        {pickedCount > 0 && <p className="sheet__status">{pickedCount} chosen</p>}
+        {pickedCount > 0 && <p className="sheet__status">{pickedCount} chosen · Up to 3</p>}
         <EnergyChoice date={date} />
         {open.length === 0 && <p className="empty-note">Nothing open yet. Capture something first.</p>}
         {[
@@ -95,6 +98,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
                         <input
                           type="checkbox"
                           checked={picked}
+                          disabled={!picked && atLimit}
                           onChange={async () => {
                             setError('');
                             setPending((current) => ({
@@ -126,6 +130,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
               </ul>
             </div>
           ))}
+        {atLimit && <p className="empty-note">Three chosen. Uncheck one to choose another.</p>}
         {error && <p className="form-error">{error}</p>}
       </div>
     </dialog>
@@ -136,7 +141,7 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
  * Today’s to-do: the things the person chose from their list for the day, as a short path of
  * circles. Checking one closes it with an undo; nothing carries over as a debt.
  */
-export default function TodayThree({ date, items }: Props) {
+export default function TodayThree({ date, items, embedded = false }: Props) {
   const { openItem, offerUndo, startFocus, focusSession } = useOverlays();
   const names = useValueNames();
   const [picking, setPicking] = useState(false);
@@ -148,7 +153,7 @@ export default function TodayThree({ date, items }: Props) {
   const nextPick = picks.find(isOpen);
 
   // With nothing to choose from, the section waits.
-  if (!anyOpen && picks.length === 0 && !picking) return null;
+  if (!anyOpen && picks.length === 0 && !picking && !embedded) return null;
 
   async function toggle(item: LifeItem) {
     const done = item.status === 'DONE';
@@ -158,18 +163,25 @@ export default function TodayThree({ date, items }: Props) {
   }
 
   return (
-    <section className="today-section" aria-label="Today’s to-do">
-      <div className="section-heading">
-        <h2 className="section-label">Today’s to-do</h2>
-        <span className="section-heading__actions">
-          {picks.length === 0 && <NotForMe part="path" />}
-          {picks.length > 0 && (
-            <button type="button" className="text-link" onClick={() => setPicking(true)}>
-              Change
-            </button>
-          )}
-        </span>
-      </div>
+    <section className={`today-section${embedded ? ' today-section--embedded' : ''}`} aria-label={embedded ? 'Choose up to three things' : 'Today’s to-do'}>
+      {!embedded && (
+        <div className="section-heading">
+          <h2 className="section-label">Today’s to-do</h2>
+          <span className="section-heading__actions">
+            {picks.length === 0 && <NotForMe part="path" />}
+            {picks.length > 0 && (
+              <button type="button" className="text-link" onClick={() => setPicking(true)}>
+                Change
+              </button>
+            )}
+          </span>
+        </div>
+      )}
+      {embedded && picks.length > 0 && (
+        <button type="button" className="text-link intention__change" onClick={() => setPicking(true)}>
+          Change chosen things
+        </button>
+      )}
       {picks.length > 0 ? (
         <ol className="path">
           {picks.map((item) => {

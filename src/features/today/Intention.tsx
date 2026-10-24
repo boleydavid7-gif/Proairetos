@@ -4,9 +4,11 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { BookmarkIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
+import TodayThree from './TodayThree';
+import type { LifeItem } from '../../core/life-items/types';
 
 /** The person's own intention for a day, in their words. */
-export default function Intention({ date, isToday }: { date: string; isToday: boolean }) {
+export default function Intention({ date, isToday, items }: { date: string; isToday: boolean; items?: LifeItem[] }) {
   const { offerUndo } = useOverlays();
   // Wrapped, so "no intention yet" is told apart from "still loading".
   const loaded = useServiceData(
@@ -81,6 +83,7 @@ export default function Intention({ date, isToday }: { date: string; isToday: bo
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
       )}
+      {isToday && items && <TodayThree date={date} items={items} embedded />}
     </section>
   );
 }

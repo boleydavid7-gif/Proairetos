@@ -48,7 +48,6 @@ import DayTimeline from '../today/DayTimeline';
 import DoneToday from '../today/DoneToday';
 import NowCard from '../today/NowCard';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
-import TodayThree from '../today/TodayThree';
 import TodayTogether from '../today/TodayTogether';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
@@ -238,8 +237,7 @@ export default function NowPage() {
       )}
       {message === 'look-ahead' && <LookAhead />}
 
-      {shows('intention') && <Intention date={date} isToday />}
-      {shows('path') && <TodayThree date={today} items={items} />}
+      {shows('intention') && <Intention date={date} isToday items={shows('path') ? items : undefined} />}
       <TodayTogether />
       {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
 

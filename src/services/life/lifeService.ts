@@ -272,9 +272,16 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => setStepPlan(context, item, plan));
     },
 
-    /** On the person's to-do for a day, as many as they choose. */
+    /** On the person's to-do for a day, up to three chosen things. */
     pickForDay(id: string, date: string | undefined): Promise<LifeItem> {
-      return serial(async () => save(setPickedFor(context, await load(id), date)));
+      return serial(async () => {
+        const item = await load(id);
+        if (date && item.pickedFor !== date) {
+          const chosen = (await items.list(userId)).filter((candidate) => candidate.id !== id && candidate.pickedFor === date);
+          if (chosen.length >= 3) throw new Error('Choose up to three things for a day.');
+        }
+        return save(setPickedFor(context, item, date));
+      });
     },
 
     setCheckBack(id: string, checkBackAt: string | undefined) {

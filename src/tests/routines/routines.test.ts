@@ -115,12 +115,16 @@ describe('routines in the service', () => {
     expect(local((await service.get(item.id))!.scheduledAt!)).toEqual([2026, 10, 5, 7, 0]);
   });
 
-  it('puts as many as the person chooses on a day, even with quick taps', async () => {
+  it('keeps a day focused to three choices, even with quick taps', async () => {
     const { service } = setup();
     const ids = await Promise.all(['a', 'b', 'c', 'd', 'e'].map(async (t) => (await service.capture(t)).id));
     const results = await Promise.allSettled(ids.map((id) => service.pickForDay(id, '2026-10-01')));
-    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(5);
-    expect((await service.list()).filter((i) => i.pickedFor === '2026-10-01')).toHaveLength(5);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(3);
+    expect(results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason.message)).toEqual([
+      'Choose up to three things for a day.',
+      'Choose up to three things for a day.',
+    ]);
+    expect((await service.list()).filter((i) => i.pickedFor === '2026-10-01')).toHaveLength(3);
   });
 
   it('lists the day’s to-do in the order it was chosen', async () => {
