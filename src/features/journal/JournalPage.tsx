@@ -3,7 +3,7 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, reflectionService } from '../../app/services';
+import { compassService, lifeService, reflectionService } from '../../app/services';
 import forest from '../../assets/images/scenes/forest.webp';
 import morning from '../../assets/images/scenes/morning.webp';
 import morningWide from '../../assets/images/scenes/morning-wide.webp';
@@ -18,6 +18,7 @@ import { weather as outdoor } from '../../app/weather/weather';
 
 const skyNow = () => outdoor.skyNow();
 import { weatherOptions } from '../reflect/weather';
+import { toLocalDate } from '../../core/scheduling/dates';
 
 /**
  * A full page for writing. Every addition (a prompt, inner weather, values)
@@ -25,7 +26,8 @@ import { weatherOptions } from '../reflect/weather';
  */
 export default function JournalPage() {
   const navigate = useNavigate();
-  const { offerUndo } = useOverlays();
+  const { offerUndo, openItem } = useOverlays();
+  const todayKey = toLocalDate(new Date());
   const [draft] = useState(() => loadJournalDraft());
   const [body, setBody] = useState(draft?.body ?? '');
   const [weather, setWeather] = useState<InnerWeather | undefined>(draft?.weather as InnerWeather | undefined);
@@ -35,6 +37,12 @@ export default function JournalPage() {
   const [saving, setSaving] = useState(false);
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
   const everything = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
+  const intention = useServiceData(reflectionService.subscribe, () => reflectionService.intentionFor(todayKey), [todayKey]);
+  const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
+  const completedToday = items
+    .filter((item) => item.status === 'DONE' && toLocalDate(new Date(item.updatedAt)) === todayKey)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .slice(0, 3);
   const field = useRef<HTMLTextAreaElement>(null);
 
   // Earlier pages: only what was written here, newest first, grouped by month.
@@ -102,6 +110,29 @@ export default function JournalPage() {
         <p className="journal__date">{today}</p>
         <h1 className="journal__title">{promptText(promptKey) ?? 'What’s on your mind?'}</h1>
       </header>
+
+      {(intention || completedToday.length > 0) && (
+        <section className="journal__context" aria-label="Today’s context">
+          {intention && (
+            <div className="journal__context-row">
+              <span className="journal__context-label">Today’s intention</span>
+              <p>{intention.body}</p>
+            </div>
+          )}
+          {completedToday.length > 0 && (
+            <div className="journal__context-row">
+              <span className="journal__context-label">Completed today</span>
+              <ul>
+                {completedToday.map((item) => (
+                  <li key={item.id}>
+                    <button type="button" onClick={() => openItem(item.id)}>{item.title}</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
 
       <details className="journal__starts" open={promptKey !== undefined}>
         <summary>A place to start</summary>

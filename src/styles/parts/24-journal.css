@@ -40,6 +40,55 @@
   font-weight: 500;
 }
 
+.journal__context {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  background: var(--color-surface-soft, var(--color-surface));
+}
+
+.journal__context-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.journal__context-label {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.journal__context p,
+.journal__context ul {
+  margin: 0;
+}
+
+.journal__context p {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+}
+
+.journal__context ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.journal__context button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
 .journal__input {
   width: 100%;
   min-height: 15rem;
