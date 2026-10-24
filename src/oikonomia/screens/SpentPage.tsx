@@ -175,6 +175,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
             onUse={(values) => {
               if (values.name) setEntryDescription(values.name);
               if (values.amount) setEntryAmount(values.amount);
+              if (!values.amount) setProblem('I couldn’t find a labeled receipt total. Enter the amount below before saving.');
               if (values.date && values.date.startsWith(`${month}-`)) setEntryDate(values.date);
               else if (values.date) setProblem('The receipt date is in another month; choose that month before saving.');
             }}
