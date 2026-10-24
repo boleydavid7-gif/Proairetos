@@ -1889,6 +1889,99 @@ button.nutri-badge {
   margin-top: 12px;
 }
 
+.shopping-open {
+  width: 100%;
+}
+
+.soma-shopping {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.soma-shopping__top,
+.soma-shopping__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.soma-shopping__actions {
+  justify-content: flex-start;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.soma-shopping__count {
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.soma-shopping__aisle h2 {
+  margin: 8px 0 4px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.soma-shopping__aisle ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.soma-shopping__aisle li {
+  border-bottom: 1px solid var(--line);
+}
+
+.soma-shopping__aisle li > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+
+.soma-shopping__check {
+  display: grid;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1.5px solid var(--muted);
+  border-radius: 7px;
+  color: var(--mint-ink);
+}
+
+.soma-shopping__item--checked .soma-shopping__check {
+  border-color: var(--mint);
+  background: var(--mint);
+}
+
+.soma-shopping__aisle strong,
+.soma-shopping__aisle small {
+  display: block;
+}
+
+.soma-shopping__aisle small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.soma-shopping__item--checked strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
 /* The week page steps a week at a time, up to three ahead. */
 .week-steps {
   display: flex;

@@ -44,6 +44,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
   const [adding, setAdding] = useState('');
   const [open, setOpen] = useState<GroceryItem>();
   const [shared, setShared] = useState(false);
+  const [shopping, setShopping] = useState(false);
   const [place, setPlace] = useState<'list' | 'kitchen' | 'shared'>(() => (pendingInvite() ? 'shared' : 'list'));
   const today = useToday();
   if (!items) return null;
@@ -97,7 +98,9 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         ]}
         onChange={setPlace}
       />
-      {place === 'shared' ? (
+      {place === 'list' && shopping ? (
+        <ShoppingMode items={items} unitSystem={settings.units} onToggle={toggle} onClose={() => setShopping(false)} />
+      ) : place === 'shared' ? (
         <SharedLists personal={items} />
       ) : place === 'kitchen' ? (
         <Kitchen items={items} today={today} change={change} />
@@ -118,6 +121,12 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         </button>
       </form>
       <ScanBarcode onName={(name) => setAdding(name)} />
+
+      {toBuy.length > 0 && (
+        <button type="button" className="button-main shopping-open" onClick={() => setShopping(true)}>
+          Shop this list · {toBuy.filter((item) => !item.checked).length} left
+        </button>
+      )}
 
       {untidy.length > 0 && (
         <button type="button" className="button-quiet" onClick={tidy}>
@@ -244,6 +253,45 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
         </div>
       )}
     </div>
+  );
+}
+
+function ShoppingMode({ items, unitSystem, onToggle, onClose }: { items: GroceryItem[]; unitSystem: UnitSystem; onToggle: (item: GroceryItem) => void; onClose: () => void }) {
+  const remaining = items.filter((item) => onList(item) && !item.checked).length;
+  const share = async () => {
+    const text = listAsText(items, unitSystem);
+    if (navigator.share) await navigator.share({ title: 'Groceries', text }).catch(() => undefined);
+    else await navigator.clipboard?.writeText(text);
+  };
+  return (
+    <section className="soma-shopping" aria-label="Shopping mode">
+      <div className="soma-shopping__top">
+        <button type="button" className="text-link" onClick={onClose}>Back to list</button>
+        <span className="soma-shopping__count">{remaining} left</span>
+      </div>
+      <div className="soma-shopping__actions">
+        <button type="button" className="button-quiet" onClick={() => void share()}><ShareIcon size={18} /> Share</button>
+        <button type="button" className="button-quiet" onClick={() => window.print()}>Print</button>
+      </div>
+      {byAisle(items).map(({ aisle, items: group }) => (
+        <section key={aisle} className="soma-shopping__aisle" aria-label={aisle}>
+          <h2>{aisle}</h2>
+          <ul>
+            {group.map((item) => (
+              <li key={item.id} className={item.checked ? 'soma-shopping__item--checked' : undefined}>
+                <button type="button" role="checkbox" aria-checked={item.checked} onClick={() => onToggle(item)}>
+                  <span className="soma-shopping__check">{item.checked ? <Sym name="check" size={18} /> : null}</span>
+                  <span>
+                    <strong>{item.name}</strong>
+                    {item.amounts.length > 0 && <small>{item.amounts.map((amount) => convertAmountText(amount, item.name, unitSystem)).join(' + ')}</small>}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </section>
   );
 }
 
