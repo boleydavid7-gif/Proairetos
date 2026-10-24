@@ -14,11 +14,14 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string>();
 
-  const load = async (path: string) => {
+  const load = async (path: string, providerQuery?: string) => {
     setBusy(true);
     setProblem(undefined);
     try {
-      setFound(await mealIdeas(path));
+      const results = await Promise.allSettled([mealIdeas(path), providerQuery ? searchWikibooks(providerQuery) : Promise.resolve([])]);
+      const successful = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
+      if (!successful.length) throw new Error('Ideas need a connection. Your recipes work offline.');
+      setFound(mergeIdeas(...successful));
     } catch {
       setProblem('Ideas need a connection. Your recipes work offline.');
       setFound(undefined);
@@ -28,7 +31,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
   };
 
   useEffect(() => {
-    if (shelf) void load(`filter.php?c=${encodeURIComponent(shelf)}`);
+    if (shelf) void load(`filter.php?c=${encodeURIComponent(shelf)}`, shelf);
   }, [shelf]);
 
   const open = async (meal: Idea) => {
