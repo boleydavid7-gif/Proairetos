@@ -7,7 +7,7 @@ import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '
 import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
+import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
 import SessionBar from '../app/SessionBar';
 import { moreGradual, stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
@@ -150,6 +150,17 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                 )}
               </section>
             )}
+
+            <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
+              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
+              <span className="card__title">{week.stage}</span>
+              <span className="muted">{week.theme}</span>
+              <span className="card__foot">
+                Week {week.n}
+                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
+                <ChevronIcon size={18} />
+              </span>
+            </button>
 
             </div>
 
