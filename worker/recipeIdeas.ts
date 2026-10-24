@@ -47,12 +47,20 @@ export async function handleRecipeIdeasRequest(request: Request, env: RecipeIdea
   const query = new URL(request.url).searchParams.get('q')?.trim() ?? '';
   if (query.length < 2 || query.length > 120) return reply(400, { error: 'Search for at least two characters.' });
   const tastyKey = env.TASTY_API_KEY ?? env.TASTY_RAPIDAPI_KEY;
-  const providers = [
-    wikibooks(query, fetchImpl),
-    ...(env.SPOONACULAR_API_KEY ? [spoonacular(query, env.SPOONACULAR_API_KEY, fetchImpl)] : []),
-    ...(tastyKey ? [tasty(query, tastyKey, fetchImpl)] : []),
+  const providers: { id: SearchPage['provider']; run: () => Promise<SearchPage[]> }[] = [
+    { id: 'wikibooks', run: () => wikibooks(query, fetchImpl) },
+    ...(env.SPOONACULAR_API_KEY ? [{ id: 'spoonacular' as const, run: () => spoonacular(query, env.SPOONACULAR_API_KEY!, fetchImpl) }] : []),
+    ...(tastyKey ? [{ id: 'tasty' as const, run: () => tasty(query, tastyKey, fetchImpl) }] : []),
   ];
-  const results = await Promise.allSettled(providers);
-  const search = results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
-  return reply(200, { query: { search }, configured: { spoonacular: Boolean(env.SPOONACULAR_API_KEY), tasty: Boolean(tastyKey) } });
+  const results = await Promise.all(providers.map(async (provider) => {
+    try {
+      const items = await provider.run();
+      return { id: provider.id, items, status: 'ok' as const };
+    } catch {
+      return { id: provider.id, items: [], status: 'error' as const };
+    }
+  }));
+  const search = results.flatMap((result) => result.items);
+  const sources = Object.fromEntries(results.map((result) => [result.id, { status: result.status, count: result.items.length }]));
+  return reply(200, { query: { search }, configured: { spoonacular: Boolean(env.SPOONACULAR_API_KEY), tasty: Boolean(tastyKey) }, sources });
 }

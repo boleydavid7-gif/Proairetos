@@ -19,7 +19,7 @@ describe('Wikibooks ideas bridge', () => {
     );
     expect(urls.some((url) => url.includes('srnamespace=102'))).toBe(true);
     expect(tastyHeaders?.get('x-rapidapi-key')).toBe('tasty-key');
-    expect((await response.json())).toMatchObject({ configured: { spoonacular: true, tasty: true }, query: { search: expect.arrayContaining([
+    expect((await response.json())).toMatchObject({ configured: { spoonacular: true, tasty: true }, sources: { spoonacular: { status: 'ok', count: 1 }, tasty: { status: 'ok', count: 1 }, wikibooks: { status: 'ok', count: 1 } }, query: { search: expect.arrayContaining([
       expect.objectContaining({ pageid: 'spoonacular-7', provider: 'spoonacular' }),
       expect.objectContaining({ pageid: 'tasty-8', provider: 'tasty' }),
       expect.objectContaining({ pageid: 'wikibooks-42', provider: 'wikibooks' }),
@@ -41,6 +41,6 @@ describe('Wikibooks ideas bridge', () => {
       },
     );
     expect(tastyCalled).toBe(true);
-    expect(await response.json()).toMatchObject({ configured: { tasty: true } });
+    expect(await response.json()).toMatchObject({ configured: { tasty: true }, sources: { tasty: { status: 'ok', count: 0 } } });
   });
 });
