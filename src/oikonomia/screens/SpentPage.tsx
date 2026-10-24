@@ -128,7 +128,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
       <PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button></PageTop>
       <div className="oiko-budget__heading">
         <div>
-          <p className="label">Spent</p>
+          <p className="label">Expenses</p>
           <h1 className="title">{quick ? 'Record an expense' : formatMonthKey(month)}</h1>
         </div>
         {!quick && <div className="oiko-budget__switch">
@@ -168,7 +168,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
             <p className="muted">went out in {lines.length} {lines.length === 1 ? 'line' : 'lines'}</p>
           </section>
           <ColumnChart
-            title={`Spent each month (${currency})`}
+            title={`Expenses each month (${currency})`}
             days={[-5, -4, -3, -2, -1, 0].map((by) => {
               const key = shiftMonth(month, by);
               const kept = by === 0 ? lines : spentIn(key);

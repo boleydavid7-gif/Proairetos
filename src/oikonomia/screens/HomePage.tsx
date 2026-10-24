@@ -109,7 +109,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
 
             <div className="button-row oiko-home-actions">
               <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>Record an expense</button>
-              <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'spent' })}>View spending</button>
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'spent' })}>View expenses</button>
             </div>
 
             <div className="oiko-section-head">

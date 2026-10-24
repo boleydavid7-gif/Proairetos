@@ -153,7 +153,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       </section>
 
       <section className="oiko-budget-breakdown oiko-budget-main-lines" aria-label="Main budget">
-        <div className="oiko-section-head"><h2>Budget</h2><div className="button-row"><button type="button" className="text-link" onClick={() => nav.go({ name: 'envelopes' })}>Savings envelopes</button><button type="button" className="text-link" onClick={() => nav.go({ name: 'spent' })}>What was spent</button></div></div>
+        <div className="oiko-section-head"><h2>Budget</h2><div className="button-row"><button type="button" className="text-link" onClick={() => nav.go({ name: 'envelopes' })}>Savings envelopes</button><button type="button" className="text-link" onClick={() => nav.go({ name: 'spent' })}>View expenses</button></div></div>
         <div className="oiko-budget-breakdown__row"><span>Recurring bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
         <div className="oiko-budget-breakdown__row"><span>Planned food</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
         <div className="oiko-budget-breakdown__row"><span>Other planned items</span><strong>{formatMoney(totals.itemCents, planCurrency)}</strong></div>
