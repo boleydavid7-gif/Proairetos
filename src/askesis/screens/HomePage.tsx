@@ -19,6 +19,7 @@ import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
 import { useRunsPlaced } from '../app/fitted';
 import { trainingTimeOn } from '../../app/family/trainingWeek';
+import { runTitle } from '../../app/askesis/runs';
 
 export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
   const today = useToday();
@@ -88,9 +89,10 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         ) : !plan || !planState || !week ? (
           <div className="home-top">
           <section className="card">
-            <h2 className="card__title">Your plan</h2>
+            <h2 className="card__title">Weekly plan</h2>
+            <p className="muted">Build a running plan around your week.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
-              Set your aim
+              Start your running plan
             </button>
           </section>
           </div>
@@ -238,8 +240,35 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               )}
             </section>
 
-            <section aria-label="This week" className="week-list">
-              <h2 className="label">This week</h2>
+            <section aria-label="Logged this week" className="entries">
+              <h2 className="label">Logged this week</h2>
+              {thisWeeks.length > 0 ? (
+                thisWeeks
+                  .slice()
+                  .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+                  .map((entry) => (
+                    <button key={entry.id} type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
+                      <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
+                      <span className="entry-row__text">
+                        <span>{runTitle(entry, settings.unit)}</span>
+                        <span className="entry-row__facts">{entry.workoutTitle ? `Planned: ${entry.workoutTitle}` : 'Logged workout'}</span>
+                      </span>
+                      <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
+                      <ChevronIcon size={16} />
+                    </button>
+                  ))
+              ) : (
+                <p className="muted">
+                  Nothing logged this week yet.{' '}
+                  <button type="button" className="text-link" onClick={() => nav.go({ name: 'entry' })}>
+                    Log a workout
+                  </button>
+                </p>
+              )}
+            </section>
+
+            <section aria-label="Plan for the week" className="week-list">
+              <h2 className="label">Plan for the week</h2>
               {days.map((day) => (
                 <div
                   key={day.workout.id}
