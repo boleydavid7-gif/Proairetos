@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { billFromText, dateIn, medicineFromText, thingFromText } from '../../core/ocr/labels';
+import { billFromText, dateIn, medicineFromText, receiptFromText, thingFromText } from '../../core/ocr/labels';
 
 const value = (found: { key: string; value: string }[], key: string) => found.find((each) => each.key === key)?.value;
 
@@ -51,4 +51,11 @@ describe('reading a bill', () => {
 
 it('names the bill from its first plain line', () => {
   expect(billFromText('City Power\nStatement date 10/01/2026\nAmount due $64.30').find((each) => each.key === 'name')?.value).toBe('City Power');
+});
+
+it('reads a receipt total and transaction date without calling it a due date', () => {
+  const found = receiptFromText('Corner Market\nTransaction date 10/24/2026\nTotal $18.75', 2026);
+  expect(value(found, 'amount')).toBe('18.75');
+  expect(value(found, 'date')).toBe('2026-10-24');
+  expect(found.some((each) => each.key === 'due')).toBe(false);
 });

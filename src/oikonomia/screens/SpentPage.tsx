@@ -1,4 +1,5 @@
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
+import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { useEffect, useRef, useState } from 'react';
 import { ColumnChart } from '../../app/family/charts';
 import type { Nav } from '../app/App';
@@ -9,6 +10,7 @@ import { PageTop } from '../app/ui';
 import { formatMoney, localDate } from '../core/bills';
 import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory } from '../core/budget';
 import { byArea, cents, guessArea, newLines, possibleDuplicate, readStatement, type Spent } from '../core/statements';
+import { receiptFromText } from '../../core/ocr/labels';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
@@ -167,6 +169,16 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
       {entryOpen && (
         <section className="card oiko-manual-expense" aria-label="Add an expense">
           <div className="oiko-section-head"><h2>Add an expense</h2><span className="muted">For this month</span></div>
+          <ReadFromPhoto
+            label="Read a receipt"
+            find={receiptFromText}
+            onUse={(values) => {
+              if (values.name) setEntryDescription(values.name);
+              if (values.amount) setEntryAmount(values.amount);
+              if (values.date && values.date.startsWith(`${month}-`)) setEntryDate(values.date);
+              else if (values.date) setProblem('The receipt date is in another month; choose that month before saving.');
+            }}
+          />
           <label className="field"><span className="field__label">What was it?</span><input className="input" value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} placeholder="Groceries, parking, gift" autoFocus /></label>
           <div className="oiko-form__pair">
             <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" /></label>

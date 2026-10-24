@@ -133,3 +133,11 @@ export function billFromText(text: string, thisYear = new Date().getFullYear()):
   if (due) found.push({ key: 'due', label: 'Due', value: due });
   return found;
 }
+
+/** Receipt values use the same on-device reader as bills, but a printed date is a transaction date, not a due date. */
+export function receiptFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
+  const found = billFromText(text, thisYear).map((each) => each.key === 'due' ? { ...each, key: 'date', label: 'Date' } : each);
+  if (found.some((each) => each.key === 'date')) return found;
+  const date = text.split(/\r?\n/).map((line) => dateIn(line, thisYear)).find(Boolean);
+  return date ? [...found, { key: 'date', label: 'Date', value: date }] : found;
+}
