@@ -20,13 +20,13 @@ export type DumpLine = {
 
 const BULLET = /^\s*(?:[-*•·–—]|\d+[.)])\s*/;
 
-/** Splits on new lines, bullets, semicolons, and sentence ends; a short comma list becomes separate lines too. */
+/** Splits on new lines, bullets, semicolons, sentence ends, and clear action conjunctions. */
 export function splitDump(text: string): string[] {
   const pieces = text
     .split(/\r?\n|;|(?<=[.!?])\s+(?=\S)/)
     .map((piece) => piece.replace(BULLET, '').trim())
     .filter(Boolean);
-  return pieces.flatMap(splitCommaList).map(tidy).filter((piece) => piece.length > 0);
+  return pieces.flatMap(splitCommaList).flatMap(splitConjunction).map(tidy).filter((piece) => piece.length > 0);
 }
 
 /** "call garage, buy milk, email Sam": three or more short parts read as a list. */
@@ -38,6 +38,21 @@ function splitCommaList(piece: string): string[] {
   if (parts.length < 3) return [piece];
   const short = parts.every((part) => part.replace(LEAD_IN, '').split(/\s+/).length <= 6);
   return short ? parts : [piece];
+}
+
+/** Splits two or more clearly actionable clauses while leaving ordinary prose intact. */
+function splitConjunction(piece: string): string[] {
+  const parts = piece
+    .split(/\s+(?:and|then|also|plus)\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length < 2) return [piece];
+  const allLookLikeActions = parts.every((part) => {
+    const withoutLeadIn = part.replace(LEAD_IN, '').trim();
+    const first = withoutLeadIn.split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '') ?? '';
+    return VERBS.has(first);
+  });
+  return allLookLikeActions ? parts : [piece];
 }
 
 function tidy(piece: string): string {

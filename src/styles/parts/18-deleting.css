@@ -5,8 +5,12 @@
 }
 
 .sheet__delete {
-  padding-left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 var(--space-4) 0 0;
   color: var(--color-text-faint);
+  line-height: 1;
 }
 
 .chip--quiet {

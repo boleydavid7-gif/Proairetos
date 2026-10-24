@@ -10,7 +10,7 @@ import { formatLocalDay } from '../schedule/format';
 
 export const dumpKinds = itemKinds;
 
-type Row = DumpLine & { key: number };
+type Row = Omit<DumpLine, 'kind'> & { kind?: DumpLine['kind']; key: number };
 
 /**
  * Empty your head: write or speak everything at once, then see it split into
@@ -88,7 +88,7 @@ export default function BrainDumpSheet({ onClose }: { onClose: () => void }) {
                 type="button"
                 className="chip chip--accent"
                 disabled={!text.trim()}
-                onClick={() => setRows(readDump(text, today).map((line, key) => ({ ...line, key })))}
+                onClick={() => setRows(readDump(text, today).map((line, key) => ({ ...line, kind: undefined, key })))}
               >
                 Split it up
               </button>

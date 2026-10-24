@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cleanTitle, guessKind, namedDay, readDump, splitDump } from '../../core/capture/brainDump';
 
 describe('brain dump', () => {
-  it('splits on lines, bullets, semicolons, sentences, and short comma lists', () => {
+  it('splits on lines, bullets, semicolons, sentences, conjunctions, and short comma lists', () => {
     expect(splitDump('- call the garage\n• buy milk; email Sam. Worried about the exam!')).toEqual([
       'call the garage',
       'buy milk',
@@ -10,6 +10,8 @@ describe('brain dump', () => {
       'Worried about the exam!',
     ]);
     expect(splitDump('pay rent, book dentist, and water the plants')).toEqual(['pay rent', 'book dentist', 'water the plants']);
+    expect(splitDump('I need to take the trash out and clean the kitchen')).toEqual(['I need to take the trash out', 'clean the kitchen']);
+    expect(splitDump('Call the doctor or send an email')).toEqual(['Call the doctor or send an email']);
     expect(splitDump('I need to call the garage tomorrow, buy milk, email Sam')).toEqual(['I need to call the garage tomorrow', 'buy milk', 'email Sam']);
     // A sentence with a comma or two stays whole.
     expect(splitDump('when the car is back, ring Jo about Saturday')).toEqual(['when the car is back, ring Jo about Saturday']);
