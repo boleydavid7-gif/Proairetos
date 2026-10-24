@@ -593,8 +593,8 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     ],
   },
   {
-    app: 'Askesis',
-    sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Today’s run on Today; finished runs in Done today and Reflect.' }] }],
+            app: 'Askesis',
+            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'A running plan around your week; today’s run on Today and finished runs in Reflect.' }] }],
   },
   {
     app: 'Soma',
