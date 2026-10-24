@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
@@ -7,13 +7,13 @@ import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '
 import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
 import { feelings } from '../core/log';
-import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
+import { isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
 import SessionBar from '../app/SessionBar';
 import { moreGradual, stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
 import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
-import { freeDaysThisWeek, layOut, weekDates, type DayPlan } from '../core/week';
+import { layOut, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
@@ -27,7 +27,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const entries = useEntries() ?? [];
   const blocks = useWeekSchedule(today, settings.readSchedule);
   const placed = useRunsPlaced(today, planState, entries.length);
-  const [moving, setMoving] = useState<string>();
   const line = lineFor(today);
   const undo = useUndo();
 
@@ -59,12 +58,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
     days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
 
   const focusTime = focus ? trainingTimeOn('askesis', focus.date, focus.workout.id) ?? planState?.runAt : undefined;
-
-  const move = (workoutId: string, date: string) => {
-    if (!planState) return;
-    updatePlan({ moves: { ...planState.moves, [workoutId]: date } });
-    setMoving(undefined);
-  };
 
   return (
     <div className="home">
@@ -157,17 +150,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                 )}
               </section>
             )}
-
-            <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
-              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
-              <span className="card__title">{week.stage}</span>
-              <span className="muted">{week.theme}</span>
-              <span className="card__foot">
-                Week {week.n}
-                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
-                <ChevronIcon size={18} />
-              </span>
-            </button>
 
             </div>
 
@@ -267,72 +249,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               )}
             </section>
 
-            <section aria-label="Plan for the week" className="week-list">
-              <h2 className="label">Plan for the week</h2>
-              {days.map((day) => (
-                <div
-                  key={day.workout.id}
-                  className={`week-row${day.date < today && !day.done ? ' week-row--passed' : ''}`}
-                >
-                  <div className="week-row__line">
-                    <button
-                      type="button"
-                      className="week-row__main"
-                      onClick={() => nav.go({ name: 'workout', id: day.workout.id })}
-                    >
-                      <span className={`week-row__day${day.date === today ? ' week-row__day--today' : ''}`}>
-                        {dayLabel(day.date, today)}
-                      </span>
-                      <span className="week-row__what">
-                        {day.workout.title}
-                        {day.workout.kind !== 'race' && (
-                          <span className="week-row__len"> · {lengthLabel(totalMinutes(day.workout.parts))}</span>
-                        )}
-                        <span className="week-row__summary">{day.workout.summary}</span>
-                      </span>
-                      <span className="week-row__felt">
-                        {day.done ? (day.done.felt ? feelings[day.done.felt] : 'Done') : ''}
-                      </span>
-                    </button>
-                    {!day.done && day.date <= today && (
-                      <button
-                        type="button"
-                        className="chip week-row__log"
-                        aria-label={`Log ${day.workout.title}, ${dayLabel(day.date, today)}`}
-                        onClick={() => nav.go({ name: 'entry', workoutId: day.workout.id, date: day.date })}
-                      >
-                        Log
-                      </button>
-                    )}
-                  </div>
-                  {day.note && !day.done && (
-                    <p className="week-row__note">
-                      {day.note}.{' '}
-                      <button
-                        type="button"
-                        className="text-link"
-                        onClick={() => setMoving(moving === day.workout.id ? undefined : day.workout.id)}
-                      >
-                        Move it
-                      </button>
-                    </p>
-                  )}
-                  {moving === day.workout.id && (
-                    <div className="chip-row" role="group" aria-label="Move to">
-                      {freeDaysThisWeek(days, today, blocks).map((date) => (
-                        <button key={date} type="button" className="chip" onClick={() => move(day.workout.id, date)}>
-                          {dayLabel(date, today)}
-                        </button>
-                      ))}
-                      <button type="button" className="chip" onClick={() => setMoving(undefined)}>
-                        Leave it
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {days.length === 0 && <p className="muted">No sessions this week.</p>}
-            </section>
             </div>
           </>
         )}
