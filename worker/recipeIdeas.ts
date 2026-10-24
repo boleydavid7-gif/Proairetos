@@ -33,7 +33,7 @@ async function spoonacular(query: string, key: string, fetchImpl: typeof fetch):
 async function tasty(query: string, key: string, fetchImpl: typeof fetch): Promise<SearchPage[]> {
   const params = new URLSearchParams({ from: '0', size: '12', q: query });
   const response = await fetchImpl(`https://tasty.p.rapidapi.com/recipes/list?${params.toString()}`, {
-    headers: { accept: 'application/json', 'X-RapidAPI-Key': key, 'X-RapidAPI-Host': 'tasty.p.rapidapi.com' }, signal: AbortSignal.timeout(10_000),
+    headers: { accept: 'application/json', 'x-rapidapi-key': key, 'x-rapidapi-host': 'tasty.p.rapidapi.com' }, signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error('Tasty did not answer.');
   const body = (await response.json()) as { results?: { id: number; name: string; thumbnail_url?: string; canonical_url?: string }[] };
