@@ -493,6 +493,20 @@ npx wrangler secret put TASTY_API_KEY
 Without either secret, TheMealDB and the community Cookbook remain available. A provider is included in results only when
 its key is configured and its request succeeds; failures from one source do not hide results from the others.
 
+## Oikonomia online receipt reader (optional)
+
+Oikonomia keeps its offline receipt OCR as the default. If a person explicitly chooses **Try online reader**, the photo is
+sent through `/api/receipt` to Azure AI Document Intelligence's prebuilt receipt model. The Worker returns merchant, total,
+date, currency, and tax fields; it does not store the photo or the provider response. Add these as Worker secrets:
+
+```bash
+npx wrangler secret put AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT
+npx wrangler secret put AZURE_DOCUMENT_INTELLIGENCE_KEY
+```
+
+Create a Document Intelligence resource in Azure, copy its endpoint and key, and enable the prebuilt receipt model. The
+online action remains unavailable until both secrets exist. The user always reviews the fields before saving an expense.
+
 ## Apple Health (migration 20261028000000)
 
 Health Auto Export (iPhone) posts the person's Health data to `/api/health/<token>`. The Worker keeps only workouts, sleep,
