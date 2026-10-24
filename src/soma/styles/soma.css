@@ -1863,6 +1863,25 @@ button.nutri-badge {
   flex-basis: 100%;
   padding-bottom: 8px;
 }
+
+.kitchen-row__details {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  flex-basis: 100%;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.kitchen-row__field {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.kitchen-row__field .input {
+  min-height: 40px;
+}
 .kitchen-row__soon {
   color: var(--accent, inherit);
 }

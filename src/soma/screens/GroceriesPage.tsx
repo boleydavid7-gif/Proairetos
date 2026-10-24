@@ -264,6 +264,9 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
     change(items.map((each) => (each.id === item.id ? { ...each, useBy } : each)));
     setOpen(undefined);
   };
+  const setDetails = (item: GroceryItem, changes: Partial<Pick<GroceryItem, 'quantity' | 'packageSize' | 'storageLocation'>>) => {
+    change(items.map((each) => (each.id === item.id ? { ...each, ...changes } : each)));
+  };
   return (
     <>
       <form
@@ -296,7 +299,12 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
                 <span className="check-row__text">
                   {item.name}
                   <span className={`check-row__amount${item.useBy && item.useBy <= today ? ' kitchen-row__soon' : ''}`}>
-                    {shownUseBy(item.useBy, today) ?? boughtLabel(item.boughtAt, today)}
+                    {[
+                      item.quantity ? `${item.quantity} ${item.quantity === 1 ? 'unit' : 'units'}` : '',
+                      item.packageSize ?? '',
+                      item.storageLocation ?? '',
+                      shownUseBy(item.useBy, today) ?? boughtLabel(item.boughtAt, today),
+                    ].filter(Boolean).join(' · ')}
                   </span>
                 </span>
               </button>
@@ -304,16 +312,44 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
                 Used up
               </button>
               {open === item.id && (
-                <div className="chip-row kitchen-row__when" role="group" aria-label={`Use ${item.name} by`}>
-                  {USE_BY_IN.map((choice) => (
-                    <button key={choice.label} type="button" className="chip" aria-pressed={item.useBy === addDays(today, choice.days)} onClick={() => setUseBy(item, addDays(today, choice.days))}>
-                      {choice.label}
+                <>
+                  <div className="kitchen-row__details">
+                    <label className="kitchen-row__field">
+                      <span>Quantity</span>
+                      <input
+                        className="input"
+                        type="number"
+                        min="0"
+                        step="any"
+                        inputMode="decimal"
+                        placeholder="1"
+                        value={item.quantity ?? ''}
+                        onChange={(event) => setDetails(item, { quantity: event.target.value ? Number(event.target.value) : undefined })}
+                      />
+                    </label>
+                    <label className="kitchen-row__field">
+                      <span>Package</span>
+                      <input className="input" placeholder="e.g. 500 g bag" value={item.packageSize ?? ''} onChange={(event) => setDetails(item, { packageSize: event.target.value || undefined })} />
+                    </label>
+                  </div>
+                  <div className="chip-row kitchen-row__when" role="group" aria-label={`Storage for ${item.name}`}>
+                    {(['pantry', 'fridge', 'freezer'] as const).map((location) => (
+                      <button key={location} type="button" className="chip" aria-pressed={item.storageLocation === location} onClick={() => setDetails(item, { storageLocation: item.storageLocation === location ? undefined : location })}>
+                        {location[0].toUpperCase() + location.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="chip-row kitchen-row__when" role="group" aria-label={`Use ${item.name} by`}>
+                    {USE_BY_IN.map((choice) => (
+                      <button key={choice.label} type="button" className="chip" aria-pressed={item.useBy === addDays(today, choice.days)} onClick={() => setUseBy(item, addDays(today, choice.days))}>
+                        {choice.label}
+                      </button>
+                    ))}
+                    <button type="button" className="chip" aria-pressed={!item.useBy} onClick={() => setUseBy(item, undefined)}>
+                      No date
                     </button>
-                  ))}
-                  <button type="button" className="chip" aria-pressed={!item.useBy} onClick={() => setUseBy(item, undefined)}>
-                    No date
-                  </button>
-                </div>
+                  </div>
+                </>
               )}
             </li>
           ))}
