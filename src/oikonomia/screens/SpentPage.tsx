@@ -11,7 +11,6 @@ import { formatMoney, localDate } from '../core/bills';
 import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory } from '../core/budget';
 import { byArea, cents, guessArea, newLines, possibleDuplicate, readStatement, type Spent } from '../core/statements';
 import { receiptFromText } from '../../core/ocr/labels';
-import { readReceiptOnline } from '../app/receipt';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
@@ -173,7 +172,6 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
           <ReadFromPhoto
             label="Read a receipt"
             find={receiptFromText}
-            online={readReceiptOnline}
             onUse={(values) => {
               if (values.name) setEntryDescription(values.name);
               if (values.amount) setEntryAmount(values.amount);

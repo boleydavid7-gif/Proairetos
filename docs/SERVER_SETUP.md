@@ -493,11 +493,12 @@ npx wrangler secret put TASTY_API_KEY
 Without either secret, TheMealDB and the community Cookbook remain available. A provider is included in results only when
 its key is configured and its request succeeds; failures from one source do not hide results from the others.
 
-## Oikonomia online receipt reader (optional)
+## Oikonomia online receipt reader (reserved)
 
-Oikonomia keeps its offline receipt OCR as the default. If a person explicitly chooses **Try online reader**, the photo is
-sent through `/api/receipt` to Azure AI Document Intelligence's prebuilt receipt model. The Worker returns merchant, total,
-date, currency, and tax fields; it does not store the photo or the provider response. Add these as Worker secrets:
+The Worker path is reserved for a future explicit online receipt option. The current Oikonomia interface exposes only its
+offline receipt OCR. If the option is enabled later, the photo will be sent through `/api/receipt` to Azure AI Document
+Intelligence's prebuilt receipt model; the Worker returns merchant, total, date, currency, and tax fields without storing
+the photo or provider response. Add these as Worker secrets when enabling it:
 
 ```bash
 npx wrangler secret put AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT
