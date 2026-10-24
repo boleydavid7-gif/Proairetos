@@ -43,4 +43,17 @@ describe('Wikibooks ideas bridge', () => {
     expect(tastyCalled).toBe(true);
     expect(await response.json()).toMatchObject({ configured: { tasty: true }, sources: { tasty: { status: 'ok', count: 0 } } });
   });
+
+  it('normalizes a Tasty recipe detail for in-app review', async () => {
+    const response = await handleRecipeIdeasRequest(
+      new Request('https://proairetos.com/api/recipe-ideas?provider=tasty&id=8'),
+      { TASTY_API_KEY: 'tasty-key' },
+      async (input, init) => {
+        expect(String(input)).toContain('/recipes/get-more-info?id=8');
+        expect(new Headers(init?.headers).get('x-rapidapi-key')).toBe('tasty-key');
+        return new Response(JSON.stringify({ name: 'Tomato toast', num_servings: 2, sections: [{ components: [{ raw_text: '2 tomatoes' }] }], instructions: [{ display_text: 'Toast the bread.' }] }), { status: 200 });
+      },
+    );
+    expect(await response.json()).toMatchObject({ recipe: { title: 'Tomato toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast the bread.'] } });
+  });
 });

@@ -38,4 +38,12 @@ describe('Soma idea sources', () => {
     expect(result).toBe('edit');
     expect(takeDraft()).toMatchObject({ title: 'Soup', ingredients: ['1 onion'] });
   });
+
+  it('opens a provider detail in Soma review before saving', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ recipe: { title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] } }), { status: 200 }));
+    vi.stubGlobal('fetch', fetch);
+    const result = await openIdea({ ...idea('tasty-8', 'tasty'), url: 'https://source.test/toast', importable: false });
+    expect(result).toBe('edit');
+    expect(takeDraft()).toMatchObject({ title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] });
+  });
 });
