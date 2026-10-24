@@ -1,9 +1,11 @@
 import type { Nav } from '../app/App';
-import { BillsIcon, CalendarIcon, ChevronIcon, SettingsIcon, WalletIcon } from '../app/icons';
+import { BillsIcon, CalendarIcon, ChevronIcon, DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
 import { HistoryIcon } from '../../app/family/icons';
 import { useSettings } from '../app/state';
 import { offerUndo } from '../app/undo';
-import { listBills, listBudgets, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
+import { exportAll, listBills, listBudgets, listEnvelopes, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
+import { envelopesCsv, billsCsv, expensesCsv } from '../core/export';
+import { monthsWithSpent, spentIn } from '../data/spent';
 import { PageTop } from '../app/ui';
 import AccountCard from '../../app/family/AccountCard';
 import FamilyApps from '../../app/family/FamilyApps';
@@ -17,6 +19,15 @@ function currencyName(code: string): string {
   } catch {
     return code;
   }
+}
+
+function downloadText(name: string, text: string, type: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /** Bills and monthly plans in the old currency move to the new one; the amounts stay as written. */
@@ -97,6 +108,17 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
             return count === 1 ? 'One record brought in from an older Oikonomia backup.' : `${count} records brought in from an older Oikonomia backup.`;
           }}
         />
+      </section>
+
+      <section className="oiko-data">
+        <p className="label">Export</p>
+        <p className="muted">Readable copies for your records or another app.</p>
+        <div className="button-row oiko-export-actions">
+          <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-expenses.csv', expensesCsv(monthsWithSpent().flatMap((month) => spentIn(month)), settings.currency), 'text/csv;charset=utf-8')}><DownloadIcon size={18} /> Expenses CSV</button>
+          <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-bills.csv', billsCsv(await listBills()), 'text/csv;charset=utf-8')}><DownloadIcon size={18} /> Bills CSV</button>
+          <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-envelopes.csv', envelopesCsv(await listEnvelopes()), 'text/csv;charset=utf-8')}><DownloadIcon size={18} /> Envelopes CSV</button>
+          <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-archive.json', JSON.stringify({ ...(await exportAll()), expenses: monthsWithSpent().flatMap((month) => spentIn(month)) }, null, 2), 'application/json;charset=utf-8')}><DownloadIcon size={18} /> JSON archive</button>
+        </div>
       </section>
 
       <FamilyApps current="oikonomia" />

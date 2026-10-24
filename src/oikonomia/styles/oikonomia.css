@@ -260,6 +260,10 @@
   color: var(--oiko-clay);
 }
 
+.oiko-export-actions {
+  flex-wrap: wrap;
+}
+
 .oiko-list {
   display: flex;
   flex-direction: column;
