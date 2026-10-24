@@ -42,8 +42,13 @@ describe('Soma idea sources', () => {
   it('opens a provider detail in Soma review before saving', async () => {
     const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ recipe: { title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] } }), { status: 200 }));
     vi.stubGlobal('fetch', fetch);
-    const result = await openIdea({ ...idea('tasty-8', 'tasty'), url: 'https://source.test/toast', importable: false });
+    const result = await openIdea({ ...idea('tasty-8', 'tasty'), url: undefined, importable: false });
     expect(result).toBe('edit');
     expect(takeDraft()).toMatchObject({ title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] });
+  });
+
+  it('does not turn a provider without a source URL into a Wikibooks link', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ query: { search: [{ pageid: 'tasty-8', title: 'Loaded nachos', provider: 'tasty' }] } }), { status: 200 })));
+    await expect(searchWikibooks('nachos')).resolves.toEqual([expect.objectContaining({ sourceId: 'tasty', url: undefined })]);
   });
 });

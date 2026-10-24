@@ -28,7 +28,7 @@ export async function searchWikibooks(query: string): Promise<Idea[]> {
       strMealThumb: page.image,
       sourceId: page.provider ?? 'wikibooks',
       sourceLabel: page.provider === 'spoonacular' ? 'Spoonacular' : page.provider === 'tasty' ? 'Tasty' : 'Wikibooks Cookbook',
-      url: page.url ?? `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`,
+      url: page.url ?? (page.provider && page.provider !== 'wikibooks' ? undefined : `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`),
       importable: false,
     }));
 }
@@ -40,7 +40,6 @@ export async function mealIdeas(path: string): Promise<Idea[]> {
 
 export async function openIdea(idea: Idea): Promise<'edit' | 'external'> {
   if (!idea.importable) {
-    if (!idea.url) return 'external';
     if (idea.sourceId === 'spoonacular' || idea.sourceId === 'tasty') {
       const providerId = idea.idMeal.replace(`${idea.sourceId}-`, '');
       try {
@@ -57,6 +56,7 @@ export async function openIdea(idea: Idea): Promise<'edit' | 'external'> {
         // Fall through to the source URL when the provider detail request is unavailable.
       }
     }
+    if (!idea.url) return 'external';
     try {
       const response = await fetch(apiUrl(`/api/recipe?url=${encodeURIComponent(idea.url)}`));
       if (response.ok) {
