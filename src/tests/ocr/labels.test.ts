@@ -65,3 +65,7 @@ it('prefers the labelled receipt total over an item price', () => {
   expect(value(found, 'amount')).toBe('31.62');
   expect(value(found, 'date')).toBe('2026-10-22');
 });
+
+it('ignores references and item prices when no labeled total exists', () => {
+  expect(value(receiptFromText('Kroger\nREF 937392-406\nItem 19.99\nTax 2.14', 2026), 'amount')).toBeUndefined();
+});
