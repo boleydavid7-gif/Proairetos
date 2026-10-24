@@ -4,13 +4,14 @@ import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { lifeService, reflectionService } from '../../app/services';
 import GratitudePage, { GRATITUDE } from './GratitudePage';
 import { transition } from '../../app/transitions';
-import { ChevronRightIcon, InboxIcon, StarIcon } from '../../components/icons/Icons';
+import { CheckIcon, ChevronRightIcon, InboxIcon, StarIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import type { LifeItem } from '../../core/life-items/types';
 import CaptureBar from '../now/components/CaptureBar';
 import BrainDumpSheet from './BrainDumpSheet';
 import CaptureKindPage, { shelfOf, shelfTitles, type CaptureShelf } from './CaptureKindPage';
 import { captureKinds } from './captureKinds';
+import { useOverlays } from '../../app/overlays/OverlayContext';
 
 const newestFirst = (a: LifeItem, b: LifeItem) => b.createdAt.localeCompare(a.createdAt);
 
@@ -30,6 +31,8 @@ export default function CapturePage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
   const [shelf, setShelf] = useState<CaptureShelf | null>(null);
   const [dumping, setDumping] = useState(false);
+  const [recentlyCaptured, setRecentlyCaptured] = useState<LifeItem | null>(null);
+  const { openItem } = useOverlays();
   const shows = useTodayParts();
   const openOn = (shelfOfItem: CaptureShelf) =>
     items
@@ -55,6 +58,30 @@ export default function CapturePage() {
   return (
     <div className="page">
       <PageHeader title="Capture" settings />
+
+      <section className="fast-capture" aria-labelledby="fast-capture-title">
+        <h2 id="fast-capture-title" className="fast-capture__title">What’s on your mind?</h2>
+        <p className="fast-capture__hint">Write it down now. Add details later if you need them.</p>
+        <CaptureBar
+          placeholder="What’s on your mind?"
+          submitLabel="Save"
+          autoFocus
+          showMic={false}
+          onCaptured={(item) => setRecentlyCaptured(item)}
+        />
+        {recentlyCaptured && (
+          <div className="fast-capture__saved" role="status" aria-live="polite">
+            <span className="fast-capture__saved-mark" aria-hidden="true"><CheckIcon size={16} /></span>
+            <span className="fast-capture__saved-copy">
+              <strong>Saved to your list</strong>
+              <span>{recentlyCaptured.title}</span>
+            </span>
+            <button type="button" className="fast-capture__details" onClick={() => openItem(recentlyCaptured.id)}>
+              Add details later
+            </button>
+          </div>
+        )}
+      </section>
 
       <div className="kind-list">
         {captureKinds.map(({ id, label, icon: Icon }) => (
@@ -106,10 +133,6 @@ export default function CapturePage() {
         )}
       </div>
       {dumping && <BrainDumpSheet onClose={() => setDumping(false)} />}
-
-      <div className="stack-tight">
-        <CaptureBar placeholder="Or anything at all" />
-      </div>
     </div>
   );
 }

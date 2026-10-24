@@ -1,5 +1,96 @@
 /* ---------- Capture: kinds above the free box ---------- */
 
+/* The first action on Capture is intentionally small: one thought, one save.
+   It uses the active theme tokens so all six user themes keep the same hierarchy. */
+.fast-capture {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.fast-capture__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+}
+
+.fast-capture__hint {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.fast-capture .capture-bar {
+  min-height: 3.75rem;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  background: var(--color-bg);
+}
+
+.fast-capture .capture-bar__input {
+  font-size: var(--text-md);
+}
+
+.fast-capture .capture-bar__submit {
+  min-width: 4.5rem;
+}
+
+.fast-capture__saved {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.fast-capture__saved-mark {
+  display: grid;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 700;
+}
+
+.fast-capture__saved-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.fast-capture__saved-copy strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.fast-capture__saved-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fast-capture__details {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 /* One grouped list, rows split by hairlines (like Reminders' lists), not a card per kind. */
 .kind-list {
   display: flex;

@@ -18,9 +18,15 @@ type Props = {
   onCaptured?: (item: LifeItem) => void;
   /** Quiet: a single underlined line, for Today. */
   variant?: 'box' | 'quiet';
+  /** Text for the primary action. Capture shelves use Add; the fast entry page uses Save. */
+  submitLabel?: string;
+  /** Focus the field as soon as the capture surface appears. */
+  autoFocus?: boolean;
+  /** Keep the voice affordance available unless a deliberately minimal surface hides it. */
+  showMic?: boolean;
 };
 
-export default function CaptureBar({ kind, placeholder = 'Capture something', onCaptured, variant = 'box' }: Props) {
+export default function CaptureBar({ kind, placeholder = 'Capture something', onCaptured, variant = 'box', submitLabel = 'Add', autoFocus = false, showMic = true }: Props) {
   const [text, setText] = useState('');
   // "Keep as written": the day or time read from the words is set aside until the box is cleared.
   const [asWritten, setAsWritten] = useState(false);
@@ -76,6 +82,7 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
         className="capture-bar__input"
         placeholder={placeholder}
         aria-label="Capture something"
+        autoFocus={autoFocus}
         value={text}
         onChange={(event) => {
           setText(event.target.value);
@@ -83,10 +90,10 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
         }}
       />
       {/* The mic stays mounted while text arrives, so dictation keeps listening across phrases. */}
-      {variant === 'box' && <MicButton onText={(spoken) => setText((current) => (current ? `${current} ${spoken}` : spoken))} />}
+      {variant === 'box' && showMic && <MicButton onText={(spoken) => setText((current) => (current ? `${current} ${spoken}` : spoken))} />}
       {text.trim() && (
         <button type="submit" className="capture-bar__submit">
-          Add
+          {submitLabel}
         </button>
       )}
       {when && (
