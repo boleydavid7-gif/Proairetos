@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-24',
+    lines: [
+      'In the dark appearance, the light on Proairetos’s wallpaper is a moon with a few faint stars instead of a bright lamp.',
+    ],
+  },
+  {
     date: '2026-10-23',
     lines: [
       'A page title with a line above it, such as a session’s day and week or a workout’s date in Askesis, no longer slides over that line on iPhone.',

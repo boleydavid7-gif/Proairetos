@@ -22,11 +22,14 @@ export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = 
   const fy = lamp ? (wide ? 0.12 + (lamp.y - 0.09) * 0.8 : lamp.y) : wide ? 0.12 : 0.09;
   const [x, y] = [Math.round(w * fx), Math.round(h * fy)];
   const k = lamp ? 0.5 + 0.5 * lamp.strength : 1;
-  // Late in the day the lamp has no white heart, only its warm glow.
+  // Late in the day the lamp has no white heart, only its warm glow (in the light appearance; dark is night, a moon).
   const core = lamp ? k * (1 - 0.85 * lamp.warmth) : 1;
   if (lamp) art = { ...art, glow: lamp.glow };
   const unit = h / 1600;
   const big = Math.max(w, h);
+  // The moon keeps to the clear band between the top bar's buttons and the page title, wherever the day puts the lamp.
+  const moonY = wide ? y : Math.round(h * Math.min(0.26, Math.max(0.17, fy)));
+  const night = moonlight(x, moonY, unit, w, h, art.glow, k);
   // A field of color: one radial bloom, strongest at its center and gone at its edge.
   const bloom = (id: string, color: string, cx: number, cy: number, r: number, strength: number) =>
     `<radialGradient id="${id}" cx="${Math.round(cx)}" cy="${Math.round(cy)}" r="${Math.round(r)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${color}" stop-opacity="${strength}"/><stop offset=".5" stop-color="${color}" stop-opacity="${(strength * 0.45).toFixed(3)}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>`;
@@ -34,7 +37,8 @@ export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = 
     bloom('f1', art.b1, w * 0.04, h * 0.42, big * 0.62, light ? 0.5 : 0.55),
     bloom('f2', art.b2, w * 1.02, h * 0.66, big * 0.55, light ? 0.42 : 0.5),
     bloom('f3', art.b3, w * 0.32, h * 1.02, big * 0.6, light ? 0.45 : 0.6),
-    bloom('f4', art.glow, x, y, big * 0.62, (light ? 0.7 : 0.42) * k),
+    // At night (dark) the room's color around the light is a faint wash, not a lamp's warm pool.
+    bloom('f4', art.glow, x, y, big * 0.62, (light ? 0.7 : 0.14) * k),
   ];
   // Two silk folds in phone units (1200 wide), scaled across for computers.
   const folds = [
@@ -58,7 +62,7 @@ export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = 
 <defs>
 <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".85" stop-color="${page}"/></linearGradient>
 ${fields.join('')}
-<radialGradient id="l" cx="${x}" cy="${y}" r="${Math.round(260 * unit)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="${((light ? 0.55 : 0.28) * core).toFixed(3)}"/><stop offset=".35" stop-color="${art.glow}" stop-opacity="${((light ? 0.45 : 0.32) * k).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
+${light ? `<radialGradient id="l" cx="${x}" cy="${y}" r="${Math.round(260 * unit)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="${(0.55 * core).toFixed(3)}"/><stop offset=".35" stop-color="${art.glow}" stop-opacity="${(0.45 * k).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>` : night.defs}
 <linearGradient id="e" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${art.glow}" stop-opacity="0"/><stop offset=".6" stop-color="${art.glow}" stop-opacity="${light ? 0.35 : 0.22}"/><stop offset="1" stop-color="#fff" stop-opacity="${light ? 0.5 : 0.3}"/></linearGradient>
 ${foldDefs}
 <filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 0"/></filter>
@@ -66,10 +70,35 @@ ${foldDefs}
 <rect width="${w}" height="${h}" fill="url(#s)"/>
 ${fields.map((_, i) => `<rect width="${w}" height="${h}" fill="url(#f${i + 1})"/>`).join('')}
 <g transform="scale(${w / 1200} ${unit})">${foldShapes}</g>
-<rect width="${w}" height="${h}" fill="url(#l)"/>
+${light ? `<rect width="${w}" height="${h}" fill="url(#l)"/>` : night.shapes}
 <rect width="${w}" height="${h}" filter="url(#n)" opacity="${light ? 0.05 : 0.07}"/>
 </svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+}
+
+/*
+ * Night (the dark appearance): the light is a moon, not a lamp. A small pale disc with a soft rim (no ring), a wide
+ * faint halo, and a few dim stars kept to the sky above the folds, at the same places on every device.
+ */
+const STARS: [number, number, number][] = [
+  [0.12, 0.05, 1.6], [0.27, 0.11, 1.1], [0.39, 0.035, 1.3], [0.84, 0.06, 1.2], [0.93, 0.15, 1.5], [0.08, 0.19, 1.1],
+  [0.47, 0.17, 0.9], [0.74, 0.2, 1.1], [0.2, 0.27, 0.9], [0.9, 0.29, 1], [0.58, 0.26, 0.8],
+];
+
+function moonlight(x: number, y: number, unit: number, w: number, h: number, glow: string, k: number): { defs: string; shapes: string } {
+  const r = Math.round(30 * unit);
+  const halo = Math.round(220 * unit);
+  const defs =
+    `<radialGradient id="l" cx="${x}" cy="${y}" r="${halo}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f3eee2" stop-opacity="${(0.2 * k).toFixed(3)}"/><stop offset=".3" stop-color="${glow}" stop-opacity="${(0.1 * k).toFixed(3)}"/><stop offset="1" stop-color="${glow}" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="m" cx="${x - r * 0.3}" cy="${y - r * 0.3}" r="${Math.round(r * 1.4)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fbf8f1"/><stop offset=".75" stop-color="#e9e3d6"/><stop offset="1" stop-color="#d9d2c4"/></radialGradient>` +
+    `<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${(1.2 * unit).toFixed(2)}"/></filter>`;
+  const stars = STARS.filter(([sx, sy]) => Math.hypot((sx * w - x) / w, (sy * h - y) / h) > 0.12)
+    .map(([sx, sy, size]) => `<circle cx="${Math.round(sx * w)}" cy="${Math.round(sy * h)}" r="${(size * unit * 1.6).toFixed(1)}" fill="#f3eee2" opacity="${(0.32 * k).toFixed(2)}"/>`)
+    .join('');
+  const shapes =
+    `<rect width="${w}" height="${h}" fill="url(#l)"/>${stars}` +
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#m)" opacity="${(0.82 * k).toFixed(2)}" filter="url(#soft)"/>`;
+  return { defs, shapes };
 }
 
 /** The foot of Today in the same room, drawn like the wallpaper: two silk folds rising toward the lamp's side, each
