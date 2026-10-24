@@ -29,4 +29,18 @@ describe('Wikibooks ideas bridge', () => {
   it('rejects an empty search', async () => {
     expect((await handleRecipeIdeasRequest(new Request('https://proairetos.com/api/recipe-ideas?q=x'))).status).toBe(400);
   });
+
+  it('accepts the alternate RapidAPI secret binding name', async () => {
+    let tastyCalled = false;
+    const response = await handleRecipeIdeasRequest(
+      new Request('https://proairetos.com/api/recipe-ideas?q=soup'),
+      { TASTY_RAPIDAPI_KEY: 'tasty-key' },
+      async (input) => {
+        if (String(input).includes('tasty.p.rapidapi')) tastyCalled = true;
+        return new Response(JSON.stringify({ results: [] }), { status: 200 });
+      },
+    );
+    expect(tastyCalled).toBe(true);
+    expect(await response.json()).toMatchObject({ configured: { tasty: true } });
+  });
 });

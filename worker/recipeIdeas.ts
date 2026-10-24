@@ -1,5 +1,5 @@
 /** Server-side recipe search fan-in. Provider keys stay in Worker secrets. */
-export type RecipeIdeasEnv = { SPOONACULAR_API_KEY?: string; TASTY_API_KEY?: string };
+export type RecipeIdeasEnv = { SPOONACULAR_API_KEY?: string; TASTY_API_KEY?: string; TASTY_RAPIDAPI_KEY?: string };
 
 type SearchPage = { pageid: string; title: string; provider: 'wikibooks' | 'spoonacular' | 'tasty'; image?: string; url?: string };
 
@@ -46,12 +46,13 @@ export async function handleRecipeIdeasRequest(request: Request, env: RecipeIdea
   if (request.method !== 'GET') return reply(405, { error: 'Not allowed' });
   const query = new URL(request.url).searchParams.get('q')?.trim() ?? '';
   if (query.length < 2 || query.length > 120) return reply(400, { error: 'Search for at least two characters.' });
+  const tastyKey = env.TASTY_API_KEY ?? env.TASTY_RAPIDAPI_KEY;
   const providers = [
     wikibooks(query, fetchImpl),
     ...(env.SPOONACULAR_API_KEY ? [spoonacular(query, env.SPOONACULAR_API_KEY, fetchImpl)] : []),
-    ...(env.TASTY_API_KEY ? [tasty(query, env.TASTY_API_KEY, fetchImpl)] : []),
+    ...(tastyKey ? [tasty(query, tastyKey, fetchImpl)] : []),
   ];
   const results = await Promise.allSettled(providers);
   const search = results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
-  return reply(200, { query: { search }, configured: { spoonacular: Boolean(env.SPOONACULAR_API_KEY), tasty: Boolean(env.TASTY_API_KEY) } });
+  return reply(200, { query: { search }, configured: { spoonacular: Boolean(env.SPOONACULAR_API_KEY), tasty: Boolean(tastyKey) } });
 }

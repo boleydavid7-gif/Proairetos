@@ -482,7 +482,8 @@ or run the matching command locally:
 1. **Spoonacular — `SPOONACULAR_API_KEY`.** Create an account at spoonacular.com/food-api and copy the API key from the
    dashboard. Soma uses `complexSearch` for recipe titles, images, and source links. Provider quotas apply.
 2. **Tasty — `TASTY_API_KEY`.** Create a RapidAPI account, subscribe to the Tasty API, and copy the
-   `X-RapidAPI-Key`. Soma uses the recipe list endpoint and keeps the source link for review.
+   `X-RapidAPI-Key`. Soma uses the recipe list endpoint and keeps the source link for review. `TASTY_RAPIDAPI_KEY` is
+   also accepted if that is the name already used in your Worker environment.
 
 ```bash
 npx wrangler secret put SPOONACULAR_API_KEY
