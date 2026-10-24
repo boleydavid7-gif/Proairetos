@@ -149,7 +149,10 @@ export function receiptFromText(text: string, thisYear = new Date().getFullYear(
     .filter((line) => /\b(?:grand\s+)?total\b|amount\s+(?:paid|due)|balance\s+due|purchase\s+total/i.test(line))
     .filter((line) => !/\b(?:tax|items?|number|cashback|change|ref(?:erence)?|account|debit|credit)\b|\*{2,}/i.test(line))
     .flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined));
-  const amount = labelled.filter((value) => value > 0 && value < 100_000).at(-1);
+  const decimalAmounts = lines
+    .filter((line) => !/\b(?:tax|cashback|change|ref(?:erence)?|account|debit|credit)\b|\*{2,}/i.test(line))
+    .flatMap((line) => [...line.matchAll(/(?:[$£€¥]\s*)?(\d{1,4}[.,]\d{1,2})(?!\d)/g)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined));
+  const amount = (labelled.length ? labelled : decimalAmounts).filter((value) => value > 0 && value < 100_000).sort((a, b) => b - a)[0];
   if (amount !== undefined) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
   const date = lines.map((line) => dateIn(line, thisYear)).find(Boolean);
   if (date) found.push({ key: 'date', label: 'Date', value: date });
