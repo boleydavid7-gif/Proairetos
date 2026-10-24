@@ -242,7 +242,7 @@ function NextStepSection({ item }: { item: LifeItem }) {
   const [cue, setCue] = useState(item.nextStepCue ?? '');
   const [obstacle, setObstacle] = useState(item.ifObstacle ?? '');
   const isActive = item.status === 'OPEN' || item.status === 'WAITING';
-  if (!isActive || (item.type !== 'DO' && item.type !== 'THINKING_ABOUT' && item.type !== null)) return null;
+  if (!isActive) return null;
 
   const save = () => {
     if (draft.trim()) {

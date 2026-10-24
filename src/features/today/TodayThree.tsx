@@ -199,7 +199,11 @@ export default function TodayThree({ date, items, embedded = false, pickerOpen, 
                 </button>
                 <button type="button" className="path__text" onClick={() => openItem(item.id)}>
                   <span className="path__title">{item.title}</span>
-                  {item.nextStep && !done && <span className="path__detail">Next: {item.nextStep}</span>}
+                  {!done && (
+                    <span className={`path__detail${item.nextStep ? '' : ' path__detail--action'}`}>
+                      {item.nextStep ? `Next: ${item.nextStep}` : 'Add next step'}
+                    </span>
+                  )}
                   {linkedValues(item, names).length > 0 && (
                     <span className="path__detail path__detail--value">For {linkedValues(item, names).join(', ')}</span>
                   )}

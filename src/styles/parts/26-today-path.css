@@ -163,6 +163,10 @@
   font-size: var(--text-sm);
 }
 
+.path__detail--action {
+  color: var(--color-accent);
+}
+
 .path__chevron {
   position: absolute;
   right: 0;
