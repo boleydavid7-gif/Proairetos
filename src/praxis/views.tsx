@@ -80,8 +80,6 @@ export function TodayView(props: TodayProps) {
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   const timerActive = Boolean(session || rest);
   const timerProgress = timerActive ? Math.max(0, Math.min(1, progress)) : 0;
-  const timerAngle = -Math.PI / 2 + timerProgress * Math.PI * 2;
-  const timerHead = { x: 100 + 84 * Math.cos(timerAngle), y: 100 + 84 * Math.sin(timerAngle) };
   return (
     <section className="praxis-view praxis-today-view">
       <div className="praxis-page-heading"><div><h1>Today</h1></div></div>
@@ -104,7 +102,6 @@ export function TodayView(props: TodayProps) {
                   <svg className="praxis-timer__ring" viewBox="0 0 200 200" aria-hidden="true">
                     <circle className="praxis-timer__track" cx="100" cy="100" r="86" />
                     <circle className="praxis-timer__progress" cx="100" cy="100" r="86" style={{ strokeDasharray: `${TIMER_RING_CIRCUMFERENCE} ${TIMER_RING_CIRCUMFERENCE}`, strokeDashoffset: TIMER_RING_CIRCUMFERENCE * (1 - timerProgress) }} />
-                    {timerActive && <circle className="praxis-timer__progress-head" cx={timerHead.x} cy={timerHead.y} r="5.5" />}
                   </svg>
                   <div className="praxis-timer__inner"><span className="praxis-timer__time">{rest ? formatClockDown(restLeft) : session ? (finished ? '0:00' : formatClockDown(remaining)) : `${minutes}:00`}</span></div>
                 </div>
