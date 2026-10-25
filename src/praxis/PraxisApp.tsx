@@ -25,17 +25,17 @@ import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, un
 import { bellWaiting, cancelBell, scheduleBell } from './bell';
 import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
-import { SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
+import { MoreView, SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
 import { isAdded } from '../app/family/added';
 import { useEnterMark } from '../app/transitions';
 
-type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings';
+type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings' | 'more';
 
 const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
   { id: 'today', label: 'Today', icon: SunIcon },
   { id: 'cards', label: 'Cards', icon: ChecklistIcon },
   { id: 'sessions', label: 'Sessions', icon: CalendarIcon },
-  { id: 'time', label: 'Time', icon: MountainIcon },
+  { id: 'time', label: 'Progress', icon: MountainIcon },
   { id: 'sounds', label: 'Sounds', icon: BreatheIcon },
   { id: 'settings', label: 'Settings', icon: GearIcon },
 ];
@@ -57,7 +57,7 @@ const notifyPermission = (): string => notifications.permission();
 const opening = takeOpening();
 
 export default function PraxisApp() {
-  const [view, setView] = useState<View>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings'].includes(opening) ? (opening as View) : 'today'));
+  const [view, setView] = useState<View>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings', 'more'].includes(opening) ? (opening as View) : 'today'));
   useEnterMark(view, ['today', 'cards', 'sessions', 'time', 'sounds'] as View[]);
   const [name] = useState(displayName);
   const [session, setSession] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
@@ -258,6 +258,12 @@ export default function PraxisApp() {
   const add = async (title: string, length: number) => {
     const block = await lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: length });
     setSelectedId(block.id);
+    return block;
+  };
+
+  const addAndStart = async (title: string, length: number) => {
+    const block = await add(title, length);
+    start(block);
   };
 
   const saveBlock = async (block: LifeItem, change: { title: string; minutes: number; goalId?: string }) => {
@@ -348,6 +354,7 @@ export default function PraxisApp() {
               onSelect={(block) => { if (!session) setSelectedId(block.id); }}
               onToggle={(block) => void toggle(block)}
               onAdd={(title, length) => void add(title, length)}
+              onAddAndStart={(title, length) => void addAndStart(title, length)}
               onSave={(block, change) => void saveBlock(block, change)}
               onRemove={(block) => void removeBlock(block)}
               onEndRest={endRest}
@@ -392,6 +399,7 @@ export default function PraxisApp() {
               }}
             />
           )}
+          {view === 'more' && <MoreView onView={setView} />}
         </div>
       </main>
 
@@ -403,5 +411,5 @@ export default function PraxisApp() {
 
 
 function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {
-  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<ProairetosTab className="praxis-nav-item" size={18} /></div>;
+  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-praxis-view={id} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<button type="button" className="praxis-nav-item praxis-nav-item--more" data-praxis-view="more" aria-current={view === 'more' ? 'page' : undefined} onClick={() => onView('more')}><GearIcon size={18} /><span>More</span></button><ProairetosTab className="praxis-nav-item" size={18} /></div>;
 }

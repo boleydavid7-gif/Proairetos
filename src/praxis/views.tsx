@@ -62,6 +62,7 @@ type TodayProps = {
   onSelect: (block: LifeItem) => void;
   onToggle: (block: LifeItem) => void;
   onAdd: (title: string, minutes: number) => void;
+  onAddAndStart: (title: string, minutes: number) => void;
   onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string }) => void;
   onRemove: (block: LifeItem) => void;
   onEndRest: () => void;
@@ -137,7 +138,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
-          <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} />
+          <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
@@ -208,7 +209,7 @@ function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove
   );
 }
 
-function AddBlock({ reading, empty, onAdd }: { reading: string[]; empty: boolean; onAdd: (title: string, minutes: number) => void }) {
+function AddBlock({ reading, empty, onAdd, onAddAndStart }: { reading: string[]; empty: boolean; onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
   const [title, setTitle] = useState('');
   const [minutes, setMinutes] = useState('25');
   const add = (event?: FormEvent, named?: string) => {
@@ -219,12 +220,20 @@ function AddBlock({ reading, empty, onAdd }: { reading: string[]; empty: boolean
     onAdd(words, Number.isFinite(value) && value > 0 ? clampMinutes(value) : 25);
     setTitle('');
   };
+  const startNow = () => {
+    const words = title.trim();
+    if (!words) return;
+    const value = Number(minutes);
+    onAddAndStart(words, Number.isFinite(value) && value > 0 ? clampMinutes(value) : 25);
+    setTitle('');
+  };
   return (
     <form className="praxis-add" onSubmit={add}>
       <div className="praxis-add__row">
         <input aria-label="A block to study" placeholder={empty ? 'A subject, a chapter, a skill' : 'Add a block'} value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
+        <button type="button" className="praxis-button praxis-button--primary" disabled={!title.trim()} onClick={startNow}>Start now</button>
       </div>
       {reading.length > 0 && (
         <div className="praxis-add__from">
@@ -232,6 +241,24 @@ function AddBlock({ reading, empty, onAdd }: { reading: string[]; empty: boolean
         </div>
       )}
     </form>
+  );
+}
+
+export function MoreView({ onView }: { onView: (view: 'sounds' | 'settings') => void }) {
+  return (
+    <section className="praxis-view praxis-more-view">
+      <div className="praxis-page-heading"><div><h1>More</h1><p className="praxis-subtitle">The room’s sound and app settings.</p></div></div>
+      <div className="praxis-card praxis-more-card">
+        <button type="button" className="praxis-more-link" onClick={() => onView('sounds')}>
+          <span><strong>Sounds</strong><small>Choose the room you study in.</small></span>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button type="button" className="praxis-more-link" onClick={() => onView('settings')}>
+          <span><strong>Settings</strong><small>Reminders, account, and backups.</small></span>
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
+    </section>
   );
 }
 
