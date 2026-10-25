@@ -101,12 +101,7 @@ export function TodayView(props: TodayProps) {
                 {rest ? (
                   <div className="praxis-focus-actions"><button type="button" className="praxis-button praxis-button--quiet" onClick={props.onEndRest}>End the break</button></div>
                 ) : (
-                  <>
-                    <div className="praxis-focus-actions">
-                      <button type="button" className="praxis-button praxis-button--primary" onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start'}</button>
-                      {session && <button type="button" className="praxis-button praxis-button--quiet" onClick={props.onStop}>Stop here</button>}
-                    </div>
-                  </>
+                  session && <div className="praxis-focus-actions"><button type="button" className="praxis-button praxis-button--quiet" onClick={props.onStop}>Stop here</button></div>
                 )}
               </div>}
             </>
@@ -132,7 +127,7 @@ export function TodayView(props: TodayProps) {
             ))}
           </div>
           {selected && !session && !rest && !after && <div className="praxis-plan-length"><LengthPicker minutes={minutes} onMinutes={props.onMinutes} /></div>}
-          {selected && <button type="button" className="praxis-button praxis-button--primary praxis-plan-start" onClick={props.onStart}>Start now</button>}
+          {selected && !rest && !after && <button type="button" className="praxis-button praxis-button--primary praxis-plan-start" onClick={props.onStart}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start now'}</button>}
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
