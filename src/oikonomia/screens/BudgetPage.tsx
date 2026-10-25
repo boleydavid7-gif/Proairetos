@@ -4,8 +4,8 @@ import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
 import { newId, useBills, useBudget, useEnvelopes, useSettings, useSomaRecipes } from '../app/state';
-import { formatDate, formatMoney, nextMonth } from '../core/bills';
-import { budgetCategories, budgetTotals, emptyLimits, foodWeekSummary, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, spendingTotals, type BudgetCategory, type BudgetPlan } from '../core/budget';
+import { formatDate, formatMoney, monthBounds, nextMonth, occurrencesBetween } from '../core/bills';
+import { budgetCategories, budgetCategory, budgetTotals, emptyLimits, foodWeekSummary, formatMonthKey, monthDate, monthKey, moneyInputCents, newBudget, spendingTotals, type BudgetCategory, type BudgetPlan } from '../core/budget';
 import { incomeForMonth } from '../core/pay';
 import { envelopeMonthlyTotal } from '../core/envelopes';
 import { usePays } from '../data/pay';
@@ -82,6 +82,17 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   const weeklyFoodLimit = settings.weeklyFoodBudgetCents ?? 0;
   const weekSpentRemaining = weeklyFoodLimit - foodWeek.actualCents;
   const weekPaceOver = weeklyFoodLimit > 0 && foodWeek.paceCents > weeklyFoodLimit;
+  const billAreaCategories = useMemo(() => budgetCategories.filter(({ id }) => bills.some((bill) => bill.category?.trim() && budgetCategory(bill.category) === id)), [bills]);
+  const billPlannedByArea = useMemo(() => {
+    const totals = emptyLimits();
+    const bounds = monthBounds(monthDate(month));
+    for (const bill of bills) {
+      if (!bill.category?.trim() || bill.currency !== planCurrency) continue;
+      const area = budgetCategory(bill.category);
+      totals[area] += occurrencesBetween(bill, bounds.from, bounds.until).length * Math.max(0, bill.amountCents);
+    }
+    return totals;
+  }, [bills, month, planCurrency]);
 
   const changeMonth = (amount: number) => setMonth(monthKey(nextMonth(monthDateValue, amount)));
   const changeItems = (items: BudgetPlan['items']) => {
@@ -198,7 +209,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
               <div className="oiko-budget-item" key={item.id}>
                 <span><strong>{item.name}</strong><small>{budgetCategories.find(({ id }) => id === item.category)?.label ?? 'Other'}</small></span>
                 <strong>{formatMoney(item.amountCents, planCurrency)}</strong>
-                <button type="button" className="button-quiet oiko-budget-item__delete" aria-label={`Delete budget item ${item.name}`} onClick={() => removeItem(item.id)}>Delete</button>
+                <button type="button" className="text-link" aria-label={`Delete budget item ${item.name}`} onClick={() => removeItem(item.id)}>Delete</button>
               </div>
             ))}
           </div>
@@ -211,17 +222,17 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
         </div>
       </section>
 
-      <section className="oiko-budget-section">
-        <div className="oiko-section-head"><h2>By area</h2></div>
+      {billAreaCategories.length > 0 && <section className="oiko-budget-section">
+        <div className="oiko-section-head"><h2>Monthly Bill Types</h2></div>
         <div className="oiko-budget-areas">
-          {areaCategories.map(({ id, label }) => (
+          {billAreaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
-              <span><strong>{label}</strong><small>{formatMoney(spent.byCategory[id], planCurrency)} spent · {formatMoney(totals.byCategory[id] + (id === 'savings' ? envelopeCents : 0), planCurrency)} planned</small><span className="oiko-budget-area__track" aria-hidden="true"><span style={{ width: `${plan.categoryLimits[id] ? Math.min(100, (spent.byCategory[id] / plan.categoryLimits[id]) * 100) : 0}%` }} /></span></span>
+              <span><strong>{label}</strong><small>{formatMoney(spent.byCategory[id], planCurrency)} spent · {formatMoney(billPlannedByArea[id], planCurrency)} planned</small><span className="oiko-budget-area__track" aria-hidden="true"><span style={{ width: `${plan.categoryLimits[id] ? Math.min(100, (spent.byCategory[id] / plan.categoryLimits[id]) * 100) : 0}%` }} /></span></span>
               <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} onBlur={() => void keep()} placeholder="Limit" />
             </label>
           ))}
         </div>
-      </section>
+      </section>}
 
       {message && <p className="oiko-error" role="alert">{message}</p>}
     </div>
