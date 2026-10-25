@@ -194,11 +194,12 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
           <span><strong>{block.title}</strong><small>{block.plannedMinutes ?? 25} min{goal ? ` · ${goal.body}` : ''}{block.plannedFor ? ` · ${block.plannedFor === today ? 'Today' : formatDay(block.plannedFor)}` : ''}</small></span>
         </button>
         <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
-        <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
+        <button type="button" className={`praxis-task-check${selected ? ' is-selected' : ''}`} aria-label={`Select ${block.title} for the timer`} aria-pressed={selected} onClick={() => onSelect(block)}><CheckIcon size={16} /></button>
       </div>
       <div className="praxis-task-links">
         {onOpenReading && block.title.startsWith('Read: ') && <button type="button" className="praxis-text-link" onClick={() => onOpenReading(block.title.slice(6).trim())}>Open in Theoria</button>}
         {totalCards > 0 && <button type="button" className="praxis-text-link" onClick={() => onReviewCards(block.id)}>{readyCards > 0 ? (readyCards === 1 ? 'Review 1 card' : `Review ${readyCards} cards`) : 'Open cards'}</button>}
+        <button type="button" className="praxis-text-link" onClick={() => onToggle(block)}>{block.status === 'DONE' ? 'Reopen' : 'Done'}</button>
         <button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(block)}>Remove</button>
       </div>
       {editing && (
