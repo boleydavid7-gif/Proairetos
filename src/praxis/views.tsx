@@ -125,7 +125,7 @@ export function TodayView(props: TodayProps) {
         </article>
 
         <article className="praxis-card praxis-plan-card">
-          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p><h2>What are you reading?</h2></div>{props.cardsReady > 0 && <button type="button" className="praxis-text-button praxis-review-link" onClick={() => props.onReviewCards()}>{props.cardsReady === 1 ? 'Review 1 card' : `Review ${props.cardsReady} cards`}</button>}</div>
+          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p></div>{props.cardsReady > 0 && <button type="button" className="praxis-text-button praxis-review-link" onClick={() => props.onReviewCards()}>{props.cardsReady === 1 ? 'Review 1 card' : `Review ${props.cardsReady} cards`}</button>}</div>
           {again.length > 0 && (
             <div className="praxis-again">
               <p className="praxis-eyebrow">To look at again</p>
@@ -142,7 +142,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
-          <AddBlock empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
+          <AddBlock onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
@@ -220,7 +220,7 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
   );
 }
 
-function AddBlock({ empty, onAdd, onAddAndStart }: { empty: boolean; onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
+function AddBlock({ onAdd, onAddAndStart }: { onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
   const [title, setTitle] = useState('');
   const [minutes, setMinutes] = useState('25');
   const add = (event?: FormEvent) => {
@@ -242,7 +242,7 @@ function AddBlock({ empty, onAdd, onAddAndStart }: { empty: boolean; onAdd: (tit
     <form className="praxis-add" onSubmit={add}>
       <p className="praxis-eyebrow praxis-add__heading">Add a block</p>
       <div className="praxis-add__row">
-        <input aria-label="A block to read" placeholder={empty ? 'A subject, a chapter, a skill' : 'What are you reading?'} value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
+        <input aria-label="A block to read" placeholder="A subject, a chapter, or a skill" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
         <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
