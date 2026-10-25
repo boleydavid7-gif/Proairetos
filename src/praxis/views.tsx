@@ -113,7 +113,7 @@ export function TodayView(props: TodayProps) {
                 ) : (
                   <>
                     <div className="praxis-focus-actions">
-                      <button type="button" ref={startButton} className={`praxis-button praxis-button--primary${props.ready ? ' praxis-button--ready' : ''}`} onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start'}</button>
+                      <button type="button" ref={startButton} className={`praxis-button praxis-button--primary${props.ready ? ' praxis-button--ready' : ''}`} onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : props.ready ? 'Start now' : 'Start'}</button>
                       {session && <button type="button" className="praxis-button praxis-button--quiet" onClick={props.onStop}>Stop here</button>}
                     </div>
                     {!session && selected && <LengthPicker minutes={minutes} onMinutes={props.onMinutes} />}
@@ -196,10 +196,11 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
         <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
         <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
       </div>
-      {(totalCards > 0 || (onOpenReading && block.title.startsWith('Read: '))) && <div className="praxis-task-links">
+      <div className="praxis-task-links">
         {onOpenReading && block.title.startsWith('Read: ') && <button type="button" className="praxis-text-link" onClick={() => onOpenReading(block.title.slice(6).trim())}>Open in Theoria</button>}
         {totalCards > 0 && <button type="button" className="praxis-text-link" onClick={() => onReviewCards(block.id)}>{readyCards > 0 ? (readyCards === 1 ? 'Review 1 card' : `Review ${readyCards} cards`) : 'Open cards'}</button>}
-      </div>}
+        <button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(block)}>Remove</button>
+      </div>
       {editing && (
         <form className="praxis-block-form" onSubmit={save}>
           <label><span>Name</span><input value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} /></label>
@@ -211,7 +212,6 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
           <div className="praxis-block-form__actions">
             <button type="submit" className="praxis-button praxis-button--primary">Save</button>
             <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setEditing(false)}>Cancel</button>
-            <button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(block)}>Remove</button>
           </div>
         </form>
       )}
@@ -222,9 +222,9 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
 function AddBlock({ empty, onAdd, onAddAndStart }: { empty: boolean; onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
   const [title, setTitle] = useState('');
   const [minutes, setMinutes] = useState('25');
-  const add = (event?: FormEvent, named?: string) => {
+  const add = (event?: FormEvent) => {
     event?.preventDefault();
-    const words = (named ?? title).trim();
+    const words = title.trim();
     if (!words) return;
     const value = Number(minutes);
     onAdd(words, Number.isFinite(value) && value > 0 ? clampMinutes(value) : 25);
@@ -239,8 +239,9 @@ function AddBlock({ empty, onAdd, onAddAndStart }: { empty: boolean; onAdd: (tit
   };
   return (
     <form className="praxis-add" onSubmit={add}>
+      <p className="praxis-eyebrow praxis-add__heading">Add a block</p>
       <div className="praxis-add__row">
-        <input aria-label="A block to study" placeholder={empty ? 'A subject, a chapter, a skill' : 'Add a block'} value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
+        <input aria-label="A block to read" placeholder={empty ? 'A subject, a chapter, a skill' : 'What are you reading?'} value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
         <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
@@ -323,7 +324,7 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
               <div className="praxis-history-row">
                 <span className="praxis-history-icon"><BookIcon size={18} /></span>
                 <span><strong>{titles.get(event.itemId) ?? 'A block'}</strong><small>{formatSessionTime(event.timestamp)}</small></span>
-                <button type="button" className="praxis-history-duration" onClick={() => { setEditing(editing === event.id ? undefined : event.id); setValue(String(focusMinutes(event))); }}>{focusMinutes(event)} min</button>
+                <span className="praxis-history-actions"><button type="button" className="praxis-history-duration" onClick={() => { setEditing(editing === event.id ? undefined : event.id); setValue(String(focusMinutes(event))); }}>{focusMinutes(event)} min</button><button type="button" className="praxis-text-link praxis-remove" onClick={() => { onRemove(event); if (editing === event.id) setEditing(undefined); }}>Remove</button></span>
               </div>
               {editing === event.id && (
                 <form className="praxis-block-form" onSubmit={(submit) => { submit.preventDefault(); const minutes = Number(value); if (Number.isFinite(minutes) && minutes > 0) onChange(event, clampMinutes(minutes)); setEditing(undefined); }}>
@@ -331,7 +332,6 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
                   <div className="praxis-block-form__actions">
                     <button type="submit" className="praxis-button praxis-button--primary">Save</button>
                     <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setEditing(undefined)}>Cancel</button>
-                    <button type="button" className="praxis-text-link praxis-remove" onClick={() => { onRemove(event); setEditing(undefined); }}>Remove</button>
                   </div>
                 </form>
               )}
