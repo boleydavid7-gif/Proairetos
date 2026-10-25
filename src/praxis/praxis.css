@@ -274,6 +274,9 @@ html, body { margin: 0; }
 .praxis-card-form label { display: grid; gap: 6px; color: var(--color-text-muted); font-size: 13px; }
 .praxis-card-form input, .praxis-card-form textarea { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-soft); color: var(--color-text); font: inherit; font-size: 16px; }
 .praxis-card-form .praxis-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.praxis-card-form__links { display: flex; align-items: center; gap: 10px; }
+.praxis-review-link { white-space: nowrap; }
+.praxis-task-review { display: block; margin: -2px 0 8px 44px; }
 .praxis-card-list { display: grid; gap: 2px; margin: 8px 0 0; padding: 0; list-style: none; }
 .praxis-card-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--color-border); }
 .praxis-card-list span { display: grid; gap: 2px; min-width: 0; }

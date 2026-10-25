@@ -6,7 +6,7 @@ import type { CompassStatement } from '../core/compass/types';
 import { formatClockDown, type FocusSession } from '../core/focus/session';
 import type { PlayerState } from '../app/sound/player';
 import { soundEntry } from '../app/sound/soundscapes';
-import { BookIcon, CheckIcon, ClockIcon, PenIcon } from '../components/icons/Icons';
+import { BookIcon, CheckIcon, ChevronRightIcon, ClockIcon, PenIcon } from '../components/icons/Icons';
 import AccountCard from '../app/family/AccountCard';
 import FamilyBackup from '../app/family/FamilyBackup';
 import FamilyApps from '../app/family/FamilyApps';
@@ -55,6 +55,9 @@ type TodayProps = {
   after: After | null;
   quote: PraxisQuote;
   goals: CompassStatement[];
+  cardsReady: number;
+  cardsReadyByBlock: Map<string, number>;
+  cardsByBlock: Map<string, number>;
   reading: string[];
   onStart: () => void;
   onStop: () => void;
@@ -71,6 +74,7 @@ type TodayProps = {
   onLookAgain: (days: number) => void;
   onCloseAfter: () => void;
   onLookedAt: (block: LifeItem) => void;
+  onReviewCards: (blockId?: string) => void;
 };
 
 export function TodayView(props: TodayProps) {
@@ -121,7 +125,7 @@ export function TodayView(props: TodayProps) {
         </article>
 
         <article className="praxis-card praxis-plan-card">
-          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p><h2>What are you studying?</h2></div></div>
+          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p><h2>What are you studying?</h2></div>{props.cardsReady > 0 && <button type="button" className="praxis-text-button praxis-review-link" onClick={() => props.onReviewCards()}>{props.cardsReady === 1 ? 'Review 1 card' : `Review ${props.cardsReady} cards`}</button>}</div>
           {again.length > 0 && (
             <div className="praxis-again">
               <p className="praxis-eyebrow">To look at again</p>
@@ -135,7 +139,7 @@ export function TodayView(props: TodayProps) {
           )}
           <div className="praxis-task-list">
             {open.map((block) => (
-              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
           <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
@@ -143,7 +147,7 @@ export function TodayView(props: TodayProps) {
             <details className="praxis-done">
               <summary>Done</summary>
               {done.map((block) => (
-                <BlockRow key={block.id} block={block} selected={false} today={today} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+                <BlockRow key={block.id} block={block} selected={false} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
               ))}
             </details>
           )}
@@ -168,7 +172,7 @@ function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (min
   );
 }
 
-function BlockRow({ block, selected, today, goals, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; today: string; goals: CompassStatement[]; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
+function BlockRow({ block, selected, today, goals, totalCards, readyCards, onReviewCards, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; today: string; goals: CompassStatement[]; totalCards: number; readyCards: number; onReviewCards: (blockId?: string) => void; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(block.title);
   const [minutes, setMinutes] = useState(String(block.plannedMinutes ?? 25));
@@ -192,6 +196,7 @@ function BlockRow({ block, selected, today, goals, onSelect, onToggle, onSave, o
         <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
         <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
       </div>
+      {totalCards > 0 && <button type="button" className="praxis-text-link praxis-task-review" onClick={() => onReviewCards(block.id)}>{readyCards > 0 ? (readyCards === 1 ? 'Review 1 card' : `Review ${readyCards} cards`) : 'Open cards'}</button>}
       {editing && (
         <form className="praxis-block-form" onSubmit={save}>
           <label><span>Name</span><input value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} /></label>
@@ -253,11 +258,11 @@ export function MoreView({ onView }: { onView: (view: 'sounds' | 'settings') => 
       <div className="praxis-card praxis-more-card">
         <button type="button" className="praxis-more-link" onClick={() => onView('sounds')}>
           <span><strong>Sounds</strong><small>Choose the room you study in.</small></span>
-          <span aria-hidden="true">›</span>
+          <ChevronRightIcon size={18} aria-hidden="true" />
         </button>
         <button type="button" className="praxis-more-link" onClick={() => onView('settings')}>
           <span><strong>Settings</strong><small>Reminders, account, and backups.</small></span>
-          <span aria-hidden="true">›</span>
+          <ChevronRightIcon size={18} aria-hidden="true" />
         </button>
       </div>
     </section>

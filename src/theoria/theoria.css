@@ -113,6 +113,7 @@
 .theoria-insight p { margin: 0; font: 500 16px/1.25 var(--font-serif); }
 .theoria-insight small { display: block; margin-top: 5px; color: var(--theoria-muted); font-size: 12px; }
 .theoria-insight button, .theoria-note-card button { border: 0; color: var(--theoria-faint); background: transparent; cursor: pointer; font-size: 17px; }
+.theoria-insight-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
 .theoria-notes-list, .theoria-quote-list { display: grid; gap: 10px; max-width: 820px; }
 .theoria-note-card, .theoria-quote-card { display: grid; grid-template-columns: 24px minmax(0,1fr) 20px; align-items: start; gap: 12px; padding: 19px; border: 1px solid var(--theoria-border); border-radius: 15px; background: var(--theoria-surface); }

@@ -1,9 +1,9 @@
-import { useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
 import type { LifeItem } from '../core/life-items/types';
 import { tap } from '../app/feel';
 import { isAdded } from '../app/family/added';
 import { readStore } from '../app/family/read';
-import { answer, cardsCsv, cardsFromCsv, cardsFromText, CARDS_SOURCE, editCard, highlightsToOffer, newCard, nextDay, ready, type Card, type Highlight } from './cards';
+import { answer, CARD_DRAFT_KEY, cardsCsv, cardsFromCsv, cardsFromText, CARDS_SOURCE, editCard, highlightsToOffer, newCard, nextDay, ready, type Card, type CardDraft, type Highlight } from './cards';
 
 /*
  * The cards live in one setting, `proairetos.praxisCards`, so they go with the person's backups and (sealed)
@@ -71,7 +71,7 @@ function download(name: string, text: string) {
 
 const dayLabel = (key: string) => new Date(`${key}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
-export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: string; say: (message: string, undo?: () => void) => void }) {
+export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeItem[]; today: string; say: (message: string, undo?: () => void) => void; startBlockId?: string }) {
   const cards = useCards();
   const [blockId, setBlockId] = useState<string>('');
   const [sitting, setSitting] = useState<string[]>();
@@ -156,6 +156,33 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
   const next = nextDay(cards, today, filter);
   const listed = cards.filter((card) => !filter || card.blockId === filter);
 
+  useEffect(() => {
+    if (startBlockId) setBlockId(startBlockId);
+  }, [startBlockId]);
+
+  // Theoria hands over a highlight as an editable answer. Nothing is saved until the person adds a question and submits.
+  useEffect(() => {
+    let raw: string | null = null;
+    try {
+      raw = localStorage.getItem(CARD_DRAFT_KEY);
+      if (raw) localStorage.removeItem(CARD_DRAFT_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw) as CardDraft;
+      if (!draft.back?.trim()) return;
+      setBack(draft.back);
+      setFrom(draft.from);
+      const block = draft.blockTitle && blocks.find((each) => each.title === draft.blockTitle && each.status !== 'DONE');
+      if (block) setBlockId(block.id);
+      window.setTimeout(() => questionRef.current?.focus(), 0);
+    } catch {
+      // An interrupted handoff must never block the Cards page.
+    }
+  }, [blocks]);
+
   return (
     <section className="praxis-view">
       <div className="praxis-page-heading"><div><h1>Cards</h1></div></div>
@@ -200,7 +227,10 @@ export function CardsView({ blocks, today, say }: { blocks: LifeItem[]; today: s
       <form className="praxis-card praxis-wide-card praxis-card-form" onSubmit={add}>
         <div className="praxis-card-heading">
           <p className="praxis-eyebrow">New card{filter ? ` · ${titleOf(filter)}` : ''}{from ? ` · from ${from}` : ''}</p>
-          <button type="button" className="praxis-text-button" onClick={() => setMany(!many)}>{many ? 'One at a time' : 'Several at once'}</button>
+          <div className="praxis-card-form__links">
+            {from && <button type="button" className="praxis-text-button" onClick={() => { setFront(''); setBack(''); setFrom(undefined); }}>Cancel</button>}
+            <button type="button" className="praxis-text-button" onClick={() => setMany(!many)}>{many ? 'One at a time' : 'Several at once'}</button>
+          </div>
         </div>
         {isAdded('theoria') && (
           <button type="button" className="praxis-text-button" aria-expanded={highlights !== undefined} onClick={() => (highlights ? setHighlights(undefined) : void theoriaHighlights().then(setHighlights))}>

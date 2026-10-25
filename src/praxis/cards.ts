@@ -6,6 +6,9 @@ import { addDaysKey } from './data';
  * first box. Cards that are ready simply wait: nothing is ever late, and a sitting offers at most a handful.
  */
 export type Card = { id: string; front: string; back: string; blockId?: string; box: number; due: string; createdAt: string; lastSeen?: string };
+/** A short-lived handoff from Theoria's highlights into the editable card form. */
+export const CARD_DRAFT_KEY = 'proairetos.praxisCardDraft';
+export type CardDraft = { back: string; from?: string; blockTitle?: string };
 
 /** Days until the next look, by box (1 to 5). */
 export const BOX_DAYS = [1, 2, 4, 8, 16] as const;

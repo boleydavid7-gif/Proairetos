@@ -28,6 +28,8 @@ import { enableReminders } from '../app/sync/syncController';
 import { MoreView, SessionsView, SettingsView, SoundsView, TimeView, TodayView, type After, type Break } from './views';
 import { isAdded } from '../app/family/added';
 import { useEnterMark } from '../app/transitions';
+import { useCards } from './CardsView';
+import { ready as readyCardsFor } from './cards';
 
 type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings' | 'more';
 
@@ -62,6 +64,7 @@ export default function PraxisApp() {
   const [name] = useState(displayName);
   const [session, setSession] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
   const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [reviewBlockId, setReviewBlockId] = useState<string | undefined>();
   const [minutes, setMinutes] = useState(25);
   const [rest, setRest] = useState<Break | null>(null);
   const [after, setAfter] = useState<After | null>(null);
@@ -84,6 +87,10 @@ export default function PraxisApp() {
   const { dayAt } = useDays(addDaysKey(calendarToday, -60), calendarToday);
   const today = dayAt(clock);
   const blocks = useMemo(() => [...(items ?? [])].sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [items]);
+  const cards = useCards();
+  const cardsReady = useMemo(() => readyCardsFor(cards, today), [cards, today]);
+  const cardsReadyByBlock = useMemo(() => new Map(blocks.map((block) => [block.id, readyCardsFor(cards, today, block.id).length])), [blocks, cards, today]);
+  const cardsByBlock = useMemo(() => new Map(blocks.map((block) => [block.id, cards.filter((card) => card.blockId === block.id).length])), [blocks, cards]);
   const open = blocks.filter((block) => block.status !== 'DONE');
   const selected = blocks.find((block) => block.id === selectedId && block.status !== 'DONE') ?? open[0];
   const focusEvents = useMemo(() => praxisFocusEvents(events ?? []), [events]);
@@ -348,6 +355,9 @@ export default function PraxisApp() {
               after={after}
               quote={quote}
               goals={goals}
+              cardsReady={cardsReady.length}
+              cardsReadyByBlock={cardsReadyByBlock}
+              cardsByBlock={cardsByBlock}
               reading={reading.filter((title) => !blocks.some((block) => block.title === `Read: ${title}` && block.status !== 'DONE'))}
               onStart={startOrPause}
               onStop={() => session && void finishSession(session, Date.now())}
@@ -364,6 +374,7 @@ export default function PraxisApp() {
               onLookAgain={(days) => void lookAgain(days)}
               onCloseAfter={() => setAfter(null)}
               onLookedAt={(block) => void lifeService.setPlannedFor(block.id, undefined)}
+              onReviewCards={(blockId) => { setReviewBlockId(blockId); setView('cards'); }}
             />
           )}
           {view === 'today' && session && !finished && (
@@ -384,7 +395,7 @@ export default function PraxisApp() {
               onRemove={async (event) => { const { undo } = await lifeService.removeFocus(event); say('Session removed', () => void undo()); }}
             />
           )}
-          {view === 'cards' && <CardsView blocks={blocks} today={today} say={say} />}
+          {view === 'cards' && <CardsView blocks={blocks} today={today} say={say} startBlockId={reviewBlockId} />}
           {view === 'time' && <TimeView events={focusEvents} titles={titles} today={today} dayAt={dayAt} />}
           {view === 'sounds' && <SoundsView sound={sound} soundState={soundState} onSound={chooseSound} />}
           {view === 'settings' && (
