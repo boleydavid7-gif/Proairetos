@@ -5,7 +5,7 @@ import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
-import { bookings, newId, nowStamp, plans, settings, spots, timeOff, today, trips } from '../app/state';
+import { bookings, newId, nowStamp, packing, plans, settings, spots, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
 import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, STAGE_TEXT, stageOf, stopNow, stopOn, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
@@ -180,6 +180,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
     return (
       <>
         <TodayCard trip={trip} nav={nav} day={day} onView={onView} />
+        <PlanningNextCard trip={trip} nav={nav} onView={onView} />
         <TripFlights trip={trip} />
         <TimeThere trip={trip} place={target?.place} today={day} />
         <details className="poreia-fold poreia-more">
@@ -191,6 +192,7 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
   }
   return (
     <>
+      <PlanningNextCard trip={trip} nav={nav} onView={onView} />
       <NextUpCard trip={trip} nav={nav} day={day} />
       <TripFlights trip={trip} />
       <RouteCard trip={trip} />
@@ -205,6 +207,39 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
       )}
       {about}
     </>
+  );
+}
+
+/** One concrete planning action, chosen from what this trip is still missing. */
+function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; onView: (view: TripView) => void }) {
+  const bookingList = bookings.use().filter((each) => each.tripId === trip.id);
+  const planList = plans.use().filter((each) => each.tripId === trip.id);
+  const packingList = packing.use().filter((each) => each.tripId === trip.id);
+  const phase = phaseOf(trip, today());
+  if (phase.kind === 'past') return null;
+
+  const action = !trip.place
+    ? { title: 'Choose where you’re going', detail: 'Add a destination so Poreia can show maps, weather, and places nearby.', label: 'Add a destination', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
+    : !trip.start
+      ? { title: 'Choose your dates', detail: 'Set the days before adding bookings and plans.', label: 'Add dates', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
+      : bookingList.length === 0
+        ? { title: 'Add your first booking', detail: 'Paste a confirmation, upload a file, or enter one by hand.', label: 'Add a booking', run: () => nav.go({ name: 'booking', tripId: trip.id, paste: true }) }
+        : planList.length === 0
+          ? { title: 'Shape your days', detail: 'Add a place or activity to the itinerary when you are ready.', label: 'Open the itinerary', run: () => onView('days') }
+          : packingList.length === 0
+            ? { title: 'Start your packing list', detail: 'Poreia can suggest a list from the trip length, weather, and bookings.', label: 'Start packing', run: () => onView('packing') }
+            : undefined;
+
+  if (!action) return null;
+  return (
+    <section className="card poreia-next-action" data-ll-lit>
+      <h2 className="card__title">Next up</h2>
+      <p className="poreia-next-action__title">{action.title}</p>
+      <p className="muted">{action.detail}</p>
+      <button type="button" className="button-main" onClick={action.run}>
+        {action.label}
+      </button>
+    </section>
   );
 }
 

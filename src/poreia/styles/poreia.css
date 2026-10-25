@@ -1482,6 +1482,16 @@
   font-weight: 600;
 }
 
+.poreia-next-action__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--text-xl, 1.35rem);
+}
+
+.poreia-next-action .button-main {
+  margin-top: 4px;
+}
+
 /* One rhythm between blocks on every Poreia page: blocks that follow one another stand apart by the family's gap,
    and a section's label sits close above its block. */
 .poreia-page :is(.card, .rows, .button-row, .poreia-empty, .poreia-fold, .poreia-tabs, .poreia-stop-chips, .poreia-around, .poreia-days, .poreia-packed, .poreia-pack-group, .poreia-pack-add, .list-empty, .poreia-weather-card)
