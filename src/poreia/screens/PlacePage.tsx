@@ -26,6 +26,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
   const trip = all.find((each) => each.id === chosenTrip);
   const ref = spot.ref ?? spot.id;
   const saved = savedList.find((each) => each.tripId === chosenTrip && (each.ref ?? each.id) === ref);
+  const savedIdea = savedList.find((each) => !each.tripId && (each.ref ?? each.id) === ref);
   const dates = trip ? tripDates(trip) : [];
   const [date, setDate] = useState(dates.includes(today()) ? today() : (dates[0] ?? ''));
   const [time, setTime] = useState('');
@@ -41,6 +42,17 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
     if (!saved) return;
     spots.remove(saved.id);
     offerUndo(`“${spot.name}” removed from ${trip?.name ?? 'the trip'}`, () => spots.put(saved));
+  };
+  const saveIdea = () => {
+    if (savedIdea) return;
+    const kept: Spot = { ...spot, id: newId(), ref, tripId: undefined, createdAt: nowStamp() };
+    spots.put(kept);
+    offerUndo(`“${spot.name}” saved as an idea`, () => spots.remove(kept.id));
+  };
+  const unsaveIdea = () => {
+    if (!savedIdea) return;
+    spots.remove(savedIdea.id);
+    offerUndo(`“${spot.name}” removed from saved ideas`, () => spots.put(savedIdea));
   };
   const addToDay = () => {
     if (!trip || !date) return;
@@ -133,9 +145,23 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
         </section>
       )}
 
+      <section className="card">
+        <h2 className="card__title">Save this place</h2>
+        {savedIdea ? (
+          <button type="button" className="button-quiet" onClick={unsaveIdea}>
+            Saved idea · Remove
+          </button>
+        ) : (
+          <button type="button" className="button-main" onClick={saveIdea}>
+            Save as an idea
+          </button>
+        )}
+        <p className="fine">Keep it here until you are ready to choose a trip.</p>
+      </section>
+
       {all.length > 0 ? (
         <section className="card">
-          <h2 className="card__title">{tripId && trip ? trip.name : 'Keep it for a trip'}</h2>
+          <h2 className="card__title">{tripId && trip ? trip.name : 'Add it to a trip'}</h2>
           {!tripId && (
             <label className="field">
               <span className="field__label">Trip</span>
@@ -154,7 +180,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
             </button>
           ) : (
             <button type="button" className="button-quiet" onClick={save}>
-              Save to {trip?.name ?? 'the trip'}
+              Add to {trip?.name ?? 'the trip'}
             </button>
           )}
           {dates.length > 0 && (
@@ -183,7 +209,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
           )}
         </section>
       ) : (
-        <p className="muted">Add a trip to save places.</p>
+        <p className="muted">Create a trip whenever you are ready to organize this idea.</p>
       )}
 
       <p className="fine">

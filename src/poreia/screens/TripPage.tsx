@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { Sym, type GlyphName } from '../../lamplight/icons';
-import { offerUndo } from '../../app/family/shell';
+import { offerUndo, say } from '../../app/family/shell';
+import { Waiting } from '../../lamplight/Waiting';
 import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
@@ -30,6 +31,7 @@ import { TripFlights } from '../components/FlightNow';
 import { RouteCard } from '../components/RouteCard';
 import { EmbassyCard, PhrasesCard } from '../components/PlaceExtras';
 import type { Holiday } from '../app/world';
+import { inviteLink, listOfTrip, shareTrip, sharingAvailable } from '../app/sharedTrips';
 
 export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
 
@@ -89,6 +91,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
           Edit
         </button>
+        <ShareTripButton trip={trip} />
       </div>
 
       <div className="poreia-tabs" role="tablist" aria-label="Trip" style={{ '--at': VIEWS.findIndex((each) => each.id === view), '--count': VIEWS.length } as CSSProperties}>
@@ -206,6 +209,38 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
         </RouteEmpty>
       )}
       {about}
+    </>
+  );
+}
+
+/** Keeps sharing discoverable without making the trip overview depend on the sharing card's position. */
+function ShareTripButton({ trip }: { trip: Trip }) {
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  if (!sharingAvailable) return null;
+  const share = async () => {
+    setBusy(true);
+    setProblem('');
+    try {
+      const list = listOfTrip(trip) ?? (await shareTrip(trip));
+      const link = inviteLink(location.origin, list);
+      if (navigator.share) await navigator.share({ title: trip.name, text: `${trip.name} in Poreia`, url: link });
+      else {
+        await navigator.clipboard.writeText(link);
+        say('Invite link copied');
+      }
+    } catch (error) {
+      setProblem(error instanceof Error && /Sign in/.test(error.message) ? 'Sign in under More to share.' : 'Couldn’t share the trip.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <button type="button" className="text-link" disabled={busy} onClick={() => void share()}>
+        {busy ? <Waiting>Sharing…</Waiting> : 'Share'}
+      </button>
+      {problem && <span className="fine poreia-share-note">{problem}</span>}
     </>
   );
 }
