@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { ClockIcon, GlobeIcon, SettingsIcon, SuitcaseIcon, WalletIcon } from '../../app/family/icons';
+import { GlobeIcon, SettingsIcon, SuitcaseIcon } from '../../app/family/icons';
 import type { BookingKind } from '../core/model';
 import type { SearchKind } from '../core/links';
 import type { Spot } from '../core/spots';
@@ -28,11 +28,12 @@ import DocumentsPage, { DocumentPage } from '../screens/DocumentsPage';
 import { useMailOpener } from '../components/MailBox';
 import BeenPage, { YearScreen } from '../screens/BeenPage';
 
-export type Tab = 'trips' | 'explore' | 'budget' | 'time' | 'more';
+export type Tab = 'trips' | 'explore' | 'more';
 export type Route =
   | { name: 'welcome' }
   | { name: 'fresh'; count: number }
   | { name: Tab; placeId?: string; search?: SearchKind }
+  | { name: 'budget' | 'time' }
   | { name: 'trip'; id: string; view?: TripView }
   | { name: 'trip-form'; id?: string; draft?: { name?: string; place?: string } }
   | { name: 'booking'; tripId: string; id?: string; kind?: BookingKind; paste?: boolean }
@@ -49,8 +50,6 @@ export type PoreiaNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'trips', label: 'Trips', Icon: SuitcaseIcon },
   { id: 'explore', label: 'Explore', Icon: GlobeIcon },
-  { id: 'budget', label: 'Budget', Icon: WalletIcon },
-  { id: 'time', label: 'Time off', Icon: ClockIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
@@ -75,6 +74,8 @@ function firstRoute(): Route {
     return { name: 'trip-form' };
   }
   if (opening === 'documents') return { name: 'documents' };
+  if (opening === 'budget') return { name: 'budget' };
+  if (opening === 'time') return { name: 'time' };
   if (opening === 'been') return { name: 'been' };
   if (opening === 'year') return { name: 'year' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };

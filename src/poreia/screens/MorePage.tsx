@@ -3,7 +3,7 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { WeekIcon, ClockIcon, SettingsIcon } from '../../app/family/icons';
+import { WeekIcon, ClockIcon, SettingsIcon, WalletIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
@@ -96,10 +96,21 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         </section>
       )}
 
-      <p className="ll-section-label">Time off</p>
+      <p className="ll-section-label">Travel planning</p>
       <ul className="rows">
         <li>
-          <button type="button" className="row" onClick={() => nav.go({ name: 'time-setup' })}>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}>
+            <span className="row__icon">
+              <WalletIcon size={22} />
+            </span>
+            <span className="row__text">
+              <span>Travel budget</span>
+              <span className="row__detail">Plan and review spending by trip</span>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button type="button" className="row" onClick={() => nav.go({ name: 'time' })}>
             <span className="row__icon">
               <ClockIcon size={22} />
             </span>
