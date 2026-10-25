@@ -32,6 +32,7 @@ import { GLYPHS, LampIcon, Sym } from '../lamplight/icons';
 import IconButton from '../components/ui/IconButton';
 
 export const PRAXIS_SOUND_IDS = ['none', 'forest', 'rain', 'ocean', 'river', 'wind', 'fan', 'campfire', 'crickets'] as const;
+const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * 86;
 
 export type After = { itemId: string; title: string; minutes: number };
 export type Break = { endsAt: number; minutes: number };
@@ -95,7 +96,11 @@ export function TodayView(props: TodayProps) {
                 </div>
               </div>
               {(rest || session || selected) && <div className="praxis-focus-stage">
-                <div className="praxis-timer" style={{ '--praxis-progress': `${Math.max(0.01, progress) * 360}deg` } as CSSProperties} aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
+                <div className="praxis-timer" aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
+                  <svg className="praxis-timer__ring" viewBox="0 0 200 200" aria-hidden="true">
+                    <circle className="praxis-timer__track" cx="100" cy="100" r="86" />
+                    <circle className="praxis-timer__progress" cx="100" cy="100" r="86" style={{ strokeDasharray: TIMER_RING_CIRCUMFERENCE, strokeDashoffset: TIMER_RING_CIRCUMFERENCE * (1 - Math.max(0.01, Math.min(1, progress))) }} />
+                  </svg>
                   <div className="praxis-timer__inner"><span className="praxis-timer__time">{rest ? formatClockDown(restLeft) : session ? (finished ? '0:00' : formatClockDown(remaining)) : `${minutes}:00`}</span></div>
                 </div>
                 {rest ? (

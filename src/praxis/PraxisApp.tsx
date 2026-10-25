@@ -238,11 +238,16 @@ export default function PraxisApp() {
     fromTheoria.current = true;
     const requested = opening.slice(5).trim();
     const normalized = (title: string) => title.replace(/^read:\s*/i, '').trim().toLowerCase();
-    const exact = items.find((block) => normalized(block.title) === requested.toLowerCase());
-    const existing = exact ?? items.find((block) => normalized(block.title).length >= 60 && requested.toLowerCase().startsWith(normalized(block.title)));
-    const block = existing
-      ? (existing.status === 'DONE' ? lifeService.setStatus(existing.id, 'OPEN').then((change) => change.item) : Promise.resolve(existing))
-      : lifeService.capture(`Read: ${requested}`, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 });
+    const findExisting = (list: LifeItem[]) => {
+      const wanted = requested.toLowerCase();
+      const exact = list.find((block) => normalized(block.title) === wanted);
+      return exact ?? list.find((block) => normalized(block.title).length >= 60 && wanted.startsWith(normalized(block.title)));
+    };
+    const existing = findExisting(items);
+    const latest = existing ? Promise.resolve(existing) : lifeService.listForApp('praxis').then(findExisting);
+    const block = latest.then((found) => found
+      ? (found.status === 'DONE' ? lifeService.setStatus(found.id, 'OPEN').then((change) => change.item) : found)
+      : lifeService.capture(`Read: ${requested}`, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 }));
     void block.then((item) => {
       setSelectedId(item.id);
     });
