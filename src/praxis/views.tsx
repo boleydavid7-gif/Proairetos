@@ -96,7 +96,7 @@ export function TodayView(props: TodayProps) {
                 </div>
               </div>
               {(rest || session || selected) && <div className="praxis-focus-stage">
-                <div className="praxis-timer" aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
+                <div className="praxis-timer" data-ll-lit={session || rest ? true : undefined} aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
                   <svg className="praxis-timer__ring" viewBox="0 0 200 200" aria-hidden="true">
                     <circle className="praxis-timer__track" cx="100" cy="100" r="86" />
                     <circle className="praxis-timer__progress" cx="100" cy="100" r="86" style={{ strokeDasharray: TIMER_RING_CIRCUMFERENCE, strokeDashoffset: TIMER_RING_CIRCUMFERENCE * (1 - Math.max(0.01, Math.min(1, progress))) }} />
