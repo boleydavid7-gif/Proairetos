@@ -239,10 +239,15 @@ export default function PraxisApp() {
   useEffect(() => {
     if (fromTheoria.current || !items || !opening?.startsWith('read:')) return;
     fromTheoria.current = true;
-    const title = `Read: ${opening.slice(5).trim()}`.slice(0, 80);
-    const existing = items.find((block) => block.title === title && block.status !== 'DONE');
-    void (existing ? Promise.resolve(existing) : lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 })).then((block) => {
-      setSelectedId(block.id);
+    const requested = opening.slice(5).trim();
+    const normalized = (title: string) => title.replace(/^read:\s*/i, '').trim().toLowerCase();
+    const exact = items.find((block) => normalized(block.title) === requested.toLowerCase());
+    const existing = exact ?? items.find((block) => normalized(block.title).length >= 60 && requested.toLowerCase().startsWith(normalized(block.title)));
+    const block = existing
+      ? (existing.status === 'DONE' ? lifeService.setStatus(existing.id, 'OPEN').then((change) => change.item) : Promise.resolve(existing))
+      : lifeService.capture(`Read: ${requested}`, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 });
+    void block.then((item) => {
+      setSelectedId(item.id);
       setReady(true);
     });
   }, [items]);
