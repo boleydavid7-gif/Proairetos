@@ -298,7 +298,7 @@
 .theoria-reader-page blockquote { margin: 34px 0; padding: 11px 18px; border-left: 4px solid var(--theoria-brass); color: inherit; background: color-mix(in srgb, var(--theoria-brass) 18%, transparent); cursor: pointer; font: 500 22px/1.5 var(--font-serif); }
 .theoria-reader-footer { position: relative; right: auto; bottom: auto; left: auto; z-index: 9; display: flex; align-items: center; gap: 13px; width: 100%; max-width: none; margin: 0; padding: 15px clamp(18px, 11vw, 175px) 7px; border-top: 1px solid color-mix(in srgb, var(--theoria-paper-ink) 16%, transparent); background: inherit; box-shadow: 0 -10px 24px color-mix(in srgb, var(--theoria-paper-ink) 8%, transparent); }
 .theoria-reader-footer input { flex: 1; accent-color: var(--theoria-brass); }
-.theoria-reader-footer span { min-width: 30px; font-size: 12px; }
+.theoria-reader-footer > span { min-width: 30px; font-size: 12px; }
 .theoria-reader-footer button { border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 14px; }
 .theoria-reader-footer button:last-child { margin-left: auto; color: inherit; opacity: .7; }
 .theoria-connection-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 15px; }
@@ -726,12 +726,18 @@
 .theoria-check-label { display: flex; align-items: center; gap: 8px; color: var(--theoria-muted); font-size: 14px; }
 .theoria-check-label input { width: 17px; height: 17px; accent-color: var(--theoria-brass); }
 
-.theoria-reader-footer input[type='range'] { flex: 1 1 auto; min-width: 0; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; outline: 0; appearance: none; -webkit-appearance: none; cursor: pointer; touch-action: pan-x; }
-.theoria-reader-footer input[type='range']::-webkit-slider-runnable-track { height: 5px; border-radius: 999px; background: transparent; }
-.theoria-reader-footer input[type='range']::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -9.5px; border: 2px solid var(--theoria-brass); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 3px 10px rgba(0,0,0,.28); appearance: none; -webkit-appearance: none; }
-.theoria-reader-footer input[type='range']::-moz-range-track { height: 5px; border-radius: 999px; background: transparent; }
-.theoria-reader-footer input[type='range']::-moz-range-progress { height: 5px; border-radius: 999px; background: var(--theoria-brass); }
-.theoria-reader-footer input[type='range']::-moz-range-thumb { width: 20px; height: 20px; border: 2px solid var(--theoria-brass); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 3px 10px rgba(0,0,0,.28); }
+.theoria-reader-progress { position: relative; flex: 1 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; }
+.theoria-reader-progress__track, .theoria-reader-progress__fill { position: absolute; top: 50%; right: 0; left: 0; height: 4px; border-radius: 999px; pointer-events: none; transform: translateY(-50%); }
+.theoria-reader-progress__track { background: color-mix(in srgb, currentColor 18%, transparent); }
+.theoria-reader-progress__fill { right: auto; width: 0; background: var(--ll-lamp-fill, var(--theoria-brass)); box-shadow: inset -1px 1px 0 rgba(255,255,255,.36), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); transition: width var(--ll-calm, 320ms) var(--ll-ease-out, ease-out); }
+.theoria-reader-progress__input { position: absolute; inset: 0; z-index: 1; flex: none !important; min-width: 0; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; outline: 0; appearance: none; -webkit-appearance: none; cursor: pointer; touch-action: pan-x; background: transparent; accent-color: var(--ll-lamp-fill, var(--theoria-brass)); }
+.theoria-reader-progress__input::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: transparent; }
+.theoria-reader-progress__input::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -3px; border: 1px solid var(--ll-lamp, var(--theoria-brass)); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 14%, transparent); appearance: none; -webkit-appearance: none; }
+.theoria-reader-progress__input::-moz-range-track { height: 4px; border-radius: 999px; background: transparent; }
+.theoria-reader-progress__input::-moz-range-progress { height: 4px; border-radius: 999px; background: transparent; }
+.theoria-reader-progress__input::-moz-range-thumb { width: 8px; height: 8px; border: 1px solid var(--ll-lamp, var(--theoria-brass)); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 14%, transparent); }
+.theoria-reader-progress__input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 24%, transparent), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); }
+.theoria-reader-progress__input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 24%, transparent), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); }
 
 @media (max-width: 900px) {
   .theoria-account-panel { width: 100%; padding: 17px; }
@@ -743,10 +749,10 @@
   .theoria-reader--night .theoria-reader-footer { border-top-color: color-mix(in srgb, var(--theoria-ink) 14%, transparent); background: color-mix(in srgb, var(--theoria-surface) 95%, transparent); box-shadow: 0 -8px 20px rgba(0,0,0,.18); }
   .theoria-reader--sepia .theoria-reader-footer { background: color-mix(in srgb, var(--theoria-sepia-paper) 95%, transparent); }
   .theoria-reader-footer button { flex: 0 0 auto; min-width: 42px; padding: 0 1px; font-size: 12px; }
-  .theoria-reader-footer span { min-width: 28px; text-align: right; font-size: 12px; }
-  .theoria-reader-footer input[type='range'] { height: 22px; }
-  .theoria-reader-footer input[type='range']::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; }
-  .theoria-reader-footer input[type='range']::-moz-range-thumb { width: 16px; height: 16px; }
+  .theoria-reader-footer > span { min-width: 28px; text-align: right; font-size: 12px; }
+  .theoria-reader-progress, .theoria-reader-progress__input { height: 24px; }
+  .theoria-reader-progress__input::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -3px; }
+  .theoria-reader-progress__input::-moz-range-thumb { width: 8px; height: 8px; }
 }
 
 /* A plain page edge, with no browser margin showing around the app. */
