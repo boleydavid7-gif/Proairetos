@@ -118,7 +118,7 @@ export function normalizeDrinkProfiles(value: unknown): HydrosDrinkProfile[] {
   return profiles;
 }
 
-export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, reminderWhen: 'waking', runDayExtra: true, unit: 'oz', drinkProfiles: defaultDrinkProfiles() });
+export const defaultHydrosSettings = (): HydrosSettings => ({ goalOz: 80, usualMinOz: 60, usualMaxOz: 80, useRecommendedRange: false, reminders: false, reminderIntervalMinutes: 120, reminderWhen: 'waking', runDayExtra: true, unit: 'oz', drinkProfiles: defaultDrinkProfiles(), glasses: defaultGlasses('oz') });
 
 /** An average diet contributes about one-fifth of daily water needs through food. */
 export const AVERAGE_FOOD_WATER_FRACTION = 0.2;

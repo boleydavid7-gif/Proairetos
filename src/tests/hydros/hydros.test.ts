@@ -1,10 +1,10 @@
 import { rangeForTraining } from '../../hydros/data/training';
 import { hydrosQuoteFor, hydrosQuotes } from '../../hydros/core/quotes';
-import { referenceAmounts, defaultDrinkProfiles, defaultHydrosSettings, drinkKinds, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, selectableDrinkProfiles, sourceBreakdown, startOfWeek, totalOz, volumeLabel, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
+import { referenceAmounts, defaultDrinkProfiles, defaultGlasses, defaultHydrosSettings, drinkKinds, effectiveGoalOz, formatVolume, greeting, hydrationEquivalentOz, hydrationOz, localDate, monthDates, normalizeDrinkProfiles, selectableDrinkProfiles, sourceBreakdown, startOfWeek, totalOz, volumeLabel, weekDates, weekNumber, type Drink } from '../../hydros/core/drinks';
 
 describe('Hydros', () => {
   it('starts with an 80 ounce daily amount', () => {
-    expect(defaultHydrosSettings()).toMatchObject({ goalOz: 80, unit: 'oz', reminders: false, reminderIntervalMinutes: 120 });
+    expect(defaultHydrosSettings()).toMatchObject({ goalOz: 80, unit: 'oz', reminders: false, reminderIntervalMinutes: 120, glasses: defaultGlasses('oz') });
   });
 
   it('offers published reference amounts, drinks being about four fifths of the whole', () => {
