@@ -16,6 +16,7 @@ import {
   clampMinutes,
   formatDay,
   formatMinutes,
+  LENGTHS,
   LOOK_AGAIN,
   LOOK_AGAIN_SOURCE,
   minutesByBlock,
@@ -55,6 +56,7 @@ type TodayProps = {
   cardsByBlock: Map<string, number>;
   onStart: () => void;
   onStop: () => void;
+  onMinutes: (minutes: number) => void;
   onSelect: (block: LifeItem) => void;
   onToggle: (block: LifeItem) => void;
   onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => void;
@@ -129,6 +131,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
+          {selected && !session && !rest && !after && <div className="praxis-plan-length"><LengthPicker minutes={minutes} onMinutes={props.onMinutes} /></div>}
           {selected && <button type="button" className="praxis-button praxis-button--primary praxis-plan-start" onClick={props.onStart}>Start now</button>}
           {done.length > 0 && (
             <details className="praxis-done">
@@ -142,6 +145,20 @@ export function TodayView(props: TodayProps) {
       </div>
       <blockquote className="praxis-quote"><p>“{quote.text}”</p><cite>{quote.source}</cite></blockquote>
     </section>
+  );
+}
+
+function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (minutes: number) => void }) {
+  const [other, setOther] = useState('');
+  const custom = !(LENGTHS as readonly number[]).includes(minutes);
+  return (
+    <div className="praxis-adjust" role="group" aria-label="Timer length">
+      {LENGTHS.map((value) => <button key={value} type="button" className={minutes === value ? 'is-selected' : ''} onClick={() => onMinutes(value)}>{value} min</button>)}
+      <label className={`praxis-adjust__other${custom ? ' is-selected' : ''}`}>
+        <input type="number" inputMode="numeric" min={1} max={240} placeholder="Other" aria-label="Custom timer length in minutes" value={custom ? String(minutes) : other} onChange={(event) => { setOther(event.target.value); const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
+        <span>min</span>
+      </label>
+    </div>
   );
 }
 

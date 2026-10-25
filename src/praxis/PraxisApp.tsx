@@ -20,7 +20,7 @@ import { CardsView } from './CardsView';
 import PraxisMark from '../components/brand/PraxisMark';
 import { takeOpening } from '../app/family/opening';
 import { useDays } from '../app/family/personalDays';
-import { addDaysKey, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
+import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
 import { bellWaiting, cancelBell, scheduleBell } from './bell';
 import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
@@ -329,6 +329,7 @@ export default function PraxisApp() {
               remaining={remaining}
               finished={finished}
               minutes={minutes}
+              onMinutes={(value) => setMinutes(clampMinutes(value))}
               rest={rest}
               restLeft={restLeft}
               after={after}
