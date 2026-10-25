@@ -381,8 +381,10 @@ export default function PraxisApp() {
               events={focusEvents}
               titles={titles}
               dayAt={dayAt}
-              onChange={async (event, value) => { const { undo } = await lifeService.changeFocus(event, value); say('Session changed', () => void undo()); }}
-              onRemove={async (event) => { const { undo } = await lifeService.removeFocus(event); say('Session removed', () => void undo()); }}
+              onRemove={async (sessions) => {
+                const changes = await Promise.all(sessions.map((event) => lifeService.removeFocus(event)));
+                say(`${sessions.length === 1 ? 'Session' : 'Sessions'} removed`, () => void Promise.all(changes.map((change) => change.undo())));
+              }}
             />
           )}
           {view === 'cards' && <CardsView blocks={blocks} today={today} say={say} startBlockId={reviewBlockId} />}

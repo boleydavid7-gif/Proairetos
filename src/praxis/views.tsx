@@ -16,13 +16,11 @@ import {
   clampMinutes,
   formatDay,
   formatMinutes,
-  formatSessionTime,
   LENGTHS,
   LOOK_AGAIN,
   LOOK_AGAIN_SOURCE,
   minutesByBlock,
   minutesByDay,
-  focusMinutes,
   sessionDay,
   praxisFocusEvents,
   weekOf,
@@ -242,7 +240,7 @@ function AddBlock({ onAdd, onAddAndStart }: { onAdd: (title: string, minutes: nu
     <form className="praxis-add" onSubmit={add}>
       <p className="praxis-eyebrow praxis-add__heading">Add a block</p>
       <div className="praxis-add__row">
-        <input aria-label="A block to read" placeholder="A subject, a chapter, or a skill" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
+        <input aria-label="A block to read" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
         <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
@@ -302,17 +300,17 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
 
 /* ---------- Sessions ---------- */
 
-export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { events: ItemEvent[]; titles: Map<string, string>; dayAt: DayAt; onChange: (event: ItemEvent, minutes: number) => void; onRemove: (event: ItemEvent) => void }) {
+export function SessionsView({ events, titles, dayAt, onRemove }: { events: ItemEvent[]; titles: Map<string, string>; dayAt: DayAt; onRemove: (events: ItemEvent[]) => void }) {
   const [shown, setShown] = useState(40);
-  const [editing, setEditing] = useState<string>();
-  const [value, setValue] = useState('');
   const sorted = [...events].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  const groups: { day: string; events: ItemEvent[] }[] = [];
+  const groups: { day: string; books: { itemId: string; events: ItemEvent[]; minutes: number }[] }[] = [];
   for (const event of sorted.slice(0, shown)) {
     const day = sessionDay(event, dayAt);
     const last = groups[groups.length - 1];
-    if (last?.day === day) last.events.push(event);
-    else groups.push({ day, events: [event] });
+    const group = last?.day === day ? last : (groups.push({ day, books: [] }), groups[groups.length - 1]);
+    const book = group.books.find((each) => each.itemId === event.itemId);
+    if (book) { book.events.push(event); book.minutes += Number(event.metadata?.minutes ?? 0); }
+    else group.books.push({ itemId: event.itemId, events: [event], minutes: Number(event.metadata?.minutes ?? 0) });
   }
   return (
     <section className="praxis-view">
@@ -320,22 +318,13 @@ export function SessionsView({ events, titles, dayAt, onChange, onRemove }: { ev
       {groups.length === 0 ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : groups.map((group) => (
         <article className="praxis-card praxis-wide-card praxis-day-group" key={group.day}>
           <p className="praxis-eyebrow">{formatDay(group.day)}</p>
-          {group.events.map((event) => (
-            <div key={event.id}>
+          {group.books.map((book) => (
+            <div key={book.itemId}>
               <div className="praxis-history-row">
                 <span className="praxis-history-icon"><BookIcon size={18} /></span>
-                <span><strong>{titles.get(event.itemId) ?? 'A block'}</strong><small>{formatSessionTime(event.timestamp)}</small></span>
-                <span className="praxis-history-actions"><button type="button" className="praxis-history-duration" onClick={() => { setEditing(editing === event.id ? undefined : event.id); setValue(String(focusMinutes(event))); }}>{focusMinutes(event)} min</button><button type="button" className="praxis-text-link praxis-remove" onClick={() => { onRemove(event); if (editing === event.id) setEditing(undefined); }}>Remove</button></span>
+                <span><strong>{titles.get(book.itemId) ?? 'A block'}</strong><small>{book.events.length === 1 ? '1 session' : `${book.events.length} sessions`}</small></span>
+                <span className="praxis-history-actions"><span className="praxis-history-duration">{formatMinutes(book.minutes)}</span><button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(book.events)}>Remove</button></span>
               </div>
-              {editing === event.id && (
-                <form className="praxis-block-form" onSubmit={(submit) => { submit.preventDefault(); const minutes = Number(value); if (Number.isFinite(minutes) && minutes > 0) onChange(event, clampMinutes(minutes)); setEditing(undefined); }}>
-                  <label><span>Minutes</span><input type="number" inputMode="numeric" min={1} max={240} value={value} onChange={(change) => setValue(change.target.value)} /><b>min</b></label>
-                  <div className="praxis-block-form__actions">
-                    <button type="submit" className="praxis-button praxis-button--primary">Save</button>
-                    <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setEditing(undefined)}>Cancel</button>
-                  </div>
-                </form>
-              )}
             </div>
           ))}
         </article>
