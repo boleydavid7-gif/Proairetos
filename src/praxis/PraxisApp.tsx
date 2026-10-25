@@ -18,7 +18,6 @@ import { wakeAudio } from '../app/sound/engine';
 import { GearIcon, CalendarIcon, MountainIcon, BreatheIcon, SunIcon, ChecklistIcon } from '../components/icons/Icons';
 import { CardsView } from './CardsView';
 import PraxisMark from '../components/brand/PraxisMark';
-import { readStore } from '../app/family/read';
 import { takeOpening } from '../app/family/opening';
 import { useDays } from '../app/family/personalDays';
 import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
@@ -82,7 +81,6 @@ export default function PraxisApp() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.listForApp('praxis'));
   const events = usePraxisEvents();
   const goals = useServiceData(lifeService.subscribe, async () => (await compassService.statements()).filter((each) => each.type === 'GOAL' && !each.reachedAt)) ?? [];
-  const [reading, setReading] = useState<string[]>([]);
   const calendarToday = localDateKey(clock);
   const { dayAt } = useDays(addDaysKey(calendarToday, -60), calendarToday);
   const today = dayAt(clock);
@@ -99,14 +97,6 @@ export default function PraxisApp() {
 
   useEffect(() => {
     void startSync();
-  }, []);
-
-  // Books being read in Theoria, offered as study blocks.
-  useEffect(() => {
-    if (!isAdded('theoria')) return;
-    void readStore<{ title?: string; status?: string }>('theoriaBooks').then((books) =>
-      setReading(books.filter((book) => book.status === 'reading' && book.title).map((book) => book.title!)),
-    );
   }, []);
 
   // The first version made three blocks on its own; those never used are taken back out.
@@ -358,7 +348,6 @@ export default function PraxisApp() {
               cardsReady={cardsReady.length}
               cardsReadyByBlock={cardsReadyByBlock}
               cardsByBlock={cardsByBlock}
-              reading={reading.filter((title) => !blocks.some((block) => block.title === `Read: ${title}` && block.status !== 'DONE'))}
               onStart={startOrPause}
               onStop={() => session && void finishSession(session, Date.now())}
               onMinutes={(value) => setMinutes(clampMinutes(value))}

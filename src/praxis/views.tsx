@@ -58,7 +58,6 @@ type TodayProps = {
   cardsReady: number;
   cardsReadyByBlock: Map<string, number>;
   cardsByBlock: Map<string, number>;
-  reading: string[];
   onStart: () => void;
   onStop: () => void;
   onMinutes: (minutes: number) => void;
@@ -143,7 +142,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
-          <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
+          <AddBlock empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
@@ -220,7 +219,7 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
   );
 }
 
-function AddBlock({ reading, empty, onAdd, onAddAndStart }: { reading: string[]; empty: boolean; onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
+function AddBlock({ empty, onAdd, onAddAndStart }: { empty: boolean; onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
   const [title, setTitle] = useState('');
   const [minutes, setMinutes] = useState('25');
   const add = (event?: FormEvent, named?: string) => {
@@ -246,11 +245,6 @@ function AddBlock({ reading, empty, onAdd, onAddAndStart }: { reading: string[];
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
         <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
       </div>
-      {reading.length > 0 && (
-        <div className="praxis-add__from">
-          {reading.slice(0, 3).map((book) => <button type="button" key={book} onClick={() => add(undefined, `Read: ${book}`)}>Read: {book}</button>)}
-        </div>
-      )}
     </form>
   );
 }

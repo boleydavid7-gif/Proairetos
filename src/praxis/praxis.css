@@ -79,6 +79,7 @@
 .praxis-task.is-done { opacity: .55; }
 .praxis-task.is-done strong { text-decoration: line-through; }
 .praxis-task-main { min-width: 0; display: flex; align-items: center; gap: 11px; padding: 0; border: 0; color: inherit; background: none; cursor: pointer; text-align: left; }
+.praxis-task-main > span { min-width: 0; }
 .praxis-task-icon { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 34px; border-radius: 10px; color: var(--color-accent-strong); background: var(--color-accent-soft); }
 .praxis-task-main strong, .praxis-task-main small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .praxis-task-main strong { font-size: 14px; }
