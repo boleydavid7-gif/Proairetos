@@ -82,7 +82,7 @@ function firstRoute(): Route {
 }
 
 export default function App() {
-  const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' });
+  const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' }, { keepBackInApp: true });
   useTripSharing();
   useMailOpener();
   const [checked, setChecked] = useState(false);

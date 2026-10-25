@@ -152,22 +152,35 @@ export { offerUndo, say, UndoBar } from '../../lamplight/undo';
 export type Nav<R> = { go: (route: R) => void; swap: (route: R) => void; back: () => void };
 
 /** Routes kept in history, so the phone's back gesture and the browser's back button both work. */
-export function useRoutes<R extends { name: string }>(app: string, tabs: readonly string[], initial: () => R, home: R) {
+export function useRoutes<R extends { name: string }>(app: string, tabs: readonly string[], initial: () => R, home: R, options: { keepBackInApp?: boolean } = {}) {
+  const keepBackInApp = options.keepBackInApp === true;
   const [route, setRoute] = useState<R>(initial);
   const [lastTab, setLastTab] = useState<R>(home);
   const isTab = (name: string) => tabs.includes(name);
   const current = useRef(route);
   current.current = route;
+  const routeHistory = useRef<R[]>([]);
+  if (keepBackInApp && routeHistory.current.length === 0) routeHistory.current.push(route);
 
   useEffect(() => {
     history.replaceState({ [app]: route }, '');
     const onPop = (event: PopStateEvent) => {
       const next = (event.state as Record<string, R> | null)?.[app];
+      if (keepBackInApp) {
+        // A direct app entry can have another site before it. Keep browser back inside this app.
+        if (!next) {
+          history.forward();
+          return;
+        }
+        routeHistory.current = routeHistory.current.length > 1 ? routeHistory.current.slice(0, -1) : [next];
+        transition('back', () => setRoute(next));
+        return;
+      }
       transition('back', () => setRoute(next ?? home));
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, []);
+  }, [keepBackInApp]);
 
   useEffect(() => {
     if (isTab(route.name)) setLastTab(route);
@@ -180,18 +193,31 @@ export function useRoutes<R extends { name: string }>(app: string, tabs: readonl
     return isTab(next.name) && !isTab(from) ? 'back' : 'forward';
   };
   const go = useCallback((next: R) => {
+    if (keepBackInApp) routeHistory.current.push(next);
     history.pushState({ [app]: next }, '');
     transition(directionTo(next), () => setRoute(next));
-  }, []);
+  }, [keepBackInApp]);
   const swap = useCallback((next: R) => {
+    if (keepBackInApp) routeHistory.current[routeHistory.current.length - 1] = next;
     history.replaceState({ [app]: next }, '');
     if (next.name === current.current.name && isTab(next.name)) return;
     transition(directionTo(next), () => setRoute(next));
-  }, []);
+  }, [keepBackInApp]);
   const back = useCallback(() => {
+    if (keepBackInApp) {
+      if (routeHistory.current.length > 1) {
+        routeHistory.current.pop();
+        const previous = routeHistory.current[routeHistory.current.length - 1];
+        history.replaceState({ [app]: previous }, '');
+        transition('back', () => setRoute(previous));
+        return;
+      }
+      swap(lastTab);
+      return;
+    }
     if ((history.state as Record<string, unknown> | null)?.[app] && history.length > 1) history.back();
     else swap(lastTab);
-  }, [lastTab, swap]);
+  }, [keepBackInApp, lastTab, swap]);
   return { route, nav: { go, swap, back } as Nav<R>, isTab: isTab(route.name) };
 }
 
