@@ -193,7 +193,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
               <div className="oiko-budget-item" key={item.id}>
                 <span><strong>{item.name}</strong><small>{budgetCategories.find(({ id }) => id === item.category)?.label ?? 'Other'}</small></span>
                 <strong>{formatMoney(item.amountCents, planCurrency)}</strong>
-                <button type="button" className="text-link" onClick={() => removeItem(item.id)}>Remove</button>
+                <button type="button" className="text-link" aria-label={`Delete budget item ${item.name}`} onClick={() => removeItem(item.id)}>Delete</button>
               </div>
             ))}
           </div>
@@ -207,7 +207,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       </section>
 
       <section className="oiko-budget-section">
-        <div className="oiko-section-head"><h2>By area</h2><span className="muted">Spent · planned · limit</span></div>
+        <div className="oiko-section-head"><h2>By area</h2></div>
         <div className="oiko-budget-areas">
           {areaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
