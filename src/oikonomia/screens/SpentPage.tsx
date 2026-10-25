@@ -8,7 +8,7 @@ import { offerUndo } from '../app/undo';
 import { newId, useBudget, useSettings } from '../app/state';
 import { PageTop } from '../app/ui';
 import { formatMoney, localDate } from '../core/bills';
-import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory } from '../core/budget';
+import { budgetCategories, formatMonthKey, monthDate, monthKey, type BudgetCategory, type BudgetItem } from '../core/budget';
 import { byArea, cents, guessArea, newLines, possibleDuplicate, readStatement, type Spent } from '../core/statements';
 import { receiptFromText } from '../../core/ocr/labels';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
@@ -22,6 +22,23 @@ const shiftMonth = (month: string, by: number) => {
 };
 const dayOf = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 type ReviewLine = Spent & { possibleDuplicate?: boolean };
+
+function budgetChoice(value: string, items: readonly BudgetItem[], onChange: (area: BudgetCategory, budgetItemId?: string) => void) {
+  const selected = value.startsWith('item:') ? value.slice(5) : '';
+  return (
+    <select className="input" value={value} onChange={(event) => {
+      const next = event.target.value;
+      if (next.startsWith('item:')) {
+        const item = items.find((each) => each.id === next.slice(5));
+        if (item) onChange(item.category, item.id);
+      } else onChange(next as BudgetCategory);
+    }}>
+      {budgetCategories.map((area) => <option key={area.id} value={area.id}>{area.label}</option>)}
+      {items.length > 0 && <optgroup label="Custom budgets">{items.map((item) => <option key={item.id} value={`item:${item.id}`}>{item.name}</option>)}</optgroup>}
+      {selected && !items.some((item) => item.id === selected) && <option value={value}>Saved budget</option>}
+    </select>
+  );
+}
 
 /** What went out in a month, from statements, by area: plain totals beside the month's plan, and every line. */
 export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: boolean }) {
@@ -38,6 +55,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
   const [entryDescription, setEntryDescription] = useState('');
   const [entryAmount, setEntryAmount] = useState('');
   const [entryArea, setEntryArea] = useState<BudgetCategory>('other');
+  const [entryBudgetItemId, setEntryBudgetItemId] = useState('');
   const file = useRef<HTMLInputElement>(null);
   const currency = plan?.currency ?? settings.currency;
   const total = lines.reduce((sum, line) => sum + line.amountCents, 0);
@@ -104,11 +122,12 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
     if (!description) return setProblem('Name the expense first.');
     if (amountCents === undefined || amountCents <= 0) return setProblem('Use an amount greater than zero.');
     if (!entryDate.startsWith(`${month}-`)) return setProblem('Choose a date in this month.');
-    const line: Spent = { id: newId(), date: entryDate, description, amountCents, area: entryArea };
+    const line: Spent = { id: newId(), date: entryDate, description, amountCents, area: entryArea, budgetItemId: entryBudgetItemId || undefined };
     const before = lines;
     saveSpent(month, [...before, line]);
     setEntryDescription('');
     setEntryAmount('');
+    setEntryBudgetItemId('');
     setEntryOpen(false);
     setProblem('');
     offerUndo('Expense removed', () => saveSpent(month, before));
@@ -185,7 +204,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
             <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" /></label>
             <label className="field"><span className="field__label">Date</span><input className="input" type="date" value={entryDate} onChange={(event) => setEntryDate(event.target.value)} /></label>
           </div>
-          <label className="field"><span className="field__label">Area</span><select className="input" value={entryArea} onChange={(event) => setEntryArea(event.target.value as BudgetCategory)}>{budgetCategories.map((area) => <option key={area.id} value={area.id}>{area.label}</option>)}</select></label>
+          <label className="field"><span className="field__label">Budget</span>{budgetChoice(entryBudgetItemId ? `item:${entryBudgetItemId}` : entryArea, plan?.items ?? [], (area, budgetItemId) => { setEntryArea(area); setEntryBudgetItemId(budgetItemId ?? ''); })}</label>
           <button type="button" className="button-main" onClick={addExpense}>Save expense</button>
         </section>
       )}
@@ -240,24 +259,25 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
 
       {editing && (
         <div className="sheet-back" onClick={() => setEditing(undefined)}>
-          <ExpenseEditor line={editing} currency={currency} onClose={() => setEditing(undefined)} onRemove={() => remove(editing)} onSave={(next) => saveEdit(editing, next)} />
+          <ExpenseEditor line={editing} currency={currency} budgetItems={plan?.items ?? []} onClose={() => setEditing(undefined)} onRemove={() => remove(editing)} onSave={(next) => saveEdit(editing, next)} />
         </div>
       )}
     </div>
   );
 }
 
-function ExpenseEditor({ line, currency, onClose, onRemove, onSave }: { line: Spent; currency: string; onClose: () => void; onRemove: () => void; onSave: (line: Spent) => void }) {
+function ExpenseEditor({ line, currency, budgetItems, onClose, onRemove, onSave }: { line: Spent; currency: string; budgetItems: readonly BudgetItem[]; onClose: () => void; onRemove: () => void; onSave: (line: Spent) => void }) {
   const [description, setDescription] = useState(line.description);
   const [amount, setAmount] = useState((line.amountCents / 100).toFixed(2));
   const [date, setDate] = useState(line.date);
   const [area, setArea] = useState<BudgetCategory>(line.area);
+  const [budgetItemId, setBudgetItemId] = useState(line.budgetItemId ?? '');
   const [error, setError] = useState('');
   const save = () => {
     const amountCents = cents(amount);
     if (!description.trim()) return setError('Name the expense first.');
     if (amountCents === undefined || amountCents <= 0) return setError('Use an amount greater than zero.');
-    onSave({ ...line, description: description.trim(), amountCents, date, area });
+    onSave({ ...line, description: description.trim(), amountCents, date, area, budgetItemId: budgetItemId || undefined });
   };
   return (
     <div className="sheet" role="dialog" aria-label={`Edit ${line.description}`} onClick={(event) => event.stopPropagation()}>
@@ -265,7 +285,7 @@ function ExpenseEditor({ line, currency, onClose, onRemove, onSave }: { line: Sp
       <p className="muted">{formatMoney(line.amountCents, currency)} · {dayOf(line.date)}</p>
       <label className="field"><span className="field__label">What was it?</span><input className="input" value={description} onChange={(event) => setDescription(event.target.value)} autoFocus /></label>
       <div className="oiko-form__pair"><label className="field"><span className="field__label">Amount</span><input className="input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label><label className="field"><span className="field__label">Date</span><input className="input" type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label></div>
-      <label className="field"><span className="field__label">Area</span><select className="input" value={area} onChange={(event) => setArea(event.target.value as BudgetCategory)}>{budgetCategories.map((each) => <option key={each.id} value={each.id}>{each.label}</option>)}</select></label>
+      <label className="field"><span className="field__label">Budget</span>{budgetChoice(budgetItemId ? `item:${budgetItemId}` : area, budgetItems, (nextArea, nextBudgetItemId) => { setArea(nextArea); setBudgetItemId(nextBudgetItemId ?? ''); })}</label>
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="button-row"><button type="button" className="button-main" onClick={save}>Save changes</button><button type="button" className="button-quiet" onClick={onRemove}>Remove</button><button type="button" className="button-quiet" onClick={onClose}>Cancel</button></div>
     </div>

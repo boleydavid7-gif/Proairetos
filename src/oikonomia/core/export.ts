@@ -14,7 +14,7 @@ export function billsCsv(bills: readonly Bill[]): string {
 }
 
 export function expensesCsv(lines: readonly Spent[], currency: string): string {
-  return table(['id', 'date', 'description', 'amount', 'currency', 'area'], lines.map((line) => [line.id, line.date, line.description, (line.amountCents / 100).toFixed(2), currency, line.area]));
+  return table(['id', 'date', 'description', 'amount', 'currency', 'area', 'budget_item_id'], lines.map((line) => [line.id, line.date, line.description, (line.amountCents / 100).toFixed(2), currency, line.area, line.budgetItemId ?? '']));
 }
 
 export function envelopesCsv(envelopes: readonly Envelope[]): string {

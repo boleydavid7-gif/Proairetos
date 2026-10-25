@@ -6,7 +6,7 @@ import type { BudgetCategory } from './budget';
  * kept: money in, balances and account numbers are left out. Each line is the person's to move to another
  * area; the app's first guess comes from words in the description and the person's own earlier moves.
  */
-export type Spent = { id: string; date: string; description: string; amountCents: number; area: BudgetCategory };
+export type Spent = { id: string; date: string; description: string; amountCents: number; area: BudgetCategory; /** Optional link to a custom monthly budget item. */ budgetItemId?: string };
 
 const HEADS = {
   date: ['date', 'transaction date', 'posted date', 'posting date', 'booking date', 'value date', 'trans. date'],
