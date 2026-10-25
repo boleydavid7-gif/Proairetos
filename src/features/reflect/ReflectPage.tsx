@@ -15,7 +15,7 @@ import { useRuns } from '../../app/askesis/runs';
 import RunEntry from './RunEntry';
 import MealEntry from './MealEntry';
 import StudyEntry from './StudyEntry';
-import { studyBetween, useStudy } from '../../app/praxis/study';
+import { combineReadingSessions, studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { Reflection } from '../../core/reflections/types';
 import DecisionsSection from './DecisionsSection';
@@ -121,7 +121,7 @@ export default function ReflectPage() {
   const cooked = shows('soma') ? cookedForBetween(recipes, toLocalDate(range.start), toLocalDate(range.end)) : [];
   // Study recorded in Praxis, likewise.
   const study = useStudy(shows('praxis'));
-  const studied = shows('praxis') ? studyBetween(study?.sessions ?? [], range.start, range.end) : [];
+  const studied = shows('praxis') ? combineReadingSessions(studyBetween(study?.sessions ?? [], range.start, range.end)) : [];
   const timeline = [
     ...(reflections ?? []).map((reflection) => ({ at: reflection.createdAt, reflection })),
     ...studied.map((session) => ({ at: session.at, study: session })),

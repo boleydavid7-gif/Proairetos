@@ -298,7 +298,7 @@
 .theoria-reader-page blockquote { margin: 34px 0; padding: 11px 18px; border-left: 4px solid var(--theoria-brass); color: inherit; background: color-mix(in srgb, var(--theoria-brass) 18%, transparent); cursor: pointer; font: 500 22px/1.5 var(--font-serif); }
 .theoria-reader-chapter-end { display: flex; justify-content: flex-end; max-width: 620px; margin-top: 50px; padding-top: 20px; border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent); }
 .theoria-reader-next { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 15px; border: 1px solid color-mix(in srgb, var(--theoria-brass) 45%, transparent); border-radius: 9px; color: var(--theoria-paper-ink); background: color-mix(in srgb, var(--theoria-brass) 23%, transparent); cursor: pointer; font-size: 13px; font-weight: 700; }
-.theoria-reader-next span { color: var(--theoria-brass); font-size: 18px; line-height: 1; }
+.theoria-reader-next .ll-icon { color: var(--theoria-brass); }
 .theoria-reader-next:hover { background: color-mix(in srgb, var(--theoria-brass) 34%, transparent); }
 .theoria-reader-next:active { transform: scale(.98); }
 .theoria-reader--night .theoria-reader-next { color: var(--theoria-ink); }
