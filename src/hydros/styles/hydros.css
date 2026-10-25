@@ -539,3 +539,71 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-settings-group .label { margin: 0 4px; }
 .hydros-settings .hydros-glass-row { padding: 10px 14px; border-bottom: 0; }
 .hydros-settings .hydros-reference { margin: 10px 14px; border: 0; }
+
+/* Lamplight spacing pass: keep utility cards distinct and readable on narrow screens. */
+.hydros-flow .hydros-header {
+  min-height: 58px;
+  margin-bottom: 16px;
+}
+
+.hydros-flow .hydros-header h1 {
+  color: var(--text) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.hydros-flow .hydros-segmented {
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: var(--surface-solid);
+}
+
+.hydros-flow .hydros-segmented button {
+  min-height: 40px;
+  color: var(--text-soft);
+}
+
+.hydros-flow .hydros-segmented button.is-selected {
+  background: var(--cyan);
+  color: var(--cyan-ink);
+}
+
+.hydros-flow .flow-period {
+  margin-top: 16px;
+  padding: 8px;
+  gap: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-flow .flow-chart-card {
+  margin-top: 16px;
+  padding: 14px 12px 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-flow .hydros-insights {
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.hydros-flow .hydros-insight-card {
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-radius-md, 16px);
+  background: var(--surface-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-flow .recent-entries {
+  margin-top: 28px;
+}
+
+.hydros-flow .recent-entry + .recent-entry {
+  margin-top: 10px;
+}
