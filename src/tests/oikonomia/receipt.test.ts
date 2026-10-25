@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { receiptFromText } from '../../core/ocr/labels';
+import { knownStoreName } from '../../core/ocr/stores';
 import { handleReceiptRequest } from '../../../worker/receipt';
 
 const request = (body: FormData, ip: string) => new Request('https://proairetos.com/api/receipt', { method: 'POST', body, headers: { 'cf-connecting-ip': ip } });
@@ -27,6 +28,10 @@ describe('online receipt reader', () => {
 });
 
 describe('offline receipt amount reader', () => {
+  it('leaves merchant names blank in the offline reader', () => {
+    expect(receiptFromText('Kroger\nTOTAL 31.62').some((each) => each.key === 'name')).toBe(false);
+  });
+
   it('uses the largest decimal amount and ignores whole-number receipt noise', () => {
     const found = receiptFromText(`Kroger
 885 UNION BLVD
@@ -46,5 +51,12 @@ PURCHASE: 31.62
     expect(receiptFromText('Reference 937392\nTOTAL 1,000.00').find((each) => each.key === 'amount')?.value).toBe('1000.00');
     expect(receiptFromText('Reference 937392\nTOTAL 100').some((each) => each.key === 'amount')).toBe(false);
     expect(receiptFromText('Printed 2026.10.24\nReference 937392').some((each) => each.key === 'amount')).toBe(false);
+  });
+});
+
+describe('known receipt merchants', () => {
+  it('canonicalizes recognized store names and rejects OCR noise', () => {
+    expect(knownStoreName('KROGER #123')).toBe('Kroger');
+    expect(knownStoreName('SE oe su')).toBeUndefined();
   });
 });

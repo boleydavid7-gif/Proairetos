@@ -137,7 +137,9 @@ export function billFromText(text: string, thisYear = new Date().getFullYear()):
 /** Receipt values use the same on-device reader as bills, but a printed date is a transaction date, not a due date. */
 export function receiptFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
   const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
-  const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due');
+  // The offline reader does not validate merchant names. Leave that field blank rather than promoting OCR noise;
+  // the optional online reader may supply a validated store name separately.
+  const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due' && each.key !== 'name');
   // Receipts contain many whole-number decoys: dates, phone numbers, item counts, ZIP codes, and references.
   // Only consider money with an explicit decimal separator, including grouped thousands.
   const moneyPattern = /(?<![\w./-])(?:[$£€¥]\s*)?(?:(?:\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+|\d+)[.,]\d{1,2})(?![\d.,])/g;
