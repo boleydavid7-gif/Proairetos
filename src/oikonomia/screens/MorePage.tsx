@@ -63,13 +63,13 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
   return (
     <div className="page oiko-page">
       <PageTop><h1 className="title">More</h1></PageTop>
-      <AccountCard app="Oikonomia" what="Your bills, spending and budget" waiting="Bills" />
+      <AccountCard app="Oikonomia" what="Your bills" waiting="Bills" />
 
       <ul className="rows">
-        <li><button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={22} /></span><span className="row__text"><span>Monthly plan</span><span className="row__detail">What the month holds, by area</span></span><ChevronIcon size={18} /></button></li>
+        <li><button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}><span className="row__icon"><WalletIcon size={22} /></span><span className="row__text"><span>Monthly plan</span><span className="row__detail">What the month holds</span></span><ChevronIcon size={18} /></button></li>
         <li><button type="button" className="row" onClick={() => nav.go({ name: 'envelopes' })}><span className="row__icon"><WalletIcon size={22} /></span><span className="row__text"><span>Savings envelopes</span><span className="row__detail">Vacation and custom goals</span></span><ChevronIcon size={18} /></button></li>
         <li><button type="button" className="row" onClick={() => nav.go({ name: 'pay' })}><span className="row__icon"><CalendarIcon size={22} /></span><span className="row__text"><span>Pay</span><span className="row__detail">When pay comes in</span></span><ChevronIcon size={18} /></button></li>
-        <li><button type="button" className="row" onClick={() => nav.go({ name: 'spent' })}><span className="row__icon"><BillsIcon size={22} /></span><span className="row__text"><span>Expenses</span><span className="row__detail">From statements or expenses, by area</span></span><ChevronIcon size={18} /></button></li>
+        <li><button type="button" className="row" onClick={() => nav.go({ name: 'spent' })}><span className="row__icon"><BillsIcon size={22} /></span><span className="row__text"><span>Expenses</span><span className="row__detail">From statements or expenses</span></span><ChevronIcon size={18} /></button></li>
         <li><button type="button" className="row" onClick={() => nav.go({ name: 'year' })}><span className="row__icon"><HistoryIcon size={22} /></span><span className="row__text"><span>Your year</span><span className="row__detail">Paid and spent, by year</span></span><ChevronIcon size={18} /></button></li>
         <li><a className="row" href="/?open=settings"><span className="row__icon"><SettingsIcon size={22} /></span><span className="row__text"><span>Appearance and reminders</span><span className="row__detail">Shared with Proairetos</span></span><ChevronIcon size={18} /></a></li>
       </ul>
