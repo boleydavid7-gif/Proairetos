@@ -175,16 +175,16 @@ export default function PraxisApp() {
     }
   }, [rest, restLeft]);
 
-  const start = (block = selected) => {
+  const start = (block = selected, length = minutes) => {
     if (!block) return;
     setReady(false);
     setAfter(null);
     setRest(null);
-    const next = startSession(Date.now(), minutes, { id: block.id, title: block.title });
+    const next = startSession(Date.now(), length, { id: block.id, title: block.title });
     recordedSession.current = undefined;
     setSession(next);
     playSound(sound);
-    void scheduleBell(minutes * 60);
+    void scheduleBell(length * 60);
     tap();
   };
 
@@ -256,11 +256,6 @@ export default function PraxisApp() {
     const block = await lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: length });
     setSelectedId(block.id);
     return block;
-  };
-
-  const addAndStart = async (title: string, length: number) => {
-    const block = await add(title, length);
-    start(block);
   };
 
   const saveBlock = async (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => {
@@ -354,7 +349,7 @@ export default function PraxisApp() {
               onSelect={(block) => { if (!session) { setSelectedId(block.id); setReady(true); } }}
               onToggle={(block) => void toggle(block)}
               onAdd={(title, length) => void add(title, length)}
-              onAddAndStart={(title, length) => void addAndStart(title, length)}
+              onStartSelected={(length) => { setMinutes(length); start(selected, length); }}
               onSave={(block, change) => void saveBlock(block, change)}
               onRemove={(block) => void removeBlock(block)}
               onEndRest={endRest}

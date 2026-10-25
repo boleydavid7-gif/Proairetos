@@ -62,7 +62,7 @@ type TodayProps = {
   onSelect: (block: LifeItem) => void;
   onToggle: (block: LifeItem) => void;
   onAdd: (title: string, minutes: number) => void;
-  onAddAndStart: (title: string, minutes: number) => void;
+  onStartSelected: (minutes: number) => void;
   onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => void;
   onRemove: (block: LifeItem) => void;
   onEndRest: () => void;
@@ -140,7 +140,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
-          <AddBlock onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
+          <AddBlock selected={selected} minutes={minutes} onMinutes={props.onMinutes} onAdd={props.onAdd} onStartSelected={props.onStartSelected} />
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
@@ -218,32 +218,25 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
   );
 }
 
-function AddBlock({ onAdd, onAddAndStart }: { onAdd: (title: string, minutes: number) => void; onAddAndStart: (title: string, minutes: number) => void }) {
+function AddBlock({ selected, minutes, onMinutes, onAdd, onStartSelected }: { selected?: LifeItem; minutes: number; onMinutes: (minutes: number) => void; onAdd: (title: string, minutes: number) => void; onStartSelected: (minutes: number) => void }) {
   const [title, setTitle] = useState('');
-  const [minutes, setMinutes] = useState('25');
   const add = (event?: FormEvent) => {
     event?.preventDefault();
     const words = title.trim();
     if (!words) return;
-    const value = Number(minutes);
-    onAdd(words, Number.isFinite(value) && value > 0 ? clampMinutes(value) : 25);
+    onAdd(words, minutes);
     setTitle('');
   };
   const startNow = () => {
-    const words = title.trim();
-    if (!words) return;
-    const value = Number(minutes);
-    onAddAndStart(words, Number.isFinite(value) && value > 0 ? clampMinutes(value) : 25);
-    setTitle('');
+    if (selected) onStartSelected(minutes);
   };
   return (
     <form className="praxis-add" onSubmit={add}>
-      <p className="praxis-eyebrow praxis-add__heading">Add a block</p>
       <div className="praxis-add__row">
         <input aria-label="A block to read" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
-        <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
+        <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => { const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
-        <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
+        <button type="button" className={`praxis-button praxis-button--primary praxis-add__start${selected ? ' praxis-add__start--ready' : ''}`} disabled={!selected} onClick={startNow}>Start now</button>
       </div>
     </form>
   );
@@ -301,35 +294,40 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
 /* ---------- Sessions ---------- */
 
 export function SessionsView({ events, titles, dayAt, onRemove }: { events: ItemEvent[]; titles: Map<string, string>; dayAt: DayAt; onRemove: (events: ItemEvent[]) => void }) {
-  const [shown, setShown] = useState(40);
+  const [selectedId, setSelectedId] = useState<string>();
   const sorted = [...events].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  const groups: { day: string; books: { itemId: string; events: ItemEvent[]; minutes: number }[] }[] = [];
-  for (const event of sorted.slice(0, shown)) {
-    const day = sessionDay(event, dayAt);
-    const last = groups[groups.length - 1];
-    const group = last?.day === day ? last : (groups.push({ day, books: [] }), groups[groups.length - 1]);
-    const book = group.books.find((each) => each.itemId === event.itemId);
+  const books: { itemId: string; events: ItemEvent[]; minutes: number }[] = [];
+  for (const event of sorted) {
+    const book = books.find((each) => each.itemId === event.itemId);
     if (book) { book.events.push(event); book.minutes += Number(event.metadata?.minutes ?? 0); }
-    else group.books.push({ itemId: event.itemId, events: [event], minutes: Number(event.metadata?.minutes ?? 0) });
+    else books.push({ itemId: event.itemId, events: [event], minutes: Number(event.metadata?.minutes ?? 0) });
+  }
+  const selectedBook = books.find((book) => book.itemId === selectedId);
+  const days: { day: string; events: ItemEvent[]; minutes: number }[] = [];
+  if (selectedBook) {
+    for (const event of selectedBook.events) {
+      const day = sessionDay(event, dayAt);
+      const group = days.find((each) => each.day === day);
+      if (group) { group.events.push(event); group.minutes += Number(event.metadata?.minutes ?? 0); }
+      else days.push({ day, events: [event], minutes: Number(event.metadata?.minutes ?? 0) });
+    }
   }
   return (
     <section className="praxis-view">
       <div className="praxis-page-heading"><div><h1>Sessions</h1></div></div>
-      {groups.length === 0 ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : groups.map((group) => (
-        <article className="praxis-card praxis-wide-card praxis-day-group" key={group.day}>
-          <p className="praxis-eyebrow">{formatDay(group.day)}</p>
-          {group.books.map((book) => (
-            <div key={book.itemId}>
-              <div className="praxis-history-row">
-                <span className="praxis-history-icon"><BookIcon size={18} /></span>
-                <span><strong>{titles.get(book.itemId) ?? 'A block'}</strong><small>{book.events.length === 1 ? '1 session' : `${book.events.length} sessions`}</small></span>
-                <span className="praxis-history-actions"><span className="praxis-history-duration">{formatMinutes(book.minutes)}</span><button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(book.events)}>Remove</button></span>
-              </div>
-            </div>
-          ))}
+      {!books.length ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : selectedBook ? (
+        <>
+          <button type="button" className="praxis-text-button praxis-sessions-back" onClick={() => setSelectedId(undefined)}>All books</button>
+          <article className="praxis-card praxis-wide-card">
+            <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Reading history</p><h2>{titles.get(selectedBook.itemId) ?? 'A block'}</h2></div><span className="praxis-history-duration">{selectedBook.events.length} {selectedBook.events.length === 1 ? 'session' : 'sessions'} · {formatMinutes(selectedBook.minutes)}</span></div>
+            <div className="praxis-session-days">{days.map((day) => <div className="praxis-session-day" key={day.day}><p className="praxis-eyebrow">{formatDay(day.day)}</p><div className="praxis-history-row"><span className="praxis-history-icon"><ClockIcon size={18} /></span><span><strong>{formatMinutes(day.minutes)}</strong><small>{day.events.length} {day.events.length === 1 ? 'session' : 'sessions'}</small></span><button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(day.events)}>Remove</button></div></div>)}</div>
+          </article>
+        </>
+      ) : (
+        <article className="praxis-card praxis-wide-card praxis-session-books">
+          {books.map((book) => <div className="praxis-history-row" key={book.itemId}><button type="button" className="praxis-history-open" onClick={() => setSelectedId(book.itemId)}><span className="praxis-history-icon"><BookIcon size={18} /></span><span><strong>{titles.get(book.itemId) ?? 'A block'}</strong><small>{book.events.length} {book.events.length === 1 ? 'session' : 'sessions'}</small></span></button><span className="praxis-history-actions"><span className="praxis-history-duration">{formatMinutes(book.minutes)}</span><button type="button" className="praxis-text-link praxis-remove" onClick={() => onRemove(book.events)}>Remove</button></span></div>)}
         </article>
-      ))}
-      {sorted.length > shown && <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setShown(shown + 40)}>Show earlier</button>}
+      )}
     </section>
   );
 }

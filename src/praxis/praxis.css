@@ -103,6 +103,14 @@
 .praxis-history-row { display: grid; grid-template-columns: 38px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 15px 0; border-top: 1px solid var(--color-border); }
 .praxis-history-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .praxis-history-actions .praxis-remove { margin-left: 0; }
+.praxis-history-open { grid-column: 1 / 3; display: flex; min-width: 0; align-items: center; gap: 12px; padding: 0; border: 0; color: inherit; background: none; cursor: pointer; text-align: left; }
+.praxis-history-open > span:last-child { min-width: 0; }
+.praxis-history-open strong, .praxis-history-open small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.praxis-history-open small { margin-top: 4px; color: var(--color-text-faint); font-size: 12px; }
+.praxis-session-days { display: grid; gap: 10px; margin-top: 18px; }
+.praxis-session-day { padding-top: 12px; border-top: 1px solid var(--color-border); }
+.praxis-session-day .praxis-history-row { padding-block: 10px 2px; }
+.praxis-sessions-back { margin-bottom: 12px; }
 .praxis-history-row:first-of-type { margin-top: 18px; }
 .praxis-history-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: var(--color-accent-strong); background: var(--color-accent-soft); }
 .praxis-history-row strong, .praxis-history-row small { display: block; }
