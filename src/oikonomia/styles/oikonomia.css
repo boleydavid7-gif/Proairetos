@@ -814,6 +814,13 @@
   font-size: 0.8rem;
 }
 
+.oiko-budget-item__delete {
+  min-height: 40px;
+  padding: 7px 12px;
+  color: var(--oiko-clay);
+  white-space: nowrap;
+}
+
 .oiko-budget-item-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 110px 140px auto;

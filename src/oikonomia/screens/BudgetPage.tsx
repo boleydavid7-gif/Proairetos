@@ -1,5 +1,5 @@
 import { RollingNumber } from '../../lamplight/RollingNumber';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
@@ -36,6 +36,8 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
   const [weeklyFoodText, setWeeklyFoodText] = useState('');
   const [message, setMessage] = useState('');
   const [dirty, setDirty] = useState(false);
+  // Blurring a limit field can save at the same time as an item action. Keep writes ordered so a later delete cannot be restored by an older save.
+  const budgetWrites = useRef(Promise.resolve());
 
   useEffect(() => {
     setDirty(false);
@@ -130,7 +132,10 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
     }
     setMessage('');
     setDirty(false);
-    await putBudget({ ...base, totalCents, categoryLimits, month, id: month, currency: planCurrency, updatedAt: new Date().toISOString() });
+    const nextBudget = { ...base, totalCents, categoryLimits, month, id: month, currency: planCurrency, updatedAt: new Date().toISOString() };
+    const write = budgetWrites.current.catch(() => undefined).then(() => putBudget(nextBudget));
+    budgetWrites.current = write.catch(() => undefined);
+    await write;
   }
 
   return (
@@ -193,7 +198,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
               <div className="oiko-budget-item" key={item.id}>
                 <span><strong>{item.name}</strong><small>{budgetCategories.find(({ id }) => id === item.category)?.label ?? 'Other'}</small></span>
                 <strong>{formatMoney(item.amountCents, planCurrency)}</strong>
-                <button type="button" className="text-link" aria-label={`Delete budget item ${item.name}`} onClick={() => removeItem(item.id)}>Delete</button>
+                <button type="button" className="button-quiet oiko-budget-item__delete" aria-label={`Delete budget item ${item.name}`} onClick={() => removeItem(item.id)}>Delete</button>
               </div>
             ))}
           </div>
