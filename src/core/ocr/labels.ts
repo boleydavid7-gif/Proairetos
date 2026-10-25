@@ -138,18 +138,17 @@ export function billFromText(text: string, thisYear = new Date().getFullYear()):
 export function receiptFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
   const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due');
-  const moneyPattern = /(?:[$£€¥]\s*)?(\d{1,4}(?:[.,]\d{1,2})?)(?![\d.,])/g;
+  // Receipts contain many whole-number decoys: dates, phone numbers, item counts, ZIP codes, and references.
+  // Only consider money with an explicit decimal separator, including grouped thousands.
+  const moneyPattern = /(?<![\w./-])(?:[$£€¥]\s*)?(?:(?:\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+|\d+)[.,]\d{1,2})(?![\d.,])/g;
   const moneyValue = (raw: string): number | undefined => {
     const cleaned = raw.replace(/[$£€¥\s]/g, '');
     const normalized = /,\d{1,2}$/.test(cleaned) ? cleaned.replace(/\./g, '').replace(',', '.') : cleaned.replace(/,/g, '');
     const value = Number(normalized);
     return Number.isFinite(value) ? value : undefined;
   };
-  const labelled = lines
-    .filter((line) => /\b(?:grand\s+)?total\b|amount\s+(?:paid|due)|balance\s+due|purchase\s+total/i.test(line))
-    .filter((line) => !/\b(?:tax|items?|number|cashback|change|ref(?:erence)?|account|debit|credit)\b|\*{2,}/i.test(line))
-    .flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined));
-  const amount = labelled.filter((value) => value > 0 && value < 100_000).sort((a, b) => b - a)[0];
+  const amounts = lines.flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined && value > 0));
+  const amount = amounts.sort((a, b) => b - a)[0];
   if (amount !== undefined) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
   const date = lines.map((line) => dateIn(line, thisYear)).find(Boolean);
   if (date) found.push({ key: 'date', label: 'Date', value: date });
