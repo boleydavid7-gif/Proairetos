@@ -233,9 +233,9 @@ function AddBlock({ selected, minutes, onMinutes, onAdd, onStartSelected }: { se
   return (
     <form className="praxis-add" onSubmit={add}>
       <div className="praxis-add__row">
-        <input aria-label="A block to read" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
+        {!selected && <input aria-label="A block to read" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />}
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => { const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
-        <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
+        {!selected && <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>}
         <button type="button" className={`praxis-button praxis-button--primary praxis-add__start${selected ? ' praxis-add__start--ready' : ''}`} disabled={!selected} onClick={startNow}>Start now</button>
       </div>
     </form>

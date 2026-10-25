@@ -346,7 +346,7 @@ export default function PraxisApp() {
               onStart={startOrPause}
               onStop={() => session && void finishSession(session, Date.now())}
               onMinutes={(value) => setMinutes(clampMinutes(value))}
-              onSelect={(block) => { if (!session) { setSelectedId(block.id); setReady(true); } }}
+              onSelect={(block) => { if (!session) { if (selected?.id === block.id) { setSelectedId(undefined); setReady(false); } else { setSelectedId(block.id); setReady(true); } } }}
               onToggle={(block) => void toggle(block)}
               onAdd={(title, length) => void add(title, length)}
               onStartSelected={(length) => { setMinutes(length); start(selected, length); }}
