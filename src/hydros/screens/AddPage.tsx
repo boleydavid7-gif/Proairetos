@@ -57,10 +57,15 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
         {custom ? (
           <div className="hydros-custom-fields">
             <label><span>Name</span><input autoFocus value={name} maxLength={40} placeholder="Drink name" onChange={(event) => setName(event.target.value)} /></label>
-            <label><span>Caffeine</span><input type="number" min="0" step="1" inputMode="numeric" value={caffeineMg} onChange={(event) => setCaffeineMg(event.target.value)} /><b>mg</b></label>
-            <label><span>Electrolytes</span><input type="number" min="0" step="1" inputMode="numeric" value={electrolytesMg} onChange={(event) => setElectrolytesMg(event.target.value)} /><b>mg</b></label>
-            <label><span>Sugar</span><input type="number" min="0" step="1" inputMode="decimal" value={sugarG} onChange={(event) => setSugarG(event.target.value)} /><b>g</b></label>
-            <label><span>Counted</span><input type="number" min="0" max="100" step="1" inputMode="decimal" value={hydrationPercent} onChange={(event) => setHydrationPercent(event.target.value)} /><b>%</b></label>
+            <details className="hydros-custom-details">
+              <summary>Details (optional)</summary>
+              <div className="hydros-custom-details__fields">
+                <label><span>Caffeine</span><input type="number" min="0" step="1" inputMode="numeric" value={caffeineMg} onChange={(event) => setCaffeineMg(event.target.value)} /><b>mg</b></label>
+                <label><span>Electrolytes</span><input type="number" min="0" step="1" inputMode="numeric" value={electrolytesMg} onChange={(event) => setElectrolytesMg(event.target.value)} /><b>mg</b></label>
+                <label><span>Sugar</span><input type="number" min="0" step="1" inputMode="decimal" value={sugarG} onChange={(event) => setSugarG(event.target.value)} /><b>g</b></label>
+                <label><span>Counted</span><input type="number" min="0" max="100" step="1" inputMode="decimal" value={hydrationPercent} onChange={(event) => setHydrationPercent(event.target.value)} /><b>%</b></label>
+              </div>
+            </details>
           </div>
         ) : (
           <div className="drink-types">

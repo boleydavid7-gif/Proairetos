@@ -218,6 +218,10 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-custom-fields input { min-width: 0; width: 100%; padding: 7px 8px; border: 1px solid rgba(226, 249, 255, .22); border-radius: 8px; background: rgba(16, 54, 67, .75); color: #f4fbfc; font: inherit; }
 .hydros-custom-fields input::placeholder { color: rgba(226, 249, 255, .52); }
 .hydros-custom-fields b { flex: 0 0 auto; color: rgba(226, 249, 255, .8); font-size: 0.75rem; font-weight: 400; }
+.hydros-custom-details { grid-column: 1 / -1; border-top: 1px solid rgba(226, 249, 255, .14); }
+.hydros-custom-details summary { padding-top: 9px; color: rgba(226, 249, 255, .84); cursor: pointer; font-size: .78rem; list-style-position: inside; }
+.hydros-custom-details__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.hydros-custom-details__fields label:first-child { grid-column: auto; }
 .hydros-add__stage .hydros-save:disabled { opacity: .45; cursor: default; }
 .hydros-add__stage .amount-picker { position: absolute; z-index: 3; top: 79%; right: 9%; left: 9%; gap: clamp(12px, 4vw, 24px); margin: 0; }
 .hydros-add__stage .amount-picker button { width: clamp(48px, 13vw, 62px); height: clamp(48px, 13vw, 62px); flex: 0 0 auto; border-color: rgba(226,249,255,.24); border-top-color: rgba(255,255,255,.15); background: linear-gradient(145deg, rgba(15,23,42,.9), rgba(8,40,52,.88)); box-shadow: inset 0 1px 8px rgba(255,255,255,.1), 0 5px 14px rgba(0,0,0,.14); }
@@ -451,6 +455,8 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button.hydros-custom-drink { border-color: color-mix(in srgb, var(--cyan) 45%, transparent); background: color-mix(in srgb, var(--cyan) 8%, transparent); }
 .hydros-custom-fields { display: grid; gap: 10px; padding: 15px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: var(--ll-light-1); }
 .hydros-custom-fields label { min-height: 42px; }
+.hydros-custom-details { border-top-color: var(--line); }
+.hydros-custom-details summary { color: var(--cyan); }
 .hydros-add__stage .amount-picker { position: relative; top: auto; right: auto; left: auto; margin: 18px 0 0; }
 .hydros-add__stage .hydros-save { position: relative; top: auto; right: auto; left: auto; width: 100%; margin-top: 18px; }
 .hydros-flow .hydros-segmented { margin-bottom: 14px; }
