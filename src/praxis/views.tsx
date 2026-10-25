@@ -1,5 +1,5 @@
 import { RollingNumber } from '../lamplight/RollingNumber';
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type FormEvent } from 'react';
 import type { ItemEvent } from '../core/item-events/types';
 import type { LifeItem } from '../core/life-items/types';
 import type { CompassStatement } from '../core/compass/types';
@@ -16,7 +16,6 @@ import {
   clampMinutes,
   formatDay,
   formatMinutes,
-  LENGTHS,
   LOOK_AGAIN,
   LOOK_AGAIN_SOURCE,
   minutesByBlock,
@@ -39,8 +38,6 @@ export type Break = { endsAt: number; minutes: number };
 /* ---------- Today ---------- */
 
 type TodayProps = {
-  /** Opened from "Start my next block": the Start button waits for the one tap phones need for sound. */
-  ready?: boolean;
   today: string;
   blocks: LifeItem[];
   selected?: LifeItem;
@@ -58,11 +55,8 @@ type TodayProps = {
   cardsByBlock: Map<string, number>;
   onStart: () => void;
   onStop: () => void;
-  onMinutes: (minutes: number) => void;
   onSelect: (block: LifeItem) => void;
   onToggle: (block: LifeItem) => void;
-  onAdd: (title: string, minutes: number) => void;
-  onStartSelected: (minutes: number) => void;
   onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => void;
   onRemove: (block: LifeItem) => void;
   onEndRest: () => void;
@@ -80,16 +74,12 @@ export function TodayView(props: TodayProps) {
   const open = blocks.filter((block) => block.status !== 'DONE');
   const done = blocks.filter((block) => block.status === 'DONE');
   const again = open.filter((block) => block.plannedFor && block.plannedFor <= today);
-  const startButton = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (props.ready && selected) startButton.current?.scrollIntoView({ block: 'center' });
-  }, [props.ready, selected?.id]);
   const progress = rest ? 1 - restLeft / (rest.minutes * 60_000) : session ? 1 - remaining / session.durationMs : 0;
   return (
     <section className="praxis-view praxis-today-view">
       <div className="praxis-page-heading"><div><h1>Today</h1></div></div>
       <div className="praxis-today-grid">
-        <article className={`praxis-card praxis-focus-card${!after && !rest && !session && !selected ? ' praxis-focus-card--empty' : ''}`}>
+        <article className={`praxis-card praxis-focus-card${!after && !rest && !session ? ' praxis-focus-card--empty' : ''}`}>
           {after && !session && !rest ? (
             <AfterBlock after={after} onRest={props.onRest} onKeepLine={props.onKeepLine} onLookAgain={props.onLookAgain} onClose={props.onCloseAfter} />
           ) : (
@@ -111,10 +101,9 @@ export function TodayView(props: TodayProps) {
                 ) : (
                   <>
                     <div className="praxis-focus-actions">
-                      <button type="button" ref={startButton} className={`praxis-button praxis-button--primary${props.ready ? ' praxis-button--ready' : ''}`} onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : props.ready ? 'Start now' : 'Start'}</button>
+                      <button type="button" className="praxis-button praxis-button--primary" onClick={props.onStart} disabled={!selected && !session}>{session ? (session.pausedAt ? 'Resume' : 'Pause') : 'Start'}</button>
                       {session && <button type="button" className="praxis-button praxis-button--quiet" onClick={props.onStop}>Stop here</button>}
                     </div>
-                    {!session && selected && <LengthPicker minutes={minutes} onMinutes={props.onMinutes} />}
                   </>
                 )}
               </div>}
@@ -140,7 +129,7 @@ export function TodayView(props: TodayProps) {
               <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
-          <AddBlock selected={selected} minutes={minutes} onMinutes={props.onMinutes} onAdd={props.onAdd} onStartSelected={props.onStartSelected} />
+          {selected && <button type="button" className="praxis-button praxis-button--primary praxis-plan-start" onClick={props.onStart}>Start now</button>}
           {done.length > 0 && (
             <details className="praxis-done">
               <summary>Done</summary>
@@ -153,20 +142,6 @@ export function TodayView(props: TodayProps) {
       </div>
       <blockquote className="praxis-quote"><p>“{quote.text}”</p><cite>{quote.source}</cite></blockquote>
     </section>
-  );
-}
-
-function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (minutes: number) => void }) {
-  const [other, setOther] = useState('');
-  const custom = !(LENGTHS as readonly number[]).includes(minutes);
-  return (
-    <div className="praxis-adjust" role="group" aria-label="Length">
-      {LENGTHS.map((value) => <button key={value} type="button" className={minutes === value ? 'is-selected' : ''} onClick={() => onMinutes(value)}>{value} min</button>)}
-      <label className={`praxis-adjust__other${custom ? ' is-selected' : ''}`}>
-        <input type="number" inputMode="numeric" min={1} max={240} placeholder="Other" aria-label="Other length in minutes" value={custom ? String(minutes) : other} onChange={(event) => { setOther(event.target.value); const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
-        <span>min</span>
-      </label>
-    </div>
   );
 }
 
@@ -215,30 +190,6 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
         </form>
       )}
     </div>
-  );
-}
-
-function AddBlock({ selected, minutes, onMinutes, onAdd, onStartSelected }: { selected?: LifeItem; minutes: number; onMinutes: (minutes: number) => void; onAdd: (title: string, minutes: number) => void; onStartSelected: (minutes: number) => void }) {
-  const [title, setTitle] = useState('');
-  const add = (event?: FormEvent) => {
-    event?.preventDefault();
-    const words = title.trim();
-    if (!words) return;
-    onAdd(words, minutes);
-    setTitle('');
-  };
-  const startNow = () => {
-    if (selected) onStartSelected(minutes);
-  };
-  return (
-    <form className="praxis-add" onSubmit={add}>
-      <div className="praxis-add__row">
-        {!selected && <input aria-label="A block to read" value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />}
-        <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => { const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
-        {!selected && <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>}
-        <button type="button" className={`praxis-button praxis-button--primary praxis-add__start${selected ? ' praxis-add__start--ready' : ''}`} disabled={!selected} onClick={startNow}>Start now</button>
-      </div>
-    </form>
   );
 }
 

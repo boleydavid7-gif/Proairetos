@@ -20,7 +20,7 @@ import { CardsView } from './CardsView';
 import PraxisMark from '../components/brand/PraxisMark';
 import { takeOpening } from '../app/family/opening';
 import { useDays } from '../app/family/personalDays';
-import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
+import { addDaysKey, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
 import { bellWaiting, cancelBell, scheduleBell } from './bell';
 import { notifications } from '../app/notify/notifications';
 import { enableReminders } from '../app/sync/syncController';
@@ -177,7 +177,6 @@ export default function PraxisApp() {
 
   const start = (block = selected, length = minutes) => {
     if (!block) return;
-    setReady(false);
     setAfter(null);
     setRest(null);
     const next = startSession(Date.now(), length, { id: block.id, title: block.title });
@@ -232,8 +231,6 @@ export default function PraxisApp() {
 
   // A shortcut to start the next block opens it ready: phones only allow sound from a tap, so one tap on
   // Start begins the timer, the sound and the end bell together.
-  const [ready, setReady] = useState(opening === 'start');
-
   // From Theoria's "Open Praxis": the book as a block (made once, 20 minutes), ready to start.
   const fromTheoria = useRef(false);
   useEffect(() => {
@@ -248,19 +245,12 @@ export default function PraxisApp() {
       : lifeService.capture(`Read: ${requested}`, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: 20 });
     void block.then((item) => {
       setSelectedId(item.id);
-      setReady(true);
     });
   }, [items]);
 
   const toggle = async (block: LifeItem) => {
     const change = await lifeService.setStatus(block.id, block.status === 'DONE' ? 'OPEN' : 'DONE');
     say(block.status === 'DONE' ? `${block.title} is back` : `${block.title} done`, () => void change.undo());
-  };
-
-  const add = async (title: string, length: number) => {
-    const block = await lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis', plannedMinutes: length });
-    setSelectedId(block.id);
-    return block;
   };
 
   const saveBlock = async (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => {
@@ -332,7 +322,6 @@ export default function PraxisApp() {
         <div className="praxis-page">
           {view === 'today' && (
             <TodayView
-              ready={ready && !session}
               today={today}
               blocks={blocks}
               selected={selected}
@@ -350,11 +339,8 @@ export default function PraxisApp() {
               cardsByBlock={cardsByBlock}
               onStart={startOrPause}
               onStop={() => session && void finishSession(session, Date.now())}
-              onMinutes={(value) => setMinutes(clampMinutes(value))}
-              onSelect={(block) => { if (!session) { if (selected?.id === block.id) { setSelectedId(undefined); setReady(false); } else { setSelectedId(block.id); setReady(true); } } }}
+              onSelect={(block) => { if (!session) { if (selected?.id === block.id) setSelectedId(undefined); else setSelectedId(block.id); } }}
               onToggle={(block) => void toggle(block)}
-              onAdd={(title, length) => void add(title, length)}
-              onStartSelected={(length) => { setMinutes(length); start(selected, length); }}
               onSave={(block, change) => void saveBlock(block, change)}
               onRemove={(block) => void removeBlock(block)}
               onEndRest={endRest}
