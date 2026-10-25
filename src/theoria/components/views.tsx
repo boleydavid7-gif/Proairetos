@@ -13,6 +13,7 @@ import AccountCard from '../../app/family/AccountCard';
 import FamilyBackup from '../../app/family/FamilyBackup';
 import FamilyApps from '../../app/family/FamilyApps';
 import { LOOKUP_SOURCE, lookUp, wordToLookUp, type Meaning } from '../core/lookup';
+import { highlightOfDay } from '../core/export';
 import PdfPages from './PdfPages';
 import { isAdded } from '../../app/family/added';
 import { Sym } from '../../lamplight/icons';
@@ -51,6 +52,11 @@ function dateLabel(value?: string): string {
   return Number.isNaN(date.valueOf()) ? '' : new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
 }
 
+function localDayKey(date = new Date()): string {
+  const part = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}`;
+}
+
 function EmptyState({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return <article className="theoria-empty-card"><TheoriaMark size={42} /><h2>{title}</h2><p>{body}</p><button type="button" className="theoria-primary-button" onClick={onAction}>{action}</button></article>;
 }
@@ -59,6 +65,8 @@ export function LibraryHome({ shelf, loading, error, onAdd, onOpen, onContinue, 
   const current = shelf.filter((book) => book.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0];
   const recent = shelf.filter((book) => book.lastOpenedAt).sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? '')).slice(0, 4);
   const quote = dailyQuote();
+  const readingHighlight = highlightOfDay(shelf, localDayKey());
+  const readingBook = readingHighlight ? shelf.find((book) => book.id === readingHighlight.bookId) : undefined;
   if (loading) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Opening your library…</h1></div></div><Placeholder label="Opening your library" kind="cards" count={3} /></section>;
   if (error) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Couldn’t open your shelf</h1></div></div><div className="theoria-error-card" role="alert"><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload library</button></div></section>;
   if (!shelf.length) return <section className="theoria-view"><div className="theoria-heading"><div><h1>Library</h1></div></div><EmptyState title="Nothing on the shelf yet" body="Add an EPUB, PDF, text file or link." action="Add a book" onAction={onAdd} /></section>;
@@ -67,7 +75,7 @@ export function LibraryHome({ shelf, loading, error, onAdd, onOpen, onContinue, 
     {current ? <article className="theoria-card theoria-continue"><div className="theoria-card-kicker">Continue reading <span>{current.progress}%</span></div><div className="theoria-continue-body"><div><h2>{current.title}</h2>{current.author && <p className="theoria-author">{current.author}</p>}<p className="theoria-book-location">{current.readingLocation ?? 'Ready for your next page'}</p><div className="theoria-progress"><span style={{ width: current.progress + '%' }} /></div><small>{dateLabel(current.lastOpenedAt)}</small><button type="button" className="theoria-primary-button" onClick={() => onContinue(current)}>Continue reading</button></div><Cover book={current} index={0} /></div></article> : <div className="theoria-home-empty"><p>Choose a book to begin reading.</p><button type="button" onClick={() => onContinue(shelf[0])}>Open your first book</button></div>}
     <div className="theoria-section-heading"><div><p className="theoria-eyebrow">Your shelf</p><h2>All your books</h2></div><button type="button" onClick={onShelf}>View shelf</button></div>
     {recent.length > 0 && <><div className="theoria-section-heading"><div><p className="theoria-eyebrow">Recently opened</p><h2>Continue reading</h2></div></div><div className="theoria-recent-grid">{recent.map((book, index) => <button type="button" className="theoria-recent-book" key={book.id} onClick={() => onOpen(book)}><Cover book={book} index={index} /><span><strong>{book.title}</strong><small>{dateLabel(book.lastOpenedAt)}</small></span></button>)}</div></>}
-    <article className="theoria-daily-quote"><div className="theoria-daily-quote-lead"><span className="theoria-daily-quote-mark">“</span></div><div className="theoria-daily-quote-copy"><p>{quote.quote}</p><div><small>{quote.source}</small><span>{quote.tradition} · {quote.focus}</span></div></div><time className="theoria-daily-quote-date" dateTime={new Date().toISOString().slice(0, 10)}>{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</time></article>
+    {readingHighlight && readingBook ? <article className="theoria-daily-quote theoria-reading-return"><div className="theoria-daily-quote-lead"><span className="theoria-daily-quote-mark">“</span><strong>From your reading</strong></div><div className="theoria-daily-quote-copy"><p>{readingHighlight.text}</p><div><small>{readingHighlight.title}{readingHighlight.author ? ` · ${readingHighlight.author}` : ''}</small>{readingBook && <button type="button" className="theoria-quiet-button" onClick={() => onOpen(readingBook)}>Open in book</button>}</div></div><time className="theoria-daily-quote-date" dateTime={localDayKey()}>{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</time></article> : <article className="theoria-daily-quote"><div className="theoria-daily-quote-lead"><span className="theoria-daily-quote-mark">“</span></div><div className="theoria-daily-quote-copy"><p>{quote.quote}</p><div><small>{quote.source}</small><span>{quote.tradition} · {quote.focus}</span></div></div><time className="theoria-daily-quote-date" dateTime={localDayKey()}>{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date())}</time></article>}
   </section>;
 }
 
