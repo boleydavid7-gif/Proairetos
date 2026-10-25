@@ -639,6 +639,17 @@
   color: var(--muted);
 }
 
+.poreia-provider-status__row {
+  cursor: default;
+}
+
+.poreia-provider-status__state {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
 .poreia-notes {
   white-space: pre-wrap;
 }

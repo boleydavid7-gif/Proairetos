@@ -212,6 +212,16 @@ export const mapLink = (place: string, lat?: number, lon?: number) =>
 /** Directions between two places. */
 export const directionsLink = (from: string, to: string) => `https://www.google.com/maps/dir/?api=1&origin=${q(from)}&destination=${q(to)}`;
 
+/** A multi-stop driving route, opened in Google Maps with Poreia's stop order preserved. */
+export function routeLink(points: readonly { name: string; lat?: number; lon?: number }[]): string {
+  const where = (point: { name: string; lat?: number; lon?: number }) => (point.lat !== undefined && point.lon !== undefined ? `${point.lat},${point.lon}` : point.name);
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (!first || !last) return 'https://www.google.com/maps';
+  const middle = points.slice(1, -1).map(where).join('|');
+  return `https://www.google.com/maps/dir/?api=1&origin=${q(where(first))}&destination=${q(where(last))}${middle ? `&waypoints=${q(middle)}` : ''}&travelmode=driving`;
+}
+
 /** One stay found in Poreia, on the sites where it can be booked, with the dates and party. */
 export function stayLinks(name: string, city: string, start?: string, end?: string, travelers = 1): SearchLink[] {
   const dates = start && end;

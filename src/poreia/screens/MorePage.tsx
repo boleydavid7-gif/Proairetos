@@ -11,7 +11,7 @@ import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
 import { ForwardingCard } from '../components/MailBox';
 import { balanceOn, hoursText } from '../core/timeOff';
-import { airportFor, driveMinutes, eventsReady } from '../app/world';
+import { airportFor, driveMinutes, eventsReady, travelReady, type TravelReady } from '../app/world';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN', 'BRL', 'INR', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR'];
 
@@ -26,8 +26,10 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
   const leads = [30, 60, 90, 120, 180, 240];
   const leadText = (minutes: number) => (minutes < 60 ? `${minutes} minutes` : minutes % 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes / 60} ${minutes === 60 ? 'hour' : 'hours'}`);
   const [events, setEvents] = useState<boolean>();
+  const [travel, setTravel] = useState<TravelReady>();
   useEffect(() => {
     void eventsReady().then(setEvents);
+    void travelReady().then(setTravel);
   }, []);
   const currencies = CURRENCIES.includes(current.currency) ? CURRENCIES : [current.currency, ...CURRENCIES];
 
@@ -67,6 +69,32 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
       </section>
 
       <ForwardingCard />
+
+      {travel && (
+        <section className="card poreia-provider-status">
+          <h2 className="card__title">Travel data</h2>
+          <p className="muted">Live prices and details appear only when a provider is configured. External research links always remain available.</p>
+          <ul className="rows">
+            {([
+              ['Stays with prices', 'LiteAPI', travel.stays],
+              ['Flights with prices', 'Duffel', travel.flights],
+              ['Ticketed events', 'Ticketmaster', travel.events],
+              ['Place details', 'Google Places', travel.places],
+              ['Flight status', 'AeroDataBox', travel.status],
+            ] as const).map(([label, provider, configured]) => (
+              <li key={provider}>
+                <div className="row poreia-provider-status__row">
+                  <span className="row__text">
+                    <span>{label}</span>
+                    <span className="row__detail">{provider}</span>
+                  </span>
+                  <span className="poreia-provider-status__state">{configured ? 'Configured' : 'External links'}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <p className="ll-section-label">Time off</p>
       <ul className="rows">

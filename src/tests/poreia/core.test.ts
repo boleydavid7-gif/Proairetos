@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { daysOf, entryTitle, moneyText, moveAmong, nextUp, nightsOf, planText, phaseOf, phaseText, readAmount, sortTrips, tripTotals, type Booking, type PlanItem, type Trip } from '../../poreia/core/model';
 import { accrualDates, balanceOn, daysOff, hoursFor, leftAfter, shiftsToReplace, type TimeOff, type TimeOffSetup } from '../../poreia/core/timeOff';
-import { searchLinks } from '../../poreia/core/links';
+import { routeLink, searchLinks } from '../../poreia/core/links';
 import { pickAirport, type Element as AirportElement } from '../../poreia/core/airports';
 import { datesIn, readConfirmation, timesIn } from '../../poreia/core/confirmations';
 import { suggestedPacking } from '../../poreia/core/packing';
@@ -136,6 +136,14 @@ describe('booking links', () => {
     expect(searchLinks('trains', { to: 'Porto', from: 'Lisbon', country: 'PT' }).map((l) => l.site)).toContain('Trainline');
     expect(searchLinks('ferries', { to: 'Naxos', from: 'Athens' })[0].site).toBe('Rome2rio');
     expect(searchLinks('stays', { to: ' ' })).toEqual([]);
+    const route = routeLink([
+      { name: 'Lisbon', lat: 38.7223, lon: -9.1393 },
+      { name: 'Coimbra', lat: 40.2033, lon: -8.4103 },
+      { name: 'Porto', lat: 41.1579, lon: -8.6291 },
+    ]);
+    expect(route).toContain('origin=38.7223%2C-9.1393');
+    expect(route).toContain('destination=41.1579%2C-8.6291');
+    expect(route).toContain('waypoints=40.2033%2C-8.4103');
   });
 });
 

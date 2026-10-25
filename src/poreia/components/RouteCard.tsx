@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { settings } from '../app/state';
-import { datesText } from '../app/ui';
+import { datesText, Outbound } from '../app/ui';
 import { driveMinutes } from '../app/world';
+import { routeLink } from '../core/links';
 import { placesOf, type Trip } from '../core/model';
 import MapView, { type Pin } from './MapView';
 
@@ -21,12 +22,13 @@ export function RouteCard({ trip }: { trip: Trip }) {
   const stops = placesOf(trip).filter((stop) => stop.place.lat !== undefined && stop.place.lon !== undefined);
   const points = stops.map((stop) => ({ lat: stop.place.lat!, lon: stop.place.lon! }));
   const key = points.map((point) => `${point.lat},${point.lon}`).join(';');
-  const [drives, setDrives] = useState<(number | undefined)[]>([]);
+  const [drives, setDrives] = useState<({ minutes: number; estimated: boolean } | undefined)[]>([]);
   useEffect(() => {
     let live = true;
     setDrives([]);
     // Overland legs only (under about 1,200 km): a drive is asked of the router, else estimated from the distance.
-    void Promise.all(points.slice(1).map((to, index) => (kmBetween(points[index], to) < 1200 ? driveMinutes(points[index], to).then((found) => found.minutes).catch(() => undefined) : Promise.resolve(undefined)))).then(
+    const legs = points.slice(1).map((to, index) => (kmBetween(points[index], to) < 1200 ? driveMinutes(points[index], to).catch(() => undefined) : Promise.resolve(undefined)));
+    void Promise.all(legs).then(
       (found) => live && setDrives(found),
     );
     return () => {
@@ -41,6 +43,11 @@ export function RouteCard({ trip }: { trip: Trip }) {
     <section className="card poreia-route">
       <h2 className="card__title">The route</h2>
       <MapView center={points[0]} pins={pins} line={points} fit zoom={5} height="16rem" label={`The route: ${stops.map((stop) => stop.place.name).join(', ')}`} />
+      <div className="button-row">
+        <Outbound href={routeLink(stops.map((stop) => ({ name: stop.place.name, lat: stop.place.lat, lon: stop.place.lon })))} className="button-quiet">
+          Open route in Maps
+        </Outbound>
+      </div>
       <ol className="poreia-route__legs">
         {stops.map((stop, index) => (
           <li key={stop.id}>
@@ -52,13 +59,13 @@ export function RouteCard({ trip }: { trip: Trip }) {
             {index < stops.length - 1 && (
               <span className="poreia-route__leg muted">
                 {distance(kmBetween(points[index], points[index + 1]))}
-                {drives[index] ? ` · about ${durationWords(drives[index]!)} by car` : ''}
+                {drives[index] ? ` · ${drives[index]!.estimated ? 'estimated ' : ''}${durationWords(drives[index]!.minutes)} by car` : ''}
               </span>
             )}
           </li>
         ))}
       </ol>
-      <p className="fine">{distance(total)} in all, as the crow flies between stops.</p>
+      <p className="fine">{distance(total)} in all as the crow flies. Driving times come from the route service when available; otherwise they are estimates.</p>
     </section>
   );
 }
