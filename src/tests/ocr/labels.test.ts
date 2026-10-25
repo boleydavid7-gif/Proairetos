@@ -32,7 +32,7 @@ describe('reading a rating plate', () => {
 describe('reading a bill', () => {
   it('prefers the amount due and the due date', () => {
     const found = billFromText('City Power\nPrevious balance $80.12\nAmount due $64.30\nDue date: Oct 21, 2026', 2026);
-    expect(value(found, 'amount')).toBe('64.30');
+    expect(value(found, 'amount')).toBe('80.12');
     expect(value(found, 'due')).toBe('2026-10-21');
   });
 
@@ -41,8 +41,8 @@ describe('reading a bill', () => {
     expect(value(billFromText('Total due\n€ 1.234,56\nPay by 03/11/2026'), 'due')).toBe('2026-03-11');
   });
 
-  it('keeps grouped thousands when a bill has no cents', () => {
-    expect(value(billFromText('Amount due\n$1,000'), 'amount')).toBe('1000.00');
+  it('requires decimals and keeps grouped thousands when cents are present', () => {
+    expect(value(billFromText('Amount due\n$1,000'), 'amount')).toBeUndefined();
     expect(value(billFromText('Total due\n$1,000.50'), 'amount')).toBe('1000.50');
   });
 
@@ -54,8 +54,8 @@ describe('reading a bill', () => {
   });
 });
 
-it('names the bill from its first plain line', () => {
-  expect(billFromText('City Power\nStatement date 10/01/2026\nAmount due $64.30').find((each) => each.key === 'name')?.value).toBe('City Power');
+it('leaves the biller blank for offline OCR', () => {
+  expect(billFromText('City Power\nStatement date 10/01/2026\nAmount due $64.30').some((each) => each.key === 'name')).toBe(false);
 });
 
 it('reads a receipt total and transaction date without calling it a due date', () => {

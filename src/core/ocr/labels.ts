@@ -68,8 +68,7 @@ export function thingFromText(text: string): Found[] {
 
 // ---------- Bills ----------
 
-const MONEY = /(?:[$£€¥]\s?)?(\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2}))(?!\d)/g;
-const DUE_WORDS = /\b(amount due|total due|balance due|due amount|amount to pay|new balance|minimum payment|total|balance|amount)\b/i;
+const DECIMAL_MONEY = /(?<![\w./-])(?:[$£€¥]\s*)?(?:(?:\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+|\d+)[.,]\d{1,2})(?![\d.,])/g;
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
 function money(text: string): number | undefined {
@@ -107,27 +106,11 @@ export function dateIn(text: string, thisYear = new Date().getFullYear()): strin
 export function billFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
   const all = lines(text);
   const found: Found[] = [];
-  // The amount beside words like "Amount due", the strongest such words first; else the largest amount on the page.
-  const labelled = all
-    .map((line, i) => ({ line, next: all[i + 1] ?? '', words: line.match(DUE_WORDS)?.[1]?.toLowerCase() }))
-    .filter((each) => each.words);
-  const rank = (words: string) => ['amount due', 'total due', 'balance due', 'due amount', 'amount to pay', 'new balance', 'total', 'balance', 'amount', 'minimum payment'].indexOf(words);
-  labelled.sort((a, b) => rank(a.words!) - rank(b.words!));
-  let amount: number | undefined;
-  for (const each of labelled) {
-    const hit = [...each.line.matchAll(MONEY)].pop() ?? [...each.next.matchAll(MONEY)][0];
-    if (hit) {
-      amount = money(hit[0]);
-      if (amount !== undefined) break;
-    }
-  }
-  if (amount === undefined) {
-    const amounts = all.flatMap((line) => [...line.matchAll(MONEY)].map((hit) => money(hit[0]) ?? 0));
-    if (amounts.length) amount = Math.max(...amounts);
-  }
+  // Bill photos contain whole-number noise too. Only decimal-form money is considered, and the largest value wins.
+  const amounts = all.flatMap((line) => [...line.matchAll(DECIMAL_MONEY)].map((hit) => money(hit[0])).filter((value): value is number => value !== undefined && value > 0));
+  const amount = amounts.sort((a, b) => b - a)[0];
   if (amount !== undefined && amount > 0) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
-  const company = all.find((line) => /^[A-Za-z][A-Za-z&'.\s-]{2,40}$/.test(line) && !/\b(invoice|statement|bill|page|account|customer|date|total|amount|due|balance|summary|dear)\b/i.test(line));
-  if (company) found.unshift({ key: 'name', label: 'Name', value: company });
+  // Biller names are not trusted from offline OCR; the form leaves this for manual entry or a validated online reader.
   const dueLine = all.findIndex((line) => /\b(due|pay by|payment date)\b/i.test(line) && dateIn(line, thisYear));
   const due = dueLine >= 0 ? dateIn(all[dueLine], thisYear) : undefined;
   if (due) found.push({ key: 'due', label: 'Due', value: due });
@@ -142,14 +125,13 @@ export function receiptFromText(text: string, thisYear = new Date().getFullYear(
   const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due' && each.key !== 'name');
   // Receipts contain many whole-number decoys: dates, phone numbers, item counts, ZIP codes, and references.
   // Only consider money with an explicit decimal separator, including grouped thousands.
-  const moneyPattern = /(?<![\w./-])(?:[$£€¥]\s*)?(?:(?:\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+|\d+)[.,]\d{1,2})(?![\d.,])/g;
   const moneyValue = (raw: string): number | undefined => {
     const cleaned = raw.replace(/[$£€¥\s]/g, '');
     const normalized = /,\d{1,2}$/.test(cleaned) ? cleaned.replace(/\./g, '').replace(',', '.') : cleaned.replace(/,/g, '');
     const value = Number(normalized);
     return Number.isFinite(value) ? value : undefined;
   };
-  const amounts = lines.flatMap((line) => [...line.matchAll(moneyPattern)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined && value > 0));
+  const amounts = lines.flatMap((line) => [...line.matchAll(DECIMAL_MONEY)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined && value > 0));
   const amount = amounts.sort((a, b) => b - a)[0];
   if (amount !== undefined) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
   const date = lines.map((line) => dateIn(line, thisYear)).find(Boolean);
