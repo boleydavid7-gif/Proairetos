@@ -311,4 +311,5 @@ html, body { margin: 0; }
 .praxis-add__row > input:first-child { grid-column: 1 / -1; }
 .praxis-add input { min-height: 44px; padding: 8px 12px; border-color: transparent; border-radius: 12px; background: color-mix(in srgb, var(--color-text) 6%, transparent); font-size: 16px; }
 .praxis-add__row > .praxis-button { min-height: 44px; border-radius: 999px; }
+.praxis-add__row > .praxis-add__start { grid-column: 1 / -1; justify-self: center; width: min(100%, 360px); min-height: 48px; padding-inline: 32px; }
 .praxis-add__row > .praxis-button:not(:disabled) { border-color: transparent; background: var(--ll-lamp-fill, var(--color-accent)); color: var(--ll-on-lamp, #101923); }

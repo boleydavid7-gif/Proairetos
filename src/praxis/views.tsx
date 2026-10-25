@@ -244,7 +244,7 @@ function AddBlock({ reading, empty, onAdd, onAddAndStart }: { reading: string[];
         <input aria-label="A block to study" placeholder={empty ? 'A subject, a chapter, a skill' : 'Add a block'} value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} />
         <input aria-label="Minutes" type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
         <button type="submit" className="praxis-button praxis-button--quiet" disabled={!title.trim()}>Add</button>
-        <button type="button" className="praxis-button praxis-button--primary" disabled={!title.trim()} onClick={startNow}>Start now</button>
+        <button type="button" className="praxis-button praxis-button--primary praxis-add__start" disabled={!title.trim()} onClick={startNow}>Start now</button>
       </div>
       {reading.length > 0 && (
         <div className="praxis-add__from">
