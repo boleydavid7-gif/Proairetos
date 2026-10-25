@@ -266,10 +266,11 @@ export default function PraxisApp() {
     start(block);
   };
 
-  const saveBlock = async (block: LifeItem, change: { title: string; minutes: number; goalId?: string }) => {
+  const saveBlock = async (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => {
     if (change.title !== block.title) await lifeService.edit(block.id, { title: change.title });
     if (change.minutes !== block.plannedMinutes) await lifeService.setPlannedMinutes(block.id, change.minutes);
     if (change.goalId !== block.goalId) await lifeService.setGoal(block.id, change.goalId);
+    if (change.plannedFor !== block.plannedFor) await lifeService.setPlannedFor(block.id, change.plannedFor);
   };
 
   const removeBlock = async (block: LifeItem) => {

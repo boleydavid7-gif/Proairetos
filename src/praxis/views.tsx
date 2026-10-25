@@ -63,7 +63,7 @@ type TodayProps = {
   onToggle: (block: LifeItem) => void;
   onAdd: (title: string, minutes: number) => void;
   onAddAndStart: (title: string, minutes: number) => void;
-  onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string }) => void;
+  onSave: (block: LifeItem, change: { title: string; minutes: number; goalId?: string; plannedFor?: string }) => void;
   onRemove: (block: LifeItem) => void;
   onEndRest: () => void;
   onRest: (minutes: number) => void;
@@ -135,7 +135,7 @@ export function TodayView(props: TodayProps) {
           )}
           <div className="praxis-task-list">
             {open.map((block) => (
-              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
           <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
@@ -143,7 +143,7 @@ export function TodayView(props: TodayProps) {
             <details className="praxis-done">
               <summary>Done</summary>
               {done.map((block) => (
-                <BlockRow key={block.id} block={block} selected={false} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+                <BlockRow key={block.id} block={block} selected={false} today={today} goals={props.goals} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
               ))}
             </details>
           )}
@@ -168,17 +168,18 @@ function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (min
   );
 }
 
-function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; goals: CompassStatement[]; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
+function BlockRow({ block, selected, today, goals, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; today: string; goals: CompassStatement[]; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(block.title);
   const [minutes, setMinutes] = useState(String(block.plannedMinutes ?? 25));
   const [goalId, setGoalId] = useState(block.goalId ?? '');
+  const [plannedFor, setPlannedFor] = useState(block.plannedFor ?? '');
   const goal = goals.find((each) => each.id === block.goalId);
   const save = (event: FormEvent) => {
     event.preventDefault();
     const value = Number(minutes);
     if (!title.trim()) return;
-    onSave(block, { title: title.trim(), minutes: Number.isFinite(value) && value > 0 ? clampMinutes(value) : block.plannedMinutes ?? 25, goalId: goalId || undefined });
+    onSave(block, { title: title.trim(), minutes: Number.isFinite(value) && value > 0 ? clampMinutes(value) : block.plannedMinutes ?? 25, goalId: goalId || undefined, plannedFor: plannedFor || undefined });
     setEditing(false);
   };
   return (
@@ -186,7 +187,7 @@ function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove
       <div className="praxis-task__row">
         <button type="button" className="praxis-task-main" onClick={() => onSelect(block)} aria-pressed={selected}>
           <span className="praxis-task-icon"><BookIcon size={18} /></span>
-          <span><strong>{block.title}</strong><small>{block.plannedMinutes ?? 25} min{goal ? ` · ${goal.body}` : ''}</small></span>
+          <span><strong>{block.title}</strong><small>{block.plannedMinutes ?? 25} min{goal ? ` · ${goal.body}` : ''}{block.plannedFor ? ` · ${block.plannedFor === today ? 'Today' : formatDay(block.plannedFor)}` : ''}</small></span>
         </button>
         <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
         <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
@@ -198,6 +199,7 @@ function BlockRow({ block, selected, goals, onSelect, onToggle, onSave, onRemove
           {goals.length > 0 && (
             <label><span>Working toward</span><select value={goalId} onChange={(event) => setGoalId(event.target.value)}><option value="">Nothing in particular</option>{goals.map((each) => <option key={each.id} value={each.id}>{each.body}</option>)}</select></label>
           )}
+          <label><span>Plan for</span><input type="date" min={today} value={plannedFor} onChange={(event) => setPlannedFor(event.target.value)} /></label>
           <div className="praxis-block-form__actions">
             <button type="submit" className="praxis-button praxis-button--primary">Save</button>
             <button type="button" className="praxis-button praxis-button--quiet" onClick={() => setEditing(false)}>Cancel</button>
