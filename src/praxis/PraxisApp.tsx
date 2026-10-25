@@ -375,6 +375,7 @@ export default function PraxisApp() {
               onCloseAfter={() => setAfter(null)}
               onLookedAt={(block) => void lifeService.setPlannedFor(block.id, undefined)}
               onReviewCards={(blockId) => { setReviewBlockId(blockId); setView('cards'); }}
+              onOpenReading={isAdded('theoria') ? (title) => window.location.assign('/theoria/?open=' + encodeURIComponent('title:' + title)) : undefined}
             />
           )}
           {view === 'today' && session && !finished && (

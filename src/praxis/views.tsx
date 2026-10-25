@@ -75,6 +75,7 @@ type TodayProps = {
   onCloseAfter: () => void;
   onLookedAt: (block: LifeItem) => void;
   onReviewCards: (blockId?: string) => void;
+  onOpenReading?: (title: string) => void;
 };
 
 export function TodayView(props: TodayProps) {
@@ -139,7 +140,7 @@ export function TodayView(props: TodayProps) {
           )}
           <div className="praxis-task-list">
             {open.map((block) => (
-              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+              <BlockRow key={block.id} block={block} selected={block.id === selected?.id} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
             ))}
           </div>
           <AddBlock reading={props.reading} empty={open.length === 0} onAdd={props.onAdd} onAddAndStart={props.onAddAndStart} />
@@ -147,7 +148,7 @@ export function TodayView(props: TodayProps) {
             <details className="praxis-done">
               <summary>Done</summary>
               {done.map((block) => (
-                <BlockRow key={block.id} block={block} selected={false} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
+                <BlockRow key={block.id} block={block} selected={false} today={today} goals={props.goals} totalCards={props.cardsByBlock.get(block.id) ?? 0} readyCards={props.cardsReadyByBlock.get(block.id) ?? 0} onReviewCards={props.onReviewCards} onOpenReading={props.onOpenReading} onSelect={props.onSelect} onToggle={props.onToggle} onSave={props.onSave} onRemove={props.onRemove} />
               ))}
             </details>
           )}
@@ -172,7 +173,7 @@ function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (min
   );
 }
 
-function BlockRow({ block, selected, today, goals, totalCards, readyCards, onReviewCards, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; today: string; goals: CompassStatement[]; totalCards: number; readyCards: number; onReviewCards: (blockId?: string) => void; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
+function BlockRow({ block, selected, today, goals, totalCards, readyCards, onReviewCards, onOpenReading, onSelect, onToggle, onSave, onRemove }: { block: LifeItem; selected: boolean; today: string; goals: CompassStatement[]; totalCards: number; readyCards: number; onReviewCards: (blockId?: string) => void; onOpenReading?: (title: string) => void; onSelect: (block: LifeItem) => void; onToggle: (block: LifeItem) => void; onSave: TodayProps['onSave']; onRemove: (block: LifeItem) => void }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(block.title);
   const [minutes, setMinutes] = useState(String(block.plannedMinutes ?? 25));
@@ -196,7 +197,10 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
         <button type="button" className="praxis-task-edit" aria-label={`Change ${block.title}`} onClick={() => setEditing(!editing)}><PenIcon size={16} /></button>
         <button type="button" className="praxis-task-check" aria-label={`${block.status === 'DONE' ? 'Bring back' : 'Done with'} ${block.title}`} onClick={() => onToggle(block)}><CheckIcon size={16} /></button>
       </div>
-      {totalCards > 0 && <button type="button" className="praxis-text-link praxis-task-review" onClick={() => onReviewCards(block.id)}>{readyCards > 0 ? (readyCards === 1 ? 'Review 1 card' : `Review ${readyCards} cards`) : 'Open cards'}</button>}
+      {(totalCards > 0 || (onOpenReading && block.title.startsWith('Read: '))) && <div className="praxis-task-links">
+        {onOpenReading && block.title.startsWith('Read: ') && <button type="button" className="praxis-text-link" onClick={() => onOpenReading(block.title.slice(6).trim())}>Open in Theoria</button>}
+        {totalCards > 0 && <button type="button" className="praxis-text-link" onClick={() => onReviewCards(block.id)}>{readyCards > 0 ? (readyCards === 1 ? 'Review 1 card' : `Review ${readyCards} cards`) : 'Open cards'}</button>}
+      </div>}
       {editing && (
         <form className="praxis-block-form" onSubmit={save}>
           <label><span>Name</span><input value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} /></label>

@@ -181,6 +181,11 @@ export default function TheoriaApp() {
     if (open === 'add') setAddOpen(true);
     if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
+    if (open?.startsWith('title:')) {
+      const title = open.slice(6).trim().toLowerCase();
+      const book = shelf.find((each) => each.title.trim().toLowerCase() === title);
+      if (book) { setSelectedId(book.id); setView('detail'); }
+    }
     if (open === 'continue') {
       const book = shelf.filter((item) => item.status === 'reading').sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0] ?? shelf[0];
       if (book) void openReader(book);
