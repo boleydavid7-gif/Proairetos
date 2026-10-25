@@ -164,23 +164,13 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
         {income.unknownPayDates > 0 && <p className="hint">{income.unknownPayDates} pay {income.unknownPayDates === 1 ? 'date has' : 'dates have'} no amount yet. Add one in More → Pay.</p>}
       </section>
 
-      <section className="oiko-budget-breakdown oiko-budget-main-lines" aria-label="Main budget">
-        <div className="oiko-section-head"><h2>Budget</h2><div className="button-row"><button type="button" className="text-link" onClick={() => nav.go({ name: 'envelopes' })}>Savings envelopes</button><button type="button" className="text-link" onClick={() => nav.go({ name: 'spent' })}>View expenses</button></div></div>
-        <div className="oiko-budget-breakdown__row"><span>Recurring bills</span><strong>{formatMoney(totals.billCents, planCurrency)}</strong></div>
-        <div className="oiko-budget-breakdown__row"><span>Planned food</span><strong>{formatMoney(totals.mealCents, planCurrency)}</strong></div>
-        <div className="oiko-budget-breakdown__row"><span>Other planned items</span><strong>{formatMoney(totals.itemCents, planCurrency)}</strong></div>
-        <div className="oiko-budget-breakdown__row"><span>Savings envelopes</span><strong>{formatMoney(envelopeCents, planCurrency)}</strong></div>
-        <div className="oiko-budget-breakdown__row"><span>Actual spending</span><strong>{formatMoney(spent.spentCents, planCurrency)}</strong></div>
-      </section>
-
       <section className="oiko-budget-section">
-        <div className="oiko-section-head"><h2>Your plan</h2></div>
-        <label className="field"><span className="field__label">Monthly amount</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} placeholder="0.00" /></label>
-        <label className="field"><span className="field__label">Weekly food budget</span><input className="input" type="text" inputMode="decimal" value={weeklyFoodText} onChange={(event) => setWeeklyFoodText(event.target.value)} onBlur={() => {
+        <div className="oiko-section-head"><h2>Limits</h2></div>
+        <label className="field"><span className="field__label">Monthly limit</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} placeholder="Optional" /></label>
+        <label className="field"><span className="field__label">Weekly food limit</span><input className="input" type="text" inputMode="decimal" value={weeklyFoodText} onChange={(event) => setWeeklyFoodText(event.target.value)} onBlur={() => {
           const value = weeklyFoodText.trim() ? moneyInputCents(weeklyFoodText) : 0;
           saveSettings({ ...loadSettings(), weeklyFoodBudgetCents: value ? value : undefined });
         }} placeholder="Optional" /></label>
-        <p className="muted">Oikonomia compares food expenses with this limit and shows a pace estimate from what you have spent so far.</p>
       </section>
 
       {weeklyFoodLimit > 0 && (
