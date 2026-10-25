@@ -85,7 +85,7 @@ export function TodayView(props: TodayProps) {
     <section className="praxis-view praxis-today-view">
       <div className="praxis-page-heading"><div><h1>Today</h1></div></div>
       <div className="praxis-today-grid">
-        <article className={`praxis-card praxis-focus-card${!after && !rest && !session && !selected ? ' praxis-focus-card--empty' : ''}`}>
+        <article className={`praxis-card praxis-focus-card${!after && !rest && !session ? ' praxis-focus-card--empty' : ''}`}>
           {after && !session && !rest ? (
             <AfterBlock after={after} onRest={props.onRest} onKeepLine={props.onKeepLine} onLookAgain={props.onLookAgain} onClose={props.onCloseAfter} />
           ) : (
@@ -99,11 +99,10 @@ export function TodayView(props: TodayProps) {
                 </div>
               </div>
               {(rest || session || selected) && <div className="praxis-focus-stage">
-                <div className="praxis-timer" data-ll-lit={session || rest || selected ? true : undefined} aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
+                <div className="praxis-timer" data-ll-lit={session || rest ? true : undefined} aria-label={rest ? `${formatClockDown(restLeft)} of the break left` : session ? `${formatClockDown(remaining)} left` : `${minutes} minute block`}>
                   <svg className="praxis-timer__ring" viewBox="0 0 200 200" aria-hidden="true">
-                    <circle className="praxis-timer__glow" cx="100" cy="100" r="94" />
-                    <circle className="praxis-timer__track" cx="100" cy="100" r="84" />
-                    <circle className="praxis-timer__progress" cx="100" cy="100" r="84" style={{ strokeDasharray: TIMER_RING_CIRCUMFERENCE * 84 / 86, strokeDashoffset: TIMER_RING_CIRCUMFERENCE * 84 / 86 * (1 - timerProgress) }} />
+                    <circle className="praxis-timer__track" cx="100" cy="100" r="86" />
+                    <circle className="praxis-timer__progress" cx="100" cy="100" r="86" style={{ strokeDasharray: TIMER_RING_CIRCUMFERENCE, strokeDashoffset: TIMER_RING_CIRCUMFERENCE * (1 - timerProgress) }} />
                     <circle className="praxis-timer__progress-head" cx={timerHead.x} cy={timerHead.y} r="5.5" />
                   </svg>
                   <div className="praxis-timer__inner"><span className="praxis-timer__time">{rest ? formatClockDown(restLeft) : session ? (finished ? '0:00' : formatClockDown(remaining)) : `${minutes}:00`}</span></div>
