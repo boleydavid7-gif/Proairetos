@@ -126,7 +126,7 @@ export function TodayView(props: TodayProps) {
         </article>
 
         <article className="praxis-card praxis-plan-card">
-          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p><h2>What are you studying?</h2></div>{props.cardsReady > 0 && <button type="button" className="praxis-text-button praxis-review-link" onClick={() => props.onReviewCards()}>{props.cardsReady === 1 ? 'Review 1 card' : `Review ${props.cardsReady} cards`}</button>}</div>
+          <div className="praxis-card-heading"><div><p className="praxis-eyebrow">Your blocks</p><h2>What are you reading?</h2></div>{props.cardsReady > 0 && <button type="button" className="praxis-text-button praxis-review-link" onClick={() => props.onReviewCards()}>{props.cardsReady === 1 ? 'Review 1 card' : `Review ${props.cardsReady} cards`}</button>}</div>
           {again.length > 0 && (
             <div className="praxis-again">
               <p className="praxis-eyebrow">To look at again</p>
