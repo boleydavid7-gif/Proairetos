@@ -31,7 +31,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
   const [form, setForm] = useState<Omit<Booking, 'id' | 'tripId' | 'createdAt' | 'updatedAt'>>(() => existing ?? { kind: firstKind ?? 'stay', title: '', startDate: trip?.start });
   const [pasted, setPasted] = useState('');
   const [readNote, setReadNote] = useState('');
-  const [showPaste, setShowPaste] = useState(Boolean(paste) && !existing);
+  const [captureMode, setCaptureMode] = useState<'choose' | 'paste' | 'manual'>(existing ? 'manual' : paste ? 'paste' : 'choose');
   const [editing, setEditing] = useState(!existing);
   const set = (patch: Partial<Booking>) => setForm((current) => ({ ...current, ...patch }));
 
@@ -43,7 +43,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
     setForm((current) => ({ ...current, ...Object.fromEntries(Object.entries(found).filter(([, value]) => value !== undefined && value !== '')) }));
     const got = [found.confirmation && 'confirmation', found.startDate && 'dates', found.cost && 'cost', found.from && found.to && 'route'].filter(Boolean);
     setReadNote(got.length ? `Read: ${got.join(', ')}. Check below.` : 'Check the details below.');
-    setShowPaste(false);
+    setCaptureMode('manual');
   };
   const read = () => take(readConfirmation(pasted));
 
@@ -99,7 +99,31 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
       <BackLink label={existing ? 'Done' : trip?.name ?? 'Trip'} onBack={existing ? () => setEditing(false) : nav.back} />
       <h1 className="title">{existing ? `Edit ${existing.title}` : 'New booking'}</h1>
 
-      {showPaste ? (
+      {captureMode === 'choose' && (
+        <section className="card poreia-booking-capture">
+          <h2 className="card__title">Add it your way</h2>
+          <p className="muted">Use a confirmation when you have one, or enter the details yourself.</p>
+          <div className="button-row">
+            <button type="button" className="button-main" onClick={() => setCaptureMode('paste')}>
+              Paste a confirmation
+            </button>
+            <button type="button" className="button-quiet" disabled={reading !== undefined} onClick={() => fileInput.current?.click()}>
+              {reading !== undefined ? <Waiting>Reading{reading ? ` ${Math.round(reading * 100)}%` : '…'}</Waiting> : 'Upload a file or screenshot'}
+            </button>
+          </div>
+          <div className="button-row">
+            <button type="button" className="text-link" onClick={() => setCaptureMode('manual')}>
+              Enter manually
+            </button>
+            <button type="button" className="text-link" onClick={() => nav.go({ name: 'more' })}>
+              Set up email forwarding
+            </button>
+          </div>
+          <p className="fine">Screenshots, PDFs, calendar invites, and saved emails are read on this device.</p>
+        </section>
+      )}
+
+      {captureMode === 'paste' ? (
         <section className="card">
           <label className="field">
             <span className="field__label">Paste the confirmation</span>
@@ -112,30 +136,28 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
             <button type="button" className="button-quiet" disabled={reading !== undefined} onClick={() => fileInput.current?.click()}>
               {reading !== undefined ? <Waiting>Reading{reading ? ` ${Math.round(reading * 100)}%` : '…'}</Waiting> : 'A file or screenshot'}
             </button>
-            <button type="button" className="text-link" onClick={() => setShowPaste(false)}>
+            <button type="button" className="text-link" onClick={() => setCaptureMode('manual')}>
               Fill in by hand
             </button>
           </div>
-          <input
-            ref={fileInput}
-            type="file"
-            accept={BOOKING_FILES}
-            hidden
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              if (file) readFile(file);
-            }}
-          />
           <p className="fine">Or a screenshot, PDF or calendar invite. Read on this device.</p>
         </section>
-      ) : (
-        !existing && (
-          <button type="button" className="text-link" onClick={() => setShowPaste(true)}>
-            Paste a confirmation
-          </button>
-        )
-      )}
+      ) : captureMode === 'manual' && !existing ? (
+        <button type="button" className="text-link poreia-booking-change" onClick={() => setCaptureMode('choose')}>
+          Use a confirmation instead
+        </button>
+      ) : null}
+      <input
+        ref={fileInput}
+        type="file"
+        accept={BOOKING_FILES}
+        hidden
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = '';
+          if (file) readFile(file);
+        }}
+      />
       {readNote && <p className="muted" role="status">{readNote}</p>}
 
       {!existing && allTrips.length > 1 && (
@@ -151,7 +173,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
         </label>
       )}
 
-      {!showPaste && (
+      {captureMode === 'manual' && (
         <>
           <div className="chip-row poreia-scroll-chips" role="group" aria-label="Kind">
             {BOOKING_KINDS.map((each) => (
