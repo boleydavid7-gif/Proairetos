@@ -16,6 +16,46 @@ import type { WallStyle } from '../core/look/lamplight';
 /** Day light (Lamplight 2.0): where the lamp hangs on the tall picture (fractions), how strong it is, and its color. */
 export type WallLamp = { x: number; y: number; strength: number; glow: string; warmth: number };
 
+/** Small, deterministic marks keep the material treatments repeatable across devices. */
+function paperFibers(w: number, h: number, light: boolean): string {
+  const fiber = light ? '#fff8e8' : '#d5c7ae';
+  const shadow = light ? '#6f6354' : '#05090e';
+  const fibers = Array.from({ length: 30 }, (_, i) => {
+    const x = (i * 431) % w;
+    const y = 120 + ((i * 271) % Math.max(1, h - 180));
+    const length = 18 + ((i * 37) % 46);
+    const bend = (i % 2 ? 1 : -1) * (4 + (i % 5));
+    const color = i % 4 === 0 ? shadow : fiber;
+    return `<path d="M${x} ${y}q${Math.round(length * 0.5)} ${bend} ${length} 0" fill="none" stroke="${color}" stroke-width="${i % 3 === 0 ? 2.4 : 1.4}" stroke-linecap="round" opacity="${i % 4 === 0 ? 0.09 : 0.135}"/>`;
+  }).join('');
+  const flecks = Array.from({ length: 22 }, (_, i) => {
+    const x = (i * 193) % w;
+    const y = 80 + ((i * 149) % Math.max(1, h - 120));
+    return `<circle cx="${x}" cy="${y}" r="${(1.5 + (i % 3) * 0.8).toFixed(1)}" fill="${i % 3 === 0 ? shadow : fiber}" opacity="${i % 3 === 0 ? 0.075 : 0.1}"/>`;
+  }).join('');
+  return fibers + flecks;
+}
+
+function woodGrain(w: number, h: number, light: boolean): string {
+  const dark = light ? '#6e5945' : '#17100c';
+  const glow = light ? '#f0d2a2' : '#c39a68';
+  return Array.from({ length: 15 }, (_, i) => {
+    const y = Math.round(h * (0.12 + i * 0.06));
+    const bend = 18 + (i % 4) * 8;
+    const d = `M-${Math.round(w * 0.08)} ${y} C${Math.round(w * 0.18)} ${y - bend}, ${Math.round(w * 0.32)} ${y + bend}, ${Math.round(w * 0.48)} ${y} S${Math.round(w * 0.8)} ${y - bend}, ${Math.round(w * 1.08)} ${y + Math.round(bend * 0.4)}`;
+    const color = i % 3 === 0 ? dark : glow;
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${i % 3 === 0 ? 5 : 3}" stroke-linecap="round" opacity="${i % 3 === 0 ? 0.07 : 0.055}"/>`;
+  }).join('') + `<ellipse cx="${Math.round(w * 0.27)}" cy="${Math.round(h * 0.42)}" rx="${Math.round(w * 0.12)}" ry="${Math.round(h * 0.035)}" fill="none" stroke="${dark}" stroke-width="4" opacity="0.055"/><ellipse cx="${Math.round(w * 0.27)}" cy="${Math.round(h * 0.42)}" rx="${Math.round(w * 0.07)}" ry="${Math.round(h * 0.02)}" fill="none" stroke="${glow}" stroke-width="3" opacity="0.045"/>`;
+}
+
+function inkPools(w: number, h: number, light: boolean): string {
+  const ink = light ? '#4a4654' : '#0b101a';
+  const bloom = light ? '#7b7089' : '#53647c';
+  const first = `M${Math.round(w * 0.02)} ${Math.round(h * 0.32)} C${Math.round(w * 0.18)} ${Math.round(h * 0.2)}, ${Math.round(w * 0.34)} ${Math.round(h * 0.4)}, ${Math.round(w * 0.48)} ${Math.round(h * 0.3)} S${Math.round(w * 0.76)} ${Math.round(h * 0.15)}, ${Math.round(w * 1.05)} ${Math.round(h * 0.28)} C${Math.round(w * 0.82)} ${Math.round(h * 0.5)}, ${Math.round(w * 0.5)} ${Math.round(h * 0.42)}, ${Math.round(w * 0.18)} ${Math.round(h * 0.56)}Z`;
+  const second = `M${Math.round(w * 0.3)} ${Math.round(h * 0.72)} C${Math.round(w * 0.48)} ${Math.round(h * 0.58)}, ${Math.round(w * 0.62)} ${Math.round(h * 0.78)}, ${Math.round(w * 0.94)} ${Math.round(h * 0.62)} C${Math.round(w * 1.08)} ${Math.round(h * 0.84)}, ${Math.round(w * 0.76)} ${Math.round(h * 0.98)}, ${Math.round(w * 0.42)} ${Math.round(h * 0.9)}Z`;
+  return `<path d="${first}" fill="${ink}" opacity="${light ? 0.12 : 0.17}" filter="url(#ink-bleed)"/><path d="${second}" fill="${bloom}" opacity="${light ? 0.1 : 0.14}" filter="url(#ink-bleed)"/><circle cx="${Math.round(w * 0.62)}" cy="${Math.round(h * 0.36)}" r="${Math.round(w * 0.11)}" fill="${ink}" opacity="${light ? 0.05 : 0.08}" filter="url(#ink-bleed)"/>`;
+}
+
 /**
  * Proairetos' quieter wall: a material surface with one pool of light, rather than a scene or a set of folds.
  * The room still supplies the material tint and the person's lamp still supplies the one active colour. Keeping this
@@ -29,22 +69,24 @@ export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wi
   const [x, y] = [Math.round(w * fx), Math.round(h * fy)];
   const k = lamp ? 0.5 + 0.5 * lamp.strength : 1;
   if (lamp) art = { ...art, glow: lamp.glow };
-  const grainOpacity = light ? 0.035 : 0.06;
+  const grainOpacity = style === 'paper' ? (light ? 0.07 : 0.1) : light ? 0.035 : 0.06;
   const poolOpacity = (light ? 0.22 : 0.12) * k;
   const washOpacity = light ? 0.18 : 0.16;
   // Wood keeps a quiet warmth inside the room palette without becoming a separate image.
-  const woodWarm = light ? '#bca27f' : '#8f6e4d';
+  const woodWarm = light ? '#c4a579' : '#a8753f';
+  const paperWarm = light ? '#e9dfcc' : '#a99d8d';
   const styleLayer = style === 'ink'
-    ? `<ellipse cx="${Math.round(w * 0.35)}" cy="${Math.round(h * 0.58)}" rx="${Math.round(w * 0.52)}" ry="${Math.round(h * 0.34)}" fill="${art.b1}" opacity="${light ? 0.16 : 0.2}" filter="url(#soft)"/><ellipse cx="${Math.round(w * 0.82)}" cy="${Math.round(h * 0.82)}" rx="${Math.round(w * 0.42)}" ry="${Math.round(h * 0.26)}" fill="${art.b3}" opacity="${light ? 0.12 : 0.16}" filter="url(#soft)"/><rect width="${w}" height="${h}" fill="${art.b2}" opacity="${light ? 0.045 : 0.065}" filter="url(#ink-texture)"/>`
+    ? `${inkPools(w, h, light)}<rect width="${w}" height="${h}" fill="${art.b2}" opacity="${light ? 0.035 : 0.05}" filter="url(#ink-texture)"/>`
     : style === 'wood'
-      ? `<ellipse cx="${Math.round(w * 0.52)}" cy="${Math.round(h * 0.76)}" rx="${Math.round(w * 0.66)}" ry="${Math.round(h * 0.34)}" fill="${woodWarm}" opacity="${light ? 0.18 : 0.2}" filter="url(#soft)"/><ellipse cx="${Math.round(w * 0.7)}" cy="${Math.round(h * 0.63)}" rx="${Math.round(w * 0.34)}" ry="${Math.round(h * 0.17)}" fill="${art.glow}" opacity="${light ? 0.12 : 0.1}" filter="url(#soft)"/><rect width="${w}" height="${h}" fill="${woodWarm}" opacity="${light ? 0.055 : 0.08}" filter="url(#wood-texture)"/>`
-      : '';
+      ? `<rect width="${w}" height="${h}" fill="${woodWarm}" opacity="${light ? 0.27 : 0.38}" filter="url(#wood-texture)"/><g filter="url(#wood-soft)">${woodGrain(w, h, light)}</g>`
+      : `<rect width="${w}" height="${h}" fill="${paperWarm}" opacity="${light ? 0.2 : 0.34}"/><g filter="url(#paper-soft)">${paperFibers(w, h, light)}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
 <defs>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
-${style === 'ink' ? '<filter id="ink-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/></filter>' : ''}
-${style === 'wood' ? '<filter id="wood-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".025 .22" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0"/></filter>' : ''}
+${style === 'ink' ? '<filter id="ink-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/></filter><filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".012 .024" numOctaves="2" seed="7" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="28"/><feGaussianBlur stdDeviation="2.5"/></filter>' : ''}
+${style === 'wood' ? '<filter id="wood-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".025 .22" numOctaves="2" stitchTiles="stitch" result="noise"/><feColorMatrix in="noise" result="grain" values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0"/><feBlend in="SourceGraphic" in2="grain" mode="multiply"/></filter><filter id="wood-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="1.5"/></filter>' : ''}
+${style === 'paper' ? '<filter id="paper-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="0.35"/></filter>' : ''}
 <radialGradient id="pool" cx="${x}" cy="${y}" r="${Math.round(Math.max(w, h) * 0.68)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.glow}" stop-opacity="${poolOpacity.toFixed(3)}"/><stop offset=".45" stop-color="${art.glow}" stop-opacity="${(poolOpacity * 0.42).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
 <filter id="soft" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur stdDeviation="${wide ? 34 : 22}"/></filter>
 <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .75 0"/></filter>
