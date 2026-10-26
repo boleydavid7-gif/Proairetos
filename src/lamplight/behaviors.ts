@@ -210,7 +210,6 @@ function largeTitle(): void {
       titleFrame = undefined;
       anchoredTitle = undefined;
       bar.style.removeProperty('--ll-bar-progress');
-      bar.style.removeProperty('--ll-bar-progress-pct');
       title?.style.removeProperty('--ll-title-blur');
       shownProgress = '';
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
@@ -341,7 +340,6 @@ function largeTitle(): void {
     if (value !== shownProgress) {
       shownProgress = value;
       bar.style.setProperty('--ll-bar-progress', value);
-      bar.style.setProperty('--ll-bar-progress-pct', `${(progress * 100).toFixed(1)}%`);
       // Keep the words quiet while they are inside the bar. A cubic fade avoids the title reappearing too soon when
       // the person scrolls back up, and a small blur makes the handoff read as glass rather than a second heading.
     }

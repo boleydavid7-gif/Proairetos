@@ -83,7 +83,7 @@
     padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
-    border-bottom: 1px solid color-mix(in srgb, var(--ll-hair) var(--ll-bar-progress-pct, 0%), transparent);
+    border-bottom: 1px solid transparent;
     opacity: 1;
     pointer-events: auto;
     box-shadow:
@@ -110,6 +110,17 @@
     mask-image: none;
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
+    pointer-events: none;
+  }
+
+  .ll-topbar.is-on::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--ll-hair);
+    opacity: var(--ll-bar-progress, 0);
     pointer-events: none;
   }
 
