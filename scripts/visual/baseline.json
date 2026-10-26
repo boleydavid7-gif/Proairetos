@@ -44,7 +44,7 @@
     {
       "app": "hydros",
       "viewport": "phone-dark",
-      "titleY": 142,
+      "titleY": 140,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,

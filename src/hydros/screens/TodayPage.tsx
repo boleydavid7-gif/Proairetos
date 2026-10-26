@@ -11,6 +11,7 @@ import { GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import IconButton from '../../components/ui/IconButton';
 import scene from '../../assets/images/scenes/hydros-sunset.webp';
+import sceneWide from '../../assets/images/scenes/hydros-sunset-wide.webp';
 import { RollingNumber } from '../../lamplight/RollingNumber';
 
 export default function TodayPage({ nav }: { nav: Nav }) {
@@ -44,7 +45,10 @@ export default function TodayPage({ nav }: { nav: Nav }) {
   return (
     <div className="hydros-home">
       <header className="hero hero--tall hydros-home-hero">
-        <img className="hero__image" src={scene} alt="" />
+        <picture>
+          <source media="(min-width: 62rem)" srcSet={sceneWide} />
+          <img className="hero__image" src={scene} alt="" />
+        </picture>
         <div className="hero__shade" />
         <div className="hero__content">
           <div className="hydros-home-head">
