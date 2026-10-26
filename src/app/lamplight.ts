@@ -1,9 +1,9 @@
 import { identityFor } from '../lamplight/identity';
 import type { Appearance } from '../data/storage/preferences';
-import { materialFootSvg, materialWallpaperSvg, type WallLamp } from './wallpaper';
+import { materialFootSvg, wallpaperStyleSvg, type WallLamp } from './wallpaper';
 import { SHADE_DARK, SHADE_LIGHT, mixHex, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
 import { currentDayLight } from './dayLightState';
-import { ownHue, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
+import { ownHue, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
 import { rgba, triple } from '../lamplight/color';
 import { LAMP_SEEDS, ROOM_LAMP, ROOM_SEEDS, makeScheme, ownLamp, schemeVars, type LampSeed, type Mode, type Scheme } from '../lamplight/scheme';
 import { appTheme } from '../lamplight/apps';
@@ -11,7 +11,7 @@ import { ALWAYS_DARK, familyVars } from '../lamplight/family';
 import { setBarMark } from '../lamplight/behaviors';
 import { familyMarkSvg, isFamilyApp } from './family/marks';
 
-export { ROOMS, LAMP_COLORS, DEFAULT_ROOM, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
+export { DEFAULT_ROOM, LAMP_COLORS, ROOMS, WALL_STYLES, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
 
 /** Lamplight: a room (the wallpaper and the tint of every surface) and a color (the lamp), each in dark and light.
  *  The values are made from seeds by src/lamplight/scheme.ts; this lays them on the page. */
@@ -34,19 +34,19 @@ export function swatchOf(color: LampColor | `hue:${number}`, mode: Mode, room: R
 }
 
 /** The room's drawn wallpaper, as a CSS image. */
-export function wallpaperOf(room: Room, mode: Mode, wide = false): string {
+export function wallpaperOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'material'): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
-  return materialWallpaperSvg(s.art, s.page, mode === 'light', wide);
+  return wallpaperStyleSvg(s.art, s.page, mode === 'light', wide, undefined, style);
 }
 
 /** The foot of Today in the room's colors, as a CSS image. */
-export function footOf(room: Room, mode: Mode, wide = false): string {
+export function footOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'material'): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
-  return materialFootSvg(s.art, s.page, mode === 'light', wide);
+  return materialFootSvg(s.art, s.page, mode === 'light', wide, style);
 }
 
 /** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
-export function proairetosVars(s: Scheme, lamp?: WallLamp): Record<string, string> {
+export function proairetosVars(s: Scheme, lamp?: WallLamp, style: WallStyle = 'material'): Record<string, string> {
   const dark = s.mode === 'dark';
   return {
     '--color-ink': s.page,
@@ -67,10 +67,10 @@ export function proairetosVars(s: Scheme, lamp?: WallLamp): Record<string, strin
     '--color-accent-soft': rgba(s.lamp, dark ? 0.15 : 0.12),
     '--color-accent-ink': dark ? s.onLamp : s.card,
     '--color-accent-rgb': triple(s.lamp),
-    '--room-wall': materialWallpaperSvg(s.art, s.page, !dark, false, lamp),
-    '--room-wall-wide': materialWallpaperSvg(s.art, s.page, !dark, true, lamp),
-    '--room-foot': materialFootSvg(s.art, s.page, !dark),
-    '--room-foot-wide': materialFootSvg(s.art, s.page, !dark, true),
+    '--room-wall': wallpaperStyleSvg(s.art, s.page, !dark, false, lamp, style),
+    '--room-wall-wide': wallpaperStyleSvg(s.art, s.page, !dark, true, lamp, style),
+    '--room-foot': materialFootSvg(s.art, s.page, !dark, false, style),
+    '--room-foot-wide': materialFootSvg(s.art, s.page, !dark, true, style),
   };
 }
 
@@ -123,7 +123,7 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const s = pageScheme(appearance, mode, app, day);
   const root = document.documentElement;
   const pieces = day && app === 'proairetos' ? dayPieces(appearance, s, day) : undefined;
-  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp) : familyVars(s, app)) };
+  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp, appearance.wallStyle) : familyVars(s, app)) };
   if (app === 'proairetos') {
     if (pieces) root.style.setProperty('--room-shade', pieces.shade);
     else root.style.removeProperty('--room-shade');

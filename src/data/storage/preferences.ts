@@ -1,7 +1,7 @@
 import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
 import { sessions, type SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
-import { DEFAULT_ROOM, isColorChoice, isRoom, type ColorChoice, type Room } from '../../core/look/lamplight';
+import { DEFAULT_ROOM, isColorChoice, isRoom, isWallStyle, type ColorChoice, type Room, type WallStyle } from '../../core/look/lamplight';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
 
@@ -572,6 +572,8 @@ export type Appearance = {
   /** Lamplight's room and color in Proairetos; each other app has its own room and lamp, from its content. */
   room: Room;
   color: ColorChoice;
+  /** Proairetos' material wall treatment. */
+  wallStyle: WallStyle;
   /** Lamplight's day light in Proairetos: the lamp follows the person's day (on unless turned off). */
   dayLight: boolean;
 };
@@ -586,6 +588,7 @@ export function loadAppearance(): Appearance {
     ...saved,
     room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
     color: isColorChoice(saved.color) ? saved.color : 'match',
+    wallStyle: isWallStyle(saved.wallStyle) ? saved.wallStyle : 'material',
   };
 }
 

@@ -11,6 +11,8 @@ export type WallArt = {
   b3: string;
 };
 
+import type { WallStyle } from '../core/look/lamplight';
+
 /** Day light (Lamplight 2.0): where the lamp hangs on the tall picture (fractions), how strong it is, and its color. */
 export type WallLamp = { x: number; y: number; strength: number; glow: string; warmth: number };
 
@@ -20,7 +22,7 @@ export type WallLamp = { x: number; y: number; strength: number; glow: string; w
  * separate from wallpaperSvg lets the companion apps retain their own visual landmarks while Today stays a calm desk
  * for reflection.
  */
-export function materialWallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
+export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp, style: WallStyle = 'material'): string {
   const [w, h] = wide ? [2400, 1350] : [1200, 1600];
   const fx = lamp ? (wide ? 0.7 + (lamp.x - 0.6) : lamp.x) : wide ? 0.7 : 0.6;
   const fy = lamp ? (wide ? 0.08 + (lamp.y - 0.09) * 0.55 : lamp.y * 0.72) : wide ? 0.08 : 0.065;
@@ -30,32 +32,51 @@ export function materialWallpaperSvg(art: WallArt, page: string, light: boolean,
   const grainOpacity = light ? 0.035 : 0.06;
   const poolOpacity = (light ? 0.22 : 0.12) * k;
   const washOpacity = light ? 0.18 : 0.16;
+  const styleLayer = style === 'desk'
+    ? `<rect x="${Math.round(w * 0.04)}" y="${Math.round(h * 0.52)}" width="${Math.round(w * 0.92)}" height="${Math.round(h * 0.4)}" rx="${Math.round(w * 0.07)}" fill="${light ? '#fff' : art.glow}" opacity="${light ? 0.09 : 0.06}" filter="url(#soft)"/><rect x="${Math.round(w * 0.14)}" y="${Math.round(h * 0.63)}" width="${Math.round(w * 0.72)}" height="${Math.round(h * 0.13)}" rx="${Math.round(w * 0.025)}" fill="${art.b2}" opacity="${light ? 0.08 : 0.05}" filter="url(#soft)"/>`
+    : style === 'wash'
+      ? `<path d="M-${Math.round(w * 0.12)} ${Math.round(h * 0.38)} C${Math.round(w * 0.18)} ${Math.round(h * 0.26)}, ${Math.round(w * 0.44)} ${Math.round(h * 0.62)}, ${Math.round(w * 0.72)} ${Math.round(h * 0.42)} S${Math.round(w * 1.06)} ${Math.round(h * 0.3)}, ${Math.round(w * 1.12)} ${Math.round(h * 0.4)} V${h} H-${Math.round(w * 0.12)}Z" fill="${art.b1}" opacity="${light ? 0.2 : 0.16}" filter="url(#soft)"/><path d="M-${Math.round(w * 0.08)} ${Math.round(h * 0.64)} C${Math.round(w * 0.3)} ${Math.round(h * 0.5)}, ${Math.round(w * 0.55)} ${Math.round(h * 0.78)}, ${Math.round(w * 0.9)} ${Math.round(h * 0.58)} S${Math.round(w * 1.08)} ${Math.round(h * 0.54)}, ${Math.round(w * 1.1)} ${Math.round(h * 0.62)} V${h} H-${Math.round(w * 0.08)}Z" fill="${art.b2}" opacity="${light ? 0.17 : 0.13}" filter="url(#soft)"/>`
+      : '';
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
 <defs>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
 <radialGradient id="pool" cx="${x}" cy="${y}" r="${Math.round(Math.max(w, h) * 0.68)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.glow}" stop-opacity="${poolOpacity.toFixed(3)}"/><stop offset=".45" stop-color="${art.glow}" stop-opacity="${(poolOpacity * 0.42).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
+<filter id="soft" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur stdDeviation="${wide ? 34 : 22}"/></filter>
 <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .75 0"/></filter>
 </defs>
 <rect width="${w}" height="${h}" fill="url(#base)"/>
 <rect width="${w}" height="${h}" fill="url(#wash)"/>
 <rect width="${w}" height="${h}" fill="url(#pool)"/>
+${styleLayer}
 <rect width="${w}" height="${h}" filter="url(#grain)" opacity="${grainOpacity}"/>
 </svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
 }
 
+/** Backwards-compatible name for callers that want the default material treatment. */
+export function materialWallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
+  return wallpaperStyleSvg(art, page, light, wide, lamp, 'material');
+}
+
 /** The matching foot for the material wall: a soft pool and fine grain, fading into the page. */
-export function materialFootSvg(art: WallArt, page: string, light: boolean, wide = false): string {
+export function materialFootSvg(art: WallArt, page: string, light: boolean, wide = false, style: WallStyle = 'material'): string {
   const w = wide ? 2400 : 1200;
   const h = 1000;
+  const styleLayer = style === 'desk'
+    ? `<rect x="${Math.round(w * 0.04)}" y="${Math.round(h * 0.2)}" width="${Math.round(w * 0.92)}" height="${Math.round(h * 0.7)}" rx="${Math.round(w * 0.07)}" fill="${light ? '#fff' : art.glow}" opacity="${light ? 0.07 : 0.05}" filter="url(#soft)"/>`
+    : style === 'wash'
+      ? `<path d="M-${Math.round(w * 0.1)} ${Math.round(h * 0.32)} C${Math.round(w * 0.22)} ${Math.round(h * 0.16)}, ${Math.round(w * 0.52)} ${Math.round(h * 0.58)}, ${Math.round(w * 0.82)} ${Math.round(h * 0.3)} S${Math.round(w * 1.06)} ${Math.round(h * 0.2)}, ${Math.round(w * 1.1)} ${Math.round(h * 0.36)} V${h} H-${Math.round(w * 0.1)}Z" fill="${art.b1}" opacity="${light ? 0.18 : 0.14}" filter="url(#soft)"/>`
+      : '';
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMax slice">
 <defs>
 <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${page}" stop-opacity="0"/><stop offset=".45" stop-color="${page}" stop-opacity="${light ? 0.28 : 0.5}"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <radialGradient id="pool" cx="${Math.round(w * 0.78)}" cy="${h}" r="${Math.round(w * 0.72)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.b2}" stop-opacity="${light ? 0.24 : 0.32}"/><stop offset="1" stop-color="${art.b2}" stop-opacity="0"/></radialGradient>
+<filter id="soft" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur stdDeviation="${wide ? 34 : 22}"/></filter>
 </defs>
 <rect width="${w}" height="${h}" fill="url(#pool)"/>
 <rect width="${w}" height="${h}" fill="url(#fade)"/>
+${styleLayer}
 </svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
 }

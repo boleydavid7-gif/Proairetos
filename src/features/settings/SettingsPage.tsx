@@ -29,7 +29,7 @@ import { useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
-import { LAMP_COLORS, ROOMS, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
+import { LAMP_COLORS, ROOMS, WALL_STYLES, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
 import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { backupService, storageMode } from '../../app/services';
@@ -662,6 +662,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
 const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
+const wallStyleLabels = { material: 'Material', desk: 'Writing desk', wash: 'Ink wash' } as const;
 
 const helpTopics: { title: string; body: string }[] = [
   {
@@ -756,6 +757,26 @@ function AppearanceSection() {
               aria-hidden="true"
             />
             <span className="room-tile__name">{room}</span>
+          </button>
+        ))}
+      </div>
+      <p className="sheet__label">Wall style</p>
+      <div className="wall-style-grid" role="radiogroup" aria-label="Wall style">
+        {WALL_STYLES.map((style) => (
+          <button
+            key={style}
+            type="button"
+            role="radio"
+            className="wall-style-tile"
+            aria-checked={appearance.wallStyle === style}
+            onClick={() => update({ ...appearance, wallStyle: style })}
+          >
+            <span
+              className="wall-style-tile__art"
+              style={{ backgroundImage: wallpaperOf(appearance.room, mode, false, style) }}
+              aria-hidden="true"
+            />
+            <span className="wall-style-tile__name">{wallStyleLabels[style]}</span>
           </button>
         ))}
       </div>
