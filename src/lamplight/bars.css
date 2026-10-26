@@ -83,13 +83,8 @@
     padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
-    border-bottom: 1px solid transparent;
     opacity: 1;
     pointer-events: auto;
-    box-shadow:
-      0 8px 20px -14px color-mix(in srgb, #000 var(--ll-bar-progress-pct, 0%), transparent),
-      inset 0 -1px 0 color-mix(in srgb, #fff var(--ll-bar-progress-pct, 0%), transparent);
-    transition: border-color var(--ll-quick, 180ms) var(--ll-ease-out, ease);
   }
 
   /* The bar's glass, on a layer of its own that fades in with the scroll (--ll-bar-progress, set on the bar by
@@ -108,19 +103,10 @@
     backdrop-filter: blur(16px) saturate(1.5);
     -webkit-mask-image: none;
     mask-image: none;
+    border-bottom: 1px solid var(--ll-hair);
+    box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 -1px 0 rgba(255, 255, 255, 0.07);
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
-    pointer-events: none;
-  }
-
-  .ll-topbar.is-on::after {
-    content: '';
-    position: absolute;
-    z-index: 0;
-    inset: auto 0 0;
-    height: 1px;
-    background: var(--ll-hair);
-    opacity: var(--ll-bar-progress, 0);
     pointer-events: none;
   }
 
