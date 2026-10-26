@@ -52,12 +52,19 @@ export default function App() {
     return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
   });
   const [lastTab, setLastTab] = useState<Tab>('today');
+  const routeHistory = useRef<Route[]>([]);
+  if (routeHistory.current.length === 0) routeHistory.current.push(route);
 
   useEffect(() => {
     history.replaceState({ oikonomia: route }, '');
     const onPop = (event: PopStateEvent) => {
       const next = (event.state as { oikonomia?: Route } | null)?.oikonomia;
-      transition('back', () => setRoute(next ?? { name: 'today' }));
+      if (!next) {
+        history.forward();
+        return;
+      }
+      routeHistory.current = routeHistory.current.length > 1 ? routeHistory.current.slice(0, -1) : [next];
+      transition('back', () => setRoute(next));
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
@@ -82,19 +89,27 @@ export default function App() {
   };
 
   const go = useCallback((next: Route) => {
+    routeHistory.current.push(next);
     history.pushState({ oikonomia: next }, '');
     transition(directionTo(next), () => setRoute(next));
   }, []);
 
   const swap = useCallback((next: Route) => {
+    routeHistory.current[routeHistory.current.length - 1] = next;
     history.replaceState({ oikonomia: next }, '');
     if (next.name === current.current.name && isTab(next.name)) return;
     transition(directionTo(next), () => setRoute(next));
   }, []);
 
   const back = useCallback(() => {
-    if (history.state?.oikonomia && history.length > 1) history.back();
-    else swap({ name: lastTab });
+    if (routeHistory.current.length > 1) {
+      routeHistory.current.pop();
+      const previous = routeHistory.current[routeHistory.current.length - 1];
+      history.replaceState({ oikonomia: previous }, '');
+      transition('back', () => setRoute(previous));
+      return;
+    }
+    swap({ name: lastTab });
   }, [lastTab, swap]);
 
   const nav: Nav = { go, swap, back };

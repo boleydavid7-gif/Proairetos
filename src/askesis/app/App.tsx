@@ -63,13 +63,22 @@ export default function App() {
   const plan = usePlan(planState);
   const [route, setRoute] = useState<Route>(() => (settings.started || planState ? { name: 'home' } : { name: 'welcome' }));
   const [lastTab, setLastTab] = useState<Tab>('home');
+  const routeHistory = useRef<Route[]>([]);
+  if (routeHistory.current.length === 0) routeHistory.current.push(route);
 
   useEffect(() => {
     history.replaceState({ askesis: route }, '');
     const onPop = (event: PopStateEvent) => {
       const next = (event.state as { askesis?: Route } | null)?.askesis;
+      if (!next) {
+        // The app may have been opened directly with another site beneath it.
+        // Keep the system back gesture inside Askesis in that case.
+        history.forward();
+        return;
+      }
+      routeHistory.current = routeHistory.current.length > 1 ? routeHistory.current.slice(0, -1) : [next];
       // The phone's back gesture and button: the page slides away, the one beneath comes forward.
-      transition('back', () => setRoute(next ?? { name: 'home' }));
+      transition('back', () => setRoute(next));
     };
     window.addEventListener('popstate', onPop);
     // Opened from Proairetos at a particular place: that page, with Home beneath it.
@@ -99,17 +108,25 @@ export default function App() {
     return isTab(next.name) && !isTab(from) ? 'back' : 'forward';
   };
   const go = useCallback((next: Route) => {
+    routeHistory.current.push(next);
     history.pushState({ askesis: next }, '');
     transition(directionTo(next), () => setRoute(next));
   }, []);
   const swap = useCallback((next: Route) => {
+    routeHistory.current[routeHistory.current.length - 1] = next;
     history.replaceState({ askesis: next }, '');
     if (next.name === current.current.name && isTab(next.name)) return;
     transition(directionTo(next), () => setRoute(next));
   }, []);
   const back = useCallback(() => {
-    if (history.state?.askesis && history.length > 1) history.back();
-    else swap({ name: lastTab });
+    if (routeHistory.current.length > 1) {
+      routeHistory.current.pop();
+      const previous = routeHistory.current[routeHistory.current.length - 1];
+      history.replaceState({ askesis: previous }, '');
+      transition('back', () => setRoute(previous));
+      return;
+    }
+    swap({ name: lastTab });
   }, [lastTab, swap]);
   const nav: Nav = { go, swap, back };
 

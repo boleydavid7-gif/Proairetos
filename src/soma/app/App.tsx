@@ -48,12 +48,19 @@ export default function App() {
   const settings = useSettings();
   const [route, setRoute] = useState<Route>(() => (settings.started ? { name: 'home' } : { name: 'welcome' }));
   const [lastTab, setLastTab] = useState<Tab>('home');
+  const routeHistory = useRef<Route[]>([]);
+  if (routeHistory.current.length === 0) routeHistory.current.push(route);
 
   useEffect(() => {
     history.replaceState({ soma: route }, '');
     const onPop = (event: PopStateEvent) => {
       const next = (event.state as { soma?: Route } | null)?.soma;
-      transition('back', () => setRoute(next ?? { name: 'home' }));
+      if (!next) {
+        history.forward();
+        return;
+      }
+      routeHistory.current = routeHistory.current.length > 1 ? routeHistory.current.slice(0, -1) : [next];
+      transition('back', () => setRoute(next));
     };
     window.addEventListener('popstate', onPop);
     // Opened from Proairetos at a particular place: that page, with Home beneath it.
@@ -83,17 +90,25 @@ export default function App() {
     return isTab(next.name) && !isTab(from) ? 'back' : 'forward';
   };
   const go = useCallback((next: Route) => {
+    routeHistory.current.push(next);
     history.pushState({ soma: next }, '');
     transition(directionTo(next), () => setRoute(next));
   }, []);
   const swap = useCallback((next: Route) => {
+    routeHistory.current[routeHistory.current.length - 1] = next;
     history.replaceState({ soma: next }, '');
     if (next.name === current.current.name && isTab(next.name) && !('query' in next && next.query)) return;
     transition(directionTo(next), () => setRoute(next));
   }, []);
   const back = useCallback(() => {
-    if (history.state?.soma && history.length > 1) history.back();
-    else swap({ name: lastTab });
+    if (routeHistory.current.length > 1) {
+      routeHistory.current.pop();
+      const previous = routeHistory.current[routeHistory.current.length - 1];
+      history.replaceState({ soma: previous }, '');
+      transition('back', () => setRoute(previous));
+      return;
+    }
+    swap({ name: lastTab });
   }, [lastTab, swap]);
   const nav: Nav = { go, swap, back };
 

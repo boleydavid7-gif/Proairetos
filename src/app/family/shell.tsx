@@ -153,7 +153,11 @@ export type Nav<R> = { go: (route: R) => void; swap: (route: R) => void; back: (
 
 /** Routes kept in history, so the phone's back gesture and the browser's back button both work. */
 export function useRoutes<R extends { name: string }>(app: string, tabs: readonly string[], initial: () => R, home: R, options: { keepBackInApp?: boolean } = {}) {
-  const keepBackInApp = options.keepBackInApp === true;
+  // App routes remain self-contained by default. A browser back gesture from a
+  // detail screen must return to the app's previous screen instead of leaving the
+  // app for whatever page happened to be underneath it. Keep the opt-out for any
+  // future surface that intentionally participates in browser history.
+  const keepBackInApp = options.keepBackInApp !== false;
   const [route, setRoute] = useState<R>(initial);
   const [lastTab, setLastTab] = useState<R>(home);
   const isTab = (name: string) => tabs.includes(name);
