@@ -283,24 +283,6 @@
   max-height: 68svh;
 }
 
-/* A warm light at the top of the page, the color of the photos. */
-.days-page {
-  position: relative;
-  isolation: isolate;
-  /* The light below reaches past the page's sides; it never makes the page scroll sideways. */
-  overflow-x: clip;
-}
-
-.days-page::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: -3rem -2rem auto;
-  height: 22rem;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(var(--color-accent-rgb, 201, 162, 116), 0.13), transparent 75%);
-  pointer-events: none;
-}
-
 /* On a computer the controls share one row: the dates, the view, and list or calendar. */
 @media (min-width: 62rem) {
   .days-toolbar {
