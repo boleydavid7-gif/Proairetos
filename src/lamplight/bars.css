@@ -102,7 +102,7 @@
       radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%),
       linear-gradient(to bottom,
         var(--ll-material-mica) calc(var(--ll-safe-top) + 4px),
-        color-mix(in srgb, var(--ll-material-mica) 94%, transparent) calc(var(--ll-safe-top) + 30px));
+        color-mix(in srgb, var(--ll-material-mica) 98%, transparent) calc(var(--ll-safe-top) + 38px));
     -webkit-backdrop-filter: blur(16px) saturate(1.5);
     backdrop-filter: blur(16px) saturate(1.5);
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
