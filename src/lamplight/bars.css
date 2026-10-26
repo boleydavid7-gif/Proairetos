@@ -120,6 +120,9 @@
     --ll-bar-feather: 24px;
   }
 
+  /* The shared mica class belongs to other chrome; the top-bar shell stays clear until its own layer fades in. */
+  :root .ll-topbar.ll-mica.is-on { background: transparent !important; }
+
 
   /* Left: the app's name, or the chevron and where it goes. */
   .ll-topbar__lead {
