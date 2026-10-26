@@ -86,7 +86,9 @@
     border-bottom: 1px solid color-mix(in srgb, var(--ll-hair) var(--ll-bar-progress-pct, 0%), transparent);
     opacity: 1;
     pointer-events: auto;
-    box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 -1px 0 rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 8px 20px -14px color-mix(in srgb, #000 var(--ll-bar-progress-pct, 0%), transparent),
+      inset 0 -1px 0 color-mix(in srgb, #fff var(--ll-bar-progress-pct, 0%), transparent);
     transition: border-color var(--ll-quick, 180ms) var(--ll-ease-out, ease);
   }
 
