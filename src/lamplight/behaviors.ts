@@ -34,7 +34,7 @@ const OUTSIDE = 'dialog, nav, .tab-bar, .ll-topbar, [data-no-topbar]';
 const PAGE = '.app-shell__content, .page, main';
 const PHONE = '(max-width: 61.99rem)';
 /** How much scroll the title's handoff to the top bar takes, in CSS pixels. */
-const HANDOFF = 80;
+const HANDOFF = 56;
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 /** Full-screen moments with no bar of their own to fold into. */
 const FULL = '.theoria-reader-back, .sit-screen__leave, .focus-screen, .pause-screen, .guide, .welcome, .onboarding-layout, .added-only';
