@@ -107,7 +107,9 @@
     backdrop-filter: blur(16px) saturate(1.5);
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
     mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
-    opacity: var(--ll-bar-progress, 0);
+    /* Keep a quiet glass veil at rest so content never shows through the fixed bar; the handoff still becomes fully
+       opaque as the title enters it. */
+    opacity: max(0.78, var(--ll-bar-progress, 0));
     will-change: opacity;
     pointer-events: none;
   }
