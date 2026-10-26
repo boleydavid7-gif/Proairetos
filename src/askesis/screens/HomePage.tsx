@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
-import { scene } from '../app/scenes';
+import askesisHero from '../../assets/images/scenes/askesis-stoic-wide.webp';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
 import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
@@ -61,7 +61,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
 
   return (
     <div className="home">
-      <Hero image={scene('sunset-lake')} tall>
+      <Hero image={askesisHero} tall>
         <Brand light />
         <div className="home__words">
           <h1 className="home__title">{week ? `Week ${week.n}` : resting ? 'Rest week' : 'Askesis'}</h1>

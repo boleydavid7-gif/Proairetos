@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
-import heroWide from '../../assets/images/scenes/valley-wide.webp';
+import heroWide from '../../assets/images/scenes/oikonomia-stoic-wide.webp';
 import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, PlusIcon, SettingsIcon } from './icons';
 
 export type Tab = 'today' | 'bills' | 'calendar' | 'capture' | 'more';

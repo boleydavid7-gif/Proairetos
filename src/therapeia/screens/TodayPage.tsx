@@ -2,7 +2,7 @@ import { Brand } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { useNow } from '../../hydros/app/day';
-import photoWide from '../../assets/images/scenes/therapeia-wide.webp';
+import photoWide from '../../assets/images/scenes/therapeia-stoic-wide.webp';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments, useAnchors, useMedicines } from '../app/state';

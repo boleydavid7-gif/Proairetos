@@ -1,7 +1,7 @@
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, CheckIcon } from '../../app/family/icons';
-import photoWide from '../../assets/images/scenes/dynamis-wide.webp';
+import photoWide from '../../assets/images/scenes/dynamis-stoic-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
 import ExerciseFigure from '../app/ExerciseFigure';
