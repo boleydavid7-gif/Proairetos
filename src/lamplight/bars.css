@@ -73,6 +73,7 @@
   .ll-topbar.is-on {
     position: fixed;
     z-index: 6;
+    isolation: isolate;
     inset: 0 0 auto;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -95,7 +96,7 @@
   .ll-topbar.is-on::before {
     content: '';
     position: absolute;
-    z-index: -1;
+    z-index: 0;
     inset: 0 0 calc(-1 * var(--ll-bar-feather));
     background:
       radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%),
@@ -109,6 +110,12 @@
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
     pointer-events: none;
+  }
+
+  /* Keep the controls above the glass while the page remains the backdrop being blurred. */
+  .ll-topbar.is-on > * {
+    position: relative;
+    z-index: 1;
   }
 
   .ll-topbar.is-on {
