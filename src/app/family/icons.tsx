@@ -18,6 +18,8 @@ export const PlusIcon = glyphIcon('plus', 22);
 
 export const ChevronIcon = glyphIcon('chevron', 22);
 
+export const CloseIcon = glyphIcon('close', 22);
+
 export const BackIcon = glyphIcon('back', 22);
 
 export const MoonIcon = glyphIcon('moon', 22);

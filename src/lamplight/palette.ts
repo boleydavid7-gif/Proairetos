@@ -74,6 +74,7 @@ export const APP_COLOR_PROFILES: Record<string, { family: SignatureFamilyName; s
   dynamis: { family: 'amber', seed: '#DE762A' },
   ktema: { family: 'amber', seed: '#7B5236' },
   phyton: { family: 'green', seed: '#3A934B' },
+  mneme: { family: 'blue', seed: '#8FAED8' },
 };
 
 /** The family label remains useful for documentation, future tone selection, and audit tooling. */

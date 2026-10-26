@@ -22,7 +22,8 @@ export type FamilyApp =
   | 'dynamis'
   | 'ktema'
   | 'phyton'
-  | 'poreia';
+  | 'poreia'
+  | 'mneme';
 
 type Shape = {
   tag: 'path' | 'circle' | 'ellipse' | 'rect';
@@ -302,6 +303,11 @@ const MARKS: Record<FamilyApp, Shape[]> = {
       gap: 16,
     },
   ],
+  mneme: [
+    { tag: 'rect', attrs: { x: 288, y: 232, width: 448, height: 560, rx: 44 }, level: SECOND },
+    { tag: 'path', attrs: line('M394 420 H614 M394 512 H614 M394 604 H552', 34), gap: 14 },
+    { tag: 'path', attrs: line('M348 300 H660', 28), level: 0.7 },
+  ],
 };
 
 /** The app's own color, the same as its icon's tile, for a mark standing alone on a plain page. */
@@ -321,6 +327,7 @@ export const MARK_COLOR: Record<FamilyApp, string> = {
   ktema: '#7b5236',
   phyton: '#3a934b',
   poreia: '#0f6f78',
+  mneme: '#8faed8',
 };
 
 export const MARK_LIGHT = '#fbf6ec';

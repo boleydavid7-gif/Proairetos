@@ -14,7 +14,7 @@ import { notifications } from '../notify/notifications';
  * How the newer apps (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton) open: Lamplight on the root, appearance shared with Proairetos, the app,
  * sync, daily copies, notices through Proairetos's scheduler, and their own worker for working offline.
  */
-export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'poreia', App: ComponentType): void {
+export function startApp(app: 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'poreia' | 'mneme', App: ComponentType): void {
   document.documentElement.classList.add(app);
   // Lamplight: the person's room on every surface, this app's own lamp (src/lamplight); it also sets the bar color.
   withLamplight((look, light) => applyLamplight(look, light, app));

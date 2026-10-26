@@ -23,7 +23,7 @@ export type FamilyData = {
   settings?: Record<string, string>;
 };
 
-const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:', 'hydros:', 'poreia:', 'theoria:', 'diaita:', 'philia:', 'ergon:', 'therapeia:', 'dynamis:', 'ktema:', 'phyton:'];
+const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:', 'hydros:', 'poreia:', 'theoria:', 'diaita:', 'philia:', 'ergon:', 'therapeia:', 'dynamis:', 'ktema:', 'phyton:', 'mneme:'];
 const LEFT_OUT = new Set([
   'proairetos.auth',
   'proairetos.lastBackup',

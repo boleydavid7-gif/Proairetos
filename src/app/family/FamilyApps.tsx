@@ -2,7 +2,7 @@ import { useAddedApps, type AddOn } from './added';
 import { Sym } from '../../lamplight/icons';
 
 /** The apps of the family, the same list in every one (the one open is left out). */
-export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
+export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'mneme';
 
 export const familyApps: readonly { id: FamilyApp; name: string; href: string; icon: string; line: string; about?: string; tint?: { ground: string; accent: string; ink: string } }[] = [
   { id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon.svg', line: 'Your days, your values, your reflections' },
@@ -20,6 +20,7 @@ export const familyApps: readonly { id: FamilyApp; name: string; href: string; i
   { id: 'dynamis', name: 'Dynamis', href: '/dynamis/', icon: '/dynamis/icon.svg', line: 'Strength and mobility', about: 'Full-body strength sessions built from the research, with sets, weights and rests logged as you go, and short mobility routines.', tint: { ground: '#141110', accent: '#e0a36b', ink: '#f2ebe4' } },
   { id: 'ktema', name: 'Ktema', href: '/ktema/', icon: '/ktema/icon.svg', line: 'Home, car and belongings', about: 'Warranties, models and manuals in one place, and upkeep that comes around by date or by mileage.', tint: { ground: '#12130f', accent: '#c7b37a', ink: '#efece2' } },
   { id: 'phyton', name: 'Phyton', href: '/phyton/', icon: '/phyton/icon.svg', line: 'Plants and watering', about: 'Each plant comes around to be checked, from its type and what you actually did. Identify a plant from a photo.', tint: { ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6' } },
+  { id: 'mneme', name: 'Mneme', href: '/mneme/', icon: '/mneme/icon.svg', line: 'Notes connected to your life', about: 'A quiet place for notes, collections, and the ideas you want to keep connected to the rest of your life.', tint: { ground: '#11151b', accent: '#b7c7e2', ink: '#edf1f7' } },
 ];
 
 export default function FamilyApps({ current }: { current: FamilyApp }) {
