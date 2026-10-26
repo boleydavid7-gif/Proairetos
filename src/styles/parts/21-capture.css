@@ -263,6 +263,61 @@
   gap: var(--space-2);
 }
 
+.sort-when {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.sort-when__back {
+  align-self: flex-start;
+}
+
+.sort-when__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+}
+
+.sort-when__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.sort-when__fields label {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.sort-when__fields small {
+  color: var(--color-text-faint);
+  font-size: inherit;
+}
+
+.sort-when__fields input {
+  width: 100%;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+}
+
+.sort-when__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.sort-when__save {
+  width: 100%;
+}
+
 /* Under each kind, what is there lately, on one line. */
 .kind-tile__prompt {
   display: -webkit-box;

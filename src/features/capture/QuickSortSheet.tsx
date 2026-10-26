@@ -6,6 +6,7 @@ import { useSheet } from '../../components/ui/useSheet';
 import { itemFacts } from '../../core/life-items/facts';
 import { itemKinds, kindOf } from '../../core/life-items/kinds';
 import type { LifeItem } from '../../core/life-items/types';
+import { addDays } from '../../core/scheduling/dates';
 
 /** What can be sorted: open, not a routine, and not already set for today. */
 export function sortable(items: readonly LifeItem[], today: string, unsortedFirst = false): LifeItem[] {
@@ -38,6 +39,9 @@ export default function QuickSortSheet({
   const [queue] = useState(() => sortable(items, today, unsortedFirst).map((item) => item.id));
   const [handled, setHandled] = useState<readonly string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [scheduleChoice, setScheduleChoice] = useState<'today' | 'later' | null>(null);
+  const [scheduleDate, setScheduleDate] = useState(today);
+  const [scheduleTime, setScheduleTime] = useState('');
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
   const names = new Map(values.map((value) => [value.id, value.name]));
   // Skips anything deleted meanwhile.
@@ -53,6 +57,31 @@ export default function QuickSortSheet({
     } finally {
       setBusy(false);
       if (current) setHandled([...handled, current.id]);
+    }
+  }
+
+  function startScheduling(choice: 'today' | 'later') {
+    setScheduleChoice(choice);
+    setScheduleDate(choice === 'today' ? today : addDays(today, 1));
+    setScheduleTime('');
+  }
+
+  async function saveSchedule() {
+    if (!current || !scheduleDate) return;
+    const item = current;
+    setBusy(true);
+    try {
+      if (scheduleTime) {
+        // A local date/time input becomes the same instant in the user's local timezone.
+        await lifeService.setPlannedFor(item.id, undefined);
+        await lifeService.schedule(item.id, new Date(`${scheduleDate}T${scheduleTime}`).toISOString());
+      } else {
+        await lifeService.setPlannedFor(item.id, scheduleDate);
+      }
+      setScheduleChoice(null);
+      setHandled([...handled, item.id]);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -95,45 +124,63 @@ export default function QuickSortSheet({
                 ))}
               </ul>
             </div>
-            <div className="sort-choices">
-              <button
-                type="button"
-                className="chip chip--accent"
-                disabled={busy}
-                onClick={() => choose(() => lifeService.setPlannedFor(current.id, today))}
-              >
-                Today
-              </button>
-              <button type="button" className="chip" disabled={busy} onClick={() => choose(async () => undefined)}>
-                Later
-              </button>
-              <button
-                type="button"
-                className="chip"
-                disabled={busy}
-                onClick={() =>
-                  choose(async () => {
-                    const change = await lifeService.setStatus(current.id, 'LET_GO');
-                    offerUndo(`“${current.title}” let go`, change.undo);
-                  })
-                }
-              >
-                Let go
-              </button>
-              <button
-                type="button"
-                className="chip"
-                disabled={busy}
-                onClick={() =>
-                  choose(async () => {
-                    const change = await lifeService.setStatus(current.id, 'DONE');
-                    offerUndo(`“${current.title}” done`, change.undo);
-                  })
-                }
-              >
-                Already done
-              </button>
-            </div>
+            {scheduleChoice ? (
+              <div className="sort-when" aria-label="Choose when">
+                <button type="button" className="text-link sort-when__back" disabled={busy} onClick={() => setScheduleChoice(null)}>
+                  ← Back to choices
+                </button>
+                <p className="sort-when__title">When?</p>
+                <div className="sort-when__fields">
+                  <label>
+                    <span>Date</span>
+                    <input type="date" value={scheduleDate} min={today} onChange={(event) => setScheduleDate(event.target.value)} />
+                  </label>
+                  <label>
+                    <span>Time <small>(optional)</small></span>
+                    <input type="time" value={scheduleTime} onChange={(event) => setScheduleTime(event.target.value)} />
+                  </label>
+                </div>
+                <p className="sort-when__hint">Add a time for appointments or anything that must happen at a specific hour.</p>
+                <button type="button" className="button-main sort-when__save" disabled={busy || !scheduleDate} onClick={() => void saveSchedule()}>
+                  {scheduleTime ? 'Schedule' : 'Set date'}
+                </button>
+              </div>
+            ) : (
+              <div className="sort-choices">
+                <button type="button" className="chip chip--accent" disabled={busy} onClick={() => startScheduling('today')}>
+                  Today
+                </button>
+                <button type="button" className="chip" disabled={busy} onClick={() => startScheduling('later')}>
+                  Later
+                </button>
+                <button
+                  type="button"
+                  className="chip"
+                  disabled={busy}
+                  onClick={() =>
+                    choose(async () => {
+                      const change = await lifeService.setStatus(current.id, 'LET_GO');
+                      offerUndo(`“${current.title}” let go`, change.undo);
+                    })
+                  }
+                >
+                  Let go
+                </button>
+                <button
+                  type="button"
+                  className="chip"
+                  disabled={busy}
+                  onClick={() =>
+                    choose(async () => {
+                      const change = await lifeService.setStatus(current.id, 'DONE');
+                      offerUndo(`“${current.title}” done`, change.undo);
+                    })
+                  }
+                >
+                  Already done
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <div className="empty-state">
