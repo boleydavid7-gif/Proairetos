@@ -83,8 +83,10 @@
     padding: var(--ll-safe-top) 10px 0 14px;
     color: var(--ll-ink, var(--text, var(--color-text)));
     background: transparent;
+    border-bottom: 1px solid transparent;
     opacity: 1;
     pointer-events: auto;
+    transition: border-color var(--ll-quick, 180ms) var(--ll-ease-out, ease);
   }
 
   /* The bar's glass, on a layer of its own that fades in with the scroll (--ll-bar-progress, set on the bar by
@@ -121,6 +123,8 @@
   .ll-topbar.is-on {
     --ll-bar-feather: 24px;
   }
+
+  .ll-topbar.is-on.is-scrolled { border-bottom-color: var(--ll-hair); }
 
   /* Left: the app's name, or the chevron and where it goes. */
   .ll-topbar__lead {
