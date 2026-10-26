@@ -1,11 +1,10 @@
-import { useState, useSyncExternalStore } from 'react';
+import { useState } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
-import LighterView from '../today/LighterView';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
@@ -18,11 +17,10 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, scheduleService } from '../../app/services';
 import { goalLines } from '../../core/compass/goals';
-import { ChevronRightIcon, SproutIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 import Landscape from '../../components/layout/Landscape';
 import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
-import IconButton from '../../components/ui/IconButton';
 import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { dailyLineFor } from '../../core/stoic/dailyLine';
@@ -31,9 +29,6 @@ import {
   displayName,
   isLookAheadSetAside,
   keepConcern,
-  lighterToday,
-  setLighterToday,
-  subscribePreferences,
   keptConcerns,
   previousVisitDate,
 } from '../../data/storage/preferences';
@@ -96,7 +91,6 @@ export default function NowPage() {
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
-  const lighter = useSyncExternalStore(subscribePreferences, () => lighterToday(today));
   const [changing, setChanging] = useState<DayChangeTarget | null>(null);
   // Today shows today; other days live in Days ahead.
   const date = today;
@@ -200,14 +194,6 @@ export default function NowPage() {
       <header className="page-header today-header">
         <div className="page-header__actions">
           <TodayWeather />
-          <IconButton
-            className="header-action"
-            label={lighter ? 'Show everything' : 'Lighter today'}
-            aria-pressed={lighter}
-            onClick={() => setLighterToday(!lighter, today)}
-          >
-            <SproutIcon size={22} />
-          </IconButton>
           <SearchButton />
           <SettingsButton />
         </div>
@@ -219,10 +205,7 @@ export default function NowPage() {
         </div>
       </header>
 
-      {lighter ? (
-        <LighterView items={items} today={today} />
-      ) : (
-        <>
+      <>
 
       {/* The thing done most, so it sits first, above everything the day brings. */}
       {shows('capture') && <CaptureBar variant="quiet" />}
@@ -329,8 +312,7 @@ export default function NowPage() {
       {/* The day's line sits at the foot, over the landscape: the day itself leads. */}
       {shows('line') && <DailyLine key={date} line={line} />}
 
-        </>
-      )}
+      </>
 
       <Landscape />
 
