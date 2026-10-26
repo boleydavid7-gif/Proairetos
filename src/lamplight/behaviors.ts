@@ -210,6 +210,7 @@ function largeTitle(): void {
       titleFrame = undefined;
       anchoredTitle = undefined;
       bar.style.removeProperty('--ll-bar-progress');
+      bar.style.removeProperty('--ll-bar-progress-pct');
       title?.style.removeProperty('--ll-title-opacity');
       title?.style.removeProperty('--ll-title-blur');
       shownProgress = '';
@@ -342,10 +343,10 @@ function largeTitle(): void {
     if (value !== shownProgress) {
       shownProgress = value;
       bar.style.setProperty('--ll-bar-progress', value);
+      bar.style.setProperty('--ll-bar-progress-pct', `${(progress * 100).toFixed(1)}%`);
       // Keep the words quiet while they are inside the bar. A cubic fade avoids the title reappearing too soon when
       // the person scrolls back up, and a small blur makes the handoff read as glass rather than a second heading.
       title?.style.setProperty('--ll-title-opacity', Math.pow(1 - progress, 3).toFixed(3));
-      title?.style.setProperty('--ll-title-blur', `${(progress * 6).toFixed(2)}px`);
     }
     const folded = progress >= 0.999;
     bar.classList.add('is-on');
