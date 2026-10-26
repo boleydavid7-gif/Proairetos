@@ -311,6 +311,34 @@
     --ll-dock-mark: var(--ll-lamp, var(--cyan, currentColor));
   }
 
+  /* Trial: the active mark is a small lamp. Its spill rises above the dock so content passing behind it picks up a
+     soft reflected tint instead of every surface glowing on its own. The source follows the measured mark position. */
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    left: var(--ll-dock-x, 50%);
+    bottom: calc(100% - 2px);
+    width: min(24rem, 100vw);
+    height: 10rem;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at 50% 100%,
+      color-mix(in srgb, var(--ll-dock-mark) 16%, transparent) 0%,
+      color-mix(in srgb, var(--ll-dock-mark) 7%, transparent) 34%,
+      transparent 74%
+    );
+    filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+  }
+
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-marked::before {
+    opacity: 1;
+  }
+
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav)::after {
     content: '';
     position: absolute;
