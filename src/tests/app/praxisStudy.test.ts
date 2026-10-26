@@ -29,7 +29,7 @@ describe('Theoria reading in Proairetos', () => {
   it('marks Read blocks as reading while leaving other Praxis blocks as study', () => {
     const sessions = studySessions(
       [block('book', 'Read: Atlas of the Heart'), block('work', 'Write notes')],
-      [focused('a', 'book', '2026-10-25T09:00:00.000Z', 1), focused('b', 'work', '2026-10-25T10:00:00.000Z', 25)],
+      [focused('a', 'book', '2026-10-25T15:00:00.000Z', 1), focused('b', 'work', '2026-10-25T16:00:00.000Z', 25)],
     );
     expect(sessions.map((session) => session.kind)).toEqual(['reading', 'study']);
   });
@@ -38,10 +38,10 @@ describe('Theoria reading in Proairetos', () => {
     const sessions = studySessions(
       [block('book', 'Read: Atlas of the Heart'), block('work', 'Write notes')],
       [
-        focused('a', 'book', '2026-10-25T09:00:00.000Z', 1),
-        focused('b', 'book', '2026-10-25T11:00:00.000Z', 1),
-        focused('c', 'book', '2026-10-26T09:00:00.000Z', 3),
-        focused('d', 'work', '2026-10-25T10:00:00.000Z', 25),
+        focused('a', 'book', '2026-10-25T15:00:00.000Z', 1),
+        focused('b', 'book', '2026-10-25T17:00:00.000Z', 1),
+        focused('c', 'book', '2026-10-26T15:00:00.000Z', 3),
+        focused('d', 'work', '2026-10-25T16:00:00.000Z', 25),
       ],
     );
     const combined = combineReadingSessions(sessions);
