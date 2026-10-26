@@ -34,7 +34,7 @@ const OUTSIDE = 'dialog, nav, .tab-bar, .ll-topbar, [data-no-topbar]';
 const PAGE = '.app-shell__content, .page, main';
 const PHONE = '(max-width: 61.99rem)';
 /** How much scroll the title's handoff to the top bar takes, in CSS pixels. */
-const HANDOFF = 56;
+const HANDOFF = 48;
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 /** Full-screen moments with no bar of their own to fold into. */
 const FULL = '.theoria-reader-back, .sit-screen__leave, .focus-screen, .pause-screen, .guide, .welcome, .onboarding-layout, .added-only';
@@ -210,6 +210,7 @@ function largeTitle(): void {
       titleFrame = undefined;
       anchoredTitle = undefined;
       bar.style.removeProperty('--ll-bar-progress');
+      bar.style.removeProperty('--ll-bar-progress-pct');
       title?.style.removeProperty('--ll-title-blur');
       shownProgress = '';
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
@@ -340,6 +341,7 @@ function largeTitle(): void {
     if (value !== shownProgress) {
       shownProgress = value;
       bar.style.setProperty('--ll-bar-progress', value);
+      bar.style.setProperty('--ll-bar-progress-pct', `${(progress * 100).toFixed(1)}%`);
       // Keep the words quiet while they are inside the bar. A cubic fade avoids the title reappearing too soon when
       // the person scrolls back up, and a small blur makes the handoff read as glass rather than a second heading.
     }
