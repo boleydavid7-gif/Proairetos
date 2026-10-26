@@ -87,9 +87,6 @@
     pointer-events: auto;
   }
 
-  /* `ll-mica` supplies the room treatment to other chrome; the top bar keeps its own scroll-controlled layer. */
-  :root .ll-topbar.ll-mica.is-on { background: transparent !important; }
-
   /* The bar's glass, on a layer of its own that fades in with the scroll (--ll-bar-progress, set on the bar by
      behaviors.ts). It is the one blur in Lamplight, as on iOS: the room's mica, a little see-through, over a blur of
      whatever passes beneath, so the page melts into the bar instead of meeting a band; solid behind the status bar,
@@ -102,15 +99,14 @@
     z-index: 0;
     inset: 0 0 calc(-1 * var(--ll-bar-feather));
     background:
-      radial-gradient(150% 130% at 70% -70%, color-mix(in srgb, var(--ll-lamp) 10%, transparent), transparent 62%),
+      radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%),
       linear-gradient(to bottom,
-        color-mix(in srgb, var(--ll-material-mica) 96%, transparent),
-        color-mix(in srgb, var(--ll-material-mica) 91%, transparent));
-    -webkit-backdrop-filter: blur(24px) saturate(1.6);
-    backdrop-filter: blur(24px) saturate(1.6);
-    /* The layer is clear at rest and becomes a soft mica veil as content enters the bar. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 8px), transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 8px), transparent 100%);
+        var(--ll-material-mica) calc(var(--ll-safe-top) + 4px),
+        color-mix(in srgb, var(--ll-material-mica) 94%, transparent) calc(var(--ll-safe-top) + 30px));
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
     pointer-events: none;
@@ -235,7 +231,7 @@
     gap: 0;
     padding: 0 4px;
     border-radius: var(--ll-radius-pill, 999px);
-    background: color-mix(in srgb, var(--ll-material-mica-surface) var(--ll-actions-opacity, 100%), transparent);
+    background: var(--ll-material-mica-surface);
     box-shadow: none;
     transition: background var(--ll-slow, 420ms) var(--ll-ease-out, ease);
   }
