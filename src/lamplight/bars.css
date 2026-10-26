@@ -16,7 +16,6 @@
 
 @media (max-width: 61.99rem) {
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
-    box-shadow: var(--ll-edge-above);
     transition: translate var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1));
     /* Its own layer, so tucking away moves a picture of it rather than painting the dock again each frame. */
     will-change: translate;
@@ -159,12 +158,6 @@
     line-height: 1.18;
     padding-block-end: 4px;
   }
-
-  :root .ll-title-folding {
-    opacity: var(--ll-title-opacity, 1);
-    will-change: opacity;
-  }
-
 
   /* All mobile title containers enter the same visual band before the handoff starts. The frame moves as a unit so
      an eyebrow, subtitle or page action keeps its relationship with the title. */
@@ -473,7 +466,7 @@ html[data-swiped]::view-transition-old(root) {
     margin-inline: auto;
     border: 0;
     border-radius: var(--ll-radius-pill, 999px);
-    box-shadow: var(--ll-light-2), inset 0 0 0 1px var(--ll-hair);
+    box-shadow: inset 0 0 0 1px var(--ll-hair);
   }
 
   :root .hydros-tabs {
