@@ -1,7 +1,7 @@
 /** Lamplight's rooms and colors by name. Their seeds and every value made from them are in src/lamplight/scheme.ts. */
 export const ROOMS = ['Hearth', 'Dusk', 'Harbor', 'Grove', 'Clay', 'Slate'] as const;
 export const LAMP_COLORS = ['Amber', 'Ember', 'Rose', 'Heather', 'Ink', 'Tide', 'Sage', 'Pewter'] as const;
-export const WALL_STYLES = ['material', 'desk', 'wash'] as const;
+export const WALL_STYLES = ['paper', 'ink', 'wood'] as const;
 export type Room = (typeof ROOMS)[number];
 export type LampColor = (typeof LAMP_COLORS)[number];
 export type WallStyle = (typeof WALL_STYLES)[number];

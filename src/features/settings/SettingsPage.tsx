@@ -662,7 +662,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
 const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
-const wallStyleLabels = { material: 'Material', desk: 'Writing desk', wash: 'Ink wash' } as const;
+const wallStyleLabels = { paper: 'Paper', ink: 'Ink', wood: 'Wood' } as const;
 
 const helpTopics: { title: string; body: string }[] = [
   {

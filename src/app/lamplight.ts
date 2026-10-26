@@ -34,19 +34,19 @@ export function swatchOf(color: LampColor | `hue:${number}`, mode: Mode, room: R
 }
 
 /** The room's drawn wallpaper, as a CSS image. */
-export function wallpaperOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'material'): string {
+export function wallpaperOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'paper'): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
   return wallpaperStyleSvg(s.art, s.page, mode === 'light', wide, undefined, style);
 }
 
 /** The foot of Today in the room's colors, as a CSS image. */
-export function footOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'material'): string {
+export function footOf(room: Room, mode: Mode, wide = false, style: WallStyle = 'paper'): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
   return materialFootSvg(s.art, s.page, mode === 'light', wide, style);
 }
 
 /** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
-export function proairetosVars(s: Scheme, lamp?: WallLamp, style: WallStyle = 'material'): Record<string, string> {
+export function proairetosVars(s: Scheme, lamp?: WallLamp, style: WallStyle = 'paper'): Record<string, string> {
   const dark = s.mode === 'dark';
   return {
     '--color-ink': s.page,
