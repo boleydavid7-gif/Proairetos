@@ -161,6 +161,7 @@
 
   :root .ll-title-folding {
     opacity: var(--ll-title-opacity, 1);
+    filter: blur(var(--ll-title-blur, 0px));
     will-change: opacity;
   }
 

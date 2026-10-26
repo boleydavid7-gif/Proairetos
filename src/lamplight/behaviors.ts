@@ -211,6 +211,7 @@ function largeTitle(): void {
       anchoredTitle = undefined;
       bar.style.removeProperty('--ll-bar-progress');
       title?.style.removeProperty('--ll-title-opacity');
+      title?.style.removeProperty('--ll-title-blur');
       shownProgress = '';
       bar.classList.remove('is-on', 'is-scrolled', 'is-folded', 'is-over-picture');
       bar.setAttribute('aria-hidden', 'true');
@@ -232,6 +233,7 @@ function largeTitle(): void {
       if (next !== title) {
         title?.classList.remove('ll-title-folding');
         title?.style.removeProperty('--ll-title-opacity');
+        title?.style.removeProperty('--ll-title-blur');
         shownProgress = '';
       }
       title = next;
@@ -340,7 +342,10 @@ function largeTitle(): void {
     if (value !== shownProgress) {
       shownProgress = value;
       bar.style.setProperty('--ll-bar-progress', value);
-      title?.style.setProperty('--ll-title-opacity', (1 - progress).toFixed(3));
+      // Keep the words quiet while they are inside the bar. A cubic fade avoids the title reappearing too soon when
+      // the person scrolls back up, and a small blur makes the handoff read as glass rather than a second heading.
+      title?.style.setProperty('--ll-title-opacity', Math.pow(1 - progress, 3).toFixed(3));
+      title?.style.setProperty('--ll-title-blur', `${(progress * 6).toFixed(2)}px`);
     }
     const folded = progress >= 0.999;
     bar.classList.add('is-on');
@@ -887,7 +892,7 @@ function fieldBox(field: Element): Element {
   const parent = field.parentElement;
   if (!parent || parent === document.body || !field.matches('input')) return field;
   const others = [...parent.children].filter((child) => child !== field);
-  const onlyIcons = others.length > 0 && others.every((child) => child.matches('svg, button, .ll-icon, [aria-hidden="true"]') || !child.textContent?.trim());
+  const onlyIcons = others.length > 0 && others.every((child) => child.matches('svg, .ll-icon, [aria-hidden="true"]') || (child.matches('button') && !child.textContent?.trim()) || !child.textContent?.trim());
   return onlyIcons ? parent : field;
 }
 
