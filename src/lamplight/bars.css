@@ -103,7 +103,6 @@
     backdrop-filter: blur(16px) saturate(1.5);
     -webkit-mask-image: none;
     mask-image: none;
-    border-bottom: 1px solid var(--ll-hair);
     box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 -1px 0 rgba(255, 255, 255, 0.07);
     opacity: var(--ll-bar-progress, 0);
     will-change: opacity;
