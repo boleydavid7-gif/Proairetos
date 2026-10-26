@@ -17,14 +17,6 @@
 @media (max-width: 61.99rem) {
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
     box-shadow: 0 -8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    transition: translate var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1));
-    /* Its own layer, so tucking away moves a picture of it rather than painting the dock again each frame. */
-    will-change: translate;
-  }
-
-  /* Reading down a page, the dock steps aside; scrolling up, or reaching the top or the foot, brings it back. */
-  :root.ll-tucked.ll-dock-interactive :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
-    translate: 0 calc(100% + 24px);
   }
 }
 
@@ -512,9 +504,6 @@ html[data-swiped]::view-transition-old(root) {
     transform: none;
   }
 
-  :root.ll-tucked.ll-dock-interactive :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
-    translate: 0 calc(100% + 40px);
-  }
 }
 
 /* ---------- Windows high contrast (forced colors) ---------- */

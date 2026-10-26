@@ -136,10 +136,6 @@ function largeTitle(): void {
   // Where the title's words begin inside its box: a title moved down by padding (the anchoring below) starts higher
   // than its words. Read once per page change, never per scroll frame.
   let titleInset = 0;
-  let lastY = 0;
-  let tucked = false;
-  let scrollReady = false;
-  let dockCanTuck = false;
   // Reading the page's controls (and serialising them to see whether they changed) happens only after the page
   // itself changed; a scroll frame reads the scroll and one rectangle, so long pages scroll without extra work.
   let dirty = true;
@@ -204,7 +200,6 @@ function largeTitle(): void {
     const on = phone.matches && !full;
     root.classList.toggle('ll-bar-on', on);
     if (!on) {
-      root.classList.remove('ll-tucked');
       title?.classList.remove('ll-title-folding');
       titleFrame?.classList.remove('ll-title-anchored');
       titleFrame?.classList.remove('ll-title-anchored--down', 'll-title-anchored--up');
@@ -321,27 +316,7 @@ function largeTitle(): void {
   };
 
   const scrolled = () => {
-    // The dock tucks away while reading down a page and comes back on the way up, at the top or the foot.
     const y = document.scrollingElement?.scrollTop ?? scrollY;
-    const room = (document.scrollingElement?.scrollHeight ?? 0) - innerHeight;
-    // iOS can restore a page's scroll offset, then correct it when the visual viewport and safe area settle. Treat the
-    // first read as the baseline so that correction does not briefly hide the dock and animate it back from below.
-    if (!scrollReady) {
-      scrollReady = true;
-      lastY = y;
-      tucked = false;
-    } else if (!dockCanTuck) {
-      // Viewport and safe-area corrections on iOS can emit a second scroll event while the app is opening. Keep the
-      // dock settled until an actual gesture or scroll input gives the hide/show behavior permission to run.
-      tucked = false;
-      lastY = y;
-    } else {
-      if (y < 80 || y > room - 40) tucked = false;
-      else if (y - lastY > 8) tucked = true;
-      else if (lastY - y > 8) tucked = false;
-      if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
-    }
-    root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
     // The handoff follows the title's top edge over a short stretch of scroll: it starts just below the bar and is
     // done once the title's top has slipped under it, so the title fades as it passes beneath the bar's glass rather
@@ -386,15 +361,6 @@ function largeTitle(): void {
     changed();
   });
   phone.addEventListener?.('change', changed);
-  const allowDockTuck = () => {
-    dockCanTuck = true;
-    root.classList.add('ll-dock-interactive');
-  };
-  addEventListener('touchmove', allowDockTuck, { passive: true, capture: true, once: true });
-  addEventListener('wheel', allowDockTuck, { passive: true, capture: true, once: true });
-  addEventListener('keydown', (event) => {
-    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) allowDockTuck();
-  }, { capture: true });
   new MutationObserver((records) => {
     if (records.every((record) => bar.contains(record.target))) return;
     if (!title?.isConnected) title = undefined;
