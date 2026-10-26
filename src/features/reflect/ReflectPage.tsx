@@ -7,7 +7,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
-import { BookIcon, BreatheIcon, ChevronRightIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
+import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -149,7 +149,7 @@ export default function ReflectPage() {
           </button>
         )}
         <button type="button" className="place-row" onClick={() => navigate('compass')}>
-          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true" />
+          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={30} /></span>
           <span className="place-row__text">
             <span className="place-row__title">Compass</span>
             <span className="place-row__detail">Values, goals, people and words</span>

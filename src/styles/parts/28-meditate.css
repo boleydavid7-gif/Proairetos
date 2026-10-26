@@ -123,7 +123,14 @@
 }
 
 .place-row__thumb--compass {
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
   background-position: center 30%;
+}
+
+.place-row__thumb--compass .ll-icon {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, currentColor 35%, transparent));
 }
 
 .place-row__text {
