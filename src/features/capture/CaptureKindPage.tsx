@@ -66,9 +66,8 @@ export default function CaptureKindPage({ shelf, onBack }: { shelf: CaptureShelf
 
   return (
     <div className="page capture-shelf">
-      <button type="button" className="back-link" onClick={onBack}>
+      <button type="button" className="back-link" aria-label="Back to Capture" onClick={onBack}>
         <ArrowLeftIcon size={18} />
-        Capture
       </button>
       <header className="capture-shelf__head">
         <span className="kind-tile__icon">
