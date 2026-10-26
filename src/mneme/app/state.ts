@@ -6,6 +6,7 @@ export type Note = {
   body: string;
   collectionId?: string;
   source?: string;
+  recording?: { attachmentId: string; durationMs: number; mimeType: string };
   pinned: boolean;
   archived: boolean;
   createdAt: string;
