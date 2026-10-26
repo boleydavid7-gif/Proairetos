@@ -193,6 +193,15 @@
 :root .ll-topbar {
   view-transition-name: ll-topbar;
 }
+
+/* Fixed mobile docks must not be geometry-morphed between documents. Safari can capture the old dock before its
+   safe-area inset settles, then animate that snapshot up from the lower part of the screen. The dock is already
+   fixed chrome, so letting the new document paint it directly is the stable transition. */
+@media (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    view-transition-name: none;
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   /* The new app's picture is live: it fills in as the app draws, so it starts a beat after the old one begins to
      fade and the two overlap rather than passing through an empty page. */
