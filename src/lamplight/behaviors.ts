@@ -386,7 +386,10 @@ function largeTitle(): void {
     changed();
   });
   phone.addEventListener?.('change', changed);
-  const allowDockTuck = () => { dockCanTuck = true; };
+  const allowDockTuck = () => {
+    dockCanTuck = true;
+    root.classList.add('ll-dock-interactive');
+  };
   addEventListener('touchmove', allowDockTuck, { passive: true, capture: true, once: true });
   addEventListener('wheel', allowDockTuck, { passive: true, capture: true, once: true });
   addEventListener('keydown', (event) => {

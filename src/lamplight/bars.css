@@ -23,7 +23,7 @@
   }
 
   /* Reading down a page, the dock steps aside; scrolling up, or reaching the top or the foot, brings it back. */
-  :root.ll-tucked :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+  :root.ll-tucked.ll-dock-interactive :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
     translate: 0 calc(100% + 24px);
   }
 }
@@ -512,7 +512,7 @@ html[data-swiped]::view-transition-old(root) {
     transform: none;
   }
 
-  :root.ll-tucked :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
+  :root.ll-tucked.ll-dock-interactive :is(.app-shell .tab-bar, .shell .tab-bar, .hydros-tabs) {
     translate: 0 calc(100% + 40px);
   }
 }
