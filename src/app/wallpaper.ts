@@ -14,6 +14,58 @@ export type WallArt = {
 /** Day light (Lamplight 2.0): where the lamp hangs on the tall picture (fractions), how strong it is, and its color. */
 export type WallLamp = { x: number; y: number; strength: number; glow: string; warmth: number };
 
+/**
+ * Proairetos' quieter wall: a material surface with one pool of light, rather than a scene or a set of folds.
+ * The room still supplies the material tint and the person's lamp still supplies the one active colour. Keeping this
+ * separate from wallpaperSvg lets the companion apps retain their own visual landmarks while Today stays a calm desk
+ * for reflection.
+ */
+export function materialWallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
+  const [w, h] = wide ? [2400, 1350] : [1200, 1600];
+  const fx = lamp ? (wide ? 0.7 + (lamp.x - 0.6) : lamp.x) : wide ? 0.7 : 0.6;
+  const fy = lamp ? (wide ? 0.08 + (lamp.y - 0.09) * 0.55 : lamp.y * 0.72) : wide ? 0.08 : 0.065;
+  const [x, y] = [Math.round(w * fx), Math.round(h * fy)];
+  const k = lamp ? 0.5 + 0.5 * lamp.strength : 1;
+  if (lamp) art = { ...art, glow: lamp.glow };
+  const grainOpacity = light ? 0.035 : 0.06;
+  const poolOpacity = (light ? 0.22 : 0.12) * k;
+  const washOpacity = light ? 0.18 : 0.16;
+  const seamY = Math.round(h * (wide ? 0.72 : 0.58));
+  const seam = `M-${Math.round(w * 0.08)} ${seamY} C${Math.round(w * 0.2)} ${seamY - h * 0.08}, ${Math.round(w * 0.46)} ${seamY + h * 0.05}, ${Math.round(w * 0.68)} ${seamY - h * 0.035} S${Math.round(w * 1.04)} ${seamY - h * 0.12}, ${Math.round(w * 1.08)} ${seamY - h * 0.08}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
+<defs>
+<linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
+<linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
+<radialGradient id="pool" cx="${x}" cy="${y}" r="${Math.round(Math.max(w, h) * 0.68)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.glow}" stop-opacity="${poolOpacity.toFixed(3)}"/><stop offset=".45" stop-color="${art.glow}" stop-opacity="${(poolOpacity * 0.42).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
+<linearGradient id="seam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${art.glow}" stop-opacity="0"/><stop offset=".56" stop-color="${art.glow}" stop-opacity="${(light ? 0.18 : 0.12).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></linearGradient>
+<filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .75 0"/></filter>
+</defs>
+<rect width="${w}" height="${h}" fill="url(#base)"/>
+<rect width="${w}" height="${h}" fill="url(#wash)"/>
+<rect width="${w}" height="${h}" fill="url(#pool)"/>
+<path d="${seam}" fill="none" stroke="url(#seam)" stroke-width="${wide ? 3 : 2}" vector-effect="non-scaling-stroke"/>
+<rect width="${w}" height="${h}" filter="url(#grain)" opacity="${grainOpacity}"/>
+</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+}
+
+/** The matching foot for the material wall: a soft pool and one quiet seam, fading into the page. */
+export function materialFootSvg(art: WallArt, page: string, light: boolean, wide = false): string {
+  const w = wide ? 2400 : 1200;
+  const h = 1000;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMax slice">
+<defs>
+<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${page}" stop-opacity="0"/><stop offset=".45" stop-color="${page}" stop-opacity="${light ? 0.28 : 0.5}"/><stop offset="1" stop-color="${page}"/></linearGradient>
+<radialGradient id="pool" cx="${Math.round(w * 0.78)}" cy="${h}" r="${Math.round(w * 0.72)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.b2}" stop-opacity="${light ? 0.24 : 0.32}"/><stop offset="1" stop-color="${art.b2}" stop-opacity="0"/></radialGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${art.glow}" stop-opacity="0"/><stop offset=".6" stop-color="${art.glow}" stop-opacity="${light ? 0.16 : 0.1}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="${w}" height="${h}" fill="url(#pool)"/>
+<rect width="${w}" height="${h}" fill="url(#fade)"/>
+<path d="M-${Math.round(w * 0.08)} ${Math.round(h * 0.42)} C${Math.round(w * 0.25)} ${Math.round(h * 0.22)}, ${Math.round(w * 0.48)} ${Math.round(h * 0.54)}, ${Math.round(w * 0.72)} ${Math.round(h * 0.36)} S${Math.round(w * 1.03)} ${Math.round(h * 0.2)}, ${Math.round(w * 1.08)} ${Math.round(h * 0.28)}" fill="none" stroke="url(#rim)" stroke-width="${wide ? 3 : 2}" vector-effect="non-scaling-stroke"/>
+</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+}
+
 export function wallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
   const [w, h] = wide ? [2400, 1350] : [1200, 1600];
   // Above the page title and clear of the icons at the top right, so no button sits on the lamp. With day light the

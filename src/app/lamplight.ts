@@ -1,6 +1,6 @@
 import { identityFor } from '../lamplight/identity';
 import type { Appearance } from '../data/storage/preferences';
-import { footSvg, wallpaperSvg, type WallLamp } from './wallpaper';
+import { materialFootSvg, materialWallpaperSvg, type WallLamp } from './wallpaper';
 import { SHADE_DARK, SHADE_LIGHT, mixHex, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
 import { currentDayLight } from './dayLightState';
 import { ownHue, type ColorChoice, type LampColor, type Room } from '../core/look/lamplight';
@@ -36,13 +36,13 @@ export function swatchOf(color: LampColor | `hue:${number}`, mode: Mode, room: R
 /** The room's drawn wallpaper, as a CSS image. */
 export function wallpaperOf(room: Room, mode: Mode, wide = false): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
-  return wallpaperSvg(s.art, s.page, mode === 'light', wide);
+  return materialWallpaperSvg(s.art, s.page, mode === 'light', wide);
 }
 
 /** The foot of Today in the room's colors, as a CSS image. */
 export function footOf(room: Room, mode: Mode, wide = false): string {
   const s = schemeOf(room, LAMP_SEEDS.Amber, mode);
-  return footSvg(s.art, s.page, mode === 'light', wide);
+  return materialFootSvg(s.art, s.page, mode === 'light', wide);
 }
 
 /** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
@@ -67,10 +67,10 @@ export function proairetosVars(s: Scheme, lamp?: WallLamp): Record<string, strin
     '--color-accent-soft': rgba(s.lamp, dark ? 0.15 : 0.12),
     '--color-accent-ink': dark ? s.onLamp : s.card,
     '--color-accent-rgb': triple(s.lamp),
-    '--room-wall': wallpaperSvg(s.art, s.page, !dark, false, lamp),
-    '--room-wall-wide': wallpaperSvg(s.art, s.page, !dark, true, lamp),
-    '--room-foot': footSvg(s.art, s.page, !dark),
-    '--room-foot-wide': footSvg(s.art, s.page, !dark, true),
+    '--room-wall': materialWallpaperSvg(s.art, s.page, !dark, false, lamp),
+    '--room-wall-wide': materialWallpaperSvg(s.art, s.page, !dark, true, lamp),
+    '--room-foot': materialFootSvg(s.art, s.page, !dark),
+    '--room-foot-wide': materialFootSvg(s.art, s.page, !dark, true),
   };
 }
 
