@@ -3,7 +3,6 @@ import { syncNow, syncStatus } from '../../app/sync/syncController';
 import { ChevronIcon, PlusIcon, SearchIcon } from '../../app/family/icons';
 import type { MnemeNav } from '../app/App';
 import { collections, notes, notePreview, type Note } from '../app/state';
-import { MnemeBrand } from '../app/App';
 
 type Filter = 'all' | 'recent' | 'pinned' | 'linked';
 
@@ -31,10 +30,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
 
   return (
     <main className="mneme-page mneme-notes">
-      <header className="mneme-header">
-        <MnemeBrand />
-        <button className="mneme-header__action" type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button>
-      </header>
+      <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
       <div className="mneme-heading-row">
         <h1>Notes</h1>
         <button className="mneme-sync" type="button" onClick={() => void syncNow()} disabled={sync.syncing}>{sync.syncing ? 'Syncing…' : 'Sync'}</button>

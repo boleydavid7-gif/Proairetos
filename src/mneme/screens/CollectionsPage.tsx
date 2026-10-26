@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { BackIcon, BoxIcon, ChevronIcon, PlusIcon } from '../../app/family/icons';
 import type { MnemeNav } from '../app/App';
 import { collections, notes, notePreview, type Note, type NoteCollection } from '../app/state';
-import { MnemeBrand } from '../app/App';
 
 export default function CollectionsPage({ nav, id }: { nav: MnemeNav; id?: string }) {
   const allNotes = notes.use();
@@ -19,7 +18,7 @@ export default function CollectionsPage({ nav, id }: { nav: MnemeNav; id?: strin
     setNewName('');
   };
   return <main className="mneme-page mneme-collections">
-    <header className="mneme-header"><MnemeBrand /><button className="mneme-header__action" type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></header>
+    <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
     <p className="mneme-kicker">Give ideas a home</p><h1>Collections</h1><p className="mneme-intro">Gather notes by project, place, or whatever makes sense to you.</p>
     <div className="mneme-smart-list">
       <SmartCollection label="Inbox" count={allNotes.filter((note) => !note.collectionId && !note.archived).length} onClick={() => nav.swap({ name: 'notes' })} />
@@ -38,5 +37,5 @@ function SmartCollection({ label, count, onClick }: { label: string; count: numb
 
 function CollectionDetail({ nav, collection, notes: collectionNotes }: { nav: MnemeNav; collection?: NoteCollection; notes: Note[] }) {
   const sorted = useMemo(() => collectionNotes.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [collectionNotes]);
-  return <main className="mneme-page mneme-collections"><header className="mneme-detail-header"><button type="button" className="mneme-back" onClick={nav.back}><BackIcon size={22} /> Collections</button><MnemeBrand /></header><p className="mneme-kicker">Collection</p><h1>{collection?.name || 'Collection'}</h1>{sorted.length ? <div className="mneme-note-list">{sorted.map((note) => <button type="button" className="mneme-note-card" key={note.id} onClick={() => nav.go({ name: 'note', id: note.id })}><span className="mneme-note-card__top"><span className="mneme-note-card__title">{note.title || 'Untitled note'}</span><ChevronIcon size={22} /></span><span className="mneme-note-card__body">{notePreview(note.body) || 'No words added yet.'}</span></button>)}</div> : <section className="mneme-empty"><h2>No notes here yet</h2><p>Capture something and place it in this collection.</p><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>}</main>;
+  return <main className="mneme-page mneme-collections"><button type="button" className="mneme-back" data-back onClick={nav.back}><BackIcon size={22} /> Collections</button><p className="mneme-kicker">Collection</p><h1>{collection?.name || 'Collection'}</h1>{sorted.length ? <div className="mneme-note-list">{sorted.map((note) => <button type="button" className="mneme-note-card" key={note.id} onClick={() => nav.go({ name: 'note', id: note.id })}><span className="mneme-note-card__top"><span className="mneme-note-card__title">{note.title || 'Untitled note'}</span><ChevronIcon size={22} /></span><span className="mneme-note-card__body">{notePreview(note.body) || 'No words added yet.'}</span></button>)}</div> : <section className="mneme-empty"><h2>No notes here yet</h2><p>Capture something and place it in this collection.</p><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>}</main>;
 }
