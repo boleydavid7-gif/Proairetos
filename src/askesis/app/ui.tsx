@@ -90,10 +90,13 @@ export function Segmented<T extends string>({
   );
 }
 
-export function Hero({ image, children, tall = false }: { image: string; children?: ReactNode; tall?: boolean }) {
+export function Hero({ image, wideImage, children, tall = false }: { image: string; wideImage?: string; children?: ReactNode; tall?: boolean }) {
   return (
     <header className={`hero${tall ? ' hero--tall' : ''}`}>
-      <img className="hero__image" src={image} alt="" />
+      <picture>
+        {wideImage && <source media="(min-width: 62rem)" srcSet={wideImage} />}
+        <img className="hero__image" src={image} alt="" />
+      </picture>
       <div className="hero__shade" />
       <div className="hero__content">{children}</div>
     </header>

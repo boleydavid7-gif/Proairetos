@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
-import photoWide from '../../assets/images/scenes/ktema-wide.webp';
+import photoWide from '../../assets/images/scenes/ktema-stoic-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
 import { newId, putUpkeep, settings, things, upkeeps } from '../app/state';

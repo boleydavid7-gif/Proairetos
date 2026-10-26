@@ -203,6 +203,12 @@ p {
   object-position: center 42%;
 }
 
+/* Picture wrappers stay on the hero layer so swapping portrait and wide art never changes the title geometry. */
+.hero > picture {
+  position: absolute;
+  inset: 0;
+}
+
 .hero__image {
   position: absolute;
   inset: 0;

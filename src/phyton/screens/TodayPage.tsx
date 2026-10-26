@@ -4,7 +4,7 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, CameraIcon, PlusIcon } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
-import photoWide from '../../assets/images/scenes/phyton-wide.webp';
+import photoWide from '../../assets/images/scenes/phyton-stoic-wide.webp';
 import type { PhytonNav } from '../app/App';
 import { myName, putPlant, settings, useHome, usePlants } from '../app/state';
 import { useForecast, useRain } from '../app/rain';

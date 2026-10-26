@@ -4,7 +4,7 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
-import photoWide from '../../assets/images/scenes/ergon-wide.webp';
+import photoWide from '../../assets/images/scenes/ergon-stoic-wide.webp';
 import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
 import { ChoreList } from '../app/ui';

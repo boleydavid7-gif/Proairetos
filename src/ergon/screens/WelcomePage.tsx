@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/ergon.webp';
-import photoWide from '../../assets/images/scenes/ergon-wide.webp';
+import photo from '../../assets/images/scenes/ergon-stoic.webp';
+import photoWide from '../../assets/images/scenes/ergon-stoic-wide.webp';
 import type { ErgonNav } from '../app/App';
 import { settings } from '../app/state';
 

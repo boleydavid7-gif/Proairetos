@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/phyton.webp';
-import photoWide from '../../assets/images/scenes/phyton-wide.webp';
+import photo from '../../assets/images/scenes/phyton-stoic.webp';
+import photoWide from '../../assets/images/scenes/phyton-stoic-wide.webp';
 import type { PhytonNav } from '../app/App';
 import { settings } from '../app/state';
 

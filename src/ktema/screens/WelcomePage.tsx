@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/ktema.webp';
-import photoWide from '../../assets/images/scenes/ktema-wide.webp';
+import photo from '../../assets/images/scenes/ktema-stoic.webp';
+import photoWide from '../../assets/images/scenes/ktema-stoic-wide.webp';
 import type { KtemaNav } from '../app/App';
 import { settings } from '../app/state';
 

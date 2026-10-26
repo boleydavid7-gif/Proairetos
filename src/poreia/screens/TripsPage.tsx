@@ -1,7 +1,7 @@
 import { Brand } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { DailyLine } from '../../app/family/DailyLine';
-import photoWide from '../../assets/images/scenes/poreia-wide.webp';
+import photoWide from '../../assets/images/scenes/poreia-stoic-wide.webp';
 import type { PoreiaNav } from '../app/App';
 import { today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';

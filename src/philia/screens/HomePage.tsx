@@ -2,7 +2,7 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
-import photoWide from '../../assets/images/scenes/philia-wide.webp';
+import photoWide from '../../assets/images/scenes/philia-stoic-wide.webp';
 import type { PhiliaNav } from '../app/App';
 import { newId, people } from '../app/state';
 import { Initials } from '../app/ui';

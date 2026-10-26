@@ -3,7 +3,7 @@ import { useFoodChoices } from '../data/foodChoices';
 import { recipeNutrition } from '../core/nutrition';
 import type { Nav } from '../app/App';
 import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
-import { scene } from '../app/scenes';
+import somaHeroWide from '../assets/scenes/soma-stoic-wide.webp';
 import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { recipesUsing, soonItems, shownUseBy } from '../core/soon';
@@ -53,7 +53,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
 
   return (
     <div className="home">
-      <Hero image={scene('lake-produce')} tall>
+      <Hero image={somaHeroWide} wideImage={somaHeroWide} tall>
         <Brand light />
         <div className="home__words">
           <h1 className="home__title">Recipes</h1>

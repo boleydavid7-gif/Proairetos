@@ -4,7 +4,7 @@ import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, ChevronIcon } from '../../app/family/icons';
 import { energyFor, setEnergy, subscribePreferences, type Energy } from '../../data/storage/preferences';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
-import photoWide from '../../assets/images/scenes/diaita-wide.webp';
+import photoWide from '../../assets/images/scenes/diaita-stoic-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { Timeline, span } from '../app/ui';

@@ -50,7 +50,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-brand--light .hydros-brand__by { color: rgba(244,252,255,.75); }
 
 .hydros-hero { position: relative; height: max(620px, calc(100dvh - var(--tab-height))); min-height: max(620px, calc(100dvh - var(--tab-height))); display: flex; flex-direction: column; padding: calc(var(--ll-safe-top) + 24px) 28px 38px; color: #f4fbfc; isolation: isolate; overflow: hidden; }
-.hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-sunset.webp') center 35% / cover; transform: scale(1.03); }
+.hydros-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(3,17,24,.35), rgba(3,17,24,.12) 40%, #061219 100%), url('../../assets/images/scenes/hydros-stoic-wide.webp') center 35% / cover; transform: scale(1.03); }
 .hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
 .hydros-hero .hydros-brand { position: relative; }
 .hydros-home-head { display: flex; align-items: center; justify-content: space-between; }
@@ -81,8 +81,8 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-orb em { margin-top: 10px; color: rgba(226,249,255,.72); font-size: 0.6875rem; font-weight: 400; letter-spacing: .025em; }
 
 .hydros-screen, .hydros-add { padding: 8px 20px 30px; }
-.hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
-:root.hydros[data-theme='light'] .hydros-screen, :root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .32), rgba(234, 244, 245, .72) 78%, rgba(234, 244, 245, .86)), url('../../assets/images/scenes/hydros-sunset.webp') center 42% / cover; }
+.hydros-screen, .hydros-add { position: relative; isolation: isolate; min-height: calc(100dvh - var(--tab-height)); overflow: hidden; background: linear-gradient(180deg, rgba(3, 19, 27, .28), rgba(3, 19, 27, .62) 78%, rgba(3, 19, 27, .8)), url('../../assets/images/scenes/hydros-stoic-wide.webp') center 42% / cover; }
+:root.hydros[data-theme='light'] .hydros-screen, :root.hydros[data-theme='light'] .hydros-add { background: linear-gradient(180deg, rgba(234, 244, 245, .32), rgba(234, 244, 245, .72) 78%, rgba(234, 244, 245, .86)), url('../../assets/images/scenes/hydros-stoic-wide.webp') center 42% / cover; }
 .hydros-add { height: calc(100dvh - var(--tab-height)); min-height: 0; padding: 0; background: url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
 .hydros-add::before, .hydros-add::after { display: none; }
 :root.hydros[data-theme='light'] .hydros-add { background: url('../../assets/images/scenes/hydros-add.webp') center 54% / cover; }
@@ -395,8 +395,8 @@ body:has(.hydros-shell) { min-height: 100dvh; }
    The scene belongs to Today. Logging, charts and settings use the same quiet water room as the rest of the family,
    so the data stays in front and the illustration becomes a place rather than a competing surface. */
 .hydros-home { min-height: 100dvh; background: var(--bg); }
-.hydros-hero--today { height: auto; min-height: 0; padding: calc(var(--ll-safe-top) + 14px) 20px 22px; border-radius: 0 0 28px 28px; background: linear-gradient(180deg, rgba(3, 17, 24, .28), rgba(3, 17, 24, .72)), url('../../assets/images/scenes/hydros-sunset.webp') center 22% / cover; }
-.hydros-hero--today::before { background: linear-gradient(180deg, rgba(3,17,24,.18), rgba(3,17,24,.74)), url('../../assets/images/scenes/hydros-sunset.webp') center 22% / cover; transform: none; }
+.hydros-hero--today { height: auto; min-height: 0; padding: calc(var(--ll-safe-top) + 14px) 20px 22px; border-radius: 0 0 28px 28px; background: linear-gradient(180deg, rgba(3, 17, 24, .28), rgba(3, 17, 24, .72)), url('../../assets/images/scenes/hydros-stoic-wide.webp') center 22% / cover; }
+.hydros-hero--today::before { background: linear-gradient(180deg, rgba(3,17,24,.18), rgba(3,17,24,.74)), url('../../assets/images/scenes/hydros-stoic-wide.webp') center 22% / cover; transform: none; }
 .hydros-hero--today::after { background: linear-gradient(180deg, transparent 35%, rgba(3,17,24,.26)); }
 .hydros-hero--today .hydros-home-head { min-height: 42px; }
 .hydros-hero--today .hydros-settings-button { width: 42px; height: 42px; }

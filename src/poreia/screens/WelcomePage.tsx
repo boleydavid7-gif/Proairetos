@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/poreia.webp';
-import photoWide from '../../assets/images/scenes/poreia-wide.webp';
+import photo from '../../assets/images/scenes/poreia-stoic.webp';
+import photoWide from '../../assets/images/scenes/poreia-stoic-wide.webp';
 import type { PoreiaNav } from '../app/App';
 import { settings } from '../app/state';
 
