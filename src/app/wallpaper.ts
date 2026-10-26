@@ -12,14 +12,14 @@ export type WallArt = {
 };
 
 import type { WallStyle } from '../core/look/lamplight';
+import { mixHex } from '../lamplight/daylight';
+import type { Hex } from '../lamplight/color';
 
 /** Day light (Lamplight 2.0): where the lamp hangs on the tall picture (fractions), how strong it is, and its color. */
 export type WallLamp = { x: number; y: number; strength: number; glow: string; warmth: number };
 
 /** Small, deterministic marks keep the material treatments repeatable across devices. */
-function paperFibers(w: number, h: number, light: boolean): string {
-  const fiber = light ? '#fff8e8' : '#d5c7ae';
-  const shadow = light ? '#6f6354' : '#05090e';
+function paperFibers(w: number, h: number, fiber: string, shadow: string): string {
   const fibers = Array.from({ length: 30 }, (_, i) => {
     const x = (i * 431) % w;
     const y = 120 + ((i * 271) % Math.max(1, h - 180));
@@ -36,9 +36,7 @@ function paperFibers(w: number, h: number, light: boolean): string {
   return fibers + flecks;
 }
 
-function woodGrain(w: number, h: number, light: boolean): string {
-  const dark = light ? '#6e5945' : '#17100c';
-  const glow = light ? '#f0d2a2' : '#c39a68';
+function woodGrain(w: number, h: number, dark: string, glow: string): string {
   return Array.from({ length: 15 }, (_, i) => {
     const y = Math.round(h * (0.12 + i * 0.06));
     const bend = 18 + (i % 4) * 8;
@@ -72,14 +70,21 @@ export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wi
   const grainOpacity = style === 'paper' ? (light ? 0.07 : 0.1) : light ? 0.035 : 0.06;
   const poolOpacity = (light ? 0.22 : 0.12) * k;
   const washOpacity = light ? 0.18 : 0.16;
-  // Wood keeps a quiet warmth inside the room palette without becoming a separate image.
-  const woodWarm = light ? '#c4a579' : '#a8753f';
-  const paperWarm = light ? '#e9dfcc' : '#a99d8d';
+  // Materials keep their own character, while these tints inherit the room and the lamp instead of painting a
+  // fixed beige or brown layer over every palette. Mixing the room into the neutral first keeps the result calm.
+  const pageHex = page as Hex;
+  const glowHex = art.glow as Hex;
+  const paperBase = light ? mixHex('#f5eee1', art.b1 as Hex, 0.18) : mixHex(pageHex, art.b1 as Hex, 0.16);
+  const paperFiber = light ? mixHex(paperBase, glowHex, 0.28) : mixHex(paperBase, glowHex, 0.2);
+  const paperShadow = mixHex(paperBase, pageHex, light ? 0.5 : 0.62);
+  const woodBase = light ? mixHex('#b98559', art.b2 as Hex, 0.2) : mixHex('#5b3b2a', mixHex(pageHex, art.b2 as Hex, 0.3), 0.42);
+  const woodGlow = mixHex(woodBase, glowHex, light ? 0.32 : 0.22);
+  const woodShadow = mixHex(woodBase, pageHex, light ? 0.52 : 0.62);
   const styleLayer = style === 'ink'
     ? `${inkPools(w, h, light)}<rect width="${w}" height="${h}" fill="${art.b2}" opacity="${light ? 0.035 : 0.05}" filter="url(#ink-texture)"/>`
     : style === 'wood'
-      ? `<rect width="${w}" height="${h}" fill="${woodWarm}" opacity="${light ? 0.27 : 0.38}" filter="url(#wood-texture)"/><g filter="url(#wood-soft)">${woodGrain(w, h, light)}</g>`
-      : `<rect width="${w}" height="${h}" fill="${paperWarm}" opacity="${light ? 0.2 : 0.34}"/><g filter="url(#paper-soft)">${paperFibers(w, h, light)}</g>`;
+      ? `<rect width="${w}" height="${h}" fill="${woodBase}" opacity="${light ? 0.27 : 0.38}" filter="url(#wood-texture)"/><g filter="url(#wood-soft)">${woodGrain(w, h, woodShadow, woodGlow)}</g>`
+      : `<rect width="${w}" height="${h}" fill="${paperBase}" opacity="${light ? 0.2 : 0.34}"/><g filter="url(#paper-soft)">${paperFibers(w, h, paperFiber, paperShadow)}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
 <defs>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
