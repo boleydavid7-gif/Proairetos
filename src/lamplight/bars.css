@@ -98,18 +98,13 @@
     position: absolute;
     z-index: 0;
     inset: 0 0 calc(-1 * var(--ll-bar-feather));
-    background:
-      radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%),
-      linear-gradient(to bottom,
-        var(--ll-material-mica) calc(var(--ll-safe-top) + 4px),
-        color-mix(in srgb, var(--ll-material-mica) 94%, transparent) calc(var(--ll-safe-top) + 30px));
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--ll-bar-feather) - 6px), transparent);
-    /* Keep a quiet glass veil at rest so content never shows through the fixed bar; the handoff still becomes fully
-       opaque as the title enters it. */
-    opacity: max(0.78, var(--ll-bar-progress, 0));
+    background: var(--ll-material-mica-surface);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    backdrop-filter: blur(24px) saturate(1.6);
+    /* This layer is the only thing that touches the page beneath the fixed bar. */
+    -webkit-mask-image: none;
+    mask-image: none;
+    opacity: 1;
     will-change: opacity;
     pointer-events: none;
   }
@@ -165,12 +160,6 @@
     will-change: opacity;
   }
 
-  /* Page content gets the same handoff as the title when its top edge enters the fixed bar. */
-  :root .ll-under-topbar {
-    opacity: calc(1 - (var(--ll-under-topbar-progress, 0) * .88));
-    filter: blur(calc(var(--ll-under-topbar-progress, 0) * 6px));
-    will-change: opacity, filter;
-  }
 
   /* All mobile title containers enter the same visual band before the handoff starts. The frame moves as a unit so
      an eyebrow, subtitle or page action keeps its relationship with the title. */
