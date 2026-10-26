@@ -139,6 +139,7 @@ function largeTitle(): void {
   let lastY = 0;
   let tucked = false;
   let scrollReady = false;
+  let dockCanTuck = false;
   // Reading the page's controls (and serialising them to see whether they changed) happens only after the page
   // itself changed; a scroll frame reads the scroll and one rectangle, so long pages scroll without extra work.
   let dirty = true;
@@ -329,6 +330,11 @@ function largeTitle(): void {
       scrollReady = true;
       lastY = y;
       tucked = false;
+    } else if (!dockCanTuck) {
+      // Viewport and safe-area corrections on iOS can emit a second scroll event while the app is opening. Keep the
+      // dock settled until an actual gesture or scroll input gives the hide/show behavior permission to run.
+      tucked = false;
+      lastY = y;
     } else {
       if (y < 80 || y > room - 40) tucked = false;
       else if (y - lastY > 8) tucked = true;
@@ -380,6 +386,12 @@ function largeTitle(): void {
     changed();
   });
   phone.addEventListener?.('change', changed);
+  const allowDockTuck = () => { dockCanTuck = true; };
+  addEventListener('touchmove', allowDockTuck, { passive: true, capture: true, once: true });
+  addEventListener('wheel', allowDockTuck, { passive: true, capture: true, once: true });
+  addEventListener('keydown', (event) => {
+    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) allowDockTuck();
+  }, { capture: true });
   new MutationObserver((records) => {
     if (records.every((record) => bar.contains(record.target))) return;
     if (!title?.isConnected) title = undefined;
