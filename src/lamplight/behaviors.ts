@@ -138,6 +138,7 @@ function largeTitle(): void {
   let titleInset = 0;
   let lastY = 0;
   let tucked = false;
+  let scrollReady = false;
   // Reading the page's controls (and serialising them to see whether they changed) happens only after the page
   // itself changed; a scroll frame reads the scroll and one rectangle, so long pages scroll without extra work.
   let dirty = true;
@@ -322,10 +323,18 @@ function largeTitle(): void {
     // The dock tucks away while reading down a page and comes back on the way up, at the top or the foot.
     const y = document.scrollingElement?.scrollTop ?? scrollY;
     const room = (document.scrollingElement?.scrollHeight ?? 0) - innerHeight;
-    if (y < 80 || y > room - 40) tucked = false;
-    else if (y - lastY > 8) tucked = true;
-    else if (lastY - y > 8) tucked = false;
-    if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
+    // iOS can restore a page's scroll offset, then correct it when the visual viewport and safe area settle. Treat the
+    // first read as the baseline so that correction does not briefly hide the dock and animate it back from below.
+    if (!scrollReady) {
+      scrollReady = true;
+      lastY = y;
+      tucked = false;
+    } else {
+      if (y < 80 || y > room - 40) tucked = false;
+      else if (y - lastY > 8) tucked = true;
+      else if (lastY - y > 8) tucked = false;
+      if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
+    }
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
     // The handoff follows the title's top edge over a short stretch of scroll: it starts just below the bar and is
