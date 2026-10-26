@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/therapeia.webp';
-import photoWide from '../../assets/images/scenes/therapeia-wide.webp';
+import photo from '../../assets/images/scenes/therapeia-stoic.webp';
+import photoWide from '../../assets/images/scenes/therapeia-stoic-wide.webp';
 import type { TherapeiaNav } from '../app/App';
 import { settings } from '../app/state';
 

@@ -1,12 +1,12 @@
 import type { Nav } from '../app/App';
 import { Mark } from '../app/icons';
-import { scene } from '../app/scenes';
+import heroImage from '../../assets/images/scenes/askesis-stoic.webp';
 
 /** The first screen: what this is, and one way in. */
 export default function WelcomePage({ nav }: { nav: Nav }) {
   return (
     <div className="welcome">
-      <img className="welcome__image" src={scene('sunset-lake')} alt="" />
+      <img className="welcome__image" src={heroImage} alt="" />
       <div className="welcome__shade" />
       <div className="welcome__content">
         <Mark size={48} />

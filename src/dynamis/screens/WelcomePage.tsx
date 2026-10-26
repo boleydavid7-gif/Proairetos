@@ -1,7 +1,7 @@
 import { Welcome } from '../../app/family/shell';
 import { AppMark } from '../../app/family/icons';
-import photo from '../../assets/images/scenes/dynamis.webp';
-import photoWide from '../../assets/images/scenes/dynamis-wide.webp';
+import photo from '../../assets/images/scenes/dynamis-stoic.webp';
+import photoWide from '../../assets/images/scenes/dynamis-stoic-wide.webp';
 import type { DynamisNav } from '../app/App';
 import { settings } from '../app/state';
 

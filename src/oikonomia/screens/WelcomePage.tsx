@@ -1,6 +1,6 @@
 import type { Nav } from '../app/App';
-import heroImage from '../../assets/images/scenes/valley.webp';
-import heroWide from '../../assets/images/scenes/valley-wide.webp';
+import heroImage from '../../assets/images/scenes/oikonomia-stoic.webp';
+import heroWide from '../../assets/images/scenes/oikonomia-stoic-wide.webp';
 import { ArchMark } from '../app/icons';
 import { saveSettings, loadSettings } from '../data/store';
 
