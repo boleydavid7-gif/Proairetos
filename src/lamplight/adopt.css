@@ -153,21 +153,21 @@
    A field sits a step into its surface: a fill of its own, a hairline all round so it reads as a box on any card,
    and a soft shade along the inside of its top edge, the side away from the room's light. */
 :root {
-  --ll-field-edge: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.2);
-  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.32);
+  --ll-field-edge: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.26);
+  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.38);
   --ll-field-well: inset 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 :root[data-theme='light'] {
-  --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
-  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.36);
+  --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.28);
+  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.42);
   --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
 }
 
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
-    --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22);
-    --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.36);
+    --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.28);
+    --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.42);
     --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
   }
 }
@@ -178,6 +178,22 @@
   background: var(--ll-inset);
   box-shadow: var(--ll-field-well);
   transition: border-color var(--ll-calm, 200ms) ease, box-shadow var(--ll-calm, 200ms) ease;
+}
+
+/* Older, screen-specific fields join the same material contract too: a quiet hairline at rest and the same lamp halo
+   when focused. Their typography and sizing stay with the screen that owns them. */
+:root :is(.journal__input, .sort-when__fields input) {
+  border-color: var(--ll-field-edge);
+  background: var(--ll-inset);
+  box-shadow: var(--ll-field-well);
+  transition: border-color var(--ll-calm, 200ms) ease, box-shadow var(--ll-calm, 200ms) ease, background var(--ll-calm, 200ms) ease;
+}
+
+:root :is(.journal__input, .sort-when__fields input):focus {
+  outline: none;
+  border-color: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.85);
+  background: var(--ll-inset);
+  box-shadow: var(--ll-field-well), var(--ll-focus);
 }
 
 @media (hover: hover) {
