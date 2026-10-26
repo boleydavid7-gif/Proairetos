@@ -650,14 +650,6 @@
   margin-bottom: calc(var(--space-5) * -1);
 }
 
-/* Days ahead keeps the room and its own controls visible beneath the system bar. The shared bar still carries
-   Search, Settings, and Places, but its grouped glass capsule is unnecessary on this quiet planning page. */
-@media (max-width: 61.99rem) {
-  :root:has(.days-page) .ll-topbar__actions {
-    background: transparent;
-  }
-}
-
 /* ---------- Bring things in ---------- */
 
 .import-sources {
