@@ -9,6 +9,7 @@
 
 .mneme-page { width: min(100%, 40rem); margin: 0 auto; padding: calc(1rem + env(safe-area-inset-top)) 1.1rem calc(6.3rem + env(safe-area-inset-bottom)); color: var(--mneme-ink); }
 .mneme-header-actions-source { position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+.mneme-back-source { position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
 .mneme-page > .mneme-back { margin: .25rem 0 1.5rem; }
 .mneme-header, .mneme-detail-header { display: flex; align-items: center; gap: .75rem; min-height: 2.7rem; }
 .mneme-header .brand, .mneme-detail-header .brand { flex: 1; }
