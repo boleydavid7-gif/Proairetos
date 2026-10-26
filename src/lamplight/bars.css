@@ -105,8 +105,15 @@
     mask-image: none;
     box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 -1px 0 rgba(255, 255, 255, 0.07);
     opacity: var(--ll-bar-progress, 0);
+    transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
     will-change: opacity;
     pointer-events: none;
+  }
+
+  /* Before the page title reaches the bar there is no surface to paint. Keeping this explicit also prevents a
+     fractional handoff value during navigation from showing a dark veil behind the resting action pill. */
+  .ll-topbar.is-on:not(.is-scrolled)::before {
+    opacity: 0;
   }
 
   /* Keep the controls above the glass while the page remains the backdrop being blurred. */
@@ -120,7 +127,10 @@
   }
 
   /* The shared mica class belongs to other chrome; the top-bar shell stays clear until its own layer fades in. */
-  :root .ll-topbar.ll-mica.is-on { background: transparent !important; }
+  :root .ll-topbar.ll-mica.is-on {
+    background: transparent !important;
+    background-image: none !important;
+  }
 
 
   /* Left: the app's name, or the chevron and where it goes. */

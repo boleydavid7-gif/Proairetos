@@ -345,7 +345,7 @@ function largeTitle(): void {
     }
     const folded = progress >= 0.999;
     bar.classList.add('is-on');
-    bar.classList.toggle('is-scrolled', progress > 0.001);
+    bar.classList.toggle('is-scrolled', progress > 0.01);
     bar.classList.toggle('is-folded', folded);
     bar.classList.toggle('is-over-picture', !folded && Boolean(picture?.isConnected) && picture!.getBoundingClientRect().top < height);
     if (title && !title.classList.contains('ll-title-folding')) title.classList.add('ll-title-folding');
