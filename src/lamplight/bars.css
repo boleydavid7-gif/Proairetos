@@ -319,17 +319,17 @@
     z-index: 1;
     left: var(--ll-dock-x, 50%);
     bottom: calc(100% - 2px);
-    width: min(24rem, 100vw);
-    height: 10rem;
+    width: min(9rem, 42vw);
+    height: 3.75rem;
     translate: -50% 0;
     border-radius: 50%;
     background: radial-gradient(
       ellipse at 50% 100%,
-      color-mix(in srgb, var(--ll-dock-mark) 16%, transparent) 0%,
-      color-mix(in srgb, var(--ll-dock-mark) 7%, transparent) 34%,
-      transparent 74%
+      color-mix(in srgb, var(--ll-dock-mark) 9%, transparent) 0%,
+      color-mix(in srgb, var(--ll-dock-mark) 4%, transparent) 34%,
+      transparent 72%
     );
-    filter: blur(8px);
+    filter: blur(4px);
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
@@ -349,7 +349,7 @@
     height: var(--ll-nav-indicator-height, 3px);
     border-radius: 0 0 3px 3px;
     background: var(--ll-dock-mark);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--ll-dock-mark) 45%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ll-dock-mark) 32%, transparent);
     translate: -50% 0;
     opacity: 0;
     pointer-events: none;
