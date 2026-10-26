@@ -8,6 +8,8 @@
   --ll-mica-surface: radial-gradient(150% 130% at 70% -70%, rgba(var(--ll-lamp-rgb, 79, 120, 168), 0.07), transparent 62%) var(--ll-mica, var(--ll-page, #101923));
   --ll-edge-below: 0 12px 16px -6px var(--ll-mica, var(--ll-page, #101923));
   --ll-edge-above: 0 -12px 16px -6px var(--ll-mica, var(--ll-page, #101923));
+  /* WebKit can report a transiently oversized home-indicator inset while a standalone PWA opens. */
+  --ll-safe-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
 }
 
 :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav, .ll-bar) {
@@ -17,6 +19,41 @@
 @media (max-width: 61.99rem) {
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
     box-shadow: 0 -8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+}
+
+/* Standalone iOS PWAs occasionally lay out fixed chrome before the home-indicator inset settles. Keep each dock on
+   its own compositor layer and cap that transient inset so it cannot begin in the lower part of the screen. */
+@media (display-mode: standalone) and (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  :root .app-shell .tab-bar {
+    padding-bottom: calc(var(--space-2) + var(--ll-safe-bottom));
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  :root .hydros-tabs {
+    padding-bottom: var(--ll-safe-bottom);
+    -webkit-transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  :root .praxis-bottom-nav,
+  :root .theoria-bottom-nav {
+    bottom: max(8px, calc(8px + var(--ll-safe-bottom)));
+  }
+
+  :root.hydros {
+    --tab-height: calc(70px + var(--ll-safe-bottom));
+  }
+
+  :root.askesis {
+    --tab-height: calc(68px + var(--ll-safe-bottom));
   }
 }
 
