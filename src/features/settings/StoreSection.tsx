@@ -141,7 +141,7 @@ export default function StoreSection() {
       {paid && tester ? <p className="store__fine">Beta tester: every app is yours without paying.</p> : null}
       {paid && !tester ? <p className="store__fine">Each app is bought once and stays with your account on every device. Proairetos itself is free.</p> : null}
       <p className="store__fine">Beta access: contact boleydavid7@gmail.com to unlock everything for 3 days.</p>
-      {owner && <BetaAccessPanel />}
+      {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/">
         Adding an app to your Home Screen
       </a>
@@ -156,6 +156,7 @@ function BetaAccessPanel() {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [, tick] = useState(0);
 
   const request = async (path = '/api/store/beta', init: RequestInit = {}) => {
     const client = await supabase();
@@ -177,6 +178,7 @@ function BetaAccessPanel() {
   };
 
   useEffect(() => { void load(); }, []);
+  useEffect(() => { const timer = window.setInterval(() => tick((value) => value + 1), 60_000); return () => window.clearInterval(timer); }, []);
 
   const add = async () => {
     setBusy(true);
@@ -206,5 +208,36 @@ function BetaAccessPanel() {
     }
   };
 
-  return <section className="store__beta" aria-label="Beta access"><h2>Beta access</h2><p>Give someone full access for three days while they try the family.</p><div className="store__beta-form"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="person@example.com" aria-label="Beta tester email" /><button type="button" className="button-accent" onClick={() => void add()} disabled={busy || !email.trim()}>Grant 3 days</button></div>{entries.length > 0 && <ul className="store__beta-list">{entries.map((entry) => <li key={entry.email}><span><strong>{entry.email}</strong><small>Until {new Date(entry.expires_at).toLocaleString()}</small></span><button type="button" className="text-link" onClick={() => void remove(entry)} disabled={busy}>Remove</button></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
+  return <section className="store__beta" aria-label="Beta access"><h2>Beta access</h2><p>Give someone full access for three days while they try the family.</p><div className="store__beta-form"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="person@example.com" aria-label="Beta tester email" /><button type="button" className="button-accent" onClick={() => void add()} disabled={busy || !email.trim()}>Grant 3 days</button></div>{entries.length > 0 && <ul className="store__beta-list">{entries.map((entry) => <li key={entry.email}><span><strong>{entry.email}</strong><small>{remainingBeta(entry.expires_at)} · Until {new Date(entry.expires_at).toLocaleString()}</small></span><button type="button" className="text-link" onClick={() => void remove(entry)} disabled={busy}>Remove</button></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
+}
+
+function remainingBeta(expiresAt: string): string {
+  const remaining = Math.max(0, new Date(expiresAt).getTime() - Date.now());
+  const hours = Math.floor(remaining / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+  if (!remaining) return 'Expired';
+  if (hours >= 24) return `${Math.floor(hours / 24)}d ${hours % 24}h left`;
+  return `${hours}h ${minutes}m left`;
+}
+
+type SignedInUser = { email: string; created_at: string; last_sign_in_at: string };
+
+function SignedInUsersPanel() {
+  const [users, setUsers] = useState<SignedInUser[]>([]);
+  const [message, setMessage] = useState('');
+  const load = async () => {
+    try {
+      const client = await supabase();
+      const token = (await client.auth.getSession()).data.session?.access_token;
+      if (!token) throw new Error('Sign in again to view users.');
+      const response = await fetch(apiUrl('/api/store/users'), { headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
+      const body = (await response.json().catch(() => ({}))) as { users?: SignedInUser[]; error?: string };
+      if (!response.ok) throw new Error(body.error ?? 'The signed-in user list could not be loaded.');
+      setUsers(body.users ?? []);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'The signed-in user list could not be loaded.');
+    }
+  };
+  useEffect(() => { void load(); }, []);
+  return <section className="store__beta store__users" aria-label="Signed-in users"><h2>Signed-in users</h2><p>Only you can see this list. It shows the first 100 accounts from Supabase Auth.</p><button type="button" className="button-quiet" onClick={() => void load()}>Refresh list</button>{users.length > 0 && <ul className="store__beta-list">{users.map((user) => <li key={`${user.email}-${user.created_at}`}><span><strong>{user.email || 'No email'}</strong><small>Joined {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'unknown'} · Last sign-in {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : 'never'}</small></span></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
 }

@@ -131,6 +131,19 @@ export async function betaAccess(request: Request, env: StoreEnv, fetcher: Fetch
   return reply(200, { email, expires_at: expiresAt });
 }
 
+/** Owner-only, minimal account directory. The service role never leaves the Worker. */
+export async function signedInUsers(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: 'User directory is not set up yet.' });
+  const person = await personFrom(request, env, fetcher);
+  if (!person || person.email?.trim().toLowerCase() !== ownerEmail(env)) return reply(403, { error: 'Only the owner can view signed-in users.' });
+  const query = new URLSearchParams({ page: '1', per_page: '100' });
+  const response = await fetcher(`${base(env)}/auth/v1/admin/users?${query}`, { headers: serviceHeaders(env) });
+  if (!response.ok) return reply(502, { error: 'The signed-in user list could not be read.' });
+  const data = (await response.json()) as { users?: Array<{ email?: string; created_at?: string; last_sign_in_at?: string }> };
+  const users = (data.users ?? []).map((user) => ({ email: user.email ?? '', created_at: user.created_at ?? '', last_sign_in_at: user.last_sign_in_at ?? '' }));
+  return reply(200, { users, hasMore: users.length === 100 });
+}
+
 const serviceHeaders = (env: StoreEnv) => ({
   apikey: env.SUPABASE_SERVICE_ROLE_KEY!,
   authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY!}`,
@@ -231,6 +244,7 @@ export async function handleStoreRequest(request: Request, env: StoreEnv): Promi
     return reply(200, { paid: storeReady(env), price: PRICE_CENTS, currency: CURRENCY });
   if (path === '/api/store/mine' && request.method === 'GET') return mine(request, env);
   if (path === '/api/store/beta' && ['GET', 'POST', 'DELETE'].includes(request.method)) return betaAccess(request, env);
+  if (path === '/api/store/users' && request.method === 'GET') return signedInUsers(request, env);
   if (path === '/api/store/checkout' && request.method === 'POST') return startCheckout(request, env);
   if (path === '/api/store/webhook' && request.method === 'POST') return handleWebhook(request, env);
   return reply(404, { error: 'Not found.' });

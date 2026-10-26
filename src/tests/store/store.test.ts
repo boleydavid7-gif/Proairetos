@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { betaAccess, handleStoreRequest, handleWebhook, isTester, mine, startCheckout, stripeSigned, type StoreEnv } from '../../../worker/store';
+import { betaAccess, handleStoreRequest, handleWebhook, isTester, mine, signedInUsers, startCheckout, stripeSigned, type StoreEnv } from '../../../worker/store';
 
 const env: StoreEnv = {
   STRIPE_SECRET_KEY: 'sk_test',
@@ -98,6 +98,22 @@ describe('the Store on the Worker', () => {
     expect((await added.json()) as { expires_at: string }).toHaveProperty('expires_at');
     expect(calls.some((call) => call.url.includes('/rest/v1/beta_access?on_conflict=email'))).toBe(true);
     const denied = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer other' } }), withBeta, fetcher);
+    expect(denied.status).toBe(403);
+  });
+
+  it('keeps the signed-in user directory owner-only and strips auth details', async () => {
+    const withUsers = { ...env, OWNER_EMAIL: 'boleydavid7@gmail.com' };
+    const fetcher = (async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/auth/v1/user')) {
+        const token = new Headers(init?.headers).get('authorization');
+        return new Response(JSON.stringify({ id: token === 'Bearer owner' ? 'owner-1' : 'other-1', email: token === 'Bearer owner' ? 'boleydavid7@gmail.com' : 'other@example.com' }));
+      }
+      if (url.includes('/auth/v1/admin/users')) return new Response(JSON.stringify({ users: [{ email: 'friend@example.com', created_at: '2026-01-01T00:00:00Z', last_sign_in_at: '2026-01-02T00:00:00Z', id: 'private-id' }] }));
+      return new Response('{}', { status: 404 });
+    }) as unknown as typeof fetch;
+    const response = await signedInUsers(new Request('https://proairetos.com/api/store/users', { headers: { authorization: 'Bearer owner' } }), withUsers, fetcher);
+    expect(await response.json()).toEqual({ users: [{ email: 'friend@example.com', created_at: '2026-01-01T00:00:00Z', last_sign_in_at: '2026-01-02T00:00:00Z' }], hasMore: false });
+    const denied = await signedInUsers(new Request('https://proairetos.com/api/store/users', { headers: { authorization: 'Bearer other' } }), withUsers, fetcher);
     expect(denied.status).toBe(403);
   });
 

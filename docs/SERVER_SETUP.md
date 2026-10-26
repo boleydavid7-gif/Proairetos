@@ -420,6 +420,7 @@ free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/f
 5. The owner account is `OWNER_EMAIL` (set to `boleydavid7@gmail.com` in `wrangler.jsonc`). The Store settings page shows
    the owner a Beta access list. Enter a person's signed-in email there to grant three days of full beta access; remove
    them early from the same list. Permanent testers can still be kept in the optional `STORE_TESTERS` secret.
+   The same owner-only page shows the signed-in user directory and refreshes beta entries with a live time remaining.
 6. Refunds: refund in Stripe, then remove the row: `delete from purchases where app = 'soma' and user_id = '…';`.
 
 Once the Worker has every secret, the Store shows prices, Buy opens Stripe's own page, and the person comes back to
