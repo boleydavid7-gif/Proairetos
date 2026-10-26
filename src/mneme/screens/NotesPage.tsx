@@ -36,7 +36,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
         <button className="mneme-header__action" type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button>
       </header>
       <div className="mneme-heading-row">
-        <div><p className="mneme-kicker">A quiet place to keep what matters</p><h1>Notes</h1></div>
+        <h1>Notes</h1>
         <button className="mneme-sync" type="button" onClick={() => void syncNow()} disabled={sync.syncing}>{sync.syncing ? 'Syncing…' : 'Sync'}</button>
       </div>
       <p className="mneme-sync-line"><span className={`mneme-sync-dot mneme-sync-dot--${sync.phase}`} />{syncLabel(sync.phase)}{sync.phase !== 'ready' && <a href="/?open=account">Set up</a>}</p>
