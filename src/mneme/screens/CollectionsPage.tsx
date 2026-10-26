@@ -23,7 +23,6 @@ export default function CollectionsPage({ nav, id }: { nav: MnemeNav; id?: strin
     <div className="mneme-smart-list">
       <SmartCollection label="Inbox" count={allNotes.filter((note) => !note.collectionId && !note.archived).length} onClick={() => nav.swap({ name: 'notes' })} />
       <SmartCollection label="Pinned" count={allNotes.filter((note) => note.pinned && !note.archived).length} onClick={() => nav.swap({ name: 'notes' })} />
-      <SmartCollection label="Connected" count={allNotes.filter((note) => note.links.length > 0 && !note.archived).length} onClick={() => nav.swap({ name: 'notes' })} />
     </div>
     <h2 className="mneme-section-title">Your collections</h2>
     {allCollections.length ? <div className="mneme-collection-list">{allCollections.map((item) => <button type="button" className="mneme-collection-row" key={item.id} onClick={() => nav.go({ name: 'collection', id: item.id })}><span className="mneme-collection-row__icon"><BoxIcon size={22} /></span><span><strong>{item.name}</strong><small>{allNotes.filter((note) => note.collectionId === item.id).length} notes</small></span><ChevronIcon size={22} /></button>)}</div> : <p className="mneme-muted">Your first collection can start with a project, a place, or a question.</p>}
