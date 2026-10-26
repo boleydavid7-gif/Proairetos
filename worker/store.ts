@@ -81,6 +81,7 @@ export function isTester(env: StoreEnv, email: string | undefined): boolean {
 
 const ownerEmail = (env: StoreEnv) => (env.OWNER_EMAIL ?? 'boleydavid7@gmail.com').trim().toLowerCase();
 const validEmail = (email: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
+const betaSetupMessage = 'Run supabase/migrations/20261029000000_beta_access.sql, add SUPABASE_SERVICE_ROLE_KEY to the Worker secrets, and redeploy.';
 
 async function hasTemporaryAccess(env: StoreEnv, email: string | undefined, fetcher: Fetcher): Promise<boolean> {
   if (!email || !env.SUPABASE_SERVICE_ROLE_KEY || !env.SUPABASE_URL) return false;
@@ -101,13 +102,13 @@ export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = f
 
 /** Owner-only beta list. Temporary entries expire without a cleanup job. */
 export async function betaAccess(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
-  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: 'Beta access is not set up yet.' });
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: `Beta access is not set up yet. ${betaSetupMessage}` });
   const person = await personFrom(request, env, fetcher);
   if (!person || person.email?.trim().toLowerCase() !== ownerEmail(env)) return reply(403, { error: 'Only the owner can manage beta access.' });
   if (request.method === 'GET') {
     const query = new URLSearchParams({ expires_at: `gt.${new Date().toISOString()}`, select: 'email,expires_at', order: 'expires_at.asc' });
     const response = await fetcher(`${base(env)}/rest/v1/beta_access?${query}`, { headers: serviceHeaders(env) });
-    if (!response.ok) return reply(502, { error: 'The beta list could not be read.' });
+    if (!response.ok) return reply(502, { error: `The beta list could not be read. ${betaSetupMessage}` });
     return reply(200, await response.json());
   }
   const body = (await request.json().catch(() => ({}))) as { email?: string; days?: number };
