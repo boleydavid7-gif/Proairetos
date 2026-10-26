@@ -165,6 +165,13 @@
     will-change: opacity;
   }
 
+  /* Page content gets the same handoff as the title when its top edge enters the fixed bar. */
+  :root .ll-under-topbar {
+    opacity: calc(1 - (var(--ll-under-topbar-progress, 0) * .88));
+    filter: blur(calc(var(--ll-under-topbar-progress, 0) * 6px));
+    will-change: opacity, filter;
+  }
+
   /* All mobile title containers enter the same visual band before the handoff starts. The frame moves as a unit so
      an eyebrow, subtitle or page action keeps its relationship with the title. */
   :root.ll-bar-on .ll-title-anchored {

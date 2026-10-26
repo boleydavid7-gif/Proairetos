@@ -133,6 +133,7 @@ function largeTitle(): void {
   let leadKey = '';
   let frame = 0;
   let shownProgress = '';
+  const underBar = new Set<HTMLElement>();
   // Where the title's words begin inside its box: a title moved down by padding (the anchoring below) starts higher
   // than its words. Read once per page change, never per scroll frame.
   let titleInset = 0;
@@ -330,6 +331,32 @@ function largeTitle(): void {
     if (Math.abs(y - lastY) > 8 || y < 80) lastY = y;
     root.classList.toggle('ll-tucked', tucked && !reduced());
     const height = bar.offsetHeight;
+    const candidates = new Set(
+      [...document.querySelectorAll<HTMLElement>('.page > *, main > *')].filter((element) => {
+        if (element.closest(OUTSIDE) || element.matches(TITLE) || !shown(element)) return false;
+        const position = getComputedStyle(element).position;
+        return position !== 'fixed' && position !== 'sticky' && element.getBoundingClientRect().height < innerHeight * 1.5;
+      }),
+    );
+    for (const element of underBar) {
+      if (candidates.has(element)) continue;
+      element.classList.remove('ll-under-topbar');
+      element.style.removeProperty('--ll-under-topbar-progress');
+      underBar.delete(element);
+    }
+    for (const element of candidates) {
+      const box = element.getBoundingClientRect();
+      const progress = box.top < height && box.bottom > 0 ? clamp((height - box.top) / 48) : 0;
+      if (progress > 0) {
+        underBar.add(element);
+        element.classList.add('ll-under-topbar');
+        element.style.setProperty('--ll-under-topbar-progress', progress.toFixed(3));
+      } else if (underBar.has(element)) {
+        underBar.delete(element);
+        element.classList.remove('ll-under-topbar');
+        element.style.removeProperty('--ll-under-topbar-progress');
+      }
+    }
     // The handoff follows the title's top edge over a short stretch of scroll: it starts just below the bar and is
     // done once the title's top has slipped under it, so the title fades as it passes beneath the bar's glass rather
     // than sitting half there under the app's name. The values go on the bar and the title alone, and only when
