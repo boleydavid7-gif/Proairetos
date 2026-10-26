@@ -49,6 +49,10 @@
   --ll-space-9: 56px;
   --ll-space-10: 64px;
 
+  /* Shared home framing: enough scene to establish the room, with the first useful action still in reach. */
+  --ll-home-hero-height: clamp(208px, 28vh, 248px);
+  --ll-home-hero-height-wide: 340px;
+
   /* Control sizes. Compact is for pointer and keyboard layouts; coarse pointers promote it to the 44px touch
      target in components.css. */
   --ll-control-sm: 36px;

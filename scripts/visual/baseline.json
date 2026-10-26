@@ -14,7 +14,7 @@
     {
       "app": "askesis",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -24,7 +24,7 @@
     {
       "app": "soma",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -34,7 +34,7 @@
     {
       "app": "oikonomia",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -44,8 +44,8 @@
     {
       "app": "hydros",
       "viewport": "phone-dark",
-      "titleY": 92,
-      "titleHeight": 43,
+      "titleY": 142,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -54,8 +54,8 @@
     {
       "app": "poreia",
       "viewport": "phone-dark",
-      "titleY": 569,
-      "titleHeight": 44,
+      "titleY": 139,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -84,7 +84,7 @@
     {
       "app": "diaita",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -94,7 +94,7 @@
     {
       "app": "philia",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -104,7 +104,7 @@
     {
       "app": "ergon",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -114,7 +114,7 @@
     {
       "app": "therapeia",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -124,7 +124,7 @@
     {
       "app": "dynamis",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -134,7 +134,7 @@
     {
       "app": "ktema",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -144,7 +144,7 @@
     {
       "app": "phyton",
       "viewport": "phone-dark",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -164,7 +164,7 @@
     {
       "app": "askesis",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -174,7 +174,7 @@
     {
       "app": "soma",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -184,7 +184,7 @@
     {
       "app": "oikonomia",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -194,8 +194,8 @@
     {
       "app": "hydros",
       "viewport": "phone-light",
-      "titleY": 92,
-      "titleHeight": 43,
+      "titleY": 147,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -204,8 +204,8 @@
     {
       "app": "poreia",
       "viewport": "phone-light",
-      "titleY": 569,
-      "titleHeight": 44,
+      "titleY": 139,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -234,7 +234,7 @@
     {
       "app": "diaita",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -244,7 +244,7 @@
     {
       "app": "philia",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -254,7 +254,7 @@
     {
       "app": "ergon",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -264,7 +264,7 @@
     {
       "app": "therapeia",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -274,7 +274,7 @@
     {
       "app": "dynamis",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -284,7 +284,7 @@
     {
       "app": "ktema",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 139,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -294,7 +294,7 @@
     {
       "app": "phyton",
       "viewport": "phone-light",
-      "titleY": 156,
+      "titleY": 169,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -314,7 +314,7 @@
     {
       "app": "askesis",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 171,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -324,7 +324,7 @@
     {
       "app": "soma",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 171,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -334,7 +334,7 @@
     {
       "app": "oikonomia",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 171,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -344,8 +344,8 @@
     {
       "app": "hydros",
       "viewport": "iphone-touch",
-      "titleY": 92,
-      "titleHeight": 43,
+      "titleY": 143,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -354,8 +354,8 @@
     {
       "app": "poreia",
       "viewport": "iphone-touch",
-      "titleY": 577,
-      "titleHeight": 44,
+      "titleY": 141,
+      "titleHeight": 47,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -384,7 +384,7 @@
     {
       "app": "diaita",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 141,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -394,7 +394,7 @@
     {
       "app": "philia",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 171,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -404,7 +404,7 @@
     {
       "app": "ergon",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 141,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -414,7 +414,7 @@
     {
       "app": "therapeia",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 141,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -424,7 +424,7 @@
     {
       "app": "dynamis",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 141,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -434,7 +434,7 @@
     {
       "app": "ktema",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 141,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -444,7 +444,7 @@
     {
       "app": "phyton",
       "viewport": "iphone-touch",
-      "titleY": 156,
+      "titleY": 171,
       "titleHeight": 47,
       "overflow": false,
       "roots": 1,
@@ -474,7 +474,7 @@
     {
       "app": "soma",
       "viewport": "desktop-dark",
-      "titleY": 322,
+      "titleY": 282,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -484,7 +484,7 @@
     {
       "app": "oikonomia",
       "viewport": "desktop-dark",
-      "titleY": 322,
+      "titleY": 282,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -494,8 +494,8 @@
     {
       "app": "hydros",
       "viewport": "desktop-dark",
-      "titleY": 86,
-      "titleHeight": 34,
+      "titleY": 161,
+      "titleHeight": 39,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -504,8 +504,8 @@
     {
       "app": "poreia",
       "viewport": "desktop-dark",
-      "titleY": 589,
-      "titleHeight": 44,
+      "titleY": 252,
+      "titleHeight": 38,
       "overflow": false,
       "roots": 1,
       "titleClipped": false,
@@ -514,7 +514,7 @@
     {
       "app": "praxis",
       "viewport": "desktop-dark",
-      "titleY": 89,
+      "titleY": 90,
       "titleHeight": 48,
       "overflow": false,
       "roots": 1,
@@ -534,7 +534,7 @@
     {
       "app": "diaita",
       "viewport": "desktop-dark",
-      "titleY": 292,
+      "titleY": 252,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -544,7 +544,7 @@
     {
       "app": "philia",
       "viewport": "desktop-dark",
-      "titleY": 322,
+      "titleY": 282,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -554,7 +554,7 @@
     {
       "app": "ergon",
       "viewport": "desktop-dark",
-      "titleY": 292,
+      "titleY": 252,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -564,7 +564,7 @@
     {
       "app": "therapeia",
       "viewport": "desktop-dark",
-      "titleY": 292,
+      "titleY": 252,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -574,7 +574,7 @@
     {
       "app": "dynamis",
       "viewport": "desktop-dark",
-      "titleY": 292,
+      "titleY": 252,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -584,7 +584,7 @@
     {
       "app": "ktema",
       "viewport": "desktop-dark",
-      "titleY": 292,
+      "titleY": 252,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,
@@ -594,7 +594,7 @@
     {
       "app": "phyton",
       "viewport": "desktop-dark",
-      "titleY": 322,
+      "titleY": 282,
       "titleHeight": 38,
       "overflow": false,
       "roots": 1,

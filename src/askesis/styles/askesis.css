@@ -105,7 +105,7 @@ img {
 }
 
 .page--under-hero {
-  padding-top: 4px;
+  padding-top: var(--ll-space-2, 8px);
 }
 
 /* ---------- Type ---------- */
@@ -196,7 +196,7 @@ p {
 /* Home pages: a band of the app's scene, about a quarter of a phone's height, so the page's own content leads.
    The full scene is for the welcome screen. */
 .hero--tall {
-  height: clamp(208px, 28vh, 248px);
+  height: var(--ll-home-hero-height, clamp(204px, 26vh, 232px));
 }
 
 .hero--tall .hero__image {
@@ -2601,7 +2601,7 @@ html[data-nav='back']::view-transition-new(root) {
   }
 
   .shell--tabs .hero--tall {
-    height: 380px;
+    height: var(--ll-home-hero-height-wide, 340px);
   }
 
   .shell--tabs .hero__content {
