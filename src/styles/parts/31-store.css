@@ -243,6 +243,16 @@
   color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
+.store__beta { margin: var(--space-4) 0; padding: var(--space-3); border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 14px; background: var(--color-surface-raised, rgba(0,0,0,.12)); }
+.store__beta h2 { margin: 0 0 4px; font-size: var(--text-lg); }
+.store__beta p { margin: 0 0 var(--space-2); color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.45; }
+.store__beta-form { display: flex; gap: 8px; }
+.store__beta-form input { min-width: 0; flex: 1; min-height: 44px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; color: var(--color-text); background: var(--color-surface, rgba(0,0,0,.12)); font: inherit; }
+.store__beta-form button { flex: none; min-height: 44px; padding: 0 12px; border: 0; border-radius: 10px; }
+.store__beta-list { display: flex; flex-direction: column; gap: 8px; margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.store__beta-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.store__beta-list strong, .store__beta-list small { display: block; }
+.store__beta-list small { margin-top: 2px; color: var(--color-text-muted); font-size: var(--text-xs); }
 
 /* ---------- Today: the shared list ---------- */
 

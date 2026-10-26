@@ -75,8 +75,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       (secret key, a webhook to `https://proairetos.com/api/store/webhook`), and add the Worker secrets
       `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`. Steps in SERVER_SETUP.md, "The Store".
       Try it first with Stripe's test keys and card 4242 4242 4242 4242.
-- [ ] Beta testers: Worker secret `STORE_TESTERS`, emails separated by commas (yours too). Those accounts get every
-      add-on without paying.
+- [ ] Beta access: run `20261029000000_beta_access.sql`, then manage three-day access from Settings as the owner
+      account (`OWNER_EMAIL`, currently `boleydavid7@gmail.com`). Permanent testers can still use `STORE_TESTERS`.
 - [ ] Before selling Phyton: Pl@ntNet's free plan is non-commercial; move to its paid plan.
 - [ ] Search: add proairetos.com and noesis.proairetos.com to Google Search Console (https://search.google.com/search-console)
       and Bing Webmaster Tools (https://www.bing.com/webmasters, which can import from Google), verify each (a DNS TXT

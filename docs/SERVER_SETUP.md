@@ -399,13 +399,13 @@ Phyton names a plant from a photo through Pl@ntNet. Without a key the app works 
 
 The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.
 
-## The Store: paid add-ons (optional, migration 20261025000000)
+## The Store: paid add-ons (optional, migrations 20261025000000 and 20261029000000)
 
 Proairetos stays free; each add-on is bought once for $4.99 through Stripe Checkout and kept with the account
 (`purchases` table), so it opens on every device. Until all the secrets below are set, `/api/store` says the Store is
 free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/family/purchases.ts`.
 
-1. Run `supabase/migrations/20261025000000_purchases.sql` in the SQL editor. Each person can only read their own rows;
+1. Run `supabase/migrations/20261025000000_purchases.sql` and `supabase/migrations/20261029000000_beta_access.sql` in the SQL editor. Each person can only read their own rows;
    only the Worker (service role) writes them.
 2. Stripe: make an account at https://dashboard.stripe.com and finish activation (business details, bank account).
    Developers > API keys: copy the **Secret key** (`sk_live_…`; use `sk_test_…` first to try it with card 4242 4242 4242 4242).
@@ -417,10 +417,9 @@ free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/f
    - `STRIPE_WEBHOOK_SECRET`: the signing secret from step 3.
    - `SUPABASE_SERVICE_ROLE_KEY`: Supabase > Project Settings > API keys > service_role (secret).
    - `SUPABASE_URL` and `SUPABASE_ANON_KEY` should already be there from Capture from anywhere.
-5. Beta testers (optional): add a Secret `STORE_TESTERS` with their emails separated by commas, for example
-   `you@example.com, friend@example.com`. Anyone signed in with one of those emails gets every add-on without paying.
-   Edit the secret to add or remove someone; their apps follow the next time the Store or a held-back app opens.
-   Put your own email in it too.
+5. The owner account is `OWNER_EMAIL` (set to `boleydavid7@gmail.com` in `wrangler.jsonc`). The Store settings page shows
+   the owner a Beta access list. Enter a person's signed-in email there to grant three days of full beta access; remove
+   them early from the same list. Permanent testers can still be kept in the optional `STORE_TESTERS` secret.
 6. Refunds: refund in Stripe, then remove the row: `delete from purchases where app = 'soma' and user_id = '…';`.
 
 Once the Worker has every secret, the Store shows prices, Buy opens Stripe's own page, and the person comes back to

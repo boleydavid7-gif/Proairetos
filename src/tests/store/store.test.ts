@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { handleStoreRequest, handleWebhook, isTester, mine, startCheckout, stripeSigned, type StoreEnv } from '../../../worker/store';
+import { betaAccess, handleStoreRequest, handleWebhook, isTester, mine, startCheckout, stripeSigned, type StoreEnv } from '../../../worker/store';
 
 const env: StoreEnv = {
   STRIPE_SECRET_KEY: 'sk_test',
@@ -76,6 +76,29 @@ describe('the Store on the Worker', () => {
     expect(await (await mine(ask('good'), withTesters, fetcher)).json()).toEqual({ tester: true });
     expect(await (await mine(ask('good'), withTesters, fake().fetcher)).json()).toEqual({ tester: false });
     expect((await mine(ask('bad'), withTesters, fetcher)).status).toBe(401);
+  });
+
+  it('gives the owner a three-day beta list and applies active entries', async () => {
+    const withBeta = { ...env, OWNER_EMAIL: 'boleydavid7@gmail.com' };
+    const calls: Call[] = [];
+    const fetcher = (async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      if (url.endsWith('/auth/v1/user')) {
+        const token = new Headers(init?.headers).get('authorization');
+        return new Response(JSON.stringify({ id: token === 'Bearer owner' ? 'owner-1' : 'other-1', email: token === 'Bearer owner' ? 'boleydavid7@gmail.com' : 'other@example.com' }));
+      }
+      if (url.includes('/rest/v1/beta_access?')) return new Response(JSON.stringify([{ email: 'friend@example.com', expires_at: '2099-01-01T00:00:00.000Z' }]));
+      if (url.includes('/rest/v1/beta_access?on_conflict=email')) return new Response(JSON.stringify([{ email: 'new@example.com', expires_at: '2099-01-01T00:00:00.000Z' }]), { status: 201 });
+      return new Response('', { status: 201 });
+    }) as unknown as typeof fetch;
+    expect(await (await mine(new Request('https://proairetos.com/api/store/mine', { headers: { authorization: 'Bearer owner' } }), withBeta, fetcher)).json()).toEqual({ tester: true });
+    const listed = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer owner' } }), withBeta, fetcher);
+    expect((await listed.json()) as unknown[]).toHaveLength(1);
+    const added = await betaAccess(new Request('https://proairetos.com/api/store/beta', { method: 'POST', body: JSON.stringify({ email: 'new@example.com', days: 3 }), headers: { authorization: 'Bearer owner' } }), withBeta, fetcher);
+    expect((await added.json()) as { expires_at: string }).toHaveProperty('expires_at');
+    expect(calls.some((call) => call.url.includes('/rest/v1/beta_access?on_conflict=email'))).toBe(true);
+    const denied = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer other' } }), withBeta, fetcher);
+    expect(denied.status).toBe(403);
   });
 
   it('checks the Stripe signature and its time', async () => {

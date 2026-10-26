@@ -1,9 +1,12 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 import { buy, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase } from '../../app/family/purchases';
 import { Waiting } from '../../lamplight/Waiting';
+import { apiUrl } from '../../app/apiBase';
+import { supabase } from '../../data/sync/supabase';
+import { syncStatus } from '../../app/sync/syncController';
 
 /**
  * The Store: the apps that can be added to Proairetos. Adding one brings it into Proairetos (Today, Days ahead,
@@ -13,6 +16,8 @@ import { Waiting } from '../../lamplight/Waiting';
 export default function StoreSection() {
   const added = useAddedApps();
   const { paid, owned, tester } = usePurchases();
+  const account = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
+  const owner = account.email?.trim().toLowerCase() === 'boleydavid7@gmail.com';
   const { offerUndo } = useOverlays();
   const apps = familyApps.filter((app) => app.id !== 'proairetos');
   const [busy, setBusy] = useState<string | null>(null);
@@ -135,9 +140,71 @@ export default function StoreSection() {
       </ul>
       {paid && tester ? <p className="store__fine">Beta tester: every app is yours without paying.</p> : null}
       {paid && !tester ? <p className="store__fine">Each app is bought once and stays with your account on every device. Proairetos itself is free.</p> : null}
+      <p className="store__fine">Beta access: contact boleydavid7@gmail.com to unlock everything for 3 days.</p>
+      {owner && <BetaAccessPanel />}
       <a className="text-link" href="/welcome/">
         Adding an app to your Home Screen
       </a>
     </section>
   );
+}
+
+type BetaEntry = { email: string; expires_at: string };
+
+function BetaAccessPanel() {
+  const [entries, setEntries] = useState<BetaEntry[]>([]);
+  const [email, setEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const request = async (path = '/api/store/beta', init: RequestInit = {}) => {
+    const client = await supabase();
+    const token = (await client.auth.getSession()).data.session?.access_token;
+    if (!token) throw new Error('Sign in again to manage beta access.');
+    const response = await fetch(apiUrl(path), { ...init, headers: { ...(init.headers ?? {}), authorization: `Bearer ${token}`, 'content-type': 'application/json' } });
+    const body = (await response.json().catch(() => ({}))) as { error?: string };
+    if (!response.ok) throw new Error(body.error ?? 'Beta access could not be updated.');
+    return body;
+  };
+
+  const load = async () => {
+    try {
+      const body = await request();
+      setEntries(body as unknown as BetaEntry[]);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Beta access could not be loaded.');
+    }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const add = async () => {
+    setBusy(true);
+    setMessage('');
+    try {
+      await request('/api/store/beta', { method: 'POST', body: JSON.stringify({ email, days: 3 }) });
+      setEmail('');
+      setMessage('Three-day beta access granted.');
+      await load();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Beta access could not be granted.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (entry: BetaEntry) => {
+    setBusy(true);
+    setMessage('');
+    try {
+      await request('/api/store/beta', { method: 'DELETE', body: JSON.stringify({ email: entry.email }) });
+      setEntries((current) => current.filter((item) => item.email !== entry.email));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Beta access could not be removed.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return <section className="store__beta" aria-label="Beta access"><h2>Beta access</h2><p>Give someone full access for three days while they try the family.</p><div className="store__beta-form"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="person@example.com" aria-label="Beta tester email" /><button type="button" className="button-accent" onClick={() => void add()} disabled={busy || !email.trim()}>Grant 3 days</button></div>{entries.length > 0 && <ul className="store__beta-list">{entries.map((entry) => <li key={entry.email}><span><strong>{entry.email}</strong><small>Until {new Date(entry.expires_at).toLocaleString()}</small></span><button type="button" className="text-link" onClick={() => void remove(entry)} disabled={busy}>Remove</button></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
 }

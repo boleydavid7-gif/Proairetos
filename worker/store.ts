@@ -9,7 +9,8 @@
  *
  * Secrets (wrangler secret put …): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY. Variables:
  * SUPABASE_URL, SUPABASE_ANON_KEY (already set for Capture from anywhere). Until all are present the Store stays free.
- * Optional secret STORE_TESTERS: beta testers' emails, comma-separated; signed in with one, every add-on is theirs.
+ * Optional secret STORE_TESTERS: permanent beta testers' emails, comma-separated; signed in with one, every add-on is theirs.
+ * The owner can also grant three-day access from Settings; those rows live in `beta_access`.
  *
  *   GET  /api/store/mine       with the person's sign-in → { tester } (whether this account is on that list)
  */
@@ -22,6 +23,8 @@ export type StoreEnv = {
   SUPABASE_ANON_KEY?: string;
   /** Beta testers' emails, comma-separated (a Worker secret): their accounts get every add-on without paying. */
   STORE_TESTERS?: string;
+  /** The only account allowed to manage temporary beta access. */
+  OWNER_EMAIL?: string;
 };
 
 export const PRICE_CENTS = 499;
@@ -42,6 +45,7 @@ export const STORE_APPS: Record<string, string> = {
   dynamis: 'Dynamis',
   ktema: 'Ktema',
   phyton: 'Phyton',
+  mneme: 'Mneme',
 };
 
 type Fetcher = typeof fetch;
@@ -75,12 +79,56 @@ export function isTester(env: StoreEnv, email: string | undefined): boolean {
   return env.STORE_TESTERS.split(/[\s,;]+/).some((entry) => entry && entry.toLowerCase() === wanted);
 }
 
+const ownerEmail = (env: StoreEnv) => (env.OWNER_EMAIL ?? 'boleydavid7@gmail.com').trim().toLowerCase();
+const validEmail = (email: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
+
+async function hasTemporaryAccess(env: StoreEnv, email: string | undefined, fetcher: Fetcher): Promise<boolean> {
+  if (!email || !env.SUPABASE_SERVICE_ROLE_KEY || !env.SUPABASE_URL) return false;
+  const query = new URLSearchParams({ email: `eq.${email.trim().toLowerCase()}`, expires_at: `gt.${new Date().toISOString()}`, select: 'email', limit: '1' });
+  const response = await fetcher(`${base(env)}/rest/v1/beta_access?${query}`, { headers: serviceHeaders(env) });
+  if (!response.ok) return false;
+  return ((await response.json()) as unknown[]).length > 0;
+}
+
 /** Tells a signed-in person whether their account is a beta tester's (nothing else about the list leaves the Worker). */
 export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return reply(200, { tester: false });
   const person = await personFrom(request, env, fetcher);
   if (!person) return reply(401, { error: 'Sign in first.' });
-  return reply(200, { tester: isTester(env, person.email) });
+  const tester = isTester(env, person.email) || (await hasTemporaryAccess(env, person.email, fetcher));
+  return reply(200, { tester });
+}
+
+/** Owner-only beta list. Temporary entries expire without a cleanup job. */
+export async function betaAccess(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: 'Beta access is not set up yet.' });
+  const person = await personFrom(request, env, fetcher);
+  if (!person || person.email?.trim().toLowerCase() !== ownerEmail(env)) return reply(403, { error: 'Only the owner can manage beta access.' });
+  if (request.method === 'GET') {
+    const query = new URLSearchParams({ expires_at: `gt.${new Date().toISOString()}`, select: 'email,expires_at', order: 'expires_at.asc' });
+    const response = await fetcher(`${base(env)}/rest/v1/beta_access?${query}`, { headers: serviceHeaders(env) });
+    if (!response.ok) return reply(502, { error: 'The beta list could not be read.' });
+    return reply(200, await response.json());
+  }
+  const body = (await request.json().catch(() => ({}))) as { email?: string; days?: number };
+  const email = String(body.email ?? '').trim().toLowerCase();
+  if (!validEmail(email)) return reply(400, { error: 'Enter a valid email address.' });
+  if (request.method === 'DELETE') {
+    const query = new URLSearchParams({ email: `eq.${email}` });
+    const response = await fetcher(`${base(env)}/rest/v1/beta_access?${query}`, { method: 'DELETE', headers: serviceHeaders(env) });
+    if (!response.ok) return reply(502, { error: 'The beta access could not be removed.' });
+    return reply(200, { removed: true });
+  }
+  if (request.method !== 'POST') return reply(405, { error: 'Method not allowed.' });
+  const days = body.days === 3 ? 3 : 3;
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  const response = await fetcher(`${base(env)}/rest/v1/beta_access?on_conflict=email`, {
+    method: 'POST',
+    headers: { ...serviceHeaders(env), prefer: 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify({ email, expires_at: expiresAt }),
+  });
+  if (!response.ok) return reply(502, { error: 'The beta access could not be saved.' });
+  return reply(200, { email, expires_at: expiresAt });
 }
 
 const serviceHeaders = (env: StoreEnv) => ({
@@ -182,6 +230,7 @@ export async function handleStoreRequest(request: Request, env: StoreEnv): Promi
   if (path === '/api/store' && request.method === 'GET')
     return reply(200, { paid: storeReady(env), price: PRICE_CENTS, currency: CURRENCY });
   if (path === '/api/store/mine' && request.method === 'GET') return mine(request, env);
+  if (path === '/api/store/beta' && ['GET', 'POST', 'DELETE'].includes(request.method)) return betaAccess(request, env);
   if (path === '/api/store/checkout' && request.method === 'POST') return startCheckout(request, env);
   if (path === '/api/store/webhook' && request.method === 'POST') return handleWebhook(request, env);
   return reply(404, { error: 'Not found.' });
