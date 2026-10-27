@@ -13,6 +13,8 @@ import { hydrationNotices, hydrationWantsWork } from './hydrationSchedule';
 import { familyNotices } from './familyNotices';
 import { isAdded } from '../family/added';
 import { fitAhead } from '../family/trainingWeek';
+import { pursuits } from '../pursuits';
+import { pursuitNotices } from '../../core/notify/pursuits';
 
 const HORIZON_DAYS = 14;
 
@@ -30,7 +32,7 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips ? familyNotices(now, until).catch(() => []) : [],
   ]);
   const today = toLocalDate(now);
-  return noticesBetween({
+  const notices = noticesBetween({
     items,
     decisions,
     events: otherCalendars.eventsBetween(now, until),
@@ -45,6 +47,7 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     now,
     until,
   });
+  return [...notices, ...pursuitNotices(pursuits.list(), now, until)].sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
 }
 
 /** When the Praxis block running now ends (none while paused, or for Proairetos's own focus timer). */

@@ -419,7 +419,9 @@ export type TodayPart =
   // A trip under way or a few days off, from Poreia.
   // An idea ready for a next step, or a pinned note, from Mneme.
   | 'trips'
-  | 'mneme';
+  | 'mneme'
+  // The next move from a Pursuit in Compass.
+  | 'pursuits';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['on-this-day', 'water', 'highlight'];

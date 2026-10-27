@@ -22,7 +22,7 @@ export type Overlays = {
   /** Crisis lines and support, always reachable. */
   openSupport: () => void;
   /** Write down a decision, optionally from a Thinking about item. */
-  startDecision: (from?: { itemId: string; title: string }) => void;
+  startDecision: (from?: { itemId?: string; title: string; pursuitId?: string }) => void;
   openDecision: (id: string) => void;
 };
 

@@ -7,6 +7,8 @@ export interface Decision {
   userId: string;
   /** The Thinking about item this came from, if any. */
   lifeItemId?: string;
+  /** The Pursuit this decision helps work through, if any. */
+  pursuitId?: string;
   question: string;
   options: string[];
   /** The chosen option, in the person's words. */

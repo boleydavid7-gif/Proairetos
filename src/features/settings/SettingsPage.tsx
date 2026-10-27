@@ -578,6 +578,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
         label: 'Compass',
         parts: [
           { part: 'goals', label: 'Goals', detail: 'What you’re working toward, with time set aside.' },
+          { part: 'pursuits', label: 'Pursuits', detail: 'A flexible space to clarify a project, change, care responsibility, or question.' },
           { part: 'people', label: 'People', detail: 'The people who matter to you.' },
           { part: 'words', label: 'Words', detail: 'What’s worth getting up for, and what you’ve set aside.' },
         ],

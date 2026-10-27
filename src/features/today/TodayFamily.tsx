@@ -9,6 +9,7 @@ import { highlightOfDay } from '../../theoria/core/export';
 import type { TheoriaBook } from '../../theoria/core/books';
 import { BookIcon } from '../../components/icons/Icons';
 import { ideas, notes } from '../../mneme/app/state';
+import { needsPursuitCheckIn, pursuits } from '../../app/pursuits';
 
 /**
  * Bills with a date in the next few days and no payment recorded (Settings > What's included can set them aside),
@@ -114,6 +115,32 @@ export function TodayMneme() {
         <span className="quiet-row__text">
           <span>{title}{more}</span>
           <span className="quiet-row__detail">{idea ? 'Ready for a next step · Mneme' : 'Pinned note · Mneme'}</span>
+        </span>
+        <ChevronRightIcon size={18} className="quiet-row__chevron" />
+      </a>
+    </div>
+  );
+}
+
+/** The next visible move from an active Pursuit. The work remains in Compass; Today only keeps it close. */
+export function TodayPursuit() {
+  const shows = useTodayParts();
+  const all = pursuits.use();
+  if (!shows('pursuits')) return null;
+  const due = all.filter((pursuit) => needsPursuitCheckIn(pursuit)).sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))[0];
+  const current = due ?? all
+    .filter((pursuit) => pursuit.status === 'active' && pursuit.nextMove?.trim())
+    .sort((a, b) => (a.nextMoveDue ?? '9999-12-31').localeCompare(b.nextMoveDue ?? '9999-12-31') || b.updatedAt.localeCompare(a.updatedAt))[0];
+  if (!current || (!due && !current.nextMove)) return null;
+  const title = due ? `Check in: ${current.title}` : current.nextMove!;
+  const detail = due ? `No check-in recently · ${current.title} · Compass` : `Next move · ${current.title} · Compass`;
+  return (
+    <div className="quiet-row-wrap">
+      <a className="quiet-row" href="/compass/">
+        <span className="quiet-row__icon" aria-hidden="true"><BookIcon size={20} /></span>
+        <span className="quiet-row__text">
+          <span>{title}</span>
+          <span className="quiet-row__detail">{detail}</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>

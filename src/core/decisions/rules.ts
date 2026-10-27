@@ -8,6 +8,7 @@ export type DecisionInput = {
   reasons?: string;
   revisitAt?: string;
   lifeItemId?: string;
+  pursuitId?: string;
   expected?: string;
   confidence?: DecisionConfidence;
 };
@@ -43,6 +44,7 @@ export function makeDecision(ctx: DomainContext, userId: string, input: Decision
     id: ctx.newId(),
     userId,
     lifeItemId: input.lifeItemId,
+    pursuitId: input.pursuitId,
     question,
     options,
     choice,

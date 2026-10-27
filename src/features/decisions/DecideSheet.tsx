@@ -6,7 +6,7 @@ import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
 import { Sym } from '../../lamplight/icons';
 import IconButton from '../../components/ui/IconButton';
 
-export type DecideFrom = { itemId: string; title: string };
+export type DecideFrom = { itemId?: string; title: string; pursuitId?: string };
 
 type Props = {
   from?: DecideFrom;
@@ -44,8 +44,9 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
         confidence,
         revisitAt: revisitDate(revisit, picked),
         lifeItemId: from?.itemId,
+        pursuitId: from?.pursuitId,
       });
-      if (from) {
+      if (from?.itemId) {
         await lifeService.recordDecision(from.itemId, decision.id);
         if (closeItem) await lifeService.setStatus(from.itemId, 'DONE');
       }

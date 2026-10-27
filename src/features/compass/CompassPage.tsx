@@ -18,6 +18,7 @@ import GoalsSection from './GoalsSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
 import { Sym } from '../../lamplight/icons';
+import PursuitsSection from './PursuitsSection';
 
 /**
  * Offered when a value is opened: one small thing for today, in the
@@ -115,11 +116,12 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
   );
 }
 
-type CompassTab = 'values' | 'goals' | 'people' | 'words';
+type CompassTab = 'values' | 'goals' | 'pursuits' | 'people' | 'words';
 
 const compassTabs: { id: CompassTab; label: string }[] = [
   { id: 'values', label: 'Values' },
   { id: 'goals', label: 'Goals' },
+  { id: 'pursuits', label: 'Pursuits' },
   { id: 'people', label: 'People' },
   { id: 'words', label: 'Words' },
 ];
@@ -136,7 +138,7 @@ export default function CompassPage() {
   // Compass opens from Reflect; back (button, gesture, browser) returns there.
   const navigate = useNavigate();
   useBackHandler(true, () => navigate('reflect'));
-  const tabs = compassTabs.filter((option) => option.id === 'values' || shows(option.id));
+  const tabs = compassTabs.filter((option) => option.id === 'values' || option.id === 'pursuits' || shows(option.id));
   const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
   // A tab set aside in Settings falls back to values.
   const tab = tabs.some((option) => option.id === chosenTab) ? chosenTab : 'values';
@@ -225,6 +227,8 @@ export default function CompassPage() {
       )}
 
       {tab === 'goals' && <GoalsSection goals={statements.filter((statement) => statement.type === 'GOAL')} />}
+
+      {tab === 'pursuits' && <PursuitsSection />}
 
       {tab === 'words' && (
         <>

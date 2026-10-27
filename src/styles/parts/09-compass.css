@@ -347,3 +347,319 @@ button.value-card__text:disabled {
   color: var(--color-text-faint);
   font-size: var(--text-sm);
 }
+
+/* Pursuits: an adaptable space for projects, patterns, care and learning. */
+.pursuits {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pursuits__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pursuits__title {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 4vw, 2.35rem);
+  font-weight: 500;
+}
+
+.pursuits__lead {
+  max-width: 36rem;
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+}
+
+.pursuits__new {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pursuits__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pursuit-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.1), var(--color-surface) 62%);
+  color: var(--color-text);
+  text-align: left;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.pursuit-card:hover,
+.pursuit-card:focus-visible {
+  border-color: var(--color-accent);
+  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.16), var(--color-surface) 62%);
+  transform: translateY(-1px);
+}
+
+.pursuit-card__main {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.pursuit-card__main strong {
+  overflow: hidden;
+  font-size: var(--text-lg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pursuit-card__kind,
+.pursuit-card__stage {
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+
+.pursuit-card__detail {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pursuit-card__stage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+.pursuit-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+
+.pursuit-card__status--due {
+  color: var(--color-accent);
+}
+
+.pursuits__empty,
+.pursuit-form,
+.pursuit-work,
+.pursuit-decisions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pursuits__empty {
+  padding: var(--space-5);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(var(--color-accent-rgb, 201, 162, 116), 0.04);
+}
+
+.pursuits__empty-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+}
+
+.pursuits__empty .muted {
+  margin: 0;
+}
+
+.pursuits__completed {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.pursuits__completed summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.pursuit-form {
+  max-width: 42rem;
+}
+
+.pursuit-editor {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pursuit-editor__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pursuit-editor__head h2 {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 5vw, 2.65rem);
+  font-weight: 500;
+}
+
+.pursuit-editor__status {
+  width: auto;
+  min-width: 7rem;
+}
+
+.pursuit-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pursuit-stages .chip[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb, 201, 162, 116), 0.13);
+}
+
+.pursuit-work h3,
+.pursuit-decisions h3,
+.pursuit-checkin h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.pursuit-field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.pursuit-checkin {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pursuit-checkin__saved {
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+}
+
+.pursuit-feelings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pursuit-feelings .chip[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb, 201, 162, 116), 0.13);
+}
+
+.pursuit-checkin__history {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.pursuit-checkin__history p {
+  margin: 0;
+}
+
+.pursuit-checkin__history ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pursuit-checkin__history li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.pursuit-checkin__history li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.pursuit-checkin__history strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.pursuit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.pursuit-actions__delete {
+  color: var(--color-text-faint);
+}
+
+.pursuit-decisions__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pursuit-decisions__list li {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pursuit-decisions__list li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.pursuit-decisions__list span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 42rem) {
+  .pursuits__intro,
+  .pursuit-editor__head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pursuits__new {
+    justify-content: center;
+  }
+
+  .pursuit-card {
+    align-items: flex-start;
+  }
+
+  .pursuit-card__stage {
+    padding-top: 0.2rem;
+  }
+}
