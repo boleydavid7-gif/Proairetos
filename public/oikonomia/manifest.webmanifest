@@ -74,6 +74,18 @@
           "type": "image/svg+xml"
         }
       ]
+    },
+    {
+      "name": "Add an expense",
+      "short_name": "Expense",
+      "url": "/oikonomia/?open=expense",
+      "icons": [
+        {
+          "src": "/oikonomia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ],
   "file_handlers": [

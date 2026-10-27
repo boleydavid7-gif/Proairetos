@@ -1,1 +1,37 @@
-{"name":"Mneme","short_name":"Mneme","start_url":"/mneme/","display":"standalone","background_color":"#11151b","theme_color":"#11151b","icons":[{"src":"/mneme/icon.svg","sizes":"1024x1024","type":"image/svg+xml"}]}
+{
+  "id": "/mneme/",
+  "name": "Mneme by Proairetos",
+  "short_name": "Mneme",
+  "start_url": "/mneme/",
+  "scope": "/mneme/",
+  "display": "standalone",
+  "background_color": "#11151b",
+  "theme_color": "#11151b",
+  "icons": [
+    {
+      "src": "/mneme/icon.svg",
+      "sizes": "1024x1024",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New note",
+      "short_name": "Note",
+      "url": "/mneme/?open=capture",
+      "icons": [{ "src": "/mneme/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Idea dump",
+      "short_name": "Ideas",
+      "url": "/mneme/?open=ideas",
+      "icons": [{ "src": "/mneme/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Collections",
+      "short_name": "Collections",
+      "url": "/mneme/?open=collections",
+      "icons": [{ "src": "/mneme/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}
