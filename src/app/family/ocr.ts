@@ -3,6 +3,8 @@
  * served from this site (`/ocr/`, copied there by the build); the photo never leaves the phone.
  */
 
+import { mediaUrl } from '../mediaBase';
+
 type Worker = { recognize: (image: Blob) => Promise<{ data: { text: string } }>; terminate: () => Promise<unknown> };
 
 let worker: Promise<Worker> | null = null;
@@ -11,9 +13,9 @@ let progress: ((share: number) => void) | undefined;
 function start(): Promise<Worker> {
   worker ??= import('tesseract.js').then(({ createWorker }) =>
     createWorker('eng', 1, {
-      workerPath: '/ocr/worker.min.js',
-      corePath: '/ocr',
-      langPath: '/ocr',
+      workerPath: mediaUrl('/ocr/worker.min.js'),
+      corePath: mediaUrl('/ocr'),
+      langPath: mediaUrl('/ocr'),
       workerBlobURL: false,
       logger: (message: { status: string; progress: number }) => {
         if (message.status === 'recognizing text') progress?.(message.progress);

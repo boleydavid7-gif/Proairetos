@@ -17,14 +17,17 @@ What is not done, and needs your accounts and computers:
 1. `npm install`
 2. `npx cap add ios` and `npx cap add android` (once; makes the `ios/` and `android/` folders, which are not
    kept in git).
-3. `npm run cap:sync` (builds the app for the phone with the live address and copies it in).
+3. `npm run cap:sync` (builds the native profile with the live address and copies it in).
 4. `npm run cap:ios` opens Xcode; `npm run cap:android` opens Android Studio. Run on a device, then
    archive and upload.
 5. After each change to the web app, `npm run cap:sync` again.
 
 ## What is ready for the phone apps (the website is unchanged by all of it)
-- **One app holds the family.** The whole `dist/` goes in, so every app's page (`/askesis/`, `/soma/`, …) opens inside
-  the one store app, with one storage: no separate sign-in per app.
+- **One app holds the family.** The native profile uses `dist-native/`, so every app's page (`/askesis/`, `/soma/`, …)
+  opens inside the one store app, with one storage: no separate sign-in per app.
+- **Smaller native package.** The web build keeps its local sound and OCR payloads. The native build points those
+  optional files at `https://proairetos.com`, removes them from `dist-native/`, and caches each file on the phone after
+  first use. The current native build is about 17 MB instead of the full 69 MB web deployment.
 - **Server helpers.** Every `/api/…` call goes through `apiUrl` (`app/apiBase.ts`), so with `VITE_API_BASE` set the
   app reaches the live site. The Worker answers the app's own origins (`capacitor://localhost`, `https://localhost`)
   on every `/api` route, as if from the site; other websites stay kept out (`worker/index.ts`, test
@@ -46,4 +49,7 @@ What is not done, and needs your accounts and computers:
   built.
 - **Store review.** Apple expects more than a website in a frame; the lock, offline use and files help. Plan
   for a round or two of review feedback.
+- **Native OCR.** The current native profile downloads the same Tesseract worker from the production site when a
+  receipt or photo is read. Before the App Store submission, replace that worker with Apple Vision and ML Kit (or a
+  server OCR endpoint) so the native app does not download executable OCR payloads after installation.
 - Keep `public/_headers`' security headers and the service worker as they are; the web build is unchanged.

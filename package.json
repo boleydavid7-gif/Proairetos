@@ -12,7 +12,8 @@
     "lint": "oxlint src worker && oxlint --react-plugin -A all -D react-hooks/rules-of-hooks src",
     "check": "npm run lint && npm run typecheck && npm test",
     "smoke:visual": "node scripts/visual/smoke.mjs",
-    "cap:sync": "VITE_API_BASE=https://proairetos.com npm run build && cap sync",
+    "build:native": "VITE_API_BASE=https://proairetos.com VITE_MEDIA_BASE=https://proairetos.com vite build --mode native",
+    "cap:sync": "npm run build:native && cap sync",
     "cap:ios": "cap open ios",
     "cap:android": "cap open android"
   },

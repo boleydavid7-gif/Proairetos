@@ -52,6 +52,15 @@
 /theoria/index.html
   Cache-Control: no-store, no-cache, must-revalidate
 
+# Native builds fetch these optional payloads from the production site and
+# cache them on the device after the user first uses the feature.
+/sounds/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=31536000, immutable
+/ocr/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=31536000, immutable
+
 /diaita/sw.js
   Cache-Control: no-cache
 /diaita/

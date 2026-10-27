@@ -1,7 +1,7 @@
 {
   "appId": "com.proairetos.app",
   "appName": "Proairetos",
-  "webDir": "dist",
+  "webDir": "dist-native",
   "backgroundColor": "#0a0c0e",
   "ios": { "contentInset": "always" },
   "server": { "androidScheme": "https" }
