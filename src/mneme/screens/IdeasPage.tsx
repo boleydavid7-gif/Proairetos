@@ -3,10 +3,10 @@ import { ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { ideas, migrateLegacyIdeas, newId, type Idea, type IdeaStage } from '../app/state';
 
 const stages: { id: IdeaStage; label: string; hint: string }[] = [
-  { id: 'spark', label: 'Sparks', hint: 'Raw thoughts' },
-  { id: 'shape', label: 'Shape', hint: 'Worth exploring' },
-  { id: 'next', label: 'Next', hint: 'Ready to act' },
-  { id: 'parked', label: 'Parked', hint: 'Keep for later' },
+  { id: 'spark', label: 'New ideas', hint: 'Raw thoughts' },
+  { id: 'shape', label: 'Developing', hint: 'Worth exploring' },
+  { id: 'next', label: 'Next step', hint: 'Ready to act' },
+  { id: 'parked', label: 'Later', hint: 'Keep for later' },
 ];
 
 export default function IdeasPage() {
@@ -37,10 +37,10 @@ export default function IdeasPage() {
     <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
       <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark">✦</span><span><strong id="idea-dump-title">Idea dump</strong><small>Write freely. Separate thoughts with a blank line.</small></span></div>
       <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} placeholder="What keeps returning to you?" rows={5} />
-      <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to Sparks</button>
+      <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
     </section>
-    <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><span><strong>Sort your sparks</strong><small>Give each thought a place when it becomes clearer.</small></span><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
-    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with a spark'}</h2><p>{allIdeas.length ? 'Move an idea here when it is ready.' : 'Use the dump above. You can sort the thoughts after they are out of your head.'}</p></section>}
+    <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><span><strong>Sort your ideas</strong><small>Give each thought a place when it becomes clearer.</small></span><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with an idea'}</h2><p>{allIdeas.length ? 'Move an idea here when it is ready.' : 'Use the dump above. You can sort the thoughts after they are out of your head.'}</p></section>}
   </main>;
 }
 
