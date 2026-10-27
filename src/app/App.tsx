@@ -24,15 +24,12 @@ import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
 import { useOverlays } from './overlays/OverlayContext';
 import { NavigationContext, ReturnRouteContext, type NavigateOptions } from './navigationContext';
-import { defaultRoute, routePaths, type AppRoute } from './routes/routeTypes';
+import { defaultRoute, type AppRoute } from './routes/routeTypes';
+import { pathForRoute, routeForPath, routeFromHistoryState } from './routes/browserRoutes';
+import { canGoBack } from './back/backStack';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
 const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
-const routeFromLocation = (): AppRoute => {
-  const path = window.location.pathname.replace(/\/$/, '') || '/';
-  return (Object.entries(routePaths).find(([, routePath]) => routePath === path)?.[0] as AppRoute | undefined) ?? defaultRoute;
-};
-
 /** Lets a family app hand a short piece of text straight into Think it through. */
 function UrlOverlayOpener() {
   const { openThinkThrough } = useOverlays();
@@ -57,13 +54,14 @@ export default function App() {
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
   useEffect(() => lock.watchAway(), []);
   useEffect(() => laterPages(), []);
-  const [route, setRoute] = useState<AppRoute>(routeFromLocation);
+  const [route, setRoute] = useState<AppRoute>(() => routeForPath(window.location.pathname));
   const current = useRef(route);
   current.current = route;
   // Every move between places slides the way it goes (see transitions.ts).
   const go = useCallback((next: AppRoute, options?: NavigateOptions) => {
     const from = current.current;
     if (next === from) return;
+    history.pushState({ proairetosRoute: next }, '', pathForRoute(next));
     if (options?.immediate) {
       setRoute(next);
       return;
@@ -89,6 +87,23 @@ export default function App() {
   useEffect(() => {
     if (mainTabs.has(route)) setLastTab(route);
   }, [route]);
+
+  // Give every main screen a real URL so it can be copied, opened in another tab, or restored by refresh.
+  // Capture and other sheets use the back-stack listener first; the capture phase keeps route history from
+  // consuming a browser-back gesture that is meant to close one of those surfaces.
+  useEffect(() => {
+    const currentState = history.state;
+    const state = currentState && typeof currentState === 'object' ? { ...currentState, proairetosRoute: route } : { proairetosRoute: route };
+    history.replaceState(state, '', pathForRoute(route));
+    const onPop = (event: PopStateEvent) => {
+      if (canGoBack()) return;
+      const next = routeFromHistoryState(event.state) ?? routeForPath(window.location.pathname);
+      if (next === current.current) return;
+      transition(directionBetween(current.current, next), () => setRoute(next));
+    };
+    window.addEventListener('popstate', onPop, true);
+    return () => window.removeEventListener('popstate', onPop, true);
+  }, []);
 
   useEffect(() => {
     void startSync();
