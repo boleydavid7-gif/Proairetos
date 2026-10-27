@@ -92,7 +92,7 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
         {description && <span className="value-card__detail">{description}</span>}
         {open && practice && !editing && (
           <span className="value-card__practice">
-            <span className="daily-line__label">In practice</span>
+            <span className="daily-line__label">Notice in practice</span>
             {practice}
           </span>
         )}

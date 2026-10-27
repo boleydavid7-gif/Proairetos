@@ -71,6 +71,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
           Close
         </button>
         <p className="sheet__title sheet__title--static">Make a decision</p>
+        <p className="sheet__hint">Take a moment to notice what matters here.</p>
 
         <label className="sheet__section">
           <span className="sheet__label">What are you deciding?</span>
