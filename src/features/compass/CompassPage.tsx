@@ -5,9 +5,7 @@ import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, lifeService } from '../../app/services';
-import { useClock } from '../../app/hooks/useClock';
-import { usePersonalDay } from '../../app/hooks/usePersonalDay';
+import { compassService, reflectionService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
@@ -20,23 +18,20 @@ import { Sym } from '../../lamplight/icons';
 import PursuitsSection from './PursuitsSection';
 
 /**
- * Offered when a value is opened: one small thing for today, in the
- * person's own words. Saved for today and linked to the value. No answer
- * is asked for; leaving it empty is fine.
+ * Offered when a value is opened: one small thing in the person's own words.
+ * Saved as a reflection linked to the value; leaving it empty is fine.
  */
 function HonourToday({ value }: { value: ChosenValue }) {
   const { offerUndo } = useOverlays();
-  const { today } = usePersonalDay(useClock());
   const [text, setText] = useState('');
 
   async function save() {
     const title = text.trim();
     if (!title) return;
     setText('');
-    const item = await lifeService.capture(title, 'DO', { plannedFor: today });
-    await lifeService.connectValue(item.id, value.id);
-    offerUndo(`“${title}” is on today’s to-do`, async () => {
-      await lifeService.deleteItem(item.id);
+    const reflection = await reflectionService.write({ body: title, promptKey: 'value-practice', valueIds: [value.id] });
+    offerUndo('Saved to Reflect', async () => {
+      await reflectionService.remove(reflection.id);
     });
   }
 
@@ -61,7 +56,7 @@ function HonourToday({ value }: { value: ChosenValue }) {
         />
         {text.trim() && (
           <button type="submit" className="chip chip--small">
-            Add
+            Save reflection
           </button>
         )}
       </div>

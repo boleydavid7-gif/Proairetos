@@ -23,5 +23,6 @@ export function promptText(key: string | undefined): string | undefined {
   if (key === 'after-trip') return 'After a trip, in Poreia';
   if (key === 'gratitude') return 'Grateful for';
   if (key === 'three-good-things') return 'Three good things';
+  if (key === 'value-practice') return 'Value in practice';
   return reflectionPrompts.find((prompt) => prompt.key === key)?.text;
 }
