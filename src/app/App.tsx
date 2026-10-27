@@ -97,6 +97,9 @@ export default function App() {
     history.replaceState(state, '', pathForRoute(route));
     const onPop = (event: PopStateEvent) => {
       if (canGoBack()) return;
+      // The back-stack releases its temporary history entry after a sheet or sub-screen closes. That pop is
+      // cleanup, not a request to restore the route encoded by the old entry.
+      if (event.state && typeof event.state === 'object' && 'proairetosBack' in event.state) return;
       const next = routeFromHistoryState(event.state) ?? routeForPath(window.location.pathname);
       if (next === current.current) return;
       transition(directionBetween(current.current, next), () => setRoute(next));
