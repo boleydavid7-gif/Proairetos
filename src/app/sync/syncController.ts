@@ -86,8 +86,12 @@ export type SyncPhase =
 export type SyncStatus = {
   phase: SyncPhase;
   email?: string;
+  /** The destination used by the last successful or in-progress check. */
+  target?: StorageTarget;
   syncing: boolean;
   lastSyncedAt?: string;
+  /** The most recent time this app checked the backup connection. */
+  lastCheckedAt?: string;
   error?: string;
   reminders: 'unsupported' | 'off' | 'on' | 'blocked';
   /** Records the server did not accept yet (it needs the Askesis migration). */
@@ -102,6 +106,9 @@ const HANDOFF_META = 'handoffKey';
 const LAST_SYNC_META = 'lastSyncedAt';
 const REMINDERS_META = 'remindersEndpoint';
 const AUTO_SYNC_MS = 2 * 60_000;
+// Opening several family apps in quick succession should not repeat the same cloud check.
+// A manual "Sync now" still always runs.
+const STARTUP_CHECK_MS = 2 * 60_000;
 const AFTER_CHANGE_MS = 4_000;
 
 const listeners = createListeners();
@@ -112,6 +119,7 @@ let state: SyncStateStore | null = null;
 let started = false;
 let changeTimer: number | undefined;
 let applyingRemote = false;
+let activeSync: Promise<SyncResult | null> | null = null;
 /** An exportable data key, in memory only, between the passphrase and the tap that makes a passkey. */
 let passkeyKey: CryptoKey | null = null;
 
@@ -152,22 +160,23 @@ async function remindersPhase(): Promise<SyncStatus['reminders']> {
 }
 
 async function resolvePhase(): Promise<void> {
-  if (!isSyncConfigured || !(await localState())) return set({ phase: 'unavailable' });
+  if (!isSyncConfigured || !(await localState())) return set({ phase: 'unavailable', target: undefined });
   const user = await currentUser().catch(() => null);
   // Back from Google or Apple (or the email's link opened here): the tokens are read; tidy the address.
   if (/access_token|refresh_token|error_description/.test(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
   if (!user) {
     userId = null;
-    return set({ phase: 'signed-out', email: undefined });
+    return set({ phase: 'signed-out', email: undefined, target: undefined, error: undefined });
   }
   userId = user.id;
   const st = (await localState())!;
   dataKey = (await st.getMeta<CryptoKey>(KEY_META)) ?? null;
   const lastSyncedAt = await st.getMeta<string>(LAST_SYNC_META);
+  const target = await lastTarget(st);
   const reminders = await remindersPhase();
-  if (dataKey) return set({ phase: 'ready', email: user.email, lastSyncedAt, reminders });
+  if (dataKey) return set({ phase: 'ready', email: user.email, target, lastSyncedAt, lastCheckedAt: lastSyncedAt, reminders, error: undefined });
   const wrapped = await fetchWrappedKeys().catch(() => null);
-  set({ phase: wrapped ? 'locked' : 'needs-setup', email: user.email, reminders });
+  set({ phase: wrapped ? 'locked' : 'needs-setup', email: user.email, target: undefined, reminders });
 }
 
 const remoteChanges = createListeners();
@@ -324,20 +333,24 @@ async function updateReminders() {
  */
 export async function syncNow(): Promise<SyncResult | null> {
   if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
+  if (activeSync) return activeSync;
   const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
-  if (!locks?.request) return syncHere();
-  return locks.request('proairetos-sync', () => syncHere());
+  const run = locks?.request ? locks.request('proairetos-sync', () => syncHere()) : syncHere();
+  activeSync = run.finally(() => { activeSync = null; });
+  return activeSync;
 }
 
 async function syncHere(): Promise<SyncResult | null> {
   if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
   const db = await deviceDatabase;
   if (!db) return null;
-  set({ syncing: true, error: undefined });
+  const checkedAt = new Date().toISOString();
+  set({ syncing: true, lastCheckedAt: checkedAt, error: undefined });
   try {
     const base = createIndexedDbLocalSyncStore(Promise.resolve(db));
     // The person's own Google Drive, Dropbox or OneDrive, when they chose one; else Proairetos's server.
     const own = await ownStorageFor(userId, dataKey, (await localState())!);
+    set({ target: own?.target ?? 'proairetos' });
     const engine = createSyncEngine({
       local: withDeviceRecords(base),
       state: (await localState())!,
@@ -368,10 +381,10 @@ async function syncHere(): Promise<SyncResult | null> {
     await keepPushSubscription().catch(() => undefined);
     await updateReminders().catch(() => undefined);
     await refreshCalendarFeed().catch(() => undefined);
-    set({ syncing: false, lastSyncedAt, held: result.held || undefined, kept: result.kept || undefined });
+    set({ syncing: false, lastSyncedAt, lastCheckedAt: checkedAt, held: result.held || undefined, kept: result.kept || undefined });
     return result;
   } catch (error) {
-    set({ syncing: false, error: error instanceof Error ? error.message : 'Sync could not finish. It will try again.' });
+    set({ syncing: false, lastCheckedAt: checkedAt, error: error instanceof Error ? error.message : 'Sync could not finish. It will try again.' });
     return null;
   }
 }
@@ -381,7 +394,10 @@ export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
   await resolvePhase();
-  if (status.phase === 'ready') void syncNow();
+  if (status.phase === 'ready') {
+    const last = status.lastSyncedAt ? Date.parse(status.lastSyncedAt) : NaN;
+    if (!Number.isFinite(last) || Date.now() - last >= STARTUP_CHECK_MS) void syncNow();
+  }
 
   // After any local change, sync shortly after things settle.
   for (const service of [lifeService, reflectionService, compassService, scheduleService, decisionService]) {

@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { changePassphrase, confirmCode, hasPassphrase, passkeysAvailable, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
@@ -21,11 +22,12 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
   const synced = account.lastSyncedAt
     ? new Date(account.lastSyncedAt).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })
     : undefined;
+  const target = storageName(account.target ?? 'proairetos');
   const [title, detail] =
     account.phase === 'ready'
       ? [
           account.email ?? 'Signed in',
-          account.held ? `${waiting} wait on this device until the server is updated.` : `${what} sync with Proairetos${synced ? `. Last ${synced}` : ''}.`,
+          account.held ? `${waiting} wait on this device until the server is updated.` : `${what} sync with ${target}${synced ? `. Last ${synced}` : ''}.`,
         ]
       : account.phase === 'signed-out'
         ? ['Not signed in', `The same account as Proairetos.`]
