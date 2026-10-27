@@ -25,6 +25,16 @@
 /* Standalone iOS PWAs occasionally lay out fixed chrome before the home-indicator inset settles. Keep each dock on
    its own compositor layer and cap that transient inset so it cannot begin in the lower part of the screen. */
 @media (display-mode: standalone) and (max-width: 61.99rem) {
+  :root.ll-standalone-opening :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :root.ll-standalone-ready :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    opacity: 1;
+    transition: opacity 160ms ease-out;
+  }
+
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
