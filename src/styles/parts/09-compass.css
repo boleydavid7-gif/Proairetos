@@ -516,6 +516,33 @@ button.value-card__text:disabled {
   font-size: var(--text-sm);
 }
 
+/* Pursuit controls use the full Lamplight touch size rather than compact legacy form controls. */
+:is(.pursuit-form, .pursuit-editor) .input {
+  min-height: var(--ll-field-lg, 56px);
+  padding: 0 var(--space-4);
+  border-radius: var(--ll-radius-md, 16px);
+  font-size: var(--text-md);
+}
+
+:is(.pursuit-form, .pursuit-editor) textarea.input {
+  min-height: 7rem;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+:is(.pursuit-form, .pursuit-editor) .button-main,
+:is(.pursuit-form, .pursuit-editor) .button-quiet {
+  min-height: var(--ll-control-lg, 52px);
+  padding-inline: var(--space-5);
+  border-radius: var(--ll-radius-pill, 999px);
+  font-size: var(--text-md);
+}
+
+:is(.pursuit-form, .pursuit-editor) .chip {
+  min-height: var(--ll-chip-lg, 44px);
+  padding-inline: var(--space-4);
+}
+
 .pursuit-editor {
   display: grid;
   gap: var(--space-4);
