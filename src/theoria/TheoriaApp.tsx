@@ -5,6 +5,7 @@ import ProairetosTab from '../app/family/ProairetosTab';
 import YearPage from '../app/family/YearPage';
 import { theoriaDates, theoriaYear } from './core/year';
 import { BookIcon, BookmarkIcon, BulbIcon, GearIcon, PenIcon } from '../components/icons/Icons';
+import { TimerIcon } from '../app/family/icons';
 import { startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
@@ -30,13 +31,14 @@ import { useEnterMark } from '../app/transitions';
 import { CARD_DRAFT_KEY } from '../praxis/cards';
 import PwaStatus from '../app/pwa/PwaStatus';
 import FileDropZone from '../components/files/FileDropZone';
+import PraxisApp from '../praxis/PraxisApp';
 
-type View = 'library' | 'shelf' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search' | 'year';
+type View = 'library' | 'shelf' | 'reader' | 'pomodoro' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search' | 'year';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
 type NoteState = { current?: NotePageDraft & { id?: string } };
 
 const navGroups: readonly { items: readonly { id: View; label: string; Icon: ComponentType<{ size?: number }> }[] }[] = [
-  { items: [{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflections', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }] },
+  { items: [{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflections', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }] },
 ];
 
 function useBooks(): { books: TheoriaBook[]; loading: boolean; error?: string } {
@@ -74,7 +76,7 @@ function withLock<T>(name: string, work: () => Promise<T>): Promise<T> {
 
 export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
-  useEnterMark(view, ['library', 'reader', 'notes', 'reflections'] as View[]);
+  useEnterMark(view, ['library', 'reader', 'pomodoro', 'notes', 'reflections'] as View[]);
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
   const [launched, setLaunched] = useState<File>();
@@ -181,6 +183,7 @@ export default function TheoriaApp() {
     // Back from connecting OneDrive for the library folder: settings, where the folder is chosen.
     void finishCloud().then((back) => { if (back) { setView('settings'); if (back.intent === 'folder') setDriveReturn(back.provider); else toast(`${CLOUD_NAMES[back.provider]} is connected. Books not on this device come from it when opened.`); } }).catch((error) => { setView('settings'); toast(error instanceof Error ? error.message : 'The storage did not connect.'); });
     if (open === 'add') setAddOpen(true);
+    if (open === 'pomodoro') setView('pomodoro');
     if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
     if (open?.startsWith('title:')) {
@@ -668,15 +671,16 @@ export default function TheoriaApp() {
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>Theoria</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span>{syncWords !== 'On this device' && <span className={'theoria-sync theoria-sync--' + sync.phase}><i />{syncWords}</span>}</header><FileDropZone label="Drop EPUB, PDF, text, or Markdown files to add them" onFiles={(files) => void saveMany(files)}><div className="theoria-page">
       {view === 'library' && <LibraryHome shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onContinue={(book) => void openReader(book)} onShelf={() => setView('shelf')} onSearch={() => setView('search')} />}
       {view === 'shelf' && <ShelfPage shelf={shelf} onBack={() => setView('library')} onOpen={openBook} onAdd={() => setAddOpen(true)} />}
-      {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onExport={() => downloadBookNotes(selected)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} onShelf={(shelf) => void moveToShelf(shelf)} onMakeCard={(item) => { try { localStorage.setItem(CARD_DRAFT_KEY, JSON.stringify({ back: item.text, from: item.book.title, blockTitle: `Read: ${item.book.title}` })); } catch { /* Praxis will still open if storage is unavailable. */ } window.location.assign('/praxis/?open=cards'); }} />}
+      {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onExport={() => downloadBookNotes(selected)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} onShelf={(shelf) => void moveToShelf(shelf)} onMakeCard={(item) => { try { localStorage.setItem(CARD_DRAFT_KEY, JSON.stringify({ back: item.text, from: item.book.title, blockTitle: `Read: ${item.book.title}` })); } catch { /* Pomodoro will still open if storage is unavailable. */ } window.location.assign('/theoria/?open=pomodoro'); }} />}
       {view === 'reader' && readerBook && <ReaderView book={readerBook} pdf={readerText?.bookId === readerBook.id ? readerText.pdf : undefined} loadingText={readerText?.loading} onChooseFile={(file) => void chooseFile(file)} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
+      {view === 'pomodoro' && <PraxisApp embedded />}
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
       {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} onClearLibrary={clearLibrary} bookCount={shelf.length} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} />}
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></FileDropZone></main>
-    <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
+    <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
     {addOpen && <AddBookDialog onMany={(files) => void saveMany(files)} initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}<UndoBar />
   </div>;
 }

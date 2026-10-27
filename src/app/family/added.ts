@@ -97,6 +97,9 @@ export function addedApps(): AddOn[] {
 
 /** Added and usable: while the Store takes payments, an add-on also has to be bought (purchases.ts). */
 export function isAdded(app: AddOn | string): boolean {
+  // Pomodoro now lives inside Theoria. Keep legacy Praxis records and links usable,
+  // while enabling the integrated tab whenever Theoria is available.
+  if (app === 'praxis') return isAdded('theoria') || (addedApps().includes('praxis') && mayUse(app));
   return !ADD_ONS.includes(app as AddOn) || (addedApps().includes(app as AddOn) && mayUse(app));
 }
 

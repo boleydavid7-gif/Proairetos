@@ -18,6 +18,7 @@ withLamplight((look, light) => applyLamplight(look, light, 'praxis'));
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import PraxisApp from './PraxisApp';
+import { takeOpening } from '../app/family/opening';
 import { notifications } from '../app/notify/notifications';
 
 // Praxis is a dark study room in either appearance (like Theoria's library): the text size follows
@@ -31,6 +32,7 @@ window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change'
 window.addEventListener('storage', appearance);
 startDailyCopies();
 notifications.start();
+const opening = takeOpening();
 
 // Proairetos's own service worker (scope /) keeps Praxis's page for offline use and shows the notice when a
 // block ends, even with Praxis closed. Registered here too, because each Home Screen app on an iPhone keeps
@@ -43,6 +45,6 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ErrorBoundary><AddedOnly app="praxis"><PraxisApp /></AddedOnly></ErrorBoundary>
+    <ErrorBoundary><AddedOnly app="praxis"><PraxisApp opening={opening} /></AddedOnly></ErrorBoundary>
   </React.StrictMode>,
 );

@@ -18,7 +18,6 @@ import { wakeAudio } from '../app/sound/engine';
 import { GearIcon, CalendarIcon, MountainIcon, BreatheIcon, SunIcon, ChecklistIcon } from '../components/icons/Icons';
 import { CardsView } from './CardsView';
 import PraxisMark from '../components/brand/PraxisMark';
-import { takeOpening } from '../app/family/opening';
 import { useDays } from '../app/family/personalDays';
 import { addDaysKey, clampMinutes, localDateKey, praxisFocusEvents, quoteFor, unusedStarters } from './data';
 import { bellWaiting, cancelBell, scheduleBell } from './bell';
@@ -31,9 +30,9 @@ import { useCards } from './CardsView';
 import { ready as readyCardsFor } from './cards';
 import PwaStatus from '../app/pwa/PwaStatus';
 
-type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings' | 'more';
+export type PraxisView = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings' | 'more';
 
-const navItems: readonly { id: View; label: string; icon: typeof SunIcon }[] = [
+const navItems: readonly { id: PraxisView; label: string; icon: typeof SunIcon }[] = [
   { id: 'today', label: 'Today', icon: SunIcon },
   { id: 'cards', label: 'Cards', icon: ChecklistIcon },
   { id: 'sessions', label: 'Sessions', icon: CalendarIcon },
@@ -56,11 +55,9 @@ function usePraxisEvents(): ItemEvent[] | undefined {
 const notifyPermission = (): string => notifications.permission();
 
 /** Where a link or shortcut asks to begin: `start` (the next block), or a page. */
-const opening = takeOpening();
-
-export default function PraxisApp() {
-  const [view, setView] = useState<View>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings', 'more'].includes(opening) ? (opening as View) : 'today'));
-  useEnterMark(view, ['today', 'cards', 'sessions', 'time', 'sounds'] as View[]);
+export default function PraxisApp({ embedded = false, opening = null }: { embedded?: boolean; opening?: string | null }) {
+  const [view, setView] = useState<PraxisView>(() => (opening && ['cards', 'sessions', 'time', 'sounds', 'settings', 'more'].includes(opening) ? (opening as PraxisView) : 'today'));
+  useEnterMark(view, ['today', 'cards', 'sessions', 'time', 'sounds'] as PraxisView[]);
   const [name] = useState(displayName);
   const [session, setSession] = useState<FocusSession | null>(() => loadFocusSession<FocusSession>());
   const [selectedId, setSelectedId] = useState<string | undefined>();
@@ -308,24 +305,25 @@ export default function PraxisApp() {
   };
 
   return (
-    <div className="praxis-app" data-no-title-anchor>
-      <PwaStatus />
-      <aside className="praxis-sidebar" aria-label="Praxis navigation">
+    <div className={`praxis-app${embedded ? ' praxis-app--embedded' : ''}`} data-no-title-anchor>
+      {!embedded && <PwaStatus />}
+      {!embedded && <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
           <span className="praxis-brand__mark"><PraxisMark size={42} /></span>
-          <span><strong>Praxis</strong></span>
+          <span><strong>Pomodoro</strong></span>
         </div>
         <PraxisNav view={view} onView={setView} />
         <div className="praxis-sidebar__spacer" />
-        <div className="praxis-sidebar__person"><span className="praxis-avatar">{(name || 'P').slice(0, 1).toUpperCase()}</span><span>{name || 'Praxis'}</span></div>
-      </aside>
+        <div className="praxis-sidebar__person"><span className="praxis-avatar">{(name || 'P').slice(0, 1).toUpperCase()}</span><span>{name || 'Pomodoro'}</span></div>
+      </aside>}
 
       <main className="praxis-main">
-        <header className="praxis-topbar">
+        {!embedded && <header className="praxis-topbar">
           {/* Proairetos is a tab in the bar, and sync shows in Settings: the top holds only the date. */}
           <div className="praxis-topbar__date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(clock)}</div>
-        </header>
+        </header>}
 
+        {embedded && <div className="praxis-embedded-nav" aria-label="Pomodoro navigation"><PraxisNav view={view} onView={setView} embedded /></div>}
         <div className="praxis-page">
           {view === 'today' && (
             <TodayView
@@ -401,13 +399,13 @@ export default function PraxisApp() {
         </div>
       </main>
 
-      <nav className="praxis-bottom-nav" aria-label="Praxis navigation"><PraxisNav view={view} onView={setView} /></nav>
+      {!embedded && <nav className="praxis-bottom-nav" aria-label="Praxis navigation"><PraxisNav view={view} onView={setView} /></nav>}
       <UndoBar />
     </div>
   );
 }
 
 
-function PraxisNav({ view, onView }: { view: View; onView: (view: View) => void }) {
-  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-praxis-view={id} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<button type="button" className="praxis-nav-item praxis-nav-item--more" data-praxis-view="more" aria-current={view === 'more' ? 'page' : undefined} onClick={() => onView('more')}><GearIcon size={18} /><span>More</span></button><ProairetosTab className="praxis-nav-item" size={18} /></div>;
+function PraxisNav({ view, onView, embedded = false }: { view: PraxisView; onView: (view: PraxisView) => void; embedded?: boolean }) {
+  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-praxis-view={id} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<button type="button" className="praxis-nav-item praxis-nav-item--more" data-praxis-view="more" aria-current={view === 'more' ? 'page' : undefined} onClick={() => onView('more')}><GearIcon size={18} /><span>More</span></button>{!embedded && <ProairetosTab className="praxis-nav-item" size={18} />}</div>;
 }

@@ -8,6 +8,7 @@ import '@fontsource/eb-garamond/latin-600.css';
 import '@fontsource-variable/google-sans-flex/opsz.css';
 import '../styles/tokens.css';
 import './theoria.css';
+import '../praxis/praxis.css';
 import '../styles/premium.css';
 import '../app/family/account.css';
 import { applyAppearance, withLamplight } from '../app/appearance';
@@ -19,6 +20,7 @@ import TheoriaApp from './TheoriaApp';
 import { startDailyCopies } from '../app/family/dailyCopy';
 import AddedOnly from '../app/family/AddedOnly';
 import { startLaunchFiles } from '../app/family/launchFiles';
+import { notifications } from '../app/notify/notifications';
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.
 startLaunchFiles();
@@ -26,6 +28,7 @@ startLaunchFiles();
 applyAppearance();
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyAppearance());
 startDailyCopies();
+notifications.start();
 
 // Proairetos's own service worker (scope /) keeps Theoria's page for offline use; registered here too, since
 // each Home Screen app on an iPhone keeps its own storage.

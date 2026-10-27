@@ -185,6 +185,13 @@
 }
 
 .praxis-nav-item--more { display: none; }
+.praxis-app--embedded { min-height: auto; display: block; }
+.praxis-app--embedded .praxis-main { padding: 0; }
+.praxis-app--embedded .praxis-page { max-width: none; }
+.praxis-embedded-nav { margin: 0 0 18px; overflow-x: auto; }
+.praxis-embedded-nav .praxis-nav-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.praxis-embedded-nav .praxis-nav-item { width: auto; flex: 0 0 auto; padding: 8px 11px; }
+.praxis-embedded-nav .praxis-nav-item span { font-size: 12px; }
 .praxis-more-card { padding: 8px 20px; }
 .praxis-more-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 68px; padding: 12px 0; border: 0; border-bottom: 1px solid var(--color-border); color: var(--color-text); background: none; font: inherit; text-align: left; cursor: pointer; }
 .praxis-more-link:last-child { border-bottom: 0; }
