@@ -47,6 +47,16 @@
     transform: translate3d(0, 0, 0);
   }
 
+  :root :is(.shell, .shell--tabs) {
+    --tab-height: calc(68px + var(--ll-safe-bottom));
+  }
+
+  :root :is(.shell, .shell--tabs) .tab-bar {
+    padding-bottom: var(--ll-safe-bottom);
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
   :root .hydros-tabs {
     padding-bottom: var(--ll-safe-bottom);
     -webkit-transform: translate3d(-50%, 0, 0);
