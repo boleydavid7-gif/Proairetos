@@ -70,7 +70,6 @@ export default function PursuitsSection() {
         <div className="pursuits__empty">
           <p className="pursuits__empty-title">Nothing is in motion yet.</p>
           <p className="muted">Start with something you want to build, change, understand, or care for.</p>
-          <button type="button" className="button-main" onClick={() => setCreating(true)}>Begin a pursuit</button>
         </div>
       ) : (
         <ul className="pursuits__list">{active.map((pursuit) => <PursuitCard key={pursuit.id} pursuit={pursuit} onOpen={() => setSelected(pursuit.id)} />)}</ul>
@@ -102,6 +101,7 @@ function PursuitForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: (id
   const [title, setTitle] = useState('');
   const [kind, setKind] = useState<PursuitKind>('build');
   const [area, setArea] = useState('');
+  const selectedKind = PURSUIT_KINDS.find((item) => item.id === kind);
   const save = () => {
     if (!title.trim()) return;
     const stamp = nowStamp();
@@ -122,7 +122,7 @@ function PursuitForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: (id
     <section className="card pursuit-form">
       <div className="section-head"><div><p className="eyebrow">Start with a direction</p><h2 className="card__title">New pursuit</h2></div><button type="button" className="text-link" onClick={onCancel}>Cancel</button></div>
       <label className="field"><span className="field__label">What are you trying to change, build, or understand?</span><input autoFocus className="input" value={title} placeholder="Make the house calmer" onChange={(event) => setTitle(event.target.value)} /></label>
-      <label className="field"><span className="field__label">Kind</span><select className="input" value={kind} onChange={(event) => setKind(event.target.value as PursuitKind)}>{PURSUIT_KINDS.map((item) => <option key={item.id} value={item.id}>{item.label} · {item.detail}</option>)}</select></label>
+      <label className="field"><span className="field__label">Kind</span><select className="input pursuit-form__select" value={kind} onChange={(event) => setKind(event.target.value as PursuitKind)}>{PURSUIT_KINDS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>{selectedKind && <span className="pursuit-form__hint">{selectedKind.detail}</span>}</label>
       <label className="field"><span className="field__label">Area <span className="muted">(optional)</span></span><input className="input" value={area} placeholder="Home, health, work, creative" onChange={(event) => setArea(event.target.value)} /></label>
       <button type="button" className="button-main" disabled={!title.trim()} onClick={save}>Begin pursuit</button>
     </section>

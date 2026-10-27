@@ -14,7 +14,6 @@ import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import PeopleSection from './PeopleSection';
-import GoalsSection from './GoalsSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
 import { Sym } from '../../lamplight/icons';
@@ -116,11 +115,10 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
   );
 }
 
-type CompassTab = 'values' | 'goals' | 'pursuits' | 'people' | 'words';
+type CompassTab = 'values' | 'pursuits' | 'people' | 'words';
 
 const compassTabs: { id: CompassTab; label: string }[] = [
   { id: 'values', label: 'Values' },
-  { id: 'goals', label: 'Goals' },
   { id: 'pursuits', label: 'Pursuits' },
   { id: 'people', label: 'People' },
   { id: 'words', label: 'Words' },
@@ -225,8 +223,6 @@ export default function CompassPage() {
         )}
       </section>
       )}
-
-      {tab === 'goals' && <GoalsSection goals={statements.filter((statement) => statement.type === 'GOAL')} />}
 
       {tab === 'pursuits' && <PursuitsSection />}
 

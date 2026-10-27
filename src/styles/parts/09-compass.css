@@ -497,6 +497,25 @@ button.value-card__text:disabled {
   max-width: 42rem;
 }
 
+.pursuit-form .field {
+  width: 100%;
+}
+
+.pursuit-form .input,
+.pursuit-form .button-main {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pursuit-form__select {
+  min-height: 3rem;
+}
+
+.pursuit-form__hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
 .pursuit-editor {
   display: grid;
   gap: var(--space-4);
