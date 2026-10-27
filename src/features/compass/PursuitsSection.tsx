@@ -69,7 +69,7 @@ export default function PursuitsSection() {
       {active.length === 0 ? (
         <div className="pursuits__empty">
           <p className="pursuits__empty-title">Nothing is in motion yet.</p>
-          <p className="muted">Start with something you want to build, change, understand, or care for.</p>
+          <p className="muted">Start with something you want to build, change, or understand.</p>
         </div>
       ) : (
         <ul className="pursuits__list">{active.map((pursuit) => <PursuitCard key={pursuit.id} pursuit={pursuit} onOpen={() => setSelected(pursuit.id)} />)}</ul>

@@ -10,7 +10,6 @@ export const PURSUIT_KINDS: { id: PursuitKind; label: string; detail: string }[]
   { id: 'build', label: 'Build something', detail: 'A project with a finished result' },
   { id: 'change', label: 'Change a pattern', detail: 'A habit or behavior you want to reshape' },
   { id: 'reach', label: 'Reach a condition', detail: 'A measurable or felt outcome' },
-  { id: 'care', label: 'Care for something', detail: 'A home, relationship, or responsibility' },
   { id: 'learn', label: 'Learn or understand', detail: 'A subject, skill, or question' },
 ];
 

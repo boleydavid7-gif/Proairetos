@@ -379,6 +379,10 @@ button.value-card__text:disabled {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: var(--ll-control-lg, 52px);
+  padding-inline: var(--space-5);
+  border-radius: var(--ll-radius-pill, 999px);
+  font-size: var(--text-md);
 }
 
 .pursuits__list {
@@ -495,6 +499,7 @@ button.value-card__text:disabled {
 
 .pursuit-form {
   max-width: 42rem;
+  padding: var(--space-5);
 }
 
 .pursuit-form .field {
