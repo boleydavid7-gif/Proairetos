@@ -14,7 +14,6 @@ import TripDays, { AddToDay, AgendaRow, openEntry } from '../components/TripDays
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
 import TripJournal from '../components/TripJournal';
-import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { DocumentsCard } from '../components/Arriving';
 import { GoalCard, useEnvelopeSync } from '../components/TripGoals';
@@ -116,7 +115,6 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
   const about = (
     <>
       {ahead && <DocumentsCard trip={trip} nav={nav} />}
-      {ahead && <TripWithApps trip={trip} />}
       <GoalCard trip={trip} />
       <TogetherCard trip={trip} />
       <section className="card poreia-journal-preview">
