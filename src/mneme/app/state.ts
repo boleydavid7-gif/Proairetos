@@ -6,12 +6,15 @@ export type Note = {
   body: string;
   collectionId?: string;
   source?: string;
+  kind?: 'note' | 'idea';
+  ideaStage?: IdeaStage;
   recording?: { attachmentId: string; durationMs: number; mimeType: string };
   pinned: boolean;
   archived: boolean;
   createdAt: string;
   updatedAt: string;
 };
+export type IdeaStage = 'spark' | 'shape' | 'next' | 'parked';
 export type NoteCollection = { id: string; name: string; createdAt: string };
 
 export const notes = collection<Note>('mneme:note:');

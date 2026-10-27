@@ -10,7 +10,7 @@ import CapturePage from '../screens/CapturePage';
 import NotePage from '../screens/NotePage';
 
 export type Tab = 'notes' | 'collections' | 'capture';
-export type Route = { name: Tab } | { name: 'note'; id: string } | { name: 'collection'; id: string };
+export type Route = { name: Exclude<Tab, 'capture'> } | { name: 'capture'; mode?: 'write' | 'idea' | 'record' } | { name: 'note'; id: string } | { name: 'collection'; id: string };
 export type MnemeNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -42,7 +42,7 @@ export default function App() {
     switch (route.name) {
       case 'notes': return <NotesPage nav={nav} />;
       case 'collections': return <CollectionsPage nav={nav} />;
-      case 'capture': return <CapturePage nav={nav} />;
+      case 'capture': return <CapturePage nav={nav} initialMode={route.mode} />;
       case 'note': return <NotePage nav={nav} id={route.id} />;
       case 'collection': return <CollectionsPage nav={nav} id={route.id} />;
     }

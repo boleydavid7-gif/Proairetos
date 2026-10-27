@@ -37,5 +37,15 @@ function SmartCollection({ label, count, onClick }: { label: string; count: numb
 
 function CollectionDetail({ nav, collection, notes: collectionNotes }: { nav: MnemeNav; collection?: NoteCollection; notes: Note[] }) {
   const sorted = useMemo(() => collectionNotes.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [collectionNotes]);
-  return <main className="mneme-page mneme-collections"><button type="button" className="mneme-back-source" data-back aria-hidden="true" onClick={nav.back}>Back</button><p className="mneme-kicker">Collection</p><h1>{collection?.name || 'Collection'}</h1>{sorted.length ? <div className="mneme-note-list">{sorted.map((note) => <button type="button" className="mneme-note-card" key={note.id} onClick={() => nav.go({ name: 'note', id: note.id })}><span className="mneme-note-card__top"><span className="mneme-note-card__title">{note.title || 'Untitled note'}</span><ChevronIcon size={22} /></span><span className="mneme-note-card__body">{notePreview(note.body) || 'No words added yet.'}</span></button>)}</div> : <section className="mneme-empty"><h2>No notes here yet</h2><p>Capture something and place it in this collection.</p><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>}</main>;
+  return <main className="mneme-page mneme-collections"><button type="button" className="mneme-back-source" data-back aria-hidden="true" onClick={nav.back}>Back</button><p className="mneme-kicker">Collection</p><h1>{collection?.name || 'Collection'}</h1>{sorted.length ? <div className="mneme-note-list">{sorted.map((note) => <NoteCard key={note.id} note={note} onOpen={() => nav.go({ name: 'note', id: note.id })} />)}</div> : <section className="mneme-empty"><h2>No notes here yet</h2><p>Capture something and place it in this collection.</p><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>}</main>;
+}
+
+function NoteCard({ note, onOpen }: { note: Note; onOpen: () => void }) {
+  return <article className="mneme-note-card">
+    <button type="button" className="mneme-note-card__open" onClick={onOpen}>
+      <span className="mneme-note-card__top"><span className="mneme-note-card__title">{note.title || (note.kind === 'idea' ? 'Untitled idea' : 'Untitled note')}</span><ChevronIcon size={22} /></span>
+      <span className="mneme-note-card__body">{notePreview(note.body) || 'No words added yet.'}</span>
+      <span className="mneme-note-card__meta">{note.kind === 'idea' ? 'Idea' : 'Note'}</span>
+    </button>
+  </article>;
 }
