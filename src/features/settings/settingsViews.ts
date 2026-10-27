@@ -23,7 +23,8 @@ export type View =
   | 'about'
   | 'inbox'
   | 'health'
-  | 'together';
+  | 'together'
+  | 'install';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
 let requestedView: View | null = null;
@@ -73,6 +74,7 @@ export const viewTitles: Record<View, string> = {
   inbox: 'Capture from anywhere',
   health: 'Health data',
   together: 'Shared list',
+  install: 'Install Proairetos',
 };
 
 /** The page asked for, once. */

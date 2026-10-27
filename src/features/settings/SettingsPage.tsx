@@ -89,6 +89,7 @@ import { calendarSources } from '../../app/calendars/otherCalendars';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 import { Waiting } from '../../lamplight/Waiting';
+import PwaInstallSection from './PwaInstallSection';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -1209,6 +1210,7 @@ export default function SettingsPage() {
         {view === 'inbox' && <InboxSection onOpenAccount={() => setView('account')} />}
         {view === 'health' && <HealthSection onOpenAccount={() => setView('account')} onOpenStore={() => setView('store')} />}
         {view === 'together' && <TogetherSection onOpenAccount={() => setView('account')} />}
+        {view === 'install' && <PwaInstallSection />}
         {view === 'account' && <AccountSection />}
         {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
@@ -1324,6 +1326,7 @@ export default function SettingsPage() {
           onClick: () => setView('appearance'),
           words: 'theme dark light text size gentle taps',
         },
+        { id: 'install', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Install Proairetos', value: 'Home Screen', onClick: () => setView('install'), words: 'pwa home screen standalone install offline' },
       ],
     },
     {
