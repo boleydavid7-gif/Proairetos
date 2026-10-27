@@ -17,6 +17,13 @@
 }
 
 @media (max-width: 61.99rem) {
+  /* Safari Home Screen launches can change env(safe-area-inset-bottom) after paint. Keep the standalone dock's
+     home-indicator clearance stable for the launch lifetime instead of letting its top edge travel with that change. */
+  :root.ll-standalone-opening,
+  :root.ll-standalone-ready {
+    --ll-safe-bottom: 34px;
+  }
+
   /* Home Screen launch: the dock begins as a small, quiet object and settles into the viewport after WebKit has
      finished its first visual-viewport correction. The class is set by behaviors.ts, so this also works when Safari's
      display-mode media query arrives late. */
