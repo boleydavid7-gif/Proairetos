@@ -2,19 +2,17 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
-import { WeekIcon, ClockIcon, SettingsIcon, WalletIcon } from '../../app/family/icons';
+import { WeekIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
-import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
+import { settings, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
-import { balanceOn, hoursText } from '../core/timeOff';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN', 'BRL', 'INR', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR'];
 
 export default function MorePage({ nav }: { nav: PoreiaNav }) {
   const current = settings.use();
-  const offs = timeOff.use();
   const change = (patch: Partial<PoreiaSettings>) => settings.save({ ...settings.load(), ...patch });
   const notice = (patch: Partial<PoreiaSettings['notices']>) => {
     change({ notices: { ...current.notices, ...patch } });
@@ -50,32 +48,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
           </label>
         </div>
       </section>
-
-      <p className="ll-section-label">Travel planning</p>
-      <ul className="rows">
-        <li>
-          <button type="button" className="row" onClick={() => nav.go({ name: 'budget' })}>
-            <span className="row__icon">
-              <WalletIcon size={22} />
-            </span>
-            <span className="row__text">
-              <span>Travel budget</span>
-              <span className="row__detail">Plan and review spending by trip</span>
-            </span>
-          </button>
-        </li>
-        <li>
-          <button type="button" className="row" onClick={() => nav.go({ name: 'time' })}>
-            <span className="row__icon">
-              <ClockIcon size={22} />
-            </span>
-            <span className="row__text">
-              <span>Time off balance</span>
-              <span className="row__detail">{current.timeOff ? `${hoursText(balanceOn(current.timeOff, offs, today()))} on hand` : 'Not set up'}</span>
-            </span>
-          </button>
-        </li>
-      </ul>
 
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'documents' })}>

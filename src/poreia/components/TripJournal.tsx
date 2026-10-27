@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import SwipeItem from '../../app/family/SwipeItem';
+import Attachments from '../../features/items/attachments/Attachments';
 import { dayText } from '../app/ui';
 import { journal, newId, nowStamp, today } from '../app/state';
 import { JOURNAL_ENTRY_KINDS, type JournalEntry, type JournalEntryKind, type Trip } from '../core/model';
@@ -100,11 +101,12 @@ export default function TripJournal({ trip }: { trip: Trip }) {
           <ul className="poreia-journal__list">
             {entries.map((entry) => (
               <SwipeItem key={entry.id} className="poreia-journal__item" label="Delete" tone="remove" onSwipe={() => { journal.remove(entry.id); offerUndo('Journal entry deleted', () => journal.put(entry)); }}>
-                <button type="button" className="poreia-journal__open" onClick={() => edit(entry)}>
+        <button type="button" className="poreia-journal__open" onClick={() => edit(entry)}>
                   <span className="poreia-journal__meta">{dayText(entry.date)} · {JOURNAL_ENTRY_KINDS.find((each) => each.id === entry.kind)?.label}{entry.place ? ` · ${entry.place}` : ''}</span>
                   <strong>{entry.title || entry.text.slice(0, 60)}</strong>
                   <span>{entry.text}</span>
                 </button>
+                <Attachments itemId={entry.id} />
               </SwipeItem>
             ))}
           </ul>

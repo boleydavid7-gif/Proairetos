@@ -2014,13 +2014,152 @@
   gap: 10px;
 }
 
-.poreia-home__quick {
-  margin-bottom: 4px;
-  overflow-x: auto;
-  flex-wrap: nowrap;
+/* Journal & log: an editorial timeline with generous space for writing and photographs. */
+.poreia-journal-page {
+  display: grid;
+  gap: 22px;
 }
 
-.poreia-home__quick .button-quiet {
-  flex: 0 0 auto;
+.poreia-journal-page__top {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.poreia-journal-page__top .title {
+  margin-bottom: 0;
+}
+
+.poreia-journal-page__count {
+  color: var(--muted);
+  font-size: var(--text-sm);
   white-space: nowrap;
+}
+
+.poreia-journal-page .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 5px;
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-page__filters {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.poreia-journal-page__filters .chip-row {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 2px;
+}
+
+.poreia-journal-page__filters .chip {
+  flex: 0 0 auto;
+}
+
+.poreia-journal-page__log {
+  display: grid;
+  gap: 12px;
+}
+
+.poreia-journal-page__log .section-head {
+  margin-bottom: 0;
+}
+
+.poreia-journal-page__list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-journal-card {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.35fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid color-mix(in oklab, var(--line) 90%, transparent);
+  border-radius: 18px;
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.12), inset 0 1px rgb(255 255 255 / 0.04);
+}
+
+.poreia-journal-card__date {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-card__date strong {
+  color: var(--text);
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.poreia-journal-card__body {
+  min-width: 0;
+}
+
+.poreia-journal-card__meta {
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-card h3 {
+  margin: 5px 0 6px;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.poreia-journal-card p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.poreia-journal-card__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 13px;
+}
+
+.poreia-journal-card__actions .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.poreia-danger {
+  color: var(--poreia-requested);
+}
+
+.poreia-journal__photos {
+  display: grid;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.poreia-journal-page .attachment-grid,
+.poreia-journal .attachment-grid {
+  margin-top: 4px;
+}
+
+@media (max-width: 520px) {
+  .poreia-journal-card {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
 }
