@@ -94,12 +94,21 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
       setAudioBlob(null);
       restartRecognition.current = true;
       instance.ondataavailable = (event) => { if (event.data.size) chunks.current.push(event.data); };
+      instance.onerror = () => {
+        setError('Recording stopped unexpectedly. Try again or check microphone access.');
+        setRecording(false);
+        stream.current?.getTracks().forEach((track) => track.stop());
+        stream.current = null;
+        recorder.current = null;
+      };
       instance.onstop = () => {
         const blob = new Blob(chunks.current, { type: instance.mimeType || mimeType || 'audio/webm' });
         setAudioBlob(blob);
         setRecordingMs(Date.now() - startedAt.current);
       };
-      instance.start(500);
+      // Safari/iOS WebKit can stall a standalone PWA when MediaRecorder is asked for periodic timeslice chunks.
+      // Collect one recording and receive the complete blob on stop instead.
+      instance.start();
       setRecording(true);
       if (!title.trim()) setTitle('Voice note');
       startTranscript();
