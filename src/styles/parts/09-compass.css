@@ -624,6 +624,16 @@ button.value-card__text:disabled {
   line-height: 1;
 }
 
+.pursuit-drawer__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pursuit-drawer__close {
+  display: none;
+}
+
 .pursuit-drawer[open] summary {
   border-color: var(--color-accent);
   color: var(--color-accent);
@@ -788,6 +798,31 @@ button.value-card__text:disabled {
 
   .pursuit-drawer summary {
     padding-inline: var(--space-3);
+  }
+
+  .pursuit-drawer[open]::before {
+    content: '';
+    position: fixed;
+    z-index: 30;
+    inset: 0;
+    background: color-mix(in srgb, var(--ll-page, var(--color-background)) 78%, transparent);
+  }
+
+  .pursuit-drawer[open] > .pursuit-checkin,
+  .pursuit-drawer[open] > .pursuit-decisions {
+    position: fixed;
+    z-index: 31;
+    inset: max(0.75rem, env(safe-area-inset-top)) 0 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    max-height: calc(100dvh - max(0.75rem, env(safe-area-inset-top)));
+    margin: 0;
+    padding: var(--space-5) var(--space-4) calc(var(--space-7) + env(safe-area-inset-bottom));
+    border-radius: var(--ll-radius-lg, var(--radius-md)) var(--ll-radius-lg, var(--radius-md)) 0 0;
+  }
+
+  .pursuit-drawer__close {
+    display: inline-flex;
   }
 
   .pursuit-card {

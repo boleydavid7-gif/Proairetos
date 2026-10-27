@@ -190,7 +190,7 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
         <details className="pursuit-drawer">
           <summary>Daily check-in</summary>
           <section className="card pursuit-checkin">
-            <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div>{saved && <span className="pursuit-checkin__saved">Saved</span>}</div>
+            <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div><div className="pursuit-drawer__head-actions">{saved && <span className="pursuit-checkin__saved">Saved</span>}<DrawerClose /></div></div>
             <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
             <TextField label="What did you accomplish?" value={accomplishment} onChange={(value) => { setAccomplishment(value); setSaved(false); }} />
             <div className="field"><span className="field__label">How did the day feel?</span><div className="pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></div>
@@ -202,7 +202,7 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
         </details>
         <details className="pursuit-drawer">
           <summary>Decisions</summary>
-          <section className="card pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
+          <section className="card pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><div className="pursuit-drawer__head-actions"><DrawerClose /><button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button></div></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
         </details>
       </div>
 
@@ -228,4 +228,8 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
 
 function TextField({ label, value, onChange }: { label: string; value?: string; onChange: (value: string) => void }) {
   return <label className="field pursuit-field"><span className="field__label">{label}</span><textarea className="input area" rows={3} value={value ?? ''} onChange={(event) => onChange(event.target.value)} /></label>;
+}
+
+function DrawerClose() {
+  return <button type="button" className="button-quiet pursuit-drawer__close" onClick={(event) => { (event.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open'); }}>Close</button>;
 }
