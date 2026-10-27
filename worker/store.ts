@@ -65,7 +65,7 @@ export function isTester(env: StoreEnv, email: string | undefined): boolean {
   return false;
 }
 
-const ownerEmail = (env: StoreEnv) => (env.OWNER_EMAIL ?? 'boleydavid7@gmail.com').trim().toLowerCase();
+const ownerEmail = (_env: StoreEnv) => 'boleydavid7@gmail.com';
 const validEmail = (email: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
 const betaSetupMessage = 'Run supabase/migrations/20261029000000_beta_access.sql, add SUPABASE_SERVICE_ROLE_KEY to the Worker secrets, and redeploy.';
 
