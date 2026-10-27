@@ -4,7 +4,7 @@ import { MicIcon, StopIcon } from '../../components/icons/Icons';
 import { syncStatus } from '../../app/sync/syncController';
 import type { MnemeNav } from '../app/App';
 import { collections, newId, notes } from '../app/state';
-import { liveTranscriptSupported, recognitionClass, recordingMimeType, voiceRecordingSupported, type VoiceRecognition } from '../app/voice';
+import { liveTranscriptSupported, recognitionClass, recordingFormat, voiceRecordingSupported, type VoiceRecognition } from '../app/voice';
 
 type CaptureMode = 'write' | 'record';
 
@@ -26,10 +26,13 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
   const recognition = useRef<VoiceRecognition | null>(null);
   const chunks = useRef<Blob[]>([]);
   const startedAt = useRef(0);
+  const recordingDurationMs = useRef(0);
   const restartRecognition = useRef(true);
+  const transcriptTimer = useRef<number | null>(null);
 
   useEffect(() => () => {
     restartRecognition.current = false;
+    if (transcriptTimer.current !== null) window.clearTimeout(transcriptTimer.current);
     recorder.current?.stop();
     recognition.current?.stop();
     stream.current?.getTracks().forEach((track) => track.stop());
@@ -52,6 +55,7 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
   }, [audioBlob]);
 
   const startTranscript = () => {
+    if (!restartRecognition.current) return;
     const Recognition = recognitionClass();
     if (!liveTranscript || !Recognition) return;
     const instance = new Recognition();
@@ -66,11 +70,19 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
       if (words.length) setBody((current) => `${current}${current.trim() ? ' ' : ''}${words.join(' ')}`);
     };
     instance.onerror = (event) => {
-      if (event.error !== 'no-speech' && event.error !== 'aborted') setError('Live transcript stopped. The recording is still safe.');
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        setError('Live transcript is unavailable here. The audio recording is still safe.');
+      }
+      restartRecognition.current = false;
+      recognition.current = null;
+      try { instance.stop(); } catch { /* The speech service may already be stopped. */ }
     };
     instance.onend = () => {
       if (!restartRecognition.current) return;
-      try { instance.start(); } catch { /* The browser is already restarting it. */ }
+      window.setTimeout(() => {
+        if (!restartRecognition.current) return;
+        try { instance.start(); } catch { /* The browser is already restarting it. */ }
+      }, 250);
     };
     recognition.current = instance;
     try { instance.start(); } catch { setError('Live transcript could not start. The recording is still available.'); }
@@ -83,9 +95,15 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
     }
     try {
       setError('');
-      const captured = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = recordingMimeType();
-      const instance = new MediaRecorder(captured, mimeType ? { mimeType } : undefined);
+      const captured = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      const format = recordingFormat();
+      let instance: MediaRecorder;
+      try {
+        instance = new MediaRecorder(captured, format.mimeType ? { mimeType: format.mimeType } : undefined);
+      } catch {
+        captured.getTracks().forEach((track) => track.stop());
+        throw new Error('This browser cannot create an audio recording.');
+      }
       stream.current = captured;
       recorder.current = instance;
       chunks.current = [];
@@ -96,22 +114,27 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
       instance.ondataavailable = (event) => { if (event.data.size) chunks.current.push(event.data); };
       instance.onerror = () => {
         setError('Recording stopped unexpectedly. Try again or check microphone access.');
+        stopRecording();
+      };
+      instance.onstop = () => {
+        const blob = new Blob(chunks.current, { type: instance.mimeType || format.mimeType || 'audio/webm' });
+        if (!blob.size) setError('No audio was captured. Check microphone access and try again.');
+        setAudioBlob(blob.size ? blob : null);
+        recordingDurationMs.current = Math.max(0, Date.now() - startedAt.current);
+        setRecordingMs(recordingDurationMs.current);
         setRecording(false);
         stream.current?.getTracks().forEach((track) => track.stop());
         stream.current = null;
         recorder.current = null;
-      };
-      instance.onstop = () => {
-        const blob = new Blob(chunks.current, { type: instance.mimeType || mimeType || 'audio/webm' });
-        setAudioBlob(blob);
-        setRecordingMs(Date.now() - startedAt.current);
       };
       // Safari/iOS WebKit can stall a standalone PWA when MediaRecorder is asked for periodic timeslice chunks.
       // Collect one recording and receive the complete blob on stop instead.
       instance.start();
       setRecording(true);
       if (!title.trim()) setTitle('Voice note');
-      startTranscript();
+      // Let WebKit finish opening the recorder before asking its speech service
+      // for a second microphone session.
+      if (liveTranscript) transcriptTimer.current = window.setTimeout(startTranscript, 250);
     } catch {
       setError('Microphone access is off. Turn it on in your browser settings, then try again.');
       stream.current?.getTracks().forEach((track) => track.stop());
@@ -122,11 +145,17 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
     restartRecognition.current = false;
     recognition.current?.stop();
     recognition.current = null;
-    recorder.current?.stop();
-    recorder.current = null;
-    stream.current?.getTracks().forEach((track) => track.stop());
-    stream.current = null;
-    setRecording(false);
+    const activeRecorder = recorder.current;
+    if (!activeRecorder) {
+      stream.current?.getTracks().forEach((track) => track.stop());
+      stream.current = null;
+      setRecording(false);
+      return;
+    }
+    if (activeRecorder.state === 'recording') {
+      try { activeRecorder.requestData(); } catch { /* Safari may not expose requestData while stopping. */ }
+      activeRecorder.stop();
+    }
   };
 
   const save = async () => {
@@ -139,8 +168,9 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
     let recordingInfo: { attachmentId: string; durationMs: number; mimeType: string } | undefined;
     try {
       if (audioBlob) {
-        const attachment = await attachmentService.add(id, { name: `${id}.webm`, type: audioBlob.type || 'audio/webm', data: await audioBlob.arrayBuffer() });
-        recordingInfo = { attachmentId: attachment.id, durationMs: recordingMs, mimeType: attachment.type };
+        const extension = audioBlob.type.includes('mp4') ? 'm4a' : 'webm';
+        const attachment = await attachmentService.add(id, { name: `${id}.${extension}`, type: audioBlob.type || 'audio/webm', data: await audioBlob.arrayBuffer() });
+        recordingInfo = { attachmentId: attachment.id, durationMs: recordingDurationMs.current || recordingMs, mimeType: attachment.type };
       }
       notes.put({ id, title: title.trim() || 'Voice note', body: body.trim(), collectionId: collectionId || undefined, pinned: false, archived: false, source: audioBlob ? 'voice' : undefined, recording: recordingInfo, createdAt: now, updatedAt: now });
       nav.go({ name: 'note', id });
