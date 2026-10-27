@@ -25,20 +25,9 @@ async function asBase64(file: Blob): Promise<string> {
 
 /** Uses Apple Vision on iOS and ML Kit on Android through the Capacitor plugin. */
 async function readNativePhotoText(file: Blob): Promise<string> {
-  const [{ Directory, Filesystem }, { Script, TextRecognition }] = await Promise.all([
-    import('@capacitor/filesystem'),
-    import('@capacitor-mlkit/text-recognition'),
-  ]);
-  const extension = file.type.includes('png') ? 'png' : 'jpg';
-  const path = `proairetos-ocr/${Date.now()}.${extension}`;
-  await Filesystem.writeFile({ path, data: await asBase64(file), directory: Directory.Cache, recursive: true });
-  try {
-    const { uri } = await Filesystem.getUri({ path, directory: Directory.Cache });
-    const result = await TextRecognition.processImage({ path: uri, script: Script.Latin });
-    return result.text;
-  } finally {
-    await Filesystem.deleteFile({ path, directory: Directory.Cache }).catch(() => undefined);
-  }
+  const { ocr } = await import('capacitor-vision');
+  const result = await ocr.scan({ image: await asBase64(file) });
+  return result.text.join('\n');
 }
 
 function start(): Promise<Worker> {
