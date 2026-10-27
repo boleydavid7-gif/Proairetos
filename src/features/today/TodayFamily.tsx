@@ -130,7 +130,7 @@ export function TodayPursuit() {
   const due = all.filter((pursuit) => needsPursuitCheckIn(pursuit)).sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))[0];
   const current = due ?? all
     .filter((pursuit) => pursuit.status === 'active' && pursuit.nextMove?.trim())
-    .sort((a, b) => (a.nextMoveDue ?? '9999-12-31').localeCompare(b.nextMoveDue ?? '9999-12-31') || b.updatedAt.localeCompare(a.updatedAt))[0];
+    .sort((a, b) => (a.dueDate ?? a.nextMoveDue ?? '9999-12-31').localeCompare(b.dueDate ?? b.nextMoveDue ?? '9999-12-31') || b.updatedAt.localeCompare(a.updatedAt))[0];
   if (!current || (!due && !current.nextMove)) return null;
   const title = due ? `Check in: ${current.title}` : current.nextMove!;
   const detail = due ? `No check-in recently · ${current.title} · Compass` : `Next move · ${current.title} · Compass`;

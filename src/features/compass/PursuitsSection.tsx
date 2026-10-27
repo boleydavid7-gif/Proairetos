@@ -121,9 +121,9 @@ function PursuitForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: (id
   return (
     <section className="card pursuit-form">
       <div className="section-head"><div><p className="eyebrow">Start with a direction</p><h2 className="card__title">New pursuit</h2></div><button type="button" className="text-link" onClick={onCancel}>Cancel</button></div>
-      <label className="field"><span className="field__label">What are you trying to change, build, or understand?</span><input autoFocus className="input" value={title} placeholder="Make the house calmer" onChange={(event) => setTitle(event.target.value)} /></label>
+      <label className="field"><span className="field__label">What are you trying to change, build, or understand?</span><input autoFocus className="input" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
       <label className="field"><span className="field__label">Kind</span><select className="input pursuit-form__select" value={kind} onChange={(event) => setKind(event.target.value as PursuitKind)}>{PURSUIT_KINDS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>{selectedKind && <span className="pursuit-form__hint">{selectedKind.detail}</span>}</label>
-      <label className="field"><span className="field__label">Area <span className="muted">(optional)</span></span><input className="input" value={area} placeholder="Home, health, work, creative" onChange={(event) => setArea(event.target.value)} /></label>
+      <label className="field"><span className="field__label">Area <span className="muted">(optional)</span></span><input className="input" value={area} onChange={(event) => setArea(event.target.value)} /></label>
       <button type="button" className="button-main" disabled={!title.trim()} onClick={save}>Begin pursuit</button>
     </section>
   );
@@ -184,33 +184,37 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
       <button type="button" className="back-link" onClick={onBack}>‹ Pursuits</button>
       <div className="pursuit-editor__head">
         <div><p className="eyebrow">{kindText(draft.kind)}{draft.area ? ` · ${draft.area}` : ''}</p><h2>{draft.title}</h2></div>
-        <select className="input pursuit-editor__status" value={draft.status} onChange={(event) => update({ status: event.target.value as PursuitStatus })} aria-label="Pursuit status">
-          <option value="active">Active</option><option value="paused">Paused</option><option value="complete">Complete</option><option value="archived">Archived</option>
-        </select>
+      </div>
+
+      <div className="pursuit-quick-actions" aria-label="Project tools">
+        <details className="pursuit-drawer">
+          <summary>Daily check-in</summary>
+          <section className="card pursuit-checkin">
+            <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div>{saved && <span className="pursuit-checkin__saved">Saved</span>}</div>
+            <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
+            <TextField label="What did you accomplish?" value={accomplishment} onChange={(value) => { setAccomplishment(value); setSaved(false); }} />
+            <div className="field"><span className="field__label">How did the day feel?</span><div className="pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></div>
+            <TextField label="What to carry forward?" value={note} onChange={(value) => { setNote(value); setSaved(false); }} />
+            <button type="button" className="button-main" disabled={!accomplishment.trim() && !feeling} onClick={saveCheckIn}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button>
+            <div className="field"><span className="field__label">Remind me after no check-in</span><select className="input" value={reminderDaysFor(draft)} onChange={(event) => update({ reminderAfterDays: Number(event.target.value) })}>{PURSUIT_REMINDER_CHOICES.map((choice) => <option key={choice.days} value={choice.days}>{choice.label}</option>)}</select></div>
+            {checkIns.length > 0 && <div className="pursuit-checkin__history"><p className="field__label">Recent check-ins</p><ul>{checkIns.slice(0, 7).map((checkIn) => <li key={checkIn.id}><strong>{formatDate(checkIn.date)}</strong><span>{checkIn.feeling ? PURSUIT_FEELINGS.find((item) => item.id === checkIn.feeling)?.label : ''}{checkIn.accomplishment ? `${checkIn.feeling ? ' · ' : ''}${checkIn.accomplishment}` : ''}</span></li>)}</ul></div>}
+          </section>
+        </details>
+        <details className="pursuit-drawer">
+          <summary>Decisions</summary>
+          <section className="card pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
+        </details>
       </div>
 
       <section className="card pursuit-work">
-        <p className="eyebrow">Shape the work</p>
-        <TextField label="What would better look like?" value={draft.outcome} placeholder="A clear result I would recognize" onChange={(value) => update({ outcome: value })} />
-        <TextField label="Why does this matter?" value={draft.why} placeholder="What this makes possible" onChange={(value) => update({ why: value })} />
-        <TextField label="Where are things now?" value={draft.current} placeholder="What is true today" onChange={(value) => update({ current: value })} />
-        <TextField label="What could help?" value={draft.approach} placeholder="An approach worth trying" onChange={(value) => update({ approach: value })} />
-        <TextField label="Next move" value={draft.nextMove} placeholder="One visible action" onChange={(value) => update({ nextMove: value })} />
-        <div className="input-row"><label className="field"><span className="field__label">Next move due</span><input className="input" type="date" value={draft.nextMoveDue ?? ''} onChange={(event) => update({ nextMoveDue: event.target.value || undefined })} /></label><label className="field"><span className="field__label">Review on</span><input className="input" type="date" value={draft.reviewAt ?? ''} onChange={(event) => update({ reviewAt: event.target.value || undefined })} /></label></div>
+        <p className="eyebrow">Work on the project</p>
+        <TextField label="What would you like to be different?" value={draft.outcome} onChange={(value) => update({ outcome: value })} />
+        <TextField label="Why is this important to you?" value={draft.why} onChange={(value) => update({ why: value })} />
+        <TextField label="Where are you starting from?" value={draft.current} onChange={(value) => update({ current: value })} />
+        <TextField label="What might help?" value={draft.approach} onChange={(value) => update({ approach: value })} />
+        <TextField label="What is the next small step?" value={draft.nextMove} onChange={(value) => update({ nextMove: value })} />
+        <label className="field"><span className="field__label">Due date <span className="muted">(optional)</span></span><input className="input" type="date" value={draft.dueDate ?? draft.nextMoveDue ?? ''} onChange={(event) => update({ dueDate: event.target.value || undefined, nextMoveDue: undefined })} /></label>
       </section>
-
-      <section className="card pursuit-checkin">
-        <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div>{saved && <span className="pursuit-checkin__saved">Saved</span>}</div>
-        <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
-        <TextField label="What did you accomplish?" value={accomplishment} placeholder="Even a small step counts" onChange={(value) => { setAccomplishment(value); setSaved(false); }} />
-        <div className="field"><span className="field__label">How did the day feel?</span><div className="pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></div>
-        <TextField label="Anything to carry forward?" value={note} placeholder="A thought, obstacle, or small observation" onChange={(value) => { setNote(value); setSaved(false); }} />
-        <button type="button" className="button-main" disabled={!accomplishment.trim() && !feeling} onClick={saveCheckIn}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button>
-        <div className="field"><span className="field__label">Remind me after no check-in</span><select className="input" value={reminderDaysFor(draft)} onChange={(event) => update({ reminderAfterDays: Number(event.target.value) })}>{PURSUIT_REMINDER_CHOICES.map((choice) => <option key={choice.days} value={choice.days}>{choice.label}</option>)}</select></div>
-        {checkIns.length > 0 && <div className="pursuit-checkin__history"><p className="field__label">Recent check-ins</p><ul>{checkIns.slice(0, 7).map((checkIn) => <li key={checkIn.id}><strong>{formatDate(checkIn.date)}</strong><span>{checkIn.feeling ? PURSUIT_FEELINGS.find((item) => item.id === checkIn.feeling)?.label : ''}{checkIn.accomplishment ? `${checkIn.feeling ? ' · ' : ''}${checkIn.accomplishment}` : ''}</span></li>)}</ul></div>}
-      </section>
-
-      <section className="card pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
 
       <div className="pursuit-actions" aria-label="Pursuit actions">
         {draft.status === 'active' && <button type="button" className="button-quiet" onClick={() => update({ status: 'paused' })}>Pause pursuit</button>}
@@ -222,6 +226,6 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
   );
 }
 
-function TextField({ label, value, placeholder, onChange }: { label: string; value?: string; placeholder: string; onChange: (value: string) => void }) {
-  return <label className="field pursuit-field"><span className="field__label">{label}</span><textarea className="input area" rows={3} value={value ?? ''} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} /></label>;
+function TextField({ label, value, onChange }: { label: string; value?: string; onChange: (value: string) => void }) {
+  return <label className="field pursuit-field"><span className="field__label">{label}</span><textarea className="input area" rows={3} value={value ?? ''} onChange={(event) => onChange(event.target.value)} /></label>;
 }
