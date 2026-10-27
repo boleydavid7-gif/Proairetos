@@ -189,7 +189,7 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
       <div className="pursuit-quick-actions" aria-label="Project tools">
         <details className="pursuit-drawer">
           <summary>Daily check-in</summary>
-          <section className="card pursuit-checkin">
+          <section className="card pursuit-drawer__panel pursuit-checkin">
             <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div><div className="pursuit-drawer__head-actions">{saved && <span className="pursuit-checkin__saved">Saved</span>}<DrawerClose /></div></div>
             <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
             <TextField label="What did you accomplish?" value={accomplishment} onChange={(value) => { setAccomplishment(value); setSaved(false); }} />
@@ -202,7 +202,7 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
         </details>
         <details className="pursuit-drawer">
           <summary>Decisions</summary>
-          <section className="card pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><div className="pursuit-drawer__head-actions"><DrawerClose /><button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button></div></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
+          <section className="card pursuit-drawer__panel pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><div className="pursuit-drawer__head-actions"><DrawerClose /><button type="button" className="button-quiet" onClick={(event) => { (event.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open'); onDecision(); }}>Make a decision</button></div></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
         </details>
       </div>
 

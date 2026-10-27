@@ -571,6 +571,11 @@ button.value-card__text:disabled {
   padding: var(--space-5);
 }
 
+.pursuit-drawer__panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .pursuit-editor__head {
   display: flex;
   align-items: flex-start;
@@ -681,6 +686,23 @@ button.value-card__text:disabled {
 .pursuit-checkin {
   display: grid;
   gap: var(--space-3);
+}
+
+.pursuit-checkin > .field,
+.pursuit-checkin > .pursuit-field,
+.pursuit-checkin > .pursuit-checkin__history,
+.pursuit-checkin > .button-main {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+}
+
+.pursuit-checkin > .button-main {
+  justify-self: center;
+  width: fit-content;
+  min-height: 2.5rem;
+  padding-inline: var(--space-4);
+  border-radius: var(--ll-radius-pill, 999px);
+  font-size: var(--text-sm);
 }
 
 .pursuit-checkin__saved {
@@ -812,12 +834,12 @@ button.value-card__text:disabled {
   .pursuit-drawer[open] > .pursuit-decisions {
     position: fixed;
     z-index: 31;
-    inset: max(0.75rem, env(safe-area-inset-top)) 0 0;
+    inset: max(1rem, env(safe-area-inset-top)) 0.75rem 0.75rem;
     overflow-y: auto;
     overscroll-behavior: contain;
-    max-height: calc(100dvh - max(0.75rem, env(safe-area-inset-top)));
+    max-height: calc(100dvh - max(1rem, env(safe-area-inset-top)) - 0.75rem);
     margin: 0;
-    padding: var(--space-5) var(--space-4) calc(var(--space-7) + env(safe-area-inset-bottom));
+    padding: var(--space-4) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
     border-radius: var(--ll-radius-lg, var(--radius-md)) var(--ll-radius-lg, var(--radius-md)) 0 0;
   }
 
