@@ -152,7 +152,7 @@ export default function ReflectPage() {
           <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
           <span className="place-row__text">
             <span className="place-row__title">Compass</span>
-            <span className="place-row__detail">Values, goals, people and words</span>
+            <span className="place-row__detail">Values, pursuits, people and words</span>
           </span>
           <ChevronRightIcon size={18} className="place-row__chevron" />
         </button>

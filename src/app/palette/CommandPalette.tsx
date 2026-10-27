@@ -34,7 +34,7 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
       { id: 'plan', label: 'Go to Days ahead', words: 'plan list week', run: go('plan') },
       { id: 'calendar', label: 'Open the calendar', words: 'month year week', run: go('calendar') },
       { id: 'capture', label: 'Go to Capture', words: 'write down', run: go('capture') },
-      { id: 'compass', label: 'Go to Compass', words: 'values goals people words', run: go('compass') },
+      { id: 'compass', label: 'Go to Compass', words: 'values pursuits people words', run: go('compass') },
       { id: 'journal', label: 'Write in your journal', words: 'reflect diary', run: go('journal') },
       { id: 'meditate', label: 'Meditate', words: 'breathe sit sounds music', run: go('meditate') },
       { id: 'schedule', label: 'Your schedule', words: 'work shifts', run: go('schedule') },
