@@ -395,7 +395,7 @@ export default function PraxisApp({ embedded = false, opening = null }: { embedd
               }}
             />
           )}
-          {view === 'more' && <MoreView onView={setView} />}
+          {view === 'more' && <MoreView onView={setView} embedded={embedded} />}
         </div>
       </main>
 
@@ -407,5 +407,5 @@ export default function PraxisApp({ embedded = false, opening = null }: { embedd
 
 
 function PraxisNav({ view, onView, embedded = false }: { view: PraxisView; onView: (view: PraxisView) => void; embedded?: boolean }) {
-  return <div className="praxis-nav-list">{navItems.map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-praxis-view={id} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<button type="button" className="praxis-nav-item praxis-nav-item--more" data-praxis-view="more" aria-current={view === 'more' ? 'page' : undefined} onClick={() => onView('more')}><GearIcon size={18} /><span>More</span></button>{!embedded && <ProairetosTab className="praxis-nav-item" size={18} />}</div>;
+  return <div className="praxis-nav-list">{navItems.filter(({ id }) => !embedded || id !== 'settings').map(({ id, label, icon: Icon }) => <button key={id} type="button" className={`praxis-nav-item${view === id ? ' is-active' : ''}`} data-praxis-view={id} data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={view === id ? 'page' : undefined} onClick={() => onView(id)}><Icon size={18} /><span>{label}</span></button>)}<button type="button" className="praxis-nav-item praxis-nav-item--more" data-praxis-view="more" aria-current={view === 'more' ? 'page' : undefined} onClick={() => onView('more')}><GearIcon size={18} /><span>More</span></button>{!embedded && <ProairetosTab className="praxis-nav-item" size={18} />}</div>;
 }

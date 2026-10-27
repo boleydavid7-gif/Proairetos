@@ -830,6 +830,8 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 
 /* Settings as grouped rows, like the rest of the family. */
 .theoria-settings { max-width: 740px; margin-top: 8px; }
+.theoria-settings-notice-row { min-height: 58px; }
+.theoria-settings-status { color: var(--theoria-muted); font-size: 13px; }
 .theoria-settings .label { margin-top: 6px; }
 .theoria-settings .switch { margin-left: auto; }
 .theoria-settings .row__text > span:first-child { font-size: 15px; }

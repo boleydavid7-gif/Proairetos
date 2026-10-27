@@ -6,7 +6,7 @@ import YearPage from '../app/family/YearPage';
 import { theoriaDates, theoriaYear } from './core/year';
 import { BookIcon, BookmarkIcon, BulbIcon, GearIcon, PenIcon } from '../components/icons/Icons';
 import { TimerIcon } from '../app/family/icons';
-import { startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
+import { enableReminders, startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
 import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe, USER_ID } from './data/store';
@@ -32,6 +32,7 @@ import { CARD_DRAFT_KEY } from '../praxis/cards';
 import PwaStatus from '../app/pwa/PwaStatus';
 import FileDropZone from '../components/files/FileDropZone';
 import PraxisApp from '../praxis/PraxisApp';
+import { notifications } from '../app/notify/notifications';
 
 type View = 'library' | 'shelf' | 'reader' | 'pomodoro' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search' | 'year';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
@@ -94,6 +95,7 @@ export default function TheoriaApp() {
   const [here, setHere] = useState<Set<string>>(new Set());
   const [copyNew, setCopyNew] = useState(() => localStorage.getItem('theoria:copyNew') !== 'false');
   const [sync, setSync] = useState<SyncStatus>(syncStatus.get());
+  const [notices, setNotices] = useState(() => notifications.permission());
   const [driveReturn, setDriveReturn] = useState<CloudProvider>();
   const [theme, setTheme] = useState<ReadingTheme>(() => (localStorage.getItem('theoria:readingTheme') as ReadingTheme | null) ?? 'paper');
   const [font, setFont] = useState<ReadingFont>(() => (localStorage.getItem('theoria:readingFont') as ReadingFont | null) ?? 'serif');
@@ -114,6 +116,12 @@ export default function TheoriaApp() {
   }, []);
 
   const toast = (message: string, undo?: () => void) => (undo ? offerUndo(message, undo) : say(message));
+  const allowNotices = () => {
+    void notifications.ask().then(async (answer) => {
+      setNotices(answer);
+      if (answer === 'granted' && sync.phase === 'ready' && sync.reminders !== 'on') await enableReminders().catch(() => undefined);
+    });
+  };
 
   // Books from the first version are moved once: text to this device, files sealed (see `migrateBook`).
   useEffect(() => {
@@ -677,7 +685,7 @@ export default function TheoriaApp() {
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
-      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} onClearLibrary={clearLibrary} bookCount={shelf.length} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} />}
+      {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} onClearLibrary={clearLibrary} bookCount={shelf.length} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} notices={notices} onNotices={allowNotices} />}
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></FileDropZone></main>
     <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>

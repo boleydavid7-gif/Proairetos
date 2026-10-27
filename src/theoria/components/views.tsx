@@ -227,7 +227,7 @@ export function SearchPage({ shelf, notebooks, reflections, onOpen }: { shelf: r
   return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Search</p><h1>Search</h1></div></div><input className="theoria-global-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search your library" autoFocus />{query && <div className="theoria-search-results">{results.length ? results.map((result, index) => <button type="button" key={result.kind + '-' + index} onClick={() => result.book && onOpen(result.book)}><span>{result.kind}</span><strong>{result.text}</strong><small>{result.detail}</small></button>) : <p>No matches.</p>}</div>}</section>;
 }
 
-export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear, onCheckFolder, driveReturn, folderBooksHere, onClearLibrary, bookCount }: { onClearLibrary: () => Promise<string>; bookCount: number; onCheckFolder: () => Promise<string | undefined>; driveReturn?: CloudProvider; folderBooksHere: boolean; onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void }) {
+export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew, onHighlights, onYear, onCheckFolder, driveReturn, folderBooksHere, onClearLibrary, bookCount, notices, onNotices }: { onClearLibrary: () => Promise<string>; bookCount: number; onCheckFolder: () => Promise<string | undefined>; driveReturn?: CloudProvider; folderBooksHere: boolean; onYear: () => void; theme: ReadingTheme; font: ReadingFont; onTheme: (value: ReadingTheme) => void; onFont: (value: ReadingFont) => void; copyNew: boolean; onCopyNew: (value: boolean) => void; onHighlights: (file: File) => void; notices: string; onNotices: () => void }) {
   const file = useRef<HTMLInputElement>(null);
   const folder = useBackupFolder();
   const [clearing, setClearing] = useState(false);
@@ -253,6 +253,10 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
         <ul className="rows">
           <li><label className="row row--select">{icon('M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9')}<span className="row__text"><span>Reading theme</span></span><select className="row__select" value={theme} onChange={(event) => onTheme(event.target.value as ReadingTheme)}><option value="paper">Paper</option><option value="night">Night</option><option value="sepia">Sepia</option></select></label></li>
           <li><label className="row row--select">{icon('M4 20 10 4l6 16M6.5 14h7M17 20h4')}<span className="row__text"><span>Reading font</span></span><select className="row__select" value={font} onChange={(event) => onFont(event.target.value as ReadingFont)}><option value="serif">Literata</option><option value="sans">Google Sans</option><option value="dyslexia">Dyslexia-friendly</option></select></label></li>
+        </ul>
+        <p className="label">Pomodoro</p>
+        <ul className="rows">
+          <li><div className="row theoria-settings-notice-row"><span className="row__icon" aria-hidden="true"><LampIcon glyph={GLYPHS.bell} size={20} /></span><span className="row__text"><span>A notice when a block ends</span></span>{notices === 'granted' ? <span className="theoria-settings-status">On</span> : notices === 'denied' ? <span className="theoria-settings-status">Blocked in the browser</span> : notices === 'unsupported' ? <span className="theoria-settings-status">Not on this browser</span> : <button type="button" className="button-quiet button--sm" onClick={onNotices}>Allow</button>}</div></li>
         </ul>
         <p className="label">Your storage</p>
         <CloudConnections />
