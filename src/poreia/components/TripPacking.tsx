@@ -4,15 +4,12 @@ import { offerUndo } from '../../app/family/shell';
 import SwipeItem from '../../app/family/SwipeItem';
 import { Sym } from '../../lamplight/icons';
 import { Waiting } from '../../lamplight/Waiting';
-import { bookings, newId, nowStamp, packing, settings, today } from '../app/state';
-import { forecast } from '../app/world';
+import { bookings, newId, nowStamp, packing, settings } from '../app/state';
 import { PACK_GROUPS, nightsOf, type PackGroup, type PackItem, type Trip } from '../core/model';
 import { suggestedPacking } from '../core/packing';
-import { daysBetween } from '../../core/scheduling/dates';
 import RouteEmpty from './RouteEmpty';
-import { WeatherPacking } from './WeatherPacking';
 
-/** The packing list: offered once from the trip's length, weather and bookings, then the person's own. */
+/** The packing list: offered once from the trip's length and bookings, then the person's own. */
 export default function TripPacking({ trip }: { trip: Trip }) {
   const list = packing.use().filter((each) => each.tripId === trip.id);
   const home = settings.use().home;
@@ -23,25 +20,9 @@ export default function TripPacking({ trip }: { trip: Trip }) {
 
   const suggest = async () => {
     setBusy(true);
-    let low: number | undefined;
-    let high: number | undefined;
-    let rain = false;
-    const { lat, lon } = trip.place ?? {};
-    if (lat !== undefined && lon !== undefined && trip.start && daysBetween(today(), trip.start) <= 14) {
-      try {
-        const days = (await forecast(lat, lon)).filter((day) => day.date >= trip.start! && day.date <= (trip.end ?? trip.start!));
-        if (days.length) {
-          low = Math.min(...days.map((day) => day.low));
-          high = Math.max(...days.map((day) => day.high));
-          rain = days.some((day) => (day.rain ?? 0) >= 50);
-        }
-      } catch {
-        // Without the forecast the list leaves weather out.
-      }
-    }
     const abroad = Boolean(trip.place?.countryCode && home?.countryCode && trip.place.countryCode !== home.countryCode);
     const kinds = bookings.list().filter((each) => each.tripId === trip.id).map((each) => each.kind);
-    const items: PackItem[] = suggestedPacking({ nights: nightsOf(trip), abroad, low, high, rain, kinds }).map((each) => ({ id: newId(), tripId: trip.id, name: each.name, group: each.group, packed: false, createdAt: nowStamp() }));
+    const items: PackItem[] = suggestedPacking({ nights: nightsOf(trip), abroad, kinds }).map((each) => ({ id: newId(), tripId: trip.id, name: each.name, group: each.group, packed: false, createdAt: nowStamp() }));
     items.forEach((item) => packing.put(item));
     setBusy(false);
     offerUndo(`${items.length} things added`, () => items.forEach((item) => packing.remove(item.id)));
@@ -50,7 +31,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
   return (
     <>
       {list.length === 0 ? (
-        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line={`A starting list from the trip’s length${trip.place?.lat !== undefined ? ', weather' : ''} and bookings.`}>
+        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line="A starting list from the trip’s length and bookings.">
           <button type="button" className="button-main" disabled={busy} onClick={() => void suggest()}>
             {busy ? <Waiting>Making a list…</Waiting> : 'Suggest a list'}
           </button>
@@ -58,8 +39,6 @@ export default function TripPacking({ trip }: { trip: Trip }) {
       ) : (
         <PackedBar packed={packed} total={list.length} />
       )}
-      {list.length > 0 && <WeatherPacking trip={trip} />}
-
       {PACK_GROUPS.map(({ id, label }) => {
         const items = list.filter((each) => each.group === id).sort((a, b) => Number(a.packed) - Number(b.packed) || a.createdAt.localeCompare(b.createdAt));
         if (!items.length) return null;

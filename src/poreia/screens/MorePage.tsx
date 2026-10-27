@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
@@ -9,9 +8,7 @@ import { Switch } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { settings, timeOff, today, type PoreiaSettings } from '../app/state';
 import { PlaceSearch } from '../app/ui';
-import { ForwardingCard } from '../components/MailBox';
 import { balanceOn, hoursText } from '../core/timeOff';
-import { airportFor, driveMinutes, eventsReady, travelReady, type TravelReady } from '../app/world';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'JPY', 'CHF', 'MXN', 'BRL', 'INR', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR'];
 
@@ -25,12 +22,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
   };
   const leads = [30, 60, 90, 120, 180, 240];
   const leadText = (minutes: number) => (minutes < 60 ? `${minutes} minutes` : minutes % 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes / 60} ${minutes === 60 ? 'hour' : 'hours'}`);
-  const [events, setEvents] = useState<boolean>();
-  const [travel, setTravel] = useState<TravelReady>();
-  useEffect(() => {
-    void eventsReady().then(setEvents);
-    void travelReady().then(setTravel);
-  }, []);
   const currencies = CURRENCIES.includes(current.currency) ? CURRENCIES : [current.currency, ...CURRENCIES];
 
   return (
@@ -58,42 +49,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
             <input className="input" type="number" min={1} max={20} value={current.travelers} onChange={(event) => change({ travelers: Math.max(1, Math.min(20, Number(event.target.value) || 1)) })} />
           </label>
         </div>
-        <p className="label">Temperature</p>
-        <div className="chip-row" role="group" aria-label="Temperature">
-          {(['F', 'C'] as const).map((unit) => (
-            <button key={unit} type="button" className="chip" aria-pressed={current.temperature === unit} onClick={() => change({ temperature: unit })}>
-              {unit === 'F' ? 'Fahrenheit' : 'Celsius'}
-            </button>
-          ))}
-        </div>
       </section>
-
-      <ForwardingCard />
-
-      {travel && (
-        <section className="card poreia-provider-status">
-          <h2 className="card__title">Travel data</h2>
-          <ul className="rows">
-            {([
-              ['Stays with prices', 'LiteAPI', travel.stays],
-              ['Flights with prices', 'Duffel', travel.flights],
-              ['Ticketed events', 'Ticketmaster', travel.events],
-              ['Place details', 'Google Places', travel.places],
-              ['Flight status', 'AeroDataBox', travel.status],
-            ] as const).map(([label, provider, configured]) => (
-              <li key={provider}>
-                <div className="row poreia-provider-status__row">
-                  <span className="row__text">
-                    <span>{label}</span>
-                    <span className="row__detail">{provider}</span>
-                  </span>
-                  <span className="poreia-provider-status__state">{configured ? 'Configured' : 'External links'}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       <p className="ll-section-label">Travel planning</p>
       <ul className="rows">
@@ -139,7 +95,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         {current.notices.on && (
           <>
             <label className="field">
-              <span className="field__label">Before a flight, train, bus or cruise</span>
+              <span className="field__label">Before a timed booking</span>
               <select className="input" value={current.notices.travelLead} onChange={(event) => notice({ travelLead: Number(event.target.value) })}>
                 {leads.map((minutes) => (
                   <option key={minutes} value={minutes}>
@@ -158,9 +114,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
                 ))}
               </select>
             </label>
-            <Switch on={current.notices.checkIn} label="Flight check-in" detail="24 hours before it leaves" onToggle={() => notice({ checkIn: !current.notices.checkIn })} />
             <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="First plan and what’s left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
-            <AirportLeave />
           </>
         )}
       </section>
@@ -194,10 +148,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         </li>
       </ul>
 
-      <p className="fine">
-        Places and weather from Open-Meteo, guides from Wikivoyage and Wikipedia, rates from the European Central Bank, holidays from Nager.Date
-        {events ? ', events from Ticketmaster' : ''}. Bookings are made on each company’s own site.
-      </p>
+      <p className="fine">Poreia keeps your trip plans, bookings, documents, packing, spending, and notes on this device. It does not require travel-data services.</p>
 
       <section>
         <p className="label">Your data</p>
@@ -206,77 +157,5 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
 
       <FamilyApps current="poreia" />
     </div>
-  );
-}
-
-/** "Leave for the airport": how early to be there, and how long it takes from home (worked out, or as the person says). */
-function AirportLeave() {
-  const current = settings.use();
-  const choices = current.notices;
-  const early = choices.atAirport ?? 120;
-  const [working, setWorking] = useState(false);
-  const [said, setSaid] = useState('');
-  const notice = (patch: Partial<PoreiaSettings['notices']>) => {
-    settings.save({ ...settings.load(), notices: { ...settings.load().notices, ...patch } });
-    notifications.refreshSoon();
-  };
-  const workOut = async () => {
-    const home = current.home;
-    if (home?.lat === undefined || home.lon === undefined) {
-      setSaid('Set Home above first.');
-      return;
-    }
-    setWorking(true);
-    setSaid('');
-    try {
-      const airport = await airportFor(home.lat, home.lon);
-      if (!airport || airport.lat === undefined || airport.lon === undefined) {
-        setSaid('No airport found near home. Type the minutes instead.');
-        return;
-      }
-      const drive = await driveMinutes({ lat: home.lat, lon: home.lon }, { lat: airport.lat, lon: airport.lon });
-      notice({ toAirport: { minutes: drive.minutes, code: airport.code } });
-      setSaid(`${drive.estimated ? 'About' : 'Usually'} ${drive.minutes} min by car to ${airport.name} (${airport.code})${drive.estimated ? ', from the distance' : ''}.`);
-    } finally {
-      setWorking(false);
-    }
-  };
-  return (
-    <>
-      <label className="field">
-        <span className="field__label">Be at the airport</span>
-        <select className="input" value={early} onChange={(event) => notice({ atAirport: Number(event.target.value) })}>
-          <option value={0}>Off</option>
-          {[60, 90, 120, 150, 180].map((minutes) => (
-            <option key={minutes} value={minutes}>
-              {minutes % 60 ? `${Math.floor(minutes / 60)}½ hours before` : `${minutes / 60} ${minutes === 60 ? 'hour' : 'hours'} before`}
-            </option>
-          ))}
-        </select>
-      </label>
-      {early > 0 && (
-        <>
-          <div className="input-row">
-            <label className="field">
-              <span className="field__label">Minutes from home to the airport</span>
-              <input
-                className="input"
-                inputMode="numeric"
-                value={choices.toAirport?.minutes ?? ''}
-                placeholder="45"
-                onChange={(event) => {
-                  const minutes = Number(event.target.value.replace(/\D/g, ''));
-                  notice({ toAirport: minutes ? { minutes, code: choices.toAirport?.code } : undefined });
-                }}
-              />
-            </label>
-          </div>
-          <button type="button" className="text-link" disabled={working} onClick={() => void workOut()}>
-            {working ? 'Working it out…' : 'Work it out from home'}
-          </button>
-          {said && <p className="fine">{said}</p>}
-        </>
-      )}
-    </>
   );
 }

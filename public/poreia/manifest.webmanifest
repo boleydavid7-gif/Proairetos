@@ -2,7 +2,7 @@
   "id": "/poreia/",
   "name": "Poreia by Proairetos",
   "short_name": "Poreia",
-  "description": "Trips and time off: plan trips, search stays, flights, cruises and events, keep bookings and days together, and track time off with your work schedule.",
+  "description": "A calm, local-first trip organizer for itineraries, bookings, packing, documents, spending, and time off.",
   "start_url": "/poreia/",
   "scope": "/poreia/",
   "display": "standalone",
@@ -55,18 +55,6 @@
       "name": "New trip",
       "short_name": "New trip",
       "url": "/poreia/?open=add",
-      "icons": [
-        {
-          "src": "/poreia/icon.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    },
-    {
-      "name": "Explore",
-      "short_name": "Explore",
-      "url": "/poreia/?open=explore",
       "icons": [
         {
           "src": "/poreia/icon.svg",

@@ -1,45 +1,31 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { Sym, type GlyphName } from '../../lamplight/icons';
-import { offerUndo, say } from '../../app/family/shell';
-import { Waiting } from '../../lamplight/Waiting';
+import { offerUndo } from '../../app/family/shell';
 import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
-import { bookings, newId, nowStamp, packing, plans, settings, spots, timeOff, today, trips } from '../app/state';
+import { bookings, newId, nowStamp, packing, plans, settings, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
 import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, STAGE_TEXT, stageOf, stopNow, stopOn, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
-import { BookLinks, CountryCard, EventsCard, GuideCard, Weather, type Target } from '../components/Destination';
 import TripBookings from '../components/TripBookings';
-import TripDays, { AddToDay, AgendaRow, DaySky, openEntry, useDayWeather } from '../components/TripDays';
+import TripDays, { AddToDay, AgendaRow, openEntry } from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
-import Around from '../components/Around';
-import TimeThere from '../components/TimeThere';
-import OfflineCard from '../components/OfflineCard';
 import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
-import { ArrivingCard, DocumentsCard } from '../components/Arriving';
+import { DocumentsCard } from '../components/Arriving';
 import { GoalCard, useEnvelopeSync } from '../components/TripGoals';
 import { TripScene } from '../components/TripScene';
-import WhenToGo from '../components/WhenToGo';
-import { useLocatedTrip } from '../app/locate';
 import RouteEmpty from '../components/RouteEmpty';
-import { HolidaysLine } from '../components/References';
-import { TripFlights } from '../components/FlightNow';
-import { RouteCard } from '../components/RouteCard';
-import { EmbassyCard, PhrasesCard } from '../components/PlaceExtras';
-import type { Holiday } from '../app/world';
-import { inviteLink, listOfTrip, shareTrip, sharingAvailable } from '../app/sharedTrips';
 
-export type TripView = 'overview' | 'around' | 'bookings' | 'days' | 'packing' | 'money';
+export type TripView = 'overview' | 'bookings' | 'days' | 'packing' | 'money';
 
 const VIEWS: { id: TripView; label: string; glyph: GlyphName }[] = [
   { id: 'overview', label: 'Overview', glyph: 'home' },
   { id: 'days', label: 'Days', glyph: 'calendar' },
   { id: 'bookings', label: 'Bookings', glyph: 'ticket' },
-  { id: 'around', label: 'Around', glyph: 'pin' },
   { id: 'packing', label: 'Packing', glyph: 'suitcase' },
   { id: 'money', label: 'Money', glyph: 'wallet' },
 ];
@@ -54,7 +40,6 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
     lastView.set(id, view);
   }, [id, view]);
   const [stopId, setStopId] = useState<string>();
-  useLocatedTrip(trip);
   useEnvelopeSync(trip);
   if (!trip) {
     return (
@@ -69,18 +54,11 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   const stops = placesOf(trip);
   const stop = stops.find((each) => each.id === stopId) ?? stopNow(trip, day);
   const nights = nightsOf(trip);
-  // With several stops, the place cards follow the chosen stop and its dates.
-  const target: Target | undefined = stop ? { place: stop.place, from: trip.from, start: stop.start ?? trip.start, end: stop.end ?? trip.end, travelers: trip.travelers } : undefined;
-  const addToDays = (title: string, date?: string, where?: string, extra: { time?: string; lat?: number; lon?: number; url?: string } = {}) => {
-    const item = { id: newId(), tripId: trip.id, date: date && trip.start && date >= trip.start && date <= (trip.end ?? trip.start) ? date : trip.start ?? day, title, where, ...extra, createdAt: nowStamp(), updatedAt: nowStamp() };
-    plans.put(item);
-    offerUndo(`“${title}” added to the days`, () => plans.remove(item.id));
-  };
   const pick = (next: TripView) => transition(VIEWS.findIndex((each) => each.id === next) < VIEWS.findIndex((each) => each.id === view) ? 'back' : 'forward', () => setView(next), 'panel');
 
   return (
     <div className="page poreia-page poreia-trip">
-      <TripScene trip={trip} place={target?.place} />
+      <TripScene trip={trip} place={stop?.place} />
       <BackLink label="Trips" onBack={nav.back} />
       <div className="detail-head poreia-trip__head">
         <h1 className="title">{trip.name}</h1>
@@ -91,7 +69,6 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
           Edit
         </button>
-        <ShareTripButton trip={trip} />
       </div>
 
       <div className="poreia-tabs" role="tablist" aria-label="Trip" style={{ '--at': VIEWS.findIndex((each) => each.id === view), '--count': VIEWS.length } as CSSProperties}>
@@ -107,7 +84,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         })}
       </div>
 
-      {stops.length > 1 && (view === 'overview' || view === 'around' || view === 'bookings') && (
+      {stops.length > 1 && (view === 'overview' || view === 'bookings') && (
         <div className="chip-row poreia-scroll-chips poreia-stop-chips" role="group" aria-label="Stop">
           {stops.map((each) => (
             <button key={each.id} type="button" className="chip" aria-pressed={each.id === stop?.id} onClick={() => setStopId(each.id)}>
@@ -119,26 +96,8 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
       )}
 
       <div className="vt-panel" key={view}>
-        {view === 'overview' && <Overview trip={trip} target={target} nav={nav} day={day} onView={pick} />}
-        {view === 'around' &&
-          (stop?.place.lat !== undefined ? (
-            <>
-              <Around key={stop.id} place={stop.place} tripId={trip.id} start={stop.start} end={stop.end} nav={nav} />
-              {target && phase.kind !== 'past' && <EventsCard target={target} onAdd={(event) => addToDays(event.name, event.date, event.venue, { time: event.time, lat: event.lat, lon: event.lon, url: event.url })} />}
-            </>
-          ) : (
-            <RouteEmpty glyph="pin" title="No place yet">
-              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
-                Add a place
-              </button>
-            </RouteEmpty>
-          ))}
-        {view === 'bookings' && (
-          <>
-            <TripBookings trip={trip} nav={nav} />
-            {target && phase.kind !== 'past' && <BookLinks target={target} nav={nav} tripId={trip.id} />}
-          </>
-        )}
+        {view === 'overview' && <Overview trip={trip} nav={nav} day={day} onView={pick} />}
+        {view === 'bookings' && <TripBookings trip={trip} nav={nav} />}
         {view === 'days' && <TripDays trip={trip} nav={nav} />}
         {view === 'packing' && <TripPacking trip={trip} />}
         {view === 'money' && <TripMoney trip={trip} />}
@@ -147,27 +106,13 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
   );
 }
 
-function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Target; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
+function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
   const phase = phaseOf(trip, day);
   const ahead = phase.kind !== 'past';
   const about = (
     <>
-      {target && (
-        <>
-          <Weather target={target} today={day} />
-          {ahead && <WhenToGo place={target.place} start={target.start} end={target.end} />}
-          <SavedCard trip={trip} nav={nav} />
-          <GuideCard place={target.place} />
-          <CountryCard target={target}>
-            {ahead && <ArrivingCard place={target.place} />}
-            <PhrasesCard place={target.place} />
-            <EmbassyCard place={target.place} />
-          </CountryCard>
-        </>
-      )}
       {ahead && <DocumentsCard trip={trip} nav={nav} />}
       {ahead && <TripWithApps trip={trip} />}
-      {ahead && target && <OfflineCard trip={trip} />}
       <GoalCard trip={trip} />
       <TogetherCard trip={trip} />
       {trip.notes && (
@@ -184,8 +129,6 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
       <>
         <TodayCard trip={trip} nav={nav} day={day} onView={onView} />
         <PlanningNextCard trip={trip} nav={nav} onView={onView} />
-        <TripFlights trip={trip} />
-        <TimeThere trip={trip} place={target?.place} today={day} />
         <details className="poreia-fold poreia-more">
           <summary>More about this trip</summary>
           {about}
@@ -197,11 +140,8 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
     <>
       <PlanningNextCard trip={trip} nav={nav} onView={onView} />
       <NextUpCard trip={trip} nav={nav} day={day} />
-      <TripFlights trip={trip} />
-      <RouteCard trip={trip} />
-      <TimeThere trip={trip} place={target?.place} today={day} />
       <TimeOffCard trip={trip} nav={nav} />
-      {!target && (
+      {!trip.place && (
         <RouteEmpty glyph="pin" title="Where to?">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
             Add a place
@@ -209,38 +149,6 @@ function Overview({ trip, target, nav, day, onView }: { trip: Trip; target?: Tar
         </RouteEmpty>
       )}
       {about}
-    </>
-  );
-}
-
-/** Keeps sharing discoverable without making the trip overview depend on the sharing card's position. */
-function ShareTripButton({ trip }: { trip: Trip }) {
-  const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState('');
-  if (!sharingAvailable) return null;
-  const share = async () => {
-    setBusy(true);
-    setProblem('');
-    try {
-      const list = listOfTrip(trip) ?? (await shareTrip(trip));
-      const link = inviteLink(location.origin, list);
-      if (navigator.share) await navigator.share({ title: trip.name, text: `${trip.name} in Poreia`, url: link });
-      else {
-        await navigator.clipboard.writeText(link);
-        say('Invite link copied');
-      }
-    } catch (error) {
-      setProblem(error instanceof Error && /Sign in/.test(error.message) ? 'Sign in under More to share.' : 'Couldn’t share the trip.');
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <>
-      <button type="button" className="text-link" disabled={busy} onClick={() => void share()}>
-        {busy ? <Waiting>Sharing…</Waiting> : 'Share'}
-      </button>
-      {problem && <span className="fine poreia-share-note">{problem}</span>}
     </>
   );
 }
@@ -254,7 +162,7 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
   if (phase.kind === 'past') return null;
 
   const action = !trip.place
-    ? { title: 'Choose where you’re going', detail: 'Add a destination so Poreia can show maps, weather, and places nearby.', label: 'Add a destination', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
+    ? { title: 'Choose where you’re going', detail: 'Add the destination or destinations for this trip.', label: 'Add a destination', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
     : !trip.start
       ? { title: 'Choose your dates', detail: 'Set the days before adding bookings and plans.', label: 'Add dates', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
       : bookingList.length === 0
@@ -262,7 +170,7 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
         : planList.length === 0
           ? { title: 'Shape your days', detail: 'Add a place or activity to the itinerary when you are ready.', label: 'Open the itinerary', run: () => onView('days') }
           : packingList.length === 0
-            ? { title: 'Start your packing list', detail: 'Poreia can suggest a list from the trip length, weather, and bookings.', label: 'Start packing', run: () => onView('packing') }
+            ? { title: 'Start your packing list', detail: 'Poreia can suggest a list from the trip length and bookings.', label: 'Start packing', run: () => onView('packing') }
             : undefined;
 
   if (!action) return null;
@@ -282,17 +190,13 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
 function TodayCard({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
   const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
   const theirPlans = plans.use().filter((each) => each.tripId === trip.id);
-  const unit = settings.use().temperature;
-  const weather = useDayWeather(trip);
   const phase = phaseOf(trip, day);
   const entries = daysOf(trip, theirBookings, theirPlans).find((each) => each.date === day)?.entries ?? [];
   const where = stopOn(trip, day)?.place.name ?? trip.place?.name;
-  const sky = weather.get(day);
   return (
     <section className="card poreia-today">
       <p className="poreia-today__eyebrow">{[phase.kind === 'now' ? `Day ${phase.day} of ${phase.of}` : undefined, where].filter(Boolean).join(' · ')}</p>
       <h2 className="poreia-today__title">{dayText(day)}</h2>
-      {sky && <DaySky day={sky} unit={unit} />}
       {entries.length ? (
         <ul className="poreia-agenda">
           {entries.map((entry, index) => (
@@ -306,9 +210,9 @@ function TodayCard({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day
       )}
       <AddToDay tripId={trip.id} date={day} />
       <div className="poreia-today__actions">
-        <button type="button" className="poreia-today__action" onClick={() => onView('around')}>
-          <Sym name="pin" size={20} />
-          Around me
+        <button type="button" className="poreia-today__action" onClick={() => onView('bookings')}>
+          <Sym name="ticket" size={20} />
+          Bookings
         </button>
         <button type="button" className="poreia-today__action" onClick={() => onView('money')}>
           <Sym name="wallet" size={20} />
@@ -328,7 +232,7 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
   const offs = timeOff.use();
   const setup = settings.use().timeOff;
   const linked = offs.find((off) => off.tripId === trip.id && off.status !== 'canceled');
-  const [needed, setNeeded] = useState<{ hours: number; hasSchedule: boolean; holidays: Holiday[] }>();
+  const [needed, setNeeded] = useState<{ hours: number; hasSchedule: boolean }>();
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -348,7 +252,6 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
         <p>
           {needed === undefined ? 'Counting…' : needed.hours === 0 ? 'No work in these dates.' : `These dates take ${hoursText(needed.hours)} of time off.`}
         </p>
-        {needed && needed.holidays.length > 0 && <HolidaysLine days={needed.holidays} />}
         {needed && needed.hours > 0 && setup && (
           <p className="muted">{hoursText(leftAfter(setup, offs, { id: 'new', start: trip.start, hours: needed.hours }).after)} left after, with everything planned before it.</p>
         )}
@@ -415,33 +318,6 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
           Set up your balance
         </button>
       )}
-    </section>
-  );
-}
-
-/** What this trip kept from the map, the guide, events and stays; each opens its page. */
-function SavedCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
-  const kept = spots.use().filter((each) => each.tripId === trip.id);
-  if (!kept.length) return null;
-  return (
-    <section className="card">
-      <h2 className="card__title">Saved places</h2>
-      <ul className="rows poreia-spots">
-        {kept.slice(0, 8).map((spot) => (
-          <li key={spot.id}>
-            <button type="button" className="row" onClick={() => nav.go({ name: 'place', spot, tripId: trip.id })}>
-              {spot.image ? <img className="poreia-spots__photo" src={spot.image} alt="" /> : <span className={`poreia-spots__dot poreia-pin--${spot.category}`} aria-hidden="true" />}
-              <span className="row__text">
-                <span>{spot.name}</span>
-                <span className="row__detail">{[spot.kind, spot.price].filter(Boolean).join(' · ')}</span>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip', id: trip.id, view: 'around' })}>
-        See them on the map
-      </button>
     </section>
   );
 }

@@ -5,7 +5,6 @@ import { saveSpent, spentIn } from '../../oikonomia/data/spent';
 import { loadSettings as oikonomiaSettings } from '../../oikonomia/data/store';
 import type { BudgetCategory } from '../../oikonomia/core/budget';
 import type { Spend, SpendCategory, Trip } from '../core/model';
-import { ratesInto } from './world';
 
 /*
  * Poreia with the other apps, each only when it is added and only when the person asks: Phyton's away dates for the
@@ -57,17 +56,14 @@ export function notInOikonomia(spends: readonly Spend[]): Spend[] {
 /** Adds the trip's spends to Oikonomia's Spent for their months, in its currency; gives back an undo. */
 export async function sendToOikonomia(trip: Trip, spends: readonly Spend[]): Promise<{ sent: number; undo: () => void }> {
   const currency = oikonomiaCurrency();
-  const foreign = spends.some((spend) => spend.amount.currency !== currency);
-  const rates = foreign ? await ratesInto(currency) : {};
   const months = new Map<string, ReturnType<typeof spentIn>>();
   let sent = 0;
   for (const spend of notInOikonomia(spends)) {
-    const rate = spend.amount.currency === currency ? 1 : rates[spend.amount.currency];
-    if (!rate) continue;
+    if (spend.amount.currency !== currency) continue;
     const month = spend.date.slice(0, 7);
     if (!months.has(month)) months.set(month, spentIn(month));
     const lines = months.get(month)!;
-    lines.push({ id: `poreia-${spend.id}`, date: spend.date, description: `${spend.what} · ${trip.name}`, amountCents: Math.round(spend.amount.cents * rate), area: AREA[spend.category] });
+    lines.push({ id: `poreia-${spend.id}`, date: spend.date, description: `${spend.what} · ${trip.name}`, amountCents: spend.amount.cents, area: AREA[spend.category] });
     sent += 1;
   }
   const before = new Map([...months.keys()].map((month) => [month, spentIn(month)]));

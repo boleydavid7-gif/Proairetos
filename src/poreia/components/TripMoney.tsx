@@ -3,13 +3,11 @@ import { useEffect, useState } from 'react';
 import { isAdded } from '../../app/family/added';
 import { offerUndo, say } from '../../app/family/shell';
 import { bookings, settings, spends } from '../app/state';
-import { ratesInto } from '../app/world';
 import { moneyText, SPEND_CATEGORIES, tripTotals, type Spend, type Trip } from '../core/model';
 import { balances, settleUp } from '../core/split';
 import { Balances, peopleOf } from './Together';
 import { SavingCard } from './TripGoals';
 import { YearBudgetLine } from './References';
-import { ConverterCard } from './PlaceExtras';
 import { SpendForm, SpendList } from './Spending';
 
 /** What the trip costs: bookings and spending, in the person's currency, beside the budget if there is one. */
@@ -18,18 +16,10 @@ export default function TripMoney({ trip }: { trip: Trip }) {
   const currency = trip.budget?.currency ?? prefs.currency;
   const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
   const theirSpends = spends.use().filter((each) => each.tripId === trip.id).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
-  const [rates, setRates] = useState<Record<string, number>>({});
-  const [ratesFailed, setRatesFailed] = useState(false);
+  const [showing, setShowing] = useState(false);
   const foreign = [...theirBookings.map((b) => b.cost?.currency), ...theirSpends.map((s) => s.amount.currency)].some((code) => code && code !== currency);
 
-  useEffect(() => {
-    if (!foreign) return;
-    ratesInto(currency)
-      .then(setRates)
-      .catch(() => setRatesFailed(true));
-  }, [currency, foreign]);
-
-  const totals = tripTotals(theirBookings, theirSpends, currency, rates);
+  const totals = tripTotals(theirBookings, theirSpends, currency, {});
   const people = peopleOf(trip);
   const together = people.length > 1;
   const shared = together
@@ -40,7 +30,7 @@ export default function TripMoney({ trip }: { trip: Trip }) {
         ],
         people,
         currency,
-        rates,
+        {},
       )
     : undefined;
 
@@ -67,10 +57,11 @@ export default function TripMoney({ trip }: { trip: Trip }) {
             </span>
           ))}
         </dl>
-        {totals.unconverted.length > 0 && <p className="fine">{ratesFailed ? 'Couldn’t get exchange rates; ' : ''}Left out until converted: {totals.unconverted.map((money) => moneyText(money)).join(', ')}.</p>}
-        {foreign && !ratesFailed && <p className="fine">Converted at the European Central Bank’s latest rates.</p>}
+        {totals.unconverted.length > 0 && <p className="fine">Amounts in another currency are kept separately until you convert them yourself: {totals.unconverted.map((money) => moneyText(money)).join(', ')}.</p>}
       </section>
-      {trip.place && <ConverterCard place={trip.place} />}
+
+      {foreign && <button type="button" className="button-quiet" onClick={() => setShowing((open) => !open)}>{showing ? 'Hide currency note' : 'About currencies'}</button>}
+      {showing && <p className="fine">Poreia does not fetch exchange rates. Enter spending in the currency it was paid in, then convert it when you settle the trip.</p>}
 
       <SavingCard trip={trip} />
 
@@ -112,9 +103,9 @@ function ToOikonomia({ trip, spends: list }: { trip: Trip; spends: Spend[] }) {
           const { sent, undo } = await apps.sendToOikonomia(trip, waiting);
           redraw((count) => count + 1);
           if (sent) offerUndo(`${sent} added to Oikonomia’s Spent`, () => { undo(); redraw((count) => count + 1); });
-          if (sent < waiting.length) say('Some amounts couldn’t be converted. Try again later.');
+          if (sent < waiting.length) say('Amounts in another currency stay here until you convert them yourself.');
         } catch {
-          say('Couldn’t get exchange rates. Try again later.');
+          say('Couldn’t add the spending to Oikonomia. Try again.');
         }
         setBusy(false);
       }}

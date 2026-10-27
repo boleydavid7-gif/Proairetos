@@ -5,13 +5,11 @@ import { buildIcs } from '../../core/calendar/ics';
 import SwipeItem from '../../app/family/SwipeItem';
 import { daysBetween } from '../../core/scheduling/dates';
 import type { PoreiaNav } from '../app/App';
-import { bookings, newId, nowStamp, plans, settings, today } from '../app/state';
-import { degrees, forecast, skyWord, type DayWeather } from '../app/world';
+import { bookings, newId, nowStamp, plans, settings } from '../app/state';
 import { between, openStretches } from '../core/dayFit';
 import { dayText, timeText } from '../app/ui';
 import { tripEvents } from '../core/calendar';
-import { daysOf, entryTitle, moveAmong, placeLine, placesOf, planText, stopOn, type DayEntry, type PlanItem, type Trip } from '../core/model';
-import MapView from './MapView';
+import { daysOf, entryTitle, moveAmong, placeLine, planText, type DayEntry, type PlanItem, type Trip } from '../core/model';
 import { Sym } from '../../lamplight/icons';
 import RouteEmpty from './RouteEmpty';
 
@@ -37,9 +35,7 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
   const theirBookings = bookings.use().filter((each) => each.tripId === trip.id);
   const theirPlans = plans.use().filter((each) => each.tripId === trip.id);
   const days = daysOf(trip, theirBookings, theirPlans);
-  const [mapped, setMapped] = useState<string>();
   const unit = settings.use().temperature;
-  const weather = useDayWeather(trip);
   const drag = useRef<{ id: string; list: PlanItem[]; startY: number; row: HTMLElement; others: { id: string; mid: number }[]; to: number }>(undefined);
   if (!trip.start)
     return (
@@ -141,7 +137,6 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
       {days.map(({ date, entries }) => {
         const loose = untimed(entries);
         const open = openStretches(entries);
-        const placed = entries.flatMap((entry) => (entry.kind === 'plan' && entry.item.lat !== undefined && entry.item.lon !== undefined ? [entry.item] : []));
         return (
           <section key={date} className="poreia-day" id={`day-${date}`}>
             <h2 className="poreia-day__head">
@@ -151,22 +146,6 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
               </span>
               {date >= trip.start! && date <= (trip.end ?? trip.start!) && <span className="muted">Day {daysBetween(trip.start!, date) + 1}</span>}
             </h2>
-            {weather.get(date) && <DaySky day={weather.get(date)!} unit={unit} />}
-            {placed.length > 0 && (
-              <button type="button" className="text-link" aria-expanded={mapped === date} onClick={() => setMapped(mapped === date ? undefined : date)}>
-                {mapped === date ? 'Hide the map' : `Map of the day (${placed.length})`}
-              </button>
-            )}
-            {mapped === date && placed.length > 0 && (
-              <MapView
-                center={{ lat: placed[0].lat!, lon: placed[0].lon! }}
-                pins={placed.map((item) => ({ id: item.id, lat: item.lat!, lon: item.lon!, label: item.title, category: 'plan' as const }))}
-                zoom={placed.length > 1 ? 13 : 15}
-                height="13rem"
-                onPick={(id) => nav.go({ name: 'plan', id })}
-                label={`Map of ${dayText(date)}`}
-              />
-            )}
             <ul className="poreia-agenda">
               {entries.map((entry, index) => (
                 <Fragment key={entry.kind === 'plan' ? entry.item.id : `${entry.booking.id}-${index}`}>
@@ -274,41 +253,4 @@ function Between({ entries, index, open, unit }: { entries: DayEntry[]; index: n
       {[walk, gap && `Nothing set ${timeText(gap.from)}–${timeText(gap.to)}`].filter(Boolean).join(' · ')}
     </li>
   );
-}
-
-/** A day's forecast, under its head. */
-export function DaySky({ day, unit }: { day: DayWeather; unit: 'C' | 'F' }) {
-  return (
-    <p className="poreia-day__sky">
-      {[skyWord(day.code), `${degrees(day.high, unit)} / ${degrees(day.low, unit)}`, day.rain ? `${day.rain}% rain` : ''].filter(Boolean).join(' · ')}
-    </p>
-  );
-}
-
-/** The forecast for each day of the trip within the next 16 days, from the place the trip is at that day. */
-export function useDayWeather(trip: Trip): Map<string, DayWeather> {
-  const [byDay, setByDay] = useState(new Map<string, DayWeather>());
-  const stops = placesOf(trip).filter((stop) => stop.place.lat !== undefined && stop.place.lon !== undefined);
-  const key = stops.map((stop) => `${stop.place.lat},${stop.place.lon}`).join('|') + (trip.start ?? '') + (trip.end ?? '');
-  useEffect(() => {
-    const now = today();
-    if (!trip.start || (trip.end ?? trip.start) < now || daysBetween(now, trip.start) > 15) return;
-    let live = true;
-    void Promise.all(stops.map((stop) => forecast(stop.place.lat!, stop.place.lon!).then((days) => ({ stop, days })).catch(() => undefined))).then((found) => {
-      if (!live) return;
-      const out = new Map<string, DayWeather>();
-      for (const each of found) {
-        if (!each) continue;
-        for (const day of each.days) {
-          const at = stopOn(trip, day.date) ?? stops[0];
-          if (at.id === each.stop.id) out.set(day.date, day);
-        }
-      }
-      setByDay(out);
-    });
-    return () => {
-      live = false;
-    };
-  }, [key]);
-  return byDay;
 }

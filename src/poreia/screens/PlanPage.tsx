@@ -5,7 +5,6 @@ import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { nowStamp, plans, trips } from '../app/state';
 import { dayText } from '../app/ui';
-import MapView from '../components/MapView';
 import { directionsTo } from '../core/links';
 import { tripDates } from '../core/model';
 
@@ -26,7 +25,6 @@ export default function PlanPage({ nav, id }: { nav: PoreiaNav; id: string }) {
   const choices = dates.includes(item.date) ? dates : [item.date, ...dates];
   const changed = form.title.trim() !== item.title || form.date !== item.date || form.time !== (item.time ?? '') || form.where !== (item.where ?? '') || form.note !== (item.note ?? '');
   const apple = deviceKind() === 'iphone' || /Mac/.test(navigator.platform);
-  const placed = item.lat !== undefined && item.lon !== undefined;
 
   const save = () => {
     if (!form.title.trim()) return;
@@ -44,11 +42,10 @@ export default function PlanPage({ nav, id }: { nav: PoreiaNav; id: string }) {
         <p className="muted">{[dayText(item.date), item.where].filter(Boolean).join(' · ')}</p>
       </div>
 
-      {placed && <MapView center={{ lat: item.lat!, lon: item.lon! }} pins={[{ id: item.id, lat: item.lat!, lon: item.lon!, label: item.title, category: 'plan' }]} chosen={item.id} zoom={15} height="12rem" label={`Map of ${item.title}`} />}
-      {(placed || item.where || item.url) && (
+      {(item.where || item.url) && (
         <div className="button-row">
-          {(placed || item.where) && (
-            <a className="button-main" href={directionsTo(item.where && !placed ? item.where : item.title, item.lat, item.lon, apple)} target="_blank" rel="noopener noreferrer">
+          {item.where && (
+            <a className="button-main" href={directionsTo(item.where, item.lat, item.lon, apple)} target="_blank" rel="noopener noreferrer">
               Directions
             </a>
           )}

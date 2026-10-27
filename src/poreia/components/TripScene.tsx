@@ -1,26 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { elevationAt } from '../app/world';
+import { useMemo } from 'react';
 import type { Place, Trip } from '../core/model';
 import { hourAt, sceneKindFor, sceneSvg, sceneTimeAt } from '../core/scene';
 
-/** The place's height above the sea: kept on it from the place search, else asked once (cached a year). */
-function useElevation(place?: Place): number | undefined {
-  const [found, setFound] = useState<number>();
-  useEffect(() => {
-    setFound(undefined);
-    if (!place || place.elevation !== undefined || place.lat === undefined || place.lon === undefined) return;
-    let live = true;
-    void elevationAt(place.lat, place.lon).then((value) => live && setFound(value));
-    return () => {
-      live = false;
-    };
-  }, [place?.lat, place?.lon, place?.elevation]);
-  return place?.elevation ?? found;
-}
-
 function useSceneUrl(fallback: string, place: Place | undefined, small: boolean): string {
-  const elevation = useElevation(place);
-  const kind = sceneKindFor({ lat: place?.lat, elevation, population: place?.population });
+  const kind = sceneKindFor({ lat: place?.lat, elevation: place?.elevation, population: place?.population });
   const time = sceneTimeAt(hourAt(place?.timezone));
   const seed = place ? `${place.name}${place.countryCode ?? ''}` : fallback;
   return useMemo(() => {

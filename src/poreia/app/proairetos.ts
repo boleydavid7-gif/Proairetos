@@ -1,7 +1,6 @@
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { hoursFor, shiftsToReplace, type Replaced, type Shift, type TimeOff, type TimeOffStatus } from '../core/timeOff';
-import { nowStamp, settings, setupOrDefault, timeOff } from './state';
-import { publicHolidays, type Holiday } from './world';
+import { nowStamp, setupOrDefault, timeOff } from './state';
 
 /*
  * Poreia and Proairetos, both ways. Poreia reads the work shifts in Proairetos's schedule (COMMITTED patterns) to count
@@ -29,25 +28,13 @@ export async function workShifts(start: string, end: string): Promise<{ shifts: 
   }
 }
 
-/** The country whose public holidays a day off skips: home's, else the phone's region. */
-function homeCountry(): string | undefined {
-  const home = settings.load().home?.countryCode;
-  if (home) return home.toUpperCase();
-  try {
-    return new Intl.Locale(navigator.language).maximize().region;
-  } catch {
-    return undefined;
-  }
-}
-
 /**
  * The hours a stretch takes now: whole weeks as a full week off, other days from the shifts in Proairetos (or the usual
  * day without a schedule), public holidays at home left out. `holidays` names the ones that were.
  */
-export async function countHours(start: string, end: string): Promise<{ hours: number; hasSchedule: boolean; shifts: Shift[]; holidays: Holiday[] }> {
-  const country = homeCountry();
-  const [{ shifts, hasSchedule }, found] = await Promise.all([workShifts(start, end), country ? publicHolidays(country, start, end).catch(() => []) : Promise.resolve([])]);
-  return { hours: hoursFor(start, end, shifts, setupOrDefault(), hasSchedule, new Set(found.map((day) => day.date))), hasSchedule, shifts, holidays: found };
+export async function countHours(start: string, end: string): Promise<{ hours: number; hasSchedule: boolean; shifts: Shift[]; holidays: never[] }> {
+  const { shifts, hasSchedule } = await workShifts(start, end);
+  return { hours: hoursFor(start, end, shifts, setupOrDefault(), hasSchedule, new Set()), hasSchedule, shifts, holidays: [] };
 }
 
 async function replaceShifts(start: string, end: string): Promise<Replaced[]> {

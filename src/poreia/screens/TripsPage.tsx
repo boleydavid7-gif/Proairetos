@@ -6,8 +6,6 @@ import type { PoreiaNav } from '../app/App';
 import { today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';
 import LookBack from '../components/LookBack';
-import { InviteCard } from '../components/Together';
-import { ArrivedMails } from '../components/MailBox';
 import { datesText, TripRow } from '../app/ui';
 import { phaseOf, phaseText, sortTrips } from '../core/model';
 import RouteEmpty from '../components/RouteEmpty';
@@ -45,16 +43,11 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
       </div>
 
       <div className="page page--under-hero">
-        <InviteCard nav={nav} />
-        <ArrivedMails nav={nav} />
         {list.length === 0 ? (
           <RouteEmpty glyph="plane" title="No trips yet" line="Start with a place, or just an idea.">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
                 <PlusIcon size={18} />
                 Plan a trip
-              </button>
-              <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'explore' })}>
-                Explore places
               </button>
           </RouteEmpty>
         ) : (

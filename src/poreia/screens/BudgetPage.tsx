@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ChevronIcon } from '../../app/family/icons';
 import { RollingNumber } from '../../lamplight/RollingNumber';
 import { readAmount } from '../../core/money/readAmount';
 import type { PoreiaNav } from '../app/App';
 import { bookings, settings, spends, today, trips } from '../app/state';
 import { datesText } from '../app/ui';
-import { ratesInto } from '../app/world';
 import { moneyText, SPEND_CATEGORIES, sortTrips } from '../core/model';
 import { budgetYears, currenciesIn, yearSpending } from '../core/yearBudget';
 import RouteEmpty from '../components/RouteEmpty';
@@ -22,22 +21,11 @@ export default function BudgetPage({ nav }: { nav: PoreiaNav }) {
   const [year, setYear] = useState(thisYear);
   const budget = prefs.yearBudget;
   const currency = budget?.currency ?? prefs.currency;
-  const [rates, setRates] = useState<Record<string, number>>({});
   const foreign = currenciesIn(list, allBookings, allSpends).some((code) => code !== currency);
-  useEffect(() => {
-    if (!foreign) return;
-    let live = true;
-    ratesInto(currency)
-      .then((found) => live && setRates(found))
-      .catch(() => undefined);
-    return () => {
-      live = false;
-    };
-  }, [currency, foreign]);
 
   const years = budgetYears(list, thisYear);
   const money = (cents: number) => moneyText({ cents, currency });
-  const sums = yearSpending(list, allBookings, allSpends, year, currency, rates);
+  const sums = yearSpending(list, allBookings, allSpends, year, currency, {});
   const yearList = list.filter((trip) => trip.start?.startsWith(`${year}-`)).sort((a, b) => a.start!.localeCompare(b.start!));
   const ids = new Set(yearList.map((trip) => trip.id));
   const yearSpends = allSpends.filter((spend) => ids.has(spend.tripId)).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
@@ -88,7 +76,7 @@ export default function BudgetPage({ nav }: { nav: PoreiaNav }) {
             </>
           )}
         </dl>
-        {sums.unconverted.length > 0 && <p className="fine">Not converted: {sums.unconverted.map((each) => moneyText(each)).join(', ')}</p>}
+        {(foreign || sums.unconverted.length > 0) && <p className="fine">Amounts in other currencies stay separate. Convert them yourself when you settle the trip.</p>}
       </section>
 
       <section className="card">

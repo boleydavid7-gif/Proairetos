@@ -2,7 +2,6 @@ import YearPage from '../../app/family/YearPage';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { bookings, timeOff, today, trips } from '../app/state';
-import MapView, { type Pin } from '../components/MapView';
 import RouteEmpty from '../components/RouteEmpty';
 import { countriesBeen, placesBeen, poreiaDates, poreiaYear } from '../core/year';
 
@@ -12,9 +11,6 @@ export default function BeenPage({ nav }: { nav: PoreiaNav }) {
   const day = today();
   const places = placesBeen(list, day);
   const countries = countriesBeen(list, day);
-  const pins: Pin[] = places
-    .filter((each) => each.place.lat !== undefined && each.place.lon !== undefined)
-    .map((each, index) => ({ id: `been-${index}`, lat: each.place.lat!, lon: each.place.lon!, label: `${each.place.name}${each.trips > 1 ? `, ${each.trips} trips` : ''}`, category: 'saved' }));
   return (
     <div className="page poreia-page">
       <BackLink label="More" onBack={nav.back} />
@@ -23,7 +19,6 @@ export default function BeenPage({ nav }: { nav: PoreiaNav }) {
         <RouteEmpty glyph="pin" title="No trips yet" line="Places from trips you’ve taken show here." />
       ) : (
         <>
-          {pins.length > 0 && <MapView center={pins[0]} pins={pins} zoom={2} fit height="22rem" label="Places you’ve been" />}
           <p className="muted">
             {places.length} {places.length === 1 ? 'place' : 'places'}
             {countries.length ? ` in ${countries.length} ${countries.length === 1 ? 'country' : 'countries'}` : ''}

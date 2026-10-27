@@ -1,9 +1,8 @@
 import { SceneTile } from '../components/TripScene';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronIcon } from '../../app/family/icons';
 import { parseLocalDate } from '../../core/scheduling/dates';
 import { phaseOf, phaseText, placesOf, type Place, type Trip } from '../core/model';
-import { findPlaces } from './world';
 import { readAmount } from '../../core/money/readAmount';
 
 /** "Nov 2", "Nov 2 – 8", "Nov 30 – Dec 3", with the year when it is not this year. */
@@ -56,31 +55,11 @@ export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; on
   );
 }
 
-/** A place picked from Open-Meteo's place search, as the person types. */
+/** A place entered by the person. Poreia keeps it local and never requires a place-search service. */
 export function PlaceSearch({ label, value, onPick, placeholder = 'City, region or country' }: { label: string; value?: Place; onPick: (place: Place | undefined) => void; placeholder?: string }) {
   const [text, setText] = useState(value?.label ?? value?.name ?? '');
-  const [results, setResults] = useState<Place[]>([]);
-  const [open, setOpen] = useState(false);
-  const [problem, setProblem] = useState('');
-  const timer = useRef(0);
 
   useEffect(() => setText(value?.label ?? value?.name ?? ''), [value?.label, value?.name]);
-
-  const look = (query: string) => {
-    window.clearTimeout(timer.current);
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-    timer.current = window.setTimeout(() => {
-      findPlaces(query)
-        .then((found) => {
-          setResults(found);
-          setProblem('');
-        })
-        .catch(() => setProblem('Couldn’t search places. Check the connection, or keep the name as typed.'));
-    }, 280);
-  };
 
   return (
     <div className="poreia-place">
@@ -93,48 +72,15 @@ export function PlaceSearch({ label, value, onPick, placeholder = 'City, region 
           autoComplete="off"
           onChange={(event) => {
             setText(event.target.value);
-            setOpen(true);
-            look(event.target.value);
-            if (!event.target.value.trim()) onPick(undefined);
+            const typed = event.target.value.trim();
+            onPick(typed ? { name: typed.split(',')[0].trim(), label: typed } : undefined);
           }}
           onBlur={() => {
-            // Typed but not picked: the first match, so the place has its map, weather and country; else the words.
-            window.setTimeout(() => {
-              setOpen(false);
-              const typed = text.trim();
-              if (!typed || typed === (value?.label ?? value?.name)) return;
-              const first = results[0];
-              if (first) {
-                setText(first.label ?? first.name);
-                onPick(first);
-              } else onPick({ name: typed.split(',')[0].trim(), label: typed });
-            }, 180);
+            const typed = text.trim();
+            onPick(typed ? { name: typed.split(',')[0].trim(), label: typed } : undefined);
           }}
         />
       </label>
-      {open && results.length > 0 && (
-        <ul className="poreia-place__list" role="listbox" aria-label={`${label}: places`}>
-          {results.map((place) => (
-            <li key={`${place.lat},${place.lon}`}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={false}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  setText(place.label ?? place.name);
-                  setOpen(false);
-                  setResults([]);
-                  onPick(place);
-                }}
-              >
-                {place.label ?? place.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {problem && <p className="fine">{problem}</p>}
     </div>
   );
 }
