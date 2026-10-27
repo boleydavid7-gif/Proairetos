@@ -49,7 +49,7 @@ What is not done, and needs your accounts and computers:
   built.
 - **Store review.** Apple expects more than a website in a frame; the lock, offline use and files help. Plan
   for a round or two of review feedback.
-- **Native OCR.** The current native profile downloads the same Tesseract worker from the production site when a
-  receipt or photo is read. Before the App Store submission, replace that worker with Apple Vision and ML Kit (or a
-  server OCR endpoint) so the native app does not download executable OCR payloads after installation.
+- **Native OCR.** The native profile uses the Capacitor ML Kit Text Recognition plugin: Apple
+  Vision on iOS and ML Kit on Android. The image is written to the app cache for the duration of the read and then
+  removed. Set the iOS deployment target to 15.5 or newer in `ios/App/Podfile` before running CocoaPods.
 - Keep `public/_headers`' security headers and the service worker as they are; the web build is unchanged.

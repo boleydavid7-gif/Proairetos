@@ -18,10 +18,12 @@
     "cap:android": "cap open android"
   },
   "dependencies": {
-    "@capacitor/android": "^7.6.9",
-    "@capacitor/core": "^7.6.9",
-    "@capacitor/ios": "^7.6.9",
-    "@capacitor/local-notifications": "^7.0.7",
+    "@capacitor-mlkit/text-recognition": "^8.2.1",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/local-notifications": "^8.3.1",
     "@fontsource-variable/google-sans-flex": "^5.3.2",
     "@fontsource/eb-garamond": "^5.3.0",
     "@supabase/supabase-js": "^2.117.2",
@@ -36,7 +38,7 @@
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.6.9",
+    "@capacitor/cli": "^8.5.3",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
