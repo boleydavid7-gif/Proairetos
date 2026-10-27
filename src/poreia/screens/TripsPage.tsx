@@ -43,6 +43,11 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
       </div>
 
       <div className="page page--under-hero">
+        <div className="poreia-home__quick button-row" aria-label="Travel planning">
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form' })}>Plan a trip</button>
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'budget' })}>Travel budget</button>
+          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'more' })}>Time off</button>
+        </div>
         {list.length === 0 ? (
           <RouteEmpty glyph="plane" title="No trips yet" line="Start with a place, or just an idea.">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>

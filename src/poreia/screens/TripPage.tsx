@@ -5,7 +5,7 @@ import { BackLink } from '../../askesis/app/ui';
 import { transition } from '../../app/transitions';
 import type { PoreiaNav } from '../app/App';
 import { countHours, saveTimeOff, setStatus } from '../app/proairetos';
-import { bookings, newId, nowStamp, packing, plans, settings, timeOff, today, trips } from '../app/state';
+import { bookings, journal, newId, nowStamp, packing, plans, settings, timeOff, today, trips } from '../app/state';
 import { datesText, dayText } from '../app/ui';
 import { daysOf, nextUp, nightsOf, phaseOf, phaseText, placesOf, STAGE_TEXT, stageOf, stopNow, stopOn, type Trip } from '../core/model';
 import { hoursText, leftAfter, STATUS_LABEL, type TimeOff } from '../core/timeOff';
@@ -13,6 +13,7 @@ import TripBookings from '../components/TripBookings';
 import TripDays, { AddToDay, AgendaRow, openEntry } from '../components/TripDays';
 import TripPacking from '../components/TripPacking';
 import TripMoney from '../components/TripMoney';
+import TripJournal from '../components/TripJournal';
 import TripWithApps from '../components/TripWithApps';
 import { TogetherCard } from '../components/Together';
 import { DocumentsCard } from '../components/Arriving';
@@ -20,7 +21,7 @@ import { GoalCard, useEnvelopeSync } from '../components/TripGoals';
 import { TripScene } from '../components/TripScene';
 import RouteEmpty from '../components/RouteEmpty';
 
-export type TripView = 'overview' | 'bookings' | 'days' | 'packing' | 'money';
+export type TripView = 'overview' | 'bookings' | 'days' | 'packing' | 'money' | 'journal';
 
 const VIEWS: { id: TripView; label: string; glyph: GlyphName }[] = [
   { id: 'overview', label: 'Overview', glyph: 'home' },
@@ -28,6 +29,7 @@ const VIEWS: { id: TripView; label: string; glyph: GlyphName }[] = [
   { id: 'bookings', label: 'Bookings', glyph: 'ticket' },
   { id: 'packing', label: 'Packing', glyph: 'suitcase' },
   { id: 'money', label: 'Money', glyph: 'wallet' },
+  { id: 'journal', label: 'Journal', glyph: 'book' },
 ];
 
 // The part of each trip last open, so coming back from a place, a booking or another tab lands where the person was.
@@ -101,6 +103,7 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         {view === 'days' && <TripDays trip={trip} nav={nav} />}
         {view === 'packing' && <TripPacking trip={trip} />}
         {view === 'money' && <TripMoney trip={trip} />}
+        {view === 'journal' && <TripJournal trip={trip} />}
       </div>
     </div>
   );
@@ -109,12 +112,21 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
 function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day: string; onView: (view: TripView) => void }) {
   const phase = phaseOf(trip, day);
   const ahead = phase.kind !== 'past';
+  const entries = journal.use().filter((entry) => entry.tripId === trip.id).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
   const about = (
     <>
       {ahead && <DocumentsCard trip={trip} nav={nav} />}
       {ahead && <TripWithApps trip={trip} />}
       <GoalCard trip={trip} />
       <TogetherCard trip={trip} />
+      <section className="card poreia-journal-preview">
+        <div className="section-head">
+          <h2 className="card__title">Travel journal</h2>
+          {entries.length > 0 && <span className="muted">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</span>}
+        </div>
+        {entries[0] ? <p className="poreia-journal-preview__text">{entries[0].title || entries[0].text}</p> : <p className="muted">Keep a day log or a memory as you travel.</p>}
+        <button type="button" className="button-quiet" onClick={() => onView('journal')}>{entries.length ? 'Open journal' : 'Start journal'}</button>
+      </section>
       {trip.notes && (
         <section className="card">
           <h2 className="card__title">Notes</h2>

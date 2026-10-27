@@ -5,7 +5,7 @@
  * from one side since then is taken from the other too.
  */
 
-export type RecordKind = 'trip' | 'booking' | 'plan' | 'pack' | 'spend' | 'spot';
+export type RecordKind = 'trip' | 'booking' | 'plan' | 'pack' | 'spend' | 'spot' | 'journal';
 export type TripRecord = { id: string; updatedAt?: string; createdAt?: string };
 export type SharedRecord = { id: string; kind: RecordKind; record: TripRecord };
 

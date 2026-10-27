@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
+import { isAdded } from '../../app/family/added';
 import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { newId, nowStamp, removeTrip, settings, trips } from '../app/state';
@@ -74,6 +75,8 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       several ? stops.filter((stop): stop is StopDraft & { place: Place } => Boolean(stop.place)).map((stop): Stop => ({ id: stop.id, place: stop.place, start: stop.start || undefined, end: stop.end && stop.start && stop.end >= stop.start ? stop.end : stop.start || undefined })) : [],
     );
     trips.put(trip);
+    // Setting a trip budget creates or updates its matching Oikonomia travel envelope immediately.
+    if (isAdded('oikonomia')) void import('../app/goalsAndSaving').then((apps) => apps.syncEnvelope(trip, prefs.currency)).catch(() => undefined);
     if (existing) nav.back();
     else nav.swap({ name: 'trip', id: trip.id });
   };
@@ -128,6 +131,17 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       )}
       {!several && <TimeOffLine start={spanStart} end={spanEnd} tripId={existing?.id} />}
 
+      <section className="card poreia-trip-form__budget">
+        <div className="section-head">
+          <div>
+            <p className="label">Money for the trip</p>
+            <h2 className="card__title">Travel budget</h2>
+          </div>
+        </div>
+        <MoneyField label="Total budget" cents={budget.cents} currency={budget.currency} onChange={(cents, currency) => setBudget({ cents, currency })} />
+        <YearBudgetLine year={year} except={existing?.id ?? ''} adding={budget.cents ? { cents: budget.cents, currency: budget.currency || prefs.currency } : undefined} />
+      </section>
+
       <MoreDetails open={Boolean(existing)}>
       {(existing?.people?.length ?? 0) > 1 ? (
         <p className="muted">
@@ -141,8 +155,6 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       )}
 
       <PlaceSearch label="Starting from" value={from} onPick={setFrom} placeholder={prefs.home ? `${prefs.home.name}, or another place` : 'City, region or country'} />
-      <MoneyField label="Budget" cents={budget.cents} currency={budget.currency} onChange={(cents, currency) => setBudget({ cents, currency })} />
-      <YearBudgetLine year={year} except={existing?.id ?? ''} adding={budget.cents ? { cents: budget.cents, currency: budget.currency || prefs.currency } : undefined} />
       <label className="field">
         <span className="field__label">Notes</span>
         <textarea className="input area" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />

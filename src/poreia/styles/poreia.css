@@ -1947,3 +1947,80 @@
 .poreia-budget-bar__planned {
   background: color-mix(in oklab, var(--ll-lamp, var(--mint)) 38%, transparent);
 }
+
+/* The journal is a quiet, readable log rather than another dense list. */
+.poreia-journal {
+  display: grid;
+  gap: 18px;
+}
+
+.poreia-journal__form {
+  display: grid;
+  gap: 12px;
+}
+
+.poreia-journal__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-journal__item.swipe__front {
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ll-inset, 12px);
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+}
+
+.poreia-journal__open {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+}
+
+.poreia-journal__open strong {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.poreia-journal__open > span:last-child {
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.poreia-journal__meta {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-preview__text {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.poreia-trip-form__budget {
+  display: grid;
+  gap: 10px;
+}
+
+.poreia-home__quick {
+  margin-bottom: 4px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.poreia-home__quick .button-quiet {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}

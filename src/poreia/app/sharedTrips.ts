@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createSharedLists, sharingAvailable, type SharedListRef } from '../../app/family/sharedLists';
 import { fingerprint, mergeTrip, sharedId, type RecordKind, type SharedRecord, type TripRecord } from '../core/tripSync';
 import type { Trip } from '../core/model';
-import { bookings, packing, plans, spends, spots, trips } from './state';
+import { bookings, journal, packing, plans, spends, spots, trips } from './state';
 
 /*
  * Travel together: a trip shared with the people going, sealed on the device with the trip's own key (the family's
@@ -23,7 +23,7 @@ export { sharingAvailable };
 /** Any of the trip's stores, read and written as plain records. */
 type Store = { list: () => (TripRecord & { tripId?: string })[]; get: (id: string) => TripRecord | undefined; put: (record: never) => void; remove: (id: string) => void };
 
-const STORES: Record<Exclude<RecordKind, 'trip'>, Store> = { booking: bookings, plan: plans, pack: packing, spend: spends, spot: spots };
+const STORES: Record<Exclude<RecordKind, 'trip'>, Store> = { booking: bookings, plan: plans, pack: packing, spend: spends, spot: spots, journal };
 
 const seenKey = (listId: string) => `poreiaShared.seen.${listId}`;
 const readSeen = (listId: string): Record<string, string> => {

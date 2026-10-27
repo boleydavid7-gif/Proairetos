@@ -163,7 +163,7 @@ function EnvelopeCard({ trip }: { trip: Trip }) {
   if (!envelope) {
     return (
       <section className="card">
-        <h2 className="card__title">Save for it in Oikonomia</h2>
+        <h2 className="card__title">Travel envelope in Oikonomia</h2>
         <button
           type="button"
           className="button-quiet"
@@ -173,7 +173,7 @@ function EnvelopeCard({ trip }: { trip: Trip }) {
             offerUndo('Envelope made in Oikonomia', () => void undo().then(again));
           }}
         >
-          Make an envelope for this trip
+          Make the travel envelope
         </button>
         {choices.length > 0 && (
           <label className="field">

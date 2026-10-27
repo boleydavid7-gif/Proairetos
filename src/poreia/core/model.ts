@@ -166,6 +166,26 @@ export type Spend = {
   updatedAt?: string;
 };
 
+/** A personal travel journal entry: a dated memory or day log kept with its trip. */
+export type JournalEntryKind = 'day' | 'memory' | 'note';
+export const JOURNAL_ENTRY_KINDS: { id: JournalEntryKind; label: string }[] = [
+  { id: 'day', label: 'Day log' },
+  { id: 'memory', label: 'Memory' },
+  { id: 'note', label: 'Note' },
+];
+
+export type JournalEntry = {
+  id: string;
+  tripId: string;
+  date: string;
+  kind: JournalEntryKind;
+  title?: string;
+  text: string;
+  place?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 // ---------- Trips ----------
 
 export type Phase =

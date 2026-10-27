@@ -1,6 +1,6 @@
 import { collection, stored } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
-import type { Booking, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
+import type { Booking, JournalEntry, PackItem, Place, PlanItem, Spend, Trip } from '../core/model';
 import type { TravelDoc } from '../core/documents';
 import type { Spot } from '../core/spots';
 import type { ArrivedMail } from '../core/mail';
@@ -46,6 +46,7 @@ export const bookings = collection<Booking>('poreia:booking:');
 export const plans = collection<PlanItem>('poreia:plan:');
 export const packing = collection<PackItem>('poreia:pack:');
 export const spends = collection<Spend>('poreia:spend:');
+export const journal = collection<JournalEntry>('poreia:journal:');
 export const timeOff = collection<TimeOff>('poreia:off:');
 /** Places saved to a trip, from the map, the guide, events and stays. */
 export const spots = collection<Spot>('poreia:spot:');
@@ -90,6 +91,7 @@ export function removeTrip(trip: Trip): () => void {
     plans: plans.list().filter((each) => each.tripId === trip.id),
     packing: packing.list().filter((each) => each.tripId === trip.id),
     spends: spends.list().filter((each) => each.tripId === trip.id),
+    journal: journal.list().filter((each) => each.tripId === trip.id),
     spots: spots.list().filter((each) => each.tripId === trip.id),
     docs: docs.list().filter((each) => each.tripId === trip.id),
   };
@@ -98,6 +100,7 @@ export function removeTrip(trip: Trip): () => void {
   its.plans.forEach((each) => plans.remove(each.id));
   its.packing.forEach((each) => packing.remove(each.id));
   its.spends.forEach((each) => spends.remove(each.id));
+  its.journal.forEach((each) => journal.remove(each.id));
   its.spots.forEach((each) => spots.remove(each.id));
   its.docs.forEach((each) => docs.remove(each.id));
   return () => {
@@ -106,6 +109,7 @@ export function removeTrip(trip: Trip): () => void {
     its.plans.forEach((each) => plans.put(each));
     its.packing.forEach((each) => packing.put(each));
     its.spends.forEach((each) => spends.put(each));
+    its.journal.forEach((each) => journal.put(each));
     its.spots.forEach((each) => spots.put(each));
     its.docs.forEach((each) => docs.put(each));
   };
