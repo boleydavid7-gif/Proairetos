@@ -17,6 +17,19 @@ import { valueIcon } from './valueIcons';
 import { Sym } from '../../lamplight/icons';
 import PursuitsSection from './PursuitsSection';
 
+const valuePromptForms = [
+  (name: string) => `What does ${name.toLowerCase()} mean in your life?`,
+  (name: string) => `When did ${name.toLowerCase()} matter recently?`,
+  (name: string) => `Where could you express ${name.toLowerCase()} today?`,
+  (name: string) => `What makes ${name.toLowerCase()} difficult sometimes?`,
+];
+
+function valuePrompt(name: string): string {
+  const day = new Date().getDate();
+  const seed = [...name].reduce((total, character) => total + character.charCodeAt(0), day);
+  return valuePromptForms[seed % valuePromptForms.length](name);
+}
+
 /**
  * Offered when a value is opened: one small thing in the person's own words.
  * Saved as a reflection linked to the value; leaving it empty is fine.
@@ -44,13 +57,13 @@ function HonourToday({ value }: { value: ChosenValue }) {
       }}
     >
       <label className="daily-line__label" htmlFor={`honor-${value.id}`}>
-        What would {value.name.toLowerCase()} look like today?
+        {valuePrompt(value.name)}
       </label>
       <div className="field-row">
         <input
           id={`honor-${value.id}`}
           className="field-input"
-          placeholder="One small thing"
+          placeholder="Describe it in your own words"
           value={text}
           onChange={(event) => setText(event.target.value)}
         />
