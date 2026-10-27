@@ -164,7 +164,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Theoria keeps in step with a library folder in OneDrive, Google Drive or Dropbox, on any device: new books in the folder come onto your shelf when Theoria opens, and newer versions replace the old file with your highlights kept.',
       'Theoria adds several books at once, or a whole folder with its subfolders.',
       'A backup folder (Chrome and Edge, on a computer or Android): backups and daily copies go to a folder you choose, and Theoria copies its books there too.',
-      'Theoria explains plainly when account copies are not set up on the server yet.',
+      'Theoria keeps book files on this device or in the cloud storage you choose; reading progress and notes still sync.',
       'Every app’s More and Settings pages now look like Proairetos’s: a colored tile per row, one grouped list, and the same switches. Theoria’s settings are short rows, and Oikonomia’s options sit in a list.',
       'Phyton: a care journal on each plant (pruned, pests seen, a note) beside watered, fed and repotted, and Plants shows one place at a time.',
       'Ktema: things group by room, and an insurance list prints room by room with prices and totals, or downloads as CSV.',

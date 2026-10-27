@@ -21,7 +21,8 @@ import { copyBooksToFolder } from './data/toFolder';
 import { BookDetailView, type BookCopy, LibraryHome, NotesPage, ReaderView, ReflectionsPage, SearchPage, SettingsPage, ShelfPage, buildInsightItems, type InsightItem, type ReaderSelection } from './components/views';
 import { inspectReadingFile } from './data/importers';
 import { lookupBookMetadata } from './data/metadata';
-import { coverSource, dropCloudCopy, fetchCopy, forgetCloudCopy, fromCloudFolder, keepFile, keepLocally, localFile, makeCloudCopy, migrateBook, moveServerCopies, readableChapters } from './data/library';
+import { coverSource, dropCloudCopy, fetchCopy, forgetCloudCopy, fromCloudFolder, keepFile, keepLocally, localFile, makeCloudCopy, readableChapters } from './data/library';
+import { inOwnStorage } from './data/cloudCopy';
 import { outline, putAll, putCover, takeAll } from './data/files';
 import type { TheoriaChapter } from './core/books';
 import { takeOpening } from '../app/family/opening';
@@ -49,7 +50,13 @@ function useBooks(): { books: TheoriaBook[]; loading: boolean; error?: string } 
     let active = true;
     void listBooks().then(async (records) => {
       const hydrated = await Promise.all(records.map(async (book) => {
-        return { ...book, coverUrl: await coverSource(book).catch(() => undefined) };
+        // Older records may point at retired Proairetos-hosted book buckets. Clear those pointers so Theoria never
+        // tries to use the server for book files; the book can be re-added locally or from the person's cloud.
+        const localOnly = book.filePath && !inOwnStorage(book.filePath)
+          ? { ...book, filePath: undefined, sealed: undefined, coverPath: undefined, coverSealed: undefined, cloudCopy: false }
+          : book;
+        if (localOnly !== book) await putBook(localOnly);
+        return { ...localOnly, coverUrl: await coverSource(localOnly).catch(() => undefined) };
       }));
       if (active) setState({ books: hydrated.sort((a, b) => (b.lastOpenedAt ?? b.updatedAt).localeCompare(a.lastOpenedAt ?? a.updatedAt)), loading: false });
     }).catch((error) => active && setState({ books: [], loading: false, error: error instanceof Error ? error.message : 'Your library could not be opened.' }));
@@ -123,12 +130,6 @@ export default function TheoriaApp() {
     });
   };
 
-  // Books from the first version are moved once: text to this device, files sealed (see `migrateBook`).
-  useEffect(() => {
-    if (booksState.loading) return;
-    for (const book of shelf) void migrateBook(book).then((next) => next && putBook(next)).catch(() => undefined);
-  }, [booksState.loading, shelf.length, sync.phase]);
-
   // Which books are on this device in full.
   useEffect(() => {
     let live = true;
@@ -139,7 +140,7 @@ export default function TheoriaApp() {
   // The reader takes the book's text from this device.
   /**
    * A book not on this device yet: from the cloud storage this device is signed in to (where it was found before, else
-   * by its file name and size), else from its sealed account copy. Says where it came from, or undefined.
+   * by its file name and size). The book itself is never kept on Proairetos's server.
    */
   const bringBook = async (book: TheoriaBook): Promise<string | undefined> => {
     if (!book.fileName) return undefined;
@@ -155,15 +156,7 @@ export default function TheoriaApp() {
         if (book.foundIn?.id !== place.id) await putBook({ ...book, foundIn: { provider, id: place.id }, updatedAt: new Date().toISOString() });
         return CLOUD_NAMES[provider];
       } catch {
-        // Not there, or the storage could not be reached: the next one, then the account copy.
-      }
-    }
-    if (book.cloudCopy && book.filePath && book.sealed) {
-      try {
-        await fetchCopy(book);
-        return 'your storage';
-      } catch {
-        return undefined;
+        // Not there, or the storage could not be reached: try the next connected provider.
       }
     }
     return undefined;
@@ -258,8 +251,8 @@ export default function TheoriaApp() {
   };
   /**
    * Settings › Clear the library: every book off the shelf (on every device, as removals sync), with one undo; the
-   * account copies go only once the undo has passed. With a library folder, a fresh look follows, which adds each
-   * file once.
+   * copies in the person's own cloud go only once the undo has passed. With a library folder, a fresh look follows,
+   * which adds each file once.
    */
   const clearLibrary = async (): Promise<string> => {
     const books = await listBooks();
@@ -369,7 +362,7 @@ export default function TheoriaApp() {
   };
   /**
    * The library folder (on the computer that chose it): new books in, newer files of books it brought in replaced,
-   * and account copies made for folder books still waiting for one. Quiet unless something came in.
+   * and copies made in the person's own cloud for folder books still waiting for one. Quiet unless something came in.
    */
   const folderBusy = useRef(false);
   const syncLibraryFolder = (ask = false): Promise<string | undefined> => withLock('theoria-library-folder', () => syncLibraryFolderHere(ask));
@@ -515,13 +508,10 @@ export default function TheoriaApp() {
     });
   };
 
-  /** On every device: books from the library folder that are not here yet come from their account copies. */
+  /** On every device: books from the library folder or the person's own cloud are brought down when available. */
   const fetching = useRef(new Set<string>());
   const fetchFolderBooks = async () => {
     if (sync.phase !== 'ready') return;
-    // Copies the first versions kept on the site's server move to the person's own storage (or, for cloud-folder
-    // books, go: the folder has the file).
-    for (const moved of await moveServerCopies(await listBooks())) await putBook(moved);
     // Books whose copy could not be made when they were added (signed out, or no storage of their own yet): made
     // now, unless the person took the copy away from that book (`cloudCopy: false`). Cloud-folder books need none.
     for (const book of await listBooks()) {

@@ -6,10 +6,8 @@ Things only you can do: server setup, phone checks, and choices. The code for ea
 
 Skip any you have already done. Until a migration is run, the apps keep that data on the device and work as usual.
 
-- [ ] Migration `20261014000000_theoria_storage.sql`: makes the private `theoria-books` and `theoria-covers` buckets, so
-      Theoria's "Keep a sealed copy in my account" works (it answers "Bucket not found" until then). Run only this one of
-      the two Theoria files: `20261015000000_theoria_sync.sql` is already covered by the later migrations, and running it
-      now would take back the record kinds they added.
+- [x] Theoria books stay on the device or in the person's own connected cloud storage. They are excluded from Proairetos
+      cloud sync; only reading progress, highlights, notes and sessions sync.
 - [ ] Theoria's library folder (OneDrive, Google Drive, Dropbox), one storage or all three:
       - OneDrive: in Azure > App registrations > the Noesis/Proairetos registration > API permissions, add Microsoft Graph
         delegated `Files.Read` (personal accounts consent at sign-in, so this mostly makes the list honest).
@@ -29,10 +27,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Capture from anywhere: run `20261024000000_capture_inbox.sql`, then in Cloudflare > the proairetos Worker >
       Settings > Variables and Secrets add `SUPABASE_URL` (your project address) and `SUPABASE_ANON_KEY` (the publishable
       key; both are public values, plain text is fine). Then Settings > Capture from anywhere > Turn on, and make the Shortcut.
-- [ ] Supabase file storage full: Theoria's book copies no longer go there. Open Theoria once, signed in: copies of books
-      from a cloud library folder are removed from `theoria-books`, and the rest move to your own storage once Account ›
-      Where it syncs is set to Drive, Dropbox or OneDrive. Then check Storage in Supabase; anything left in
-      `theoria-books` / `theoria-covers` can be deleted by hand (the books stay on your devices and in your folder).
+- [ ] Supabase file storage cleanup: old Theoria book buckets can be removed after checking that any needed books are
+      still on devices or in the person's own Drive, Dropbox or OneDrive folder.
 - [ ] Apple Health: run `20261028000000_health_inbox.sql` in Supabase (the Worker's `SUPABASE_URL` and `SUPABASE_ANON_KEY`
       are already set for Capture from anywhere). Then Settings > The app > Apple Health > Turn on, and set up Health Auto
       Export as the page says (REST API, JSON). Send a first export with Manual Export and open any app; send Claude a JSON

@@ -3,7 +3,7 @@ import type { TheoriaChapter } from '../core/books';
 /*
  * A book's text and its file live on this device, in their own database, apart from the book's record. The
  * record (title, position, highlights, notes) is what syncs; the text never rides along with every change.
- * A copy can go to the account if the person chooses, sealed with their key first (`cloudCopy.ts`).
+ * A copy can go to the person's own connected cloud folder if they choose, sealed with their key first (`cloudCopy.ts`).
  */
 const NAME = 'theoria-files';
 const VERSION = 1;
