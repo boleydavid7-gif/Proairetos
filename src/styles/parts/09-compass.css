@@ -400,9 +400,10 @@ button.value-card__text:disabled {
   justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.1), var(--color-surface) 62%);
+  border: 1px solid var(--ll-hair, var(--color-border));
+  border-radius: var(--ll-radius-lg, var(--radius-md));
+  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.1), var(--ll-card, var(--color-surface)) 62%);
+  box-shadow: var(--ll-light-1);
   color: var(--color-text);
   text-align: left;
   transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
@@ -411,7 +412,8 @@ button.value-card__text:disabled {
 .pursuit-card:hover,
 .pursuit-card:focus-visible {
   border-color: var(--color-accent);
-  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.16), var(--color-surface) 62%);
+  background: linear-gradient(105deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.16), var(--ll-card, var(--color-surface)) 62%);
+  box-shadow: var(--ll-light-2);
   transform: translateY(-1px);
 }
 
@@ -464,16 +466,19 @@ button.value-card__text:disabled {
 .pursuits__empty,
 .pursuit-form,
 .pursuit-work,
-.pursuit-decisions {
+.pursuit-decisions,
+.pursuit-checkin {
   display: grid;
   gap: var(--space-3);
+  border: 1px solid var(--ll-hair, var(--color-border));
+  border-radius: var(--ll-radius-lg, var(--radius-md));
+  background: var(--ll-card, var(--color-surface));
+  box-shadow: var(--ll-light-1);
 }
 
 .pursuits__empty {
   padding: var(--space-5);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  background: rgba(var(--color-accent-rgb, 201, 162, 116), 0.04);
+  background: linear-gradient(120deg, rgba(var(--color-accent-rgb, 201, 162, 116), 0.08), var(--ll-card, var(--color-surface)) 70%);
 }
 
 .pursuits__empty-title {
@@ -526,6 +531,8 @@ button.value-card__text:disabled {
   min-height: var(--ll-field-lg, 56px);
   padding: 0 var(--space-4);
   border-radius: var(--ll-radius-md, 16px);
+  border-color: var(--ll-hair, var(--color-border));
+  background: var(--ll-inset, var(--color-surface));
   font-size: var(--text-md);
 }
 
@@ -543,6 +550,11 @@ button.value-card__text:disabled {
   font-size: var(--text-md);
 }
 
+:is(.pursuits, .pursuit-form, .pursuit-editor) .button-quiet {
+  border: 1px solid var(--ll-hair, var(--color-border));
+  background: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.04);
+}
+
 :is(.pursuit-form, .pursuit-editor) .chip {
   min-height: var(--ll-chip-lg, 44px);
   padding-inline: var(--space-4);
@@ -551,6 +563,12 @@ button.value-card__text:disabled {
 .pursuit-editor {
   display: grid;
   gap: var(--space-4);
+}
+
+.pursuit-work,
+.pursuit-checkin,
+.pursuit-decisions {
+  padding: var(--space-5);
 }
 
 .pursuit-editor__head {
