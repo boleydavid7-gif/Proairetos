@@ -1,23 +1,20 @@
-import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
-import { buy, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase } from '../../app/family/purchases';
+import { buy, CORE_APPS, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase, type PurchaseItem } from '../../app/family/purchases';
 import { Waiting } from '../../lamplight/Waiting';
 import { apiUrl } from '../../app/apiBase';
 import { supabase } from '../../data/sync/supabase';
-import { syncStatus } from '../../app/sync/syncController';
 
 /**
  * The Store: the apps that can be added to Proairetos. Adding one brings it into Proairetos (Today, Days ahead,
- * notifications, search) and the app grid; removing one takes it out again, its records kept. Once the Store takes
- * payments, each app is bought once ($4.99) through Stripe and kept with the account; Proairetos stays free.
+ * notifications, search) and the app grid; removing one takes it out again, its records kept. Proairetos stays free;
+ * access to the family is granted by monthly plans kept with the signed-in account.
  */
 export default function StoreSection() {
   const added = useAddedApps();
-  const { paid, owned, tester } = usePurchases();
-  const account = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
-  const owner = account.email?.trim().toLowerCase() === 'boleydavid7@gmail.com';
+  const { paid, owned, tester, owner } = usePurchases();
   const { offerUndo } = useOverlays();
   const apps = familyApps.filter((app) => app.id !== 'proairetos');
   const [busy, setBusy] = useState<string | null>(null);
@@ -30,12 +27,12 @@ export default function StoreSection() {
     // Back from Stripe: wait for the purchase to be recorded, then add the app.
     const bought = takeBought();
     if (!bought) return;
-    const name = familyApps.find((app) => app.id === bought)?.name ?? 'The app';
+    const name = bought === 'core' ? 'Core apps' : bought === 'bundle' ? 'Soma + Phyton' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
     setFinishing(bought);
     void waitForPurchase(bought).then((done) => {
       setFinishing(null);
       if (done) {
-        addApp(bought as AddOn);
+        addPlan(bought);
         setNote({ app: bought, text: `${name} added` });
       } else {
         setNote({ app: bought, text: `Your payment is being confirmed. ${name} shows here as yours in a minute.` });
@@ -43,12 +40,12 @@ export default function StoreSection() {
     });
   }, []);
 
-  const purchase = async (id: AddOn, name: string) => {
+  const purchase = async (id: PurchaseItem, name: string) => {
     setBusy(id);
     setNote(null);
     try {
       if ((await buy(id)) === 'owned') {
-        addApp(id);
+        addPlan(id);
         setNote({ app: id, text: `${name} added` });
       }
     } catch (error) {
@@ -61,12 +58,29 @@ export default function StoreSection() {
 
   return (
     <section className="store" aria-label="Store">
-      <ul className="store__list">
+      <div className="store__paywall">
+        <p className="eyebrow">Proairetos Store</p>
+        <h2>Choose what belongs in your family</h2>
+        <p>Proairetos stays free. Subscriptions unlock the companion apps and optional services, and follow your account on every device.</p>
+        <div className="store__plans">
+          <PlanCard plan="core" title="Core apps" detail="All service-free family apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="soma" title="Soma" detail="Sleep and wind-down tools" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="phyton" title="Phyton" detail="Plant identification" price={priceText('phyton')} owned={owner || tester || owned.includes('phyton')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00/mo' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
+          {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
+        </div>
+        {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
+        {!paid && !owner && !tester ? <p className="store__fine">Subscriptions are not configured yet. You can still browse the plans; checkout will open when payments are enabled.</p> : null}
+        {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
+        {owner ? <p className="store__fine">Owner access is enabled for this account.</p> : null}
+      </div>
+      {(owner || tester || owned.length > 0) && <ul className="store__list">
         {apps.map((app) => {
           const id = app.id as AddOn;
           const isAdded = added.includes(id);
-          const yours = !paid || tester || owned.includes(id);
-          const label = isAdded ? 'Added' : !paid ? 'Free' : tester ? 'Beta' : owned.includes(id) ? 'Purchased' : priceText();
+          const coreAccess = owner || tester || owned.includes('core');
+          const yours = owner || tester || (id === 'soma' ? owned.includes('soma') : id === 'phyton' ? owned.includes('phyton') : coreAccess);
+          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : 'Available' : 'Locked';
           return (
             <li key={app.id} className="store__app">
               <div
@@ -115,7 +129,7 @@ export default function StoreSection() {
                     type="button"
                     className="button-accent store__button"
                     disabled={busy !== null || finishing === id}
-                    onClick={() => void purchase(id, app.name)}
+                    onClick={() => void purchase(id === 'soma' ? 'soma' : id === 'phyton' ? 'phyton' : 'core', app.name)}
                   >
                     {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : `Buy · ${priceText()}`}
                   </button>
@@ -137,16 +151,25 @@ export default function StoreSection() {
             </li>
           );
         })}
-      </ul>
-      {paid && tester ? <p className="store__fine">Beta tester: every app is yours without paying.</p> : null}
-      {paid && !tester ? <p className="store__fine">Each app is bought once and stays with your account on every device. Proairetos itself is free.</p> : null}
-      <p className="store__fine">Beta access: contact boleydavid7@gmail.com to unlock everything for 3 days.</p>
+      </ul>}
+      {paid && !tester ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
+      <p className="store__fine">Beta access: contact boleydavid7@gmail.com to unlock the apps for 7 days. Beta does not include Proairetos cloud.</p>
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/">
         Adding an app to your Home Screen
       </a>
     </section>
   );
+}
+
+function addPlan(plan: string): void {
+  if (plan === 'core') CORE_APPS.forEach((app) => addApp(app));
+  else if (plan === 'bundle') { addApp('soma'); addApp('phyton'); }
+  else if (plan !== 'cloud') addApp(plan as AddOn);
+}
+
+function PlanCard({ plan, title, detail, price, owned, busy, finishing, onBuy }: { plan: PurchaseItem; title: string; detail: string; price: string; owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {
+  return <article className="store__plan"><div><h3>{title}</h3><p>{detail}</p></div><strong>{owned ? 'Included' : price}</strong>{owned ? <span className="store__plan-state">Available</span> : <button type="button" className="button-accent" disabled={busy !== null || finishing === plan} onClick={() => void onBuy(plan, title)}>{finishing === plan ? <Waiting>Finishing…</Waiting> : busy === plan ? <Waiting>Opening…</Waiting> : 'Subscribe'}</button>}</article>;
 }
 
 type BetaEntry = { email: string; expires_at: string };
@@ -184,9 +207,9 @@ function BetaAccessPanel() {
     setBusy(true);
     setMessage('');
     try {
-      await request('/api/store/beta', { method: 'POST', body: JSON.stringify({ email, days: 3 }) });
+      await request('/api/store/beta', { method: 'POST', body: JSON.stringify({ email, days: 7 }) });
       setEmail('');
-      setMessage('Three-day beta access granted.');
+      setMessage('Seven-day beta access granted.');
       await load();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Beta access could not be granted.');
@@ -208,7 +231,7 @@ function BetaAccessPanel() {
     }
   };
 
-  return <section className="store__beta" aria-label="Beta access"><h2>Beta access</h2><p>Give someone full access for three days while they try the family.</p><div className="store__beta-form"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="person@example.com" aria-label="Beta tester email" /><button type="button" className="button-accent" onClick={() => void add()} disabled={busy || !email.trim()}>Grant 3 days</button></div>{entries.length > 0 && <ul className="store__beta-list">{entries.map((entry) => <li key={entry.email}><span><strong>{entry.email}</strong><small>{remainingBeta(entry.expires_at)} · Until {new Date(entry.expires_at).toLocaleString()}</small></span><button type="button" className="text-link" onClick={() => void remove(entry)} disabled={busy}>Remove</button></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
+  return <section className="store__beta" aria-label="Beta access"><h2>Beta access</h2><p>Give someone full access to the apps for seven days while they try the family. Cloud sync is excluded.</p><div className="store__beta-form"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="person@example.com" aria-label="Beta tester email" /><button type="button" className="button-accent" onClick={() => void add()} disabled={busy || !email.trim()}>Grant 7 days</button></div>{entries.length > 0 && <ul className="store__beta-list">{entries.map((entry) => <li key={entry.email}><span><strong>{entry.email}</strong><small>{remainingBeta(entry.expires_at)} · Until {new Date(entry.expires_at).toLocaleString()}</small></span><button type="button" className="text-link" onClick={() => void remove(entry)} disabled={busy}>Remove</button></li>)}</ul>}{message && <p className="store__note" role="status">{message}</p>}</section>;
 }
 
 function remainingBeta(expiresAt: string): string {

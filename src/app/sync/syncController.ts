@@ -106,7 +106,7 @@ const HANDOFF_META = 'handoffKey';
 const LAST_SYNC_META = 'lastSyncedAt';
 const REMINDERS_META = 'remindersEndpoint';
 const AUTO_SYNC_MS = 2 * 60_000;
-// Opening several family apps in quick succession should not repeat the same cloud check.
+// Opening several family apps in quick succession does not repeat the same cloud check.
 // A manual "Sync now" still always runs.
 const STARTUP_CHECK_MS = 2 * 60_000;
 const AFTER_CHANGE_MS = 4_000;
@@ -350,6 +350,16 @@ async function syncHere(): Promise<SyncResult | null> {
     const base = createIndexedDbLocalSyncStore(Promise.resolve(db));
     // The person's own Google Drive, Dropbox or OneDrive, when they chose one; else Proairetos's server.
     const own = await ownStorageFor(userId, dataKey, (await localState())!);
+    if (!own) {
+      const { mayUseCloud, refreshOwned } = await import('../family/purchases');
+      await refreshOwned();
+      if (!mayUseCloud()) {
+        // A signed-in beta user can still use every app locally. Leave the IndexedDB records in place and skip the
+        // remote engine until they choose their own storage or subscribe to Proairetos cloud.
+        set({ target: 'proairetos', syncing: false, error: undefined });
+        return null;
+      }
+    }
     set({ target: own?.target ?? 'proairetos' });
     const engine = createSyncEngine({
       local: withDeviceRecords(base),
@@ -893,7 +903,10 @@ export async function finishStorageConnect(params: URLSearchParams): Promise<Sto
 
 /** Back to Proairetos's server; the files in the person's own storage are left for them. */
 export function moveToProairetos(): Promise<void> {
-  return moveStorage('proairetos');
+  return import('../family/purchases').then(({ mayUseCloud }) => {
+    if (!mayUseCloud()) throw new Error('Proairetos cloud sync requires its subscription. Choose local storage or your own cloud in Account.');
+    return moveStorage('proairetos');
+  });
 }
 
 // ---------- Reminders ----------

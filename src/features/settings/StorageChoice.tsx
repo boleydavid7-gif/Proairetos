@@ -10,6 +10,7 @@ import {
   storageProvidersHere,
   type StorageTarget,
 } from '../../app/sync/syncController';
+import { buy, mayUseCloud, NeedsSignIn, priceText, usePurchases } from '../../app/family/purchases';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'That did not work. Try again.');
 
@@ -24,6 +25,7 @@ export function StorageChoice() {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  const { owner } = usePurchases();
 
   const run = async (action: () => Promise<void>) => {
     setBusy(true);
@@ -51,7 +53,7 @@ export function StorageChoice() {
       });
   }, []);
 
-  if (providers.length === 0 && !busy && !error) return null;
+  if (providers.length === 0 && !busy && !error && now === undefined) return null;
   const choices: StorageTarget[] = ['proairetos', ...providers];
 
   return (
@@ -70,14 +72,30 @@ export function StorageChoice() {
             >
               <span>
                 {choice === 'proairetos' ? 'Proairetos' : storageName(choice)}
-                <span className="passkeys__detail">{now === choice ? 'Now' : choice === 'proairetos' ? 'Our server' : 'Your own storage'}</span>
+                <span className="passkeys__detail">{now === choice ? 'Now' : choice === 'proairetos' ? mayUseCloud() ? 'Proairetos cloud' : 'Local only' : 'Your own storage'}</span>
               </span>
               <span className="storage-choice__mark" aria-hidden="true" />
             </button>
           </li>
         ))}
       </ul>
-      {picked && picked !== now && (
+      {now === 'proairetos' && !owner && !mayUseCloud() && <p className="section-description">Local-only mode is available without a subscription. Connect your own storage above, or subscribe to Proairetos cloud to sync between devices.</p>}
+      {picked === 'proairetos' && !owner && !mayUseCloud() ? (
+        <div className="storage-choice__paywall">
+          <p className="section-description">Proairetos cloud keeps an encrypted backup for your account. It requires its own subscription; beta access does not include it.</p>
+          <div className="chip-row">
+            <button type="button" className="button-quiet" onClick={() => setPicked(undefined)}>Cancel</button>
+            <button type="button" className="chip chip--accent" disabled={busy} onClick={() => void run(async () => {
+              try {
+                await buy('cloud');
+              } catch (cause) {
+                if (cause instanceof NeedsSignIn) throw cause;
+                throw new Error(cause instanceof Error ? cause.message : `Proairetos cloud is ${priceText('cloud')}/month.`);
+              }
+            })}>{busy ? 'Opening…' : `Subscribe · ${priceText('cloud')}/mo`}</button>
+          </div>
+        </div>
+      ) : picked && picked !== now && (
         <>
           <p className="section-description">
             {picked === 'proairetos'

@@ -149,7 +149,7 @@ export default function ReflectPage() {
           </button>
         )}
         <button type="button" className="place-row" onClick={() => navigate('compass')}>
-          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={30} /></span>
+          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
           <span className="place-row__text">
             <span className="place-row__title">Compass</span>
             <span className="place-row__detail">Values, goals, people and words</span>

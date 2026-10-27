@@ -3,9 +3,9 @@ import type { AddOn } from './added';
 import { apiUrl } from '../apiBase';
 
 /*
- * The Store's payments, on the device side. Proairetos is free; each add-on is bought once ($4.99) and kept with the
- * person's account (table `purchases`, read here through their own sign-in), so it follows them to every device.
- * Until the server takes payments (`/api/store` says so) every add-on stays free, as before.
+ * The Store's payments, on the device side. Proairetos is free. The service-free family is one monthly Core Apps
+ * subscription; Soma, Phyton and Proairetos cloud are separate monthly subscriptions. Entitlements live with the
+ * signed-in account and are refreshed whenever the Store or an app starts.
  *
  * Two small device-only caches let the apps decide at once, offline too: whether the Store takes payments and what
  * this account owns. Their keys sit outside `proairetos.` so they are neither synced nor backed up; the account is
@@ -15,7 +15,10 @@ import { apiUrl } from '../apiBase';
 const STORE_KEY = 'proairetosStore';
 const OWNED_KEY = 'proairetosOwned';
 
-type StoreInfo = { paid: boolean; price: number; currency: string };
+type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: number; currency: string };
+
+export type PurchaseItem = 'core' | 'soma' | 'phyton' | 'bundle' | 'cloud';
+export const CORE_APPS = ['askesis', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'mneme', 'praxis'] as const;
 
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());
@@ -41,10 +44,10 @@ function writeJson(key: string, value: unknown): void {
 /** Whether add-ons cost money right now (as last heard from the server). */
 export const storePaid = (): boolean => readJson<StoreInfo>(STORE_KEY)?.paid === true;
 
-/** "$4.99" in the person's own way of writing money. */
-export function priceText(): string {
+/** A plan price in the person's own way of writing money. */
+export function priceText(item: PurchaseItem | string = 'core'): string {
   const info = readJson<StoreInfo>(STORE_KEY);
-  const cents = info?.price ?? 499;
+  const cents = info?.prices?.[item] ?? ({ core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 }[item] ?? info?.price ?? 999);
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: (info?.currency ?? 'usd').toUpperCase() }).format(cents / 100);
   } catch {
@@ -52,25 +55,40 @@ export function priceText(): string {
   }
 }
 
-type Owned = { apps: string[]; tester?: boolean };
+type Owned = { apps: string[]; tester?: boolean; betaExpiresAt?: string; owner?: boolean };
 
-export const ownedApps = (): string[] => readJson<Owned>(OWNED_KEY)?.apps ?? [];
+export const ownedApps = (): string[] => {
+  const apps = readJson<Owned>(OWNED_KEY)?.apps ?? [];
+  return apps.includes('core') ? [...new Set([...apps, ...CORE_APPS])] : apps;
+};
 
 /** Whether this account is on the owner's beta tester list (every add-on without paying). */
-export const isTester = (): boolean => readJson<Owned>(OWNED_KEY)?.tester === true;
+export const isTester = (): boolean => {
+  const owned = readJson<Owned>(OWNED_KEY);
+  if (!owned?.tester) return false;
+  return !owned.betaExpiresAt || Date.parse(owned.betaExpiresAt) > Date.now();
+};
+
+export const isOwner = (): boolean => readJson<Owned>(OWNED_KEY)?.owner === true;
+
+export const betaExpiresAt = (): string | undefined => readJson<Owned>(OWNED_KEY)?.betaExpiresAt;
 
 /** Whether this add-on may be used: always while the Store is free or for a beta tester, else once it is bought. */
-export const mayUse = (app: AddOn | string): boolean => !storePaid() || isTester() || ownedApps().includes(app);
+export const mayUse = (app: AddOn | string): boolean => !storePaid() || isOwner() || isTester() || ownedApps().includes(app);
+
+/** Cloud sync is deliberately excluded from beta access. */
+export const mayUseCloud = (): boolean => isOwner() || (storePaid() && ownedApps().includes('cloud'));
 
 /** Asks the Worker whether this account is a beta tester's; keeps what was known when it cannot say. */
-async function askTester(token: string | undefined): Promise<boolean> {
-  if (!token) return false;
+async function askAccess(token: string | undefined): Promise<{ tester: boolean; expiresAt?: string; owner: boolean }> {
+  if (!token) return { tester: false, owner: false };
   try {
     const response = await fetch(apiUrl('/api/store/mine'), { headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
-    if (!response.ok) return isTester();
-    return ((await response.json()) as { tester?: boolean }).tester === true;
+    if (!response.ok) return { tester: isTester(), expiresAt: betaExpiresAt(), owner: isOwner() };
+    const body = (await response.json()) as { tester?: boolean; expiresAt?: string; owner?: boolean };
+    return { tester: body.tester === true, expiresAt: body.expiresAt, owner: body.owner === true };
   } catch {
-    return isTester();
+    return { tester: isTester(), expiresAt: betaExpiresAt(), owner: isOwner() };
   }
 }
 
@@ -97,11 +115,20 @@ export async function refreshOwned(): Promise<string[]> {
       return [];
     }
     const client = await supabase();
-    const tester = await askTester((await client.auth.getSession()).data.session?.access_token);
-    const { data, error } = await client.from('purchases').select('app');
+    const access = await askAccess((await client.auth.getSession()).data.session?.access_token);
+    const { data, error } = await client.from('purchases').select('app, active, current_period_end');
     // Without the table (migration not run yet), what was bought stays as known.
-    const apps = error ? ownedApps() : (data ?? []).map((row) => String((row as { app: string }).app));
-    writeJson(OWNED_KEY, { apps, tester });
+    const now = Date.now();
+    const wasTester = isTester();
+    const apps = error
+      ? ownedApps()
+      : (data ?? [])
+          .filter((row) => (row as { active?: boolean }).active !== false && (!(row as { current_period_end?: string }).current_period_end || Date.parse(String((row as { current_period_end: string }).current_period_end)) > now))
+          .map((row) => String((row as { app: string }).app));
+    writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner });
+    if (wasTester && !access.tester && !access.owner) {
+      void import('./added').then(({ clearAddedApps }) => clearAddedApps()).catch(() => undefined);
+    }
     return apps;
   } catch {
     return ownedApps();
@@ -110,8 +137,8 @@ export async function refreshOwned(): Promise<string[]> {
 
 export class NeedsSignIn extends Error {}
 
-/** Opens Stripe's checkout page for one add-on. Returns 'owned' when the account already has it. */
-export async function buy(app: AddOn): Promise<'owned' | 'left'> {
+/** Opens Stripe's checkout page for a plan. Returns 'owned' when the account already has it. */
+export async function buy(app: PurchaseItem): Promise<'owned' | 'left'> {
   const { isSyncConfigured, supabase } = await import('../../data/sync/supabase');
   if (!isSyncConfigured) throw new NeedsSignIn('Sign in to buy an app.');
   const { data } = await (await supabase()).auth.getSession();
@@ -148,7 +175,7 @@ export function takeBought(): string | null {
 /** Waits for the purchase to be recorded (Stripe tells the server a moment after the person returns). */
 export async function waitForPurchase(app: string, tries = 8, gap = 1500): Promise<boolean> {
   for (let attempt = 0; attempt < tries; attempt += 1) {
-    if ((await refreshOwned()).includes(app) || isTester()) return true;
+    if ((await refreshOwned()).includes(app) || (app === 'bundle' && ownedApps().includes('soma') && ownedApps().includes('phyton')) || (app === 'core' && CORE_APPS.every((each) => ownedApps().includes(each))) || (app === 'cloud' && mayUseCloud()) || isTester() || isOwner()) return true;
     await new Promise((done) => setTimeout(done, gap));
   }
   return false;
@@ -164,11 +191,11 @@ export function subscribePurchases(listener: () => void): () => void {
   };
 }
 
-const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${ownedApps().join(',')}`;
+const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${isOwner() ? 'owner' : ''}|${ownedApps().join(',')}`;
 
 /** Follows the Store's state: whether it takes payments, what the account owns and whether it is a beta tester's. */
-export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean } {
+export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean; owner: boolean } {
   const value = useSyncExternalStore(subscribePurchases, snapshot);
-  const [mode, tester, apps] = value.split('|');
-  return { paid: mode === 'paid', tester: tester === 'tester', owned: apps ? apps.split(',') : [] };
+  const [mode, tester, owner, apps] = value.split('|');
+  return { paid: mode === 'paid', tester: tester === 'tester', owner: owner === 'owner', owned: apps ? apps.split(',') : [] };
 }

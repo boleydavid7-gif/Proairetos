@@ -7,15 +7,15 @@ import './addedOnly.css';
 /** An app that is not added to Proairetos shows its logo and name with Add, in place of the app. */
 export default function AddedOnly({ app, children }: { app: AddOn; children: ReactNode }) {
   const added = useAddedApps();
-  const { paid, owned, tester } = usePurchases();
+  const { paid, owned, tester, owner } = usePurchases();
   const shown = added.includes(app);
   // Held back here: ask the account again (bought on another device, or a beta tester's).
   useEffect(() => {
-    if (shown) return;
     void refreshStore().then(() => refreshOwned());
-  }, [shown]);
+  }, []);
   if (shown) return <>{children}</>;
-  const toBuy = paid && !tester && !owned.includes(app);
+  const hasEntitlement = owner || tester || (app === 'soma' ? owned.includes('soma') : app === 'phyton' ? owned.includes('phyton') : owned.includes('core') || owned.includes(app));
+  const toBuy = paid && !hasEntitlement;
   const about = familyApps.find((each) => each.id === app);
   if (!about) return <>{children}</>;
   const tint = about.tint ?? { ground: '#0e1112', accent: '#c9a274', ink: '#ece8e1' };
@@ -29,7 +29,7 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
         {about.about && <p className="added-only__about">{about.about}</p>}
         {toBuy ? (
           <a className="added-only__add" href="/?open=settings:store">
-            Get it · {priceText()}
+            Get it · {app === 'soma' ? priceText('soma') : app === 'phyton' ? priceText('phyton') : priceText('core')}/mo
           </a>
         ) : (
           <button type="button" className="added-only__add" onClick={() => addApp(app)}>

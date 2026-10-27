@@ -5,6 +5,33 @@
   gap: 18px;
 }
 
+.store__paywall {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+.store__paywall h2, .store__paywall p { margin: 0; }
+.store__paywall > p:not(.eyebrow) { color: var(--color-text-muted); line-height: 1.45; }
+.store__plans { display: grid; gap: 10px; margin-top: 4px; }
+.store__plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 13px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-surface-raised) 80%, transparent);
+}
+.store__plan h3, .store__plan p { margin: 0; }
+.store__plan p { color: var(--color-text-muted); font-size: var(--text-sm); }
+.store__plan strong { white-space: nowrap; font-size: var(--text-sm); }
+.store__plan button { grid-column: 1 / -1; justify-self: start; min-height: 38px; padding-inline: 18px; }
+.store__plan-state { grid-column: 1 / -1; color: var(--color-accent); font-size: var(--text-sm); }
+
 .store__list {
   margin: 0;
   padding: 0;

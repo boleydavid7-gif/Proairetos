@@ -77,7 +77,7 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
   if (url.pathname === '/api/capture') return handleCaptureRequest(request, env);
   // Apple Health: Health Auto Export posts to the person's own address; what the apps keep is sealed before it is kept.
   if (url.pathname.startsWith('/api/health/')) return handleHealthRequest(request, env, url.pathname.slice('/api/health/'.length));
-  // The Store: add-ons bought once through Stripe Checkout, kept with the person's account.
+  // The Store: monthly plans through Stripe Checkout, kept with the person's account.
   if (url.pathname === '/api/store' || url.pathname.startsWith('/api/store/')) return handleStoreRequest(request, env);
   // The front page's waitlist: a plain form posts here and is sent on to a thank-you page.
   if (url.pathname === '/api/waitlist') return handleWaitlistRequest(request, env);

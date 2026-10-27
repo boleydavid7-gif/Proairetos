@@ -112,6 +112,12 @@ export function removeApp(app: AddOn): void {
   write({ added: addedApps().filter((each) => each !== app) });
 }
 
+/** Removes the family apps from this device after a temporary beta entitlement expires. */
+export function clearAddedApps(): void {
+  const current = addedApps();
+  if (current.length > 0) write({ added: [] });
+}
+
 export function subscribeAdded(listener: () => void): () => void {
   listeners.add(listener);
   const offPurchases = subscribePurchases(listener);

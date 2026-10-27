@@ -40,19 +40,20 @@ async function signedBody(payload: string, secret: string, time: number) {
 describe('the Store on the Worker', () => {
   it('stays free until every secret is set', async () => {
     const free = await handleStoreRequest(new Request('https://proairetos.com/api/store'), {});
-    expect(await free.json()).toEqual({ paid: false, price: 499, currency: 'usd' });
+    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 }, price: 999, currency: 'usd' });
     const paid = await handleStoreRequest(new Request('https://proairetos.com/api/store'), env);
     expect(((await paid.json()) as { paid: boolean }).paid).toBe(true);
     expect((await startCheckout(checkout({ app: 'soma' }), {}, fake().fetcher)).status).toBe(503);
   });
 
-  it('opens Stripe checkout at $4.99 for a signed-in person, and says when an app is already theirs', async () => {
+  it('opens monthly Stripe checkout at $3.99 for a signed-in person, and says when an app is already theirs', async () => {
     const { fetcher, calls } = fake();
     const response = await startCheckout(checkout({ app: 'soma' }), env, fetcher);
     expect(await response.json()).toEqual({ url: 'https://checkout.stripe.com/c/1' });
     const form = new URLSearchParams(String(calls.at(-1)!.init!.body));
-    expect(form.get('mode')).toBe('payment');
-    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('499');
+    expect(form.get('mode')).toBe('subscription');
+    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('399');
+    expect(form.get('line_items[0][price_data][recurring][interval]')).toBe('month');
     expect(form.get('metadata[app]')).toBe('soma');
     expect(form.get('metadata[user]')).toBe('user-1');
     expect(form.get('success_url')).toBe('https://proairetos.com/?open=settings:store#bought=soma');
@@ -64,21 +65,21 @@ describe('the Store on the Worker', () => {
     expect((await startCheckout(checkout({ app: 'soma' }, 'bad'), env, fake().fetcher)).status).toBe(401);
   });
 
-  it('gives beta testers every app without paying, by email from the owner list', async () => {
+  it('does not grant permanent tester access from an environment list', async () => {
     const withTesters = { ...env, STORE_TESTERS: 'Friend@Example.com, other@example.com' };
-    expect(isTester(withTesters, 'friend@example.com')).toBe(true);
+    expect(isTester(withTesters, 'friend@example.com')).toBe(false);
     expect(isTester(withTesters, 'stranger@example.com')).toBe(false);
     expect(isTester(env, 'friend@example.com')).toBe(false);
     const { fetcher, calls } = fake({ email: 'friend@example.com' });
-    expect(await (await startCheckout(checkout({ app: 'ergon' }), withTesters, fetcher)).json()).toEqual({ owned: true });
+    expect((await startCheckout(checkout({ app: 'ergon' }), withTesters, fetcher)).status).toBe(400);
     expect(calls.some((call) => call.url.includes('stripe.com'))).toBe(false);
     const ask = (token: string) => new Request('https://proairetos.com/api/store/mine', { headers: { authorization: `Bearer ${token}` } });
-    expect(await (await mine(ask('good'), withTesters, fetcher)).json()).toEqual({ tester: true });
-    expect(await (await mine(ask('good'), withTesters, fake().fetcher)).json()).toEqual({ tester: false });
+    expect(await (await mine(ask('good'), withTesters, fetcher)).json()).toEqual({ tester: false, owner: false });
+    expect(await (await mine(ask('good'), withTesters, fake().fetcher)).json()).toEqual({ tester: false, owner: false });
     expect((await mine(ask('bad'), withTesters, fetcher)).status).toBe(401);
   });
 
-  it('gives the owner a three-day beta list and applies active entries', async () => {
+  it('gives the owner a seven-day beta list and applies active entries', async () => {
     const withBeta = { ...env, OWNER_EMAIL: 'boleydavid7@gmail.com' };
     const calls: Call[] = [];
     const fetcher = (async (url: string, init?: RequestInit) => {
@@ -91,10 +92,10 @@ describe('the Store on the Worker', () => {
       if (url.includes('/rest/v1/beta_access?on_conflict=email')) return new Response(JSON.stringify([{ email: 'new@example.com', expires_at: '2099-01-01T00:00:00.000Z' }]), { status: 201 });
       return new Response('', { status: 201 });
     }) as unknown as typeof fetch;
-    expect(await (await mine(new Request('https://proairetos.com/api/store/mine', { headers: { authorization: 'Bearer owner' } }), withBeta, fetcher)).json()).toEqual({ tester: true });
+    expect(await (await mine(new Request('https://proairetos.com/api/store/mine', { headers: { authorization: 'Bearer owner' } }), withBeta, fetcher)).json()).toEqual({ tester: true, expiresAt: '2099-01-01T00:00:00.000Z', owner: true });
     const listed = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer owner' } }), withBeta, fetcher);
     expect((await listed.json()) as unknown[]).toHaveLength(1);
-    const added = await betaAccess(new Request('https://proairetos.com/api/store/beta', { method: 'POST', body: JSON.stringify({ email: 'new@example.com', days: 3 }), headers: { authorization: 'Bearer owner' } }), withBeta, fetcher);
+    const added = await betaAccess(new Request('https://proairetos.com/api/store/beta', { method: 'POST', body: JSON.stringify({ email: 'new@example.com', days: 7 }), headers: { authorization: 'Bearer owner' } }), withBeta, fetcher);
     expect((await added.json()) as { expires_at: string }).toHaveProperty('expires_at');
     expect(calls.some((call) => call.url.includes('/rest/v1/beta_access?on_conflict=email'))).toBe(true);
     const denied = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer other' } }), withBeta, fetcher);
@@ -130,7 +131,7 @@ describe('the Store on the Worker', () => {
 
   it('records a paid checkout once, and leaves unpaid ones alone', async () => {
     const event = (type: string, status = 'paid') =>
-      JSON.stringify({ type, data: { object: { id: 'cs_1', payment_status: status, amount_total: 499, currency: 'usd', metadata: { app: 'soma', user: 'user-1' } } } });
+      JSON.stringify({ type, data: { object: { id: 'cs_1', subscription: 'sub_1', payment_status: status, amount_total: 399, currency: 'usd', metadata: { app: 'soma', apps: 'soma', user: 'user-1' } } } });
     const post = async (payload: string) =>
       new Request('https://proairetos.com/api/store/webhook', {
         method: 'POST',
@@ -140,7 +141,7 @@ describe('the Store on the Worker', () => {
     const paid = fake();
     expect((await handleWebhook(await post(event('checkout.session.completed')), env, paid.fetcher)).status).toBe(200);
     const insert = paid.calls.find((call) => call.url.includes('on_conflict'))!;
-    expect(JSON.parse(String(insert.init!.body))).toEqual({ user_id: 'user-1', app: 'soma', session_id: 'cs_1', amount: 499, currency: 'usd' });
+    expect(JSON.parse(String(insert.init!.body))).toEqual([{ user_id: 'user-1', app: 'soma', session_id: 'cs_1:soma', subscription_id: 'sub_1', active: true, current_period_end: null, amount: 399, currency: 'usd' }]);
     expect(new Headers(insert.init!.headers).get('prefer')).toContain('ignore-duplicates');
 
     const unpaid = fake();
