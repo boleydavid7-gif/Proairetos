@@ -570,6 +570,43 @@ html[data-swiped]::view-transition-old(root) {
 
 }
 
+/* Universal mobile dock: Proairetos' stable geometry is the family standard. Apps keep their own icons and words,
+   but every dock is full-width, content-sized, and pays the home-indicator inset once. */
+@media (max-width: 61.99rem) {
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    position: fixed !important;
+    inset: auto 0 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 8px 8px calc(8px + var(--ll-safe-bottom)) !important;
+    border: 0 !important;
+    border-top: 1px solid var(--ll-hair) !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  :root :is(.tab-bar, .hydros-tabs) {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+    align-items: stretch;
+  }
+
+  :root :is(.praxis-bottom-nav, .theoria-bottom-nav) :is(.praxis-nav-list, .theoria-nav-list) {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    width: 100%;
+  }
+
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) {
+    box-shadow: 0 -8px 20px -14px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  }
+}
+
 /* ---------- Windows high contrast (forced colors) ---------- */
 /* The system's own colors take over: every surface keeps an edge, where you are is marked by the highlight, and
    nothing relies on a tint, a glow or a shade. */
