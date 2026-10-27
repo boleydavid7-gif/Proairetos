@@ -40,7 +40,7 @@ export default function IdeasPage() {
       <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
     </section>
     <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><strong>Sort your ideas</strong><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
-    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with an idea'}</h2></section>}
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : null}
   </main>;
 }
 
