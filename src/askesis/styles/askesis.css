@@ -80,17 +80,18 @@ img {
   padding-bottom: calc(var(--tab-height) + 16px);
 }
 
-/* iOS Home Screen WebKit lays out fixed docks unreliably when a tab page has no scroll range. Keep a two-pixel,
-   invisible scroll sentinel in the shared shell so sparse family apps get the same stable viewport as fuller pages. */
+/* iOS Home Screen WebKit lays out fixed docks unreliably when a tab page has no meaningful scroll range. Keep an
+   invisible dock-sized scroll sentinel in the shared shell so sparse family apps get the same stable viewport as
+   fuller pages. */
 @media (max-width: 61.99rem) {
   .shell--tabs {
-    min-height: calc(100dvh + 2px);
+    min-height: calc(100dvh + var(--tab-height));
   }
 
   .shell--tabs::after {
     content: '';
     display: block;
-    height: 2px;
+    height: var(--tab-height);
     pointer-events: none;
   }
 }

@@ -44,7 +44,7 @@ let started = false;
 export function startLamplightBehaviors(): void {
   if (started || typeof window === 'undefined' || typeof document === 'undefined' || typeof matchMedia !== 'function') return;
   started = true;
-  standaloneDockGate();
+  standaloneDockSetup();
   largeTitle();
   dockMarks();
   backSwipe();
@@ -57,21 +57,13 @@ export function startLamplightBehaviors(): void {
 }
 
 /**
- * iOS Home Screen launches can settle the visual viewport after the first paint. Fixed docks visibly travel during
- * that correction, so keep only the dock hidden for the short launch window and reveal it once two frames and a small
- * viewport settling delay have passed. Browser tabs and normal navigation are unaffected.
+ * Keep a stable standalone safe-area value for iOS Home Screen launches. The dock itself appears immediately; the
+ * sparse-page scroll sentinel handles WebKit's fixed-position layout quirk without delaying chrome.
  */
-function standaloneDockGate(): void {
+function standaloneDockSetup(): void {
   const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true;
   if (!standalone) return;
-  const root = document.documentElement;
-  root.classList.add('ll-standalone-opening');
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.setTimeout(() => {
-      root.classList.remove('ll-standalone-opening');
-      root.classList.add('ll-standalone-ready');
-    }, 550);
-  }));
+  document.documentElement.classList.add('ll-standalone-ready');
 }
 
 /** For an app whose back is a stack of its own (Proairetos's sheets and sub-screens). */
