@@ -19,6 +19,7 @@ import AfterPage from '../screens/AfterPage';
 import StravaPage, { StravaOnOpen } from '../screens/StravaPage';
 import OwnPage from '../screens/OwnPage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
+import PwaStatus from '../../app/pwa/PwaStatus';
 
 export type Route =
   | { name: Tab }
@@ -185,6 +186,7 @@ export default function App() {
   return (
     <UndoProvider>
       <div className={`shell${showTabs ? ' shell--tabs' : ''}`}>
+        <PwaStatus />
         <main key={JSON.stringify(route)} className="page-enter">
           {page}
         </main>

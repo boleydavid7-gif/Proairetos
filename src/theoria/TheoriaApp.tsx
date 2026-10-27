@@ -28,6 +28,7 @@ import { reflectionService } from '../app/services';
 import { downloadBookNotes } from './core/export';
 import { useEnterMark } from '../app/transitions';
 import { CARD_DRAFT_KEY } from '../praxis/cards';
+import PwaStatus from '../app/pwa/PwaStatus';
 
 type View = 'library' | 'shelf' | 'reader' | 'notes' | 'reflections' | 'settings' | 'detail' | 'search' | 'year';
 type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelection; initial?: InsightDraft };
@@ -661,7 +662,7 @@ export default function TheoriaApp() {
   const copy: BookCopy = { here: selected ? here.has(selected.id) : false, canCopy: sync.phase === 'ready' };
   const readerBook = selected && readerText?.bookId === selected.id && readerText.chapters ? { ...selected, chapters: readerText.chapters } : selected ? { ...selected, chapters: [] } : undefined;
 
-  return <div className={'theoria-app theoria-app--' + view}>
+  return <div className={'theoria-app theoria-app--' + view}><PwaStatus />
     <aside className="theoria-sidebar"><a href="/" className="theoria-family-link">Proairetos</a><div className="theoria-brand"><TheoriaMark size={48} /><span><strong>Theoria</strong></span></div><div className="theoria-sidebar-nav">{navGroups.map((group) => <TheoriaNav view={view} onView={chooseView} items={group.items} key={group.items[0].id} />)}</div><div className="theoria-sidebar-spacer" /><button type="button" className="theoria-person" onClick={() => setView('settings')}><span>{(name || 'R').slice(0, 1).toUpperCase()}</span>{name || 'Reader'}</button></aside>
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>Theoria</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span>{syncWords !== 'On this device' && <span className={'theoria-sync theoria-sync--' + sync.phase}><i />{syncWords}</span>}</header><div className="theoria-page">
       {view === 'library' && <LibraryHome shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onContinue={(book) => void openReader(book)} onShelf={() => setView('shelf')} onSearch={() => setView('search')} />}

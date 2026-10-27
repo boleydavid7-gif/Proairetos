@@ -1,6 +1,7 @@
 import { tap } from './feel';
 import { loadAppearance, type Appearance } from '../data/storage/preferences';
 import { setPullRefresh, startLamplightBehaviors } from '../lamplight/behaviors';
+import { requestPersistentStorage } from './pwa/persistence';
 
 const textScale: Record<Appearance['textSize'], string> = { default: '100%', large: '112.5%', larger: '125%' };
 
@@ -47,6 +48,7 @@ function followDay(): void {
 }
 
 export function applyAppearance(appearance: Appearance = loadAppearance()): void {
+  void requestPersistentStorage();
   listenForSwitches();
   startLamplightBehaviors();
   followDay();

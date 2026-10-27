@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Re
 import ProairetosTab from './ProairetosTab';
 import { directionAlong, transition, type Direction } from '../transitions';
 import { onRemoteChanges, syncSoon } from '../sync/syncController';
+import PwaStatus from '../pwa/PwaStatus';
 
 /*
  * The shell the newer family apps share (Diaita, Philia, Ergon): routes with the phone's back button, sliding
@@ -299,6 +300,7 @@ export function Shell<T extends string>({ page, routeKey, tabs, current, onPick,
   return (
     <div className={'shell' + (showTabs ? ' shell--tabs' : '')}>
       <main key={routeKey} className="page-enter">
+        <PwaStatus />
         {page}
       </main>
       <UndoBar />

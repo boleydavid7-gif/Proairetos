@@ -4,6 +4,7 @@ import AppsTab from '../components/layout/AppsTab';
 import { navigation } from './navigation';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
+import PwaStatus from './pwa/PwaStatus';
 
 type AppShellProps = {
   route: AppRoute;
@@ -30,6 +31,7 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
   return (
     <div className="app-shell" data-route={route}>
       <main className="app-shell__content">
+        <PwaStatus />
         <MovedNotice />
         {mode === 'memory' && (
           <p className="storage-notice" role="status">

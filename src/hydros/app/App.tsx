@@ -11,6 +11,7 @@ import { takeOpening } from '../../app/family/opening';
 import { loadSettings } from '../data/store';
 import { defaultDrinkProfiles } from '../core/drinks';
 import { logDrink } from './log';
+import PwaStatus from '../../app/pwa/PwaStatus';
 
 /** Where a link or shortcut asks to begin: `glass` (log the first usual glass), `add`, `custom`, `add:TYPE`, `flow`, `settings`. */
 function opening(): Route {
@@ -78,5 +79,5 @@ export default function App() {
   }, [lastTab, swap]);
   const nav: Nav = { go, swap, back };
   const page = route.name === 'today' ? <TodayPage nav={nav} /> : route.name === 'add' ? <AddPage nav={nav} profileId={route.profileId} custom={route.custom} /> : route.name === 'flow' ? <FlowPage nav={nav} /> : route.name === 'drinkTypes' ? <DrinkTypesPage nav={nav} returnTo={route.returnTo} /> : route.name === 'settings' ? <SettingsPage nav={nav} /> : <TodayPage nav={nav} />;
-  return <div className="hydros-shell"><main key={route.name} className="hydros-page-enter">{page}</main><UndoToast /><TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} /></div>;
+  return <div className="hydros-shell"><PwaStatus /><main key={route.name} className="hydros-page-enter">{page}</main><UndoToast /><TabBar current={isTab(route.name) ? route.name : undefined} onPick={(tab) => swap({ name: tab })} /></div>;
 }

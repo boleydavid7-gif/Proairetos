@@ -29,6 +29,7 @@ import { isAdded } from '../app/family/added';
 import { useEnterMark } from '../app/transitions';
 import { useCards } from './CardsView';
 import { ready as readyCardsFor } from './cards';
+import PwaStatus from '../app/pwa/PwaStatus';
 
 type View = 'today' | 'cards' | 'sessions' | 'time' | 'sounds' | 'settings' | 'more';
 
@@ -308,6 +309,7 @@ export default function PraxisApp() {
 
   return (
     <div className="praxis-app" data-no-title-anchor>
+      <PwaStatus />
       <aside className="praxis-sidebar" aria-label="Praxis navigation">
         <div className="praxis-brand">
           <span className="praxis-brand__mark"><PraxisMark size={42} /></span>

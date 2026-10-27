@@ -20,6 +20,7 @@ import SeasonPage, { ProducePage } from '../screens/SeasonPage';
 import type { Mark } from '../core/recipes';
 import type { TimeChoice } from '../core/tonight';
 import MorePage, { AboutPage, DataPage, SettingsPage, UsuallyPage } from '../screens/MorePage';
+import PwaStatus from '../../app/pwa/PwaStatus';
 
 export type Route =
   | { name: 'welcome' }
@@ -161,6 +162,7 @@ export default function App() {
   return (
     <UndoProvider>
       <div className={`shell${showTabs ? ' shell--tabs' : ''}`}>
+        <PwaStatus />
         <main key={JSON.stringify(route)} className="page-enter">
           {page}
         </main>

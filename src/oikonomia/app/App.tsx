@@ -17,6 +17,7 @@ import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
 import SpentPage from '../screens/SpentPage';
 import EnvelopesPage from '../screens/EnvelopesPage';
+import PwaStatus from '../../app/pwa/PwaStatus';
 
 export type Route =
   | { name: 'welcome' }
@@ -151,6 +152,7 @@ export default function App() {
   const showTabs = route.name !== 'welcome' && route.name !== 'bill' && route.name !== 'edit';
   return (
     <div className={'shell' + (showTabs ? ' shell--tabs' : '')}>
+      <PwaStatus />
       <main key={JSON.stringify(route)} className="page-enter">
         {page}
       </main>

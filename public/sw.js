@@ -1,7 +1,8 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
-const CACHE = 'proairetos-v18';
-const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png','/praxis/manifest.webmanifest','/praxis/icons/icon-192.png','/praxis/icons/icon-512.png','/praxis/icons/apple-touch-icon.png','/theoria/manifest.webmanifest','/theoria/icons/icon-192.png','/theoria/icons/icon-512.png','/theoria/icons/apple-touch-icon.png'];
+const CACHE = 'proairetos-v19';
+const APP_PATHS = ['/askesis/','/soma/','/oikonomia/','/hydros/','/praxis/','/theoria/','/diaita/','/philia/','/ergon/','/therapeia/','/dynamis/','/ktema/','/phyton/','/poreia/','/mneme/'];
+const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png', ...APP_PATHS];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
@@ -32,7 +33,7 @@ async function cacheFirst(request) {
 
 // Plain pages that are not the app (privacy). They are cached as themselves,
 // never in place of the app page.
-const STATIC_PAGES = ['/privacy', '/privacy.html', '/welcome', '/welcome/', '/welcome/index.html', '/storage-connected/', '/storage-connected/index.html', '/praxis', '/praxis/', '/theoria', '/theoria/'];
+const STATIC_PAGES = ['/privacy', '/privacy.html', '/welcome', '/welcome/', '/welcome/index.html', '/storage-connected/', '/storage-connected/index.html', ...APP_PATHS];
 
 async function networkFirst(request) {
   const path = new URL(request.url).pathname;
@@ -74,10 +75,8 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'POST' && new URL(request.url).pathname === '/theoria/share') return takeShare(event, 'theoria', 'add');
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  // Askesis, the training app, has its own service worker and cache; the other apps too, and the Lamplight guide
-  // is a plain page of its own (never cached as Proairetos).
-  if (url.origin === self.location.origin && /^\/(askesis|soma|oikonomia|hydros|diaita|philia|ergon|therapeia|dynamis|ktema|phyton|poreia|lamplight)(\/|$)/.test(url.pathname)) return;
-
+  // The Lamplight guide is a separate plain page; leave its own assets alone.
+  if (url.origin === self.location.origin && /^\/lamplight(\/|$)/.test(url.pathname)) return;
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));

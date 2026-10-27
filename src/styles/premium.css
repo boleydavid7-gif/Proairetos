@@ -797,3 +797,32 @@ blockquote.daily-line {
     transition: none;
   }
 }
+/* A compact connection cue for installed PWAs. It stays out of the layout while online. */
+.pwa-offline {
+  position: fixed;
+  z-index: 80;
+  top: calc(env(safe-area-inset-top) + .45rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+  max-width: calc(100vw - 2rem);
+  padding: .38rem .72rem;
+  border: 1px solid color-mix(in srgb, var(--app-accent, var(--mint, #b7c7e2)) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-surface, #18212c) 94%, transparent);
+  color: var(--app-text-secondary, var(--muted, #aeb8c8));
+  box-shadow: 0 .3rem 1rem rgb(0 0 0 / .22);
+  font-size: .74rem;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.pwa-offline__dot {
+  width: .42rem;
+  height: .42rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--status-warning, #e6b66f);
+}
