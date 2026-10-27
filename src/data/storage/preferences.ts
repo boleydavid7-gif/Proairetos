@@ -417,7 +417,9 @@ export type TodayPart =
   // Plants to check today, from Phyton.
   | 'plants'
   // A trip under way or a few days off, from Poreia.
-  | 'trips';
+  // An idea ready for a next step, or a pinned note, from Mneme.
+  | 'trips'
+  | 'mneme';
 
 /** Parts that stay off until the person turns them on in Settings. */
 const OPT_IN_PARTS: readonly TodayPart[] = ['on-this-day', 'water', 'highlight'];

@@ -8,7 +8,7 @@ import { philiaCalendar } from '../../app/calendars/philiaCalendar';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
-import TodayFamily, { TodayHighlight, TodayStudy } from '../today/TodayFamily';
+import TodayFamily, { TodayHighlight, TodayMneme, TodayStudy } from '../today/TodayFamily';
 import { TodayBirthdays, TodayRhythm, TodayTrip } from '../today/TodayNewFamily';
 import FromYourApps from '../today/FromYourApps';
 import TodayOnThisDay from '../today/TodayOnThisDay';
@@ -271,6 +271,7 @@ export default function NowPage() {
           <TodayBirthdays today={today} />
           <TodayStudy today={today} />
           <TodayHighlight today={today} />
+          <TodayMneme />
         </div>
       </section>
       <TodayOnThisDay today={today} />

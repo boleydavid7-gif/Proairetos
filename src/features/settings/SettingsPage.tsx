@@ -649,6 +649,10 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'trips', label: 'Trips', detail: 'A trip under way or a few days off, with its next thing.' }] }],
   },
   {
+    app: 'Mneme',
+    sections: [{ parts: [{ part: 'mneme', label: 'Ideas and notes', detail: 'An idea ready for its next step or a pinned note on Today.' }] }],
+  },
+  {
     app: 'Oikonomia',
     sections: [
       {

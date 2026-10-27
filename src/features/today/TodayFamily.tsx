@@ -8,6 +8,7 @@ import { lookAgainBy, useStudy } from '../../app/praxis/study';
 import { highlightOfDay } from '../../theoria/core/export';
 import type { TheoriaBook } from '../../theoria/core/books';
 import { BookIcon } from '../../components/icons/Icons';
+import { ideas, notes } from '../../mneme/app/state';
 
 /**
  * Bills with a date in the next few days and no payment recorded (Settings > What's included can set them aside),
@@ -89,6 +90,33 @@ export function TodayHighlight({ today }: { today: string }) {
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="highlight" />
+    </div>
+  );
+}
+
+/** A small, actionable signal from Mneme: ideas ready for a next step, or a pinned note to revisit. */
+export function TodayMneme() {
+  const shows = useTodayParts();
+  const allIdeas = ideas.use();
+  const allNotes = notes.use();
+  if (!shows('mneme')) return null;
+  const next = allIdeas.filter((idea) => idea.stage === 'next').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const pinned = allNotes.filter((note) => !note.archived && note.pinned && note.kind !== 'idea').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const idea = next[0];
+  const note = pinned[0];
+  if (!idea && !note) return null;
+  const title = idea ? idea.text.replace(/\s+/g, ' ').trim().slice(0, 72) : note?.title || 'Pinned note';
+  const more = idea && next.length > 1 ? ` · ${next.length - 1} more` : note && pinned.length > 1 ? ` · ${pinned.length - 1} more` : '';
+  return (
+    <div className="quiet-row-wrap">
+      <a className="quiet-row" href={`/mneme/?open=${idea ? 'ideas' : 'notes'}`}>
+        <span className="quiet-row__icon" aria-hidden="true"><BookIcon size={20} /></span>
+        <span className="quiet-row__text">
+          <span>{title}{more}</span>
+          <span className="quiet-row__detail">{idea ? 'Ready for a next step · Mneme' : 'Pinned note · Mneme'}</span>
+        </span>
+        <ChevronRightIcon size={18} className="quiet-row__chevron" />
+      </a>
     </div>
   );
 }

@@ -20,6 +20,7 @@ export const PART_APP: Partial<Record<TodayPart, AddOn>> = {
   upkeep: 'ktema',
   plants: 'phyton',
   trips: 'poreia',
+  mneme: 'mneme',
 };
 
 /** Which parts of Today the person keeps. Read live, so a change or an undo shows at once. */
