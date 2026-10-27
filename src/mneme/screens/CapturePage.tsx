@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { attachmentService } from '../../app/services';
 import { MicIcon, StopIcon } from '../../components/icons/Icons';
 import { syncStatus } from '../../app/sync/syncController';
@@ -143,7 +143,7 @@ export default function CapturePage({ nav }: { nav: MnemeNav }) {
   };
 
   const seconds = Math.floor(recordingMs / 1000);
-  const sync = syncStatus.get();
+  const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   return <main className="mneme-page mneme-capture">
     <button type="button" className="mneme-back-source" data-back aria-hidden="true" onClick={nav.back}>Back</button>
     <p className="mneme-kicker">Capture</p><h1>{mode === 'record' ? 'Record a thought.' : 'Write it down.'}</h1>

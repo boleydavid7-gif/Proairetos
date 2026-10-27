@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { syncNow, syncStatus } from '../../app/sync/syncController';
 import { ChevronIcon, PlusIcon, SearchIcon } from '../../app/family/icons';
 import type { MnemeNav } from '../app/App';
@@ -15,7 +15,7 @@ function syncLabel(phase: ReturnType<typeof syncStatus.get>['phase']): string {
 export default function NotesPage({ nav }: { nav: MnemeNav }) {
   const allNotes = notes.use();
   const allCollections = collections.use();
-  const sync = syncStatus.get();
+  const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const visible = useMemo(() => {
