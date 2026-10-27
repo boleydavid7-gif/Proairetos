@@ -876,3 +876,29 @@ blockquote.daily-line {
   font-size: .88rem;
   line-height: 1.4;
 }
+
+.file-drop-zone {
+  position: relative;
+}
+
+.file-drop-zone__overlay {
+  position: absolute;
+  z-index: 30;
+  inset: .7rem;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--app-accent, var(--mint, #b7c7e2));
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--app-surface, #18212c) 88%, transparent);
+  color: var(--app-text, var(--text, #f1f4f8));
+  box-shadow: 0 0 0 .35rem color-mix(in srgb, var(--app-accent, var(--mint, #b7c7e2)) 12%, transparent);
+  font-size: .95rem;
+  font-weight: 650;
+  pointer-events: none;
+}
+
+.file-drop-zone__overlay span {
+  padding: .7rem 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-accent, var(--mint, #b7c7e2)) 16%, var(--app-surface, #18212c));
+}

@@ -9,6 +9,7 @@ import { useUndo } from '../app/ui';
 import { alreadyKept, readRecipeFiles, RECIPE_FILES, type Brought } from '../core/fromApps';
 import type { Recipe } from '../core/recipes';
 import { deleteRecipe, putRecipe } from '../data/store';
+import FileDropZone from '../../components/files/FileDropZone';
 
 /** A photo carried in the file, made small enough to keep; a picture's link when the file had none. */
 async function imageFor(brought: Brought): Promise<string | undefined> {
@@ -100,6 +101,7 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
   const apps = [...new Set(found?.recipes.map((each) => each.from))];
 
   return (
+    <FileDropZone label="Drop a recipe export here" onFiles={(files) => void read(files)}>
     <div className="from-app">
       <input
         ref={input}
@@ -182,5 +184,6 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
         </>
       )}
     </div>
+    </FileDropZone>
   );
 }

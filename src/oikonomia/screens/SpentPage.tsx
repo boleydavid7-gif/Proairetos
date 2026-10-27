@@ -14,6 +14,7 @@ import { receiptFromText } from '../../core/ocr/labels';
 import { areaChoices, rememberArea, saveSpent, spentIn, useSpent } from '../data/spent';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
+import FileDropZone from '../../components/files/FileDropZone';
 
 const areaName = (area: BudgetCategory) => budgetCategories.find((each) => each.id === area)?.label ?? 'Other';
 const shiftMonth = (month: string, by: number) => {
@@ -162,6 +163,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
   }
 
   return (
+    <FileDropZone label="Drop a bank or card CSV here" onFiles={(files) => void bringIn(files[0])}>
     <div className="page oiko-page">
       <PageTop><button type="button" className="back-link" onClick={nav.back}><ArrowLeftIcon size={20} /> Back</button></PageTop>
       <div className="oiko-budget__heading">
@@ -262,6 +264,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
         </div>
       )}
     </div>
+    </FileDropZone>
   );
 }
 

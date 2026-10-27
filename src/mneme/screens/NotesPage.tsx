@@ -3,6 +3,8 @@ import { syncNow, syncStatus } from '../../app/sync/syncController';
 import { ChevronIcon, PlusIcon, SearchIcon } from '../../app/family/icons';
 import type { MnemeNav } from '../app/App';
 import { collections, notes, notePreview, type Note } from '../app/state';
+import { newId } from '../app/state';
+import FileDropZone from '../../components/files/FileDropZone';
 
 type Filter = 'all' | 'recent' | 'pinned';
 
@@ -27,8 +29,21 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
       .sort((a, b) => (filter === 'recent' ? b.updatedAt.localeCompare(a.updatedAt) : Number(b.pinned) - Number(a.pinned) || b.updatedAt.localeCompare(a.updatedAt)));
   }, [allNotes, filter, query]);
   const collectionName = (id?: string) => allCollections.find((item) => item.id === id)?.name;
+  const importFiles = async (files: File[]) => {
+    const textFiles = files.filter((file) => /\.(md|markdown|txt)$/i.test(file.name) || file.type === 'text/plain' || file.type === 'text/markdown');
+    if (!textFiles.length) return;
+    const now = new Date().toISOString();
+    const imported: string[] = [];
+    for (const file of textFiles) {
+      const id = newId();
+      notes.put({ id, title: file.name.replace(/\.(markdown|md|txt)$/i, '') || 'Imported note', body: await file.text(), pinned: false, archived: false, kind: 'note', source: 'file', createdAt: now, updatedAt: now });
+      imported.push(id);
+    }
+    if (imported[0]) nav.go({ name: 'note', id: imported[0] });
+  };
 
   return (
+    <FileDropZone label="Drop text or Markdown files to create notes" onFiles={(files) => void importFiles(files)}>
     <main className="mneme-page mneme-notes">
       <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
       <div className="mneme-heading-row">
@@ -44,6 +59,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
         <section className="mneme-empty"><div className="mneme-empty__mark">✦</div><h2>{query || filter !== 'all' ? 'Nothing here yet' : 'Keep a thought close'}</h2><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>
       ) : <div className="mneme-note-list">{visible.map((note) => <NoteCard key={note.id} note={note} collectionName={collectionName(note.collectionId)} onOpen={() => nav.go({ name: 'note', id: note.id })} />)}</div>}
     </main>
+    </FileDropZone>
   );
 }
 
