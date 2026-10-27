@@ -67,12 +67,14 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       already set for Capture from anywhere). Until then the form shows "That didn't go through". Read the list in the
       SQL editor: `select email, apps, source, created_at from public.waitlist order by created_at;` To take someone
       off: `delete from public.waitlist where email = '…';`
-- [ ] The Store's payments ($4.99 per add-on, Proairetos free): run `20261025000000_purchases.sql`, set up Stripe
+- [ ] The Store's subscriptions (Core $9.99/month, Soma and Phyton $3.99/month each, bundle $6.99/month, cloud
+      $2.99/month; Proairetos free): run `20261025000000_purchases.sql`, `20261029000000_beta_access.sql` and
+      `20261030000000_recurring_purchases.sql`, set up Stripe
       (secret key, a webhook to `https://proairetos.com/api/store/webhook`), and add the Worker secrets
       `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`. Steps in SERVER_SETUP.md, "The Store".
       Try it first with Stripe's test keys and card 4242 4242 4242 4242.
-- [ ] Beta access: run `20261029000000_beta_access.sql`, then manage three-day access from Settings as the owner
-      account (`OWNER_EMAIL`, currently `boleydavid7@gmail.com`). Permanent testers can still use `STORE_TESTERS`.
+- [ ] Beta access: run `20261029000000_beta_access.sql`, then manage seven-day app access from Settings as the owner
+      account (`boleydavid7@gmail.com`). Beta does not include Proairetos cloud.
 - [ ] Before selling Phyton: Pl@ntNet's free plan is non-commercial; move to its paid plan.
 - [ ] Search: add proairetos.com and noesis.proairetos.com to Google Search Console (https://search.google.com/search-console)
       and Bing Webmaster Tools (https://www.bing.com/webmasters, which can import from Google), verify each (a DNS TXT

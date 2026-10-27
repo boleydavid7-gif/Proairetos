@@ -398,34 +398,39 @@ Phyton names a plant from a photo through Pl@ntNet. Without a key the app works 
 
 The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.
 
-## The Store: paid add-ons (optional, migrations 20261025000000 and 20261029000000)
+## The Store: monthly plans (optional, migrations 20261025000000, 20261029000000 and 20261030000000)
 
-Proairetos stays free; each add-on is bought once for $4.99 through Stripe Checkout and kept with the account
-(`purchases` table), so it opens on every device. Until all the secrets below are set, `/api/store` says the Store is
-free and every add-on stays free, as before. Code: `worker/store.ts`, `src/app/family/purchases.ts`.
+Proairetos stays free. The Core Apps plan is $9.99/month; Soma and Phyton are $3.99/month each; the Soma + Phyton
+bundle is $6.99/month, or $3.00/month to add the missing app when one is already active; Proairetos cloud sync is
+$2.99/month. Entitlements are kept with the signed-in account in `purchases`, so they follow the person to every
+device. Until all payment secrets are set, the Store remains in its free setup state. Code: `worker/store.ts`,
+`src/app/family/purchases.ts`.
 
-1. Run `supabase/migrations/20261025000000_purchases.sql` and `supabase/migrations/20261029000000_beta_access.sql` in the SQL editor. Each person can only read their own rows;
+1. Run `supabase/migrations/20261025000000_purchases.sql`, `supabase/migrations/20261029000000_beta_access.sql` and
+   `supabase/migrations/20261030000000_recurring_purchases.sql` in the SQL editor. Each person can only read their own rows;
    only the Worker (service role) writes them.
 2. Stripe: make an account at https://dashboard.stripe.com and finish activation (business details, bank account).
    Developers > API keys: copy the **Secret key** (`sk_live_…`; use `sk_test_…` first to try it with card 4242 4242 4242 4242).
 3. Stripe > Developers > Webhooks > Add endpoint: `https://proairetos.com/api/store/webhook`, events
-   `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Copy its **Signing secret** (`whsec_…`).
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.updated` and
+   `customer.subscription.deleted`. Copy its **Signing secret** (`whsec_…`).
 4. Cloudflare > the proairetos Worker > Settings > Variables and Secrets, each as type **Secret** (never plain text,
    never in the repo):
    - `STRIPE_SECRET_KEY`: the secret key from step 2.
    - `STRIPE_WEBHOOK_SECRET`: the signing secret from step 3.
    - `SUPABASE_SERVICE_ROLE_KEY`: Supabase > Project Settings > API keys > service_role (secret).
    - `SUPABASE_URL` and `SUPABASE_ANON_KEY` should already be there from Capture from anywhere.
-5. The owner account is `OWNER_EMAIL` (set to `boleydavid7@gmail.com` in `wrangler.jsonc`). The Store settings page shows
-   the owner a Beta access list. Enter a person's signed-in email there to grant three days of full beta access; remove
-   them early from the same list. Permanent testers can still be kept in the optional `STORE_TESTERS` secret.
+5. The only owner account is `boleydavid7@gmail.com`. The Store settings page shows the owner a Beta access list. Enter
+   a person's signed-in email there to grant seven days of app access; beta access never includes Proairetos cloud.
+   Remove a person early from the same list. Expiry removes the apps from that person's Proairetos family and locks them
+   again. Local storage and the person's own connected cloud remain available.
    The same owner-only page shows the signed-in user directory and refreshes beta entries with a live time remaining.
-6. Refunds: refund in Stripe, then remove the row: `delete from purchases where app = 'soma' and user_id = '…';`.
+6. Refunds and cancellations: Stripe subscription webhooks mark the related rows inactive. For a manual correction, use
+   `update purchases set active = false where user_id = '…' and app = 'soma';`.
 
-Once the Worker has every secret, the Store shows prices, Buy opens Stripe's own page, and the person comes back to
-the Store, which adds the app as soon as Stripe has told the Worker. People must be signed in to buy (the purchase
-belongs to the account). With the Store paid, an app that is added but not bought shows its welcome card with
-"Get it · $4.99" in place of the app; its records are kept.
+Once the Worker has every secret, the Store shows the plans, Subscribe opens Stripe's own page, and the person comes
+back to the Store, which activates the plan as soon as Stripe has told the Worker. People must be signed in to buy (the
+subscription belongs to the account). An app that is added but not entitled shows its welcome card; its records are kept.
 
 Note: Pl@ntNet's free plan (Phyton's Identify) is for non-commercial use; once Phyton is sold, its paid plan is needed.
 
