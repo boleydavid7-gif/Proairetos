@@ -3,6 +3,7 @@ import { ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { decisionService } from '../../app/services';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useServiceData } from '../../app/hooks/useServiceData';
+import { useSheet } from '../../components/ui/useSheet';
 import {
   DEFAULT_PURSUIT_REMINDER_DAYS,
   newPursuitCheckInId,
@@ -140,35 +141,12 @@ type PursuitEditorProps = {
 function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision }: PursuitEditorProps) {
   const checkIns = pursuitCheckIns.use().filter((checkIn) => checkIn.pursuitId === pursuit.id).sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt));
   const [draft, setDraft] = useState(pursuit);
-  const [selectedDate, setSelectedDate] = useState(todayDate);
-  const existingCheckIn = checkIns.find((checkIn) => checkIn.date === selectedDate);
-  const [accomplishment, setAccomplishment] = useState(existingCheckIn?.accomplishment ?? '');
-  const [feeling, setFeeling] = useState<PursuitFeeling | undefined>(existingCheckIn?.feeling);
-  const [note, setNote] = useState(existingCheckIn?.note ?? '');
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    setAccomplishment(existingCheckIn?.accomplishment ?? '');
-    setFeeling(existingCheckIn?.feeling);
-    setNote(existingCheckIn?.note ?? '');
-    setSaved(false);
-  }, [selectedDate, existingCheckIn?.id]);
+  const [checkInOpen, setCheckInOpen] = useState(false);
 
   const update = (patch: Partial<Pursuit>) => {
     const next = { ...draft, ...patch, updatedAt: nowStamp() };
     setDraft(next);
     pursuits.put(next);
-  };
-
-  const saveCheckIn = () => {
-    if (!accomplishment.trim() && !feeling) return;
-    const stamp = nowStamp();
-    const record: PursuitCheckIn = existingCheckIn
-      ? { ...existingCheckIn, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, updatedAt: stamp }
-      : { id: newPursuitCheckInId(), pursuitId: draft.id, date: selectedDate, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, createdAt: stamp, updatedAt: stamp };
-    pursuitCheckIns.put(record);
-    update({ lastCheckInAt: stamp });
-    setSaved(true);
   };
 
   const deletePursuit = async () => {
@@ -187,24 +165,11 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
       </div>
 
       <div className="pursuit-quick-actions" aria-label="Project tools">
-        <details className="pursuit-drawer">
-          <summary>Daily check-in</summary>
-          <section className="card pursuit-drawer__panel pursuit-checkin">
-            <div className="section-head"><div><p className="eyebrow">Daily check-in</p><h3>What happened today?</h3></div><div className="pursuit-drawer__head-actions">{saved && <span className="pursuit-checkin__saved">Saved</span>}<DrawerClose /></div></div>
-            <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
-            <TextField label="What did you accomplish?" value={accomplishment} onChange={(value) => { setAccomplishment(value); setSaved(false); }} />
-            <div className="field"><span className="field__label">How did the day feel?</span><div className="pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></div>
-            <TextField label="What to carry forward?" value={note} onChange={(value) => { setNote(value); setSaved(false); }} />
-            <button type="button" className="button-main" disabled={!accomplishment.trim() && !feeling} onClick={saveCheckIn}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button>
-            <div className="field"><span className="field__label">Remind me after no check-in</span><select className="input" value={reminderDaysFor(draft)} onChange={(event) => update({ reminderAfterDays: Number(event.target.value) })}>{PURSUIT_REMINDER_CHOICES.map((choice) => <option key={choice.days} value={choice.days}>{choice.label}</option>)}</select></div>
-            {checkIns.length > 0 && <div className="pursuit-checkin__history"><p className="field__label">Recent check-ins</p><ul>{checkIns.slice(0, 7).map((checkIn) => <li key={checkIn.id}><strong>{formatDate(checkIn.date)}</strong><span>{checkIn.feeling ? PURSUIT_FEELINGS.find((item) => item.id === checkIn.feeling)?.label : ''}{checkIn.accomplishment ? `${checkIn.feeling ? ' · ' : ''}${checkIn.accomplishment}` : ''}</span></li>)}</ul></div>}
-          </section>
-        </details>
-        <details className="pursuit-drawer">
-          <summary>Decisions</summary>
-          <section className="card pursuit-drawer__panel pursuit-decisions"><div className="section-head"><div><p className="eyebrow">Decisions</p><h3>Work through a choice</h3></div><div className="pursuit-drawer__head-actions"><DrawerClose /><button type="button" className="button-quiet" onClick={(event) => { (event.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open'); onDecision(); }}>Make a decision</button></div></div>{decisions.length === 0 ? <p className="muted">Decisions you make here stay with this pursuit.</p> : <ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul>}</section>
-        </details>
+        <button type="button" className="button-quiet" onClick={() => setCheckInOpen(true)}>Daily check-in</button>
+        <button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button>
       </div>
+      {checkInOpen && <PursuitCheckInSheet pursuit={draft} checkIns={checkIns} onUpdate={update} onClose={() => setCheckInOpen(false)} />}
+      {decisions.length > 0 && <section className="card pursuit-decisions pursuit-decisions--history"><div className="section-head"><div><p className="eyebrow">Decision history</p><h3>Choices linked to this pursuit</h3></div></div><ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul></section>}
 
       <section className="card pursuit-work">
         <p className="eyebrow">Work on the project</p>
@@ -230,6 +195,48 @@ function TextField({ label, value, onChange }: { label: string; value?: string; 
   return <label className="field pursuit-field"><span className="field__label">{label}</span><textarea className="input area" rows={3} value={value ?? ''} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
-function DrawerClose() {
-  return <button type="button" className="button-quiet pursuit-drawer__close" onClick={(event) => { (event.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open'); }}>Close</button>;
+function PursuitCheckInSheet({ pursuit, checkIns, onUpdate, onClose }: { pursuit: Pursuit; checkIns: readonly PursuitCheckIn[]; onUpdate: (patch: Partial<Pursuit>) => void; onClose: () => void }) {
+  const { dialog, panel } = useSheet();
+  const [selectedDate, setSelectedDate] = useState(todayDate);
+  const existingCheckIn = checkIns.find((checkIn) => checkIn.date === selectedDate);
+  const [accomplishment, setAccomplishment] = useState(existingCheckIn?.accomplishment ?? '');
+  const [feeling, setFeeling] = useState<PursuitFeeling | undefined>(existingCheckIn?.feeling);
+  const [note, setNote] = useState(existingCheckIn?.note ?? '');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setAccomplishment(existingCheckIn?.accomplishment ?? '');
+    setFeeling(existingCheckIn?.feeling);
+    setNote(existingCheckIn?.note ?? '');
+    setSaved(false);
+  }, [selectedDate, existingCheckIn?.id]);
+
+  const save = () => {
+    if (!accomplishment.trim() && !feeling) return;
+    const stamp = nowStamp();
+    const record: PursuitCheckIn = existingCheckIn
+      ? { ...existingCheckIn, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, updatedAt: stamp }
+      : { id: newPursuitCheckInId(), pursuitId: pursuit.id, date: selectedDate, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, createdAt: stamp, updatedAt: stamp };
+    pursuitCheckIns.put(record);
+    onUpdate({ lastCheckInAt: stamp });
+    setSaved(true);
+  };
+
+  return (
+    <dialog ref={dialog} className="sheet pursuit-checkin-sheet" aria-label="Daily check-in" onClose={onClose} onClick={(event) => event.target === dialog.current && dialog.current?.close()}>
+      <div ref={panel} className="sheet__panel">
+        <div className="sheet__grabber" aria-hidden="true" />
+        <button type="button" className="sheet__close" onClick={() => dialog.current?.close()}>Close</button>
+        <p className="sheet__title sheet__title--static">Daily check-in</p>
+        <p className="sheet__status">{pursuit.title}</p>
+        <label className="sheet__section"><span className="sheet__label">Day</span><input className="field-input" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label>
+        <label className="sheet__section"><span className="sheet__label">What did you accomplish?</span><textarea className="field-input field-input--area" rows={3} value={accomplishment} onChange={(event) => { setAccomplishment(event.target.value); setSaved(false); }} /></label>
+        <section className="sheet__section"><p className="sheet__label">How did the day feel?</p><div className="chip-row pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></section>
+        <label className="sheet__section"><span className="sheet__label">What to carry forward?</span><textarea className="field-input field-input--area" rows={3} value={note} onChange={(event) => { setNote(event.target.value); setSaved(false); }} /></label>
+        <label className="sheet__section"><span className="sheet__label">Remind me after no check-in</span><select className="field-input" value={reminderDaysFor(pursuit)} onChange={(event) => onUpdate({ reminderAfterDays: Number(event.target.value) })}>{PURSUIT_REMINDER_CHOICES.map((choice) => <option key={choice.days} value={choice.days}>{choice.label}</option>)}</select></label>
+        {checkIns.length > 0 && <section className="sheet__section pursuit-checkin__history"><p className="sheet__label">Recent check-ins</p><ul>{checkIns.slice(0, 7).map((checkIn) => <li key={checkIn.id}><strong>{formatDate(checkIn.date)}</strong><span>{checkIn.feeling ? PURSUIT_FEELINGS.find((item) => item.id === checkIn.feeling)?.label : ''}{checkIn.accomplishment ? `${checkIn.feeling ? ' · ' : ''}${checkIn.accomplishment}` : ''}</span></li>)}</ul></section>}
+        <div className="sheet__footer"><span className="pursuit-checkin__saved">{saved ? 'Saved' : ''}</span><button type="button" className="button-accent button--sm" disabled={!accomplishment.trim() && !feeling} onClick={save}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button></div>
+      </div>
+    </dialog>
+  );
 }
