@@ -5,7 +5,7 @@ import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand } from '../app/ui';
 import SessionBar from '../app/SessionBar';
 import { aimWords, defaultWeekdays, examplePath, lastWeekOf, stagesOf, weekMinutes, type Plan, type PlanWeek } from '../core/plans';
-import { howItFelt, runDays, stageBuilds, thenAndNow, weeksToAim } from '../core/progress';
+import { howItFelt, runDays, thenAndNow, weeksToAim } from '../core/progress';
 import { sessionWeekdays, weekdayNames } from '../core/week';
 import { lengthLabel, totalMinutes } from '../core/workouts';
 import type { PlanState } from '../data/store';
@@ -143,7 +143,6 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
             </span>
           </div>
-          <p className="hint">{stageBuilds[stage.stage]}</p>
           <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
         </section>
       ))}

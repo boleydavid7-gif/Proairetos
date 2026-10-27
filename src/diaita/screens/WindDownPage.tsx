@@ -185,7 +185,6 @@ export default function WindDownPage({ nav }: { nav: DiaitaNav }) {
 
       <button type="button" className="button-main diaita-wind-down__start" disabled={!validLength} onClick={start}><TimerIcon size={18} />Start</button>
       <button type="button" className="button-quiet diaita-wind-down__cant" onClick={() => nav.go({ name: 'cant-sleep' })}><MoonIcon size={18} />Can’t sleep</button>
-      <p className="hint">Leave at any point.</p>
     </div>
   );
 }

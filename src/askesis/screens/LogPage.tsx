@@ -20,7 +20,6 @@ const periods: { id: Period; label: string }[] = [
   { id: 'all', label: 'All time' },
 ];
 
-const beforeName: Record<Period, string> = { week: 'Last week', month: 'Last month', year: 'Last year', all: '' };
 
 /** What was done, as it was written down: totals, a plain bar for each week, and every entry. */
 export default function LogPage({ nav }: { nav: Nav }) {
@@ -44,7 +43,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const list = [...(entries ?? [])].sort(newestFirst);
   const range = periodRange(period, today);
   const totals = totalsBetween(list, range.from, range.to);
-  const before = range.before && totalsBetween(list, range.before.from, range.before.to);
   const weeks = weeklyTotals(list, 8, today);
   const byDistance = weeks.some((week) => week.meters > 0);
   const records = recordFacts(list, unit);
@@ -102,16 +100,8 @@ export default function LogPage({ nav }: { nav: Nav }) {
             {records.longestDuration && <div><span className="tile__label">Longest workout</span><strong>{formatHours(records.longestDuration.seconds!)}</strong></div>}
             {records.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(records.fastestPace.secondsPerUnit, unit)}</strong></div>}
           </div>
-          <p className="hint">These are the fastest, longest and farthest entries you recorded. Askesis does not score them.</p>
         </section>
       )}
-      {before && before.count > 0 && (
-        <p className="hint">
-          {beforeName[period]}: {formatDistance(before.meters, unit)}, {formatHours(before.seconds)}, {before.count}{' '}
-          {before.count === 1 ? 'workout' : 'workouts'}.
-        </p>
-      )}
-
       {list.length > 0 && <ColumnChart
         title={byDistance ? `Distance (${unit}), each week` : 'Minutes, each week'}
         days={weeks.map((week) => {

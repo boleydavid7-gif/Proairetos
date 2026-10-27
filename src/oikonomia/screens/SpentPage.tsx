@@ -139,7 +139,6 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
       <div className="page oiko-page">
         <PageTop><button type="button" className="back-link" onClick={() => setReview(undefined)}><ArrowLeftIcon size={20} /> Back</button></PageTop>
         <h1 className="title">From the statement</h1>
-        <p className="muted">{review.length} {review.length === 1 ? 'line' : 'lines'} of money out. Change an area if it’s wrong.</p>
         <ul className="oiko-spent-list">
           {review.map((line) => (
             <li key={line.id} className="oiko-spent-line">

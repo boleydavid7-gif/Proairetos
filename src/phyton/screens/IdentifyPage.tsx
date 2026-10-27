@@ -68,7 +68,6 @@ export default function IdentifyPage({ nav, plantId }: { nav: PhytonNav; plantId
       </div>
 
       <h1 className="title">What plant is this?</h1>
-      <p className="muted">A leaf or a flower, close and in focus, works best. Up to three photos of the same plant.</p>
 
       {shots.length > 0 && (
         <ul className="shots">

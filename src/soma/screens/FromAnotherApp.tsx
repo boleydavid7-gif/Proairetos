@@ -115,7 +115,6 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
       />
       {!found?.recipes.length && (
         <>
-          <p className="hint">An export from Paprika, Mela or Crouton, or recipe files (JSON, web pages, text). It’s read on this device.</p>
           <button type="button" className="button-main" disabled={reading} onClick={() => input.current?.click()}>
             {reading ? <Waiting>Reading…</Waiting> : 'Choose a file'}
           </button>

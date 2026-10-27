@@ -117,7 +117,6 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
           setRestoringPhoto(false);
         }
       }} />
-      {photo && <p className="fine">This photo stays on this device. Save a copy before changing devices.</p>}
 
       {(person.phone || person.email) && (
         <div className="chip-row philia-contact">

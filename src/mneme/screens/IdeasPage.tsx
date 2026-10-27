@@ -33,14 +33,14 @@ export default function IdeasPage() {
 
   return <main className="mneme-page mneme-ideas">
     <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="Focus idea dump" onClick={() => document.getElementById('mneme-idea-dump')?.focus()}><PlusIcon size={22} /></button></div>
-    <div className="mneme-heading-row"><span><p className="mneme-kicker">A place for unfinished thoughts</p><h1>Ideas</h1></span><span className="mneme-idea-total">{allIdeas.length}</span></div>
+    <div className="mneme-heading-row"><h1>Ideas</h1><span className="mneme-idea-total">{allIdeas.length}</span></div>
     <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
-      <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark">✦</span><span><strong id="idea-dump-title">Idea dump</strong><small>Write freely. Separate thoughts with a blank line.</small></span></div>
+      <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark">✦</span><span><strong id="idea-dump-title">Idea dump</strong></span></div>
       <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} placeholder="What keeps returning to you?" rows={5} />
       <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
     </section>
-    <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><span><strong>Sort your ideas</strong><small>Give each thought a place when it becomes clearer.</small></span><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
-    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with an idea'}</h2><p>{allIdeas.length ? 'Move an idea here when it is ready.' : 'Use the dump above. You can sort the thoughts after they are out of your head.'}</p></section>}
+    <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><strong>Sort your ideas</strong><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with an idea'}</h2></section>}
   </main>;
 }
 

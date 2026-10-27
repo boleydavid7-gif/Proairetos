@@ -41,7 +41,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
         {(['all', 'recent', 'pinned'] as Filter[]).map((item) => <button key={item} type="button" role="tab" aria-selected={filter === item} onClick={() => setFilter(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}
       </div>
       {visible.length === 0 ? (
-        <section className="mneme-empty"><div className="mneme-empty__mark">✦</div><h2>{query || filter !== 'all' ? 'Nothing here yet' : 'Keep a thought close'}</h2><p>{query || filter !== 'all' ? 'Try another search or filter.' : 'Capture a note, then give it a collection when it earns one.'}</p><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>
+        <section className="mneme-empty"><div className="mneme-empty__mark">✦</div><h2>{query || filter !== 'all' ? 'Nothing here yet' : 'Keep a thought close'}</h2><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>
       ) : <div className="mneme-note-list">{visible.map((note) => <NoteCard key={note.id} note={note} collectionName={collectionName(note.collectionId)} onOpen={() => nav.go({ name: 'note', id: note.id })} />)}</div>}
     </main>
   );

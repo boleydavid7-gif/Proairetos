@@ -56,7 +56,6 @@ function SideBySide({ records, nightDates, trainingDates, cutoffHours }: { recor
   return (
     <section className="card diaita-side-by-side">
       <h2 className="card__title">Side by side</h2>
-      <p className="hint">Your recorded sleep, grouped by what you recorded elsewhere.</p>
       {comparisons.map((comparison) => <div className="diaita-side-by-side__comparison" key={comparison.label}><p className="label">{comparison.label}</p><div className="diaita-fact-row">{comparison.groups.map((group) => <span key={group.label}><strong>{hoursText(group.averageMinutes)}</strong><small>{group.label} · {group.nights} {group.nights === 1 ? 'night' : 'nights'}</small></span>)}</div></div>)}
     </section>
   );
@@ -89,14 +88,12 @@ function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; t
         <p className="muted">{option.detail} {current.startedOn}–{current.endsOn}.</p>
         {facts.current && <div className="diaita-fact-row"><span><strong>{hoursText(facts.current.averageMinutes)}</strong><small>This try · {facts.current.nights} {facts.current.nights === 1 ? 'night' : 'nights'}</small></span>{facts.before && <span><strong>{hoursText(facts.before.averageMinutes)}</strong><small>Previous two weeks · {facts.before.nights} {facts.before.nights === 1 ? 'night' : 'nights'}</small></span>}</div>}
         <details className="diaita-source-detail"><summary>Source</summary><span>{option.source}</span></details>
-        <p className="hint">{facts.complete ? 'The two weeks are complete. These are the recorded amounts.' : 'The comparison will fill in as you record nights.'}</p>
       </section>
     );
   }
   return (
     <details className="card diaita-experiment">
       <summary className="card__title">Try something for two weeks</summary>
-      <p className="hint">Choose one change. Diaita places the nights you record beside the two weeks before.</p>
       <div className="diaita-experiment__options">
         {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet button--sm" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
       </div>

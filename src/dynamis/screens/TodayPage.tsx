@@ -29,7 +29,6 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
         <div className="page page--under-hero">
           <section className="card">
             <h2 className="card__title">Make your plan</h2>
-            <p className="muted">Your aim, where you train and which days.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>Begin</button>
           </section>
         </div>
@@ -94,7 +93,6 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
             );
           })}
         </ul>
-        {(runDays.length > 0 || Boolean(placedRuns?.length)) && <p className="fine">{current.fit ? 'Placed around your work and your runs from Askesis.' : 'Runs from Askesis are shown beside your lifting days.'}</p>}
         {done.filter((workout) => weekAllDays(today).includes(workout.date) && !week.includes(workout.date)).length > 0 && <p className="fine">Also trained on other days this week.</p>}
 
         <div className="section-head">

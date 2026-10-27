@@ -3,7 +3,7 @@ import { offerUndo } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { DynamisNav } from '../app/App';
 import { isSetup, plan, savePlan } from '../app/state';
-import { AIM_NAMES, newSetup, sessionsFor, type Aim, type Unit } from '../core/plan';
+import { AIM_NAMES, newSetup, type Aim, type Unit } from '../core/plan';
 import type { Place } from '../core/library';
 import { setWorkDayChoice, WORK_DAY_CHOICES, workDayChoice } from '../../app/family/trainingWeek';
 
@@ -77,14 +77,12 @@ export default function PlanPage({ nav }: { nav: DynamisNav }) {
             </button>
           ))}
         </div>
-        <p className="fine">{days.length >= 2 ? sessionsFor({ days }).map((session) => session.name).join(' and ') + ', in turn.' : 'Two days or more.'}</p>
         <div className="chip-row" role="group" aria-label="Training days">
           <button type="button" className="chip" aria-pressed={!fit} onClick={() => setFit(false)}>These days</button>
           <button type="button" className="chip" aria-pressed={fit} onClick={() => setFit(true)}>Around my week</button>
         </div>
         {fit && (
           <>
-            <p className="fine">These days first. Sessions move when work or runs are in the way, with a day between them.</p>
             <p className="field__label">Work days</p>
             <div className="chip-row" role="group" aria-label="Work days">
               {WORK_DAY_CHOICES.map((choice) => (

@@ -281,7 +281,6 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
             </li>
           </ul>
         )}
-        <p className="muted">Books stay on this device. Your place, highlights, notes and reflections sync when you’re signed in, and are in the family backup; the books themselves aren’t.</p>
         <AccountCard app="Theoria" what="Your shelf, highlights and notes" waiting="Books" />
         <FamilyBackup />
         <FamilyApps current="theoria" />

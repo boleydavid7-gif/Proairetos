@@ -54,7 +54,6 @@ export default function NapPage({ nav }: { nav: DiaitaNav }) {
         <section className="diaita-nap">
           <p className="card__eyebrow">{current.minutes} min</p>
           <p className="diaita-nap__time">{clock(left)}</p>
-          <p className="muted">A bell when it ends. The phone can be locked.</p>
           <button type="button" className="button-quiet" onClick={stop}>Stop</button>
         </section>
       ) : current.endsAt ? (

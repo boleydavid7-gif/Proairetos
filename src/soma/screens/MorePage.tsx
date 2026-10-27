@@ -115,7 +115,6 @@ export function SettingsPage({ nav }: { nav: Nav }) {
             ]}
             onChange={(units) => saveSettings({ ...settings, units })}
           />
-          <p className="hint">Recipes stay as written. Metric uses grams for flour, sugar, butter, oats and rice.</p>
         </div>
         <Switch on={settings.dailyLine} label="Daily thought" onToggle={() => saveSettings({ ...settings, dailyLine: !settings.dailyLine })} />
         <Switch on={settings.waysToTry} label="Ways to try it" onToggle={() => saveSettings({ ...settings, waysToTry: !settings.waysToTry })} />
@@ -197,7 +196,6 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <p className="muted">
         Musonius Rufus, Lecture 18A; Epictetus, Enchiridion; Seneca, Letters; Epicurus, Letter to Menoeceus; Cicero, Tusculan Disputations.
       </p>
-      <p className="hint">General guidance on cooking, not medical or dietary advice.</p>
     </div>
   );
 }

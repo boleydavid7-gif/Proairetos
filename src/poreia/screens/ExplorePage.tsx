@@ -100,7 +100,6 @@ export default function ExplorePage({ nav, search }: { nav: PoreiaNav; search?: 
         <>
           <section className="card poreia-explore-start">
             <h2 className="card__title">Start with an idea</h2>
-            <p className="muted">Choose a real place to see weather, nearby places, guides, and booking options.</p>
             <div className="chip-row poreia-scroll-chips" aria-label="Curated places">
               {STARTER_PLACES.map((starter) => (
                 <button key={starter.label} type="button" className="chip" onClick={() => choosePlace(starter)}>

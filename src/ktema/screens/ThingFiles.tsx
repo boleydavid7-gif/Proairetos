@@ -90,7 +90,6 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
         }
       }} />
       <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-      <p className="fine">Kept on this device, not in backups or sync. Save a copy before changing devices.</p>
       {viewing && (
         <div className="ktema-viewer" role="dialog" aria-label={viewing.name} onClick={() => setViewing(undefined)}>
           <img src={urls.get(viewing.id)} alt={viewing.name} />

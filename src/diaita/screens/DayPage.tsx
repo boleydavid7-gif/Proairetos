@@ -16,7 +16,6 @@ export default function DayPage({ nav, date }: { nav: DiaitaNav; date: string })
       <h1 className="title">{weekdayText(date, today)}</h1>
       <p className="lead">{DAY_NAMES[dayKind(date, blocks)]}</p>
       <Timeline entries={entriesOn(date, entries, dayAt)} now={date === today ? new Date() : undefined} />
-      <p className="hint">Tap a line for its source.</p>
     </div>
   );
 }

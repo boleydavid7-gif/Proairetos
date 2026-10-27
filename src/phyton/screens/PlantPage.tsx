@@ -94,7 +94,6 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
           <span className="stepper__value">{everyText(every)}</span>
           <button type="button" className="stepper__button" aria-label="More days" onClick={() => setEvery(Math.min(60, every + 1))}><Sym name="plus" /></button>
         </div>
-        <p className="hint">In spring and summer; longer in winter. Your waterings take over from here.</p>
       </fieldset>
 
       <fieldset className="field">
@@ -179,8 +178,6 @@ function Photos({ plant }: { plant: Plant }) {
           setRestoring(false);
         }
       }} />
-      {photos.length === 0 && <p className="muted">A photo now and then shows how it grows. Kept on this device.</p>}
-      {photos.length > 0 && <p className="fine">Kept on this device, not in backups or sync. Save a copy before changing devices.</p>}
       {photos.length > 1 && (
         <figure className="then-now">
           <div className="then-now__pair">

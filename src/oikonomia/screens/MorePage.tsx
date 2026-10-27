@@ -112,7 +112,6 @@ export default function MorePage({ nav, about = false }: { nav: Nav; about?: boo
 
       <section className="oiko-data">
         <p className="label">Export</p>
-        <p className="muted">Readable copies for your records or another app.</p>
         <div className="button-row oiko-export-actions">
           <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-expenses.csv', expensesCsv(monthsWithSpent().flatMap((month) => spentIn(month)), settings.currency), 'text/csv;charset=utf-8')}><DownloadIcon size={18} /> Expenses CSV</button>
           <button type="button" className="button-quiet" onClick={async () => downloadText('oikonomia-bills.csv', billsCsv(await listBills()), 'text/csv;charset=utf-8')}><DownloadIcon size={18} /> Bills CSV</button>

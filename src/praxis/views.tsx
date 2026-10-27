@@ -93,7 +93,6 @@ export function TodayView(props: TodayProps) {
                 <div>
                   {(rest || session || selected) && <p className="praxis-eyebrow">{rest ? 'A break' : session ? 'Studying' : 'Next'}</p>}
                   <h2>{rest ? `${rest.minutes} minutes away` : session?.itemTitle ?? selected?.title ?? 'No blocks yet'}</h2>
-                  {!rest && !session && !selected && <p>Add what you study under Your blocks.</p>}
                   {!rest && <p>{session ? (session.pausedAt ? 'Paused' : `${Math.round(session.durationMs / 60_000)} minutes`) : selected ? `${minutes} minutes` : ''}</p>}
                 </div>
               </div>

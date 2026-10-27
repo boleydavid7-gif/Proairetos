@@ -73,7 +73,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
       {travel && (
         <section className="card poreia-provider-status">
           <h2 className="card__title">Travel data</h2>
-          <p className="muted">Live prices and details appear only when a provider is configured. External research links always remain available.</p>
           <ul className="rows">
             {([
               ['Stays with prices', 'LiteAPI', travel.stays],

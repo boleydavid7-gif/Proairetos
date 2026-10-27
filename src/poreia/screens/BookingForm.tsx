@@ -102,7 +102,6 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
       {captureMode === 'choose' && (
         <section className="card poreia-booking-capture">
           <h2 className="card__title">Add it your way</h2>
-          <p className="muted">Use a confirmation when you have one, or enter the details yourself.</p>
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => setCaptureMode('paste')}>
               Paste a confirmation
@@ -119,7 +118,6 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
               Set up email forwarding
             </button>
           </div>
-          <p className="fine">Screenshots, PDFs, calendar invites, and saved emails are read on this device.</p>
         </section>
       )}
 
@@ -140,7 +138,6 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
               Fill in by hand
             </button>
           </div>
-          <p className="fine">Or a screenshot, PDF or calendar invite. Read on this device.</p>
         </section>
       ) : captureMode === 'manual' && !existing ? (
         <button type="button" className="text-link poreia-booking-change" onClick={() => setCaptureMode('choose')}>

@@ -81,7 +81,6 @@ export default function StravaPage({ nav }: { nav: Nav }) {
             Connected{link?.name ? ` as ${link.name}` : ''}
             {last && <span className="muted"> · last looked {last}</span>}
           </p>
-          <p className="muted">Runs, walks and rides arrive in Log when Askesis opens. A run on a day with a session counts as that session.</p>
           <button type="button" className="button-main" disabled={busy} onClick={() => void bringIn()}>
             {busy ? <Waiting>Looking…</Waiting> : 'Bring in now'}
           </button>
@@ -99,7 +98,6 @@ export default function StravaPage({ nav }: { nav: Nav }) {
         </section>
       ) : (
         <section className="card stack">
-          <p className="muted">Workouts from your watch arrive on their own: Garmin, Apple Watch, COROS, Polar and Wear OS all send to Strava.</p>
           <button type="button" className="button-main strava-connect" disabled={busy || here !== true} onClick={() => void run(connectStrava)}>
             Connect with Strava
           </button>

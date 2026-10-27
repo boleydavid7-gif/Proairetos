@@ -493,7 +493,6 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         />
         {fit && (
           <>
-            <p className="hint">These days first. Runs move when work or strength training is in the way.</p>
             <p className="label">Work days</p>
             <Segmented
               label="Work days"

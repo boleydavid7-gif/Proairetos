@@ -90,7 +90,6 @@ export default function ReadingsPage() {
         <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
       </section>
 
-      {groups.length === 0 && <p className="muted">Readings you keep appear here, newest first.</p>}
       {groups.map((group) => {
         const sums = facts(group.readings, today);
         const before = group.readings.slice(1);

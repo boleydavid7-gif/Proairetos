@@ -63,9 +63,6 @@ export default function MusicPage({ nav }: { nav: Nav }) {
           ]}
           onChange={(music) => saveSettings({ ...settings, music })}
         />
-        {settings.music === 'other' && (
-          <p className="hint">Start it in your music app first. The screen stays on so the bells are heard over it.</p>
-        )}
       </section>
 
       {settings.music !== 'other' && (
