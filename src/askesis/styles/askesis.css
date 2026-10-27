@@ -80,6 +80,21 @@ img {
   padding-bottom: calc(var(--tab-height) + 16px);
 }
 
+/* iOS Home Screen WebKit lays out fixed docks unreliably when a tab page has no scroll range. Keep a two-pixel,
+   invisible scroll sentinel in the shared shell so sparse family apps get the same stable viewport as fuller pages. */
+@media (max-width: 61.99rem) {
+  .shell--tabs {
+    min-height: calc(100dvh + 2px);
+  }
+
+  .shell--tabs::after {
+    content: '';
+    display: block;
+    height: 2px;
+    pointer-events: none;
+  }
+}
+
 .page-enter {
   animation: page-in 260ms var(--ease);
 }
