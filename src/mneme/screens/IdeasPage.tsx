@@ -1,0 +1,51 @@
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronIcon, PlusIcon } from '../../app/family/icons';
+import { ideas, migrateLegacyIdeas, newId, type Idea, type IdeaStage } from '../app/state';
+
+const stages: { id: IdeaStage; label: string; hint: string }[] = [
+  { id: 'spark', label: 'Sparks', hint: 'Raw thoughts' },
+  { id: 'shape', label: 'Shape', hint: 'Worth exploring' },
+  { id: 'next', label: 'Next', hint: 'Ready to act' },
+  { id: 'parked', label: 'Parked', hint: 'Keep for later' },
+];
+
+export default function IdeasPage() {
+  const allIdeas = ideas.use();
+  const [dump, setDump] = useState('');
+  const [stage, setStage] = useState<IdeaStage | 'all'>('all');
+
+  useEffect(() => { migrateLegacyIdeas(); }, []);
+
+  const visible = useMemo(() => allIdeas
+    .filter((idea) => stage === 'all' || idea.stage === stage)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [allIdeas, stage]);
+
+  const addDump = () => {
+    const thoughts = dump.split(/\n\s*\n|\n(?=\s*[-•])/).map((item) => item.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
+    if (!thoughts.length) return;
+    const now = new Date().toISOString();
+    thoughts.forEach((text, index) => ideas.put({ id: newId('idea'), text, stage: 'spark', createdAt: now, updatedAt: new Date(Date.now() + index).toISOString() }));
+    setDump('');
+  };
+
+  const move = (idea: Idea, next: IdeaStage) => ideas.put({ ...idea, stage: next, updatedAt: new Date().toISOString() });
+  const remove = (idea: Idea) => ideas.remove(idea.id);
+
+  return <main className="mneme-page mneme-ideas">
+    <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="Focus idea dump" onClick={() => document.getElementById('mneme-idea-dump')?.focus()}><PlusIcon size={22} /></button></div>
+    <div className="mneme-heading-row"><span><p className="mneme-kicker">A place for unfinished thoughts</p><h1>Ideas</h1></span><span className="mneme-idea-total">{allIdeas.length}</span></div>
+    <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
+      <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark">✦</span><span><strong id="idea-dump-title">Idea dump</strong><small>Write freely. Separate thoughts with a blank line.</small></span></div>
+      <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} placeholder="What keeps returning to you?" rows={5} />
+      <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to Sparks</button>
+    </section>
+    <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><span><strong>Sort your sparks</strong><small>Give each thought a place when it becomes clearer.</small></span><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : <section className="mneme-empty mneme-empty--ideas"><div className="mneme-empty__mark">✦</div><h2>{allIdeas.length ? 'Nothing in this stage' : 'Start with a spark'}</h2><p>{allIdeas.length ? 'Move an idea here when it is ready.' : 'Use the dump above. You can sort the thoughts after they are out of your head.'}</p></section>}
+  </main>;
+}
+
+function IdeaCard({ idea, onMove, onRemove }: { idea: Idea; onMove: (stage: IdeaStage) => void; onRemove: () => void }) {
+  const title = idea.text.split(/\n|[.!?](?:\s|$)/)[0].trim() || 'Untitled idea';
+  const body = idea.text.slice(title.length).trim();
+  return <article className="mneme-idea-card"><div className="mneme-idea-card__mark">✦</div><div className="mneme-idea-card__content"><strong>{title}</strong>{body && <p>{body}</p>}<div className="mneme-idea-card__actions"><select value={idea.stage} onChange={(event) => onMove(event.target.value as IdeaStage)} aria-label="Idea stage">{stages.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><button type="button" onClick={onRemove}>Clear</button></div></div><ChevronIcon size={20} /></article>;
+}

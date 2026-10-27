@@ -2,19 +2,21 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Brand, Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { BookIcon, BoxIcon, PlusIcon } from '../../app/family/icons';
+import { BookIcon, BoxIcon, LeafIcon, PlusIcon } from '../../app/family/icons';
 import { AppMark } from '../../app/family/icons';
 import NotesPage from '../screens/NotesPage';
 import CollectionsPage from '../screens/CollectionsPage';
 import CapturePage from '../screens/CapturePage';
 import NotePage from '../screens/NotePage';
+import IdeasPage from '../screens/IdeasPage';
 
-export type Tab = 'notes' | 'collections' | 'capture';
-export type Route = { name: Exclude<Tab, 'capture'> } | { name: 'capture'; mode?: 'write' | 'idea' | 'record' } | { name: 'note'; id: string } | { name: 'collection'; id: string };
+export type Tab = 'notes' | 'ideas' | 'collections' | 'capture';
+export type Route = { name: Exclude<Tab, 'capture'> } | { name: 'capture'; mode?: 'write' | 'record' } | { name: 'note'; id: string } | { name: 'collection'; id: string };
 export type MnemeNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'notes', label: 'Notes', Icon: BookIcon },
+  { id: 'ideas', label: 'Ideas', Icon: LeafIcon },
   { id: 'collections', label: 'Collections', Icon: BoxIcon },
   { id: 'capture', label: 'Capture', Icon: PlusIcon },
 ];
@@ -41,6 +43,7 @@ export default function App() {
   const page = (() => {
     switch (route.name) {
       case 'notes': return <NotesPage nav={nav} />;
+      case 'ideas': return <IdeasPage />;
       case 'collections': return <CollectionsPage nav={nav} />;
       case 'capture': return <CapturePage nav={nav} initialMode={route.mode} />;
       case 'note': return <NotePage nav={nav} id={route.id} />;

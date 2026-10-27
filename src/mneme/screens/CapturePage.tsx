@@ -6,7 +6,7 @@ import type { MnemeNav } from '../app/App';
 import { collections, newId, notes } from '../app/state';
 import { liveTranscriptSupported, recognitionClass, recordingFormat, voiceRecordingSupported, type VoiceRecognition } from '../app/voice';
 
-export type CaptureMode = 'write' | 'idea' | 'record';
+export type CaptureMode = 'write' | 'record';
 
 export default function CapturePage({ nav, initialMode = 'write' }: { nav: MnemeNav; initialMode?: CaptureMode }) {
   const allCollections = collections.use();
@@ -172,7 +172,7 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
         const attachment = await attachmentService.add(id, { name: `${id}.${extension}`, type: audioBlob.type || 'audio/webm', data: await audioBlob.arrayBuffer() });
         recordingInfo = { attachmentId: attachment.id, durationMs: recordingDurationMs.current || recordingMs, mimeType: attachment.type };
       }
-      notes.put({ id, title: title.trim() || (mode === 'idea' ? 'Untitled idea' : 'Voice note'), body: body.trim(), collectionId: collectionId || undefined, pinned: false, archived: false, kind: mode === 'idea' ? 'idea' : 'note', ideaStage: mode === 'idea' ? 'spark' : undefined, source: audioBlob ? 'voice' : undefined, recording: recordingInfo, createdAt: now, updatedAt: now });
+      notes.put({ id, title: title.trim() || 'Voice note', body: body.trim(), collectionId: collectionId || undefined, pinned: false, archived: false, kind: 'note', source: audioBlob ? 'voice' : undefined, recording: recordingInfo, createdAt: now, updatedAt: now });
       nav.go({ name: 'note', id });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The recording could not be saved.');
@@ -185,14 +185,14 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   return <main className="mneme-page mneme-capture">
     <button type="button" className="mneme-back-source" data-back aria-hidden="true" onClick={() => nav.swap({ name: 'notes' })}>Back</button>
-    <h1>{mode === 'record' ? 'Record a thought.' : mode === 'idea' ? 'Empty your head.' : 'Write it down.'}</h1>
-    <div className="mneme-capture-modes" role="tablist" aria-label="Capture type"><button type="button" role="tab" aria-selected={mode === 'write'} onClick={() => setMode('write')}>Write</button><button type="button" role="tab" aria-selected={mode === 'idea'} onClick={() => setMode('idea')}>Idea dump</button><button type="button" role="tab" aria-selected={mode === 'record'} onClick={() => setMode('record')}>Voice note</button></div>
+    <h1>{mode === 'record' ? 'Record a thought.' : 'Write it down.'}</h1>
+    <div className="mneme-capture-modes" role="tablist" aria-label="Capture type"><button type="button" role="tab" aria-selected={mode === 'write'} onClick={() => setMode('write')}>Write</button><button type="button" role="tab" aria-selected={mode === 'record'} onClick={() => setMode('record')}>Voice note</button></div>
     {mode === 'record' && <section className={`mneme-recorder${recording ? ' is-recording' : ''}`}><div className="mneme-recorder__orb"><MicIcon size={22} /></div><strong>{recording ? `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}` : audioBlob ? 'Recording ready' : 'Tap to record'}</strong>{recording && <p>Speak naturally. You can edit the transcript below.</p>}{recording ? <button type="button" className="mneme-record-button mneme-record-button--stop" onClick={stopRecording}><StopIcon size={22} /> Stop recording</button> : <button type="button" className="mneme-record-button" onClick={() => void startRecording()}><MicIcon size={22} /> {audioBlob ? 'Record again' : 'Start recording'}</button>}{liveTranscriptSupported() && <label className="mneme-live-transcript"><input type="checkbox" checked={liveTranscript} onChange={(event) => setLiveTranscript(event.target.checked)} disabled={recording} /> <span>Live transcript <small>Uses your browser’s speech service</small></span></label>}{audioUrl && <audio className="mneme-audio" controls src={audioUrl} />}</section>}
-    <label className="mneme-field"><span>Title <em>{mode === 'idea' ? 'optional' : ''}</em></span><input className="field-input" autoFocus={mode !== 'record'} value={title} onChange={(event) => setTitle(event.target.value)} placeholder={mode === 'record' ? 'Meeting, idea, or voice note' : mode === 'idea' ? 'A short name, if one appears' : 'A name for this note'} /></label>
-    <label className="mneme-field"><span>{mode === 'record' ? 'Transcript or notes' : mode === 'idea' ? 'Idea dump' : 'Note'}</span><textarea className="field-input field-input--area" value={body} onChange={(event) => setBody(event.target.value)} placeholder={mode === 'record' ? 'Your transcript will appear here when available…' : mode === 'idea' ? 'Write freely. Sort it after you save.' : 'Start writing…'} rows={mode === 'record' ? 8 : 9} /></label>
+    <label className="mneme-field"><span>Title</span><input className="field-input" autoFocus={mode !== 'record'} value={title} onChange={(event) => setTitle(event.target.value)} placeholder={mode === 'record' ? 'Meeting, idea, or voice note' : 'A name for this note'} /></label>
+    <label className="mneme-field"><span>{mode === 'record' ? 'Transcript or notes' : 'Note'}</span><textarea className="field-input field-input--area" value={body} onChange={(event) => setBody(event.target.value)} placeholder={mode === 'record' ? 'Your transcript will appear here when available…' : 'Start writing…'} rows={mode === 'record' ? 8 : 9} /></label>
     {allCollections.length > 0 && <label className="mneme-field"><span>Collection <em>optional</em></span><select className="field-input" value={collectionId} onChange={(event) => setCollectionId(event.target.value)}><option value="">Inbox</option>{allCollections.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
     {error && <p className="mneme-form-error" role="alert">{error}</p>}
     {sync.phase !== 'ready' && mode === 'record' && <p className="mneme-storage-note">The note stays on this device until sync is set up in Proairetos.</p>}
-    <button type="button" className="mneme-primary mneme-primary--wide" onClick={() => void save()} disabled={saving || recording || (!title.trim() && !body.trim() && !audioBlob)}>{saving ? 'Saving…' : mode === 'idea' ? 'Save idea' : 'Save note'}</button>
+    <button type="button" className="mneme-primary mneme-primary--wide" onClick={() => void save()} disabled={saving || recording || (!title.trim() && !body.trim() && !audioBlob)}>{saving ? 'Saving…' : 'Save note'}</button>
   </main>;
 }
