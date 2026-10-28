@@ -4,6 +4,7 @@ import { compassService, decisionService } from '../../app/services';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useSheet } from '../../components/ui/useSheet';
+import { useBackHandler } from '../../app/back/backStack';
 import {
   DEFAULT_PURSUIT_REMINDER_DAYS,
   newPursuitCheckInId,
@@ -56,6 +57,9 @@ export default function PursuitsSection() {
     setSelected(requestedPursuitId);
     requestedPursuitId = undefined;
   }, []);
+  // The form and an open pursuit are steps of their own: back (button, gesture, browser) returns to the list.
+  useBackHandler(creating, () => setCreating(false));
+  useBackHandler(!creating && current !== undefined, () => setSelected(undefined));
 
   if (creating) return <PursuitForm onCancel={() => setCreating(false)} onSaved={(id) => { setCreating(false); setSelected(id); }} />;
   if (current) {

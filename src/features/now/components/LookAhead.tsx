@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useServiceData } from '../../../app/hooks/useServiceData';
 import { useNavigate } from '../../../app/navigationContext';
+import { openCompassTab } from '../../compass/CompassPage';
 import { compassService, lifeService, reflectionService } from '../../../app/services';
 import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
@@ -99,7 +100,7 @@ export default function LookAhead() {
           <p className="look-ahead__title">Choose your values</p>
           <p className="look-ahead__detail">They show here each day.</p>
           <div className="chip-row">
-            <button type="button" className="chip chip--accent" onClick={() => navigate('compass')}>
+            <button type="button" className="chip chip--accent" onClick={() => { openCompassTab('direction'); navigate('compass'); }}>
               Choose
             </button>
             <button

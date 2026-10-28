@@ -23,13 +23,20 @@ import { kindLabel, kindOf } from '../../core/life-items/kinds';
 import { inSearchScope, search, type Searchable, type SearchScope } from '../../core/search/search';
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
+import { pursuits } from '../../app/pursuits';
+import { openCompassTab } from '../compass/CompassPage';
+import { openPursuit } from '../compass/PursuitsSection';
 
 const statementLabels: Record<string, string> = {
   REMEMBER: 'Worth getting up for',
   PUSHED_ASIDE: 'Put aside',
   PERSON: 'Person',
-  GOAL: 'Goal',
+  GOAL: 'Pursuit',
 };
+
+/** Where a Compass result opens: its own tab, and a pursuit itself. */
+const compassPlaces = new Map<string, { tab: 'direction' | 'motion' | 'close'; pursuitId?: string }>();
+const tabForStatement = (type: string) => (type === 'GOAL' ? 'motion' : type === 'PERSON' || type === 'REMEMBER' || type === 'PUSHED_ASIDE' ? 'close' : 'direction');
 
 function subscribeAll(listener: () => void) {
   const off = [lifeService, reflectionService, decisionService, compassService].map((service) => service.subscribe(listener));
@@ -94,7 +101,24 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
   }
   for (const statement of statements) {
     labels.set(statement.id, statementLabels[statement.type] ?? 'Compass');
+    compassPlaces.set(statement.id, { tab: tabForStatement(statement.type) });
     things.push({ id: statement.id, kind: 'statement', title: statement.body, fields: [{ name: 'Note', text: statement.note }], at: statement.createdAt });
+  }
+  // Pursuits sit with Compass: a result opens that pursuit in In motion.
+  for (const pursuit of pursuits.list()) {
+    labels.set(pursuit.id, 'Pursuit');
+    compassPlaces.set(pursuit.id, { tab: 'motion', pursuitId: pursuit.id });
+    things.push({
+      id: pursuit.id,
+      kind: 'statement',
+      title: pursuit.title,
+      fields: [
+        { name: 'Next move', text: pursuit.nextMove },
+        { name: 'Outcome', text: pursuit.outcome },
+        { name: 'Area', text: pursuit.area },
+      ],
+      at: pursuit.createdAt,
+    });
   }
   // What the other apps hold, read only, so one search finds it all.
   for (const recipe of isAdded('soma') ? recipes : []) {
@@ -268,12 +292,21 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
                 type="button"
                 className="search-row"
                 onClick={() => {
-                  if (hit.kind === 'item') openItem(hit.id);
-                  else if (hit.kind === 'decision') openDecision(hit.id);
+                  // The search closes first, so back from what it opened returns to the page, not to the search.
+                  if (hit.kind === 'item') {
+                    close();
+                    openItem(hit.id);
+                  } else if (hit.kind === 'decision') {
+                    close();
+                    openDecision(hit.id);
+                  }
                   else if (hit.kind === 'app' && hit.href) window.location.assign(hit.href);
                   else if (hit.kind === 'reflection') setOpenEntry(openEntry === hit.id ? null : hit.id);
                   else {
                     close();
+                    const place = compassPlaces.get(hit.id);
+                    openCompassTab(place?.tab ?? 'direction');
+                    if (place?.pursuitId) openPursuit(place.pursuitId);
                     navigate('compass');
                   }
                 }}

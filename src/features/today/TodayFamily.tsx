@@ -10,6 +10,9 @@ import type { TheoriaBook } from '../../theoria/core/books';
 import { BookIcon } from '../../components/icons/Icons';
 import { ideas, notes } from '../../mneme/app/state';
 import { needsPursuitCheckIn, pursuits } from '../../app/pursuits';
+import { useNavigate } from '../../app/navigationContext';
+import { openCompassTab } from '../compass/CompassPage';
+import { openPursuit } from '../compass/PursuitsSection';
 
 /**
  * Bills with a date in the next few days and no payment recorded (Settings > What's included can set them aside),
@@ -24,7 +27,7 @@ export default function TodayFamily({ today }: { today: string }) {
   if (soon.length === 0) return null;
   return (
     <div className="quiet-row-wrap">
-      <a className="quiet-row" href="/oikonomia/">
+      <a className="quiet-row" href={new Set(soon.map((bill) => bill.id)).size === 1 ? `/oikonomia/?open=bill:${encodeURIComponent(soon[0].id)}` : '/oikonomia/'}>
         <span className="quiet-row__icon" aria-hidden="true">
           <ListIcon size={20} />
         </span>
@@ -47,7 +50,7 @@ export default function TodayFamily({ today }: { today: string }) {
   );
 }
 
-/** A Praxis block the person set to look at again, on the day they chose. Opens Praxis. */
+/** A study block the person set to look at again, on the day they chose. Opens it in Theoria's Pomodoro (the list when several). */
 export function TodayStudy({ today }: { today: string }) {
   const shows = useTodayParts();
   const study = useStudy(shows('praxis'));
@@ -56,13 +59,13 @@ export function TodayStudy({ today }: { today: string }) {
   if (again.length === 0) return null;
   return (
     <div className="quiet-row-wrap">
-      <a className="quiet-row" href="/praxis/">
+      <a className="quiet-row" href={again.length === 1 ? `/theoria/?open=pomodoro:block:${encodeURIComponent(again[0].id)}` : '/theoria/?open=pomodoro'}>
         <span className="quiet-row__icon" aria-hidden="true">
           <BookIcon size={20} />
         </span>
         <span className="quiet-row__text">
           <span>{again.map((block) => block.title).slice(0, 2).join(' · ')}</span>
-          <span className="quiet-row__detail">To look at again · Praxis</span>
+          <span className="quiet-row__detail">To look at again · Theoria</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
@@ -126,6 +129,7 @@ export function TodayMneme() {
 export function TodayPursuit() {
   const shows = useTodayParts();
   const all = pursuits.use();
+  const navigate = useNavigate();
   if (!shows('pursuits')) return null;
   const due = all.filter((pursuit) => needsPursuitCheckIn(pursuit)).sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))[0];
   const current = due ?? all
@@ -136,14 +140,14 @@ export function TodayPursuit() {
   const detail = due ? `No check-in recently · ${current.title} · Compass` : `Next move · ${current.title} · Compass`;
   return (
     <div className="quiet-row-wrap">
-      <a className="quiet-row" href="/compass/">
+      <button type="button" className="quiet-row" onClick={() => { openPursuit(current.id); openCompassTab('motion'); navigate('compass'); }}>
         <span className="quiet-row__icon" aria-hidden="true"><BookIcon size={20} /></span>
         <span className="quiet-row__text">
           <span>{title}</span>
           <span className="quiet-row__detail">{detail}</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
-      </a>
+      </button>
     </div>
   );
 }

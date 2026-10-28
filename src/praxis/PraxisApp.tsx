@@ -251,6 +251,15 @@ export default function PraxisApp({ embedded = false, opening = null }: { embedd
     });
   }, [items]);
 
+  // A block named in the link (Proairetos's To look at again): that block, opened.
+  const namedBlock = useRef(false);
+  useEffect(() => {
+    if (namedBlock.current || !items || !opening?.startsWith('block:')) return;
+    namedBlock.current = true;
+    const id = opening.slice(6);
+    if (items.some((block) => block.id === id)) setSelectedId(id);
+  }, [items]);
+
   const toggle = async (block: LifeItem) => {
     const change = await lifeService.setStatus(block.id, block.status === 'DONE' ? 'OPEN' : 'DONE');
     say(block.status === 'DONE' ? `${block.title} is back` : `${block.title} done`, () => void change.undo());

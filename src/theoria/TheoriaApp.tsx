@@ -84,6 +84,8 @@ function withLock<T>(name: string, work: () => Promise<T>): Promise<T> {
 
 export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
+  // What a link asks of the Pomodoro place (`pomodoro:block:ID` opens that study block).
+  const [pomodoroOpening, setPomodoroOpening] = useState<string | null>(null);
   useEnterMark(view, ['library', 'reader', 'pomodoro', 'notes', 'reflections'] as View[]);
   const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
@@ -184,7 +186,10 @@ export default function TheoriaApp() {
     // Back from connecting OneDrive for the library folder: settings, where the folder is chosen.
     void finishCloud().then((back) => { if (back) { setView('settings'); if (back.intent === 'folder') setDriveReturn(back.provider); else toast(`${CLOUD_NAMES[back.provider]} is connected. Books not on this device come from it when opened.`); } }).catch((error) => { setView('settings'); toast(error instanceof Error ? error.message : 'The storage did not connect.'); });
     if (open === 'add') setAddOpen(true);
-    if (open === 'pomodoro') setView('pomodoro');
+    if (open === 'pomodoro' || open?.startsWith('pomodoro:')) {
+      setPomodoroOpening(open.startsWith('pomodoro:') ? open.slice(9) : null);
+      setView('pomodoro');
+    }
     if (open === 'settings') setView('settings');
     if (open?.startsWith('book:') && shelf.some((book) => book.id === open.slice(5))) { setSelectedId(open.slice(5)); setView('detail'); }
     if (open?.startsWith('title:')) {
@@ -671,7 +676,7 @@ export default function TheoriaApp() {
       {view === 'shelf' && <ShelfPage shelf={shelf} onBack={() => setView('library')} onOpen={openBook} onAdd={() => setAddOpen(true)} />}
       {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onExport={() => downloadBookNotes(selected)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} onShelf={(shelf) => void moveToShelf(shelf)} onMakeCard={(item) => { try { localStorage.setItem(CARD_DRAFT_KEY, JSON.stringify({ back: item.text, from: item.book.title, blockTitle: `Read: ${item.book.title}` })); } catch { /* Pomodoro will still open if storage is unavailable. */ } window.location.assign('/theoria/?open=pomodoro'); }} />}
       {view === 'reader' && readerBook && <ReaderView book={readerBook} pdf={readerText?.bookId === readerBook.id ? readerText.pdf : undefined} loadingText={readerText?.loading} onChooseFile={(file) => void chooseFile(file)} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
-      {view === 'pomodoro' && <PraxisApp embedded />}
+      {view === 'pomodoro' && <PraxisApp embedded opening={pomodoroOpening} />}
       {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
       {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
