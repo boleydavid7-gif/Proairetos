@@ -433,7 +433,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Deep links keep the record: Today's pursuit and search results call `openPursuit` / `openCompassTab` before
   `navigate('compass')`; Look ahead's Choose forces Direction; the study row opens `/theoria/?open=pomodoro:block:ID`
   (Theoria passes `block:ID` to the embedded Praxis); bill rows open `/oikonomia/?open=bill:ID` when there is one bill.
-  Search closes before opening an item or decision.
+  Search closes before opening an item or decision; it finds pursuits and Direction (the chosen values, `compassService.values()`), opening Compass on the matching tab.
 - One control contract (`src/lamplight/controls.css`, after `material.css`): Mneme's, Praxis's and Theoria's own fields
   (filled well, hairline, the lamp's halo on focus), main buttons (the lamp's pill), quiet buttons (tonal pill), danger
   and choices (8 px chips, tonal when chosen) take the shared recipe; add an app's own control classes there, not per app.

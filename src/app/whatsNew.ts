@@ -5,7 +5,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'Back goes where you came from: Compass, Meditate, the Journal, Insights, the weekly review, your schedule and Settings return to the page you opened them from, and the address always matches what you see.',
       'Today’s pursuit opens that pursuit in Compass; a study block to look at again opens in Theoria; a single bill opens that bill in Oikonomia.',
-      'Search finds pursuits and opens Compass results in their own place.',
+      'Search finds pursuits and your Direction, and opens Compass results in their own place.',
       'Mneme, Theoria and the study room inside it use the same fields and buttons as the rest of the family, and every dock marks your place the same way.',
     ],
   },

@@ -44,11 +44,12 @@ function subscribeAll(listener: () => void) {
 }
 
 async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
-  const [items, reflections, decisions, statements, recipes, books, bills] = await Promise.all([
+  const [items, reflections, decisions, statements, values, recipes, books, bills] = await Promise.all([
     lifeService.list(),
     reflectionService.all(),
     decisionService.list(),
     compassService.statements(),
+    compassService.values(),
     readStore<Recipe>('somaRecipes'),
     readStore<TheoriaBook>('theoriaBooks'),
     readStore<Bill>('oikonomiaBills'),
@@ -103,6 +104,12 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     labels.set(statement.id, statementLabels[statement.type] ?? 'Compass');
     compassPlaces.set(statement.id, { tab: tabForStatement(statement.type) });
     things.push({ id: statement.id, kind: 'statement', title: statement.body, fields: [{ name: 'Note', text: statement.note }], at: statement.createdAt });
+  }
+  // Values are Compass's Direction: a result opens that tab.
+  for (const value of values) {
+    labels.set(value.id, 'Direction');
+    compassPlaces.set(value.id, { tab: 'direction' });
+    things.push({ id: value.id, kind: 'statement', title: value.name, fields: [{ name: 'Meaning', text: value.meaning }], at: value.chosenAt });
   }
   // Pursuits sit with Compass: a result opens that pursuit in In motion.
   for (const pursuit of pursuits.list()) {
