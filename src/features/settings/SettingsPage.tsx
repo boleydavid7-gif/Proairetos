@@ -25,7 +25,7 @@ const healthOn = () => {
 import { useBackHandler } from '../../app/back/backStack';
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { lock } from '../../app/lock/lock';
-import { useNavigate, useReturnRoute } from '../../app/navigationContext';
+import { useLeave, useNavigate, useReturnRoute } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
@@ -1176,7 +1176,7 @@ export default function SettingsPage() {
   useEffect(() => {
     storageMode.then(setMode);
   }, []);
-  useBackHandler(true, () => navigate(returnTo));
+  const leave = useLeave(returnTo);
   // A detail page sits on top of the list, so back returns to the list first.
   useBackHandler(view !== null, () => setView(null));
 
@@ -1377,7 +1377,7 @@ export default function SettingsPage() {
 
   const list = (
     <>
-      <button type="button" className="back-link" onClick={() => navigate(returnTo)}>
+      <button type="button" className="back-link" onClick={leave}>
         <ArrowLeftIcon size={18} />
         {tabLabels[returnTo] ?? 'Back'}
       </button>

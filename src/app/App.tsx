@@ -23,10 +23,10 @@ import { directionBetween, markEnter, transition } from './transitions';
 import { useShortcuts } from './shortcuts';
 import OverlayProvider from './overlays/OverlayProvider';
 import { useOverlays } from './overlays/OverlayContext';
-import { NavigationContext, ReturnRouteContext, type NavigateOptions } from './navigationContext';
-import { defaultRoute, type AppRoute } from './routes/routeTypes';
-import { pathForRoute, routeForPath, routeFromHistoryState } from './routes/browserRoutes';
-import { canGoBack } from './back/backStack';
+import { LeaveContext, NavigationContext, ReturnRouteContext, type NavigateOptions } from './navigationContext';
+import { defaultRoute, parentRoute, type AppRoute } from './routes/routeTypes';
+import { depthFromHistoryState, pathForRoute, routeForPath, routeFromHistoryState } from './routes/browserRoutes';
+import { canGoBack, unwindThen } from './back/backStack';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
 
 const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
@@ -59,9 +59,16 @@ export default function App() {
   current.current = route;
   // Every move between places slides the way it goes (see transitions.ts).
   const go = useCallback((next: AppRoute, options?: NavigateOptions) => {
+    if (next === current.current) return;
+    // Open sheets and sub-views close and give back their history entries first, so the new place's entry is the top.
+    unwindThen(() => move(next, options));
+  }, []);
+  const move = (next: AppRoute, options?: NavigateOptions) => {
     const from = current.current;
     if (next === from) return;
-    history.pushState({ proairetosRoute: next }, '', pathForRoute(next));
+    const depth = depthFromHistoryState(history.state);
+    if (options?.replace) history.replaceState({ proairetosRoute: next, proairetosDepth: depth }, '', pathForRoute(next));
+    else history.pushState({ proairetosRoute: next, proairetosDepth: depth + 1 }, '', pathForRoute(next));
     if (options?.immediate) {
       setRoute(next);
       return;
@@ -76,7 +83,16 @@ export default function App() {
       return;
     }
     transition(directionBetween(from, next), () => setRoute(next));
-  }, []);
+  };
+  // A page's own back goes where the person came from; opened straight from its address, to `fallback`.
+  const leave = useCallback(
+    (fallback: AppRoute) =>
+      unwindThen(() => {
+        if (depthFromHistoryState(history.state) > 0) history.back();
+        else move(fallback, { replace: true });
+      }),
+    [],
+  );
   const [paletteOpen, setPaletteOpen] = useState(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
   useShortcuts(go, openPalette);
@@ -94,7 +110,14 @@ export default function App() {
   useEffect(() => {
     const currentState = history.state;
     const state = currentState && typeof currentState === 'object' ? { ...currentState, proairetosRoute: route } : { proairetosRoute: route };
-    history.replaceState(state, '', pathForRoute(route));
+    const parent = parentRoute[route];
+    if (parent && depthFromHistoryState(currentState) === 0 && !('proairetosBack' in state)) {
+      // Opened straight at a page under a main tab: its tab goes underneath, so back (and the page's own back) lands there.
+      history.replaceState({ proairetosRoute: parent, proairetosDepth: 0 }, '', pathForRoute(parent));
+      history.pushState({ ...state, proairetosDepth: 1 }, '', pathForRoute(route));
+    } else {
+      history.replaceState(state, '', pathForRoute(route));
+    }
     const onPop = (event: PopStateEvent) => {
       if (canGoBack()) return;
       // The back-stack releases its temporary history entry after a sheet or sub-screen closes. That pop is
@@ -149,6 +172,7 @@ export default function App() {
 
   return (
     <NavigationContext.Provider value={go}>
+    <LeaveContext.Provider value={leave}>
     <ReturnRouteContext.Provider value={lastTab}>
     <EdgeSwipe />
     <OverlayProvider>
@@ -177,6 +201,7 @@ export default function App() {
       {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}
     </OverlayProvider>
     </ReturnRouteContext.Provider>
+    </LeaveContext.Provider>
     </NavigationContext.Provider>
   );
 }

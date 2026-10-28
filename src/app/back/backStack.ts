@@ -64,6 +64,34 @@ export function pushBack(close: () => void): () => void {
   };
 }
 
+/**
+ * Before moving to another place: closes every open back step (sheets, sub-views) and takes their history entries
+ * off first, then runs `next`. Pushing a new place on top of them, the closes' own clean-up would then step back
+ * over the new place's entry, leaving the address on the old page while the new one shows.
+ */
+export function unwindThen(next: () => void): void {
+  const open = stack.splice(0, stack.length);
+  const steps = open.length + releasedSteps;
+  releasedSteps = 0;
+  for (const entry of open.reverse()) entry.close();
+  if (steps === 0 || typeof window === 'undefined') {
+    next();
+    return;
+  }
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    window.removeEventListener('popstate', finish);
+    next();
+  };
+  skipPops++;
+  window.addEventListener('popstate', finish);
+  // A browser that never reports the step still moves on.
+  setTimeout(finish, 800);
+  history.go(-steps);
+}
+
 /** Goes back one step, as the system back would. */
 export function goBack(): boolean {
   if (stack.length === 0) return false;

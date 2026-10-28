@@ -1,7 +1,7 @@
 import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave } from '../../app/navigationContext';
 import { scheduleService } from '../../app/services';
 import { ArrowLeftIcon, ChevronRightIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
@@ -41,15 +41,14 @@ function summary(pattern: SchedulePattern): string {
 }
 
 export default function ScheduleScreen() {
-  const navigate = useNavigate();
   const patterns = useServiceData(scheduleService.subscribe, () => scheduleService.patterns());
   const [mode, setMode] = useState<Mode>({ view: 'list' });
   const toList = () => setMode({ view: 'list' });
-  useBackHandler(true, () => navigate('today'));
+  const leave = useLeave('settings');
   useBackHandler(mode.view !== 'list', toList);
 
   const back = (
-    <button type="button" className="back-link" onClick={() => (mode.view === 'list' ? navigate('today') : toList())}>
+    <button type="button" className="back-link" onClick={() => (mode.view === 'list' ? leave() : toList())}>
       <ArrowLeftIcon size={18} />
       {mode.view === 'list' ? 'Today' : 'Your schedule'}
     </button>

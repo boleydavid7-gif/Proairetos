@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, reflectionService } from '../../app/services';
 import forest from '../../assets/images/scenes/forest.webp';
@@ -25,7 +24,6 @@ import { toLocalDate } from '../../core/scheduling/dates';
  * can be left blank. Leaving keeps the draft; Save is the only thing that stores it.
  */
 export default function JournalPage() {
-  const navigate = useNavigate();
   const { offerUndo, openItem } = useOverlays();
   const todayKey = toLocalDate(new Date());
   const [draft] = useState(() => loadJournalDraft());
@@ -74,8 +72,7 @@ export default function JournalPage() {
     el.style.height = `${Math.max(el.scrollHeight, 240)}px`;
   }, [body]);
 
-  const leave = () => navigate('reflect');
-  useBackHandler(true, leave);
+  const leave = useLeave('reflect');
 
   useEffect(() => {
     saveJournalDraft({ body, weather, valueIds, promptKey });

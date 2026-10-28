@@ -53,35 +53,9 @@
   gap: var(--space-4);
 }
 
-.compass-reflect-link {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--ll-hair, var(--color-border));
-  border-radius: var(--ll-radius-lg, var(--radius-lg));
-  background: var(--ll-card, var(--color-surface));
-  box-shadow: var(--ll-light-1, none);
-}
 
-.compass-reflect-link__copy {
-  display: grid;
-  gap: 0.15rem;
-}
 
-.compass-reflect-link__copy p {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
 
-.compass-reflect-link__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  width: 100%;
-}
 
 .section-heading {
   display: flex;

@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { AppRoute } from './routes/routeTypes';
 
-export type NavigateOptions = { immediate?: boolean };
+export type NavigateOptions = { immediate?: boolean; replace?: boolean };
 
 export const NavigationContext = createContext<(route: AppRoute, options?: NavigateOptions) => void>(() => undefined);
 
@@ -14,4 +14,12 @@ export function useNavigate(): (route: AppRoute, options?: NavigateOptions) => v
 
 export function useReturnRoute(): AppRoute {
   return useContext(ReturnRouteContext);
+}
+
+/** Leaves a page the way it was reached: back to the place before it, else to `fallback` (opened from its address). */
+export const LeaveContext = createContext<(fallback: AppRoute) => void>(() => undefined);
+
+export function useLeave(fallback: AppRoute): () => void {
+  const leave = useContext(LeaveContext);
+  return () => leave(fallback);
 }

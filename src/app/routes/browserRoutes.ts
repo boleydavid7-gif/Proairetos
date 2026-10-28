@@ -16,3 +16,10 @@ export function routeFromHistoryState(state: unknown): AppRoute | undefined {
   const route = (state as { proairetosRoute?: unknown }).proairetosRoute;
   return typeof route === 'string' && route in routePaths ? route as AppRoute : undefined;
 }
+
+/** How many of the app's own places come before this history entry (0: the place the app was opened at). */
+export function depthFromHistoryState(state: unknown): number {
+  if (!state || typeof state !== 'object') return 0;
+  const depth = (state as { proairetosDepth?: unknown }).proairetosDepth;
+  return typeof depth === 'number' && depth > 0 ? depth : 0;
+}

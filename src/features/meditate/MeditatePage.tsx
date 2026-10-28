@@ -1,7 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { useBackHandler } from '../../app/back/backStack';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { letGo, wakeAudio } from '../../app/sound/engine';
 import { player } from '../../app/sound/player';
@@ -73,10 +72,9 @@ function alongLine(setup: SitSetup): string {
  * first. Nothing about a sit is counted or kept.
  */
 export default function MeditatePage() {
-  const navigate = useNavigate();
   const { offerUndo } = useOverlays();
   // Back (gesture or button) returns to Reflect; a sit open above takes it first.
-  useBackHandler(true, () => navigate('reflect'));
+  const leave = useLeave('reflect');
   const [settings, setSettings] = useState(loadMeditate);
   const [sitting, setSitting] = useState<SitPlan | null>(null);
   const [open, setOpen] = useState<SitKind | null>(null);
@@ -128,7 +126,7 @@ export default function MeditatePage() {
     <div className="page meditate-page">
       <div className="meditate-page__scene" style={{ backgroundImage: `url(${lake})`, '--photo-wide': `url(${lakeWide})`, '--photo-light': `url(${lakeLight})`, '--photo-light-wide': `url(${lakeLightWide})` } as React.CSSProperties} aria-hidden="true" />
       <header className="meditate-page__top">
-        <button type="button" className="meditate-page__back" onClick={() => navigate('reflect')}>
+        <button type="button" className="meditate-page__back" onClick={leave}>
           <ArrowLeftIcon size={22} />
           <span>Meditate</span>
         </button>

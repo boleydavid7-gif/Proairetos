@@ -1,5 +1,4 @@
-import { useBackHandler } from '../../app/back/backStack';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave } from '../../app/navigationContext';
 import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useEffect, useState } from 'react';
@@ -7,7 +6,6 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
-import { PenIcon } from '../../components/icons/Icons';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
@@ -95,9 +93,8 @@ export default function CompassPage() {
   const [picking, setPicking] = useState(false);
   const [editing, setEditing] = useState(false);
   const shows = useTodayParts();
-  // Compass opens from Reflect; back (button, gesture, browser) returns there.
-  const navigate = useNavigate();
-  useBackHandler(true, () => navigate('reflect'));
+  // Back (button, gesture, browser) returns where Compass was opened from; Reflect when opened from its address.
+  const leave = useLeave('reflect');
   const tabs = compassTabs.filter((option) => option.id !== 'close' || shows('people') || shows('words'));
   const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
   // A tab set aside in Settings falls back to direction.
@@ -108,7 +105,7 @@ export default function CompassPage() {
 
   return (
     <div className="page">
-      <PageHero title="Compass" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
+      <PageHero title="Compass" back={{ label: 'Reflect', onBack: leave }} />
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
@@ -218,17 +215,6 @@ export default function CompassPage() {
           )}
         </>
       )}
-      </div>
-
-      <div className="compass-reflect-link">
-        <div className="compass-reflect-link__copy">
-          <span className="eyebrow">Daily practice</span>
-          <p>Write and check in from Reflect.</p>
-        </div>
-        <button type="button" className="button-main compass-reflect-link__button" onClick={() => navigate('reflect')}>
-          <PenIcon size={18} />
-          Open Reflect
-        </button>
       </div>
     </div>
   );

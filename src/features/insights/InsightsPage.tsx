@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave, useNavigate } from '../../app/navigationContext';
 import { compassService, lifeService, reflectionService } from '../../app/services';
 import { pursuitCheckIns } from '../../app/pursuits';
 import { ArrowLeftIcon, CheckIcon, ClockIcon, CompassIcon, NoteIcon, ScalesIcon, SunIcon } from '../../components/icons/Icons';
@@ -74,7 +73,7 @@ function subscribeAll(listener: () => void) {
  */
 export default function InsightsPage() {
   const navigate = useNavigate();
-  useBackHandler(true, () => navigate('reflect'));
+  const leave = useLeave('reflect');
   const [period, setPeriod] = useState<InsightPeriod>('week');
   const pursuitCheckInRecords = pursuitCheckIns.use();
   const currentRange = insightRange(period, new Date());
@@ -103,7 +102,7 @@ export default function InsightsPage() {
 
   return (
     <div className="page">
-      <button type="button" className="back-link" onClick={() => navigate('reflect')}>
+      <button type="button" className="back-link" onClick={leave}>
         <ArrowLeftIcon size={18} />
         Reflect
       </button>

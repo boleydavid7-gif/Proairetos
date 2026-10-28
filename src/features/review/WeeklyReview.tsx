@@ -1,8 +1,7 @@
 import { kindOf } from '../../core/life-items/kinds';
-import { useBackHandler } from '../../app/back/backStack';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
-import { useNavigate } from '../../app/navigationContext';
+import { useLeave, useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, reflectionService, scheduleService } from '../../app/services';
 import { ArrowLeftIcon } from '../../components/icons/Icons';
@@ -149,7 +148,7 @@ export default function WeeklyReview() {
   const [note, setNote] = useState('');
   const [finished, setFinished] = useState(false);
   const last = step === steps.length - 1;
-  useBackHandler(true, () => navigate('reflect'));
+  const leave = useLeave('reflect');
 
   async function finish() {
     await reflectionService
@@ -171,7 +170,7 @@ export default function WeeklyReview() {
 
   return (
     <div className="page">
-      <button type="button" className="back-link" onClick={() => (step === 0 ? navigate('reflect') : setStep(step - 1))}>
+      <button type="button" className="back-link" onClick={() => (step === 0 ? leave() : setStep(step - 1))}>
         <ArrowLeftIcon size={18} />
         {step === 0 ? 'Reflect' : steps[step - 1].title}
       </button>
@@ -190,7 +189,7 @@ export default function WeeklyReview() {
       {step === 5 && <ValuesStep note={note} onNote={setNote} />}
 
       <div className="editor-actions">
-        <button type="button" className="button-quiet" onClick={() => navigate('reflect')}>
+        <button type="button" className="button-quiet" onClick={leave}>
           Stop here
         </button>
         <span className="editor-actions__spacer" />

@@ -28,3 +28,14 @@ export const routePaths: Record<AppRoute, string> = {
 };
 
 export const defaultRoute: AppRoute = 'today';
+
+/** Where a page that sits under a main tab belongs, for a page opened straight from its address. */
+export const parentRoute: Partial<Record<AppRoute, AppRoute>> = {
+  compass: 'reflect',
+  journal: 'reflect',
+  insights: 'reflect',
+  meditate: 'reflect',
+  review: 'reflect',
+  schedule: 'settings',
+  settings: 'today',
+};
