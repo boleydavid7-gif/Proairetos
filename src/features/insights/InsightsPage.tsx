@@ -3,7 +3,7 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { compassService, lifeService, reflectionService } from '../../app/services';
-import { pursuitCheckIns, pursuits, type Pursuit } from '../../app/pursuits';
+import { pursuitCheckIns } from '../../app/pursuits';
 import { ArrowLeftIcon, CheckIcon, ClockIcon, CompassIcon, NoteIcon, ScalesIcon, SunIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { gatherInsights, insightRange, previousRange, sideBySide, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
@@ -50,25 +50,15 @@ function OverviewCard({ reflections, captured, done }: { reflections: number; ca
   );
 }
 
-function PursuitsInsightCard({ active, checkIns, range }: { active: Pursuit[]; checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date } }) {
+function CheckInsInsightCard({ checkIns, range }: { checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date } }) {
   const inPeriod = checkIns.filter((checkIn) => {
     const date = new Date(`${checkIn.date}T12:00:00`);
     return date >= range.start && date < range.end;
   });
   return (
     <InsightCard icon={<CompassIcon size={28} />} title="Check-ins">
-      {active.length === 0 ? (
-        <p className="insight-card__note">No active pursuits yet.</p>
-      ) : (
-        <>
-          <ul className="insight-projects">
-            {active.slice(0, 4).map((pursuit) => {
-              const count = inPeriod.filter((checkIn) => checkIn.pursuitId === pursuit.id).length;
-              return <li key={pursuit.id}><strong>{pursuit.title}</strong><span>{count === 0 ? 'No check-ins in this period' : plural(count, 'check-in', 'check-ins')}</span></li>;
-            })}
-          </ul>
-        </>
-      )}
+      <p className="insight-total">{inPeriod.length}</p>
+      <p className="insight-card__note">{plural(inPeriod.length, 'check-in', 'check-ins')} in this period.</p>
     </InsightCard>
   );
 }
@@ -86,7 +76,6 @@ export default function InsightsPage() {
   const navigate = useNavigate();
   useBackHandler(true, () => navigate('reflect'));
   const [period, setPeriod] = useState<InsightPeriod>('week');
-  const activePursuits = pursuits.use().filter((pursuit) => pursuit.status === 'active');
   const pursuitCheckInRecords = pursuitCheckIns.use();
   const currentRange = insightRange(period, new Date());
   const insights = useServiceData(
@@ -143,8 +132,7 @@ export default function InsightsPage() {
             done={Object.values(insights.doneAt).reduce((sum, count) => sum + count, 0)}
           />
 
-          <PursuitsInsightCard
-            active={activePursuits}
+          <CheckInsInsightCard
             checkIns={pursuitCheckInRecords}
             range={currentRange}
           />
