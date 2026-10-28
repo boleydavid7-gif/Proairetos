@@ -15,6 +15,8 @@ export interface Decision {
   choice: string;
   /** Why, if they want to remember. */
   reasons?: string;
+  /** What the choice made room for in the person's selected values. */
+  valueNotes?: Record<string, string>;
   decidedAt: string;
   /** What the person expects to happen, written before the outcome is known. */
   expected?: string;

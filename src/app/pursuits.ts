@@ -45,6 +45,7 @@ export type Pursuit = {
   friction?: string;
   approach?: string;
   nextMove?: string;
+  valueNotes?: Record<string, string>;
   dueDate?: string;
   /** Legacy due field, read only for older saved pursuits. */
   nextMoveDue?: string;

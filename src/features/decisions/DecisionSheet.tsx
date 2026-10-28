@@ -1,8 +1,7 @@
 import { useSheet } from '../../components/ui/useSheet';
 import { useState, type FormEvent } from 'react';
-import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { decisionService, reflectionService } from '../../app/services';
+import { compassService, decisionService, reflectionService } from '../../app/services';
 import {
   confidenceLabels,
   outcomeLabels,
@@ -14,6 +13,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import { formatLocalDay } from '../schedule/format';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
 import { Sym } from '../../lamplight/icons';
+import { useServiceData } from '../../app/hooks/useServiceData';
 
 type Props = {
   decisionId: string;
@@ -27,6 +27,7 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
   const { dialog, panel } = useSheet();
   const { offerUndo } = useOverlays();
   const decision = useServiceData(decisionService.subscribe, () => decisionService.get(decisionId), [decisionId]);
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
   const notes = useServiceData(reflectionService.subscribe, () => reflectionService.forDecision(decisionId), [decisionId]) ?? [];
   const [draft, setDraft] = useState('');
   const [rescheduling, setRescheduling] = useState(false);
@@ -96,6 +97,15 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
               <section className="sheet__section" aria-label="Why">
                 <p className="sheet__label">Why</p>
                 <p className="decision-reasons">{decision.reasons}</p>
+              </section>
+            )}
+
+            {decision.valueNotes && Object.keys(decision.valueNotes).length > 0 && (
+              <section className="sheet__section" aria-label="What this added to your values">
+                <p className="sheet__label">What this added to your values</p>
+                {values.filter((value) => decision.valueNotes?.[value.id]).map((value) => (
+                  <div key={value.id} className="decision-reasons"><strong>{value.name}</strong><br />{decision.valueNotes?.[value.id]}</div>
+                ))}
               </section>
             )}
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronIcon, PlusIcon } from '../../app/family/icons';
-import { decisionService } from '../../app/services';
+import { compassService, decisionService } from '../../app/services';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useSheet } from '../../components/ui/useSheet';
@@ -22,6 +22,7 @@ import {
   type PursuitStatus,
 } from '../../app/pursuits';
 import type { Decision } from '../../core/decisions/types';
+import ValueNotes from './ValueNotes';
 
 const nowStamp = () => new Date().toISOString();
 const todayDate = () => {
@@ -154,11 +155,19 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
   const checkIns = pursuitCheckIns.use().filter((checkIn) => checkIn.pursuitId === pursuit.id).sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt));
   const [draft, setDraft] = useState(pursuit);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
 
   const update = (patch: Partial<Pursuit>) => {
     const next = { ...draft, ...patch, updatedAt: nowStamp() };
     setDraft(next);
     pursuits.put(next);
+  };
+
+  const updateValueNote = (valueId: string, text: string) => {
+    const valueNotes = { ...(draft.valueNotes ?? {}) };
+    if (text.trim()) valueNotes[valueId] = text;
+    else delete valueNotes[valueId];
+    update({ valueNotes: Object.keys(valueNotes).length ? valueNotes : undefined });
   };
 
   const deletePursuit = async () => {
@@ -190,6 +199,7 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
         <TextField label="Where are you starting from?" value={draft.current} onChange={(value) => update({ current: value })} />
         <TextField label="What might help?" value={draft.approach} onChange={(value) => update({ approach: value })} />
         <TextField label="What is the next small step?" value={draft.nextMove} onChange={(value) => update({ nextMove: value })} />
+        <ValueNotes values={values} notes={draft.valueNotes ?? {}} title="What might this add to your values?" onChange={updateValueNote} />
         <label className="field"><span className="field__label">Due date <span className="muted">(optional)</span></span><input className="input" type="date" value={draft.dueDate ?? draft.nextMoveDue ?? ''} onChange={(event) => update({ dueDate: event.target.value || undefined, nextMoveDue: undefined })} /></label>
       </section>
 

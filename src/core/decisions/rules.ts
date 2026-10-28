@@ -6,6 +6,7 @@ export type DecisionInput = {
   options: string[];
   choice: string;
   reasons?: string;
+  valueNotes?: Record<string, string>;
   revisitAt?: string;
   lifeItemId?: string;
   pursuitId?: string;
@@ -40,6 +41,8 @@ export function makeDecision(ctx: DomainContext, userId: string, input: Decision
     throw new DecisionError(`Keep each part to ${MAX_DECISION_TEXT} characters.`);
   }
 
+  const valueNotes = Object.fromEntries(Object.entries(input.valueNotes ?? {}).map(([id, text]) => [id, text.trim()]).filter(([, text]) => text));
+
   return {
     id: ctx.newId(),
     userId,
@@ -49,6 +52,7 @@ export function makeDecision(ctx: DomainContext, userId: string, input: Decision
     options,
     choice,
     reasons: input.reasons?.trim() || undefined,
+    valueNotes: Object.keys(valueNotes).length ? valueNotes : undefined,
     expected: input.expected?.trim() || undefined,
     confidence: input.confidence,
     decidedAt: ctx.now().toISOString(),

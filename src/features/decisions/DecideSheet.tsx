@@ -1,10 +1,12 @@
 import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
-import { decisionService, lifeService } from '../../app/services';
+import { compassService, decisionService, lifeService } from '../../app/services';
+import { useServiceData } from '../../app/hooks/useServiceData';
 import { MAX_DECISION_OPTIONS, confidenceLabels, type DecisionConfidence } from '../../core/decisions/types';
 import { revisitChoices, revisitDate, type RevisitChoice } from './revisit';
 import { Sym } from '../../lamplight/icons';
 import IconButton from '../../components/ui/IconButton';
+import ValueNotes from '../compass/ValueNotes';
 
 export type DecideFrom = { itemId?: string; title: string; pursuitId?: string };
 
@@ -27,6 +29,8 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
   const [picked, setPicked] = useState('');
   const [closeItem, setCloseItem] = useState(true);
   const [error, setError] = useState('');
+  const [valueNotes, setValueNotes] = useState<Record<string, string>>({});
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
 
 
   const filled = options.map((option) => option.trim());
@@ -42,6 +46,7 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
         reasons,
         expected,
         confidence,
+        valueNotes,
         revisitAt: revisitDate(revisit, picked),
         lifeItemId: from?.itemId,
         pursuitId: from?.pursuitId,
@@ -131,6 +136,13 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
             onChange={(event) => setReasons(event.target.value)}
           />
         </label>
+
+        <ValueNotes
+          values={values}
+          notes={valueNotes}
+          title="What does this add to your values?"
+          onChange={(valueId, text) => setValueNotes((current) => ({ ...current, [valueId]: text }))}
+        />
 
         <section className="sheet__section" aria-label="Expectation">
           <label className="plan-field">

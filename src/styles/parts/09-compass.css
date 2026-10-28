@@ -829,6 +829,29 @@ button.value-card__text:disabled {
   gap: var(--space-1);
 }
 
+.value-notes {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.value-notes summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.value-notes__fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.value-notes__fields label {
+  display: grid;
+  gap: var(--space-1);
+}
+
 .pursuit-checkin__history {
   display: grid;
   gap: var(--space-2);
