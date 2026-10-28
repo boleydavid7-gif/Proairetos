@@ -6,7 +6,7 @@ export type OnboardingStep = {
   /** The form for name, values, and shifts. */
   form?: boolean;
   /** A panel in place of the form: Home Screen steps, or the other apps. */
-  panel?: 'home-screen' | 'apps';
+  panel?: 'home-screen' | 'apps' | 'plans';
 };
 
 export const onboardingSteps: OnboardingStep[] = [
@@ -32,6 +32,12 @@ export const onboardingSteps: OnboardingStep[] = [
     lines: ['Add the ones you want, when you want.'],
     action: 'Continue',
     panel: 'apps',
+  },
+  {
+    title: 'Prices and sync',
+    lines: ['Proairetos is free. Sync is optional.'],
+    action: 'Continue',
+    panel: 'plans',
   },
   {
     title: 'Make it yours',

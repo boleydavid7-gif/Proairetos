@@ -64,7 +64,7 @@ export default function StoreSection() {
         <p>Proairetos stays free. Subscriptions unlock the companion apps and optional services, and follow your account on every device.</p>
         <div className="store__plans">
           <PlanCard plan="core" title="Core apps" detail="All service-free family apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <PlanCard plan="soma" title="Soma" detail="Sleep and wind-down tools" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="soma" title="Soma" detail="Recipes and groceries" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="phyton" title="Phyton" detail="Plant identification" price={priceText('phyton')} owned={owner || tester || owned.includes('phyton')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00/mo' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}

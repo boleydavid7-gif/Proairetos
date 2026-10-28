@@ -5,7 +5,7 @@ import OnboardingLayout from './components/OnboardingLayout';
 import StepDots from './components/StepDots';
 import { onboardingSteps } from './steps';
 import HomeScreen from './components/HomeScreen';
-import MoreApps from './components/MoreApps';
+import MoreApps, { PlansAndSync } from './components/MoreApps';
 import { openSettingsAt } from '../settings/settingsViews';
 import MakeItYours, { type Choices } from './components/MakeItYours';
 import type { AppRoute } from '../../app/routes/routeTypes';
@@ -65,6 +65,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
         </p>
         {step.form && <MakeItYours choices={choices} onChange={setChoices} />}
         {step.panel === 'home-screen' && <HomeScreen />}
+        {step.panel === 'plans' && <PlansAndSync />}
         {step.panel === 'apps' && (
           <MoreApps
             onStore={() => {
@@ -85,7 +86,12 @@ export default function OnboardingPage({ onGetStarted }: Props) {
         >
           {step.action}
         </button>
-        {/* Signing in lives in Settings, under Account and sync. */}
+        {/* Signing in lives in Settings, under Account and sync. Prices and sync can be passed over. */}
+        {step.panel === 'plans' ? (
+          <button type="button" className="onboarding-link" onClick={() => setIndex(index + 1)}>
+            Skip this
+          </button>
+        ) : (
         <button
           type="button"
           className="onboarding-link"
@@ -94,6 +100,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
         >
           I already have an account
         </button>
+        )}
       </div>
     </OnboardingLayout>
   );

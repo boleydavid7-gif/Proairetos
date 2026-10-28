@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-28',
     lines: [
+      'The welcome walkthrough has a Prices and sync step (skippable): Proairetos free, the app plans, and sync through your own cloud storage or Proairetos cloud (1 GB).',
       'Praxis is retired: its study room is Theoria’s Pomodoro, and a Praxis link or the installed Praxis opens it there. Hydros is hidden for now and sends no reminders.',
       'Theoria’s Add a book starts with the file and fills the title and author from it (a file named “Title - Author” gives both); the rest waits under More details. Reader with no book open stays in the Library.',
       'Theoria on a computer: one name in the sidebar, Proairetos at its foot, the date at the left. Today on a computer no longer leaves wide gaps between its cards.',

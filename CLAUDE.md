@@ -1354,7 +1354,10 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
 - Onboarding (`features/onboarding/steps.ts`) has two panel steps before Make it yours: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
-  "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store).
+  "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store),
+  then "Prices and sync" (panel `plans`, `PlansAndSync` in the same file: Proairetos free, Core apps, Soma, Phyton, Soma +
+  Phyton from `priceText`, then Sync: kept on the device, or synced through the person's own Drive/Dropbox/OneDrive or
+  Proairetos cloud, 1 GB at `priceText('cloud')`/mo); "Skip this" under Continue passes it over.
 - Premium round for the older apps: Askesis Progress and Oikonomia Spent use the shared `ColumnChart` (8 weeks; six
   months); Askesis entries open as `EntryView` with Edit (`EntryForm`); Soma groceries swipe to tick. `SwipeItem` and
   `Empty` (`app/family/Empty.tsx`, class `.list-empty`; `.empty` is Askesis's older style) carry their own CSS
