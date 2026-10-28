@@ -62,6 +62,10 @@ export type PursuitCheckIn = {
   accomplishment?: string;
   feeling?: PursuitFeeling;
   note?: string;
+  trigger?: string;
+  noticed?: string;
+  response?: string;
+  learned?: string;
   createdAt: string;
   updatedAt: string;
 };

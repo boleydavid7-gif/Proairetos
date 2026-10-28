@@ -214,21 +214,29 @@ function PursuitCheckInSheet({ pursuit, checkIns, onUpdate, onClose }: { pursuit
   const [accomplishment, setAccomplishment] = useState(existingCheckIn?.accomplishment ?? '');
   const [feeling, setFeeling] = useState<PursuitFeeling | undefined>(existingCheckIn?.feeling);
   const [note, setNote] = useState(existingCheckIn?.note ?? '');
+  const [trigger, setTrigger] = useState(existingCheckIn?.trigger ?? '');
+  const [noticed, setNoticed] = useState(existingCheckIn?.noticed ?? '');
+  const [response, setResponse] = useState(existingCheckIn?.response ?? '');
+  const [learned, setLearned] = useState(existingCheckIn?.learned ?? '');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setAccomplishment(existingCheckIn?.accomplishment ?? '');
     setFeeling(existingCheckIn?.feeling);
     setNote(existingCheckIn?.note ?? '');
+    setTrigger(existingCheckIn?.trigger ?? '');
+    setNoticed(existingCheckIn?.noticed ?? '');
+    setResponse(existingCheckIn?.response ?? '');
+    setLearned(existingCheckIn?.learned ?? '');
     setSaved(false);
   }, [selectedDate, existingCheckIn?.id]);
 
   const save = () => {
-    if (!accomplishment.trim() && !feeling) return;
+    if (!accomplishment.trim() && !feeling && !note.trim() && !trigger.trim() && !noticed.trim() && !response.trim() && !learned.trim()) return;
     const stamp = nowStamp();
     const record: PursuitCheckIn = existingCheckIn
-      ? { ...existingCheckIn, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, updatedAt: stamp }
-      : { id: newPursuitCheckInId(), pursuitId: pursuit.id, date: selectedDate, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, createdAt: stamp, updatedAt: stamp };
+      ? { ...existingCheckIn, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, trigger: trigger.trim() || undefined, noticed: noticed.trim() || undefined, response: response.trim() || undefined, learned: learned.trim() || undefined, updatedAt: stamp }
+      : { id: newPursuitCheckInId(), pursuitId: pursuit.id, date: selectedDate, accomplishment: accomplishment.trim() || undefined, feeling, note: note.trim() || undefined, trigger: trigger.trim() || undefined, noticed: noticed.trim() || undefined, response: response.trim() || undefined, learned: learned.trim() || undefined, createdAt: stamp, updatedAt: stamp };
     pursuitCheckIns.put(record);
     onUpdate({ lastCheckInAt: stamp });
     setSaved(true);
@@ -245,9 +253,17 @@ function PursuitCheckInSheet({ pursuit, checkIns, onUpdate, onClose }: { pursuit
         <label className="sheet__section"><span className="sheet__label">What did you accomplish?</span><textarea className="field-input field-input--area" rows={3} value={accomplishment} onChange={(event) => { setAccomplishment(event.target.value); setSaved(false); }} /></label>
         <section className="sheet__section"><p className="sheet__label">How did the day feel?</p><div className="chip-row pursuit-feelings" role="group" aria-label="How the day felt">{PURSUIT_FEELINGS.map((option) => <button key={option.id} type="button" className="chip" aria-pressed={feeling === option.id} onClick={() => { setFeeling(feeling === option.id ? undefined : option.id); setSaved(false); }}>{option.label}</button>)}</div></section>
         <label className="sheet__section"><span className="sheet__label">What did you notice or want to carry forward?</span><textarea className="field-input field-input--area" rows={3} value={note} onChange={(event) => { setNote(event.target.value); setSaved(false); }} /></label>
+        {pursuit.kind === 'change' && (
+          <section className="sheet__section pursuit-pattern" aria-label="Pattern check-in">
+            <label><span className="sheet__label">What happened just before?</span><textarea className="field-input field-input--area" rows={2} value={trigger} onChange={(event) => { setTrigger(event.target.value); setSaved(false); }} /></label>
+            <label><span className="sheet__label">What did you notice?</span><textarea className="field-input field-input--area" rows={2} value={noticed} onChange={(event) => { setNoticed(event.target.value); setSaved(false); }} /></label>
+            <label><span className="sheet__label">What did you do next?</span><textarea className="field-input field-input--area" rows={2} value={response} onChange={(event) => { setResponse(event.target.value); setSaved(false); }} /></label>
+            <label><span className="sheet__label">What did you learn?</span><textarea className="field-input field-input--area" rows={2} value={learned} onChange={(event) => { setLearned(event.target.value); setSaved(false); }} /></label>
+          </section>
+        )}
         <label className="sheet__section"><span className="sheet__label">Remind me after no check-in</span><select className="field-input" value={reminderDaysFor(pursuit)} onChange={(event) => onUpdate({ reminderAfterDays: Number(event.target.value) })}>{PURSUIT_REMINDER_CHOICES.map((choice) => <option key={choice.days} value={choice.days}>{choice.label}</option>)}</select></label>
         {checkIns.length > 0 && <section className="sheet__section pursuit-checkin__history"><p className="sheet__label">Recent check-ins</p><ul>{checkIns.slice(0, 7).map((checkIn) => <li key={checkIn.id}><strong>{formatDate(checkIn.date)}</strong><span>{checkIn.feeling ? PURSUIT_FEELINGS.find((item) => item.id === checkIn.feeling)?.label : ''}{checkIn.accomplishment ? `${checkIn.feeling ? ' · ' : ''}${checkIn.accomplishment}` : ''}</span></li>)}</ul></section>}
-        <div className="sheet__footer"><span className="pursuit-checkin__saved">{saved ? 'Saved' : ''}</span><button type="button" className="button-accent button--sm" disabled={!accomplishment.trim() && !feeling} onClick={save}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button></div>
+        <div className="sheet__footer"><span className="pursuit-checkin__saved">{saved ? 'Saved' : ''}</span><button type="button" className="button-accent button--sm" disabled={!accomplishment.trim() && !feeling && !note.trim() && !trigger.trim() && !noticed.trim() && !response.trim() && !learned.trim()} onClick={save}>{existingCheckIn ? 'Update check-in' : 'Save check-in'}</button></div>
       </div>
     </dialog>
   );
