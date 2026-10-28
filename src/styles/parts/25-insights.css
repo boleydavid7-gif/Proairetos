@@ -9,6 +9,72 @@
   background: var(--color-surface);
 }
 
+.insight-card--overview {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--color-accent) 11%, var(--color-surface)), var(--color-surface) 72%);
+}
+
+.insight-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+}
+
+.insight-overview div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.insight-overview dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+}
+
+.insight-overview dt {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.insight-projects {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insight-projects li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.insight-projects li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.insight-projects strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.insight-projects span {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.insight-card__action {
+  align-self: flex-start;
+}
+
 .insight-card__icon {
   flex: none;
   color: var(--color-accent);

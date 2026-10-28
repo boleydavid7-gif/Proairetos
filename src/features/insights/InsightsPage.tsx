@@ -3,6 +3,7 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { compassService, lifeService, reflectionService } from '../../app/services';
+import { pursuitCheckIns, pursuits, type Pursuit } from '../../app/pursuits';
 import { ArrowLeftIcon, CheckIcon, ClockIcon, CompassIcon, NoteIcon, ScalesIcon, SunIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { gatherInsights, insightRange, previousRange, sideBySide, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
@@ -33,6 +34,46 @@ function InsightCard({ icon, title, children }: { icon: ReactNode; title: string
   );
 }
 
+function OverviewCard({ reflections, captured, done }: { reflections: number; captured: number; done: number }) {
+  return (
+    <section className="insight-card insight-card--overview" aria-label="At a glance">
+      <div className="insight-card__body">
+        <p className="eyebrow">At a glance</p>
+        <h2 className="insight-card__title">What you left a record of</h2>
+        <dl className="insight-overview">
+          <div><dd>{reflections}</dd><dt>reflections</dt></div>
+          <div><dd>{captured}</dd><dt>captures</dt></div>
+          <div><dd>{done}</dd><dt>completed</dt></div>
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function PursuitsInsightCard({ active, checkIns, range, onOpen }: { active: Pursuit[]; checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date }; onOpen: () => void }) {
+  const inPeriod = checkIns.filter((checkIn) => {
+    const date = new Date(`${checkIn.date}T12:00:00`);
+    return date >= range.start && date < range.end;
+  });
+  return (
+    <InsightCard icon={<CompassIcon size={28} />} title="In motion">
+      {active.length === 0 ? (
+        <p className="insight-card__note">No active pursuits yet.</p>
+      ) : (
+        <>
+          <ul className="insight-projects">
+            {active.slice(0, 4).map((pursuit) => {
+              const count = inPeriod.filter((checkIn) => checkIn.pursuitId === pursuit.id).length;
+              return <li key={pursuit.id}><strong>{pursuit.title}</strong><span>{count === 0 ? 'No check-ins in this period' : plural(count, 'check-in', 'check-ins')}</span></li>;
+            })}
+          </ul>
+          <button type="button" className="button-quiet insight-card__action" onClick={onOpen}>Open Compass</button>
+        </>
+      )}
+    </InsightCard>
+  );
+}
+
 function subscribeAll(listener: () => void) {
   const unsubscribers = [lifeService, reflectionService, compassService].map((service) => service.subscribe(listener));
   return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
@@ -46,6 +87,9 @@ export default function InsightsPage() {
   const navigate = useNavigate();
   useBackHandler(true, () => navigate('reflect'));
   const [period, setPeriod] = useState<InsightPeriod>('week');
+  const activePursuits = pursuits.use().filter((pursuit) => pursuit.status === 'active');
+  const pursuitCheckInRecords = pursuitCheckIns.use();
+  const currentRange = insightRange(period, new Date());
   const insights = useServiceData(
     subscribeAll,
     async () => {
@@ -94,7 +138,20 @@ export default function InsightsPage() {
 
       {insights && (
         <>
-          <InsightCard icon={<SunIcon size={28} />} title="Inner weather you noted">
+          <OverviewCard
+            reflections={insights.reflections}
+            captured={captureTotal}
+            done={Object.values(insights.doneAt).reduce((sum, count) => sum + count, 0)}
+          />
+
+          <PursuitsInsightCard
+            active={activePursuits}
+            checkIns={pursuitCheckInRecords}
+            range={currentRange}
+            onOpen={() => navigate('compass')}
+          />
+
+          <InsightCard icon={<SunIcon size={28} />} title="Your internal weather">
             {weatherTotal === 0 ? (
               <p className="insight-card__note">
                 None noted yet.
@@ -117,7 +174,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<NoteIcon size={28} />} title="What you captured">
+          <InsightCard icon={<NoteIcon size={28} />} title="Things you captured">
             {captureTotal === 0 ? (
               <p className="insight-card__note">Nothing captured in this period.</p>
             ) : (
@@ -136,7 +193,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<ClockIcon size={28} />} title="When you wrote">
+          <InsightCard icon={<ClockIcon size={28} />} title="Writing rhythm">
             {insights.reflections === 0 ? (
               <p className="insight-card__note">No reflections in this period.</p>
             ) : (
@@ -151,7 +208,7 @@ export default function InsightsPage() {
             )}
           </InsightCard>
 
-          <InsightCard icon={<CheckIcon size={28} />} title="When things got done">
+          <InsightCard icon={<CheckIcon size={28} />} title="Completed by time of day">
             {Object.values(insights.doneAt).every((n) => n === 0) ? (
               <p className="insight-card__note">Nothing marked done in this period.</p>
             ) : (
