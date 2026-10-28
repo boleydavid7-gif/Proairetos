@@ -74,6 +74,11 @@
   --ll-chip-lg: 44px;
   --ll-nav-indicator-width: 28px;
   --ll-nav-indicator-height: 3px;
+  /* The dock's line keeps one timing in every app; an app's tempo (identity.css) never reaches it. */
+  --ll-dock-slide: 420ms;
+  --ll-dock-stretch: 240ms;
+  --ll-dock-fade: 180ms;
+  --ll-dock-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Type: the serif for page titles, quotes and the person's own words; the sans for everything else. */
   --ll-serif: 'EB Garamond', Georgia, serif;

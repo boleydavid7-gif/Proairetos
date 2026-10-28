@@ -378,7 +378,7 @@
     filter: blur(2px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+    transition: opacity var(--ll-dock-fade) ease;
   }
 
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-marked::before {
@@ -399,7 +399,7 @@
     translate: -50% 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+    transition: opacity var(--ll-dock-fade) ease;
   }
 
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-marked::after {
@@ -408,9 +408,9 @@
 
   :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav).ll-dock-ready::after {
     transition:
-      left var(--ll-slow, 420ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)),
-      width var(--ll-calm, 240ms) var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)),
-      opacity var(--ll-quick, 180ms) var(--ll-ease-out, ease);
+      left var(--ll-dock-slide) var(--ll-dock-ease),
+      width var(--ll-dock-stretch) var(--ll-dock-ease),
+      opacity var(--ll-dock-fade) ease;
   }
 
   /* On its way to another place the line stretches a little, like light drawn across, and settles back on arrival
@@ -419,10 +419,12 @@
     width: calc(var(--ll-nav-indicator-width, 28px) * 1.75);
   }
 
-  :root :is(.hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {
-    transition: translate var(--ll-calm) var(--ll-spring);
+  /* The current place's icon lifts the same 2 px, on the same timing, in every dock. */
+  :root :is(.tab-bar, .hydros-tabs, .praxis-bottom-nav, .theoria-bottom-nav) :is(svg, .theoria-nav-list button span) {
+    transition: translate var(--ll-dock-stretch) var(--ll-dock-ease);
   }
 
+  :root .tab-bar [aria-current='page'] svg,
   :root .hydros-tabs__item[aria-current='page'] svg,
   :root .praxis-bottom-nav .praxis-nav-item[aria-current='page'] svg,
   :root .theoria-bottom-nav .theoria-nav-list button.is-active span {

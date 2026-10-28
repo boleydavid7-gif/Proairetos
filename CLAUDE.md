@@ -423,6 +423,22 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   icon of its own gets a small chevron that turns down when open. `ColumnChart` labels every other day counted back
   from the newest. A fact needing two records (bedtime variation) shows only once there are two.
 - Spacing between cards: a wrapper that groups cards inside a page (Askesis's `.home-top` / `.home-main`) lays them out with `--ll-gap` itself, since the page's gap stops at the wrapper; lists of cards use `--ll-gap` too (Diaita's `.diaita-week`). Empty-state and card titles carry no full stop.
+- Going back (`app/back/backStack.ts`, `App.tsx`): route history entries carry `proairetosDepth`; a page under a main tab
+  leaves with `useLeave(fallback)` (`navigationContext.ts`): `history.back()` to wherever it was opened from, else
+  `fallback` as a replace (a page opened from its own address gets its parent, `parentRoute`, put underneath). Never
+  `navigate(parent)` from a back button, and never `useBackHandler(true, navigate…)` for a whole page: the step's clean-up
+  then stepped history back over the new entry and the address stayed on the old page. `go()` first runs `unwindThen`,
+  which closes open back steps (sheets, sub-views) and takes their entries off before pushing. The edge swipe uses the
+  back stack, then route depth. Sub-views (the pursuit form, an open pursuit, a Settings page) are back steps of their own.
+- Deep links keep the record: Today's pursuit and search results call `openPursuit` / `openCompassTab` before
+  `navigate('compass')`; Look ahead's Choose forces Direction; the study row opens `/theoria/?open=pomodoro:block:ID`
+  (Theoria passes `block:ID` to the embedded Praxis); bill rows open `/oikonomia/?open=bill:ID` when there is one bill.
+  Search closes before opening an item or decision.
+- One control contract (`src/lamplight/controls.css`, after `material.css`): Mneme's, Praxis's and Theoria's own fields
+  (filled well, hairline, the lamp's halo on focus), main buttons (the lamp's pill), quiet buttons (tonal pill), danger
+  and choices (8 px chips, tonal when chosen) take the shared recipe; add an app's own control classes there, not per app.
+  Docks keep one timing (`--ll-dock-slide|stretch|fade|ease` in `tokens.css`, untouched by an app's tempo) and every
+  dock's current icon lifts 2 px.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

@@ -1,0 +1,142 @@
+/*
+ * One control contract for the apps that kept controls of their own (Mneme, Praxis, Theoria and the Praxis study room
+ * inside Theoria). Their layouts stay theirs; their text fields, buttons and chips take the same material as the shared
+ * classes in adopt.css and material.css: a filled well with a hairline and the lamp's halo on focus, the lamp's pill for
+ * the one main action, the tonal pill for the rest, and 8 px chips that turn tonal when chosen. Imported after
+ * material.css, `:root`-prefixed so it outranks each app's own sheet without !important.
+ */
+
+/* ---------- Text fields ---------- */
+:root :is(
+  .mneme-field :is(input, textarea, select),
+  .mneme-create input,
+  .mneme-idea-composer textarea,
+  .mneme-search,
+  .praxis-add input,
+  .praxis-block-form :is(input, select),
+  .praxis-after input,
+  .praxis-card-form :is(input, textarea),
+  .praxis-card-edit :is(input, textarea),
+  .praxis-adjust__other input,
+  .theoria-modal :is(input:not([type='file']), select, textarea),
+  .theoria-global-search,
+  .theoria-reader-search input
+) {
+  border: 1px solid var(--ll-field-edge);
+  border-radius: var(--ll-radius-sm);
+  background: var(--ll-inset);
+  color: var(--ll-ink, inherit);
+  box-shadow: var(--ll-field-well);
+  transition: border-color var(--ll-calm, 200ms) ease, box-shadow var(--ll-calm, 200ms) ease;
+}
+
+/* Mneme's search is a box holding a field: the box takes the well, the field inside stays bare. */
+:root .mneme-search input {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  :root :is(
+    .mneme-field :is(input, textarea, select),
+    .mneme-create input,
+    .mneme-idea-composer textarea,
+    .mneme-search,
+    .praxis-add input,
+    .praxis-block-form :is(input, select),
+    .praxis-after input,
+    .praxis-card-form :is(input, textarea),
+    .praxis-card-edit :is(input, textarea),
+    .theoria-modal :is(input:not([type='file']), select, textarea),
+    .theoria-global-search,
+    .theoria-reader-search input
+  ):hover:not(:focus, :focus-within, :disabled) {
+    border-color: var(--ll-field-edge-hover);
+  }
+}
+
+:root :is(
+  .mneme-field :is(input, textarea, select),
+  .mneme-create input,
+  .mneme-idea-composer textarea,
+  .praxis-add input,
+  .praxis-block-form :is(input, select),
+  .praxis-after input,
+  .praxis-card-form :is(input, textarea),
+  .praxis-card-edit :is(input, textarea),
+  .praxis-adjust__other input,
+  .theoria-modal :is(input:not([type='file']), select, textarea),
+  .theoria-global-search,
+  .theoria-reader-search input
+):focus,
+:root .mneme-search:focus-within {
+  outline: none;
+  border-color: rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.85);
+  box-shadow: var(--ll-field-well), var(--ll-focus);
+}
+
+/* ---------- The one lit action: the lamp's pill ---------- */
+:root :is(.mneme-primary, .praxis-button--primary, .theoria-primary-button) {
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-lamp-fill);
+  color: var(--ll-on-lamp);
+  box-shadow: var(--ll-lamp-light);
+  letter-spacing: 0;
+  transform: none;
+}
+
+:root :is(.mneme-primary, .praxis-button--primary, .theoria-primary-button):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--ll-lamp-fill);
+  background-image: linear-gradient(var(--ll-state-hover), var(--ll-state-hover));
+}
+
+:root :is(.mneme-primary, .praxis-button--primary, .theoria-primary-button):active:not(:disabled) {
+  background-image: linear-gradient(var(--ll-state-pressed), var(--ll-state-pressed));
+}
+
+:root :is(.mneme-primary, .praxis-button--primary, .theoria-primary-button):disabled {
+  box-shadow: none;
+}
+
+/* ---------- Everything else is tonal ---------- */
+:root :is(.mneme-secondary, .praxis-button--quiet, .theoria-secondary-button) {
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-tonal);
+  color: var(--ll-on-tonal);
+  box-shadow: none;
+}
+
+:root :is(.mneme-secondary, .praxis-button--quiet, .theoria-secondary-button):is(:hover, :focus-visible, :active):not(:disabled) {
+  background: var(--ll-tonal-strong);
+  color: var(--ll-on-tonal);
+}
+
+/* Removing is a plain word on a quiet pill. */
+:root .theoria-danger-button {
+  border: 1px solid var(--ll-hair);
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-remove);
+}
+
+/* ---------- Choices: 8 px chips, tonal when chosen ---------- */
+:root :is(.mneme-filters button, .mneme-capture-modes button, .praxis-chips button, .praxis-add__from button) {
+  border: 1px solid var(--ll-hair);
+  border-radius: var(--ll-radius-xs, 8px);
+  background: transparent;
+  color: var(--ll-ink, inherit);
+}
+
+:root :is(.mneme-filters button, .mneme-capture-modes button, .praxis-chips button, .praxis-add__from button):is(:hover, :focus-visible) {
+  background: var(--ll-state-hover);
+}
+
+:root :is(.mneme-filters, .mneme-capture-modes) button[aria-selected='true'],
+:root .praxis-chips button[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--ll-tonal);
+  color: var(--ll-on-tonal);
+}
