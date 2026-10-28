@@ -50,13 +50,13 @@ function OverviewCard({ reflections, captured, done }: { reflections: number; ca
   );
 }
 
-function PursuitsInsightCard({ active, checkIns, range, onOpen }: { active: Pursuit[]; checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date }; onOpen: () => void }) {
+function PursuitsInsightCard({ active, checkIns, range }: { active: Pursuit[]; checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date } }) {
   const inPeriod = checkIns.filter((checkIn) => {
     const date = new Date(`${checkIn.date}T12:00:00`);
     return date >= range.start && date < range.end;
   });
   return (
-    <InsightCard icon={<CompassIcon size={28} />} title="In motion">
+    <InsightCard icon={<CompassIcon size={28} />} title="Check-ins">
       {active.length === 0 ? (
         <p className="insight-card__note">No active pursuits yet.</p>
       ) : (
@@ -67,7 +67,6 @@ function PursuitsInsightCard({ active, checkIns, range, onOpen }: { active: Purs
               return <li key={pursuit.id}><strong>{pursuit.title}</strong><span>{count === 0 ? 'No check-ins in this period' : plural(count, 'check-in', 'check-ins')}</span></li>;
             })}
           </ul>
-          <button type="button" className="button-quiet insight-card__action" onClick={onOpen}>Open Compass</button>
         </>
       )}
     </InsightCard>
@@ -148,7 +147,6 @@ export default function InsightsPage() {
             active={activePursuits}
             checkIns={pursuitCheckInRecords}
             range={currentRange}
-            onOpen={() => navigate('compass')}
           />
 
           <InsightCard icon={<SunIcon size={28} />} title="Your internal weather">

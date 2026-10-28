@@ -71,10 +71,6 @@
   font-size: var(--text-sm);
 }
 
-.insight-card__action {
-  align-self: flex-start;
-}
-
 .insight-card__icon {
   flex: none;
   color: var(--color-accent);
