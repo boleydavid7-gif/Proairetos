@@ -21,3 +21,6 @@
 :dir(rtl) .ll-topbar__lead.is-back svg {
   scale: -1 1;
 }
+
+/* A mark leading a chip's words keeps a small space from them. */
+.chip > .ll-icon:first-child { margin-inline-end: 4px; vertical-align: -3px; }

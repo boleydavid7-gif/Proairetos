@@ -25,7 +25,7 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
   if (!isSetup(current)) {
     return (
       <div className="home dynamis-home">
-        <Hero title="Strength and mobility" sub="Dynamis" />
+        <Hero title="Strength and mobility" />
         <div className="page page--under-hero">
           <section className="card">
             <h2 className="card__title">Make your plan</h2>
@@ -115,7 +115,7 @@ function weekAllDays(date: string): string[] {
   return weekDays({ days: [0, 1, 2, 3, 4, 5, 6] }, date);
 }
 
-function Hero({ title, sub }: { title: string; sub: string }) {
+function Hero({ title, sub }: { title: string; sub?: string }) {
   return (
     <div className="hero hero--tall hero-shade-soft">
       <picture>
@@ -126,7 +126,7 @@ function Hero({ title, sub }: { title: string; sub: string }) {
         <Brand name="Dynamis" mark={<AppMark app="dynamis" size={30} light />} light />
         <div className="home__words">
           <h1 className="home__title">{title}</h1>
-          <p className="home__sub">{sub}</p>
+          {sub && <p className="home__sub">{sub}</p>}
         </div>
       </div>
     </div>

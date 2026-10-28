@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-28',
     lines: [
+      'The main pages in Proairetos no longer show a back arrow; Days ahead’s add button sits with search and settings at the top.',
+      'An app with nothing in it yet names what it holds (Medicines, Chores, Plants, Things); Oikonomia’s Capture place is now Add; Today’s first invitation reads Set your direction.',
       'Theoria’s reader turns by swiping sideways, in a book’s text and in a PDF’s pages; the arrow keys turn too. Its foot is a lit rail with a notch for each part, the part’s name and how far in you are.',
       'Back goes where you came from: Compass, Meditate, the Journal, Insights, the weekly review, your schedule and Settings return to the page you opened them from, and the address always matches what you see.',
       'Today’s pursuit opens that pursuit in Compass; a study block to look at again opens in Theoria; a single bill opens that bill in Oikonomia.',

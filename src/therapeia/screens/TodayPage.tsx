@@ -34,8 +34,8 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
         <div className="hero__content">
           <Brand name="Therapeia" mark={<AppMark app="therapeia" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{next ? withWho(next.medicine, next.medicine.name) : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
-            <p className="home__sub">{next ? `${at(next.at)}${next.medicine.dose ? ` · ${next.medicine.dose}` : ''}` : 'Medicines'}</p>
+            <h1 className="home__title">{all.length === 0 ? 'Medicines' : next ? withWho(next.medicine, next.medicine.name) : doses.length ? 'All marked' : 'Nothing set for today'}</h1>
+            {all.length > 0 && <p className="home__sub">{next ? `${at(next.at)}${next.medicine.dose ? ` · ${next.medicine.dose}` : ''}` : 'Medicines'}</p>}
           </div>
         </div>
       </div>

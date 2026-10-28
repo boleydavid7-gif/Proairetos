@@ -1,3 +1,4 @@
+import { Sym } from '../../lamplight/icons';
 import { useState } from 'react';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
@@ -25,7 +26,7 @@ export function Ideas({ list, few = false }: { list: readonly Upkeep[]; few?: bo
             const upkeep: Upkeep = { id: newId(), name: idea.name, every: idea.every, distance: idea.distance?.[unit], start: today, history: [], createdAt: new Date().toISOString() };
             putUpkeep(upkeep);
             offerUndo(`${idea.name} added`, () => upkeeps.remove(upkeep.id));
-          }}>+ {idea.name}</button>
+          }}><Sym name="plus" size={16} /> {idea.name}</button>
         ))}
         {!few && !all && every.length > left.length && (
           <button type="button" className="text-link" onClick={() => setAll(true)}>More ideas</button>
@@ -57,8 +58,7 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
         <div className="hero__content">
           <Brand name="Ktema" mark={<AppMark app="ktema" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].upkeep.name : `${groups.now.length} to look after`}</h1>
-            <p className="home__sub">Home, car and belongings</p>
+            <h1 className="home__title">{list.length === 0 && owned.length === 0 ? 'Things' : groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].upkeep.name : `${groups.now.length} to look after`}</h1>
           </div>
         </div>
       </div>

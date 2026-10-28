@@ -377,6 +377,9 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   return (
     <div className="page days-page">
       <div className="page-header__actions days-corner">
+        <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
+          <PlusIcon size={22} />
+        </button>
         <SearchButton />
         <SettingsButton />
       </div>
@@ -384,11 +387,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         <div>
           <h1 className="page-header__title">Days ahead</h1>
         </div>
-        <span className="days-header__actions">
-          <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
-            <PlusIcon size={28} />
-          </button>
-        </span>
       </header>
 
       <div className="days-toolbar">

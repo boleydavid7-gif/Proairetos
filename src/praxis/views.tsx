@@ -214,7 +214,7 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
 export function MoreView({ onView, embedded = false }: { onView: (view: 'sounds' | 'settings') => void; embedded?: boolean }) {
   return (
     <section className="praxis-view praxis-more-view">
-      <div className="praxis-page-heading"><div><h1>More</h1><p className="praxis-subtitle">The room’s sound and app settings.</p></div></div>
+      <div className="praxis-page-heading"><div><h1>More</h1></div></div>
       <div className="praxis-card praxis-more-card">
         <button type="button" className="praxis-more-link" onClick={() => onView('sounds')}>
           <span><strong>Sounds</strong><small>Choose the room you study in.</small></span>

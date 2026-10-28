@@ -46,7 +46,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
         <div className="hero__content">
           <Brand name="Phyton" mark={<AppMark app="phyton" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{groups.now.length === 0 ? 'Nothing to check' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} to check`}</h1>
+            <h1 className="home__title">{all.length === 0 ? 'Plants' : groups.now.length === 0 ? 'Nothing to check' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} to check`}</h1>
             {home && <p className="home__sub">{home.name}</p>}
           </div>
         </div>

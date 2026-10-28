@@ -36,7 +36,6 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
           ) : (
             <div className="home__words">
               <h1 className="home__title">Trips</h1>
-              <p className="home__sub">Where to next?</p>
             </div>
           )}
         </div>

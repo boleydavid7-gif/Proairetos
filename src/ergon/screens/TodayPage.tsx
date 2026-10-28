@@ -1,3 +1,4 @@
+import { Sym } from '../../lamplight/icons';
 import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
@@ -29,7 +30,7 @@ export function Ideas({ chores }: { chores: readonly Chore[] }) {
             offerUndo(`${idea.name} added`, () => removeChore(chore.id));
           }}
         >
-          + {idea.name}
+          <Sym name="plus" size={16} /> {idea.name}
         </button>
       ))}
     </div>
@@ -69,8 +70,8 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         <div className="hero__content">
           <Brand name="Ergon" mark={<AppMark app="ergon" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} today`}</h1>
-            <p className="home__sub">{home ? home.name : 'Chores'}</p>
+            <h1 className="home__title">{all.length === 0 ? 'Chores' : groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} today`}</h1>
+            {(home || all.length > 0) && <p className="home__sub">{home ? home.name : 'Chores'}</p>}
           </div>
         </div>
       </div>

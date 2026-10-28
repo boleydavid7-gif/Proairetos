@@ -9,7 +9,7 @@ const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactN
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'bills', label: 'Bills', Icon: BillsIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
-  { id: 'capture', label: 'Capture', Icon: PlusIcon },
+  { id: 'capture', label: 'Add', Icon: PlusIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 

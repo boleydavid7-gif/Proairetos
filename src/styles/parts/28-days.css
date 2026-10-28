@@ -1044,3 +1044,10 @@
     gap: var(--space-4);
   }
 }
+
+/* The + sits with the page's other top-right buttons, at their size; the top bar carries it on phones. */
+.days-corner .days-add {
+  width: 2.75rem;
+  height: 2.75rem;
+  box-shadow: none;
+}
