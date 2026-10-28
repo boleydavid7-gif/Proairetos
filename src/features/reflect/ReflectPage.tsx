@@ -163,7 +163,6 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
           <textarea
             className="field-input field-input--area reflect-checkin__input"
             rows={2}
-            placeholder="One sentence about what is here…"
             aria-label="Daily check-in"
             value={body}
             onChange={(event) => setBody(event.target.value)}
