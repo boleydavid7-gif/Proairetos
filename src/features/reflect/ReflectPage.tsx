@@ -26,6 +26,7 @@ import { promptText } from './prompts';
 import { entryMark } from './weather';
 import { formatTemp } from '../../core/weather/sky';
 import { weatherOptions } from './weather';
+import { openCompassTab } from '../compass/CompassPage';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -202,7 +203,7 @@ function KeepInView() {
       <div className="section-heading"><h2 className="section-label">Keep in view</h2><span className="reflect-keep__hint">A few quiet threads</span></div>
       <div className="reflect-keep__items">
         {activePursuit && (
-          <button type="button" className="reflect-keep__item" onClick={() => navigate('compass')}>
+          <button type="button" className="reflect-keep__item" onClick={() => { openCompassTab('motion'); navigate('compass'); }}>
             <span className="reflect-keep__kind">Pursuit{needsPursuitCheckIn(activePursuit) ? ' · Check-in due' : ''}</span>
             <strong>{activePursuit.title}</strong>
             <span>{activePursuit.nextMove || activePursuit.outcome || 'Open to notice where this stands.'}</span>

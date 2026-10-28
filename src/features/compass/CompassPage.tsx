@@ -84,6 +84,10 @@ const compassTabs: { id: CompassTab; label: string }[] = [
 /** The tab last opened, kept on this device only. */
 let lastCompassTab: CompassTab = 'direction';
 
+export function openCompassTab(tab: CompassTab): void {
+  lastCompassTab = tab;
+}
+
 export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
