@@ -26,6 +26,15 @@
   font-size: var(--text-lg);
 }
 
+.reflect-checkin__captain-line {
+  max-width: 34rem;
+  margin: 0.15rem 0 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
 .reflect-checkin__saved,
 .reflect-keep__hint,
 .reflect-section-heading__detail {
