@@ -7,6 +7,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
+import { PenIcon } from '../../components/icons/Icons';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
@@ -220,8 +221,14 @@ export default function CompassPage() {
       </div>
 
       <div className="compass-reflect-link">
-        <p>Daily writing and check-ins live in Reflect.</p>
-        <button type="button" className="button-quiet" onClick={() => navigate('reflect')}>Open Reflect</button>
+        <div className="compass-reflect-link__copy">
+          <span className="eyebrow">Daily practice</span>
+          <p>Write and check in from Reflect.</p>
+        </div>
+        <button type="button" className="button-main compass-reflect-link__button" onClick={() => navigate('reflect')}>
+          <PenIcon size={18} />
+          Open Reflect
+        </button>
       </div>
     </div>
   );

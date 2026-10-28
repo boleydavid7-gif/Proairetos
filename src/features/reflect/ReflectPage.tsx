@@ -19,7 +19,6 @@ import StudyEntry from './StudyEntry';
 import { combineReadingSessions, studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { InnerWeather, Reflection } from '../../core/reflections/types';
-import DecisionsSection from './DecisionsSection';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
@@ -243,6 +242,11 @@ export default function ReflectPage() {
     <div className="page">
       <PageHeader title="Reflect" settings />
 
+      <button type="button" className="add-reflection" onClick={() => navigate('journal')}>
+        <PenIcon size={18} />
+        Add a reflection
+      </button>
+
       <DailyCheckIn entries={all} onSaved={() => reflectionService.refresh()} />
       <KeepInView />
 
@@ -304,7 +308,6 @@ export default function ReflectPage() {
       <div className="reflect-explore">
         <div className="reflect-section-heading">
           <div>
-            <p className="eyebrow">More places to notice</p>
             <h2>Explore</h2>
           </div>
         </div>
@@ -330,11 +333,6 @@ export default function ReflectPage() {
         </div>
       </div>
 
-      <button type="button" className="add-reflection" onClick={() => navigate('journal')}>
-        <PenIcon size={18} />
-        Add a reflection
-      </button>
-
       <div className="settings-list">
         {shows('insights') && (
         <MoreRow
@@ -353,7 +351,6 @@ export default function ReflectPage() {
         )}
       </div>
 
-      {shows('decisions') && <DecisionsSection />}
     </div>
   );
 }

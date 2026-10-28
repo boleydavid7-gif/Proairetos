@@ -54,19 +54,33 @@
 }
 
 .compass-reflect-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
   gap: var(--space-3);
   margin-top: var(--space-5);
   padding: var(--space-3) var(--space-4);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-muted);
+  border: 1px solid var(--ll-hair, var(--color-border));
+  border-radius: var(--ll-radius-lg, var(--radius-lg));
+  background: var(--ll-card, var(--color-surface));
+  box-shadow: var(--ll-light-1, none);
 }
 
-.compass-reflect-link p {
+.compass-reflect-link__copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.compass-reflect-link__copy p {
   margin: 0;
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
+}
+
+.compass-reflect-link__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
 }
 
 .section-heading {
