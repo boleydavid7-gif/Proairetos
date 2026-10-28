@@ -35,7 +35,7 @@ function subscribeTime(listener: () => void) {
 }
 
 /**
- * Time set aside for a goal, as weekly protected time. Shown with its next
+ * Time set aside for a pursuit, as weekly protected time. Shown with its next
  * occurrence; never counted or checked against.
  */
 function GoalTime({ goal }: { goal: CompassStatement }) {
@@ -88,7 +88,7 @@ function GoalTime({ goal }: { goal: CompassStatement }) {
   if (editing) {
     return (
       <div className="goal-time goal-time--editing">
-        <p className="sheet__label">Time for this, each week</p>
+        <p className="sheet__label">Time for this pursuit, each week</p>
         <div className="chip-row" role="group" aria-label="Days">
           {weekdayNames.map((name, index) => {
             const day = index as Weekday;
@@ -139,14 +139,14 @@ function GoalTime({ goal }: { goal: CompassStatement }) {
   if (!info?.pattern) {
     return (
       <button type="button" className="chip chip--wide" onClick={() => setEditing(true)}>
-        Make time for this
+        Make time for this pursuit
       </button>
     );
   }
 
   return (
     <div className="goal-time">
-      <p className="sheet__label">Time set aside</p>
+      <p className="sheet__label">Time set aside for this pursuit</p>
       <p className="goal-time__when">{current ? describeWeekly(current) : info.pattern.name}</p>
       {info.next && (
         <p className="goal-time__next">
@@ -349,9 +349,9 @@ export default function GoalsSection({ goals }: { goals: CompassStatement[] }) {
   }
 
   return (
-    <section className="stack-tight" aria-label="Working toward">
+    <section className="stack-tight" aria-label="Pursuits">
       <div>
-        <h2 className="section-label">Working toward</h2>
+        <h2 className="section-label">Pursuits</h2>
         
       </div>
       {current.length > 0 && (
@@ -365,7 +365,7 @@ export default function GoalsSection({ goals }: { goals: CompassStatement[] }) {
         <form className="inline-form" onSubmit={submit}>
           <input
             className="field-input"
-            aria-label="Something you are working toward"
+            aria-label="A pursuit you are working toward"
             placeholder="e.g. Learn to cook a few meals"
             value={text}
             maxLength={280}

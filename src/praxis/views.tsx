@@ -198,7 +198,7 @@ function BlockRow({ block, selected, today, goals, totalCards, readyCards, onRev
           <label><span>Name</span><input value={title} maxLength={80} onChange={(event) => setTitle(event.target.value)} /></label>
           <label><span>Usual length</span><input type="number" inputMode="numeric" min={1} max={240} value={minutes} onChange={(event) => setMinutes(event.target.value)} /><b>min</b></label>
           {goals.length > 0 && (
-            <label><span>Working toward</span><select value={goalId} onChange={(event) => setGoalId(event.target.value)}><option value="">Nothing in particular</option>{goals.map((each) => <option key={each.id} value={each.id}>{each.body}</option>)}</select></label>
+            <label><span>Working toward a pursuit</span><select value={goalId} onChange={(event) => setGoalId(event.target.value)}><option value="">Nothing in particular</option>{goals.map((each) => <option key={each.id} value={each.id}>{each.body}</option>)}</select></label>
           )}
           <label><span>Plan for</span><input type="date" min={today} value={plannedFor} onChange={(event) => setPlannedFor(event.target.value)} /></label>
           <div className="praxis-block-form__actions">

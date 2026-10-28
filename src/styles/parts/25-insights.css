@@ -68,6 +68,10 @@
   font-size: var(--text-sm);
 }
 
+.insight-card__action {
+  align-self: flex-start;
+}
+
 .weather-counts {
   display: flex;
   justify-content: space-between;

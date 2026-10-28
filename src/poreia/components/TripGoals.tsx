@@ -17,7 +17,7 @@ const useApps = (on = true) => {
   return apps;
 };
 
-/** The trip as a goal in Compass ("Working toward"), and marked reached after it, when the person asks. */
+/** The trip as a pursuit in Compass ("Working toward"), and marked reached after it, when the person asks. */
 export function GoalCard({ trip }: { trip: Trip }) {
   const apps = useApps();
   const linked = links.use()[trip.id]?.goalId;
@@ -36,7 +36,7 @@ export function GoalCard({ trip }: { trip: Trip }) {
     return (
       <section className="card">
         <h2 className="card__title">Add to Compass</h2>
-        <input className="input" aria-label="Goal" value={words} onChange={(event) => setWords(event.target.value)} />
+        <input className="input" aria-label="Pursuit" value={words} onChange={(event) => setWords(event.target.value)} />
         <button
           type="button"
           className="button-quiet"

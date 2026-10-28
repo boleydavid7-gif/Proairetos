@@ -76,7 +76,7 @@ export default function PursuitsSection() {
         <div>
           <p className="eyebrow">Make room to work it out</p>
           <h2 className="pursuits__title">Pursuits</h2>
-          <p className="pursuits__lead">Projects, changes, responsibilities, and questions.</p>
+          <p className="pursuits__lead">Ongoing work that unfolds over time.</p>
         </div>
         <button type="button" className="button-main pursuits__new" onClick={() => setCreating(true)}><PlusIcon size={18} /> New pursuit</button>
       </div>
@@ -156,6 +156,9 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
   const [draft, setDraft] = useState(pursuit);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
+  const connectedValues = values.filter((value) => Boolean(draft.valueNotes?.[value.id]?.trim()));
+  const nextMove = draft.nextMove?.trim();
+  const checkInDue = needsPursuitCheckIn(draft);
 
   const update = (patch: Partial<Pursuit>) => {
     const next = { ...draft, ...patch, updatedAt: nowStamp() };
@@ -188,6 +191,12 @@ function PursuitEditor({ pursuit, decisions, onBack, onDecision, onOpenDecision 
       <div className="pursuit-quick-actions" aria-label="Project tools">
         <button type="button" className="button-quiet" onClick={() => setCheckInOpen(true)}>Daily check-in</button>
         <button type="button" className="button-quiet" onClick={onDecision}>Make a decision</button>
+      </div>
+      <div className="pursuit-thread" aria-label="Pursuit path">
+        <span className="pursuit-thread__label">In view</span>
+        {connectedValues.length > 0 && <span>For {connectedValues.map((value) => value.name).join(', ')}</span>}
+        {nextMove && <span>Next: {nextMove}</span>}
+        <span className={checkInDue ? 'pursuit-thread__due' : undefined}>{checkInDue ? 'Check-in due' : checkIns.length > 0 ? `${checkIns.length} check-in${checkIns.length === 1 ? '' : 's'}` : 'No check-ins yet'}</span>
       </div>
       {checkInOpen && <PursuitCheckInSheet pursuit={draft} checkIns={checkIns} onUpdate={update} onClose={() => setCheckInOpen(false)} />}
       {decisions.length > 0 && <section className="card pursuit-decisions pursuit-decisions--history"><div className="section-head"><div><p className="eyebrow">Decision history</p><h3>Choices linked to this pursuit</h3></div></div><ul className="pursuit-decisions__list">{decisions.map((decision) => <li key={decision.id}><button type="button" className="text-link" onClick={() => onOpenDecision(decision.id)}>{decision.question}</button><span>{decision.choice}</span></li>)}</ul></section>}

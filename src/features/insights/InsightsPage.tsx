@@ -132,6 +132,13 @@ export default function InsightsPage() {
             done={Object.values(insights.doneAt).reduce((sum, count) => sum + count, 0)}
           />
 
+          <InsightCard icon={<NoteIcon size={28} />} title="What are you noticing?">
+            <p className="insight-card__note">Write what stands out to you.</p>
+            <button type="button" className="text-link insight-card__action" onClick={() => navigate('journal')}>
+              Write a reflection
+            </button>
+          </InsightCard>
+
           <CheckInsInsightCard
             checkIns={pursuitCheckInRecords}
             range={currentRange}

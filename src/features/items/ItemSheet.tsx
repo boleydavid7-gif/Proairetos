@@ -355,7 +355,7 @@ function ChecklistSection({ item }: { item: LifeItem }) {
 }
 
 /** The person's own grouping and day on Plan. */
-/** Which goal this is a step toward, if any. Only shown once the person has a goal. */
+/** Which pursuit this is a step toward, if any. Existing goal records remain compatible. */
 /** Where it happens and a color: the person's own labels for Days ahead. */
 function LookSection({ item }: { item: LifeItem }) {
   const [location, setLocation] = useState(item.location ?? '');
@@ -376,17 +376,17 @@ function LookSection({ item }: { item: LifeItem }) {
   );
 }
 
-function GoalSection({ item }: { item: LifeItem }) {
+function PursuitSection({ item }: { item: LifeItem }) {
   const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
-  const goals = statements.filter(
+  const pursuits = statements.filter(
     (statement) => statement.type === 'GOAL' && (!statement.reachedAt || statement.id === item.goalId),
   );
-  if (goals.length === 0) return null;
+  if (pursuits.length === 0) return null;
   return (
-    <section className="sheet__section" aria-label="Working toward">
+    <section className="sheet__section" aria-label="Working toward a pursuit">
       <p className="sheet__label">A step toward</p>
-      <div className="chip-row" role="group" aria-label="Goal">
-        {goals.map((goal) => (
+      <div className="chip-row" role="group" aria-label="Pursuit">
+        {pursuits.map((goal) => (
           <button
             key={goal.id}
             type="button"
@@ -660,7 +660,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
 
           {(item.scheduledAt || item.plannedFor) && <AddToCalendar item={item} />}
 
-          {shows('goals') && <GoalSection item={item} />}
+          {shows('pursuits') && <PursuitSection item={item} />}
 
           <LookSection item={item} />
 

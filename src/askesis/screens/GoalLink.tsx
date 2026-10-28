@@ -10,7 +10,7 @@ import type { PlanState } from '../data/store';
 
 
 /**
- * The plan's aim as a Proairetos goal ("Working toward" in Compass), and, if
+ * The plan's aim as a Proairetos pursuit ("Working toward" in Compass), and, if
  * chosen, time protected for it on the run days. Offered, never required;
  * nothing checks whether the time was used.
  */
@@ -55,7 +55,7 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
         <span className="card__eyebrow">In Proairetos</span>
         <h2 className="card__title card__title--small">{goal.body}</h2>
         <p className="muted">
-          Working toward, in Compass{goal.patternId ? ', with time set aside on your run days' : ''}.
+          Working toward this pursuit in Compass{goal.patternId ? ', with time set aside on your run days' : ''}.
         </p>
         <a className="text-link" href="/">
           Open Proairetos
@@ -66,7 +66,7 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
     <section className="card">
       <span className="card__eyebrow">In Proairetos (optional)</span>
       <h2 className="card__title card__title--small">Add it to Compass</h2>
-      <input className="input" aria-label="Goal" value={words} onChange={(event) => setWords(event.target.value)} />
+      <input className="input" aria-label="Pursuit" value={words} onChange={(event) => setWords(event.target.value)} />
       <Switch
         on={protect}
         label="Make time for this"

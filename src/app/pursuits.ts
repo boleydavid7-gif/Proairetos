@@ -1,5 +1,6 @@
 import { collection } from './family/shell';
 
+/** `care` is retained for older saved records, but is no longer offered for new pursuits. */
 export type PursuitKind = 'build' | 'change' | 'reach' | 'care' | 'learn';
 /** Kept for older saved records. Pursuits no longer expose a stage workflow. */
 export type PursuitStage = 'clarify' | 'understand' | 'shape' | 'practice' | 'review';
