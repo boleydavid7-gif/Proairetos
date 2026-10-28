@@ -2,11 +2,12 @@ import { directionAlong, transition } from '../../app/transitions';
 import lake from '../../assets/images/scenes/lake.webp';
 import lakeLight from '../../assets/images/scenes/lake-light.webp';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { reflectionService } from '../../app/services';
+import { compassService, decisionService, reflectionService } from '../../app/services';
+import { pursuits, needsPursuitCheckIn } from '../../app/pursuits';
 import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
@@ -17,12 +18,14 @@ import MealEntry from './MealEntry';
 import StudyEntry from './StudyEntry';
 import { combineReadingSessions, studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
-import type { Reflection } from '../../core/reflections/types';
+import type { InnerWeather, Reflection } from '../../core/reflections/types';
+import { decisionsToRevisit } from '../../core/decisions/rules';
 import DecisionsSection from './DecisionsSection';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
 import { formatTemp } from '../../core/weather/sky';
+import { weatherOptions } from './weather';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -104,6 +107,127 @@ function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; titl
   );
 }
 
+function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: () => void }) {
+  const today = toLocalDate(new Date());
+  const existing = entries
+    .filter((entry) => entry.promptKey === 'daily-check-in' && toLocalDate(new Date(entry.createdAt)) === today)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const [open, setOpen] = useState(!existing);
+  const [body, setBody] = useState(existing?.body ?? '');
+  const [weather, setWeather] = useState<InnerWeather | undefined>(existing?.weather);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setBody(existing?.body ?? '');
+    setWeather(existing?.weather);
+    setOpen(!existing);
+  }, [existing?.id]);
+
+  const save = async () => {
+    if (!body.trim() || saving) return;
+    setSaving(true);
+    try {
+      await reflectionService.write({ body: body.trim(), promptKey: 'daily-check-in', weather });
+      setOpen(false);
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="reflect-checkin" aria-label="Daily check-in">
+      <div className="reflect-checkin__head">
+        <div>
+          <p className="eyebrow">A moment to arrive</p>
+          <h2 className="reflect-checkin__title">How are you arriving today?</h2>
+        </div>
+        {existing && <span className="reflect-checkin__saved">Checked in</span>}
+      </div>
+      {open ? (
+        <div className="reflect-checkin__form">
+          <div className="weather-picker weather-picker--compact" role="group" aria-label="Inner weather">
+            {weatherOptions.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className="weather-picker__option"
+                aria-pressed={weather === id}
+                onClick={() => setWeather(weather === id ? undefined : id)}
+              >
+                <Icon size={22} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+          <textarea
+            className="field-input field-input--area reflect-checkin__input"
+            rows={2}
+            placeholder="One sentence about what is here…"
+            aria-label="Daily check-in"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+          />
+          <div className="reflect-checkin__actions">
+            {existing && <button type="button" className="button-quiet" onClick={() => setOpen(false)}>Close</button>}
+            <button type="button" className="button-accent button--sm" disabled={!body.trim() || saving} onClick={() => void save()}>
+              {existing ? 'Update check-in' : 'Save check-in'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="reflect-checkin__summary" onClick={() => setOpen(true)}>
+          <span>{existing?.body}</span>
+          <span className="text-link">Edit</span>
+        </button>
+      )}
+    </section>
+  );
+}
+
+function KeepInView() {
+  const navigate = useNavigate();
+  const { openDecision } = useOverlays();
+  const activePursuit = pursuits.use()
+    .filter((pursuit) => pursuit.status === 'active')
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const decisions = useServiceData(decisionService.subscribe, () => decisionService.list()) ?? [];
+  const decision = decisionsToRevisit(decisions, new Date())[0];
+  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
+  const value = values[0];
+
+  if (!activePursuit && !decision && !value) return null;
+
+  return (
+    <section className="reflect-keep" aria-label="Keep in view">
+      <div className="section-heading"><h2 className="section-label">Keep in view</h2><span className="reflect-keep__hint">A few quiet threads</span></div>
+      <div className="reflect-keep__items">
+        {activePursuit && (
+          <button type="button" className="reflect-keep__item" onClick={() => navigate('compass')}>
+            <span className="reflect-keep__kind">Pursuit{needsPursuitCheckIn(activePursuit) ? ' · Check-in due' : ''}</span>
+            <strong>{activePursuit.title}</strong>
+            <span>{activePursuit.nextMove || activePursuit.outcome || 'Open to notice where this stands.'}</span>
+          </button>
+        )}
+        {decision && (
+          <button type="button" className="reflect-keep__item" onClick={() => openDecision(decision.id)}>
+            <span className="reflect-keep__kind">Decision · Look back</span>
+            <strong>{decision.question}</strong>
+            <span>{decision.choice}</span>
+          </button>
+        )}
+        {value && (
+          <button type="button" className="reflect-keep__item" onClick={() => navigate('compass')}>
+            <span className="reflect-keep__kind">Value</span>
+            <strong>{value.name}</strong>
+            <span>{value.meaning || 'A lens you chose for living.'}</span>
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function ReflectPage() {
   const shows = useTodayParts();
   const navigate = useNavigate();
@@ -137,25 +261,15 @@ export default function ReflectPage() {
     <div className="page">
       <PageHeader title="Reflect" settings />
 
-      <div className="reflect-places">
-        {shows('meditate') && (
-          <button type="button" className="place-row" onClick={() => navigate('meditate')}>
-            <span className="place-row__thumb" style={{ backgroundImage: `url(${lake})`, '--photo-light': `url(${lakeLight})` } as React.CSSProperties} aria-hidden="true" />
-            <span className="place-row__text">
-              <span className="place-row__title">Meditate</span>
-              <span className="place-row__detail">Sessions, breathing, sounds and music</span>
-            </span>
-            <ChevronRightIcon size={18} className="place-row__chevron" />
-          </button>
-        )}
-        <button type="button" className="place-row" onClick={() => navigate('compass')}>
-          <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
-          <span className="place-row__text">
-            <span className="place-row__title">Compass</span>
-            <span className="place-row__detail">Values, pursuits, people and words</span>
-          </span>
-          <ChevronRightIcon size={18} className="place-row__chevron" />
-        </button>
+      <DailyCheckIn entries={all} onSaved={() => reflectionService.refresh()} />
+      <KeepInView />
+
+      <div className="reflect-section-heading">
+        <div>
+          <p className="eyebrow">Your record</p>
+          <h2>Reflections</h2>
+        </div>
+        <span className="reflect-section-heading__detail">{period === 'today' ? 'Today' : `This ${period}`}</span>
       </div>
 
       <div className="segmented" role="tablist" aria-label="Period">
@@ -204,6 +318,35 @@ export default function ReflectPage() {
           )}
         </section>
       )}
+
+      <div className="reflect-explore">
+        <div className="reflect-section-heading">
+          <div>
+            <p className="eyebrow">More places to notice</p>
+            <h2>Explore</h2>
+          </div>
+        </div>
+        <div className="reflect-places">
+          {shows('meditate') && (
+            <button type="button" className="place-row" onClick={() => navigate('meditate')}>
+              <span className="place-row__thumb" style={{ backgroundImage: `url(${lake})`, '--photo-light': `url(${lakeLight})` } as React.CSSProperties} aria-hidden="true" />
+              <span className="place-row__text">
+                <span className="place-row__title">Meditate</span>
+                <span className="place-row__detail">Sessions, breathing, sounds and music</span>
+              </span>
+              <ChevronRightIcon size={18} className="place-row__chevron" />
+            </button>
+          )}
+          <button type="button" className="place-row" onClick={() => navigate('compass')}>
+            <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
+            <span className="place-row__text">
+              <span className="place-row__title">Compass</span>
+              <span className="place-row__detail">Values, pursuits, people and words</span>
+            </span>
+            <ChevronRightIcon size={18} className="place-row__chevron" />
+          </button>
+        </div>
+      </div>
 
       <button type="button" className="add-reflection" onClick={() => navigate('journal')}>
         <PenIcon size={18} />
