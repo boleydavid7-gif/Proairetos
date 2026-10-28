@@ -109,19 +109,6 @@ export default function CompassPage() {
     <div className="page">
       <PageHero title="Compass" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
 
-      <section className="compass-intro" aria-label="Compass orientation">
-        <p className="eyebrow">What do you want to keep in view?</p>
-        <h2 className="compass-intro__title">Set your direction</h2>
-        <p className="compass-intro__lead">Choose what matters, keep your active work visible, and stay close to the people and words that give the day meaning.</p>
-        {values.length > 0 && (
-          <div className="compass-north">
-            <span className="compass-north__label">Your north</span>
-            <strong>{values[0].name}</strong>
-            <span>{values[0].meaning || describeValue(values[0].name)}</span>
-          </div>
-        )}
-      </section>
-
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
           {tabs.map((option) => (
@@ -155,8 +142,7 @@ export default function CompassPage() {
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
           <div>
-            <h2 className="section-label">Direction</h2>
-            <p className="section-description">The principles you chose to return to.</p>
+            <h2 className="section-label">Your North</h2>
           </div>
           {values.length > 0 && (
             <button

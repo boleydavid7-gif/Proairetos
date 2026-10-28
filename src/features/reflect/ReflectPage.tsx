@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, decisionService, reflectionService } from '../../app/services';
+import { reflectionService } from '../../app/services';
 import { pursuits, needsPursuitCheckIn } from '../../app/pursuits';
 import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
@@ -19,7 +19,6 @@ import StudyEntry from './StudyEntry';
 import { combineReadingSessions, studyBetween, useStudy } from '../../app/praxis/study';
 import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { InnerWeather, Reflection } from '../../core/reflections/types';
-import { decisionsToRevisit } from '../../core/decisions/rules';
 import DecisionsSection from './DecisionsSection';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
@@ -27,6 +26,7 @@ import { entryMark } from './weather';
 import { formatTemp } from '../../core/weather/sky';
 import { weatherOptions } from './weather';
 import { openCompassTab } from '../compass/CompassPage';
+import { openPursuit } from '../compass/PursuitsSection';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -187,42 +187,24 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
 
 function KeepInView() {
   const navigate = useNavigate();
-  const { openDecision } = useOverlays();
-  const activePursuit = pursuits.use()
+  const activePursuits = pursuits.use()
     .filter((pursuit) => pursuit.status === 'active')
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
-  const decisions = useServiceData(decisionService.subscribe, () => decisionService.list()) ?? [];
-  const decision = decisionsToRevisit(decisions, new Date())[0];
-  const values = useServiceData(compassService.subscribe, () => compassService.values()) ?? [];
-  const value = values[0];
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .slice(0, 3);
 
-  if (!activePursuit && !decision && !value) return null;
+  if (activePursuits.length === 0) return null;
 
   return (
     <section className="reflect-keep" aria-label="Keep in view">
-      <div className="section-heading"><h2 className="section-label">Keep in view</h2><span className="reflect-keep__hint">A few quiet threads</span></div>
+      <div className="section-heading"><h2 className="section-label">Keep in view</h2></div>
       <div className="reflect-keep__items">
-        {activePursuit && (
-          <button type="button" className="reflect-keep__item" onClick={() => { openCompassTab('motion'); navigate('compass'); }}>
-            <span className="reflect-keep__kind">Pursuit{needsPursuitCheckIn(activePursuit) ? ' · Check-in due' : ''}</span>
-            <strong>{activePursuit.title}</strong>
-            <span>{activePursuit.nextMove || activePursuit.outcome || 'Open to notice where this stands.'}</span>
+        {activePursuits.map((pursuit) => (
+          <button key={pursuit.id} type="button" className="reflect-keep__item" onClick={() => { openPursuit(pursuit.id); openCompassTab('motion'); navigate('compass'); }}>
+            <span className="reflect-keep__kind">{needsPursuitCheckIn(pursuit) ? 'Project · Check-in due' : 'Project'}</span>
+            <strong>{pursuit.title}</strong>
+            <span>{pursuit.nextMove || pursuit.outcome || 'Open this pursuit.'}</span>
           </button>
-        )}
-        {decision && (
-          <button type="button" className="reflect-keep__item" onClick={() => openDecision(decision.id)}>
-            <span className="reflect-keep__kind">Decision · Look back</span>
-            <strong>{decision.question}</strong>
-            <span>{decision.choice}</span>
-          </button>
-        )}
-        {value && (
-          <button type="button" className="reflect-keep__item" onClick={() => navigate('compass')}>
-            <span className="reflect-keep__kind">Value</span>
-            <strong>{value.name}</strong>
-            <span>{value.meaning || 'A lens you chose for living.'}</span>
-          </button>
-        )}
+        ))}
       </div>
     </section>
   );

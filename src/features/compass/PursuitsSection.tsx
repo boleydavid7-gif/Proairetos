@@ -33,16 +33,28 @@ const formatDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDate
 const kindText = (kind: PursuitKind) => PURSUIT_KINDS.find((item) => item.id === kind)?.label ?? 'Pursuit';
 const statusText = (status: PursuitStatus) => status === 'complete' ? 'Complete' : status === 'paused' ? 'Paused' : status === 'archived' ? 'Archived' : 'Active';
 
+let requestedPursuitId: string | undefined;
+
+export function openPursuit(id: string): void {
+  requestedPursuitId = id;
+}
+
 export default function PursuitsSection() {
   const all = pursuits.use();
   const decisions = useServiceData(decisionService.subscribe, () => decisionService.list(), []) ?? [];
   const { startDecision, openDecision } = useOverlays();
-  const [selected, setSelected] = useState<string>();
+  const [selected, setSelected] = useState<string | undefined>(() => requestedPursuitId);
   const [creating, setCreating] = useState(false);
   const active = useMemo(() => all.filter((item) => item.status === 'active' || item.status === 'paused').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [all]);
   const done = useMemo(() => all.filter((item) => item.status === 'complete').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [all]);
   const archived = useMemo(() => all.filter((item) => item.status === 'archived').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [all]);
   const current = all.find((item) => item.id === selected);
+
+  useEffect(() => {
+    if (!requestedPursuitId) return;
+    setSelected(requestedPursuitId);
+    requestedPursuitId = undefined;
+  }, []);
 
   if (creating) return <PursuitForm onCancel={() => setCreating(false)} onSaved={(id) => { setCreating(false); setSelected(id); }} />;
   if (current) {
@@ -63,7 +75,7 @@ export default function PursuitsSection() {
         <div>
           <p className="eyebrow">Make room to work it out</p>
           <h2 className="pursuits__title">Pursuits</h2>
-          <p className="pursuits__lead">A calm place for projects, changes, responsibilities, and questions. Keep the next move visible, then notice what happens.</p>
+          <p className="pursuits__lead">Projects, changes, responsibilities, and questions.</p>
         </div>
         <button type="button" className="button-main pursuits__new" onClick={() => setCreating(true)}><PlusIcon size={18} /> New pursuit</button>
       </div>
