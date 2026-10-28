@@ -2,14 +2,14 @@ import { useBackHandler } from '../../app/back/backStack';
 import { useNavigate } from '../../app/navigationContext';
 import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { compassService, reflectionService } from '../../app/services';
+import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
-import { MAX_USER_VALUES, type ChosenValue } from '../../core/values/types';
+import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import PeopleSection from './PeopleSection';
 import ValuePicker from './ValuePicker';
@@ -17,72 +17,19 @@ import { valueIcon } from './valueIcons';
 import { Sym } from '../../lamplight/icons';
 import PursuitsSection from './PursuitsSection';
 
-const valuePromptForms = [
-  (name: string) => `What does ${name.toLowerCase()} mean in your life?`,
-  (name: string) => `When did ${name.toLowerCase()} matter recently?`,
-  (name: string) => `Where could you express ${name.toLowerCase()} today?`,
-  (name: string) => `What makes ${name.toLowerCase()} difficult sometimes?`,
-];
-
-function valuePrompt(name: string): string {
-  const day = new Date().getDate();
-  const seed = [...name].reduce((total, character) => total + character.charCodeAt(0), day);
-  return valuePromptForms[seed % valuePromptForms.length](name);
-}
-
-/**
- * Offered when a value is opened: one small thing in the person's own words.
- * Saved as a reflection linked to the value; leaving it empty is fine.
- */
-function HonourToday({ value }: { value: ChosenValue }) {
-  const { offerUndo } = useOverlays();
-  const [text, setText] = useState('');
-
-  async function save() {
-    const title = text.trim();
-    if (!title) return;
-    setText('');
-    const reflection = await reflectionService.write({ body: title, promptKey: 'value-practice', valueIds: [value.id] });
-    offerUndo('Saved to Reflect', async () => {
-      await reflectionService.remove(reflection.id);
-    });
-  }
-
-  return (
-    <form
-      className="value-card__today"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void save();
-      }}
-    >
-      <label className="daily-line__label" htmlFor={`honor-${value.id}`}>
-        {valuePrompt(value.name)}
-      </label>
-      <div className="field-row">
-        <input
-          id={`honor-${value.id}`}
-          className="field-input"
-          placeholder="Describe it in your own words"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-        />
-        {text.trim() && (
-          <button type="submit" className="chip chip--small">
-            Save reflection
-          </button>
-        )}
-      </div>
-    </form>
-  );
-}
-
 function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
   const { offerUndo } = useOverlays();
   const [open, setOpen] = useState(false);
+  const [meaning, setMeaning] = useState(value.meaning ?? '');
   const description = describeValue(value.name);
   const practice = practiceOfValue(value.name);
   const Icon = valueIcon(value.name);
+
+  useEffect(() => setMeaning(value.meaning ?? ''), [value.meaning]);
+
+  const saveMeaning = async () => {
+    await compassService.updateValue(value.id, { meaning });
+  };
 
   return (
     <li className="value-card">
@@ -97,15 +44,18 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
         onClick={() => setOpen(!open)}
       >
         <span className="value-card__name">{value.name}</span>
-        {description && <span className="value-card__detail">{description}</span>}
-        {open && practice && !editing && (
-          <span className="value-card__practice">
-            <span className="daily-line__label">Notice in practice</span>
-            {practice}
-          </span>
-        )}
+        {(value.meaning || description) && <span className="value-card__detail">{value.meaning || description}</span>}
       </button>
-      {open && !editing && <HonourToday value={value} />}
+      {open && !editing && (
+        <div className="value-card__meaning">
+          <label className="daily-line__label" htmlFor={`meaning-${value.id}`}>What does this value mean to you?</label>
+          <textarea id={`meaning-${value.id}`} className="field-input field-input--area" rows={3} maxLength={MAX_VALUE_MEANING_LENGTH} placeholder="In my life, this means…" value={meaning} onChange={(event) => setMeaning(event.target.value)} />
+          <div className="value-card__meaning-actions">
+            {practice && <span className="value-card__practice"><span className="daily-line__label">A possible expression</span>{practice}</span>}
+            {meaning.trim() !== (value.meaning ?? '') && <button type="button" className="chip chip--small" onClick={() => void saveMeaning()}>Save meaning</button>}
+          </div>
+        </div>
+      )}
       {editing && (
         <button
           type="button"

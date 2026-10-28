@@ -12,10 +12,13 @@ export interface ChosenValue {
   name: string;
   source: ValueSource;
   chosenAt: string;
+  /** The person's own words for what this value means. */
+  meaning?: string;
 }
 
 export const MAX_USER_VALUES = 5;
 export const MAX_VALUE_NAME_LENGTH = 40;
+export const MAX_VALUE_MEANING_LENGTH = 280;
 
 /** Wisdom, courage, justice, temperance: the virtues classical Stoicism held to be the only true goods. */
 export const stoicVirtues: readonly string[] = ['Courage', 'Justice', 'Temperance', 'Wisdom'];

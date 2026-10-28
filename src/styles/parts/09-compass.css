@@ -209,14 +209,26 @@ button.value-card__text:disabled {
   padding: 0 var(--space-4) var(--space-3);
 }
 
-/* One small thing for today, offered when a value is opened. */
-.value-card__today {
+/* The person's meaning for a value, edited when a value is opened. */
+.value-card__meaning {
   flex-basis: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: 0 var(--space-2) var(--space-1) 0;
   animation: rise 260ms ease-out both;
+}
+
+.value-card__meaning .field-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.value-card__meaning-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 /* ---------- Working toward ---------- */

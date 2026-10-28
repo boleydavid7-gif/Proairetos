@@ -3,7 +3,7 @@ import type { DomainContext } from '../../core/context';
 import { writeStatement } from '../../core/compass/statements';
 import { MAX_GOALS, MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
 import { chooseValue } from '../../core/values/rules';
-import type { ChosenValue } from '../../core/values/types';
+import { MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
 import type { CompassStatementRepository } from '../../data/repositories/compassStatementRepository';
 import type { ValueRepository } from '../../data/repositories/valueRepository';
 import { createListeners } from '../listeners';
@@ -35,6 +35,22 @@ export function createCompassService({ userId, context, values, statements }: Co
       await values.add(value);
       listeners.notify();
       return value;
+    },
+
+    /** Stores the person's own meaning for a value. */
+    async updateValue(id: string, changes: { meaning?: string }): Promise<ChosenValue> {
+      const value = (await values.list(userId)).find((item) => item.id === id);
+      if (!value) throw new Error('That value is no longer here.');
+      const updated: ChosenValue = { ...value };
+      if ('meaning' in changes) {
+        const meaning = changes.meaning?.trim();
+        if (meaning) updated.meaning = meaning.slice(0, MAX_VALUE_MEANING_LENGTH);
+        else delete updated.meaning;
+      }
+      await values.remove(id);
+      await values.add(updated);
+      listeners.notify();
+      return updated;
     },
 
     /** Removes a value, with an undo that puts it back exactly. */
