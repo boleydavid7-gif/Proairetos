@@ -12,7 +12,7 @@ export type FamilyApp = ReminderSource | 'soma' | 'theoria' | 'mneme';
 export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 const APP_NAMES: Record<FamilyApp, string> = {
-  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
+  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
   philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia', mneme: 'Mneme',
 };
 
@@ -36,7 +36,8 @@ export function appNameForOpen(open: string): string {
 
 /** The app icon used by the shared worker and by an in-app notification. */
 export function iconForOpen(open: string): string {
-  const app = appFromOpen(open);
+  // Praxis's reading blocks live in Theoria now, so their notices wear Theoria's icon.
+  const app = appFromOpen(open) === 'praxis' ? 'theoria' : appFromOpen(open);
   return app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`;
 }
 

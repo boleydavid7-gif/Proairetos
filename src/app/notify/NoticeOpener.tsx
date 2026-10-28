@@ -29,7 +29,7 @@ function useOpen() {
       openSettingsAt(open.slice(9) as Parameters<typeof openSettingsAt>[0]);
       openRoute('settings');
     } else if (open === 'hydros') window.location.assign('/hydros/');
-    else if (open === 'praxis') window.location.assign('/praxis/');
+    else if (open === 'praxis') window.location.assign('/theoria/?open=pomodoro');
     else if (open === 'account') {
       openSettingsAt('account');
       openRoute('settings');

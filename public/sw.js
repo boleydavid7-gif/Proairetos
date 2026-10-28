@@ -115,7 +115,7 @@ async function readJson(cache, path, fallback) {
 }
 
 const APP_NAMES = {
-  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
+  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
   philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia',
 };
 
@@ -133,7 +133,7 @@ function appNameFor(open) {
 }
 
 function iconFor(open) {
-  const app = appFor(open);
+  const app = appFor(open) === 'praxis' ? 'theoria' : appFor(open);
   return app === 'proairetos' ? '/icons/icon-192.png' : '/' + app + '/icons/icon-192.png';
 }
 
@@ -271,13 +271,12 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; Hydros, Praxis,
-// Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
+// A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; a reading block in
+// Theoria, Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
 const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/', '/therapeia/', '/dynamis/', '/ktema/', '/phyton/', '/poreia/'];
 
 function placeFor(open) {
-  if (open === 'hydros') return { app: '/hydros/', url: '/hydros/' };
-  if (open === 'praxis') return { app: '/praxis/', url: '/praxis/' };
+  if (open === 'praxis') return { app: '/theoria/', url: '/theoria/?open=pomodoro' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
   for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia']) {

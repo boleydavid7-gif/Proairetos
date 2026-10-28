@@ -3,8 +3,7 @@
  * `public/sw.js` (which cannot import this); a test keeps the two in step.
  */
 export function placeFor(open: string): { app: string; url: string } {
-  if (open === 'hydros') return { app: '/hydros/', url: '/hydros/' };
-  if (open === 'praxis') return { app: '/praxis/', url: '/praxis/' };
+  if (open === 'praxis') return { app: '/theoria/', url: '/theoria/?open=pomodoro' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
   for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia']) {

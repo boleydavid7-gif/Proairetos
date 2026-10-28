@@ -20,7 +20,8 @@
 
 .theoria-app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); color: var(--theoria-ink); background: radial-gradient(circle at 72% -12%, color-mix(in srgb, var(--ll-lamp) 35%, transparent), transparent 32rem), radial-gradient(circle at 5% 78%, color-mix(in srgb, var(--theoria-violet) 16%, transparent), transparent 27rem), var(--theoria-bg); }
 .theoria-sidebar { position: sticky; top: 0; box-sizing: border-box; height: 100vh; display: flex; flex-direction: column; padding: 25px 15px 22px; border-right: 1px solid var(--theoria-border); background: color-mix(in srgb, var(--theoria-bg) 82%, transparent); }
-.theoria-family-link { align-self: flex-start; color: var(--theoria-faint); font-size: 12px; letter-spacing: .02em; text-decoration: none; }
+.theoria-family-link { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px; color: var(--theoria-muted); font-size: 14px; font-weight: 600; text-decoration: none; }
+.theoria-family-link:hover { color: var(--theoria-ink); background: color-mix(in srgb, var(--theoria-ink) 5%, transparent); }
 .theoria-family-link small { margin-left: 4px; letter-spacing: 0; }
 .theoria-brand { display: flex; align-items: center; gap: 10px; padding: 29px 9px 36px; }
 .theoria-brand strong { display: block; font: 600 22px/1 var(--font-serif); letter-spacing: .02em; }
@@ -43,10 +44,10 @@
 .theoria-person span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--theoria-paper-ink); background: var(--theoria-violet); font-size: 13px; font-weight: 700; }
 
 .theoria-main { min-width: 0; padding: 23px clamp(18px, 4vw, 61px) 48px; }
-.theoria-topbar { max-width: 1180px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin: 0 auto 43px; color: var(--theoria-muted); }
+.theoria-topbar { max-width: 1180px; display: grid; grid-template-columns: 1fr auto; align-items: center; margin: 0 auto 43px; color: var(--theoria-muted); }
 .theoria-mobile-brand { display: none; align-items: center; gap: 8px; color: var(--theoria-ink); text-decoration: none; }
 .theoria-mobile-brand span { font: 600 16px var(--font-serif); letter-spacing: .02em; }
-.theoria-date { font-size: 14px; text-align: center; }
+.theoria-date { font-size: 14px; }
 .theoria-sync { display: flex; align-items: center; justify-content: end; gap: 7px; font-size: 12px; }
 .theoria-sync i { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: var(--theoria-faint); }
 .theoria-sync--ready i { background: var(--theoria-ready); }
@@ -814,7 +815,7 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-settings-copy { display: grid; gap: 6px; padding: 16px 18px; border: 1px solid color-mix(in srgb, var(--theoria-violet) 20%, transparent); border-radius: 12px; }
 .theoria-settings-copy p:not(.theoria-eyebrow) { margin: 0; font-family: var(--font-sans, 'Google Sans Flex Variable', 'Google Sans Flex', sans-serif); font-size: 13px; line-height: 1.55; opacity: .85; }
 .theoria-modal-close { display: grid; place-items: center; width: 44px; height: 44px; top: 8px; right: 8px; }
-.theoria-mobile-brand, .theoria-family-link { min-height: 44px; display: inline-flex; align-items: center; }
+.theoria-mobile-brand { min-height: 44px; }
 
 /* Bring in highlights: the whole row opens the file chooser. */
 .theoria-settings-file { position: relative; cursor: pointer; }
@@ -858,3 +859,15 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-folder-browser__empty { padding: 14px; }
 .theoria-settings .button-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
 .theoria-clear { flex-wrap: wrap; } .theoria-clear .theoria-danger-button { min-height: 40px; padding: 0 14px; }
+
+/* Add a book: the file is the first thing, one large tile; the title and author follow once it is chosen. */
+.theoria-pick { position: relative; display: flex !important; align-items: center; gap: 14px; min-height: 76px; margin-top: 14px; padding: 14px 16px; border: 1px dashed color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 55%, transparent); border-radius: var(--ll-radius-sm, 14px); background: color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 7%, transparent); color: var(--theoria-ink); cursor: pointer; }
+.theoria-pick.has-file { border-style: solid; }
+.theoria-pick .ll-icon { flex: none; color: var(--ll-lamp, var(--theoria-brass)); }
+.theoria-pick__words { display: grid; gap: 2px; min-width: 0; }
+.theoria-pick__words strong { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.theoria-pick__words small { color: var(--theoria-muted); font-size: var(--text-xs, 13px); }
+.theoria-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.theoria-pick:focus-within { box-shadow: var(--ll-focus); }
+.theoria-modal .more-details { margin-top: 14px; }
+.theoria-modal input[hidden] { display: none; }

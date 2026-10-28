@@ -6,6 +6,7 @@ import type { BookMetadata } from '../data/metadata';
 import { inspectReadingFile } from '../data/importers';
 import { Sym } from '../../lamplight/icons';
 import { Waiting } from '../../lamplight/Waiting';
+import MoreDetails from '../../app/family/MoreDetails';
 
 export type NewBookForm = { title: string; author: string; description: string; source: TheoriaSource; provider: TheoriaProvider; sourceUrl: string; fileName?: string; file?: File; coverUrl?: string; coverFile?: File; publisher?: string; language?: string; publicationDate?: string; categories: string[] };
 export type InsightKind = 'highlight' | 'note' | 'reflection';
@@ -51,8 +52,13 @@ export function AddBookDialog({ onClose, onSave, onMany, onLookup, initialFile }
     if (!picked) return;
     setFileName(picked.name);
     setFile(picked);
-    const fromName = picked.name.replace(/\.(epub|pdf|txt|md)$/i, '').replace(/[-_]+/g, ' ');
+    // A file named "Title - Author" gives both; otherwise the name, tidied, stands in for the title.
+    const bare = picked.name.replace(/\.(epub|pdf|txt|md)$/i, '');
+    const parts = bare.split(/\s+[-–]\s+/);
+    const tidy = (words: string) => words.replace(/[_]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const fromName = tidy(parts.length === 2 ? parts[0] : bare.replace(/-+/g, ' '));
     if (!title) setTitle(fromName);
+    if (parts.length === 2) setAuthor((current) => current || tidy(parts[1]));
     // The book's own title and author are better than its file name; fill them in unless the reader has typed something.
     void inspectReadingFile(picked)
       .then((found) => {
@@ -62,7 +68,56 @@ export function AddBookDialog({ onClose, onSave, onMany, onLookup, initialFile }
       .catch(() => undefined);
   }
   const findDetails = async () => { if (!title.trim()) return; setLookingUp(true); setLookupError(''); try { const metadata = await onLookup(title, author); setTitle(metadata.title ?? title); setAuthor(metadata.author ?? author); setDescription((current) => current.trim() || metadata.description || ''); setCoverUrl(metadata.coverUrl); setCoverFile(metadata.coverFile); setPublisher(metadata.publisher); setLanguage(metadata.language); setPublicationDate(metadata.publicationDate); setMetadataFound(true); } catch (error) { setLookupError(error instanceof Error ? error.message : 'Book details could not be found.'); } finally { setLookingUp(false); } };
-  return <Modal onClose={onClose}><form className="theoria-modal" onSubmit={submit}><button type="button" className="theoria-modal-close" onClick={onClose} aria-label="Close"><Sym name="close" /></button><h2>Add a book</h2><div className="theoria-source-tabs">{(['upload', 'cloud', 'web', 'manual'] as const).map((kind) => <button type="button" key={kind} className={source === kind ? 'is-active' : ''} onClick={() => setSource(kind)}>{kind === 'upload' ? 'A file' : kind === 'cloud' ? 'Cloud link' : kind === 'web' ? 'Web article' : 'Manual'}</button>)}</div><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Book title" autoFocus /></label><label>Author <input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="Author name" /></label><div className="theoria-metadata-actions"><button type="button" className="theoria-secondary-button" onClick={() => void findDetails()} disabled={lookingUp || !title.trim()}>{lookingUp ? 'Finding details…' : 'Find cover & details'}</button>{metadataFound && <span>Details added</span>}</div>{lookupError && <p className="theoria-form-error" role="alert">{lookupError}</p>}{coverUrl && <div className="theoria-metadata-preview"><img src={coverUrl} alt="" /><span><strong>{title}</strong><small>{publisher ?? 'Cover found'}</small></span></div>}<label>Description <textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="A short description for your shelf" /></label><label>Collection<select value={category} onChange={(event) => setCategory(event.target.value)}>{['Philosophy', 'Science', 'Psychology', 'History', 'Leadership', 'Personal'].map((item) => <option value={item} key={item}>{item}</option>)}</select></label>{source === 'cloud' && <><label>Storage provider<select value={provider} onChange={(event) => setProvider(event.target.value as TheoriaProvider)}><option value="google-drive">Google Drive</option><option value="dropbox">Dropbox</option><option value="onedrive">OneDrive</option><option value="other">Other cloud storage</option></select></label><label>Share link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label></>}{source === 'web' && <label>Article link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}{source === 'upload' && <label>EPUB, PDF, TXT, or Markdown<input type="file" accept=".epub,.pdf,.txt,.md,text/plain,text/markdown,application/pdf,application/epub+zip" onChange={filePicked} />{fileName && <small>{fileName}</small>}</label>}{source === 'upload' && <div className="theoria-add-many"><span>Or bring in many at once</span><button type="button" className="theoria-secondary-button" onClick={() => manyInput.current?.click()}>Several files</button><button type="button" className="theoria-secondary-button" onClick={() => folderInput.current?.click()}>A whole folder</button><input ref={manyInput} type="file" multiple hidden accept=".epub,.pdf,.txt,.md,text/plain,text/markdown,application/pdf,application/epub+zip" onChange={(event) => { many(event.target.files); event.target.value = ''; }} /><input ref={folderInput} type="file" multiple hidden onChange={(event) => { many(event.target.files); event.target.value = ''; }} /></div>}{source === 'manual' && <label>Reading link <input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}<div className="theoria-modal-actions"><button type="button" className="theoria-secondary-button" onClick={onClose}>Cancel</button><button type="submit" className="theoria-primary-button" disabled={saving || !title.trim() || (source === 'upload' && !file)}>{saving ? 'Adding…' : 'Add to library'}</button></div></form></Modal>;
+  const ACCEPT = '.epub,.pdf,.txt,.md,text/plain,text/markdown,application/pdf,application/epub+zip';
+  // The file comes first: choosing it fills the title and author, so a book is added in two taps. The rest waits
+  // under More details. A link (cloud, web, manual) asks for the link first in the same way.
+  const ready = source === 'upload' ? Boolean(file) : true;
+  return (
+    <Modal onClose={onClose}>
+      <form className="theoria-modal" onSubmit={submit}>
+        <button type="button" className="theoria-modal-close" onClick={onClose} aria-label="Close"><Sym name="close" /></button>
+        <h2>Add a book</h2>
+        <div className="theoria-source-tabs">
+          {(['upload', 'cloud', 'web', 'manual'] as const).map((kind) => <button type="button" key={kind} className={source === kind ? 'is-active' : ''} onClick={() => setSource(kind)}>{kind === 'upload' ? 'A file' : kind === 'cloud' ? 'Cloud link' : kind === 'web' ? 'Web article' : 'Manual'}</button>)}
+        </div>
+        {source === 'upload' && (
+          <>
+            <label className={'theoria-pick' + (file ? ' has-file' : '')}>
+              <Sym name={file ? 'check' : 'plus'} size={22} />
+              <span className="theoria-pick__words"><strong>{fileName ?? 'Choose a file'}</strong><small>{file ? 'Choose another' : 'EPUB, PDF, text or Markdown'}</small></span>
+              <input type="file" accept={ACCEPT} onChange={filePicked} />
+            </label>
+            {!file && (
+              <div className="theoria-add-many">
+                <span>Or many at once</span>
+                <button type="button" className="theoria-secondary-button" onClick={() => manyInput.current?.click()}>Several files</button>
+                <button type="button" className="theoria-secondary-button" onClick={() => folderInput.current?.click()}>A whole folder</button>
+                <input ref={manyInput} type="file" multiple hidden accept={ACCEPT} onChange={(event) => { many(event.target.files); event.target.value = ''; }} />
+                <input ref={folderInput} type="file" multiple hidden onChange={(event) => { many(event.target.files); event.target.value = ''; }} />
+              </div>
+            )}
+          </>
+        )}
+        {source === 'cloud' && <><label>Share link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label><label>Storage<select value={provider} onChange={(event) => setProvider(event.target.value as TheoriaProvider)}><option value="google-drive">Google Drive</option><option value="dropbox">Dropbox</option><option value="onedrive">OneDrive</option><option value="other">Other cloud storage</option></select></label></>}
+        {source === 'web' && <label>Article link<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}
+        {source === 'manual' && <label>Reading link (optional)<input type="url" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://..." /></label>}
+        {ready && (
+          <>
+            <label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Book title" /></label>
+            <label>Author (optional)<input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="Author name" /></label>
+            <MoreDetails>
+              <div className="theoria-metadata-actions"><button type="button" className="theoria-secondary-button" onClick={() => void findDetails()} disabled={lookingUp || !title.trim()}>{lookingUp ? <Waiting>Finding details…</Waiting> : 'Find cover and details'}</button>{metadataFound && <span>Details added</span>}</div>
+              {lookupError && <p className="theoria-form-error" role="alert">{lookupError}</p>}
+              {coverUrl && <div className="theoria-metadata-preview"><img src={coverUrl} alt="" /><span><strong>{title}</strong><small>{publisher ?? 'Cover found'}</small></span></div>}
+              <label>Description (optional)<textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="A short description for your shelf" /></label>
+              <label>Collection<select value={category} onChange={(event) => setCategory(event.target.value)}>{['Philosophy', 'Science', 'Psychology', 'History', 'Leadership', 'Personal'].map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
+            </MoreDetails>
+          </>
+        )}
+        <div className="theoria-modal-actions"><button type="button" className="theoria-secondary-button" onClick={onClose}>Cancel</button><button type="submit" className="theoria-primary-button" disabled={saving || !title.trim() || (source === 'upload' && !file)}>{saving ? 'Adding…' : 'Add to library'}</button></div>
+      </form>
+    </Modal>
+  );
 }
 
 export type BookDetailsDraft = { title: string; author: string; description: string };

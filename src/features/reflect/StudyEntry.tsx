@@ -8,15 +8,15 @@ export default function StudyEntry({ session, showDay }: { session: StudySession
   const reading = isReadingSession(session);
   return (
     <li className="timeline-entry">
-      <span className="timeline-entry__mark" role="img" aria-label={reading ? 'Reading, from Theoria' : 'Study, from Praxis'}>
+      <span className="timeline-entry__mark" role="img" aria-label={reading ? 'Reading, from Theoria' : 'Study, from Theoria'}>
         <BookIcon size={32} />
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">
           <span className="timeline-entry__time">{showDay ? `${dayLabel(session.at)}, ${time}` : time}</span>
         </div>
-        <span className="timeline-entry__prompt">From {reading ? 'Theoria' : 'Praxis'}</span>
-        <a className="timeline-entry__text run-entry__text" href="/praxis/?open=sessions">
+        <span className="timeline-entry__prompt">From Theoria</span>
+        <a className="timeline-entry__text run-entry__text" href="/theoria/?open=pomodoro:sessions">
           {session.title} · {session.minutes} min{reading ? ' of reading' : ''}
         </a>
       </div>

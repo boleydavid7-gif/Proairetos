@@ -63,32 +63,6 @@ const apps = [
     ],
   },
   {
-    id: 'hydros', name: 'Hydros', icon: '/hydros/icons/icon-192.png', category: 'HealthApplication',
-    ground: '#061b25', accent: '#36c9f4', ink: '#a9edff',
-    line: 'What you drink, through the day',
-    card: 'Log a glass in one tap, with reminders during your waking hours or work.',
-    about: 'Log a glass in one tap and see what you drank by day. No made-up target: choose a published reference amount if you want one.',
-    points: [
-      ['One tap', 'Your usual glasses on the first page, and Same again, each with undo.'],
-      ['Reminders that fit', 'Through your waking hours or your work, never sooner than an interval after your last drink.'],
-      ['Night shifts too', 'Drinks count toward your day as you live it, not the calendar’s.'],
-      ['By week and month', 'Every drink of the period, and caffeine as plain facts.'],
-    ],
-  },
-  {
-    id: 'praxis', name: 'Praxis', icon: '/praxis/icons/icon-192.png', category: 'EducationalApplication',
-    ground: '#0b201a', accent: '#c9a274', ink: '#f4e9d2',
-    line: 'Study, a block at a time',
-    card: 'Timed study blocks, flashcards and a record of your study time.',
-    about: 'A quiet study room: timed blocks with a bell, cards to look at again, and your study time by day and by subject.',
-    points: [
-      ['Study blocks', 'Choose a length, start, and a bell rings at the end, even with the screen locked.'],
-      ['Look at it again', 'After a block, set it to come back in one, three or seven days.'],
-      ['Cards', 'Question and answer cards in five boxes. Bring them in from Anki or Quizlet.'],
-      ['Your time', 'Minutes by day and by block. No scores.'],
-    ],
-  },
-  {
     id: 'theoria', name: 'Theoria', icon: '/theoria/icons/icon-192.png', category: 'BookApplication',
     ground: '#0b1020', accent: '#d9b46a', ink: '#ede5d3',
     line: 'Reading, highlights and notes',
@@ -99,6 +73,7 @@ const apps = [
       ['Highlights and notes', 'Mark passages, write notes, and export them as Markdown.'],
       ['From a Kindle', 'Bring in your Kindle highlights or a Readwise export.'],
       ['A library folder', 'Keep books in OneDrive, Google Drive or Dropbox, and they come onto your shelf.'],
+      ['Pomodoro', 'Timed reading blocks with a bell, cards to look at again, and your reading time by day.'],
     ],
   },
   {

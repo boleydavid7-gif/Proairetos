@@ -7,7 +7,7 @@ import { execSync } from 'node:child_process';
 // Playwright from the project if installed, else the global one.
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
 
-const APPS = ['', 'askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'];
+const APPS = ['', 'askesis', 'soma', 'oikonomia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'];
 const BASE = process.env.BASE || 'http://localhost:4173';
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
 const problems = [];

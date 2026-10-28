@@ -10,13 +10,23 @@ describe('added apps', () => {
   });
 
   it('starts from the apps used here, then keeps the choice', () => {
-    localStorage.setItem('hydros:settings', '{}');
-    expect(addedApps()).toEqual(['hydros']);
+    localStorage.setItem('ktema:settings', '{}');
+    expect(addedApps()).toEqual(['ktema']);
     addApp('philia');
-    removeApp('hydros');
+    removeApp('ktema');
     localStorage.setItem('ergon:chore:1', '{}');
     expect(addedApps()).toEqual(['philia']);
     expect(isAdded('ergon')).toBe(false);
     expect(isAdded('proairetos')).toBe(true);
+  });
+
+  it('leaves out apps no longer offered, keeping the choice; Praxis follows Theoria', () => {
+    localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['hydros', 'praxis', 'ktema'] }));
+    expect(addedApps()).toEqual(['ktema']);
+    expect(isAdded('hydros')).toBe(false);
+    expect(isAdded('praxis')).toBe(false);
+    addApp('theoria');
+    expect(isAdded('praxis')).toBe(true);
+    expect(JSON.parse(localStorage.getItem('proairetos.apps') ?? '{}').added).toEqual(['hydros', 'praxis', 'ktema', 'theoria']);
   });
 });

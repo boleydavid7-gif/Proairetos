@@ -13,7 +13,7 @@ import { join } from 'node:path';
 
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
 
-const ALL = ['proairetos', 'askesis', 'soma', 'oikonomia', 'hydros', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'];
+const ALL = ['proairetos', 'askesis', 'soma', 'oikonomia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'];
 const SIZES = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
 const out = process.argv[2] || '.visual/now';
 const apps = process.env.APPS ? process.env.APPS.split(',') : ALL;

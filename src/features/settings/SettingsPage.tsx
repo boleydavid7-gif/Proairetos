@@ -602,12 +602,8 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in Soma in Days ahead; meals cooked for someone in Reflect.' }] }],
   },
   {
-    app: 'Praxis',
-    sections: [{ parts: [{ part: 'praxis', label: 'Study', detail: 'Study time in Done today and Reflect; a block you set to look at again, on Today.' }] }],
-  },
-  {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'highlight', label: 'A highlight a day', detail: 'One of your Theoria highlights on Today, a different one each day.' }] }],
+    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Pomodoro reading time in Done today and Reflect; a block you set to look at again, on Today.' }, { part: 'highlight', label: 'A highlight a day', detail: 'One of your Theoria highlights on Today, a different one each day.' }] }],
   },
   {
     app: 'Diaita',
@@ -1352,7 +1348,7 @@ export default function SettingsPage() {
     {
       label: 'Apps',
       entries: [
-        { id: 'store', icon: <CompassIcon size={18} />, tone: 'gold', title: 'Store', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia hydros praxis theoria diaita philia ergon therapeia dynamis ktema phyton running recipes bills water study reading sleep people chores medicines strength upkeep warranty plants garden' },
+        { id: 'store', icon: <CompassIcon size={18} />, tone: 'gold', title: 'Store', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia theoria pomodoro diaita philia ergon therapeia dynamis ktema phyton running recipes bills study reading sleep people chores medicines strength upkeep warranty plants garden' },
         ...familyApps
           .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
           .map((each) => ({ id: each.id, icon: app(each.icon), tone: 'app' as Tone, title: each.name, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),

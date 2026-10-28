@@ -3,6 +3,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-28',
     lines: [
+      'Praxis is retired: its study room is Theoria’s Pomodoro, and a Praxis link or the installed Praxis opens it there. Hydros is hidden for now and sends no reminders.',
+      'Theoria’s Add a book starts with the file and fills the title and author from it (a file named “Title - Author” gives both); the rest waits under More details. Reader with no book open stays in the Library.',
+      'Theoria on a computer: one name in the sidebar, Proairetos at its foot, the date at the left. Today on a computer no longer leaves wide gaps between its cards.',
       'The main pages in Proairetos no longer show a back arrow; Days ahead’s add button sits with search and settings at the top.',
       'An app with nothing in it yet names what it holds (Medicines, Chores, Plants, Things); Oikonomia’s Capture place is now Add; Today’s first invitation reads Set your direction.',
       'Theoria’s reader turns by swiping sideways, in a book’s text and in a PDF’s pages; the arrow keys turn too. Its foot is a lit rail with a notch for each part, the part’s name and how far in you are.',

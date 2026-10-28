@@ -17,15 +17,25 @@ describe('adding a book to Theoria', () => {
     const file = new File(['x'], 'mistakes-were-made-3e.epub', { type: 'application/epub+zip' });
     fireEvent.change(input, { target: { files: [file] } });
     await waitFor(() => expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('Mistakes Were Made'));
-    expect((screen.getByLabelText('Author') as HTMLInputElement).value).toBe('Carol Tavris');
+    expect((screen.getByLabelText(/^Author/) as HTMLInputElement).value).toBe('Carol Tavris');
   });
 
-  it('keeps a title the reader has already typed', async () => {
+  it('asks for the file first and keeps a title the reader has typed', async () => {
     render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onMany={() => undefined} onLookup={async () => ({})} />);
-    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'My own name for it' } });
+    expect(screen.queryByLabelText('Title')).toBeNull();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File(['x'], 'first.epub')] } });
+    await waitFor(() => expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('Mistakes Were Made'));
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'My own name for it' } });
     fireEvent.change(input, { target: { files: [new File(['x'], 'book.epub')] } });
-    await waitFor(() => expect((screen.getByLabelText('Author') as HTMLInputElement).value).toBe('Carol Tavris'));
+    await waitFor(() => expect((screen.getByLabelText(/^Author/) as HTMLInputElement).value).toBe('Carol Tavris'));
     expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('My own name for it');
+  });
+
+  it('reads "Title - Author" from a file name when the book carries neither', async () => {
+    render(<AddBookDialog onClose={() => undefined} onSave={async () => undefined} onMany={() => undefined} onLookup={async () => ({})} />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File(['x'], 'Meditations - Marcus Aurelius.txt')] } });
+    expect((screen.getByLabelText(/^Author/) as HTMLInputElement).value).toBe('Marcus Aurelius');
   });
 });

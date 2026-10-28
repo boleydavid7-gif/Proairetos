@@ -1,5 +1,5 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react';
-import { addApp, useAddedApps, type AddOn } from './added';
+import { NOT_OFFERED, addApp, useAddedApps, type AddOn } from './added';
 import { familyApps } from './FamilyApps';
 import { priceText, refreshOwned, refreshStore, usePurchases } from './purchases';
 import './addedOnly.css';
@@ -14,6 +14,20 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
     void refreshStore().then(() => refreshOwned());
   }, []);
   if (shown) return <>{children}</>;
+  // An app no longer offered (Hydros, hidden for now) is not opened or offered; its records are kept.
+  if (NOT_OFFERED.has(app)) {
+    const name = app[0].toUpperCase() + app.slice(1);
+    return (
+      <main className="added-only" style={{ '--ground': '#0e1112', '--accent-app': '#c9a274', '--ink': '#ece8e1' } as CSSProperties}>
+        <div className="added-only__card">
+          <img className="added-only__logo" src={`/${app}/icons/icon-192.png`} alt="" width={88} height={88} />
+          <h1 className="added-only__name">{name}</h1>
+          <p className="added-only__line">Not offered right now.</p>
+          <a className="added-only__add" href="/">Open Proairetos</a>
+        </div>
+      </main>
+    );
+  }
   const hasEntitlement = owner || tester || (app === 'soma' ? owned.includes('soma') : app === 'phyton' ? owned.includes('phyton') : owned.includes('core') || owned.includes(app));
   const toBuy = paid && !hasEntitlement;
   const about = familyApps.find((each) => each.id === app);

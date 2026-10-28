@@ -12,6 +12,10 @@ export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
 export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'];
 
+/** Apps no longer offered: Praxis lives on inside Theoria (Pomodoro), and Hydros is hidden for now. Their records
+ *  stay; they leave the lists, Today, search and notifications, and a person's choice to have added them is kept. */
+export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis', 'hydros']);
+
 const KEY = 'proairetos.apps';
 
 type Stored = { added: AddOn[] };
@@ -86,8 +90,8 @@ function write(next: Stored): void {
   void import('../sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
 }
 
-/** The added apps; the first time on a device, the ones already used here. */
-export function addedApps(): AddOn[] {
+/** What the setting holds, apps no longer offered included; the first time on a device, the ones already used here. */
+function storedApps(): AddOn[] {
   const stored = read();
   if (stored) return stored.added;
   const first = { added: usedApps(storageKeys()) };
@@ -95,27 +99,30 @@ export function addedApps(): AddOn[] {
   return first.added;
 }
 
+/** The added apps that are still offered. */
+export function addedApps(): AddOn[] {
+  return storedApps().filter((app) => !NOT_OFFERED.has(app));
+}
+
 /** Added and usable: while the Store takes payments, an add-on also has to be bought (purchases.ts). */
 export function isAdded(app: AddOn | string): boolean {
-  // Pomodoro now lives inside Theoria. Keep legacy Praxis records and links usable,
-  // while enabling the integrated tab whenever Theoria is available.
-  if (app === 'praxis') return isAdded('theoria') || (addedApps().includes('praxis') && mayUse(app));
+  // Praxis's study room lives in Theoria as Pomodoro, so Praxis's records and links follow Theoria.
+  if (app === 'praxis') return isAdded('theoria');
   return !ADD_ONS.includes(app as AddOn) || (addedApps().includes(app as AddOn) && mayUse(app));
 }
 
 export function addApp(app: AddOn): void {
-  const current = addedApps();
+  const current = storedApps();
   if (!current.includes(app)) write({ added: [...current, app] });
 }
 
 export function removeApp(app: AddOn): void {
-  write({ added: addedApps().filter((each) => each !== app) });
+  write({ added: storedApps().filter((each) => each !== app) });
 }
 
 /** Removes the family apps from this device after a temporary beta entitlement expires. */
 export function clearAddedApps(): void {
-  const current = addedApps();
-  if (current.length > 0) write({ added: [] });
+  if (storedApps().length > 0) write({ added: [] });
 }
 
 export function subscribeAdded(listener: () => void): () => void {

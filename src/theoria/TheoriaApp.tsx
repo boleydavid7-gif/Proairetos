@@ -1,13 +1,12 @@
 import { offerUndo, say, UndoBar } from '../lamplight/undo';
 import { endsWith, useLaunchedFile } from '../app/family/launchFiles';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
-import ProairetosTab from '../app/family/ProairetosTab';
+import ProairetosTab, { ProairetosMark } from '../app/family/ProairetosTab';
 import YearPage from '../app/family/YearPage';
 import { theoriaDates, theoriaYear } from './core/year';
 import { BookIcon, BookmarkIcon, BulbIcon, GearIcon, PenIcon } from '../components/icons/Icons';
 import { TimerIcon } from '../app/family/icons';
 import { enableReminders, startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
-import { displayName } from '../data/storage/preferences';
 import TheoriaMark from '../components/brand/TheoriaMark';
 import { addBook, addNotebook, listBooks, listNotebooks, putBook, putNotebook, removeBook, startStore, storeVersion, subscribe, USER_ID } from './data/store';
 import { addImported, readHighlightsFile } from './core/clippings';
@@ -87,7 +86,6 @@ export default function TheoriaApp() {
   // What a link asks of the Pomodoro place (`pomodoro:block:ID` opens that study block).
   const [pomodoroOpening, setPomodoroOpening] = useState<string | null>(null);
   useEnterMark(view, ['library', 'reader', 'pomodoro', 'notes', 'reflections'] as View[]);
-  const [name] = useState(displayName);
   const [addOpen, setAddOpen] = useState(false);
   const [launched, setLaunched] = useState<File>();
   // A book opened with Theoria on a computer opens Add a book with the file chosen.
@@ -205,7 +203,7 @@ export default function TheoriaApp() {
   const chooseView = (next: View) => {
     if (next === 'reader') {
       const nextBook = selected ?? shelf.find((book) => book.status === 'reading') ?? shelf[0];
-      if (nextBook) { setSelectedId(nextBook.id); void openReader(nextBook); } else setAddOpen(true);
+      if (nextBook) { setSelectedId(nextBook.id); void openReader(nextBook); } else setView('library');
       return;
     }
     setView(next);
@@ -670,7 +668,7 @@ export default function TheoriaApp() {
   const readerBook = selected && readerText?.bookId === selected.id && readerText.chapters ? { ...selected, chapters: readerText.chapters } : selected ? { ...selected, chapters: [] } : undefined;
 
   return <div className={'theoria-app theoria-app--' + view}><PwaStatus />
-    <aside className="theoria-sidebar"><a href="/" className="theoria-family-link">Proairetos</a><div className="theoria-brand"><TheoriaMark size={48} /><span><strong>Theoria</strong></span></div><div className="theoria-sidebar-nav">{navGroups.map((group) => <TheoriaNav view={view} onView={chooseView} items={group.items} key={group.items[0].id} />)}</div><div className="theoria-sidebar-spacer" /><button type="button" className="theoria-person" onClick={() => setView('settings')}><span>{(name || 'R').slice(0, 1).toUpperCase()}</span>{name || 'Reader'}</button></aside>
+    <aside className="theoria-sidebar"><div className="theoria-brand"><TheoriaMark size={48} /><span><strong>Theoria</strong></span></div><div className="theoria-sidebar-nav">{navGroups.map((group) => <TheoriaNav view={view} onView={chooseView} items={group.items} key={group.items[0].id} />)}</div><div className="theoria-sidebar-spacer" /><a href="/" className="theoria-family-link"><ProairetosMark size={20} /><span>Proairetos</span></a></aside>
     <main className="theoria-main"><header className="theoria-topbar"><a className="theoria-mobile-brand" href="/"><TheoriaMark size={30} /><span>Theoria</span></a><span className="theoria-date">{new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}</span>{syncWords !== 'On this device' && <span className={'theoria-sync theoria-sync--' + sync.phase}><i />{syncWords}</span>}</header><FileDropZone label="Drop EPUB, PDF, text, or Markdown files to add them" onFiles={(files) => void saveMany(files)}><div className="theoria-page">
       {view === 'library' && <LibraryHome shelf={shelf} loading={booksState.loading} error={booksState.error} onAdd={() => setAddOpen(true)} onOpen={openBook} onContinue={(book) => void openReader(book)} onShelf={() => setView('shelf')} onSearch={() => setView('search')} />}
       {view === 'shelf' && <ShelfPage shelf={shelf} onBack={() => setView('library')} onOpen={openBook} onAdd={() => setAddOpen(true)} />}

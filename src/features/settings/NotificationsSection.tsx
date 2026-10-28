@@ -78,12 +78,11 @@ function Lead({
 
 type AppSwitch = 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips';
 
-/** Each added app's own notices, under its name. Hydros keeps its reminders in its own settings. */
+/** Each added app's own notices, under its name. */
 const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
   { id: 'askesis', switches: [['runs', 'Run days']] },
   { id: 'oikonomia', switches: [['bills', 'Bills']] },
-  { id: 'hydros', switches: [], elsewhere: '/hydros/?open=settings' },
-  { id: 'praxis', switches: [['study', 'End of a study block']] },
+  { id: 'theoria', switches: [['study', 'End of a reading block']] },
   { id: 'diaita', switches: [['rhythm', 'Sleep and naps']] },
   { id: 'philia', switches: [['people', 'Birthdays and keeping in touch']] },
   { id: 'ergon', switches: [['chores', 'Chores']] },
