@@ -223,6 +223,7 @@ export const GLYPHS = {
   },
   play: { line: <path d="M8.5 5.8v12.4a.6.6 0 0 0 .9.5l9.6-6.2a.6.6 0 0 0 0-1L9.4 5.3a.6.6 0 0 0-.9.5z" /> },
   pause: { line: <path d="M8.5 5.5v13M15.5 5.5v13" />, lit: <></> },
+  bookmark: { line: <path d="M7 4.5h10a1 1 0 0 1 1 1v14.1a.5.5 0 0 1-.8.4L12 16.4l-5.2 3.6a.5.5 0 0 1-.8-.4V5.5a1 1 0 0 1 1-1z" /> },
   list: { line: <path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" />, lit: <></> },
   info: {
     line: (

@@ -275,7 +275,7 @@
 .theoria-reader-back, .theoria-reader-bookmark { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 4px; border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 13px; }
 .theoria-reader-back span:first-child { font-size: 22px; line-height: 1; }
 .theoria-reader-bookmark { justify-content: end; }
-.theoria-reader-bookmark span:first-child { color: var(--theoria-brass); font-size: 21px; line-height: 1; }
+.theoria-reader-bookmark .ll-icon { flex: none; }
 .theoria-reader-title { display: grid; min-width: 0; justify-items: center; gap: 3px; text-align: center; }
 .theoria-reader-title strong { max-width: min(45vw, 390px); overflow: hidden; font: 500 17px/1.1 var(--font-serif); text-overflow: ellipsis; white-space: nowrap; }
 .theoria-reader-title small { max-width: min(55vw, 450px); overflow: hidden; color: inherit; opacity: .62; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
@@ -303,10 +303,6 @@
 .theoria-reader-next:active { transform: scale(.98); }
 .theoria-reader--night .theoria-reader-next { color: var(--theoria-ink); }
 .theoria-reader-footer { position: relative; right: auto; bottom: auto; left: auto; z-index: 9; display: flex; align-items: center; gap: 13px; width: 100%; max-width: none; margin: 0; padding: 15px clamp(18px, 11vw, 175px) 7px; border-top: 1px solid color-mix(in srgb, var(--theoria-paper-ink) 16%, transparent); background: inherit; box-shadow: 0 -10px 24px color-mix(in srgb, var(--theoria-paper-ink) 8%, transparent); }
-.theoria-reader-footer input { flex: 1; accent-color: var(--theoria-brass); }
-.theoria-reader-footer > span { min-width: 30px; font-size: 12px; }
-.theoria-reader-footer button { border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 14px; }
-.theoria-reader-footer button:last-child { margin-left: auto; color: inherit; opacity: .7; }
 .theoria-connection-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 15px; }
 .theoria-connection-list { padding: 22px 19px; border: 1px solid var(--theoria-border); border-radius: 17px; background: var(--theoria-surface); }
 .theoria-connection-list h2 { margin: 7px 0 22px; font: 500 24px var(--font-serif); }
@@ -383,7 +379,6 @@
   .theoria-reader-page { padding-top: 42px; font-size: 18px; line-height: 1.7; }
   .theoria-reader-page h1 { font-size: 29px; }
   .theoria-reader-page blockquote { font-size: 19px; }
-  .theoria-reader-footer button:last-child { display: none; }
   .theoria-profile-card { align-items: start; flex-wrap: wrap; }
   .theoria-profile-card button { width: 100%; margin-left: 0; text-align: left; }
   .theoria-profile-grid { grid-template-columns: 1fr; }
@@ -474,7 +469,6 @@
   .theoria-reader-page h1 { margin-bottom: 24px; font-size: 29px; line-height: 1.25; }
   .theoria-reader-page blockquote { margin: 28px 0; padding: 10px 14px; font-size: 19px; }
   .theoria-reader-footer { right: auto; bottom: auto; left: auto; z-index: 9; padding: 10px 16px max(10px, calc(10px + env(safe-area-inset-bottom))); background: inherit; box-shadow: 0 -10px 24px color-mix(in srgb, var(--theoria-paper-ink) 9%, transparent); }
-  .theoria-reader-footer button:last-child { display: none; }
 
   .theoria-notes-list, .theoria-quote-list { width: 100%; max-width: none; }
   .theoria-note-card, .theoria-quote-card { padding: 14px; }
@@ -732,18 +726,44 @@
 .theoria-check-label { display: flex; align-items: center; gap: 8px; color: var(--theoria-muted); font-size: 14px; }
 .theoria-check-label input { width: 17px; height: 17px; accent-color: var(--theoria-brass); }
 
-.theoria-reader-progress { position: relative; flex: 1 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; }
-.theoria-reader-progress__track, .theoria-reader-progress__fill { position: absolute; top: 50%; right: 0; left: 0; height: 4px; border-radius: 999px; pointer-events: none; transform: translateY(-50%); }
-.theoria-reader-progress__track { background: color-mix(in srgb, currentColor 18%, transparent); }
-.theoria-reader-progress__fill { right: auto; width: 0; background: var(--ll-lamp-fill, var(--theoria-brass)); box-shadow: inset -1px 1px 0 rgba(255,255,255,.36), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); transition: width var(--ll-calm, 320ms) var(--ll-ease-out, ease-out); }
-.theoria-reader-progress__input { position: absolute; inset: 0; z-index: 1; flex: none !important; min-width: 0; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; outline: 0; appearance: none; -webkit-appearance: none; cursor: pointer; touch-action: pan-x; background: transparent; accent-color: var(--ll-lamp-fill, var(--theoria-brass)); }
-.theoria-reader-progress__input::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: transparent; }
-.theoria-reader-progress__input::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -3px; border: 1px solid var(--ll-lamp, var(--theoria-brass)); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 14%, transparent); appearance: none; -webkit-appearance: none; }
-.theoria-reader-progress__input::-moz-range-track { height: 4px; border-radius: 999px; background: transparent; }
-.theoria-reader-progress__input::-moz-range-progress { height: 4px; border-radius: 999px; background: transparent; }
-.theoria-reader-progress__input::-moz-range-thumb { width: 8px; height: 8px; border: 1px solid var(--ll-lamp, var(--theoria-brass)); border-radius: 50%; background: var(--theoria-parchment); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 14%, transparent); }
-.theoria-reader-progress__input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 24%, transparent), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); }
-.theoria-reader-progress__input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 24%, transparent), var(--ll-lamp-light, 0 5px 18px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), .55)); }
+
+/* The reader's foot: turn back, where you are, turn on. The rail is a hairline lit by the lamp up to the place,
+   with a notch where each part begins and one lit point at the place (Lamplight's one lit thing). */
+.theoria-reader-footer { gap: 10px; }
+.theoria-turn { display: inline-grid; flex: none; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--ll-radius-pill, 999px); color: inherit; background: color-mix(in srgb, currentColor 7%, transparent); cursor: pointer; transition: background var(--ll-calm, 200ms) ease, scale var(--ll-calm, 200ms) var(--ll-spring, ease-out); }
+.theoria-turn .ll-icon { color: var(--ll-lamp, var(--theoria-brass)); }
+.theoria-turn:hover:not(:disabled) { background: color-mix(in srgb, var(--ll-lamp, var(--theoria-brass)) 18%, transparent); }
+.theoria-turn:active:not(:disabled) { scale: .94; }
+.theoria-turn:disabled { opacity: .3; cursor: default; }
+.theoria-reader-where { display: grid; flex: 1 1 auto; gap: 2px; min-width: 0; }
+.theoria-reader-caption { display: flex; justify-content: space-between; gap: 12px; margin: 0; font: 500 var(--text-xs, 13px)/1.3 var(--ll-sans, var(--font-sans)); font-variant-numeric: tabular-nums; opacity: .72; }
+.theoria-reader-caption span:first-child { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+.theoria-reader-caption span:last-child { flex: none; }
+.theoria-reader-link { flex: none; min-height: 44px; border: 0; color: inherit; background: transparent; cursor: pointer; font-size: 14px; opacity: .72; }
+.theoria-reader-aa { color: var(--ll-lamp, var(--theoria-brass)); font: 600 15px/1 var(--font-serif); }
+.theoria-reader-toolbar button .ll-icon, .theoria-reader-bookmark .ll-icon { color: var(--ll-lamp, var(--theoria-brass)); }
+
+.theoria-rail { --rail-lamp: var(--ll-lamp, var(--theoria-brass)); position: relative; height: 28px; }
+.theoria-rail__track, .theoria-rail__fill { position: absolute; top: 50%; left: 0; height: 3px; border-radius: 999px; pointer-events: none; translate: 0 -50%; }
+.theoria-rail__track { right: 0; background: color-mix(in srgb, currentColor 16%, transparent); }
+.theoria-rail__track i { position: absolute; top: 50%; width: 1px; height: 7px; background: color-mix(in srgb, currentColor 30%, transparent); translate: -50% -50%; transition: background var(--ll-slow, 600ms) ease; }
+.theoria-rail__track i.is-passed { background: color-mix(in srgb, var(--rail-lamp) 70%, transparent); }
+.theoria-rail__fill { width: calc(var(--at) * 100%); background: linear-gradient(90deg, color-mix(in srgb, var(--rail-lamp) 35%, transparent), var(--rail-lamp)); box-shadow: 0 0 10px -1px color-mix(in srgb, var(--rail-lamp) 55%, transparent); transition: width var(--ll-calm, 320ms) var(--ll-spring, ease-out); }
+.theoria-rail__point { position: absolute; top: 50%; left: calc(var(--at) * 100%); width: 12px; height: 12px; border-radius: 50%; background: var(--rail-lamp); box-shadow: 0 0 0 4px color-mix(in srgb, var(--rail-lamp) 18%, transparent), 0 0 16px 2px color-mix(in srgb, var(--rail-lamp) 45%, transparent); pointer-events: none; translate: -50% -50%; transition: left var(--ll-calm, 320ms) var(--ll-spring, ease-out), scale var(--ll-calm, 200ms) var(--ll-spring, ease-out); }
+.theoria-rail:has(input:active) .theoria-rail__fill, .theoria-rail:has(input:active) .theoria-rail__point { transition: none; }
+.theoria-rail:has(input:active) .theoria-rail__point, .theoria-rail:has(input:focus-visible) .theoria-rail__point { scale: 1.3; }
+.theoria-rail:has(input:focus-visible) .theoria-rail__point { box-shadow: var(--ll-focus, 0 0 0 4px color-mix(in srgb, var(--rail-lamp) 35%, transparent)), 0 0 16px 2px color-mix(in srgb, var(--rail-lamp) 45%, transparent); }
+.theoria-rail input { position: absolute; inset: -8px 0; z-index: 1; width: 100%; height: calc(100% + 16px); margin: 0; opacity: 0; cursor: pointer; touch-action: pan-x; }
+@media (prefers-reduced-motion: reduce) { .theoria-rail__fill, .theoria-rail__point, .theoria-turn { transition: none; } }
+@media (forced-colors: active) { .theoria-rail__fill, .theoria-rail__point { background: Highlight; } .theoria-rail__track { background: CanvasText; } }
+
+/* A PDF's pages: the same foot, held at the bottom of the page view. */
+.theoria-pdf { touch-action: pan-y; }
+.theoria-pdf canvas { will-change: translate; }
+.theoria-pdf__turn { position: sticky; bottom: max(8px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 10px; width: min(100%, 640px); padding: 6px 8px; border: 1px solid color-mix(in srgb, currentColor 12%, transparent); border-radius: var(--ll-radius-pill, 999px); color: inherit; background: var(--theoria-parchment); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.theoria-reader--night .theoria-pdf__turn { background: var(--theoria-night-paper); }
+.theoria-reader--sepia .theoria-pdf__turn { background: var(--theoria-sepia-paper); }
+.theoria-pdf__turn .theoria-reader-where { padding-right: 6px; }
 
 @media (max-width: 900px) {
   .theoria-account-panel { width: 100%; padding: 17px; }
@@ -754,11 +774,6 @@
   .theoria-reader-footer { gap: 6px; padding-top: 6px; padding-bottom: max(6px, calc(6px + env(safe-area-inset-bottom))); border-top-color: color-mix(in srgb, var(--theoria-paper-ink) 20%, transparent); border-radius: 14px 14px 0 0; background: color-mix(in srgb, var(--theoria-parchment) 94%, transparent); box-shadow: 0 -8px 20px color-mix(in srgb, var(--theoria-paper-ink) 12%, transparent); }
   .theoria-reader--night .theoria-reader-footer { border-top-color: color-mix(in srgb, var(--theoria-ink) 14%, transparent); background: color-mix(in srgb, var(--theoria-surface) 95%, transparent); box-shadow: 0 -8px 20px rgba(0,0,0,.18); }
   .theoria-reader--sepia .theoria-reader-footer { background: color-mix(in srgb, var(--theoria-sepia-paper) 95%, transparent); }
-  .theoria-reader-footer button { flex: 0 0 auto; min-width: 42px; padding: 0 1px; font-size: 12px; }
-  .theoria-reader-footer > span { min-width: 28px; text-align: right; font-size: 12px; }
-  .theoria-reader-progress, .theoria-reader-progress__input { height: 24px; }
-  .theoria-reader-progress__input::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -3px; }
-  .theoria-reader-progress__input::-moz-range-thumb { width: 8px; height: 8px; }
 }
 
 /* A plain page edge, with no browser margin showing around the app. */
@@ -793,9 +808,6 @@ html, body { margin: 0; background: var(--theoria-bg, #0a0d1c); }
 .theoria-file-button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .theoria-pdf { display: grid; justify-items: center; gap: 12px; padding: 16px 12px 90px; }
 .theoria-pdf canvas { max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); background: #fff; }
-.theoria-pdf__turn { display: flex; align-items: center; gap: 14px; font-size: 14px; }
-.theoria-pdf__turn button { min-height: 40px; padding: 0 14px; border: 1px solid currentColor; border-radius: 9px; color: inherit; background: transparent; font: inherit; cursor: pointer; }
-.theoria-pdf__turn button:disabled { opacity: .35; cursor: default; }
 .theoria-view > .account-card, .theoria-view > .card { margin-top: 16px; }
 .theoria-check { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
 .theoria-check input { width: 20px; height: 20px; accent-color: var(--theoria-brass); }

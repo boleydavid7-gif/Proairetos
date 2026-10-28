@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Sym } from '../../lamplight/icons';
+import { ReaderRail } from './ReaderRail';
+import { useTurnKeys, useTurnSwipe } from './turnSwipe';
 import { openPdf } from '../data/pdf';
 
 type PdfDoc = Awaited<ReturnType<typeof openPdf>>;
 
-/** A PDF's pages as they are, one at a time, drawn on this device. */
-export default function PdfPages({ blob, startPage = 1 }: { blob: Blob; startPage?: number }) {
+/** A PDF's pages as they are, one at a time, drawn on this device. Swiping sideways or the arrow keys turn the page; the rail moves through the whole file. */
+export default function PdfPages({ blob, startPage = 1, onPage }: { blob: Blob; startPage?: number; onPage?: (page: number) => void }) {
   const [doc, setDoc] = useState<PdfDoc>();
   const [page, setPage] = useState(startPage);
   const [problem, setProblem] = useState('');
@@ -29,7 +32,17 @@ export default function PdfPages({ blob, startPage = 1 }: { blob: Blob; startPag
     };
   }, [blob]);
 
-  useEffect(() => setPage(startPage), [startPage]);
+  const pages = doc?.numPages ?? 0;
+  const turnTo = (next: number) => {
+    const bounded = Math.min(Math.max(1, next), Math.max(pages, 1));
+    if (bounded === page) return;
+    setPage(bounded);
+    onPage?.(bounded);
+  };
+  const turn = { canNext: page < pages, canPrevious: page > 1, onNext: () => turnTo(page + 1), onPrevious: () => turnTo(page - 1) };
+  const turningPage = useCallback(() => canvas.current, []);
+  useTurnSwipe(frame, turningPage, turn);
+  useTurnKeys(turn, pages > 1);
 
   useEffect(() => {
     if (!doc || !canvas.current) return;
@@ -61,9 +74,12 @@ export default function PdfPages({ blob, startPage = 1 }: { blob: Blob; startPag
       <canvas ref={canvas} aria-label={`Page ${page}`} />
       {doc && (
         <div className="theoria-pdf__turn">
-          <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>Previous</button>
-          <span>Page {page} of {doc.numPages}</span>
-          <button type="button" onClick={() => setPage(page + 1)} disabled={page >= doc.numPages}>Next</button>
+          <button type="button" className="theoria-turn" onClick={() => turnTo(page - 1)} disabled={page <= 1} aria-label="Previous page"><Sym name="back" /></button>
+          <div className="theoria-reader-where">
+            <ReaderRail at={pages > 1 ? (page - 1) / (pages - 1) : 1} label="Page" valueText={`Page ${page} of ${pages}`} onSeek={(fraction) => turnTo(1 + Math.round(fraction * (pages - 1)))} />
+            <p className="theoria-reader-caption"><span>Page {page} of {pages}</span><span>{Math.round((page / pages) * 100)}%</span></p>
+          </div>
+          <button type="button" className="theoria-turn" onClick={() => turnTo(page + 1)} disabled={page >= pages} aria-label="Next page"><Sym name="chevron" /></button>
         </div>
       )}
     </div>
