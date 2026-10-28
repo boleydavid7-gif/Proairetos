@@ -139,8 +139,8 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
     <section className="reflect-checkin" aria-label="Daily check-in">
       <div className="reflect-checkin__head">
         <div>
-          <p className="eyebrow">A moment to arrive</p>
-          <h2 className="reflect-checkin__title">How are you arriving today?</h2>
+          <p className="eyebrow">Your internal weather</p>
+          <h2 className="reflect-checkin__title">What is your internal weather like?</h2>
         </div>
         {existing && <span className="reflect-checkin__saved">Checked in</span>}
       </div>
