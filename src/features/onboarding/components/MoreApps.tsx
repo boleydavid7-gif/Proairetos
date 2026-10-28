@@ -59,6 +59,7 @@ export function PlansAndSync() {
         <h3>Sync</h3>
         <p>Everything is kept on this device. To use it on more than one device, sync through your own Google Drive, Dropbox or OneDrive, or through Proairetos cloud: 1 GB for {priceText('cloud')}/mo.</p>
         <p className="home-screen__fine">Either way, your records are encrypted on your device before they leave it.</p>
+        <p className="home-screen__fine">For large files such as books, photos and videos across devices, keep them on the device or use your own cloud storage.</p>
       </section>
     </div>
   );
