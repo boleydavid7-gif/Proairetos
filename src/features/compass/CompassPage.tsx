@@ -73,17 +73,16 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
   );
 }
 
-type CompassTab = 'values' | 'pursuits' | 'people' | 'words';
+type CompassTab = 'direction' | 'motion' | 'close';
 
 const compassTabs: { id: CompassTab; label: string }[] = [
-  { id: 'values', label: 'Values' },
-  { id: 'pursuits', label: 'Pursuits' },
-  { id: 'people', label: 'People' },
-  { id: 'words', label: 'Words' },
+  { id: 'direction', label: 'Direction' },
+  { id: 'motion', label: 'In motion' },
+  { id: 'close', label: 'Keep close' },
 ];
 
 /** The tab last opened, kept on this device only. */
-let lastCompassTab: CompassTab = 'values';
+let lastCompassTab: CompassTab = 'direction';
 
 export default function CompassPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values());
@@ -94,10 +93,10 @@ export default function CompassPage() {
   // Compass opens from Reflect; back (button, gesture, browser) returns there.
   const navigate = useNavigate();
   useBackHandler(true, () => navigate('reflect'));
-  const tabs = compassTabs.filter((option) => option.id === 'values' || option.id === 'pursuits' || shows(option.id));
+  const tabs = compassTabs.filter((option) => option.id !== 'close' || shows('people') || shows('words'));
   const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
-  // A tab set aside in Settings falls back to values.
-  const tab = tabs.some((option) => option.id === chosenTab) ? chosenTab : 'values';
+  // A tab set aside in Settings falls back to direction.
+  const tab = tabs.some((option) => option.id === chosenTab) ? chosenTab : 'direction';
 
   if (!values) return null;
   const canAdd = values.length < MAX_USER_VALUES;
@@ -105,6 +104,19 @@ export default function CompassPage() {
   return (
     <div className="page">
       <PageHero title="Compass" back={{ label: 'Reflect', onBack: () => navigate('reflect') }} />
+
+      <section className="compass-intro" aria-label="Compass orientation">
+        <p className="eyebrow">What do you want to keep in view?</p>
+        <h2 className="compass-intro__title">Set your direction</h2>
+        <p className="compass-intro__lead">Choose what matters, keep your active work visible, and stay close to the people and words that give the day meaning.</p>
+        {values.length > 0 && (
+          <div className="compass-north">
+            <span className="compass-north__label">Your north</span>
+            <strong>{values[0].name}</strong>
+            <span>{values[0].meaning || describeValue(values[0].name)}</span>
+          </div>
+        )}
+      </section>
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
@@ -135,10 +147,13 @@ export default function CompassPage() {
       )}
 
       <div key={tab} className="vt-panel">
-      {tab === 'values' && (
+      {tab === 'direction' && (
       <section className="stack-tight" aria-label="Your values">
         <div className="section-heading">
-          <h2 className="section-label">My values</h2>
+          <div>
+            <h2 className="section-label">Direction</h2>
+            <p className="section-description">The principles you chose to return to.</p>
+          </div>
           {values.length > 0 && (
             <button
               type="button"
@@ -182,29 +197,41 @@ export default function CompassPage() {
       </section>
       )}
 
-      {tab === 'pursuits' && <PursuitsSection />}
+      {tab === 'motion' && (
+        <section className="compass-motion" aria-label="In motion">
+          <PursuitsSection />
+        </section>
+      )}
 
-      {tab === 'words' && (
+      {tab === 'close' && (
         <>
+          {shows('people') && <PeopleSection people={statements.filter((statement) => statement.type === 'PERSON')} />}
+          {shows('words') && (
+          <section className="compass-close-section" aria-label="Words to keep close">
           <StatementList
             type="REMEMBER"
-            title="Worth getting up for"
-            description="Small things that make life worth living."
+            title="Remember"
+            description="Words, moments, and reasons worth carrying with you."
             placeholder="First light on the river, a call with Sam…"
             statements={statements.filter((statement) => statement.type === 'REMEMBER')}
           />
 
           <StatementList
             type="PUSHED_ASIDE"
-            title="Put aside"
-            description="Things you have decided not to carry."
+            title="Set down"
+            description="Things you have decided not to carry today."
             placeholder="Something to put aside"
             statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
           />
+          </section>
+          )}
         </>
       )}
+      </div>
 
-      {tab === 'people' && <PeopleSection people={statements.filter((statement) => statement.type === 'PERSON')} />}
+      <div className="compass-reflect-link">
+        <p>Daily writing and check-ins live in Reflect.</p>
+        <button type="button" className="button-quiet" onClick={() => navigate('reflect')}>Open Reflect</button>
       </div>
     </div>
   );

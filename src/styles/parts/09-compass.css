@@ -1,5 +1,74 @@
 /* ---------- Compass ---------- */
 
+.compass-intro {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.compass-intro__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 500;
+}
+
+.compass-intro__lead {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.compass-north {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+  border-radius: var(--ll-radius-lg, var(--radius-lg));
+  background: linear-gradient(115deg, color-mix(in srgb, var(--color-accent) 13%, var(--color-surface)), var(--ll-card, var(--color-surface)) 70%);
+  box-shadow: var(--ll-light-1, none);
+}
+
+.compass-north__label {
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+}
+
+.compass-north strong {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.compass-north > span:last-child {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.compass-motion,
+.compass-close-section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.compass-reflect-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.compass-reflect-link p {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
 .section-heading {
   display: flex;
   align-items: baseline;
