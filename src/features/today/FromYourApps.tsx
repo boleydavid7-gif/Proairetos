@@ -1,11 +1,8 @@
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { useOverlays } from '../../app/overlays/OverlayContext';
 import { fromAppsRows, type FromAppsRow, type Mark } from '../../app/family/fromApps';
-import { bringBack, setAside, useNotToday } from '../../app/family/notToday';
-import SwipeItem from '../../app/family/SwipeItem';
+import SwipeLine, { NotTodayFold, SwipeDay } from './SwipeLine';
 import { FamilyMark } from '../../app/family/marks';
 import { ChevronRightIcon } from '../../components/icons/Icons';
-import { MoonIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { usePlants, putPlant, myName as phytonName, settings as phytonSettings } from '../../phyton/app/state';
 import { useForecast, useRain } from '../../phyton/app/rain';
@@ -75,57 +72,10 @@ function RowLink({ row }: { row: FromAppsRow }) {
 
 /** A row: pull left to mark it in its app (where it can be marked), pull right to set it aside until tomorrow. */
 function Row({ row, today }: { row: FromAppsRow; today: string }) {
-  const { offerUndo } = useOverlays();
   return (
-    <SwipeItem
-      as="div"
-      className="quiet-row-wrap"
-      label={row.done}
-      onSwipe={
-        row.mark
-          ? () => {
-              const undo = markIn(row.mark!, today);
-              offerUndo(`“${row.title}” ${row.done!.toLowerCase()}`, async () => undo());
-            }
-          : undefined
-      }
-      later={{
-        label: 'Not today',
-        onSwipe: () => {
-          setAside(today, row.key);
-          offerUndo(`“${row.title}” not today`, async () => bringBack(today, row.key));
-        },
-      }}
-    >
+    <SwipeLine id={row.key} title={row.title} doneWord={row.done} mark={row.mark ? () => markIn(row.mark!, today) : undefined}>
       <RowLink row={row} />
-    </SwipeItem>
-  );
-}
-
-/** What was set aside today, folded into one line at the foot of the list; each can come back. */
-function SetAside({ rows, today }: { rows: FromAppsRow[]; today: string }) {
-  if (!rows.length) return null;
-  return (
-    <details className="quiet-row-wrap from-apps__aside">
-      <summary className="quiet-row">
-        <span className="quiet-row__icon" aria-hidden="true">
-          <MoonIcon size={20} />
-        </span>
-        <span className="quiet-row__text">
-          <span>Not today · {rows.length}</span>
-        </span>
-      </summary>
-      <ul className="from-apps__aside-list">
-        {rows.map((row) => (
-          <li key={row.key}>
-            <span>{row.title}</span>
-            <button type="button" className="text-link" onClick={() => bringBack(today, row.key)}>
-              Bring back
-            </button>
-          </li>
-        ))}
-      </ul>
-    </details>
+    </SwipeLine>
   );
 }
 
@@ -172,21 +122,19 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
         })()
       : undefined,
   });
-  const aside = useNotToday(today);
   if (!rows.length) return null;
-  const shown = rows.filter((row) => !aside.includes(row.key));
-  const list = (
-    <>
-      {shown.map((row) => <Row key={row.key} row={row} today={today} />)}
-      <SetAside rows={rows.filter((row) => aside.includes(row.key))} today={today} />
-    </>
-  );
-  if (embedded) return list;
+  const list = rows.map((row) => <Row key={row.key} row={row} today={today} />);
+  if (embedded) return <>{list}</>;
 
   return (
     <section className="from-apps" aria-labelledby="from-apps-title">
       <h2 id="from-apps-title" className="section-label">From your apps</h2>
-      <div className="today-group">{list}</div>
+      <SwipeDay.Provider value={today}>
+        <div className="today-group">
+          {list}
+          <NotTodayFold />
+        </div>
+      </SwipeDay.Provider>
     </section>
   );
 }

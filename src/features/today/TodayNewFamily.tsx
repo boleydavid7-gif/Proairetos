@@ -7,10 +7,11 @@ import { comingUp, whenText } from '../../philia/core/people';
 import { bookings as tripBookings, packing as tripPacking, plans as tripPlans, trips } from '../../poreia/app/state';
 import { daysOf, entryTitle, nextUp, phaseOf, phaseText, sortTrips } from '../../poreia/core/model';
 import NotForMe from './NotForMe';
+import SwipeLine from './SwipeLine';
 
-function QuietLink({ href, icon, line, detail, part }: { href: string; icon: React.ReactNode; line: string; detail: string; part: Parameters<typeof NotForMe>[0]['part'] }) {
+function QuietLink({ id, href, icon, line, detail, part }: { id: string; href: string; icon: React.ReactNode; line: string; detail: string; part: Parameters<typeof NotForMe>[0]['part'] }) {
   return (
-    <div className="quiet-row-wrap">
+    <SwipeLine id={id} title={line}>
       <a className="quiet-row" href={href}>
         <span className="quiet-row__icon" aria-hidden="true">{icon}</span>
         <span className="quiet-row__text">
@@ -20,7 +21,7 @@ function QuietLink({ href, icon, line, detail, part }: { href: string; icon: Rea
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part={part} />
-    </div>
+    </SwipeLine>
   );
 }
 
@@ -35,6 +36,7 @@ export function TodayBirthdays({ today }: { today: string }) {
   const name = (entry: (typeof soon)[number]) => (entry.label === 'Birthday' ? `${entry.person.name}’s birthday` : `${entry.person.name}: ${entry.label}`);
   return (
     <QuietLink
+      id={`birthdays:${soon.map((entry) => `${entry.person.id}@${entry.date}`).join(',')}`}
       href={soon.length === 1 ? `/philia/?open=${encodeURIComponent(`person:${first.person.id}`)}` : '/philia/'}
       icon={<PersonIcon size={20} />}
       line={soon.slice(0, 2).map((entry) => `${name(entry)} ${whenText(entry.date, today).toLowerCase()}`).join(' · ')}
@@ -67,6 +69,7 @@ export function TodayTrip({ now, today }: { now: Date; today: string }) {
   const nextText = next ? `${next.date === today ? clockText(next.entry.time) || 'Today' : next.date === addDays(today, 1) ? 'Tomorrow' : ''} ${entryTitle(next.entry)}`.trim() : undefined;
   return (
     <QuietLink
+      id={`trip:${trip.id}`}
       href={`/poreia/?open=${encodeURIComponent(`trip:${trip.id}`)}`}
       icon={<SuitcaseIcon size={20} />}
       line={away[0] === trip ? `${trip.name} · ${phaseText(phaseOf(trip, today))}` : `${trip.name} ${phaseText(phaseOf(trip, today)).toLowerCase()}`}

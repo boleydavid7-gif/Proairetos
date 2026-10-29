@@ -12,6 +12,7 @@ import TodayRun from '../today/TodayRun';
 import TodayFamily, { TodayMneme, TodayPursuit } from '../today/TodayFamily';
 import { TodayBirthdays, TodayTrip } from '../today/TodayNewFamily';
 import FromYourApps from '../today/FromYourApps';
+import { NotTodayFold, SwipeDay } from '../today/SwipeLine';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -264,6 +265,7 @@ export default function NowPage() {
       {/* Everything the other apps bring today, as one grouped list: things to mark first, then the rest. */}
       <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
         <h2 id="today-apps-title" className="section-label">From your apps</h2>
+        <SwipeDay.Provider value={today}>
         <div className="today-group">
           <FromYourApps today={today} embedded />
           {shows('askesis') && <TodayRun today={today} />}
@@ -272,7 +274,9 @@ export default function NowPage() {
           <TodayBirthdays today={today} />
           <TodayMneme />
           <TodayPursuit />
+          <NotTodayFold />
         </div>
+        </SwipeDay.Provider>
       </section>
       <TodayOnThisDay today={today} />
 

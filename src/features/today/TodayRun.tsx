@@ -1,6 +1,7 @@
 import { runLength, todaysRun, useRuns } from '../../app/askesis/runs';
 import { ChevronRightIcon, MountainIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
+import SwipeLine from './SwipeLine';
 import { linkTo } from '../../app/family/opening';
 import { useFittedWeek } from '../../app/family/trainingWeek';
 
@@ -12,7 +13,7 @@ export default function TodayRun({ today }: { today: string }) {
   if (!runs) return null;
   if (!run && !runs.plan) {
     return (
-      <div className="quiet-row-wrap">
+      <SwipeLine id="run:start" title="Start your running plan">
         <a className="quiet-row" href={linkTo('askesis', 'train')}>
           <span className="quiet-row__icon" aria-hidden="true">
             <MountainIcon size={20} />
@@ -24,13 +25,13 @@ export default function TodayRun({ today }: { today: string }) {
           <ChevronRightIcon size={18} className="quiet-row__chevron" />
         </a>
         <NotForMe part="askesis" />
-      </div>
+      </SwipeLine>
     );
   }
   if (!run) return null;
   const length = runLength(run);
   return (
-    <div className="quiet-row-wrap">
+    <SwipeLine id={`run:${run.id}`} title={run.title}>
       <a className="quiet-row" href={linkTo('askesis', `workout:${run.id}`)}>
         <span className="quiet-row__icon" aria-hidden="true">
           <MountainIcon size={20} />
@@ -45,6 +46,6 @@ export default function TodayRun({ today }: { today: string }) {
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="askesis" />
-    </div>
+    </SwipeLine>
   );
 }

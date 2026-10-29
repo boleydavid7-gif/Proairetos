@@ -712,6 +712,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Soma `cooked`; rows without a mark have no left pull), pull right is Not today (`app/family/notToday.ts`: the synced
   `proairetos.notToday` {day, keys}, only the person's today; a new day starts empty, the app itself is untouched), both
   with undo; set-aside rows fold into one "Not today · N" line at the foot with Bring back (no inbox, nothing piles up).
+  Every line of the group swipes (the owner's choice): `features/today/SwipeLine.tsx` wraps each (run, trip, bills,
+  birthdays, Mneme, pursuit and the From your apps rows) under the `SwipeDay` context NowPage provides (outside it, as
+  in the Lighter view, a line is plain); a line its app cannot mark is done here for the day (`done` in the same
+  setting); `NotTodayFold` sits last in the group and names what was set aside from the stored `titles`.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).

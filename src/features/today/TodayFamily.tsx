@@ -4,6 +4,7 @@ import { useStore } from '../../app/family/read';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { ChevronRightIcon, ListIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
+import SwipeLine from './SwipeLine';
 import { BookIcon } from '../../components/icons/Icons';
 import { ideas, notes } from '../../mneme/app/state';
 import { needsPursuitCheckIn, pursuits } from '../../app/pursuits';
@@ -23,7 +24,7 @@ export default function TodayFamily({ today }: { today: string }) {
   const soon = billsSoon(bills, today);
   if (soon.length === 0) return null;
   return (
-    <div className="quiet-row-wrap">
+    <SwipeLine id={`bills:${soon.map((bill) => `${bill.id}@${bill.date ?? bill.when}`).join(',')}`} title={soon.slice(0, 2).map((bill) => bill.name).join(', ')}>
       <a className="quiet-row" href={new Set(soon.map((bill) => bill.id)).size === 1 ? `/oikonomia/?open=bill:${encodeURIComponent(soon[0].id)}` : '/oikonomia/'}>
         <span className="quiet-row__icon" aria-hidden="true">
           <ListIcon size={20} />
@@ -43,7 +44,7 @@ export default function TodayFamily({ today }: { today: string }) {
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="bills" />
-    </div>
+    </SwipeLine>
   );
 }
 
@@ -61,7 +62,7 @@ export function TodayMneme() {
   const title = idea ? idea.text.replace(/\s+/g, ' ').trim().slice(0, 72) : note?.title || 'Pinned note';
   const more = idea && next.length > 1 ? ` · ${next.length - 1} more` : note && pinned.length > 1 ? ` · ${pinned.length - 1} more` : '';
   return (
-    <div className="quiet-row-wrap">
+    <SwipeLine id={idea ? `mneme:idea:${idea.id}` : `mneme:note:${note!.id}`} title={title}>
       <a className="quiet-row" href={`/mneme/?open=${idea ? 'ideas' : 'notes'}`}>
         <span className="quiet-row__icon" aria-hidden="true"><BookIcon size={20} /></span>
         <span className="quiet-row__text">
@@ -70,7 +71,7 @@ export function TodayMneme() {
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
-    </div>
+    </SwipeLine>
   );
 }
 
@@ -88,7 +89,7 @@ export function TodayPursuit() {
   const title = due ? `Check in: ${current.title}` : current.nextMove!;
   const detail = due ? `No check-in recently · ${current.title} · Compass` : `Next move · ${current.title} · Compass`;
   return (
-    <div className="quiet-row-wrap">
+    <SwipeLine id={`pursuit:${current.id}`} title={title}>
       <button type="button" className="quiet-row" onClick={() => { openPursuit(current.id); openCompassTab('motion'); navigate('compass'); }}>
         <span className="quiet-row__icon" aria-hidden="true"><BookIcon size={20} /></span>
         <span className="quiet-row__text">
@@ -97,6 +98,6 @@ export function TodayPursuit() {
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </button>
-    </div>
+    </SwipeLine>
   );
 }
