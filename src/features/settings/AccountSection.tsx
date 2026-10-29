@@ -65,7 +65,7 @@ function SignIn() {
           run(() => confirmCode(email, code));
         }}
       >
-        <p className="section-description">Enter the code sent to {email}. If the email has a link instead, copy the link and paste it here.</p>
+        <p className="section-description">Code sent to {email}.</p>
         <input
           autoComplete="one-time-code"
           autoCapitalize="off"
@@ -184,7 +184,6 @@ function SetUp() {
     <div className="stack-tight">
       {stage === 'passkey' && (
         <>
-          <p className="section-description">Your data is locked on this device before it syncs. A passkey opens it in every app, with Face ID or your fingerprint.</p>
           <button
             type="button"
             className="button-accent account-wide"
@@ -268,7 +267,7 @@ function PassphraseSetUp({ note }: { note: string }) {
         }
       }}
     >
-      <p className="section-description">{note || 'A passphrase locks your data on this device before it syncs. You need it on each new device.'}</p>
+      {note && <p className="section-description">{note}</p>}
       <input
         type="password"
         className="field-input"
@@ -347,9 +346,6 @@ function Unlock() {
         }
       }}
     >
-      <p className="section-description">
-        {!recovery ? 'Enter your passphrase to open your data here.' : choosing ? 'Enter your recovery key, then choose a new passphrase.' : 'Enter your recovery key to open your data here.'}
-      </p>
       <input
         type={recovery ? 'text' : 'password'}
         className="field-input"
@@ -618,7 +614,6 @@ function SystemCheck() {
       <div className="system-check__head">
         <div>
           <h3 className="settings-group__label">System check</h3>
-          <p className="sheet__hint">A quick look at sync, reminders and this browser.</p>
         </div>
         <div className="system-check__actions">
           <button type="button" className="text-link" disabled={busy} onClick={() => void checkAgain()}>

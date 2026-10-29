@@ -29,7 +29,6 @@ export default function LockScreen() {
       </button>
       <h1 className="page-header__title">Locked</h1>
       <form className="settings-card" onSubmit={submit} aria-label="Unlock">
-        <p className="section-description">Enter your passcode to open Reflect and Journal.</p>
         <input
           className="field-input"
           type="password"

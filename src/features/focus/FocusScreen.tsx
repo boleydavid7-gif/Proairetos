@@ -70,7 +70,6 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
           <input
             className="field-input"
             aria-label="Where you left off"
-            placeholder="e.g. halfway through section 2"
             maxLength={140}
             autoFocus
             value={leftOff}
@@ -129,7 +128,6 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
               <input
                 className="field-input"
                 aria-label="A thought to set aside"
-                placeholder="A thought to set aside"
                 maxLength={200}
                 value={thought}
                 onChange={(event) => setThought(event.target.value)}

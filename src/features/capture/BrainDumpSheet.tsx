@@ -68,15 +68,11 @@ export default function BrainDumpSheet({ onClose }: { onClose: () => void }) {
 
         {rows === null ? (
           <>
-            <p className="sheet__hint">
-              Everything at once, in any order.
-            </p>
             <div className="dump-box">
               <textarea
                 className="field-input field-input--area dump-box__text"
                 rows={8}
                 aria-label="Everything on your mind"
-                placeholder={'Call the garage, buy milk\nWorried about Friday\nMaybe a reading corner'}
                 value={text}
                 onChange={(event) => setText(event.target.value)}
                 autoFocus
@@ -96,7 +92,6 @@ export default function BrainDumpSheet({ onClose }: { onClose: () => void }) {
           </>
         ) : (
           <>
-            <p className="sheet__hint">A first guess at each. Tap to change it, or leave it.</p>
             {rows.length === 0 && <p className="empty-note">Nothing left.</p>}
             <ul className="dump-list">
               {rows.map((row) => (

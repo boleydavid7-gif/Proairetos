@@ -179,33 +179,6 @@
   }
 }
 
-/* From your apps (Today): what came around in the other apps, marked here. */
-.from-apps .check-list {
-  margin: var(--space-2) 0 0;
-  padding: 0;
-}
-.from-apps__link {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  color: var(--color-text);
-  text-decoration: none;
-}
-.from-apps__dot {
-  flex: none;
-  width: 1.4rem;
-  height: 1.4rem;
-  display: grid;
-  place-items: center;
-}
-.from-apps__dot::after {
-  content: '';
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: var(--color-text-faint);
-}
-
 /* Passkeys on the account page. */
 .passkeys__list {
   list-style: none;

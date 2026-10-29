@@ -48,7 +48,7 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
       {open && !editing && (
         <div className="value-card__meaning">
           <label className="daily-line__label" htmlFor={`meaning-${value.id}`}>What does this value mean to you?</label>
-          <textarea id={`meaning-${value.id}`} className="field-input field-input--area" rows={3} maxLength={MAX_VALUE_MEANING_LENGTH} placeholder="In my life, this means…" value={meaning} onChange={(event) => setMeaning(event.target.value)} />
+          <textarea id={`meaning-${value.id}`} className="field-input field-input--area" rows={3} maxLength={MAX_VALUE_MEANING_LENGTH} value={meaning} onChange={(event) => setMeaning(event.target.value)} />
           <div className="value-card__meaning-actions">
             {practice && <span className="value-card__practice"><span className="daily-line__label">A possible expression</span>{practice}</span>}
             {meaning.trim() !== (value.meaning ?? '') && <button type="button" className="chip chip--small" onClick={() => void saveMeaning()}>Save meaning</button>}
@@ -199,16 +199,12 @@ export default function CompassPage() {
           <StatementList
             type="REMEMBER"
             title="Remember"
-            description="Words, moments, and reasons worth carrying with you."
-            placeholder="First light on the river, a call with Sam…"
             statements={statements.filter((statement) => statement.type === 'REMEMBER')}
           />
 
           <StatementList
             type="PUSHED_ASIDE"
             title="Set down"
-            description="Things you have decided not to carry today."
-            placeholder="Something to put aside"
             statements={statements.filter((statement) => statement.type === 'PUSHED_ASIDE')}
           />
           </section>

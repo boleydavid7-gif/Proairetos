@@ -59,7 +59,6 @@ export default function FocusStart({ target, onStart, onClose }: Props) {
             max={180}
             className="field-input"
             aria-label="Other length in minutes"
-            placeholder="Other length, in minutes"
             value={custom}
             onChange={(event) => setCustom(event.target.value)}
           />

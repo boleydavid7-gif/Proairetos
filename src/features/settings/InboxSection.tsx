@@ -53,7 +53,6 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
   if (!kept) {
     return (
       <section className="settings-card">
-        <p className="section-description">Say “Hey Siri, Capture”, double-tap the back of your iPhone, or tap your watch, and the words land in Capture without opening the app. They are locked on arrival with a key only this device holds.</p>
         <button type="button" className="button-accent account-wide" disabled={busy} onClick={() => void run(async () => setKept(await turnOnInbox()))}>
           {busy ? 'Setting up…' : 'Turn on'}
         </button>
@@ -83,7 +82,6 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
       </section>
       <section className="settings-group" aria-label="Inbox">
         <div className="settings-card">
-          <p className="section-description">What arrives shows in Capture when Proairetos opens on this device.</p>
           <button type="button" className="chip account-wide" disabled={busy} onClick={() => void run(async () => setKept(await turnOnInbox()))}>
             Make a new token
           </button>

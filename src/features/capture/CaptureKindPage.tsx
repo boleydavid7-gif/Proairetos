@@ -75,14 +75,12 @@ export default function CaptureKindPage({ shelf, onBack }: { shelf: CaptureShelf
         </span>
         <div>
           <h1 className="page-header__title">{shelfTitles[shelf].title}</h1>
-          <p className="page-header__subtitle">{shelfTitles[shelf].line}</p>
         </div>
       </header>
 
       <div className="stack-tight">
         <CaptureBar
           kind={kind}
-          placeholder={tile?.prompt ?? 'Anything at all'}
           onCaptured={(item) => {
             // After naming a feeling or a worry, a practice is offered, quietly and at most once a day.
             const day = toLocalDate(new Date());

@@ -21,7 +21,6 @@ export default function MakeItYours({ choices, onChange }: Props) {
           className="make-yours__input"
           autoComplete="given-name"
           maxLength={40}
-          placeholder="For the greeting on Today"
           value={choices.name}
           onChange={(event) => onChange({ ...choices, name: event.target.value })}
         />

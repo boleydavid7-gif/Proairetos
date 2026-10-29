@@ -62,7 +62,6 @@ export default function CapturePage() {
       <section className="fast-capture" aria-labelledby="fast-capture-title">
         <h2 id="fast-capture-title" className="fast-capture__title">What’s on your mind?</h2>
         <CaptureBar
-          placeholder="Write it down"
           submitLabel="Save"
           autoFocus
           showMic={false}

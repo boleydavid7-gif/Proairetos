@@ -102,7 +102,6 @@ export default function QuickSortSheet({
 
         {current ? (
           <>
-            <p className="sheet__hint">One at a time.</p>
             <div className="sort-card">
               <p className="sort-card__title">{current.title}</p>
               <div className="chip-row" role="group" aria-label="Kind">
@@ -140,7 +139,6 @@ export default function QuickSortSheet({
                     <input type="time" value={scheduleTime} onChange={(event) => setScheduleTime(event.target.value)} />
                   </label>
                 </div>
-                <p className="sort-when__hint">Add a time for appointments or anything that must happen at a specific hour.</p>
                 <button type="button" className="button-main sort-when__save" disabled={busy || !scheduleDate} onClick={() => void saveSchedule()}>
                   {scheduleTime ? 'Schedule' : 'Set date'}
                 </button>

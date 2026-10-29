@@ -31,9 +31,6 @@ export default function ValuePicker({ chosen, onDone }: Props) {
 
   return (
     <div className="picker">
-      <p className="picker__hint">
-        Pick a few, or write your own.
-      </p>
       <div className="stack-tight" role="group" aria-label="Values to choose from">
         {available.some((name) => stoicVirtues.includes(name)) && (
           <>
@@ -64,7 +61,6 @@ export default function ValuePicker({ chosen, onDone }: Props) {
         <input
           className="field-input"
           aria-label="Your own value"
-          placeholder="Your own value"
           maxLength={MAX_VALUE_NAME_LENGTH}
           value={custom}
           onChange={(event) => setCustom(event.target.value)}

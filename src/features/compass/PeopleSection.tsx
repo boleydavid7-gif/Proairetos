@@ -65,7 +65,6 @@ function Person({ person }: { person: CompassStatement }) {
           <input
             className="field-input"
             aria-label={`A line about ${person.body}`}
-            placeholder="Note (optional)"
             value={note}
             maxLength={280}
             onChange={(event) => setNote(event.target.value)}
@@ -135,7 +134,6 @@ export default function PeopleSection({ people }: { people: CompassStatement[] }
           <input
             className="field-input"
             aria-label="A person’s name"
-            placeholder="A name"
             value={name}
             maxLength={80}
             onChange={(event) => setName(event.target.value)}

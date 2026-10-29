@@ -120,7 +120,6 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
           aria-expanded="true"
           aria-controls="palette-list"
           aria-label="Go anywhere, or write something down"
-          placeholder="Go anywhere, or write something down"
           autoComplete="off"
           value={query}
           onChange={(event) => {
@@ -140,7 +139,6 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
             }
           }}
         />
-        {!needle && <p className="sheet__hint">Type a page or an action, or write something down and press Enter.</p>}
         <ul id="palette-list" className="search-list" role="listbox">
           {rows.map((row, index) => (
             <li key={row.kind === 'add' ? 'add' : row.command.id} role="option" aria-selected={index === chosen}>

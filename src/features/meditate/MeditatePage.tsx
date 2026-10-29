@@ -271,12 +271,10 @@ export default function MeditatePage() {
 function Switch({
   on,
   label,
-  detail,
   onToggle,
 }: {
   on: boolean;
   label: string;
-  detail?: string;
   onToggle: () => void;
 }) {
   return (
@@ -284,7 +282,6 @@ function Switch({
       <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
       <span className="toggle-row__text">
         <span>{label}</span>
-        {detail && <span className="toggle-row__detail">{detail}</span>}
       </span>
     </button>
   );
@@ -356,13 +353,11 @@ function Customize({
           <Switch
             on={setup.counts}
             label="Counts in the circle"
-            detail="Breathe in, 4, 3… Otherwise the time left."
             onToggle={() => onChange({ counts: !setup.counts })}
           />
           <Switch
             on={setup.breathSounds}
             label="Breath sounds"
-            detail="A breath in and out, with the circle."
             onToggle={() => onChange({ breathSounds: !setup.breathSounds })}
           />
           <Switch
@@ -523,11 +518,6 @@ function Library({
             onChange={(event) => player.setVolume(kind, Number(event.target.value))}
           />
         </label>
-        <p className="sheet__hint">
-          {kind === 'sound'
-            ? `Switched on, it plays when ${kindTitle(sitKind)} begins. Switch on a few and they play together.`
-            : `Switched on, it plays when ${kindTitle(sitKind)} begins. One piece at a time.`}
-        </p>
       </div>
     </section>
   );

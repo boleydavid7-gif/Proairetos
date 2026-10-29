@@ -73,7 +73,6 @@ function WaitingSection({ item }: { item: LifeItem }) {
           onChange={(event) => setCheckBack(event.target.value)}
         />
       </label>
-      <p className="sheet__hint">A check-back date brings it back to Today.</p>
       <div className="chip-row">
         <button
           type="button"
@@ -163,7 +162,6 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   return (
     <section className="sheet__section control-split" aria-label="What is in your control">
       <p className="sheet__label">What is in your control</p>
-      <p className="sheet__hint">One per line.</p>
       <div className="control-split__columns">
         <label className="control-split__column">
           <span>In my control</span>
@@ -190,7 +188,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
       </div>
       {mineLines.length > 0 && (
         <div className="control-split__pivot">
-          <p className="sheet__hint">Turn something in your control into the next step:</p>
+          <p className="sheet__label">Next step</p>
           <div className="chip-row">
             {mineLines.map((line) => (
               <button key={line} type="button" className="chip" onClick={() => lifeService.setNextStep(item.id, line)}>
@@ -274,7 +272,6 @@ function NextStepSection({ item }: { item: LifeItem }) {
             <span>When or where</span>
             <input
               className="field-input"
-              placeholder="e.g. after breakfast, at my desk"
               maxLength={140}
               value={cue}
               onChange={(event) => setCue(event.target.value)}
@@ -285,7 +282,6 @@ function NextStepSection({ item }: { item: LifeItem }) {
             <span>If something gets in the way, I will</span>
             <input
               className="field-input"
-              placeholder="e.g. do just the first two minutes"
               maxLength={140}
               value={obstacle}
               onChange={(event) => setObstacle(event.target.value)}
@@ -306,7 +302,6 @@ function NextStepSection({ item }: { item: LifeItem }) {
           <input
             className="field-input"
             aria-label="Next small step"
-            placeholder="The very next thing you could do"
             maxLength={140}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
@@ -342,14 +337,12 @@ function ChecklistSection({ item }: { item: LifeItem }) {
         className="field-input field-input--area"
         rows={4}
         aria-label="List lines, one per line"
-        placeholder="One per line"
         value={text}
         onChange={(event) => setText(event.target.value)}
         onBlur={() => {
           if (text !== current) lifeService.setChecklist(item.id, text.split('\n'));
         }}
       />
-      {item.repeat && <p className="sheet__hint">Ticks clear each time it comes back.</p>}
     </section>
   );
 }
@@ -365,7 +358,6 @@ function LookSection({ item }: { item: LifeItem }) {
       <input
         className="field-input"
         aria-label="Where"
-        placeholder="A place, if it helps"
         value={location}
         onChange={(event) => setLocation(event.target.value)}
         onBlur={() => location !== (item.location ?? '') && lifeService.setLook(item.id, { location })}
@@ -680,7 +672,6 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
               className="field-input field-input--area"
               rows={3}
               aria-label="Notes"
-              placeholder="Anything you want to keep with this"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               onBlur={() => {

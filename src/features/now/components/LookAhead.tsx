@@ -54,7 +54,6 @@ function Premeditation() {
         id="premeditation"
         className="field-input field-input--area"
         rows={2}
-        placeholder="If ..., then I will ..."
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
       />

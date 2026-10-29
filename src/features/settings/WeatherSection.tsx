@@ -38,9 +38,6 @@ export default function WeatherSection() {
 
   return (
     <section className="settings-card" aria-label="Weather">
-      <p className="section-description">
-        Shows the sky beside the date on Today and notes it with what you write in Reflect.
-      </p>
       <button type="button" className="toggle-row" aria-pressed={settings.on} onClick={() => update({ ...settings, on: !settings.on })}>
         <span className={`toggle-switch${settings.on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span>Show the weather</span>
@@ -67,7 +64,6 @@ export default function WeatherSection() {
             <input
               className="field-input"
               aria-label="Town or city"
-              placeholder="Or type a town"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />

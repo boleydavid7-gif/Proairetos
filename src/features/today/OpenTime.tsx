@@ -53,7 +53,6 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
         <p className="sheet__title sheet__title--static">
           {formatTimeOf(stretch.start)} – {formatTimeOf(stretch.end)}
         </p>
-        <p className="sheet__hint">Pick something for this time.</p>
 
         <label className="place-time">
           <span>At</span>

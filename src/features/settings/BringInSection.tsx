@@ -116,8 +116,7 @@ export default function BringInSection() {
     return (
       <section className="settings-card" aria-label="Review what to bring in">
         <p className="section-description">
-          From {result.source}: {result.rows.length === 1 ? '1 thing' : `${result.rows.length} things`}. Untick
-          anything you would rather not bring in.
+          From {result.source}: {result.rows.length === 1 ? '1 thing' : `${result.rows.length} things`}.
         </p>
         {result.note && <p className="sheet__hint">{result.note}</p>}
         <div className="chip-row">
@@ -158,9 +157,6 @@ export default function BringInSection() {
 
   return (
     <section className="settings-card" aria-label="Bring things in">
-      <p className="section-description">
-        You see everything first; nothing is saved until you choose.
-      </p>
       <ul className="import-sources">
         <li>
           <strong>A calendar file</strong> (.ics) from Google, Apple, or Outlook: events become things with a time.
@@ -192,7 +188,6 @@ export default function BringInSection() {
         className="field-input field-input--area"
         rows={5}
         aria-label="Or paste a list"
-        placeholder={'Or paste a list, one per line\nBook dentist\nRenew passport'}
         value={pasted}
         onChange={(event) => setPasted(event.target.value)}
       />
@@ -201,7 +196,6 @@ export default function BringInSection() {
       </button>
       {error && <p className="form-error">{error}</p>}
       {message && <p className="sheet__hint">{message}</p>}
-      <p className="sheet__hint">To move everything from another Proairetos, restore a backup above.</p>
     </section>
   );
 }

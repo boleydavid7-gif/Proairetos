@@ -132,7 +132,6 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
                   className="field-input field-input--area"
                   rows={3}
                   aria-label="Note on this decision"
-                  placeholder="How it turned out, or what you notice now"
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                 />
@@ -154,9 +153,6 @@ export default function DecisionSheet({ decisionId, onClose }: Props) {
             ) : (
               due && (
                 <section className="sheet__section look-back" aria-label="Look back">
-                  <p className="sheet__hint">
-                    A sound choice can turn out badly, and a poor one can turn out well. Look at them separately.
-                  </p>
                   <p className="sheet__label">Given what you knew then, the decision</p>
                   <div className="chip-row" role="group" aria-label="The decision">
                     {(Object.keys(processLabels) as DecisionProcess[]).map((key) => (

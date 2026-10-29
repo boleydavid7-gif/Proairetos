@@ -134,7 +134,7 @@ export default function TodayTogether() {
         </ul>
       )}
       <form className="together__add" onSubmit={add}>
-        <input className="input" aria-label={`Add to ${list.name}`} placeholder="Add to the list" value={text} onChange={(event) => setText(event.target.value)} />
+        <input className="input" aria-label={`Add to ${list.name}`} value={text} onChange={(event) => setText(event.target.value)} />
         {text.trim() && <button type="submit" className="button-quiet">Add</button>}
       </form>
       {done.length > 0 && (

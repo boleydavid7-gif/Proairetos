@@ -12,9 +12,9 @@ import { useSyncStatus } from './AccountSection';
 
 const choices: { key: keyof StoredFeedOptions; label: string; hint?: string }[] = [
   { key: 'shifts', label: 'Commitments from my schedule' },
-  { key: 'shiftLabels', label: 'Use the names from my schedule', hint: 'Instead of a plain "Busy", e.g. "Class" or "Nights".' },
+  { key: 'shiftLabels', label: 'Use the names from my schedule' },
   { key: 'protectedTime', label: 'Protected time' },
-  { key: 'tasks', label: 'Things with a day or time', hint: 'Includes their titles, so anyone with the link can read them.' },
+  { key: 'tasks', label: 'Things with a day or time' },
 ];
 
 const webcal = (url: string) => url.replace(/^https:/, 'webcal:');
@@ -66,16 +66,12 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
   return (
     <>
       <section className="settings-card" aria-label="What goes in your calendar">
-        <p className="section-description">
-          Puts your schedule, Poreia trips, and Oikonomia bills into Apple, Google, or Microsoft calendars. Choose what else to include:
-        </p>
-        {choices.map(({ key, label, hint }) => (
+        {choices.map(({ key, label }) => (
           <div key={key}>
             <button type="button" className="toggle-row" aria-pressed={feed.options[key]} onClick={() => toggle(key)}>
               <span className={`toggle-switch${feed.options[key] ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
               <span>{label}</span>
             </button>
-            {hint && <p className="sheet__hint calendar-hint">{hint}</p>}
           </div>
         ))}
       </section>
@@ -122,10 +118,6 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
                 Outlook
               </a>
             </div>
-            <p className="sheet__hint">
-              On iPhone, Apple Calendar asks to subscribe. For Google on a phone, open the Google link in a browser; the
-              calendar then appears in the Google Calendar app.
-            </p>
             {confirmingOff ? (
               <div className="chip-row">
                 <button type="button" className="button-quiet" onClick={() => setConfirmingOff(false)}>
@@ -186,9 +178,6 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
 
       <section className="settings-card" aria-label="Download instead">
         <h2 className="section-label">Or download a file</h2>
-        <p className="section-description">
-          A one-time copy for any calendar to import. Nothing goes through the server; download again after changes.
-        </p>
         <button type="button" className="chip chip--wide" onClick={() => run(() => downloadCalendarFile(feed.options))}>
           Download calendar file
         </button>

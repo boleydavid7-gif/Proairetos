@@ -68,13 +68,6 @@ export default function OtherCalendarsSection() {
   return (
     <>
       <section className="settings-card" aria-label="Your other calendars">
-        <p className="section-description">
-          Events from Google, Apple or Outlook beside your day, read only. The links stay on this device.
-        </p>
-        <p className="sheet__hint">
-          “Counts as work” lets a late or overnight event keep your day going, like a night shift, and sets when Close
-          the day appears. “Counts as protected time” holds reminders until it ends.
-        </p>
         {sources.length > 0 && (
           <ul className="other-calendars">
             {sources.map((source) => (
@@ -139,7 +132,6 @@ export default function OtherCalendarsSection() {
           <input
             className="field-input"
             aria-label="Calendar name"
-            placeholder="A name, e.g. Work or Family"
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -149,7 +141,6 @@ export default function OtherCalendarsSection() {
             inputMode="url"
             autoCapitalize="off"
             autoCorrect="off"
-            placeholder="https://… or webcal://… (.ics)"
             value={url}
             onChange={(event) => setUrl(event.target.value)}
           />
@@ -179,7 +170,6 @@ export default function OtherCalendarsSection() {
 
       <section className="settings-card" aria-label="Import a calendar file">
         <h2 className="section-label">Or import a file</h2>
-        <p className="section-description">A one-time copy from an .ics file. It does not update by itself.</p>
         <input
           ref={fileInput}
           type="file"

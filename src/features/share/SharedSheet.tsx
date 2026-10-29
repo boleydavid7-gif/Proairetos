@@ -42,7 +42,6 @@ export default function SharedSheet({ text, onClose }: { text: string; onClose: 
           value={value}
           onChange={(event) => setValue(event.target.value)}
         />
-        <p className="sheet__hint">The first line becomes the title; the rest is kept as a note.</p>
         <div className="chip-row" role="group" aria-label="Kind">
           {itemKinds.map((option) => (
             <button

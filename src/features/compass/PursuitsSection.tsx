@@ -78,16 +78,13 @@ export default function PursuitsSection() {
     <section className="pursuits" aria-label="Pursuits">
       <div className="pursuits__intro">
         <div>
-          <p className="eyebrow">Make room to work it out</p>
           <h2 className="pursuits__title">Pursuits</h2>
-          <p className="pursuits__lead">Ongoing work that unfolds over time.</p>
         </div>
         <button type="button" className="button-main pursuits__new" onClick={() => setCreating(true)}><PlusIcon size={18} /> New pursuit</button>
       </div>
       {active.length === 0 ? (
         <div className="pursuits__empty">
           <p className="pursuits__empty-title">Nothing is in motion yet.</p>
-          <p className="muted">Start with something you want to build, change, or understand.</p>
         </div>
       ) : (
         <ul className="pursuits__list">{active.map((pursuit) => <PursuitCard key={pursuit.id} pursuit={pursuit} onOpen={() => setSelected(pursuit.id)} />)}</ul>

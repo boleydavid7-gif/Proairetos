@@ -117,7 +117,6 @@ function GoalTime({ goal }: { goal: CompassStatement }) {
             <input type="time" className="field-input" aria-label="Until" value={draft.end} onChange={(e) => setDraft({ ...draft, end: e.target.value })} />
           </label>
         </div>
-        <p className="sheet__hint">It becomes protected time: reminders wait during it, and it shows on your days.</p>
         {error && <p className="form-error">{error}</p>}
         <div className="chip-row">
           <button
@@ -218,7 +217,6 @@ function Goal({ goal }: { goal: CompassStatement }) {
           <input
             className="field-input"
             aria-label={`Why ${goal.body} matters`}
-            placeholder="Why it matters (optional)"
             value={note}
             maxLength={280}
             onChange={(event) => setNote(event.target.value)}
@@ -243,7 +241,6 @@ function Goal({ goal }: { goal: CompassStatement }) {
               <input
                 className="field-input"
                 aria-label={`A step toward ${goal.body}`}
-                placeholder="A step toward it"
                 value={step}
                 onChange={(event) => setStep(event.target.value)}
               />
@@ -366,7 +363,6 @@ export default function GoalsSection({ goals }: { goals: CompassStatement[] }) {
           <input
             className="field-input"
             aria-label="A pursuit you are working toward"
-            placeholder="e.g. Learn to cook a few meals"
             value={text}
             maxLength={280}
             onChange={(event) => setText(event.target.value)}

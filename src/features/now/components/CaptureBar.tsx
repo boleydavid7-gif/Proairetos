@@ -15,7 +15,6 @@ import { markRemindOfferSeen, remindOfferSeen } from '../../../data/storage/pref
 type Props = {
   /** A kind chosen above the box; it tags the next capture only. */
   kind?: ItemKind;
-  placeholder?: string;
   onCaptured?: (item: LifeItem) => void;
   /** Quiet: a single underlined line, for Today. */
   variant?: 'box' | 'quiet';
@@ -27,7 +26,7 @@ type Props = {
   showMic?: boolean;
 };
 
-export default function CaptureBar({ kind, placeholder = 'Capture something', onCaptured, variant = 'box', submitLabel = 'Add', autoFocus = false, showMic = true }: Props) {
+export default function CaptureBar({ kind, onCaptured, variant = 'box', submitLabel = 'Add', autoFocus = false, showMic = true }: Props) {
   const [text, setText] = useState('');
   // "Keep as written": the day or time read from the words is set aside until the box is cleared.
   const [asWritten, setAsWritten] = useState(false);
@@ -94,7 +93,6 @@ export default function CaptureBar({ kind, placeholder = 'Capture something', on
       <input
         ref={input}
         className="capture-bar__input"
-        placeholder={placeholder}
         aria-label="Capture something"
         autoFocus={autoFocus}
         value={text}

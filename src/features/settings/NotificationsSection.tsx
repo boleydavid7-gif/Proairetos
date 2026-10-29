@@ -290,7 +290,7 @@ export default function NotificationsSection() {
           />
         )}
         {permission === 'granted' && sync.phase !== 'ready' && (
-          <p className="sheet__hint">Only while the app is open. To get them when it’s closed, sign in under Account and sync.</p>
+          <p className="sheet__hint">Only while the app is open.</p>
         )}
         {error && <p className="form-error">{error}</p>}
       </NotifyGroup>

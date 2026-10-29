@@ -55,7 +55,6 @@ export function Passkeys() {
         <p className="section-description">{problem}</p>
       ) : (
         <>
-          <p className="section-description">Face ID, a fingerprint or the device's PIN signs in and opens your data, in every app.</p>
           {entries && entries.length > 0 && (
             <ul className="passkeys__list">
               {entries.map((entry) => (

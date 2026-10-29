@@ -129,9 +129,6 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   if (!choices) {
     return (
       <section className="settings-card">
-        <p className="section-description">
-          Your workouts, sleep, water and readings from Apple Health (iPhone) or Health Connect (Android) can fill in your apps by themselves. An app on your phone sends them to a private address. What arrives is locked so only your apps can open it.
-        </p>
         <button
           type="button"
           className="button-accent account-wide"

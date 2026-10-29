@@ -108,7 +108,6 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
           <input
             className="field-input field-input--large"
             aria-label="What"
-            placeholder="What is it?"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             autoFocus
@@ -144,7 +143,6 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
           <input
             className="field-input"
             aria-label="Where"
-            placeholder="Where"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
           />
@@ -179,7 +177,6 @@ export default function AddEventSheet({ date, onClose }: { date: string; onClose
                     className="field-input field-input--area"
                     rows={4}
                     aria-label="List lines, one per line"
-                    placeholder={'One per line, e.g.\nLaundry\nPlan meals\nWater plants'}
                     value={lines}
                     onChange={(event) => setLines(event.target.value)}
                   />

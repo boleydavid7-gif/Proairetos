@@ -7,7 +7,7 @@ import type { Recipe } from '../../soma/core/recipes';
 
 /*
  * What has come around in the other apps today, as one list for Proairetos Today. Nothing here is stored: the rows
- * are read from each app every time, so a mark made in the app itself, or here, shows everywhere at once and nothing
+ * are read from each app every time and open it there, so a mark made in the app shows here at once and nothing
  * piles up. A day that came earlier reads "Since Tue", never late.
  */
 
@@ -26,23 +26,14 @@ export type FromAppsInput = {
   clock: (at: Date) => string;
 };
 
-export type Mark =
-  | { kind: 'plant'; plant: Plant }
-  | { kind: 'chore'; chore: Chore }
-  | { kind: 'dose'; dose: Dose }
-  | { kind: 'upkeep'; upkeep: Upkeep };
-
 export type FromAppsRow = {
   key: string;
   app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'dynamis' | 'soma';
   part: TodayPart;
   title: string;
   detail: string;
-  /** Where tapping the words goes. */
+  /** Where tapping the row goes. */
   href: string;
-  /** What ticking it does, and the word for it; absent for rows that only open their app. */
-  mark?: Mark;
-  done?: string;
 };
 
 const open = (app: string, what: string) => `/${app}/?open=${encodeURIComponent(what)}`;
@@ -53,19 +44,19 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
   for (const dose of [...(input.doses ?? [])].sort((a, b) => a.at.getTime() - b.at.getTime())) {
-    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
+    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`) });
   }
   for (const visit of input.visits ?? []) {
     rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: withWho(visit, visit.with), detail: [clock(new Date(visit.at)), visit.where, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
   }
   for (const { chore, day } of input.chores ?? []) {
-    rows.push({ key: `chore:${chore.id}`, app: 'ergon', part: 'chores', title: chore.name, detail: [since(dayText(day, today)), chore.who, 'Ergon'].filter(Boolean).join(' · '), href: open('ergon', `chore:${chore.id}`), mark: { kind: 'chore', chore }, done: 'Done' });
+    rows.push({ key: `chore:${chore.id}`, app: 'ergon', part: 'chores', title: chore.name, detail: [since(dayText(day, today)), chore.who, 'Ergon'].filter(Boolean).join(' · '), href: open('ergon', `chore:${chore.id}`) });
   }
   for (const { plant, day } of input.plants ?? []) {
-    rows.push({ key: `plant:${plant.id}`, app: 'phyton', part: 'plants', title: plant.name, detail: ['Check the soil', since(dayText(day, today)), 'Phyton'].filter(Boolean).join(' · '), href: open('phyton', `plant:${plant.id}`), mark: { kind: 'plant', plant }, done: 'Watered' });
+    rows.push({ key: `plant:${plant.id}`, app: 'phyton', part: 'plants', title: plant.name, detail: ['Check the soil', since(dayText(day, today)), 'Phyton'].filter(Boolean).join(' · '), href: open('phyton', `plant:${plant.id}`) });
   }
   for (const { upkeep, due, thing } of input.upkeep ?? []) {
-    rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today)), 'Ktema'].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`), mark: { kind: 'upkeep', upkeep }, done: 'Done' });
+    rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today)), 'Ktema'].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`) });
   }
   for (const recipe of input.meals ?? []) {
     rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today · Soma', href: open('soma', `recipe:${recipe.id}`) });

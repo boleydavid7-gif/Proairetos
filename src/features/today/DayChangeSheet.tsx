@@ -57,7 +57,6 @@ export default function DayChangeSheet({ target, onClose }: Props) {
             <input
               className="field-input"
               aria-label="Name for these hours"
-              placeholder="Name"
               value={block.label ?? ''}
               onChange={(event) => setBlock({ ...block, label: event.target.value || undefined })}
             />
@@ -110,7 +109,6 @@ export default function DayChangeSheet({ target, onClose }: Props) {
             )}
           </div>
         )}
-        <p className="sheet__hint">Only this day changes. The rest of the pattern stays as it is.</p>
       </div>
     </dialog>
   );

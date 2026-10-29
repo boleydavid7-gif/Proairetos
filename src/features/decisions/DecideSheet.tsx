@@ -76,7 +76,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
           Close
         </button>
         <p className="sheet__title sheet__title--static">Make a decision</p>
-        <p className="sheet__hint">Take a moment to notice what matters here.</p>
 
         <label className="sheet__section">
           <span className="sheet__label">What are you deciding?</span>
@@ -99,7 +98,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
                 <input
                   className="field-input"
                   aria-label={`Option ${index + 1}`}
-                  placeholder={`Option ${index + 1}`}
                   value={option}
                   onChange={(event) => setOptions(options.map((o, i) => (i === index ? event.target.value : o)))}
                 />
@@ -131,7 +129,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
           <textarea
             className="field-input field-input--area"
             rows={3}
-            placeholder="What you want to remember about this choice"
             value={reasons}
             onChange={(event) => setReasons(event.target.value)}
           />
@@ -149,7 +146,6 @@ export default function DecideSheet({ from, onClose, onDecided }: Props) {
             <span className="sheet__label">What do you expect to happen?</span>
             <input
               className="field-input"
-              placeholder="What you expect to happen"
               value={expected}
               onChange={(event) => setExpected(event.target.value)}
             />

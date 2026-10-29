@@ -272,7 +272,6 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
           className="field-input field-input--large search-input"
           type="search"
           aria-label="Search"
-          placeholder="Search what you wrote"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
@@ -291,7 +290,6 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         {deferred.trim() && hits.length === 0 && <p className="empty-note">Nothing matches that.</p>}
-        {!deferred.trim() && <p className="sheet__hint">Things you captured, reflections, decisions, and Compass, plus recipes, books and bills from the other apps. Only on this device.</p>}
         <ul className="search-list">
           {hits.map((hit) => (
             <li key={`${hit.kind}:${hit.id}`}>

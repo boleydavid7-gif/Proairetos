@@ -66,7 +66,6 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
             rows={2}
             autoFocus
             aria-label={label}
-            placeholder="An intention for today"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />

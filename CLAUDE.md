@@ -30,6 +30,10 @@ rule: **the system records life; it does not interpret life.**
 - American English everywhere (color, center, favorite, tire, canceled, practice, "comes around", cilantro, fiber).
   Readers of outside text (Soma's ingredient lines, statements, photo text, calendar files) still accept British
   spellings; cited paper titles stay as published.
+- No instructions in Proairetos's screens (the owner's choice): no how-to line under a title, section or switch, and no
+  placeholder text in fields; a field's name is its label. Kept: status and error lines, what a destructive action
+  replaces or deletes, privacy and security notes, step-by-step setup guides, and the name-only placeholders of the
+  sign-in, passphrase and passcode fields.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 
@@ -702,8 +706,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   chores from Ergon, plants to check from Phyton, upkeep from Ktema, meals planned for today in Soma (a link, no check
   box, the owner's choice), a training day from Dynamis as a link). Every added app shows there except Diaita and Theoria
   (the owner's choice): no sleep line, study row or daily highlight on Today. Days ahead lists no meals; Therapeia visits
-  are calendar entries (`app/calendars/therapeiaCalendar.ts`, an hour, beside Philia's and Poreia's) and also rows here. Ticking marks
-  it in that app's own store (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`) with Proairetos's undo.
+  are calendar entries (`app/calendars/therapeiaCalendar.ts`, an hour, beside Philia's and Poreia's) and also rows here. Rows
+  are links (`quiet-row` with the app's `FamilyMark`), no check boxes (the owner's choice); marking happens in the app.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).

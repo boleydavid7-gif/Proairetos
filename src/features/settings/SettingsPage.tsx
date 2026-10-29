@@ -76,7 +76,6 @@ import {
   setShowNotForMe,
   showNotForMe,
 } from '../../data/storage/preferences';
-import { AFTER_WORK_HOURS } from '../../core/rhythm/personalDay';
 import valley from '../../assets/images/scenes/valley.webp';
 import valleyWide from '../../assets/images/scenes/valley-wide.webp';
 import { signOut, syncSoon, syncStatus } from '../../app/sync/syncController';
@@ -138,16 +137,12 @@ function ExportSection() {
   return (
     <section className="settings-card" aria-label="Back up">
       <h2 className="section-label">Back up</h2>
-      <p className="section-description">
-        One file for every app, with settings, photos and files. Keep it off this device.
-      </p>
       <label className="plan-field">
         <span>Password (recommended)</span>
         <input
           type="password"
           className="field-input"
           autoComplete="new-password"
-          placeholder="Locks the file so only you can open it"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
@@ -166,9 +161,6 @@ function ExportSection() {
           : 'No backup yet.'}
       </p>
       <h2 className="section-label">A readable copy</h2>
-      <p className="section-description">
-        Reflections, decisions, Compass and captures as Markdown. Not a backup, and no password.
-      </p>
       <button
         type="button"
         className="chip chip--wide"
@@ -193,7 +185,6 @@ function DailySection() {
         <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Keep a copy each day</span>
-          <span className="toggle-row__detail">On this device, the last seven days</span>
         </span>
       </button>
       {copies.length > 0 && (
@@ -476,7 +467,6 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         className="field-input"
         autoComplete="given-name"
         aria-label="Name"
-        placeholder="What would you like to be called?"
         maxLength={40}
         value={name}
         onChange={(event) => setName(event.target.value)}
@@ -503,9 +493,6 @@ function DaySection() {
   };
   return (
     <section className="settings-card" aria-label="When your day starts">
-      <p className="section-description">
-        When Today turns over to a new day.
-      </p>
       <button
         type="button"
         className="toggle-row"
@@ -515,10 +502,6 @@ function DaySection() {
         <span className={`toggle-switch${settings.followShifts ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span>Late hours count as the same day</span>
       </button>
-      <p className="sheet__hint">
-        When something in your schedule runs past the turnover, like a late or overnight stretch of work, the day keeps
-        going until {AFTER_WORK_HOURS} hours after it ends, so it and the time after it stay one day.
-      </p>
       <p className="sheet__label">Otherwise a new day starts at</p>
       <div className="chip-row" role="group" aria-label="New day starts at">
         {startHours.map((hour) => (
@@ -852,7 +835,6 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.taps ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Gentle taps</span>
-          <span className="toggle-row__detail">When you tick or switch something</span>
         </span>
       </button>
       <button
@@ -864,7 +846,6 @@ function AppearanceSection() {
         <span className={`toggle-switch${appearance.dayLight ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
         <span className="toggle-row__text">
           <span>Light follows your day</span>
-          <span className="toggle-row__detail">Lower and warmer late in your day</span>
         </span>
       </button>
     </section>
@@ -874,7 +855,7 @@ function AppearanceSection() {
 function TodaySection() {
   const shows = useTodayParts();
   const addedNow = useAddedApps();
-  const row = ({ part, label, detail }: PartRow) => (
+  const row = ({ part, label }: PartRow) => (
     <button
       key={part}
       type="button"
@@ -883,14 +864,7 @@ function TodaySection() {
       onClick={() => setTodayPartShown(part, !shows(part))}
     >
       <span className={`toggle-switch${shows(part) ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
-      {detail ? (
-        <span className="toggle-row__text">
-          <span>{label}</span>
-          <span className="toggle-row__detail">{detail}</span>
-        </span>
-      ) : (
-        <span>{label}</span>
-      )}
+      <span>{label}</span>
     </button>
   );
   return (
@@ -1065,10 +1039,6 @@ function LockSection() {
           }
         }}
       >
-        <p className="section-description">
-          A passcode before Reflect, Journal, Insights and the weekly review; Reflect stays out of search. Privacy on
-          this device, not encryption.
-        </p>
         <input
           className="field-input"
           type="password"
@@ -1101,7 +1071,7 @@ function LockSection() {
 
   return (
     <section className="settings-card" aria-label="Lock Reflect">
-      <p className="section-description">The lock is on. Reflect and Journal ask for the passcode.</p>
+      <p className="section-description">The lock is on.</p>
       <button type="button" className="chip chip--wide" onClick={() => lock.lockNow()}>
         Lock now
       </button>
@@ -1379,7 +1349,6 @@ export default function SettingsPage() {
         className="field-input settings-find"
         type="search"
         aria-label="Find a setting"
-        placeholder="Find a setting"
         value={find}
         onChange={(event) => setFind(event.target.value)}
       />

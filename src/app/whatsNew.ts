@@ -7,6 +7,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Reflect’s list of reflections has one heading; Oikonomia’s first steps sit side by side.',
       'The welcome walkthrough’s More apps step ends with a small card for Noesis.',
       'Meditate in Reflect has its own mark, a lotus on your room’s colors beside Compass.',
+      'From your apps on Today is a list of links, each with its app’s mark; marking things done happens in the app. Proairetos drops the how-to lines under titles and switches and the example words inside text boxes.',
       'From your apps on Today lists every added app except Diaita and Theoria: meals planned for today in Soma join it and open the recipe. Days ahead no longer lists meals; Therapeia visits show on its calendar and Today’s timeline as well as in From your apps.',
       'Reflect folds what each app brings (runs, meals, reading and the lines kept after them) into one row per app for Today, Week and Month; open a row to see them.',
     ],

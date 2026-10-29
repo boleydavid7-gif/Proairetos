@@ -52,7 +52,6 @@ export default function GratitudePage({ onBack }: { onBack: () => void }) {
         <input
           className="field-input"
           aria-label="I’m grateful for"
-          placeholder="I’m grateful for…"
           value={text}
           onChange={(event) => setText(event.target.value)}
         />

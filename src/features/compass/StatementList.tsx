@@ -7,12 +7,10 @@ import { Sym } from '../../lamplight/icons';
 type Props = {
   type: CompassStatementType;
   title: string;
-  description: string;
-  placeholder: string;
   statements: CompassStatement[];
 };
 
-export default function StatementList({ type, title, description, placeholder, statements }: Props) {
+export default function StatementList({ type, title, statements }: Props) {
   const { offerUndo } = useOverlays();
   const [draft, setDraft] = useState('');
 
@@ -32,7 +30,6 @@ export default function StatementList({ type, title, description, placeholder, s
     <section className="stack-tight" aria-label={title}>
       <div>
         <h2 className="section-label">{title}</h2>
-        <p className="section-description">{description}</p>
       </div>
       {statements.length > 0 && (
         <ul className="statement-list">
@@ -57,8 +54,7 @@ export default function StatementList({ type, title, description, placeholder, s
       <form className="inline-form" onSubmit={submit}>
         <input
           className="field-input"
-          aria-label={placeholder}
-          placeholder={placeholder}
+          aria-label={`Add to ${title}`}
           maxLength={MAX_STATEMENT_LENGTH}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}

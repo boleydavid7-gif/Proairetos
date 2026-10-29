@@ -120,7 +120,6 @@ function RunCard({
           <input
             className="field-input"
             aria-label={`${name} name`}
-            placeholder="Name, e.g. Days or Nights"
             value={block.label ?? ''}
             onChange={(event) => onChange({ ...segment, blocks: [{ ...block, label: event.target.value }] })}
           />
@@ -261,7 +260,6 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           id="schedule-name"
           className="field-input field-input--large"
           value={draft.name}
-          placeholder="Work, Class, Care…"
           onChange={(event) => set({ name: event.target.value })}
         />
       </div>
@@ -283,12 +281,10 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
           id="schedule-location"
           className="field-input"
           value={draft.location ?? ''}
-          placeholder="A place, if it helps"
           onChange={(event) => set({ location: event.target.value || undefined })}
         />
         <span className="field-label">Color for the whole schedule</span>
         <ColorChoice value={draft.color} onChange={(color) => set({ color })} />
-        <p className="sheet__hint">A shift with its own color (in the cycle above) shows in that color instead.</p>
       </div>
 
       <div className="stack-tight">
@@ -304,7 +300,6 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
             set({ anchorDate: weekly && event.target.value ? mondayOnOrBefore(event.target.value) : event.target.value })
           }
         />
-        {!weekly && <p className="sheet__hint">The day the first run begins. Any past date in the pattern works.</p>}
       </div>
 
       {weekly ? (
@@ -344,7 +339,6 @@ export default function PatternEditor({ patternId, initial, onDone }: Props) {
 
       <section className="stack-tight" aria-label="Preview">
         <h2 className="section-label">Next two weeks</h2>
-        <p className="sheet__hint">Check this against your real calendar.</p>
         <SchedulePreview pattern={previewPattern} />
       </section>
 

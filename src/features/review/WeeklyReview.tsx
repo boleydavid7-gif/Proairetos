@@ -14,12 +14,12 @@ import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
 import { blockTitle } from '../today/timeline';
 
 const steps = [
-  { title: 'Clear your head', hint: 'Anything on your mind? Capture it here, a line each. Sorting comes next.' },
-  { title: 'Sort what came in', hint: 'Give each capture a type, or leave it for later.' },
-  { title: 'Waiting', hint: 'Anything you have heard back about, or want to check on?' },
-  { title: 'The week ahead', hint: 'What you have scheduled for the next seven days.' },
-  { title: 'Decisions', hint: 'Choices ready to look back on.' },
-  { title: 'Your values', hint: 'Which of these do you want to keep in sight this week?' },
+  { title: 'Clear your head' },
+  { title: 'Sort what came in' },
+  { title: 'Waiting' },
+  { title: 'The week ahead' },
+  { title: 'Decisions' },
+  { title: 'Your values' },
 ] as const;
 
 function SortStep() {
@@ -133,7 +133,6 @@ function ValuesStep({ note, onNote }: { note: string; onNote: (note: string) => 
         className="field-input field-input--area"
         rows={4}
         aria-label="A note for the week"
-        placeholder="A few words for the week ahead"
         value={note}
         onChange={(event) => onNote(event.target.value)}
       />
@@ -179,7 +178,7 @@ export default function WeeklyReview() {
           <span key={s.title} className="review-progress__dot" data-active={index <= step || undefined} />
         ))}
       </div>
-      <PageHeader title={steps[step].title} subtitle={steps[step].hint} />
+      <PageHeader title={steps[step].title} />
 
       {step === 0 && <CaptureBar />}
       {step === 1 && <SortStep />}

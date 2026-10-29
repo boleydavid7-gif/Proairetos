@@ -83,7 +83,6 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
         {openPicks.length > 0 && (
           <section className="sheet__section" aria-label="Carry into tomorrow">
             <p className="sheet__label">Carry into tomorrow’s path?</p>
-            <p className="sheet__hint">Anything left stays on your list.</p>
             <div className="chip-row">
               {openPicks.map((item) => (
                 <button
@@ -108,13 +107,11 @@ function CloseDaySheet({ today, range, items, onClose }: Props) {
         {shows('three-good-things') && (
           <section className="sheet__section" aria-label="Three good things">
             <p className="sheet__label">Three good things</p>
-            <p className="sheet__hint">Small things count. Kept in Reflect.</p>
             {good.map((line, i) => (
               <input
                 key={i}
                 className="field-input three-good__line"
                 aria-label={`Good thing ${i + 1}`}
-                placeholder={['Something that went well', 'Another, however small', 'And one more, if it comes'][i]}
                 value={line}
                 onChange={(event) => setGood(good.map((each, j) => (j === i ? event.target.value : each)))}
               />

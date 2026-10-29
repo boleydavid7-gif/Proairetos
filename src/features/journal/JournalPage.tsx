@@ -152,7 +152,6 @@ export default function JournalPage() {
         ref={field}
         className="journal__input"
         rows={8}
-        placeholder="Write freely…"
         aria-label="Reflection"
         value={body}
         onChange={(event) => setBody(event.target.value)}
