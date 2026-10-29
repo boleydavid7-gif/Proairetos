@@ -3,11 +3,12 @@ import type { Recipe } from '../../soma/core/recipes';
 import { stores } from '../../data/storage/indexeddb/database';
 import { deviceDatabase } from '../services';
 import { onRemoteChanges } from '../sync/syncController';
+import { subscribe as somaChanged } from '../../soma/data/store';
 
 /**
  * Soma, the recipe app, keeps its recipes in this same database. Proairetos
- * only reads them: meals planned for a day show in Days ahead, and meals
- * cooked for someone show in Reflect.
+ * reads them: meals planned for today show in From your apps on Today (ticking
+ * one marks it cooked in Soma), and meals cooked for someone show in Reflect.
  */
 export type Meal = { id: string; title: string };
 export type CookedFor = { id: string; recipeId: string; title: string; day: string; people: string[] };
@@ -29,11 +30,13 @@ export function useRecipesFromSoma(): Recipe[] {
     const load = () => void readRecipes().then((next) => live && setRecipes(next));
     load();
     const off = onRemoteChanges(load);
+    const offSoma = somaChanged(load);
     const onShow = () => document.visibilityState === 'visible' && load();
     document.addEventListener('visibilitychange', onShow);
     return () => {
       live = false;
       off();
+      offSoma();
       document.removeEventListener('visibilitychange', onShow);
     };
   }, []);

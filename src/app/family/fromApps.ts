@@ -3,6 +3,7 @@ import type { Chore } from '../../ergon/core/chores';
 import { withWho, type Appointment, type Dose } from '../../therapeia/core/medicines';
 import type { Upkeep, Due } from '../../ktema/core/things';
 import type { TodayPart } from '../../data/storage/preferences';
+import type { Recipe } from '../../soma/core/recipes';
 
 /*
  * What has come around in the other apps today, as one list for Proairetos Today. Nothing here is stored: the rows
@@ -18,6 +19,8 @@ export type FromAppsInput = {
   visits?: readonly Appointment[];
   upkeep?: readonly { upkeep: Upkeep; due: Due; thing?: string }[];
   training?: { name: string; minutes: number };
+  /** Recipes planned for today in Soma and not yet cooked today. */
+  meals?: readonly Recipe[];
   /** "Since Tue", "Today": each app says its own days the same way. */
   dayText: (date: string, today: string) => string;
   clock: (at: Date) => string;
@@ -27,11 +30,12 @@ export type Mark =
   | { kind: 'plant'; plant: Plant }
   | { kind: 'chore'; chore: Chore }
   | { kind: 'dose'; dose: Dose }
-  | { kind: 'upkeep'; upkeep: Upkeep };
+  | { kind: 'upkeep'; upkeep: Upkeep }
+  | { kind: 'meal'; recipe: Recipe };
 
 export type FromAppsRow = {
   key: string;
-  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'dynamis';
+  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'dynamis' | 'soma';
   part: TodayPart;
   title: string;
   detail: string;
@@ -45,7 +49,7 @@ export type FromAppsRow = {
 const open = (app: string, what: string) => `/${app}/?open=${encodeURIComponent(what)}`;
 const since = (text: string) => (text === 'Today' ? '' : text);
 
-/** The rows, in a steady order: doses by time, then chores, plants, upkeep, and a training day last. */
+/** The rows, in a steady order: doses by time, then chores, plants, upkeep, today's meals, and a training day last. */
 export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
@@ -63,6 +67,9 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   }
   for (const { upkeep, due, thing } of input.upkeep ?? []) {
     rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today)), 'Ktema'].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`), mark: { kind: 'upkeep', upkeep }, done: 'Done' });
+  }
+  for (const recipe of input.meals ?? []) {
+    rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today · Soma', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
   }
   if (input.training) {
     rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min · Dynamis`, href: '/dynamis/?open=session' });

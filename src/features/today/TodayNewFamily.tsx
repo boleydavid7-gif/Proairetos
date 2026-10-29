@@ -1,11 +1,7 @@
-import { useMemo } from 'react';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { ChevronRightIcon } from '../../components/icons/Icons';
-import { MoonIcon, PersonIcon, SuitcaseIcon } from '../../app/family/icons';
-import type { ScheduleOccurrence } from '../../core/scheduling/types';
-import { addDays, toLocalDate } from '../../core/scheduling/dates';
-import { planBetween, timeText } from '../../diaita/core/rhythm';
-import { settings as diaitaSettings } from '../../diaita/app/state';
+import { PersonIcon, SuitcaseIcon } from '../../app/family/icons';
+import { addDays } from '../../core/scheduling/dates';
 import { people } from '../../philia/app/state';
 import { comingUp, whenText } from '../../philia/core/people';
 import { bookings as tripBookings, packing as tripPacking, plans as tripPlans, trips } from '../../poreia/app/state';
@@ -25,29 +21,6 @@ function QuietLink({ href, icon, line, detail, part }: { href: string; icon: Rea
       </a>
       <NotForMe part={part} />
     </div>
-  );
-}
-
-/** Tonight's sleep and the next thing before it, from Diaita's plan around the same schedule. Opens Diaita. */
-export function TodayRhythm({ now, today, blocks }: { now: Date; today: string; blocks: readonly ScheduleOccurrence[] }) {
-  const shows = useTodayParts();
-  const settings = diaitaSettings.use();
-  const plan = useMemo(
-    () => (settings.started ? planBetween(addDays(today, -1), addDays(today, 1), blocks.map((block) => ({ start: block.start, end: block.end, kind: block.kind, label: block.label || block.patternName })), settings) : []),
-    [settings, blocks, today],
-  );
-  if (!shows('diaita') || !settings.started) return null;
-  const sleep = plan.find((entry) => entry.kind === 'sleep' && entry.start > now);
-  if (!sleep) return null;
-  const before = plan.find((entry) => entry.start > now && entry.start < sleep.start && (entry.kind === 'nap' || entry.kind === 'caffeine' || entry.kind === 'wind-down'));
-  return (
-    <QuietLink
-      href="/diaita/"
-      icon={<MoonIcon size={20} />}
-      line={`${sleep.title} ${timeText(sleep.start)}${toLocalDate(sleep.start) !== toLocalDate(now) ? ' tomorrow' : ''}`}
-      detail={before ? `${before.title} ${timeText(before.start)} · Diaita` : 'Diaita'}
-      part="diaita"
-    />
   );
 }
 

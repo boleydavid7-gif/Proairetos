@@ -147,7 +147,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Settings opens from the person's initial in a round button, top right of every main page (`SettingsButton`,
   `.profile-button`; the gear in the circle when no name is set), as in Apple's own apps. Today groups everything the
   other apps bring into one inset list under "From your apps" (`.today-apps` / `.today-group` in `premium.css`, hidden
-  when empty; `FromYourApps embedded` first, then run, sleep, bills, birthdays, study, highlight), with separators
+  when empty; `FromYourApps embedded` first, then run, trip, bills, birthdays, Mneme, pursuit), with separators
   that start after the icon. Your day carries the countdown on its next entry (`untilText`: exact within three hours,
   then "about N h"), so `NowCard` shows Next only when the day's list has nothing still to come. Today's to-do and the
   intention have no header link until something is set (the row and field are the way in).
@@ -696,13 +696,16 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `“X” done`, `“X” added, Fri 3 PM`); errors say what happened in a contraction and what to do ("Couldn’t save that.
   Try again."), never "could not … just now"; a form's button is Save (Keep stays for "keep or discard" choices).
 - Command palette (Ctrl or ⌘ + K, `app/palette/CommandPalette.tsx`, works while typing): go to any page, pause, focus, search, or write a thing down. Typed words become a "Write it down" row, read by `core/capture/quickAdd.ts` ("dentist friday 3pm 45 min": day, time, length; shown before Enter saves, with undo). Sheets focus their field in an effect, not `autoFocus` (the dialog opens after render).
-- The family on Today and in search (read only, `app/family/read.ts`, `glance.ts`, `features/today/TodayFamily`): Settings > What's included is organised by app (Proairetos: Today, Capture, Compass, Reflect; Askesis; Soma; Oikonomia). Oikonomia's `bills` (bills coming up on Today, on since the working-parent walkthrough; shows only when a bill is due within days) and `bill-dates` (in Days ahead, on). Water stays in Hydros (the owner's choice): Proairetos Today shows none; `waterDuring` in `glance.ts` is kept but unused. Theoria offers `highlight` (opt-in): one of the person's highlights a day (`highlightOfDay` in `theoria/core/export.ts`, `TodayHighlight`), opening the book (`/theoria/?open=book:ID`). Search also finds Soma recipes, Theoria books (author, highlights, notes) and Oikonomia bills (`kind: 'app'`, opens that app).
+- The family on Today and in search (read only, `app/family/read.ts`, `glance.ts`, `features/today/TodayFamily`): Settings > What's included is organised by app (Proairetos: Today, Capture, Compass, Reflect; Askesis; Soma; Oikonomia). Oikonomia's `bills` (bills coming up on Today, on since the working-parent walkthrough; shows only when a bill is due within days) and `bill-dates` (in Days ahead, on). Water stays in Hydros (the owner's choice): Proairetos Today shows none; `waterDuring` in `glance.ts` is kept but unused. Theoria's `highlight` part is no longer shown on Today (the owner's choice; `highlightOfDay` stays in `theoria/core/export.ts`). Search also finds Soma recipes, Theoria books (author, highlights, notes) and Oikonomia bills (`kind: 'app'`, opens that app).
 - From your apps (Today, `features/today/FromYourApps.tsx`, rows from `app/family/fromApps.ts` `fromAppsRows`, tests in
   `src/tests/family/`): one list of what came round in the other apps (unmarked doses and visits today from Therapeia,
-  chores from Ergon, plants to check from Phyton, upkeep from Ktema, a training day from Dynamis as a link). Ticking marks
-  it in that app's own store (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`) with Proairetos's undo.
+  chores from Ergon, plants to check from Phyton, upkeep from Ktema, meals planned for today in Soma (ticked = cooked
+  today, `putRecipe`), a training day from Dynamis as a link). Every added app shows there except Diaita and Theoria
+  (the owner's choice): no sleep line, study row or daily highlight on Today. Days ahead lists no meals; Therapeia visits
+  are calendar entries (`app/calendars/therapeiaCalendar.ts`, an hour, beside Philia's and Poreia's) and also rows here. Ticking marks
+  it in that app's own store (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`, Soma `cooked`) with Proairetos's undo.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
-  `upkeep`, `training`). Diaita's sleep and Philia's birthdays stay as their own lines (they are not things to mark).
+  `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
 - Design pass: from 62rem Today lays its cards in two columns (`align-content: start`, or the rows stretched to the page's height) (greeting, capture, done-today and the daily thought across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
@@ -1151,8 +1154,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`place: 'kitchen'`), loose week (`Recipe.planned`), marks, cook aids
   (`core/cookAids.ts`), named timers on the audio clock, swaps, seasons,
   a moment before eating, cooked for (`Recipe.cookedFor`). Proairetos reads
-  recipes (`app/soma/meals.ts`, Today part `soma`): planned meals under each
-  day in Days ahead, "Cooked for" in Reflect (`MealEntry`).
+  recipes (`app/soma/meals.ts`, Today part `soma`): today's planned meals in
+  From your apps on Today, "Cooked for" in Reflect (`MealEntry`).
 - Use soon and weeks ahead (`core/soon.ts`): a kitchen thing may have `useBy`; putting away (`bringHome`) and adding by hand
   offer a first guess from the short end of USDA FoodKeeper fridge times for common fresh foods (`keepsAbout`,
   `KEEPS_SOURCE`, shown under the kitchen list), changeable per row (Today / Tomorrow / 3 days / A week / 2 weeks / No
@@ -1281,7 +1284,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   lists while there are fewer than five chores (the Chores page always has them). The chore page says "Moved from Tue, a work day."
 - In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
   from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
-  `app/notify/familyNotices.ts`); What's included parts `diaita` (tonight's sleep on Today), `birthdays`
+  `app/notify/familyNotices.ts`); What's included parts `birthdays`
   (next week on Today) and `birthday-dates` (Days ahead lines beside bills, `birthdaysOn` in `glance.ts`),
   `chores` (chores whose day came on Today) in `features/today/TodayNewFamily.tsx`; search finds people and
   chores.

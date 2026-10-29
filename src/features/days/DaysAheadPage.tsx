@@ -2,11 +2,10 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ComponentType }
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
+import { therapeiaCalendar } from '../../app/calendars/therapeiaCalendar';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { mealsOn, useRecipesFromSoma } from '../../app/soma/meals';
-import { linkTo } from '../../app/family/opening';
 import { billsOn, birthdaysOn } from '../../app/family/glance';
 import { people } from '../../philia/app/state';
 import MiniMonth from './MiniMonth';
@@ -22,7 +21,6 @@ import {
   CalendarIcon,
   ChevronRightIcon,
   ClockIcon,
-  LeafIcon,
   ListIcon,
   PinIcon,
   PlusIcon,
@@ -98,7 +96,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), compassService.subscribe(listener)];
+  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -155,7 +153,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const nowMinutes = clock.getHours() * 60 + clock.getMinutes();
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
-  const recipes = useRecipesFromSoma();
   const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
   const everyone = people.use();
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
@@ -279,8 +276,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         compassService.statements(),
       ]);
       const goals = statements.filter((statement) => statement.type === 'GOAL');
-      const [otherEvents, travelEvents, peopleEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until)]);
-      const events = [...otherEvents, ...travelEvents, ...peopleEvents];
+      const [otherEvents, travelEvents, peopleEvents, visitEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until)]);
+      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents];
       const sources = calendarSources();
       return {
         items,
@@ -548,13 +545,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   );
                 })}
               </ul>
-              {shows('soma') && mealsOn(recipes, date).length > 0 && (
-                <a className="days-meals" href={linkTo('soma', mealsOn(recipes, date).length === 1 ? `recipe:${mealsOn(recipes, date)[0].id}` : 'week')}>
-                  <LeafIcon size={18} /> {mealsOn(recipes, date)
-                    .map((meal) => meal.title)
-                    .join(', ')}
-                </a>
-              )}
               <BillLines lines={billsFor(date)} />
               <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} allowDelete />
             </section>

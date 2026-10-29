@@ -5,11 +5,12 @@ import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
+import { therapeiaCalendar } from '../../app/calendars/therapeiaCalendar';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayRun from '../today/TodayRun';
-import TodayFamily, { TodayHighlight, TodayMneme, TodayPursuit, TodayStudy } from '../today/TodayFamily';
-import { TodayBirthdays, TodayRhythm, TodayTrip } from '../today/TodayNewFamily';
+import TodayFamily, { TodayMneme, TodayPursuit } from '../today/TodayFamily';
+import { TodayBirthdays, TodayTrip } from '../today/TodayNewFamily';
 import FromYourApps from '../today/FromYourApps';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -72,7 +73,8 @@ function subscribeCalendars(listener: () => void): () => void {
   const offOther = otherCalendars.subscribe(listener);
   const offPoreia = poreiaCalendar.subscribe(listener);
   const offPhilia = philiaCalendar.subscribe(listener);
-  return () => { offOther(); offPoreia(); offPhilia(); };
+  const offTherapeia = therapeiaCalendar.subscribe(listener);
+  return () => { offOther(); offPoreia(); offPhilia(); offTherapeia(); };
 }
 
 /**
@@ -114,14 +116,14 @@ export default function NowPage() {
     useServiceData(subscribeCalendars, async () => {
       const from = atTime(date, '00:00');
       const until = atTime(addDays(date, 1), '00:00');
-      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until)]);
-      return [...other, ...poreia, ...philia];
+      const [other, poreia, philia, visits] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until)]);
+      return [...other, ...poreia, ...philia, ...visits];
     }, [date]) ?? [];
   const todayRange = rangeOf(today);
   const todayEvents =
     useServiceData(subscribeCalendars, async () => {
-      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end), philiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
-      return [...other, ...poreia, ...philia];
+      const [other, poreia, philia, visits] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end), philiaCalendar.eventsBetween(todayRange.start, todayRange.end), therapeiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
+      return [...other, ...poreia, ...philia, ...visits];
     }, [todayRange.start.getTime()]) ?? [];
   const busy = [
     ...nearOccurrences,
@@ -266,11 +268,8 @@ export default function NowPage() {
           <FromYourApps today={today} embedded />
           {shows('askesis') && <TodayRun today={today} />}
           <TodayTrip now={clock} today={today} />
-          <TodayRhythm now={clock} today={today} blocks={blocks} />
           <TodayFamily today={today} />
           <TodayBirthdays today={today} />
-          <TodayStudy today={today} />
-          <TodayHighlight today={today} />
           <TodayMneme />
           <TodayPursuit />
         </div>

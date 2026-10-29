@@ -18,6 +18,8 @@ import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../..
 import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/core/things';
 import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
+import { useRecipesFromSoma } from '../../app/soma/meals';
+import { putRecipe } from '../../soma/data/store';
 
 const clock = (at: Date) => at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -43,6 +45,11 @@ function markIn(mark: Mark, today: string): () => void {
       const before = mark.upkeep;
       putUpkeep(upkeepDone(before, today));
       return () => putUpkeep(before);
+    }
+    case 'meal': {
+      const before = mark.recipe;
+      void putRecipe({ ...before, cooked: [...(before.cooked ?? []).filter((day) => day !== today), today], updatedAt: new Date().toISOString() });
+      return () => void putRecipe(before);
     }
   }
 }
@@ -79,8 +86,9 @@ function Row({ row, today }: { row: FromAppsRow; today: string }) {
 }
 
 /**
- * From your apps: plants to check, chores, today's doses, upkeep and a training day, as one list. Each can be
- * marked here; the mark goes into the app it belongs to, with undo. Nothing is kept here.
+ * From your apps: plants to check, chores, today's doses and visits, upkeep, meals planned for today and a training
+ * day, as one list. What can be marked is marked here; the mark goes into the app it belongs to, with undo. Nothing
+ * is kept here.
  */
 export default function FromYourApps({ today, embedded = false }: { today: string; embedded?: boolean }) {
   const shows = useTodayParts();
@@ -99,6 +107,7 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
   const owned = ktemaThings.use();
   const training = dynamisPlan.use();
   const workouts = dynamisWorkouts.use();
+  const recipes = useRecipesFromSoma();
 
   const hot = hotDays(forecast);
   const doseDay = dayAt(new Date());
@@ -111,6 +120,7 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
     doses: shows('medicines') ? dosesOn(allMedicines.filter((medicine) => isCurrent(medicine, doseDay)), doseDay, anchors).filter((dose) => !dose.taken) : [],
     visits: shows('medicines') ? visits.filter((visit) => visit.at.slice(0, 10) === calendarToday) : [],
     upkeep: shows('upkeep') ? upkeepGrouped(upkeeps, owned, today).now.map((each) => ({ ...each, thing: owned.find((thing) => thing.id === each.upkeep.thingId)?.name })) : [],
+    meals: shows('soma') ? recipes.filter((recipe) => recipe.planned?.includes(today) && !recipe.cooked?.includes(today)).sort((a, b) => a.title.localeCompare(b.title)) : [],
     training: shows('training') && isSetup(training) && isTrainingDay(training, today, liftDays(today)) && !workouts.some((workout) => workout.date === today)
       ? (() => {
           const session = nextSession(training, workouts);

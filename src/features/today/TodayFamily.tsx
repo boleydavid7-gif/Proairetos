@@ -4,9 +4,6 @@ import { useStore } from '../../app/family/read';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { ChevronRightIcon, ListIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
-import { lookAgainBy, useStudy } from '../../app/praxis/study';
-import { highlightOfDay } from '../../theoria/core/export';
-import type { TheoriaBook } from '../../theoria/core/books';
 import { BookIcon } from '../../components/icons/Icons';
 import { ideas, notes } from '../../mneme/app/state';
 import { needsPursuitCheckIn, pursuits } from '../../app/pursuits';
@@ -46,54 +43,6 @@ export default function TodayFamily({ today }: { today: string }) {
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </a>
       <NotForMe part="bills" />
-    </div>
-  );
-}
-
-/** A study block the person set to look at again, on the day they chose. Opens it in Theoria's Pomodoro (the list when several). */
-export function TodayStudy({ today }: { today: string }) {
-  const shows = useTodayParts();
-  const study = useStudy(shows('praxis'));
-  if (!shows('praxis')) return null;
-  const again = lookAgainBy(study?.blocks ?? [], today);
-  if (again.length === 0) return null;
-  return (
-    <div className="quiet-row-wrap">
-      <a className="quiet-row" href={again.length === 1 ? `/theoria/?open=pomodoro:block:${encodeURIComponent(again[0].id)}` : '/theoria/?open=pomodoro'}>
-        <span className="quiet-row__icon" aria-hidden="true">
-          <BookIcon size={20} />
-        </span>
-        <span className="quiet-row__text">
-          <span>{again.map((block) => block.title).slice(0, 2).join(' · ')}</span>
-          <span className="quiet-row__detail">To look at again · Theoria</span>
-        </span>
-        <ChevronRightIcon size={18} className="quiet-row__chevron" />
-      </a>
-      <NotForMe part="praxis" />
-    </div>
-  );
-}
-
-/** One passage the person highlighted in Theoria, a different one each day, if they turned it on. Opens the book. */
-export function TodayHighlight({ today }: { today: string }) {
-  const shows = useTodayParts();
-  const books = useStore<TheoriaBook>('theoriaBooks', shows('highlight'));
-  if (!shows('highlight')) return null;
-  const chosen = highlightOfDay(books, today);
-  if (!chosen) return null;
-  return (
-    <div className="quiet-row-wrap">
-      <a className="quiet-row" href={`/theoria/?open=${encodeURIComponent(`book:${chosen.bookId}`)}`}>
-        <span className="quiet-row__icon" aria-hidden="true">
-          <BookIcon size={20} />
-        </span>
-        <span className="quiet-row__text">
-          <span className="quiet-row__quote">“{chosen.text.length > 220 ? `${chosen.text.slice(0, 220).trim()}…` : chosen.text}”</span>
-          <span className="quiet-row__detail">{chosen.author ? `${chosen.title}, ${chosen.author}` : chosen.title}</span>
-        </span>
-        <ChevronRightIcon size={18} className="quiet-row__chevron" />
-      </a>
-      <NotForMe part="highlight" />
     </div>
   );
 }

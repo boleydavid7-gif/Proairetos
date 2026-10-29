@@ -599,15 +599,11 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
     app: 'Soma',
-    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned in Soma in Days ahead; meals cooked for someone in Reflect.' }] }],
+    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned for today on Today; meals cooked for someone in Reflect.' }] }],
   },
   {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Pomodoro reading time in Done today and Reflect; a block you set to look at again, on Today.' }, { part: 'highlight', label: 'A highlight a day', detail: 'One of your Theoria highlights on Today, a different one each day.' }] }],
-  },
-  {
-    app: 'Diaita',
-    sections: [{ parts: [{ part: 'diaita', label: 'Tonight’s sleep', detail: 'When to sleep tonight, and a nap or last caffeine before it.' }] }],
+    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Pomodoro reading time in Done today and Reflect.' }] }],
   },
   {
     app: 'Philia',
