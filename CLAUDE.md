@@ -71,7 +71,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   columns, two-column More, reading column for articles. Phones are unchanged.
 - Desktop for the other apps: Askesis, Soma and Oikonomia share one block at
   the end of `askesis/styles/askesis.css` (rail via `.tab-bar`, brand from
-  `--app-name`, wider `.shell--tabs`); Soma centres its sheet; Hydros has its
+  `--app-name`, wider `.shell--tabs`; a `.home` runs the window's width so its picture spans it, while the page under the
+  picture keeps the 52rem column); Soma centres its sheet; Hydros has its
   own block in `hydros.css`; Praxis and Theoria already had side navigation.
   Askesis's and Soma's phone-dock rules (`.askesis .tab-bar`, `.soma .tab-bar`: six-column grid,
   sliding mark) sit in `@media (max-width: 61.99rem)`, since their higher specificity broke the rail;
@@ -694,7 +695,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Diaita's sleep and Philia's birthdays stay as their own lines (they are not things to mark).
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
-- Design pass: from 62rem Today lays its cards in two columns (`align-content: start`, or the rows stretched to the page's height) (greeting, capture and done-today across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
+- Design pass: from 62rem Today lays its cards in two columns (`align-content: start`, or the rows stretched to the page's height) (greeting, capture, done-today and the daily thought across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
 - Written about (Compass > People, open a person): items and reflections that mention their name as a whole word, newest first, up to five (`core/compass/mentions.ts`); reflections left out while the lock is on.
 - Web app plus iOS and Android apps from the same code (the owner's choice, Oct 22): the website stays the main

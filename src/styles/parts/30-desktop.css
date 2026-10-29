@@ -223,7 +223,8 @@
   .page--landscape > .capture-bar,
   .page--landscape > .done-today,
   .page--landscape > .page-landscape,
-  .page--landscape > .close-day {
+  .page--landscape > .close-day,
+  .page--landscape > .today-header__line {
     grid-column: 1 / -1;
   }
 }

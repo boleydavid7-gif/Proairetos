@@ -70,12 +70,14 @@ export default function HomePage({ nav }: { nav: Nav }) {
           <>
             <section className="card oiko-empty first-run">
               <h2 className="card__title">No bills yet</h2>
-              <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
-                Add a bill
-              </button>
-              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>
-                Record an expense
-              </button>
+              <div className="button-row">
+                <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>
+                  Add a bill
+                </button>
+                <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>
+                  Record an expense
+                </button>
+              </div>
             </section>
             <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'budget' })}>
               <span className="card__eyebrow">Monthly budget</span>

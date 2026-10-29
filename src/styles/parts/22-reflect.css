@@ -36,8 +36,7 @@
 }
 
 .reflect-checkin__saved,
-.reflect-keep__hint,
-.reflect-section-heading__detail {
+.reflect-keep__hint {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
 }

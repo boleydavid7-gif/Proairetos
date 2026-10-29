@@ -2608,6 +2608,11 @@ html[data-nav='back']::view-transition-new(root) {
     width: 100%;
   }
 
+  /* A home's picture runs the width of the window, as Askesis's and Proairetos's do; the page under it keeps the column. */
+  .shell--tabs .page-enter > .home:not(.hero):not(.page) {
+    max-width: none;
+  }
+
   /* A page with no picture at its head starts with room above its title, as the pages with one do. */
   .shell--tabs .page:not(:has(.hero)) {
     padding-top: 40px;

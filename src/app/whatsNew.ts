@@ -1,6 +1,13 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-10-29',
+    lines: [
+      'On a computer the home pictures in the add-on apps run the width of the window, Today’s daily thought sits at the foot across both columns, and Pomodoro’s list uses the whole row when no block is running.',
+      'Reflect’s list of reflections has one heading; Oikonomia’s first steps sit side by side.',
+    ],
+  },
+  {
     date: '2026-10-28',
     lines: [
       'The welcome walkthrough has a Prices and sync step (skippable): Proairetos free, the app plans, and sync through your own cloud storage or Proairetos cloud (1 GB).',

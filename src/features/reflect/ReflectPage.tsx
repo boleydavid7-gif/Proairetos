@@ -252,11 +252,7 @@ export default function ReflectPage() {
       <KeepInView />
 
       <div className="reflect-section-heading">
-        <div>
-          <p className="eyebrow">Your record</p>
-          <h2>Reflections</h2>
-        </div>
-        <span className="reflect-section-heading__detail">{period === 'today' ? 'Today' : `This ${period}`}</span>
+        <h2>Reflections</h2>
       </div>
 
       <div className="segmented" role="tablist" aria-label="Period">
