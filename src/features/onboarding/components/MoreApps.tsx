@@ -46,7 +46,7 @@ export function Sibling() {
       <span>
         <small>From the same maker</small>
         <strong>Noesis</strong>
-        <span>Read your own books, keep highlights and notes, and follow a question.</span>
+        <span>Read and remember your books</span>
       </span>
       <span className="more-apps__sibling-open">Open</span>
     </a>
