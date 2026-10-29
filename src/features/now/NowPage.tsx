@@ -61,7 +61,7 @@ import DailyLine from '../today/DailyLine';
 import { closingFrom } from '../../core/rhythm/personalDay';
 import { greeting } from '../today/greeting';
 import { blockTitle, buildDayTimeline } from '../today/timeline';
-import CaptureBar from './components/CaptureBar';
+import { ImportantCard, NotificationsButton } from '../notifications/Notifications';
 import ImportantItems from './components/ImportantItems';
 import LookAhead from './components/LookAhead';
 import NowEmptyState from './components/NowEmptyState';
@@ -198,6 +198,7 @@ export default function NowPage() {
         <div className="page-header__actions">
           <TodayWeather />
           <SearchButton />
+          <NotificationsButton />
           <SettingsButton />
         </div>
         <h1 className="page-header__title">{greeting(clock, name)}</h1>
@@ -210,8 +211,8 @@ export default function NowPage() {
 
       <>
 
-      {/* The thing done most, so it sits first, above everything the day brings. */}
-      {shows('capture') && <CaptureBar variant="quiet" />}
+      {/* Only while something important came in; its × clears it. */}
+      <ImportantCard />
       {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
       {message === 'welcome' && (
         <WelcomeBack

@@ -1,0 +1,354 @@
+/* Notifications: the bell's count, the fly-out list grouped by app, and Today's important card. */
+
+.inbox-bell,
+.ll-topbar__action[data-badge] {
+  position: relative;
+}
+
+.inbox-bell[data-badge]::after,
+.ll-topbar__action[data-badge]::after {
+  content: attr(data-badge);
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--color-bg);
+  pointer-events: none;
+}
+
+/* The fly-out: grows out of the bell, top right. */
+.inbox {
+  position: fixed;
+  inset: var(--inbox-top, calc(var(--ll-safe-top, 0px) + 56px)) var(--inbox-right, 12px) auto auto;
+  margin: 0;
+  padding: 0;
+  width: var(--inbox-width, min(380px, calc(100vw - 24px)));
+  max-height: min(72vh, calc(100dvh - var(--inbox-top, 80px) - 24px));
+  border: none;
+  border-radius: 24px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.42), 0 0 0 1px var(--color-border);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  transform-origin: var(--inbox-origin, top right);
+  animation: inbox-out 320ms var(--ll-spring, cubic-bezier(0.2, 0.9, 0.3, 1.1)) both;
+}
+
+.inbox::backdrop {
+  background: rgb(0 0 0 / 0.32);
+  animation: inbox-dim 200ms ease both;
+}
+
+.inbox.inbox--closing {
+  animation: inbox-in 180ms ease-in both;
+}
+
+.inbox.inbox--closing::backdrop {
+  animation: inbox-dim 180ms ease reverse both;
+}
+
+@keyframes inbox-out {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes inbox-in {
+  to {
+    opacity: 0;
+    transform: scale(0.7) translateY(-6px);
+  }
+}
+
+@keyframes inbox-dim {
+  from {
+    opacity: 0;
+  }
+}
+
+.inbox__panel {
+  padding: 16px 14px 14px;
+}
+
+.inbox__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px 12px 6px;
+}
+
+.inbox__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-serif, serif);
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 500;
+}
+
+.inbox__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.inbox__clear-all,
+.inbox-group__less {
+  min-height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.inbox__empty {
+  margin: 24px 0 28px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.inbox__groups,
+.inbox-group__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inbox__groups {
+  gap: 14px;
+}
+
+.inbox-group__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 0 6px 6px;
+}
+
+.inbox-group__app {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.inbox-group__clear {
+  opacity: 0.8;
+}
+
+.inbox-card {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--color-text) 7%, var(--color-surface-raised));
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.inbox-card {
+  cursor: pointer;
+}
+
+.inbox-card__icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.inbox-card__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.inbox-card__top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.inbox-card__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.inbox-card__when {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.inbox-card__body {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.inbox-card__more {
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* A stack: the newest card on top, the rest as edges peeking out below it. */
+.inbox-stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0 0 14px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inbox-stack .inbox-card {
+  position: relative;
+  z-index: 2;
+}
+
+.inbox-stack__layer {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 7px;
+  height: 24px;
+  border-radius: 0 0 16px 16px;
+  background: color-mix(in srgb, var(--color-text) 5%, var(--color-surface-raised));
+  z-index: 1;
+}
+
+.inbox-stack__layer--2 {
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  background: color-mix(in srgb, var(--color-text) 3%, var(--color-surface-raised));
+  z-index: 0;
+}
+
+.inbox-stack:not(:has(.inbox-stack__layer--2)) {
+  padding-bottom: 7px;
+}
+
+/* Opening a stack: the cards fan down one after another. */
+.inbox-group.is-stack.is-open .inbox-group__list > li {
+  animation: inbox-fan 360ms var(--ll-spring, cubic-bezier(0.2, 0.9, 0.3, 1.1)) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes inbox-fan {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-60% * var(--i, 0) - 8px)) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inbox,
+  .inbox::backdrop,
+  .inbox.inbox--closing,
+  .inbox-group.is-stack.is-open .inbox-group__list > li {
+    animation: none;
+  }
+}
+
+/* Today's card for important updates, shown only while there are some. */
+.important-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'icon text clear' 'icon review review';
+  gap: 4px 14px;
+  align-items: center;
+  padding: 16px 12px 16px 16px;
+  border-radius: var(--ll-outer, 20px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.important-card__icon {
+  grid-area: icon;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  color: var(--color-accent);
+}
+
+.important-card__text {
+  grid-area: text;
+  min-width: 0;
+}
+
+.important-card__text p {
+  margin: 0;
+}
+
+.important-card__count {
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.important-card__title {
+  font-size: var(--text-sm);
+}
+
+.important-card__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.important-card__clear {
+  grid-area: clear;
+  align-self: start;
+}
+
+.important-card__review {
+  grid-area: review;
+  justify-self: start;
+  min-height: 40px;
+  margin-top: 6px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font: inherit;
+  font-weight: 600;
+}

@@ -4,7 +4,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-10-29',
     lines: [
       'Store prices read per month everywhere; the add-on apps open with a plan or beta access. Contact: proairetosapp@gmail.com.',
-      'Today’s capture box is labeled Capture; Next keeps its time on one line.',
+      'A bell on Today: notifications from your apps, grouped by app, with Clear. Important ones (schedule changes, bills, care, trips) show on Today until cleared. Milestones for runs and strength sessions.',
+      'Today’s capture box is gone; Capture is in the dock. Next keeps its time on one line.',
       'On a computer the home pictures in the add-on apps run the width of the window, Today’s daily thought sits at the foot across both columns, and Pomodoro’s list uses the whole row when no block is running.',
       'Reflect’s list of reflections has one heading; Oikonomia’s first steps sit side by side.',
       'The welcome walkthrough’s More apps step ends with a small card for Noesis.',

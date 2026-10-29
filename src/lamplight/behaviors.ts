@@ -189,6 +189,7 @@ function largeTitle(): void {
         const label = original.getAttribute('aria-label') || original.textContent?.trim() || '';
         copy.setAttribute('aria-label', label);
         copy.title = label;
+        if (original.dataset.badge) copy.dataset.badge = original.dataset.badge;
         if (original.hasAttribute('aria-pressed')) copy.setAttribute('aria-pressed', original.getAttribute('aria-pressed')!);
         copy.dataset.copy = String(index);
         if (original.getAttribute('aria-pressed') === 'true' || original.getAttribute('aria-current') === 'page' || original.classList.contains('is-active'))

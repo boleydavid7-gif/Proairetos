@@ -98,6 +98,11 @@ export type NoticeSettings = {
   plants: boolean;
   /** Bookings, check-in and plans from Poreia, as chosen there. */
   trips: boolean;
+  /** Changes to the person's schedule, on the notifications page and Today. */
+  scheduleChanges: boolean;
+  /** Milestones from Askesis runs and Dynamis sessions, on the notifications page. */
+  runMilestones: boolean;
+  strengthMilestones: boolean;
   /** What the lock screen shows: the details, or only that something is due. */
   details: boolean;
 };
@@ -125,6 +130,9 @@ export const defaultNoticeSettings: NoticeSettings = {
   upkeep: true,
   plants: true,
   trips: true,
+  scheduleChanges: true,
+  runMilestones: true,
+  strengthMilestones: true,
   details: true,
 };
 

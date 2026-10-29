@@ -76,18 +76,18 @@ function Lead({
   );
 }
 
-type AppSwitch = 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips';
+type AppSwitch = 'runMilestones' | 'strengthMilestones' | 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips';
 
 /** Each added app's own notices, under its name. */
 const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
-  { id: 'askesis', switches: [['runs', 'Run days']] },
+  { id: 'askesis', switches: [['runs', 'Run days'], ['runMilestones', 'Milestones']] },
   { id: 'oikonomia', switches: [['bills', 'Bills']] },
   { id: 'theoria', switches: [['study', 'End of a reading block']] },
   { id: 'diaita', switches: [['rhythm', 'Sleep and naps']] },
   { id: 'philia', switches: [['people', 'Birthdays and keeping in touch']] },
   { id: 'ergon', switches: [['chores', 'Chores']] },
   { id: 'therapeia', switches: [['medicines', 'Medicines and visits']] },
-  { id: 'dynamis', switches: [['training', 'Training days']] },
+  { id: 'dynamis', switches: [['training', 'Training days'], ['strengthMilestones', 'Milestones']] },
   { id: 'ktema', switches: [['upkeep', 'Upkeep and warranties']] },
   { id: 'phyton', switches: [['plants', 'Plants to check']] },
   { id: 'poreia', switches: [['trips', 'Bookings and plans']] },
@@ -177,6 +177,7 @@ export default function NotificationsSection() {
             onChange={(scheduleLead) => update({ scheduleLead })}
           />
         </Switch>
+        <Switch on={settings.scheduleChanges} label="Schedule changes" onToggle={() => update({ scheduleChanges: !settings.scheduleChanges })} />
         <Switch
           on={settings.checkBacks}
           label="Check-back days"

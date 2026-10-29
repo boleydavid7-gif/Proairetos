@@ -4,13 +4,14 @@ import { useNavigate } from '../navigationContext';
 import { useOverlays } from '../overlays/OverlayContext';
 import { openSettingsAt } from '../../features/settings/settingsViews';
 import { linkTo } from '../family/opening';
+import { placeFor } from '../../core/notify/place';
 
 /**
  * Where a tapped notification, or a link from Askesis or Soma, leads:
  * `item:ID`, `day:YYYY-MM-DD` (or `day:today`), `today`, `reflect`,
  * `compass`, `account` (Settings, sync), `askesis` (the training app), or `oikonomia:bill:ID`.
  */
-function useOpen() {
+export function useNoticeOpen() {
   const navigate = useNavigate();
   const { openItem } = useOverlays();
   const openRoute = (route: Parameters<typeof navigate>[0]) => navigate(route, { immediate: true });
@@ -35,13 +36,14 @@ function useOpen() {
       openRoute('settings');
     } else if (open === 'askesis') window.location.assign('/askesis/');
     else if (open.startsWith('oikonomia:')) window.location.assign(linkTo('oikonomia', open.slice(10)));
+    else if (placeFor(open).app !== '/') window.location.assign(placeFor(open).url);
     else openRoute('today');
   };
 }
 
 /** Follows a tapped notification: from the address when the app was closed, or a message when it was open. */
 export default function NoticeOpener() {
-  const open = useOpen();
+  const open = useNoticeOpen();
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const target = params.get('open');

@@ -16,7 +16,7 @@ const APP_NAMES: Record<FamilyApp, string> = {
   philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia', mneme: 'Mneme',
 };
 
-const appFromOpen = (open: string): FamilyApp => {
+export const appFromOpen = (open: string): FamilyApp => {
   if (open === 'askesis' || open.startsWith('askesis:')) return 'askesis';
   if (open === 'oikonomia' || open.startsWith('oikonomia:')) return 'oikonomia';
   if (open === 'hydros' || open.startsWith('hydros:')) return 'hydros';

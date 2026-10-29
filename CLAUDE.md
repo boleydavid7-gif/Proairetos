@@ -36,7 +36,7 @@ rule: **the system records life; it does not interpret life.**
   row or empty list (`Empty`/`RouteEmpty` take no `line`, `Switch` no `detail`), and no placeholder text in fields; a
   field's name is its label (`aria-label` where nothing visible names it). Welcome screens keep their one line. Kept: status and error lines, what a destructive action
   replaces or deletes, privacy and security notes, step-by-step setup guides, and the name-only placeholders of the
-  sign-in, passphrase and passcode fields and Today's capture box ("Capture"), sources and medical or training safety lines ("not medical advice", the
+  sign-in, passphrase and passcode fields, sources and medical or training safety lines ("not medical advice", the
   doctor line, stop 1-3 reps short), and a status that names what is missing ("No dates on this trip yet.").
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
@@ -285,7 +285,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `--ll-calm`/`--ll-slow`/`--ll-spring`; `.ll-figure` (RollingNumber) follows numerals; `.ll-signature` takes the shape
   accent (Hydros amount bar, Askesis session bar, Oikonomia plan bar). The guide shows every identity (`#identity`) and
   live charts. Only these choices vary; add an app's identity there, never per-app overrides of shared parts.
-- Busy-person audit fixes: Today's `CaptureBar` sits first (above the intention). Add forms show only what makes the
+- Busy-person audit fixes (Today's capture box later removed, the owner's choice: the dock's Capture is the way in). Add forms show only what makes the
   record work and fold the rest under `MoreDetails` (`app/family/MoreDetails.tsx`, `moreDetails.css`; open when editing
   something that has any of them): Ktema thing (name, kind), Oikonomia bill (name, amount, due, repeats), Therapeia
   medicine (name, dose, times, days), Ergon chore (name, repeats, from), Philia person (name, birthday), Poreia trip (where,
@@ -303,8 +303,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Askesis, Soma, Oikonomia and Poreia keep fixed colors only for categories (effort, dish tints, map pins, Strava's
   orange) and the shades over their pictures.
 - ADHD audit fixes: `CaptureBar` offers notification permission once, after the first capture with a time while
-  permission is `default` (`remindOfferSeen` / `markRemindOfferSeen`, Allow asks from the tap); on Today the capture box
-  sits above the day's one message (pause offer, welcome back, values); `NowCard` says when the next thing is with
+  permission is `default` (`remindOfferSeen` / `markRemindOfferSeen`, Allow asks from the tap); `NowCard` says when the next thing is with
   `whenText` (a countdown today, else "tomorrow" or the weekday); the values invitation's "Not now" sets it aside for good (`isValuesInviteSetAside`) until values are chosen.
 - Page motion: `transition()` (app/transitions.ts) uses view transitions only in Proairetos; elsewhere (and for
   Proairetos's main tabs, which keep the dock out of a snapshot) it calls `markEnter(direction)`, which sets
@@ -451,6 +450,20 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   and choices (8 px chips, tonal when chosen) take the shared recipe; add an app's own control classes there, not per app.
   Docks keep one timing (`--ll-dock-slide|stretch|fade|ease` in `tokens.css`, untouched by an app's tempo) and every
   dock's current icon lifts 2 px.
+- Notifications page (`features/notifications/Notifications.tsx`, `core/notify/inbox.ts`, `app/notify/inbox.ts`, styles
+  `parts/34-inbox.css`, tests `src/tests/notify/inbox.test.ts`): a bell on Today's header with a count of what came in
+  since the list was last opened (`data-badge`, copied onto the phone top bar's button by `behaviors.ts`). It opens a
+  fly-out that grows from the bell (portalled to body so the top bar never copies its buttons): one stack per app like
+  iPhone's notification centre (`byApp`, newest first; a stack opens with the cards fanning down), Clear per app,
+  Clear all, both with undo, a gear to Settings > Notifications; tapping a card clears it and opens it (`useNoticeOpen`,
+  other apps through `placeFor`). Entries (last 3 days, `INBOX_DAYS`): notices whose time came (`cameDue`: not sleep,
+  water, the bell or shift starts), schedule changes (`startInbox` watches the next 14 days of committed and protected
+  blocks, `scheduleChanges`: moved, added, taken off, more than three folded into one line) and milestones (the owner's
+  choice: `runMilestones` 1st/10th/25th… run and the longest run from the third on; `strengthMilestones` sessions and
+  one "Heaviest yet" line a session). Switches in Settings > Notifications: Schedule changes (Proairetos), Milestones
+  under Askesis and Dynamis; the per-app switches already there decide the rest. Seen and cleared keys are device only
+  (`proairetosInboxSeen`, `proairetosInboxCleared`). Today's `ImportantCard` sits first and shows only while an
+  uncleared schedule change, bill, care or trip entry exists; Review opens the fly-out, × clears them with undo.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

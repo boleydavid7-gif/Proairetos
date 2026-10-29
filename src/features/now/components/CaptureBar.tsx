@@ -94,7 +94,6 @@ export default function CaptureBar({ kind, onCaptured, variant = 'box', submitLa
         ref={input}
         className="capture-bar__input"
         aria-label="Capture something"
-        placeholder="Capture"
         autoFocus={autoFocus}
         value={text}
         onChange={(event) => {

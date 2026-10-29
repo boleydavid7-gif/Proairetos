@@ -538,7 +538,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
           { part: 'line', label: 'The daily thought' },
           { part: 'intention', label: 'Today’s intention' },
           { part: 'path', label: 'Today’s to-do' },
-          { part: 'capture', label: 'Capture line' },
           { part: 'close-day', label: 'Close the day' },
           { part: 'three-good-things', label: 'Three good things' },
           { part: 'on-this-day', label: 'On this day', detail: 'What you wrote on this date in past years.' },
