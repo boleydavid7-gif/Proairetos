@@ -403,7 +403,7 @@ The free plan allows 500 identifications a day and is for non-commercial use; if
 Proairetos stays free. The Core Apps plan is $9.99/month; Soma and Phyton are $3.99/month each; the Soma + Phyton
 bundle is $6.99/month, or $3.00/month to add the missing app when one is already active; Proairetos cloud sync is
 $2.99/month. Entitlements are kept with the signed-in account in `purchases`, so they follow the person to every
-device. Until all payment secrets are set, the Store remains in its free setup state. Code: `worker/store.ts`,
+device. Until all payment secrets are set, checkout stays closed: only the owner and beta testers have the add-ons. Code: `worker/store.ts`,
 `src/app/family/purchases.ts`.
 
 1. Run `supabase/migrations/20261025000000_purchases.sql`, `supabase/migrations/20261029000000_beta_access.sql` and
