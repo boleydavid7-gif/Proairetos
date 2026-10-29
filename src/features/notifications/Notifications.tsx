@@ -11,6 +11,7 @@ import { agoText, byApp, type InboxEntry } from '../../core/notify/inbox';
 import type { FamilyApp } from '../../core/notify/sources';
 import { IconButton, Sym } from '../../lamplight/icons';
 import { BellIcon } from '../../components/icons/Icons';
+import SwipeItem from '../../app/family/SwipeItem';
 
 const APP_NAMES: Partial<Record<FamilyApp, string>> = { proairetos: 'Proairetos' };
 const nameOf = (app: FamilyApp) => APP_NAMES[app] ?? familyApps.find((each) => each.id === app)?.name ?? app;
@@ -160,16 +161,20 @@ function InboxFlyout({ onClose }: { onClose: () => void }) {
                     <ul className="inbox-group__list">
                       {list.map((entry, index) => (
                         <li key={entry.key} style={{ '--i': index } as CSSProperties}>
-                          <Card entry={entry} app={app} onOpen={() => follow(entry)} />
+                          <SwipeItem as="div" className="inbox-swipe" tone="remove" label="Clear" onSwipe={() => clear([entry], 'Notification cleared')}>
+                            <Card entry={entry} app={app} onOpen={() => follow(entry)} />
+                          </SwipeItem>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <button type="button" className="inbox-stack" aria-expanded={false} aria-label={`${nameOf(app)}, ${list.length} notifications`} onClick={() => setExpanded(app)}>
-                      <Card entry={list[0]} app={app} more={list.length - 1} />
-                      <span className="inbox-stack__layer inbox-stack__layer--1" aria-hidden="true" />
-                      {list.length > 2 && <span className="inbox-stack__layer inbox-stack__layer--2" aria-hidden="true" />}
-                    </button>
+                    <SwipeItem as="div" className="inbox-swipe" tone="remove" label="Clear" onSwipe={() => clear(list, `${nameOf(app)} cleared`)}>
+                      <button type="button" className="inbox-stack" aria-expanded={false} aria-label={`${nameOf(app)}, ${list.length} notifications`} onClick={() => setExpanded(app)}>
+                        <Card entry={list[0]} app={app} more={list.length - 1} />
+                        <span className="inbox-stack__layer inbox-stack__layer--1" aria-hidden="true" />
+                        {list.length > 2 && <span className="inbox-stack__layer inbox-stack__layer--2" aria-hidden="true" />}
+                      </button>
+                    </SwipeItem>
                   )}
                 </li>
               );

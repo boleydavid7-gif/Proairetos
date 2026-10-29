@@ -352,3 +352,27 @@ button.inbox-card {
   font: inherit;
   font-weight: 600;
 }
+
+/* Pull a card (or a whole stack) to the left to clear it: the card moves on the list itself, and the clear tone shows
+   only while it moves. */
+.inbox .swipe {
+  border-radius: 18px;
+}
+
+.inbox .swipe + .swipe {
+  border-top: 0;
+}
+
+.inbox .swipe__front {
+  background: transparent;
+}
+
+.inbox .swipe__action {
+  border-radius: 18px;
+  opacity: 0;
+}
+
+.inbox .swipe--moving .swipe__action,
+.inbox .swipe--leaving .swipe__action {
+  opacity: 1;
+}

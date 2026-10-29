@@ -454,7 +454,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `parts/34-inbox.css`, tests `src/tests/notify/inbox.test.ts`): a bell on Today's header with a count of what came in
   since the list was last opened (`data-badge`, copied onto the phone top bar's button by `behaviors.ts`). It opens a
   fly-out that grows from the bell (portalled to body so the top bar never copies its buttons): one stack per app like
-  iPhone's notification centre (`byApp`, newest first; a stack opens with the cards fanning down), Clear per app,
+  iPhone's notification centre (`byApp`, newest first; a stack opens with the cards fanning down), a pull to the left
+  clears a card or a whole closed stack (`SwipeItem tone="remove"`, the clear tone shown only while it moves), Clear per app,
   Clear all, both with undo, a gear to Settings > Notifications; tapping a card clears it and opens it (`useNoticeOpen`,
   other apps through `placeFor`). Entries (last 3 days, `INBOX_DAYS`): notices whose time came (`cameDue`: not sleep,
   water, the bell or shift starts), schedule changes (`startInbox` watches the next 14 days of committed and protected
