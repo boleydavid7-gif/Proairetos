@@ -376,3 +376,28 @@ button.inbox-card {
 .inbox .swipe--leaving .swipe__action {
   opacity: 1;
 }
+
+/* Settings > Household: the name, who is in, and one switch per app with its icon. */
+.household__name {
+  margin: 0 0 4px;
+  font-family: var(--font-serif, serif);
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 500;
+}
+
+.household .toggle-row__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.household__icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+}
+
+.household__note {
+  margin: 0 0 10px 64px;
+}

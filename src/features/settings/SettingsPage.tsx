@@ -12,7 +12,8 @@ import BringInSection from './BringInSection';
 import InboxSection from './InboxSection';
 import HealthSection from './HealthSection';
 import TogetherSection from './TogetherSection';
-import { togetherList } from '../../app/together/together';
+import HouseholdSection from './HouseholdSection';
+import { household } from '../../app/household/household';
 import { inboxHere } from '../../app/capture/inbox';
 
 const healthOn = () => {
@@ -1175,6 +1176,7 @@ export default function SettingsPage() {
         {view === 'inbox' && <InboxSection onOpenAccount={() => setView('account')} />}
         {view === 'health' && <HealthSection onOpenAccount={() => setView('account')} onOpenStore={() => setView('store')} />}
         {view === 'together' && <TogetherSection onOpenAccount={() => setView('account')} />}
+        {view === 'household' && <HouseholdSection onOpenAccount={() => setView('account')} />}
         {view === 'install' && <PwaInstallSection />}
         {view === 'account' && <AccountSection />}
         {view === 'account' && <ProfileSection onDone={() => undefined} />}
@@ -1278,7 +1280,7 @@ export default function SettingsPage() {
           onClick: () => setView('notifications'),
           words: 'reminders quiet hours lock screen push',
         },
-        { id: 'together', icon: <HeartIcon size={18} />, tone: 'green', title: 'Shared list', value: togetherList()?.name, onClick: () => setView('together'), words: 'partner family household share together to-do list invite' },
+        { id: 'household', icon: <HeartIcon size={18} />, tone: 'green', title: 'Household', value: household()?.name, onClick: () => setView('household'), words: 'partner family household share together invite groceries chores plants medicines to-do list' },
         { id: 'inbox', icon: <CaptureIcon size={18} />, tone: 'teal', title: 'Capture from anywhere', value: inboxHere() ? 'On' : undefined, onClick: () => setView('inbox'), words: 'siri shortcut back tap watch quick add inbox' },
         { id: 'health', icon: <HeartIcon size={18} />, tone: 'pink', title: 'Health data', value: healthOn() ? 'On' : undefined, onClick: () => setView('health'), words: 'apple health connect android hc webhook health auto export workouts sleep water weight blood pressure iphone watch' },
         { id: 'today', icon: <SunIcon size={18} />, tone: 'gold', title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers not for me' },

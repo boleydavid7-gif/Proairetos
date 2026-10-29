@@ -24,6 +24,7 @@ export type View =
   | 'inbox'
   | 'health'
   | 'together'
+  | 'household'
   | 'install';
 
 // Another screen can ask Settings to open straight onto one page (say, from a backup offer).
@@ -74,6 +75,7 @@ export const viewTitles: Record<View, string> = {
   inbox: 'Capture from anywhere',
   health: 'Health data',
   together: 'Shared list',
+  household: 'Household',
   install: 'Install Proairetos',
 };
 

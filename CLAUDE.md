@@ -1378,6 +1378,21 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   card for an invite): add, tick (`doneAt`, `doneBy`, with undo), remove (undo), done ones from the last two days folded
   (`arrange`), pulled every 15 s while in view. Settings > The app > Shared list (view `together`, `TogetherSection`):
   make, invite, join, leave (open to-dos kept as the person's own to-dos, one undo). Needs sign-in, not the passphrase.
+- Household (Settings > The app > Household, view `household`, `features/settings/HouseholdSection.tsx`; the row
+  replaced "Shared list", whose page `together` still opens from older links): one invite for the people at home.
+  `core/household/household.ts` (types, `HOUSEHOLD_APPS`: To-dos, Groceries, Chores, Plants, Medicines; `partState`,
+  `householdLink` `/?open=household:ID#k=KEY&n=NAME`, `readHouseholdInvite`, tests `src/tests/household/`) and
+  `app/household/household.ts`: the household is itself a sealed shared list (`createSharedLists`, setting
+  `proairetos.household`, cache `proairetosHousehold`, AD `proairetos-household`) whose items are parts (`part:<app>`:
+  that app's own list id, key and name) and members (`member:<user id>`, their display name). Switching an app on
+  shares the list it already has (apps that keep to one) or makes one (`shareApp`); off takes the part out with undo
+  (whoever has the list keeps it). `syncHousehold` (on the page every 15 s, `startHousehold` from App on start, coming
+  into view and every 5 min) joins every part's list this device lacks through that app's own module (loaded only then:
+  `together`, Soma `data/sharedLists`, Ergon/Phyton `homes`, Therapeia `circles`), so each app shows it as before and
+  the per-app pages keep working; an app that keeps to one list and already shares elsewhere is left alone (shown on
+  the page). The invite is read in `main.tsx` into sessionStorage and opens `?open=settings:household`. Leaving takes
+  this person's name out and leaves the household only. Tested end to end against a stand-in server
+  (`householdFlow.test.ts`). Trips stay shared one at a time in Poreia.
 - Therapeia for the family: `Medicine.who` / `Appointment.who` (absent = the person's own; `whoOf`, `peopleIn`, `withWho`
   "Mia: Amoxicillin", `sameWho` in `core/medicines.ts`). `WhoChoice` (`app/ui.tsx`) in the medicine and visit forms: a
   "For someone else" link until a name exists anywhere, then chips Me / names / Someone else. Shown in dose rows (a

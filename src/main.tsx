@@ -17,12 +17,20 @@ import { startHealthInbox } from './app/health/start';
 import { startLaunchFiles } from './app/family/launchFiles';
 import { keepInvite } from './app/together/together';
 import { readInvite } from './core/together/sharedTodos';
+import { keepHouseholdInvite } from './app/household/household';
+import { readHouseholdInvite } from './core/household/household';
 
 // A shared list's invite: the key is after `#`, read here once and taken out of the address; Today offers to join.
 const invite = readInvite(location.search, location.hash);
 if (invite) {
   keepInvite(invite);
   history.replaceState(history.state, '', '/');
+}
+// A household's invite: kept the same way, then Settings opens on Household to join.
+const householdInvite = readHouseholdInvite(location.search, location.hash);
+if (householdInvite) {
+  keepHouseholdInvite(householdInvite);
+  history.replaceState(history.state, '', '/?open=settings:household');
 }
 
 // Files opened with this app on a computer (Chrome, Edge) wait for the page that takes them.

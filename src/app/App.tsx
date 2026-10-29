@@ -18,6 +18,7 @@ import { takeShared } from '../features/share/shared';
 import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview } from './laterPages';
 import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
+import { startHousehold } from './household/household';
 import { notifications } from './notify/notifications';
 import { directionBetween, markEnter, transition } from './transitions';
 import { useShortcuts } from './shortcuts';
@@ -103,6 +104,9 @@ export default function App() {
   useEffect(() => {
     if (mainTabs.has(route)) setLastTab(route);
   }, [route]);
+
+  // A household brings in any app newly shared with it.
+  useEffect(() => startHousehold(), []);
 
   // Give every main screen a real URL so it can be copied, opened in another tab, or restored by refresh.
   // Capture and other sheets use the back-stack listener first; the capture phase keeps route history from

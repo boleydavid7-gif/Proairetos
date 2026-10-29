@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-29',
     lines: [
+      'Household (Settings > The app): invite the people at home once and choose what you share: to-dos, groceries, chores, plants and medicines.',
       'The top bar’s buttons ease in and out as pages change; in Safari the bar is put back in place after the toolbars or keyboard move.',
       'Pull a notification to the left to clear it, or a whole app’s stack.',
       'Every app’s top sits a little lower on phones, clear of the status bar’s blur.',
