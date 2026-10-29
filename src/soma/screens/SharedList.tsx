@@ -212,7 +212,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
           setAdding('');
         }}
       >
-        <input className="input" aria-label={`Add to ${list.name}`} placeholder="Add something: 2 lemons" value={adding} onChange={(event) => setAdding(event.target.value)} />
+        <input className="input" aria-label={`Add to ${list.name}`} value={adding} onChange={(event) => setAdding(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!adding.trim()}>
           Add
         </button>

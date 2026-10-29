@@ -91,7 +91,7 @@ export default function AddDatePage({ nav, personId }: { nav: PhiliaNav; personI
       {kind !== 'birthday' && (
         <label className="field">
           <span className="field__label">{kind === 'other' ? 'What' : 'Name (optional)'}</span>
-          <input className="input" placeholder={kind === 'other' ? 'Wedding, graduation, dinner' : 'Anniversary'} value={label} onChange={(event) => setLabel(event.target.value)} />
+          <input className="input" value={label} onChange={(event) => setLabel(event.target.value)} />
         </label>
       )}
       {kind !== 'birthday' && (

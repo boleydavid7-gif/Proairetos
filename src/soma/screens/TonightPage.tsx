@@ -97,13 +97,13 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
       )}
       <label className="field">
         <span className="label">Anything else you have?</span>
-        <input className="input" placeholder="eggs, spinach, rice" value={also} onChange={(event) => (setAlso(event.target.value), setRound(0))} />
+        <input className="input" value={also} onChange={(event) => (setAlso(event.target.value), setRound(0))} />
       </label>
 
       {recipes.length === 0 ? (
-        <p className="muted">Your recipes will show here once you keep some.</p>
+        <p className="muted">No recipes yet.</p>
       ) : shown.length === 0 ? (
-        <p className="muted">None of your recipes fit all of that. Leave one out to see more.</p>
+        <p className="muted">None of your recipes fit all of that.</p>
       ) : (
         <ul className="recipe-rows">
           {shown.map(({ recipe, facts }) => (

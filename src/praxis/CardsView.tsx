@@ -250,7 +250,7 @@ export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeIt
           ) : <p className="praxis-empty">No highlights to use yet.</p>
         )}
         {many ? (
-          <label><span>One per line: question :: answer</span><textarea rows={5} value={lines} onChange={(event) => setLines(event.target.value)} placeholder={'Aorta :: the largest artery\nCapital of Peru :: Lima'} /></label>
+          <label><span>One per line: question :: answer</span><textarea rows={5} value={lines} onChange={(event) => setLines(event.target.value)} /></label>
         ) : (
           <>
             <label><span>Question</span><input ref={questionRef} value={front} maxLength={300} onChange={(event) => setFront(event.target.value)} /></label>

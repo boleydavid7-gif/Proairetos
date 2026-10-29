@@ -7,7 +7,7 @@ import { setWeatherAside, weatherSetAside } from '../app/runWeather';
 import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { article, articles } from '../core/learn';
 import { formatDuration, formatPace, METERS, parseDuration, raceDistances, timeFor, type Unit } from '../core/pace';
-import { estimatedMax, maxHeartRate, zoneRanges } from '../core/zones';
+import { maxHeartRate, zoneRanges } from '../core/zones';
 import {
   clearEntries,
   loadPlan,
@@ -70,7 +70,7 @@ export function ZonesPage({ nav }: { nav: Nav }) {
         </label>
         <label className="field">
           <span className="label">Max HR</span>
-          <input className="input" inputMode="numeric" placeholder={settings.age ? String(estimatedMax(settings.age)) : ''} value={settings.maxHr ?? ''} onChange={(event) => set('maxHr', event.target.value)} />
+          <input className="input" inputMode="numeric" value={settings.maxHr ?? ''} onChange={(event) => set('maxHr', event.target.value)} />
         </label>
         <label className="field">
           <span className="label">Resting HR</span>
@@ -206,14 +206,13 @@ export function SettingsPage({ nav }: { nav: Nav }) {
         />
       </section>
       <div className="card switches">
-        <Switch on={settings.voice} label="Spoken cues" detail="Your music keeps playing." onToggle={() => flip('voice')} />
+        <Switch on={settings.voice} label="Spoken cues" onToggle={() => flip('voice')} />
         <Switch on={settings.bells} label="Bells" onToggle={() => flip('bells')} />
         <Switch on={settings.keepAwake} label="Keep the screen on" onToggle={() => flip('keepAwake')} />
         <Switch on={Boolean(settings.gps)} label="Distance by GPS" detail="Only the distance is saved." onToggle={() => flip('gps')} />
         <Switch
           on={settings.readSchedule}
           label="Use my Proairetos schedule"
-          detail="Marks days after a night of work."
           onToggle={() => flip('readSchedule')}
         />
       </div>

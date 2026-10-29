@@ -30,7 +30,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       {!bills ? (
         <Placeholder label="Gathering what you keep here" count={3} />
       ) : ordered.length === 0 && settled.length === 0 ? (
-        <Empty icon={<BillsIcon size={28} />} title="No bills yet" line="Bills, subscriptions and anything that comes around, with their dates.">
+        <Empty icon={<BillsIcon size={28} />} title="No bills yet">
           <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>
         </Empty>
       ) : (

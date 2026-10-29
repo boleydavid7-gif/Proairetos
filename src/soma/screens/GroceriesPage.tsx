@@ -115,7 +115,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
           setAdding('');
         }}
       >
-        <input className="input" aria-label="Add something" placeholder="Add something: 2 lemons" value={adding} onChange={(event) => setAdding(event.target.value)} />
+        <input className="input" aria-label="Add something" value={adding} onChange={(event) => setAdding(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!adding.trim()}>
           Add
         </button>
@@ -135,7 +135,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
       )}
 
       {toBuy.length === 0 ? (
-        <Empty icon={<BasketIcon size={28} />} title="Nothing on the list" line="Add things here, or from a recipe’s ingredients." />
+        <Empty icon={<BasketIcon size={28} />} title="Nothing on the list" />
       ) : (
         <>
           <Segmented
@@ -332,14 +332,12 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
           setAdding('');
         }}
       >
-        <input className="input" aria-label="Add to the kitchen" placeholder="Something at home: rice" value={adding} onChange={(event) => setAdding(event.target.value)} />
+        <input className="input" aria-label="Add to the kitchen" value={adding} onChange={(event) => setAdding(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!adding.trim()}>
           Add
         </button>
       </form>
-      {here.length === 0 ? (
-        <p className="muted">Ticked groceries come here with Put away.</p>
-      ) : (
+      {here.length === 0 ? null : (
         <ul className="check-list">
           {here.map((item) => (
             <li key={item.id} className="grocery-row kitchen-row">
@@ -370,14 +368,14 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
                         min="0"
                         step="any"
                         inputMode="decimal"
-                        placeholder="1"
+                       
                         value={item.quantity ?? ''}
                         onChange={(event) => setDetails(item, { quantity: event.target.value ? Number(event.target.value) : undefined })}
                       />
                     </label>
                     <label className="kitchen-row__field">
                       <span>Package</span>
-                      <input className="input" placeholder="e.g. 500 g bag" value={item.packageSize ?? ''} onChange={(event) => setDetails(item, { packageSize: event.target.value || undefined })} />
+                      <input className="input" value={item.packageSize ?? ''} onChange={(event) => setDetails(item, { packageSize: event.target.value || undefined })} />
                     </label>
                   </div>
                   <div className="chip-row kitchen-row__when" role="group" aria-label={`Storage for ${item.name}`}>

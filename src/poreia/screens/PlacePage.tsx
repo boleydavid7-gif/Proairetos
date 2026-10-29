@@ -87,7 +87,7 @@ export default function PlacePage({ nav, spot, tripId }: { nav: PoreiaNav; spot:
             <button type="button" className="button-quiet" disabled={!date} onClick={addToDay}>Add to {date ? dayText(date) : 'the day'}</button>
           </>}
         </section>
-      ) : <p className="muted">Create a trip whenever you are ready to organize this idea.</p>}
+      ) : null}
     </div>
   );
 }

@@ -57,7 +57,7 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
 
       <label className="field">
         <span className="field__label">What</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Air filter" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} />
       </label>
       <label className="field">
         <span className="field__label">For (optional)</span>
@@ -80,7 +80,7 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
       {(thing?.category === 'Car' || distance) && (
         <label className="field">
           <span className="field__label">{`Or every this many ${unit} (optional)`}</span>
-          <input className="input" inputMode="numeric" value={distance} onChange={(event) => setDistance(event.target.value.replace(/\D/g, ''))} placeholder="5000" />
+          <input className="input" inputMode="numeric" value={distance} onChange={(event) => setDistance(event.target.value.replace(/\D/g, ''))} />
         </label>
       )}
       {!existing?.history.length && (
@@ -89,7 +89,7 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
           <input className="input" type="date" value={start} onChange={(event) => setStart(event.target.value || today)} />
         </label>
       )}
-      <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Filter size, part number" /></label>
+      <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
 
       <button type="button" className="button-main" disabled={!name.trim()} onClick={save}>Save</button>
 
@@ -131,7 +131,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
           {existing.distance ? (
             <label className="field">
               <span className="field__label">Reading (optional)</span>
-              <input className="input" inputMode="numeric" value={reading} placeholder={latest ? latest.value.toLocaleString() : unit} onChange={(event) => setReading(event.target.value)} />
+              <input className="input" inputMode="numeric" value={reading} onChange={(event) => setReading(event.target.value)} />
             </label>
           ) : null}
           <label className="field">

@@ -76,7 +76,7 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
 
       <label className="field">
         <span className="field__label">Name</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Kitchen pothos" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} />
       </label>
       <label className="field">
         <span className="field__label">Where (optional)</span>
@@ -84,7 +84,7 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
         <datalist id="phyton-places">{PLACES.map((each) => <option key={each} value={each} />)}</datalist>
       </label>
       <section className="card switches">
-        <Switch on={outside} label="Outside" detail="Rain counts as watering" onToggle={() => setOutside(!outside)} />
+        <Switch on={outside} label="Outside" onToggle={() => setOutside(!outside)} />
       </section>
 
       <fieldset className="field">
@@ -113,7 +113,7 @@ function PlantForm({ existing, species: speciesKey, latin, given, onDone }: { ex
       )}
       <label className="field">
         <span className="field__label">Who looks after it (optional)</span>
-        <input className="input" list="phyton-names" value={who} onChange={(event) => setWho(event.target.value)} placeholder="Anyone" />
+        <input className="input" list="phyton-names" value={who} onChange={(event) => setWho(event.target.value)} />
         <datalist id="phyton-names">{names.map((each) => <option key={each} value={each} />)}</datalist>
       </label>
       <label className="field">
@@ -301,7 +301,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         <form className="card plant-journal" onSubmit={(event) => { event.preventDefault(); keepLine(); }}>
           <label className="field">
             <span className="field__label">{writing === 'pest' ? 'What and where (optional)' : 'Note'}</span>
-            <input className="input" value={words} maxLength={140} autoComplete="off" placeholder={writing === 'pest' ? 'Fungus gnats in the soil' : 'New leaf unfurling'} onChange={(event) => setWords(event.target.value)} />
+            <input className="input" value={words} maxLength={140} autoComplete="off" onChange={(event) => setWords(event.target.value)} />
           </label>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => { setWriting(undefined); setWords(''); }}>Cancel</button>
@@ -323,7 +323,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
           <p className="fine">{CARE_SOURCE}</p>
         </section>
       ) : (
-        <p className="muted">No care notes for this one. The days you set, then your waterings, decide when it comes around.</p>
+        <p className="muted">No care notes for this one.</p>
       )}
 
       <Photos plant={plant} />

@@ -39,7 +39,7 @@ export default function TripDays({ trip, nav }: { trip: Trip; nav: PoreiaNav }) 
   const drag = useRef<{ id: string; list: PlanItem[]; startY: number; row: HTMLElement; others: { id: string; mid: number }[]; to: number }>(undefined);
   if (!trip.start)
     return (
-      <RouteEmpty glyph="calendar" title="No dates yet" line="Give the trip dates to plan it day by day.">
+      <RouteEmpty glyph="calendar" title="No dates yet">
         <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
           Add dates
         </button>
@@ -229,7 +229,7 @@ export function AddToDay({ tripId, date }: { tripId: string; date: string }) {
         if (event.key === 'Escape') setOpen(false);
       }}
     >
-      <input ref={field} className="input" value={title} placeholder="Add a plan" aria-label={`Add to ${dayText(date)}`} onChange={(event) => setTitle(event.target.value)} />
+      <input ref={field} className="input" value={title} aria-label={`Add to ${dayText(date)}`} onChange={(event) => setTitle(event.target.value)} />
       <input className="input poreia-add-day__time" type="time" value={time} aria-label="Time" onChange={(event) => setTime(event.target.value)} />
       <button type="submit" className="button-quiet" disabled={!title.trim()}>
         Add

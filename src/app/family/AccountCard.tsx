@@ -117,7 +117,7 @@ function SignIn() {
           }}
         >
           <span className="label">Your Proairetos email</span>
-          <input className="input" type="email" autoComplete="email webauthn" aria-label="Email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <input className="input" type="email" autoComplete="email webauthn" aria-label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
           <button type="submit" className="button-main" disabled={!email.includes('@') || busy}>
             {busy ? 'Sending…' : 'Continue'}
           </button>
@@ -141,7 +141,6 @@ function SignIn() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
           />
-          <p className="hint">If it’s a link, copy it and paste it here.</p>
           <button type="submit" className="button-main" disabled={code.trim().length < 6 || busy}>
             Sign in
           </button>

@@ -32,7 +32,7 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
   return (
     <div className="page dynamis-page">
       <div className="page-top"><h1 className="title">Log</h1></div>
-      {sorted.length === 0 && stretched.length === 0 && <Empty icon={<HistoryIcon size={28} />} title="No sessions yet" line="Saved sessions, with every set." />}
+      {sorted.length === 0 && stretched.length === 0 && <Empty icon={<HistoryIcon size={28} />} title="No sessions yet" />}
       {sorted.length > 0 && (
         <ul className="chore-list">
           {sorted.slice(0, 40).map((workout) => (

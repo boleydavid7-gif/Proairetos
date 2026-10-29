@@ -369,7 +369,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           <textarea
             className="notes-box"
             aria-label="Your notes"
-            placeholder="What you changed, what you would try next time."
+           
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             onBlur={() => notes !== recipe.notes && void save({ notes })}
@@ -498,14 +498,14 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                 void save({ cookedFor: { ...(recipe.cookedFor ?? {}), [today]: next } });
               }}
             >
-              <input className="input" aria-label="Someone else" placeholder="Someone else" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
+              <input className="input" aria-label="Someone else" value={otherName} onChange={(event) => setOtherName(event.target.value)} />
               <button type="submit" className="button-quiet" disabled={!otherName.trim()}>
                 Add
               </button>
             </form>
             <label className="field">
               <span className="label">How did you feel after? (optional)</span>
-              <input className="input" value={afterLine} onChange={(event) => setAfterLine(event.target.value)} placeholder="Light and full of energy" />
+              <input className="input" value={afterLine} onChange={(event) => setAfterLine(event.target.value)} />
             </label>
             <button
               type="button"

@@ -101,7 +101,7 @@ export function WhoChoice({ value, people, onChange }: { value: string; people: 
           onChange('');
         }}>Someone else</button>
       </div>
-      {typing && <input className="input" aria-label="Their name" placeholder="Their name" autoCapitalize="words" value={value} onChange={(event) => onChange(event.target.value)} />}
+      {typing && <input className="input" aria-label="Their name" autoCapitalize="words" value={value} onChange={(event) => onChange(event.target.value)} />}
     </div>
   );
 }

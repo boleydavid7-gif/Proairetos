@@ -33,7 +33,7 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
     <div className="stack own-builder">
       <label className="field">
         <span className="label">Name (optional)</span>
-        <input className="input" value={session.title} placeholder={workout.title} maxLength={60} onChange={(event) => change({ title: event.target.value })} />
+        <input className="input" value={session.title} maxLength={60} onChange={(event) => change({ title: event.target.value })} />
       </label>
       <Choices label="Warm up" value={session.warmUp} options={ENDS} name={(minutes) => (minutes ? `${minutes} min` : 'None')} onPick={(warmUp) => change({ warmUp })} />
       <div className="field">

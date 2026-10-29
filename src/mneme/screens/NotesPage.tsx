@@ -51,7 +51,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
         <button className="mneme-sync" type="button" onClick={() => void syncNow()} disabled={sync.syncing}>{sync.syncing ? 'Syncing…' : 'Sync'}</button>
       </div>
       <p className="mneme-sync-line"><span className={`mneme-sync-dot mneme-sync-dot--${sync.phase}`} />{syncLabel(sync.phase)}{sync.phase !== 'ready' && <a href="/?open=account">Set up</a>}</p>
-      <label className="mneme-search"><SearchIcon size={22} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search your notes" /></label>
+      <label className="mneme-search"><SearchIcon size={22} /><input value={query} onChange={(event) => setQuery(event.target.value)} /></label>
       <div className="mneme-filters" role="tablist" aria-label="Note filters">
         {(['all', 'recent', 'pinned'] as Filter[]).map((item) => <button key={item} type="button" role="tab" aria-selected={filter === item} onClick={() => setFilter(item)}>{item[0].toUpperCase() + item.slice(1)}</button>)}
       </div>

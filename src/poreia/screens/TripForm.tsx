@@ -115,7 +115,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
       )}
       <label className="field">
         <span className="field__label">Name</span>
-        <input className="input" value={name} placeholder={several ? 'Portugal by train' : (place?.name ?? 'Summer by the sea')} onChange={(event) => setName(event.target.value)} />
+        <input className="input" value={name} onChange={(event) => setName(event.target.value)} />
       </label>
 
       {!several && (
@@ -154,7 +154,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
         </label>
       )}
 
-      <PlaceSearch label="Starting from" value={from} onPick={setFrom} placeholder={prefs.home ? `${prefs.home.name}, or another place` : 'City, region or country'} />
+      <PlaceSearch label="Starting from" value={from} onPick={setFrom} />
       <label className="field">
         <span className="field__label">Notes</span>
         <textarea className="input area" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />

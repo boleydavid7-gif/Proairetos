@@ -92,7 +92,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
 
       <label className="field">
         <span className="label">Name</span>
-        <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Garlic herb chicken bowl" />
+        <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} />
       </label>
 
       <section className="field">
@@ -128,17 +128,17 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
       <div className="input-pair">
         <label className="field">
           <span className="label">Serves</span>
-          <input className="input" value={servings} onChange={(event) => setServings(event.target.value)} placeholder="4" />
+          <input className="input" value={servings} onChange={(event) => setServings(event.target.value)} />
         </label>
         <label className="field">
           <span className="label">Minutes, in all</span>
-          <input className="input" inputMode="numeric" value={cook} onChange={(event) => setCook(event.target.value)} placeholder="30" />
+          <input className="input" inputMode="numeric" value={cook} onChange={(event) => setCook(event.target.value)} />
         </label>
       </div>
 
       <label className="field">
         <span className="label">Estimated cost <span className="muted">({estimatedCurrency})</span></span>
-        <input className="input" type="number" min="0" step="0.01" inputMode="decimal" value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} placeholder="0.00" />
+        <input className="input" type="number" min="0" step="0.01" inputMode="decimal" value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} />
       </label>
 
       <label className="field">
@@ -147,28 +147,28 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
           className="area"
           value={ingredients}
           onChange={(event) => setIngredients(event.target.value)}
-          placeholder={'2 cups brown rice\n1 lb chicken breast\n# For the sauce\n2 tbsp olive oil'}
+         
         />
       </label>
 
       <label className="field">
         <span className="label">Steps, a blank line between each</span>
-        <textarea className="area" value={steps} onChange={(event) => setSteps(event.target.value)} placeholder={'Rinse the rice.\n\nSimmer for 20 minutes.'} />
+        <textarea className="area" value={steps} onChange={(event) => setSteps(event.target.value)} />
       </label>
 
       <label className="field">
         <span className="label">Your words for it, with commas</span>
-        <input className="input" value={tags} onChange={(event) => setTags(event.target.value)} placeholder="weeknight, for guests" />
+        <input className="input" value={tags} onChange={(event) => setTags(event.target.value)} />
       </label>
 
       <div className="input-pair">
         <label className="field">
           <span className="label">From</span>
-          <input className="input" value={source} onChange={(event) => setSource(event.target.value)} placeholder="Grandma, a book" />
+          <input className="input" value={source} onChange={(event) => setSource(event.target.value)} />
         </label>
         <label className="field">
           <span className="label">Link</span>
-          <input className="input" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://" />
+          <input className="input" value={url} onChange={(event) => setUrl(event.target.value)} />
         </label>
       </div>
 

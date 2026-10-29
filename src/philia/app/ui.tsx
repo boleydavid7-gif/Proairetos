@@ -28,7 +28,7 @@ export function AddLine({ label, onAdd, button = 'Add' }: { label: string; onAdd
         add();
       }}
     >
-      <input className="input" aria-label={label} placeholder={label} value={text} onChange={(event) => setText(event.target.value)} />
+      <input className="input" aria-label={label} value={text} onChange={(event) => setText(event.target.value)} />
       <button type="submit" className="button-quiet" disabled={!text.trim()}>{button}</button>
     </form>
   );
@@ -50,7 +50,7 @@ export function DateFields({ label, value, onChange }: { label: string; value: {
           <option value="">Day</option>
           {Array.from({ length: 31 }, (_, index) => <option key={index} value={index + 1}>{index + 1}</option>)}
         </select>
-        <input className="input" aria-label="Year (optional)" placeholder="Year" inputMode="numeric" value={value.year ?? ''} onChange={(event) => onChange({ ...value, year: event.target.value ? Number(event.target.value.replace(/\D/g, '').slice(0, 4)) : undefined })} />
+        <input className="input" aria-label="Year (optional)" inputMode="numeric" value={value.year ?? ''} onChange={(event) => onChange({ ...value, year: event.target.value ? Number(event.target.value.replace(/\D/g, '').slice(0, 4)) : undefined })} />
       </div>
     </fieldset>
   );

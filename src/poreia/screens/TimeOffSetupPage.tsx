@@ -3,7 +3,7 @@ import { BackLink } from '../../askesis/app/ui';
 import type { PoreiaNav } from '../app/App';
 import { recountPlanned } from '../app/proairetos';
 import { settings, setupOrDefault, today } from '../app/state';
-import { ACCRUAL_CHOICES, fullWeekHours, type AccrualEvery, type TimeOffSetup } from '../core/timeOff';
+import { ACCRUAL_CHOICES, type AccrualEvery, type TimeOffSetup } from '../core/timeOff';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -22,7 +22,7 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
         <div className="input-row">
           <label className="field">
             <span className="field__label">Hours on hand</span>
-            <input className="input" inputMode="decimal" value={setup.balance || ''} placeholder="0" onChange={(event) => set({ balance: number(event.target.value) })} />
+            <input className="input" inputMode="decimal" value={setup.balance || ''} onChange={(event) => set({ balance: number(event.target.value) })} />
           </label>
           <label className="field">
             <span className="field__label">As of</span>
@@ -47,7 +47,7 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
           <div className="input-row">
             <label className="field">
               <span className="field__label">Hours each time</span>
-              <input className="input" inputMode="decimal" value={setup.accrual || ''} placeholder="0" onChange={(event) => set({ accrual: number(event.target.value) })} />
+              <input className="input" inputMode="decimal" value={setup.accrual || ''} onChange={(event) => set({ accrual: number(event.target.value) })} />
             </label>
             <label className="field">
               <span className="field__label">Next added on</span>
@@ -58,17 +58,16 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
         {setup.every !== 'none' && (
           <label className="field">
             <span className="field__label">Most it can hold</span>
-            <input className="input" inputMode="decimal" value={setup.cap ?? ''} placeholder="No cap" onChange={(event) => set({ cap: event.target.value.trim() ? number(event.target.value) : undefined })} />
+            <input className="input" inputMode="decimal" value={setup.cap ?? ''} onChange={(event) => set({ cap: event.target.value.trim() ? number(event.target.value) : undefined })} />
           </label>
         )}
       </section>
 
       <p className="ll-section-label">A day off</p>
       <section className="card">
-        <p className="muted">Used on days with no shift in Proairetos.</p>
         <label className="field">
           <span className="field__label">Hours in a usual day</span>
-          <input className="input" inputMode="decimal" value={setup.dayHours || ''} placeholder="8" onChange={(event) => set({ dayHours: number(event.target.value) || 8 })} />
+          <input className="input" inputMode="decimal" value={setup.dayHours || ''} onChange={(event) => set({ dayHours: number(event.target.value) || 8 })} />
         </label>
         <p className="label">Work days (none: every day)</p>
         <div className="chip-row" role="group" aria-label="Days you usually work">
@@ -88,7 +87,7 @@ export default function TimeOffSetupPage({ nav }: { nav: PoreiaNav }) {
             className="input"
             inputMode="decimal"
             value={setup.weekHours ?? ''}
-            placeholder={String(fullWeekHours({ ...setup, weekHours: undefined }))}
+           
             onChange={(event) => set({ weekHours: event.target.value.trim() ? number(event.target.value) : undefined })}
           />
         </label>

@@ -62,7 +62,7 @@ export default function ReadingsPage() {
         </div>
         {kind === 'other' && (
           <div className="input-row">
-            <label className="field"><span className="field__label">Name</span><input className="input" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Peak flow" /></label>
+            <label className="field"><span className="field__label">Name</span><input className="input" value={label} onChange={(event) => setLabel(event.target.value)} /></label>
             <label className="field"><span className="field__label">Unit (optional)</span><input className="input" value={unit ?? ''} onChange={(event) => setUnit(event.target.value)} /></label>
           </div>
         )}
@@ -85,7 +85,7 @@ export default function ReadingsPage() {
         )}
         <div className="input-row">
           <label className="field"><span className="field__label">When</span><input className="input" type="datetime-local" value={at} onChange={(event) => event.target.value && setAt(event.target.value)} /></label>
-          <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="After a walk" /></label>
+          <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
         </div>
         <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
       </section>

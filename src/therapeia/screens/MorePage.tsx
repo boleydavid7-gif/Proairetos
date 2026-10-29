@@ -53,9 +53,8 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
         </label>
         <label className="field">
           <span className="field__label">Emergency contact (optional)</span>
-          <input className="input" value={current.card.contact ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, contact: event.target.value || undefined } })} placeholder="Name and number" />
+          <input className="input" value={current.card.contact ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, contact: event.target.value || undefined } })} />
         </label>
-        <p className="fine">Shown on Medicines and added when you share the list.</p>
       </section>
 
       <p className="ll-section-label">Reminders</p>
@@ -118,7 +117,6 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
               </select>
             </label>
           </div>
-          <p className="fine">Doses after waking and before sleep follow these, and your work schedule in Proairetos.</p>
         </section>
       )}
 

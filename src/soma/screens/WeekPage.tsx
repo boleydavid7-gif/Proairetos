@@ -153,7 +153,6 @@ function MoveRecipe({ recipe, from, days, today, onClose, onMove }: { recipe: Re
     <div className="sheet-back" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={`Move ${recipe.title}`} onClick={(event) => event.stopPropagation()}>
         <h2 className="sheet__title">Move {recipe.title}</h2>
-        <p className="muted">Choose another day this week.</p>
         <div className="move-days">
           {days.filter((day) => day !== from).map((day) => (
             <button key={day} type="button" className="button-quiet move-days__day" onClick={() => onMove(day)}>
@@ -175,7 +174,7 @@ function PickRecipe({ recipes, title, startMark, onClose, onPick }: { recipes: R
     <div className="sheet-back" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={`A recipe for ${title}`} onClick={(event) => event.stopPropagation()}>
         <h2 className="sheet__title">{title}</h2>
-        <input className="input" aria-label="Search your recipes" placeholder="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input className="input" aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
         <div className="chip-grid" role="group" aria-label="Your marks">
           {marks.map((each) => (
             <button key={each.id} type="button" className="chip" aria-pressed={mark === each.id} onClick={() => setMark(mark === each.id ? undefined : each.id)}>

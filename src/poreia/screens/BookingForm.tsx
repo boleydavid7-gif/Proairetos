@@ -123,7 +123,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
         <section className="card">
           <label className="field">
             <span className="field__label">Paste the confirmation</span>
-            <textarea className="input area" rows={8} value={pasted} placeholder="Paste the confirmation email" onChange={(event) => setPasted(event.target.value)} />
+            <textarea className="input area" rows={8} value={pasted} onChange={(event) => setPasted(event.target.value)} />
           </label>
           <div className="button-row">
             <button type="button" className="button-main" disabled={!pasted.trim()} onClick={read}>
@@ -179,12 +179,12 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
           </div>
           <label className="field">
             <span className="field__label">Name</span>
-            <input className="input" value={form.title} placeholder={form.kind === 'flight' ? 'TP 202' : form.kind === 'stay' ? 'Casa Azul' : 'Name'} onChange={(event) => set({ title: event.target.value })} />
+            <input className="input" value={form.title} onChange={(event) => set({ title: event.target.value })} />
           </label>
           <div className="input-row">
             <label className="field">
               <span className="field__label">With</span>
-              <input className="input" value={form.provider ?? ''} placeholder={form.kind === 'stay' ? 'Airbnb, Booking.com' : 'Airline, company'} onChange={(event) => set({ provider: event.target.value || undefined })} />
+              <input className="input" value={form.provider ?? ''} onChange={(event) => set({ provider: event.target.value || undefined })} />
             </label>
             <label className="field">
               <span className="field__label">Confirmation</span>
@@ -245,7 +245,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
           )}
           <label className="field">
             <span className="field__label">Link</span>
-            <input className="input" type="url" inputMode="url" value={form.link ?? ''} placeholder="https://" onChange={(event) => set({ link: event.target.value || undefined })} />
+            <input className="input" type="url" inputMode="url" value={form.link ?? ''} onChange={(event) => set({ link: event.target.value || undefined })} />
           </label>
           <label className="field">
             <span className="field__label">Notes</span>
@@ -305,8 +305,6 @@ function BookingView({ nav, booking, tripName, onEdit, onRemove }: { nav: Poreia
       {booking.confirmation && (
         <button type="button" className="poreia-code" onClick={copy} aria-label={`Confirmation ${booking.confirmation}. Copy`}>
           <span className="label">Confirmation</span>
-          <span className="poreia-code__value">{booking.confirmation}</span>
-          <span className="muted">Tap to copy</span>
         </button>
       )}
 

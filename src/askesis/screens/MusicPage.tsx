@@ -147,7 +147,6 @@ export default function MusicPage({ nav }: { nav: Nav }) {
               }
             }} />
             <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-            <p className="hint">From your phone’s files, kept on this device. Songs in streaming apps stay in those apps.</p>
           </section>
         </>
       )}

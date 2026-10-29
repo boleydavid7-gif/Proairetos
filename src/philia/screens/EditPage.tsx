@@ -72,7 +72,7 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
       <MoreDetails open={Boolean(existing && (existing.relation || existing.phone || existing.email || existing.dates?.length))}>
       <label className="field">
         <span className="field__label">Who they are (optional)</span>
-        <input className="input" placeholder="Sister, friend, neighbor" value={relation} onChange={(event) => setRelation(event.target.value)} />
+        <input className="input" value={relation} onChange={(event) => setRelation(event.target.value)} />
       </label>
       <div className="input-row">
         <label className="field">
@@ -89,7 +89,7 @@ export default function EditPage({ nav, id }: { nav: PhiliaNav; id?: string }) {
         <div key={each.id} className="card">
           <label className="field">
             <span className="field__label">What</span>
-            <input className="input" placeholder="Anniversary" value={each.label} onChange={(event) => setDates(dates.map((d, i) => (i === index ? { ...d, label: event.target.value } : d)))} />
+            <input className="input" value={each.label} onChange={(event) => setDates(dates.map((d, i) => (i === index ? { ...d, label: event.target.value } : d)))} />
           </label>
           <div className="chip-row" role="group" aria-label="How often">
             <button type="button" className="chip" aria-pressed={!each.once} onClick={() => setDates(dates.map((d, i) => (i === index ? { ...d, once: undefined } : d)))}>Every year</button>

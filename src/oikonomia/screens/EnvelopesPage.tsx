@@ -37,10 +37,10 @@ function EnvelopeForm({ start, currency, onDone, onCancel }: { start: Envelope; 
       }}
     >
       <div className="oiko-section-head"><h2>{start.name ? 'Edit envelope' : 'New envelope'}</h2><WalletIcon size={20} /></div>
-      <label className="field"><span className="field__label">Name</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Vacation" autoFocus /></label>
+      <label className="field"><span className="field__label">Name</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} autoFocus /></label>
       <div className="oiko-form__pair">
-        <label className="field"><span className="field__label">Target (optional)</span><input className="input" type="text" inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="2,000.00" /></label>
-        <label className="field"><span className="field__label">Monthly contribution</span><input className="input" type="text" inputMode="decimal" value={monthly} onChange={(event) => setMonthly(event.target.value)} placeholder="100.00" /></label>
+        <label className="field"><span className="field__label">Target (optional)</span><input className="input" type="text" inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} /></label>
+        <label className="field"><span className="field__label">Monthly contribution</span><input className="input" type="text" inputMode="decimal" value={monthly} onChange={(event) => setMonthly(event.target.value)} /></label>
       </div>
       <label className="field"><span className="field__label">Target date (optional)</span><input className="input" type="date" value={targetDate} onChange={(event) => setTargetDate(event.target.value)} /></label>
       {error && <p className="oiko-error" role="alert">{error}</p>}
@@ -68,8 +68,8 @@ function EntryForm({ envelope, onDone, onCancel }: { envelope: Envelope; onDone:
         <button type="button" className="segmented__option" aria-pressed={action === 'add'} onClick={() => setAction('add')}>Add money</button>
         <button type="button" className="segmented__option" aria-pressed={action === 'use'} onClick={() => setAction('use')}>Use money</button>
       </div>
-      <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="100.00" autoFocus /></label>
-      <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="April transfer" /></label>
+      <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} autoFocus /></label>
+      <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
       {error && <p className="oiko-error" role="alert">{error}</p>}
       <div className="button-row"><button type="button" className="button-quiet" onClick={onCancel}>Cancel</button><button type="submit" className="button-main">Save</button></div>
     </form>
@@ -108,7 +108,6 @@ export default function EnvelopesPage({ nav }: { nav: Nav }) {
         <section className="card first-run">
           <WalletIcon size={28} />
           <h2 className="card__title">No envelopes yet</h2>
-          <p className="muted">Create one for a vacation or another goal, then add money as you set it aside.</p>
           <button type="button" className="button-main" onClick={() => setEditing(newEnvelope('', settings.currency, new Date().toISOString(), newId()))}>Create an envelope</button>
         </section>
       ) : (
@@ -119,7 +118,7 @@ export default function EnvelopesPage({ nav }: { nav: Nav }) {
             return (
               <article className="card oiko-envelope-card" key={envelope.id}>
                 <div className="oiko-envelope-card__head"><div><h2>{envelope.name}</h2><p className="muted">{envelope.targetDate ? `Target ${formatDate(envelope.targetDate, 'long')}` : envelope.monthlyCents ? `${formatMoney(envelope.monthlyCents, envelope.currency)} each month` : 'No date or monthly amount set'}</p></div><strong>{formatMoney(envelope.balanceCents, envelope.currency)}</strong></div>
-                {envelope.targetCents > 0 ? <><div className="oiko-envelope-card__bar" role="progressbar" aria-label={`${envelope.name} progress`} aria-valuemin={0} aria-valuemax={envelope.targetCents} aria-valuenow={envelope.balanceCents}><span style={{ width: `${progress}%` }} /></div><div className="oiko-envelope-card__facts"><span>{Math.round(progress)}% saved</span><span>{remaining ? `${formatMoney(remaining, envelope.currency)} to go` : 'Target reached'}</span></div></> : <p className="hint">No target set. The balance stays yours to direct.</p>}
+                {envelope.targetCents > 0 ? <><div className="oiko-envelope-card__bar" role="progressbar" aria-label={`${envelope.name} progress`} aria-valuemin={0} aria-valuemax={envelope.targetCents} aria-valuenow={envelope.balanceCents}><span style={{ width: `${progress}%` }} /></div><div className="oiko-envelope-card__facts"><span>{Math.round(progress)}% saved</span><span>{remaining ? `${formatMoney(remaining, envelope.currency)} to go` : 'Target reached'}</span></div></> : <p className="hint">No target set.</p>}
                 <div className="button-row oiko-envelope-card__actions"><button type="button" className="button-main" onClick={() => { setEditing(undefined); setEntryFor(entryFor === envelope.id ? undefined : envelope.id); }}>Add or use money</button><button type="button" className="button-quiet" onClick={() => { setEntryFor(undefined); setEditing(envelope); }}>Edit</button><button type="button" className="text-link" onClick={() => void remove(envelope)}>Remove</button></div>
                 {entryFor === envelope.id && <EntryForm envelope={envelope} onDone={(next) => { setEntryFor(undefined); void putEnvelope(next); }} onCancel={() => setEntryFor(undefined)} />}
                 {envelope.entries.length > 0 && <details className="oiko-envelope-card__history"><summary>Recent activity ({envelope.entries.length})</summary><ul>{[...envelope.entries].reverse().slice(0, 6).map((entry) => <li key={entry.id}><span>{entry.note || (entry.amountCents >= 0 ? 'Added' : 'Used')}<small>{formatDate(entry.date)}</small></span><strong>{entry.amountCents >= 0 ? '+' : '−'}{formatMoney(Math.abs(entry.amountCents), envelope.currency)}</strong></li>)}</ul></details>}

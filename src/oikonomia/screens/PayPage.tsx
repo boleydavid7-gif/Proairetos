@@ -27,8 +27,8 @@ function PayForm({ start, onDone, onCancel }: { start: Pay; onDone: (pay: Pay) =
         onDone({ ...start, name: name.trim() || 'Pay', amountCents: cents(amount), rhythm, date, secondDay: rhythm === 'twice-monthly' ? second : undefined });
       }}
     >
-      <label className="field"><span className="field__label">Name</span><input className="input" value={name} placeholder="Pay" onChange={(event) => setName(event.target.value)} /></label>
-      <label className="field"><span className="field__label">Usually about (optional)</span><input className="input" inputMode="decimal" value={amount} placeholder="0.00" onChange={(event) => setAmount(event.target.value)} /></label>
+      <label className="field"><span className="field__label">Name</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} /></label>
+      <label className="field"><span className="field__label">Usually about (optional)</span><input className="input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>
       <label className="field">
         <span className="field__label">How often</span>
         <select className="input" value={rhythm} onChange={(event) => setRhythm(event.target.value as PayRhythm)}>
@@ -67,7 +67,6 @@ export default function PayPage({ nav }: { nav: Nav }) {
         <PayForm start={editing} onDone={save} onCancel={() => setEditing(undefined)} />
       ) : (
         <>
-          {pays.length === 0 && <p className="muted">Add when you are paid, and Home shows the bills due before each pay date.</p>}
           <section className="oiko-list" aria-label="Pay">
             {pays.map((pay) => {
               const next = payDates(pay, today, addMonths(today, 2))[0];

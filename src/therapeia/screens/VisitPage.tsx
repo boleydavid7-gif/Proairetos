@@ -53,7 +53,7 @@ function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointme
 
       <label className="field">
         <span className="field__label">Who or what</span>
-        <input ref={whoField} className="input" value={who} onChange={(event) => setWho(event.target.value)} placeholder="Dr Patel, blood test" />
+        <input ref={whoField} className="input" value={who} onChange={(event) => setWho(event.target.value)} />
       </label>
       <WhoChoice value={forWho} people={people} onChange={setForWho} />
       <div className="input-row">
@@ -100,14 +100,14 @@ function VisitForm({ id, existing, onDone }: { id?: string; existing?: Appointme
             setQuestion('');
           }}
         >
-          <input className="input" aria-label="A question" placeholder="A question" value={question} onChange={(event) => setQuestion(event.target.value)} />
+          <input className="input" aria-label="A question" value={question} onChange={(event) => setQuestion(event.target.value)} />
           <button type="submit" className="button-quiet" disabled={!question.trim()}>Add</button>
         </form>
       </section>
 
       <label className="field">
         <span className="field__label">Notes (optional)</span>
-        <textarea className="input" rows={4} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="What was said" />
+        <textarea className="input" rows={4} value={notes} onChange={(event) => setNotes(event.target.value)} />
       </label>
 
       <button type="button" className="button-main" disabled={!who.trim()} onClick={save}>Save</button>

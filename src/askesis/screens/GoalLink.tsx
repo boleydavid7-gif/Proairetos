@@ -70,7 +70,6 @@ export default function GoalLink({ plan }: { plan: PlanState }) {
       <Switch
         on={protect}
         label="Make time for this"
-        detail="On your run days."
         onToggle={() => setProtect(!protect)}
       />
       {protect && (

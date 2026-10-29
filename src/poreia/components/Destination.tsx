@@ -149,8 +149,6 @@ export function BookLinks({ target, initial, nav, tripId }: { target: Target; in
           </li>
         ))}
       </ul>
-      {kind === 'flights' && !(target.from ?? home) && <p className="fine">Set Home in More to search flights from your airport.</p>}
-      <p className="fine">Book on their site, then paste the confirmation here.</p>
     </section>
   );
 }

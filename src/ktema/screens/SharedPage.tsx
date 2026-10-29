@@ -53,7 +53,7 @@ export default function SharedPage({ nav }: { nav: KtemaNav }) {
               void keepWith(thing.id, thing.name);
             }}
           >
-            <input className="input" aria-label="A new thing" placeholder="A new thing: Dishwasher" value={name} onChange={(event) => setName(event.target.value)} />
+            <input className="input" aria-label="A new thing" value={name} onChange={(event) => setName(event.target.value)} />
             <button type="submit" className="button-quiet" disabled={!name.trim() || busy}>Add</button>
           </form>
           {all.length > 0 && (

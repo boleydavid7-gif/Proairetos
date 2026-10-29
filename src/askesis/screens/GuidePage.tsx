@@ -241,7 +241,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       {finished ? (
         <div className="guide__done">
           <h1 className="guide__effort">That’s the session</h1>
-          <p className="muted">{lengthLabel(elapsed / 60)}. Note how it went, or just close.</p>
+          <p className="muted">{lengthLabel(elapsed / 60)}</p>
           <button type="button" className="button-main" onClick={end}>
             Log it
           </button>

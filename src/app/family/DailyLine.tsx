@@ -19,5 +19,5 @@ export function DailyLine({ app }: { app: LineApp }) {
 export function DailyLineSwitch({ app }: { app: LineApp }) {
   const off = dailyLines.use().off;
   const on = !off.includes(app);
-  return <Switch on={on} label="Daily thought" detail="Stoic and Buddhist, in turn" onToggle={() => dailyLines.save({ off: on ? [...off, app] : off.filter((each) => each !== app) })} />;
+  return <Switch on={on} label="Daily thought" onToggle={() => dailyLines.save({ off: on ? [...off, app] : off.filter((each) => each !== app) })} />;
 }

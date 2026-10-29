@@ -200,9 +200,9 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
               else if (values.date) setProblem('The receipt date is in another month; choose that month before saving.');
             }}
           />
-          <label className="field"><span className="field__label">What was it?</span><input className="input" value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} placeholder="Groceries, parking, gift" autoFocus /></label>
+          <label className="field"><span className="field__label">What was it?</span><input className="input" value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} autoFocus /></label>
           <div className="oiko-form__pair">
-            <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} placeholder="0.00" /></label>
+            <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={entryAmount} onChange={(event) => setEntryAmount(event.target.value)} /></label>
             <label className="field"><span className="field__label">Date</span><input className="input" type="date" value={entryDate} onChange={(event) => setEntryDate(event.target.value)} /></label>
           </div>
           <label className="field"><span className="field__label">Budget</span>{budgetChoice(entryBudgetItemId ? `item:${entryBudgetItemId}` : entryArea, plan?.items ?? [], (area, budgetItemId) => { setEntryArea(area); setEntryBudgetItemId(budgetItemId ?? ''); })}</label>
@@ -211,7 +211,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
       )}
 
       {lines.length === 0 ? (
-        <Empty icon={<WalletIcon size={28} />} title={`Nothing for ${formatMonthKey(month)} yet`} line="Bring in a CSV from your bank or card, or add expenses by hand; only money out is kept." />
+        <Empty icon={<WalletIcon size={28} />} title={`Nothing for ${formatMonthKey(month)} yet`} />
       ) : (
         <>
           <section className="card oiko-budget-summary">

@@ -129,7 +129,7 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
               autoCapitalize="none"
               value={link}
               onChange={(event) => setLink(event.target.value)}
-              placeholder="https://www.example.com/recipe/…"
+             
             />
           </label>
           <button type="button" className="button-main" disabled={!link.trim() || busy} onClick={() => void readLink()}>
@@ -144,7 +144,7 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
               className="area"
               value={text}
               onChange={(event) => setText(event.target.value)}
-              placeholder={'Lentil soup\nIngredients\n1 cup lentils\n1 onion\nMethod\nSoften the onion…'}
+             
             />
           </label>
           <button

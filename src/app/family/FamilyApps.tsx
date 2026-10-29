@@ -48,7 +48,7 @@ export default function FamilyApps({ current }: { current: FamilyApp }) {
             </span>
             <span className="row__text">
               <span>Store</span>
-              <span className="row__detail">More apps for Proairetos</span>
+              
             </span>
           </a>
         </li>

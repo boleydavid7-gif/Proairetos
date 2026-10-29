@@ -145,7 +145,7 @@ export function ConverterCard({ place }: { place: Place }) {
       <div className="input-row">
         <label className="field">
           <span className="field__label">{source}</span>
-          <input className="input" inputMode="decimal" value={text} placeholder="0" onChange={(event) => setText(event.target.value)} />
+          <input className="input" inputMode="decimal" value={text} onChange={(event) => setText(event.target.value)} />
         </label>
         <button type="button" className="button-quiet poreia-convert__swap" aria-label={`Convert from ${target} instead`} onClick={() => setFromHome(!fromHome)}>
           <Sym name="repeat" size={20} />

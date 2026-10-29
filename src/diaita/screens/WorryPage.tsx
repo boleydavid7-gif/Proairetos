@@ -24,7 +24,7 @@ function WorryForm({ onDone }: { onDone: () => void }) {
       </label>
       <label className="field">
         <span className="field__label">One next step (optional)</span>
-        <input className="input" value={nextStep} onChange={(event) => setNextStep(event.target.value)} placeholder="Ask tomorrow" />
+        <input className="input" value={nextStep} onChange={(event) => setNextStep(event.target.value)} />
       </label>
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onDone}>Cancel</button>

@@ -112,7 +112,7 @@ export default function IdentifyPage({ nav, plantId }: { nav: PhytonNav; plantId
       {matches && !busy && (
         <section aria-label="Matches">
           {matches.length === 0 ? (
-            <p className="muted">No match. Try a closer photo of a leaf or a flower.</p>
+            <p className="muted">No match.</p>
           ) : (
             <>
               <p className="label">Most likely first</p>
@@ -135,7 +135,7 @@ export default function IdentifyPage({ nav, plantId }: { nav: PhytonNav; plantId
                   );
                 })}
               </ul>
-              {matches[0].score < 0.3 && <p className="muted">Not sure. Another photo, of a flower if it has one, can help.</p>}
+              {matches[0].score < 0.3 && <p className="muted">Not sure.</p>}
             </>
           )}
         </section>

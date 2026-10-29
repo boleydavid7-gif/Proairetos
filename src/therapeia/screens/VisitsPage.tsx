@@ -33,7 +33,7 @@ export default function VisitsPage({ nav }: { nav: TherapeiaNav }) {
       {coming.length ? (
         <ul className="chore-list">{coming.map((visit) => <VisitRow key={visit.id} visit={visit} today={today} onOpen={() => nav.go({ name: 'visit', id: visit.id })} />)}</ul>
       ) : (
-        <Empty icon={<VisitIcon size={28} />} title="Nothing coming up" line="Appointments, with the questions to ask." />
+        <Empty icon={<VisitIcon size={28} />} title="Nothing coming up" />
       )}
       {past.length > 0 && (
         <>

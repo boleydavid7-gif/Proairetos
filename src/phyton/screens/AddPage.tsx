@@ -29,7 +29,7 @@ export default function AddPage({ nav }: { nav: PhytonNav }) {
 
       <label className="field">
         <span className="field__label">Or find its type</span>
-        <input ref={field} className="input" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Pothos, basil, monstera…" />
+        <input ref={field} className="input" type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
       </label>
       {!query.trim() && (
         <div className="chip-row" role="group" aria-label="Kinds">

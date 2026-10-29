@@ -46,7 +46,7 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
       <h1 className="title">My recipes</h1>
       <div className="soma-search">
         <SearchIcon size={20} />
-        <input aria-label="Search your recipes" placeholder="Search by name or ingredient" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
       </div>
       {shelves.length > 1 && (
         <div className="chip-row" role="group" aria-label="Shelves">
@@ -69,7 +69,7 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
         small
       />
       {recipes && recipes.length === 0 ? (
-        <Empty icon={<BookIcon size={28} />} title="No recipes yet" line="Bring one in from a link, paste one, or write your own.">
+        <Empty icon={<BookIcon size={28} />} title="No recipes yet">
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'import' })}>
               Import

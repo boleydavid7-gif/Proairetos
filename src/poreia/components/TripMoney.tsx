@@ -61,7 +61,6 @@ export default function TripMoney({ trip }: { trip: Trip }) {
       </section>
 
       {foreign && <button type="button" className="button-quiet" onClick={() => setShowing((open) => !open)}>{showing ? 'Hide currency note' : 'About currencies'}</button>}
-      {showing && <p className="fine">Poreia does not fetch exchange rates. Enter spending in the currency it was paid in, then convert it when you settle the trip.</p>}
 
       <SavingCard trip={trip} />
 

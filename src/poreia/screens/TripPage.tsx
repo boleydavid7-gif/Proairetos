@@ -122,7 +122,7 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
           <h2 className="card__title">Travel journal</h2>
           {entries.length > 0 && <span className="muted">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</span>}
         </div>
-        {entries[0] ? <p className="poreia-journal-preview__text">{entries[0].title || entries[0].text}</p> : <p className="muted">Keep a day log or a memory as you travel.</p>}
+        {entries[0] ? <p className="poreia-journal-preview__text">{entries[0].title || entries[0].text}</p> : null}
         <button type="button" className="button-quiet" onClick={() => onView('journal')}>{entries.length ? 'Open journal' : 'Start journal'}</button>
       </section>
       {trip.notes && (

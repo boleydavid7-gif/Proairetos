@@ -42,7 +42,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'why' })}>
             <span className="row__icon"><BookIcon size={22} /></span>
-            <span className="row__text"><span>How the plan is built</span><span className="row__detail">With its sources</span></span>
+            <span className="row__text"><span>How the plan is built</span></span>
             <ChevronIcon size={18} />
           </button>
         </li>

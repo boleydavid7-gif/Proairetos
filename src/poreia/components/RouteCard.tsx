@@ -65,7 +65,7 @@ export function RouteCard({ trip }: { trip: Trip }) {
           </li>
         ))}
       </ol>
-      <p className="fine">{distance(total)} in all as the crow flies. Driving times come from the route service when available; otherwise they are estimates.</p>
+      <p className="fine">{distance(total)} in all as the crow flies.</p>
     </section>
   );
 }

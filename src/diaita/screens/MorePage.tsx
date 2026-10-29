@@ -81,7 +81,6 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <Switch
             on={Boolean(current.trainingClearOfNaps)}
             label="Scheduled naps"
-            detail="Runs and workouts given a new time stay out of them."
             onToggle={() => change({ trainingClearOfNaps: !current.trainingClearOfNaps })}
           />
         )}
@@ -100,7 +99,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'worry' })}>
             <span className="row__icon"><BookIcon size={22} /></span>
-            <span className="row__text"><span>Worry time</span><span className="row__detail">Write worries down before bed</span></span>
+            <span className="row__text"><span>Worry time</span></span>
           </button>
         </li>
         <li>

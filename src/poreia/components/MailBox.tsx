@@ -194,11 +194,10 @@ export function ForwardingCard() {
               Turn off
             </button>
           </div>
-          <p className="fine">Each confirmation goes to the trip its dates fit, or under From your email on Trips. Encrypted for this device.</p>
+          <p className="fine">Encrypted for this device.</p>
         </>
       ) : (
         <>
-          <p className="muted">Forward confirmation emails to your own address; each becomes a booking.</p>
           <button type="button" className="button-quiet" disabled={busy || !ready} onClick={() => void run(async () => setKept(await turnOnMail()))}>
             Make my address
           </button>

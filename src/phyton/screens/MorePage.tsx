@@ -9,7 +9,6 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { notifications } from '../../app/notify/notifications';
 import { findPlace, placeFromDevice } from '../../app/weather/weather';
 import { Segmented, Switch } from '../../askesis/app/ui';
-import { displayName } from '../../data/storage/preferences';
 import type { PhytonNav } from '../app/App';
 import { myName, settings, useHome, usePlants, type PhytonSettings } from '../app/state';
 import { rainPlace, refreshRain, setRainPlace } from '../app/rain';
@@ -40,7 +39,7 @@ function RainPlace() {
           void findPlace(query).then(setFound).catch((cause: Error) => setError(cause.message));
         }}
       >
-        <input className="input" aria-label="A town" placeholder="A town" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input className="input" aria-label="A town" value={query} onChange={(event) => setQuery(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!query.trim()}>Find</button>
       </form>
       <button type="button" className="text-link" onClick={() => void placeFromDevice().then(choose).catch((cause: Error) => setError(cause.message))}>Use this device’s location</button>
@@ -78,7 +77,6 @@ function AwayCard({ nav }: { nav: PhytonNav }) {
               <input className="input" type="date" min={away.from} value={away.to} onChange={(event) => event.target.value && save({ ...away, to: event.target.value < away.from ? away.from : event.target.value })} />
             </label>
           </div>
-          <p className="hint">Reminders wait; the day after, one names what came around.</p>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'sitter' })}><PrintIcon size={18} />Sheet for whoever waters</button>
             <button
@@ -129,7 +127,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'home' })}>
             <span className="row__icon"><PeopleIcon size={22} /></span>
-            <span className="row__text"><span>Share</span><span className="row__detail">{home ? home.name : 'With the people you live with'}</span></span>
+            <span className="row__text"><span>Share</span>{home && <span className="row__detail">{home.name}</span>}</span>
             <ChevronIcon size={18} />
           </button>
         </li>
@@ -138,7 +136,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || 'For Mine and for who watered'} />
+          <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} />
           <datalist id="phyton-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
         <div className="field">
@@ -151,7 +149,6 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         <Switch
           on={current.rain}
           label="Weather outside"
-          detail="Rain counts as watering; frost and hot days are said"
           onToggle={() => {
             change({ rain: !current.rain });
             if (!current.rain) void refreshRain(true);

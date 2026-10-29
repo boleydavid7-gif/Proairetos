@@ -156,7 +156,7 @@ function LengthPicker({ minutes, onMinutes }: { minutes: number; onMinutes: (min
     <div className="praxis-adjust" role="group" aria-label="Timer length">
       {LENGTHS.map((value) => <button key={value} type="button" className={minutes === value ? 'is-selected' : ''} onClick={() => onMinutes(value)}>{value} min</button>)}
       <label className={`praxis-adjust__other${custom ? ' is-selected' : ''}`}>
-        <input type="number" inputMode="numeric" min={1} max={240} placeholder="Other" aria-label="Custom timer length in minutes" value={custom ? String(minutes) : other} onChange={(event) => { setOther(event.target.value); const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
+        <input type="number" inputMode="numeric" min={1} max={240} aria-label="Custom timer length in minutes" value={custom ? String(minutes) : other} onChange={(event) => { setOther(event.target.value); const value = Number(event.target.value); if (Number.isFinite(value) && value > 0) onMinutes(clampMinutes(value)); }} />
         <span>min</span>
       </label>
     </div>
@@ -217,7 +217,7 @@ export function MoreView({ onView, embedded = false }: { onView: (view: 'sounds'
       <div className="praxis-page-heading"><div><h1>More</h1></div></div>
       <div className="praxis-card praxis-more-card">
         <button type="button" className="praxis-more-link" onClick={() => onView('sounds')}>
-          <span><strong>Sounds</strong><small>Choose the room you study in.</small></span>
+          <span><strong>Sounds</strong></span>
           <ChevronRightIcon size={18} aria-hidden="true" />
         </button>
         {!embedded && <button type="button" className="praxis-more-link" onClick={() => onView('settings')}>
@@ -245,7 +245,7 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
         <p>What did you take from this?</p>
         {kept ? <a className="praxis-text-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a> : (
           <form onSubmit={(event) => { event.preventDefault(); if (!line.trim()) return; onKeepLine(line.trim()); setKept(true); }} className="praxis-add__row">
-            <input aria-label="One line to keep" placeholder="A note (optional)" value={line} onChange={(event) => setLine(event.target.value)} />
+            <input aria-label="One line to keep" value={line} onChange={(event) => setLine(event.target.value)} />
             <button type="submit" className="praxis-button praxis-button--quiet" disabled={!line.trim()}>Save</button>
           </form>
         )}

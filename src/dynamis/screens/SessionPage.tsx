@@ -260,7 +260,7 @@ export default function SessionPage({ nav }: { nav: DynamisNav }) {
                   <span className="dynamis-set__number">{index + 1}</span>
                   {target.loaded && (
                     <label className="dynamis-set__field">
-                      <input className="input" inputMode="decimal" aria-label={`Set ${index + 1} weight`} value={set.weight ?? ''} placeholder="–" onChange={(event) => {
+                      <input className="input" inputMode="decimal" aria-label={`Set ${index + 1} weight`} value={set.weight ?? ''} onChange={(event) => {
                         const value = event.target.value.replace(',', '.').replace(/[^\d.]/g, '');
                         const weight = value === '' ? undefined : Number(value);
                         // A weight typed in a set fills the sets after it that have none yet.

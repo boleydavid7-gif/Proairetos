@@ -138,7 +138,7 @@ export default function SettingsPage({ nav }: { nav: Nav }) {
       <ScreenHeader title="Settings" onBack={nav.back} />
 
       <SettingsGroup title="Daily amount">
-        <label className="row hydros-settings-row"><Icon><DropIcon /></Icon><span className="row__text hydros-settings-row__name">From drinks each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} placeholder="None" onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
+        <label className="row hydros-settings-row"><Icon><DropIcon /></Icon><span className="row__text hydros-settings-row__name">From drinks each day</span><input className="hydros-settings-row__input" aria-label={`Daily amount in ${unit}`} type="number" inputMode="decimal" min="1" step={unit === 'L' ? .1 : 1} value={amount} onChange={(event) => updateGoal(event.target.value)} onBlur={() => settings.goalChosen && setAmount(formatVolume(settings.goalOz, unit))} /><b>{unit}</b></label>
         <div className="hydros-reference">
           <span>Reference amounts from drinks</span>
           {referenceAmounts.map((reference) => (

@@ -92,8 +92,8 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
             if (values.due) setDueDate(values.due);
           }}
         />
-        <label className="field"><span className="field__label">Bill name</span><input className="input" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="Electric, rent, insurance" /></label>
-        <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" /></label>
+        <label className="field"><span className="field__label">Bill name</span><input className="input" autoFocus value={name} onChange={(event) => setName(event.target.value)} /></label>
+        <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>
         <div className="oiko-form__pair">
           <label className="field"><span className="field__label">Next due</span><input className="input" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label>
           <label className="field"><span className="field__label">Repeats</span><select className="input" value={frequency} onChange={(event) => setFrequency(event.target.value as BillFrequency)}>{(['once', 'weekly', 'monthly', 'quarterly', 'yearly'] as BillFrequency[]).map((value) => <option key={value} value={value}>{formatFrequency(value)}</option>)}</select></label>
@@ -106,7 +106,7 @@ export default function CapturePage({ nav, id }: { nav: Nav; id?: string }) {
           <label className="oiko-check-row"><span><strong>Remind me</strong><small>Before the due date</small></span><select className="oiko-select" value={reminderDays} onChange={(event) => setReminderDays(event.target.value)}><option value="0">On the day</option><option value="1">1 day before</option><option value="3">3 days before</option><option value="7">1 week before</option><option value="14">2 weeks before</option></select></label>
         </div>
 
-        <label className="field"><span className="field__label">Note</span><textarea className="input oiko-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Account number, where you pay it" /></label>
+        <label className="field"><span className="field__label">Note</span><textarea className="input oiko-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
         </MoreDetails>
 
         {error && <p className="oiko-error" role="alert">{error}</p>}

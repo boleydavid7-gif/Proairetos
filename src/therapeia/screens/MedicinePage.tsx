@@ -130,17 +130,17 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
       )}
       <label className="field">
         <span className="field__label">Name</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="As on the label" autoCapitalize="words" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} autoCapitalize="words" />
       </label>
       <WhoChoice value={who} people={people} onChange={setWho} />
       <div className="input-row">
         <label className="field">
           <span className="field__label">Dose (optional)</span>
-          <input className="input" value={dose} onChange={(event) => setDose(event.target.value)} placeholder="1 tablet" />
+          <input className="input" value={dose} onChange={(event) => setDose(event.target.value)} />
         </label>
         <label className="field">
           <span className="field__label">How (optional)</span>
-          <input className="input" value={how} onChange={(event) => setHow(event.target.value)} placeholder="With food" />
+          <input className="input" value={how} onChange={(event) => setHow(event.target.value)} />
         </label>
       </div>
 
@@ -227,7 +227,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
         {asNeeded && (
           <label className="field">
             <span className="field__label">Hours apart (optional)</span>
-            <input className="input" inputMode="decimal" value={gap} onChange={(event) => setGap(event.target.value.replace(/[^\d.]/g, ''))} placeholder="As directed" />
+            <input className="input" inputMode="decimal" value={gap} onChange={(event) => setGap(event.target.value.replace(/[^\d.]/g, ''))} />
           </label>
         )}
         <Switch on={counting} label="Count what is left" onToggle={() => setCounting(!counting)} />
@@ -236,7 +236,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
             <div className="input-row">
               <label className="field">
                 <span className="field__label">On hand</span>
-                <input className="input" inputMode="numeric" value={count} onChange={(event) => setCount(event.target.value.replace(/[^\d.]/g, ''))} placeholder="28" />
+                <input className="input" inputMode="numeric" value={count} onChange={(event) => setCount(event.target.value.replace(/[^\d.]/g, ''))} />
               </label>
               <label className="field">
                 <span className="field__label">Each dose uses</span>
@@ -255,7 +255,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
 
       <label className="field">
         <span className="field__label">Note (optional)</span>
-        <input className="input" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Prescribed by, what it is for" />
+        <input className="input" value={note} onChange={(event) => setNote(event.target.value)} />
       </label>
       </MoreDetails>
 
@@ -311,7 +311,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               setRefillCount('');
             }}
           >
-            <input className="input" inputMode="numeric" aria-label="How many came" placeholder="Refill: how many" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
+            <input className="input" inputMode="numeric" aria-label="How many came" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>
           </form>
         </section>

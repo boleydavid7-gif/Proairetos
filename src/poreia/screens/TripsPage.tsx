@@ -43,7 +43,7 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
 
       <div className="page page--under-hero">
         {list.length === 0 ? (
-          <RouteEmpty glyph="plane" title="No trips yet" line="Start with a place, or just an idea.">
+          <RouteEmpty glyph="plane" title="No trips yet">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
                 <PlusIcon size={18} />
                 Plan a trip

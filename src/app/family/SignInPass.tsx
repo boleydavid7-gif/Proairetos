@@ -52,7 +52,6 @@ export function SignInAnotherApp() {
         }}
       >
         <p className="label">Sign in other apps</p>
-        <p className="section-description">Enter your passphrase once. Then the other apps can sign in with a pass from here.</p>
         <input
           className="field-input"
           type="password"
@@ -156,7 +155,7 @@ export function PasteFromProairetos({ className = 'button-main' }: { className?:
             void use(text);
           }}
         >
-          <input className="input" aria-label="Sign-in pass" placeholder="Paste the pass here" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={text} onChange={(event) => setText(event.target.value)} />
+          <input className="input" aria-label="Sign-in pass" autoCapitalize="off" autoCorrect="off" spellCheck={false} value={text} onChange={(event) => setText(event.target.value)} />
           <button type="submit" className="button-quiet" disabled={!text.trim() || busy}>
             Sign in
           </button>

@@ -21,8 +21,8 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
         <h1 className="title">Things</h1>
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add</button>
       </div>
-      {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" placeholder="Find a thing, a model, a serial" value={text} onChange={(event) => setText(event.target.value)} />}
-      {all.length === 0 && <Empty icon={<BoxIcon size={28} />} title="No things yet" line="Appliances, the car, a laptop, documents: models, serials and warranties." />}
+      {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" value={text} onChange={(event) => setText(event.target.value)} />}
+      {all.length === 0 && <Empty icon={<BoxIcon size={28} />} title="No things yet" />}
       {all.length > 1 && <Segmented label="Group by" value={by} options={[{ id: 'kind', label: 'Kind' }, { id: 'room', label: 'Room' }]} onChange={setBy} small />}
       {groups.map(([group, inIt]) => {
         if (!inIt.length) return null;

@@ -68,7 +68,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
           }}
         >
           <SearchIcon size={20} />
-          <input aria-label="Search your recipes" placeholder="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
+          <input aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
         </form>
 
         {recipes.length > 0 && (

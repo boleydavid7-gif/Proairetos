@@ -190,7 +190,7 @@ function BackupCards({ older }: { older?: Older }) {
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Locks the file so only you can open it"
+           
           />
         </label>
         <button type="button" className="button-main" disabled={busy} onClick={() => void save()}>

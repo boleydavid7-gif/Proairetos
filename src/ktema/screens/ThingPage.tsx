@@ -61,7 +61,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
 
       <label className="field">
         <span className="field__label">Name</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder={category === 'Documents' ? 'Passport, car insurance' : 'Dishwasher'} />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} />
       </label>
       <fieldset className="field">
         <legend className="field__label">Kind</legend>
@@ -71,7 +71,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
       </fieldset>
       <label className="field">
         <span className="field__label">Room (optional)</span>
-        <input className="input" list="ktema-rooms" value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Kitchen, garage" />
+        <input className="input" list="ktema-rooms" value={place} onChange={(event) => setPlace(event.target.value)} />
         <datalist id="ktema-rooms">{[...new Set(things.list().map((each) => each.place?.trim()).filter((each): each is string => Boolean(each)))].map((each) => <option key={each} value={each} />)}</datalist>
       </label>
       <MoreDetails open={Boolean(existing && (existing.make || existing.model || existing.serial || existing.boughtOn || existing.price || existing.store || existing.warrantyUntil || existing.link || existing.note))}>
@@ -111,7 +111,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
       <label className="field">
         <span className="field__label">Manual or receipt link (optional)</span>
         <div className="add-line">
-          <input className="input" type="url" inputMode="url" value={link} onChange={(event) => setLink(event.target.value)} placeholder="https://" />
+          <input className="input" type="url" inputMode="url" value={link} onChange={(event) => setLink(event.target.value)} />
           {safeLink && <a className="button-quiet" href={safeLink} target="_blank" rel="noreferrer noopener">Open</a>}
         </div>
       </label>
@@ -187,7 +187,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
             offerUndo('Reading kept', () => putThing(existing));
             setReading('');
           }}>
-            <input className="input" inputMode="numeric" aria-label={`Reading in ${unit}`} placeholder={`Reading today, ${unit}`} value={reading} onChange={(event) => setReading(event.target.value)} />
+            <input className="input" inputMode="numeric" aria-label={`Reading in ${unit}`} value={reading} onChange={(event) => setReading(event.target.value)} />
             <button type="submit" className="button-quiet" disabled={!reading.trim()}>Save</button>
           </form>
         </section>

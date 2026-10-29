@@ -86,7 +86,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
                 ))}
               </select>
             </label>
-            <Switch on={current.notices.dayBefore} label="The evening before a trip" detail="First plan and what’s left to pack" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
+            <Switch on={current.notices.dayBefore} label="The evening before a trip" onToggle={() => notice({ dayBefore: !current.notices.dayBefore })} />
           </>
         )}
       </section>
@@ -103,7 +103,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
             </span>
             <span className="row__text">
               <span>Trips in Proairetos</span>
-              <span className="row__detail">Days ahead shows trips and time off</span>
+              
             </span>
           </a>
         </li>
@@ -120,7 +120,6 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         </li>
       </ul>
 
-      <p className="fine">Poreia keeps your trip plans, bookings, documents, packing, spending, and notes on this device. It does not require travel-data services.</p>
 
       <section>
         <p className="label">Your data</p>

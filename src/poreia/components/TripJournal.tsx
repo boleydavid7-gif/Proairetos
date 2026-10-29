@@ -78,16 +78,16 @@ export default function TripJournal({ trip }: { trip: Trip }) {
         <div className="input-row">
           <label className="field">
             <span className="field__label">Title <span className="muted">(optional)</span></span>
-            <input className="input" value={title} placeholder="A first morning in Kyoto" onChange={(event) => setTitle(event.target.value)} />
+            <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} />
           </label>
           <label className="field">
             <span className="field__label">Place <span className="muted">(optional)</span></span>
-            <input className="input" value={place} placeholder={trip.place?.name ?? 'Neighborhood or place'} onChange={(event) => setPlace(event.target.value)} />
+            <input className="input" value={place} onChange={(event) => setPlace(event.target.value)} />
           </label>
         </div>
         <label className="field">
           <span className="field__label">What happened</span>
-          <textarea className="input area" rows={4} value={text} placeholder="Write down what you want to remember." onChange={(event) => setText(event.target.value)} />
+          <textarea className="input area" rows={4} value={text} onChange={(event) => setText(event.target.value)} />
         </label>
         <button type="button" className="button-main" disabled={!text.trim() || !date} onClick={save}>{editing ? 'Update entry' : 'Save entry'}</button>
       </section>
@@ -97,7 +97,7 @@ export default function TripJournal({ trip }: { trip: Trip }) {
           <h2 id="poreia-journal-heading" className="card__title">Travel log</h2>
           {entries.length > 0 && <span className="muted">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</span>}
         </div>
-        {entries.length === 0 ? <p className="muted">Your days and memories will appear here.</p> : (
+        {entries.length === 0 ? null : (
           <ul className="poreia-journal__list">
             {entries.map((entry) => (
               <SwipeItem key={entry.id} className="poreia-journal__item" label="Delete" tone="remove" onSwipe={() => { journal.remove(entry.id); offerUndo('Journal entry deleted', () => journal.put(entry)); }}>

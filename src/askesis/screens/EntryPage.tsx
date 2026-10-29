@@ -148,7 +148,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
             id="distance"
             className="input"
             inputMode="decimal"
-            placeholder="e.g. 5"
+           
             value={distance}
             onChange={(event) => setDistance(event.target.value)}
           />
@@ -168,18 +168,18 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
       <fieldset className="field time-field">
         <legend className="label">Time</legend>
         <div className="time-boxes">
-          <input className="input" inputMode="numeric" aria-label="Hours" placeholder="00" value={h} onChange={(event) => setH(digits(event.target.value))} />
+          <input className="input" inputMode="numeric" aria-label="Hours" value={h} onChange={(event) => setH(digits(event.target.value))} />
           <span aria-hidden="true">:</span>
-          <input className="input" inputMode="numeric" aria-label="Minutes" placeholder="MM" value={m} onChange={(event) => setM(digits(event.target.value))} />
+          <input className="input" inputMode="numeric" aria-label="Minutes" value={m} onChange={(event) => setM(digits(event.target.value))} />
           <span aria-hidden="true">:</span>
-          <input className="input" inputMode="numeric" aria-label="Seconds" placeholder="00" value={s} onChange={(event) => setS(digits(event.target.value))} />
+          <input className="input" inputMode="numeric" aria-label="Seconds" value={s} onChange={(event) => setS(digits(event.target.value))} />
         </div>
         {pace && <p className="hint">Pace {formatPace(pace, unit)}</p>}
       </fieldset>
 
       <label className="field">
         <span className="label">Average heart rate</span>
-        <input className="input" inputMode="numeric" placeholder="bpm" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
+        <input className="input" inputMode="numeric" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
       </label>
 
       <div className="field">
@@ -201,7 +201,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
 
       <label className="field">
         <span className="label">Notes</span>
-        <textarea className="input textarea" rows={3} placeholder="Conditions, route, anything to remember" value={notes} onChange={(event) => setNotes(event.target.value)} />
+        <textarea className="input textarea" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />
       </label>
 
       <details className="more-words" open={Boolean(wentWell || nextTime) || undefined}>

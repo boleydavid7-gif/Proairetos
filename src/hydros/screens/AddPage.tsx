@@ -56,7 +56,7 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
         <ScreenHeader title="Add a drink" onBack={nav.back} />
         {custom ? (
           <div className="hydros-custom-fields">
-            <label><span>Name</span><input autoFocus value={name} maxLength={40} placeholder="Drink name" onChange={(event) => setName(event.target.value)} /></label>
+            <label><span>Name</span><input autoFocus value={name} maxLength={40} onChange={(event) => setName(event.target.value)} /></label>
             <details className="hydros-custom-details">
               <summary>Details (optional)</summary>
               <div className="hydros-custom-details__fields">

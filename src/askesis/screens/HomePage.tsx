@@ -83,7 +83,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
           <div className="home-top">
           <section className="card">
             <h2 className="card__title">Weekly plan</h2>
-            <p className="muted">Build a running plan around your week.</p>
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
               Start your running plan
             </button>

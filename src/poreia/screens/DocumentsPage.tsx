@@ -39,7 +39,7 @@ export default function DocumentsPage({ nav, tripId }: { nav: PoreiaNav; tripId?
           })}
         </ul>
       ) : (
-        <RouteEmpty glyph="shield" title="No documents yet" line="Passports, visas, insurance and loyalty numbers.">
+        <RouteEmpty glyph="shield" title="No documents yet">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'document', tripId })}>
             Add a document
           </button>
@@ -115,7 +115,7 @@ export function DocumentPage({ nav, id, tripId }: { nav: PoreiaNav; id?: string;
           </label>
           <label className="field">
             <span className="field__label">Name</span>
-            <input className="input" value={form.name} placeholder={form.kind === 'insurance' ? 'The insurer' : form.kind === 'loyalty' ? 'Delta SkyMiles, Marriott Bonvoy' : 'Whose, or what it is'} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+            <input className="input" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
           </label>
           <label className="field">
             <span className="field__label">{form.kind === 'insurance' ? 'Policy number' : form.kind === 'loyalty' ? 'Member number' : 'Number'}</span>

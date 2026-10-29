@@ -140,7 +140,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
           <li>
             <button type="button" className="row" onClick={() => void chooseLibraryFolder().then((name) => { if (name) void check(); }).catch(() => undefined)}>
               {icon('M4 5h16v11H4zM2 19h20')}
-              <span className="row__text"><span>A folder on this computer</span><span className="row__detail">Read when Theoria opens here</span></span>
+              <span className="row__text"><span>A folder on this computer</span></span>
             </button>
           </li>
         )}

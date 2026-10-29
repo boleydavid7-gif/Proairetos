@@ -56,7 +56,7 @@ export function TripRow({ trip, today, onOpen }: { trip: Trip; today: string; on
 }
 
 /** A place entered by the person. Poreia keeps it local and never requires a place-search service. */
-export function PlaceSearch({ label, value, onPick, placeholder = 'City, region or country' }: { label: string; value?: Place; onPick: (place: Place | undefined) => void; placeholder?: string }) {
+export function PlaceSearch({ label, value, onPick }: { label: string; value?: Place; onPick: (place: Place | undefined) => void }) {
   const [text, setText] = useState(value?.label ?? value?.name ?? '');
 
   useEffect(() => setText(value?.label ?? value?.name ?? ''), [value?.label, value?.name]);
@@ -68,7 +68,7 @@ export function PlaceSearch({ label, value, onPick, placeholder = 'City, region 
         <input
           className="input"
           value={text}
-          placeholder={placeholder}
+         
           autoComplete="off"
           onChange={(event) => {
             setText(event.target.value);
@@ -96,7 +96,7 @@ export function MoneyField({ label, cents, currency, onChange }: { label: string
           className="input"
           inputMode="decimal"
           value={text}
-          placeholder="0"
+         
           onChange={(event) => {
             setText(event.target.value);
             // "3,500" is three thousand five hundred, as Oikonomia reads it; blank or unreadable is no amount.

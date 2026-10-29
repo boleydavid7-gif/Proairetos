@@ -30,7 +30,7 @@ export default function AfterPage({ nav, id }: { nav: DynamisNav; id: string }) 
           <p className="muted">Kept.</p>
         ) : (
           <form className="add-line" onSubmit={(event) => { event.preventDefault(); void keep(); }}>
-            <input className="input" aria-label="A line to keep" placeholder="What stood out" value={line} onChange={(event) => setLine(event.target.value)} />
+            <input className="input" aria-label="A line to keep" value={line} onChange={(event) => setLine(event.target.value)} />
             <button type="submit" className="button-quiet" disabled={!line.trim()}>Save</button>
           </form>
         )}

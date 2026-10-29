@@ -16,7 +16,7 @@ export default function BeenPage({ nav }: { nav: PoreiaNav }) {
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Where you’ve been</h1>
       {places.length === 0 ? (
-        <RouteEmpty glyph="pin" title="No trips yet" line="Places from trips you’ve taken show here." />
+        <RouteEmpty glyph="pin" title="No trips yet" />
       ) : (
         <>
           <p className="muted">

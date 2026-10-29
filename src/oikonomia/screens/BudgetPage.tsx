@@ -170,7 +170,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       <section className="card oiko-budget-summary">
         <span className="oiko-budget-summary__eyebrow">Planned this month</span>
         <strong className="oiko-budget-summary__amount"><RollingNumber key={planCurrency} value={plannedTotal} format={(cents) => formatMoney(Math.round(cents), planCurrency)} /></strong>
-        {limit > 0 ? <p className="muted">{formatMoney(Math.abs(plannedRemaining), planCurrency)} {plannedRemaining >= 0 ? 'left after planned costs' : 'over the usual amount'}</p> : <p className="muted">Set a monthly amount or add usual pay to see what remains.</p>}
+        {limit > 0 ? <p className="muted">{formatMoney(Math.abs(plannedRemaining), planCurrency)} {plannedRemaining >= 0 ? 'left after planned costs' : 'over the usual amount'}</p> : null}
         <div className="oiko-budget-summary__bar ll-signature" aria-label={`${formatMoney(plannedTotal, planCurrency)} planned of ${limit ? formatMoney(limit, planCurrency) : 'no amount set'}`} role="meter" aria-valuemin={0} aria-valuemax={limit || undefined} aria-valuenow={Math.min(plannedTotal, limit || plannedTotal)}><span className="ll-grow ll-lit ll-lit--end ll-travel" style={{ width: `${limit ? Math.min(100, (plannedTotal / limit) * 100) : 0}%` }} /></div>
         <div className="oiko-budget-summary__facts">
           <span><small>Spent</small><strong>{formatMoney(spent.spentCents, planCurrency)}</strong></span>
@@ -182,11 +182,11 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
 
       <section className="oiko-budget-section">
         <div className="oiko-section-head"><h2>Limits</h2></div>
-        <label className="field"><span className="field__label">Monthly limit</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} placeholder="Optional" /></label>
+        <label className="field"><span className="field__label">Monthly limit</span><input className="input" type="text" inputMode="decimal" value={totalText} onChange={(event) => { setDirty(true); setTotalText(event.target.value); }} onBlur={() => void keep()} /></label>
         <label className="field"><span className="field__label">Weekly food limit</span><input className="input" type="text" inputMode="decimal" value={weeklyFoodText} onChange={(event) => setWeeklyFoodText(event.target.value)} onBlur={() => {
           const value = weeklyFoodText.trim() ? moneyInputCents(weeklyFoodText) : 0;
           saveSettings({ ...loadSettings(), weeklyFoodBudgetCents: value ? value : undefined });
-        }} placeholder="Optional" /></label>
+        }} /></label>
       </section>
 
       {weeklyFoodLimit > 0 && (
@@ -197,7 +197,6 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           {foodWeek.actualCents > weeklyFoodLimit ? <p className="oiko-food-week__status is-over">Over by {formatMoney(foodWeek.actualCents - weeklyFoodLimit, planCurrency)}.</p> : weekPaceOver ? <p className="oiko-food-week__status is-over">At this pace, you may finish about {formatMoney(foodWeek.paceCents, planCurrency)} over the week.</p> : <p className="oiko-food-week__status">{formatMoney(Math.max(0, weekSpentRemaining), planCurrency)} left for this week.</p>}
           {foodWeek.typicalCents !== undefined && <p className="muted">Typical week: {formatMoney(foodWeek.typicalCents, planCurrency)} based on {foodWeek.typicalWeeks} previous {foodWeek.typicalWeeks === 1 ? 'week' : 'weeks'} of food expenses.</p>}
           {foodWeek.plannedCents > 0 && <p className="muted">Planned recipes: about {formatMoney(foodWeek.plannedCents, planCurrency)}{foodWeek.mealsWithoutEstimate ? ` · ${foodWeek.mealsWithoutEstimate} meal${foodWeek.mealsWithoutEstimate === 1 ? '' : 's'} have no estimate` : ''}.</p>}
-          {!foodWeek.actualCount && !foodWeek.plannedCents && <p className="muted">Add food expenses or cost your planned recipes to make this estimate more useful.</p>}
         </section>
       )}
 
@@ -215,8 +214,8 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           </div>
         )}
         <div className="oiko-budget-item-form">
-          <label className="field"><span className="field__label">Name</span><input className="input" value={itemName} onChange={(event) => setItemName(event.target.value)} placeholder="Childcare" /></label>
-          <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={itemAmountText} onChange={(event) => setItemAmountText(event.target.value)} placeholder="0.00" /></label>
+          <label className="field"><span className="field__label">Name</span><input className="input" value={itemName} onChange={(event) => setItemName(event.target.value)} /></label>
+          <label className="field"><span className="field__label">Amount</span><input className="input" type="text" inputMode="decimal" value={itemAmountText} onChange={(event) => setItemAmountText(event.target.value)} /></label>
           <label className="field"><span className="field__label">Area</span><select className="input" value={itemCategory} onChange={(event) => setItemCategory(event.target.value as BudgetCategory)}>{budgetCategories.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}</select></label>
           <button type="button" className="button-quiet" onClick={addItem}>Add item</button>
         </div>
@@ -228,7 +227,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           {billAreaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
               <span><strong>{label}</strong><small>{formatMoney(spent.byCategory[id], planCurrency)} spent · {formatMoney(billPlannedByArea[id], planCurrency)} planned</small><span className="oiko-budget-area__track" aria-hidden="true"><span style={{ width: `${plan.categoryLimits[id] ? Math.min(100, (spent.byCategory[id] / plan.categoryLimits[id]) * 100) : 0}%` }} /></span></span>
-              <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} onBlur={() => void keep()} placeholder="Limit" />
+              <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} onBlur={() => void keep()} />
             </label>
           ))}
         </div>

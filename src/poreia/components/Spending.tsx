@@ -66,7 +66,7 @@ export function SpendForm({ trip, choices }: { trip?: Trip; choices?: readonly T
       )}
       <label className="field">
         <span className="field__label">What</span>
-        <input className="input" value={what} placeholder="Dinner, museum, taxi" onChange={(event) => setWhat(event.target.value)} />
+        <input className="input" value={what} onChange={(event) => setWhat(event.target.value)} />
       </label>
       <MoneyField key={chosen.id} label="Amount" cents={amount.cents} currency={code} onChange={(cents, next) => setAmount({ cents, currency: next })} />
       <div className="input-row">

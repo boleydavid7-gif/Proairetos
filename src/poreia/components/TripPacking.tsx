@@ -31,7 +31,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
   return (
     <>
       {list.length === 0 ? (
-        <RouteEmpty glyph="suitcase" title="Nothing to pack yet" line="A starting list from the trip’s length and bookings.">
+        <RouteEmpty glyph="suitcase" title="Nothing to pack yet">
           <button type="button" className="button-main" disabled={busy} onClick={() => void suggest()}>
             {busy ? <Waiting>Making a list…</Waiting> : 'Suggest a list'}
           </button>
@@ -85,7 +85,7 @@ export default function TripPacking({ trip }: { trip: Trip }) {
           setName('');
         }}
       >
-        <input className="input" value={name} placeholder="Add something to pack" onChange={(event) => setName(event.target.value)} />
+        <input className="input" value={name} aria-label="Add something to pack" onChange={(event) => setName(event.target.value)} />
         <select className="input poreia-select" value={group} aria-label="Group" onChange={(event) => setGroup(event.target.value as PackGroup)}>
           {PACK_GROUPS.map((each) => (
             <option key={each.id} value={each.id}>

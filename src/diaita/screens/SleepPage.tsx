@@ -251,7 +251,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
             <button type="button" className="text-link diaita-add" onClick={() => setEditing(true)}><PlusIcon size={18} />Add</button>
           </div>
           {all.length === 0 ? (
-            <Empty icon={<MoonIcon size={28} />} title="No nights yet" line="Bed and up times, and how you slept (optional)." />
+            <Empty icon={<MoonIcon size={28} />} title="No nights yet" />
           ) : (
             <ul className="rows rows--plain diaita-nights">
               {all.slice(0, shown).map((record) => (

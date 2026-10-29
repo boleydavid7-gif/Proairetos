@@ -14,11 +14,11 @@ import { deleteEverything, restore, saveSettings, type Backup } from '../data/st
 
 export default function MorePage({ nav }: { nav: Nav }) {
   const rows: { icon: ReactNode; title: string; detail: string; route: Route }[] = [
-    { icon: <JarIcon />, title: 'Usually have', detail: 'Left off the list when adding a recipe', route: { name: 'usually' } },
-    { icon: <HistoryIcon size={22} />, title: 'Your year', detail: 'What you cooked, by year', route: { name: 'year' } },
-    { icon: <GearIcon />, title: 'Settings', detail: 'Units, daily thought, ways to try it', route: { name: 'settings' } },
-    { icon: <BoxIcon />, title: 'Your data', detail: 'Back up, restore, delete', route: { name: 'data' } },
-    { icon: <InfoIcon />, title: 'About and sources', detail: 'The name, the guidance', route: { name: 'about' } },
+    { icon: <JarIcon />, title: 'Usually have', detail: '', route: { name: 'usually' } },
+    { icon: <HistoryIcon size={22} />, title: 'Your year', detail: '', route: { name: 'year' } },
+    { icon: <GearIcon />, title: 'Settings', detail: '', route: { name: 'settings' } },
+    { icon: <BoxIcon />, title: 'Your data', detail: '', route: { name: 'data' } },
+    { icon: <InfoIcon />, title: 'About and sources', detail: '', route: { name: 'about' } },
   ];
   return (
     <div className="page more">
@@ -31,7 +31,7 @@ export default function MorePage({ nav }: { nav: Nav }) {
               <span className="row__icon">{row.icon}</span>
               <span className="row__text">
                 <span>{row.title}</span>
-                <span className="row__detail">{row.detail}</span>
+                {row.detail && <span className="row__detail">{row.detail}</span>}
               </span>
             </button>
           </li>
@@ -70,7 +70,7 @@ export function UsuallyPage({ nav }: { nav: Nav }) {
           setAdding('');
         }}
       >
-        <input className="input" aria-label="Something you usually have" placeholder="flour" value={adding} onChange={(event) => setAdding(event.target.value)} />
+        <input className="input" aria-label="Something you usually have" value={adding} onChange={(event) => setAdding(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!adding.trim()}>
           Add
         </button>

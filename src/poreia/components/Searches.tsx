@@ -48,7 +48,7 @@ export function StayResults({ target, nav, tripId }: { target: Target; nav: Pore
       live = false;
     };
   }, [key]);
-  if (!key) return <p className="muted">Add dates to the trip to see stays with prices.</p>;
+  if (!key) return <p className="muted">No dates on this trip yet.</p>;
   const nights = nightsOf({ start: target.start, end: target.end });
   return (
     <>
@@ -94,7 +94,7 @@ function AirportField({ label, value, onPick }: { label: string; value: string; 
         <input
           className="input"
           value={text}
-          placeholder="City or airport code"
+         
           autoCapitalize="characters"
           onChange={(event) => {
             const next = event.target.value;
@@ -153,7 +153,7 @@ export function FlightSearch({ target }: { target: Target }) {
       .then((offers) => setState({ offers }))
       .catch((error: Error) => setState({ problem: error.message }));
   };
-  if (!target.start) return <p className="muted">Add dates to the trip to search flights with prices.</p>;
+  if (!target.start) return <p className="muted">No dates on this trip yet.</p>;
   return (
     <>
       <div className="input-row">

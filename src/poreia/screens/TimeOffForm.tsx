@@ -80,7 +80,7 @@ export default function TimeOffForm({ nav, id, tripId }: { nav: PoreiaNav; id?: 
       <h1 className="title">{existing ? existing.title : 'New time off'}</h1>
       <label className="field">
         <span className="field__label">Name</span>
-        <input className="input" value={title} placeholder="Time off" onChange={(event) => setTitle(event.target.value)} />
+        <input className="input" value={title} onChange={(event) => setTitle(event.target.value)} />
       </label>
       <DateRange
         start={start}

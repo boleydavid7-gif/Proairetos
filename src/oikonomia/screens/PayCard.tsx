@@ -74,7 +74,7 @@ export default function PayCard({ nav, bills, today, currency }: { nav: Nav; bil
             setAmount('');
           }}
         >
-          <input className="input" inputMode="decimal" autoFocus aria-label="In the account now" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)} />
+          <input className="input" inputMode="decimal" autoFocus aria-label="In the account now" value={amount} onChange={(event) => setAmount(event.target.value)} />
           <button type="submit" className="button-main">Done</button>
         </form>
       )}

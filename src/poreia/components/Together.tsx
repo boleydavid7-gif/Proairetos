@@ -55,7 +55,7 @@ export function TogetherCard({ trip }: { trip: Trip }) {
           add();
         }}
       >
-        <input className="input" value={name} placeholder="Add someone" aria-label="Add someone to the trip" onChange={(event) => setName(event.target.value)} />
+        <input className="input" value={name} aria-label="Add someone to the trip" onChange={(event) => setName(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!name.trim()}>
           Add
         </button>

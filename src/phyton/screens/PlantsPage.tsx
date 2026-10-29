@@ -32,7 +32,7 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>
         </div>
       </div>
-      {all.length === 0 && <Empty icon={<LeafIcon size={28} />} title="No plants yet" line="Add one by its type, or identify it from a photo." />}
+      {all.length === 0 && <Empty icon={<LeafIcon size={28} />} title="No plants yet" />}
       {ordered.length > 1 && (
         <div className="chip-row" role="group" aria-label="Place">
           <button type="button" className="chip" aria-pressed={!shownPlace} onClick={() => setOnly('')}>All places</button>

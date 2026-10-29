@@ -7,7 +7,6 @@ import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
 import { inUnit, METERS } from '../core/pace';
 import {
   aimDistances,
-  aimWords,
   buildPath,
   defaultWeekdays,
   fromWeek,
@@ -427,7 +426,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
                   className="input"
                   inputMode="decimal"
                   aria-label={`Distance in ${unit}`}
-                  placeholder={unit === 'mi' ? 'For example 5' : 'For example 8'}
+                 
                   value={ownText}
                   onChange={(event) => setOwnText(event.target.value)}
                 />
@@ -439,7 +438,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
         <label className="field">
           <span className="label">Name it (optional)</span>
-          <input className="input" value={words} placeholder={aimWords(aim, unit)} onChange={(event) => setWords(event.target.value)} />
+          <input className="input" value={words} onChange={(event) => setWords(event.target.value)} />
         </label>
 
         <label className="field">
@@ -448,7 +447,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             className="input input--area"
             rows={2}
             value={why}
-            placeholder="For a clear head. To keep up with my kids."
+           
             onChange={(event) => setWhy(event.target.value)}
           />
         </label>
@@ -511,13 +510,13 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         <h2 className="label">When and where (optional)</h2>
         <div className="input-pair">
           <input className="input" type="time" aria-label="Usual time" value={runAt} onChange={(event) => setRunAt(event.target.value)} />
-          <input className="input" aria-label="Where" placeholder="Where" value={place} onChange={(event) => setPlace(event.target.value)} />
+          <input className="input" aria-label="Where" value={place} onChange={(event) => setPlace(event.target.value)} />
         </div>
       </section>
 
       <label className="field">
         <span className="label">If something gets in the way, I’ll…</span>
-        <input className="input" value={ifThen} placeholder="Walk it instead" onChange={(event) => setIfThen(event.target.value)} />
+        <input className="input" value={ifThen} onChange={(event) => setIfThen(event.target.value)} />
       </label>
 
       {kind !== 'steady' && (
@@ -548,7 +547,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
       {kind !== 'steady' && (
         <div className="card switches">
-          <Switch on={gentler} label="Go gentler" detail="More weeks to the same place." onToggle={() => setGentlerPick(!gentler)} />
+          <Switch on={gentler} label="Go gentler" onToggle={() => setGentlerPick(!gentler)} />
         </div>
       )}
 

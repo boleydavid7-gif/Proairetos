@@ -36,7 +36,7 @@ export default function IdeasPage() {
     <div className="mneme-heading-row"><h1>Ideas</h1><span className="mneme-idea-total">{allIdeas.length}</span></div>
     <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
       <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark">✦</span><span><strong id="idea-dump-title">Idea dump</strong></span></div>
-      <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} placeholder="What keeps returning to you?" rows={5} />
+      <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} rows={5} />
       <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
     </section>
     <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><strong>Sort your ideas</strong><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>

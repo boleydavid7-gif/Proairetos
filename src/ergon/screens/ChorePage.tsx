@@ -91,7 +91,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 
       <label className="field">
         <span className="field__label">Chore</span>
-        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Take out the trash" />
+        <input ref={nameField} className="input" value={name} onChange={(event) => setName(event.target.value)} />
       </label>
 
       <fieldset className="field">
@@ -145,7 +145,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <Segmented label="Who" value={turns ? 'turns' : 'one'} options={[{ id: 'one', label: 'One person' }, { id: 'turns', label: 'Take turns' }]} onChange={(value) => setTurns(value === 'turns')} small />
         {!turns ? (
           <>
-            <input className="input" list="ergon-names" value={who} onChange={(event) => setWho(event.target.value)} placeholder="Anyone" />
+            <input className="input" list="ergon-names" value={who} onChange={(event) => setWho(event.target.value)} aria-label="Who" />
             <datalist id="ergon-names">{names.map((each) => <option key={each} value={each} />)}</datalist>
           </>
         ) : (
@@ -166,7 +166,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
                 setNewName('');
               }}
             >
-              <input className="input" placeholder="A name" aria-label="A name" value={newName} onChange={(event) => setNewName(event.target.value)} />
+              <input className="input" aria-label="A name" value={newName} onChange={(event) => setNewName(event.target.value)} />
               <button type="submit" className="button-quiet" disabled={!newName.trim()}>Add</button>
             </form>
           </>
@@ -179,7 +179,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
       </label>
       <label className="field">
         <span className="field__label">Steps (optional), one per line</span>
-        <textarea className="input" rows={3} value={stepLines} placeholder={'Clear the counters\nWipe the stovetop\nMop'} onChange={(event) => setStepLines(event.target.value)} />
+        <textarea className="input" rows={3} value={stepLines} onChange={(event) => setStepLines(event.target.value)} />
       </label>
       <label className="field">
         <span className="field__label">Note (optional)</span>

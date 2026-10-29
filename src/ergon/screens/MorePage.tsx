@@ -9,7 +9,6 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
 import { settings, useChores, useHome, type ErgonSettings, myName } from '../app/state';
 import { namesIn, whoDidWhat } from '../core/chores';
-import { displayName } from '../../data/storage/preferences';
 
 export default function MorePage({ nav }: { nav: ErgonNav }) {
   const current = settings.use();
@@ -38,7 +37,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'household' })}>
             <span className="row__icon"><PeopleIcon size={22} /></span>
-            <span className="row__text"><span>Household</span><span className="row__detail">{home ? home.name : 'Share chores with the people you live with'}</span></span>
+            <span className="row__text"><span>Household</span>{home && <span className="row__detail">{home.name}</span>}</span>
             <ChevronIcon size={18} />
           </button>
         </li>
@@ -47,7 +46,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} placeholder={displayName() || "For Mine and for who did what"} />
+          <input className="input" list="ergon-me" value={current.me} onChange={(event) => change({ me: event.target.value })} />
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
       </section>
@@ -56,7 +55,6 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         <Switch
           on={Boolean(current.daysOff)}
           label="On days off"
-          detail="A chore that comes round on a work day in your schedule waits for your next day off. Chores on set weekdays or every day stay put."
           onToggle={() => change({ daysOff: !current.daysOff })}
         />
         <DailyLineSwitch app="ergon" />

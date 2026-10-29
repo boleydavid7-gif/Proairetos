@@ -84,7 +84,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
       {text !== undefined && (
         <div className="read-photo__panel" role="group" aria-label="Found in the photo">
           {found.length === 0 ? (
-            <p className="read-photo__note">Nothing to fill in was found. A closer, straighter photo in good light reads best.</p>
+            <p className="read-photo__note">Nothing to fill in was found.</p>
           ) : (
             found.map((each, i) => (
               <label key={each.key} className="read-photo__row">

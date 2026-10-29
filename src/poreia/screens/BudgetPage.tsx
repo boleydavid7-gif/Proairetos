@@ -76,7 +76,7 @@ export default function BudgetPage({ nav }: { nav: PoreiaNav }) {
             </>
           )}
         </dl>
-        {(foreign || sums.unconverted.length > 0) && <p className="fine">Amounts in other currencies stay separate. Convert them yourself when you settle the trip.</p>}
+        {(foreign || sums.unconverted.length > 0) && <p className="fine">Amounts in other currencies stay separate.</p>}
       </section>
 
       <section className="card">
@@ -108,7 +108,7 @@ export default function BudgetPage({ nav }: { nav: PoreiaNav }) {
           </ul>
         </>
       ) : (
-        <RouteEmpty glyph="wallet" title={`No trips in ${year}`} line="Trips with dates in this year show here.">
+        <RouteEmpty glyph="wallet" title={`No trips in ${year}`}>
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
             Add a trip
           </button>
@@ -154,7 +154,7 @@ function YearBudgetField() {
         className="input"
         inputMode="decimal"
         value={text}
-        placeholder="0"
+       
         onChange={(event) => {
           setText(event.target.value);
           const cents = readAmount(event.target.value);

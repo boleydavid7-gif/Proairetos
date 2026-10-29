@@ -30,10 +30,12 @@ rule: **the system records life; it does not interpret life.**
 - American English everywhere (color, center, favorite, tire, canceled, practice, "comes around", cilantro, fiber).
   Readers of outside text (Soma's ingredient lines, statements, photo text, calendar files) still accept British
   spellings; cited paper titles stay as published.
-- No instructions in Proairetos's screens (the owner's choice): no how-to line under a title, section or switch, and no
-  placeholder text in fields; a field's name is its label. Kept: status and error lines, what a destructive action
+- No instructions in any app's screens (the owner's choice): no how-to line under a title, section, switch, settings
+  row or empty list (`Empty`/`RouteEmpty` take no `line`, `Switch` no `detail`), and no placeholder text in fields; a
+  field's name is its label (`aria-label` where nothing visible names it). Welcome screens keep their one line. Kept: status and error lines, what a destructive action
   replaces or deletes, privacy and security notes, step-by-step setup guides, and the name-only placeholders of the
-  sign-in, passphrase and passcode fields.
+  sign-in, passphrase and passcode fields, sources and medical or training safety lines ("not medical advice", the
+  doctor line, stop 1-3 reps short), and a status that names what is missing ("No dates on this trip yet.").
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 

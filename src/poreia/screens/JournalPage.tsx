@@ -70,7 +70,7 @@ export default function JournalPage({ nav }: { nav: PoreiaNav }) {
     return (
       <div className="page poreia-page">
         <div className="page-top"><h1 className="title">Journal</h1></div>
-        <RouteEmpty glyph="book" title="Start with a trip" line="Your travel log will gather days, memories and notes here.">
+        <RouteEmpty glyph="book" title="Start with a trip">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}><PlusIcon size={18} /> Plan a trip</button>
         </RouteEmpty>
       </div>
@@ -98,10 +98,10 @@ export default function JournalPage({ nav }: { nav: PoreiaNav }) {
         </div>
         <div className="input-row">
           <label className="field"><span className="field__label">Entry type</span><select className="input" value={kind} onChange={(event) => setKind(event.target.value as JournalEntryKind)}>{JOURNAL_ENTRY_KINDS.map((each) => <option key={each.id} value={each.id}>{each.label}</option>)}</select></label>
-          <label className="field"><span className="field__label">Place <span className="muted">(optional)</span></span><input className="input" value={place} placeholder="Neighborhood or place" onChange={(event) => setPlace(event.target.value)} /></label>
+          <label className="field"><span className="field__label">Place <span className="muted">(optional)</span></span><input className="input" value={place} onChange={(event) => setPlace(event.target.value)} /></label>
         </div>
-        <label className="field"><span className="field__label">Title <span className="muted">(optional)</span></span><input className="input" value={title} placeholder="A first morning in Kyoto" onChange={(event) => setTitle(event.target.value)} /></label>
-        <label className="field"><span className="field__label">Your entry</span><textarea className="input area" rows={5} value={text} placeholder="Write what happened, what you noticed, or what you want to remember." onChange={(event) => setText(event.target.value)} /></label>
+        <label className="field"><span className="field__label">Title <span className="muted">(optional)</span></span><input className="input" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
+        <label className="field"><span className="field__label">Your entry</span><textarea className="input area" rows={5} value={text} onChange={(event) => setText(event.target.value)} /></label>
         <button type="button" className="button-main" disabled={!tripId || !date || !text.trim()} onClick={save}>{editing ? 'Update entry' : 'Save entry'}</button>
         {editing && <div className="poreia-journal__photos"><Attachments itemId={editing} /><p className="fine">Photos stay on this device until your selected backup runs, then follow your connected BYO storage.</p></div>}
       </section>

@@ -72,7 +72,7 @@ export default function TimeOffPage({ nav }: { nav: PoreiaNav }) {
           </button>
         </section>
       ) : (
-        <RouteEmpty glyph="clock" title="Your time off" line="Hours on hand and how they add up.">
+        <RouteEmpty glyph="clock" title="Your time off">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'time-setup' })}>
             Set up your balance
           </button>

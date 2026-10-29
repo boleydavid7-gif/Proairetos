@@ -20,7 +20,7 @@ export function PlateCalculator({ start, unit }: { start?: number; unit: Unit })
     <section className="card dynamis-plates">
       <h2 className="card__title card__title--small">Plates</h2>
       <div className="dynamis-plates__inputs">
-        <label className="field"><span className="label">Total ({unit})</span><input className="input" inputMode="decimal" value={total} placeholder="–" onChange={(event) => setTotal(event.target.value.replace(/[^\d.,]/g, '').slice(0, 6))} /></label>
+        <label className="field"><span className="label">Total ({unit})</span><input className="input" inputMode="decimal" value={total} onChange={(event) => setTotal(event.target.value.replace(/[^\d.,]/g, '').slice(0, 6))} /></label>
         <label className="field"><span className="label">Bar</span>
           <select className="input" value={bar} onChange={(event) => isSetup(setup) && savePlan({ ...setup, bar: Number(event.target.value) })}>
             {BARS[unit].map((each) => <option key={each} value={each}>{each} {unit}</option>)}
