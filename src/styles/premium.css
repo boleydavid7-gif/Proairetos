@@ -646,6 +646,62 @@ blockquote.daily-line {
   padding: var(--space-3) 0;
 }
 
+/* From your apps: rows pull left to mark, right for Not today (SwipeItem). The row moves over the card's own color,
+   and the hairline stays the group's one separator. */
+.today-group .swipe {
+  margin: 0 calc(-1 * var(--space-4));
+  padding: 0;
+}
+.today-group .swipe + .swipe {
+  border-top: 0;
+}
+.today-group .swipe__front {
+  padding: 0 var(--space-4);
+  background: transparent;
+}
+.today-group .swipe--moving .swipe__front {
+  background: var(--color-surface);
+}
+.today-group .swipe__action {
+  background: color-mix(in srgb, var(--color-accent) 18%, var(--color-surface));
+}
+.today-group .swipe__action--later {
+  background: color-mix(in srgb, var(--color-text-muted) 16%, var(--color-surface));
+}
+.today-group .swipe .quiet-row-wrap::before {
+  left: calc(var(--space-4) + 2.15rem);
+  right: var(--space-4);
+}
+.today-group > .swipe:first-child .quiet-row-wrap::before {
+  display: none;
+}
+/* The row's menu button (long press's twin) takes the chevron's place: always on touch, on pointing elsewhere. */
+@media (hover: none) {
+  .today-group .swipe .quiet-row__chevron { visibility: hidden; }
+}
+@media (hover: hover) {
+  .today-group .swipe:is(:hover, :focus-within) .quiet-row__chevron { visibility: hidden; }
+}
+.today-group .from-apps__aside {
+  align-items: stretch;
+}
+.from-apps__aside > summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.from-apps__aside-list {
+  margin: 0 0 var(--space-3);
+  padding: 0 0 0 2.15rem;
+  list-style: none;
+}
+.from-apps__aside-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 44px;
+}
+
 .today-group .quiet-row-wrap .not-for-me {
   align-self: flex-end;
   margin: 0 0 var(--space-2);

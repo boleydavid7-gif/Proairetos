@@ -71,3 +71,20 @@
 .swipe--armed .swipe__action { background: color-mix(in srgb, var(--ll-lamp, var(--mint, #7fb69a)) 34%, var(--mint-soft, transparent)); font-weight: 600; }
 .swipe--remove.swipe--armed .swipe__action { background: color-mix(in srgb, var(--color-danger, #c98a7a) 34%, transparent); }
 .swipe--armed .swipe__action > :first-child { scale: 1.2; }
+
+/* The pull to the right (`later`): its words sit at the row's start, in a quieter tone than marking. */
+.swipe__action--later {
+  justify-content: flex-start;
+  padding-right: 0;
+  padding-left: 22px;
+  background: color-mix(in srgb, var(--color-text-muted, #9aa) 16%, transparent);
+}
+.swipe--armed .swipe__action--later {
+  background: color-mix(in srgb, var(--color-text-muted, #9aa) 30%, transparent);
+}
+
+/* The row's menu button stays with the row's place, not the moving front: it steps aside while the row is pulled. */
+.swipe--moving .ll-row-menu-trigger {
+  opacity: 0 !important;
+  pointer-events: none;
+}

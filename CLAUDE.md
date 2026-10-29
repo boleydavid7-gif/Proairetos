@@ -707,7 +707,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   box, the owner's choice), a training day from Dynamis as a link). Every added app shows there except Diaita and Theoria
   (the owner's choice): no sleep line, study row or daily highlight on Today. Days ahead lists no meals; Therapeia visits
   are calendar entries (`app/calendars/therapeiaCalendar.ts`, an hour, beside Philia's and Poreia's) and also rows here. Rows
-  are links (`quiet-row` with the app's `FamilyMark`), no check boxes (the owner's choice); marking happens in the app.
+  are links (`quiet-row` with the app's `FamilyMark`), no check boxes (the owner's choice), in a two-way `SwipeItem`
+  (`as="div"`, `later`): pull left marks it in its own app (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`,
+  Soma `cooked`; rows without a mark have no left pull), pull right is Not today (`app/family/notToday.ts`: the synced
+  `proairetos.notToday` {day, keys}, only the person's today; a new day starts empty, the app itself is untouched), both
+  with undo; set-aside rows fold into one "Not today · N" line at the foot with Bring back (no inbox, nothing piles up).
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
