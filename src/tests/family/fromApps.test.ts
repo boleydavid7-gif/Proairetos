@@ -27,7 +27,7 @@ describe('From your apps', () => {
     expect(rows[5].mark).toBeUndefined();
   });
 
-  it('lists meals planned for today in Soma, ticked as cooked, before a training day', () => {
+  it('lists meals planned for today in Soma as links, before a training day', () => {
     const rows = fromAppsRows({
       today: '2026-10-12',
       dayText,
@@ -36,8 +36,8 @@ describe('From your apps', () => {
       training: { name: 'Session A', minutes: 40 },
     });
     expect(rows.map((row) => row.title)).toEqual(['Lentil soup', 'Session A']);
-    expect(rows[0]).toMatchObject({ app: 'soma', part: 'soma', detail: 'Planned for today · Soma', done: 'Cooked', href: '/soma/?open=recipe%3Ar1' });
-    expect(rows[0].mark).toMatchObject({ kind: 'meal' });
+    expect(rows[0]).toMatchObject({ app: 'soma', part: 'soma', detail: 'Planned for today · Soma', href: '/soma/?open=recipe%3Ar1' });
+    expect(rows[0].mark).toBeUndefined();
   });
 
   it('is empty when nothing came around', () => {

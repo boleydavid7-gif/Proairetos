@@ -699,11 +699,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - The family on Today and in search (read only, `app/family/read.ts`, `glance.ts`, `features/today/TodayFamily`): Settings > What's included is organised by app (Proairetos: Today, Capture, Compass, Reflect; Askesis; Soma; Oikonomia). Oikonomia's `bills` (bills coming up on Today, on since the working-parent walkthrough; shows only when a bill is due within days) and `bill-dates` (in Days ahead, on). Water stays in Hydros (the owner's choice): Proairetos Today shows none; `waterDuring` in `glance.ts` is kept but unused. Theoria's `highlight` part is no longer shown on Today (the owner's choice; `highlightOfDay` stays in `theoria/core/export.ts`). Search also finds Soma recipes, Theoria books (author, highlights, notes) and Oikonomia bills (`kind: 'app'`, opens that app).
 - From your apps (Today, `features/today/FromYourApps.tsx`, rows from `app/family/fromApps.ts` `fromAppsRows`, tests in
   `src/tests/family/`): one list of what came round in the other apps (unmarked doses and visits today from Therapeia,
-  chores from Ergon, plants to check from Phyton, upkeep from Ktema, meals planned for today in Soma (ticked = cooked
-  today, `putRecipe`), a training day from Dynamis as a link). Every added app shows there except Diaita and Theoria
+  chores from Ergon, plants to check from Phyton, upkeep from Ktema, meals planned for today in Soma (a link, no check
+  box, the owner's choice), a training day from Dynamis as a link). Every added app shows there except Diaita and Theoria
   (the owner's choice): no sleep line, study row or daily highlight on Today. Days ahead lists no meals; Therapeia visits
   are calendar entries (`app/calendars/therapeiaCalendar.ts`, an hour, beside Philia's and Poreia's) and also rows here. Ticking marks
-  it in that app's own store (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`, Soma `cooked`) with Proairetos's undo.
+  it in that app's own store (`markIn`: `water`, Ergon `markDone`, `take`, Ktema `markDone`) with Proairetos's undo.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).

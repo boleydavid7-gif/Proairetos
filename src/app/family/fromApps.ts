@@ -19,7 +19,7 @@ export type FromAppsInput = {
   visits?: readonly Appointment[];
   upkeep?: readonly { upkeep: Upkeep; due: Due; thing?: string }[];
   training?: { name: string; minutes: number };
-  /** Recipes planned for today in Soma and not yet cooked today. */
+  /** Recipes planned for today in Soma and not yet cooked today; they only open the recipe. */
   meals?: readonly Recipe[];
   /** "Since Tue", "Today": each app says its own days the same way. */
   dayText: (date: string, today: string) => string;
@@ -30,8 +30,7 @@ export type Mark =
   | { kind: 'plant'; plant: Plant }
   | { kind: 'chore'; chore: Chore }
   | { kind: 'dose'; dose: Dose }
-  | { kind: 'upkeep'; upkeep: Upkeep }
-  | { kind: 'meal'; recipe: Recipe };
+  | { kind: 'upkeep'; upkeep: Upkeep };
 
 export type FromAppsRow = {
   key: string;
@@ -69,7 +68,7 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
     rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today)), 'Ktema'].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`), mark: { kind: 'upkeep', upkeep }, done: 'Done' });
   }
   for (const recipe of input.meals ?? []) {
-    rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today · Soma', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
+    rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today · Soma', href: open('soma', `recipe:${recipe.id}`) });
   }
   if (input.training) {
     rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min · Dynamis`, href: '/dynamis/?open=session' });

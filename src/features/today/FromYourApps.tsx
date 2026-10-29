@@ -19,7 +19,6 @@ import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/co
 import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
 import { useRecipesFromSoma } from '../../app/soma/meals';
-import { putRecipe } from '../../soma/data/store';
 
 const clock = (at: Date) => at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
@@ -45,11 +44,6 @@ function markIn(mark: Mark, today: string): () => void {
       const before = mark.upkeep;
       putUpkeep(upkeepDone(before, today));
       return () => putUpkeep(before);
-    }
-    case 'meal': {
-      const before = mark.recipe;
-      void putRecipe({ ...before, cooked: [...(before.cooked ?? []).filter((day) => day !== today), today], updatedAt: new Date().toISOString() });
-      return () => void putRecipe(before);
     }
   }
 }
