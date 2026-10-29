@@ -1,6 +1,4 @@
 import { directionAlong, transition } from '../../app/transitions';
-import lake from '../../assets/images/scenes/lake.webp';
-import lakeLight from '../../assets/images/scenes/lake-light.webp';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useEffect, useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -8,7 +6,7 @@ import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
 import { pursuits, needsPursuitCheckIn } from '../../app/pursuits';
-import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
+import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, LotusIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -359,7 +357,7 @@ export default function ReflectPage() {
         <div className="reflect-places">
           {shows('meditate') && (
             <button type="button" className="place-row" onClick={() => navigate('meditate')}>
-              <span className="place-row__thumb" style={{ backgroundImage: `url(${lake})`, '--photo-light': `url(${lakeLight})` } as React.CSSProperties} aria-hidden="true" />
+              <span className="place-row__thumb place-row__thumb--glyph place-row__thumb--room" aria-hidden="true"><LotusIcon size={32} /></span>
               <span className="place-row__text">
                 <span className="place-row__title">Meditate</span>
                 <span className="place-row__detail">Sessions, breathing, sounds and music</span>
@@ -368,7 +366,7 @@ export default function ReflectPage() {
             </button>
           )}
           <button type="button" className="place-row" onClick={() => navigate('compass')}>
-            <span className="place-row__thumb place-row__thumb--compass place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
+            <span className="place-row__thumb place-row__thumb--glyph place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
             <span className="place-row__text">
               <span className="place-row__title">Compass</span>
               <span className="place-row__detail">Direction, pursuits and people</span>

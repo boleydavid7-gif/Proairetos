@@ -122,14 +122,15 @@
   background-position: center 58%;
 }
 
-.place-row__thumb--compass {
+/* A place shown by its glyph on the room's wallpaper (Meditate, Compass). */
+.place-row__thumb--glyph {
   display: grid;
   place-items: center;
   color: var(--color-accent);
   background-position: center 30%;
 }
 
-.place-row__thumb--compass .ll-icon {
+.place-row__thumb--glyph .ll-icon {
   filter: drop-shadow(0 0 7px color-mix(in srgb, currentColor 35%, transparent));
 }
 
