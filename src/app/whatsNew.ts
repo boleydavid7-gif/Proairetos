@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-10-29',
     lines: [
+      'Every app’s top sits a little lower on phones, clear of the status bar’s blur.',
       'Store prices read per month everywhere; the add-on apps open with a plan or beta access. Contact: proairetosapp@gmail.com.',
       'A bell on Today: notifications from your apps, grouped by app, with Clear. Important ones (schedule changes, bills, care, trips) show on Today until cleared. Milestones for runs and strength sessions.',
       'Today’s capture box is gone; Capture is in the dock. Next keeps its time on one line.',

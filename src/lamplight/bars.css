@@ -89,7 +89,7 @@
 
 @media (max-width: 61.99rem) {
   :root.ll-bar-on {
-    --ll-safe-top: calc(env(safe-area-inset-top, 0px) + 6px);
+    --ll-safe-top: calc(env(safe-area-inset-top, 0px) + 12px);
   }
 }
 
@@ -102,7 +102,7 @@
 
 @media (max-width: 61.99rem) {
   :root.ll-bar-on.ll-inset-fresh {
-    --ll-safe-top: calc(max(env(safe-area-inset-top, 0px), 0px) + 6px);
+    --ll-safe-top: calc(max(env(safe-area-inset-top, 0px), 0px) + 12px);
   }
 }
 

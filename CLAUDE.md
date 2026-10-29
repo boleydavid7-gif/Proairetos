@@ -213,7 +213,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `EdgeSwipe`); `useSheet` takes flicks and lets the backdrop follow (`--sheet-pull`); `useSheet({ from: 'top' })` + `.sheet--top`
   drops a sheet from the top and leaves upward (the Apps sheet, opened from the top bar). Praxis and Theoria text uses
   `--ll-sans`. `version.ts` holds the system's version, shown on the guide.
-- The top inset is `--ll-safe-top` (`bars.css`): the status area, plus 6 px on phones while the bar is on, so the bar
+- The top inset is `--ll-safe-top` (`bars.css`): the status area, plus 12 px on phones while the bar is on (6 px sat inside the blur), so the bar
   and the page under it sit clear of the edge iOS blurs behind the status bar. Every app's CSS uses the variable, never
   `env(safe-area-inset-top)` directly (the Lamplight guide aside); full-screen moments turn the bar off and get the plain inset.
   The title's frame is its known head (`.page-header` etc.), else its own group when a line sits above it (`headFrame`: an eyebrow in a `header`, so "Saturday · Week 1" moves with Askesis's session title); a frame moved up takes a negative margin, never a translate (that laid the title over its eyebrow and left a hole below). A frame with anything shown above it in its page (`shownAbove`: Askesis's workout date line, an Edit row; hidden back links do not count) never moves up at all.
