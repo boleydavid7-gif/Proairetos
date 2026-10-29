@@ -181,6 +181,10 @@ function largeTitle(): void {
     if (key === copied) return;
     copied = key;
     originals = list;
+    // The pill grows or shrinks to its new set of buttons, and buttons it did not have come in (a page change).
+    const sameButton = (label: string | null) => (label ?? '').replace(/, \d+\+? new$/, '');
+    const before = actions.childElementCount ? actions.getBoundingClientRect().width : 0;
+    const had = new Set([...actions.children].map((each) => sameButton(each.getAttribute('aria-label'))));
     actions.replaceChildren(
       ...list.map((original, index) => {
         const copy = document.createElement('button');
@@ -199,9 +203,37 @@ function largeTitle(): void {
         if (face) copy.append(face.cloneNode(true));
         else if (icon) copy.append(icon.cloneNode(true));
         else copy.textContent = original.textContent;
+        if (before && !had.has(sameButton(label))) copy.classList.add('is-entering');
         return copy;
       }),
     );
+    resizePill(before);
+  };
+
+  let settle = 0;
+  const resizePill = (before: number) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !root.classList.contains('ll-bar-on')) return;
+    if (!before) {
+      if (actions.childElementCount) {
+        actions.classList.remove('is-appearing');
+        void actions.offsetWidth;
+        actions.classList.add('is-appearing');
+      }
+      return;
+    }
+    actions.style.width = '';
+    const after = actions.getBoundingClientRect().width;
+    if (!after || Math.abs(after - before) < 1) return;
+    window.clearTimeout(settle);
+    actions.classList.remove('is-resizing');
+    actions.style.width = `${before}px`;
+    void actions.offsetWidth;
+    actions.classList.add('is-resizing');
+    actions.style.width = `${after}px`;
+    settle = window.setTimeout(() => {
+      actions.classList.remove('is-resizing');
+      actions.style.width = '';
+    }, 420);
   };
 
   const update = () => {
@@ -1156,6 +1188,24 @@ function freshInsets(): void {
   addEventListener('pageshow', refresh);
   addEventListener('orientationchange', () => setTimeout(refresh, 250));
   setTimeout(refresh, 400);
+  // Safari in a tab (iOS 26) sometimes leaves fixed bars displaced after its toolbars collapse or grow, or after the
+  // keyboard closes (visualViewport.offsetTop stays above 0). Once the viewport settles, with no field in use, the
+  // page is put back where it is (which resets the stale offset) and the insets are written again, so the top bar
+  // is placed afresh.
+  const viewport = window.visualViewport;
+  if (!viewport) return;
+  let settle = 0;
+  const settled = () => {
+    window.clearTimeout(settle);
+    settle = window.setTimeout(() => {
+      if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) return;
+      if (viewport.offsetTop > 0.5) window.scrollTo(window.scrollX, window.scrollY);
+      refresh();
+    }, 180);
+  };
+  viewport.addEventListener('resize', settled);
+  document.addEventListener('focusout', settled);
+  addEventListener('scrollend', settled);
 }
 
 /*

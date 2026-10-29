@@ -290,6 +290,50 @@
     display: none;
   }
 
+  /* A page change that adds or takes away buttons: the pill eases to its new width (behaviors.ts `resizePill`), the
+     buttons it did not have rise in, and a pill that was not there grows in from the right. */
+  .ll-topbar__actions.is-resizing {
+    overflow: hidden;
+    justify-content: flex-end;
+    transition:
+      width 360ms var(--ll-spring, cubic-bezier(0.2, 0.9, 0.3, 1.1)),
+      background var(--ll-slow, 420ms) var(--ll-ease-out, ease);
+  }
+
+  .ll-topbar__actions.is-appearing {
+    transform-origin: right center;
+    animation: ll-pill-in 320ms var(--ll-spring, cubic-bezier(0.2, 0.9, 0.3, 1.1)) both;
+  }
+
+  .ll-topbar__action.is-entering {
+    animation: ll-action-in 340ms var(--ll-spring, cubic-bezier(0.2, 0.9, 0.3, 1.1)) 60ms both;
+  }
+
+  @keyframes ll-pill-in {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+  }
+
+  @keyframes ll-action-in {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ll-topbar__actions.is-resizing {
+      transition: none;
+    }
+
+    .ll-topbar__actions.is-appearing,
+    .ll-topbar__action.is-entering {
+      animation: none;
+    }
+  }
+
   .ll-topbar__action {
     display: grid;
     place-items: center;
