@@ -430,3 +430,49 @@
   font-size: var(--text-md);
   line-height: 1.45;
 }
+
+/* More apps: Noesis, a sibling outside the Store, as one small linked card. */
+.more-apps__sibling {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid rgba(43, 37, 31, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 250, 240, 0.45);
+  color: var(--color-paper-ink);
+  text-decoration: none;
+}
+
+.more-apps__sibling img {
+  border-radius: 10px;
+}
+
+.more-apps__sibling > span:nth-child(2) {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.more-apps__sibling small,
+.more-apps__sibling > span:nth-child(2) > span {
+  color: #5e5042;
+  font-size: var(--text-xs);
+  line-height: 1.3;
+}
+
+.more-apps__sibling strong {
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.more-apps__sibling-open {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(138, 106, 70, 0.14);
+  color: #6f5536;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}

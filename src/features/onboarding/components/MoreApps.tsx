@@ -33,7 +33,23 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
         <li>Sign in once in each: Proairetos can copy a sign-in pass for them.</li>
       </ol>
       <button type="button" className="more-apps__store" onClick={onStore}>Open the Store</button>
+      <Sibling />
     </div>
+  );
+}
+
+/** Noesis, made by the same people and kept apart from the Store: one small card with a link. */
+export function Sibling() {
+  return (
+    <a className="more-apps__sibling" href="https://noesis.proairetos.com/" target="_blank" rel="noopener">
+      <img src="/partners/noesis.png" alt="" width={40} height={40} />
+      <span>
+        <small>From the same maker</small>
+        <strong>Noesis</strong>
+        <span>Read your own books, keep highlights and notes, and follow a question.</span>
+      </span>
+      <span className="more-apps__sibling-open">Open</span>
+    </a>
   );
 }
 

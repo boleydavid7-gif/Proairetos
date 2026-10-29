@@ -674,6 +674,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   phone's own day by the payload's `timezone` (`inZone`). The page (now "Health data", view `health`) has iPhone/Android steps.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
+- Sibling apps (small cards, welcome screens only): Proairetos's onboarding More apps step ends with `Sibling`
+  (`MoreApps.tsx`, `.more-apps__sibling`): Noesis's icon (`public/partners/noesis.png`), one line and Open, linking
+  https://noesis.proairetos.com in a new tab. Noesis's last welcome step carries the same card for Proairetos
+  (`.intro-sibling`, `public/partners/proairetos.png`). Keep them to one card each, never in the Store or on daily pages.
 - Ease of use, checked against Apple's, Google's and Microsoft's guidance: onboarding is five steps (the two pitch screens
   are one, `steps.ts`), each step scrolls inside the page with its action held at the foot over a dark fade
   (`01-onboarding.css`). The capture box reads a day or time from the words like the palette (`CaptureBar`:
