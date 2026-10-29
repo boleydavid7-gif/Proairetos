@@ -314,7 +314,7 @@ const privacyNotes = `
 
 function frontPage() {
   const description =
-    'Fourteen apps that work together: planning and reflection, running, recipes, bills, water, study, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks.';
+    'Thirteen apps that work together: planning and reflection, running, recipes, bills, trips, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks.';
   const card = (app) => {
     const [shot] = shots(app);
     return `          <li class="app">
