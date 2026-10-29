@@ -260,3 +260,60 @@
 .timeline-entry__text {
   white-space: pre-line;
 }
+
+/* One app's entries for the period, folded under its name (AppGroup in ReflectPage). */
+.timeline-group__body {
+  gap: 0;
+}
+
+.timeline-group__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+}
+
+.timeline-group__words {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.timeline-group__count {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.timeline-group__summary .timeline-entry__time {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+/* The chevron after the time turns down as the row opens (premium.css "Disclosure rows" draws it). */
+.timeline-group__list {
+  margin-top: var(--space-3);
+}
+
+.timeline-group__list .timeline-entry__mark {
+  width: 2rem;
+  height: 2rem;
+}
+
+.timeline-group__list .timeline-entry__mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.timeline-group__list .timeline-entry:not(:last-child)::before {
+  left: 1rem;
+  top: 2.4rem;
+}
+
+.timeline-group__list .timeline-entry:last-child .timeline-entry__body {
+  border-bottom: 0;
+}
+
+.timeline-group__summary .timeline-entry__time {
+  margin-left: auto;
+}

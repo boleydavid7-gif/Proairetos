@@ -6,6 +6,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'On a computer the home pictures in the add-on apps run the width of the window, Today’s daily thought sits at the foot across both columns, and Pomodoro’s list uses the whole row when no block is running.',
       'Reflect’s list of reflections has one heading; Oikonomia’s first steps sit side by side.',
       'The welcome walkthrough’s More apps step ends with a small card for Noesis.',
+      'Reflect folds what each app brings (runs, meals, reading and the lines kept after them) into one row per app for Today, Week and Month; open a row to see them.',
     ],
   },
   {

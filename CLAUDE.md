@@ -674,6 +674,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   phone's own day by the payload's `timezone` (`inZone`). The page (now "Health data", view `health`) has iPhone/Android steps.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
+- Reflect folds each app's entries (`features/reflect/appGroups.ts`, `AppGroup` in `ReflectPage`, styles at the end of
+  `22-reflect.css`, tests `src/tests/reflect/appGroups.test.ts`): Askesis runs and after-run lines, Soma meals and
+  after-meal, Theoria study and after-study/after-reading, Dynamis after-strength, Poreia after-trip each become one
+  `<details>` row per period ("3 runs, 1 note", "Latest" time), placed at its newest entry and closed until opened; the
+  person's own reflections stay as single entries. Add an app's prompt key to `BY_PROMPT` when it starts keeping lines.
 - Sibling apps (small cards, welcome screens only): Proairetos's onboarding More apps step ends with `Sibling`
   (`MoreApps.tsx`, `.more-apps__sibling`): Noesis's icon (`public/partners/noesis.png`), one line and Open, linking
   https://noesis.proairetos.com in a new tab. Noesis's last welcome step carries the same card for Proairetos

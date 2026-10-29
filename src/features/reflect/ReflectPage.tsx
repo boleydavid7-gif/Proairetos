@@ -26,6 +26,8 @@ import { formatTemp } from '../../core/weather/sky';
 import { weatherOptions } from './weather';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
+import { FamilyMark } from '../../app/family/marks';
+import { GROUP_NAMES, groupSummary, groupTimeline, type GroupedApp } from './appGroups';
 
 const periods: { id: ReflectPeriod; label: string }[] = [
   { id: 'today', label: 'Today' },
@@ -210,6 +212,43 @@ function KeepInView() {
   );
 }
 
+/**
+ * One app's entries for the period, folded under its name so frequent use never makes a long list: the summary
+ * says what is inside ("3 runs, 1 note") and when the latest was; opening it shows them in order.
+ */
+function AppGroup({
+  app,
+  summary,
+  at,
+  showDay,
+  children,
+}: {
+  app: GroupedApp;
+  summary: string;
+  at: string;
+  showDay: boolean;
+  children: React.ReactNode;
+}) {
+  const time = new Date(at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  return (
+    <li className="timeline-entry timeline-group">
+      <span className="timeline-entry__mark" aria-hidden="true">
+        <FamilyMark app={app} size={30} />
+      </span>
+      <details className="timeline-entry__body timeline-group__body">
+        <summary className="timeline-group__summary">
+          <span className="timeline-group__words">
+            <span className="timeline-entry__prompt">{GROUP_NAMES[app]}</span>
+            <span className="timeline-group__count">{summary}</span>
+          </span>
+          <span className="timeline-entry__time">Latest {showDay ? `${dayLabel(at)}, ${time}` : time}</span>
+        </summary>
+        <ol className="timeline timeline-group__list">{children}</ol>
+      </details>
+    </li>
+  );
+}
+
 export default function ReflectPage() {
   const shows = useTodayParts();
   const navigate = useNavigate();
@@ -235,6 +274,17 @@ export default function ReflectPage() {
     // A meal has a day, not a time: it sits at the end of its day.
     ...cooked.map((meal) => ({ at: new Date(`${meal.day}T23:59:00`).toISOString(), meal })),
   ].sort((a, b) => b.at.localeCompare(a.at));
+  type Entry = (typeof timeline)[number];
+  const renderEntry = (entry: Entry) =>
+    'study' in entry ? (
+      <StudyEntry key={entry.study.id} session={entry.study} showDay={period !== 'today'} />
+    ) : 'meal' in entry ? (
+      <MealEntry key={entry.meal.id} meal={entry.meal} showDay={period !== 'today'} />
+    ) : 'run' in entry ? (
+      <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />
+    ) : (
+      <TimelineEntry key={entry.reflection.id} reflection={entry.reflection} showDay={period !== 'today'} />
+    );
   const lastReview = all
     .filter((reflection) => reflection.promptKey === 'weekly-review')
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
@@ -286,15 +336,13 @@ export default function ReflectPage() {
             <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
           ) : (
             <ol className="timeline">
-              {timeline.map((entry) =>
-                'study' in entry ? (
-                  <StudyEntry key={entry.study.id} session={entry.study} showDay={period !== 'today'} />
-                ) : 'meal' in entry ? (
-                  <MealEntry key={entry.meal.id} meal={entry.meal} showDay={period !== 'today'} />
-                ) : 'run' in entry ? (
-                  <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />
+              {groupTimeline(timeline).map((row) =>
+                row.kind === 'own' ? (
+                  renderEntry(row.entry)
                 ) : (
-                  <TimelineEntry key={entry.reflection.id} reflection={entry.reflection} showDay={period !== 'today'} />
+                  <AppGroup key={`${period}-${row.app}`} app={row.app} summary={groupSummary(row.entries)} at={row.at} showDay={period !== 'today'}>
+                    {row.entries.map(renderEntry)}
+                  </AppGroup>
                 ),
               )}
             </ol>
