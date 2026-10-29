@@ -7,6 +7,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Reflect’s list of reflections has one heading; Oikonomia’s first steps sit side by side.',
       'The welcome walkthrough’s More apps step ends with a small card for Noesis.',
       'Meditate in Reflect has its own mark, a lotus on your room’s colors beside Compass.',
+      'Swiping rows works from anywhere on the row, the ⋯ button included, and with a slanted thumb; the row follows the finger every frame, a flick is enough, and a row that goes slides out while the rows below close up.',
       'Every line in From your apps swipes now, the run, trip, bills, birthdays, Mneme and pursuit lines included: left is done (marked in its app where it can be, else done on Today for the day), right is Not today.',
       'From your apps on Today: pull a row left to mark it done in its app (taken, watered, cooked), or right for Not today, which keeps it off Today until tomorrow. What you set aside folds into one Not today line at the foot, where each can come back.',
       'From your apps on Today is a list of links, each with its app’s mark; marking things done happens in the app. Proairetos drops the how-to lines under titles and switches and the example words inside text boxes.',

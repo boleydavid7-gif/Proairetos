@@ -3,6 +3,8 @@
   position: relative;
   overflow: hidden;
   list-style: none;
+  /* No touch-action here on purpose: with pan-y the browser took any slightly slanted pull for a scroll and cancelled
+     it. SwipeItem holds a plainly sideways touch itself (a non-passive touchmove), and lets an upright one scroll. */
 }
 
 .swipe + .swipe,
@@ -27,14 +29,17 @@
 .swipe__front {
   position: relative;
   background: var(--surface);
-  touch-action: pan-y;
-  transition: transform 180ms ease;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .swipe__front {
-    transition: none;
-  }
+/* While a row moves (SwipeItem writes its transform each frame), it is its own layer and nothing in it squeezes. */
+.swipe--moving .swipe__front {
+  will-change: transform;
+}
+.swipe--moving :active {
+  scale: 1;
+}
+.swipe--leaving {
+  pointer-events: none;
 }
 
 /* Rows on the page itself (Soma groceries) carry their own lines and the page behind them. */
@@ -66,7 +71,7 @@
 }
 
 /* Pulled far enough that letting go will do it: the action lights up and its mark grows (SwipeItem's `armed`). */
-.swipe__action { transition: background-color 160ms ease, opacity 120ms ease; }
+.swipe__action { transition: background-color 160ms ease, opacity 90ms ease; }
 .swipe__action > :first-child { transition: scale 260ms var(--ll-spring-lively, ease); }
 .swipe--armed .swipe__action { background: color-mix(in srgb, var(--ll-lamp, var(--mint, #7fb69a)) 34%, var(--mint-soft, transparent)); font-weight: 600; }
 .swipe--remove.swipe--armed .swipe__action { background: color-mix(in srgb, var(--color-danger, #c98a7a) 34%, transparent); }

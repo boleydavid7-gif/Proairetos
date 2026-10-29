@@ -716,6 +716,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   birthdays, Mneme, pursuit and the From your apps rows) under the `SwipeDay` context NowPage provides (outside it, as
   in the Lighter view, a line is plain); a line its app cannot mark is done here for the day (`done` in the same
   setting); `NotTodayFold` sits last in the group and names what was set aside from the stored `titles`.
+  `SwipeItem` (every app's swipe rows): the whole row takes the pull, its `.ll-row-menu-trigger` included (that button
+  over the row's right end swallowed left pulls before); touch is followed through touch events with a non-passive
+  touchmove that holds a plainly sideways touch (no `touch-action` on the row: with pan-y the browser took a slanted
+  pull for a scroll and cancelled it), mouse and pen through pointer events. The transform is written straight onto
+  the front in an animation frame, never through React state; a flick (0.55 px/ms past 36 px) or 38% of the width acts;
+  an acting row slides out, its height closes, then the action runs (`settle` puts it back if it stays or undo returns
+  it); otherwise it springs back on `--ll-spring`. Browser check: `Input.dispatchTouchEvent` through CDP.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
