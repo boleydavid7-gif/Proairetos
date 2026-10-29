@@ -177,7 +177,7 @@ export function planBetween(from: string, until: string, blocks: readonly WorkBl
     if (sleep.after === 'evening') {
       const worryDay = sleep.day ?? toLocalDate(sleep.start);
       const worry = atTime(worryDay, settings.worryTime);
-      if (worry < sleep.start) add({ key: `worry:${worry.toISOString()}`, kind: 'worry', day: worryDay, start: worry, title: 'Worry time', detail: 'Write down worries and one next step', source: 'hygiene' });
+      if (worry < sleep.start) add({ key: `worry:${worry.toISOString()}`, kind: 'worry', day: worryDay, start: worry, title: 'Worry time', source: 'hygiene' });
     }
     if (settings.cutoffHours > 0) {
       add({ key: `caffeine:${stamp(sleep.start)}`, kind: 'caffeine', day: sleep.day, start: later(sleep.start, -settings.cutoffHours * 60), title: 'Last caffeine', source: 'caffeine' });

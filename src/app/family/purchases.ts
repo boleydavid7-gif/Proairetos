@@ -74,7 +74,7 @@ export const isOwner = (): boolean => readJson<Owned>(OWNED_KEY)?.owner === true
 export const betaExpiresAt = (): string | undefined => readJson<Owned>(OWNED_KEY)?.betaExpiresAt;
 
 /** Whether this add-on may be used: always while the Store is free or for a beta tester, else once it is bought. */
-export const mayUse = (app: AddOn | string): boolean => !storePaid() || isOwner() || isTester() || ownedApps().includes(app);
+export const mayUse = (app: AddOn | string): boolean => isOwner() || isTester() || ownedApps().includes(app);
 
 /** Cloud sync is deliberately excluded from beta access. */
 export const mayUseCloud = (): boolean => isOwner() || (storePaid() && ownedApps().includes('cloud'));

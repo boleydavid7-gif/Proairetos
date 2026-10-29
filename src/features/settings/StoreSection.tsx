@@ -66,11 +66,11 @@ export default function StoreSection() {
           <PlanCard plan="core" title="Core apps" detail="All service-free family apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="soma" title="Soma" detail="Recipes and groceries" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="phyton" title="Phyton" detail="Plant identification" price={priceText('phyton')} owned={owner || tester || owned.includes('phyton')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00/mo' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
-        {!paid && !owner && !tester ? <p className="store__fine">Subscriptions are not configured yet. You can still browse the plans; checkout will open when payments are enabled.</p> : null}
+        {!paid && !owner && !tester ? <p className="store__fine">Checkout isn’t open yet.</p> : null}
         {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
         {owner ? <p className="store__fine">Owner access is enabled for this account.</p> : null}
       </div>
@@ -152,8 +152,8 @@ export default function StoreSection() {
           );
         })}
       </ul>}
-      {paid && !tester ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
-      <p className="store__fine">Beta access: contact boleydavid7@gmail.com to unlock the apps for 7 days. Beta does not include Proairetos cloud.</p>
+      {!tester && !owner ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
+      <p className="store__fine">Beta access: contact proairetosapp@gmail.com to unlock the apps for 7 days. Beta does not include Proairetos cloud.</p>
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/">
         Adding an app to your Home Screen
@@ -169,7 +169,7 @@ function addPlan(plan: string): void {
 }
 
 function PlanCard({ plan, title, detail, price, owned, busy, finishing, onBuy }: { plan: PurchaseItem; title: string; detail: string; price: string; owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {
-  return <article className="store__plan"><div><h3>{title}</h3><p>{detail}</p></div><strong>{owned ? 'Included' : price}</strong>{owned ? <span className="store__plan-state">Available</span> : <button type="button" className="button-accent" disabled={busy !== null || finishing === plan} onClick={() => void onBuy(plan, title)}>{finishing === plan ? <Waiting>Finishing…</Waiting> : busy === plan ? <Waiting>Opening…</Waiting> : 'Subscribe'}</button>}</article>;
+  return <article className="store__plan"><div><h3>{title}</h3><p>{detail}</p></div><strong>{owned ? 'Included' : `${price}/mo`}</strong>{owned ? <span className="store__plan-state">Available</span> : <button type="button" className="button-accent" disabled={busy !== null || finishing === plan} onClick={() => void onBuy(plan, title)}>{finishing === plan ? <Waiting>Finishing…</Waiting> : busy === plan ? <Waiting>Opening…</Waiting> : 'Subscribe'}</button>}</article>;
 }
 
 type BetaEntry = { email: string; expires_at: string };

@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { addApp, addedApps, isAdded, removeApp, usedApps } from '../../app/family/added';
 
 describe('added apps', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    // The Store is never free: these tests run as a beta tester, who has every app.
+    localStorage.setItem('proairetosOwned', JSON.stringify({ apps: [], tester: true }));
+  });
 
   it('finds the apps already used on this device', () => {
     expect(usedApps(['askesis:settings', 'somaShared.items.1', 'proairetos.praxisCards', 'proairetos.name'])).toEqual(['askesis', 'soma', 'praxis']);

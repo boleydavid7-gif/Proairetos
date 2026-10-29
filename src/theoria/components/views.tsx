@@ -58,8 +58,8 @@ function localDayKey(date = new Date()): string {
   return `${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}`;
 }
 
-function EmptyState({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
-  return <article className="theoria-empty-card"><TheoriaMark size={42} /><h2>{title}</h2><p>{body}</p><button type="button" className="theoria-primary-button" onClick={onAction}>{action}</button></article>;
+function EmptyState({ title, body, action, onAction }: { title: string; body?: string; action: string; onAction: () => void }) {
+  return <article className="theoria-empty-card"><TheoriaMark size={42} /><h2>{title}</h2>{body ? <p>{body}</p> : null}<button type="button" className="theoria-primary-button" onClick={onAction}>{action}</button></article>;
 }
 
 export function LibraryHome({ shelf, loading, error, onAdd, onOpen, onContinue, onShelf, onSearch }: { shelf: readonly TheoriaBook[]; loading: boolean; error?: string; onAdd: () => void; onOpen: (book: TheoriaBook) => void; onContinue: (book: TheoriaBook) => void; onShelf: () => void; onSearch: () => void }) {
@@ -71,7 +71,7 @@ export function LibraryHome({ shelf, loading, error, onAdd, onOpen, onContinue, 
   const readingBook = readingHighlight ? shelf.find((book) => book.id === readingHighlight.bookId) : undefined;
   if (loading) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Opening your library…</h1></div></div><Placeholder label="Opening your library" kind="cards" count={3} /></section>;
   if (error) return <section className="theoria-view"><div className="theoria-heading"><div><p className="theoria-eyebrow">Library</p><h1>Couldn’t open your shelf</h1></div></div><div className="theoria-error-card" role="alert"><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload library</button></div></section>;
-  if (!shelf.length) return <section className="theoria-view"><div className="theoria-heading"><div><h1>Library</h1></div></div><EmptyState title="Nothing on the shelf yet" body="Add an EPUB, PDF, text file or link." action="Add a book" onAction={onAdd} /></section>;
+  if (!shelf.length) return <section className="theoria-view"><div className="theoria-heading"><div><h1>Library</h1></div></div><EmptyState title="Nothing on the shelf yet" action="Add a book" onAction={onAdd} /></section>;
   return <section className="theoria-view">
     <div className="theoria-heading"><div><h1>Library</h1></div><div className="theoria-heading-actions"><button type="button" className="theoria-quiet-button" onClick={onSearch}>Search</button><button type="button" className="theoria-add-button" onClick={onAdd}>Add a book</button></div></div>
     {current ? <article className="theoria-card theoria-continue"><div className="theoria-card-kicker">Continue reading <span>{current.progress}%</span></div><div className="theoria-continue-body"><div><h2>{current.title}</h2>{current.author && <p className="theoria-author">{current.author}</p>}<p className="theoria-book-location">{current.readingLocation ?? 'Ready for your next page'}</p><div className="theoria-progress"><span style={{ width: current.progress + '%' }} /></div><small>{dateLabel(current.lastOpenedAt)}</small><button type="button" className="theoria-primary-button" onClick={() => onContinue(current)}>Continue reading</button></div><Cover book={current} index={0} /></div></article> : <div className="theoria-home-empty"><p>Choose a book to begin reading.</p><button type="button" onClick={() => onContinue(shelf[0])}>Open your first book</button></div>}

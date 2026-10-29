@@ -6,7 +6,7 @@
  *   POST /api/store/webhook    Stripe tells us a payment went through; the purchase is recorded
  *
  * Secrets (wrangler secret put …): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY. Variables:
- * SUPABASE_URL, SUPABASE_ANON_KEY (already set for Capture from anywhere). Until all are present the Store stays free.
+ * SUPABASE_URL, SUPABASE_ANON_KEY (already set for Capture from anywhere). Until all are present checkout stays closed; apps open only to the owner, beta testers and purchases.
  * The owner can also grant seven-day access from Settings; those rows live in `beta_access`.
  *
  *   GET  /api/store/mine       with the person's sign-in → { tester } (whether this account is on that list)

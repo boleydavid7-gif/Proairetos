@@ -67,6 +67,7 @@
 
 .now-card__when {
   font-weight: 600;
+  white-space: nowrap;
   color: var(--color-accent-strong);
   text-align: right;
 }

@@ -6,10 +6,12 @@ import { mayUse } from '../../app/family/purchases';
 describe('paying for add-ons', () => {
   beforeEach(() => localStorage.clear());
 
-  it('keeps every add-on free while the Store takes no payments', () => {
+  it('keeps add-ons closed while the Store takes no payments, unless the account has access', () => {
     addApp('soma');
+    expect(mayUse('soma')).toBe(false);
+    expect(isAdded('soma')).toBe(false);
+    localStorage.setItem('proairetosOwned', JSON.stringify({ apps: [], tester: true }));
     expect(mayUse('soma')).toBe(true);
-    expect(isAdded('soma')).toBe(true);
   });
 
   it('once paid, opens only what the account bought; Proairetos stays free', () => {

@@ -7,7 +7,7 @@ import './addedOnly.css';
 /** An app that is not added to Proairetos shows its logo and name with Add, in place of the app. */
 export default function AddedOnly({ app, children }: { app: AddOn; children: ReactNode }) {
   const added = useAddedApps();
-  const { paid, owned, tester, owner } = usePurchases();
+  const { owned, tester, owner } = usePurchases();
   const shown = added.includes(app);
   // Held back here: ask the account again (bought on another device, or a beta tester's).
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
     );
   }
   const hasEntitlement = owner || tester || (app === 'soma' ? owned.includes('soma') : app === 'phyton' ? owned.includes('phyton') : owned.includes('core') || owned.includes(app));
-  const toBuy = paid && !hasEntitlement;
+  const toBuy = !hasEntitlement;
   const about = familyApps.find((each) => each.id === app);
   if (!about) return <>{children}</>;
   const tint = about.tint ?? { ground: '#0e1112', accent: '#c9a274', ink: '#ece8e1' };
