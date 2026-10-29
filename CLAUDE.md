@@ -218,6 +218,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `env(safe-area-inset-top)` directly (the Lamplight guide aside); full-screen moments turn the bar off and get the plain inset.
   The title's frame is its known head (`.page-header` etc.), else its own group when a line sits above it (`headFrame`: an eyebrow in a `header`, so "Saturday · Week 1" moves with Askesis's session title); a frame moved up takes a negative margin, never a translate (that laid the title over its eyebrow and left a hole below). A frame with anything shown above it in its page (`shownAbove`: Askesis's workout date line, an Edit row; hidden back links do not count) never moves up at all.
   `freshInsets` (`behaviors.ts`) writes the inset another way (`:root.ll-inset-fresh`) for two frames on coming into view, `pageshow`, turning and just after start, then fires `resize`, because iPhone Home Screen apps sometimes keep a stale inset; it measures nothing itself (an earlier fix that measured the inset misplaced the bar).
+  Safari in a tab (iOS 26) also left the bar displaced after its toolbars changed or the keyboard closed: on
+  `visualViewport` resize, `focusout` and `scrollend` (settled 180 ms, no field in use) the page is scrolled to where it
+  is when `offsetTop` is stale, then the same refresh runs. The top bar's pill eases to its new width on a page change
+  (`resizePill`: `is-resizing`), new buttons rise in (`is-entering`), and a pill that was not there grows in (`is-appearing`).
   `:root` also sets `text-size-adjust: 100%` for every app: iOS text autosizing made the bar's name change size as it folded.
 - Scroll cost (checked with 400 chores and people, a year of reflections, 4x CPU slowdown): a scroll frame in
   `behaviors.ts` reads only the scroll and one rectangle; querying the page (full-screen check, actions, back link,
