@@ -11,7 +11,7 @@ export type ListRef = { id: string; key: string; name: string };
 
 export type HouseholdItem =
   | { id: string; kind: 'part'; app: HouseholdApp; list: ListRef; at: string }
-  | { id: string; kind: 'member'; name: string; at: string };
+  | { id: string; kind: 'member'; name: string; email?: string; at: string };
 
 export type Part = Extract<HouseholdItem, { kind: 'part' }>;
 export type Member = Extract<HouseholdItem, { kind: 'member' }>;

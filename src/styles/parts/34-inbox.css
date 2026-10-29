@@ -401,3 +401,38 @@ button.inbox-card {
 .household__note {
   margin: 0 0 10px 64px;
 }
+
+.household__members {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.household__members li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.household__email {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.household__invite {
+  margin-top: 4px;
+}
+
+.household__waiting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  overflow-wrap: anywhere;
+}

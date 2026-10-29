@@ -9,7 +9,7 @@ import { appFromOpen, type FamilyApp } from './sources';
  * milestones from runs and strength sessions (the owner's choice). Plain facts, newest first; nothing piles up, since
  * only the last few days are kept.
  */
-export type InboxKind = NoticeKind | 'schedule-change' | 'milestone';
+export type InboxKind = NoticeKind | 'schedule-change' | 'milestone' | 'household';
 
 export type InboxEntry = { key: string; kind: InboxKind; at: Date; title: string; body: string; open: string };
 
@@ -20,7 +20,7 @@ export const INBOX_DAYS = 3;
 const KEPT: ReadonlySet<InboxKind> = new Set<InboxKind>(['item', 'calendar', 'check-back', 'look-back', 'run', 'bill', 'study', 'person', 'chore', 'dose', 'care', 'training', 'upkeep', 'plant', 'trip', 'pursuit']);
 
 /** What Today's card brings forward: changes and things with money, health or travel at stake. */
-const IMPORTANT: ReadonlySet<InboxKind> = new Set<InboxKind>(['schedule-change', 'bill', 'care', 'trip']);
+const IMPORTANT: ReadonlySet<InboxKind> = new Set<InboxKind>(['schedule-change', 'bill', 'care', 'trip', 'household']);
 
 export const isImportant = (entry: Pick<InboxEntry, 'kind'>): boolean => IMPORTANT.has(entry.kind);
 

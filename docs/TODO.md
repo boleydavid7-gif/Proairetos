@@ -75,6 +75,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Try it first with Stripe's test keys and card 4242 4242 4242 4242.
 - [ ] Beta access: run `20261029000000_beta_access.sql`, then manage seven-day app access from Settings as the owner
       account (`boleydavid7@gmail.com`). Beta does not include Proairetos cloud.
+- [ ] Household (Settings > The app > Household): run `20261018000000_shared_lists.sql` if not yet, then
+      `20261031000000_household_invites.sql` (invites by email). Check with a second account: make a household, switch on
+      Chores, invite the other account's email; it must have signed in and opened its data on this version once. The
+      invite shows on its Today card and bell; Join, then tick a chore on each phone and see it on the other.
 - [ ] Before selling Phyton: Pl@ntNet's free plan is non-commercial; move to its paid plan.
 - [ ] Search: add proairetos.com and noesis.proairetos.com to Google Search Console (https://search.google.com/search-console)
       and Bing Webmaster Tools (https://www.bing.com/webmasters, which can import from Google), verify each (a DNS TXT

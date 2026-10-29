@@ -60,8 +60,12 @@ const setStates = (next: Partial<Record<HouseholdApp, PartState>>) => {
 };
 
 async function me(): Promise<string | undefined> {
+  return (await signedInAs())?.id;
+}
+
+async function signedInAs(): Promise<{ id: string; email: string } | undefined> {
   const { data } = await (await supabase()).auth.getUser();
-  return data.user?.id;
+  return data.user ? { id: data.user.id, email: data.user.email ?? '' } : undefined;
 }
 
 let running: Promise<void> | undefined;
@@ -77,11 +81,12 @@ export function syncHousehold(): Promise<void> {
     if (!list) return setStates({});
     await households.refreshList(list);
     const items = households.sharedItems(list);
-    const userId = await me();
-    const name = displayName().trim() || 'Someone';
+    const user = await signedInAs();
+    const userId = user?.id;
+    const name = displayName().trim() || user?.email.split('@')[0] || 'Someone';
     const mine = userId ? items.find((item) => item.id === memberId(userId)) : undefined;
-    if (userId && (!mine || (mine.kind === 'member' && mine.name !== name))) {
-      households.changeItem(list, memberId(userId), { id: memberId(userId), kind: 'member', name, at: mine?.at ?? new Date().toISOString() });
+    if (user && userId && (!mine || (mine.kind === 'member' && (mine.name !== name || mine.email !== user.email)))) {
+      households.changeItem(list, memberId(userId), { id: memberId(userId), kind: 'member', name, email: user.email, at: mine?.at ?? new Date().toISOString() });
     }
     const next: Partial<Record<HouseholdApp, PartState>> = {};
     for (const part of partsOf(items)) {
@@ -204,7 +209,12 @@ let started = false;
 export function startHousehold(): void {
   if (started || typeof window === 'undefined') return;
   started = true;
-  const look = () => household() && document.visibilityState === 'visible' && void syncHousehold().catch(() => undefined);
+  const look = () => {
+    if (document.visibilityState !== 'visible' || !sharingAvailable) return;
+    // Invites by email: this account's key is made once its data is open, and what waits for it is read.
+    void import('./invites').then((invites) => invites.refreshInvites()).catch(() => undefined);
+    if (household()) void syncHousehold().catch(() => undefined);
+  };
   window.setTimeout(look, 3000);
   document.addEventListener('visibilitychange', look);
   window.setInterval(look, 5 * 60_000);

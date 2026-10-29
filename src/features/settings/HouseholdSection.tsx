@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { syncStatus } from '../../app/sync/syncController';
 import { useAddedApps } from '../../app/family/added';
@@ -15,7 +15,8 @@ import {
   stopSharing,
   useHousehold,
 } from '../../app/household/household';
-import { HOUSEHOLD_APPS, householdLink, namesText, type HouseholdApp } from '../../core/household/household';
+import { HOUSEHOLD_APPS, householdLink, type HouseholdApp } from '../../core/household/household';
+import { inviteByEmail, refreshInvites, removeInvite, useInvites } from '../../app/household/invites';
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That didn’t go through. Try again.');
 const iconOf = (app: HouseholdApp) => (app === 'proairetos' ? '/favicon.svg' : familyApps.find((each) => each.id === app)?.icon);
@@ -36,7 +37,15 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const [error, setError] = useState('');
   const [leaving, setLeaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState('');
+  const { incoming, outgoing } = useInvites();
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
+
+  // Invites waiting for this account, and this account's key (made once its data is open here).
+  useEffect(() => {
+    if (signedIn && sharingAvailable) void refreshInvites().catch((cause) => setError(problem(cause)));
+  }, [signedIn, sync.phase]);
 
   const run = async (what: string, action: () => Promise<void>) => {
     setBusy(what);
@@ -63,6 +72,36 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
       <section className="settings-card">
         <p className="section-description">Sign in to share with the people at home.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>Account and sync</button>
+      </section>
+    );
+  }
+
+  const fromEmail = incoming.find((each) => each.household.id !== list?.id);
+  if (fromEmail) {
+    return (
+      <section className="settings-card" aria-label="An invite">
+        <p className="section-description">
+          {fromEmail.from} invited you to {fromEmail.household.name}.{list ? ` Joining leaves ${list.name} on this device.` : ''}
+        </p>
+        <div className="button-row">
+          <button
+            type="button"
+            className="button-accent"
+            disabled={busy !== null}
+            onClick={() =>
+              void run('join', async () => {
+                await joinHousehold(fromEmail.household);
+                await removeInvite(fromEmail.id);
+              })
+            }
+          >
+            Join
+          </button>
+          <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => void run('decline', () => removeInvite(fromEmail.id))}>
+            Not now
+          </button>
+        </div>
+        {error && <p className="form-error" role="alert">{error}</p>}
       </section>
     );
   }
@@ -129,16 +168,58 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   };
 
   const shown = HOUSEHOLD_APPS.filter(({ app }) => app === 'proairetos' || added.includes(app as never));
-  const names = members.map((member) => member.name);
+  const waiting = outgoing;
 
   return (
     <div className="settings-sections household">
       <section className="settings-card">
         <h2 className="household__name">{list.name}</h2>
-        {names.length > 0 && <p className="section-description">{namesText(names)}</p>}
-        <button type="button" className="button-accent account-wide" onClick={() => void share()}>Invite</button>
+        {members.length > 0 && (
+          <ul className="household__members">
+            {members.map((member) => (
+              <li key={member.id}>
+                <span>{member.name}</span>
+                {member.email && <span className="household__email">{member.email}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+        <form
+          className="field household__invite"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const to = email.trim();
+            void run('invite', async () => {
+              await inviteByEmail(to, list);
+              setEmail('');
+              setSent(to);
+            });
+          }}
+        >
+          <span className="field__label">Invite by email</span>
+          <input className="input" type="email" autoComplete="email" aria-label="Email" value={email} onChange={(event) => { setEmail(event.target.value); setSent(''); }} />
+          <button type="submit" className="button-accent account-wide" disabled={busy !== null || !email.trim()}>Invite</button>
+        </form>
+        {sent && <p className="hint" role="status">Invite sent to {sent}. It shows when they open any of the apps.</p>}
+        <button type="button" className="button-quiet account-wide" onClick={() => void share()}>Send a link instead</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>
+
+      {waiting.length > 0 && (
+        <section className="settings-group" aria-label="Invited">
+          <h2 className="settings-group__label">Invited</h2>
+          <div className="settings-card settings-card--rows">
+            {waiting.map((each) => (
+              <div key={each.id} className="household__waiting">
+                <span>{each.email}</span>
+                <button type="button" className="text-link" disabled={busy !== null} onClick={() => void run('cancel', () => removeInvite(each.id))}>
+                  Cancel
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="settings-group" aria-label="Shared">
         <h2 className="settings-group__label">Shared</h2>

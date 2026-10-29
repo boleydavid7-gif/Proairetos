@@ -88,6 +88,16 @@ export async function refreshInbox(now = new Date()): Promise<void> {
     const { workouts, unit } = strengthWorkouts();
     found.push(...strengthMilestones(workouts, unit));
   }
+  // Household invites waiting for this account (read by `app/household/invites.ts`, kept on the device).
+  try {
+    const invites = JSON.parse(localStorage.getItem('proairetosHouseholdInvites') ?? '[]') as { id: string; from: string; household: { name: string }; at: string }[];
+    for (const invite of invites) {
+      const at = new Date(invite.at);
+      found.push({ key: `household-invite:${invite.id}`, kind: 'household', at: at.getTime() < since.getTime() ? now : at, title: 'Household invite', body: `${invite.from} invited you to ${invite.household.name}.`, open: 'settings:household' });
+    }
+  } catch {
+    // Nothing kept.
+  }
   entries = arrangeInbox(found, now);
   // What was seen or cleared and has since left the list is forgotten.
   const keys = new Set(entries.map((entry) => entry.key));

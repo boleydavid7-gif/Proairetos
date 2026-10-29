@@ -1393,6 +1393,17 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   the page). The invite is read in `main.tsx` into sessionStorage and opens `?open=settings:household`. Leaving takes
   this person's name out and leaves the household only. Tested end to end against a stand-in server
   (`householdFlow.test.ts`). Trips stay shared one at a time in Poreia.
+  Invites by email (migration `20261031000000_household_invites.sql`, `app/household/invites.ts`, tests
+  `src/tests/household/invites.test.ts`; the migration's row rules checked on Postgres 16): each account has an RSA-OAEP
+  key pair made on a device once its data is open (`accountKey`): the public half in `account_keys`, the private half
+  there too sealed with the account key (`sealWithAccount('account-key')`), so every device of that account opens it.
+  `inviteByEmail` asks `invitee_key(address)` (signed-in only, 30 lookups an hour, null for an account with no key yet or
+  one's own), seals `{household, from}` to that key (`sealFor`, AD `proairetos-household-invite`, opened by `openSealed`)
+  and writes `household_invites` (`to_user`, `to_email`; sender and invitee see and remove it, 50 sent at most).
+  `refreshInvites` (on the page, and from `startHousehold` on start, coming into view and every 5 min) opens what waits,
+  keeps it on the device (`proairetosHouseholdInvites`) and lists what this account sent (Invited, with Cancel). An invite
+  shows as an important entry on the bell and Today's card (kind `household`, opens `settings:household`) and as Join /
+  Not now on the page. Members carry their sign-in email (shown under their name). The link stays as "Send a link instead".
 - Therapeia for the family: `Medicine.who` / `Appointment.who` (absent = the person's own; `whoOf`, `peopleIn`, `withWho`
   "Mia: Amoxicillin", `sameWho` in `core/medicines.ts`). `WhoChoice` (`app/ui.tsx`) in the medicine and visit forms: a
   "For someone else" link until a name exists anywhere, then chips Me / names / Someone else. Shown in dose rows (a

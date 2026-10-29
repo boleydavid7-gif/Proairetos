@@ -221,7 +221,7 @@ export function ImportantCard() {
   return (
     <section className="important-card" aria-label="Important">
       <span className="important-card__icon" aria-hidden="true">
-        <Sym name={first.kind === 'schedule-change' ? 'calendar' : first.kind === 'bill' ? 'bills' : first.kind === 'care' ? 'pill' : 'plane'} size={22} />
+        <Sym name={first.kind === 'schedule-change' ? 'calendar' : first.kind === 'bill' ? 'bills' : first.kind === 'care' ? 'pill' : first.kind === 'household' ? 'people' : 'plane'} size={22} />
       </span>
       <div className="important-card__text">
         <p className="important-card__count">{important.length === 1 ? '1 important update' : `${important.length} important updates`}</p>
