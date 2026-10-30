@@ -39,8 +39,6 @@ export default function OnboardingPage({ onGetStarted }: Props) {
     return { name: '', shifts: false, intention: '', room: look.room, color: look.color };
   });
   const [lit, setLit] = useState(false);
-  // The sails step keeps its closing words back until the sail has held the wind (or the person goes on).
-  const [sailed, setSailed] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const touch = useRef<{ x: number; y: number } | null>(null);
   // Chosen on the setup step; the Home Screen step comes after it and then begins with it.
@@ -87,8 +85,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
     document.querySelector('.onboarding-layout')?.scrollTo({ top: 0, left: 0 });
   };
   const onSailed = useCallback(() => {
-    setSailed(true);
-    // The closing words come in under the sails; bring them up above the button.
+    // Once the sail holds the wind, bring the closing words under it up above the button.
     window.setTimeout(
       () => document.querySelector('.sails + .onboarding-hero__lines')?.scrollIntoView({ behavior: still() ? 'auto' : 'smooth', block: 'center' }),
       300,
@@ -175,7 +172,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
           <>
             <Lines lines={step.lines.slice(0, 1)} />
             <Sails onSorted={onSailed} />
-            {sailed && <Lines lines={step.lines.slice(1)} />}
+            <Lines lines={step.lines.slice(1)} />
           </>
         )}
         {step.lit && <LitLines lines={step.lines} finale={step.finale} />}

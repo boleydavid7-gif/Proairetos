@@ -158,7 +158,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `STORE_TESTERS` (emails, comma-separated), checked on the Worker against the signed-in email (`GET /api/store/mine`,
   `isTester`), so checkout answers `owned` and the device marks `tester`. Device caches `proairetosStore` and
   `proairetosOwned` (outside `proairetos.`, so not synced or backed up) let `mayUse` decide at once; `isAdded` and
-  `addedSnapshot` require it. `AddedOnly` asks again on showing and offers "Get it" when paid and not owned.
+  `addedSnapshot` require it. Signed out (no account, owner or tester), the Store shows only "An account is needed to view the Store and add apps." with the trial line and "Sign in or create an account" (Settings passes `onOpenAccount`). `AddedOnly` asks again on showing and offers "Get it" when paid and not owned.
   Free trial (the Store is out of beta): every account has every app (not cloud) for `TRIAL_DAYS` (7) from its Supabase
   `created_at`, no card (`trialUntil` in `worker/store.ts`, returned by `/api/store/mine`; device `trialEnds()` in
   `purchases.ts`, part of `mayUse`). A trial is not a tester: checkout stays open during it. The Store says when it ends
@@ -1463,8 +1463,10 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   chosen on Make it yours redraws it at once; always dark). The first screen is dark until the person holds the lamp
   (`LampSwitch`: `--hold` follows the press, a keyboard or screen-reader press lights at once), then προαιρετός is written in
   by a passing light (mask sweep) as a dictionary entry. Adjust your sails is played (`Sails`: the wind changes on its own,
-  the sail is set by drag or slider; once full for 2.2 s the closing lines rise). Why and Make time for what matters light a
-  line at a time like a lyrics view, then all (`LitLines`, tap to show all; finale "Your life. Your choices. Your time.").
+  the sail is set by drag or slider; the closing line shows with it, and once the sail is full for 2.2 s it is brought into
+  view). Words come in as one quick, smooth pass (lines 140-220 ms apart, warmed by the lamp as they arrive, all staying to
+  read; the owner nearly skipped text when lines waited their turn): `LitLines` on Why and Make time for what matters (finale
+  "Your life. Your choices. Your time." after the last), the same rise everywhere else.
   The Store's apps fly in and gather round the compass (`Gathering`), lit by "What pulls at your attention?" chips. Prices:
   the light walks the trial line (Today, Day 6 "An email reminder before your trial ends.", Day 7). Make it yours: greeting
   preview, name, intention, Room and Color (saved to Appearance), schedule. Begin: the words leave and the room stays

@@ -2,7 +2,10 @@
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-04',
-    lines: ['A new welcome: hold to light the lamp, set your sails, and choose your room and color before you begin.'],
+    lines: [
+      'A new welcome: hold to light the lamp, set your sails, and choose your room and color before you begin.',
+      'Signed out, the Store says an account is needed and leads to signing in.',
+    ],
   },
   {
     date: '2026-11-03',

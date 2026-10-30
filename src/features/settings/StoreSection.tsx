@@ -12,7 +12,7 @@ import { supabase } from '../../data/sync/supabase';
  * notifications, search) and the app grid; removing one takes it out again, its records kept. Proairetos stays free;
  * access to the family is granted by monthly plans kept with the signed-in account.
  */
-export default function StoreSection() {
+export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => void }) {
   const added = useAddedApps();
   const { paid, owned, tester, owner, trialUntil, account } = usePurchases();
   const { offerUndo } = useOverlays();
@@ -55,6 +55,27 @@ export default function StoreSection() {
       setBusy(null);
     }
   };
+
+  // Plans and apps belong to an account: signed out, the Store says so and leads to signing in.
+  if (!account && !owner && !tester) {
+    return (
+      <section className="store" aria-label="Store">
+        <div className="store__paywall store__signed-out">
+          <p className="store__trial" role="status">An account is needed to view the Store and add apps.</p>
+          <p>Every app is free for 7 days with a new account. No card needed.</p>
+          {onOpenAccount ? (
+            <button type="button" className="button-accent store__button" onClick={onOpenAccount}>
+              Sign in or create an account
+            </button>
+          ) : (
+            <a className="button-accent store__button" href="/?open=account">
+              Sign in or create an account
+            </a>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="store" aria-label="Store">

@@ -1287,7 +1287,7 @@ export default function SettingsPage() {
           </section>
         )}
         {view === 'about' && <SourcesSection />}
-        {view === 'store' && <StoreSection />}
+        {view === 'store' && <StoreSection onOpenAccount={() => setView('account')} />}
         {view === 'news' && (
           <section className="settings-card" aria-label="What’s new">
             {whatsNew.map((entry) => (
