@@ -4,6 +4,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-11-02',
     lines: [
       'Every new account has every app free for 7 days, no card needed. The Store shows when the trial ends; subscribing works during it.',
+      'Send feedback is in every app’s settings: one tap opens an email with the app’s name and build filled in.',
     ],
   },
   {

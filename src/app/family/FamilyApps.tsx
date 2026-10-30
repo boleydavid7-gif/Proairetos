@@ -1,5 +1,7 @@
 import { useAddedApps, type AddOn } from './added';
-import { Sym } from '../../lamplight/icons';
+import { GLYPHS, LampIcon, Sym } from '../../lamplight/icons';
+import { FEEDBACK_EMAIL } from '../siteAddress';
+import { feedbackLink } from './feedback';
 
 /** The apps of the family, the same list in every one (the one open is left out). */
 export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'mneme';
@@ -49,6 +51,19 @@ export default function FamilyApps({ current }: { current: FamilyApp }) {
             <span className="row__text">
               <span>Store</span>
               
+            </span>
+          </a>
+        </li>
+      </ul>
+      <ul className="rows family-apps__feedback">
+        <li>
+          <a className="row" href={feedbackLink(familyApps.find((app) => app.id === current)?.name ?? 'Proairetos')}>
+            <span className="row__icon" aria-hidden="true">
+              <LampIcon glyph={GLYPHS.pencil} size={22} />
+            </span>
+            <span className="row__text">
+              <span>Send feedback</span>
+              <span className="row__detail">{FEEDBACK_EMAIL}</span>
             </span>
           </a>
         </li>

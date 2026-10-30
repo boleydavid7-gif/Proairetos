@@ -475,6 +475,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   under Askesis and Dynamis; the per-app switches already there decide the rest. Seen and cleared keys are device only
   (`proairetosInboxSeen`, `proairetosInboxCleared`). Today's `ImportantCard` sits first and shows only while an
   uncleared schedule change, bill, care or trip entry exists; Review opens the fly-out, × clears them with undo.
+- Send feedback (`app/family/feedback.ts` `feedbackLink`: a mailto to `FEEDBACK_EMAIL`, subject "<App> feedback", a foot with the
+  app, build day and kind of device only): a row at the end of the shared `FamilyApps` (every add-on's settings) and in
+  Proairetos's Settings above the support row.
 - What's new (Settings > About > What's new, view `news`): plain lines by date from `app/whatsNew.ts`; add a line when something new ships.
 - `app/ErrorBoundary.tsx` wraps every app (self-styled): a calm page with Reload and
   "Save a copy first" if a screen breaks.

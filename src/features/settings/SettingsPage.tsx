@@ -33,6 +33,8 @@ import { applyAppearance } from '../../app/appearance';
 import { LAMP_COLORS, ROOMS, WALL_STYLES, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
 import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
+import { feedbackLink } from '../../app/family/feedback';
+import { GLYPHS, LampIcon } from '../../lamplight/icons';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -1383,6 +1385,7 @@ export default function SettingsPage() {
           ))}
 
           <div className="settings-list">
+            <Row icon={<LampIcon glyph={GLYPHS.pencil} size={18} />} tone="blue" title="Send feedback" onClick={() => { window.location.href = feedbackLink('Proairetos'); }} />
             <Row icon={<HeartIcon size={18} />} tone="pink" title="If things feel like too much" onClick={openSupport} />
           </div>
 
