@@ -175,3 +175,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 
 - [ ] Store stage 2: payment and server checks of added apps (all free for now).
 - [ ] Phone apps (on hold): native projects, native reminders, widgets (`docs/NATIVE.md`).
+
+## Search engines (owner)
+
+- [ ] Google Search Console: add the domain `proairetos.com` (Domain property), verify with the DNS TXT record in
+      Cloudflare (DNS > Add record > TXT), then Sitemaps > submit `https://proairetos.com/sitemap.xml`.
+- [ ] Bing Webmaster Tools: sign in and choose "Import from Google Search Console" (brings the site and sitemap over).
+- [ ] After a week: Search Console > Pages, check `/welcome/` and the app pages are indexed.
