@@ -14,7 +14,10 @@ rule: **the system records life; it does not interpret life.**
   deliberately where attention, time and priority go. It shows and offers; the person chooses. Nothing new
   interrupts, counts or asks for attention unless the person chose it (new notices, badges, cards and prompts
   are off until turned on or show only what the person set up). Outside their control: the plain fact, with
-  their part beside it.
+  their part beside it. Settings > The app > Attention (view `attention`, `lamplight/attention.ts`, synced
+  `proairetos.attention`): the bell's count (number, dot, off), Today's updates card, and the light on what's next
+  (`oneLitThing` lights nothing when off), with links to Notifications and What's included. Add new attention
+  grabbers there.
 
 - No scores, streaks, rewards, "overdue", failure states, or shame language.
   Relief instead of praise (calm close-out with undo).

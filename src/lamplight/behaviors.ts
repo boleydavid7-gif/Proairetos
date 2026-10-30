@@ -16,6 +16,8 @@
  * bar and the swipe but drops the travel.
  */
 
+import { attention, onAttention } from './attention';
+
 const TITLE = [
   '.page-header__title',
   '.page-hero__title',
@@ -935,7 +937,8 @@ function oneLitThing(): void {
       const visible = el.classList.contains('ll-lit-wrap') ? Boolean(el.firstElementChild && shown(el.firstElementChild)) : shown(el);
       return visible && !el.closest('[inert], [hidden]');
     });
-    const keep = candidates.find((el) => el.getAttribute('data-ll-lit') !== 'fallback') ?? candidates[0];
+    // The person can turn the light off (Settings > Attention): then nothing on a page is lit for them.
+    const keep = attention().light ? candidates.find((el) => el.getAttribute('data-ll-lit') !== 'fallback') ?? candidates[0] : undefined;
     for (const el of document.querySelectorAll('[data-ll-lit]')) {
       if (el === keep) el.removeAttribute('data-ll-lit-extra');
       else el.setAttribute('data-ll-lit-extra', '');
@@ -1000,6 +1003,7 @@ function oneLitThing(): void {
   addEventListener('resize', spillSoon);
   sort();
   new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-ll-lit', 'hidden'] });
+  onAttention(soon);
 
   let lit: Element | undefined;
   const clear = () => {

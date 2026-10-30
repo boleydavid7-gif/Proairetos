@@ -3,6 +3,7 @@
 export type View =
   | 'lock'
   | 'notifications'
+  | 'attention'
   | 'import'
   | 'weather'
   | 'calendars'
@@ -54,6 +55,7 @@ export function openSettingsAt(view: View): void {
 export const viewTitles: Record<View, string> = {
   lock: 'Privacy and lock',
   notifications: 'Notifications',
+  attention: 'Attention',
   profile: 'Your name',
   day: 'When your day starts',
   calendar: 'Share to your calendar',

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { clearEntries, markSeen, startInbox, unclearEntries, useInbox } from '../../app/notify/inbox';
 import { useNoticeOpen } from '../../app/notify/NoticeOpener';
@@ -10,6 +10,7 @@ import { openSettingsAt } from '../settings/settingsViews';
 import { agoText, byApp, type InboxEntry } from '../../core/notify/inbox';
 import type { FamilyApp } from '../../core/notify/sources';
 import { IconButton, Sym } from '../../lamplight/icons';
+import { attention, onAttention, type Attention } from '../../lamplight/attention';
 import { BellIcon } from '../../components/icons/Icons';
 import SwipeItem from '../../app/family/SwipeItem';
 
@@ -17,18 +18,27 @@ const APP_NAMES: Partial<Record<FamilyApp, string>> = { proairetos: 'Proairetos'
 const nameOf = (app: FamilyApp) => APP_NAMES[app] ?? familyApps.find((each) => each.id === app)?.name ?? app;
 const iconOf = (app: FamilyApp) => (app === 'proairetos' ? '/favicon.svg' : familyApps.find((each) => each.id === app)?.icon ?? '/favicon.svg');
 
+/** The person's choice of what may ask for attention on Today (Settings > Attention). */
+function useAttention(): Attention {
+  const key = useSyncExternalStore(onAttention, () => JSON.stringify(attention()));
+  return JSON.parse(key) as Attention;
+}
+
 /** The bell on Today: how many came in since the list was last opened, and the fly-out list itself. */
 export function NotificationsButton() {
   const { unseen } = useInbox();
   const [open, setOpen] = useState(false);
   useEffect(() => startInbox(), []);
-  const count = unseen.length;
+  const { bell } = useAttention();
+  const count = bell === 'off' ? 0 : unseen.length;
+  // A dot is a blank badge (a space, so the top bar's copy keeps it); the number caps at 9+.
+  const badge = !count ? undefined : bell === 'dot' ? ' ' : count > 9 ? '9+' : String(count);
   return (
     <>
       <IconButton
-        label={count ? `Notifications, ${count} new` : 'Notifications'}
+        label={!count ? 'Notifications' : bell === 'dot' ? 'Notifications, new' : `Notifications, ${count} new`}
         className="header-action inbox-bell"
-        data-badge={count ? (count > 9 ? '9+' : String(count)) : undefined}
+        data-badge={badge}
         onClick={() => setOpen(true)}
       >
         <BellIcon size={22} />
@@ -214,8 +224,9 @@ function Card({ entry, app, more, onOpen }: { entry: InboxEntry; app: FamilyApp;
 export function ImportantCard() {
   const { important } = useInbox();
   const { offerUndo } = useOverlays();
+  const { updates } = useAttention();
   useEffect(() => startInbox(), []);
-  if (important.length === 0) return null;
+  if (important.length === 0 || !updates) return null;
   const first = important[0];
   const keys = important.map((entry) => entry.key);
   return (

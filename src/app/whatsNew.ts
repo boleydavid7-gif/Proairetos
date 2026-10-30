@@ -1,6 +1,10 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-03',
+    lines: ['Settings > Attention: the bell’s count as a number, a dot or off, Today’s updates card on or off, and the light on what’s next in every app.'],
+  },
+  {
     date: '2026-11-02',
     lines: [
       'Every new account has every app free for 7 days, no card needed. The Store shows when the trial ends; subscribing works during it.',

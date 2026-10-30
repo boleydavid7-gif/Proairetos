@@ -35,6 +35,7 @@ import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { feedbackLink } from '../../app/family/feedback';
 import { GLYPHS, LampIcon } from '../../lamplight/icons';
+import { attention, setAttention, type BellCount } from '../../lamplight/attention';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -899,6 +900,62 @@ function TodaySection() {
   );
 }
 
+function AttentionSection({ open }: { open: (view: View) => void }) {
+  const [choice, setChoice] = useState(attention);
+  const change = (patch: Parameters<typeof setAttention>[0]) => {
+    setAttention(patch);
+    setChoice(attention());
+  };
+  const counts: { id: BellCount; label: string }[] = [
+    { id: 'number', label: 'Number' },
+    { id: 'dot', label: 'Dot' },
+    { id: 'off', label: 'Off' },
+  ];
+  return (
+    <>
+      <section className="settings-group settings-sections" aria-label="On Today">
+        <h2 className="settings-group__label">On Today</h2>
+        <div className="settings-card settings-card--rows">
+          <p className="sheet__label">Count on the bell</p>
+          <div className="chip-row" role="group" aria-label="Count on the bell">
+            {counts.map((count) => (
+              <button key={count.id} type="button" className="chip" aria-pressed={choice.bell === count.id} onClick={() => change({ bell: count.id })}>
+                {count.label}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="toggle-row" aria-pressed={choice.updates} onClick={() => change({ updates: !choice.updates })}>
+            <span className={`toggle-switch${choice.updates ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+            <span>Updates card</span>
+          </button>
+        </div>
+      </section>
+      <section className="settings-group settings-sections" aria-label="In every app">
+        <h2 className="settings-group__label">In every app</h2>
+        <div className="settings-card settings-card--rows">
+          <button type="button" className="toggle-row" aria-pressed={choice.light} onClick={() => change({ light: !choice.light })}>
+            <span className={`toggle-switch${choice.light ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+            <span>Light on what’s next</span>
+          </button>
+        </div>
+      </section>
+      <section className="settings-group settings-sections" aria-label="More">
+        <h2 className="settings-group__label">More</h2>
+        <div className="settings-card settings-card--rows">
+          <button type="button" className="toggle-row" onClick={() => open('notifications')}>
+            <span>Notifications, by kind</span>
+            <LampIcon glyph={GLYPHS.chevron} size={18} />
+          </button>
+          <button type="button" className="toggle-row" onClick={() => open('today')}>
+            <span>Today’s parts and quiet offers</span>
+            <LampIcon glyph={GLYPHS.chevron} size={18} />
+          </button>
+        </div>
+      </section>
+    </>
+  );
+}
+
 function OffersSection() {
   const [on, setOn] = useState(quietOffersOn);
   const [hidden, setHidden] = useState(hiddenOffers);
@@ -1183,6 +1240,7 @@ export default function SettingsPage() {
         {view === 'account' && <AccountSection />}
         {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
+        {view === 'attention' && <AttentionSection open={setView} />}
         {view === 'backup' && (
           <>
             <StorageFacts className="section-description" />
@@ -1286,6 +1344,14 @@ export default function SettingsPage() {
           value: notifications.permission() === 'granted' ? 'On' : 'Off',
           onClick: () => setView('notifications'),
           words: 'reminders quiet hours lock screen push',
+        },
+        {
+          id: 'attention',
+          icon: <LampIcon glyph={GLYPHS.target} size={18} />,
+          tone: 'orange',
+          title: 'Attention',
+          onClick: () => setView('attention'),
+          words: 'badge count bell dot updates card important highlight light focus distraction',
         },
         { id: 'household', icon: <HeartIcon size={18} />, tone: 'green', title: 'Household', value: household()?.name, onClick: () => setView('household'), words: 'partner family household share together invite groceries chores plants medicines to-do list' },
         { id: 'inbox', icon: <CaptureIcon size={18} />, tone: 'teal', title: 'Capture from anywhere', value: inboxHere() ? 'On' : undefined, onClick: () => setView('inbox'), words: 'siri shortcut back tap watch quick add inbox' },
