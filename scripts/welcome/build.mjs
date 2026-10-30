@@ -13,173 +13,173 @@ const apps = [
   {
     id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0e1112', accent: '#c9a274', ink: '#ece8e1',
-    line: 'Your days, your values, your reflections',
+    line: 'A calm planner for your days',
     card: 'To-dos, your calendar and a journal, on any schedule.',
-    about: 'A calm place for your days: write things down, see your day and the days ahead, and look back in your own words. It works on any schedule, including rotating and night shifts.',
+    about: 'Write it down, plan your week and look back on how it went. Proairetos fits any schedule, from nine to five to nights, and never nags.',
     points: [
-      ['Today', 'What is set for the day, what you chose to do, and the time that is open, on one page.'],
-      ['Any schedule', 'Days, evenings, nights or none. Your day turns over when you choose, and a night shift keeps its day.'],
-      ['Reflect', 'A journal, three good things, decisions and a weekly look back, in your own words.'],
-      ['Compass', 'Up to five values you choose, goals you are working toward, and the people who matter.'],
+      ['Today', 'Your plans, your to-dos and the free time between them, on one screen.'],
+      ['Any schedule', 'Days, evenings, nights or no set hours. Your day starts when you say it does.'],
+      ['Reflect', 'Keep a journal, note three good things each evening and look back on your week.'],
+      ['Compass', 'The values you care about, the goals you’re working toward and the people who matter.'],
     ],
   },
   {
     id: 'askesis', name: 'Askesis', icon: '/askesis/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0b0f0e', accent: '#86d9b0', ink: '#e8ece9',
-    line: 'Running, from your first walk-run',
+    line: 'A running plan for every level',
     card: 'A running plan that starts where you are, from your first walk-run to your first marathon.',
-    about: 'A running plan that starts where you are, from your first walk-run, and builds toward the aim you set: a time, a distance or simply running steadily.',
+    about: 'A running plan that starts where you are and builds toward your goal: a 5K, a marathon, a time or just running regularly.',
     points: [
-      ['Your own plan', 'A short test places your first week. Weekly time grows gently, with an easier week every fourth.'],
-      ['Guided sessions', 'Bells to walk and run that keep time with the screen locked, and your own music.'],
-      ['A plain log', 'Runs, distance and how they felt, with your longest and fastest as plain records.'],
-      ['Lighter today', 'Swap a session for an easier one for the day. Moving on a week is always your choice.'],
+      ['A plan that fits you', 'A quick test sets your first week. Each week builds a little, with an easier week every fourth.'],
+      ['Guided runs', 'Bells tell you when to run and walk, even with your screen locked. Play your own music.'],
+      ['Your log', 'Every run with its distance and how it felt, plus your longest and fastest.'],
+      ['Easy days', 'Swap any session for a lighter one. You decide when to move on to the next week.'],
     ],
   },
   {
     id: 'soma', name: 'Soma', icon: '/soma/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#f3ede2', accent: '#2f5a3e', ink: '#2f5a3e',
-    line: 'Recipes and groceries',
+    line: 'Recipes, meal plans and groceries',
     card: 'Save recipes from anywhere, plan the week and shop from a list sorted by aisle.',
-    about: 'Your recipes in one place, brought in from a link, pasted text or a photo of a recipe card, with a grocery list that sorts itself by aisle.',
+    about: 'Save recipes from any website, a photo or another app. Plan the week, then shop from a list sorted by aisle.',
     points: [
-      ['Bring recipes in', 'From a website, pasted text or a photo of a card, read on your phone.'],
-      ['Groceries by aisle', 'Add a recipe’s ingredients in one tap. Share the list with someone you shop with.'],
-      ['A loose week', 'Place meals on days, repeat a week, and see what to use soon from the kitchen.'],
-      ['Nutri-Score', 'Each recipe’s grade and nutrients per serving, worked out from its ingredients.'],
+      ['Save from anywhere', 'Paste a link, snap a recipe card or bring in your Paprika or Mela library.'],
+      ['Grocery list', 'Add a recipe’s ingredients in one tap, sorted by aisle. Share the list with whoever shops with you.'],
+      ['Plan the week', 'Put meals on days, repeat last week and see what to use up first.'],
+      ['Nutrition', 'A Nutri-Score and nutrients per serving for every recipe.'],
     ],
   },
   {
     id: 'oikonomia', name: 'Oikonomia', icon: '/oikonomia/icons/icon-192.png', category: 'FinanceApplication',
     ground: '#0d1110', accent: '#d79572', ink: '#f2eee6',
-    line: 'Bills and household essentials',
+    line: 'Bills, budgets and spending',
     card: 'Every bill and subscription in one place, with a reminder before each one is due.',
-    about: 'Bills and subscriptions with their dates in view, a monthly plan by area, and what actually went out, read from your bank statements on your phone.',
+    about: 'Every bill and subscription in one place, a simple monthly budget and a clear view of what you actually spent.',
     points: [
-      ['Bills in view', 'Each bill’s next date, a reminder before it, and a pull to mark it paid, with undo.'],
-      ['Payday', 'Your next pay date and the bills before it, with what is left after them.'],
-      ['Spent', 'Bring in a bank or card statement. Only money out is kept, sorted into your areas.'],
-      ['A monthly plan', 'Amounts by area, with what was spent beside them. Facts, never advice.'],
+      ['Bills', 'See what’s due next and get a reminder before each one. Swipe to mark it paid.'],
+      ['Payday', 'Your next payday and the bills due before it, with what’s left after them.'],
+      ['Spending', 'Import a bank or card statement. Each purchase is sorted into your categories.'],
+      ['Monthly budget', 'Set amounts by category and see what you spent next to them.'],
     ],
   },
   {
     id: 'theoria', name: 'Theoria', icon: '/theoria/icons/icon-192.png', category: 'BookApplication',
     ground: '#0b1020', accent: '#d9b46a', ink: '#ede5d3',
-    line: 'Reading, highlights and notes',
-    card: 'Read your books and PDFs and keep your highlights and notes.',
-    about: 'Read your own books and PDFs on any device, and keep your highlights and notes with them.',
+    line: 'Read books and PDFs, keep your highlights',
+    card: 'Read your books and PDFs and keep your highlights and notes in one place.',
+    about: 'Read your own books and PDFs on any device, with your highlights and notes kept alongside them.',
     points: [
-      ['Your books', 'EPUB, PDF, text and Markdown, kept on your device, with shelves and search.'],
-      ['Highlights and notes', 'Mark passages, write notes, and export them as Markdown.'],
-      ['From a Kindle', 'Bring in your Kindle highlights or a Readwise export.'],
-      ['A library folder', 'Keep books in OneDrive, Google Drive or Dropbox, and they come onto your shelf.'],
-      ['Pomodoro', 'Timed reading blocks with a bell, cards to look at again, and your reading time by day.'],
+      ['Your library', 'EPUB, PDF, text and Markdown, with shelves and search.'],
+      ['Highlights and notes', 'Highlight passages, add notes and export them as Markdown.'],
+      ['Kindle and Readwise', 'Import your Kindle highlights or a Readwise export.'],
+      ['Cloud folder', 'Point it at a folder in OneDrive, Google Drive or Dropbox and your books appear on your shelf.'],
+      ['Reading timer', 'Timed reading sessions with a bell, flashcards and your reading time by day.'],
     ],
   },
   {
     id: 'diaita', name: 'Diaita', icon: '/diaita/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0e1014', accent: '#e2b26e', ink: '#ece8e1',
-    line: 'Sleep, light, food and caffeine around your schedule',
-    card: 'Sleep, naps, light, caffeine and meals planned around your schedule.',
-    about: 'A plan for sleep, naps, light, caffeine and meals that follows your actual schedule, including night shifts, with the source for every line.',
+    line: 'Sleep and energy, around your schedule',
+    card: 'When to sleep, nap, get light, stop caffeine and eat, planned around your schedule.',
+    about: 'A daily plan for sleep, naps, light, caffeine and meals that follows your real schedule, night shifts included. Every suggestion links to its source.',
     points: [
-      ['Around your schedule', 'Bedtime, wind-down and last caffeine move with your days, evenings and nights.'],
-      ['Night shifts', 'A nap before the first night, light in the first half, and a short sleep after the last.'],
-      ['Wind down', 'A 10 to 20 minute wind-down with sounds, and a dim page for when you can’t sleep.'],
-      ['Sources', 'Every suggestion opens the study it comes from.'],
+      ['Fits your schedule', 'Bedtime, wind-down and your last coffee move with your days, evenings and nights.'],
+      ['Night shifts', 'When to nap before your first night, when to seek light and how to sleep after your last.'],
+      ['Wind down', 'A 10 to 20 minute wind-down with sounds, and a dim screen for when you can’t sleep.'],
+      ['Backed by research', 'Every suggestion links to the study behind it.'],
     ],
   },
   {
     id: 'philia', name: 'Philia', icon: '/philia/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#120f10', accent: '#e39a8f', ink: '#f0e8e4',
-    line: 'The people in your life',
-    card: 'Birthdays, gift ideas and times together with the people in your life.',
-    about: 'Birthdays, things to remember, gift ideas and times together with the people in your life.',
+    line: 'Birthdays and staying in touch',
+    card: 'Birthdays, gift ideas and staying in touch with the people you care about.',
+    about: 'Remember birthdays, keep gift ideas and stay in touch with the people you care about.',
     points: [
-      ['Coming up', 'Birthdays and other dates in the next month, with a reminder when you want one.'],
-      ['Keep in touch', 'Choose a rhythm for someone, and see how long it has been. Nothing more.'],
-      ['One tap', 'Called, messaged or saw them, kept as a timeline for each person.'],
-      ['Gift ideas', 'Ideas as they come to you, marked when given.'],
+      ['Coming up', 'Birthdays and other dates in the next month, with reminders if you want them.'],
+      ['Stay in touch', 'Pick how often you’d like to catch up with someone and see how long it’s been.'],
+      ['One tap', 'Log a call, a message or a visit in one tap. Each person gets their own timeline.'],
+      ['Gift ideas', 'Save ideas when they come to you and mark them when given.'],
     ],
   },
   {
     id: 'ergon', name: 'Ergon', icon: '/ergon/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0e1112', accent: '#8fc1b5', ink: '#e9ece8',
-    line: 'Household chores, shared',
-    card: 'Household chores that come around, shared with the people you live with.',
-    about: 'Chores that come around when they are due, shared with the people you live with, with turns if you take them.',
+    line: 'Chores, shared with your household',
+    card: 'Chores that repeat when they’re due, shared with everyone you live with.',
+    about: 'Chores that come back when they’re due, shared with everyone you live with. Take turns if you like.',
     points: [
-      ['Comes around', 'Every few days, on weekdays, monthly or once, counted from when it was last done.'],
-      ['Shared', 'One household for everyone you live with, sealed so only you can read it.'],
-      ['Turns', 'A chore can pass to the next person each time it is done.'],
-      ['Steps and rooms', 'Steps for bigger chores, and chores grouped by room.'],
+      ['Repeats', 'Every few days, on set weekdays, monthly or once, counted from when it was last done.'],
+      ['Shared', 'One list for your whole household, end-to-end encrypted.'],
+      ['Take turns', 'A chore can pass to the next person each time it’s done.'],
+      ['Steps and rooms', 'Break bigger chores into steps and group chores by room.'],
     ],
   },
   {
     id: 'therapeia', name: 'Therapeia', icon: '/therapeia/icons/icon-192.png', category: 'HealthApplication',
     ground: '#10141a', accent: '#9cb8e0', ink: '#e8edf4',
     line: 'Medicines and appointments',
-    card: 'Medicines at the times you set or around your sleep, refills, and visits with your questions.',
-    about: 'Medicines at the times you set, or around your sleep on any schedule, with refills, appointments and the questions for them. It gives no medical advice.',
+    card: 'Medicine reminders, refills and appointments, with your questions ready.',
+    about: 'Medicine reminders at the times you set or around your sleep, plus refills, appointments and the questions you want to ask. Therapeia doesn’t give medical advice.',
     points: [
-      ['Dose times', 'At a clock time, after waking or before sleep, so doses follow a night shift.'],
-      ['Refills', 'The supply counts down as you mark doses, with a reminder before it runs out.'],
-      ['Visits', 'Questions to ask, notes, and a printable list of your medicines.'],
-      ['A care circle', 'Share the list with someone who helps, sealed so only you two can read it.'],
+      ['Dose times', 'At a set time, after waking or before bed, so doses follow a night shift.'],
+      ['Refills', 'Your supply counts down as you take doses, with a reminder before you run out.'],
+      ['Appointments', 'Questions to ask, notes and a printable list of your medicines.'],
+      ['Family and carers', 'Track medicines for family members and share the list with someone who helps.'],
     ],
   },
   {
     id: 'dynamis', name: 'Dynamis', icon: '/dynamis/icons/icon-192.png', category: 'HealthApplication',
     ground: '#141110', accent: '#e0a36b', ink: '#f2ebe4',
-    line: 'Strength and mobility',
-    card: 'Strength and mobility sessions built from the research, with every set logged.',
-    about: 'Full-body strength sessions built from the research, with sets, weights and rests logged as you go, and short mobility routines.',
+    line: 'Strength training and mobility',
+    card: 'Strength workouts built on research, with every set logged.',
+    about: 'Full-body strength workouts built on research, with sets, weights and rest times logged as you go, plus short mobility routines.',
     points: [
-      ['Built from research', 'Each muscle group twice a week, reps by your aim, stopping a few reps short.'],
-      ['Gym or home', 'A gym, dumbbells at home, or no equipment at all. Swap any exercise.'],
-      ['Every set', 'Rests on a timer, and each exercise’s history and records.'],
-      ['Offered, never applied', 'When every set reaches the top, a little more weight is offered. You decide.'],
+      ['Built on research', 'Each muscle group twice a week, reps matched to your goal.'],
+      ['Gym or home', 'Train at the gym, with dumbbells at home or with no equipment. Swap any exercise.'],
+      ['Every set logged', 'A rest timer, plus each exercise’s history and personal bests.'],
+      ['You decide', 'When you hit the top of your rep range, more weight is suggested. Take it or leave it.'],
     ],
   },
   {
     id: 'ktema', name: 'Ktema', icon: '/ktema/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#12130f', accent: '#c7b37a', ink: '#efece2',
     line: 'Home, car and belongings',
-    card: 'Warranties, models and manuals, and the upkeep your home and car need.',
-    about: 'Warranties, models and manuals in one place, and the upkeep your home and car need, by date or by mileage.',
+    card: 'Warranties, manuals and upkeep for your home and car in one place.',
+    about: 'Warranties, model numbers and manuals in one place, with reminders for home and car maintenance by date or mileage.',
     points: [
-      ['Your things', 'Make, model, serial, where it was bought, and the manual, with photos.'],
-      ['Warranties', 'A reminder a month before a warranty or document ends.'],
-      ['Upkeep', 'Filters, oil and the rest, by date or by distance for a car.'],
-      ['For insurance', 'A list by room with prices, to print or download.'],
+      ['Your things', 'Make, model, serial number, receipt, manual and photos.'],
+      ['Warranties', 'A reminder a month before a warranty or document expires.'],
+      ['Maintenance', 'Filters, oil changes and more, by date or by mileage.'],
+      ['Insurance list', 'Everything by room with prices, ready to print or download.'],
     ],
   },
   {
     id: 'phyton', name: 'Phyton', icon: '/phyton/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6',
-    line: 'Plants and watering',
-    card: 'Your plants, each checked when its soil is likely dry. Identify a plant from a photo.',
-    about: 'Each plant comes around to be checked when its soil is likely dry, from its type and your own waterings. Identify a plant from a photo.',
+    line: 'Plant care and watering',
+    card: 'Water each plant when it needs it, and identify plants from a photo.',
+    about: 'Phyton reminds you to check each plant when its soil is likely dry, and learns from when you actually water. Identify a plant from a photo.',
     points: [
-      ['Checked, not scheduled', 'Watered or still moist: the timing learns from what you actually did.'],
-      ['Identify', 'Name a plant from up to three photos, with care notes for about 85 types.'],
-      ['Outside', 'Rain counts as watering, and frost tonight brings a reminder.'],
-      ['Away', 'A sheet for whoever waters while you are gone.'],
+      ['Learns your plants', 'Mark watered or still moist, and the timing adjusts to what you do.'],
+      ['Identify', 'Name a plant from a photo, with care notes for about 85 types.'],
+      ['Outdoor plants', 'Rain counts as watering, and you get a heads-up when frost is on the way.'],
+      ['Going away', 'A care sheet for whoever waters while you’re gone.'],
     ],
   },
   {
     id: 'poreia', name: 'Poreia', icon: '/poreia/icons/icon-192.png', category: 'TravelApplication',
     ground: '#071c24', accent: '#4cc3c7', ink: '#e8f5f2',
-    line: 'Trips and time off',
+    line: 'Trip planning and time off',
     card: 'Plan a trip from the first idea to the flight home: bookings, day plans, packing and costs.',
-    about: 'Plan a trip from the first idea to home again: one place or several, days with their weather, bookings brought in from any confirmation, a map of what is around, packing, spending shared with the people going, and time off against your work schedule.',
+    about: 'Plan a trip from the first idea to the flight home. Bookings, day plans, maps, packing and shared costs in one place, plus your time off.',
     points: [
-      ['Days that fit', 'Each day with its forecast, the walk between two places, and the stretches with nothing set.'],
-      ['Bookings from anywhere', 'Paste a confirmation, or bring in a PDF, a screenshot or a calendar invite; each lands on its day with its code.'],
-      ['Together', 'Share a trip with the people going: the same days, bookings, packing and spending, and who paid what.'],
-      ['Around you', 'A map of each place with the guide’s picks, what is nearby and events in your dates, with directions.'],
-      ['Time off', 'Your balance and how it grows, with each trip’s hours counted from your work shifts.'],
-      ['With Proairetos', 'Approved time off takes those shifts off your schedule; trips show on Today and in Days ahead.'],
+      ['Day by day', 'Each day with its forecast, travel times between places and your free time.'],
+      ['Bookings from anywhere', 'Paste a confirmation or add a PDF, screenshot or calendar invite. It lands on the right day.'],
+      ['Travel together', 'Share a trip with the people going: the same plans, packing list and costs, and who paid what.'],
+      ['Around you', 'A map of places to see, eat and stay, plus events during your trip, with directions.'],
+      ['Time off', 'Your balance and how it grows, with each trip’s hours counted from your work schedule.'],
+      ['With Proairetos', 'Time off clears those shifts from your schedule, and trips show on your Today.'],
     ],
   },
 ];
@@ -614,7 +614,7 @@ function appPage(app) {
       </header>
 
       <section class="wrap" aria-labelledby="what">
-        <h2 id="what">What it does</h2>
+        <h2 id="what">Features</h2>
         <ul class="points">
 ${app.points.map(([name, text]) => `          <li><h3>${esc(name)}</h3><p>${esc(text)}</p></li>`).join('\n')}
         </ul>
@@ -623,7 +623,7 @@ ${app.points.map(([name, text]) => `          <li><h3>${esc(name)}</h3><p>${esc(
           ? `
 
       <section class="wrap" aria-labelledby="look">
-        <h2 id="look">A closer look</h2>
+        <h2 id="look">Screenshots</h2>
         <div class="shots">
 ${others.map((shot) => `          <img src="${shot.src}" alt="${app.name}${shot.wide ? ' on a computer' : ' on a phone'}" />`).join('\n')}
         </div>
@@ -632,14 +632,14 @@ ${others.map((shot) => `          <img src="${shot.src}" alt="${app.name}${shot.
       }
 
       <section class="wrap" aria-labelledby="install-title">
-        <h2 id="install-title">On any device</h2>
-        <p class="lead">${app.name} is a web app: open it in your browser and add it to your Home Screen, on iPhone, Android or a computer. No app store, no download. <a href="/welcome/#install">How to add it</a></p>
+        <h2 id="install-title">Works on every device</h2>
+        <p class="lead">Open ${app.name} in your browser on iPhone, Android or a computer, and add it to your Home Screen. Nothing to download. <a href="/welcome/#install">How to add it</a></p>
       </section>
 ${waitlist({ source: app.id, picked: [app.id], choose: false })}
 ${privacyNotes}
 
       <section class="wrap" aria-labelledby="family">
-        <h2 id="family">${app.id === 'proairetos' ? 'Apps that work with it' : 'Part of the Proairetos family'}</h2>
+        <h2 id="family">${app.id === 'proairetos' ? 'Works with these apps' : 'More from Proairetos'}</h2>
         <ul class="family">
 ${[apps[0], ...others13].filter((each) => each.id !== app.id).map((each) => `          <li><a href="${pageOf(each)}"><img src="${each.icon}" alt="" width="28" height="28" />${each.name}</a></li>`).join('\n')}
         </ul>
