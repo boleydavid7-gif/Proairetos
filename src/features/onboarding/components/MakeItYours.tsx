@@ -1,11 +1,11 @@
 import { Sym } from '../../../lamplight/icons';
 
-export type Choices = { name: string; shifts: boolean };
+export type Choices = { name: string; shifts: boolean; intention: string };
 
 type Props = { choices: Choices; onChange: (choices: Choices) => void };
 
 /**
- * Name and whether to set up a schedule next. Both can be left empty. Values are not asked for here: Today offers them
+ * Name, one thing that matters today (Today's intention) and whether to set up a schedule next. All can be left empty. Values are not asked for here: Today offers them
  * after a few days, and Compass holds them.
  */
 export default function MakeItYours({ choices, onChange }: Props) {
@@ -19,6 +19,16 @@ export default function MakeItYours({ choices, onChange }: Props) {
           maxLength={40}
           value={choices.name}
           onChange={(event) => onChange({ ...choices, name: event.target.value })}
+        />
+      </label>
+
+      <label className="make-yours__field">
+        <span>One thing that matters today <em>(optional)</em></span>
+        <input
+          className="make-yours__input"
+          maxLength={120}
+          value={choices.intention}
+          onChange={(event) => onChange({ ...choices, intention: event.target.value })}
         />
       </label>
 

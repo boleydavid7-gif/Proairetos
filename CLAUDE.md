@@ -1457,11 +1457,15 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   `app/PillMark.tsx`). Philia photos on the device only (`philia/data/photos.ts`, IndexedDB `philia-photos`, square
   480px JPEG; `Initials` takes `id`). `app/family/SwipeItem.tsx`: pull left to mark a row (doses, chores, upkeep, keep in
   touch; left arrow too). `Empty` in `shell.tsx` for empty lists. Therapeia and Ktema open their first form after Welcome.
-- Onboarding (`features/onboarding/steps.ts`, the owner's words; `prose` steps read as paragraphs on a paper panel,
-  `.onboarding-hero--prose`): Proairetos (the meaning of the name and prohairesis), Why Proairetos, The Store (panel
-  `apps`), Make time for what matters, Prices and sync (the trial line first, `.more-apps__trial`), Make it yours ("Continue
-  with a free trial" remembers the choice), On your Home Screen last (Begin or Skip this; Begin opens Account when the trial
-  was chosen). The front page carries the same story ("Why Proairetos"). Earlier note: "On your Home Screen"
+- Onboarding (`features/onboarding/steps.ts`, the owner's words): one drawn scene travels with the steps
+  (`OnboardingLayout` sets `--pan`, `--dusk`, `--lamp`, `--morning`; `BackgroundScene` pans `valley-wide` and fades in the
+  coast, `poreia-wide`, for the sails), from dusk through the lamp to morning; lines rise one after another (`Lines`, `--i`);
+  a lamp-light `StepLine` instead of dots; a sideways swipe moves between steps; `tap()` on each move; reduced motion stills it.
+  Steps: προαιρετός as a dictionary entry; Adjust your sails (`Sails`: the wind, the waves, how you set your sails, where you
+  steer, each Up to me / Not up to me, never marked right or wrong, then the closing lines on gathering everything into one
+  calm place); Why Proairetos; The Store ("What pulls at your attention?" chips bring matching apps forward, nothing added);
+  Make time for what matters; Prices and sync (the trial as a timeline, `.trial-line`); Make it yours (name, "One thing that
+  matters today" written as Today's intention, schedule; "Continue with a free trial"); On your Home Screen last. Earlier note: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
   "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store),

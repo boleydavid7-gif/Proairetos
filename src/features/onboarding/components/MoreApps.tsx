@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { familyApps } from '../../../app/family/FamilyApps';
+import { tap } from '../../../app/feel';
 import { priceText } from '../../../app/family/purchases';
 
 /** The prices, from the Store's own figures (the server's when known). */
@@ -10,15 +12,47 @@ const PLANS: { name: string; price: () => string; detail?: string }[] = [
   { name: 'Soma + Phyton', price: () => `${priceText('bundle')}/mo` },
 ];
 
+/** What can pull at a person's attention, and the apps for each. Choosing only brings those apps forward; nothing is added. */
+const INTERESTS: { label: string; apps: string[] }[] = [
+  { label: 'Health and fitness', apps: ['askesis', 'dynamis', 'diaita', 'therapeia'] },
+  { label: 'Food', apps: ['soma'] },
+  { label: 'Home', apps: ['ergon', 'ktema', 'phyton'] },
+  { label: 'Money', apps: ['oikonomia'] },
+  { label: 'People', apps: ['philia'] },
+  { label: 'Travel', apps: ['poreia'] },
+  { label: 'Reading and notes', apps: ['theoria', 'mneme'] },
+];
+
 /** The other apps in the family, briefly, and how to add them. */
 export default function MoreApps({ onStore }: { onStore: () => void }) {
+  const [chosen, setChosen] = useState<string[]>([]);
+  const wanted = new Set(INTERESTS.filter((each) => chosen.includes(each.label)).flatMap((each) => each.apps));
+  const apps = familyApps
+    .filter((app) => app.id !== 'proairetos')
+    .map((app, order) => ({ app, order, match: wanted.has(app.id) }))
+    .sort((a, b) => Number(b.match) - Number(a.match) || a.order - b.order);
   return (
     <div className="make-yours more-apps">
-      <ul className="more-apps__list">
-        {familyApps
-          .filter((app) => app.id !== 'proairetos')
-          .map((app) => (
-            <li key={app.id} className="more-apps__app">
+      <h3 className="more-apps__ask">What pulls at your attention?</h3>
+      <div className="make-yours__chips" role="group" aria-label="What pulls at your attention?">
+        {INTERESTS.map((each) => (
+          <button
+            key={each.label}
+            type="button"
+            className="make-yours__chip"
+            aria-pressed={chosen.includes(each.label)}
+            onClick={() => {
+              tap();
+              setChosen((now) => (now.includes(each.label) ? now.filter((label) => label !== each.label) : [...now, each.label]));
+            }}
+          >
+            {each.label}
+          </button>
+        ))}
+      </div>
+      <ul className="more-apps__list" data-choosing={chosen.length > 0 || undefined}>
+        {apps.map(({ app, match }) => (
+            <li key={app.id} className="more-apps__app" data-match={match || undefined}>
               <img src={app.icon} alt="" width={36} height={36} />
               <span>
                 <strong>{app.name}</strong>
@@ -58,8 +92,13 @@ export function PlansAndSync() {
   return (
     <div className="make-yours more-apps">
       <section className="more-apps__plans" aria-label="Prices">
+        <h3>Your free trial</h3>
+        <ol className="trial-line">
+          <li><b>Today</b><span>Make an account and every app is yours to use. No card needed.</span></li>
+          <li><b>Day 6</b><span>An email says when the trial ends.</span></li>
+          <li><b>Day 7</b><span>The trial ends. Nothing is charged; Proairetos stays free.</span></li>
+        </ol>
         <h3>Prices</h3>
-        <p className="more-apps__trial">Every app is free for 7 days once you make an account. No card needed.</p>
         <ul>
           {PLANS.map((plan) => (
             <li key={plan.name}>

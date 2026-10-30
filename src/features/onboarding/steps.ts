@@ -2,27 +2,39 @@ export type OnboardingStep = {
   title: string;
   lines: string[];
   action: string;
+  /** The first step: the name as a dictionary entry. */
   brand?: boolean;
-  /** A few short paragraphs on a readable panel (the meaning of the name, why the app exists). */
+  /** Paragraphs that rise in one after another over the scene (the owner's words). */
   prose?: boolean;
-  /** The form for name and shifts. */
+  /** The form for name, schedule and the first intention. */
   form?: boolean;
-  /** A panel in place of the form: Home Screen steps, or the other apps. */
-  panel?: 'home-screen' | 'apps' | 'plans';
+  /** A panel under the words: sorting the sea and the sails, the apps, prices, or the Home Screen steps. */
+  panel?: 'sails' | 'apps' | 'plans' | 'home-screen';
+  /** The picture behind it: the valley, or the coast for the sails. */
+  scene?: 'valley' | 'sea';
 };
 
+/** The owner's words throughout. One scene travels with the steps, from dusk to the lamp to morning. */
 export const onboardingSteps: OnboardingStep[] = [
   {
-    title: 'Proairetos',
-    prose: true,
+    title: 'προαιρετός',
     lines: [
-      'Proairetos (προαιρετός) is ancient Greek for what is chosen deliberately.',
-      'It comes from prohairesis (προαίρεσις), the Stoic name for our capacity to consider, judge and choose how we respond and act.',
+      'From prohairesis (προαίρεσις), the Stoic name for our capacity to consider, judge and choose how we respond and act.',
       'We cannot control everything that happens to us, or give equal attention to everything that asks for it.',
       'We can become more deliberate about where our attention goes, how we use our time and what we put first.',
     ],
     action: 'Get started',
     brand: true,
+  },
+  {
+    title: 'Adjust your sails',
+    lines: [
+      'The sea isn’t yours to control. Your sails are.',
+      'Proairetos gathers your plans, people, money, health and home into one calm place, so you can steer by what matters to you.',
+    ],
+    action: 'Continue',
+    panel: 'sails',
+    scene: 'sea',
   },
   {
     title: 'Why Proairetos',

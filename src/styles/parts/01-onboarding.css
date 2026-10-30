@@ -13,7 +13,7 @@
   overflow-x: hidden;
   padding: calc(var(--ll-safe-top) + var(--space-4)) var(--space-5)
     calc(env(safe-area-inset-bottom) + var(--space-6));
-  color: var(--color-paper-ink);
+  color: #f4ecdd;
   text-align: center;
 }
 
@@ -21,31 +21,67 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--color-parchment);
+  overflow: hidden;
+  background: #0f0d0c;
 }
 
+/* The valley, wider than the screen, glides a little with each step; the coast fades in for the sails. */
 .onboarding-background__photo {
   position: absolute;
-  inset: 0;
+  inset: -2%;
   background-size: cover;
-  background-position: center 62%;
-  filter: grayscale(0.75) sepia(0.55) brightness(1.08) contrast(0.88);
+  background-position: var(--pan, 30%) 62%;
+  filter: saturate(0.85) brightness(0.9);
+  transition: background-position 1400ms var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)), opacity 900ms ease;
 }
 
-/* Parchment sky over the top, mist through the middle, ink at the bottom for the buttons. */
+.onboarding-background__sea {
+  opacity: 0;
+  background-position: 62% 60%;
+}
+
+.onboarding-background[data-scene='sea'] .onboarding-background__sea {
+  opacity: 1;
+}
+
+/* The coast keeps more of its light, so the sea and the sail read behind the cards. */
+.onboarding-background[data-scene='sea'] .onboarding-background__dusk {
+  opacity: calc(var(--dusk, 0.7) * 0.5);
+}
+
+/* Dusk at the start, lifting as the steps go on. */
+.onboarding-background__dusk {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0c0e16 0%, #15121a 45%, #0f0d0c 100%);
+  opacity: var(--dusk, 0.7);
+  transition: opacity 1200ms ease;
+}
+
+/* The lamp: one warm light high on the right, brightest in the middle of the welcome. */
+.onboarding-background__lamp {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 45% at 70% 10%, rgb(255 186 110 / 0.5), rgb(255 186 110 / 0) 70%);
+  opacity: var(--lamp, 0.3);
+  mix-blend-mode: screen;
+  transition: opacity 1400ms ease;
+}
+
+/* Morning comes in at the end as a pale warmth over the sky. */
+.onboarding-background__morning {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(255 222 176 / 0.34) 0%, rgb(255 222 176 / 0) 55%);
+  opacity: var(--morning, 0);
+  transition: opacity 1400ms ease;
+}
+
+/* The words always sit on enough dark; the foot is ink for the buttons. */
 .onboarding-background__wash {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    var(--color-parchment) 0%,
-    var(--color-parchment) 34%,
-    rgba(240, 222, 195, 0.75) 44%,
-    rgba(240, 222, 195, 0.12) 58%,
-    rgba(16, 15, 13, 0.25) 70%,
-    rgba(10, 12, 14, 0.88) 84%,
-    var(--color-ink) 100%
-  );
+  background: linear-gradient(180deg, rgb(10 9 8 / 0.35) 0%, rgb(10 9 8 / 0.2) 40%, rgb(10 9 8 / 0.55) 70%, #0d0b0a 100%);
 }
 
 .onboarding-topbar {
@@ -63,7 +99,7 @@
   place-items: center;
   border: 0;
   background: transparent;
-  color: var(--color-paper-ink);
+  color: #f4ecdd;
   font-weight: 500;
 }
 
@@ -83,7 +119,8 @@
   font-family: var(--font-serif);
   font-weight: 500;
   line-height: 1;
-  color: #1f1a15;
+  color: #f7f0e3;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.35);
 }
 
 .onboarding-hero__brand {
@@ -101,25 +138,220 @@
   flex-direction: column;
   gap: 0.2rem;
   font-size: var(--text-lg);
-  line-height: 1.4;
-  color: #3d342b;
+  line-height: 1.45;
+  color: rgb(244 236 221 / 0.88);
+  text-shadow: 0 1px 16px rgb(0 0 0 / 0.45);
 }
 
-/* The first steps carry the meaning of the name and why the app exists: a paragraph each, on a panel of the sky's paper so the words stay
-   clear where the trees begin. */
+/* Each line rises in after the one before (the Lines component sets --i). */
+.onboarding-hero__lines span {
+  animation: rise 700ms var(--ll-spring, ease-out) both;
+  animation-delay: calc(180ms + var(--i, 0) * 420ms);
+}
+
+/* Prose steps: the owner's words, large and unboxed on the scene, a paragraph at a time. */
 .onboarding-hero--prose {
-  margin-top: clamp(0.5rem, 4vh, 2.5rem);
-  gap: var(--space-3);
+  margin-top: clamp(1rem, 8vh, 4rem);
+  gap: var(--space-5);
+  max-width: 24rem;
 }
 
 .onboarding-hero--prose .onboarding-hero__lines {
+  gap: var(--space-4);
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 5vw, 1.4rem);
+  line-height: 1.4;
+}
+
+/* The first step: the name as a dictionary entry. */
+.onboarding-hero--word {
+  margin-top: clamp(1rem, 6vh, 3.5rem);
+  gap: var(--space-2);
+  max-width: 24rem;
+}
+
+.onboarding-word__name {
+  margin: 0 0 var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  color: rgb(244 236 221 / 0.82);
+}
+
+.onboarding-word {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(3rem, 15vw, 4.6rem);
+  line-height: 1;
+  color: #fbf4e6;
+  text-shadow: 0 2px 40px rgb(255 190 120 / 0.25);
+  animation: rise 900ms var(--ll-spring, ease-out) both;
+}
+
+.onboarding-word__say {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-md);
+  letter-spacing: 0.08em;
+  color: rgb(244 236 221 / 0.7);
+}
+
+.onboarding-word__sense {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-serif);
+  font-size: var(--text-xl, 1.3rem);
+  color: #f4ecdd;
+}
+
+.onboarding-word__sense i {
+  margin-right: 0.4em;
+  color: rgb(214 176 131 / 0.95);
+}
+
+.onboarding-hero--word .onboarding-hero__lines {
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-radius: 18px;
-  background: rgb(244 236 221 / 0.9);
-  box-shadow: 0 10px 30px rgb(23 19 15 / 0.18);
-  font-size: var(--text-base);
-  line-height: 1.5;
+  font-size: var(--text-md);
+}
+
+/* Adjust your sails: four things, each sorted with a tap. */
+.sails {
+  width: 100%;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sails__card {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgb(14 22 28 / 0.62);
+  border: 1px solid rgb(244 236 221 / 0.14);
+  text-align: left;
+  transition: background 500ms ease, border-color 500ms ease;
+}
+
+.sails__card[data-side='mine'] {
+  background: rgb(201 162 116 / 0.28);
+  border-color: rgb(214 176 131 / 0.6);
+}
+
+.sails__thing {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+}
+
+.sails__choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.sails__choice button {
+  min-height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgb(244 236 221 / 0.25);
+  background: transparent;
+  color: #f4ecdd;
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.sails__choice button[aria-pressed='true'] {
+  border-color: transparent;
+  background: #d6b083;
+  color: #1f1a15;
+  font-weight: 600;
+}
+
+/* The line of light along the foot: how far along. */
+.step-line {
+  width: min(100%, 12rem);
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(244 236 221 / 0.18);
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.step-line span {
+  display: block;
+  height: 100%;
+  width: calc(var(--p, 0) * 100%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c19463, #f2cf9a);
+  box-shadow: 0 0 12px rgb(242 207 154 / 0.7);
+  transition: width 900ms var(--ll-spring, ease-out);
+}
+
+/* The free trial as a timeline: today, the reminder, the end. */
+.trial-line {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+  position: relative;
+}
+
+.trial-line::before {
+  content: '';
+  position: absolute;
+  left: 0.42rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: rgb(138 106 70 / 0.35);
+}
+
+.trial-line li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 1.8rem;
+}
+
+.trial-line li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: #f2e6d2;
+  border: 2px solid #8a6a46;
+}
+
+.trial-line li:first-child::before {
+  background: #8a6a46;
+}
+
+.trial-line b {
+  font-size: var(--text-sm);
+}
+
+.trial-line span {
+  color: #5e5042;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+/* What pulls at your attention: the chosen kinds bring their apps forward. */
+.more-apps__ask {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.more-apps__list[data-choosing] .more-apps__app:not([data-match]) {
+  opacity: 0.45;
+}
+
+.more-apps__app[data-match] img {
+  box-shadow: 0 0 0 2px #f2e6d2, 0 0 0 4px #c19463;
 }
 
 .onboarding-actions {
@@ -145,25 +377,6 @@
   inset: 0 -50vw calc(-1 * (env(safe-area-inset-bottom) + var(--space-6)));
   background: linear-gradient(180deg, rgba(23, 19, 15, 0) 0%, rgba(23, 19, 15, 0.94) 38%, #17130f 100%);
   pointer-events: none;
-}
-
-.step-dots {
-  display: flex;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.step-dots__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(240, 222, 195, 0.35);
-  transition: background 200ms ease, transform 200ms ease;
-}
-
-.step-dots__dot[data-active] {
-  background: var(--color-parchment);
-  transform: scale(1.2);
 }
 
 .onboarding-primary {
@@ -412,7 +625,7 @@
   list-style: none;
 }
 
-.more-apps__plans li {
+.more-apps__plans ul li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -421,11 +634,11 @@
   border-bottom: 1px solid rgba(43, 37, 31, 0.14);
 }
 
-.more-apps__plans li:last-child {
+.more-apps__plans ul li:last-child {
   border-bottom: 0;
 }
 
-.more-apps__plans li span:first-child {
+.more-apps__plans ul li span:first-child {
   display: grid;
   gap: 2px;
   min-width: 0;
@@ -494,19 +707,18 @@
   font-weight: 600;
 }
 
-/* Short phones (iPhone SE): the compass steps aside so the words fit above the action. */
+/* Short phones (iPhone SE): smaller words so they fit above the action. */
 @media (max-height: 760px) {
-  .onboarding-hero--prose > :first-child {
-    display: none;
-  }
-
-  .onboarding-hero--prose :is(.onboarding-hero__brand, .onboarding-hero__title) {
-    font-size: clamp(2.4rem, 11vw, 3rem);
-  }
-
   .onboarding-hero--prose .onboarding-hero__lines {
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+    font-size: 1.1rem;
+  }
+
+  .onboarding-word {
+    font-size: clamp(2.6rem, 13vw, 3.4rem);
+  }
+
+  .onboarding-hero--word .onboarding-hero__lines {
     font-size: var(--text-sm);
   }
 }
@@ -520,4 +732,16 @@
   color: #2b241d;
   font-weight: 600;
   line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-background > *,
+  .step-line span {
+    transition: none;
+  }
+
+  .onboarding-hero__lines span,
+  .onboarding-word {
+    animation: none;
+  }
 }
