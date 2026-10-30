@@ -1457,15 +1457,19 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   `app/PillMark.tsx`). Philia photos on the device only (`philia/data/photos.ts`, IndexedDB `philia-photos`, square
   480px JPEG; `Initials` takes `id`). `app/family/SwipeItem.tsx`: pull left to mark a row (doses, chores, upkeep, keep in
   touch; left arrow too). `Empty` in `shell.tsx` for empty lists. Therapeia and Ktema open their first form after Welcome.
-- Onboarding (`features/onboarding/steps.ts`, the owner's words): one drawn scene travels with the steps
-  (`OnboardingLayout` sets `--pan`, `--dusk`, `--lamp`, `--morning`; `BackgroundScene` pans `valley-wide` and fades in the
-  coast, `poreia-wide`, for the sails), from dusk through the lamp to morning; lines rise one after another (`Lines`, `--i`);
-  a lamp-light `StepLine` instead of dots; a sideways swipe moves between steps; `tap()` on each move; reduced motion stills it.
-  Steps: προαιρετός as a dictionary entry; Adjust your sails (`Sails`: the wind, the waves, how you set your sails, where you
-  steer, each Up to me / Not up to me, never marked right or wrong, then the closing lines on gathering everything into one
-  calm place); Why Proairetos; The Store ("What pulls at your attention?" chips bring matching apps forward, nothing added);
-  Make time for what matters; Prices and sync (the trial as a timeline, `.trial-line`); Make it yours (name, "One thing that
-  matters today" written as Today's intention, schedule; "Continue with a free trial"); On your Home Screen last. Earlier note: "On your Home Screen"
+- Onboarding (`features/onboarding/steps.ts`, the owner's words), redesigned on Lamplight after Apple's and Microsoft's
+  first-run patterns (one idea a screen, a gesture before words, choose your look, the app as the ending): it happens in the
+  person's own room (`OnboardingLayout`: the room's dark scheme as `--ob-*` and its wallpaper `--ob-wall`, so a room or color
+  chosen on Make it yours redraws it at once; always dark). The first screen is dark until the person holds the lamp
+  (`LampSwitch`: `--hold` follows the press, a keyboard or screen-reader press lights at once), then προαιρετός is written in
+  by a passing light (mask sweep) as a dictionary entry. Adjust your sails is played (`Sails`: the wind changes on its own,
+  the sail is set by drag or slider; once full for 2.2 s the closing lines rise). Why and Make time for what matters light a
+  line at a time like a lyrics view, then all (`LitLines`, tap to show all; finale "Your life. Your choices. Your time.").
+  The Store's apps fly in and gather round the compass (`Gathering`), lit by "What pulls at your attention?" chips. Prices:
+  the light walks the trial line (Today, Day 6 "An email reminder before your trial ends.", Day 7). Make it yours: greeting
+  preview, name, intention, Room and Color (saved to Appearance), schedule. Begin: the words leave and the room stays
+  (Today wears the same wallpaper). Reduced motion stills all of it.
+  Earlier note: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
   "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store),

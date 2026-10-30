@@ -1,6 +1,10 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-04',
+    lines: ['A new welcome: hold to light the lamp, set your sails, and choose your room and color before you begin.'],
+  },
+  {
     date: '2026-11-03',
     lines: ['Settings > Attention: the bell’s count as a number, a dot or off, Today’s updates card on or off, and the light on what’s next in every app.'],
   },

@@ -13,30 +13,30 @@ export default function HomeScreen() {
 
   if (installed) {
     return (
-      <div className="make-yours home-screen">
-        <p className="home-screen__done">Proairetos is on your Home Screen.</p>
+      <div className="ob-panel home-screen">
+        <p className="ob-card home-screen__done">Proairetos is on your Home Screen.</p>
       </div>
     );
   }
 
   return (
-    <div className="make-yours home-screen">
+    <div className="ob-panel home-screen">
       {prompt && (
-        <button type="button" className="home-screen__install" onClick={() => void promptInstall().then((done) => done && setInstalled(true))}>
+        <button type="button" className="ob-quiet ob-quiet--lit" onClick={() => void promptInstall().then((done) => done && setInstalled(true))}>
           Install Proairetos
         </button>
       )}
-      <div className="make-yours__chips home-screen__devices" role="group" aria-label="Device">
+      <div className="ob-chips home-screen__devices" role="group" aria-label="Device">
         {DEVICES.map((each) => (
-          <button key={each} type="button" className="make-yours__chip" aria-pressed={device === each} onClick={() => setDevice(each)}>
+          <button key={each} type="button" className="ob-chip" aria-pressed={device === each} onClick={() => setDevice(each)}>
             {INSTALL_STEPS[each].name}
           </button>
         ))}
       </div>
-      <ol className="home-screen__steps">
+      <ol className="ob-card home-screen__steps">
         {INSTALL_STEPS[device].steps.map((step) => <li key={step}>{step}</li>)}
       </ol>
-      <p className="home-screen__fine">It opens full screen, works offline and can send reminders.</p>
+      <p className="ob-fine">It opens full screen, works offline and can send reminders.</p>
     </div>
   );
 }

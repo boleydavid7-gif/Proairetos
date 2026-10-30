@@ -2,19 +2,21 @@ export type OnboardingStep = {
   title: string;
   lines: string[];
   action: string;
-  /** The first step: the name as a dictionary entry. */
+  /** The first step: the lamp, then the name as a dictionary entry. */
   brand?: boolean;
-  /** Paragraphs that rise in one after another over the scene (the owner's words). */
-  prose?: boolean;
-  /** The form for name, schedule and the first intention. */
+  /** The owner's words, lit one line at a time and then all together (as a lyrics view lights the line being sung). */
+  lit?: boolean;
+  /** A last line set apart, large, once the others have been read. */
+  finale?: string;
+  /** The form for name, room, color, schedule and the first intention. */
   form?: boolean;
-  /** A panel under the words: sorting the sea and the sails, the apps, prices, or the Home Screen steps. */
+  /** A panel under the words: the sails, the apps gathering, prices, or the Home Screen steps. */
   panel?: 'sails' | 'apps' | 'plans' | 'home-screen';
-  /** The picture for it: the valley, or the coast for the sails. */
-  scene?: 'valley' | 'sea';
+  /** The picture for it: the person's room, or the coast for the sails. */
+  scene?: 'room' | 'sea';
 };
 
-/** The owner's words throughout. One scene travels with the steps, from dusk to the lamp to morning. */
+/** The owner's words throughout. The welcome happens in the person's own room, lit by its one lamp. */
 export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'προαιρετός',
@@ -23,7 +25,7 @@ export const onboardingSteps: OnboardingStep[] = [
       'We cannot control everything that happens to us, or give equal attention to everything that asks for it.',
       'We can become more deliberate about where our attention goes, how we use our time and what we put first.',
     ],
-    action: 'Get started',
+    action: 'Continue',
     brand: true,
   },
   {
@@ -44,7 +46,7 @@ export const onboardingSteps: OnboardingStep[] = [
       'Not another system demanding your attention, but a tool that gives you more freedom to decide where your attention belongs.',
       'Because getting organized is meant to give you more time to live, not less.',
     ],
-    prose: true,
+    lit: true,
     action: 'Continue',
   },
   {
@@ -63,9 +65,9 @@ export const onboardingSteps: OnboardingStep[] = [
       'You don’t have to plan every moment.',
       'You just have to make room for the things that matter to you.',
       'Let Proairetos help with the everyday, so you can focus on what makes life yours.',
-      'Your life. Your choices. Your time.',
     ],
-    prose: true,
+    finale: 'Your life. Your choices. Your time.',
+    lit: true,
     action: 'Continue',
   },
   {

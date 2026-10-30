@@ -1,20 +1,28 @@
-/* ---------- Onboarding (light parchment) ---------- */
+/* ---------- Onboarding: the person's own room, dark until the lamp is lit ---------- */
 
+/* Every color here comes from the room's dark scheme (`--ob-*`, set by OnboardingLayout), so a room or color chosen
+   on Make it yours redraws the whole welcome at once. */
 .onboarding-layout {
   position: relative;
   isolation: isolate;
   min-height: 100svh;
-  /* A long step (the apps, the form) scrolls inside the page, with its action held at the foot. */
+  /* A long step scrolls inside the page, with its action held at the foot. */
   height: 100svh;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-x: hidden;
-  padding: calc(var(--ll-safe-top) + var(--space-4)) var(--space-5)
-    calc(env(safe-area-inset-bottom) + var(--space-6));
-  color: #f4ecdd;
+  padding: calc(var(--ll-safe-top) + var(--space-2)) 20px calc(env(safe-area-inset-bottom) + var(--space-5));
+  color: var(--ob-ink);
   text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.onboarding-layout :focus-visible {
+  outline: 2px solid var(--ob-lamp);
+  outline-offset: 3px;
 }
 
 .onboarding-background {
@@ -22,71 +30,75 @@
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: #0f0d0c;
+  background: var(--ob-page);
 }
 
-/* The valley, wider than the screen, glides a little with each step; the coast fades in for the sails. */
-.onboarding-background__photo {
+.onboarding-background > * {
   position: absolute;
-  inset: -2%;
-  background-size: cover;
-  background-position: var(--pan, 30%) 62%;
-  filter: saturate(0.85) brightness(0.9);
-  transition: background-position 1400ms var(--ll-spring, cubic-bezier(0.2, 0.8, 0.2, 1)), opacity 900ms ease;
+  inset: 0;
 }
 
+/* The room's wallpaper, the same one Today wears. */
+.onboarding-background__wall {
+  background: var(--ob-wall) center top / cover no-repeat;
+  transition: opacity 900ms ease;
+}
+
+/* The coast, for the sails. */
 .onboarding-background__sea {
-  opacity: 0;
+  background-size: cover;
   background-position: 62% 60%;
+  opacity: 0;
+  transition: opacity 900ms ease;
 }
 
 .onboarding-background[data-scene='sea'] .onboarding-background__sea {
   opacity: 1;
 }
 
-/* The coast keeps more of its light, so the sea and the sail show under the cards. */
-.onboarding-background[data-scene='sea'] .onboarding-background__dusk {
-  opacity: calc(var(--dusk, 0.7) * 0.5);
+/* The dark of the room before the lamp: it lifts as the lamp is held, and all the way once it is lit. */
+.onboarding-background__dark {
+  background: var(--ob-page);
+  opacity: calc(0.95 - var(--hold, 0) * 0.55);
+  transition: opacity 260ms ease-out;
 }
 
-/* Dusk at the start, lifting as the steps go on. */
-.onboarding-background__dusk {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, #0c0e16 0%, #15121a 45%, #0f0d0c 100%);
-  opacity: var(--dusk, 0.7);
-  transition: opacity 1200ms ease;
+.onboarding-layout[data-lit] .onboarding-background__dark {
+  opacity: 0.12;
+  transition: opacity 1800ms var(--ll-spring, ease-out);
 }
 
-/* The lamp: one warm light high on the right, brightest in the middle of the welcome. */
+.onboarding-layout[data-lit] .onboarding-background[data-scene='sea'] .onboarding-background__dark {
+  opacity: 0.3;
+}
+
+/* The lamp's own light, high on the right where the wallpaper draws it, in the chosen color. */
 .onboarding-background__lamp {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(70% 45% at 70% 10%, rgb(255 186 110 / 0.5), rgb(255 186 110 / 0) 70%);
-  opacity: var(--lamp, 0.3);
+  background: radial-gradient(62% 42% at 62% 8%, rgba(var(--ob-lamp-rgb), 0.42), rgba(var(--ob-lamp-rgb), 0) 72%);
   mix-blend-mode: screen;
-  transition: opacity 1400ms ease;
+  opacity: calc(var(--hold, 0) * 0.9);
+  transition: opacity 260ms ease-out;
 }
 
-/* Morning comes in at the end as a pale warmth over the sky. */
-.onboarding-background__morning {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgb(255 222 176 / 0.34) 0%, rgb(255 222 176 / 0) 55%);
-  opacity: var(--morning, 0);
-  transition: opacity 1400ms ease;
+.onboarding-layout[data-lit] .onboarding-background__lamp {
+  opacity: 0.6;
+  transition: opacity 1800ms var(--ll-spring, ease-out);
 }
 
-/* The words always sit on enough dark; the foot is ink for the buttons. */
+/* Words always sit on enough dark; the foot is the page for the buttons. */
 .onboarding-background__wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgb(10 9 8 / 0.35) 0%, rgb(10 9 8 / 0.2) 40%, rgb(10 9 8 / 0.55) 70%, #0d0b0a 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--ob-page-rgb), 0.3) 0%,
+    rgba(var(--ob-page-rgb), 0.12) 34%,
+    rgba(var(--ob-page-rgb), 0.55) 72%,
+    var(--ob-page) 100%
+  );
 }
 
 .onboarding-topbar {
   width: 100%;
-  max-width: 28rem;
+  max-width: 26rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -98,76 +110,99 @@
   display: grid;
   place-items: center;
   border: 0;
+  border-radius: 999px;
   background: transparent;
-  color: #f4ecdd;
+  color: var(--ob-ink-2);
+  font: inherit;
+  font-size: var(--text-md);
   font-weight: 500;
 }
 
+/* ---------- A step ---------- */
+
 .onboarding-hero {
-  margin-top: clamp(2rem, 9vh, 5rem);
+  width: 100%;
+  max-width: 23rem;
+  margin-top: clamp(1.5rem, 7vh, 4rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  max-width: 22rem;
-  animation: rise 420ms ease-out both;
+  --ob-from: 28px;
+  animation: ob-enter 620ms var(--ll-spring, ease-out) backwards;
 }
 
-.onboarding-hero__brand,
+.onboarding-hero[data-enter='back'] {
+  --ob-from: -28px;
+}
+
+@keyframes ob-enter {
+  from {
+    opacity: 0;
+    translate: var(--ob-from) 0;
+  }
+}
+
 .onboarding-hero__title {
   margin: var(--space-2) 0 0;
   font-family: var(--font-serif);
   font-weight: 500;
-  line-height: 1;
-  color: #f7f0e3;
-  text-shadow: 0 2px 24px rgb(0 0 0 / 0.35);
-}
-
-.onboarding-hero__brand {
-  font-size: clamp(2.9rem, 13vw, 3.6rem);
-  letter-spacing: 0.005em;
-}
-
-.onboarding-hero__title {
   font-size: clamp(2.3rem, 10vw, 2.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--ob-ink);
+  text-shadow: 0 2px 24px rgba(var(--ob-page-rgb), 0.5);
 }
 
 .onboarding-hero__lines {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--space-2);
   font-size: var(--text-lg);
   line-height: 1.45;
-  color: rgb(244 236 221 / 0.88);
-  text-shadow: 0 1px 16px rgb(0 0 0 / 0.45);
+  text-wrap: pretty;
+  color: var(--ob-ink-2);
+  text-shadow: 0 1px 16px rgba(var(--ob-page-rgb), 0.6);
 }
 
 /* Each line rises in after the one before (the Lines component sets --i). */
 .onboarding-hero__lines span {
-  animation: rise 700ms var(--ll-spring, ease-out) both;
-  animation-delay: calc(180ms + var(--i, 0) * 420ms);
+  animation: ob-rise 760ms var(--ll-spring, ease-out) both;
+  animation-delay: calc(160ms + var(--i, 0) * 380ms);
 }
 
-/* Prose steps: the owner's words, large and unboxed on the scene, a paragraph at a time. */
-.onboarding-hero--prose {
-  margin-top: clamp(1rem, 8vh, 4rem);
-  gap: var(--space-5);
+@keyframes ob-rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* A step with a panel sits higher, and its words a little smaller. */
+.onboarding-hero--panel {
+  margin-top: clamp(0.5rem, 3vh, 1.75rem);
   max-width: 24rem;
 }
 
-.onboarding-hero--prose .onboarding-hero__lines {
-  gap: var(--space-4);
-  font-family: var(--font-serif);
-  font-size: clamp(1.2rem, 5vw, 1.4rem);
-  line-height: 1.4;
+.onboarding-hero--panel .onboarding-hero__lines {
+  font-size: var(--text-md);
 }
 
-/* The first step: the name as a dictionary entry. */
+/* ---------- The first step: the lamp, then the word ---------- */
+
 .onboarding-hero--word {
-  margin-top: clamp(1rem, 6vh, 3.5rem);
+  flex: 1 0 auto;
+  margin-top: clamp(1rem, 5vh, 3rem);
   gap: var(--space-2);
   max-width: 24rem;
+}
+
+.onboarding-hero--word:has(.lamp-switch) {
+  justify-content: center;
+  gap: clamp(2.5rem, 9vh, 4.5rem);
+  margin-top: 0;
 }
 
 .onboarding-word__name {
@@ -175,39 +210,75 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--text-sm);
-  letter-spacing: 0.04em;
-  color: rgb(244 236 221 / 0.82);
+  font-family: inherit;
+  font-size: var(--text-md);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ob-ink-2);
 }
 
+.onboarding-word__name--dark {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--ob-ink);
+  animation: ob-rise 1200ms var(--ll-spring, ease-out) both;
+}
+
+/* The word comes up as light passes over it from left to right. */
 .onboarding-word {
   margin: 0;
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: clamp(3rem, 15vw, 4.6rem);
-  line-height: 1;
-  color: #fbf4e6;
-  text-shadow: 0 2px 40px rgb(255 190 120 / 0.25);
-  animation: rise 900ms var(--ll-spring, ease-out) both;
+  line-height: 1.05;
+  color: var(--ob-ink);
+  text-shadow: 0 0 42px rgba(var(--ob-lamp-rgb), 0.35);
+  -webkit-mask-image: linear-gradient(90deg, #000 0 40%, transparent 60% 100%);
+  mask-image: linear-gradient(90deg, #000 0 40%, transparent 60% 100%);
+  -webkit-mask-size: 260% 100%;
+  mask-size: 260% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: ob-write 1500ms cubic-bezier(0.3, 0.6, 0.2, 1) 200ms both;
+}
+
+@keyframes ob-write {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    filter: blur(5px);
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+    filter: blur(0);
+  }
+}
+
+.onboarding-word__say,
+.onboarding-word__sense {
+  animation: ob-rise 800ms var(--ll-spring, ease-out) both;
 }
 
 .onboarding-word__say {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-1) 0 0;
   font-size: var(--text-md);
-  letter-spacing: 0.08em;
-  color: rgb(244 236 221 / 0.7);
+  letter-spacing: 0.1em;
+  color: var(--ob-ink-3);
+  animation-delay: 900ms;
 }
 
 .onboarding-word__sense {
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-5);
   font-family: var(--font-serif);
   font-size: var(--text-xl, 1.3rem);
-  color: #f4ecdd;
+  color: var(--ob-ink);
+  animation-delay: 1050ms;
 }
 
 .onboarding-word__sense i {
   margin-right: 0.4em;
-  color: rgb(214 176 131 / 0.95);
+  color: var(--ob-lamp);
 }
 
 .onboarding-hero--word .onboarding-hero__lines {
@@ -215,368 +286,706 @@
   font-size: var(--text-md);
 }
 
-/* Adjust your sails: four things, each sorted with a tap. */
+.onboarding-hero--word .onboarding-hero__lines span {
+  animation-delay: calc(1300ms + var(--i, 0) * 420ms);
+}
+
+/* Hold to light: a ring that fills with the lamp's light, and a flame that breathes while it waits. */
+.lamp-switch {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  animation: ob-rise 1200ms var(--ll-spring, ease-out) 300ms both;
+}
+
+.lamp-switch__button {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--ob-lamp-rgb), calc(0.08 + var(--hold, 0) * 0.2)), transparent 70%);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  scale: calc(1 + var(--hold, 0) * 0.06);
+}
+
+.lamp-switch__ring {
+  position: absolute;
+  inset: 0;
+  rotate: -90deg;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.lamp-switch__ring circle {
+  stroke: var(--ob-lamp);
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--hold, 0));
+  filter: drop-shadow(0 0 4px rgba(var(--ob-lamp-rgb), 0.8));
+}
+
+/* The ring's track: a hairline all round. */
+.lamp-switch__button::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1px solid var(--ob-hair);
+}
+
+.lamp-switch__flame {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #fff8ec, var(--ob-lamp) 70%);
+  box-shadow:
+    0 0 calc(14px + var(--hold, 0) * 40px) calc(2px + var(--hold, 0) * 14px) rgba(var(--ob-lamp-rgb), calc(0.45 + var(--hold, 0) * 0.4));
+  scale: calc(0.85 + var(--hold, 0) * 0.4);
+  animation: ob-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes ob-breathe {
+  50% {
+    opacity: 0.62;
+  }
+}
+
+/* Let go early: everything eases back rather than snapping. */
+.lamp-switch__button.is-letting-go,
+.lamp-switch__button.is-letting-go .lamp-switch__flame,
+.lamp-switch__button.is-letting-go .lamp-switch__ring circle {
+  transition:
+    scale 360ms ease-out,
+    background 360ms ease-out,
+    box-shadow 360ms ease-out,
+    stroke-dashoffset 360ms ease-out;
+}
+
+.lamp-switch__hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
+  color: var(--ob-ink-3);
+}
+
+/* ---------- Words lit a line at a time ---------- */
+
+.onboarding-hero--lit {
+  max-width: 24rem;
+  gap: var(--space-5);
+}
+
+.lit-lines {
+  display: grid;
+  gap: var(--space-6);
+  cursor: default;
+}
+
+.lit-lines__words {
+  margin: 0;
+  display: grid;
+  gap: var(--space-4);
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 5.2vw, 1.5rem);
+  line-height: 1.38;
+  text-wrap: pretty;
+  text-shadow: 0 1px 18px rgba(var(--ob-page-rgb), 0.7);
+}
+
+.lit-lines__words span {
+  display: block;
+  color: var(--ob-ink);
+  transition:
+    opacity 900ms var(--ll-spring, ease-out),
+    translate 900ms var(--ll-spring, ease-out),
+    text-shadow 900ms ease;
+}
+
+.lit-lines__words [data-state='next'] {
+  opacity: 0;
+  translate: 0 12px;
+}
+
+.lit-lines__words [data-state='read'] {
+  opacity: 0.42;
+}
+
+.lit-lines__words [data-state='now'] {
+  text-shadow:
+    0 0 28px rgba(var(--ob-lamp-rgb), 0.38),
+    0 1px 18px rgba(var(--ob-page-rgb), 0.7);
+}
+
+.lit-lines__words [data-state='all'] {
+  opacity: 0.94;
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* The last words, set apart and large, once everything else is read. */
+.lit-lines__finale {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 8.5vw, 2.4rem);
+  line-height: 1.1;
+  text-wrap: balance;
+  color: var(--ob-ink);
+  text-shadow: 0 0 40px rgba(var(--ob-lamp-rgb), 0.45);
+  opacity: 0;
+  translate: 0 14px;
+  transition:
+    opacity 1100ms var(--ll-spring, ease-out) 500ms,
+    translate 1100ms var(--ll-spring, ease-out) 500ms;
+}
+
+.lit-lines__finale[data-shown] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ---------- Adjust your sails ---------- */
+
 .sails {
   width: 100%;
   display: grid;
   gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-radius: 22px;
+  background: rgba(var(--ob-page-rgb), 0.66);
+  border: 1px solid var(--ob-hair);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.28);
+  transition: box-shadow 900ms ease;
 }
 
-.sails__card {
+.sails[data-filled] {
+  box-shadow:
+    0 18px 40px rgb(0 0 0 / 0.28),
+    0 0 0 1px rgba(var(--ob-lamp-rgb), 0.35),
+    0 0 36px rgba(var(--ob-lamp-rgb), 0.18);
+}
+
+.sails__label {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ob-ink);
+}
+
+.sails__label span {
+  font-weight: 400;
+  color: var(--ob-ink-3);
+}
+
+.sails__label--sail span {
+  color: var(--ob-lamp);
+}
+
+.sails__sea {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: grab;
+  overflow: visible;
+}
+
+.sails__sea:active {
+  cursor: grabbing;
+}
+
+/* The wind: thin strokes blowing across, faster when it is stronger, turned round when it changes side. */
+.sails__wind {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transition: opacity 400ms ease;
+}
+
+.sails__wind[data-side='left'] {
+  transform: scaleX(-1);
+}
+
+.sails__wind path {
+  fill: none;
+  stroke: var(--ob-ink-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: ob-gust calc(3.4s - var(--strength, 0.6) * 1.6s) linear infinite;
+  animation-delay: calc(var(--n) * -0.53s);
+}
+
+@keyframes ob-gust {
+  0% {
+    translate: -80px 0;
+    opacity: 0;
+  }
+  20%,
+  70% {
+    opacity: calc(0.25 + var(--strength, 0.6) * 0.5);
+  }
+  100% {
+    translate: 330px 0;
+    opacity: 0;
+  }
+}
+
+.sails__water path {
+  fill: none;
+  stroke: var(--ob-ink-3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.6;
+  animation: ob-swell 3.2s linear infinite;
+}
+
+.sails__water path + path {
+  opacity: 0.35;
+  animation-duration: 4.4s;
+}
+
+@keyframes ob-swell {
+  to {
+    translate: -80px 0;
+  }
+}
+
+.sails__sheet {
+  fill: rgba(var(--ob-lamp-rgb), calc(0.18 + var(--fill, 0) * 0.6));
+  stroke: var(--ob-ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.sails__mast {
+  stroke: var(--ob-ink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.sails__hull {
+  fill: var(--ob-ink);
+}
+
+/* The sail's slider: the lamp's line with a round handle. */
+.sails__control {
   display: grid;
-  gap: 6px;
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: rgb(14 22 28 / 0.62);
-  border: 1px solid rgb(244 236 221 / 0.14);
-  text-align: left;
-  transition: background 500ms ease, border-color 500ms ease;
-}
-
-.sails__card[data-side='mine'] {
-  background: rgb(201 162 116 / 0.28);
-  border-color: rgb(214 176 131 / 0.6);
-}
-
-.sails__thing {
-  font-family: var(--font-serif);
-  font-size: var(--text-md);
-}
-
-.sails__choice {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
 }
 
-.sails__choice button {
-  min-height: 2.5rem;
-  border-radius: 999px;
-  border: 1px solid rgb(244 236 221 / 0.25);
-  background: transparent;
-  color: #f4ecdd;
-  font: inherit;
-  font-size: var(--text-sm);
-}
-
-.sails__choice button[aria-pressed='true'] {
-  border-color: transparent;
-  background: #d6b083;
-  color: #1f1a15;
-  font-weight: 600;
-}
-
-/* The line of light along the foot: how far along. */
-.step-line {
-  width: min(100%, 12rem);
-  height: 3px;
-  border-radius: 3px;
-  background: rgb(244 236 221 / 0.18);
-  overflow: hidden;
-  margin-bottom: var(--space-2);
-}
-
-.step-line span {
-  display: block;
-  height: 100%;
-  width: calc(var(--p, 0) * 100%);
-  border-radius: inherit;
-  background: linear-gradient(90deg, #c19463, #f2cf9a);
-  box-shadow: 0 0 12px rgb(242 207 154 / 0.7);
-  transition: width 900ms var(--ll-spring, ease-out);
-}
-
-/* The free trial as a timeline: today, the reminder, the end. */
-.trial-line {
-  margin: 0 0 var(--space-3);
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: var(--space-3);
-  position: relative;
-}
-
-.trial-line::before {
-  content: '';
-  position: absolute;
-  left: 0.42rem;
-  top: 0.5rem;
-  bottom: 0.5rem;
-  width: 2px;
-  background: rgb(138 106 70 / 0.35);
-}
-
-.trial-line li {
-  position: relative;
-  display: grid;
-  gap: 2px;
-  padding-left: 1.8rem;
-}
-
-.trial-line li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.3rem;
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 50%;
-  background: #f2e6d2;
-  border: 2px solid #8a6a46;
-}
-
-.trial-line li:first-child::before {
-  background: #8a6a46;
-}
-
-.trial-line b {
-  font-size: var(--text-sm);
-}
-
-.trial-line span {
-  color: #5e5042;
-  font-size: var(--text-sm);
-  line-height: 1.4;
-}
-
-/* What pulls at your attention: the chosen kinds bring their apps forward. */
-.more-apps__ask {
+.sails__control input {
+  width: 100%;
+  height: 32px;
   margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.sails__control input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(var(--ob-lamp-rgb), 0.15), rgba(var(--ob-lamp-rgb), 0.55), rgba(var(--ob-lamp-rgb), 0.15));
+}
+
+.sails__control input::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(var(--ob-lamp-rgb), 0.35);
+}
+
+.sails__control input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -12px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--ob-ink);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.4), 0 0 0 4px rgba(var(--ob-lamp-rgb), 0.25);
+}
+
+.sails__control input::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--ob-ink);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.4), 0 0 0 4px rgba(var(--ob-lamp-rgb), 0.25);
+}
+
+/* ---------- The moving parts come together ---------- */
+
+.gathering {
+  --r: calc(min(17rem, 100vw - 3rem) / 2 - 24px);
+  position: relative;
+  width: min(100%, 17rem);
+  aspect-ratio: 1;
+  margin: var(--space-1) auto var(--space-2);
+  /* The apps fly in from just outside; they never widen the page. */
+  overflow: clip;
+  overflow-clip-margin: 28px;
+}
+
+.gathering__center {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--ob-lamp-rgb), 0.3), transparent 70%);
+  opacity: 0;
+  scale: 0.7;
+  transition:
+    opacity 900ms ease 500ms,
+    scale 1100ms var(--ll-spring, ease-out) 500ms;
+}
+
+.gathering[data-gathered] .gathering__center {
+  opacity: 1;
+  scale: 1;
+}
+
+.gathering__app {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  margin: -21px 0 0 -21px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(var(--ob-page-rgb), 0.72);
+  border: 1px solid var(--ob-hair);
+  color: var(--ob-ink);
+  opacity: 0;
+  translate: calc(var(--x) * var(--r) * var(--from)) calc(var(--y) * var(--r) * var(--from));
+  scale: 0.6;
+  transition:
+    translate 1300ms var(--ll-spring, ease-out),
+    opacity 700ms ease,
+    scale 600ms var(--ll-spring, ease-out),
+    color 500ms ease,
+    background 500ms ease,
+    box-shadow 500ms ease;
+  transition-delay: calc(var(--i) * 55ms);
+}
+
+.gathering[data-gathered] .gathering__app {
+  opacity: 1;
+  translate: calc(var(--x) * var(--r)) calc(var(--y) * var(--r));
+  scale: 1;
+}
+
+/* Once gathered, choosing answers at once. */
+.gathering[data-gathered] .gathering__app {
+  transition-delay: calc(var(--i) * 55ms), calc(var(--i) * 55ms), 0ms, 0ms, 0ms, 0ms;
+}
+
+.gathering[data-choosing] .gathering__app {
+  opacity: 0.32;
+}
+
+.gathering .gathering__app[data-lit] {
+  opacity: 1;
+  scale: 1.14;
+  color: var(--ob-on-lamp);
+  background: var(--ob-lamp-fill);
+  border-color: transparent;
+  box-shadow: 0 0 22px rgba(var(--ob-lamp-rgb), 0.55);
+}
+
+/* ---------- Panels, cards and controls (Lamplight's shapes in the room's colors) ---------- */
+
+.ob-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.ob-card {
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--ob-card) 90%, transparent);
+  border: 1px solid var(--ob-hair);
+  box-shadow:
+    0 18px 40px rgb(0 0 0 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+  color: var(--ob-ink);
+}
+
+.ob-card h3 {
+  margin: 0 0 var(--space-3);
   font-size: var(--text-lg);
   font-weight: 600;
 }
 
-.more-apps__list[data-choosing] .more-apps__app:not([data-match]) {
-  opacity: 0.45;
+.ob-panel__ask {
+  margin: var(--space-1) 0 0;
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 600;
 }
 
-.more-apps__app[data-match] img {
-  box-shadow: 0 0 0 2px #f2e6d2, 0 0 0 4px #c19463;
+.ob-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ob-ink-2);
 }
 
-.onboarding-actions {
-  /* The step's action stays on screen however long the step (as the platforms keep a primary button in reach). */
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-  padding-top: var(--space-6);
-  margin-top: auto;
-  width: 100%;
-  max-width: 24rem;
+.ob-fine {
+  margin: 0;
+  color: var(--ob-ink-3);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.ob-chips {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-/* What scrolls under the action fades into the dark foot of the picture, so the button never sits on words. */
-.onboarding-actions::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0 -50vw calc(-1 * (env(safe-area-inset-bottom) + var(--space-6)));
-  background: linear-gradient(180deg, rgba(23, 19, 15, 0) 0%, rgba(23, 19, 15, 0.94) 38%, #17130f 100%);
-  pointer-events: none;
-}
-
-.onboarding-primary {
-  width: 100%;
-  min-height: 3.5rem;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, #d6b083 0%, #c19463 100%);
-  color: var(--color-accent-ink);
-  font-weight: 500;
-  font-size: var(--text-md);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-
-.onboarding-link {
-  min-height: 2.75rem;
-  border: 0;
-  background: transparent;
-  color: rgba(240, 222, 195, 0.82);
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* ---------- Make it yours: the optional last step ---------- */
-
-.onboarding-hero--form {
-  margin-top: clamp(0.5rem, 3vh, 1.5rem);
-  margin-bottom: var(--space-5);
-  gap: var(--space-3);
-}
-
-/* A long form scrolls rather than pushing Begin off a small screen. */
-.onboarding-layout:has(.onboarding-hero--form) {
-  overflow-y: auto;
-}
-
-.make-yours {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  background: rgba(240, 222, 195, 0.9);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-  text-align: left;
-}
-
-.make-yours__field {
-  display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-2);
-  color: var(--color-paper-ink);
+}
+
+.ob-chip {
+  min-height: 2.5rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--ob-hair);
+  border-radius: 10px;
+  background: rgba(var(--ob-page-rgb), 0.6);
+  color: var(--ob-ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  transition:
+    background 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease,
+    scale 200ms var(--ll-spring, ease-out);
+}
+
+.ob-chip[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--ob-lamp-fill);
+  color: var(--ob-on-lamp);
+  font-weight: 600;
+}
+
+.ob-chip:active,
+.ob-quiet:active,
+.onboarding-primary:active {
+  scale: 0.97;
+}
+
+.ob-quiet {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid var(--ob-hair);
+  border-radius: 999px;
+  background: rgba(var(--ob-page-rgb), 0.6);
+  color: var(--ob-ink);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: 500;
+  transition: scale 200ms var(--ll-spring, ease-out);
+}
+
+.ob-quiet--lit {
+  border-color: transparent;
+  background: var(--ob-lamp-fill);
+  color: var(--ob-on-lamp);
+  font-weight: 600;
+}
+
+.ob-field {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--ob-ink-2);
   font-size: var(--text-sm);
   font-weight: 500;
 }
 
-.make-yours__field em {
-  margin-left: var(--space-2);
-  color: #7a6a58;
+.ob-field + .ob-field {
+  margin-top: var(--space-4);
+}
+
+.ob-field em {
+  margin-left: var(--space-1);
+  color: var(--ob-ink-3);
   font-style: normal;
   font-weight: 400;
 }
 
-.make-yours__input {
-  min-height: 2.75rem;
+.ob-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 3rem;
   padding: 0 var(--space-3);
-  border: 1px solid rgba(43, 37, 31, 0.25);
-  border-radius: var(--radius-sm);
-  background: rgba(255, 250, 240, 0.7);
-  color: var(--color-paper-ink);
+  border: 1px solid var(--ob-hair);
+  border-radius: 12px;
+  background: rgba(var(--ob-page-rgb), 0.7);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.25);
+  color: var(--ob-ink);
+  font: inherit;
   font-size: var(--text-md);
   font-weight: 400;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
-.make-yours__input::placeholder {
-  color: #8c7c69;
+.ob-input:focus {
+  outline: none;
+  border-color: var(--ob-lamp);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.25),
+    0 0 0 4px rgba(var(--ob-lamp-rgb), 0.2);
 }
 
-.make-yours__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+/* ---------- Make it yours ---------- */
+
+.make-yours__hello {
+  margin: 0;
+  min-height: 1.3em;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 6.5vw, 1.8rem);
+  line-height: 1.2;
+  color: var(--ob-ink);
+  text-shadow: 0 0 30px rgba(var(--ob-lamp-rgb), 0.35);
 }
 
-.make-yours__chip {
-  min-height: 2.1rem;
-  padding: 0 0.7rem;
-  border: 1px solid rgba(43, 37, 31, 0.22);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 250, 240, 0.55);
-  color: var(--color-paper-ink);
+.ob-rooms {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.ob-room {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ob-ink-2);
+  font: inherit;
   font-size: var(--text-sm);
 }
 
-.make-yours__chip[aria-pressed='true'] {
-  border-color: #8a6a46;
-  background: #8a6a46;
-  color: #fbf3e6;
+.ob-room__art {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center top;
+  box-shadow: inset 0 0 0 1px var(--ob-hair);
+  transition: box-shadow 260ms ease, scale 260ms var(--ll-spring, ease-out);
 }
 
-.make-yours__chip:disabled {
-  opacity: 0.45;
+.ob-room[aria-checked='true'] {
+  color: var(--ob-ink);
+  font-weight: 600;
+}
+
+.ob-room[aria-checked='true'] .ob-room__art {
+  box-shadow:
+    0 0 0 2px var(--ob-card),
+    0 0 0 4px var(--ob-lamp);
+}
+
+.ob-room:active .ob-room__art {
+  scale: 0.96;
+}
+
+.ob-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0 -6px;
+}
+
+.ob-color {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.ob-color span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  transition: box-shadow 260ms ease, scale 260ms var(--ll-spring, ease-out);
+}
+
+.ob-color[aria-checked='true'] span {
+  box-shadow:
+    0 0 0 3px var(--ob-card),
+    0 0 0 5px var(--ob-ink);
+}
+
+.ob-color:active span {
+  scale: 0.9;
 }
 
 .make-yours__toggle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
-  min-height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-paper-ink);
+  min-height: 3.25rem;
+  padding-block: var(--space-3);
+  font: inherit;
   font-size: var(--text-md);
   text-align: left;
 }
 
 .make-yours__check {
   flex: none;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: grid;
   place-items: center;
-  border: 1.5px solid #8a6a46;
-  border-radius: 5px;
-  color: #fbf3e6;
-  font-size: var(--text-sm);
+  border: 1.5px solid var(--ob-ink-3);
+  border-radius: 50%;
+  color: var(--ob-on-lamp);
+  transition: background 200ms ease, border-color 200ms ease;
 }
 
 .make-yours__toggle[aria-pressed='true'] .make-yours__check {
-  background: #8a6a46;
+  border-color: transparent;
+  background: var(--ob-lamp-fill);
 }
 
-/* ---------- On your Home Screen, and More apps ---------- */
-
-.home-screen,
-.more-apps {
-  gap: var(--space-3);
-  color: var(--color-paper-ink);
-}
-
-.home-screen__install,
-.more-apps__store {
-  min-height: 2.75rem;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: #8a6a46;
-  color: #fbf3e6;
-  font-size: var(--text-md);
-  font-weight: 500;
-}
-
-.more-apps__store {
-  background: transparent;
-  border: 1px solid rgba(43, 37, 31, 0.3);
-  color: var(--color-paper-ink);
-}
-
-.home-screen__steps {
-  margin: 0;
-  padding-left: 1.3rem;
-  display: grid;
-  gap: var(--space-2);
-  font-size: var(--text-md);
-  line-height: 1.4;
-}
-
-.home-screen__steps li::marker {
-  color: #6f5536;
-  font-weight: 600;
-}
-
-.home-screen__fine {
-  margin: 0;
-  color: #5e5042;
-  font-size: var(--text-sm);
-}
-
-.home-screen__done {
-  margin: 0;
-  text-align: center;
-}
+/* ---------- The Store's apps ---------- */
 
 .more-apps__list {
-  margin: 0;
-  padding: 0;
   list-style: none;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2) var(--space-3);
+  gap: var(--space-3);
 }
 
 .more-apps__app {
@@ -584,11 +993,16 @@
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
+  transition: opacity 400ms ease;
+}
+
+.more-apps__list[data-choosing] .more-apps__app:not([data-match]) {
+  opacity: 0.42;
 }
 
 .more-apps__app img {
   flex: none;
-  border-radius: 9px;
+  border-radius: 10px;
 }
 
 .more-apps__app span {
@@ -603,7 +1017,7 @@
 
 .more-apps__app small {
   overflow: hidden;
-  color: #5e5042;
+  color: var(--ob-ink-3);
   font-size: var(--text-xs);
   line-height: 1.25;
   display: -webkit-box;
@@ -611,68 +1025,17 @@
   -webkit-box-orient: vertical;
 }
 
-/* More apps: the prices as a plain list, then how sync works. */
-.more-apps__plans h3,
-.more-apps__sync h3 {
-  margin: var(--space-2) 0 var(--space-1);
-  font-size: var(--text-lg);
-  font-weight: 600;
-}
-
-.more-apps__plans ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.more-apps__plans ul li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid rgba(43, 37, 31, 0.14);
-}
-
-.more-apps__plans ul li:last-child {
-  border-bottom: 0;
-}
-
-.more-apps__plans ul li span:first-child {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.more-apps__plans small {
-  color: #5e5042;
-  font-size: var(--text-sm);
-}
-
-.more-apps__price {
-  flex: none;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.more-apps__sync p {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-md);
-  line-height: 1.45;
-}
-
-/* More apps: Noesis, a sibling outside the Store, as one small linked card. */
+/* Noesis, a sibling outside the Store, as one small linked card. */
 .more-apps__sibling {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
-  margin-top: var(--space-2);
   padding: var(--space-3);
-  border: 1px solid rgba(43, 37, 31, 0.18);
-  border-radius: var(--radius-sm);
-  background: rgba(255, 250, 240, 0.45);
-  color: var(--color-paper-ink);
+  border: 1px solid var(--ob-hair);
+  border-radius: 16px;
+  background: rgba(var(--ob-page-rgb), 0.6);
+  color: var(--ob-ink);
   text-decoration: none;
 }
 
@@ -688,7 +1051,7 @@
 
 .more-apps__sibling small,
 .more-apps__sibling > span:nth-child(2) > span {
-  color: #5e5042;
+  color: var(--ob-ink-3);
   font-size: var(--text-xs);
   line-height: 1.3;
 }
@@ -699,19 +1062,287 @@
 }
 
 .more-apps__sibling-open {
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(138, 106, 70, 0.14);
-  color: #6f5536;
+  background: rgba(var(--ob-lamp-rgb), 0.18);
+  color: var(--ob-lamp);
   font-size: var(--text-sm);
   font-weight: 600;
 }
 
-/* Short phones (iPhone SE): smaller words so they fit above the action. */
+/* ---------- Prices and sync ---------- */
+
+/* The free trial as a path the light walks once: today, the reminder, the end. */
+.trial-line {
+  --walk: 1900ms;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+  position: relative;
+}
+
+.trial-line::before,
+.trial-line::after {
+  content: '';
+  position: absolute;
+  left: calc(0.5rem - 1px);
+  top: 0.55rem;
+  bottom: 0.9rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ob-hair);
+}
+
+.trial-line::after {
+  background: linear-gradient(180deg, var(--ob-lamp), rgba(var(--ob-lamp-rgb), 0.4));
+  box-shadow: 0 0 8px rgba(var(--ob-lamp-rgb), 0.6);
+  transform-origin: top;
+  animation: ob-walk var(--walk) cubic-bezier(0.45, 0, 0.3, 1) 450ms both;
+}
+
+@keyframes ob-walk {
+  from {
+    scale: 1 0;
+  }
+}
+
+.trial-line li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 1.9rem;
+}
+
+.trial-line li::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--ob-ink-3);
+  background: var(--ob-card);
+  animation: ob-dot 500ms ease both;
+}
+
+.trial-line li:nth-child(1)::before {
+  animation-delay: 450ms;
+}
+
+.trial-line li:nth-child(2)::before {
+  animation-delay: calc(450ms + var(--walk) * 0.5);
+}
+
+.trial-line li:nth-child(3)::before {
+  animation-delay: calc(450ms + var(--walk));
+}
+
+@keyframes ob-dot {
+  to {
+    border-color: var(--ob-lamp);
+    background: var(--ob-lamp);
+    box-shadow: 0 0 12px rgba(var(--ob-lamp-rgb), 0.7);
+  }
+}
+
+.trial-line b {
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.trial-line span {
+  color: var(--ob-ink-2);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.more-apps__plans ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.more-apps__plans ul li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--ob-hair);
+}
+
+.more-apps__plans ul li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.more-apps__plans ul li:last-child {
+  padding-bottom: 0;
+}
+
+.more-apps__plans ul li span:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.more-apps__plans small {
+  color: var(--ob-ink-3);
+  font-size: var(--text-sm);
+}
+
+.more-apps__price {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.more-apps__sync p {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+  line-height: 1.45;
+}
+
+.more-apps__sync p:last-child {
+  margin: 0;
+}
+
+/* ---------- On your Home Screen ---------- */
+
+.home-screen__steps {
+  padding-left: 2.4rem;
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  line-height: 1.45;
+}
+
+.home-screen__steps li::marker {
+  color: var(--ob-lamp);
+  font-weight: 600;
+}
+
+.home-screen__done {
+  text-align: center;
+}
+
+/* ---------- The foot: how far along, and the step's action ---------- */
+
+.onboarding-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: auto;
+  padding-top: var(--space-6);
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* What scrolls under the action fades into the page, so the button never sits on words. */
+.onboarding-actions::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  /* Painted past the column with border-image's outset, which never adds scroll room as a wider box would. */
+  border-image: linear-gradient(180deg, rgba(var(--ob-page-rgb), 0) 0%, rgba(var(--ob-page-rgb), 0.94) 30%, var(--ob-page) 100%) fill
+    0 / 0 / 0 100vw calc(env(safe-area-inset-bottom) + var(--space-5));
+  pointer-events: none;
+}
+
+.step-line {
+  width: min(100%, 10rem);
+  height: 3px;
+  border-radius: 3px;
+  background: var(--ob-hair);
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+  transition: opacity 600ms ease;
+}
+
+.onboarding-actions[data-waiting] .step-line {
+  opacity: 0;
+}
+
+.step-line span {
+  display: block;
+  height: 100%;
+  width: calc(var(--p, 0) * 100%);
+  border-radius: inherit;
+  background: var(--ob-lamp);
+  box-shadow: 0 0 10px rgba(var(--ob-lamp-rgb), 0.8);
+  transition: width 900ms var(--ll-spring, ease-out);
+}
+
+.onboarding-primary {
+  width: 100%;
+  min-height: 3.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ob-lamp-fill);
+  color: var(--ob-on-lamp);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: 600;
+  box-shadow:
+    0 12px 30px rgba(var(--ob-lamp-rgb), 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.25);
+  animation: ob-rise 700ms var(--ll-spring, ease-out) both;
+  transition:
+    scale 200ms var(--ll-spring, ease-out),
+    background 600ms ease,
+    color 600ms ease;
+}
+
+.onboarding-link {
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--ob-ink-2);
+  font: inherit;
+  font-size: var(--text-md);
+}
+
+/* Leaving for Today: the words go, the room stays (Today wears the same wallpaper). */
+.onboarding-layout[data-leaving] .onboarding-topbar,
+.onboarding-layout[data-leaving] .onboarding-hero,
+.onboarding-layout[data-leaving] .onboarding-actions {
+  opacity: 0;
+  translate: 0 -10px;
+  transition:
+    opacity 480ms ease,
+    translate 480ms ease;
+}
+
+.onboarding-layout[data-leaving] .onboarding-background__wash {
+  opacity: 0;
+  transition: opacity 480ms ease;
+}
+
+/* ---------- Computers and short phones ---------- */
+
+@media (min-width: 62rem) {
+  .onboarding-hero--panel,
+  .onboarding-hero--lit,
+  .onboarding-hero--word {
+    max-width: 30rem;
+  }
+}
+
 @media (max-height: 760px) {
-  .onboarding-hero--prose .onboarding-hero__lines {
+  .lit-lines__words {
     gap: var(--space-3);
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
   .onboarding-word {
@@ -721,27 +1352,41 @@
   .onboarding-hero--word .onboarding-hero__lines {
     font-size: var(--text-sm);
   }
-}
 
-/* The free trial, said before the prices rather than under them. */
-.more-apps__trial {
-  margin: 0 0 var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: 12px;
-  background: rgb(201 162 116 / 0.22);
-  color: #2b241d;
-  font-weight: 600;
-  line-height: 1.4;
+  .gathering {
+    width: min(100%, 14rem);
+    --r: calc(min(14rem, 100vw - 3rem) / 2 - 24px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .onboarding-background > *,
-  .step-line span {
-    transition: none;
+  .onboarding-layout *,
+  .onboarding-layout *::before,
+  .onboarding-layout *::after {
+    animation: none !important;
+    transition: none !important;
   }
 
-  .onboarding-hero__lines span,
   .onboarding-word {
-    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .trial-line li::before {
+    border-color: var(--ob-lamp);
+    background: var(--ob-lamp);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gathering .gathering__app {
+    opacity: 1;
+    translate: calc(var(--x) * var(--r)) calc(var(--y) * var(--r));
+    scale: 1;
+  }
+
+  .gathering .gathering__center {
+    opacity: 1;
+    scale: 1;
   }
 }
