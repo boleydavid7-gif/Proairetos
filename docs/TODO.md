@@ -63,11 +63,11 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
 
-- [ ] The waitlist on the front page: run `20261026000000_waitlist.sql` (uses `SUPABASE_URL` and `SUPABASE_ANON_KEY`,
+- [x] The waitlist on the front page: run `20261026000000_waitlist.sql` (uses `SUPABASE_URL` and `SUPABASE_ANON_KEY`,
       already set for Capture from anywhere). Until then the form shows "That didn't go through". Read the list in the
       SQL editor: `select email, apps, source, created_at from public.waitlist order by created_at;` To take someone
       off: `delete from public.waitlist where email = '…';`
-- [ ] Newsletter consent on the waitlist: run `20261101000000_waitlist_letters.sql` after the waitlist migration. Until
+- [x] Newsletter consent on the waitlist: run `20261101000000_waitlist_letters.sql` after the waitlist migration. Until
       then the form still works and the box is simply not kept. Who said yes: `select email, letters_at from
       public.waitlist where letters order by letters_at;`
 - [ ] The Store's subscriptions (Core $9.99/month, Soma and Phyton $3.99/month each, bundle $6.99/month, cloud
