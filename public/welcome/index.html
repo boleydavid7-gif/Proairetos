@@ -94,6 +94,11 @@
       .ways h3 { font-size: 1.3rem; }
       .ways p { margin: 0.4rem 0 0; color: var(--muted); }
       .more { margin-top: 1.2rem; }
+      .story { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+      .story > div { padding: 22px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); }
+      .story h3 { font-size: 1.4rem; }
+      .story p { color: var(--muted); margin: 0.7rem 0 0; line-height: 1.6; }
+      .closing { margin: 1.6rem auto 0; max-width: 36rem; text-align: center; font-family: 'EB Garamond', Georgia, serif; font-size: 1.45rem; line-height: 1.4; }
       .apps--featured { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
       .prices { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
       .price { padding: 18px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); display: grid; gap: 4px; }
@@ -116,8 +121,8 @@
     <header class="wrap hero">
       <div class="hero__words">
         <img src="/icons/icon-192.png" alt="" />
-        <h1>A calm home for your days</h1>
-        <p class="lead">Write it down, plan your week and look back on how it went. Proairetos fits any schedule and never nags.</p>
+        <h1>Make time for what matters</h1>
+        <p class="lead">One place for the moving parts of everyday life: responsibilities, plans, habits, people and the things you’d like to accomplish. Your life. Your choices. Your time.</p>
         <div class="actions">
           <a class="button button--main" href="/?open=account">Start your free trial</a>
           <a class="button" href="#how">Take a look</a>
@@ -128,6 +133,23 @@
     </header>
 
     <main>
+      <section class="wrap" aria-labelledby="why-title">
+        <h2 id="why-title">Why Proairetos</h2>
+        <div class="story">
+          <div>
+            <h3>The name</h3>
+            <p>Proairetos (προαιρετός) is ancient Greek for what is chosen deliberately. It comes from prohairesis (προαίρεσις), the Stoic name for our capacity to consider, judge and choose how we respond and act.</p>
+            <p>We cannot control everything that happens to us, or give equal attention to everything that asks for it. We can become more deliberate about where our attention goes, how we use our time and what we put first.</p>
+          </div>
+          <div>
+            <h3>Why I made it</h3>
+            <p>I wanted to make it easier to bring the moving parts of everyday life together: a place to organize responsibilities, keep track of what matters, plan ahead and make room for personal growth.</p>
+            <p>Not another system demanding your attention, but a tool that gives you more freedom to decide where your attention belongs. Because getting organized is meant to give you more time to live, not less.</p>
+          </div>
+        </div>
+        <p class="closing">You don’t have to do everything. You don’t have to plan every moment. You just have to make room for the things that matter to you.</p>
+      </section>
+
       <section class="wrap" id="how" aria-labelledby="how-title">
         <h2 id="how-title">What you can do</h2>
         <div class="tour">
@@ -160,7 +182,7 @@
 
       <section class="wrap" aria-labelledby="family-title">
         <h2 id="family-title">Add the apps you need</h2>
-        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">Running, recipes, bills, travel and more. Each app you add shows up on your Today, so your whole day is in one place.</p>
+        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">There are responsibilities to manage, plans to make, habits to build, people to remember and things you’d like to accomplish. Proairetos brings these pieces together: each app you add shows up on your Today.</p>
         <ul class="apps apps--featured">
           <li class="app">
             <div class="app__head"><img src="/askesis/icons/icon-192.png" alt="" width="44" height="44" /><h3 class="app__name">Askesis</h3></div>

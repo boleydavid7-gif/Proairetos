@@ -29,7 +29,7 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
       </ul>
       <ol className="home-screen__steps">
         <li>Add one from the Store: Settings, Apps, Store, or the grid beside the gear.</li>
-        <li>Open it and add it to your Home Screen, as the next step shows for Proairetos.</li>
+        <li>Open it and add it to your Home Screen the same way as Proairetos.</li>
         <li>Sign in once in each: Proairetos can copy a sign-in pass for them.</li>
       </ol>
       <button type="button" className="more-apps__store" onClick={onStore}>Open the Store</button>
@@ -59,6 +59,7 @@ export function PlansAndSync() {
     <div className="make-yours more-apps">
       <section className="more-apps__plans" aria-label="Prices">
         <h3>Prices</h3>
+        <p className="more-apps__trial">Every app is free for 7 days once you make an account. No card needed.</p>
         <ul>
           {PLANS.map((plan) => (
             <li key={plan.name}>
@@ -70,7 +71,6 @@ export function PlansAndSync() {
             </li>
           ))}
         </ul>
-        <p className="home-screen__fine">Every app is free for 7 days once you make an account. No card needed.</p>
       </section>
       <section className="more-apps__sync" aria-label="Sync">
         <h3>Sync</h3>

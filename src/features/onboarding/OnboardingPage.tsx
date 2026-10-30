@@ -23,6 +23,8 @@ export default function OnboardingPage({ onGetStarted }: Props) {
   const isLast = index === onboardingSteps.length - 1;
   const [choices, setChoices] = useState<Choices>({ name: '', shifts: false });
   const [saving, setSaving] = useState(false);
+  // Chosen on the setup step; the Home Screen step comes after it and then begins with it.
+  const [trial, setTrial] = useState(false);
 
   async function finish(trial = false) {
     setSaving(true);
@@ -84,14 +86,25 @@ export default function OnboardingPage({ onGetStarted }: Props) {
           type="button"
           className="onboarding-primary"
           disabled={saving}
-          onClick={() => (isLast ? void finish() : setIndex(index + 1))}
+          onClick={() => (isLast ? void finish(trial) : setIndex(index + 1))}
         >
           {step.action}
         </button>
         {/* Signing in lives in Settings, under Account and sync. Prices and sync can be passed over. */}
-        {isLast && isSyncConfigured ? (
-          <button type="button" className="onboarding-link" disabled={saving} onClick={() => void finish(true)}>
-            Begin with a free trial
+        {step.form && isSyncConfigured ? (
+          <button
+            type="button"
+            className="onboarding-link"
+            onClick={() => {
+              setTrial(true);
+              setIndex(index + 1);
+            }}
+          >
+            Continue with a free trial
+          </button>
+        ) : isLast ? (
+          <button type="button" className="onboarding-link" disabled={saving} onClick={() => void finish(trial)}>
+            Skip this
           </button>
         ) : step.panel === 'plans' ? (
           <button type="button" className="onboarding-link" onClick={() => setIndex(index + 1)}>

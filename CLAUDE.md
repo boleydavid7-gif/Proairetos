@@ -1459,7 +1459,9 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   touch; left arrow too). `Empty` in `shell.tsx` for empty lists. Therapeia and Ktema open their first form after Welcome.
 - Onboarding (`features/onboarding/steps.ts`, the owner's words; `prose` steps read as paragraphs on a paper panel,
   `.onboarding-hero--prose`): Proairetos (the meaning of the name and prohairesis), Why Proairetos, The Store (panel
-  `apps`), On your Home Screen, Make time for what matters, Prices and sync, Make it yours. Earlier note: "On your Home Screen"
+  `apps`), Make time for what matters, Prices and sync (the trial line first, `.more-apps__trial`), Make it yours ("Continue
+  with a free trial" remembers the choice), On your Home Screen last (Begin or Skip this; Begin opens Account when the trial
+  was chosen). The front page carries the same story ("Why Proairetos"). Earlier note: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
   "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store),

@@ -45,12 +45,6 @@ export const onboardingSteps: OnboardingStep[] = [
     panel: 'apps',
   },
   {
-    title: 'On your Home Screen',
-    lines: ['Open it in one tap, like any other app.'],
-    action: 'Continue',
-    panel: 'home-screen',
-  },
-  {
     title: 'Make time for what matters',
     lines: [
       'You don’t have to do everything.',
@@ -71,7 +65,13 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'Make it yours',
     lines: ['You can change any of this in Settings.'],
-    action: 'Begin',
+    action: 'Continue',
     form: true,
+  },
+  {
+    title: 'On your Home Screen',
+    lines: ['Open it in one tap, like any other app.'],
+    action: 'Begin',
+    panel: 'home-screen',
   },
 ];

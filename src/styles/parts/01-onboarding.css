@@ -510,3 +510,14 @@
     font-size: var(--text-sm);
   }
 }
+
+/* The free trial, said before the prices rather than under them. */
+.more-apps__trial {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  background: rgb(201 162 116 / 0.22);
+  color: #2b241d;
+  font-weight: 600;
+  line-height: 1.4;
+}
