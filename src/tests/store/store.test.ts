@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { betaAccess, handleStoreRequest, handleWebhook, isTester, mine, signedInUsers, startCheckout, stripeSigned, type StoreEnv } from '../../../worker/store';
+import { betaAccess, handleStoreRequest, handleWebhook, isTester, mine, signedInUsers, startCheckout, stripeSigned, trialUntil, TRIAL_DAYS, type StoreEnv } from '../../../worker/store';
 
 const env: StoreEnv = {
   STRIPE_SECRET_KEY: 'sk_test',
@@ -100,6 +100,23 @@ describe('the Store on the Worker', () => {
     expect(calls.some((call) => call.url.includes('/rest/v1/beta_access?on_conflict=email'))).toBe(true);
     const denied = await betaAccess(new Request('https://proairetos.com/api/store/beta', { headers: { authorization: 'Bearer other' } }), withBeta, fetcher);
     expect(denied.status).toBe(403);
+  });
+
+  it('gives a new account every app for seven days from sign-up', async () => {
+    const now = Date.parse('2026-11-02T12:00:00.000Z');
+    expect(TRIAL_DAYS).toBe(7);
+    expect(trialUntil('2026-11-01T09:00:00.000Z', now)).toBe('2026-11-08T09:00:00.000Z');
+    expect(trialUntil('2026-10-20T09:00:00.000Z', now)).toBeUndefined();
+    expect(trialUntil(undefined, now)).toBeUndefined();
+    const made = new Date(Date.now() - 2 * 86_400_000).toISOString();
+    const fetcher = (async (url: string) => {
+      if (url.endsWith('/auth/v1/user')) return new Response(JSON.stringify({ id: 'new-1', email: 'new@example.com', created_at: made }));
+      if (url.includes('/rest/v1/beta_access?')) return new Response('[]');
+      return new Response('[]');
+    }) as unknown as typeof fetch;
+    const answer = (await (await mine(new Request('https://proairetos.com/api/store/mine', { headers: { authorization: 'Bearer new' } }), env, fetcher)).json()) as { tester: boolean; trialUntil?: string };
+    expect(answer.tester).toBe(false);
+    expect(Date.parse(answer.trialUntil!) - Date.parse(made)).toBe(7 * 86_400_000);
   });
 
   it('keeps the signed-in user directory owner-only and strips auth details', async () => {

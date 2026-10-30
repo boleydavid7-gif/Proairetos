@@ -70,6 +70,7 @@ export function PlansAndSync() {
             </li>
           ))}
         </ul>
+        <p className="home-screen__fine">Every app is free for 7 days once you make an account. No card needed.</p>
       </section>
       <section className="more-apps__sync" aria-label="Sync">
         <h3>Sync</h3>

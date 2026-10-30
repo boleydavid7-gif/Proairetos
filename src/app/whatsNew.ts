@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-02',
+    lines: [
+      'Every new account has every app free for 7 days, no card needed. The Store shows when the trial ends; subscribing works during it.',
+    ],
+  },
+  {
     date: '2026-10-30',
     lines: [
       'Mneme: Transcribe on any voice note turns it into text on your phone, with Whisper; the recording never leaves it. Tap a line to hear that moment. Choose a language and a more accurate model, or switch on Transcribe after saving.',

@@ -55,7 +55,7 @@ export function priceText(item: PurchaseItem | string = 'core'): string {
   }
 }
 
-type Owned = { apps: string[]; tester?: boolean; betaExpiresAt?: string; owner?: boolean };
+type Owned = { apps: string[]; tester?: boolean; betaExpiresAt?: string; owner?: boolean; trialUntil?: string };
 
 export const ownedApps = (): string[] => {
   const apps = readJson<Owned>(OWNED_KEY)?.apps ?? [];
@@ -71,24 +71,31 @@ export const isTester = (): boolean => {
 
 export const isOwner = (): boolean => readJson<Owned>(OWNED_KEY)?.owner === true;
 
+/** When this account's free trial of every app ends, while it is still on. */
+export const trialEnds = (): string | undefined => {
+  const until = readJson<Owned>(OWNED_KEY)?.trialUntil;
+  return until && Date.parse(until) > Date.now() ? until : undefined;
+};
+
 export const betaExpiresAt = (): string | undefined => readJson<Owned>(OWNED_KEY)?.betaExpiresAt;
 
 /** Whether this add-on may be used: always while the Store is free or for a beta tester, else once it is bought. */
-export const mayUse = (app: AddOn | string): boolean => isOwner() || isTester() || ownedApps().includes(app);
+export const mayUse = (app: AddOn | string): boolean => isOwner() || isTester() || Boolean(trialEnds()) || ownedApps().includes(app);
 
 /** Cloud sync is deliberately excluded from beta access. */
 export const mayUseCloud = (): boolean => isOwner() || (storePaid() && ownedApps().includes('cloud'));
 
 /** Asks the Worker whether this account is a beta tester's; keeps what was known when it cannot say. */
-async function askAccess(token: string | undefined): Promise<{ tester: boolean; expiresAt?: string; owner: boolean }> {
+async function askAccess(token: string | undefined): Promise<{ tester: boolean; expiresAt?: string; owner: boolean; trialUntil?: string }> {
   if (!token) return { tester: false, owner: false };
+  const known = () => ({ tester: isTester(), expiresAt: betaExpiresAt(), owner: isOwner(), trialUntil: trialEnds() });
   try {
     const response = await fetch(apiUrl('/api/store/mine'), { headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
-    if (!response.ok) return { tester: isTester(), expiresAt: betaExpiresAt(), owner: isOwner() };
-    const body = (await response.json()) as { tester?: boolean; expiresAt?: string; owner?: boolean };
-    return { tester: body.tester === true, expiresAt: body.expiresAt, owner: body.owner === true };
+    if (!response.ok) return known();
+    const body = (await response.json()) as { tester?: boolean; expiresAt?: string; owner?: boolean; trialUntil?: string };
+    return { tester: body.tester === true, expiresAt: body.expiresAt, owner: body.owner === true, trialUntil: body.trialUntil };
   } catch {
-    return { tester: isTester(), expiresAt: betaExpiresAt(), owner: isOwner() };
+    return known();
   }
 }
 
@@ -125,7 +132,7 @@ export async function refreshOwned(): Promise<string[]> {
       : (data ?? [])
           .filter((row) => (row as { active?: boolean }).active !== false && (!(row as { current_period_end?: string }).current_period_end || Date.parse(String((row as { current_period_end: string }).current_period_end)) > now))
           .map((row) => String((row as { app: string }).app));
-    writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner });
+    writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner, trialUntil: access.trialUntil });
     if (wasTester && !access.tester && !access.owner) {
       void import('./added').then(({ clearAddedApps }) => clearAddedApps()).catch(() => undefined);
     }
@@ -191,11 +198,11 @@ export function subscribePurchases(listener: () => void): () => void {
   };
 }
 
-const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${isOwner() ? 'owner' : ''}|${ownedApps().join(',')}`;
+const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${isOwner() ? 'owner' : ''}|${ownedApps().join(',')}|${trialEnds() ?? ''}`;
 
 /** Follows the Store's state: whether it takes payments, what the account owns and whether it is a beta tester's. */
-export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean; owner: boolean } {
+export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean; owner: boolean; trialUntil?: string } {
   const value = useSyncExternalStore(subscribePurchases, snapshot);
-  const [mode, tester, owner, apps] = value.split('|');
-  return { paid: mode === 'paid', tester: tester === 'tester', owner: owner === 'owner', owned: apps ? apps.split(',') : [] };
+  const [mode, tester, owner, apps, trial] = value.split('|');
+  return { paid: mode === 'paid', tester: tester === 'tester', owner: owner === 'owner', owned: apps ? apps.split(',') : [], trialUntil: trial || undefined };
 }

@@ -49,13 +49,13 @@ export const storeReady = (env: StoreEnv) =>
 const base = (env: StoreEnv) => env.SUPABASE_URL!.trim().replace(/(\/rest\/v1)?\/*$/, '');
 
 /** The signed-in person, from their own access token. */
-async function personFrom(request: Request, env: StoreEnv, fetcher: Fetcher): Promise<{ id: string; email?: string } | null> {
+async function personFrom(request: Request, env: StoreEnv, fetcher: Fetcher): Promise<{ id: string; email?: string; createdAt?: string } | null> {
   const token = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return null;
   const response = await fetcher(`${base(env)}/auth/v1/user`, { headers: { authorization: `Bearer ${token}`, apikey: env.SUPABASE_ANON_KEY! } });
   if (!response.ok) return null;
-  const user = (await response.json()) as { id?: string; email?: string };
-  return user.id ? { id: user.id, email: user.email } : null;
+  const user = (await response.json()) as { id?: string; email?: string; created_at?: string };
+  return user.id ? { id: user.id, email: user.email, createdAt: user.created_at } : null;
 }
 
 /** Kept as a compatibility seam for old callers. Beta access is now always time-limited in `beta_access`. */
@@ -78,6 +78,17 @@ async function temporaryExpiry(env: StoreEnv, email: string | undefined, fetcher
   return rows[0]?.expires_at;
 }
 
+/** Every new account has every app for this long from the day it was made; no card, nothing to cancel. */
+export const TRIAL_DAYS = 7;
+
+/** When the free trial ends for an account made at `createdAt`, while it is still on; else undefined. */
+export function trialUntil(createdAt: string | undefined, now = Date.now()): string | undefined {
+  const made = createdAt ? Date.parse(createdAt) : NaN;
+  if (!Number.isFinite(made)) return undefined;
+  const until = made + TRIAL_DAYS * 24 * 60 * 60 * 1000;
+  return until > now ? new Date(until).toISOString() : undefined;
+}
+
 /** Tells a signed-in person whether their account is a beta tester's (nothing else about the list leaves the Worker). */
 export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return reply(200, { tester: false, owner: false });
@@ -86,7 +97,7 @@ export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = f
   const owner = person.email?.trim().toLowerCase() === ownerEmail(env);
   const listed = isTester(env, person.email);
   const temporary = listed ? undefined : await temporaryExpiry(env, person.email, fetcher);
-  return reply(200, { tester: owner || listed || Boolean(temporary), expiresAt: temporary, owner });
+  return reply(200, { tester: owner || listed || Boolean(temporary), expiresAt: temporary, owner, trialUntil: trialUntil(person.createdAt) });
 }
 
 /** Owner-only beta list. Temporary entries expire without a cleanup job. */

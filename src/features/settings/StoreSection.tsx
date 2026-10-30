@@ -14,7 +14,7 @@ import { supabase } from '../../data/sync/supabase';
  */
 export default function StoreSection() {
   const added = useAddedApps();
-  const { paid, owned, tester, owner } = usePurchases();
+  const { paid, owned, tester, owner, trialUntil } = usePurchases();
   const { offerUndo } = useOverlays();
   const apps = familyApps.filter((app) => app.id !== 'proairetos');
   const [busy, setBusy] = useState<string | null>(null);
@@ -72,15 +72,16 @@ export default function StoreSection() {
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
         {!paid && !owner && !tester ? <p className="store__fine">Checkout isn’t open yet.</p> : null}
         {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
+        {trialUntil && !tester && !owner ? <p className="store__fine">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {owner ? <p className="store__fine">Owner access is enabled for this account.</p> : null}
       </div>
-      {(owner || tester || owned.length > 0) && <ul className="store__list">
+      {(owner || tester || trialUntil || owned.length > 0) && <ul className="store__list">
         {apps.map((app) => {
           const id = app.id as AddOn;
           const isAdded = added.includes(id);
-          const coreAccess = owner || tester || owned.includes('core');
-          const yours = owner || tester || (id === 'soma' ? owned.includes('soma') : id === 'phyton' ? owned.includes('phyton') : coreAccess);
-          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : 'Available' : 'Locked';
+          const coreAccess = owner || tester || Boolean(trialUntil) || owned.includes('core');
+          const yours = owner || tester || Boolean(trialUntil) || (id === 'soma' ? owned.includes('soma') : id === 'phyton' ? owned.includes('phyton') : coreAccess);
+          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : trialUntil && !owned.includes(id === 'soma' || id === 'phyton' ? id : 'core') ? 'Trial' : 'Available' : 'Locked';
           return (
             <li key={app.id} className="store__app">
               <div
@@ -153,7 +154,6 @@ export default function StoreSection() {
         })}
       </ul>}
       {!tester && !owner ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
-      <p className="store__fine">Beta access: contact proairetosapp@gmail.com to unlock the apps for 7 days. Beta does not include Proairetos cloud.</p>
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/">
         Adding an app to your Home Screen

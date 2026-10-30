@@ -231,8 +231,6 @@ const baseStyle = `
       }
       .picks input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
       .picks label:has(input:checked) { border-color: var(--accent); }
-      .letters { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 1rem; cursor: pointer; }
-      .letters input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
       .waitlist small { display: block; margin-top: 1rem; color: var(--muted); font-size: 0.9rem; }
       .hidden-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
       :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -255,31 +253,24 @@ const head = ({ title, description, path, image = '/social/proairetos.png', icon
     <link rel="canonical" href="${site}${path}" />
     <link rel="icon" href="${icon}" />${jsonLd ? `\n    <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>` : ''}`;
 
-/** The waitlist form: an email, optionally the apps of interest. Works with no script. */
-const waitlist = ({ source, picked = [], choose = true }) => `
+/** Where a free trial starts: Proairetos's account page (an account carries the trial to every app). */
+const TRIAL = '/?open=account';
+
+/** The newsletter form: an email, nothing else. Works with no script; posts to the waitlist Worker as a newsletter yes. */
+const waitlist = ({ source, picked = [] }) => `
       <section class="wrap" id="waitlist" aria-labelledby="waitlist-title">
         <form class="waitlist" method="post" action="/api/waitlist">
-          <h2 id="waitlist-title">Get early access</h2>
-          <p>The apps are in early access. Leave your email and we’ll let you know when they open, and when something new is ready to try.</p>
+          <h2 id="waitlist-title">Newsletter</h2>
+          <p>News about Proairetos and new apps, a few times a year.</p>
           <input type="hidden" name="source" value="${source}" />
+          <input type="hidden" name="letters" value="yes" />${picked.map((id) => `\n          <input type="hidden" name="apps" value="${id}" />`).join('')}
           <div class="hidden-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
           <div class="waitlist__row">
             <label class="hidden-field" for="waitlist-email">Email</label>
             <input id="waitlist-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" />
-            <button class="button button--main" type="submit">Notify me</button>
-          </div>${
-            choose
-              ? `
-          <fieldset>
-            <legend>Apps you’re curious about (optional)</legend>
-            <div class="picks">
-${apps.map((app) => `              <label><input type="checkbox" name="apps" value="${app.id}"${picked.includes(app.id) ? ' checked' : ''} /> ${app.name}</label>`).join('\n')}
-            </div>
-          </fieldset>`
-              : picked.map((id) => `\n          <input type="hidden" name="apps" value="${id}" />`).join('')
-          }
-          <label class="letters"><input type="checkbox" name="letters" value="yes" /> Also send me the newsletter (optional)</label>
-          <small>Used to tell you when the apps open, and for the newsletter only if you ticked it. <a href="/privacy.html#waitlist">Privacy</a></small>
+            <button class="button" type="submit">Sign up</button>
+          </div>
+          <small>Used only for the newsletter. To stop it, reply to any issue. <a href="/privacy.html#waitlist">Privacy</a></small>
         </form>
       </section>`;
 
@@ -453,10 +444,10 @@ function frontPage() {
         <h1>A calm home for your days</h1>
         <p class="lead">Write it down, plan your week and look back on how it went. Proairetos fits any schedule and never nags.</p>
         <div class="actions">
-          <a class="button button--main" href="/">Open Proairetos</a>
+          <a class="button button--main" href="${TRIAL}">Start your free trial</a>
           <a class="button" href="#how">Take a look</a>
         </div>
-        <p class="fine">Free on iPhone, Android and computer. Nothing to download.</p>
+        <p class="fine">Every app free for 7 days. No card needed. Works on iPhone, Android and computer.</p>
       </div>
       <div class="hero__phone"><img src="/screenshots/narrow-1.webp" alt="Proairetos Today: an intention for the day, the day’s plans and the open time between them" width="390" height="844" /></div>
     </header>
@@ -503,6 +494,7 @@ ${featured.map(appCard).join('\n')}
 
       <section class="wrap" aria-labelledby="prices-title">
         <h2 id="prices-title">Prices</h2>
+        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">Make an account and every app is free for 7 days. No card needed.</p>
         <div class="prices">
           <div class="price price--free"><b>Proairetos</b><strong>Free</strong><span>To-dos, calendar, journal and values. Free for good.</span></div>
           <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>All the apps except Soma and Phyton.</span></div>
@@ -610,8 +602,8 @@ function appPage(app) {
           <h1>${esc(app.line)}</h1>
           <p class="lead">${esc(app.about)}</p>
           <div class="actions">
-            <a class="button button--main" href="${hrefOf(app)}">Open ${app.name}</a>
-            <a class="button" href="#waitlist">Get early access</a>
+            <a class="button button--main" href="${TRIAL}">Start your free trial</a>
+            <a class="button" href="${hrefOf(app)}">Open ${app.name}</a>
           </div>
         </div>${first ? `\n        <img class="phone" src="${first.src}" alt="${app.name} on a phone" width="300" height="650" />` : ''}
       </header>
@@ -692,7 +684,7 @@ write('welcome/apps/index.html', allAppsPage());
 for (const app of addOns) write(`welcome/${app.id}/index.html`, appPage(app));
 write(
   'welcome/thanks/index.html',
-  plainPage({ path: '/welcome/thanks/', title: 'You’re on the list', heading: 'You’re on the list', text: 'You’ll hear when Proairetos opens. Proairetos itself is free to use now.' }),
+  plainPage({ path: '/welcome/thanks/', title: 'You’re signed up', heading: 'You’re signed up', text: 'The next newsletter comes to your inbox. Every app is free to try for 7 days.' }),
 );
 write(
   'welcome/try-again/index.html',
