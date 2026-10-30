@@ -12,16 +12,18 @@ export type OnboardingStep = {
 export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'Proairetos',
-    lines: ['Greek for “chosen deliberately.”', 'A calm place to choose where your time and attention go.'],
+    lines: [
+      'Proairetos (προαιρετός) is ancient Greek for what is chosen deliberately.',
+      'It comes from prohairesis (προαίρεσις), the Stoic name for our capacity to consider, judge and choose how we respond and act.',
+      'We cannot control everything that happens to us, or give equal attention to everything that asks for it.',
+      'We can become more deliberate about where our attention goes, how we use our time and what we put first.',
+    ],
     action: 'Get started',
     brand: true,
   },
   {
     title: 'Yours to choose',
-    lines: [
-      'Not everything that happens is up to you. Where your attention goes is.',
-      'Write things down as they come. Today shows only what you pick.',
-    ],
+    lines: ['Write things down as they come.', 'Today shows only what you pick.'],
     action: 'Continue',
   },
   {

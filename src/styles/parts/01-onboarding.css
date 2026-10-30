@@ -105,6 +105,23 @@
   color: #3d342b;
 }
 
+/* The first step carries the meaning of the name: a paragraph each, on a panel of the sky's paper so the words stay
+   clear where the trees begin. */
+.onboarding-hero--brand {
+  margin-top: clamp(0.5rem, 4vh, 2.5rem);
+  gap: var(--space-3);
+}
+
+.onboarding-hero--brand .onboarding-hero__lines {
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: 18px;
+  background: rgb(244 236 221 / 0.9);
+  box-shadow: 0 10px 30px rgb(23 19 15 / 0.18);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
 .onboarding-actions {
   /* The step's action stays on screen however long the step (as the platforms keep a primary button in reach). */
   position: sticky;
@@ -475,4 +492,21 @@
   color: #6f5536;
   font-size: var(--text-sm);
   font-weight: 600;
+}
+
+/* Short phones (iPhone SE): the compass steps aside so the meaning fits above the action. */
+@media (max-height: 760px) {
+  .onboarding-hero--brand > :first-child {
+    display: none;
+  }
+
+  .onboarding-hero--brand .onboarding-hero__brand {
+    font-size: clamp(2.4rem, 11vw, 3rem);
+  }
+
+  .onboarding-hero--brand .onboarding-hero__lines {
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+  }
 }
