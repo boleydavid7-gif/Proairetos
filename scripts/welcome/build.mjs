@@ -107,7 +107,7 @@ const apps = [
     ground: '#0e1112', accent: '#8fc1b5', ink: '#e9ece8',
     line: 'Chores, shared with your household',
     card: 'Chores that repeat when they’re due, shared with everyone you live with.',
-    about: 'Chores that come back when they’re due, shared with everyone you live with. Take turns if you like.',
+    about: 'Chores that come back when they’re due, shared with everyone you live with, with turns when you want them.',
     points: [
       ['Repeats', 'Every few days, on set weekdays, monthly or once, counted from when it was last done.'],
       ['Shared', 'One list for your whole household, end-to-end encrypted.'],

@@ -58,3 +58,4 @@
 .mneme-link-button { justify-self:start; border:0; background:transparent; color:var(--mneme-lamp); padding:.25rem 0; font:inherit; font-size:.85rem; text-decoration:underline; text-underline-offset:.15em; }
 .mneme-recorder .mneme-live-transcript { justify-self:stretch; max-width:20rem; width:100%; margin-inline:auto; }
 .mneme-recorder .mneme-live-transcript + .mneme-live-transcript { margin-top:.6rem; }
+.mneme-more { display: grid; gap: var(--ll-gap, 16px); align-content: start; }

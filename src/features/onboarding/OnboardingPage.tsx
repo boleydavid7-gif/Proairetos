@@ -10,6 +10,7 @@ import { openSettingsAt } from '../settings/settingsViews';
 import MakeItYours, { type Choices } from './components/MakeItYours';
 import type { AppRoute } from '../../app/routes/routeTypes';
 import { setDisplayName } from '../../data/storage/preferences';
+import { isSyncConfigured } from '../../data/sync/supabase';
 
 type Props = {
   /** Enters the app, optionally on a given screen. */
@@ -23,9 +24,15 @@ export default function OnboardingPage({ onGetStarted }: Props) {
   const [choices, setChoices] = useState<Choices>({ name: '', shifts: false });
   const [saving, setSaving] = useState(false);
 
-  async function finish() {
+  async function finish(trial = false) {
     setSaving(true);
     if (choices.name.trim()) setDisplayName(choices.name);
+    // The trial needs an account, so it opens Account and sync; the schedule stays a row in Settings.
+    if (trial) {
+      openSettingsAt('account');
+      onGetStarted('settings');
+      return;
+    }
     onGetStarted(choices.shifts ? 'schedule' : undefined);
   }
 
@@ -82,7 +89,11 @@ export default function OnboardingPage({ onGetStarted }: Props) {
           {step.action}
         </button>
         {/* Signing in lives in Settings, under Account and sync. Prices and sync can be passed over. */}
-        {step.panel === 'plans' ? (
+        {isLast && isSyncConfigured ? (
+          <button type="button" className="onboarding-link" disabled={saving} onClick={() => void finish(true)}>
+            Begin with a free trial
+          </button>
+        ) : step.panel === 'plans' ? (
           <button type="button" className="onboarding-link" onClick={() => setIndex(index + 1)}>
             Skip this
           </button>
