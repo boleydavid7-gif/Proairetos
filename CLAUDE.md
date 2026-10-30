@@ -777,9 +777,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - Design pass: from 62rem Today lays its cards in two columns (`align-content: start`, or the rows stretched to the page's height) (greeting, capture, done-today and the daily thought across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).
 - Written about (Compass > People, open a person): items and reflections that mention their name as a whole word, newest first, up to five (`core/compass/mentions.ts`); reflections left out while the lock is on.
-- Web app plus iOS and Android apps from the same code (the owner's choice, Oct 22): the website stays the main
-  build and must never change for the native one; native-only code sits behind `isNativeApp()` (`app/native/`) and
-  is imported only when it runs.
+- A web app only, for true cross-platform reach (the owner's choice, Oct 30; it replaces the Oct 22 plan for iOS and
+  Android apps): reach for web features (manifest shortcuts, Badging, notification actions, Share Target, File
+  Handling, Window Controls Overlay) rather than native ones. The Capacitor groundwork below is parked, not grown;
+  native-only code stays behind `isNativeApp()` (`app/native/`) and is imported only when it runs.
 - Phone apps (Capacitor, `capacitor.config.json`, `docs/NATIVE.md`; native folders are made on the person's computer):
   every `/api` call goes through `apiUrl` / `VITE_API_BASE`; the Worker treats the app's origins (`NATIVE_ORIGINS`)
   as the site on every `/api` route (`asFromSite`, CORS; test `src/tests/worker/nativeOrigins.test.ts`). In the app,
