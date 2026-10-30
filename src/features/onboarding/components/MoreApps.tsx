@@ -121,9 +121,13 @@ export function Sibling() {
     <a className="more-apps__sibling" href="https://noesis.proairetos.com/" target="_blank" rel="noopener">
       <img src="/partners/noesis.png" alt="" width={40} height={40} />
       <span>
-        <small>From the same maker</small>
+        <small>From Proairetos</small>
         <strong>Noesis</strong>
-        <span>Read and remember your books</span>
+        <span className="more-apps__sibling-about">
+          <b>Follow the rabbit</b>
+          You never know where an idea might lead. Discover connected ideas, and explore your world and others through
+          reading.
+        </span>
       </span>
       <span className="more-apps__sibling-open">Open</span>
     </a>

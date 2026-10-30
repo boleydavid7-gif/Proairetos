@@ -1037,6 +1037,13 @@
   line-height: 1.3;
 }
 
+.more-apps__sibling-about b {
+  display: block;
+  margin: 2px 0 1px;
+  color: var(--ob-ink);
+  font-weight: 600;
+}
+
 .more-apps__sibling strong {
   font-size: var(--text-md);
   font-weight: 600;

@@ -732,7 +732,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `<details>` row per period ("3 runs, 1 note", "Latest" time), placed at its newest entry and closed until opened; the
   person's own reflections stay as single entries. Add an app's prompt key to `BY_PROMPT` when it starts keeping lines.
 - Sibling apps (small cards, welcome screens only): Proairetos's onboarding More apps step ends with `Sibling`
-  (`MoreApps.tsx`, `.more-apps__sibling`): Noesis's icon (`public/partners/noesis.png`), one line and Open, linking
+  (`MoreApps.tsx`, `.more-apps__sibling`): Noesis's icon (`public/partners/noesis.png`), "From Proairetos", the name, the owner's words (**Follow the rabbit**, then "You never know where an idea might lead. Discover connected ideas, and explore your world and others through reading.") and Open, linking
   https://noesis.proairetos.com in a new tab. Noesis's last welcome step carries the same card for Proairetos
   (`.intro-sibling`, `public/partners/proairetos.png`). Keep them to one card each, never in the Store or on daily pages.
 - Ease of use, checked against Apple's, Google's and Microsoft's guidance: onboarding is five steps (the two pitch screens
