@@ -12,6 +12,27 @@ Core principle:
 
 The person remains responsible for deciding what matters and what to change.
 
+## The name: prohairesis
+
+Proairetos (προαιρετός) means "chosen deliberately". Its root, prohairesis (προαίρεσις), is the Stoic name
+(Epictetus) for our capacity for deliberate choice: the faculty through which we consider, judge and choose how
+to respond and act. We cannot control everything that happens to us, and we cannot give equal attention to
+everything that asks for it. We can become more deliberate about where attention goes, how time is used and
+what comes first.
+
+Every feature answers to this. In practice:
+
+- **The person chooses; the app makes the choice easy.** It shows what is there and offers the next choice
+  (today's picks, the intention, Not today, Not for me). It never chooses, ranks or decides what matters.
+- **Attention is the person's.** Nothing interrupts, counts or asks for attention unless the person chose it:
+  a new kind of notice, badge, card or prompt is off until turned on, or shows only what the person set up.
+  Volume is earned by a choice, never assumed.
+- **Up to you, and not.** Where something is outside the person's control (a schedule change, a bill's date,
+  the weather), the app states the fact plainly and puts the part that is theirs next to it: what to do, or
+  leave it.
+- **Less, by choice.** Setting things aside is as easy as adding them, and nothing piles up as debt.
+- **Looking back is the person's own words**, never the app's verdict on how they did.
+
 ---
 
 # Navigation

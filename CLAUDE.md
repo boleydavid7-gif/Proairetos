@@ -10,6 +10,12 @@ rule: **the system records life; it does not interpret life.**
 
 ## Non-negotiable product rules
 
+- The name is the rule (`docs/PRODUCT_ARCHITECTURE.md`, "The name: prohairesis"): the app helps the person choose
+  deliberately where attention, time and priority go. It shows and offers; the person chooses. Nothing new
+  interrupts, counts or asks for attention unless the person chose it (new notices, badges, cards and prompts
+  are off until turned on or show only what the person set up). Outside their control: the plain fact, with
+  their part beside it.
+
 - No scores, streaks, rewards, "overdue", failure states, or shame language.
   Relief instead of praise (calm close-out with undo).
 - The app never decides what matters, ranks priorities, infers mood, or

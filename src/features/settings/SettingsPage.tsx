@@ -1219,7 +1219,12 @@ export default function SettingsPage() {
               Proairetos records your life and leaves the meaning to you. No scores, no streaks, nothing ranked for you.
             </p>
             <p className="section-description">
-              The name comes from Epictetus: prohairesis, the part of us that chooses how to respond.
+              Proairetos (προαιρετός) means chosen deliberately. Its root, prohairesis, is the Stoics’ word for the part of us that
+              chooses how to respond.
+            </p>
+            <p className="section-description">
+              Much of what happens is not up to us, and not everything can have our attention. Where attention, time and effort
+              go is ours to choose.
             </p>
           </section>
         )}
