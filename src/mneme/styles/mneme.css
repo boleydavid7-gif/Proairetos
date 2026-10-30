@@ -40,3 +40,21 @@
 @keyframes mneme-pulse { 50% { box-shadow:0 0 0 14px color-mix(in srgb, #e4a0a0 5%, transparent); } }
 
 @media (min-width: 42rem) { .mneme-page { padding-left:1.5rem; padding-right:1.5rem; }.mneme-note-list { grid-template-columns:repeat(2,minmax(0,1fr)); }.mneme-note-card { min-height:8rem; } }
+
+/* Transcript (Whisper on the device): tools in a row, a quiet status, then timed lines that play from their moment. */
+.mneme-interim { margin:.6rem 0 0; max-width:24rem; color:var(--mneme-muted); font-style:italic; line-height:1.45; }
+.mneme-transcript { display:grid; gap:.7rem; margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--mneme-line); }
+.mneme-transcript__tools { display:flex; flex-wrap:wrap; align-items:end; gap:.6rem; }
+.mneme-transcript__tools .mneme-inline-field { flex:1 1 9rem; }
+.mneme-transcript__status { display:flex; align-items:center; gap:.6rem; margin:0; color:var(--mneme-muted); font-size:.85rem; }
+.mneme-transcript__status.is-error { color:#e4a0a0; }
+.mneme-transcript__bar { width:100%; height:.3rem; accent-color:var(--mneme-lamp); }
+.mneme-transcript__lines { display:grid; margin:0; padding:0; list-style:none; }
+.mneme-transcript__lines button { display:grid; grid-template-columns:3rem minmax(0,1fr); gap:.6rem; width:100%; min-height:44px; padding:.5rem .4rem; border:0; border-radius:.6rem; background:transparent; color:var(--mneme-ink); text-align:left; font:inherit; line-height:1.45; }
+.mneme-transcript__lines button:hover { background:color-mix(in srgb, var(--mneme-lamp) 6%, transparent); }
+.mneme-transcript__lines button[aria-current=true] { background:var(--mneme-lamp-soft); }
+.mneme-transcript__lines time { padding-top:.1rem; color:var(--mneme-muted); font-size:.78rem; font-variant-numeric:tabular-nums; }
+.mneme-transcript__private { margin:0; color:var(--mneme-muted); font-size:.78rem; }
+.mneme-link-button { justify-self:start; border:0; background:transparent; color:var(--mneme-lamp); padding:.25rem 0; font:inherit; font-size:.85rem; text-decoration:underline; text-underline-offset:.15em; }
+.mneme-recorder .mneme-live-transcript { justify-self:stretch; max-width:20rem; width:100%; margin-inline:auto; }
+.mneme-recorder .mneme-live-transcript + .mneme-live-transcript { margin-top:.6rem; }

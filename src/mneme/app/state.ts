@@ -9,6 +9,8 @@ export type Note = {
   kind?: 'note' | 'idea';
   ideaStage?: IdeaStage;
   recording?: { attachmentId: string; durationMs: number; mimeType: string };
+  // Heard on the device by Whisper: timed sentences, so a tap plays from there.
+  transcript?: { segments: Array<{ start: number; end: number; text: string }>; language?: string; accuracy?: 'standard' | 'accurate'; at: string };
   pinned: boolean;
   archived: boolean;
   createdAt: string;
@@ -27,7 +29,14 @@ export type Idea = {
 export const notes = collection<Note>('mneme:note:');
 export const ideas = collection<Idea>('mneme:idea:');
 export const collections = collection<NoteCollection>('mneme:collection:');
-export const settings = stored<{ started: boolean }>('mneme:settings', () => ({ started: true }));
+export type MnemeSettings = {
+  started: boolean;
+  autoTranscribe?: boolean; // transcribe each new voice note after saving
+  accuracy?: 'standard' | 'accurate';
+  language?: string; // a Whisper language code; absent = heard from the recording
+  liveTranscript?: boolean;
+};
+export const settings = stored<MnemeSettings>('mneme:settings', () => ({ started: true }));
 
 export function newId(prefix = 'note'): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;

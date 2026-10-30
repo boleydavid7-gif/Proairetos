@@ -60,6 +60,8 @@
 /ocr/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
+/ort/*
+  Cache-Control: public, max-age=604800
 
 /diaita/sw.js
   Cache-Control: no-cache

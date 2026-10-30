@@ -87,7 +87,7 @@ self.addEventListener('fetch', (event) => {
   const sameOrigin = url.origin === self.location.origin;
   // /api/ answers are live (other calendars), never cached. Meditate keeps its
   // own recordings (music streams with range requests, which a cache answers badly).
-  if (sameOrigin && url.pathname !== '/sw.js' && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/sounds/') && !url.pathname.startsWith('/ocr/')) {
+  if (sameOrigin && url.pathname !== '/sw.js' && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/sounds/') && !url.pathname.startsWith('/ocr/') && !url.pathname.startsWith('/ort/')) {
     event.respondWith(cacheFirst(request));
   }
 });

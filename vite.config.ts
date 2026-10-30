@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { copyFileSync, createReadStream, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const builtAt = new Date().toISOString();
 
@@ -30,21 +30,37 @@ const OCR_FILES: Record<string, string> = {
   'tesseract-core-lstm.wasm.js': 'node_modules/tesseract.js-core/tesseract-core-lstm.wasm.js',
   'eng.traineddata.gz': 'node_modules/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz',
 };
+/*
+ * Mneme's transcription (Whisper on the device) runs on ONNX Runtime's WebAssembly build, served from this site at
+ * /ort/ (the content policy allows scripts from here only). The speech model itself comes from Hugging Face.
+ */
+const ORT_FILES: Record<string, string> = {
+  'ort-wasm-simd-threaded.mjs': 'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs',
+  'ort-wasm-simd-threaded.wasm': 'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm',
+};
+const LOCAL_FILES: Record<string, Record<string, string>> = { ocr: OCR_FILES, ort: ORT_FILES };
+const typeOf = (name: string) =>
+  name.endsWith('.js') || name.endsWith('.mjs') ? 'text/javascript' : name.endsWith('.wasm') ? 'application/wasm' : 'application/octet-stream';
 const ocrFiles = (include: boolean, outDir: string) => ({
   name: 'ocr-files',
   configureServer(server: { middlewares: { use: (handler: (req: { url?: string }, res: NodeJS.WritableStream & { setHeader: (k: string, v: string) => void }, next: () => void) => void) => void } }) {
     server.middlewares.use((req, res, next) => {
-      const name = req.url?.match(/^\/ocr\/([^?]+)/)?.[1];
-      const file = name && OCR_FILES[name];
-      if (!file) return next();
-      res.setHeader('content-type', name.endsWith('.js') ? 'text/javascript' : 'application/octet-stream');
+      const match = req.url?.match(/^\/(ocr|ort)\/([^?]+)/);
+      const file = match && LOCAL_FILES[match[1]][match[2]];
+      if (!match || !file) return next();
+      res.setHeader('content-type', typeOf(match[2]));
       createReadStream(file).pipe(res);
     });
   },
   closeBundle() {
     if (!include || !existsSync(outDir)) return;
-    mkdirSync(`${outDir}/ocr`, { recursive: true });
-    for (const [name, file] of Object.entries(OCR_FILES)) copyFileSync(file, `${outDir}/ocr/${name}`);
+    for (const [dir, files] of Object.entries(LOCAL_FILES)) {
+      mkdirSync(`${outDir}/${dir}`, { recursive: true });
+      for (const [name, file] of Object.entries(files)) copyFileSync(file, `${outDir}/${dir}/${name}`);
+    }
+    // The bundler also copies the runtime's WebGPU build (about 25 MB), which Mneme never asks for (it points the
+    // runtime at /ort/); it is left out of the site.
+    for (const name of readdirSync(`${outDir}/assets`)) if (/^ort-wasm-simd-threaded\.(asyncify|jsep|jspi)-.*\.wasm$/.test(name)) rmSync(`${outDir}/assets/${name}`);
   },
 });
 
@@ -53,6 +69,7 @@ const stripNativePayloads = (outDir: string) => ({
   closeBundle() {
     rmSync(`${outDir}/sounds`, { recursive: true, force: true });
     rmSync(`${outDir}/ocr`, { recursive: true, force: true });
+    rmSync(`${outDir}/ort`, { recursive: true, force: true });
   },
 });
 

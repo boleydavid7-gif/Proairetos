@@ -1464,6 +1464,24 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   which now also styles `.chip`, `.title`, `.back-link`). Tests in `src/tests/year/`.
 
 
+## Mneme transcription (same repository)
+
+- Transcribe on a voice note (`src/mneme/screens/Transcript.tsx`, `app/transcribe/`, tests `src/tests/mneme/transcribe.test.ts`):
+  Whisper on the device through `@huggingface/transformers` 3.8 (pinned: 4.x ships a development ONNX Runtime that
+  cannot open the Whisper q8 decoder) in a module worker (`transcribe/worker.ts`, `device: 'wasm'`, `dtype: 'q8'`,
+  one thread). Models `onnx-community/whisper-base` (Standard, ~77 MB) or `whisper-small` (More accurate, ~250 MB),
+  downloaded once from Hugging Face into the browser's cache; the runtime is served by the site at `/ort/` (copied
+  from `onnx-runtime-web` by the `ocr-files` plugin in `vite.config.ts`; CSP allows scripts from 'self' only; the
+  bundler's own 25 MB WebGPU wasm copy is deleted from `dist/assets`; `sw.js` never caches `/ort/`; native builds
+  strip it). `toMono16k` decodes and resamples to 16 kHz, `windowsOf` cuts at the quietest 0.1 s between 22 and 30 s,
+  `max_new_tokens` is ~7 a second and `unloop` keeps a phrase said 3+ times in a row once (Whisper loops on trailing
+  audio). `jobs.ts` runs one job at a time while the app is open (leaving the page keeps it going) and writes
+  `Note.transcript` (timed `segments`), the body when empty and a title from the first sentence when it was "Voice
+  note". Tapping a line plays from it; the playing line is marked. Language (Automatic + common ones), model and
+  "Transcribe after saving" (`autoTranscribe`) and the live transcript choice live in the synced `mneme:settings`.
+  Live transcript (browser speech service, off in the iPhone Home Screen app) shows interim words under the recorder
+  and restarts at once when the service stops. Tested in Chromium with a fake microphone and the real model.
+
 ## Phyton (plants, same repository)
 
 - Fourteenth app at `/phyton/`, on the newer apps' shell (`startApp`, `shell.tsx`), wired like Ktema everywhere (`ADD_ONS`, backup prefix

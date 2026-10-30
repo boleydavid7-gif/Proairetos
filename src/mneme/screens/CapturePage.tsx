@@ -3,7 +3,8 @@ import { attachmentService } from '../../app/services';
 import { MicIcon, StopIcon } from '../../components/icons/Icons';
 import { syncStatus } from '../../app/sync/syncController';
 import type { MnemeNav } from '../app/App';
-import { collections, newId, notes } from '../app/state';
+import { collections, newId, notes, settings } from '../app/state';
+import { transcribeNote } from '../app/transcribe/jobs';
 import { liveTranscriptSupported, recognitionClass, recordingFormat, voiceRecordingSupported, type VoiceRecognition } from '../app/voice';
 
 export type CaptureMode = 'write' | 'record';
@@ -18,7 +19,10 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
   const [recordingMs, setRecordingMs] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState('');
-  const [liveTranscript, setLiveTranscript] = useState(false);
+  const prefs = settings.use();
+  const liveTranscript = Boolean(prefs.liveTranscript) && liveTranscriptSupported();
+  const setLiveTranscript = (on: boolean) => settings.save({ ...settings.load(), liveTranscript: on });
+  const [interim, setInterim] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const recorder = useRef<MediaRecorder | null>(null);
@@ -61,12 +65,17 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
     const instance = new Recognition();
     instance.lang = navigator.language || 'en-US';
     instance.continuous = true;
-    instance.interimResults = false;
+    // Words show as they are said (interim, in the line under the recorder); only settled ones go into the text.
+    instance.interimResults = true;
     instance.onresult = (event) => {
       const words: string[] = [];
+      let pending = '';
       for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        if (event.results[index].isFinal) words.push(event.results[index][0].transcript.trim());
+        const heard = event.results[index][0].transcript.trim();
+        if (event.results[index].isFinal) words.push(heard);
+        else pending += `${pending ? ' ' : ''}${heard}`;
       }
+      setInterim(pending);
       if (words.length) setBody((current) => `${current}${current.trim() ? ' ' : ''}${words.join(' ')}`);
     };
     instance.onerror = (event) => {
@@ -77,12 +86,16 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
       recognition.current = null;
       try { instance.stop(); } catch { /* The speech service may already be stopped. */ }
     };
+    // The speech service stops on its own about once a minute; it is started again at once so few words fall in the gap.
     instance.onend = () => {
+      setInterim('');
       if (!restartRecognition.current) return;
-      window.setTimeout(() => {
-        if (!restartRecognition.current) return;
-        try { instance.start(); } catch { /* The browser is already restarting it. */ }
-      }, 250);
+      try { instance.start(); } catch {
+        window.setTimeout(() => {
+          if (!restartRecognition.current) return;
+          try { instance.start(); } catch { /* The browser is already restarting it. */ }
+        }, 120);
+      }
     };
     recognition.current = instance;
     try { instance.start(); } catch { setError('Live transcript could not start. The recording is still available.'); }
@@ -143,6 +156,7 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
 
   const stopRecording = () => {
     restartRecognition.current = false;
+    setInterim('');
     recognition.current?.stop();
     recognition.current = null;
     const activeRecorder = recorder.current;
@@ -173,6 +187,7 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
         recordingInfo = { attachmentId: attachment.id, durationMs: recordingDurationMs.current || recordingMs, mimeType: attachment.type };
       }
       notes.put({ id, title: title.trim() || 'Voice note', body: body.trim(), collectionId: collectionId || undefined, pinned: false, archived: false, kind: 'note', source: audioBlob ? 'voice' : undefined, recording: recordingInfo, createdAt: now, updatedAt: now });
+      if (recordingInfo && prefs.autoTranscribe) transcribeNote(id);
       nav.go({ name: 'note', id });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The recording could not be saved.');
@@ -185,12 +200,12 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   return <main className="mneme-page mneme-capture">
     <button type="button" className="mneme-back-source" data-back aria-hidden="true" onClick={() => nav.swap({ name: 'notes' })}>Back</button>
-    <h1>{mode === 'record' ? 'Record a thought.' : 'Write it down.'}</h1>
+    <h1>{mode === 'record' ? 'Voice note' : 'New note'}</h1>
     <div className="mneme-capture-modes" role="tablist" aria-label="Capture type"><button type="button" role="tab" aria-selected={mode === 'write'} onClick={() => setMode('write')}>Write</button><button type="button" role="tab" aria-selected={mode === 'record'} onClick={() => setMode('record')}>Voice note</button></div>
-    {mode === 'record' && <section className={`mneme-recorder${recording ? ' is-recording' : ''}`}><div className="mneme-recorder__orb"><MicIcon size={22} /></div><strong>{recording ? `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}` : audioBlob ? 'Recording ready' : 'Tap to record'}</strong>{recording && <p>Speak naturally. You can edit the transcript below.</p>}{recording ? <button type="button" className="mneme-record-button mneme-record-button--stop" onClick={stopRecording}><StopIcon size={22} /> Stop recording</button> : <button type="button" className="mneme-record-button" onClick={() => void startRecording()}><MicIcon size={22} /> {audioBlob ? 'Record again' : 'Start recording'}</button>}{liveTranscriptSupported() && <label className="mneme-live-transcript"><input type="checkbox" checked={liveTranscript} onChange={(event) => setLiveTranscript(event.target.checked)} disabled={recording} /> <span>Live transcript <small>Uses your browser’s speech service</small></span></label>}{audioUrl && <audio className="mneme-audio" controls src={audioUrl} />}</section>}
+    {mode === 'record' && <section className={`mneme-recorder${recording ? ' is-recording' : ''}`}><div className="mneme-recorder__orb"><MicIcon size={22} /></div><strong>{recording ? `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}` : audioBlob ? 'Recording ready' : 'Tap to record'}</strong>{recording && interim && <p className="mneme-interim" aria-live="polite">{interim}</p>}{recording ? <button type="button" className="mneme-record-button mneme-record-button--stop" onClick={stopRecording}><StopIcon size={22} /> Stop recording</button> : <button type="button" className="mneme-record-button" onClick={() => void startRecording()}><MicIcon size={22} /> {audioBlob ? 'Record again' : 'Start recording'}</button>}{liveTranscriptSupported() && <label className="mneme-live-transcript"><input type="checkbox" checked={liveTranscript} onChange={(event) => setLiveTranscript(event.target.checked)} disabled={recording} /> <span>Live transcript <small>Uses your browser’s speech service</small></span></label>}<label className="mneme-live-transcript"><input type="checkbox" checked={Boolean(prefs.autoTranscribe)} onChange={(event) => settings.save({ ...settings.load(), autoTranscribe: event.target.checked })} /> <span>Transcribe after saving <small>On this device</small></span></label>{audioUrl && <audio className="mneme-audio" controls src={audioUrl} />}</section>}
     <label className="mneme-field"><span>Title</span><input className="field-input" autoFocus={mode !== 'record'} value={title} onChange={(event) => setTitle(event.target.value)} /></label>
     <label className="mneme-field"><span>{mode === 'record' ? 'Transcript or notes' : 'Note'}</span><textarea className="field-input field-input--area" value={body} onChange={(event) => setBody(event.target.value)} rows={mode === 'record' ? 8 : 9} /></label>
-    {allCollections.length > 0 && <label className="mneme-field"><span>Collection <em>optional</em></span><select className="field-input" value={collectionId} onChange={(event) => setCollectionId(event.target.value)}><option value="">Inbox</option>{allCollections.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
+    {allCollections.length > 0 && <label className="mneme-field"><span>Collection (optional)</span><select className="field-input" value={collectionId} onChange={(event) => setCollectionId(event.target.value)}><option value="">Inbox</option>{allCollections.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
     {error && <p className="mneme-form-error" role="alert">{error}</p>}
     {sync.phase !== 'ready' && mode === 'record' && <p className="mneme-storage-note">The note stays on this device until sync is set up in Proairetos.</p>}
     <button type="button" className="mneme-primary mneme-primary--wide" onClick={() => void save()} disabled={saving || recording || (!title.trim() && !body.trim() && !audioBlob)}>{saving ? 'Saving…' : 'Save note'}</button>
