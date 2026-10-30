@@ -690,17 +690,20 @@ write(
   'welcome/try-again/index.html',
   plainPage({ path: '/welcome/try-again/', title: 'That didn’t go through', heading: 'That didn’t go through', text: 'Check the email address and try again in a minute.' }),
 );
+// The add-on apps themselves carry noindex; their front pages at /welcome/<app>/ are what search finds.
+const built = new Date().toISOString().slice(0, 10);
 write(
   'sitemap.xml',
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${site}/</loc></url>
-  <url><loc>${site}/welcome/</loc></url>
-  <url><loc>${site}/welcome/apps/</loc></url>
-${addOns.map((app) => `  <url><loc>${site}/welcome/${app.id}/</loc></url>`).join('\n')}
-${addOns.map((app) => `  <url><loc>${site}/${app.id}/</loc></url>`).join('\n')}
-  <url><loc>${site}/lamplight/</loc></url>
-  <url><loc>${site}/privacy.html</loc></url>
+${[
+  '/',
+  '/welcome/',
+  '/welcome/apps/',
+  ...addOns.map((app) => `/welcome/${app.id}/`),
+  '/lamplight/',
+  '/privacy.html',
+].map((path) => `  <url><loc>${site}${path}</loc><lastmod>${built}</lastmod></url>`).join('\n')}
 </urlset>
 `,
 );
