@@ -538,3 +538,23 @@ seals it for the person's device and keeps only the sealed copy.
 4. **Routing rules** → **Catch-all address** → Action **Send to a Worker** → **proairetos** → Save, and turn it on.
    Addresses that are not `trips.<code>` are turned away. Any address you add as its own rule still goes where you send it.
 5. In Poreia: More → Forward booking emails → Make my address. Forward a confirmation to it and open Poreia.
+
+## First-week emails (migration 20261102000000, Resend)
+
+Three emails to each new account (day 1, day 3, and the day before the trial ends; the last skipped when a plan was
+bought), sent by the Worker's daily schedule (`triggers.crons` in `wrangler.jsonc`, 15:23 UTC) from `worker/firstWeek.ts`.
+
+1. Run `supabase/migrations/20261102000000_first_week_emails.sql` in the SQL editor.
+2. In Resend (resend.com): add the domain `proairetos.com`, then add the DNS records it shows in Cloudflare (DNS >
+   Records). Wait until Resend says Verified.
+3. In Resend, create an API key (Sending access).
+4. Cloudflare > Workers > proairetos > Settings > Variables and Secrets, add as **Secrets**:
+   - `RESEND_API_KEY`: the key from step 3.
+   - `EMAIL_SIGNING_SECRET`: any long random text (it signs the stop links; keep it the same afterwards).
+   - `SUPABASE_SERVICE_ROLE_KEY` is already there for the Store.
+5. Optional variable `EMAIL_FROM` (default `Proairetos <hello@proairetos.com>`). Replies go to that address, so use one
+   you read, or set up Email Routing to forward it to proairetosapp@gmail.com.
+
+Until `RESEND_API_KEY` and `EMAIL_SIGNING_SECRET` are set, nothing is sent. Who stopped them:
+`select user_id, stopped_at from public.email_stops;`
+

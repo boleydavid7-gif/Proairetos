@@ -18,6 +18,8 @@
     "SUPABASE_URL": "https://ccxkwfmybtouneurxunj.supabase.co",
     "OWNER_EMAIL": "boleydavid7@gmail.com"
   },
+  // Once a day (15:23 UTC): the first-week emails for new accounts (worker/firstWeek.ts, through Resend).
+  "triggers": { "crons": ["23 15 * * *"] },
   // Variables set in the dashboard stay when this deploys.
   "keep_vars": true,
   "assets": {

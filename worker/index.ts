@@ -1,3 +1,4 @@
+import { handleEmailStop, sendFirstWeek, type FirstWeekEnv } from './firstWeek';
 import { handleCalendarRequest } from './calendarProxy';
 import { handleRecipeRequest } from './recipeProxy';
 import { handleRecipeIdeasRequest, type RecipeIdeasEnv } from './recipeIdeas';
@@ -17,7 +18,7 @@ import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv & FirstWeekEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 export const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -54,6 +55,10 @@ export default {
     }
     return route(request, env, url);
   },
+  /** Once a day: the first-week emails for new accounts (worker/firstWeek.ts). */
+  async scheduled(_event: unknown, env: Env, context: { waitUntil: (work: Promise<unknown>) => void }): Promise<void> {
+    context.waitUntil(sendFirstWeek(env));
+  },
   /** Poreia's forwarding address (Email Routing sends trips.<token>@ here): booking emails sealed for the person. */
   async email(message: IncomingEmail, env: Env): Promise<void> {
     await handleTripEmail(message, env);
@@ -68,6 +73,7 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
     return handleRecipeIdeasRequest(request, env);
   }
   if (url.pathname === '/api/receipt') return handleReceiptRequest(request, env);
+  if (url.pathname === '/api/emails/stop') return handleEmailStop(request, env);
   if (url.pathname === '/api/speculation-rules') return speculationResponse();
   // Bring your own storage: which providers are set up, and the sign-in step that needs their secrets.
   if (url.pathname === '/api/storage') return handleStorageRequest(request, env);

@@ -70,6 +70,8 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [x] Newsletter consent on the waitlist: run `20261101000000_waitlist_letters.sql` after the waitlist migration. Until
       then the form still works and the box is simply not kept. Who said yes: `select email, letters_at from
       public.waitlist where letters order by letters_at;`
+- [ ] First-week emails: run `20261102000000_first_week_emails.sql`, verify proairetos.com in Resend, add secrets
+      `RESEND_API_KEY` and `EMAIL_SIGNING_SECRET` (steps in SERVER_SETUP.md "First-week emails").
 - [ ] The Store's subscriptions (Core $9.99/month, Soma and Phyton $3.99/month each, bundle $6.99/month, cloud
       $2.99/month; Proairetos free): run `20261025000000_purchases.sql`, `20261029000000_beta_access.sql` and
       `20261030000000_recurring_purchases.sql`, set up Stripe

@@ -475,6 +475,11 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   under Askesis and Dynamis; the per-app switches already there decide the rest. Seen and cleared keys are device only
   (`proairetosInboxSeen`, `proairetosInboxCleared`). Today's `ImportantCard` sits first and shows only while an
   uncleared schedule change, bill, care or trip entry exists; Review opens the fly-out, × clears them with undo.
+- First-week emails (`worker/firstWeek.ts`, the Worker's `scheduled` handler on `triggers.crons` daily, Resend): day 1
+  getting started, day 3 planning around a week, day 6 the trial's end (`stepFor`: each on two days; skipped once a plan is
+  bought; never the owner), each once (`first_week_emails`) and stopped for good by a signed link (`/api/emails/stop`,
+  `stopSignature` HMAC with `EMAIL_SIGNING_SECRET`, GET or one-click POST; `email_stops`; migration
+  `20261102000000_first_week_emails.sql`). Reads only address and sign-up date (admin users API, service role).
 - Send feedback (`app/family/feedback.ts` `feedbackLink`: a mailto to `FEEDBACK_EMAIL`, subject "<App> feedback", a foot with the
   app, build day and kind of device only): a row at the end of the shared `FamilyApps` (every add-on's settings) and in
   Proairetos's Settings above the support row.
