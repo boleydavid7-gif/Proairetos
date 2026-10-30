@@ -12,24 +12,27 @@ export type OnboardingStep = {
 export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'Proairetos',
-    lines: ['Clarity today.', 'A steadier tomorrow.'],
+    lines: ['Greek for “chosen deliberately.”', 'A calm place to choose where your time and attention go.'],
     action: 'Get started',
     brand: true,
   },
   {
-    title: 'Capture first',
-    lines: ['Get things out of your head the moment they arrive.', 'Sorting can wait. You decide what matters.'],
+    title: 'Yours to choose',
+    lines: [
+      'Not everything that happens is up to you. Where your attention goes is.',
+      'Write things down as they come. Today shows only what you pick.',
+    ],
     action: 'Continue',
   },
   {
     title: 'On your Home Screen',
-    lines: ['Add Proairetos like an app.'],
+    lines: ['Open it in one tap, like any other app.'],
     action: 'Continue',
     panel: 'home-screen',
   },
   {
     title: 'More apps',
-    lines: ['Add the ones you want, when you want.'],
+    lines: ['Add only the ones you need.'],
     action: 'Continue',
     panel: 'apps',
   },
@@ -41,7 +44,7 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     title: 'Make it yours',
-    lines: ['Everything can change later.'],
+    lines: ['You can change any of this in Settings.'],
     action: 'Begin',
     form: true,
   },
