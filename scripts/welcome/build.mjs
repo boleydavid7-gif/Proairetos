@@ -2,7 +2,7 @@
 // per app at /welcome/<app>/, the waitlist's /welcome/thanks/ and /welcome/try-again/, and public/sitemap.xml.
 // Static HTML with no script (the site's CSP allows none inline); the waitlist is a plain form posting to
 // /api/waitlist (worker/waitlist.ts). Run: node scripts/welcome/build.mjs
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -282,7 +282,8 @@ ${apps.map((app) => `              <label><input type="checkbox" name="apps" val
 
 const footer = `
     <footer class="wrap">
-      <a href="/welcome/">All the apps</a>
+      <a href="/welcome/">Home</a>
+      <a href="/welcome/apps/">All the apps</a>
       <a href="/">Proairetos</a>
       <a href="/lamplight/">Lamplight</a>
       <a href="/privacy.html">Privacy</a>
@@ -312,12 +313,31 @@ const privacyNotes = `
 
 // ---------- The front page ----------
 
-function frontPage() {
-  const description =
-    'Thirteen apps that work together: planning and reflection, running, recipes, bills, trips, reading, sleep, people, chores, medicines, strength, the things you own and your plants. Private, with no scores or streaks.';
-  const card = (app) => {
-    const [shot] = shots(app);
-    return `          <li class="app">
+// Prices come from the Worker's own list, so the page and the Store never disagree.
+const storeSource = readFileSync(join(root, 'worker', 'store.ts'), 'utf8');
+const cents = (plan) => Number(storeSource.match(new RegExp(`PLAN_PRICES = \\{[^}]*\\b${plan}: (\\d+)`))?.[1] ?? 0);
+const dollars = (plan) => `$${(cents(plan) / 100).toFixed(2)}`;
+
+// The four apps the front page shows; the rest are one click away on /welcome/apps/.
+const FEATURED = ['askesis', 'soma', 'oikonomia', 'poreia'];
+
+const pageColors = `
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c0e; --card: #13171a; --text: #f2ece2; --muted: #b3ada3; --accent: #c9a274; --on-accent: #1a140d;
+        --border: rgba(255, 255, 255, 0.1); --glow: rgba(201, 162, 116, 0.18);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          color-scheme: light;
+          --bg: #f6efe4; --card: #fffaf2; --text: #2b251f; --muted: #5f5448; --accent: #8a6a46; --on-accent: #fffaf2;
+          --border: rgba(43, 37, 31, 0.14); --glow: rgba(138, 106, 70, 0.16);
+        }
+      }`;
+
+const appCard = (app) => {
+  const [shot] = shots(app);
+  return `          <li class="app">
             <div class="app__head"><img src="${app.icon}" alt="" width="44" height="44" /><h3 class="app__name">${app.name}</h3></div>
             <p>${esc(app.card)}</p>${shot && !shot.wide ? `\n            <img class="app__shot" src="${shot.src}" alt="${app.name} on a phone" width="300" height="533" />` : ''}
             <div class="app__actions">
@@ -326,27 +346,10 @@ function frontPage() {
               }
             </div>
           </li>`;
-  };
-  return `${head({ title: 'Proairetos and its family', description, path: '/welcome/' })}
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #0a0c0e; --card: #13171a; --text: #f2ece2; --muted: #b3ada3; --accent: #c9a274; --on-accent: #1a140d;
-        --border: rgba(255, 255, 255, 0.1);
-      }
-      @media (prefers-color-scheme: light) {
-        :root {
-          color-scheme: light;
-          --bg: #f6efe4; --card: #fffaf2; --text: #2b251f; --muted: #5f5448; --accent: #8a6a46; --on-accent: #fffaf2;
-          --border: rgba(43, 37, 31, 0.14);
-        }
-      }${baseStyle}
-      header { padding: 4.5rem 16px 2.5rem; text-align: center; }
-      header img { width: 64px; height: 64px; border-radius: 16px; }
-      header .lead { max-width: 34rem; margin: 1rem auto 0; }
-      header .actions { justify-content: center; }
-      h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); margin-top: 1rem; }
-      .apps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+};
+
+const appGridStyle = `
+      .apps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); list-style: none; padding: 0; margin: 0; }
       .app { display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px; padding: 18px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); }
       .app__head { display: flex; align-items: center; gap: 12px; }
       .app__head img { width: 44px; height: 44px; border-radius: 12px; }
@@ -354,62 +357,187 @@ function frontPage() {
       .app p { margin: 0; color: var(--muted); }
       .app__shot { width: 100%; height: auto; aspect-ratio: 9 / 16; object-fit: cover; object-position: top; border-radius: 14px; border: 1px solid var(--border); max-height: 22rem; }
       .app__actions { display: flex; gap: 8px; align-self: end; }
-      .app__actions .button { flex: 1; }
-      details { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
-      summary { cursor: pointer; padding: 16px 18px; font-weight: 600; min-height: 48px; }
-      details ol { margin: 0; padding: 0 18px 16px 40px; color: var(--muted); }
-      details li { margin: 6px 0; }
-    </style>
-  </head>
-  <body>
-    <header class="wrap">
-      <img src="/icons/icon-192.png" alt="" />
-      <h1>Proairetos and its family</h1>
-      <p class="lead">${description}</p>
-      <div class="actions">
-        <a class="button button--main" href="/">Open Proairetos</a>
-        <a class="button" href="#waitlist">Hear when it opens</a>
-      </div>
-    </header>
+      .app__actions .button { flex: 1; }`;
 
-    <main>
-      <section class="wrap" aria-labelledby="apps">
-        <h2 id="apps">The apps</h2>
-        <ul class="apps">
-${apps.map(card).join('\n')}
-        </ul>
-      </section>
-${waitlist({ source: 'welcome' })}
-
+const installSteps = `
       <section class="wrap" id="install" aria-labelledby="install-title">
-        <h2 id="install-title">Add them to your Home Screen</h2>
+        <h2 id="install-title">Add it to your Home Screen</h2>
         <details open>
           <summary>iPhone and iPad (Safari)</summary>
           <ol>
-            <li>Open the app above in Safari.</li>
+            <li>Open <a href="/">proairetos.com</a> in Safari.</li>
             <li>Tap the Share button, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
-            <li>Open it from the Home Screen. Each app is added on its own, and each keeps its own storage, so sign in once in each one you use.</li>
-            <li>For reminders, turn them on in Proairetos (Settings, Notifications). The other apps send theirs through it.</li>
+            <li>Open it from the Home Screen. Reminders work from there.</li>
           </ol>
         </details>
         <details>
           <summary>Android (Chrome)</summary>
           <ol>
-            <li>Open the app above in Chrome.</li>
-            <li>Tap <strong>Install</strong> when it is offered, or the menu (⋮), then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
-            <li>Long-press the icon for shortcuts, such as writing something down or logging a glass.</li>
+            <li>Open <a href="/">proairetos.com</a> in Chrome.</li>
+            <li>Tap <strong>Install</strong> when it is offered, or the menu (⋮), then <strong>Install app</strong>.</li>
           </ol>
         </details>
         <details>
           <summary>A computer (Chrome, Edge or Safari)</summary>
           <ol>
-            <li>Open the app above.</li>
+            <li>Open <a href="/">proairetos.com</a>.</li>
             <li>In Chrome or Edge, choose the install icon in the address bar. In Safari on a Mac, choose File, then <strong>Add to Dock</strong>.</li>
-            <li>Press Ctrl or ⌘ and K in Proairetos to go anywhere or write something down.</li>
           </ol>
         </details>
+      </section>`;
+
+function frontPage() {
+  const description =
+    'A calm place for your days. Write things down, see what is ahead, and look back in your own words, on any schedule. Free, private, with no scores or streaks.';
+  const featured = FEATURED.map((id) => apps.find((app) => app.id === id)).filter(Boolean);
+  const others = addOns.length - featured.length;
+  return `${head({
+    title: 'Proairetos: make time for what matters',
+    description,
+    path: '/welcome/',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Proairetos',
+      url: `${site}/`,
+      applicationCategory: 'LifestyleApplication',
+      operatingSystem: 'Any (installs from the browser)',
+      description,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+  })}
+    <style>${pageColors}${baseStyle}${appGridStyle}
+      .hero { padding: 4.5rem 16px 3rem; display: grid; gap: 2.5rem; align-items: center; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+      .hero__words img { width: 56px; height: 56px; border-radius: 14px; }
+      .hero h1 { font-size: clamp(2.6rem, 7vw, 4.2rem); margin-top: 1.2rem; text-wrap: balance; }
+      .hero .lead { max-width: 32rem; margin: 1.2rem 0 0; font-size: 1.2rem; }
+      .hero__phone { justify-self: center; width: min(100%, 320px); border-radius: 36px; border: 1px solid var(--border); box-shadow: 0 30px 80px var(--glow); }
+      .hero__phone img { display: block; width: 100%; height: auto; border-radius: 36px; }
+      .fine { color: var(--muted); font-size: 0.95rem; margin-top: 0.9rem; }
+      .tour { display: grid; gap: 28px; }
+      .tour__row { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+      .tour__row img { width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--border); }
+      .tour__row--phone img { max-width: 300px; justify-self: center; border-radius: 28px; }
+      .tour h3 { font-size: 1.6rem; }
+      .tour p { color: var(--muted); margin: 0.6rem 0 0; max-width: 30rem; }
+      .ways { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+      .ways div { padding: 18px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); }
+      .ways h3 { font-size: 1.3rem; }
+      .ways p { margin: 0.4rem 0 0; color: var(--muted); }
+      .more { margin-top: 1.2rem; }
+      .apps--featured { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+      .prices { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+      .price { padding: 18px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); display: grid; gap: 4px; }
+      .price b { font-size: 1.1rem; }
+      .price strong { font-size: 1.5rem; font-family: 'EB Garamond', Georgia, serif; font-weight: 500; }
+      .price span { color: var(--muted); font-size: 0.95rem; }
+      .price--free { border-color: var(--accent); }
+      details { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; }
+      summary { cursor: pointer; padding: 16px 18px; font-weight: 600; min-height: 48px; }
+      details ol { margin: 0; padding: 0 18px 16px 40px; color: var(--muted); }
+      details li { margin: 6px 0; }
+      @media (max-width: 760px) {
+        .hero { grid-template-columns: 1fr; padding-top: 3rem; }
+        .tour__row { grid-template-columns: 1fr; }
+        .tour__row--flip > :first-child { order: 2; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wrap hero">
+      <div class="hero__words">
+        <img src="/icons/icon-192.png" alt="" />
+        <h1>Make time for what matters</h1>
+        <p class="lead">A calmer way to organize your days. Write things down, see what’s ahead, and look back in your own words, on any schedule, with nothing to keep up with.</p>
+        <div class="actions">
+          <a class="button button--main" href="/">Open Proairetos</a>
+          <a class="button" href="#how">See how it works</a>
+        </div>
+        <p class="fine">Free. Works on any phone or computer, from the browser.</p>
+      </div>
+      <div class="hero__phone"><img src="/screenshots/narrow-1.webp" alt="Proairetos Today: an intention for the day, the day’s plans and the open time between them" width="390" height="844" /></div>
+    </header>
+
+    <main>
+      <section class="wrap" id="how" aria-labelledby="how-title">
+        <h2 id="how-title">How it works</h2>
+        <div class="tour">
+          <div class="tour__row">
+            <div>
+              <h3>Get it out of your head</h3>
+              <p>Type it the way you’d say it: “dentist Friday 3pm”. It lands on the right day with a reminder. Ideas, worries and to-dos can wait unsorted until you have a minute.</p>
+            </div>
+            <img src="/screenshots/wide-1.webp" alt="Proairetos on a computer: today’s intention, the day’s plans and the open time" width="1280" height="800" />
+          </div>
+          <div class="tour__row tour__row--flip tour__row--phone">
+            <img src="/screenshots/narrow-2.webp" alt="Days ahead: the week as a list, with timed plans and to-dos under each day" width="390" height="844" />
+            <div>
+              <h3>See your days, on your schedule</h3>
+              <p>Today shows what is set, what you chose to do and the time that is open. Days ahead shows the week. Work days, evenings, nights, school runs or none: your day turns over when you choose.</p>
+            </div>
+          </div>
+          <div class="tour__row">
+            <div>
+              <h3>Look back in your own words</h3>
+              <p>A short journal, three good things at the end of a day, decisions and what came of them. Nothing is scored, ranked or turned into a streak.</p>
+            </div>
+            <div class="ways">
+              <div><h3>Nothing piles up</h3><p>No red dates and no catching up. What you didn’t get to waits for you, or goes.</p></div>
+              <div><h3>Yours alone</h3><p>Kept on your device. Sync is optional and sealed with a key only you hold.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap" aria-labelledby="family-title">
+        <h2 id="family-title">Add what your life needs</h2>
+        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">One account. The apps you add show up on Proairetos’s Today, so a run, tonight’s dinner or a bill due Friday sits beside your plans.</p>
+        <ul class="apps apps--featured">
+${featured.map(appCard).join('\n')}
+        </ul>
+        <p class="more"><a class="button" href="/welcome/apps/">See all ${addOns.length} apps</a></p>
+      </section>
+
+      <section class="wrap" aria-labelledby="prices-title">
+        <h2 id="prices-title">Prices</h2>
+        <div class="prices">
+          <div class="price price--free"><b>Proairetos</b><strong>Free</strong><span>Today, Days ahead, Capture, Reflect and Compass. No time limit.</span></div>
+          <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>Every app in the family except Soma and Phyton.</span></div>
+          <div class="price"><b>Soma</b><strong>${dollars('soma')}/mo</strong><span>Recipes, groceries and Nutri-Score.</span></div>
+          <div class="price"><b>Phyton</b><strong>${dollars('phyton')}/mo</strong><span>Plants, with identification from a photo. Both for ${dollars('bundle')}/mo.</span></div>
+          <div class="price"><b>Proairetos cloud</b><strong>${dollars('cloud')}/mo</strong><span>Encrypted sync and backup. Or sync free through your own Google Drive, Dropbox or OneDrive.</span></div>
+        </div>
       </section>
 ${privacyNotes}
+${installSteps}
+${waitlist({ source: 'welcome' })}
+    </main>
+${footer}`;
+}
+
+// ---------- Every app ----------
+
+function allAppsPage() {
+  const description = `Proairetos and its ${addOns.length} apps: running, recipes, bills, trips, reading, sleep, people, chores, medicines, strength, the things you own and your plants. One account, private, with no scores or streaks.`;
+  return `${head({ title: 'The Proairetos apps', description, path: '/welcome/apps/' })}
+    <style>${pageColors}${baseStyle}${appGridStyle}
+      header { padding: 4rem 16px 2rem; }
+      h1 { font-size: clamp(2.3rem, 6vw, 3.2rem); }
+      header .lead { max-width: 36rem; margin: 1rem 0 0; }
+    </style>
+  </head>
+  <body>
+    <header class="wrap">
+      <h1>The apps</h1>
+      <p class="lead">Proairetos is free. Each app here works on its own and shows up on Proairetos’s Today once you add it.</p>
+    </header>
+    <main>
+      <section class="wrap" aria-label="Every app">
+        <ul class="apps">
+${apps.map(appCard).join('\n')}
+        </ul>
+      </section>
+${installSteps}
     </main>
 ${footer}`;
 }
@@ -542,7 +670,7 @@ const plainPage = ({ path, title, heading, text }) => `${head({ title, descripti
       <h1>${heading}</h1>
       <p class="lead">${text}</p>
       <div class="actions">
-        <a class="button button--main" href="/welcome/">Back to the apps</a>
+        <a class="button button--main" href="/welcome/apps/">See the apps</a>
         <a class="button" href="/">Open Proairetos</a>
       </div>
     </main>
@@ -557,10 +685,11 @@ const write = (path, text) => {
 };
 
 write('welcome/index.html', frontPage());
+write('welcome/apps/index.html', allAppsPage());
 for (const app of addOns) write(`welcome/${app.id}/index.html`, appPage(app));
 write(
   'welcome/thanks/index.html',
-  plainPage({ path: '/welcome/thanks/', title: 'You’re on the list', heading: 'You’re on the list', text: 'You’ll hear when Proairetos opens. In the meantime, every app is free to use.' }),
+  plainPage({ path: '/welcome/thanks/', title: 'You’re on the list', heading: 'You’re on the list', text: 'You’ll hear when Proairetos opens. Proairetos itself is free to use now.' }),
 );
 write(
   'welcome/try-again/index.html',
@@ -572,6 +701,7 @@ write(
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${site}/</loc></url>
   <url><loc>${site}/welcome/</loc></url>
+  <url><loc>${site}/welcome/apps/</loc></url>
 ${addOns.map((app) => `  <url><loc>${site}/welcome/${app.id}/</loc></url>`).join('\n')}
 ${addOns.map((app) => `  <url><loc>${site}/${app.id}/</loc></url>`).join('\n')}
   <url><loc>${site}/lamplight/</loc></url>
