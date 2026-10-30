@@ -53,7 +53,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
         </button>
       </div>
 
-      <section className={`onboarding-hero${step.form || step.panel ? ' onboarding-hero--form' : ''}${step.brand ? ' onboarding-hero--brand' : ''}`} aria-live="polite" key={index}>
+      <section className={`onboarding-hero${step.form || step.panel ? ' onboarding-hero--form' : ''}${step.prose ? ' onboarding-hero--prose' : ''}`} aria-live="polite" key={index}>
         {!step.form && !step.panel && <CompassRose size={76} tone="light" />}
         {step.brand ? (
           <h1 className="onboarding-hero__brand">{step.title}</h1>

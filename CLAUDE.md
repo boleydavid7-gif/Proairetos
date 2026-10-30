@@ -1457,7 +1457,9 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   `app/PillMark.tsx`). Philia photos on the device only (`philia/data/photos.ts`, IndexedDB `philia-photos`, square
   480px JPEG; `Initials` takes `id`). `app/family/SwipeItem.tsx`: pull left to mark a row (doses, chores, upkeep, keep in
   touch; left arrow too). `Empty` in `shell.tsx` for empty lists. Therapeia and Ktema open their first form after Welcome.
-- Onboarding (`features/onboarding/steps.ts`) has two panel steps before Make it yours: "On your Home Screen"
+- Onboarding (`features/onboarding/steps.ts`, the owner's words; `prose` steps read as paragraphs on a paper panel,
+  `.onboarding-hero--prose`): Proairetos (the meaning of the name and prohairesis), Why Proairetos, The Store (panel
+  `apps`), On your Home Screen, Make time for what matters, Prices and sync, Make it yours. Earlier note: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and
   "More apps" (`components/MoreApps.tsx`: the twelve add-ons from `familyApps`, how to add and install them, Open the Store),

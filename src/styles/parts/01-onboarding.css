@@ -105,14 +105,14 @@
   color: #3d342b;
 }
 
-/* The first step carries the meaning of the name: a paragraph each, on a panel of the sky's paper so the words stay
+/* The first steps carry the meaning of the name and why the app exists: a paragraph each, on a panel of the sky's paper so the words stay
    clear where the trees begin. */
-.onboarding-hero--brand {
+.onboarding-hero--prose {
   margin-top: clamp(0.5rem, 4vh, 2.5rem);
   gap: var(--space-3);
 }
 
-.onboarding-hero--brand .onboarding-hero__lines {
+.onboarding-hero--prose .onboarding-hero__lines {
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   border-radius: 18px;
@@ -494,17 +494,17 @@
   font-weight: 600;
 }
 
-/* Short phones (iPhone SE): the compass steps aside so the meaning fits above the action. */
+/* Short phones (iPhone SE): the compass steps aside so the words fit above the action. */
 @media (max-height: 760px) {
-  .onboarding-hero--brand > :first-child {
+  .onboarding-hero--prose > :first-child {
     display: none;
   }
 
-  .onboarding-hero--brand .onboarding-hero__brand {
+  .onboarding-hero--prose :is(.onboarding-hero__brand, .onboarding-hero__title) {
     font-size: clamp(2.4rem, 11vw, 3rem);
   }
 
-  .onboarding-hero--brand .onboarding-hero__lines {
+  .onboarding-hero--prose .onboarding-hero__lines {
     gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
     font-size: var(--text-sm);
