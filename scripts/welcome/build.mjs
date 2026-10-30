@@ -14,7 +14,7 @@ const apps = [
     id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0e1112', accent: '#c9a274', ink: '#ece8e1',
     line: 'Your days, your values, your reflections',
-    card: 'To-dos, your calendar and a journal. Works with any schedule, including night shifts.',
+    card: 'To-dos, your calendar and a journal, on any schedule.',
     about: 'A calm place for your days: write things down, see your day and the days ahead, and look back in your own words. It works on any schedule, including rotating and night shifts.',
     points: [
       ['Today', 'What is set for the day, what you chose to do, and the time that is open, on one page.'],
@@ -27,7 +27,7 @@ const apps = [
     id: 'askesis', name: 'Askesis', icon: '/askesis/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0b0f0e', accent: '#86d9b0', ink: '#e8ece9',
     line: 'Running, from your first walk-run',
-    card: 'A running plan from your first walk-run to the goal you set.',
+    card: 'A running plan that starts where you are, from your first walk-run to your first marathon.',
     about: 'A running plan that starts where you are, from your first walk-run, and builds toward the aim you set: a time, a distance or simply running steadily.',
     points: [
       ['Your own plan', 'A short test places your first week. Weekly time grows gently, with an easier week every fourth.'],
@@ -40,7 +40,7 @@ const apps = [
     id: 'soma', name: 'Soma', icon: '/soma/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#f3ede2', accent: '#2f5a3e', ink: '#2f5a3e',
     line: 'Recipes and groceries',
-    card: 'Recipes, a grocery list sorted by aisle, and each recipe’s Nutri-Score.',
+    card: 'Save recipes from anywhere, plan the week and shop from a list sorted by aisle.',
     about: 'Your recipes in one place, brought in from a link, pasted text or a photo of a recipe card, with a grocery list that sorts itself by aisle.',
     points: [
       ['Bring recipes in', 'From a website, pasted text or a photo of a card, read on your phone.'],
@@ -53,7 +53,7 @@ const apps = [
     id: 'oikonomia', name: 'Oikonomia', icon: '/oikonomia/icons/icon-192.png', category: 'FinanceApplication',
     ground: '#0d1110', accent: '#d79572', ink: '#f2eee6',
     line: 'Bills and household essentials',
-    card: 'Bills and subscriptions, with reminders before they’re due.',
+    card: 'Every bill and subscription in one place, with a reminder before each one is due.',
     about: 'Bills and subscriptions with their dates in view, a monthly plan by area, and what actually went out, read from your bank statements on your phone.',
     points: [
       ['Bills in view', 'Each bill’s next date, a reminder before it, and a pull to mark it paid, with undo.'],
@@ -171,7 +171,7 @@ const apps = [
     id: 'poreia', name: 'Poreia', icon: '/poreia/icons/icon-192.png', category: 'TravelApplication',
     ground: '#071c24', accent: '#4cc3c7', ink: '#e8f5f2',
     line: 'Trips and time off',
-    card: 'Trips from the first idea to home again: days, bookings, what is around, packing, money and time off.',
+    card: 'Plan a trip from the first idea to the flight home: bookings, day plans, packing and costs.',
     about: 'Plan a trip from the first idea to home again: one place or several, days with their weather, bookings brought in from any confirmation, a map of what is around, packing, spending shared with the people going, and time off against your work schedule.',
     points: [
       ['Days that fit', 'Each day with its forecast, the walk between two places, and the stretches with nothing set.'],
@@ -257,14 +257,14 @@ const head = ({ title, description, path, image = '/social/proairetos.png', icon
 const waitlist = ({ source, picked = [], choose = true }) => `
       <section class="wrap" id="waitlist" aria-labelledby="waitlist-title">
         <form class="waitlist" method="post" action="/api/waitlist">
-          <h2 id="waitlist-title">Hear when it opens</h2>
-          <p>The family is in early use. Leave your email to hear when it opens, and be first to try what comes next.</p>
+          <h2 id="waitlist-title">Get early access</h2>
+          <p>The apps are in early access. Leave your email and we’ll let you know when they open, and when something new is ready to try.</p>
           <input type="hidden" name="source" value="${source}" />
           <div class="hidden-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
           <div class="waitlist__row">
             <label class="hidden-field" for="waitlist-email">Email</label>
             <input id="waitlist-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" />
-            <button class="button button--main" type="submit">Keep me posted</button>
+            <button class="button button--main" type="submit">Notify me</button>
           </div>${
             choose
               ? `
@@ -298,15 +298,15 @@ const privacyNotes = `
         <div class="notes">
           <div>
             <h3>On your phone</h3>
-            <p>Everything works without an account and without a connection. Nothing is sent anywhere unless you turn on sync.</p>
+            <p>Works without an account or a connection. Nothing leaves your device unless you turn on sync.</p>
           </div>
           <div>
             <h3>Encrypted if you sync</h3>
-            <p>With sync on, your data is encrypted on your phone with a key only you hold. The server can’t read it.</p>
+            <p>Your data is encrypted on your device with a key only you have. We can’t read it.</p>
           </div>
           <div>
-            <h3>No scores</h3>
-            <p>No streaks, badges or rankings.</p>
+            <h3>No scores or streaks</h3>
+            <p>No badges, points or rankings.</p>
           </div>
         </div>
       </section>`;
@@ -388,7 +388,7 @@ const installSteps = `
 
 function frontPage() {
   const description =
-    'A calm place for your days. Write things down, see what is ahead, and look back in your own words, on any schedule. Free, private, with no scores or streaks.';
+    'A calm planner for your days. Capture to-dos, plan your week around your schedule and keep a short journal. Free and private.';
   const featured = FEATURED.map((id) => apps.find((app) => app.id === id)).filter(Boolean);
   const others = addOns.length - featured.length;
   return `${head({
@@ -447,51 +447,51 @@ function frontPage() {
     <header class="wrap hero">
       <div class="hero__words">
         <img src="/icons/icon-192.png" alt="" />
-        <h1>Make time for what matters</h1>
-        <p class="lead">A calmer way to organize your days. Write things down, see what’s ahead, and look back in your own words, on any schedule, with nothing to keep up with.</p>
+        <h1>A calm home for your days</h1>
+        <p class="lead">Write it down, plan your week and look back on how it went. Proairetos fits any schedule and never nags.</p>
         <div class="actions">
           <a class="button button--main" href="/">Open Proairetos</a>
-          <a class="button" href="#how">See how it works</a>
+          <a class="button" href="#how">Take a look</a>
         </div>
-        <p class="fine">Free. Works on any phone or computer, from the browser.</p>
+        <p class="fine">Free on iPhone, Android and computer. Nothing to download.</p>
       </div>
       <div class="hero__phone"><img src="/screenshots/narrow-1.webp" alt="Proairetos Today: an intention for the day, the day’s plans and the open time between them" width="390" height="844" /></div>
     </header>
 
     <main>
       <section class="wrap" id="how" aria-labelledby="how-title">
-        <h2 id="how-title">How it works</h2>
+        <h2 id="how-title">What you can do</h2>
         <div class="tour">
           <div class="tour__row">
             <div>
-              <h3>Get it out of your head</h3>
-              <p>Type it the way you’d say it: “dentist Friday 3pm”. It lands on the right day with a reminder. Ideas, worries and to-dos can wait unsorted until you have a minute.</p>
+              <h3>Capture in seconds</h3>
+              <p>Type “dentist Friday 3pm” and it’s on Friday at 3 with a reminder. Not sure what something is yet? Write it down and sort it later.</p>
             </div>
             <img src="/screenshots/wide-1.webp" alt="Proairetos on a computer: today’s intention, the day’s plans and the open time" width="1280" height="800" />
           </div>
           <div class="tour__row tour__row--flip tour__row--phone">
             <img src="/screenshots/narrow-2.webp" alt="Days ahead: the week as a list, with timed plans and to-dos under each day" width="390" height="844" />
             <div>
-              <h3>See your days, on your schedule</h3>
-              <p>Today shows what is set, what you chose to do and the time that is open. Days ahead shows the week. Work days, evenings, nights, school runs or none: your day turns over when you choose.</p>
+              <h3>Plan around your real week</h3>
+              <p>See today’s plans, your to-dos and the free time between them. Days, evenings, nights or no set hours: your day starts when you say it does.</p>
             </div>
           </div>
           <div class="tour__row">
             <div>
-              <h3>Look back in your own words</h3>
-              <p>A short journal, three good things at the end of a day, decisions and what came of them. Nothing is scored, ranked or turned into a streak.</p>
+              <h3>Look back</h3>
+              <p>Keep a short journal, note three good things at the end of the day and record the decisions you make.</p>
             </div>
             <div class="ways">
-              <div><h3>Nothing piles up</h3><p>No red dates and no catching up. What you didn’t get to waits for you, or goes.</p></div>
-              <div><h3>Yours alone</h3><p>Kept on your device. Sync is optional and sealed with a key only you hold.</p></div>
+              <div><h3>No guilt list</h3><p>Unfinished things don’t turn red or pile up. Move them, keep them or let them go.</p></div>
+              <div><h3>Private by default</h3><p>Your data stays on your device. Sync is optional and end-to-end encrypted.</p></div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="wrap" aria-labelledby="family-title">
-        <h2 id="family-title">Add what your life needs</h2>
-        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">One account. The apps you add show up on Proairetos’s Today, so a run, tonight’s dinner or a bill due Friday sits beside your plans.</p>
+        <h2 id="family-title">Add the apps you need</h2>
+        <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">Running, recipes, bills, travel and more. Each app you add shows up on your Today, so your whole day is in one place.</p>
         <ul class="apps apps--featured">
 ${featured.map(appCard).join('\n')}
         </ul>
@@ -501,11 +501,11 @@ ${featured.map(appCard).join('\n')}
       <section class="wrap" aria-labelledby="prices-title">
         <h2 id="prices-title">Prices</h2>
         <div class="prices">
-          <div class="price price--free"><b>Proairetos</b><strong>Free</strong><span>Today, Days ahead, Capture, Reflect and Compass. No time limit.</span></div>
-          <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>Every app in the family except Soma and Phyton.</span></div>
-          <div class="price"><b>Soma</b><strong>${dollars('soma')}/mo</strong><span>Recipes, groceries and Nutri-Score.</span></div>
-          <div class="price"><b>Phyton</b><strong>${dollars('phyton')}/mo</strong><span>Plants, with identification from a photo. Both for ${dollars('bundle')}/mo.</span></div>
-          <div class="price"><b>Proairetos cloud</b><strong>${dollars('cloud')}/mo</strong><span>Encrypted sync and backup. Or sync free through your own Google Drive, Dropbox or OneDrive.</span></div>
+          <div class="price price--free"><b>Proairetos</b><strong>Free</strong><span>To-dos, calendar, journal and values. Free for good.</span></div>
+          <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>All the apps except Soma and Phyton.</span></div>
+          <div class="price"><b>Soma</b><strong>${dollars('soma')}/mo</strong><span>Recipes, meal plans and grocery lists.</span></div>
+          <div class="price"><b>Phyton</b><strong>${dollars('phyton')}/mo</strong><span>Plant care, with identification from a photo. Get both for ${dollars('bundle')}/mo.</span></div>
+          <div class="price"><b>Proairetos cloud</b><strong>${dollars('cloud')}/mo</strong><span>Encrypted sync and backup. Or sync for free with your own Google Drive, Dropbox or OneDrive.</span></div>
         </div>
       </section>
 ${privacyNotes}
@@ -528,8 +528,8 @@ function allAppsPage() {
   </head>
   <body>
     <header class="wrap">
-      <h1>The apps</h1>
-      <p class="lead">Proairetos is free. Each app here works on its own and shows up on Proairetos’s Today once you add it.</p>
+      <h1>All the apps</h1>
+      <p class="lead">Proairetos is free. Add the apps you need: each works on its own and shows up on your Today.</p>
     </header>
     <main>
       <section class="wrap" aria-label="Every app">
@@ -608,7 +608,7 @@ function appPage(app) {
           <p class="lead">${esc(app.about)}</p>
           <div class="actions">
             <a class="button button--main" href="${hrefOf(app)}">Open ${app.name}</a>
-            <a class="button" href="#waitlist">Hear when it opens</a>
+            <a class="button" href="#waitlist">Get early access</a>
           </div>
         </div>${first ? `\n        <img class="phone" src="${first.src}" alt="${app.name} on a phone" width="300" height="650" />` : ''}
       </header>
