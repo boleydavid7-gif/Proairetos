@@ -9,7 +9,6 @@ import MoreApps, { PlansAndSync } from './components/MoreApps';
 import { openSettingsAt } from '../settings/settingsViews';
 import MakeItYours, { type Choices } from './components/MakeItYours';
 import type { AppRoute } from '../../app/routes/routeTypes';
-import { compassService } from '../../app/services';
 import { setDisplayName } from '../../data/storage/preferences';
 
 type Props = {
@@ -21,16 +20,12 @@ export default function OnboardingPage({ onGetStarted }: Props) {
   const [index, setIndex] = useState(0);
   const step = onboardingSteps[index];
   const isLast = index === onboardingSteps.length - 1;
-  const [choices, setChoices] = useState<Choices>({ name: '', values: [], shifts: false });
+  const [choices, setChoices] = useState<Choices>({ name: '', shifts: false });
   const [saving, setSaving] = useState(false);
 
   async function finish() {
     setSaving(true);
     if (choices.name.trim()) setDisplayName(choices.name);
-    for (const value of choices.values) {
-      // A value that is already chosen (say, from a restored backup) is simply skipped.
-      await compassService.chooseValue(value).catch(() => undefined);
-    }
     onGetStarted(choices.shifts ? 'schedule' : undefined);
   }
 

@@ -1,18 +1,14 @@
-import { MAX_USER_VALUES, presetValues } from '../../../core/values/types';
 import { Sym } from '../../../lamplight/icons';
 
-export type Choices = { name: string; values: string[]; shifts: boolean };
+export type Choices = { name: string; shifts: boolean };
 
 type Props = { choices: Choices; onChange: (choices: Choices) => void };
 
-/** Name, up to five values, and whether to set up a schedule next. Every part can be left empty. */
+/**
+ * Name and whether to set up a schedule next. Both can be left empty. Values are not asked for here: Today offers them
+ * after a few days, and Compass holds them.
+ */
 export default function MakeItYours({ choices, onChange }: Props) {
-  const toggleValue = (name: string) =>
-    onChange({
-      ...choices,
-      values: choices.values.includes(name) ? choices.values.filter((v) => v !== name) : [...choices.values, name],
-    });
-
   return (
     <div className="make-yours">
       <label className="make-yours__field">
@@ -25,29 +21,6 @@ export default function MakeItYours({ choices, onChange }: Props) {
           onChange={(event) => onChange({ ...choices, name: event.target.value })}
         />
       </label>
-
-      <div className="make-yours__field" role="group" aria-label="Values, up to five">
-        <span>
-          Values, up to {MAX_USER_VALUES} <em>{choices.values.length > 0 ? `${choices.values.length} chosen` : ''}</em>
-        </span>
-        <div className="make-yours__chips">
-          {presetValues.map((name) => {
-            const chosen = choices.values.includes(name);
-            return (
-              <button
-                key={name}
-                type="button"
-                className="make-yours__chip"
-                aria-pressed={chosen}
-                disabled={!chosen && choices.values.length >= MAX_USER_VALUES}
-                onClick={() => toggleValue(name)}
-              >
-                {name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       <button
         type="button"

@@ -51,6 +51,21 @@ export function isValuesInviteSetAside(): boolean {
   }
 }
 
+const VALUES_INVITE_DAYS_KEY = 'proairetos.valuesInviteDays';
+
+/**
+ * The values invitation waits until Today has been opened on three days, so a first look at the app is about the
+ * day itself. Notes today's visit and says whether that time has come.
+ */
+export function valuesInviteReady(today = new Date()): boolean {
+  const days = readJson<string[]>(VALUES_INVITE_DAYS_KEY) ?? [];
+  if (days.length >= NOT_FOR_ME_AFTER_DAYS) return true;
+  const day = localDayKey(today);
+  const next = days.includes(day) ? days : [...days, day];
+  if (next !== days) writeJson(VALUES_INVITE_DAYS_KEY, next);
+  return next.length >= NOT_FOR_ME_AFTER_DAYS;
+}
+
 export function setValuesInviteAside(): void {
   try {
     localStorage.setItem(VALUES_INVITE_KEY, 'yes');

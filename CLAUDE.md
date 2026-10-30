@@ -308,7 +308,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   orange) and the shades over their pictures.
 - ADHD audit fixes: `CaptureBar` offers notification permission once, after the first capture with a time while
   permission is `default` (`remindOfferSeen` / `markRemindOfferSeen`, Allow asks from the tap); `NowCard` says when the next thing is with
-  `whenText` (a countdown today, else "tomorrow" or the weekday); the values invitation's "Not now" sets it aside for good (`isValuesInviteSetAside`) until values are chosen.
+  `whenText` (a countdown today, else "tomorrow" or the weekday); the values invitation (one line, "What matters to you?" with Choose a few / Not now) waits until Today has been opened on three days (`valuesInviteReady`), and its "Not now" sets it aside for good (`isValuesInviteSetAside`) until values are chosen. Onboarding no longer asks for values; Compass shows no count and says "Five is the most." only at the limit.
 - Page motion: `transition()` (app/transitions.ts) uses view transitions only in Proairetos; elsewhere (and for
   Proairetos's main tabs, which keep the dock out of a snapshot) it calls `markEnter(direction)`, which sets
   `html[data-enter]` before the new page mounts; `lamplight/motion.css` runs one `ll-enter` (from `--ll-enter-x/y`: forward

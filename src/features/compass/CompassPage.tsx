@@ -160,7 +160,6 @@ export default function CompassPage() {
           <div className="empty-state empty-state--centered">
             <CompassRose size={80} tone="dark" />
             <p className="empty-state__title">Choose what matters</p>
-            <p className="empty-state__detail">Up to five values.</p>
           </div>
         )}
 
@@ -175,12 +174,14 @@ export default function CompassPage() {
         {picking ? (
           <ValuePicker chosen={values} onDone={() => setPicking(false)} />
         ) : (
-          canAdd &&
-          (editing || values.length === 0) && (
+          (editing || values.length === 0) &&
+          (canAdd ? (
             <button type="button" className="chip chip--wide" onClick={() => setPicking(true)}>
-              {values.length === 0 ? 'Choose a value' : `Choose another value (${values.length} of ${MAX_USER_VALUES})`}
+              {values.length === 0 ? 'Choose a value' : 'Choose another value'}
             </button>
-          )
+          ) : (
+            <p className="empty-note">Five is the most.</p>
+          ))
         )}
       </section>
       )}

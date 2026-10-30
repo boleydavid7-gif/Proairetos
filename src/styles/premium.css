@@ -279,7 +279,7 @@ a, button, [role='button'], summary { -webkit-tap-highlight-color: transparent; 
 
 :is(.card__title, .section-head h2, .level-card__name, .focus__title, .stage__name, .contents__title,
   .diaita-next__title, .empty-state__title, .days-day__title, .month-day__title, .practice-list__title,
-  .meditate-link__title, .family-surface .card__title, .look-ahead--invite .look-ahead__title) {
+  .meditate-link__title, .family-surface .card__title) {
   font-family: var(--font-sans, var(--sans, 'Google Sans Flex Variable', 'Google Sans Flex', system-ui, sans-serif));
   font-size: var(--text-lg);
   font-weight: 600;

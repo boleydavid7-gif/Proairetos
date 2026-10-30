@@ -3,7 +3,7 @@ export type OnboardingStep = {
   lines: string[];
   action: string;
   brand?: boolean;
-  /** The form for name, values, and shifts. */
+  /** The form for name and shifts. */
   form?: boolean;
   /** A panel in place of the form: Home Screen steps, or the other apps. */
   panel?: 'home-screen' | 'apps' | 'plans';

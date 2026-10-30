@@ -12,15 +12,25 @@
     var(--color-surface);
 }
 
-.look-ahead--invite {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--space-4);
+/* The values invitation: one line and two choices, no card. */
+.look-ahead-invite {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-1) 0;
 }
 
-.look-ahead__invite-text {
+.look-ahead-invite__title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-md);
+}
+
+.look-ahead-invite__actions {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--space-2);
 }
 

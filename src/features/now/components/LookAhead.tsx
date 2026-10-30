@@ -3,9 +3,8 @@ import { useServiceData } from '../../../app/hooks/useServiceData';
 import { useNavigate } from '../../../app/navigationContext';
 import { openCompassTab } from '../../compass/CompassPage';
 import { compassService, lifeService, reflectionService } from '../../../app/services';
-import CompassRose from '../../../components/brand/CompassRose';
 import { createDailyOrientation } from '../../../core/compass/orientation';
-import { isLookAheadSetAside, isValuesInviteSetAside, setLookAheadAside, setValuesInviteAside } from '../../../data/storage/preferences';
+import { isLookAheadSetAside, isValuesInviteSetAside, setLookAheadAside, setValuesInviteAside, valuesInviteReady } from '../../../data/storage/preferences';
 import NotForMe from '../../today/NotForMe';
 import { weather } from '../../../app/weather/weather';
 
@@ -77,6 +76,7 @@ export default function LookAhead() {
   const navigate = useNavigate();
   const [hidden, setHidden] = useState(() => isLookAheadSetAside());
   const [inviteAside, setInviteAside] = useState(isValuesInviteSetAside);
+  const [inviteReady] = useState(() => valuesInviteReady());
   const values = useServiceData(compassService.subscribe, () => compassService.values());
   const statements = useServiceData(compassService.subscribe, () => compassService.statements());
   const items = useServiceData(lifeService.subscribe, () => lifeService.list());
@@ -91,28 +91,24 @@ export default function LookAhead() {
 
   if (orientation.values.length === 0 && orientation.remember.length === 0) {
     // Offered, never asked twice: once turned down it stays away until values are chosen in Compass.
-    if (inviteAside) return null;
+    if (inviteAside || !inviteReady) return null;
     return (
-      <section className="look-ahead look-ahead--invite" aria-label="Look ahead">
-        <CompassRose size={44} tone="dark" />
-        <div className="look-ahead__invite-text">
-          <p className="look-ahead__title">Set your direction</p>
-          <p className="look-ahead__detail">Up to five values, shown here each day.</p>
-          <div className="chip-row">
-            <button type="button" className="chip chip--accent" onClick={() => { openCompassTab('direction'); navigate('compass'); }}>
-              Choose
-            </button>
-            <button
-              type="button"
-              className="button-quiet"
-              onClick={() => {
-                setValuesInviteAside();
-                setInviteAside(true);
-              }}
-            >
-              Not now
-            </button>
-          </div>
+      <section className="look-ahead-invite" aria-label="Values">
+        <p className="look-ahead-invite__title">What matters to you?</p>
+        <div className="look-ahead-invite__actions">
+          <button type="button" className="chip chip--accent" onClick={() => { openCompassTab('direction'); navigate('compass'); }}>
+            Choose a few
+          </button>
+          <button
+            type="button"
+            className="button-quiet"
+            onClick={() => {
+              setValuesInviteAside();
+              setInviteAside(true);
+            }}
+          >
+            Not now
+          </button>
         </div>
       </section>
     );
