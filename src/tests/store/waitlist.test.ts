@@ -47,6 +47,28 @@ describe('the waitlist', () => {
     expect(where(await handleWaitlistRequest(post([['email', 'a@b.co']]), {}, fake().fetcher))).toBe('/welcome/try-again/');
   });
 
+  it('sends the newsletter yes only when its box was ticked', async () => {
+    const ticked = fake();
+    await handleWaitlistRequest(post([['email', 'a@b.co'], ['letters', 'yes']]), env, ticked.fetcher);
+    expect(ticked.calls[0].body).toEqual({ email: 'a@b.co', apps: [], source: 'welcome', letters: true });
+    const left = fake();
+    await handleWaitlistRequest(post([['email', 'a@b.co']]), env, left.fetcher);
+    expect(left.calls[0].body).not.toHaveProperty('letters');
+  });
+
+  it('still keeps the place on the list on a server without the newsletter yet', async () => {
+    const calls: Record<string, unknown>[] = [];
+    const older = (async (_url: string, init: RequestInit) => {
+      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+      calls.push(body);
+      return 'letters' in body ? new Response('{"message":"no function"}', { status: 404 }) : new Response('true');
+    }) as unknown as typeof fetch;
+    const response = await handleWaitlistRequest(post([['email', 'a@b.co'], ['letters', 'yes']]), env, older);
+    expect(where(response)).toBe('/welcome/thanks/');
+    expect(calls).toHaveLength(2);
+    expect(calls[1]).not.toHaveProperty('letters');
+  });
+
   it('thanks a bot that fills the hidden field, and keeps nothing', async () => {
     const { fetcher, calls } = fake();
     const response = await handleWaitlistRequest(post([['email', 'a@b.co'], ['website', 'spam.example']]), env, fetcher);

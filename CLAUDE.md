@@ -129,7 +129,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`/welcome/<app>/`: the app's own colors, what it does, screenshots, the waitlist, the family), `/welcome/thanks/`,
   `/welcome/try-again/` and `public/sitemap.xml` from one list in the script; edit the script, never the pages. The
   waitlist form (plain HTML, no script) posts to `/api/waitlist` (`worker/waitlist.ts`: same origin, a hidden field for
-  bots, rate limited) → RPC `join_waitlist` (migration `20261026000000_waitlist.sql`, table closed to the API).
+  bots, rate limited) → RPC `join_waitlist` (migration `20261026000000_waitlist.sql`, table closed to the API). The
+  newsletter is its own box (`letters`, migration `20261101000000_waitlist_letters.sql`: `letters`/`letters_at`, a yes is
+  never cleared by a later visit; the Worker sends `letters` only when ticked and retries without it on an older server).
   `sw.js` keeps every `/welcome/…` page as itself, never as the app.
 - Front page `public/welcome/index.html` (served at `/welcome/`, static, no script): the ten apps with their screenshots, how to add each to the Home Screen (iPhone, Android, computer), and the privacy promises. Linked from the Store ("Adding an app to your Home Screen") and the privacy page; `sw.js` keeps it in `STATIC_PAGES` so it is never cached as the app.
 - Sign in with Google or Apple (optional, `VITE_SIGN_IN_WITH`=`google,apple`, providers set up in Supabase per docs/SERVER_SETUP.md): `ProviderButtons` (`app/family/ProviderButtons.tsx`) above the email code in Proairetos's AccountSection and every family AccountCard; `signInWith` returns to that app's account page (`?open=account|more|settings`); `resolvePhase` tidies the tokens from the address; Proairetos skips the welcome when opened with `?open=account`. The passphrase still unlocks the data. Hydros reloads on a new worker only when one was already in charge (a first install kept losing `?open=`).

@@ -446,6 +446,10 @@ the publishable key, then sends the visitor to `/welcome/thanks/`. Nobody can re
    came from: `welcome` or an app's name). Export with the SQL editor's Download CSV.
 4. On launch day, email the list, then add early testers' emails to `STORE_TESTERS` if you want them to keep the apps free.
 
+
+The newsletter is its own box on the form (migration `20261101000000_waitlist_letters.sql`, run after the one
+above): `letters` is true only for people who ticked it, with `letters_at` the date; a later visit never clears it.
+Send the newsletter only to `select email from public.waitlist where letters;`.
 ## Poreia's live searches (optional)
 
 Each is a free sign-up whose key becomes a **Secret** on the proairetos Worker (runtime, not a build variable):
