@@ -1481,6 +1481,8 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   "Transcribe after saving" (`autoTranscribe`) and the live transcript choice live in the synced `mneme:settings`.
   Live transcript (browser speech service, off in the iPhone Home Screen app) shows interim words under the recorder
   and restarts at once when the service stops. Tested in Chromium with a fake microphone and the real model.
+- Mneme's offline worker `public/mneme/sw.js` (scope /mneme/, cache `mneme-v1`, like Philia's; bump it when the shell's
+  files change) makes the notes open without a connection; the startApp registration asked for it before it existed.
 
 ## Phyton (plants, same repository)
 

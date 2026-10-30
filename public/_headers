@@ -108,6 +108,15 @@
 /dynamis/manifest.webmanifest
   Cache-Control: no-cache
 
+/mneme/sw.js
+  Cache-Control: no-cache
+/mneme/
+  Cache-Control: no-cache
+/mneme/index.html
+  Cache-Control: no-cache
+/mneme/manifest.webmanifest
+  Cache-Control: no-cache
+
 /ktema/sw.js
   Cache-Control: no-cache
 /ktema/
