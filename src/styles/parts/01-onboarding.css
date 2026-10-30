@@ -44,7 +44,7 @@
   opacity: 1;
 }
 
-/* The coast keeps more of its light, so the sea and the sail read behind the cards. */
+/* The coast keeps more of its light, so the sea and the sail show under the cards. */
 .onboarding-background[data-scene='sea'] .onboarding-background__dusk {
   opacity: calc(var(--dusk, 0.7) * 0.5);
 }

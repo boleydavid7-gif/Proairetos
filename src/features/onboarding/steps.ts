@@ -10,7 +10,7 @@ export type OnboardingStep = {
   form?: boolean;
   /** A panel under the words: sorting the sea and the sails, the apps, prices, or the Home Screen steps. */
   panel?: 'sails' | 'apps' | 'plans' | 'home-screen';
-  /** The picture behind it: the valley, or the coast for the sails. */
+  /** The picture for it: the valley, or the coast for the sails. */
   scene?: 'valley' | 'sea';
 };
 

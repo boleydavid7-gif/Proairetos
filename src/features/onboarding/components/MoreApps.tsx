@@ -95,7 +95,7 @@ export function PlansAndSync() {
         <h3>Your free trial</h3>
         <ol className="trial-line">
           <li><b>Today</b><span>Make an account and every app is yours to use. No card needed.</span></li>
-          <li><b>Day 6</b><span>An email says when the trial ends.</span></li>
+          <li><b>Day 6</b><span>An email reminder before your trial ends.</span></li>
           <li><b>Day 7</b><span>The trial ends. Nothing is charged; Proairetos stays free.</span></li>
         </ol>
         <h3>Prices</h3>
