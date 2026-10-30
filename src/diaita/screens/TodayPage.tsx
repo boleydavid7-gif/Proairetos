@@ -125,8 +125,9 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
         <div className="hero__content">
           <Brand name="Diaita" mark={<AppMark app="diaita" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{DAY_NAMES[kind]}</h1>
-            <p className="home__sub">{work.length ? work.map((entry) => `${entry.title} ${span(entry)}`).join(' · ') : 'No work today'}</p>
+            {/* With no schedule around these days, the day is just today: never "Day off" for someone with no work set. */}
+            <h1 className="home__title">{blocks.length === 0 ? 'Today' : DAY_NAMES[kind]}</h1>
+            {blocks.length > 0 && <p className="home__sub">{work.length ? work.map((entry) => `${entry.title} ${span(entry)}`).join(' · ') : 'No work today'}</p>}
           </div>
         </div>
       </div>

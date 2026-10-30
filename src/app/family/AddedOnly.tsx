@@ -7,7 +7,7 @@ import './addedOnly.css';
 /** An app that is not added to Proairetos shows its logo and name with Add, in place of the app. */
 export default function AddedOnly({ app, children }: { app: AddOn; children: ReactNode }) {
   const added = useAddedApps();
-  const { owned, tester, owner, trialUntil } = usePurchases();
+  const { owned, tester, owner, trialUntil, account } = usePurchases();
   const shown = added.includes(app);
   // Held back here: ask the account again (bought on another device, or a beta tester's).
   useEffect(() => {
@@ -41,7 +41,14 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
         <p className="added-only__by">by Proairetos</p>
         <p className="added-only__line">{about.line}</p>
         {about.about && <p className="added-only__about">{about.about}</p>}
-        {toBuy ? (
+        {toBuy && !account ? (
+          <>
+            <a className="added-only__add" href="/?open=account">
+              Start your free trial
+            </a>
+            <p className="added-only__note">Every app free for 7 days. No card needed.</p>
+          </>
+        ) : toBuy ? (
           <a className="added-only__add" href="/?open=settings:store">
             Get it · {app === 'soma' ? priceText('soma') : app === 'phyton' ? priceText('phyton') : priceText('core')}/mo
           </a>

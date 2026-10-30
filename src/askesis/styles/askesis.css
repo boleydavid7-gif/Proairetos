@@ -835,7 +835,7 @@ input[type='date'].input {
 .choice-list .chip[aria-pressed='true'] {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
   min-height: 48px;
   padding: 0 16px;
@@ -847,6 +847,10 @@ input[type='date'].input {
   font-weight: 400;
   text-align: left;
   transform: none;
+}
+
+:root .choice-list .chip::before {
+  display: none;
 }
 
 .choice-list .chip + .chip {
@@ -862,7 +866,7 @@ input[type='date'].input {
   flex: none;
   width: 6px;
   height: 12px;
-  margin: -3px 4px 0 12px;
+  margin: -3px 4px 0 auto;
   border: solid var(--mint);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);

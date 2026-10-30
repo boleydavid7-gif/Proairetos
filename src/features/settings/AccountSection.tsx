@@ -90,6 +90,7 @@ function SignIn() {
 
   return (
     <>
+      <p className="section-description">New accounts get every app free for 7 days. No card needed.</p>
       <PasskeySignIn className="button-accent account-wide" errorClass="form-error" />
       <form
         className="stack-tight"

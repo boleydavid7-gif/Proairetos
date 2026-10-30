@@ -55,7 +55,7 @@ export function priceText(item: PurchaseItem | string = 'core'): string {
   }
 }
 
-type Owned = { apps: string[]; tester?: boolean; betaExpiresAt?: string; owner?: boolean; trialUntil?: string };
+type Owned = { apps: string[]; tester?: boolean; betaExpiresAt?: string; owner?: boolean; trialUntil?: string; account?: boolean };
 
 export const ownedApps = (): string[] => {
   const apps = readJson<Owned>(OWNED_KEY)?.apps ?? [];
@@ -76,6 +76,9 @@ export const trialEnds = (): string | undefined => {
   const until = readJson<Owned>(OWNED_KEY)?.trialUntil;
   return until && Date.parse(until) > Date.now() ? until : undefined;
 };
+
+/** Whether this device was last seen signed in to an account (signed out or never asked: no). */
+export const hasAccount = (): boolean => readJson<Owned>(OWNED_KEY)?.account === true;
 
 export const betaExpiresAt = (): string | undefined => readJson<Owned>(OWNED_KEY)?.betaExpiresAt;
 
@@ -132,7 +135,7 @@ export async function refreshOwned(): Promise<string[]> {
       : (data ?? [])
           .filter((row) => (row as { active?: boolean }).active !== false && (!(row as { current_period_end?: string }).current_period_end || Date.parse(String((row as { current_period_end: string }).current_period_end)) > now))
           .map((row) => String((row as { app: string }).app));
-    writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner, trialUntil: access.trialUntil });
+    writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner, trialUntil: access.trialUntil, account: true });
     if (wasTester && !access.tester && !access.owner) {
       void import('./added').then(({ clearAddedApps }) => clearAddedApps()).catch(() => undefined);
     }
@@ -198,11 +201,11 @@ export function subscribePurchases(listener: () => void): () => void {
   };
 }
 
-const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${isOwner() ? 'owner' : ''}|${ownedApps().join(',')}|${trialEnds() ?? ''}`;
+const snapshot = () => `${storePaid() ? 'paid' : 'free'}|${isTester() ? 'tester' : ''}|${isOwner() ? 'owner' : ''}|${ownedApps().join(',')}|${trialEnds() ?? ''}|${hasAccount() ? 'account' : ''}`;
 
 /** Follows the Store's state: whether it takes payments, what the account owns and whether it is a beta tester's. */
-export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean; owner: boolean; trialUntil?: string } {
+export function usePurchases(): { paid: boolean; owned: string[]; tester: boolean; owner: boolean; trialUntil?: string; account: boolean } {
   const value = useSyncExternalStore(subscribePurchases, snapshot);
-  const [mode, tester, owner, apps, trial] = value.split('|');
-  return { paid: mode === 'paid', tester: tester === 'tester', owner: owner === 'owner', owned: apps ? apps.split(',') : [], trialUntil: trial || undefined };
+  const [mode, tester, owner, apps, trial, account] = value.split('|');
+  return { paid: mode === 'paid', tester: tester === 'tester', owner: owner === 'owner', owned: apps ? apps.split(',') : [], trialUntil: trial || undefined, account: account === 'account' };
 }

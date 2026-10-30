@@ -282,3 +282,6 @@
 .together-join .button-row {
   margin-top: var(--space-2);
 }
+
+/* The free trial, said under the Store's heading where it is seen first. */
+.store__paywall > p.store__trial { color: var(--color-text); font-weight: 600; }

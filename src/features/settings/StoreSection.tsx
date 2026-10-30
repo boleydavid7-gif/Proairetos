@@ -14,7 +14,7 @@ import { supabase } from '../../data/sync/supabase';
  */
 export default function StoreSection() {
   const added = useAddedApps();
-  const { paid, owned, tester, owner, trialUntil } = usePurchases();
+  const { paid, owned, tester, owner, trialUntil, account } = usePurchases();
   const { offerUndo } = useOverlays();
   const apps = familyApps.filter((app) => app.id !== 'proairetos');
   const [busy, setBusy] = useState<string | null>(null);
@@ -49,8 +49,8 @@ export default function StoreSection() {
         setNote({ app: id, text: `${name} added` });
       }
     } catch (error) {
-      if (error instanceof NeedsSignIn) setNote({ app: id, text: 'Buying keeps the app with your account, so sign in first.', signIn: true });
-      else setNote({ app: id, text: error instanceof Error ? error.message : 'The payment page did not open.' });
+      if (error instanceof NeedsSignIn) setNote({ app: id, text: 'Sign in to buy a plan.', signIn: true });
+      else setNote({ app: id, text: error instanceof Error ? error.message : 'Couldn’t open the payment page. Try again.' });
     } finally {
       setBusy(null);
     }
@@ -59,11 +59,12 @@ export default function StoreSection() {
   return (
     <section className="store" aria-label="Store">
       <div className="store__paywall">
-        <p className="eyebrow">Proairetos Store</p>
-        <h2>Choose what belongs in your family</h2>
-        <p>Proairetos stays free. Subscriptions unlock the companion apps and optional services, and follow your account on every device.</p>
+        <h2>Store</h2>
+        <p>Proairetos is free. Plans add the other apps and follow your account to every device.</p>
+        {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
+        {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
-          <PlanCard plan="core" title="Core apps" detail="All service-free family apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="core" title="Core apps" detail="Every app but Soma and Phyton" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="soma" title="Soma" detail="Recipes and groceries" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="phyton" title="Phyton" detail="Plant identification" price={priceText('phyton')} owned={owner || tester || owned.includes('phyton')} busy={busy} finishing={finishing} onBuy={purchase} />
           <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
@@ -72,7 +73,6 @@ export default function StoreSection() {
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
         {!paid && !owner && !tester ? <p className="store__fine">Checkout isn’t open yet.</p> : null}
         {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
-        {trialUntil && !tester && !owner ? <p className="store__fine">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {owner ? <p className="store__fine">Owner access is enabled for this account.</p> : null}
       </div>
       {(owner || tester || trialUntil || owned.length > 0) && <ul className="store__list">
