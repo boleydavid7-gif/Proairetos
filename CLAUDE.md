@@ -572,7 +572,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (time -> `scheduledAt`, day only -> `plannedFor`). Lists that come back are routines with a
   `checklist` that clears each time (`setChecklist`); they stay off the
   timeline and send no reminders. Reminders respect quiet hours and
-  protected time (`rhythm/quietHours.ts`; held, never dropped).
+  protected time (`rhythm/quietHours.ts`; held, never dropped), but never held past the start of the thing they are for (then they keep their own time).
 - One backup for the family: the Proairetos backup file (`data/backup/format.ts`)
   also carries Askesis (workouts, plan), Soma (recipes, groceries) and every
   app's settings from localStorage (`data/backup/family.ts`: prefixes

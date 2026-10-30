@@ -379,6 +379,8 @@ export function noticesBetween(sources: Sources): Notice[] {
     if (!sources.quiet || notice.kind === 'study' || notice.kind === 'rhythm' || notice.kind === 'dose') return notice;
     const at = deliverAt(notice.at, sources.quiet, sources.holding ?? sources.blocks);
     if (at.getTime() === notice.at.getTime()) return notice;
+    // A reminder for something with a start is never held past that start: arriving after it would be no reminder.
+    if (starts && at.getTime() >= starts.getTime()) return notice;
     return { ...notice, at, body: starts ? word(at, starts, extra ?? []) : notice.body };
   });
   return held

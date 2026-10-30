@@ -142,6 +142,21 @@ describe('notices', () => {
     expect(notice.body).toBe('In 10 minutes · 7:10');
   });
 
+  it('never holds a reminder past the thing it is for', () => {
+    // A 10:00 event inside protected time that ends at 10:30: held, the 9:30 reminder would arrive half an hour after.
+    const meeting = item('Meeting', { scheduledAt: new Date(2026, 9, 2, 10, 0).toISOString(), remind: [30] });
+    const block: ScheduleOccurrence = {
+      patternId: 'p', patternName: 'Focus time', kind: 'PROTECTED', date: '2026-10-02',
+      start: new Date(2026, 9, 2, 9, 0), end: new Date(2026, 9, 2, 10, 30), changed: false,
+    };
+    const [early] = noticesBetween({ ...base, items: [meeting], holding: [block], settings: defaultNoticeSettings, quiet: defaultQuietHours });
+    expect(time(early.at)).toBe('9:30');
+    // Still held when the hold ends before the start.
+    const short = { ...block, end: new Date(2026, 9, 2, 9, 45) };
+    const [held] = noticesBetween({ ...base, items: [meeting], holding: [short], settings: defaultNoticeSettings, quiet: defaultQuietHours });
+    expect(time(held.at)).toBe('9:45');
+  });
+
   it('can keep the lock screen private, and every word stays calm', () => {
     const dentist = item('Dentist', { scheduledAt: new Date(2026, 9, 1, 16).toISOString() });
     const settings = { ...defaultNoticeSettings, day: true, dayAt: '08:00' };

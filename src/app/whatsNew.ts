@@ -5,6 +5,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'Mneme: Transcribe on any voice note turns it into text on your phone, with Whisper; the recording never leaves it. Tap a line to hear that moment. Choose a language and a more accurate model, or switch on Transcribe after saving.',
       'Mneme’s live transcript shows words as you speak and keeps up through long recordings.',
+      'A reminder held by quiet hours or protected time now never arrives after the thing it is for.',
       'Values: no longer asked for on the first day. After a few days Today asks once, “What matters to you?”, and one value is enough.',
     ],
   },
