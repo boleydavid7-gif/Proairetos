@@ -16,6 +16,8 @@ export type DiaitaSettings = RhythmSettings & {
   dismissedSuggestions?: string[];
   /** Naps count as taken time when Proairetos offers a new time for a run or strength session (off until chosen). */
   trainingClearOfNaps?: boolean;
+  /** Sleep sounds as last chosen: a sound, a piece of music and the timer's minutes (0 = until stopped). */
+  sleepSounds?: { sound?: string; music?: string; minutes: number };
 };
 
 export type Worry = { id: string; concern: string; nextStep?: string; createdAt: string };
@@ -35,11 +37,21 @@ export const dynamisWorkouts = collection<{ id: string; date: string }>('dynamis
 /** One record per night, keyed by the day woken into. */
 export const sleeps = collection<SleepRecord & { id: string }>('diaita:sleep:');
 
+/** Proairetos's weather place, when one is set: the morning's sunrise comes from it (device only, never sent). */
+export function sunPlace(): { lat: number; lon: number } | undefined {
+  try {
+    const place = (JSON.parse(localStorage.getItem('proairetos.weather') ?? '{}') as { place?: { lat?: number; lon?: number } }).place;
+    return typeof place?.lat === 'number' && typeof place?.lon === 'number' ? { lat: place.lat, lon: place.lon } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** The plan for a run of days, from the Proairetos schedule, grouped by the person's own day. */
 export function usePlan(from: string, until: string): { entries: Entry[]; blocks: WorkBlock[]; dayAt: (when: Date) => string } {
   const current = settings.use();
   const { blocks: occurrences, dayAt } = useDays(addDays(from, -1), until);
   const blocks = useMemo(() => occurrences.map((block) => ({ start: block.start, end: block.end, kind: block.kind, label: block.label || block.patternName })), [occurrences]);
-  const entries = useMemo(() => planBetween(addDays(from, -1), addDays(until, 1), blocks, current), [blocks, current, from, until]);
+  const entries = useMemo(() => planBetween(addDays(from, -1), addDays(until, 1), blocks, { ...current, place: sunPlace() }), [blocks, current, from, until]);
   return { entries, blocks, dayAt };
 }

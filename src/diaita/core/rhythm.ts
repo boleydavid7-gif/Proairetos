@@ -1,3 +1,4 @@
+import { sunTimes } from '../../core/sky/sun';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 
 /*
@@ -9,6 +10,8 @@ import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 export type WorkBlock = { start: Date; end: Date; label?: string; kind?: 'COMMITTED' | 'PROTECTED' };
 
 export type RhythmSettings = {
+  /** Where the person is, rounded (Proairetos's weather place, device only), for the morning's sunrise. */
+  place?: { lat: number; lon: number };
   /** Usual bedtime on an ordinary night, "HH:MM". */
   bedtime: string;
   /** Hours of sleep the person aims for. */
@@ -157,6 +160,14 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
 }
 
 /** Everything Diaita suggests between two dates, in time order. */
+/** The sunrise within half a day of `when` (the calendar day at the place can differ from the phone's). */
+function sunriseNear(when: Date, place: { lat: number; lon: number }): Date | undefined {
+  const day = toLocalDate(when);
+  return [addDays(day, -1), day, addDays(day, 1)]
+    .map((date) => sunTimes(date, place.lat, place.lon)?.rise)
+    .find((rise): rise is Date => rise !== undefined && Math.abs(rise.getTime() - when.getTime()) < 12 * HOUR);
+}
+
 export function planBetween(from: string, until: string, blocks: readonly WorkBlock[], settings: RhythmSettings): Entry[] {
   const all = work(blocks);
   const sleeps = mainSleeps(from, until, blocks, settings);
@@ -190,7 +201,23 @@ export function planBetween(from: string, until: string, blocks: readonly WorkBl
       if (wake.getHours() >= 5 && wake.getHours() < 18) {
         // Light soon after waking sets the body clock earlier and steadier (Khalsa 2003); outdoor daylight is far
         // brighter than indoor light, even on a cloudy morning (Blume 2019).
-        add({ key: `daylight:${stamp(wake)}`, kind: 'light', start: later(wake, 15), end: later(wake, 45), title: 'Morning daylight', detail: '15 to 30 minutes, outside if you can', source: sleep.after === 'last-night' ? 'hygiene' : 'morning-light' });
+        // With a place, the sun's own time decides: a wake before sunrise waits for it when the sun is up within
+        // two hours and before leaving for work; otherwise the line says when it rises, and bright light indoors
+        // stands in until then.
+        let start = later(wake, 15);
+        let detail = '15 to 30 minutes, outside if you can';
+        const rise = settings.place ? sunriseNear(wake, settings.place) : undefined;
+        if (rise && rise > start) {
+          const nextWork = all.find((block) => block.start > wake);
+          const leave = nextWork ? later(nextWork.start, -settings.commuteMinutes) : undefined;
+          if (rise.getTime() - wake.getTime() <= 2 * HOUR && (!leave || later(rise, 30) <= leave)) {
+            start = rise;
+            detail = 'From sunrise, 15 to 30 minutes outside';
+          } else {
+            detail = `Sunrise ${timeText(rise)}; bright light indoors until then`;
+          }
+        }
+        add({ key: `daylight:${stamp(wake)}`, kind: 'light', start, end: later(start, 30), title: 'Morning daylight', detail, source: sleep.after === 'last-night' ? 'hygiene' : 'morning-light' });
       }
     }
   }

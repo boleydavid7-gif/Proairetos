@@ -1346,6 +1346,13 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   caffeine cutoff, morning daylight) with the recorded amounts beside the previous two weeks.
   Morning daylight (15 to 30 minutes, outside if you can) follows each wake that is not after a night, with its own
   source (`morning-light`: Khalsa 2003, Blume 2019).
+  Sleep sounds (route `sounds`, `?open=sounds`, from Tonight; `app/sleepSounds.ts`, `screens/SleepSoundsPage.tsx`): one
+  sound and one piece of music (`SLEEP_SOUNDS`, `SLEEP_MUSIC`, either None), a timer (15-90 min or until stopped) whose
+  last minute fades on the audio clock (`player.fadeOutLater`, `keepPlaying`), so it keeps time with the screen locked;
+  playing carries on across pages; the choice in `DiaitaSettings.sleepSounds`. Morning daylight follows the sunrise
+  (`core/sky/sun.ts` `sunTimes`, the sunrise equation on the device, tested against published times) when Proairetos's
+  weather place is set (`sunPlace` in `app/state.ts`, passed as `RhythmSettings.place`; never sent): a sunrise within
+  2 h of waking and before leaving for work moves the window to it, a later one is named with bright light indoors.
   Notices kind `rhythm` (`core/notices.ts`: wind down, worry time, nap on; last caffeine and morning daylight off), not held by quiet hours.
 - Philia (`core/people.ts`, tests): people (`philia:person:ID`) with birthday (year optional, 29 Feb on the
   28th), other yearly dates, who they are, Remember lines, gift ideas (mark given), times together, and an

@@ -2,7 +2,7 @@ import type { Notice } from '../../core/notify/notices';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { planBetween } from '../../diaita/core/rhythm';
 import { rhythmNotices } from '../../diaita/core/notices';
-import { settings as diaitaSettings } from '../../diaita/app/state';
+import { settings as diaitaSettings, sunPlace } from '../../diaita/app/state';
 import { peopleNotices } from '../../philia/core/notices';
 import { people, settings as philiaSettings } from '../../philia/app/state';
 import { choreNotices } from '../../ergon/core/notices';
@@ -44,7 +44,7 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
       label: block.label || block.patternName,
     }));
   if (diaita.started && isAdded('diaita')) {
-    const entries = planBetween(addDays(today, -1), addDays(today, horizon), await blocks(), diaita);
+    const entries = planBetween(addDays(today, -1), addDays(today, horizon), await blocks(), { ...diaita, place: sunPlace() });
     notices.push(...rhythmNotices(entries, diaita.notices, now, until));
   }
 

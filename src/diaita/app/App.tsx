@@ -16,9 +16,10 @@ import NapPage from '../screens/NapPage';
 import WindDownPage from '../screens/WindDownPage';
 import CantSleepPage from '../screens/CantSleepPage';
 import WorryPage from '../screens/WorryPage';
+import SleepSoundsPage from '../screens/SleepSoundsPage';
 
 export type Tab = 'today' | 'week' | 'sleep' | 'more';
-export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' } | { name: 'worry' } | { name: 'wind-down' } | { name: 'cant-sleep' };
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'day'; date: string } | { name: 'sources' } | { name: 'log'; date?: string } | { name: 'nap' } | { name: 'year' } | { name: 'worry' } | { name: 'wind-down' } | { name: 'cant-sleep' } | { name: 'sounds' };
 export type DiaitaNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -37,6 +38,7 @@ function firstRoute(): Route {
   if (opening === 'nap') return { name: 'nap' };
   if (opening === 'wind-down') return { name: 'wind-down' };
   if (opening === 'cant-sleep') return { name: 'cant-sleep' };
+  if (opening === 'sounds') return { name: 'sounds' };
   if (opening === 'worry') return { name: 'worry' };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
   return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
@@ -73,6 +75,8 @@ export default function App() {
         return <NapPage nav={nav} />;
       case 'wind-down':
         return <WindDownPage nav={nav} />;
+      case 'sounds':
+        return <SleepSoundsPage nav={nav} />;
       case 'cant-sleep':
         return <CantSleepPage nav={nav} />;
       case 'worry':

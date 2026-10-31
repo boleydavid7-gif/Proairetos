@@ -155,3 +155,27 @@ describe('the sleep log', () => {
     ], 7.5)?.bedSpreadMinutes).toBe(60);
   });
 });
+
+describe('morning daylight and the sunrise', () => {
+  // A longitude where the sun's noon falls at the test's own local noon, so the cases hold in every time zone.
+  const lonHere = (date: string) => ((((-new Date(`${date}T12:00:00`).getTimezoneOffset() / 4 + 180) % 360) + 360) % 360) - 180;
+  const daylight = (date: string, bedtime: string, place?: { lat: number; lon: number }) =>
+    planBetween(date, date, [], { ...defaultRhythm, bedtime, sleepHours: 7, place }).find((entry) => entry.kind === 'light' && entry.title === 'Morning daylight' && entry.start.toISOString().startsWith(date.slice(0, 7)) && entry.start.getDate() === Number(date.slice(8)))!;
+
+  it('stays 15 minutes after waking without a place', () => {
+    const entry = daylight('2026-12-15', '22:00');
+    expect(entry.start.getHours() * 60 + entry.start.getMinutes()).toBe(5 * 60 + 15);
+  });
+
+  it('waits for a sunrise within two hours of waking', () => {
+    const entry = daylight('2026-03-20', '22:00', { lat: 0, lon: lonHere('2026-03-20') });
+    expect(entry.detail).toBe('From sunrise, 15 to 30 minutes outside');
+    expect(entry.start.getHours()).toBe(6);
+  });
+
+  it('names a late sunrise and keeps the time after waking', () => {
+    const entry = daylight('2026-12-15', '23:00', { lat: 60, lon: lonHere('2026-12-15') });
+    expect(entry.detail).toMatch(/^Sunrise .+; bright light indoors until then$/);
+    expect(entry.start.getHours() * 60 + entry.start.getMinutes()).toBe(6 * 60 + 15);
+  });
+});

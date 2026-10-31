@@ -43,6 +43,7 @@ const buses: Partial<Record<SoundKind, GainNode>> = {};
 const sit = new Map<string, Layer>();
 let previewLayer: Layer | null = null;
 let previewTimer: number | undefined;
+let sleepTimer: number | undefined;
 
 function set(next: Partial<PlayerState>): void {
   state = { ...state, ...next };
@@ -198,10 +199,37 @@ export const player = {
 
   /** Ends what the sit plays, fading over `fade` seconds. */
   stop(fade = FADE_OUT): void {
+    window.clearTimeout(sleepTimer);
     for (const layer of sit.values()) fadeAway(layer, fade);
     sit.clear();
     if (state.playing.length) set({ playing: [] });
     showOnLockScreen();
+  },
+
+  /**
+   * Fades what plays out over `fade` seconds once `after` seconds have passed, on the audio clock, so it keeps time
+   * with the screen locked (a sleep timer); the recordings are let go when the page next runs its timers.
+   */
+  fadeOutLater(after: number, fade: number): void {
+    const ctx = audio();
+    const at = ctx.currentTime + Math.max(0, after);
+    for (const layer of sit.values()) {
+      layer.output.gain.cancelScheduledValues(at);
+      layer.output.gain.setValueAtTime(1, at);
+      layer.output.gain.linearRampToValueAtTime(0, at + fade);
+    }
+    window.clearTimeout(sleepTimer);
+    sleepTimer = window.setTimeout(() => player.stop(0.2), (after + fade) * 1000 + 200);
+  },
+
+  /** Takes back a fade set by `fadeOutLater`: what plays carries on. */
+  keepPlaying(): void {
+    window.clearTimeout(sleepTimer);
+    const ctx = audio();
+    for (const layer of sit.values()) {
+      layer.output.gain.cancelScheduledValues(ctx.currentTime);
+      layer.output.gain.setValueAtTime(1, ctx.currentTime);
+    }
   },
 
   /** Plays one recording for a short while, or stops it if it is the one playing. */

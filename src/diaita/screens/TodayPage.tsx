@@ -7,6 +7,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/diaita-stoic-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
+import { useSleepSounds } from '../app/sleepSounds';
 import { Timeline, span } from '../app/ui';
 import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, timeText, type Entry, type SleepQuality } from '../core/rhythm';
 
@@ -134,6 +135,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
   const evening = hour >= 16 || hour < 5;
   const tonight = todays.filter((entry) => entry.kind === 'sleep').pop();
   const windDown = todays.find((entry) => entry.kind === 'wind-down');
+  const sounds = useSleepSounds();
   const showNext = next && !(evening && tonight && (next.kind === 'wind-down' || next.kind === 'sleep'));
 
   return (
@@ -179,6 +181,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'wind-down' })}>Wind down</button>
               <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'cant-sleep' })}>Can’t sleep</button>
             </div>
+            <button type="button" className="text-link diaita-tonight__sounds" onClick={() => nav.go({ name: 'sounds' })}>{sounds ? 'Sleep sounds playing' : 'Sleep sounds'}</button>
           </section>
         )}
 

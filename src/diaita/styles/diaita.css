@@ -734,3 +734,18 @@
   z-index: 30;
   overflow-y: auto;
 }
+
+/* Sleep sounds: what plays (or Play) at the top, then sound, music and timer as chip rows. */
+.diaita-sounds__now {
+  display: grid;
+  gap: 8px;
+}
+
+.diaita-sounds__part {
+  display: grid;
+  gap: var(--ll-label-gap, 8px);
+}
+
+.diaita-tonight__sounds {
+  justify-self: start;
+}
