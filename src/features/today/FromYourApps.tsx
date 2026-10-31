@@ -1,6 +1,7 @@
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { fromAppsRows, type FromAppsRow, type Mark } from '../../app/family/fromApps';
 import SwipeLine, { NotTodayFold, SwipeDay } from './SwipeLine';
+import AppGroup from './AppGroup';
 import { FamilyMark } from '../../app/family/marks';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
@@ -123,15 +124,21 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
       : undefined,
   });
   if (!rows.length) return null;
-  const list = rows.map((row) => <Row key={row.key} row={row} today={today} />);
+  // One group per app, in the order the apps first come in the rows.
+  const apps = [...new Set(rows.map((row) => row.app))];
+  const list = apps.map((app) => (
+    <AppGroup key={app} app={app}>
+      {rows.filter((row) => row.app === app).map((row) => <Row key={row.key} row={row} today={today} />)}
+    </AppGroup>
+  ));
   if (embedded) return <>{list}</>;
 
   return (
     <section className="from-apps" aria-labelledby="from-apps-title">
       <h2 id="from-apps-title" className="section-label">From your apps</h2>
       <SwipeDay.Provider value={today}>
-        <div className="today-group">
-          {list}
+        {list}
+        <div className="today-group today-group--aside">
           <NotTodayFold />
         </div>
       </SwipeDay.Provider>

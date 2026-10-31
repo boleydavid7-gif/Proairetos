@@ -802,6 +802,10 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the front in an animation frame, never through React state; a flick (0.55 px/ms past 36 px) or 38% of the width acts;
   an acting row slides out, its height closes, then the action runs (`settle` puts it back if it stays or undo returns
   it); otherwise it springs back on `--ll-spring`. Browser check: `Input.dispatchTouchEvent` through CDP.
+  Grouped by app (the owner's choice; `features/today/AppGroup.tsx`, `.today-app` at the end of `premium.css`): each app's
+  mark and name over its own `.today-group`; FromYourApps makes one group per app in the rows' order, NowPage wraps
+  the run, trip, bills, birthdays, Mneme and pursuit lines in theirs (pursuit under "Compass"), Not today sits last in
+  `.today-group--aside`; an empty group is hidden by `:has()`. Row details no longer repeat the app's name.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
 - Edit Today (`features/now/TodayEditor.tsx`, `core/today/layout.ts`, `app/hooks/useTodayLayout.ts`, tests
@@ -1390,6 +1394,10 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   Steps (`Chore.steps`, optional, one per line in the form, `stepsFromText`, at most 20): ticked on the chore's page
   (`toggleStep`), cleared by `markDone`. Today shows room chips when its chores span two rooms or more (`roomsOf`) and, in one
   room, "Mark all of these done" with one undo.
+- Ergon giving chores (`WhoChips` in `ergon/app/ui.tsx`: Anyone, each name with this person first, Someone else to add one;
+  names added are kept in `ErgonSettings.people`, `addPerson`, `peopleFor`): Who sits in the chore form's main part (One
+  person / Take turns) and on the chore's page as its own card that changes at once with undo; Today has person chips
+  (Everyone and each name, once two names exist and a chore is given) showing that person's chores and those for anyone.
 - Ergon days off (More > "On days off", `ErgonSettings.daysOff`, off until chosen): `nextDay(chore, daysOff)` moves a chore
   that comes round on a work day to the next day off within two weeks (`dayOffFrom`); only chores every 2+ days, weeks,
   monthly or once, and not someone else's turn (`movesToDayOff`); counting still runs from when it was done. Work days are

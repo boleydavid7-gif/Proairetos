@@ -54,25 +54,25 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
   for (const dose of [...(input.doses ?? [])].sort((a, b) => a.at.getTime() - b.at.getTime())) {
-    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
+    rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
   }
   for (const visit of input.visits ?? []) {
-    rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: withWho(visit, visit.with), detail: [clock(new Date(visit.at)), visit.where, 'Therapeia'].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
+    rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: withWho(visit, visit.with), detail: [clock(new Date(visit.at)), visit.where].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
   }
   for (const { chore, day } of input.chores ?? []) {
-    rows.push({ key: `chore:${chore.id}`, app: 'ergon', part: 'chores', title: chore.name, detail: [since(dayText(day, today)), chore.who, 'Ergon'].filter(Boolean).join(' · '), href: open('ergon', `chore:${chore.id}`), mark: { kind: 'chore', chore }, done: 'Done' });
+    rows.push({ key: `chore:${chore.id}`, app: 'ergon', part: 'chores', title: chore.name, detail: [since(dayText(day, today)), chore.who].filter(Boolean).join(' · '), href: open('ergon', `chore:${chore.id}`), mark: { kind: 'chore', chore }, done: 'Done' });
   }
   for (const { plant, day } of input.plants ?? []) {
-    rows.push({ key: `plant:${plant.id}`, app: 'phyton', part: 'plants', title: plant.name, detail: ['Check the soil', since(dayText(day, today)), 'Phyton'].filter(Boolean).join(' · '), href: open('phyton', `plant:${plant.id}`), mark: { kind: 'plant', plant }, done: 'Watered' });
+    rows.push({ key: `plant:${plant.id}`, app: 'phyton', part: 'plants', title: plant.name, detail: ['Check the soil', since(dayText(day, today))].filter(Boolean).join(' · '), href: open('phyton', `plant:${plant.id}`), mark: { kind: 'plant', plant }, done: 'Watered' });
   }
   for (const { upkeep, due, thing } of input.upkeep ?? []) {
-    rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today)), 'Ktema'].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`), mark: { kind: 'upkeep', upkeep }, done: 'Done' });
+    rows.push({ key: `upkeep:${upkeep.id}`, app: 'ktema', part: 'upkeep', title: upkeep.name, detail: [thing, since(dayText(due.date, today))].filter(Boolean).join(' · '), href: open('ktema', `upkeep:${upkeep.id}`), mark: { kind: 'upkeep', upkeep }, done: 'Done' });
   }
   for (const recipe of input.meals ?? []) {
-    rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today · Soma', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
+    rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
   }
   if (input.training) {
-    rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min · Dynamis`, href: '/dynamis/?open=session' });
+    rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min`, href: '/dynamis/?open=session' });
   }
   return rows;
 }

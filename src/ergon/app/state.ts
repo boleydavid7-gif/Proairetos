@@ -3,14 +3,29 @@ import { collection, stored } from '../../app/family/shell';
 import { createSharedLists, joinProof, sharingAvailable, type SharedListRef } from '../../app/family/sharedLists';
 import { notifications } from '../../app/notify/notifications';
 import { defaultChoreNotices, type ChoreNoticeChoices } from '../core/notices';
-import type { Chore } from '../core/chores';
+import { namesIn, type Chore } from '../core/chores';
 import { displayName } from '../../data/storage/preferences';
 
-export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices; /** Chores that come round on a work day show on the next day off (from the Proairetos schedule). */ daysOff?: boolean };
+export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices; /** Chores that come round on a work day show on the next day off (from the Proairetos schedule). */ daysOff?: boolean; /** Names added to give chores to, kept even before a chore has them. */ people?: string[] };
 
 /** The name used for Mine and for who did what: the one given here, else the name set in Proairetos. */
 export function myName(current: ErgonSettings = settings.load()): string {
   return current.me.trim() || displayName();
+}
+
+/** Everyone a chore can be given to: this person, the names added, and every name on a chore. */
+export function peopleFor(chores: readonly Chore[], current: ErgonSettings = settings.load()): string[] {
+  const me = myName(current);
+  const others = namesIn(chores, current.people ?? []).filter((name) => name !== me);
+  return me ? [me, ...others] : others;
+}
+
+/** Keeps a new name for giving chores to. */
+export function addPerson(name: string): void {
+  const clean = name.trim();
+  const current = settings.load();
+  if (!clean || (current.people ?? []).includes(clean)) return;
+  settings.save({ ...current, people: [...(current.people ?? []), clean] });
 }
 
 export const settings = stored<ErgonSettings>('ergon:settings', () => ({ started: false, me: '', notices: { ...defaultChoreNotices } }));

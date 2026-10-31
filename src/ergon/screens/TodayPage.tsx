@@ -3,11 +3,10 @@ import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
-import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/ergon-stoic-wide.webp';
 import type { ErgonNav } from '../app/App';
-import { newId, putChore, removeChore, settings, useChores, useHome, myName } from '../app/state';
+import { newId, putChore, removeChore, settings, useChores, useHome, myName, peopleFor } from '../app/state';
 import { ChoreList } from '../app/ui';
 import { useDaysOff } from '../app/daysOff';
 import { IDEAS, grouped, markDone, roomsOf, type Chore } from '../core/chores';
@@ -43,11 +42,12 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const current = settings.use();
   const home = useHome();
   const today = toLocalDate(new Date());
-  const [whose, setWhose] = useState<'mine' | 'all'>('all');
-  const me = myName(current);
-  const mineOnly = whose === 'mine' && me;
+  const [whose, setWhose] = useState('');
+  const people = peopleFor(all, current);
+  const forWhom = whose && people.includes(whose) ? whose : '';
   const [room, setRoom] = useState('');
-  const whoseShown = mineOnly ? all.filter((chore) => !chore.who || chore.who === me) : all;
+  // One person's view: what is given to them and what anyone may do.
+  const whoseShown = forWhom ? all.filter((chore) => !chore.who || chore.who === forWhom) : all;
   const rooms = roomsOf(grouped(whoseShown, today, daysOff).now.concat(grouped(whoseShown, today, daysOff).week));
   const inRoom = room && rooms.includes(room) ? room : '';
   const shown = inRoom ? whoseShown.filter((chore) => chore.room === inRoom) : whoseShown;
@@ -77,8 +77,11 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
       </div>
 
       <div className="page page--under-hero">
-        {me && home && (
-          <Segmented label="Whose" value={whose} options={[{ id: 'all', label: 'Everyone' }, { id: 'mine', label: me }]} onChange={setWhose} small />
+        {people.length > 1 && all.some((chore) => chore.who) && (
+          <div className="chip-row" role="group" aria-label="Whose">
+            <button type="button" className="chip" aria-pressed={!forWhom} onClick={() => setWhose('')}>Everyone</button>
+            {people.map((each) => <button key={each} type="button" className="chip" aria-pressed={forWhom === each} onClick={() => setWhose(each)}>{each}</button>)}
+          </div>
         )}
 
         {all.length === 0 ? (

@@ -19,11 +19,11 @@ describe('From your apps', () => {
       training: { name: 'Session A', minutes: 40 },
     });
     expect(rows.map((row) => row.title)).toEqual(['Sertraline', 'Sertraline', 'Take out the trash', 'Fern', 'Air filter', 'Session A']);
-    expect(rows[0].detail).toBe('8:00 · 50 mg · Therapeia');
-    expect(rows[2].detail).toBe('Sam · Ergon');
+    expect(rows[0].detail).toBe('8:00 · 50 mg');
+    expect(rows[2].detail).toBe('Sam');
     expect(rows[3]).toMatchObject({ href: '/phyton/?open=plant%3Ap1' });
-    expect(rows[3].detail).toMatch(/^Check the soil · Since \S+ · Phyton$/);
-    expect(rows[4].detail).toBe('Furnace · Ktema');
+    expect(rows[3].detail).toMatch(/^Check the soil · Since \S+$/);
+    expect(rows[4].detail).toBe('Furnace');
   });
 
   it('lists meals planned for today in Soma as links, before a training day', () => {
@@ -35,7 +35,7 @@ describe('From your apps', () => {
       training: { name: 'Session A', minutes: 40 },
     });
     expect(rows.map((row) => row.title)).toEqual(['Lentil soup', 'Session A']);
-    expect(rows[0]).toMatchObject({ app: 'soma', part: 'soma', detail: 'Planned for today · Soma', href: '/soma/?open=recipe%3Ar1' });
+    expect(rows[0]).toMatchObject({ app: 'soma', part: 'soma', detail: 'Planned for today', href: '/soma/?open=recipe%3Ar1' });
   });
 
   it('is empty when nothing came around', () => {

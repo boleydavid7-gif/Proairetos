@@ -5,11 +5,11 @@ import { offerUndo } from '../../app/family/shell';
 import { Segmented } from '../../askesis/app/ui';
 import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { findChore, newId, putChore, removeChore, settings, useChores, myName } from '../app/state';
-import { done } from '../app/ui';
+import { addPerson, findChore, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
+import { WhoChips, done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { useDaysOff } from '../app/daysOff';
-import { ROOMS, dayText, namesIn, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
+import { ROOMS, dayText, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
 import { CheckIcon } from '../../app/family/icons';
 import { Sym } from '../../lamplight/icons';
 
@@ -26,7 +26,7 @@ const WEEK = [1, 2, 3, 4, 5, 6, 0];
 function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void }) {
   const all = useChores();
   const today = toLocalDate(new Date());
-  const me = myName(settings.use());
+  settings.use();
   const [name, setName] = useState(existing?.name ?? '');
   const [room, setRoom] = useState(existing?.room ?? '');
   const [kind, setKind] = useState<Kind>(existing?.repeat.kind ?? 'weeks');
@@ -46,7 +46,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
     if (!existing) nameField.current?.focus();
   }, []);
 
-  const names = namesIn(all, [me, ...rota]);
+  const names = [...new Set([...peopleFor(all), ...rota])];
   const repeat = (): Repeat => {
     switch (kind) {
       case 'days':
@@ -134,20 +134,11 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         </label>
       )}
 
-      <MoreDetails open={Boolean(existing && (existing.room || existing.who || existing.rota?.length || existing.remindAt || existing.steps?.length || existing.note))}>
-      <label className="field">
-        <span className="field__label">Room (optional)</span>
-        <input className="input" list="ergon-rooms" value={room} onChange={(event) => setRoom(event.target.value)} />
-        <datalist id="ergon-rooms">{ROOMS.map((each) => <option key={each} value={each} />)}</datalist>
-      </label>
       <fieldset className="field">
-        <legend className="field__label">Who (optional)</legend>
+        <legend className="field__label">Who</legend>
         <Segmented label="Who" value={turns ? 'turns' : 'one'} options={[{ id: 'one', label: 'One person' }, { id: 'turns', label: 'Take turns' }]} onChange={(value) => setTurns(value === 'turns')} small />
         {!turns ? (
-          <>
-            <input className="input" list="ergon-names" value={who} onChange={(event) => setWho(event.target.value)} aria-label="Who" />
-            <datalist id="ergon-names">{names.map((each) => <option key={each} value={each} />)}</datalist>
-          </>
+          <WhoChips people={names} value={who} onChange={setWho} />
         ) : (
           <>
             <div className="chip-row">
@@ -162,7 +153,10 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
               onSubmit={(event) => {
                 event.preventDefault();
                 const clean = newName.trim();
-                if (clean && !rota.includes(clean)) setRota([...rota, clean]);
+                if (clean && !rota.includes(clean)) {
+                  addPerson(clean);
+                  setRota([...rota, clean]);
+                }
                 setNewName('');
               }}
             >
@@ -172,6 +166,13 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
           </>
         )}
       </fieldset>
+
+      <MoreDetails open={Boolean(existing && (existing.room || existing.remindAt || existing.steps?.length || existing.note))}>
+      <label className="field">
+        <span className="field__label">Room (optional)</span>
+        <input className="input" list="ergon-rooms" value={room} onChange={(event) => setRoom(event.target.value)} />
+        <datalist id="ergon-rooms">{ROOMS.map((each) => <option key={each} value={each} />)}</datalist>
+      </label>
 
       <label className="field">
         <span className="field__label">Reminder time (optional)</span>
@@ -198,6 +199,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
   const daysOff = useDaysOff();
   const plain = nextDay(existing);
   const day = nextDay(existing, daysOff);
+  const people = peopleFor(useChores(), settings.use());
   const who = existing.rota?.length ? `Taking turns: ${existing.rota.join(', ')}${existing.who ? ` (next ${existing.who})` : ''}` : existing.who;
 
   return (
@@ -255,9 +257,23 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
         </section>
       )}
 
-      {(who || existing.remindAt || existing.note) && (
+      {existing.rota?.length ? null : (
+        <section className="card">
+          <h2 className="card__title card__title--small">Who</h2>
+          <WhoChips
+            people={people}
+            value={existing.who ?? ''}
+            onChange={(name) => {
+              putChore({ ...existing, who: name || undefined });
+              offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
+            }}
+          />
+        </section>
+      )}
+
+      {((existing.rota?.length && who) || existing.remindAt || existing.note) && (
         <dl className="detail-list">
-          {who && <><dt>Who</dt><dd>{who}</dd></>}
+          {existing.rota?.length && who ? <><dt>Who</dt><dd>{who}</dd></> : null}
           {existing.remindAt && <><dt>Reminder</dt><dd>{existing.remindAt}</dd></>}
           {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
         </dl>

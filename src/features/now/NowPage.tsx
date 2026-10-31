@@ -15,6 +15,7 @@ import TodayRun from '../today/TodayRun';
 import TodayFamily, { TodayMneme, TodayPursuit } from '../today/TodayFamily';
 import { TodayBirthdays, TodayTrip } from '../today/TodayNewFamily';
 import FromYourApps from '../today/FromYourApps';
+import AppGroup from '../today/AppGroup';
 import { NotTodayFold, SwipeDay } from '../today/SwipeLine';
 import TodayOnThisDay from '../today/TodayOnThisDay';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -263,14 +264,14 @@ export default function NowPage() {
     apps: <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
         <h2 id="today-apps-title" className="section-label">From your apps</h2>
         <SwipeDay.Provider value={today}>
-        <div className="today-group">
-          <FromYourApps today={today} embedded />
-          {shows('askesis') && <TodayRun today={today} />}
-          <TodayTrip now={clock} today={today} />
-          <TodayFamily today={today} />
-          <TodayBirthdays today={today} />
-          <TodayMneme />
-          <TodayPursuit />
+        <FromYourApps today={today} embedded />
+        {shows('askesis') && <AppGroup app="askesis"><TodayRun today={today} /></AppGroup>}
+        <AppGroup app="poreia"><TodayTrip now={clock} today={today} /></AppGroup>
+        <AppGroup app="oikonomia"><TodayFamily today={today} /></AppGroup>
+        <AppGroup app="philia"><TodayBirthdays today={today} /></AppGroup>
+        <AppGroup app="mneme"><TodayMneme /></AppGroup>
+        <AppGroup app="proairetos" name="Compass"><TodayPursuit /></AppGroup>
+        <div className="today-group today-group--aside">
           <NotTodayFold />
         </div>
         </SwipeDay.Provider>

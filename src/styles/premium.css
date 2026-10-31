@@ -983,3 +983,28 @@ blockquote.daily-line {
     padding-top: calc(var(--space-6) + env(titlebar-area-height, 0px));
   }
 }
+
+/* From your apps, grouped by app (the owner's choice): each app's mark and name over its own inset list; an app with
+   nothing today, and Not today with nothing set aside, take no room. */
+.today-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ll-label-gap, 8px);
+}
+.today-app + .today-app,
+.today-app + .today-group--aside {
+  margin-top: var(--space-2);
+}
+.today-app__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 0 var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.today-app:not(:has(.quiet-row, .check-row)),
+.today-group--aside:not(:has(.quiet-row)) {
+  display: none;
+}
