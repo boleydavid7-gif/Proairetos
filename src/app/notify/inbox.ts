@@ -6,6 +6,7 @@ import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { isAdded } from '../family/added';
 import { scheduleService } from '../services';
 import { notifications } from './notifications';
+import { attention, onAttention, showIconBadge } from '../../lamplight/attention';
 
 /**
  * The notifications page's list (the bell on Today and its count, Today's card for important ones). Worked out on
@@ -45,7 +46,15 @@ const listeners = new Set<() => void>();
 const changed = () => {
   version += 1;
   for (const listener of listeners) listener();
+  badgeIcon();
 };
+
+/** The count on the app's icon follows the bell's on every page, not only while Today is open. */
+function badgeIcon(): void {
+  if (!started) return;
+  const unseen = entries.filter((entry) => !clearedKeys.has(entry.key) && !seenKeys.has(entry.key)).length;
+  showIconBadge(attention().bell === 'off' ? 0 : unseen);
+}
 
 function storedChanges(now: Date): InboxEntry[] {
   const since = now.getTime() - INBOX_DAYS * 86_400_000;
@@ -160,6 +169,7 @@ let started = false;
 export function startInbox(): void {
   if (started || typeof window === 'undefined') return;
   started = true;
+  onAttention(badgeIcon);
   let timer: number | undefined;
   const soon = () => {
     window.clearTimeout(timer);

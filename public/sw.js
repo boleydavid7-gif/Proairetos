@@ -225,6 +225,8 @@ async function showDue(sealed, fallback) {
     });
     return;
   }
+  // Only notices not shown before add to the icon's count (one the open app showed already is in its own count).
+  const fresh = due.filter((notice) => !shown.has(notice.key)).length;
   for (const notice of due) {
     await self.registration.showNotification(appNameFor(notice.open), {
       body: bodyFor(notice),
@@ -238,7 +240,20 @@ async function showDue(sealed, fallback) {
     });
     shown.add(notice.key);
   }
+  await addToBadge(cache, fresh);
   await cache.put(SHOWN, new Response(JSON.stringify([...shown].slice(-300)), { headers: { 'content-type': 'application/json' } }));
+}
+
+// The count on the app's icon, when the person chose it (Settings > Attention): the open app leaves its count and
+// choice in /__notify/badge.json; a reminder shown here with the app closed adds to it.
+const BADGE = '/__notify/badge.json';
+async function addToBadge(cache, added) {
+  if (!added || typeof self.navigator.setAppBadge !== 'function') return;
+  const badge = await readJson(cache, BADGE, null);
+  if (!badge || !badge.on) return;
+  const count = (badge.count || 0) + added;
+  await cache.put(BADGE, new Response(JSON.stringify({ ...badge, count }), { headers: { 'content-type': 'application/json' } }));
+  await self.navigator.setAppBadge(badge.dot ? undefined : count).catch(() => undefined);
 }
 
 function sealedIn(event) {

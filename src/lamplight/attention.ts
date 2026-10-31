@@ -52,12 +52,21 @@ type Badging = Navigator & { setAppBadge?: (count?: number) => Promise<void>; cl
 /** Whether this browser can put a count on the app's icon (installed apps on iPhone, Android, Windows and Mac). */
 export const canBadgeIcon = () => typeof navigator !== 'undefined' && typeof (navigator as Badging).setAppBadge === 'function';
 
-/** The bell's count on the app's icon, as the person chose it: a number, a dot, or nothing. */
+/** The bell's count on the app's icon, as the person chose it: a number, a dot, or nothing. The choice and count are
+ *  also left for the service worker (`/__notify/badge.json` in Cache Storage `proairetos-notify`), which adds to the
+ *  count when a reminder arrives with the app closed. */
 export function showIconBadge(count: number): void {
   const nav = navigator as Badging;
   if (!canBadgeIcon()) return;
   const choice = attention();
-  const shown = choice.icon && choice.bell !== 'off' && count > 0;
+  const on = choice.icon && choice.bell !== 'off';
+  const shown = on && count > 0;
   if (!shown) void nav.clearAppBadge?.().catch(() => undefined);
   else void nav.setAppBadge?.(choice.bell === 'dot' ? undefined : count).catch(() => undefined);
+  if (typeof caches === 'undefined') return;
+  const body = JSON.stringify({ on, dot: choice.bell === 'dot', count: shown ? count : 0 });
+  void caches
+    .open('proairetos-notify')
+    .then((cache) => cache.put('/__notify/badge.json', new Response(body, { headers: { 'content-type': 'application/json' } })))
+    .catch(() => undefined);
 }

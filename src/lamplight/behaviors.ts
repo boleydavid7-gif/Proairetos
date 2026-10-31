@@ -415,7 +415,7 @@ function largeTitle(): void {
     if (records.every((record) => bar.contains(record.target))) return;
     if (!title?.isConnected) title = undefined;
     changed();
-  }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['aria-current', 'aria-pressed', 'class'] });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['aria-current', 'aria-pressed', 'class', 'data-badge', 'aria-label'] });
   soon();
 }
 

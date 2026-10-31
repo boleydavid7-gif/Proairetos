@@ -10,7 +10,7 @@ import { openSettingsAt } from '../settings/settingsViews';
 import { agoText, byApp, type InboxEntry } from '../../core/notify/inbox';
 import type { FamilyApp } from '../../core/notify/sources';
 import { IconButton, Sym } from '../../lamplight/icons';
-import { attention, onAttention, showIconBadge, type Attention } from '../../lamplight/attention';
+import { attention, onAttention, type Attention } from '../../lamplight/attention';
 import { BellIcon } from '../../components/icons/Icons';
 import SwipeItem from '../../app/family/SwipeItem';
 
@@ -29,12 +29,10 @@ export function NotificationsButton() {
   const { unseen } = useInbox();
   const [open, setOpen] = useState(false);
   useEffect(() => startInbox(), []);
-  const { bell, icon } = useAttention();
+  const { bell } = useAttention();
   const count = bell === 'off' ? 0 : unseen.length;
   // A dot is a blank badge (a space, so the top bar's copy keeps it); the number caps at 9+.
   const badge = !count ? undefined : bell === 'dot' ? ' ' : count > 9 ? '9+' : String(count);
-  // The same count on the app's icon, only when chosen in Settings > Attention.
-  useEffect(() => showIconBadge(count), [count, bell, icon]);
   return (
     <>
       <IconButton
