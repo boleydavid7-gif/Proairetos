@@ -7,6 +7,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Signed out, the Store says an account is needed and leads to signing in.',
       'Edit Today: put Today’s sections in your own order and switch any of them off, from the foot of Today.',
       'Text size has six steps, from smaller to huge, on a slider.',
+      'Settings > Privacy and lock starts with privacy at a glance: what stays here, what is sealed, what the server sees, and each outside service.',
+      'On a computer, ⌘Z or Ctrl+Z takes back what the undo bar offers.',
     ],
   },
   {

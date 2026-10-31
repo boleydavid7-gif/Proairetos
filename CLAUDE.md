@@ -733,6 +733,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   8/9 bike) or words, sleep stages joined into nights with awake stages (1, 3, 7) left out, hydration in liters, weight kg,
   blood glucose mmol/L, oxygen, body temperature °C, resting heart rate, blood pressure; UTC times are placed on the
   phone's own day by the payload's `timezone` (`inZone`). The page (now "Health data", view `health`) has iPhone/Android steps.
+- Privacy at a glance (Settings > Privacy and lock, `features/settings/PrivacyGlance.tsx`, above the lock): what stays on the
+  device, what is sealed before it leaves, what the server can see, every outside service with what it receives, and what
+  never happens; the same facts as `public/privacy.html`, short. Change both together.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
 - Reflect folds each app's entries (`features/reflect/appGroups.ts`, `AppGroup` in `ReflectPage`, styles at the end of

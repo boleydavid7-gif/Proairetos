@@ -2,6 +2,7 @@ import StorageFacts from '../../app/family/StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
 import TextSizeSlider from '../../components/ui/TextSize';
+import PrivacyGlance from './PrivacyGlance';
 import { shownView, takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
@@ -1240,25 +1241,13 @@ export default function SettingsPage() {
             <DeleteSection />
           </>
         )}
-        {view === 'privacy' && <LockSection />}
-        {view === 'privacy' && (
-          <section className="settings-card" aria-label="Privacy">
-            <p className="section-description">
-              {mode === 'device'
-                ? 'Everything is stored on this device. With sync on, it’s encrypted here before upload, so the server can’t read it.'
-                : 'This browser is not letting Proairetos save. Download a backup before closing the tab.'}
-            </p>
-            <p className="section-description">
-              What you write is never analyzed or scored. Reminder text is encrypted too; the server only knows when each is due.
-            </p>
-            <p className="section-description">
-              Dictation uses your phone’s speech service (Apple or Google), like your keyboard’s microphone.
-            </p>
-            <a className="text-link" href="/privacy" target="_blank" rel="noreferrer">
-              Read the full privacy page
-            </a>
-          </section>
+        {view === 'privacy' && mode !== 'device' && (
+          <p className="section-description" role="status">
+            This browser is not letting Proairetos save. Download a backup before closing the tab.
+          </p>
         )}
+        {view === 'privacy' && <PrivacyGlance />}
+        {view === 'privacy' && <LockSection />}
         {view === 'about' && (
           <section className="settings-card" aria-label="About">
             <p className="section-description">
@@ -1361,7 +1350,7 @@ export default function SettingsPage() {
       label: 'Account and data',
       entries: [
         { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey passphrase storage google drive dropbox onedrive' },
-        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock' },
+        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock privacy server encrypted data services' },
         {
           id: 'backup',
           icon: <InboxIcon size={18} />,

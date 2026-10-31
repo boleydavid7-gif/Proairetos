@@ -178,3 +178,26 @@
     transition: none;
   }
 }
+
+/* ---------- Privacy at a glance ---------- */
+
+.privacy-glance {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.privacy-glance__group h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.privacy-glance__group ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
