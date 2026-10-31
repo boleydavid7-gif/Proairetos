@@ -94,6 +94,8 @@ async function show(notice: Notice, details: boolean): Promise<void> {
     badge: '/icons/icon-192.png',
     data: { open: notice.open },
     timestamp: notice.at.getTime(),
+    // The same Done button the worker gives a to-do's reminder (sw.js), so either one reads and acts alike.
+    actions: notice.open.startsWith('item:') ? [{ action: 'done', title: 'Done' }] : [],
   } as NotificationOptions);
   // So a push for the same moment does not show it a second time.
   try {

@@ -233,6 +233,8 @@ async function showDue(sealed, fallback) {
       tag: notice.key,
       timestamp: Date.parse(notice.at),
       data: { open: notice.open },
+      // A reminder for a to-do can be marked done from the notice itself (Android and computers show the button).
+      actions: String(notice.open).startsWith('item:') ? [{ action: 'done', title: 'Done' }] : [],
     });
     shown.add(notice.key);
   }
@@ -288,7 +290,9 @@ function placeFor(open) {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const open = (event.notification.data && event.notification.data.open) || 'today';
+  const tapped = (event.notification.data && event.notification.data.open) || 'today';
+  // "Done" on a to-do's reminder: Proairetos marks it done (with undo) instead of opening the item.
+  const open = event.action === 'done' && tapped.startsWith('item:') ? 'done:' + tapped : tapped;
   const place = placeFor(open);
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {

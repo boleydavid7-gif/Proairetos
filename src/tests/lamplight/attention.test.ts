@@ -6,7 +6,7 @@ describe('attention choices', () => {
   beforeEach(() => localStorage.clear());
 
   it('starts with everything on and the count as a number', () => {
-    expect(attention()).toEqual({ bell: 'number', updates: true, light: true });
+    expect(attention()).toEqual({ bell: 'number', updates: true, light: true, icon: false });
   });
 
   it('keeps each choice and tells listeners', () => {
@@ -14,14 +14,14 @@ describe('attention choices', () => {
     const stop = onAttention(heard);
     setAttention({ bell: 'dot' });
     setAttention({ updates: false });
-    expect(attention()).toEqual({ bell: 'dot', updates: false, light: true });
+    expect(attention()).toEqual({ bell: 'dot', updates: false, light: true, icon: false });
     expect(heard).toHaveBeenCalledTimes(2);
     stop();
   });
 
   it('reads an unknown or broken value as the default', () => {
     localStorage.setItem(ATTENTION_KEY, '{"bell":"loud","light":"no"}');
-    expect(attention()).toEqual({ bell: 'number', updates: true, light: true });
+    expect(attention()).toEqual({ bell: 'number', updates: true, light: true, icon: false });
     localStorage.setItem(ATTENTION_KEY, 'not json');
     expect(attention().bell).toBe('number');
   });

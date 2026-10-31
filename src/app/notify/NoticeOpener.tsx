@@ -5,17 +5,29 @@ import { useOverlays } from '../overlays/OverlayContext';
 import { openSettingsAt } from '../../features/settings/settingsViews';
 import { linkTo } from '../family/opening';
 import { placeFor } from '../../core/notify/place';
+import { lifeService } from '../services';
 
 /**
  * Where a tapped notification, or a link from Askesis or Soma, leads:
  * `item:ID`, `day:YYYY-MM-DD` (or `day:today`), `today`, `reflect`,
- * `compass`, `account` (Settings, sync), `askesis` (the training app), or `oikonomia:bill:ID`.
+ * `compass`, `focus` (starts a focus), `account` (Settings, sync), `askesis` (the training app), or `oikonomia:bill:ID`.
  */
 export function useNoticeOpen() {
   const navigate = useNavigate();
-  const { openItem } = useOverlays();
+  const { openItem, offerUndo, startFocus } = useOverlays();
   const openRoute = (route: Parameters<typeof navigate>[0]) => navigate(route, { immediate: true });
   return (open: string) => {
+    // "Done" pressed on a reminder (Android and computers show the button): the item is marked done here, with undo.
+    if (open.startsWith('done:item:')) {
+      const id = open.slice(10);
+      openRoute('today');
+      void lifeService.get(id).then(async (item) => {
+        if (!item || item.status === 'DONE') return;
+        const change = await lifeService.setStatus(id, 'DONE');
+        offerUndo(`“${item.title}” done`, change.undo);
+      });
+      return;
+    }
     if (open.startsWith('item:')) {
       openRoute('today');
       openItem(open.slice(5));
@@ -23,6 +35,9 @@ export function useNoticeOpen() {
       const day = open.slice(4);
       if (day !== 'today') setDaysAheadOpening({ start: day });
       openRoute('plan');
+    } else if (open === 'focus') {
+      openRoute('today');
+      startFocus();
     } else if (open === 'reflect') openRoute('reflect');
     else if (open === 'compass') openRoute('compass');
     else if (open === 'settings') openRoute('settings');

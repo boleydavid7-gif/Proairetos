@@ -959,3 +959,27 @@ blockquote.daily-line {
   border-radius: 999px;
   background: color-mix(in srgb, var(--app-accent, var(--mint, #b7c7e2)) 16%, var(--app-surface, #18212c));
 }
+
+/* Window Controls Overlay (an installed app on a computer, title bar hidden): the page starts under the window's own
+   buttons, a strip along the top drags the window, and the rail begins below it. */
+@media (display-mode: window-controls-overlay) and (min-width: 62rem) {
+  :root {
+    --ll-safe-top: env(titlebar-area-height, 0px);
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    z-index: 100;
+    top: env(titlebar-area-y, 0px);
+    left: env(titlebar-area-x, 0px);
+    width: env(titlebar-area-width, 100%);
+    height: env(titlebar-area-height, 0px);
+    app-region: drag;
+    -webkit-app-region: drag;
+  }
+
+  .tab-bar {
+    padding-top: calc(var(--space-6) + env(titlebar-area-height, 0px));
+  }
+}

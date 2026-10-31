@@ -4,11 +4,12 @@
  * setting `proairetos.attention`, so every app and device follows one choice. Absent means as it was: on.
  */
 export type BellCount = 'number' | 'dot' | 'off';
-export type Attention = { bell: BellCount; updates: boolean; light: boolean };
+/** `icon`: the bell's count on the app's icon too (installed apps that can show one); off until chosen. */
+export type Attention = { bell: BellCount; updates: boolean; light: boolean; icon: boolean };
 
 export const ATTENTION_KEY = 'proairetos.attention';
 const CHANGED = 'proairetos-attention';
-const DEFAULTS: Attention = { bell: 'number', updates: true, light: true };
+const DEFAULTS: Attention = { bell: 'number', updates: true, light: true, icon: false };
 
 export function attention(): Attention {
   try {
@@ -17,6 +18,7 @@ export function attention(): Attention {
       bell: saved.bell === 'dot' || saved.bell === 'off' ? saved.bell : 'number',
       updates: saved.updates !== false,
       light: saved.light !== false,
+      icon: saved.icon === true,
     };
   } catch {
     return DEFAULTS;
@@ -43,4 +45,19 @@ export function onAttention(listener: () => void): () => void {
     removeEventListener(CHANGED, listener);
     removeEventListener('storage', storage);
   };
+}
+
+type Badging = Navigator & { setAppBadge?: (count?: number) => Promise<void>; clearAppBadge?: () => Promise<void> };
+
+/** Whether this browser can put a count on the app's icon (installed apps on iPhone, Android, Windows and Mac). */
+export const canBadgeIcon = () => typeof navigator !== 'undefined' && typeof (navigator as Badging).setAppBadge === 'function';
+
+/** The bell's count on the app's icon, as the person chose it: a number, a dot, or nothing. */
+export function showIconBadge(count: number): void {
+  const nav = navigator as Badging;
+  if (!canBadgeIcon()) return;
+  const choice = attention();
+  const shown = choice.icon && choice.bell !== 'off' && count > 0;
+  if (!shown) void nav.clearAppBadge?.().catch(() => undefined);
+  else void nav.setAppBadge?.(choice.bell === 'dot' ? undefined : count).catch(() => undefined);
 }

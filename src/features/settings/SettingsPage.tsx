@@ -37,7 +37,7 @@ import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { feedbackLink } from '../../app/family/feedback';
 import { GLYPHS, LampIcon } from '../../lamplight/icons';
-import { attention, setAttention, type BellCount } from '../../lamplight/attention';
+import { attention, canBadgeIcon, setAttention, type BellCount } from '../../lamplight/attention';
 import { backupService, storageMode } from '../../app/services';
 import {
   ArrowLeftIcon,
@@ -913,6 +913,12 @@ function AttentionSection({ open }: { open: (view: View) => void }) {
               </button>
             ))}
           </div>
+          {canBadgeIcon() && (
+            <button type="button" className="toggle-row" aria-pressed={choice.icon} onClick={() => change({ icon: !choice.icon })}>
+              <span className={`toggle-switch${choice.icon ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+              <span>Count on the app icon</span>
+            </button>
+          )}
           <button type="button" className="toggle-row" aria-pressed={choice.updates} onClick={() => change({ updates: !choice.updates })}>
             <span className={`toggle-switch${choice.updates ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
             <span>Updates card</span>

@@ -704,6 +704,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   Therapeia reads a label photo at once via `ReadFromPhoto initialFile`); Phyton Periodic Background Sync
   (`phyton/app/background.ts` leaves place, names, unit and known frost nights in Cache Storage
   `proairetos-phyton-outside`; `public/phyton/sw.js` `checkFrost` asks Open-Meteo, 12:00-22:00, once a night).
+- Web platform round: a reminder for an item carries a Done action (`actions` in `sw.js` and in-app `notifications`;
+  `notificationclick` opens `done:item:ID`, which `useNoticeOpen` marks done with undo). Settings > Attention "Count on
+  the app icon" (`Attention.icon`, off until chosen, shown only where `canBadgeIcon()`): `showIconBadge` mirrors the
+  bell (number, or a plain badge for the dot). Manifest shortcuts add Today (`?open=today`) and Start a focus
+  (`?open=focus`, `startFocus`). `display_override: window-controls-overlay`: from 62rem in that mode `--ll-safe-top`
+  is the title bar's height, a `body::after` strip drags the window and the rail starts below it (end of `premium.css`).
 - Readable copy: Settings > Back up and restore > "A readable copy" downloads Markdown of the person's own words (reflections newest first with the prompt they answered, decisions, Compass, captures; `core/export/markdown.ts`, `backupService.exportReadable`). Not a backup, no password, other apps' records and photos left out.
 - Capture from anywhere (Settings > The app > Capture from anywhere, view `inbox`; migration
   `20261024000000_capture_inbox.sql`; Worker `/api/capture`, `worker/capture.ts`, vars `SUPABASE_URL`, `SUPABASE_ANON_KEY`):

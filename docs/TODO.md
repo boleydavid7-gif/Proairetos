@@ -160,6 +160,17 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   - From the Home Screen app, swipe from the left edge slowly, let go early (springs back), then all the way.
   - Pull a sheet down slowly and let go (springs back), then flick it (closes).
 
+- [ ] Welcome and web round (Nov 4), on your phones and a computer:
+  - iPhone and Android: open the site fresh (or a private tab). Hold the lamp, play the sails, go through to Begin; leave
+    halfway and reopen: it picks up where you were. Try Aa (text size) and "Start your free trial" (signs in on a sheet).
+  - Today: Edit Today at the foot; drag a section, switch one off, "Usual order" with Undo.
+  - Android (installed): a reminder for a to-do shows a Done button; tapping it marks the to-do done and offers Undo.
+  - Android and computer (installed): Settings > Attention > "Count on the app icon" shows the bell's count on the icon.
+  - Long-press the installed icon (Android, Windows, Mac): Today, Start a focus, Capture, Journal and the rest.
+  - Computer, installed through Chrome or Edge: the title bar can be hidden (the arrow in its corner); the page starts
+    under the window's buttons and the strip along the top still drags the window.
+  - Settings > Privacy and lock: privacy at a glance reads true to you.
+
 ## Phone apps (iOS and Android), when you are ready
 - [ ] On a Mac: `npx cap add ios`, then `npm run cap:sync` with `VITE_API_BASE=https://proairetos.com`, open in Xcode, run on your iPhone.
 - [ ] Android Studio: `npx cap add android`, add `SCHEDULE_EXACT_ALARM` to `AndroidManifest.xml`, run on a phone.

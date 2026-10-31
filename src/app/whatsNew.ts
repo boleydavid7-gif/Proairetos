@@ -9,6 +9,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'Text size has six steps, from smaller to huge, on a slider.',
       'Settings > Privacy and lock starts with privacy at a glance: what stays here, what is sealed, what the server sees, and each outside service.',
       'On a computer, ⌘Z or Ctrl+Z takes back what the undo bar offers.',
+      'Reminders for a to-do have a Done button where the phone or computer shows one; it marks the to-do done, with undo.',
+      'Settings > Attention > Count on the app icon puts the bell’s count on the installed app’s icon (off until chosen).',
+      'Press and hold the installed icon for Today and Start a focus, beside Capture and Journal. On a computer the title bar can be hidden.',
     ],
   },
   {
