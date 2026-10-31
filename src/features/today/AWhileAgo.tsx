@@ -1,5 +1,5 @@
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { lifeService } from '../../app/services';
+import { deleteWithUndo } from '../items/deleteItem';
 import type { LifeItem } from '../../core/life-items/types';
 import { dayLabel } from '../reflect/format';
 
@@ -23,12 +23,9 @@ export default function AWhileAgo({ items, onKeep }: Props) {
             <button
               type="button"
               className="chip chip--small"
-              onClick={async () => {
-                const change = await lifeService.setStatus(item.id, 'LET_GO');
-                offerUndo(`“${item.title}” let go`, change.undo);
-              }}
+              onClick={() => void deleteWithUndo(item, offerUndo)}
             >
-              Let it go
+              Delete
             </button>
           </div>
         </li>

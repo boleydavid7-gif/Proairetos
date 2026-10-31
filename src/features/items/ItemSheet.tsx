@@ -1,11 +1,12 @@
 import { remindChoices, remindLabel, remindersOf } from '../../core/notify/notices';
+import { deleteWithUndo } from './deleteItem';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import ColorChoice from '../../components/ui/ColorChoice';
 import { useSheet } from '../../components/ui/useSheet';
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { attachmentService, compassService, decisionService, lifeService } from '../../app/services';
+import { compassService, decisionService, lifeService } from '../../app/services';
 import Attachments from './attachments/Attachments';
 import { CalendarIcon, FeatherIcon, StarIcon } from '../../components/icons/Icons';
 import { buildIcs } from '../../core/calendar/ics';
@@ -704,13 +705,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
           className="button-quiet sheet__delete"
           onClick={async () => {
             // Its photos and files go with it; undo brings both back.
-            const files = await attachmentService.removeForItem(item.id);
-            const deletion = await lifeService.deleteItem(item.id);
             onClose();
-            offerUndo(`“${item.title}” deleted`, async () => {
-              await deletion.undo();
-              await files.undo();
-            });
+            await deleteWithUndo(item, offerUndo);
           }}
         >
           Delete
@@ -731,11 +727,8 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
                 Skip this time
               </button>
             )}
-            <button type="button" className="button-quiet" onClick={() => close('LET_GO')}>
-              Let go
-            </button>
             <button type="button" className="button-accent" onClick={() => close('DONE')}>
-              Done
+              Mark done
             </button>
           </>
         ) : (

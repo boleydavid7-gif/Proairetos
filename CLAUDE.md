@@ -775,6 +775,9 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   to Days ahead). Days ahead's rows pull left to delete with undo, as in Reminders (`SwipeItem tone="remove"`, its
   `frontRef` keeps the card-to-page morph), and the delete is also in the long-press menu and shows on pointing with a
   mouse (`.days-row` in `ROWS`, `28-days.css`). A capture read as a time is filed as a To do.
+- One way off the list (the owner's choice): items are taken off with Delete (`features/items/deleteItem.ts` `deleteWithUndo`,
+  photos and files with them, undo brings both); no Let go button anywhere (item sheet, Sort through, Check back, From a
+  while ago). The item sheet's action is "Mark done" beside the header's Close. Older `LET_GO` records still read "Let go".
 - Wording, checked against Things, Todoist and Reminders: undo toasts name the thing first (`“Stretch” deleted`,
   `“X” done`, `“X” added, Fri 3 PM`); errors say what happened in a contraction and what to do ("Couldn’t save that.
   Try again."), never "could not … just now"; a form's button is Save (Keep stays for "keep or discard" choices).

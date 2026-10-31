@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { deleteWithUndo } from '../items/deleteItem';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService } from '../../app/services';
@@ -156,13 +157,10 @@ export default function QuickSortSheet({
                   className="chip"
                   disabled={busy}
                   onClick={() =>
-                    choose(async () => {
-                      const change = await lifeService.setStatus(current.id, 'LET_GO');
-                      offerUndo(`“${current.title}” let go`, change.undo);
-                    })
+                    choose(() => deleteWithUndo(current, offerUndo))
                   }
                 >
-                  Let go
+                  Delete
                 </button>
                 <button
                   type="button"

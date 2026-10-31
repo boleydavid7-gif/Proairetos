@@ -77,7 +77,7 @@ export default function ThinkThroughScreen({ from, onClose, onSupport }: Props) 
             {anything ? (
               <div className="practice__nav">
                 <button type="button" className="button-quiet" onClick={onClose}>
-                  Let it go
+                  Don’t keep it
                 </button>
                 <button type="button" className="button-accent" onClick={keep}>
                   Keep it in Reflect

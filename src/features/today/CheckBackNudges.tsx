@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { deleteWithUndo } from '../items/deleteItem';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { HourglassIcon } from '../../components/icons/Icons';
@@ -55,9 +56,9 @@ function Nudge({ item }: { item: LifeItem }) {
           <button
             type="button"
             className="chip"
-            onClick={async () => offerUndo(`“${item.title}” let go`, (await lifeService.setStatus(item.id, 'LET_GO')).undo)}
+            onClick={() => void deleteWithUndo(item, offerUndo)}
           >
-            Let go
+            Delete
           </button>
         </div>
       )}
