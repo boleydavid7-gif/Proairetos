@@ -75,3 +75,19 @@ export async function copyFor(day: string, factory?: IDBFactory): Promise<string
   if (!db) return undefined;
   return ((await request(db.transaction('copies', 'readonly').objectStore('copies').get(day))) as DailyCopy | undefined)?.text;
 }
+
+/** Every copy kept, taken off this device (when another account signs in here, the copies go with their owner). */
+export async function takeAllCopies(factory?: IDBFactory): Promise<DailyCopy[]> {
+  const db = await open(factory);
+  if (!db) return [];
+  const all = (await request(db.transaction('copies', 'readonly').objectStore('copies').getAll())) as DailyCopy[];
+  await request(db.transaction('copies', 'readwrite').objectStore('copies').clear());
+  return all;
+}
+
+/** Puts copies taken by `takeAllCopies` back. */
+export async function putCopies(copies: readonly DailyCopy[], factory?: IDBFactory): Promise<void> {
+  const db = await open(factory);
+  if (!db) return;
+  for (const copy of copies) await request(db.transaction('copies', 'readwrite').objectStore('copies').put(copy));
+}

@@ -631,6 +631,13 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `?open=` (`app/family/opening.ts`): Askesis `workout:ID`, `entry:ID`, a
   tab; Soma `recipe:ID`, `week`, `tonight`; Proairetos `day:today`,
   `reflect`, `compass`, `account`.
+- One device, more than one account (`app/sync/deviceAccount.ts`, tests `src/tests/sync/deviceAccount.test.ts`): the device's things
+  belong to the account that last used it (`proairetosAccount`, device only, kept through sign-out, removed by Delete account).
+  When `resolvePhase` sees a different account signed in, `changeDeviceAccount` (Web Lock `proairetos-account`) puts the last
+  account's things away in IndexedDB `proairetos-accounts` (backup file, every localStorage key but `proairetos.auth` and
+  `proairetos.onboarded`, the daily copies), empties the Proairetos database (sync state included) and storage, brings back
+  what was put away for the new account, and the page reloads; another tab that already changed it just reloads. Data used
+  before any account signed in goes with the first account. Device-only file stores (book files, photos) stay, unreferenced.
 - Sign in other apps (iPhone Home Screen apps keep their own storage; migration `20261019000000_sign_in_handoff.sql`,
   function `sign-in-handoff`): Proairetos's Account page has "Sign in other apps" (`app/family/SignInPass.tsx`): the
   passphrase once (`enableHandoff` keeps an exportable copy of the data key in syncMeta `handoffKey`, device only,
@@ -1332,7 +1339,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   a night and sunglasses home when another night follows (Smith/Eastman 2009), main meal before and small
   snacks 00:00-06:00 on nights (Chellappa 2021), a short sleep after the last night, earlier bed before an
   early start, later after a late finish, two hours later the night before a first night (Smith/Eastman); an
-  evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight. Every line can open its source; Settings (More) holds bedtime, sleep
+  evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight; an ordinary night is bedtime plus the hours by the wall clock (`laterOnClock`), so a clock change does not move waking (`clockChange.test.ts`). Every line can open its source; Settings (More) holds bedtime, sleep
   hours, travel, getting ready, cutoff, wind-down, Light and Meals switches. Grouped by the person's day
   (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
   and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also

@@ -115,6 +115,14 @@ const listeners = createListeners();
 let status: SyncStatus = { phase: 'unavailable', syncing: false, reminders: 'unsupported' };
 let dataKey: CryptoKey | null = null;
 let userId: string | null = null;
+/** The account whose things this page was opened with (`proairetosAccount`, see deviceAccount.ts). */
+let deviceAccountAtStart: string | null = (() => {
+  try {
+    return localStorage.getItem('proairetosAccount');
+  } catch {
+    return null;
+  }
+})();
 let state: SyncStateStore | null = null;
 let started = false;
 let changeTimer: number | undefined;
@@ -167,6 +175,15 @@ async function resolvePhase(): Promise<void> {
   if (!user) {
     userId = null;
     return set({ phase: 'signed-out', email: undefined, target: undefined, error: undefined });
+  }
+  // Another account used this device last: its things are put away here and this account starts clean.
+  if (deviceAccountAtStart !== user.id) {
+    const { changeDeviceAccount } = await import('./deviceAccount');
+    if (await changeDeviceAccount(user.id, deviceAccountAtStart).catch(() => false)) {
+      location.reload();
+      return;
+    }
+    deviceAccountAtStart = user.id;
   }
   userId = user.id;
   const st = (await localState())!;
@@ -845,6 +862,13 @@ export async function deleteAccount(): Promise<void> {
   if (status.phase === 'unavailable' || status.phase === 'signed-out') throw new Error('Not signed in.');
   await deleteRemoteAccount();
   saveCalendarFeed({ ...loadCalendarFeed(), enabled: false });
+  // What stays on this device belongs to no account now; the next to sign in here takes it.
+  try {
+    localStorage.removeItem('proairetosAccount');
+  } catch {
+    // Storage blocked.
+  }
+  deviceAccountAtStart = null;
   await signOut();
 }
 

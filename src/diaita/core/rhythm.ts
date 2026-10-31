@@ -86,6 +86,11 @@ export const DAY_NAMES: Record<DayKind, string> = {
 const HOUR = 3_600_000;
 const MINUTE = 60_000;
 const later = (date: Date, minutes: number) => new Date(date.getTime() + minutes * MINUTE);
+/** As `later`, but by the clock on the wall: across a clock change, bed at 21:30 for 7.5 hours is still up at 05:00. */
+const laterOnClock = (date: Date, minutes: number) => {
+  const plain = later(date, minutes);
+  return later(plain, plain.getTimezoneOffset() - date.getTimezoneOffset());
+};
 
 const work = (blocks: readonly WorkBlock[]) =>
   blocks.filter((block) => (block.kind ?? 'COMMITTED') === 'COMMITTED' && block.end > block.start).sort((a, b) => a.start.getTime() - b.start.getTime());
@@ -144,14 +149,14 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
     const firstNight = all.some((block) => startsOn(block, addDays(date, 1)) && isNight(block));
     if (firstNight) start = later(start, 120);
-    let end = later(start, length);
+    let end = laterOnClock(start, length);
     // An early start: to bed earlier so the sleep is whole.
     const next = all.find((block) => block.start >= start && block.start.getTime() - start.getTime() < 18 * HOUR);
     if (next) {
       const upBy = later(next.start, -(settings.readyMinutes + settings.commuteMinutes));
       if (upBy < end) {
         end = upBy;
-        start = new Date(Math.max(later(upBy, -length).getTime(), later(start, -180).getTime()));
+        start = new Date(Math.max(laterOnClock(upBy, -length).getTime(), later(start, -180).getTime()));
       }
     }
     if (end > start) sleeps.push({ start, end, after: 'evening', day: date });
