@@ -8,15 +8,16 @@ export type OnboardingStep = {
   lit?: boolean;
   /** A last line set apart, large, once the others have been read. */
   finale?: string;
-  /** The form for name, room, color, schedule and the first intention. */
+  /** The form for name, intention, room, color, schedule and reminders, with a preview of Today. */
   form?: boolean;
-  /** A panel under the words: the sails, the apps gathering, prices, or the Home Screen steps. */
-  panel?: 'sails' | 'apps' | 'plans' | 'home-screen';
+  /** A panel under the words: the sails, the apps gathering with the trial and prices, or the Home Screen steps. */
+  panel?: 'sails' | 'apps' | 'home-screen';
   /** The picture for it: the person's room, or the coast for the sails. */
   scene?: 'room' | 'sea';
 };
 
-/** The owner's words throughout. The welcome happens in the person's own room, lit by its one lamp. */
+/** The owner's words throughout. The welcome happens in the person's own room, lit by its one lamp. Five steps, and a
+ *  sixth for the Home Screen while the app is not installed there. */
 export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'προαιρετός',
@@ -44,8 +45,9 @@ export const onboardingSteps: OnboardingStep[] = [
       'I wanted to make it easier to bring the moving parts of everyday life together.',
       'A place to organize responsibilities, keep track of what matters, plan ahead and make room for personal growth.',
       'Not another system demanding your attention, but a tool that gives you more freedom to decide where your attention belongs.',
-      'Because getting organized is meant to give you more time to live, not less.',
+      'You don’t have to do everything, or plan every moment. You just have to make room for the things that matter to you.',
     ],
+    finale: 'Your life. Your choices. Your time.',
     lit: true,
     action: 'Continue',
   },
@@ -57,24 +59,6 @@ export const onboardingSteps: OnboardingStep[] = [
     ],
     action: 'Continue',
     panel: 'apps',
-  },
-  {
-    title: 'Make time for what matters',
-    lines: [
-      'You don’t have to do everything.',
-      'You don’t have to plan every moment.',
-      'You just have to make room for the things that matter to you.',
-      'Let Proairetos help with the everyday, so you can focus on what makes life yours.',
-    ],
-    finale: 'Your life. Your choices. Your time.',
-    lit: true,
-    action: 'Continue',
-  },
-  {
-    title: 'Prices and sync',
-    lines: ['Proairetos is free. Sync is optional.'],
-    action: 'Continue',
-    panel: 'plans',
   },
   {
     title: 'Make it yours',

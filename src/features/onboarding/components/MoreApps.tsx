@@ -109,6 +109,7 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
           </li>
         ))}
       </ul>
+      <TrialAndPrices />
       <button type="button" className="ob-quiet" onClick={onStore}>Open the Store</button>
       <Sibling />
     </div>
@@ -134,21 +135,21 @@ export function Sibling() {
   );
 }
 
-/** What things cost and how sync works: its own step, passed over with Continue or Skip this. The light walks the
- *  trial once, from today to its end. */
-export function PlansAndSync() {
+/** The free trial as a path the light walks once (today, the reminder, the end), with the prices and sync folded under
+ *  it: Apple keeps pricing out of the way of a welcome, so it is one tap away rather than a step of its own. */
+function TrialAndPrices() {
   return (
-    <div className="ob-panel more-apps">
+    <>
       <section className="ob-card trial" aria-label="Your free trial">
-        <h3>Your free trial</h3>
+        <h3>Every app free for 7 days</h3>
         <ol className="trial-line">
           <li><b>Today</b><span>Make an account and every app is yours. No card needed.</span></li>
           <li><b>Day 6</b><span>An email reminder before your trial ends.</span></li>
           <li><b>Day 7</b><span>The trial ends. Nothing is charged; Proairetos stays free.</span></li>
         </ol>
       </section>
-      <section className="ob-card more-apps__plans" aria-label="Prices">
-        <h3>Prices</h3>
+      <details className="ob-card ob-fold more-apps__plans">
+        <summary>Prices and sync</summary>
         <ul>
           {PLANS.map((plan) => (
             <li key={plan.name}>
@@ -160,12 +161,12 @@ export function PlansAndSync() {
             </li>
           ))}
         </ul>
-      </section>
-      <section className="ob-card more-apps__sync" aria-label="Sync">
-        <h3>Sync</h3>
-        <p>Everything is kept on this device. To use it on more than one, sync through your own Google Drive, Dropbox or OneDrive, or through Proairetos cloud: 1 GB for {priceText('cloud')}/mo.</p>
-        <p className="ob-fine">Either way, your records are encrypted on your device before they leave it.</p>
-      </section>
-    </div>
+        <p className="ob-fine">
+          Everything is kept on this device. To use it on more than one, sync through your own Google Drive, Dropbox or
+          OneDrive, or through Proairetos cloud: 1 GB for {priceText('cloud')}/mo. Either way, your records are encrypted on
+          your device before they leave it.
+        </p>
+      </details>
+    </>
   );
 }

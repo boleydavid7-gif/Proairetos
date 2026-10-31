@@ -442,6 +442,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   row (iOS's own width ran two fields past Diaita's sleep log card). Fields (`adopt.css`) are a filled well with a hairline edge
   (`--ll-field-edge`, firmer on hover), a soft inner shade along the top (`--ll-field-well`) and the lamp's edge and halo on focus. Plain checkboxes take the lamp's `accent-color`;
   yes/no marks in forms use the family `Switch` (`askesis/app/ui`), as Diaita's sleep signs do.
+- Text size is six steps (`TEXT_SIZES`: smaller 93.75% to huge 150%, `textScale` in `appearance.ts`), chosen on a slider
+  between a small and a large A (`components/ui/TextSize.tsx`, Settings > Appearance and the welcome's Aa).
 - Type: the sans is Google Sans Flex (SIL OFL, `@fontsource-variable/google-sans-flex/opsz.css` imported first in every
   `main.tsx`: weight and optical size axes, latin about 120 KB, other scripts by unicode-range; family `'Google Sans Flex
   Variable'` at the head of every sans stack, `font-optical-sizing: auto` in `premium.css`). It replaced Inter (the
@@ -1468,10 +1470,20 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   view). Words come in as one quick, smooth pass (lines 140-220 ms apart, warmed by the lamp as they arrive, all staying to
   read; the owner nearly skipped text when lines waited their turn): `LitLines` on Why and Make time for what matters (finale
   "Your life. Your choices. Your time." after the last), the same rise everywhere else.
-  The Store's apps fly in and gather round the compass (`Gathering`), lit by "What pulls at your attention?" chips. Prices:
-  the light walks the trial line (Today, Day 6 "An email reminder before your trial ends.", Day 7). Make it yours: greeting
-  preview, name, intention, Room and Color (saved to Appearance), schedule. Begin: the words leave and the room stays
-  (Today wears the same wallpaper). Reduced motion stills all of it.
+  The Store's apps fly in and gather round the compass (`Gathering`), lit by "What pulls at your attention?" chips; the
+  trial line follows (the light walks Today, Day 6 "An email reminder before your trial ends.", Day 7) with Prices and sync
+  folded under it (`TrialAndPrices`; no separate prices step). Why and Make time are one step (finale "Your life. Your
+  choices. Your time."). Make it yours: a live preview of Today (`TodayPreview`: the room's wallpaper, greeting with the
+  name, date, intention), name, intention, Room and Color (saved to Appearance), schedule, and a Reminders offer (Allow asks
+  the browser from the tap; hidden where it cannot ask). With sync set up its main action is "Start your free trial": the
+  same `AccountSection` on a sheet over the welcome (`AccountSheet`), which closes and moves on by itself once the account
+  is ready; "Continue without an account" beside it. The Home Screen step shows only while not installed (5 steps, else 6).
+  The first screen has Aa (the shared `TextSizeSlider`) and "Restore a backup" beside "I already have an account". Where
+  the welcome was left (step, lamp, choices) is kept in `proairetosWelcome` (device only, cleared on leaving), so it reopens
+  there. Steps move with a view transition (the title, line of light and action carry over: `ob-title`, `ob-line`,
+  `ob-action`) and a sideways swipe follows the finger. From 62rem: the welcome sits on a panel on the right, the name large
+  on the room at the left (`.onboarding-aside`). Begin: the words leave and the room stays (Today wears the same
+  wallpaper). Reduced motion stills all of it.
   Earlier note: "On your Home Screen"
   (`components/HomeScreen.tsx`: steps for this device first, `INSTALL_STEPS`/`deviceKind` in `app/install/installPrompt.ts`,
   which keeps Chrome's `beforeinstallprompt` from page load for an Install button; says so when already installed) and

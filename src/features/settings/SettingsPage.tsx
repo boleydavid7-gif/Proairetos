@@ -1,6 +1,7 @@
 import StorageFacts from '../../app/family/StorageFacts';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
+import TextSizeSlider from '../../components/ui/TextSize';
 import { shownView, takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
@@ -644,7 +645,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
 ];
 
 const themeLabels = { system: 'Match my phone', dark: 'Dark', light: 'Light' } as const;
-const sizeLabels = { default: 'Default', large: 'Large', larger: 'Larger' } as const;
 const wallStyleLabels = { paper: 'Paper', ink: 'Ink', wood: 'Wood' } as const;
 
 const helpTopics: { title: string; body: string }[] = [
@@ -816,19 +816,7 @@ function AppearanceSection() {
         </label>
       )}
       <p className="sheet__label">Text size</p>
-      <div className="chip-row" role="group" aria-label="Text size">
-        {(Object.keys(sizeLabels) as (keyof typeof sizeLabels)[]).map((size) => (
-          <button
-            key={size}
-            type="button"
-            className="chip"
-            aria-pressed={appearance.textSize === size}
-            onClick={() => update({ ...appearance, textSize: size })}
-          >
-            {sizeLabels[size]}
-          </button>
-        ))}
-      </div>
+      <TextSizeSlider value={appearance.textSize} onChange={(textSize) => update({ ...appearance, textSize })} />
       <button
         type="button"
         className="toggle-row"

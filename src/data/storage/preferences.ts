@@ -583,9 +583,13 @@ export function saveQuietHours(quiet: StoredQuietHours): void {
 
 const APPEARANCE_KEY = 'proairetos.appearance';
 
+/** Text sizes, smallest first: the whole page scales with them (every size is in rem). */
+export const TEXT_SIZES = ['small', 'default', 'large', 'larger', 'largest', 'huge'] as const;
+export type TextSize = (typeof TEXT_SIZES)[number];
+
 export type Appearance = {
   theme: 'system' | 'dark' | 'light';
-  textSize: 'default' | 'large' | 'larger';
+  textSize: TextSize;
   /** A soft buzz when ticking something off, on phones that have one. */
   taps: boolean;
   /** Lamplight's room and color in Proairetos; each other app has its own room and lamp, from its content. */
@@ -601,13 +605,13 @@ export function loadAppearance(): Appearance {
   const saved = readJson<Partial<Appearance>>(APPEARANCE_KEY) ?? {};
   return {
     theme: 'dark',
-    textSize: 'default',
     taps: true,
     dayLight: true,
     ...saved,
     room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
     color: isColorChoice(saved.color) ? saved.color : 'match',
     wallStyle: isWallStyle(saved.wallStyle) ? saved.wallStyle : 'paper',
+    textSize: (TEXT_SIZES as readonly unknown[]).includes(saved.textSize) ? (saved.textSize as TextSize) : 'default',
   };
 }
 

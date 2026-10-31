@@ -1,0 +1,28 @@
+/* ---------- Text size: a slider between a small and a large A ---------- */
+
+.text-size {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+}
+
+.text-size input {
+  width: 100%;
+  accent-color: var(--color-accent, currentColor);
+}
+
+.text-size__a {
+  font-family: var(--font-serif);
+  line-height: 1;
+  color: var(--color-text-muted, currentColor);
+}
+
+.text-size__a--small {
+  font-size: 0.85rem;
+}
+
+.text-size__a--large {
+  font-size: 1.45rem;
+}

@@ -13,12 +13,13 @@ type Props = {
   /** Leaving for Today: the words go and the room stays. */
   leaving?: boolean;
   onTouchStart?: TouchEventHandler;
+  onTouchMove?: TouchEventHandler;
   onTouchEnd?: TouchEventHandler;
 };
 
 const WIDE = '(min-width: 62rem)';
 
-export default function OnboardingLayout({ children, scene = 'room', room, color, lit, leaving, onTouchStart, onTouchEnd }: Props) {
+export default function OnboardingLayout({ children, scene = 'room', room, color, lit, leaving, onTouchStart, onTouchMove, onTouchEnd }: Props) {
   const [wide, setWide] = useState(() => window.matchMedia?.(WIDE).matches ?? false);
   useEffect(() => {
     const query = window.matchMedia?.(WIDE);
@@ -51,6 +52,7 @@ export default function OnboardingLayout({ children, scene = 'room', room, color
       data-leaving={leaving || undefined}
       style={style}
       onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
       <BackgroundScene scene={scene} />

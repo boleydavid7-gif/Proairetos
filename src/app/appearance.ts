@@ -3,7 +3,14 @@ import { loadAppearance, type Appearance } from '../data/storage/preferences';
 import { setPullRefresh, startLamplightBehaviors } from '../lamplight/behaviors';
 import { requestPersistentStorage } from './pwa/persistence';
 
-const textScale: Record<Appearance['textSize'], string> = { default: '100%', large: '112.5%', larger: '125%' };
+const textScale: Record<Appearance['textSize'], string> = {
+  small: '93.75%',
+  default: '100%',
+  large: '112.5%',
+  larger: '125%',
+  largest: '137.5%',
+  huge: '150%',
+};
 
 /** Applies the theme and text size to the page. Every size is in rem, so text and spacing scale together. */
 let switchTaps = false;
