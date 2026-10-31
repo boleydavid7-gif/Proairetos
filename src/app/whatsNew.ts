@@ -11,6 +11,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'On a computer, ⌘Z or Ctrl+Z takes back what the undo bar offers.',
       'Reminders for a to-do have a Done button where the phone or computer shows one; it marks the to-do done, with undo.',
       'Settings > Attention > Count on the app icon puts the bell’s count on the installed app’s icon (off until chosen).',
+      'Reflect’s check-in asks “What’s your weather like today?”, with the reminder that you can only control the sails, not the seas.',
       'On phones the bell in the top bar now shows its count, and the count on the app icon follows on every page and when reminders arrive with the app closed.',
       'Press and hold the installed icon for Today and Start a focus, beside Capture and Journal. On a computer the title bar can be hidden.',
     ],

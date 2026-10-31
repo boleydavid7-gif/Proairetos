@@ -139,7 +139,8 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
     <section className="reflect-checkin" aria-label="Daily check-in">
       <div className="reflect-checkin__head">
         <div>
-          <h2 className="reflect-checkin__title">Check in</h2>
+          <h2 className="reflect-checkin__title">What’s your weather like today?</h2>
+          {open && <p className="reflect-checkin__captain-line">Remember, you can only control the sails, not the seas.</p>}
         </div>
         {existing && <span className="reflect-checkin__saved">Checked in</span>}
       </div>
@@ -162,7 +163,7 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
           <textarea
             className="field-input field-input--area reflect-checkin__input"
             rows={2}
-            aria-label="Daily check-in"
+            aria-label="What’s your weather like today?"
             value={body}
             onChange={(event) => setBody(event.target.value)}
           />

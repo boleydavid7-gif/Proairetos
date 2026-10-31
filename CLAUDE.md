@@ -747,6 +747,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   never happens; the same facts as `public/privacy.html`, short. Change both together.
 - Lock (Settings > Your data > Lock Reflect, `app/lock/`): an optional 4-8 digit passcode (PBKDF2 hash in `proairetos.lock`, device only, left out of backups and sync). Reflect, Journal, Insights and the weekly review show `LockScreen` while locked (Today one tap away; "Forgot it?" removes the lock, writing untouched) and search leaves reflections out. Locks again after a minute out of sight. Privacy on a shared phone, not encryption.
 - Settings has a "Find a setting" box (rows are data in `SettingsPage`, each with title and a few search words) and, from 62rem, keeps the list on the left with the opened page on the right (`settings-split`). The manifest has Capture and Journal shortcuts for the installed icon.
+- Reflect's daily check-in (`DailyCheckIn` in `ReflectPage.tsx`, promptKey `daily-check-in`) asks the owner's words, "What’s
+  your weather like today?", with "Remember, you can only control the sails, not the seas." under it while it is open.
 - Reflect folds each app's entries (`features/reflect/appGroups.ts`, `AppGroup` in `ReflectPage`, styles at the end of
   `22-reflect.css`, tests `src/tests/reflect/appGroups.test.ts`): Askesis runs and after-run lines, Soma meals and
   after-meal, Theoria study and after-study/after-reading, Dynamis after-strength, Poreia after-trip each become one
