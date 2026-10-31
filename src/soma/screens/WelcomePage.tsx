@@ -10,7 +10,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
     <div className="welcome">
       <picture>
         <source media="(min-width: 62rem)" srcSet={scene('soma-stoic-wide')} />
-        <img className="welcome__image" src={scene('soma-stoic-wide')} alt="" />
+        <img className="welcome__image" src={scene('soma-stoic-wide')} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">

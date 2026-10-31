@@ -33,6 +33,22 @@ describe('the one undo bar', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
+  it('takes the change back on Ctrl+Z or ⌘Z, but leaves a field its own undo', () => {
+    const run = vi.fn();
+    render(
+      <>
+        <input aria-label="Name" />
+        <UndoBar />
+      </>,
+    );
+    act(() => offerUndo('“Stretch” deleted', run));
+    fireEvent.keyDown(screen.getByLabelText('Name'), { key: 'z', ctrlKey: true });
+    expect(run).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { key: 'z', metaKey: true });
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
   it('leaves after seven seconds, fading for the last part', () => {
     render(<UndoBar />);
     act(() => offerUndo('“Stretch” deleted', () => undefined));

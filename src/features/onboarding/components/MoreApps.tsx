@@ -81,7 +81,7 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
   return (
     <div className="ob-panel more-apps">
       <Gathering wanted={wanted} />
-      <h3 className="ob-panel__ask">What pulls at your attention?</h3>
+      <h2 className="ob-panel__ask">What pulls at your attention?</h2>
       <div className="ob-chips" role="group" aria-label="What pulls at your attention?">
         {INTERESTS.map((each) => (
           <button

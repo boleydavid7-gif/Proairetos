@@ -129,6 +129,10 @@ function largeTitle(): void {
   bar.className = 'll-topbar ll-mica';
   // The bar holds the only visible copy of these controls on a phone, so it is the one people and screen readers use.
   bar.setAttribute('role', 'toolbar');
+  // Held in a header landmark, so a screen reader's list of regions reaches the bar's buttons with the rest of the page.
+  const landmark = document.createElement('header');
+  landmark.className = 'll-topbar-landmark';
+  landmark.append(bar);
   const lead = document.createElement('button');
   lead.type = 'button';
   lead.className = 'll-topbar__lead';
@@ -240,7 +244,7 @@ function largeTitle(): void {
 
   const update = () => {
     frame = 0;
-    if (!bar.isConnected) document.body.append(bar);
+    if (!bar.isConnected || !landmark.isConnected) document.body.append(landmark);
     // Whether a full-screen moment is up changes only with the page, never with a scroll.
     if (dirty) full = Boolean(document.querySelector(FULL));
     const on = phone.matches && !full;

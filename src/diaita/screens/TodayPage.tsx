@@ -119,7 +119,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
     <div className="home diaita-home">
       <div className="hero hero--tall diaita-hero">
         <picture>
-          <img className="hero__image" src={photoWide} alt="" />
+          <img className="hero__image" src={photoWide} alt="" fetchPriority="high" decoding="async" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

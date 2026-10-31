@@ -12,7 +12,7 @@ import './styles/premium.css';
 import './app/family/account.css';
 import { applyAppearance, withLamplight } from './app/appearance';
 import { applyLamplight } from './app/lamplight';
-import { startDailyCopies } from './app/family/dailyCopy';
+import { startDailyCopies } from './app/family/dailyCopyLater';
 import { startHealthInbox } from './app/health/start';
 import { startLaunchFiles } from './app/family/launchFiles';
 import { keepInvite } from './app/together/together';

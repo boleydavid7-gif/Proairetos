@@ -5,7 +5,7 @@ import ErrorBoundary from '../app/ErrorBoundary';
 import App from './app/App';
 import { startStore } from './data/store';
 import { startSync } from '../app/sync/syncController';
-import { startDailyCopies } from '../app/family/dailyCopy';
+import { startDailyCopies } from '../app/family/dailyCopyLater';
 import AddedOnly from '../app/family/AddedOnly';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-500.css';

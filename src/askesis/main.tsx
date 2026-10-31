@@ -18,7 +18,7 @@ import { applyLamplight } from '../app/lamplight';
 
 // Lamplight: the person's room on every surface, this app's own lamp; it also sets the bar color.
 withLamplight((look, light) => applyLamplight(look, light, 'askesis'));
-import { startDailyCopies } from '../app/family/dailyCopy';
+import { startDailyCopies } from '../app/family/dailyCopyLater';
 import { startHealthInbox } from '../app/health/start';
 import AddedOnly from '../app/family/AddedOnly';
 import { startLaunchFiles } from '../app/family/launchFiles';

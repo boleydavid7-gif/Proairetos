@@ -43,7 +43,7 @@ export function Brand({ light = false }: { light?: boolean }) {
 export function Hero({ children }: { children: ReactNode }) {
   return (
     <div className="hero hero--tall oiko-hero">
-      <img className="hero__image" src={heroWide} alt="" />
+      <img className="hero__image" src={heroWide} alt="" fetchPriority="high" decoding="async" />
       <div className="hero__shade" />
       <div className="hero__content">{children}</div>
     </div>

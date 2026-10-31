@@ -119,7 +119,7 @@ function Hero({ title, sub }: { title: string; sub?: string }) {
   return (
     <div className="hero hero--tall hero-shade-soft">
       <picture>
-        <img className="hero__image" src={photoWide} alt="" />
+        <img className="hero__image" src={photoWide} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <div className="hero__shade" />
       <div className="hero__content">

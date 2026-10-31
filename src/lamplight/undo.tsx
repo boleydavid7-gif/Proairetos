@@ -1,5 +1,5 @@
 import { DOCKS } from './behaviors';
-import { useLayoutEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 
 /*
  * One undo bar for the family: one offer at a time, kept above the pages so it stays while the person moves between
@@ -88,8 +88,36 @@ function fixedAt(y: number): Element | undefined {
   return undefined;
 }
 
+/** Takes the offered change back now (the Undo button, or ⌘Z / Ctrl+Z on a computer). */
+function undoNow(): boolean {
+  if (!current?.run || current.leaving) return false;
+  window.clearTimeout(timer);
+  const run = current.run;
+  current = null;
+  changed();
+  void run();
+  return true;
+}
+
+/** A field keeps ⌘Z for its own typing; anywhere else it takes back what the undo bar offers. */
+function typing(target: EventTarget | null): boolean {
+  const element = target as HTMLElement | null;
+  return Boolean(element?.closest?.('input, textarea, select, [contenteditable="true"]'));
+}
+
 export function UndoBar() {
   const offer = useSyncExternalStore(subscribe, () => current);
+  const canUndo = Boolean(offer?.run && !offer.leaving);
+  useEffect(() => {
+    if (!canUndo) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== 'z' || !(event.metaKey || event.ctrlKey) || event.shiftKey || event.altKey) return;
+      if (typing(event.target)) return;
+      if (undoNow()) event.preventDefault();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [canUndo]);
   const [lift, setLift] = useState<number>();
   const id = offer?.id;
   useLayoutEffect(() => {
@@ -110,13 +138,8 @@ export function UndoBar() {
         <button
           type="button"
           className="ll-snackbar__action"
-          onClick={() => {
-            window.clearTimeout(timer);
-            const run = offer.run;
-            current = null;
-            changed();
-            void run?.();
-          }}
+          aria-keyshortcuts="Meta+Z Control+Z"
+          onClick={() => undoNow()}
         >
           Undo
         </button>

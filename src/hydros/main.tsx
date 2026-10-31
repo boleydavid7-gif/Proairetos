@@ -18,7 +18,7 @@ import { startSync } from '../app/sync/syncController';
 import { loadSettings, startStore } from './data/store';
 import { notifications } from '../app/notify/notifications';
 import App from './app/App';
-import { startDailyCopies } from '../app/family/dailyCopy';
+import { startDailyCopies } from '../app/family/dailyCopyLater';
 import { startHealthInbox } from '../app/health/start';
 import AddedOnly from '../app/family/AddedOnly';
 

@@ -6,7 +6,7 @@ import heroImage from '../../assets/images/scenes/askesis-stoic.webp';
 export default function WelcomePage({ nav }: { nav: Nav }) {
   return (
     <div className="welcome">
-      <img className="welcome__image" src={heroImage} alt="" />
+      <img className="welcome__image" src={heroImage} alt="" fetchPriority="high" decoding="async" />
       <div className="welcome__shade" />
       <div className="welcome__content">
         <Mark size={48} />

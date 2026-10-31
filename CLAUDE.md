@@ -290,7 +290,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `app/undo.tsx` and Askesis/Soma's `UndoProvider` re-export or wrap it, Proairetos's `OverlayProvider.offerUndo`
   passes through, Praxis and Theoria call it, Passkeys calls it directly. It sits 12 px above whatever fixed bar is at
   the foot (measured, stacked bars too), bottom right from 62rem; enters on the lively spring, leaves in 200 ms.
-  Do not add another toast.
+  Do not add another toast. On a computer ⌘Z / Ctrl+Z takes back what it offers (`undoNow`; never from a field,
+  which keeps its own undo; `aria-keyshortcuts` on the button).
 - Lamplight 1.5: the undo bar is the `.ll-snackbar` component (components.css; `undo.css` only places and moves it);
   `Placeholder` draws `.ll-skeleton` stacks (the older `.skeleton` is gone). Charts (`app/family/charts.tsx`, `charts.css`):
   values travel through `useTweened` (`lamplight/tween.ts`: `from`, `stagger`, `easeSpring`), columns rise from 0 one after
@@ -341,6 +342,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the new one after (runs in `.visual/`, ignored by git; SIZES/THEMES/APPS narrow a run, four runs in parallel take ~2 min).
   Hydros Settings is the family's `.family-surface` grouped rows (`row`, `row__icon`, `row__text`, `switch`); its own
   classes only add what sits inside them (glass editor, units, reference amounts).
+- `scripts/speed-check/check.mjs` holds the speed budget (CPU four times slower, 9 Mbit): first paint under a second and
+  the first page's largest paint within 1.4 s in every app (Oct 31: first paint 0.6-1.0 s, largest 0.8-1.3 s; Proairetos
+  is the heaviest, its wallpaper's grain costs only ~30 ms). `APPS=proairetos,soma` narrows a run. The daily copy loads
+  after first paint (`app/family/dailyCopyLater.ts`, 64 KB off every first chunk); each app's first picture (`hero__image`,
+  `welcome__image`) asks `fetchPriority="high"`. The phone top bar sits in a `header` landmark (axe found nothing else on
+  the welcome or the main pages, dark and light).
 - `scripts/layout-check/check.mjs` measures the dock line over its icon, top-bar icons centered and 44 px, and the undo
   bar clear of the dock, in every app, dark and light; run it after layout changes. `tap()` also on `.tick`, chips and Hydros glasses. Reduced motion turns all of it off.
 - Icons: `LampIcon` stroke is `strokeFor(size)` (one optical weight); sizes only from `ICON_SIZES` (16, 18, 20, 22, 24,

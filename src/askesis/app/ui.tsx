@@ -95,7 +95,7 @@ export function Hero({ image, wideImage, children, tall = false }: { image: stri
     <header className={`hero${tall ? ' hero--tall' : ''}`}>
       <picture>
         {wideImage && <source media="(min-width: 62rem)" srcSet={wideImage} />}
-        <img className="hero__image" src={image} alt="" />
+        <img className="hero__image" src={image} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <div className="hero__shade" />
       <div className="hero__content">{children}</div>

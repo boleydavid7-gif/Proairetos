@@ -9,7 +9,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
     <div className="welcome">
       <picture>
         <source media="(min-width: 62rem)" srcSet={heroWide} />
-        <img className="welcome__image" src={heroImage} alt="" />
+        <img className="welcome__image" src={heroImage} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">

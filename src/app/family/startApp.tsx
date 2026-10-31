@@ -4,7 +4,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import { applyAppearance, withLamplight } from '../appearance';
 import { applyLamplight } from '../lamplight';
 import { startSync } from '../sync/syncController';
-import { startDailyCopies } from './dailyCopy';
+import { startDailyCopies } from './dailyCopyLater';
 import { startHealthInbox } from '../health/start';
 import { startLaunchFiles } from './launchFiles';
 import AddedOnly from './AddedOnly';

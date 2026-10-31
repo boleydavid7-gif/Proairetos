@@ -46,7 +46,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       <header className="hero hero--tall hydros-home-hero">
         <picture>
           <source media="(min-width: 62rem)" srcSet={sceneWide} />
-          <img className="hero__image" src={sceneWide} alt="" />
+          <img className="hero__image" src={sceneWide} alt="" fetchPriority="high" decoding="async" />
         </picture>
         <div className="hero__shade" />
         <div className="hero__content">

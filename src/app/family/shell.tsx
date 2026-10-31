@@ -269,7 +269,7 @@ export function Welcome({ name, mark, line, about, photo, photoWide, onBegin, fi
     <div className="welcome">
       <picture>
         <source media="(min-width: 62rem)" srcSet={photoWide} />
-        <img className="welcome__image" src={photo} alt="" />
+        <img className="welcome__image" src={photo} alt="" fetchPriority="high" decoding="async" />
       </picture>
       <div className="welcome__shade" />
       <div className="welcome__content">
