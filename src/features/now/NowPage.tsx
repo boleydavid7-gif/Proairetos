@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { useTodayLayout } from '../../app/hooks/useTodayLayout';
+import type { TodaySection } from '../../core/today/layout';
+import TodayEditor from './TodayEditor';
 import { otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
@@ -91,6 +94,8 @@ export default function NowPage() {
   const [name] = useState(displayName);
   const [kept, setKept] = useState(keptConcerns);
   const shows = useTodayParts();
+  const layout = useTodayLayout();
+  const [editing, setEditing] = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
   const { today, rangeOf, blocks } = usePersonalDay(clock);
@@ -192,43 +197,33 @@ export default function NowPage() {
       ]
     : [];
 
-  return (
-    <div className="page page--landscape">
-      <header className="page-header today-header">
-        <div className="page-header__actions">
-          <TodayWeather />
-          <SearchButton />
-          <NotificationsButton />
-          <SettingsButton />
+  const foot = (
+    <>
+      {/* One setup prompt at a time: the schedule waits while another message is showing. */}
+      {!message && patterns && patterns.length === 0 && shows('schedule-prompt') && (
+        <div className="quiet-row-wrap">
+          <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
+            <span className="quiet-row__text">
+              <span>Add your schedule</span>
+            </span>
+            <ChevronRightIcon size={18} className="quiet-row__chevron" />
+          </button>
+          <NotForMe part="schedule-prompt" />
         </div>
-        <h1 className="page-header__title">{greeting(clock, name)}</h1>
-        <div className="day-stepper">
-          <span className="day-stepper__date">
-            {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
-          </span>
-        </div>
-      </header>
-
-      <>
-
-      {/* Only while something important came in; its × clears it. */}
-      <ImportantCard />
-      {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
-      {message === 'welcome' && (
-        <WelcomeBack
-          days={away}
-          earlier={earlier}
-          onDismiss={() => setWelcomeDismissed(true)}
-          onCleared={(ids) => setCleared(new Set(ids))}
-        />
       )}
-      {message === 'look-ahead' && <LookAhead />}
+      <BackupOffer today={today} recordCount={items.length} />
+      {now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
+    </>
+  );
 
-      {shows('intention') && <Intention date={date} isToday items={items} />}
-      <TodayTogether />
-      {<NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />}
-
-      {entries.length > 0 && (
+  // Today's sections in the person's order (Edit Today); each keeps its own conditions.
+  const sectionNodes: Record<TodaySection, ReactNode> = {
+    intention: shows('intention') && <Intention date={date} isToday items={items} />,
+    together: <TodayTogether />,
+    next: <NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />,
+    day: (
+      <>
+        {entries.length > 0 && (
         <section className="stack-tight" aria-label="Your day">
           <div className="section-heading">
             <h2 className="section-label">Your day</h2>
@@ -262,9 +257,10 @@ export default function NowPage() {
           />
         </section>
       )}
-
-      {/* Everything the other apps bring today, as one grouped list: things to mark first, then the rest. */}
-      <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
+        <Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />
+      </>
+    ),
+    apps: <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
         <h2 id="today-apps-title" className="section-label">From your apps</h2>
         <SwipeDay.Provider value={today}>
         <div className="today-group">
@@ -278,51 +274,75 @@ export default function NowPage() {
           <NotTodayFold />
         </div>
         </SwipeDay.Provider>
-      </section>
-      <TodayOnThisDay today={today} />
+      </section>,
+    'on-this-day': <TodayOnThisDay today={today} />,
+    'open-time': shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
+      <OpenTime stretches={stretches} items={items} today={today} />
+    ),
+    also: <AlsoToday sections={alsoSections} />,
+    done: <DoneToday today={today} range={rangeOf(today)} />,
+    'close-day': shows('close-day') && (
+      <CloseDay today={today} range={rangeOf(today)} items={items} now={clock} availableFrom={closingFrom(rangeOf(today), blocks)} />
+    ),
+    line: shows('line') && <DailyLine key={date} line={line} />,
+  };
 
-      {<Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />}
-
-      {shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
-        <OpenTime stretches={stretches} items={items} today={today} />
-      )}
-
-      {/* One setup prompt at a time: the schedule waits while another message is showing. */}
-      {!message && patterns && patterns.length === 0 && shows('schedule-prompt') && (
-        <div className="quiet-row-wrap">
-          <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
-            <span className="quiet-row__text">
-              <span>Add your schedule</span>
-            </span>
-            <ChevronRightIcon size={18} className="quiet-row__chevron" />
-          </button>
-          <NotForMe part="schedule-prompt" />
+  return (
+    <div className="page page--landscape">
+      <header className="page-header today-header">
+        <div className="page-header__actions">
+          <TodayWeather />
+          <SearchButton />
+          <NotificationsButton />
+          <SettingsButton />
         </div>
-      )}
+        <h1 className="page-header__title">{greeting(clock, name)}</h1>
+        <div className="day-stepper">
+          <span className="day-stepper__date">
+            {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+      </header>
 
-      {<BackupOffer today={today} recordCount={items.length} />}
-      {<AlsoToday sections={alsoSections} />}
-      {<DoneToday today={today} range={rangeOf(today)} />}
-      {shows('close-day') && (
-        <CloseDay
-          today={today}
-          range={rangeOf(today)}
-          items={items}
-          now={clock}
-          availableFrom={closingFrom(rangeOf(today), blocks)}
+      <>
+
+      {/* Only while something important came in; its × clears it. */}
+      <ImportantCard />
+      {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
+      {message === 'welcome' && (
+        <WelcomeBack
+          days={away}
+          earlier={earlier}
+          onDismiss={() => setWelcomeDismissed(true)}
+          onCleared={(ids) => setCleared(new Set(ids))}
         />
       )}
+      {message === 'look-ahead' && <LookAhead />}
 
-      {now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
+      {layout.order.map((section) => {
+        if (layout.off.includes(section)) return null;
+        const node = sectionNodes[section];
+        // The setup prompts and the backup offer keep their place just above the daily thought, wherever it goes.
+        return section === 'line' ? (
+          <Fragment key={section}>
+            {foot}
+            {node}
+          </Fragment>
+        ) : (
+          <Fragment key={section}>{node}</Fragment>
+        );
+      })}
 
-      {/* The day's line sits at the foot, over the landscape: the day itself leads. */}
-      {shows('line') && <DailyLine key={date} line={line} />}
+      <button type="button" className="text-link today-edit-link" onClick={() => setEditing(true)}>
+        Edit Today
+      </button>
 
       </>
 
       <Landscape />
 
       {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
+      {editing && <TodayEditor onClose={() => setEditing(false)} />}
     </div>
   );
 }

@@ -496,6 +496,17 @@ export function setTodayPartShown(part: TodayPart, shown: boolean): void {
   writeJson(TODAY_HIDDEN_KEY, [...hidden]);
 }
 
+const TODAY_LAYOUT_KEY = 'proairetos.todayLayout';
+
+/** Today's order and the sections turned off that have no What's included part (synced: the same Today everywhere). */
+export function todayLayoutSnapshot(): string {
+  return localStorage.getItem(TODAY_LAYOUT_KEY) ?? '';
+}
+
+export function setTodayLayout(layout: { order: string[]; off: string[] } | null): void {
+  writeJson(TODAY_LAYOUT_KEY, layout);
+}
+
 const PART_SEEN_KEY = 'proairetos.todayPartSeen';
 /** "Not for me" waits until a part has been around on this many days. */
 export const NOT_FOR_ME_AFTER_DAYS = 3;

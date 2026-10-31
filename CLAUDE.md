@@ -775,6 +775,14 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   it); otherwise it springs back on `--ll-spring`. Browser check: `Input.dispatchTouchEvent` through CDP.
   Nothing is stored in Proairetos; each row still follows its What's included part (`plants`, `chores`, `medicines`,
   `upkeep`, `training`). Philia's birthdays, bills, Askesis's run and Poreia's trip stay as their own lines in the same group.
+- Edit Today (`features/now/TodayEditor.tsx`, `core/today/layout.ts`, `app/hooks/useTodayLayout.ts`, tests
+  `src/tests/today/layout.test.ts`): an "Edit Today" line at Today's foot opens a sheet, as Apple Health's Summary is edited:
+  each section (`TODAY_SECTIONS`: intention, shared list, Next, Your day, From your apps, On this day, Open time, folded
+  lists, Done today, Close the day, daily thought) with a grip to drag, up/down arrows (Arrow keys on the grip too) and a
+  switch. Sections with a What's included part use that same switch (`SECTION_PART`); the others are turned off in the
+  layout. The synced `proairetos.todayLayout` {order, off} (`readLayout` keeps stored order, slots new sections after their
+  usual neighbor); "Usual order" with undo. The top messages stay first; the setup prompts and backup offer sit just above
+  the daily thought, wherever it goes.
 - Looking back (`core/reflections/lookBack.ts`): Today part `on-this-day` (opt-in, off until chosen) shows what was written on this date in earlier years, the person's own words, hidden while the lock is on; Insights ends with a folded "A year in your own words" (grateful lines, three good things, journal, decisions, goals reached, values chosen, oldest first, plain lines only).
 - Design pass: from 62rem Today lays its cards in two columns (`align-content: start`, or the rows stretched to the page's height) (greeting, capture, done-today and the daily thought across; `30-desktop.css`); page titles share one size (2.3rem); on phones the bottom bar has larger labels and a short accent line over the current page (`premium.css`).
 - Add to your calendar (item sheet > More, when it has a day or time): one `.ics` event with place and note (`buildIcs` takes `location` and `notes`). On a computer an open to-do (not a list that comes back) can be dragged onto another day in Days ahead's list; it moves with an undo (`CheckRow` `DRAG_TYPE`, `moveItemToDay`).

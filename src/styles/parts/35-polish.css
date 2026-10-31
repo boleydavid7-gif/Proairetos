@@ -26,3 +26,155 @@
 .text-size__a--large {
   font-size: 1.45rem;
 }
+
+/* ---------- Edit Today: sections in the person's order, each with a grip, arrows and a switch ---------- */
+
+.today-editor__list {
+  margin: var(--space-2) 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+  border-radius: var(--ll-outer, 18px);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.today-editor__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 3.25rem;
+  padding-right: var(--space-3);
+  background: var(--color-surface);
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease,
+    scale 200ms var(--ll-spring, ease-out);
+}
+
+.today-editor__row + .today-editor__row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2.75rem;
+  right: var(--ll-hair-end, 16px);
+  border-top: 1px solid var(--color-border);
+}
+
+.today-editor__row[data-dragging] {
+  z-index: 1;
+  scale: 1.02;
+  background: var(--color-surface-raised);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+}
+
+.today-editor__row[data-off] .today-editor__name {
+  color: var(--color-text-muted);
+}
+
+.today-editor__name {
+  min-width: 0;
+  font-size: var(--text-md);
+}
+
+.today-editor__grip {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+
+.today-editor__grip span {
+  width: 1.1rem;
+  height: 0.7rem;
+  border-block: 2px solid var(--color-text-muted);
+  position: relative;
+}
+
+.today-editor__grip span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 1px);
+  border-top: 2px solid var(--color-text-muted);
+}
+
+.today-editor__moves {
+  display: flex;
+}
+
+.today-editor__moves button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.today-editor__moves button:first-child svg {
+  rotate: -90deg;
+}
+
+.today-editor__moves button:last-child svg {
+  rotate: 90deg;
+}
+
+.today-editor__moves button:disabled {
+  opacity: 0.3;
+}
+
+.today-editor__switch {
+  position: relative;
+  width: 3.1rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 20%, transparent);
+  transition: background 200ms ease;
+}
+
+.today-editor__switch::after {
+  content: '';
+  position: absolute;
+  top: 0.17rem;
+  left: 0.17rem;
+  width: 1.56rem;
+  height: 1.56rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  transition: translate 260ms var(--ll-spring-lively, ease-out);
+}
+
+.today-editor__switch[aria-checked='true'] {
+  background: var(--color-accent-strong, var(--color-accent));
+}
+
+.today-editor__switch[aria-checked='true']::after {
+  translate: 1.2rem 0;
+}
+
+/* The way into Edit Today: one quiet line at Today's foot. */
+.today-edit-link {
+  justify-self: center;
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-editor__row,
+  .today-editor__switch,
+  .today-editor__switch::after {
+    transition: none;
+  }
+}

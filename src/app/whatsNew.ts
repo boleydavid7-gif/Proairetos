@@ -5,6 +5,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'A new welcome: hold to light the lamp, set your sails, and choose your room and color before you begin.',
       'Signed out, the Store says an account is needed and leads to signing in.',
+      'Edit Today: put Today’s sections in your own order and switch any of them off, from the foot of Today.',
+      'Text size has six steps, from smaller to huge, on a slider.',
     ],
   },
   {
