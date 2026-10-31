@@ -176,8 +176,8 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
       </ul>}
       {!tester && !owner ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
-      <a className="text-link" href="/welcome/">
-        Adding an app to your Home Screen
+      <a className="text-link" href="/welcome/#install">
+        Adding Proairetos to your Home Screen
       </a>
     </section>
   );

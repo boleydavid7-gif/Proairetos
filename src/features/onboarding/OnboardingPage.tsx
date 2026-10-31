@@ -372,13 +372,24 @@ function AccountSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+/** A line with its **bold** lead (the owner's words mark it so), the rest regular. */
+function Marked({ line }: { line: string }) {
+  const lead = /^\*\*(.+?)\*\*\s*/.exec(line);
+  if (!lead) return <>{line}</>;
+  return (
+    <>
+      <strong>{lead[1]}</strong> {line.slice(lead[0].length)}
+    </>
+  );
+}
+
 /** The step's words, each rising in after the one before. */
 function Lines({ lines }: { lines: string[] }) {
   return (
     <p className="onboarding-hero__lines">
       {lines.map((line, at) => (
         <span key={line} style={{ '--i': at } as CSSProperties}>
-          {line}
+          <Marked line={line} />
         </span>
       ))}
     </p>

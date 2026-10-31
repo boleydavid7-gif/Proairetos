@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-04',
     lines: [
+      'Diaita’s worry time writes into Proairetos as Concerns, so what is on your mind is in one place; worries kept in Diaita before moved over.',
+      'Every app opens from Proairetos: add Proairetos to your Home Screen, and the apps you add come with it.',
       'A new welcome: hold to light the lamp, set your sails, and choose your room and color before you begin.',
       'Signed out, the Store says an account is needed and leads to signing in.',
       'Edit Today: put Today’s sections in your own order and switch any of them off, from the foot of Today.',

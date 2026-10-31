@@ -55,7 +55,8 @@ export const onboardingSteps: OnboardingStep[] = [
     title: 'The Store',
     lines: [
       'There are responsibilities to manage, plans to make, habits to build, people to remember and things you’d like to accomplish.',
-      'Proairetos brings these pieces together. Add the apps you need from the Store.',
+      '**Everything comes together.** Each app you add becomes part of one connected experience. From planning your day and managing your finances to your health, relationships, personal growth, and everything in between, the different parts of your life come together in one place.',
+      'Plan your day. Clear your mind. Give your attention to what matters.',
     ],
     action: 'Continue',
     panel: 'apps',

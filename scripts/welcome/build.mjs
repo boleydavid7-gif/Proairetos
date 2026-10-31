@@ -355,7 +355,8 @@ const appGridStyle = `
 
 const installSteps = `
       <section class="wrap" id="install" aria-labelledby="install-title">
-        <h2 id="install-title">Add it to your Home Screen</h2>
+        <h2 id="install-title">Add Proairetos to your Home Screen</h2>
+        <p class="lead">Every app you add opens from Proairetos's Apps tab, and its day shows on Today.</p>
         <details open>
           <summary>iPhone and iPad (Safari)</summary>
           <ol>
@@ -650,7 +651,7 @@ ${others.map((shot) => `          <img src="${shot.src}" alt="${app.name}${shot.
 
       <section class="wrap" aria-labelledby="install-title">
         <h2 id="install-title">Works on every device</h2>
-        <p class="lead">Open ${app.name} in your browser on iPhone, Android or a computer, and add it to your Home Screen. Nothing to download. <a href="/welcome/#install">How to add it</a></p>
+        <p class="lead">${app.name} opens from Proairetos on iPhone, Android or a computer, and its day shows on Proairetos's Today. Add Proairetos to your Home Screen; nothing else to download. <a href="/welcome/#install">How to add it</a></p>
       </section>
 ${waitlist({ source: app.id, picked: [app.id], choose: false })}
 ${privacyNotes}
