@@ -1,4 +1,5 @@
 import AccountCard from '../../app/family/AccountCard';
+import { CountStepper } from '../components/CountStepper';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
@@ -42,10 +43,7 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
               ))}
             </select>
           </label>
-          <label className="field">
-            <span className="field__label">Travelers</span>
-            <input className="input" type="number" min={1} max={20} value={current.travelers} onChange={(event) => change({ travelers: Math.max(1, Math.min(20, Number(event.target.value) || 1)) })} />
-          </label>
+          <CountStepper label="Travelers" value={current.travelers} onChange={(travelers) => change({ travelers })} />
         </div>
       </section>
 

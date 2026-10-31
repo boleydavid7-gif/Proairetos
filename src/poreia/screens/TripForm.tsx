@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CountStepper } from '../components/CountStepper';
 import { offerUndo } from '../../app/family/shell';
 import { isAdded } from '../../app/family/added';
 import { BackLink } from '../../askesis/app/ui';
@@ -148,10 +149,7 @@ export default function TripForm({ nav, id, draft }: { nav: PoreiaNav; id?: stri
           {existing!.people!.length} travelers: {existing!.people!.join(', ')}
         </p>
       ) : (
-        <label className="field">
-          <span className="field__label">Travelers</span>
-          <input className="input" type="number" min={1} max={20} value={travelers} onChange={(event) => setTravelers(Number(event.target.value) || 1)} />
-        </label>
+        <CountStepper label="Travelers" value={travelers} onChange={setTravelers} />
       )}
 
       <PlaceSearch label="Starting from" value={from} onPick={setFrom} />

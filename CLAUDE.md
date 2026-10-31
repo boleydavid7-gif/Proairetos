@@ -1773,4 +1773,6 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   facts onto the trip, keeping its name; `useLocatedPlace` for Explore); `PlaceSearch` takes the first match on leaving the field.
 - Spacing: every block in a trip tab, a fold or a page follows the family gap (`.vt-panel > * + *`); sideways chip rows fade
   at their ends.
+- Travelers (trip form, More) use `CountStepper` (`components/CountStepper.tsx`, the family `.stepper`: − value +, 1-20); a typed
+  number field snapped an emptied value back to 1, so 1 could not be replaced.
 - Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|join:LIST|documents|shared|explore|time|more`.
