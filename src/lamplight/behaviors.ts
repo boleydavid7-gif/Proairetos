@@ -39,7 +39,7 @@ const PHONE = '(max-width: 61.99rem)';
 const HANDOFF = 48;
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 /** Full-screen moments with no bar of their own to fold into. */
-const FULL = '.theoria-reader-back, .sit-screen__leave, .focus-screen, .pause-screen, .guide, .welcome, .onboarding-layout, .added-only';
+const FULL = '.theoria-reader-back, .diaita-cant-sleep, .sit-screen__leave, .focus-screen, .pause-screen, .guide, .welcome, .onboarding-layout, .added-only';
 
 let started = false;
 

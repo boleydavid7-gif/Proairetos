@@ -8,13 +8,29 @@ import photoWide from '../../assets/images/scenes/diaita-stoic-wide.webp';
 import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { Timeline, span } from '../app/ui';
-import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, type SleepQuality } from '../core/rhythm';
+import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, timeText, type Entry, type SleepQuality } from '../core/rhythm';
 
 const ENERGY: { id: Energy; label: string }[] = [
   { id: 'full', label: 'Plenty' },
   { id: 'some', label: 'Some' },
   { id: 'low', label: 'Low' },
 ];
+
+/** "7h 30m": short enough to sit beside bedtime and waking. */
+const shortHours = (minutes: number) => {
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  return rest ? `${hours}h ${rest}m` : `${hours}h`;
+};
+
+/** "Wind down at 9:45 PM", "Wind down in 20 min", "Winding down until 10:30 PM". */
+function windDownText(entry: Entry, now: Date): string {
+  const minutes = Math.round((entry.start.getTime() - now.getTime()) / 60_000);
+  if (minutes > 60) return `Wind down at ${timeText(entry.start)}`;
+  if (minutes > 0) return `Wind down in ${minutes} min`;
+  if (entry.end && entry.end > now) return `Winding down until ${timeText(entry.end)}`;
+  return `Wind down from ${timeText(entry.start)}`;
+}
 
 export function useNow(): Date {
   const [now, setNow] = useState(() => new Date());
@@ -114,6 +130,11 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
   const next = todays.find((entry) => entry.kind !== 'work' && (entry.end ?? entry.start) > now);
   const hour = now.getHours();
   const planned = plannedSleepInto(today, entries);
+  // Tonight, as Apple's sleep schedule shows it: bedtime and waking, and when winding down begins.
+  const evening = hour >= 16 || hour < 5;
+  const tonight = todays.filter((entry) => entry.kind === 'sleep').pop();
+  const windDown = todays.find((entry) => entry.kind === 'wind-down');
+  const showNext = next && !(evening && tonight && (next.kind === 'wind-down' || next.kind === 'sleep'));
 
   return (
     <div className="home diaita-home">
@@ -133,7 +154,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
       </div>
 
       <div className="page page--under-hero">
-        {next && (
+        {showNext && next && (
           <section className="card diaita-next" data-ll-lit>
             <span className="card__eyebrow">Next</span>
             <strong className="diaita-next__title">{next.title}</strong>
@@ -141,10 +162,19 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
           </section>
         )}
 
-        {(hour >= 16 || hour < 5) && (
-          <section className="card diaita-bedtime">
+        {evening && (
+          <section className="card diaita-tonight" data-ll-lit={showNext ? undefined : true}>
             <span className="card__eyebrow">Tonight</span>
-            <strong className="diaita-next__title">Make sleep easier</strong>
+            {tonight ? (
+              <div className="diaita-tonight__times">
+                <span><small>Bed</small><strong>{timeText(tonight.start)}</strong></span>
+                {tonight.end && <span><small>Up</small><strong>{timeText(tonight.end)}</strong></span>}
+                {tonight.end && <span><small>Sleep</small><strong>{shortHours((tonight.end.getTime() - tonight.start.getTime()) / 60_000)}</strong></span>}
+              </div>
+            ) : (
+              <strong className="diaita-next__title">Make sleep easier</strong>
+            )}
+            {windDown && <p className="muted diaita-tonight__when">{windDownText(windDown, now)}</p>}
             <div className="button-row">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'wind-down' })}>Wind down</button>
               <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'cant-sleep' })}>Can’t sleep</button>

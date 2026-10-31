@@ -600,3 +600,137 @@
   align-items: center;
   gap: 4px;
 }
+
+/* Week: one grouped list, each day a row with a track of its work, naps and sleep (6 AM to 10 AM the next day), as
+   Rise and Timeshifter draw a week, so the shape of the nights shows before any words. */
+.diaita-week-day {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.diaita-week-day__lines {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.diaita-week-day__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.diaita-week-day__head strong {
+  flex: 1;
+}
+
+.diaita-track {
+  position: relative;
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  overflow: hidden;
+}
+
+.diaita-track__tick {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+}
+
+.diaita-track__span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 6px;
+}
+
+.diaita-track__span--sleep {
+  background: var(--mint);
+}
+
+.diaita-track__span--nap {
+  background: color-mix(in srgb, var(--mint) 55%, transparent);
+}
+
+.diaita-track__span--work {
+  background: color-mix(in srgb, var(--text) 32%, transparent);
+}
+
+.diaita-track-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.diaita-track-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diaita-track-key i {
+  display: inline-block;
+  width: 14px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.diaita-track-key__hours {
+  margin-left: auto;
+}
+
+/* Today's Tonight card: bedtime, waking and the night's length side by side, then when winding down begins. */
+.diaita-tonight {
+  display: grid;
+  gap: 10px;
+}
+
+.diaita-tonight__times {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.diaita-tonight__times span {
+  display: grid;
+  gap: 2px;
+}
+
+.diaita-tonight__times small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.diaita-tonight__times strong {
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.diaita-tonight__when {
+  margin: 0;
+}
+
+/* Can't sleep is a dark full-screen moment: above the dock and with the top bar off (FULL in behaviors.ts). */
+.diaita-cant-sleep {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+}

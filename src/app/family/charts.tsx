@@ -231,3 +231,81 @@ export function ColumnChart({ title, days, unit = '', height = 150 }: { title: s
     </figure>
   );
 }
+
+export type RangeDay = { label: string; long: string; range?: { from: number; to: number }; detail?: string };
+
+/**
+ * Spans across days (a night from going to bed to getting up): one rounded column a day from where it starts to where
+ * it ends, time running downward, an optional band under them (the planned night), and the same readout as the other
+ * charts. `tick` names a point on the axis; the axis runs from `min` to `max`.
+ */
+export function RangeChart({ title, days, min, max, tick, band, height = 190 }: { title: string; days: RangeDay[]; min: number; max: number; tick: (value: number) => string; band?: { from: number; to: number }; height?: number }) {
+  const [at, setAt] = useState<number>();
+  const id = useId();
+  const kept = days.filter((day) => day.range);
+  const grow = useTweened(days.map((day) => (day.range ? 1 : 0)), { from: 0, ms: 640, stagger: 28, ease: easeSpring });
+  if (kept.length < 2 || max <= min) return null;
+  const lit = `${id.replace(/:/g, '')}-lit`;
+  const pad = { ...PAD, left: 46 };
+  const slot = (W - pad.left - pad.right) / days.length;
+  const bar = Math.min(16, slot - 6);
+  const base = height - pad.bottom;
+  const y = (value: number) => pad.top + ((value - min) / (max - min)) * (base - pad.top);
+  const step = max - min > 600 ? 180 : 120;
+  const ticks: number[] = [];
+  for (let value = Math.ceil(min / step) * step; value <= max; value += step) ticks.push(value);
+  const focus = at === undefined ? undefined : days[at];
+  const keys = (event: KeyboardEvent) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const from = at ?? days.length - 1;
+    setAt(Math.max(0, Math.min(days.length - 1, from + (event.key === 'ArrowLeft' ? -1 : 1))));
+  };
+
+  return (
+    <figure className={`family-chart family-chart--range${at !== undefined ? ' is-reading' : ''}`} aria-labelledby={id}>
+      <figcaption id={id} className="family-chart__title">{title}</figcaption>
+      <div className="family-chart__plot">
+        <svg viewBox={`0 0 ${W} ${height}`} role="img" aria-label={`${title}. Use the arrow keys to read each day.`} tabIndex={0} onKeyDown={keys} onBlur={() => setAt(undefined)} onPointerLeave={() => setAt(undefined)}>
+          <defs>
+            <linearGradient id={lit} x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" className="family-chart__bar-top" />
+              <stop offset="1" className="family-chart__bar-foot" />
+            </linearGradient>
+          </defs>
+          {band && <rect className="family-chart__band" x={pad.left} width={W - pad.left - pad.right} y={y(Math.max(min, band.from))} height={Math.max(0, y(Math.min(max, band.to)) - y(Math.max(min, band.from)))} rx={6} />}
+          {ticks.map((value) => (
+            <g key={value}>
+              <line className="family-chart__grid" x1={pad.left} x2={W - pad.right} y1={y(value)} y2={y(value)} />
+              <text className="family-chart__tick" x={pad.left - 6} y={y(value) + 3.5} textAnchor="end">{tick(value)}</text>
+            </g>
+          ))}
+          {days.map((day, index) => {
+            const cx = pad.left + slot * index + slot / 2;
+            const show = days.length <= 7 || (days.length - 1 - index) % 2 === 0;
+            const range = day.range;
+            const top = range ? y(range.from) : 0;
+            const full = range ? y(range.to) - top : 0;
+            const length = full * Math.max(0, Math.min(1, grow[index]));
+            const r = Math.min(bar / 2, length / 2);
+            return (
+              <g key={day.long} onPointerEnter={() => setAt(index)} onPointerDown={() => setAt(index)}>
+                <rect className="family-chart__hit" x={cx - slot / 2} y={pad.top} width={slot} height={base - pad.top} />
+                {range && length > 0 && (
+                  <rect className={`family-chart__bar family-chart__column${at === index ? ' is-on' : ''}`} fill={`url(#${lit})`} x={cx - bar / 2} y={top} width={bar} height={length} rx={r} />
+                )}
+                {show && <text className="family-chart__tick" x={cx} y={height - 6} textAnchor="middle">{day.label}</text>}
+              </g>
+            );
+          })}
+        </svg>
+        {focus && (
+          <div className="family-chart__tip" style={{ left: `clamp(3.6rem, ${((pad.left + slot * at! + slot / 2) / W) * 100}%, calc(100% - 3.6rem))` }} role="status">
+            <div className="family-chart__tip-row"><strong>{focus.range ? `${tick(focus.range.from)}–${tick(focus.range.to)}` : 'Nothing kept'}</strong></div>
+            <span className="family-chart__tip-when">{focus.long}{focus.detail ? ` · ${focus.detail}` : ''}</span>
+          </div>
+        )}
+      </div>
+    </figure>
+  );
+}

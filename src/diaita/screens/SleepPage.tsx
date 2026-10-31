@@ -6,7 +6,8 @@ import type { DiaitaNav } from '../app/App';
 import { dynamisWorkouts, experiment, settings, sleeps, usePlan } from '../app/state';
 import { weekdayText } from '../app/ui';
 import { Switch } from '../../askesis/app/ui';
-import { ColumnChart } from '../../app/family/charts';
+import { RangeChart } from '../../app/family/charts';
+import { clockAt, hourLabel, nightAxis, placeNight } from '../core/nightChart';
 import { QUALITY_NAMES, clockText, hoursText, isNight, sleepFacts, sleepWeekFacts, sleptMinutes, type SleepQuality, type SleepRecord } from '../core/rhythm';
 import { EXPERIMENTS, caffeineAfterCutoffDates, experimentFacts, sideBySide, suggestionFor, type ContextDates } from '../core/evidence';
 
@@ -98,6 +99,40 @@ function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; t
         {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet button--sm" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
       </div>
     </details>
+  );
+}
+
+/** The last 14 nights from going to bed to getting up, over the planned night, as Apple Health and Oura draw them. */
+function NightsChart({ records, today, bedtime, sleepHours }: { records: readonly Kept[]; today: string; bedtime: string; sleepHours: number }) {
+  const dates = Array.from({ length: 14 }, (_, index) => addDays(today, index - 13));
+  const nights = dates.map((date) => records.find((each) => each.date === date));
+  const plannedUp = (() => {
+    const [hours, minutes] = bedtime.split(':').map(Number);
+    const total = (hours * 60 + minutes + Math.round(sleepHours * 60)) % 1440;
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  })();
+  const planned = { bed: bedtime, up: plannedUp };
+  const axis = nightAxis([...nights.filter((night): night is Kept => Boolean(night)), planned]);
+  if (!axis) return null;
+  const band = placeNight(planned, axis.startHour);
+  return (
+    <RangeChart
+      title="Last 14 nights"
+      min={axis.from}
+      max={axis.to}
+      band={band}
+      tick={(value) => (value % 60 === 0 ? hourLabel(axis, value) : clockText(clockAt(axis, value)))}
+      days={dates.map((date, index) => {
+        const night = nights[index];
+        const day = new Date(`${date}T12:00`);
+        return {
+          label: day.toLocaleDateString(undefined, { weekday: 'narrow' }),
+          long: day.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
+          range: night ? placeNight(night, axis.startHour) : undefined,
+          detail: night ? shortHours(sleptMinutes(night)) : undefined,
+        };
+      })}
+    />
   );
 }
 
@@ -231,20 +266,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
               )}
             </section>
           )}
-          <ColumnChart
-            title="Last 14 nights"
-            unit="h"
-            days={Array.from({ length: 14 }, (_, index) => {
-              const date = addDays(today, index - 13);
-              const record = all.find((each) => each.date === date);
-              const day = new Date(`${date}T12:00`);
-              return {
-                label: day.toLocaleDateString(undefined, { weekday: 'narrow' }),
-                long: day.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }),
-                value: record ? Math.round((sleptMinutes(record) / 60) * 10) / 10 : undefined,
-              };
-            })}
-          />
+          <NightsChart records={all} today={today} bedtime={current.bedtime} sleepHours={current.sleepHours} />
 
           <div className="section-head">
             <h2>Nights</h2>
