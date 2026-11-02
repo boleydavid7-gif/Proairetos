@@ -142,7 +142,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
       </label>
 
       <label className="field">
-        <span className="label">Ingredients, one per line</span>
+        <span className="label">Ingredients</span>
         <textarea
           className="area"
           value={ingredients}
@@ -152,12 +152,12 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
       </label>
 
       <label className="field">
-        <span className="label">Steps, a blank line between each</span>
+        <span className="label">Steps</span>
         <textarea className="area" value={steps} onChange={(event) => setSteps(event.target.value)} />
       </label>
 
       <label className="field">
-        <span className="label">Your words for it, with commas</span>
+        <span className="label">Tags</span>
         <input className="input" value={tags} onChange={(event) => setTags(event.target.value)} />
       </label>
 
