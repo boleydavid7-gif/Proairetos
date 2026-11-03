@@ -173,8 +173,8 @@ const csvCell = (value: unknown) => {
 };
 
 /** A readable copy of the recorded log for a spreadsheet or another running app. */
-export function logCsv(entries: readonly LogEntry[], unit: Unit): string {
-  const header = ['Date', 'Activity', `Distance (${unit})`, 'Duration', `Pace (/${unit})`, 'Average heart rate', 'Felt', 'Notes', 'Went well', 'Next time', 'Intention', 'Planned workout'];
+export function logCsv(entries: readonly LogEntry[], unit: Unit, shoeNames: Readonly<Record<string, string>> = {}): string {
+  const header = ['Date', 'Activity', `Distance (${unit})`, 'Duration', `Pace (/${unit})`, 'Average heart rate', 'Felt', 'Notes', 'Went well', 'Next time', 'Intention', 'Planned workout', 'Running shoes'];
   const rows = entries.map((entry) => {
     const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
     return [
@@ -190,6 +190,7 @@ export function logCsv(entries: readonly LogEntry[], unit: Unit): string {
       entry.nextTime,
       entry.intention,
       entry.workoutTitle,
+      entry.shoeId ? shoeNames[entry.shoeId] ?? '' : '',
     ].map(csvCell).join(',');
   });
   return [header.map(csvCell).join(','), ...rows].join('\r\n') + '\r\n';
