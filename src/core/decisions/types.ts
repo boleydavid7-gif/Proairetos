@@ -5,6 +5,8 @@
 export interface Decision {
   id: string;
   userId: string;
+  /** Hidden from active decision views, but retained in the archive. */
+  archivedAt?: string;
   /** The Thinking about item this came from, if any. */
   lifeItemId?: string;
   /** The Pursuit this decision helps work through, if any. */
