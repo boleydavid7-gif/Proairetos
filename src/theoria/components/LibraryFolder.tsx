@@ -39,10 +39,10 @@ function FolderBrowser({ provider, onChosen, onClose }: { provider: CloudProvide
           {folders.map((folder) => (
             <li key={folder.id}><button type="button" className="row" onClick={() => setTrail([...trail, { id: folder.id, name: folder.name, path: folder.path }])}>{icon()}<span className="row__text"><span>{folder.name}</span></span></button></li>
           ))}
-          {!folders.length && <li><p className="muted theoria-folder-browser__empty">No folders inside.</p></li>}
+          {!folders.length && <li><p className="muted theoria-folder-browser__empty">No folders.</p></li>}
         </ul>
       )}
-      {entries && <p className="muted">{books === 0 ? 'No books directly in this folder.' : books === 1 ? 'One book directly in this folder.' : `${books} books directly in this folder.`} Subfolders are read too.</p>}
+      {entries && <p className="muted">{books === 0 ? 'No books directly in this folder.' : books === 1 ? 'One book directly in this folder.' : `${books} books directly in this folder.`} Subfolders included.</p>}
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onClose}>Cancel</button>
         {here.id !== undefined || provider === 'dropbox' ? (
@@ -115,7 +115,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
               {icon()}
               <span className="row__text">
                 <span>{cloud.name}</span>
-                <span className="row__detail">{connectedHere ? `${CLOUD_NAMES[cloud.provider]} · ${busy ? 'looking…' : 'look for new books now'}` : `${CLOUD_NAMES[cloud.provider]} · connect it on this device too`}</span>
+                <span className="row__detail">{connectedHere ? `${CLOUD_NAMES[cloud.provider]} · ${busy ? 'looking…' : 'check for books'}` : `${CLOUD_NAMES[cloud.provider]} · connect on this device`}</span>
               </span>
             </button>
           </li>
