@@ -70,7 +70,7 @@ export function periodComparison(period: Period, today: string): PeriodCompariso
     return {
       current: { from, to: today },
       previous: { from: addDays(from, -7), to: addDays(today, -7) },
-      label: 'the same days last week',
+      label: 'last week',
     };
   }
 
@@ -82,7 +82,7 @@ export function periodComparison(period: Period, today: string): PeriodCompariso
     return {
       current: { from, to: today },
       previous: { from: toLocalDate(previousStart), to: previousTo },
-      label: 'the same days last month',
+      label: 'last month',
     };
   }
 
@@ -93,7 +93,7 @@ export function periodComparison(period: Period, today: string): PeriodCompariso
       from: `${year - 1}-01-01`,
       to: toLocalDate(new Date(year - 1, month, Math.min(day, previousLastDay))),
     },
-    label: 'the same dates last year',
+    label: 'last year',
   };
 }
 
