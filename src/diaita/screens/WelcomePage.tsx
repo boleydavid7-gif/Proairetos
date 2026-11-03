@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: DiaitaNav }) {
       name="Diaita"
       mark={<AppMark app="diaita" size={44} light />}
       line="Sleep, light, food and caffeine."
-      about="Planned around your schedule in Proairetos: days, evenings, nights or none."
+      about="Fits your day, evening or night schedule."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {
