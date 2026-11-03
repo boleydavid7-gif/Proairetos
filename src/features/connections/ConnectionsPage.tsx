@@ -589,10 +589,12 @@ export default function ConnectionsPage() {
           <button type="button" role="tab" aria-selected={view === 'library'} onClick={() => setView('library')}>Library <span>{libraryCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'saved'} onClick={() => setView('saved')}>Saved <span>{savedCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{archivedCount}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'trash'} onClick={() => setView('trash')}>Recently Deleted <span>{trashCount}</span></button>
         </div>
         <div className="connections-mode__summary">
           <span className="connections-total">{visibleRecords.length < scoped.length ? 'Showing ' + visibleRecords.length + ' of ' + scoped.length : scoped.length + (scoped.length === 1 ? ' entry' : ' entries')}</span>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all</button>}
+          {view === 'trash' && trashCount > 0 && <button type="button" className="connections-clear-all connections-empty-trash" onClick={emptyTrash}>Empty trash</button>}
           <button type="button" className="connections-select-toggle button-quiet" aria-pressed={selectionMode} onClick={toggleSelectionMode}>
             {selectionMode ? 'Done selecting' : 'Select'}
           </button>
@@ -664,37 +666,45 @@ export default function ConnectionsPage() {
           </div>
 
           {selectedRecords.length > 0 ? (
-            <div className="connections-bulk__body">
+            view === 'trash' ? (
               <div className="connections-bulk__actions">
-                {selectedSavedCount < selectedRecords.length && (
-                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
-                )}
-                {selectedSavedCount > 0 && (
-                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
-                )}
-                {selectedArchivableCount > 0 && (
-                  <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
-                    {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
-                  </button>
-                )}
+                <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkRestoreFromTrash()}>Restore {selectedTrashedCount}</button>
+                <button type="button" className="button-quiet connections-action--destructive" disabled={bulkBusy} onClick={bulkPermanentlyRemove}>Remove permanently</button>
               </div>
+            ) : (
+              <div className="connections-bulk__body">
+                <div className="connections-bulk__actions">
+                  {selectedSavedCount < selectedRecords.length && (
+                    <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
+                  )}
+                  {selectedSavedCount > 0 && (
+                    <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
+                  )}
+                  {selectedArchivableCount > 0 && (
+                    <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
+                      {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
+                    </button>
+                  )}
+                  <button type="button" className="button-quiet connections-action--destructive" disabled={bulkBusy} onClick={() => void bulkMoveToTrash()}>Move to Recently Deleted</button>
+                </div>
 
-              <div className="connections-bulk__connections">
-                <label>
-                  <span>Compass value</span>
-                  <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
-                    <option value="">Choose a value</option>
-                    {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
-                  </select>
-                </label>
-                <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
-                <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
-                  Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
-                </button>
+                <div className="connections-bulk__connections">
+                  <label>
+                    <span>Compass value</span>
+                    <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
+                      <option value="">Choose a value</option>
+                      {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
+                    </select>
+                  </label>
+                  <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
+                  <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
+                    Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
+                  </button>
+                </div>
               </div>
-            </div>
+            )
           ) : (
-            <p className="connections-bulk__hint">Select entries below to save, archive, restore or connect them to a Compass value.</p>
+            <p className="connections-bulk__hint">{view === 'trash' ? 'Select deleted entries to restore them or permanently remove them from Reflect.' : 'Select entries below to save, archive, restore or connect them to a Compass value.'}</p>
           )}
         </section>
       )}
@@ -703,14 +713,73 @@ export default function ConnectionsPage() {
 
       {scoped.length === 0 ? (
         <div className="connections-empty">
-          <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
-          <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
-          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
+          <span className="connections-empty__mark"><Sym name={view === 'trash' ? 'trash-2' : view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
+          <p className="connections-empty__title">{view === 'trash' ? 'Recently Deleted is empty.' : view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'trash' ? 'Entries you move here stay for 30 days. Removing them from Reflect never deletes the original in its source app.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
         <div className="connections-groups">
-          {groups.map((group) => (
+          {groupBy === 'month' ? yearGroups.map((year, yearIndex) => {
+            const yearExpanded = expandedYears[year.key] ?? yearIndex === 0;
+            const visibleMonths = year.months.filter((month) => month.records.some((record) => visibleRecordKeys.has(record.key)));
+            return (
+              <section className="connections-year" key={year.key}>
+                <button type="button" className="connections-year__toggle" aria-expanded={yearExpanded} onClick={() => setExpandedYears((current) => ({ ...current, [year.key]: !yearExpanded }))}>
+                  <span className="connections-year__title"><Sym name={yearExpanded ? 'chevron-down' : 'chevron-right'} size={17} /> {year.label}</span>
+                  <span className="connections-year__count">{year.records.length}</span>
+                </button>
+                {yearExpanded && (
+                  <div className="connections-year__months">
+                    {visibleMonths.map((month, monthIndex) => {
+                      const monthKey = `${year.key}:${month.key}`;
+                      const monthExpanded = expandedMonths[monthKey] ?? (yearIndex === 0 && monthIndex === 0);
+                      const monthVisibleRecords = month.records.filter((record) => visibleRecordKeys.has(record.key));
+                      return (
+                        <section className="connections-month" key={month.key}>
+                          <button type="button" className="connections-month__toggle" aria-expanded={monthExpanded} onClick={() => setExpandedMonths((current) => ({ ...current, [monthKey]: !monthExpanded }))}>
+                            <span className="connections-month__title"><Sym name={monthExpanded ? 'chevron-down' : 'chevron-right'} size={15} /> {month.label}</span>
+                            <span className="connections-month__count">{month.records.length}</span>
+                          </button>
+                          {monthExpanded && (
+                            <ol className="connections-list">
+                              {monthVisibleRecords.map((record) => (
+                                <LibraryRecordItem
+                                  key={record.key}
+                                  record={record}
+                                  saved={favoriteKeys.has(record.key)}
+                                  trashed={view === 'trash'}
+                                  expiresAt={trashByRecord.get(record.key) && !trashByRecord.get(record.key)?.deletedAt ? new Date(new Date(trashByRecord.get(record.key)!.trashedAt).getTime() + LIBRARY_TRASH_RETENTION_DAYS * 86_400_000).toISOString() : undefined}
+                                  selectionMode={selectionMode}
+                                  selected={selectedKeys.has(record.key)}
+                                  availableValues={valueOptions}
+                                  relatedRecords={relatedLifeRecords(record, relationPool, 3)}
+                                  busy={bulkBusy || busyId === record.key}
+                                  onToggleFavorite={toggleFavorite}
+                                  onToggleSelected={toggleSelected}
+                                  onOpen={openRecord}
+                                  onArchive={(entry) => void archive(entry)}
+                                  onRestore={(entry) => void restore(entry)}
+                                  onMoveToTrash={moveRecordToTrash}
+                                  onRestoreFromTrash={restoreRecordFromTrash}
+                                  onPermanentlyRemove={permanentlyRemoveRecord}
+                                  onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
+                                  onLinkValue={linkValue}
+                                  onFilterValue={setValueId}
+                                  onFindRelated={findRelated}
+                                  onSaveReflection={saveEdit}
+                                />
+                              ))}
+                            </ol>
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          }) : groups.map((group) => (
             <section className="connections-group" key={group.key}>
               {groupBy !== 'none' && (
                 <header className="connections-group__heading">
@@ -724,6 +793,8 @@ export default function ConnectionsPage() {
                     key={record.key}
                     record={record}
                     saved={favoriteKeys.has(record.key)}
+                    trashed={view === 'trash'}
+                    expiresAt={trashByRecord.get(record.key) && !trashByRecord.get(record.key)?.deletedAt ? new Date(new Date(trashByRecord.get(record.key)!.trashedAt).getTime() + LIBRARY_TRASH_RETENTION_DAYS * 86_400_000).toISOString() : undefined}
                     selectionMode={selectionMode}
                     selected={selectedKeys.has(record.key)}
                     availableValues={valueOptions}
@@ -734,6 +805,9 @@ export default function ConnectionsPage() {
                     onOpen={openRecord}
                     onArchive={(entry) => void archive(entry)}
                     onRestore={(entry) => void restore(entry)}
+                    onMoveToTrash={moveRecordToTrash}
+                    onRestoreFromTrash={restoreRecordFromTrash}
+                    onPermanentlyRemove={permanentlyRemoveRecord}
                     onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
                     onLinkValue={linkValue}
                     onFilterValue={setValueId}
