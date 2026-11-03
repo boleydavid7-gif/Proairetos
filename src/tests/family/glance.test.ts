@@ -20,9 +20,9 @@ const bill = (over: Partial<Bill>): Bill => ({
 });
 
 describe('bills coming up on Today', () => {
-  it('lists bills from today through three days ahead, with plain words for when', () => {
+  it('lists bills from today through three days ahead with their exact due dates', () => {
     const soon = billsSoon([bill({ dueDate: '2026-10-09', name: 'Electric', frequency: 'once' }), bill({ dueDate: '2026-10-10' }), bill({ dueDate: '2026-10-12', name: 'Water' }), bill({ dueDate: '2026-10-20', name: 'Far' })], '2026-10-09');
-    expect(soon.map((b) => `${b.name} ${b.when}`)).toEqual(['Electric today', 'Rent tomorrow', 'Water in 3 days']);
+    expect(soon.map((b) => [b.name, b.date])).toEqual([['Electric', '2026-10-09'], ['Rent', '2026-10-10'], ['Water', '2026-10-12']]);
   });
 
   it('leaves out a date that has a payment recorded, and anything already past', () => {
