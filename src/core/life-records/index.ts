@@ -96,6 +96,7 @@ function pursuitRecord(entry: PursuitRecord): LifeRecord {
   return record({
     key: `pursuit:${entry.id}`,
     kind: 'pursuit',
+    sourceApp: 'compass',
     source: 'Compass',
     sourceId: entry.id,
     at: entry.status === 'archived' ? entry.updatedAt : entry.createdAt,
