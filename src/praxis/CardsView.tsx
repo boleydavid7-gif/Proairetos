@@ -212,15 +212,15 @@ export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeIt
             ) : (
               <button type="button" className="praxis-button" onClick={() => setShown(true)}>Show the answer</button>
             )}
-            <button type="button" className="praxis-text-button" onClick={() => setSitting(undefined)}>Stop here</button>
+            <button type="button" className="praxis-text-button" onClick={() => setSitting(undefined)}>Stop</button>
           </>
         ) : readyNow.length > 0 ? (
           <>
             <h2>{readyNow.length === 1 ? 'One card is ready' : `${readyNow.length} cards are ready`}</h2>
-            <button type="button" className="praxis-button" onClick={begin}>Look at them</button>
+            <button type="button" className="praxis-button" onClick={begin}>Review cards</button>
           </>
         ) : (
-          <p className="praxis-empty">{next ? `The next ones come around on ${dayLabel(next)}.` : 'Nothing ready.'}</p>
+          <p className="praxis-empty">{next ? `Next review: ${dayLabel(next)}.` : 'Nothing ready.'}</p>
         )}
       </article>}
 
@@ -229,7 +229,7 @@ export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeIt
           <p className="praxis-eyebrow">New card{filter ? ` · ${titleOf(filter)}` : ''}{from ? ` · from ${from}` : ''}</p>
           <div className="praxis-card-form__links">
             {from && <button type="button" className="praxis-text-button" onClick={() => { setFront(''); setBack(''); setFrom(undefined); }}>Cancel</button>}
-            <button type="button" className="praxis-text-button" onClick={() => setMany(!many)}>{many ? 'One at a time' : 'Several at once'}</button>
+            <button type="button" className="praxis-text-button" onClick={() => setMany(!many)}>{many ? 'One at a time' : 'Bulk add'}</button>
           </div>
         </div>
         {isAdded('theoria') && (
@@ -247,10 +247,10 @@ export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeIt
                 </li>
               ))}
             </ul>
-          ) : <p className="praxis-empty">No highlights to use yet.</p>
+          ) : <p className="praxis-empty">No highlights yet.</p>
         )}
         {many ? (
-          <label><span>One per line: question :: answer</span><textarea rows={5} value={lines} onChange={(event) => setLines(event.target.value)} /></label>
+          <label><span>Question :: answer (one per line)</span><textarea rows={5} value={lines} onChange={(event) => setLines(event.target.value)} /></label>
         ) : (
           <>
             <label><span>Question</span><input ref={questionRef} value={front} maxLength={300} onChange={(event) => setFront(event.target.value)} /></label>
@@ -292,9 +292,9 @@ export function CardsView({ blocks, today, say, startBlockId }: { blocks: LifeIt
         </article>
       )}
       <div className="praxis-card-files">
-        <button type="button" className="praxis-text-button" onClick={() => fileRef.current?.click()}>Bring in a file (CSV)</button>
+        <button type="button" className="praxis-text-button" onClick={() => fileRef.current?.click()}>Import CSV</button>
         <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-        {cards.length > 0 && <button type="button" className="praxis-text-button" onClick={() => download(`praxis-cards-${today}.csv`, cardsCsv(cards, titleOf))}>Download the cards (CSV)</button>}
+        {cards.length > 0 && <button type="button" className="praxis-text-button" onClick={() => download(`praxis-cards-${today}.csv`, cardsCsv(cards, titleOf))}>Export CSV</button>}
       </div>
       <p className="praxis-source">{CARDS_SOURCE}</p>
     </section>
