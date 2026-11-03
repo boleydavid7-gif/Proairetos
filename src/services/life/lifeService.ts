@@ -125,17 +125,17 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     /** The person's own items. Items a family app keeps for itself (Praxis study blocks) are left out. */
     async list(): Promise<LifeItem[]> {
-      return (await items.list(userId)).filter((item) => !item.app).map(present);
+      return (await items.list(userId)).filter((item) => !item.app && !item.archivedAt).map(present);
     },
 
     /** Everything, a family app's items included (goals count their steps from all of them). */
-    async listAll(): Promise<LifeItem[]> {
-      return (await items.list(userId)).map(present);
+    async listAll(includeArchived = false): Promise<LifeItem[]> {
+      return (await items.list(userId)).filter((item) => includeArchived || !item.archivedAt).map(present);
     },
 
     /** One family app's own items. */
     async listForApp(app: LifeItemApp): Promise<LifeItem[]> {
-      return (await items.list(userId)).filter((item) => item.app === app).map(present);
+      return (await items.list(userId)).filter((item) => item.app === app && !item.archivedAt).map(present);
     },
 
     /** Changes the minutes of a recorded focus session (a correction), with an undo. */
@@ -209,7 +209,7 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     /** The history of the person's own items; with `includeApps`, a family app's items too. */
     async historyForAll(includeApps = false): Promise<ItemEvent[]> {
-      const all = (await items.list(userId)).filter((item) => includeApps || !item.app);
+      const all = (await items.list(userId)).filter((item) => !item.archivedAt && (includeApps || !item.app));
       return events.listForItems(all.map((item) => item.id));
     },
 
