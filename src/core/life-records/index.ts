@@ -104,7 +104,7 @@ function pursuitRecord(entry: PursuitRecord): LifeRecord {
     at: entry.createdAt,
     title: entry.title,
     detail: join(status, entry.area),
-    body: join(entry.outcome, entry.why, entry.current, entry.nextMove ? `Next: ${entry.nextMove}` : undefined),
+    body: join(entry.outcome, entry.why, entry.current, entry.friction, entry.approach, entry.reviewNote, entry.nextMove ? `Next: ${entry.nextMove}` : undefined),
     valueIds: Object.keys(entry.valueNotes ?? {}),
     archived: entry.status === 'archived',
   });
@@ -121,7 +121,7 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
     at: entry.createdAt,
     title: entry.title,
     detail: join(type, status),
-    body: join(entry.notes, entry.location ? `Place: ${entry.location}` : undefined),
+    body: join(entry.notes, entry.nextStep ? `Next step: ${entry.nextStep}` : undefined, entry.nextStepCue ? `When: ${entry.nextStepCue}` : undefined, entry.ifObstacle ? `If blocked: ${entry.ifObstacle}` : undefined, entry.location ? `Place: ${entry.location}` : undefined),
     valueIds: entry.valueIds ?? [],
     archived: Boolean(entry.archivedAt),
   });
