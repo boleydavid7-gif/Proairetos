@@ -167,7 +167,7 @@ function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeReco
           body: recipe.notes,
           valueIds: [],
           archived: false,
-          searchParts: [day, ...recipe.tags, ...recipe.ingredients, recipe.source],
+          searchParts: [day, ...(recipe.tags ?? []), ...(recipe.ingredients ?? []), recipe.source],
         });
       }),
   );
