@@ -55,8 +55,8 @@ function StepEditor({
         </label>
       </div>
       {showTools && <div className="own-step__tools">
-        <button type="button" className="icon-button" aria-label="Move step up" disabled={first} onClick={onMoveUp}><Sym name="chevron-up" /></button>
-        <button type="button" className="icon-button" aria-label="Move step down" disabled={last} onClick={onMoveDown}><Sym name="chevron-down" /></button>
+        <button type="button" className="icon-button" aria-label="Move step up" disabled={first} onClick={onMoveUp}><Sym name="arrowUp" /></button>
+        <button type="button" className="icon-button" aria-label="Move step down" disabled={last} onClick={onMoveDown}><Sym name="arrowDown" /></button>
         <button type="button" className="text-link own-step__remove" onClick={onRemove}>Remove</button>
       </div>}
       <label className="own-step__note">
@@ -118,8 +118,8 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
                 <strong>{part.repeat} repeats</strong>
               </div>
               <div className="own-part__actions">
-                <button type="button" className="icon-button" aria-label="Move interval set up" disabled={index === 0} onClick={() => setParts((before) => move(before, index, index - 1))}><Sym name="chevron-up" /></button>
-                <button type="button" className="icon-button" aria-label="Move interval set down" disabled={index === parts.length - 1} onClick={() => setParts((before) => move(before, index, index + 1))}><Sym name="chevron-down" /></button>
+                <button type="button" className="icon-button" aria-label="Move interval set up" disabled={index === 0} onClick={() => setParts((before) => move(before, index, index - 1))}><Sym name="arrowUp" /></button>
+                <button type="button" className="icon-button" aria-label="Move interval set down" disabled={index === parts.length - 1} onClick={() => setParts((before) => move(before, index, index + 1))}><Sym name="arrowDown" /></button>
                 <button type="button" className="text-link" onClick={() => setParts((before) => before.filter((_, at) => at !== index))}>Remove set</button>
               </div>
             </div>
@@ -149,8 +149,8 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
             <div className="own-part__head">
               <span className="card__eyebrow">Step {index + 1}</span>
               <div className="own-part__actions">
-                <button type="button" className="icon-button" aria-label="Move step up" disabled={index === 0} onClick={() => setParts((before) => move(before, index, index - 1))}><Sym name="chevron-up" /></button>
-                <button type="button" className="icon-button" aria-label="Move step down" disabled={index === parts.length - 1} onClick={() => setParts((before) => move(before, index, index + 1))}><Sym name="chevron-down" /></button>
+                <button type="button" className="icon-button" aria-label="Move step up" disabled={index === 0} onClick={() => setParts((before) => move(before, index, index - 1))}><Sym name="arrowUp" /></button>
+                <button type="button" className="icon-button" aria-label="Move step down" disabled={index === parts.length - 1} onClick={() => setParts((before) => move(before, index, index + 1))}><Sym name="arrowDown" /></button>
                 <button type="button" className="text-link" onClick={() => setParts((before) => before.filter((_, at) => at !== index))}>Remove</button>
               </div>
             </div>
