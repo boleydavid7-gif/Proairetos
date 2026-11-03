@@ -275,19 +275,35 @@ describe('a household', () => {
     await household.makeHousehold('Family');
     await household.shareApp('ergon');
     const invite = { ...household.household()! };
+    const ownerDevice = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
 
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
     const appList = homes.sharedLists()[0]!;
+    const memberDevice = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(true);
 
     user = 'user-a';
+    localStorage.clear();
+    for (const [key, value] of Object.entries(ownerDevice)) localStorage.setItem(key, value);
     await household.removeHouseholdMember('user-b');
     expect(tables.shared_list_members.some((row) => row.list_id === invite.id && row.user_id === 'user-b')).toBe(false);
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(false);
 
     user = 'user-b';
+    localStorage.clear();
+    for (const [key, value] of Object.entries(memberDevice)) localStorage.setItem(key, value);
     expect(navigator.onLine).toBe(true);
     expect((await client.from('shared_lists').select().eq('id', invite.id).maybeSingle()).data).toBeNull();
     await household.syncHousehold();
