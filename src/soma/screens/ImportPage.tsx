@@ -20,7 +20,7 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
     setReading(0);
     void readPhotoText(file, setReading)
       .then(setText)
-      .catch(() => setProblem('Couldn’t read the card. Try a closer, straighter photo in good light.'))
+      .catch(() => setProblem('Couldn’t read it. Try a clearer photo.'))
       .finally(() => setReading(undefined));
   };
 
@@ -49,12 +49,12 @@ function RecipePhoto({ onUse }: { onUse: (text: string) => void }) {
       {text && (
         <>
           <label className="field">
-            <span className="label">Text from the photo</span>
+            <span className="label">Photo text</span>
             <textarea className="area recipe-photo-import__text" rows={12} value={text} onChange={(event) => setText(event.target.value)} />
           </label>
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => onUse(text)}>
-              Use this text
+              Continue
             </button>
             <button type="button" className="button-quiet" onClick={() => input.current?.click()}>
               Another photo
@@ -85,10 +85,10 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
     try {
       const response = await fetch(apiUrl(`/api/recipe?url=${encodeURIComponent(address)}`));
       const body = (await response.json()) as { url?: string; blocks?: string[]; title?: string; image?: string; error?: string };
-      if (!response.ok) throw new Error(body.error ?? 'That page could not be read.');
+      if (!response.ok) throw new Error(body.error ?? 'Couldn’t read page.');
       const draft = fromJsonLd(body.blocks ?? [], body.url ?? address);
       if (!draft || (!draft.ingredients.length && !draft.steps.length)) {
-        setProblem('No recipe was found on that page. Copy the recipe text and paste it here instead.');
+        setProblem('No recipe found. Paste the recipe text instead.');
         setHow('text');
         return;
       }
@@ -96,7 +96,7 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
       nav.swap({ name: 'edit' });
     } catch (cause) {
       // A TypeError is the browser saying the network could not be reached.
-      setProblem(cause instanceof Error && !(cause instanceof TypeError) ? cause.message : 'That page could not be reached. Check the connection and try again.');
+      setProblem(cause instanceof Error && !(cause instanceof TypeError) ? cause.message : 'Page unavailable. Check your connection.');
     } finally {
       setBusy(false);
     }
@@ -121,7 +121,7 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
       {how === 'link' ? (
         <>
           <label className="field">
-            <span className="label">The recipe’s web address</span>
+            <span className="label">Recipe URL</span>
             <input
               className="input"
               type="url"
@@ -133,13 +133,13 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
             />
           </label>
           <button type="button" className="button-main" disabled={!link.trim() || busy} onClick={() => void readLink()}>
-            {busy ? <Waiting>Reading the page…</Waiting> : 'Bring it in'}
+            {busy ? <Waiting>Reading the page…</Waiting> : 'Import recipe'}
           </button>
         </>
       ) : how === 'text' ? (
         <>
           <label className="field">
-            <span className="label">The recipe, as text</span>
+            <span className="label">Recipe text</span>
             <textarea
               className="area"
               value={text}
@@ -156,7 +156,7 @@ export default function ImportPage({ nav, how: opening }: { nav: Nav; how?: 'app
               nav.swap({ name: 'edit' });
             }}
           >
-            Split it up
+            Review recipe
           </button>
         </>
       ) : how === 'app' ? (
