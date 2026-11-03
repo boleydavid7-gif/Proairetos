@@ -36,7 +36,7 @@ function dateLabel(value: string): string {
     : 'Date unavailable';
 }
 
-function includesText(query: string, ...parts: Array<string | undefined>): boolean {
+function includesText(query: string, ...parts: Array<string | null | undefined>): boolean {
   if (!query) return true;
   return parts.some((part) => part?.toLocaleLowerCase().includes(query));
 }
