@@ -14,7 +14,7 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
     void refreshStore().then(() => refreshOwned());
   }, []);
   if (shown) return <>{children}</>;
-  // An app no longer offered (Hydros, hidden for now) is not opened or offered; its records are kept.
+  // A retired app (currently Praxis) is not opened or offered; its records are kept.
   if (NOT_OFFERED.has(app)) {
     const name = app[0].toUpperCase() + app.slice(1);
     return (

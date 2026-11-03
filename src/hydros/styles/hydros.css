@@ -1196,3 +1196,64 @@ body:has(.hydros-shell) { min-height: 100dvh; }
   background: var(--cyan);
   color: var(--cyan-ink);
 }
+
+
+/* Hydros uses Lamplight's opaque materials for every control surface. The photograph is the scene;
+   cards, drink choices and chart panels remain solid and readable above it. */
+.flow-period,
+.flow-chart-card {
+  border: 1px solid var(--ll-hair);
+  background: var(--ll-material-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-add__stage .drink-types button::before {
+  border: 1px solid var(--ll-hair);
+  background: var(--ll-material-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-add__stage .drink-types button.is-selected::before {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  box-shadow: var(--ll-lamp-light);
+}
+
+.hydros-custom-fields {
+  border: 1px solid var(--ll-hair);
+  background: var(--ll-material-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-custom-fields input {
+  border: 0;
+  background: var(--ll-material-inset);
+  color: var(--text);
+}
+
+.hydros-add__stage .amount-picker button {
+  border: 1px solid var(--ll-hair);
+  background: var(--ll-material-inset);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-add__stage .amount-picker strong {
+  background: var(--ll-material-solid);
+  box-shadow: var(--ll-light-1);
+}
+
+.hydros-orb__set {
+  border-color: var(--ll-hair);
+  background: var(--ll-material-inset);
+  color: var(--text);
+}
+
+@media (min-width: 62rem) {
+  .hydros-tabs__item:hover {
+    background: var(--ll-state-hover);
+  }
+
+  .hydros-tabs__item[aria-current='page'] {
+    background: var(--ll-state-selected);
+  }
+}
