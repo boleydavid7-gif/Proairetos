@@ -201,7 +201,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             ))}
           </ul>
         )}
-        <AddLine label="Something to remember" onAdd={(text) => change({ notes: [...person.notes, { id: newId(), text, at: at() }] })} />
+        <AddLine label="Note" onAdd={(text) => change({ notes: [...person.notes, { id: newId(), text, at: at() }] })} />
       </Section>
 
       <Section title="Gift ideas">
@@ -229,7 +229,7 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             ))}
           </ul>
         )}
-        <AddLine label="A gift idea" onAdd={(text) => change({ gifts: [...person.gifts, { id: newId(), text, at: at() }] })} />
+        <AddLine label="Gift idea" onAdd={(text) => change({ gifts: [...person.gifts, { id: newId(), text, at: at() }] })} />
       </Section>
 
       <Section title="Together and in touch">
