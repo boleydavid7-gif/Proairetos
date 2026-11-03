@@ -75,13 +75,12 @@ function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDa
   );
 }
 
-function MoreRow({ icon, title, detail, onClick }: { icon: React.ReactNode; title: string; detail?: string; onClick: () => void }) {
+function MoreRow({ icon, title, onClick }: { icon: React.ReactNode; title: string; onClick: () => void }) {
   return (
     <button type="button" className="settings-row" onClick={onClick}>
       <span className="settings-row__icon">{icon}</span>
       <span className="settings-row__text">
         <span>{title}</span>
-        {detail && <span className="settings-row__detail">{detail}</span>}
       </span>
       <ChevronRightIcon size={18} className="settings-row__chevron" />
     </button>
@@ -127,9 +126,6 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
         <span className="settings-row__icon"><BreatheIcon size={22} /></span>
         <span className="settings-row__text">
           <span>Daily check-in</span>
-          <span className="settings-row__detail">
-            {existing?.body || 'How are things today?'}
-          </span>
         </span>
         <span className="settings-row__value">{existing ? 'Done' : 'Start'}</span>
         <ChevronRightIcon size={18} className="settings-row__chevron reflect-checkin__chevron" />
@@ -198,14 +194,12 @@ export default function ReflectPage() {
           <MoreRow
             icon={<CompassIcon size={22} />}
             title="Compass"
-            detail="Your values and direction."
             onClick={() => navigate('compass')}
           />
           {shows('insights') && (
             <MoreRow
               icon={<BreatheIcon size={22} />}
               title="Insights"
-              detail="A clear look at what you’ve recorded."
               onClick={() => navigate('insights')}
             />
           )}
@@ -213,7 +207,6 @@ export default function ReflectPage() {
             <MoreRow
               icon={<BookIcon size={22} />}
               title="Weekly review"
-              detail="A quiet look at the week."
               onClick={() => navigate('review')}
             />
           )}
@@ -221,7 +214,6 @@ export default function ReflectPage() {
             <MoreRow
               icon={<LotusIcon size={22} />}
               title="Meditate"
-              detail="Breathing, sounds and time to pause."
               onClick={() => navigate('meditate')}
             />
           )}
@@ -241,7 +233,7 @@ export default function ReflectPage() {
           </ol>
         ) : (
           <div className="reflect-recent__empty">
-            <p>{all ? 'Your reflections will gather here as you write them.' : 'Loading reflections…'}</p>
+            {!all && <p>Loading reflections…</p>}
             {all && <button type="button" className="text-link" onClick={openReflectionsLibrary}>Open Library</button>}
           </div>
         )}
