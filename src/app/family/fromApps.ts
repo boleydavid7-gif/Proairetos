@@ -18,7 +18,6 @@ export type FromAppsInput = {
   doses?: readonly Dose[];
   visits?: readonly Appointment[];
   upkeep?: readonly { upkeep: Upkeep; due: Due; thing?: string }[];
-  training?: { name: string; minutes: number };
   /** Recipes planned for today in Soma and not yet cooked today. */
   meals?: readonly Recipe[];
   /** "Since Tue", "Today": each app says its own days the same way. */
@@ -35,7 +34,7 @@ export type Mark =
 
 export type FromAppsRow = {
   key: string;
-  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'dynamis' | 'soma';
+  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'soma';
   part: TodayPart;
   title: string;
   detail: string;
@@ -49,7 +48,7 @@ export type FromAppsRow = {
 const open = (app: string, what: string) => `/${app}/?open=${encodeURIComponent(what)}`;
 const since = (text: string) => (text === 'Today' ? '' : text);
 
-/** The rows, in a steady order: doses by time, then chores, plants, upkeep, today's meals, and a training day last. */
+/** The actionable rows, in a steady order: doses by time, then chores, plants, upkeep and today's meals. */
 export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
@@ -70,9 +69,6 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   }
   for (const recipe of input.meals ?? []) {
     rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
-  }
-  if (input.training) {
-    rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min`, href: '/dynamis/?open=session' });
   }
   return rows;
 }
