@@ -13,7 +13,7 @@ import { useChores, putChore, myName as ergonName } from '../../ergon/app/state'
 import { markDone as choreDone, nextDay as choreDay, shownDay as choreShownDay } from '../../ergon/core/chores';
 import { useDaysOff } from '../../ergon/app/daysOff';
 import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
-import { dosesOn, isCurrent, take } from '../../therapeia/core/medicines';
+import { dosesOn, isCurrent, refillDay, take } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../../ktema/app/state';
 import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/core/things';
 import { useRecipesFromSoma } from '../../app/soma/meals';
@@ -102,6 +102,7 @@ export function useFromYourAppsRows(today: string): FromAppsRow[] {
     plants: shows('plants') ? plants.map((plant) => ({ plant, day: nextCheck(plant, today, phyton.hemisphere, rain, hot) })).filter((each) => each.day <= today).sort((a, b) => a.day.localeCompare(b.day) || a.plant.name.localeCompare(b.plant.name)) : [],
     chores: shows('chores') ? chores.map((chore) => { const day = choreDay(chore, choresOff); return { chore, day: day && choreShownDay(chore, day, today) }; }).filter((each): each is { chore: (typeof chores)[number]; day: string } => Boolean(each.day && each.day <= today)).sort((a, b) => a.day.localeCompare(b.day) || a.chore.name.localeCompare(b.chore.name)) : [],
     doses: shows('medicines') ? dosesOn(allMedicines.filter((medicine) => isCurrent(medicine, doseDay)), doseDay, anchors).filter((dose) => !dose.taken) : [],
+    refills: shows('medicines') ? allMedicines.map((medicine) => ({ medicine, day: refillDay(medicine, today) })).filter((entry): entry is { medicine: (typeof allMedicines)[number]; day: string } => Boolean(entry.day && entry.day <= addDays(today, 7))) : [],
     visits: shows('medicines') ? visits.filter((visit) => visit.at.slice(0, 10) === calendarToday) : [],
     upkeep: shows('upkeep') ? upkeepGrouped(upkeeps, owned, today).now.map((each) => ({ ...each, thing: owned.find((thing) => thing.id === each.upkeep.thingId)?.name })) : [],
     meals: shows('soma') ? recipes.filter((recipe) => recipe.planned?.includes(today) && !recipe.cooked?.includes(today)).sort((a, b) => a.title.localeCompare(b.title)) : [],
