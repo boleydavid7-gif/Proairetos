@@ -9,7 +9,7 @@ import { DAILY_PRACTICE_APPS, type AttentionApp, type DailyPracticeApp } from '.
 import { useDrinks as useHydrosDrinks, useSettings as useHydrosSettings } from '../../hydros/app/state';
 import { useDays as useHydrosDays } from '../../hydros/app/day';
 import { defaultDrinkProfiles, effectiveGoalOz, formatVolume, hydrationOz, type HydrosUnit } from '../../hydros/core/drinks';
-import { runLength, todaysRun, useRuns } from '../../app/askesis/runs';
+import { runLength, runTitle, todaysRun, useRuns } from '../../app/askesis/runs';
 import { plan as dynamisPlan, workouts as dynamisWorkouts, isSetup as isDynamisSetup } from '../../dynamis/app/state';
 import { isTrainingDay, nextSession, sessionsFor } from '../../dynamis/core/plan';
 import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
@@ -60,6 +60,7 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
 
   const runs = useRuns();
   const run = todaysRun(runs, today);
+  const completedRun = runs?.workouts.filter((entry) => entry.date === today).slice(-1)[0];
 
   const dynamisSetup = dynamisPlan.use();
   const strengthWorkouts = dynamisWorkouts.use();
@@ -89,6 +90,7 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
       : hydration > 0 ? `${formatVolume(hydration, unit)} ${unit} logged` : 'No drinks logged yet',
     askesis: runs === undefined ? 'Loading your plan…' : run
       ? [run.title, runLength(run)].filter(Boolean).join(' · ')
+      : completedRun ? `${runTitle(completedRun, runs.unit)} · Done today`
       : runs.plan ? 'No run scheduled today' : 'Start a running plan',
     dynamis: !strengthReady
       ? 'Set up strength training'
