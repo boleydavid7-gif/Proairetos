@@ -76,6 +76,14 @@ export default function ValueConnections({
     }
   }
 
+  function drawOnPrinciple(principle: string) {
+    setDraft((current) => {
+      const lines = current.split('\\n').map((line) => line.trim());
+      if (lines.includes(principle)) return current;
+      return current.trim() ? `${current.trim()}\\n${principle}` : principle;
+    });
+  }
+
   return (
     <div className="value-connections">
       <div className="value-connections__intro">
@@ -133,6 +141,21 @@ export default function ValueConnections({
         </ul>
       </Group>
 
+      {value.principles && value.principles.length > 0 && (
+        <section className="value-connections__principles" aria-label={`Principles for ${value.name}`}>
+          <span className="daily-line__label">Draw on one of your principles</span>
+          <ul>
+            {value.principles.map((principle) => (
+              <li key={principle}>
+                <button type="button" onClick={() => drawOnPrinciple(principle)}>
+                  <span>{principle}</span>
+                  <small>Add to reflection</small>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <form className="value-connections__form" onSubmit={addReflection}>
         <label className="daily-line__label" htmlFor={`value-reflection-${value.id}`}>Add a reflection about {value.name.toLowerCase()}</label>
         <textarea
