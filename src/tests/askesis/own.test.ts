@@ -34,6 +34,7 @@ describe('your own sessions', () => {
       'easy', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'steady', 'easy',
     ]);
     expect(ownWorkout(session)).toMatchObject({ id: 'own-3', kind: 'intervals', title: 'Progression intervals' });
+    expect(plainTitle({ ...session, title: '' })).toBe('40 min session');
   });
 
   it('keeps older saved sessions working when no custom sequence exists', () => {
