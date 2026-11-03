@@ -354,7 +354,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
       </section>
 
       {currentRole === 'owner' && !rolesReady ? (
-        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply migrations 20261104000000, 20261105000000 and 20261106000000 in Supabase first.</p>
+        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply the Family migrations listed in docs/SERVER_SETUP.md in Supabase first.</p>
       ) : currentRole === 'owner' ? (
         <section className="settings-group" aria-label="Household management">
           <h2 className="settings-group__label">Household management</h2>
