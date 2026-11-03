@@ -2,6 +2,23 @@ import type { LifeRecord } from './contract';
 
 export type LifeRecordGroupBy = 'month' | 'source' | 'none';
 
+export interface LifeRecordYearGroup {
+  key: string;
+  label: string;
+  records: LifeRecord[];
+  months: LifeRecordGroup[];
+}
+
+/** A Reflect Trash item expires after the configured retention period. */
+export function isLibraryTrashExpired(
+  trashedAt: string,
+  now = Date.now(),
+  retentionDays = 30,
+): boolean {
+  const timestamp = new Date(trashedAt).getTime();
+  return Number.isFinite(timestamp) && now - timestamp >= retentionDays * 86_400_000;
+}
+
 /** Only records with a safe, matching archive operation can be bulk archived or restored. */
 export function canArchiveLifeRecord(record: LifeRecord): boolean {
   return record.kind === 'reflection'
@@ -15,6 +32,43 @@ export interface LifeRecordGroup {
   key: string;
   label: string;
   records: LifeRecord[];
+}
+
+/**
+ * Build a Year → Month hierarchy from an already-sorted result set.
+ * Month and year counts remain accurate even when the UI only renders the first page.
+ */
+export function groupLifeRecordsByYear(records: readonly LifeRecord[]): LifeRecordYearGroup[] {
+  const years = new Map<string, LifeRecordYearGroup>();
+
+  for (const record of records) {
+    const date = new Date(record.at);
+    const validDate = Number.isFinite(date.getTime());
+    const yearKey = validDate ? String(date.getFullYear()) : 'unknown-date';
+    const yearLabel = validDate ? yearKey : 'Date unavailable';
+    const monthKey = validDate
+      ? `${yearKey}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      : 'unknown-date';
+    const monthLabel = validDate
+      ? date.toLocaleDateString(undefined, { month: 'long' })
+      : 'Date unavailable';
+
+    let year = years.get(yearKey);
+    if (!year) {
+      year = { key: yearKey, label: yearLabel, records: [], months: [] };
+      years.set(yearKey, year);
+    }
+    year.records.push(record);
+
+    let month = year.months.find((group) => group.key === monthKey);
+    if (!month) {
+      month = { key: monthKey, label: monthLabel, records: [] };
+      year.months.push(month);
+    }
+    month.records.push(record);
+  }
+
+  return [...years.values()];
 }
 
 /** Accent-insensitive, all-terms search. Word order no longer matters. */

@@ -13,8 +13,10 @@ import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } 
 import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
+import { loadLibraryTimelineExpansion, saveLibraryTimelineExpansion } from '../../app/library/timeline';
+import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
-import { canArchiveLifeRecord, groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
+import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, isLibraryTrashExpired, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -23,7 +25,7 @@ import { openPursuit } from '../compass/PursuitsSection';
 import LibraryRecordItem from './LibraryRecordItem';
 
 type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life' | 'thoughts' | 'travel' | 'financial';
-type View = 'library' | 'saved' | 'archived';
+type View = 'library' | 'saved' | 'archived' | 'trash';
 type Range = 'all' | '30' | '90' | '365';
 type SortOrder = 'newest' | 'oldest';
 
@@ -79,6 +81,7 @@ export default function ConnectionsPage() {
   const tripToday = poreiaToday();
   const favorites = libraryFavorites.use();
   const valueConnections = libraryValueConnections.use();
+  const trashEntries = libraryTrash.use();
 
   const [category, setCategory] = useState<Category>('all');
   const [view, setView] = useState<View>('library');
@@ -95,6 +98,9 @@ export default function ConnectionsPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
   const [bulkValueId, setBulkValueId] = useState('');
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [initialTimelineExpansion] = useState(loadLibraryTimelineExpansion);
+  const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(initialTimelineExpansion.years);
+  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>(initialTimelineExpansion.months);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
@@ -119,17 +125,31 @@ export default function ConnectionsPage() {
   }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
   const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
 
+  const trashByRecord = useMemo(() => new Map(trashEntries.map((entry) => [entry.id, entry])), [trashEntries]);
+  const trashedKeys = useMemo(() => new Set(trashEntries.filter((entry) => !entry.deletedAt).map((entry) => entry.id)), [trashEntries]);
+  const deletedKeys = useMemo(() => new Set(trashEntries.filter((entry) => Boolean(entry.deletedAt)).map((entry) => entry.id)), [trashEntries]);
   const records = useMemo(
     () => mergeLibraryValueConnections(sourceRecords, valueConnections),
     [sourceRecords, valueConnections],
   );
+  const notPermanentlyRemovedRecords = useMemo(
+    () => records.filter((record) => !deletedKeys.has(record.key)),
+    [records, deletedKeys],
+  );
+  const activeRecords = useMemo(
+    () => notPermanentlyRemovedRecords.filter((record) => !trashedKeys.has(record.key)),
+    [notPermanentlyRemovedRecords, trashedKeys],
+  );
   const query = search.trim();
   const hasFilters = Boolean(query || category !== 'all' || valueId || sourceApp || range !== 'all');
-  const availableRecords = useMemo(() => records.filter((record) => {
-    if (view === 'archived' ? !record.archived : record.archived) return false;
-    if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
-    return true;
-  }), [records, view, favoriteKeys]);
+  const availableRecords = useMemo(() => {
+    if (view === 'trash') return notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key));
+    return activeRecords.filter((record) => {
+      if (view === 'archived' ? !record.archived : record.archived) return false;
+      if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
+      return true;
+    });
+  }, [activeRecords, notPermanentlyRemovedRecords, trashedKeys, view, favoriteKeys]);
   const sourceOptions = useMemo(() => {
     const options = new Map<string, string>();
     availableRecords.forEach((record) => options.set(record.sourceApp, record.source));
@@ -157,28 +177,129 @@ export default function ConnectionsPage() {
     });
     return counts;
   }, [baseScoped]);
-  const libraryCount = records.filter((record) => !record.archived).length;
-  const savedCount = records.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
-  const archivedCount = records.filter((record) => record.archived).length;
+  const libraryCount = activeRecords.filter((record) => !record.archived).length;
+  const savedCount = activeRecords.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
+  const archivedCount = activeRecords.filter((record) => record.archived).length;
+  const trashCount = trashEntries.filter((entry) => !entry.deletedAt).length;
   const relationPool = useMemo(
-    () => records.filter((record) => record.archived === (view === 'archived')),
-    [records, view],
+    () => activeRecords.filter((record) => record.archived === (view === 'archived')),
+    [activeRecords, view],
   );
 
   useEffect(() => {
     setVisibleCount(30);
     setSelectedKeys(new Set());
   }, [category, view, range, sortOrder, valueId, sourceApp, query]);
+  useEffect(() => {
+    saveLibraryTimelineExpansion({ years: expandedYears, months: expandedMonths });
+  }, [expandedYears, expandedMonths]);
+  useEffect(() => {
+    const now = Date.now();
+    trashEntries.forEach((entry) => {
+      if (entry.deletedAt || !isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) return;
+      setLibraryFavorite(entry.id, false);
+      valueConnectionByRecord.get(entry.id)?.valueIds.forEach((linkedValueId) => setLibraryValueConnection(entry.id, linkedValueId, false));
+    });
+    expireLibraryTrash(trashEntries, now);
+  }, [trashEntries, valueConnectionByRecord]);
   const visibleRecords = scoped.slice(0, visibleCount);
   const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
+  const yearGroups = useMemo(() => groupLifeRecordsByYear(scoped), [scoped]);
+  const visibleRecordKeys = useMemo(() => new Set(visibleRecords.map((record) => record.key)), [visibleRecords]);
   const selectedRecords = useMemo(
     () => scoped.filter((record) => selectedKeys.has(record.key)),
     [scoped, selectedKeys],
   );
   const selectedSavedCount = selectedRecords.filter((record) => favoriteKeys.has(record.key)).length;
   const selectedArchivableCount = selectedRecords.filter(canArchiveLifeRecord).length;
+  const selectedTrashedCount = selectedRecords.filter((record) => trashedKeys.has(record.key)).length;
   const selectedLinkedCount = selectedRecords.filter((record) => bulkValueId && record.valueIds.includes(bulkValueId)).length;
   const allResultsSelected = scoped.length > 0 && selectedRecords.length === scoped.length;
+
+  function clearLibraryMetadata(recordKey: string) {
+    setLibraryFavorite(recordKey, false);
+    const connection = valueConnectionByRecord.get(recordKey);
+    connection?.valueIds.forEach((linkedValueId) => setLibraryValueConnection(recordKey, linkedValueId, false));
+  }
+
+  function moveRecordToTrash(record: LifeRecord) {
+    const previous = trashByRecord.get(record.key);
+    if (previous && !previous.deletedAt) return;
+    moveToLibraryTrash(record.key);
+    offerUndo('Moved to Recently Deleted', async () => { restoreFromLibraryTrash(record.key); });
+  }
+
+  function restoreRecordFromTrash(record: LifeRecord) {
+    const previous = trashByRecord.get(record.key);
+    if (!previous || previous.deletedAt) return;
+    if (!restoreFromLibraryTrash(record.key)) return;
+    offerUndo('Restored to its previous location', async () => moveToLibraryTrash(record.key, previous.trashedAt));
+  }
+
+  function permanentlyRemoveRecord(record: LifeRecord) {
+    if (!window.confirm(`Permanently remove “${record.title}” from Reflect? Its original record will remain in ${record.source}.`)) return;
+    permanentlyRemoveFromLibraryTrash(record.key);
+    clearLibraryMetadata(record.key);
+  }
+
+  function emptyTrash() {
+    const entries = trashEntries.filter((entry) => !entry.deletedAt);
+    if (!entries.length) return;
+    if (!window.confirm(`Permanently remove ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} from Reflect? Original records will remain in their source apps.`)) return;
+    entries.forEach((entry) => {
+      permanentlyRemoveFromLibraryTrash(entry.id);
+      clearLibraryMetadata(entry.id);
+    });
+    clearSelection();
+  }
+
+  async function bulkMoveToTrash() {
+    const targets = selectedRecords.filter((record) => !trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    setBulkBusy(true);
+    const previousEntries = targets.map((record) => trashByRecord.get(record.key)).filter((entry): entry is LibraryTrashEntry => Boolean(entry));
+    try {
+      targets.forEach((record) => moveToLibraryTrash(record.key));
+      offerUndo(`${targets.length} ${targets.length === 1 ? 'entry' : 'entries'} moved to Recently Deleted`, async () => {
+        targets.forEach((record) => restoreFromLibraryTrash(record.key));
+        previousEntries.forEach((entry) => libraryTrash.put(entry));
+      });
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function bulkRestoreFromTrash() {
+    const targets = selectedRecords.filter((record) => trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    setBulkBusy(true);
+    const previousEntries = targets.map((record) => trashByRecord.get(record.key)).filter((entry): entry is LibraryTrashEntry => Boolean(entry));
+    try {
+      const restoredEntries = previousEntries.filter((entry) => restoreFromLibraryTrash(entry.id));
+      if (restoredEntries.length) {
+        offerUndo(`${restoredEntries.length} ${restoredEntries.length === 1 ? 'entry' : 'entries'} restored`, async () => {
+          restoredEntries.forEach((entry) => {
+            if (!libraryTrash.get(entry.id)?.deletedAt) libraryTrash.put(entry);
+          });
+        });
+      }
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  function bulkPermanentlyRemove() {
+    const targets = selectedRecords.filter((record) => trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    if (!window.confirm(`Permanently remove ${targets.length} selected ${targets.length === 1 ? 'entry' : 'entries'} from Reflect? Original records will remain in their source apps.`)) return;
+    targets.forEach((record) => {
+      permanentlyRemoveFromLibraryTrash(record.key);
+      clearLibraryMetadata(record.key);
+    });
+    clearSelection();
+  }
 
   async function setRecordArchived(record: LifeRecord, archived: boolean): Promise<() => Promise<void>> {
     const updatedAt = new Date().toISOString();
@@ -476,10 +597,12 @@ export default function ConnectionsPage() {
           <button type="button" role="tab" aria-selected={view === 'library'} onClick={() => setView('library')}>Library <span>{libraryCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'saved'} onClick={() => setView('saved')}>Saved <span>{savedCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{archivedCount}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'trash'} onClick={() => setView('trash')}>Trash <span>{trashCount}</span></button>
         </div>
         <div className="connections-mode__summary">
           <span className="connections-total">{visibleRecords.length < scoped.length ? 'Showing ' + visibleRecords.length + ' of ' + scoped.length : scoped.length + (scoped.length === 1 ? ' entry' : ' entries')}</span>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all</button>}
+          {view === 'trash' && trashCount > 0 && <button type="button" className="connections-clear-all connections-empty-trash" onClick={emptyTrash}>Empty trash</button>}
           <button type="button" className="connections-select-toggle button-quiet" aria-pressed={selectionMode} onClick={toggleSelectionMode}>
             {selectionMode ? 'Done selecting' : 'Select'}
           </button>
@@ -530,7 +653,7 @@ export default function ConnectionsPage() {
           <label>
             <span>Group by</span>
             <select className="field-input" value={groupBy} onChange={(event) => setGroupBy(event.target.value as LifeRecordGroupBy)}>
-              <option value="month">Month</option>
+              <option value="month">Year &amp; month</option>
               <option value="source">App</option>
               <option value="none">No groups</option>
             </select>
@@ -551,37 +674,45 @@ export default function ConnectionsPage() {
           </div>
 
           {selectedRecords.length > 0 ? (
-            <div className="connections-bulk__body">
+            view === 'trash' ? (
               <div className="connections-bulk__actions">
-                {selectedSavedCount < selectedRecords.length && (
-                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
-                )}
-                {selectedSavedCount > 0 && (
-                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
-                )}
-                {selectedArchivableCount > 0 && (
-                  <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
-                    {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
-                  </button>
-                )}
+                <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkRestoreFromTrash()}>Restore {selectedTrashedCount}</button>
+                <button type="button" className="button-quiet connections-action--destructive" disabled={bulkBusy} onClick={bulkPermanentlyRemove}>Remove permanently</button>
               </div>
+            ) : (
+              <div className="connections-bulk__body">
+                <div className="connections-bulk__actions">
+                  {selectedSavedCount < selectedRecords.length && (
+                    <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
+                  )}
+                  {selectedSavedCount > 0 && (
+                    <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
+                  )}
+                  {selectedArchivableCount > 0 && (
+                    <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
+                      {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
+                    </button>
+                  )}
+                  <button type="button" className="button-quiet connections-action--destructive" disabled={bulkBusy} onClick={() => void bulkMoveToTrash()}>Move to Recently Deleted</button>
+                </div>
 
-              <div className="connections-bulk__connections">
-                <label>
-                  <span>Compass value</span>
-                  <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
-                    <option value="">Choose a value</option>
-                    {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
-                  </select>
-                </label>
-                <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
-                <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
-                  Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
-                </button>
+                <div className="connections-bulk__connections">
+                  <label>
+                    <span>Compass value</span>
+                    <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
+                      <option value="">Choose a value</option>
+                      {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
+                    </select>
+                  </label>
+                  <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
+                  <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
+                    Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
+                  </button>
+                </div>
               </div>
-            </div>
+            )
           ) : (
-            <p className="connections-bulk__hint">Select entries below to save, archive, restore or connect them to a Compass value.</p>
+            <p className="connections-bulk__hint">{view === 'trash' ? 'Select deleted entries to restore them or permanently remove them from Reflect.' : 'Select entries below to save, archive, restore or connect them to a Compass value.'}</p>
           )}
         </section>
       )}
@@ -590,14 +721,73 @@ export default function ConnectionsPage() {
 
       {scoped.length === 0 ? (
         <div className="connections-empty">
-          <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
-          <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
-          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
+          <span className="connections-empty__mark"><Sym name={view === 'trash' ? 'trash' : view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
+          <p className="connections-empty__title">{view === 'trash' && trashCount > 0 ? 'No matching entries are available.' : view === 'trash' ? 'Recently Deleted is empty.' : view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'trash' && trashCount > 0 ? 'Some original records may have been removed from their source apps. Empty Trash clears the remaining Reflect markers.' : view === 'trash' ? 'Entries you move here stay for 30 days. Removing them from Reflect never deletes the original in its source app.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
         <div className="connections-groups">
-          {groups.map((group) => (
+          {groupBy === 'month' ? yearGroups.map((year, yearIndex) => {
+            const yearExpanded = expandedYears[year.key] ?? yearIndex === 0;
+            const visibleMonths = year.months.filter((month) => month.records.some((record) => visibleRecordKeys.has(record.key)));
+            return (
+              <section className="connections-year" key={year.key}>
+                <button type="button" className="connections-year__toggle" aria-expanded={yearExpanded} onClick={() => setExpandedYears((current) => ({ ...current, [year.key]: !yearExpanded }))}>
+                  <span className="connections-year__title"><Sym name="chevron" size={16} className={yearExpanded ? 'connections-disclosure-icon connections-disclosure-icon--open' : 'connections-disclosure-icon'} /> {year.label}</span>
+                  <span className="connections-year__count">{year.records.length}</span>
+                </button>
+                {yearExpanded && (
+                  <div className="connections-year__months">
+                    {visibleMonths.map((month, monthIndex) => {
+                      const monthKey = `${year.key}:${month.key}`;
+                      const monthExpanded = expandedMonths[monthKey] ?? (yearIndex === 0 && monthIndex === 0);
+                      const monthVisibleRecords = month.records.filter((record) => visibleRecordKeys.has(record.key));
+                      return (
+                        <section className="connections-month" key={month.key}>
+                          <button type="button" className="connections-month__toggle" aria-expanded={monthExpanded} onClick={() => setExpandedMonths((current) => ({ ...current, [monthKey]: !monthExpanded }))}>
+                            <span className="connections-month__title"><Sym name="chevron" size={14} className={monthExpanded ? 'connections-disclosure-icon connections-disclosure-icon--open' : 'connections-disclosure-icon'} /> {month.label}</span>
+                            <span className="connections-month__count">{month.records.length}</span>
+                          </button>
+                          {monthExpanded && (
+                            <ol className="connections-list">
+                              {monthVisibleRecords.map((record) => (
+                                <LibraryRecordItem
+                                  key={record.key}
+                                  record={record}
+                                  saved={favoriteKeys.has(record.key)}
+                                  trashed={view === 'trash'}
+                                  expiresAt={trashByRecord.get(record.key) && !trashByRecord.get(record.key)?.deletedAt ? new Date(new Date(trashByRecord.get(record.key)!.trashedAt).getTime() + LIBRARY_TRASH_RETENTION_DAYS * 86_400_000).toISOString() : undefined}
+                                  selectionMode={selectionMode}
+                                  selected={selectedKeys.has(record.key)}
+                                  availableValues={valueOptions}
+                                  relatedRecords={relatedLifeRecords(record, relationPool, 3)}
+                                  busy={bulkBusy || busyId === record.key}
+                                  onToggleFavorite={toggleFavorite}
+                                  onToggleSelected={toggleSelected}
+                                  onOpen={openRecord}
+                                  onArchive={(entry) => void archive(entry)}
+                                  onRestore={(entry) => void restore(entry)}
+                                  onMoveToTrash={moveRecordToTrash}
+                                  onRestoreFromTrash={restoreRecordFromTrash}
+                                  onPermanentlyRemove={permanentlyRemoveRecord}
+                                  onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
+                                  onLinkValue={linkValue}
+                                  onFilterValue={setValueId}
+                                  onFindRelated={findRelated}
+                                  onSaveReflection={saveEdit}
+                                />
+                              ))}
+                            </ol>
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          }) : groups.map((group) => (
             <section className="connections-group" key={group.key}>
               {groupBy !== 'none' && (
                 <header className="connections-group__heading">
@@ -611,6 +801,8 @@ export default function ConnectionsPage() {
                     key={record.key}
                     record={record}
                     saved={favoriteKeys.has(record.key)}
+                    trashed={view === 'trash'}
+                    expiresAt={trashByRecord.get(record.key) && !trashByRecord.get(record.key)?.deletedAt ? new Date(new Date(trashByRecord.get(record.key)!.trashedAt).getTime() + LIBRARY_TRASH_RETENTION_DAYS * 86_400_000).toISOString() : undefined}
                     selectionMode={selectionMode}
                     selected={selectedKeys.has(record.key)}
                     availableValues={valueOptions}
@@ -621,6 +813,9 @@ export default function ConnectionsPage() {
                     onOpen={openRecord}
                     onArchive={(entry) => void archive(entry)}
                     onRestore={(entry) => void restore(entry)}
+                    onMoveToTrash={moveRecordToTrash}
+                    onRestoreFromTrash={restoreRecordFromTrash}
+                    onPermanentlyRemove={permanentlyRemoveRecord}
                     onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
                     onLinkValue={linkValue}
                     onFilterValue={setValueId}
