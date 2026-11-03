@@ -49,7 +49,7 @@ export default function FamilyApps({ current }: { current: FamilyApp }) {
               <Sym name="plus" />
             </span>
             <span className="row__text">
-              <span>Store</span>
+              <span>App Store</span>
               
             </span>
           </a>
