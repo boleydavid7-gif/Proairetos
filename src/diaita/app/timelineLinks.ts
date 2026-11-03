@@ -6,7 +6,7 @@ export function timelineHref(entry: Pick<Entry, 'key' | 'kind'>): string | undef
     case 'caffeine':
       return '/hydros/';
     case 'worry':
-      return '/reflect';
+      return '/capture';
     case 'wind-down':
       return '/meditate';
     case 'meal':
