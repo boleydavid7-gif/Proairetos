@@ -289,7 +289,7 @@ describe('a household', () => {
 
     user = 'user-b';
     expect(navigator.onLine).toBe(true);
-    expect((await client.from('shared_lists').select('id').eq('id', invite.id).maybeSingle()).data).toBeNull();
+    expect((await client.from('shared_lists').select().eq('id', invite.id).maybeSingle()).data).toBeNull();
     await household.syncHousehold();
     expect(household.household()).toBeUndefined();
     expect(homes.sharedLists()).toHaveLength(0);
