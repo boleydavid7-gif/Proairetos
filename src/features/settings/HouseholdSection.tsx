@@ -341,6 +341,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                 </button>
                 {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device; manage that list there.</p>}
                 {part && state === 'join' && <p className="hint household__note">Connecting this list to your device…</p>}
+                {part && state === 'unavailable' && <p className="hint household__note">This list is no longer available to the household. Ask the person who shared it to reconnect it.</p>}
               </div>
             );
           })}
