@@ -121,8 +121,12 @@ function belongsToDeviceAccount(userId: string): boolean {
 
 async function stillSignedInAs(userId: string): Promise<boolean> {
   if (!belongsToDeviceAccount(userId)) return false;
-  const user = await signedInAs().catch(() => undefined);
-  return user?.id === userId && belongsToDeviceAccount(userId);
+  try {
+    const { data, error } = await (await supabase()).auth.getSession();
+    return !error && data.session?.user.id === userId && belongsToDeviceAccount(userId);
+  } catch {
+    return false;
+  }
 }
 
 async function setAppShare(householdId: string, app: HouseholdApp, sharedListId: string, enabled: boolean): Promise<void> {
