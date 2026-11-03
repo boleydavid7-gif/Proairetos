@@ -1302,7 +1302,6 @@ export default function SettingsPage() {
   if (view && !wide) return <div className="page">{detail}</div>;
 
   type Entry = { id: string; icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void; words?: string };
-  const app = (src: string) => <img className="settings-row__app" src={src} alt="" width={26} height={26} />;
   const groups: { label: string; entries: Entry[] }[] = [
     {
       label: 'Your days',
