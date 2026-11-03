@@ -103,17 +103,25 @@ export default function FlowPage({ nav }: { nav: Nav }) {
 }
 
 function DailyChart({ range, values, max, goal, unit }: { range: string[]; values: number[]; max: number; goal?: number; unit: HydrosUnit }) {
-  return <div className="flow-chart" aria-label="Week chart, one bar a day">
+  const description = range.map((day, index) => {
+    const date = new Date(`${day}T12:00:00`);
+    const label = date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+    return `${label}: ${formatVolume(values[index], unit)} ${unit}`;
+  }).join('; ');
+  const target = goal ? `. Daily amount: ${formatVolume(goal, unit)} ${unit}.` : '.';
+  return <div className="flow-chart" role="img" aria-label={`Daily hydration for the week. ${description}${target}`}>
     <div className="flow-chart__grid"><span>{formatVolume(max, unit)} {unit}</span><span>{formatVolume(max * .75, unit)} {unit}</span><span>{formatVolume(max * .5, unit)} {unit}</span><span>0</span></div>
     {goal ? <div className="flow-chart__goal" style={{ bottom: `calc(26px + (100% - 26px) * ${goal / max})` }} aria-hidden="true" /> : null}
-    <div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className={value ? 'flow-chart__bar ll-rise ll-lit ll-travel' : 'flow-chart__bar'} style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%`, '--i': index } as CSSProperties} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'narrow' })}</small></div>)}</div>
+    <div className="flow-chart__bars">{values.map((value, index) => <div className="flow-chart__bar-wrap" key={`${range[index]}-${index}`}><div className={value ? 'flow-chart__bar ll-rise ll-lit ll-travel' : 'flow-chart__bar'} style={{ height: `${Math.max(value ? 7 : 2, (value / max) * 100)}%`, '--i': index } as CSSProperties} /><small>{new Date(`${range[index]}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short' })}</small></div>)}</div>
   </div>;
 }
 
 function MonthlyLineChart({ range, values, max, goal, unit }: { range: string[]; values: number[]; max: number; goal?: number; unit: HydrosUnit }) {
+  const description = range.map((day, index) => `Day ${Number(day.slice(-2))}: ${formatVolume(values[index], unit)} ${unit}`).join('; ');
+  const target = goal ? `. Daily amount: ${formatVolume(goal, unit)} ${unit}.` : '.';
   const width = 360;
   const height = 220;
-  const left = 38;
+  const left = 48;
   const right = 8;
   const top = 13;
   const bottom = 29;
@@ -123,12 +131,12 @@ function MonthlyLineChart({ range, values, max, goal, unit }: { range: string[];
   const y = (value: number) => top + plotHeight - (value / max) * plotHeight;
   const points = values.map((value, index) => `${x(index)},${y(value)}`).join(' ');
   const labelIndexes = Array.from(new Set([0, Math.floor((range.length - 1) / 2), range.length - 1]));
-  return <div className="flow-line-chart" aria-label={`Month chart, day 1 to day ${range.length}`}>
-    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-hidden="true">
+  return <div className="flow-line-chart" role="img" aria-label={`Daily hydration for the month. ${description}${target}`}>
+    <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
       {[0, .25, .5, .75, 1].map((fraction) => <g key={fraction}><line className="flow-line-chart__grid" x1={left} x2={width - right} y1={top + plotHeight * (1 - fraction)} y2={top + plotHeight * (1 - fraction)} /><text className="flow-line-chart__value" x={left - 7} y={top + plotHeight * (1 - fraction) + 3} textAnchor="end">{formatVolume(max * fraction, unit)}</text></g>)}
       {goal ? <line className="flow-line-chart__goal" x1={left} x2={width - right} y1={y(goal)} y2={y(goal)} /> : null}
       <polyline className="flow-line-chart__line ll-draw" points={points} pathLength={1} />
-      {values.map((value, index) => <circle className="flow-line-chart__point ll-land" key={range[index]} cx={x(index)} cy={y(value)} r="2.5" style={{ '--i': index } as CSSProperties} />)}
+      {values.map((value, index) => <circle className="flow-line-chart__point ll-land" key={range[index]} cx={x(index)} cy={y(value)} r="3" style={{ '--i': index } as CSSProperties} />)}
       {labelIndexes.map((index) => <text className="flow-line-chart__axis" key={range[index]} x={x(index)} y={height - 7} textAnchor="middle">{index + 1}</text>)}
     </svg>
   </div>;
