@@ -143,3 +143,24 @@
   font-size: var(--text-sm);
   line-height: 1.35;
 }
+/* Household creation: keep the label, input and action in a clear vertical stack. */
+.settings-card > .household-create-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.household-create-form .field__label {
+  margin: 0;
+}
+
+.household-create-form .input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.household-create-form .button-accent {
+  margin-top: var(--space-1);
+}
