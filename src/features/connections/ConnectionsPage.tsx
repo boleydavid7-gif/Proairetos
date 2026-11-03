@@ -191,9 +191,9 @@ export default function ConnectionsPage() {
   useEffect(() => {
     const now = Date.now();
     trashEntries.forEach((entry) => {
-      if (!entry.deletedAt && isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) {
-        clearLibraryMetadata(entry.id);
-      }
+      if (entry.deletedAt || !isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) return;
+      setLibraryFavorite(entry.id, false);
+      valueConnectionByRecord.get(entry.id)?.valueIds.forEach((linkedValueId) => setLibraryValueConnection(entry.id, linkedValueId, false));
     });
     expireLibraryTrash(trashEntries, now);
   }, [trashEntries, valueConnectionByRecord]);
