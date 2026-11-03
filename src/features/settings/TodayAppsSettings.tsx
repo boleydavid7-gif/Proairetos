@@ -40,7 +40,7 @@ export default function TodayAppsSettings() {
     <section className="settings-group today-app-settings" aria-label="App summaries">
       <h2 className="settings-group__label">Apps on Today</h2>
       <p className="section-description">
-        Choose which companion apps appear in the two compact Today sections. Tap a row on Today to open its app; these switches only show or hide the summary.
+        Choose which companion apps appear in the two compact Today sections. Tap a row on Today to open its app. The detailed switches below still control which items each app contributes.
       </p>
       {!any && (
         <div className="settings-card">
