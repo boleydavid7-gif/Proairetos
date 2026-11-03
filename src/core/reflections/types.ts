@@ -30,5 +30,5 @@ export interface Reflection {
   /** Hidden from the everyday Reflect timeline, but retained in the archive. */
   archivedAt?: string;
   /** Values the person tagged this with. */
-  valueIds?: string;
+  valueIds?: string[];
 }
