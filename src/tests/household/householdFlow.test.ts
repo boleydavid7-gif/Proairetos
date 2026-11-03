@@ -348,10 +348,35 @@ describe('a household', () => {
 
     user = 'user-a';
     device('Share owner');
-    await homes.joinList(appList);
     await household.makeHousehold('Family');
-    await household.shareApp('ergon');
     const invite = { ...household.household()! };
+    const ownerDevice = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
+
+    user = 'user-b';
+    device('List creator');
+    await household.joinHousehold(invite);
+    const memberDevice = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
+
+    user = 'user-a';
+    localStorage.clear();
+    for (const [key, value] of Object.entries(ownerDevice)) localStorage.setItem(key, value);
+    await homes.joinList(appList);
+    await household.shareApp('ergon');
+
+    user = 'user-b';
+    localStorage.clear();
+    for (const [key, value] of Object.entries(memberDevice)) localStorage.setItem(key, value);
+    await household.syncHousehold();
 
     user = 'user-c';
     device('Member');
@@ -360,6 +385,8 @@ describe('a household', () => {
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-c')).toBe(true);
 
     user = 'user-a';
+    localStorage.clear();
+    for (const [key, value] of Object.entries(ownerDevice)) localStorage.setItem(key, value);
     await household.transferHouseholdOwnership('user-c');
     await household.leaveHousehold();
 
