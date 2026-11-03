@@ -161,9 +161,11 @@ async function refreshLinkedParts(parts: readonly Extract<HouseholdItem, { kind:
     if (!(await stillSignedInAs(userId))) return;
     try {
       const lists = await listsOf(part.app);
+      const local = lists.sharedLists().find((each) => each.id === part.list.id);
+      if (!local) continue;
       // A successful check preserves personal access (the list creator or share owner); a denied check clears
       // only this device's stale reference, cached copy and unsent queue.
-      await lists.refreshList(part.list);
+      await lists.refreshList(local);
     } catch {
       // The next online household check can retry a transient failure.
     }
