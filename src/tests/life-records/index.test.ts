@@ -31,17 +31,20 @@ describe('Life Record projection', () => {
     expect(records.every((entry, index) => index === 0 || records[index - 1].at >= entry.at)).toBe(true);
     expect(records.find((entry) => entry.key === 'workout:w1')).toMatchObject({
       source: 'Askesis',
+      sourceApp: 'askesis',
       title: 'Run',
       searchText: expect.stringContaining('felt good by the end'),
     });
     expect(records.find((entry) => entry.key === 'meal:meal1@2026-10-31')).toMatchObject({
       source: 'Soma',
+      sourceApp: 'soma',
       title: 'Roasted chicken',
       detail: 'Cooked for Sam and Alex',
       searchText: expect.stringContaining('potatoes'),
     });
     expect(records.find((entry) => entry.key === 'study:s1')).toMatchObject({
       source: 'Theoria',
+      sourceApp: 'theoria',
       detail: '25 min · Reading',
       searchText: expect.stringContaining('reading'),
     });
