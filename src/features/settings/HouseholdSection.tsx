@@ -32,7 +32,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const { offerUndo } = useOverlays();
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const added = useAddedApps();
-  const { list, parts, members, states, roles, currentUserId, rolesReady, canManageMembers, canManageRoles } = useHousehold();
+  const { list, parts, members, states, roles, currentUserId, currentRole, rolesReady, canManageMembers, canManageRoles } = useHousehold();
   const [invite, setInvite] = useState(pendingHouseholdInvite);
   const [name, setName] = useState('Home');
   const [busy, setBusy] = useState<string | null>(null);
