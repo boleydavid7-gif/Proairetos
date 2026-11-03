@@ -136,10 +136,10 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
           </p>
           {found.recipes.length > 1 && (
             <div className="chip-row">
-              <button type="button" className="chip" onClick={() => setChosen(new Set(found.recipes.map((_, i) => i)))}>
+              <button type="button" className="chip" aria-label="Select all recipes" onClick={() => setChosen(new Set(found.recipes.map((_, i) => i)))}>
                 All
               </button>
-              <button type="button" className="chip" onClick={() => setChosen(new Set())}>
+              <button type="button" className="chip" aria-label="Select no recipes" onClick={() => setChosen(new Set())}>
                 None
               </button>
             </div>
