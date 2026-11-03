@@ -12,7 +12,9 @@ import { notes as mnemeNotes, ideas as mnemeIdeas } from '../../mneme/app/state'
 import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } from '../../poreia/app/state';
 import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
+import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
+import { groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -76,19 +78,22 @@ export default function ConnectionsPage() {
   const financialMilestones = oikonomiaMilestones.use();
   const tripToday = poreiaToday();
   const favorites = libraryFavorites.use();
+  const valueConnections = libraryValueConnections.use();
 
   const [category, setCategory] = useState<Category>('all');
   const [view, setView] = useState<View>('library');
   const [range, setRange] = useState<Range>('all');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [valueId, setValueId] = useState('');
+  const [sourceApp, setSourceApp] = useState('');
+  const [groupBy, setGroupBy] = useState<LifeRecordGroupBy>('month');
   const [search, setSearch] = useState('');
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [visibleCount, setVisibleCount] = useState(30);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
-  const records = useMemo(() => buildLifeRecords({
+  const sourceRecords = useMemo(() => buildLifeRecords({
     reflections,
     decisions,
     pursuits: allPursuits,
@@ -107,29 +112,55 @@ export default function ConnectionsPage() {
     oikonomiaMilestones: financialMilestones,
   }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
 
-  const query = search.trim().toLocaleLowerCase();
-  const hasFilters = Boolean(query || category !== 'all' || valueId || range !== 'all' || sortOrder !== 'newest');
-  const valueNames = useMemo(() => new Map<string, string>(values.map((value: ChosenValue) => [value.id, value.name] as const)), [values]);
-
-  const scoped = useMemo(() => {
+  const records = useMemo(
+    () => mergeLibraryValueConnections(sourceRecords, valueConnections),
+    [sourceRecords, valueConnections],
+  );
+  const query = search.trim();
+  const hasFilters = Boolean(query || category !== 'all' || valueId || sourceApp || range !== 'all');
+  const availableRecords = useMemo(() => records.filter((record) => {
+    if (view === 'archived' ? !record.archived : record.archived) return false;
+    if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
+    return true;
+  }), [records, view, favoriteKeys]);
+  const sourceOptions = useMemo(() => {
+    const options = new Map<string, string>();
+    availableRecords.forEach((record) => options.set(record.sourceApp, record.source));
+    return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  }, [availableRecords]);
+  const baseScoped = useMemo(() => {
     const now = Date.now();
-    return records.filter((record) => {
-      if (view === 'archived' ? !record.archived : record.archived) return false;
-      if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
-      if (!categoryMatches(record, category)) return false;
+    return availableRecords.filter((record) => {
       if (!isInRange(record.at, range, now)) return false;
       if (valueId && !record.valueIds.includes(valueId)) return false;
-      if (query && !record.searchText.includes(query)) return false;
+      if (sourceApp && record.sourceApp !== sourceApp) return false;
+      if (query && !matchesLifeRecordQuery(record, query)) return false;
       return true;
-    }).sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at));
-  }, [records, view, category, range, sortOrder, valueId, query, favoriteKeys]);
-
+    });
+  }, [availableRecords, range, valueId, sourceApp, query]);
+  const scoped = useMemo(
+    () => baseScoped.filter((record) => categoryMatches(record, category))
+      .sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)),
+    [baseScoped, category, sortOrder],
+  );
+  const categoryCounts = useMemo(() => {
+    const counts = {} as Record<Category, number>;
+    (Object.keys(categoryLabels) as Category[]).forEach((id) => {
+      counts[id] = id === 'all' ? baseScoped.length : baseScoped.filter((record) => categoryMatches(record, id)).length;
+    });
+    return counts;
+  }, [baseScoped]);
   const libraryCount = records.filter((record) => !record.archived).length;
   const savedCount = records.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
   const archivedCount = records.filter((record) => record.archived).length;
+  const relationPool = useMemo(
+    () => records.filter((record) => record.archived === (view === 'archived')),
+    [records, view],
+  );
 
-  useEffect(() => setVisibleCount(30), [category, view, range, sortOrder, valueId, query]);
+  useEffect(() => setVisibleCount(30), [category, view, range, sortOrder, valueId, sourceApp, query]);
   const visibleRecords = scoped.slice(0, visibleCount);
+  const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
 
   async function archive(record: LifeRecord) {
     setBusyId(record.key);
@@ -189,19 +220,23 @@ export default function ConnectionsPage() {
     }
   }
 
-  async function unlink(record: LifeRecord) {
-    if (!valueId) return;
+  async function unlink(record: LifeRecord, linkedValueId: string) {
+    if (!linkedValueId) return;
+    if (valueConnections.find((connection) => connection.id === record.key)?.valueIds.includes(linkedValueId)) {
+      setLibraryValueConnection(record.key, linkedValueId, false);
+      return;
+    }
     setBusyId(record.key);
     setError('');
     try {
-      if (record.kind === 'reflection') await reflectionService.disconnectValue(record.sourceId, valueId);
-      else if (record.kind === 'decision') await decisionService.disconnectValue(record.sourceId, valueId);
-      else if (record.kind === 'life') await lifeService.disconnectValue(record.sourceId, valueId);
+      if (record.kind === 'reflection') await reflectionService.disconnectValue(record.sourceId, linkedValueId);
+      else if (record.kind === 'decision') await decisionService.disconnectValue(record.sourceId, linkedValueId);
+      else if (record.kind === 'life') await lifeService.disconnectValue(record.sourceId, linkedValueId);
       else if (record.kind === 'pursuit') {
         const current = allPursuits.find((entry) => entry.id === record.sourceId);
         if (!current) throw new Error('That pursuit no longer exists.');
         const notes = { ...(current.valueNotes ?? {}) };
-        delete notes[valueId];
+        delete notes[linkedValueId];
         const { valueNotes: _previous, ...rest } = current;
         await pursuits.put(Object.keys(notes).length ? { ...current, valueNotes: notes } : rest);
       }
@@ -212,12 +247,28 @@ export default function ConnectionsPage() {
     }
   }
 
+  function linkValue(record: LifeRecord, linkedValueId: string) {
+    if (!linkedValueId || record.valueIds.includes(linkedValueId)) return;
+    setLibraryValueConnection(record.key, linkedValueId, true);
+  }
+
   function clearAllFilters() {
     setSearch('');
     setCategory('all');
     setRange('all');
     setSortOrder('newest');
     setValueId('');
+    setSourceApp('');
+  }
+
+  function findRelated(record: LifeRecord) {
+    setView(record.archived ? 'archived' : 'library');
+    setCategory('all');
+    setRange('all');
+    setSortOrder('newest');
+    setValueId('');
+    setSourceApp('');
+    setSearch(record.title);
   }
 
   function openRecord(record: LifeRecord) {
@@ -278,7 +329,7 @@ export default function ConnectionsPage() {
       <div className="connections-categories" role="group" aria-label="Filter by type">
         {(Object.keys(categoryLabels) as Category[]).map((id) => (
           <button key={id} type="button" aria-pressed={category === id} className={category === id ? 'connections-category connections-category--active' : 'connections-category'} onClick={() => setCategory(id)}>
-            {categoryLabels[id]}
+            {categoryLabels[id]} <span className="connections-category__count">{categoryCounts[id]}</span>
           </button>
         ))}
       </div>
@@ -303,10 +354,25 @@ export default function ConnectionsPage() {
             </select>
           </label>
           <label>
+            <span>Source app</span>
+            <select className="field-input" value={sourceApp} onChange={(event) => setSourceApp(event.target.value)}>
+              <option value="">All apps</option>
+              {sourceOptions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+            </select>
+          </label>
+          <label>
             <span>Order</span>
             <select className="field-input" value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
+            </select>
+          </label>
+          <label>
+            <span>Group by</span>
+            <select className="field-input" value={groupBy} onChange={(event) => setGroupBy(event.target.value as LifeRecordGroupBy)}>
+              <option value="month">Month</option>
+              <option value="source">App</option>
+              <option value="none">No groups</option>
             </select>
           </label>
         </div>
@@ -322,28 +388,39 @@ export default function ConnectionsPage() {
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
-        <ol className="connections-list">
-          {visibleRecords.map((record) => {
-            const names = record.valueIds.map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
-            return (
-              <LibraryRecordItem
-                key={record.key}
-                record={record}
-                saved={favoriteKeys.has(record.key)}
-                valueNames={names}
-                selectedValueId={valueId}
-                selectedValueName={valueNames.get(valueId) ?? ''}
-                busy={busyId === record.key}
-                onToggleFavorite={toggleFavorite}
-                onOpen={openRecord}
-                onArchive={(entry) => void archive(entry)}
-                onRestore={(entry) => void restore(entry)}
-                onUnlink={(entry) => void unlink(entry)}
-                onSaveReflection={saveEdit}
-              />
-            );
-          })}
-        </ol>
+        <div className="connections-groups">
+          {groups.map((group) => (
+            <section className="connections-group" key={group.key}>
+              {groupBy !== 'none' && (
+                <header className="connections-group__heading">
+                  <h2>{group.label}</h2>
+                  <span>{group.records.length}</span>
+                </header>
+              )}
+              <ol className="connections-list">
+                {group.records.map((record) => (
+                  <LibraryRecordItem
+                    key={record.key}
+                    record={record}
+                    saved={favoriteKeys.has(record.key)}
+                    availableValues={values.map((value: ChosenValue) => ({ id: value.id, name: value.name }))}
+                    relatedRecords={relatedLifeRecords(record, relationPool, 3)}
+                    busy={busyId === record.key}
+                    onToggleFavorite={toggleFavorite}
+                    onOpen={openRecord}
+                    onArchive={(entry) => void archive(entry)}
+                    onRestore={(entry) => void restore(entry)}
+                    onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
+                    onLinkValue={linkValue}
+                    onFilterValue={setValueId}
+                    onFindRelated={findRelated}
+                    onSaveReflection={saveEdit}
+                  />
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
       )}
       {scoped.length > visibleCount && (
         <button type="button" className="connections-load-more" onClick={() => setVisibleCount((count) => count + 30)}>
