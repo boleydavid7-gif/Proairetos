@@ -107,7 +107,7 @@ export default function ConnectionsPage() {
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const query = search.trim().toLocaleLowerCase();
-  const valueNames = useMemo(() => new Map(values.map((value: ChosenValue) => [value.id, value.name])), [values]);
+  const valueNames = useMemo(() => new Map<string, string>(values.map((value: ChosenValue) => [value.id, value.name] as const)), [values]);
 
   const records: Connection[] = useMemo(() => [
     ...reflections.map((record) => ({ kind: 'reflection' as const, record, archived: Boolean(record.archivedAt), at: record.archivedAt ?? record.createdAt })),
