@@ -20,9 +20,9 @@ type Props = {
 
 function hrefFor(record: LifeRecord): string | undefined {
   if (record.kind === 'workout' && record.sourceApp === 'dynamis') return linkTo('dynamis', 'workout:' + record.sourceId);
-  if (record.kind === 'workout') return linkTo('askesis', 'entry:' + record.sourceId);
-  if (record.kind === 'meal') return linkTo('soma', 'recipe:' + record.sourceId);
-  if (record.kind === 'study') return '/theoria/?open=pomodoro:sessions';
+  if (record.kind === 'workout' && record.sourceApp === 'askesis') return linkTo('askesis', 'entry:' + record.sourceId);
+  if (record.kind === 'meal' && record.sourceApp === 'soma') return linkTo('soma', 'recipe:' + record.sourceId);
+  if (record.kind === 'study' && record.sourceApp === 'theoria') return '/theoria/?open=pomodoro:sessions';
   return undefined;
 }
 
