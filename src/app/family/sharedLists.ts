@@ -224,7 +224,19 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
       }
       write(cacheKey(list.id), items);
       changed();
-    })().finally(() => refreshing.delete(list.id));
+    })()
+      .catch((cause: unknown) => {
+        // A household share can be switched off after a member has joined. When the server denies the next sync,
+        // remove the stale local list reference and cache instead of continuing to present old shared data.
+        if (cause instanceof Error && /row-level security|permission denied|not authorized/i.test(cause.message)) {
+          saveLists(sharedLists().filter((each) => each.id !== list.id));
+          localStorage.removeItem(cacheKey(list.id));
+          localStorage.removeItem(pendingKey(list.id));
+          throw new Error('This list is no longer shared with you.');
+        }
+        throw cause;
+      })
+      .finally(() => refreshing.delete(list.id));
     refreshing.set(list.id, work);
     return work;
   }
