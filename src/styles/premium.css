@@ -1009,7 +1009,8 @@ blockquote.daily-line {
   display: none;
 }
 
-/* ---------- Today app overview: two calm, opaque summaries ---------- */
+/* ---------- Today app overview: quiet, unboxed app rows ---------- */
+/* These are summaries, not a stack of cards. One shared grid aligns every app; hairlines do the grouping. */
 .today-app-overview {
   display: flex;
   flex-direction: column;
@@ -1017,22 +1018,33 @@ blockquote.daily-line {
 }
 
 .today-app-overview__card {
-  overflow: hidden;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--ll-hair, var(--color-border));
-  border-radius: var(--ll-radius-md, 16px);
-  background: var(--ll-material-solid, var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--ll-ink, var(--color-text));
+  box-shadow: none;
+}
+
+.today-app-overview__card > .today-app + .today-app {
+  margin-top: 0;
 }
 
 .today-app--compact {
   display: grid;
-  grid-template-columns: minmax(5.25rem, 6.5rem) minmax(0, 1fr);
+  grid-template-columns: minmax(7rem, 7.25rem) minmax(0, 1fr);
   align-items: center;
   gap: 0 var(--space-3);
   min-width: 0;
-  padding: 0;
+  padding: var(--space-2) 0;
+  border: 0;
   border-bottom: 1px solid var(--ll-hair, var(--color-border));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .today-app--compact:last-child {
@@ -1043,30 +1055,42 @@ blockquote.daily-line {
   align-self: center;
   min-width: 0;
   margin: 0;
-  padding: var(--space-3) 0;
+  padding: var(--space-2) 0;
   color: var(--ll-ink, var(--color-text));
   font-size: var(--text-sm);
   font-weight: 600;
   line-height: 1.25;
+  white-space: nowrap;
 }
 
 .today-app--compact .today-app__name svg {
   flex: 0 0 auto;
 }
 
-.today-app--compact .today-app__content {
+.today-app-overview .today-app--compact .today-group,
+.today-app-overview .today-app--compact .today-app__content {
+  width: 100%;
   min-width: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
+  box-shadow: none;
 }
 
 .today-app--compact .today-app__content .quiet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
   min-height: 2.75rem;
   padding: var(--space-2) 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
   color: var(--ll-ink, var(--color-text));
   font-size: var(--text-sm);
 }
@@ -1076,26 +1100,35 @@ blockquote.daily-line {
 }
 
 .today-app--compact .quiet-row__text {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.5rem;
   min-width: 0;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 0.3rem;
+  overflow: hidden;
 }
 
 .today-app--compact .quiet-row__text > span:first-child {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-app--compact .quiet-row__detail {
   flex: 0 1 auto;
+  max-width: 8rem;
+  overflow: hidden;
   color: var(--ll-ink-2, var(--color-text-muted));
   font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .today-app--compact .quiet-row__chevron {
   flex: 0 0 auto;
+  margin-left: 0.25rem;
   color: var(--ll-ink-2, var(--color-text-muted));
 }
 
@@ -1105,6 +1138,8 @@ blockquote.daily-line {
 
 .today-app--compact .today-group .swipe__front {
   padding: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .today-app--compact .today-group .swipe .quiet-row-wrap::before {
@@ -1117,6 +1152,7 @@ blockquote.daily-line {
   border: 0;
   border-radius: 0;
   background: transparent;
+  box-shadow: none;
 }
 
 .today-practice-link .quiet-row__text {
@@ -1230,26 +1266,17 @@ blockquote.daily-line {
 
 @media (max-width: 26rem) {
   .today-app--compact {
-    grid-template-columns: minmax(4.5rem, 5.25rem) minmax(0, 1fr);
+    grid-template-columns: minmax(6.5rem, 6.75rem) minmax(0, 1fr);
     column-gap: var(--space-2);
   }
 
   .today-app--compact .today-app__name {
     gap: 5px;
-    font-size: var(--text-xs, .75rem);
   }
 
   .today-app--compact .today-app__name svg {
     width: 18px;
     height: 18px;
-  }
-
-  .today-app--compact .today-app__content .quiet-row {
-    font-size: var(--text-xs, .75rem);
-  }
-
-  .today-app--compact .quiet-row__detail {
-    font-size: var(--text-xs, .75rem);
   }
 }
 .today-app--compact[data-app='hydros'] .today-practice-progress > span {
