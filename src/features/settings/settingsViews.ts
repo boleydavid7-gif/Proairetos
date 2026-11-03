@@ -77,7 +77,7 @@ export const viewTitles: Record<View, string> = {
   inbox: 'Capture from anywhere',
   health: 'Health data',
   together: 'Shared list',
-  household: 'Household',
+  household: 'Family',
   install: 'Install Proairetos',
 };
 
