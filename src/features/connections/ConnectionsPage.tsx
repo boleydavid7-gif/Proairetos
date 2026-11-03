@@ -3,92 +3,58 @@ import { useLeave, useNavigate } from '../../app/navigationContext';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService, reflectionService } from '../../app/services';
-import { pursuits, type Pursuit } from '../../app/pursuits';
+import { pursuits } from '../../app/pursuits';
+import { plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
+import { useRuns } from '../../app/askesis/runs';
+import { combineReadingSessions, useStudy } from '../../app/praxis/study';
+import { useRecipesFromSoma } from '../../app/soma/meals';
+import { notes as mnemeNotes, ideas as mnemeIdeas } from '../../mneme/app/state';
+import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } from '../../poreia/app/state';
+import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
+import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
+import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
+import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
+import { canArchiveLifeRecord, groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
-import type { Decision } from '../../core/decisions/types';
-import type { LifeItem } from '../../core/life-items/types';
-import type { Reflection } from '../../core/reflections/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
+import LibraryRecordItem from './LibraryRecordItem';
 
-type Category = 'all' | 'reflections' | 'decisions' | 'pursuits' | 'life';
-type View = 'active' | 'archived';
+type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life' | 'thoughts' | 'travel' | 'financial';
+type View = 'library' | 'saved' | 'archived';
 type Range = 'all' | '30' | '90' | '365';
 type SortOrder = 'newest' | 'oldest';
-
-type Connection =
-  | { kind: 'reflection'; record: Reflection; archived: boolean; at: string }
-  | { kind: 'decision'; record: Decision; archived: boolean; at: string }
-  | { kind: 'pursuit'; record: Pursuit; archived: boolean; at: string }
-  | { kind: 'life'; record: LifeItem; archived: boolean; at: string };
 
 const categoryLabels: Record<Category, string> = {
   all: 'Everything',
   reflections: 'Reflections',
   decisions: 'Decisions',
+  experiences: 'Experiences',
   pursuits: 'Pursuits',
   life: 'Life',
+  thoughts: 'Notes & ideas',
+  travel: 'Travel',
+  financial: 'Money',
 };
-
-function dateLabel(value: string): string {
-  const date = new Date(value);
-  return Number.isFinite(date.getTime())
-    ? date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-    : 'Date unavailable';
-}
-
-function includesText(query: string, ...parts: Array<string | null | undefined>): boolean {
-  if (!query) return true;
-  return parts.some((part) => part?.toLocaleLowerCase().includes(query));
-}
-
-function linkedValueIds(entry: Connection): string[] {
-  if (entry.kind === 'reflection' || entry.kind === 'life') return entry.record.valueIds ?? [];
-  return Object.keys(entry.record.valueNotes ?? {});
-}
-
-function titleFor(entry: Connection): string {
-  if (entry.kind === 'reflection') {
-    const body = entry.record.body.trim();
-    return body.length > 92 ? body.slice(0, 92).trimEnd() + '…' : body;
-  }
-  if (entry.kind === 'decision') return entry.record.question;
-  if (entry.kind === 'pursuit') return entry.record.title;
-  return entry.record.title;
-}
-
-function detailFor(entry: Connection): string {
-  if (entry.kind === 'reflection') {
-    const kind = entry.record.kind === 'INTENTION' ? 'Daily intention' : entry.record.kind.replaceAll('_', ' ').toLocaleLowerCase();
-    return entry.record.promptKey ? kind + ' · ' + entry.record.promptKey.replaceAll('-', ' ') : kind;
-  }
-  if (entry.kind === 'decision') return 'Chose: ' + entry.record.choice;
-  if (entry.kind === 'pursuit') {
-    const status = entry.record.status === 'complete' ? 'Complete' : entry.record.status === 'paused' ? 'Paused' : entry.record.status === 'archived' ? 'Archived' : 'Active';
-    return status + (entry.record.area ? ' · ' + entry.record.area : '');
-  }
-  const type = entry.record.type === 'DO' ? 'To do' : entry.record.type === 'REMEMBER' ? 'Remember' : entry.record.type === 'MAKE_TIME_FOR' ? 'Make time for' : entry.record.type === 'THINKING_ABOUT' ? 'Thinking about' : 'Life item';
-  const status = entry.record.status === 'DONE' ? 'Done' : entry.record.status === 'WAITING' ? 'Waiting' : entry.record.status === 'LET_GO' ? 'Let go' : 'Open';
-  return type + ' · ' + status;
-}
-
-function bodyFor(entry: Connection): string | undefined {
-  if (entry.kind === 'reflection') return entry.record.body;
-  if (entry.kind === 'decision') {
-    return [entry.record.reasons, entry.record.expected ? 'Expected: ' + entry.record.expected : undefined].filter(Boolean).join('\n\n') || undefined;
-  }
-  if (entry.kind === 'pursuit') {
-    return [entry.record.outcome, entry.record.why, entry.record.current, entry.record.nextMove ? 'Next: ' + entry.record.nextMove : undefined].filter(Boolean).join('\n\n') || undefined;
-  }
-  return [entry.record.notes, entry.record.location ? 'Place: ' + entry.record.location : undefined].filter(Boolean).join('\n\n') || undefined;
-}
 
 function isInRange(at: string, range: Range, now: number): boolean {
   if (range === 'all') return true;
   const stamp = new Date(at).getTime();
   return Number.isFinite(stamp) && stamp >= now - Number(range) * 86_400_000;
+}
+
+function categoryMatches(record: LifeRecord, category: Category): boolean {
+  if (category === 'all') return true;
+  if (category === 'reflections') return record.kind === 'reflection';
+  if (category === 'decisions') return record.kind === 'decision';
+  if (category === 'experiences') return record.kind === 'workout' || record.kind === 'meal' || record.kind === 'study';
+  if (category === 'pursuits') return record.kind === 'pursuit';
+  if (category === 'thoughts') return record.kind === 'note' || record.kind === 'idea';
+  if (category === 'travel') return record.kind === 'trip';
+  if (category === 'financial') return record.kind === 'financial';
+  return record.kind === 'life';
 }
 
 export default function ConnectionsPage() {
@@ -100,66 +66,192 @@ export default function ConnectionsPage() {
   const items = useServiceData(lifeService.subscribe, () => lifeService.listAll(true), []) ?? [];
   const values = useServiceData(compassService.subscribe, () => compassService.values(), []) ?? [];
   const allPursuits = pursuits.use();
+  const runs = useRuns();
+  const strengthWorkouts = dynamisWorkouts.use();
+  const strengthPlan = dynamisPlan.use();
+  const recipes = useRecipesFromSoma();
+  const study = useStudy();
+  const notes = mnemeNotes.use();
+  const ideas = mnemeIdeas.use();
+  const trips = poreiaTrips.use();
+  const journal = poreiaJournal.use();
+  const financialMilestones = oikonomiaMilestones.use();
+  const tripToday = poreiaToday();
+  const favorites = libraryFavorites.use();
+  const valueConnections = libraryValueConnections.use();
 
   const [category, setCategory] = useState<Category>('all');
-  const [view, setView] = useState<View>('active');
+  const [view, setView] = useState<View>('library');
   const [range, setRange] = useState<Range>('all');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [valueId, setValueId] = useState('');
+  const [sourceApp, setSourceApp] = useState('');
+  const [groupBy, setGroupBy] = useState<LifeRecordGroupBy>('month');
   const [search, setSearch] = useState('');
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [visibleCount, setVisibleCount] = useState(30);
-  const query = search.trim().toLocaleLowerCase();
-  const hasFilters = Boolean(query || category !== 'all' || valueId || range !== 'all' || sortOrder !== 'newest');
-  const valueNames = useMemo(() => new Map<string, string>(values.map((value: ChosenValue) => [value.id, value.name] as const)), [values]);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
+  const [bulkValueId, setBulkValueId] = useState('');
+  const [bulkBusy, setBulkBusy] = useState(false);
 
-  const records: Connection[] = useMemo(() => [
-    ...reflections.map((record) => ({ kind: 'reflection' as const, record, archived: Boolean(record.archivedAt), at: record.archivedAt ?? record.createdAt })),
-    ...decisions.map((record) => ({ kind: 'decision' as const, record, archived: Boolean(record.archivedAt), at: record.archivedAt ?? record.decidedAt })),
-    ...allPursuits.map((record) => ({ kind: 'pursuit' as const, record, archived: record.status === 'archived', at: record.updatedAt })),
-    ...items.map((record) => ({ kind: 'life' as const, record, archived: Boolean(record.archivedAt), at: record.archivedAt ?? record.updatedAt })),
-  ], [reflections, decisions, allPursuits, items]);
+  const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
+  const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
+  const valueConnectionByRecord = useMemo(() => new Map(valueConnections.map((connection) => [connection.id, connection])), [valueConnections]);
+  const sourceRecords = useMemo(() => buildLifeRecords({
+    reflections,
+    decisions,
+    pursuits: allPursuits,
+    items,
+    workouts: runs?.workouts ?? [],
+    distanceUnit: runs?.unit ?? 'km',
+    strengthWorkouts,
+    strengthUnit: strengthPlan.unit ?? 'kg',
+    recipes,
+    studySessions: combineReadingSessions(study?.sessions ?? []),
+    mnemeNotes: notes,
+    mnemeIdeas: ideas,
+    poreiaTrips: trips,
+    poreiaJournal: journal,
+    poreiaToday: tripToday,
+    oikonomiaMilestones: financialMilestones,
+  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
+  const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
 
-  const scoped = useMemo(() => {
+  const records = useMemo(
+    () => mergeLibraryValueConnections(sourceRecords, valueConnections),
+    [sourceRecords, valueConnections],
+  );
+  const query = search.trim();
+  const hasFilters = Boolean(query || category !== 'all' || valueId || sourceApp || range !== 'all');
+  const availableRecords = useMemo(() => records.filter((record) => {
+    if (view === 'archived' ? !record.archived : record.archived) return false;
+    if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
+    return true;
+  }), [records, view, favoriteKeys]);
+  const sourceOptions = useMemo(() => {
+    const options = new Map<string, string>();
+    availableRecords.forEach((record) => options.set(record.sourceApp, record.source));
+    return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  }, [availableRecords]);
+  const baseScoped = useMemo(() => {
     const now = Date.now();
-    return records.filter((entry) => {
-      if (view === 'archived' ? !entry.archived : entry.archived) return false;
-      if (category !== 'all' && entry.kind !== (category === 'reflections' ? 'reflection' : category === 'decisions' ? 'decision' : category === 'pursuits' ? 'pursuit' : 'life')) return false;
-      if (!isInRange(entry.at, range, now)) return false;
-      if (valueId && !linkedValueIds(entry).includes(valueId)) return false;
-      if (entry.kind === 'reflection') return includesText(query, entry.record.body, entry.record.kind, entry.record.promptKey);
-      if (entry.kind === 'decision') return includesText(query, entry.record.question, entry.record.choice, entry.record.reasons, entry.record.expected);
-      if (entry.kind === 'pursuit') return includesText(query, entry.record.title, entry.record.area, entry.record.outcome, entry.record.why, entry.record.current, entry.record.nextMove);
-      return includesText(query, entry.record.title, entry.record.notes, entry.record.location, entry.record.type, entry.record.status);
-    }).sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at));
-  }, [records, view, category, range, sortOrder, valueId, query]);
+    return availableRecords.filter((record) => {
+      if (!isInRange(record.at, range, now)) return false;
+      if (valueId && !record.valueIds.includes(valueId)) return false;
+      if (sourceApp && record.sourceApp !== sourceApp) return false;
+      if (query && !matchesLifeRecordQuery(record, query)) return false;
+      return true;
+    });
+  }, [availableRecords, range, valueId, sourceApp, query]);
+  const scoped = useMemo(
+    () => baseScoped.filter((record) => categoryMatches(record, category))
+      .sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)),
+    [baseScoped, category, sortOrder],
+  );
+  const categoryCounts = useMemo(() => {
+    const counts = {} as Record<Category, number>;
+    (Object.keys(categoryLabels) as Category[]).forEach((id) => {
+      counts[id] = id === 'all' ? baseScoped.length : baseScoped.filter((record) => categoryMatches(record, id)).length;
+    });
+    return counts;
+  }, [baseScoped]);
+  const libraryCount = records.filter((record) => !record.archived).length;
+  const savedCount = records.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
+  const archivedCount = records.filter((record) => record.archived).length;
+  const relationPool = useMemo(
+    () => records.filter((record) => record.archived === (view === 'archived')),
+    [records, view],
+  );
 
-  useEffect(() => setVisibleCount(30), [category, view, range, sortOrder, valueId, query]);
+  useEffect(() => {
+    setVisibleCount(30);
+    setSelectedKeys(new Set());
+  }, [category, view, range, sortOrder, valueId, sourceApp, query]);
   const visibleRecords = scoped.slice(0, visibleCount);
+  const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
+  const selectedRecords = useMemo(
+    () => scoped.filter((record) => selectedKeys.has(record.key)),
+    [scoped, selectedKeys],
+  );
+  const selectedSavedCount = selectedRecords.filter((record) => favoriteKeys.has(record.key)).length;
+  const selectedArchivableCount = selectedRecords.filter(canArchiveLifeRecord).length;
+  const selectedLinkedCount = selectedRecords.filter((record) => bulkValueId && record.valueIds.includes(bulkValueId)).length;
+  const allResultsSelected = scoped.length > 0 && selectedRecords.length === scoped.length;
 
-  async function archive(entry: Connection) {
-    setBusyId(entry.kind + ':' + entry.record.id);
+  async function setRecordArchived(record: LifeRecord, archived: boolean): Promise<() => Promise<void>> {
+    const updatedAt = new Date().toISOString();
+
+    if (record.kind === 'reflection') {
+      if (archived) await reflectionService.archive(record.sourceId);
+      else await reflectionService.restore(record.sourceId);
+      return async () => {
+        if (archived) await reflectionService.restore(record.sourceId);
+        else await reflectionService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'decision') {
+      if (archived) await decisionService.archive(record.sourceId);
+      else await decisionService.restore(record.sourceId);
+      return async () => {
+        if (archived) await decisionService.restore(record.sourceId);
+        else await decisionService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'life') {
+      if (archived) await lifeService.archive(record.sourceId);
+      else await lifeService.restore(record.sourceId);
+      return async () => {
+        if (archived) await lifeService.restore(record.sourceId);
+        else await lifeService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'note' && record.sourceApp === 'mneme') {
+      const current = mnemeNotes.get(record.sourceId);
+      if (!current) throw new Error('That note no longer exists.');
+      mnemeNotes.put({ ...current, archived, updatedAt });
+      return async () => {
+        mnemeNotes.put({ ...current, archived: Boolean(current.archived), updatedAt: new Date().toISOString() });
+      };
+    }
+
+    if (record.kind === 'pursuit') {
+      const current = allPursuits.find((entry) => entry.id === record.sourceId);
+      if (!current) throw new Error('That pursuit no longer exists.');
+
+      if (archived) {
+        await pursuits.put({
+          ...current,
+          status: 'archived',
+          archivedStatus: current.status === 'archived' ? current.archivedStatus : current.status,
+          updatedAt,
+        });
+        return async () => {
+          const { archivedStatus: previous, ...rest } = current;
+          await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt: new Date().toISOString() });
+        };
+      }
+
+      const { archivedStatus: previous, ...rest } = current;
+      await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt });
+      return async () => {
+        await pursuits.put({ ...current, updatedAt: new Date().toISOString() });
+      };
+    }
+
+    throw new Error('This entry cannot be archived from the Library.');
+  }
+
+  async function archive(record: LifeRecord) {
+    setBusyId(record.key);
     setError('');
     try {
-      if (entry.kind === 'reflection') {
-        await reflectionService.archive(entry.record.id);
-        offerUndo('Reflection archived', () => reflectionService.restore(entry.record.id).then(() => undefined));
-      } else if (entry.kind === 'decision') {
-        await decisionService.archive(entry.record.id);
-        offerUndo('Decision archived', () => decisionService.restore(entry.record.id).then(() => undefined));
-      } else if (entry.kind === 'life') {
-        await lifeService.archive(entry.record.id);
-        offerUndo('Life item archived', () => lifeService.restore(entry.record.id).then(() => undefined));
-      } else {
-        const current = entry.record;
-        await pursuits.put({ ...current, status: 'archived', archivedStatus: current.status === 'archived' ? current.archivedStatus : current.status, updatedAt: new Date().toISOString() });
-        offerUndo('Pursuit archived', async () => {
-          const { archivedStatus: _archivedStatus, ...rest } = current;
-          await pursuits.put({ ...rest, status: current.status === 'archived' ? current.archivedStatus ?? 'active' : current.status, updatedAt: new Date().toISOString() });
-        });
-      }
+      const undo = await setRecordArchived(record, true);
+      offerUndo('Entry archived', undo);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That record could not be archived.');
     } finally {
@@ -167,18 +259,12 @@ export default function ConnectionsPage() {
     }
   }
 
-  async function restore(entry: Connection) {
-    setBusyId(entry.kind + ':' + entry.record.id);
+  async function restore(record: LifeRecord) {
+    setBusyId(record.key);
     setError('');
     try {
-      if (entry.kind === 'reflection') await reflectionService.restore(entry.record.id);
-      else if (entry.kind === 'decision') await decisionService.restore(entry.record.id);
-      else if (entry.kind === 'life') await lifeService.restore(entry.record.id);
-      else {
-        const current = entry.record;
-        const { archivedStatus: previous, ...rest } = current;
-        await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt: new Date().toISOString() });
-      }
+      const undo = await setRecordArchived(record, false);
+      offerUndo('Entry restored', undo);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That record could not be restored.');
     } finally {
@@ -186,24 +272,140 @@ export default function ConnectionsPage() {
     }
   }
 
-  async function unlink(entry: Connection) {
-    if (!valueId) return;
-    setBusyId(entry.kind + ':' + entry.record.id);
+  async function disconnectValueFromRecord(record: LifeRecord, linkedValueId: string) {
+    const libraryLinks = valueConnectionByRecord.get(record.key)?.valueIds ?? [];
+    const hasLibraryLink = libraryLinks.includes(linkedValueId);
+    const hasNativeLink = sourceRecordByKey.get(record.key)?.valueIds.includes(linkedValueId) ?? false;
+
+    if (hasLibraryLink) setLibraryValueConnection(record.key, linkedValueId, false);
+    if (!hasNativeLink) return;
+
+    if (record.kind === 'reflection') await reflectionService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'decision') await decisionService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'life') await lifeService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'pursuit') {
+      const current = allPursuits.find((entry) => entry.id === record.sourceId);
+      if (!current) throw new Error('That pursuit no longer exists.');
+      const notes = { ...(current.valueNotes ?? {}) };
+      delete notes[linkedValueId];
+      const { valueNotes: _previous, ...rest } = current;
+      await pursuits.put(Object.keys(notes).length ? { ...current, valueNotes: notes } : rest);
+    }
+  }
+
+  async function unlink(record: LifeRecord, linkedValueId: string) {
+    if (!linkedValueId) return;
+    setBusyId(record.key);
     setError('');
     try {
-      if (entry.kind === 'reflection') await reflectionService.disconnectValue(entry.record.id, valueId);
-      else if (entry.kind === 'decision') await decisionService.disconnectValue(entry.record.id, valueId);
-      else if (entry.kind === 'life') await lifeService.disconnectValue(entry.record.id, valueId);
-      else {
-        const notes = { ...(entry.record.valueNotes ?? {}) };
-        delete notes[valueId];
-        const { valueNotes: _previous, ...rest } = entry.record;
-        await pursuits.put(Object.keys(notes).length ? { ...entry.record, valueNotes: notes } : rest);
-      }
+      await disconnectValueFromRecord(record, linkedValueId);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That connection could not be removed.');
     } finally {
       setBusyId('');
+    }
+  }
+
+  function linkValue(record: LifeRecord, linkedValueId: string) {
+    if (!linkedValueId || record.valueIds.includes(linkedValueId)) return;
+    setLibraryValueConnection(record.key, linkedValueId, true);
+  }
+
+  function toggleSelected(record: LifeRecord, selected: boolean) {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (selected) next.add(record.key);
+      else next.delete(record.key);
+      return next;
+    });
+  }
+
+  function toggleSelectionMode() {
+    if (selectionMode) {
+      setSelectedKeys(new Set());
+      setSelectionMode(false);
+    } else {
+      setSelectionMode(true);
+    }
+  }
+
+  function toggleSelectAllResults() {
+    setSelectedKeys(allResultsSelected ? new Set() : new Set(scoped.map((record) => record.key)));
+  }
+
+  function clearSelection() {
+    setSelectedKeys(new Set());
+  }
+
+  function setSelectedFavorites(saved: boolean) {
+    selectedRecords.forEach((record) => setLibraryFavorite(record.key, saved));
+    clearSelection();
+  }
+
+  async function bulkSetArchiveState(archived: boolean) {
+    const eligible = selectedRecords.filter(canArchiveLifeRecord);
+    if (!eligible.length || bulkBusy) return;
+
+    setBulkBusy(true);
+    setError('');
+    const undoActions: Array<() => Promise<void>> = [];
+    const failedTitles: string[] = [];
+
+    try {
+      for (const record of eligible) {
+        try {
+          undoActions.push(await setRecordArchived(record, archived));
+        } catch {
+          failedTitles.push(record.title);
+        }
+      }
+
+      if (undoActions.length) {
+        const verb = archived ? 'archived' : 'restored';
+        offerUndo(`${undoActions.length} entries ${verb}`, async () => {
+          for (const undo of [...undoActions].reverse()) await undo();
+        });
+      }
+
+      clearSelection();
+      if (failedTitles.length) {
+        setError(`${failedTitles.length} entr${failedTitles.length === 1 ? 'y could' : 'ies could'} not be ${archived ? 'archived' : 'restored'}.`);
+      }
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  function bulkConnectValue() {
+    if (!bulkValueId || !selectedRecords.length || bulkBusy) return;
+    const targets = selectedRecords.filter((record) => !record.valueIds.includes(bulkValueId));
+    targets.forEach((record) => setLibraryValueConnection(record.key, bulkValueId, true));
+    clearSelection();
+    setError(targets.length ? '' : 'Every selected entry is already connected to that value.');
+  }
+
+  async function bulkDisconnectValue() {
+    if (!bulkValueId || !selectedLinkedCount || bulkBusy) return;
+    const targets = selectedRecords.filter((record) => record.valueIds.includes(bulkValueId));
+    setBulkBusy(true);
+    setError('');
+    const failedTitles: string[] = [];
+
+    try {
+      for (const record of targets) {
+        try {
+          await disconnectValueFromRecord(record, bulkValueId);
+        } catch {
+          failedTitles.push(record.title);
+        }
+      }
+
+      clearSelection();
+      if (failedTitles.length) {
+        setError(`${failedTitles.length} entr${failedTitles.length === 1 ? 'y could' : 'ies could'} not be disconnected.`);
+      }
+    } finally {
+      setBulkBusy(false);
     }
   }
 
@@ -213,51 +415,81 @@ export default function ConnectionsPage() {
     setRange('all');
     setSortOrder('newest');
     setValueId('');
+    setSourceApp('');
   }
 
-  function openRecord(entry: Connection) {
-    if (entry.kind === 'reflection') {
-      const key = entry.kind + ':' + entry.record.id;
-      setExpanded((current) => ({ ...current, [key]: !current[key] }));
-    } else if (entry.kind === 'decision') {
-      openDecision(entry.record.id);
-    } else if (entry.kind === 'life') {
-      openItem(entry.record.id);
-    } else {
-      openPursuit(entry.record.id);
+  function findRelated(record: LifeRecord) {
+    setView(record.archived ? 'archived' : 'library');
+    setCategory('all');
+    setRange('all');
+    setSortOrder('newest');
+    setValueId('');
+    setSourceApp('');
+    setSearch(record.title);
+  }
+
+  function openRecord(record: LifeRecord) {
+    if (record.kind === 'decision') {
+      openDecision(record.sourceId);
+    } else if (record.kind === 'life') {
+      openItem(record.sourceId);
+    } else if (record.kind === 'pursuit') {
+      openPursuit(record.sourceId);
       openCompassTab('motion');
       navigate('compass');
     }
   }
 
+  async function saveEdit(record: LifeRecord, body: string): Promise<boolean> {
+    setBusyId(record.key);
+    setError('');
+    try {
+      await reflectionService.updateBody(record.sourceId, body);
+      return true;
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'That reflection could not be saved.');
+      return false;
+    } finally {
+      setBusyId('');
+    }
+  }
+
+  function toggleFavorite(record: LifeRecord) {
+    setLibraryFavorite(record.key, !favoriteKeys.has(record.key));
+  }
+
   return (
     <div className="page connections-page">
-      <PageHero title="Connections" subtitle="A quiet place to return to the things worth keeping." back={{ label: 'Reflect', onBack: leave }} />
+      <PageHero title="Library" subtitle="A searchable home for the things you think, choose, do and want to remember." back={{ label: 'Reflect', onBack: leave }} />
 
       <div className="connections-toolbar">
         <label className="connections-search">
           <Sym name="search" size={19} />
           <span className="sr-only">Search your library</span>
-          <input type="search" aria-label="Search your library" placeholder="Find a thought, decision or idea…" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <input type="search" aria-label="Search your library" placeholder="Find a note, idea, decision, trip, milestone or experience…" value={search} onChange={(event) => setSearch(event.target.value)} />
           {search && <button type="button" className="connections-clear" aria-label="Clear search" onClick={() => setSearch('')}><Sym name="close" size={16} /></button>}
         </label>
       </div>
 
       <div className="connections-mode">
         <div className="connections-mode__tabs" role="tablist" aria-label="Library view">
-          <button type="button" role="tab" aria-selected={view === 'active'} onClick={() => setView('active')}>Library <span>{records.filter((entry) => !entry.archived).length}</span></button>
-          <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{records.filter((entry) => entry.archived).length}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'library'} onClick={() => setView('library')}>Library <span>{libraryCount}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'saved'} onClick={() => setView('saved')}>Saved <span>{savedCount}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{archivedCount}</span></button>
         </div>
         <div className="connections-mode__summary">
-          <span className="connections-total">{visibleRecords.length < scoped.length ? `Showing ${visibleRecords.length} of ${scoped.length}` : `${scoped.length} ${scoped.length === 1 ? 'entry' : 'entries'}`}</span>
+          <span className="connections-total">{visibleRecords.length < scoped.length ? 'Showing ' + visibleRecords.length + ' of ' + scoped.length : scoped.length + (scoped.length === 1 ? ' entry' : ' entries')}</span>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all</button>}
+          <button type="button" className="connections-select-toggle button-quiet" aria-pressed={selectionMode} onClick={toggleSelectionMode}>
+            {selectionMode ? 'Done selecting' : 'Select'}
+          </button>
         </div>
       </div>
 
       <div className="connections-categories" role="group" aria-label="Filter by type">
         {(Object.keys(categoryLabels) as Category[]).map((id) => (
           <button key={id} type="button" aria-pressed={category === id} className={category === id ? 'connections-category connections-category--active' : 'connections-category'} onClick={() => setCategory(id)}>
-            {categoryLabels[id]}
+            {categoryLabels[id]} <span className="connections-category__count">{categoryCounts[id]}</span>
           </button>
         ))}
       </div>
@@ -282,71 +514,124 @@ export default function ConnectionsPage() {
             </select>
           </label>
           <label>
+            <span>Source app</span>
+            <select className="field-input" value={sourceApp} onChange={(event) => setSourceApp(event.target.value)}>
+              <option value="">All apps</option>
+              {sourceOptions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+            </select>
+          </label>
+          <label>
             <span>Order</span>
             <select className="field-input" value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
             </select>
           </label>
+          <label>
+            <span>Group by</span>
+            <select className="field-input" value={groupBy} onChange={(event) => setGroupBy(event.target.value as LifeRecordGroupBy)}>
+              <option value="month">Month</option>
+              <option value="source">App</option>
+              <option value="none">No groups</option>
+            </select>
+          </label>
         </div>
       </details>
+
+      {selectionMode && (
+        <section className="connections-bulk" aria-label="Bulk library actions">
+          <div className="connections-bulk__header">
+            <p aria-live="polite" aria-atomic="true"><strong>{selectedRecords.length}</strong> selected <span>of {scoped.length} results</span></p>
+            <div className="connections-bulk__selection-actions">
+              <button type="button" className="button-quiet" disabled={!scoped.length || bulkBusy} onClick={toggleSelectAllResults}>
+                {allResultsSelected ? 'Clear selection' : `Select all ${scoped.length}`}
+              </button>
+              <button type="button" className="button-quiet" disabled={!selectedRecords.length || bulkBusy} onClick={clearSelection}>Clear</button>
+            </div>
+          </div>
+
+          {selectedRecords.length > 0 ? (
+            <div className="connections-bulk__body">
+              <div className="connections-bulk__actions">
+                {selectedSavedCount < selectedRecords.length && (
+                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
+                )}
+                {selectedSavedCount > 0 && (
+                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
+                )}
+                {selectedArchivableCount > 0 && (
+                  <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
+                    {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
+                  </button>
+                )}
+              </div>
+
+              <div className="connections-bulk__connections">
+                <label>
+                  <span>Compass value</span>
+                  <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
+                    <option value="">Choose a value</option>
+                    {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
+                  </select>
+                </label>
+                <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
+                <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
+                  Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="connections-bulk__hint">Select entries below to save, archive, restore or connect them to a Compass value.</p>
+          )}
+        </section>
+      )}
 
       {error && <p className="connections-error" role="alert">{error}</p>}
 
       {scoped.length === 0 ? (
         <div className="connections-empty">
-          <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : 'bookmark'} size={26} /></span>
-          <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : 'Nothing here just yet.'}</p>
-          <p>{hasFilters ? 'Try a different search or loosen your filters.' : 'Reflections, decisions, pursuits and the things you save will find their place here.'}</p>
+          <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
+          <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
-        <ol className="connections-list">
-          {visibleRecords.map((entry) => {
-            const key = entry.kind + ':' + entry.record.id;
-            const names = linkedValueIds(entry).map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
-            const body = bodyFor(entry);
-            const isExpanded = Boolean(expanded[key]);
-            const kindLabel = entry.kind === 'life' ? 'Life' : entry.kind.charAt(0).toUpperCase() + entry.kind.slice(1);
-            return (
-              <li key={key} className="connections-list__item">
-                <article className="connections-record">
-                  <div className="connections-record__meta">
-                    <span className={'connections-record__kind connections-record__kind--' + entry.kind}>{kindLabel}</span>
-                    <time dateTime={entry.at}>{dateLabel(entry.at)}</time>
-                    <details className="connections-actions">
-                      <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
-                      <div className="connections-actions__menu">
-                        {valueId && linkedValueIds(entry).includes(valueId) && (
-                          <button type="button" disabled={busyId === key} onClick={() => void unlink(entry)}>Unlink {valueNames.get(valueId)}</button>
-                        )}
-                        <button type="button" disabled={busyId === key} onClick={() => void (entry.archived ? restore(entry) : archive(entry))}>
-                          {busyId === key ? 'Saving…' : entry.archived ? 'Restore to library' : 'Move to archive'}
-                        </button>
-                      </div>
-                    </details>
-                  </div>
-                  <button type="button" className="connections-record__title" aria-expanded={entry.kind === 'reflection' ? isExpanded : undefined} onClick={() => openRecord(entry)}>
-                    <span>{titleFor(entry)}</span>
-                    {entry.kind !== 'reflection' && <small>{detailFor(entry)}</small>}
-                  </button>
-                  {entry.kind === 'reflection' && isExpanded && body && <p className="connections-record__body">{body}</p>}
-                  {entry.kind !== 'reflection' && body && (
-                    <details className="connections-record__details">
-                      <summary>Read note</summary>
-                      <p className="connections-record__body">{body}</p>
-                    </details>
-                  )}
-                  {names.length > 0 && (
-                    <div className="connections-record__values" aria-label="Connected values">
-                      {names.map((name) => <span key={name}>{name}</span>)}
-                    </div>
-                  )}
-                </article>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="connections-groups">
+          {groups.map((group) => (
+            <section className="connections-group" key={group.key}>
+              {groupBy !== 'none' && (
+                <header className="connections-group__heading">
+                  <h2>{group.label}</h2>
+                  <span>{group.records.length}</span>
+                </header>
+              )}
+              <ol className="connections-list">
+                {group.records.map((record) => (
+                  <LibraryRecordItem
+                    key={record.key}
+                    record={record}
+                    saved={favoriteKeys.has(record.key)}
+                    selectionMode={selectionMode}
+                    selected={selectedKeys.has(record.key)}
+                    availableValues={valueOptions}
+                    relatedRecords={relatedLifeRecords(record, relationPool, 3)}
+                    busy={bulkBusy || busyId === record.key}
+                    onToggleFavorite={toggleFavorite}
+                    onToggleSelected={toggleSelected}
+                    onOpen={openRecord}
+                    onArchive={(entry) => void archive(entry)}
+                    onRestore={(entry) => void restore(entry)}
+                    onUnlink={(entry, linkedValueId) => void unlink(entry, linkedValueId)}
+                    onLinkValue={linkValue}
+                    onFilterValue={setValueId}
+                    onFindRelated={findRelated}
+                    onSaveReflection={saveEdit}
+                  />
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
       )}
       {scoped.length > visibleCount && (
         <button type="button" className="connections-load-more" onClick={() => setVisibleCount((count) => count + 30)}>

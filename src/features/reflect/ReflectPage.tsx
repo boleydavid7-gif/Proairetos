@@ -378,8 +378,8 @@ export default function ReflectPage() {
       <div className="settings-list">
         <MoreRow
           icon={<CompassIcon size={22} />}
-          title="Connections"
-          detail="Find and organize what you have saved."
+          title="Library"
+          detail="Search and revisit your reflections, decisions and experiences."
           onClick={() => navigate('connections')}
         />
         {shows('insights') && (

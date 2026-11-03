@@ -3,6 +3,7 @@ import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import type { Bill } from '../core/bills';
 import { normalizeBudget, type BudgetPlan } from '../core/budget';
 import { normalizeEnvelope, type Envelope } from '../core/envelopes';
+import { reflectMilestones, type FinancialMilestone } from './reflect';
 
 const SETTINGS = 'oikonomia:settings';
 
@@ -237,8 +238,8 @@ export async function startStore(): Promise<void> {
   onRemoteChanges(notify);
 }
 
-export async function exportAll(): Promise<{ app: 'oikonomia'; version: 3; exportedAt: string; settings: Settings; bills: Bill[]; budgets: BudgetPlan[]; envelopes: Envelope[] }> {
-  return { app: 'oikonomia', version: 3, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills(), budgets: await listBudgets(), envelopes: await listEnvelopes() };
+export async function exportAll(): Promise<{ app: 'oikonomia'; version: 3; exportedAt: string; settings: Settings; bills: Bill[]; budgets: BudgetPlan[]; envelopes: Envelope[]; reflectMilestones: FinancialMilestone[] }> {
+  return { app: 'oikonomia', version: 3, exportedAt: new Date().toISOString(), settings: loadSettings(), bills: await listBills(), budgets: await listBudgets(), envelopes: await listEnvelopes(), reflectMilestones: reflectMilestones.list() };
 }
 
 export async function restore(file: unknown): Promise<number> {
@@ -267,6 +268,24 @@ export async function restore(file: unknown): Promise<number> {
       const envelope = normalizeEnvelope(value);
       if (!envelope) continue;
       await putEnvelope(envelope);
+      count += 1;
+    }
+  }
+  const milestones = (file as { reflectMilestones?: unknown }).reflectMilestones;
+  if (Array.isArray(milestones)) {
+    for (const value of milestones) {
+      if (!value || typeof value !== 'object') continue;
+      const entry = value as Partial<FinancialMilestone>;
+      if (typeof entry.id !== 'string' || !entry.id || typeof entry.title !== 'string' || !entry.title.trim() || typeof entry.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date)) continue;
+      reflectMilestones.put({
+        id: entry.id,
+        title: entry.title.trim(),
+        ...(typeof entry.body === 'string' && entry.body.trim() ? { body: entry.body.trim() } : {}),
+        date: entry.date,
+        inReflect: entry.inReflect === true,
+        createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : new Date().toISOString(),
+        updatedAt: typeof entry.updatedAt === 'string' ? entry.updatedAt : new Date().toISOString(),
+      });
       count += 1;
     }
   }
