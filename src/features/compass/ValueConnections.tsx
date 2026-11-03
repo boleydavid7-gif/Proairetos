@@ -97,9 +97,9 @@ export default function ValueConnections({
 
   function drawOnPrinciple(principle: string) {
     setDraft((current) => {
-      const lines = current.split('\\n').map((line) => line.trim());
+      const lines = current.split('\n').map((line) => line.trim());
       if (lines.includes(principle)) return current;
-      return current.trim() ? `${current.trim()}\\n${principle}` : principle;
+      return current.trim() ? `${current.trim()}\n${principle}` : principle;
     });
   }
 
@@ -111,7 +111,7 @@ export default function ValueConnections({
       </div>
 
       <label className="value-connections__search">
-        <span className="sr-only">Search connected items</span>
+        
         <input
           className="field-input"
           type="search"
