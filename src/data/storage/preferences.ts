@@ -720,3 +720,22 @@ export function loadNotify(): NoticeSettings {
 export function saveNotify(settings: NoticeSettings): void {
   writeJson(NOTIFY_KEY, settings);
 }
+
+const TODAY_APPS_HIDDEN_KEY = 'proairetos.todayAppsHidden';
+
+/** Companion-app summaries hidden from Today; installation and the app's own records are left untouched. */
+export function todayAppsHiddenSnapshot(): string {
+  return JSON.stringify(readJson<string[]>(TODAY_APPS_HIDDEN_KEY) ?? []);
+}
+
+export function todayAppsHidden(): string[] {
+  return readJson<string[]>(TODAY_APPS_HIDDEN_KEY) ?? [];
+}
+
+/** One switch for the app's compact summary on Today. */
+export function setTodayAppShown(app: string, shown: boolean): void {
+  const hidden = new Set(todayAppsHidden());
+  if (shown) hidden.delete(app);
+  else hidden.add(app);
+  writeJson(TODAY_APPS_HIDDEN_KEY, [...hidden]);
+}
