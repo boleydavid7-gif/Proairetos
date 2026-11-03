@@ -197,6 +197,7 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
   // Persist the access rule before publishing the encrypted app-list reference to the household.
   await setAppShare(list.id, app, shared.id, true);
   households.changeItem(list, partId(app), { id: partId(app), kind: 'part', app, list: { id: shared.id, key: shared.key, name: shared.name }, at: new Date().toISOString() });
+  await households.refreshList(list);
   setStates({ ...states, [app]: 'shared' });
 }
 
@@ -208,6 +209,7 @@ export async function stopSharing(app: HouseholdApp): Promise<HouseholdItem | un
   if (before?.kind !== 'part') return undefined;
   await setAppShare(list.id, app, before.list.id, false);
   households.changeItem(list, partId(app), null);
+  await households.refreshList(list);
   return before;
 }
 
@@ -217,6 +219,7 @@ export async function restorePart(item: HouseholdItem): Promise<void> {
   if (!list || item.kind !== 'part') return;
   await setAppShare(list.id, item.app, item.list.id, true);
   households.changeItem(list, item.id, item);
+  await households.refreshList(list);
 }
 
 /** Only the household owner can promote or demote administrators. */
@@ -260,6 +263,7 @@ export async function removeHouseholdMember(targetUserId: string): Promise<void>
   }
   if (data !== true) throw new Error('The member could not be removed.');
   households.changeItem(list, memberId(targetUserId), null);
+  await households.refreshList(list);
   setRoleState({
     ...roleState,
     fetchedAt: Date.now(),
