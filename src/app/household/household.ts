@@ -273,6 +273,9 @@ export async function leaveHousehold(): Promise<void> {
   const list = household();
   if (!list) return;
   const userId = await me().catch(() => undefined);
+  if (userId && roleState.ownerId === userId) {
+    throw new Error('The household owner cannot leave. Transfer ownership or delete the household first.');
+  }
   if (userId) {
     households.changeItem(list, memberId(userId), null);
     await households.refreshList(list).catch(() => undefined);
