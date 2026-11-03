@@ -72,7 +72,7 @@ export const viewTitles: Record<View, string> = {
   privacy: 'Privacy and lock',
   delete: 'Delete everything',
   news: 'What’s new',
-  store: 'Store',
+  store: 'App Store',
   about: 'About Proairetos',
   inbox: 'Capture from anywhere',
   health: 'Health data',
