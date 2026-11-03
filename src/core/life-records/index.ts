@@ -3,6 +3,7 @@ import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
 import { createLifeRecord, type LifeRecordAdapter, type LifeRecordApp, type LifeRecordDraft, type LifeRecordKind, type LifeRecordSource } from './contract';
 export type { LifeRecord, LifeRecordAdapter, LifeRecordApp, LifeRecordKind, LifeRecordSource } from './contract';
+export { createLifeRecord, lifeRecordKey, validateLifeRecordAdapter } from './contract';
 import type { LifeRecord } from './contract';
 
 export interface LifeRecordInput {
