@@ -90,7 +90,10 @@ function decisionRecord(entry: Decision): LifeRecord {
   });
 }
 
-function pursuitRecord(entry: Pursuit): LifeRecord {
+type PursuitRecord = NonNullable<LifeRecordInput['pursuits']>[number];
+type WorkoutRecord = NonNullable<LifeRecordInput['workouts']>[number];
+
+function pursuitRecord(entry: PursuitRecord): LifeRecord {
   const status = entry.status === 'complete' ? 'Complete' : entry.status === 'paused' ? 'Paused' : entry.status === 'archived' ? 'Archived' : 'Active';
   return record({
     key: `pursuit:${entry.id}`,
@@ -123,7 +126,7 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
   });
 }
 
-function workoutRecord(entry: LifeRecordInput['workouts'] extends readonly (infer T)[] | undefined ? T : never): LifeRecord {
+function workoutRecord(entry: WorkoutRecord): LifeRecord {
   const activity = entry.workoutTitle ?? ({ run: 'Run', walk: 'Walk', hike: 'Hike', bike: 'Bike', other: 'Activity' } as const)[entry.activity];
   const details = [
     entry.meters ? `${(entry.meters / 1000).toFixed(1)} km` : undefined,
