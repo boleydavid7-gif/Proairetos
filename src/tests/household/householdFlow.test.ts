@@ -280,9 +280,11 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await homes.joinList(appList);
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await homes.joinList(appList);
     expect(tables.shared_list_members.filter((item) => item.list_id === appList.id).map((item) => item.user_id)).toEqual(['user-a', 'user-b', 'user-c']);
 
     user = 'user-a';
