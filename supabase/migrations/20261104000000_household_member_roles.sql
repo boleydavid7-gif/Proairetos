@@ -221,7 +221,7 @@ begin
   delete from public.household_member_roles
   where household_id = old.list_id and user_id = old.user_id;
   delete from public.household_invites
-  where household_id = old.list_id and from_user = old.user_id;
+  where household_id = old.list_id and (from_user = old.user_id or to_user = old.user_id);
   return old;
 end;
 $$;
