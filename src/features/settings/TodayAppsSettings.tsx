@@ -45,7 +45,7 @@ export default function TodayAppsSettings() {
       {!any && (
         <div className="settings-card">
           <p className="empty-note">Add companion apps to build your Today overview.</p>
-          <a className="text-link" href="/?open=settings:store">Open App Store</a>
+          <a className="text-link" href="/?open=settings%3Astore">Open App Store</a>
         </div>
       )}
       {DAILY_PRACTICE_APPS.some((app) => added.includes(app)) && (
