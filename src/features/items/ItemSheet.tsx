@@ -155,7 +155,7 @@ function ControlSplitSection({ item }: { item: LifeItem }) {
   if (!open) {
     return (
       <button type="button" className="chip chip--wide" onClick={() => setOpen(true)}>
-        {isConcern ? 'What part of this is up to you?' : 'Sort what is in your control'}
+        {isConcern ? 'What can you control?' : 'Sort by control'}
       </button>
     );
   }
