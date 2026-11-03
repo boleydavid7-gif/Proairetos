@@ -175,8 +175,9 @@ export default function ReflectPage() {
   const shows = useTodayParts();
   const navigate = useNavigate();
   const all = useServiceData(reflectionService.subscribe, () => reflectionService.all());
+  const appPrompts = new Set(['after-run', 'after-meal', 'after-study', 'after-reading', 'after-strength', 'after-trip']);
   const recent = (all ?? [])
-    .filter((entry) => entry.promptKey !== 'daily-check-in' && !entry.decisionId && entry.body.trim())
+    .filter((entry) => entry.promptKey !== 'daily-check-in' && !appPrompts.has(entry.promptKey ?? '') && !entry.decisionId && entry.body.trim())
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 3);
 
