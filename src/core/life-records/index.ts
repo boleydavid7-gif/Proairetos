@@ -3,7 +3,7 @@ import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
 import { createLifeRecord, type LifeRecordAdapter, type LifeRecordApp, type LifeRecordDraft, type LifeRecordSource } from './contract';
 export type { LifeRecord, LifeRecordAdapter, LifeRecordApp, LifeRecordKind, LifeRecordSource } from './contract';
-export { createLifeRecord, lifeRecordKey, validateLifeRecordAdapter } from './contract';
+export { createLifeRecord, lifeRecordKey, validateLifeRecordAdapter, LIFE_RECORD_APP_LABELS } from './contract';
 import type { LifeRecord } from './contract';
 
 export interface LifeRecordInput {
@@ -246,6 +246,7 @@ export const lifeRecordAdapters = {
   reflections: {
     id: 'proairetos.reflections',
     owner: 'proairetos',
+    allowOriginOverrides: true,
     kinds: ['reflection'],
     toRecords: (entries: readonly Reflection[]) => entries.map(reflectionRecord),
   } satisfies LifeRecordAdapter<readonly Reflection[]>,
