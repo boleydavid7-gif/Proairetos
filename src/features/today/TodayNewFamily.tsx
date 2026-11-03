@@ -40,7 +40,7 @@ export function TodayBirthdays({ today }: { today: string }) {
       href={soon.length === 1 ? `/philia/?open=${encodeURIComponent(`person:${first.person.id}`)}` : '/philia/'}
       icon={<PersonIcon size={20} />}
       line={soon.slice(0, 2).map((entry) => `${name(entry)} ${whenText(entry.date, today).toLowerCase()}`).join(' · ')}
-      detail={soon.length > 2 ? `And ${soon.length - 2} more · Philia` : 'Philia'}
+      detail={soon.length > 2 ? `And ${soon.length - 2} more` : 'Coming up'}
       part="birthdays"
     />
   );
@@ -73,7 +73,7 @@ export function TodayTrip({ now, today }: { now: Date; today: string }) {
       href={`/poreia/?open=${encodeURIComponent(`trip:${trip.id}`)}`}
       icon={<SuitcaseIcon size={20} />}
       line={away[0] === trip ? `${trip.name} · ${phaseText(phaseOf(trip, today))}` : `${trip.name} ${phaseText(phaseOf(trip, today)).toLowerCase()}`}
-      detail={[nextText, away[0] !== trip && left ? `${left} to pack` : undefined, 'Poreia'].filter(Boolean).join(' · ')}
+      detail={[nextText, away[0] !== trip && left ? `${left} to pack` : undefined].filter(Boolean).join(' · ')}
       part="trips"
     />
   );
