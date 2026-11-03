@@ -57,7 +57,7 @@ function localDay(): string {
 
 /** Only milestones written here can appear in Reflect; financial source data stays in Oikonomia. */
 function FinancialMilestones() {
-  const entries = reflectMilestones.use().sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt));
+  const entries = [...reflectMilestones.use()].sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt));
   const [editingId, setEditingId] = useState('');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
