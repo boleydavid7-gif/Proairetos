@@ -5,7 +5,7 @@ import { TodayBirthdays, TodayTrip } from './TodayNewFamily';
 import TodayFamily, { TodayPursuit } from './TodayFamily';
 import { useAddedApps } from '../../app/family/added';
 import { useTodayAppsVisibility } from '../../app/hooks/useTodayAppsVisibility';
-import { DAILY_PRACTICE_APPS, WORTH_ATTENTION_APPS, type AttentionApp, type DailyPracticeApp } from '../../core/today/apps';
+import { DAILY_PRACTICE_APPS, type AttentionApp, type DailyPracticeApp } from '../../core/today/apps';
 import { useDrinks as useHydrosDrinks, useSettings as useHydrosSettings } from '../../hydros/app/state';
 import { useDays as useHydrosDays } from '../../hydros/app/day';
 import { defaultDrinkProfiles, effectiveGoalOz, formatVolume, hydrationOz, type HydrosUnit } from '../../hydros/core/drinks';
@@ -15,8 +15,7 @@ import { isTrainingDay, nextSession, sessionsFor } from '../../dynamis/core/plan
 import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { settings as diaitaSettings, sleeps as diaitaSleeps } from '../../diaita/app/state';
 import { hoursText, sleptMinutes } from '../../diaita/core/rhythm';
-import { useStudy } from '../../app/praxis/study';
-import { studyBetween } from '../../app/praxis/study';
+import { studyBetween, useStudy } from '../../app/praxis/study';
 import { ChevronRightIcon } from '../../components/icons/Icons';
 
 type DayRange = { start: Date; end: Date };
