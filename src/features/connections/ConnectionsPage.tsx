@@ -148,7 +148,7 @@ export default function ConnectionsPage() {
         const current = mnemeNotes.get(record.sourceId);
         if (!current) throw new Error('That note no longer exists.');
         mnemeNotes.put({ ...current, archived: true, updatedAt: new Date().toISOString() });
-        offerUndo('Note archived', () => mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() }));
+        offerUndo('Note archived', async () => { mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() }); });
       } else if (record.kind === 'pursuit') {
         const current = allPursuits.find((entry) => entry.id === record.sourceId);
         if (!current) throw new Error('That pursuit no longer exists.');
