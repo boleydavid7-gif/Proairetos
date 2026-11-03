@@ -28,7 +28,7 @@ function PayForm({ start, onDone, onCancel }: { start: Pay; onDone: (pay: Pay) =
       }}
     >
       <label className="field"><span className="field__label">Name</span><input className="input" value={name} onChange={(event) => setName(event.target.value)} /></label>
-      <label className="field"><span className="field__label">Usually about (optional)</span><input className="input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>
+      <label className="field"><span className="field__label">Typical amount (optional)</span><input className="input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>
       <label className="field">
         <span className="field__label">How often</span>
         <select className="input" value={rhythm} onChange={(event) => setRhythm(event.target.value as PayRhythm)}>
