@@ -39,14 +39,15 @@ describe('Askesis native plugin package', () => {
   it('ships an explicit protocol-v1 handshake without claiming unfinished capabilities', () => {
     const swift = read('packages/capacitor-askesis-bridge/ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift');
     const android = read('packages/capacitor-askesis-bridge/android/src/main/java/com/proairetos/askesisbridge/AskesisBridgePlugin.java');
-    for (const source of [swift, android]) {
-      expect(source).toContain('"healthWorkouts": false');
-      expect(source).toContain('"heartRate": false');
-      expect(source).toContain('"backgroundGps": false');
-      expect(source).toContain('"haptics": false');
-      expect(source).toContain('"lockScreenControls": false');
-      expect(source).toContain('"watchSync": false');
-      expect(source).toContain('"protocolVersion": 1');
+    for (const [source, platform] of [[swift, 'ios'], [android, 'android']] as const) {
+      for (const capability of ['healthWorkouts', 'heartRate', 'backgroundGps', 'haptics', 'lockScreenControls', 'watchSync']) {
+        expect(source).toMatch(new RegExp(platform === 'ios'
+          ? `"${capability}"\\s*:\\s*false`
+          : `put\\("${capability}",\\s*false\\)`));
+      }
+      expect(source).toMatch(platform === 'ios'
+        ? /"protocolVersion": 1/
+        : /put\("protocolVersion", 1\)/);
     }
   });
 });
