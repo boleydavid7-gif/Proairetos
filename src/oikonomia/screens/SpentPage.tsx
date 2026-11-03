@@ -67,7 +67,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
   const bringIn = async (chosen?: File) => {
     if (!chosen) return;
     const read = readStatement(await chosen.text());
-    if (!read) return setProblem('That file does not look like a statement. A CSV from your bank or card, with a date and an amount, works.');
+    if (!read) return setProblem('Use a bank or card CSV with date and amount columns.');
     const choices = areaChoices();
     const months = new Set(read.map((line) => line.date.slice(0, 7)));
     const fresh = read.filter((line) => newLines(spentIn(line.date.slice(0, 7)), [line]).length > 0);
@@ -195,9 +195,9 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
             onUse={(values) => {
               if (values.name) setEntryDescription(values.name);
               if (values.amount) setEntryAmount(values.amount);
-              if (!values.amount) setProblem('I couldn’t find a labeled receipt total. Enter the amount below before saving.');
+              if (!values.amount) setProblem('Receipt total not found. Enter amount.');
               if (values.date && values.date.startsWith(`${month}-`)) setEntryDate(values.date);
-              else if (values.date) setProblem('The receipt date is in another month; choose that month before saving.');
+              else if (values.date) setProblem('Receipt is from another month. Switch months to save.');
             }}
           />
           <label className="field"><span className="field__label">What was it?</span><input className="input" value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} autoFocus /></label>
