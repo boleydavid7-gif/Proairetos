@@ -6,7 +6,7 @@ import askesisHero from '../../assets/images/scenes/askesis-stoic-wide.webp';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
 import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
-import { feelings } from '../core/log';
+import { feelings, type LogEntry } from '../core/log';
 import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
 import SessionBar from '../app/SessionBar';
@@ -279,7 +279,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
 type WeekCalendarProps = {
   dates: string[];
   plans: DayPlan[];
-  entries: ReturnType<typeof useEntries> extends (infer T)[] | undefined ? NonNullable<ReturnType<typeof useEntries>> : never;
+  entries: LogEntry[];
   today: string;
   nav: Nav;
 };
