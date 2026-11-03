@@ -1359,10 +1359,14 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   Steps (`Chore.steps`, optional, one per line in the form, `stepsFromText`, at most 20): ticked on the chore's page
   (`toggleStep`), cleared by `markDone`. Today shows room chips when its chores span two rooms or more (`roomsOf`) and, in one
   room, "Mark all of these done" with one undo.
-- Ergon giving chores (`WhoChips` in `ergon/app/ui.tsx`: Anyone, each name with this person first, Someone else to add one;
-  names added are kept in `ErgonSettings.people`, `addPerson`, `peopleFor`): Who sits in the chore form's main part (One
-  person / Take turns) and on the chore's page as its own card that changes at once with undo; Today has person chips
-  (Everyone and each name, once two names exist and a chore is given) showing that person's chores and those for anyone.
+- Ergon Family mode (`HouseholdPage`): when Chores is enabled in Proairetos Settings > Family > What you share,
+  `useHousehold` supplies the real household roster and roles. The Family page shows each member, their open assignments
+  and their completion count over the last 30 days; management and invitations remain in Proairetos Family settings.
+- Ergon giving chores: in a connected Family, `HouseholdWhoChips` offers actual household members, not free-text names.
+  Chores keep stable member IDs (`whoId`, `rotaIds`) alongside display-name fallbacks (`who`, `rota`) so a renamed
+  member stays assigned and a departed member remains readable. `choreAssignee`, `choreRotaNames` and
+  `memberIdForName` resolve these records; `markDone` advances an ID-based rotation. Today filters by household member
+  ID and includes chores open to everyone. Standalone Ergon lists keep the older `WhoChips` flow and custom names.
 - Ergon days off (More > "On days off", `ErgonSettings.daysOff`, off until chosen): `nextDay(chore, daysOff)` moves a chore
   that comes round on a work day to the next day off within two weeks (`dayOffFrom`); only chores every 2+ days, weeks,
   monthly or once, and not someone else's turn (`movesToDayOff`); counting still runs from when it was done. Work days are
