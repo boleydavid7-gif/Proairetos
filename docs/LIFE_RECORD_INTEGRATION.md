@@ -71,6 +71,19 @@ Native source value links remain authoritative for records that already support 
 
 Entries that share at least one chosen value can show one another in a compact Related entries section. This creates deliberate connections between different parts of a person's life without guessing relationships from private text or using automatic AI categorization.
 
+### Bulk Library management
+
+Selection mode is opt-in, so checkboxes do not clutter the normal reading view. While selection mode is active, people can select individual entries or every result in the current filtered view, including results beyond the currently rendered page.
+
+Bulk actions include:
+
+- Save selected entries or remove selected entries from Saved.
+- Archive or restore only record kinds with a supported source-app operation. Other kinds remain untouched.
+- Connect selected entries to a Compass value using Library-owned metadata.
+- Disconnect a chosen value from selected entries. This removes the Library-owned link and, where present, the native source-app link.
+
+Bulk archive and restore run entry by entry, report partial failures, and offer one combined undo action. The selection toolbar and checkboxes use the Lamplight button, field, spacing and touch-target tokens. They appear only while selection mode is active.
+
 ## Source ownership and actions
 
 - Library records are projections, not a second source of truth.
