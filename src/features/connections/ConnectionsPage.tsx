@@ -318,7 +318,7 @@ export default function ConnectionsPage() {
         <div className="connections-empty">
           <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
           <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
-          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your reflections, decisions, experiences and pursuits will find their place here.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
