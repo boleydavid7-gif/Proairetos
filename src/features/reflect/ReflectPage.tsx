@@ -181,6 +181,8 @@ export default function ReflectPage() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 3);
 
+  const openReflectionsLibrary = () => navigate('connections', { search: '?category=reflections' });
+
   return (
     <div className="page reflect-home">
       <PageHeader title="Reflect" subtitle="Pause. Notice. Choose." settings />
@@ -229,7 +231,7 @@ export default function ReflectPage() {
       <section className="reflect-recent" aria-labelledby="reflect-recent-title">
         <div className="reflect-section-heading reflect-recent__heading">
           <h2 id="reflect-recent-title">Recent reflections</h2>
-          <button type="button" className="text-link" onClick={() => navigate('connections')}>View all</button>
+          <button type="button" className="text-link" onClick={openReflectionsLibrary}>View all</button>
         </div>
         {recent.length > 0 ? (
           <ol className="timeline reflect-recent__list">
@@ -240,7 +242,7 @@ export default function ReflectPage() {
         ) : (
           <div className="reflect-recent__empty">
             <p>{all ? 'Your reflections will gather here as you write them.' : 'Loading reflections…'}</p>
-            {all && <button type="button" className="text-link" onClick={() => navigate('connections')}>Open Library</button>}
+            {all && <button type="button" className="text-link" onClick={openReflectionsLibrary}>Open Library</button>}
           </div>
         )}
       </section>
