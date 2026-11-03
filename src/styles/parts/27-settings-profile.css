@@ -159,6 +159,40 @@
   font-size: var(--text-sm);
 }
 
+/* A to-do scheduled for a day, but not a specific hour, belongs on Today's timeline. */
+.timeline__planned {
+  padding: var(--space-1) 0;
+}
+
+.timeline__planned-button {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.timeline__planned-when {
+  flex: 0 0 4.25rem;
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}
+
+.timeline__planned-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+
 .timeline__entry--event {
   border-left: 2px dashed var(--color-border);
 }

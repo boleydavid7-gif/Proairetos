@@ -24,7 +24,7 @@ function shiftDetail(entry: Extract<TimelineEntry, { kind: 'shift' }>, date: str
 }
 
 export default function DayTimeline({ date, entries, now, onChangeDay, onOpenItem, onOpenEntry, goalLines }: Props) {
-  const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday');
+  const timed = entries.filter((entry) => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
   const nowIndex = now ? timed.findIndex((entry) => 'start' in entry && entry.start > now) : -1;
   const markerAt = now ? (nowIndex === -1 ? timed.length : nowIndex) : -1;
   const until = (entry: TimelineEntry, index: number) =>
@@ -59,6 +59,17 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
         entry.kind === 'allday' ? (
           <li key={entry.key} className="timeline__allday">
             All day · {entry.event.title} <span className="timeline__source">{entry.event.source}</span>
+          </li>
+        ) : null,
+      )}
+
+      {entries.map((entry) =>
+        entry.kind === 'planned' ? (
+          <li key={entry.key} className="timeline__planned">
+            <button type="button" className="timeline__planned-button" onClick={() => onOpenItem(entry.item.id)}>
+              <span className="timeline__planned-when">Any time</span>
+              <span className="timeline__planned-title">{entry.item.title}</span>
+            </button>
           </li>
         ) : null,
       )}
