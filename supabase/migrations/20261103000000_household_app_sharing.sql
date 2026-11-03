@@ -9,7 +9,7 @@ create table if not exists public.household_app_shares (
   household_id uuid not null references public.shared_lists (id) on delete cascade,
   app text not null check (app in ('proairetos', 'soma', 'ergon', 'phyton', 'therapeia')),
   shared_list_id uuid not null references public.shared_lists (id) on delete cascade,
-  owner_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  owner_id uuid default auth.uid() references auth.users (id) on delete set null,
   enabled boolean not null default true,
   updated_at timestamptz not null default now(),
   primary key (household_id, app),
@@ -160,7 +160,7 @@ begin
       and (
         not s.enabled
         or (
-          s.owner_id <> auth.uid()
+          s.owner_id is distinct from auth.uid()
           and not exists (
             select 1 from public.shared_list_members hm
             where hm.list_id = s.household_id and hm.user_id = auth.uid()
