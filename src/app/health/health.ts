@@ -4,6 +4,7 @@ import { openSealed } from '../capture/inbox';
 import { API_BASE } from '../apiBase';
 import { isAdded } from '../family/added';
 import { emptyBatch, readHealthExport, type HealthBatch, type HealthWorkout } from '../../core/health/autoExport';
+import { HEALTH_ID } from '../../core/health/fromHealth';
 
 /*
  * Apple Health through Health Auto Export. Turning it on makes a key pair and a token on this device; the server gets
