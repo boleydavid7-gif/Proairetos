@@ -16,11 +16,11 @@ What is not done, and needs your accounts and computers:
 ## Steps
 1. `npm install`
 2. `npx cap add ios` and `npx cap add android` (once; makes the `ios/` and `android/` folders, which are not
-   kept in git).
+   kept in git). Capacitor 8 uses Swift Package Manager for a new iOS project.
 3. `npm run cap:sync` (builds the native profile with the live address and copies it in).
 4. `npm run cap:ios` opens Xcode; `npm run cap:android` opens Android Studio. Run on a device, then
    archive and upload.
-5. After each change to the web app, `npm run cap:sync` again.
+5. After each change to the web app, `npm run cap:sync` again. The local Askesis plugin is installed by `npm install` and discovered automatically by Capacitor; do not copy plugin source into the generated platform folders.
 
 ## What is ready for the phone apps (the website is unchanged by all of it)
 - **One app holds the family.** The native profile uses `dist-native/`, so every app's page (`/askesis/`, `/soma/`, …)
@@ -38,6 +38,19 @@ What is not done, and needs your accounts and computers:
   every opening and change, worded as on the web, and a tap opens the notice's page (`core/notify/place.ts`, the same
   rules as `sw.js`). They arrive with the app closed, without the server. Android also needs the exact-alarm
   permission line in `AndroidManifest.xml` (`SCHEDULE_EXACT_ALARM`), added after `npx cap add android`.
+
+## Askesis native plugin package (Phase 7A)
+
+The native bridge source is version-controlled at `packages/capacitor-askesis-bridge/`. The package is a local file dependency in the root `package.json`, so a clean `npm ci` installs it without a registry publish.
+
+- iOS source: `ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift`, included by `Package.swift` as a Swift Package Manager plugin for Capacitor 8.
+- Android source: `android/src/main/java/com/proairetos/askesisbridge/AskesisBridgePlugin.java`, included by its Gradle library module.
+- Plugin metadata: the package's `capacitor` field points Capacitor to the iOS and Android source directories.
+- JavaScript registration: `src/askesis/app/capabilities.ts` registers the matching plugin name, `AskesisBridge`.
+
+Both native implementations currently return protocol v1 and the correct platform, with every optional capability set to `false`. This is intentional: it proves the installed plugin can handshake without advertising health access, background tracking, haptics, lock-screen controls or watch sync before those features exist.
+
+To rebuild the local native projects from source, run `npm ci`, create the platforms once if needed, then run `npm run cap:sync`. Capacitor discovers and links the local plugin during sync. The generated `ios/` and `android/` app folders remain ignored by Git; only the reusable plugin package is committed.
 
 ## Optional Askesis phone bridge
 
