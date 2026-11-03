@@ -18,7 +18,7 @@ export function normalizeValuePrinciples(principles: readonly string[]): string[
   const seen = new Set<string>();
 
   for (const entry of principles) {
-    const principle = entry.trim().replace(/\\s+/g, ' ');
+    const principle = entry.trim().replace(/\s+/g, ' ');
     if (!principle) continue;
     if (principle.length > MAX_VALUE_PRINCIPLE_LENGTH) {
       throw new ValuePrincipleError(`Keep a principle to ${MAX_VALUE_PRINCIPLE_LENGTH} characters.`);
