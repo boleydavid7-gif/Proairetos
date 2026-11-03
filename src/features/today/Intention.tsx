@@ -27,11 +27,12 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
   if (!loaded) return null;
 
   const current = loaded.body;
+  const currentValueIds = loaded.valueIds;
   const label = isToday ? 'Today’s intention' : 'Intention';
 
   function edit() {
     setDraft(current);
-    setSelectedValueIds(loaded.valueIds);
+    setSelectedValueIds(currentValueIds);
     setEditing(true);
   }
 
@@ -40,7 +41,7 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
     setPicking(false);
     setEditing(false);
     if (current && !draft.trim()) {
-      offerUndo('Intention cleared', () => reflectionService.setIntention(date, current, loaded.valueIds));
+      offerUndo('Intention cleared', () => reflectionService.setIntention(date, current, currentValueIds));
     }
   }
 
@@ -121,9 +122,9 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
       )}
-      {!editing && loaded.valueIds.length > 0 && (
+      {!editing && currentValueIds.length > 0 && (
         <div className="intention__values" aria-label="Connected values">
-          {values.filter((value) => loaded.valueIds.includes(value.id)).map((value) => (
+          {values.filter((value) => currentValueIds.includes(value.id)).map((value) => (
             <span key={value.id} className="chip chip--small">{value.name}</span>
           ))}
         </div>
