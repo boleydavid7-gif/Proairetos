@@ -59,9 +59,9 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
   // Plans and apps belong to an account: signed out, the Store says so and leads to signing in.
   if (!account && !owner && !tester) {
     return (
-      <section className="store" aria-label="Store">
+      <section className="store" aria-label="App Store">
         <div className="store__paywall store__signed-out">
-          <p className="store__trial" role="status">An account is needed to view the Store and add apps.</p>
+          <p className="store__trial" role="status">An account is needed to view the App Store and add apps.</p>
           <p>Every app is free for 7 days with a new account. No card needed.</p>
           {onOpenAccount ? (
             <button type="button" className="button-accent store__button" onClick={onOpenAccount}>
@@ -78,9 +78,9 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
   }
 
   return (
-    <section className="store" aria-label="Store">
+    <section className="store" aria-label="App Store">
       <div className="store__paywall">
-        <h2>Store</h2>
+        <h2>App Store</h2>
         <p>Proairetos is free. Plans add the other apps and follow your account to every device.</p>
         {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
