@@ -73,7 +73,7 @@ for (const viewport of viewports) {
   await context.addInitScript(({ apps: seededApps }) => {
     localStorage.setItem('proairetos.onboarded', 'yes');
     localStorage.setItem('proairetos.apps', JSON.stringify({ added: seededApps.filter((app) => app !== 'proairetos') }));
-    for (const app of seededApps.filter((app) => !['proairetos', 'praxis', 'theoria', 'hydros'].includes(app))) localStorage.setItem(`${app}:settings`, JSON.stringify({ started: true, safetySeen: true }));
+    for (const app of seededApps.filter((app) => !['proairetos', 'praxis', 'theoria'].includes(app))) localStorage.setItem(`${app}:settings`, JSON.stringify({ started: true, safetySeen: true }));
   }, { apps });
 
   for (const app of apps) {
