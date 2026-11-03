@@ -80,7 +80,9 @@
 .connections-mode__tabs {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  max-width: 100%;
 }
 
 .connections-mode__tabs button {
@@ -414,6 +416,10 @@
 
 .connections-actions__menu button:hover {
   background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+}
+
+.connections-actions__menu .connections-action--destructive {
+  color: var(--color-danger, var(--color-text)) !important;
 }
 
 .connections-actions__menu button:disabled {
