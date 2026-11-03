@@ -180,9 +180,11 @@ describe('a household', () => {
 
   it('enforces owner, administrator and member permissions', async () => {
     const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
     user = 'user-a';
     device('Sam');
     await household.makeHousehold('Family');
+    await household.shareApp('ergon');
     const made = household.household()!;
 
     user = 'user-b';
@@ -191,6 +193,7 @@ describe('a household', () => {
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    const removedMemberAppList = homes.sharedLists()[0];
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'admin');
@@ -207,6 +210,11 @@ describe('a household', () => {
     user = 'user-b';
     await household.removeHouseholdMember('user-c');
     expect(tables.shared_list_members.some((row) => row.list_id === made.id && row.user_id === 'user-c')).toBe(false);
+
+    // Removal blocks the former member from the connected app list on their next sync.
+    user = 'user-c';
+    await expect(homes.refreshList(removedMemberAppList)).rejects.toThrow('This list is no longer shared with you.');
+    expect(homes.sharedLists()).toHaveLength(0);
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'member');
