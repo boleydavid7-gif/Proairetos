@@ -19,9 +19,9 @@ if (bridgePackage.capacitor?.ios?.src !== 'ios') fail('Capacitor iOS source meta
 if (bridgePackage.capacitor?.android?.src !== 'android') fail('Capacitor Android source metadata is missing.');
 
 const requiredFiles = [
-  'Package.swift',
-  'AskesisBridge.podspec',
-  'ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift',
+  'packages/askesis-bridge/Package.swift',
+  'packages/askesis-bridge/AskesisBridge.podspec',
+  'packages/askesis-bridge/ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift',
   'packages/askesis-bridge/src/definitions.ts',
   'packages/askesis-bridge/src/index.ts',
   'packages/askesis-bridge/android/build.gradle',
@@ -33,7 +33,7 @@ for (const path of requiredFiles) {
   if (!existsSync(resolve(root, path))) fail(`Missing tracked source: ${path}`);
 }
 
-const swift = readFileSync(resolve(root, 'ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift'), 'utf8');
+const swift = readFileSync(resolve(root, 'packages/askesis-bridge/ios/Sources/AskesisBridgePlugin/AskesisBridgePlugin.swift'), 'utf8');
 const kotlin = readFileSync(resolve(root, 'packages/askesis-bridge/android/src/main/java/com/proairetos/askesisbridge/AskesisBridgePlugin.kt'), 'utf8');
 const manifest = readFileSync(resolve(root, 'packages/askesis-bridge/android/src/main/AndroidManifest.xml'), 'utf8');
 
