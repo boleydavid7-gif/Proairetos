@@ -112,9 +112,9 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
                     type="button"
                     className="chip chip--small"
                     onClick={() => setDraft((current) => {
-                      const lines = current.split('\\n').map((line) => line.trim());
+                      const lines = current.split('\n').map((line) => line.trim());
                       if (lines.includes(principle)) return current;
-                      return current.trim() ? `${current.trim()}\\n${principle}` : principle;
+                      return current.trim() ? `${current.trim()}\n${principle}` : principle;
                     })}
                   >
                     {principle}
