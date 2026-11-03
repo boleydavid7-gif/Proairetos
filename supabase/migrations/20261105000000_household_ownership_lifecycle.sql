@@ -88,17 +88,17 @@ begin
   loop
     delete from public.shared_list_members m
     where m.list_id = linked_list.shared_list_id
-      and exists (
-        select 1 from public.shared_list_members household_member
-        where household_member.list_id = household
-          and household_member.user_id = m.user_id
-      )
+      -- All other members came through this household. Remove former members too, so deletion cannot restore
+      -- access to people who left or were removed before the household itself was deleted.
       and m.user_id is distinct from linked_list.created_by
       and m.user_id is distinct from linked_list.owner_id
       and m.user_id is distinct from current_owner;
   end loop;
 
-  -- Cascades the household's own members, encrypted index, invitations, roles and app-share rules.
+  -- Remove access rules before the household-member cascade runs its ordinary leave cleanup trigger.
+  delete from public.household_app_shares where household_id = household;
+
+  -- Cascades the household's own members, encrypted index, invitations and roles.
   delete from public.shared_lists where id = household;
   return true;
 end;
@@ -106,3 +106,38 @@ $$;
 
 revoke all on function public.delete_household(uuid) from public, anon;
 grant execute on function public.delete_household(uuid) to authenticated;
+
+
+-- Leaving or being removed from a household must revoke membership in its connected app lists too.
+-- This is important for both immediate revocation and later household deletion: a former member must not
+-- regain access merely because the household's app-share row is eventually removed.
+create or replace function public.cleanup_household_member_role()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  linked_list record;
+begin
+  delete from public.household_member_roles
+  where household_id = old.list_id and user_id = old.user_id;
+  delete from public.household_invites
+  where household_id = old.list_id and (from_user = old.user_id or to_user = old.user_id);
+
+  for linked_list in
+    select s.shared_list_id, app_list.created_by
+    from public.household_app_shares s
+    join public.shared_lists app_list on app_list.id = s.shared_list_id
+    where s.household_id = old.list_id
+  loop
+    delete from public.shared_list_members
+    where list_id = linked_list.shared_list_id
+      and user_id = old.user_id
+      and user_id is distinct from linked_list.created_by;
+  end loop;
+  return old;
+end;
+$$;
+
+revoke all on function public.cleanup_household_member_role() from public, anon, authenticated;
