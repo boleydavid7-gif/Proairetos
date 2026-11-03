@@ -76,7 +76,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
               {extra > 0 && <p className="hydros-amount__note">{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</p>}
             </>
           ) : (
-            <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>Choose a daily amount</button>
+            <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>Set goal.</button>
           )}
         </article>
 
