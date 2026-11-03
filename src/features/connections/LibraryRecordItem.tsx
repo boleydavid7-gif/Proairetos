@@ -6,15 +6,17 @@ import type { LifeRecord } from '../../core/life-records';
 type Props = {
   record: LifeRecord;
   saved: boolean;
-  valueNames: string[];
-  selectedValueId: string;
-  selectedValueName: string;
+  availableValues: { id: string; name: string }[];
+  relatedRecords: LifeRecord[];
   busy: boolean;
   onToggleFavorite: (record: LifeRecord) => void;
   onOpen: (record: LifeRecord) => void;
   onArchive: (record: LifeRecord) => void;
   onRestore: (record: LifeRecord) => void;
-  onUnlink: (record: LifeRecord) => void;
+  onUnlink: (record: LifeRecord, valueId: string) => void;
+  onLinkValue: (record: LifeRecord, valueId: string) => void;
+  onFilterValue: (valueId: string) => void;
+  onFindRelated: (record: LifeRecord) => void;
   onSaveReflection: (record: LifeRecord, body: string) => Promise<boolean>;
 };
 
@@ -44,20 +46,25 @@ function dateLabel(value: string): string {
 export default function LibraryRecordItem({
   record,
   saved,
-  valueNames,
-  selectedValueId,
-  selectedValueName,
+  availableValues,
+  relatedRecords,
   busy,
   onToggleFavorite,
   onOpen,
   onArchive,
   onRestore,
   onUnlink,
+  onLinkValue,
+  onFilterValue,
+  onFindRelated,
   onSaveReflection,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(record.body ?? '');
+  const [linkValueId, setLinkValueId] = useState('');
+  const linkedValues = availableValues.filter((value) => record.valueIds.includes(value.id));
+  const unlinkedValues = availableValues.filter((value) => !record.valueIds.includes(value.id));
   const href = hrefFor(record);
   const kindLabel = ({ life: 'Life', trip: 'Travel', financial: 'Milestone' } as Partial<Record<LifeRecord['kind'], string>>)[record.kind] ?? record.kind.charAt(0).toUpperCase() + record.kind.slice(1);
 
@@ -84,9 +91,9 @@ export default function LibraryRecordItem({
             <details className="connections-actions">
               <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
               <div className="connections-actions__menu">
-                {selectedValueId && record.valueIds.includes(selectedValueId) && (
-                  <button type="button" disabled={busy} onClick={() => onUnlink(record)}>Unlink {selectedValueName}</button>
-                )}
+                {linkedValues.map((value) => (
+                  <button key={value.id} type="button" disabled={busy} onClick={() => onUnlink(record, value.id)}>Disconnect {value.name}</button>
+                ))}
                 <button type="button" disabled={busy} onClick={() => record.archived ? onRestore(record) : onArchive(record)}>
                   {busy ? 'Saving…' : record.archived ? 'Restore to library' : 'Move to archive'}
                 </button>
@@ -127,10 +134,46 @@ export default function LibraryRecordItem({
             <p className="connections-record__body">{record.body}</p>
           </details>
         )}
-        {valueNames.length > 0 && (
+        {linkedValues.length > 0 && (
           <div className="connections-record__values" aria-label="Connected values">
-            {valueNames.map((name) => <span key={name}>{name}</span>)}
+            {linkedValues.map((value) => (
+              <span className="connections-record__value" key={value.id}>
+                <button type="button" onClick={() => onFilterValue(value.id)}>{value.name}</button>
+                <button type="button" className="connections-record__value-remove" aria-label={`Disconnect ${value.name}`} disabled={busy} onClick={() => onUnlink(record, value.id)}>×</button>
+              </span>
+            ))}
           </div>
+        )}
+        {unlinkedValues.length > 0 && (
+          <details className="connections-record__connect">
+            <summary>Connect to a value</summary>
+            <div className="connections-record__connect-fields">
+              <select className="field-input" aria-label="Choose a value to connect" value={linkValueId} onChange={(event) => setLinkValueId(event.target.value)}>
+                <option value="">Choose a value</option>
+                {unlinkedValues.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
+              </select>
+              <button type="button" className="button-quiet button--sm" disabled={!linkValueId} onClick={() => { onLinkValue(record, linkValueId); setLinkValueId(''); }}>Connect</button>
+            </div>
+          </details>
+        )}
+        {relatedRecords.length > 0 && (
+          <details className="connections-record__related">
+            <summary>Related entries <span>{relatedRecords.length}</span></summary>
+            <ul>
+              {relatedRecords.map((related) => {
+                const relatedHref = hrefFor(related);
+                return (
+                  <li key={related.key}>
+                    {relatedHref ? (
+                      <a href={relatedHref}><span>{related.title}</span><small>{related.source} · {dateLabel(related.at)}</small></a>
+                    ) : (
+                      <button type="button" onClick={() => onFindRelated(related)}><span>{related.title}</span><small>{related.source} · {dateLabel(related.at)}</small></button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
         )}
       </article>
     </li>
