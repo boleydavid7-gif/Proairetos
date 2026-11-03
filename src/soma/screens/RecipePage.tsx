@@ -356,7 +356,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           <StepList steps={stepsWithAmounts(recipe.steps, recipe.ingredients, factor, settings.units)} />
           {recipe.steps.length > 0 && (
             <button type="button" className="button-main" onClick={() => nav.go({ name: 'cook', id: recipe.id, scale })}>
-              <PotIcon size={20} /> Cook, step by step
+              <PotIcon size={20} /> Cook
             </button>
           )}
         </section>
