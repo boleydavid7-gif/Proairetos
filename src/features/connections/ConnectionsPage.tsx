@@ -6,7 +6,7 @@ import { compassService, decisionService, lifeService, reflectionService } from 
 import { pursuits } from '../../app/pursuits';
 import { useRuns } from '../../app/askesis/runs';
 import { combineReadingSessions, useStudy } from '../../app/praxis/study';
-import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
+import { useRecipesFromSoma } from '../../app/soma/meals';
 import { linkTo } from '../../app/family/opening';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { buildLifeRecords, type LifeRecord, type LifeRecordKind } from '../../core/life-records';
@@ -114,9 +114,7 @@ export default function ConnectionsPage() {
     pursuits: allPursuits,
     items,
     workouts: runs?.workouts ?? [],
-    recipes: cookedForBetween(recipes, '0000-01-01', '9999-12-31').length
-      ? recipes
-      : recipes,
+    recipes,
     studySessions: combineReadingSessions(study?.sessions ?? []),
   }), [reflections, decisions, allPursuits, items, runs, recipes, study]);
 
