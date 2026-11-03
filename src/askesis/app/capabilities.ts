@@ -1,5 +1,5 @@
 import { nativePlatform } from '../../app/native/platform';
-import type { AskesisBridgePlatform, AskesisBridgePlugin, AskesisNativeCapability } from '@proairetos/askesis-bridge';
+import type { AskesisBridgePlatform, AskesisNativeCapability } from '@proairetos/askesis-bridge';
 
 export type PhonePlatform = AskesisBridgePlatform;
 export type NativeCapability = AskesisNativeCapability;
@@ -82,7 +82,7 @@ async function detect(): Promise<AskesisCapabilities> {
   try {
     // The package is loaded only inside the optional Capacitor shell. The website never loads native bridge code.
     const { AskesisBridge } = await import('@proairetos/askesis-bridge');
-    const handshake = await (AskesisBridge as AskesisBridgePlugin).getCapabilities();
+    const handshake = await AskesisBridge.getCapabilities();
     return resolveCapabilities(platform, handshake, browserGps());
   } catch {
     // The phone shell may be installed without the Askesis bridge. Web features remain the fallback.
