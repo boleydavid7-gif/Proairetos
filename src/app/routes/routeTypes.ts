@@ -10,7 +10,8 @@ export type AppRoute =
   | 'review'
   | 'settings'
   | 'calendar'
-  | 'meditate';
+  | 'meditate'
+  | 'connections';
 
 export const routePaths: Record<AppRoute, string> = {
   today: '/today',
@@ -25,6 +26,7 @@ export const routePaths: Record<AppRoute, string> = {
   settings: '/settings',
   calendar: '/calendar',
   meditate: '/meditate',
+  connections: '/connections',
 };
 
 export const defaultRoute: AppRoute = 'today';
@@ -32,6 +34,7 @@ export const defaultRoute: AppRoute = 'today';
 /** Where a page that sits under a main tab belongs, for a page opened straight from its address. */
 export const parentRoute: Partial<Record<AppRoute, AppRoute>> = {
   compass: 'reflect',
+  connections: 'reflect',
   journal: 'reflect',
   insights: 'reflect',
   meditate: 'reflect',
