@@ -1,37 +1,18 @@
-import { directionAlong, transition } from '../../app/transitions';
-import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useEffect, useState } from 'react';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
-import { pursuits, needsPursuitCheckIn } from '../../app/pursuits';
 import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, LotusIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
-import { periodRange, type ReflectPeriod } from '../../core/reflections/periods';
 import { toLocalDate } from '../../core/scheduling/dates';
-import { useRuns } from '../../app/askesis/runs';
-import RunEntry from './RunEntry';
-import MealEntry from './MealEntry';
-import StudyEntry from './StudyEntry';
-import { combineReadingSessions, studyBetween, useStudy } from '../../app/praxis/study';
-import { cookedForBetween, useRecipesFromSoma } from '../../app/soma/meals';
 import type { InnerWeather, Reflection } from '../../core/reflections/types';
 import { dayLabel } from './format';
 import { promptText } from './prompts';
 import { entryMark } from './weather';
 import { formatTemp } from '../../core/weather/sky';
 import { weatherOptions } from './weather';
-import { openCompassTab } from '../compass/CompassPage';
-import { openPursuit } from '../compass/PursuitsSection';
-import { FamilyMark } from '../../app/family/marks';
-import { GROUP_NAMES, groupSummary, groupTimeline, type GroupedApp } from './appGroups';
-
-const periods: { id: ReflectPeriod; label: string }[] = [
-  { id: 'today', label: 'Today' },
-  { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
-];
 
 function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDay: boolean }) {
   const [open, setOpen] = useState(false);
@@ -44,7 +25,7 @@ function TimelineEntry({ reflection, showDay }: { reflection: Reflection; showDa
   return (
     <li className="timeline-entry">
       <span className="timeline-entry__mark" role="img" aria-label={mark.label}>
-        <Icon size={32} />
+        <Icon size={28} />
       </span>
       <div className="timeline-entry__body">
         <div className="timeline-entry__head">
@@ -112,7 +93,7 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
   const existing = entries
     .filter((entry) => entry.promptKey === 'daily-check-in' && toLocalDate(new Date(entry.createdAt)) === today)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-  const [open, setOpen] = useState(!existing);
+  const [open, setOpen] = useState(false);
   const [body, setBody] = useState(existing?.body ?? '');
   const [weather, setWeather] = useState<InnerWeather | undefined>(existing?.weather);
   const [saving, setSaving] = useState(false);
@@ -120,7 +101,7 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
   useEffect(() => {
     setBody(existing?.body ?? '');
     setWeather(existing?.weather);
-    setOpen(!existing);
+    setOpen(false);
   }, [existing?.id]);
 
   const save = async () => {
@@ -136,16 +117,26 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
   };
 
   return (
-    <section className="reflect-checkin" aria-label="Daily check-in">
-      <div className="reflect-checkin__head">
-        <div>
-          <h2 className="reflect-checkin__title">What’s your weather like today?</h2>
-          {open && <p className="reflect-checkin__captain-line">Remember, you can only control the sails, not the seas.</p>}
-        </div>
-        {existing && <span className="reflect-checkin__saved">Checked in</span>}
-      </div>
-      {open ? (
+    <section className={`reflect-checkin${open ? ' reflect-checkin--open' : ''}`} aria-label="Daily check-in">
+      <button
+        type="button"
+        className="settings-row reflect-checkin__toggle"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        <span className="settings-row__icon"><BreatheIcon size={22} /></span>
+        <span className="settings-row__text">
+          <span>Daily check-in</span>
+          <span className="settings-row__detail">
+            {existing?.body || 'How are things today?'}
+          </span>
+        </span>
+        <span className="settings-row__value">{existing ? 'Done' : 'Start'}</span>
+        <ChevronRightIcon size={18} className="settings-row__chevron reflect-checkin__chevron" />
+      </button>
+      {open && (
         <div className="reflect-checkin__form">
+          <p className="reflect-checkin__captain-line">Remember, you can only control the sails, not the seas.</p>
           <div className="weather-picker weather-picker--compact" role="group" aria-label="Inner weather">
             {weatherOptions.map(({ id, label, icon: Icon }) => (
               <button
@@ -164,241 +155,94 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
             className="field-input field-input--area reflect-checkin__input"
             rows={2}
             aria-label="What’s your weather like today?"
+            placeholder="A few words about how things are going…"
             value={body}
             onChange={(event) => setBody(event.target.value)}
           />
           <div className="reflect-checkin__actions">
-            {existing && <button type="button" className="button-quiet" onClick={() => setOpen(false)}>Close</button>}
+            <button type="button" className="button-quiet" onClick={() => setOpen(false)}>Not now</button>
             <button type="button" className="button-accent button--sm" disabled={!body.trim() || saving} onClick={() => void save()}>
               {existing ? 'Update check-in' : 'Save check-in'}
             </button>
           </div>
         </div>
-      ) : (
-        <button type="button" className="reflect-checkin__summary" onClick={() => setOpen(true)}>
-          <span>{existing?.body}</span>
-          <span className="text-link">Edit</span>
-        </button>
       )}
     </section>
-  );
-}
-
-function KeepInView() {
-  const navigate = useNavigate();
-  const activePursuits = pursuits.use()
-    .filter((pursuit) => pursuit.status === 'active')
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-    .slice(0, 3);
-
-  if (activePursuits.length === 0) return null;
-
-  return (
-    <section className="reflect-keep" aria-label="Keep in view">
-      <div className="section-heading"><h2 className="section-label">Keep in view</h2></div>
-      <div className="reflect-keep__items">
-        {activePursuits.map((pursuit) => (
-          <button key={pursuit.id} type="button" className="reflect-keep__item" onClick={() => { openPursuit(pursuit.id); openCompassTab('motion'); navigate('compass'); }}>
-            <span className="reflect-keep__kind">{needsPursuitCheckIn(pursuit) ? 'Project · Check-in due' : 'Project'}</span>
-            <strong>{pursuit.title}</strong>
-            <span>{pursuit.nextMove || pursuit.outcome || 'Open this pursuit.'}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/**
- * One app's entries for the period, folded under its name so frequent use never makes a long list: the summary
- * says what is inside ("3 runs, 1 note") and when the latest was; opening it shows them in order.
- */
-function AppGroup({
-  app,
-  summary,
-  at,
-  showDay,
-  children,
-}: {
-  app: GroupedApp;
-  summary: string;
-  at: string;
-  showDay: boolean;
-  children: React.ReactNode;
-}) {
-  const time = new Date(at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  return (
-    <li className="timeline-entry timeline-group">
-      <span className="timeline-entry__mark" aria-hidden="true">
-        <FamilyMark app={app} size={30} />
-      </span>
-      <details className="timeline-entry__body timeline-group__body">
-        <summary className="timeline-group__summary">
-          <span className="timeline-group__words">
-            <span className="timeline-entry__prompt">{GROUP_NAMES[app]}</span>
-            <span className="timeline-group__count">{summary}</span>
-          </span>
-          <span className="timeline-entry__time">Latest {showDay ? `${dayLabel(at)}, ${time}` : time}</span>
-        </summary>
-        <ol className="timeline timeline-group__list">{children}</ol>
-      </details>
-    </li>
   );
 }
 
 export default function ReflectPage() {
   const shows = useTodayParts();
   const navigate = useNavigate();
-  const [period, setPeriod] = useState<ReflectPeriod>('today');
-  const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.listFor(period), [period]);
-  const all = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
-  // Runs logged in Askesis sit in the same timeline, if the person keeps them in view.
-  const runs = useRuns();
-  const range = periodRange(period, new Date());
-  const ran = shows('askesis')
-    ? (runs?.workouts ?? []).filter((entry) => entry.date >= toLocalDate(range.start) && entry.date < toLocalDate(range.end))
-    : [];
-  // Meals cooked for someone, marked in Soma, likewise.
-  const recipes = useRecipesFromSoma();
-  const cooked = shows('soma') ? cookedForBetween(recipes, toLocalDate(range.start), toLocalDate(range.end)) : [];
-  // Study recorded in Praxis, likewise.
-  const study = useStudy(shows('praxis'));
-  const studied = shows('praxis') ? combineReadingSessions(studyBetween(study?.sessions ?? [], range.start, range.end)) : [];
-  const timeline = [
-    ...(reflections ?? []).map((reflection) => ({ at: reflection.createdAt, reflection })),
-    ...studied.map((session) => ({ at: session.at, study: session })),
-    ...ran.map((run) => ({ at: run.createdAt, run })),
-    // A meal has a day, not a time: it sits at the end of its day.
-    ...cooked.map((meal) => ({ at: new Date(`${meal.day}T23:59:00`).toISOString(), meal })),
-  ].sort((a, b) => b.at.localeCompare(a.at));
-  type Entry = (typeof timeline)[number];
-  const renderEntry = (entry: Entry) =>
-    'study' in entry ? (
-      <StudyEntry key={entry.study.id} session={entry.study} showDay={period !== 'today'} />
-    ) : 'meal' in entry ? (
-      <MealEntry key={entry.meal.id} meal={entry.meal} showDay={period !== 'today'} />
-    ) : 'run' in entry ? (
-      <RunEntry key={entry.run.id} entry={entry.run} unit={runs!.unit} showDay={period !== 'today'} />
-    ) : (
-      <TimelineEntry key={entry.reflection.id} reflection={entry.reflection} showDay={period !== 'today'} />
-    );
-  const lastReview = all
-    .filter((reflection) => reflection.promptKey === 'weekly-review')
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const all = useServiceData(reflectionService.subscribe, () => reflectionService.all());
+  const recent = (all ?? [])
+    .filter((entry) => entry.promptKey !== 'daily-check-in' && !entry.decisionId && entry.body.trim())
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 3);
 
   return (
-    <div className="page">
-      <PageHeader title="Reflect" settings />
+    <div className="page reflect-home">
+      <PageHeader title="Reflect" subtitle="Pause. Notice. Choose." settings />
 
-      <button type="button" className="add-reflection" onClick={() => navigate('journal')}>
-        <PenIcon size={18} />
-        Add a reflection
+      <button type="button" className="button-accent reflect-write-button" onClick={() => navigate('journal')}>
+        <PenIcon size={17} />
+        Write a reflection
       </button>
 
-      <DailyCheckIn entries={all} onSaved={() => reflectionService.refresh()} />
-      <KeepInView />
-
-      <div className="reflect-section-heading">
-        <h2>Reflections</h2>
-      </div>
-
-      <div className="segmented" role="tablist" aria-label="Period">
-        {periods.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            role="tab"
-            aria-selected={period === option.id}
-            className="segmented__option"
-            onClick={() =>
-              transition(
-                directionAlong(
-                  periods.map((each) => each.id),
-                  period,
-                  option.id,
-                ),
-                () => setPeriod(option.id),
-                'panel',
-              )
-            }
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      {reflections && (
-        <section key={period} className="vt-panel" aria-label="Your reflections">
-          {timeline.length === 0 ? (
-            <p className="empty-note">Nothing written {period === 'today' ? 'today' : `this ${period}`} yet.</p>
-          ) : (
-            <ol className="timeline">
-              {groupTimeline(timeline).map((row) =>
-                row.kind === 'own' ? (
-                  renderEntry(row.entry)
-                ) : (
-                  <AppGroup key={`${period}-${row.app}`} app={row.app} summary={groupSummary(row.entries)} at={row.at} showDay={period !== 'today'}>
-                    {row.entries.map(renderEntry)}
-                  </AppGroup>
-                ),
-              )}
-            </ol>
+      <section className="reflect-tools-section" aria-label="Reflect tools">
+        <div className="settings-list reflect-tools">
+          <DailyCheckIn entries={all ?? []} onSaved={() => reflectionService.refresh()} />
+          <MoreRow
+            icon={<CompassIcon size={22} />}
+            title="Compass"
+            detail="Your values and direction."
+            onClick={() => navigate('compass')}
+          />
+          {shows('insights') && (
+            <MoreRow
+              icon={<BreatheIcon size={22} />}
+              title="Insights"
+              detail="A clear look at what you’ve recorded."
+              onClick={() => navigate('insights')}
+            />
           )}
-        </section>
-      )}
-
-      <div className="reflect-explore">
-        <div className="reflect-section-heading">
-          <div>
-            <h2>Explore</h2>
-          </div>
-        </div>
-        <div className="reflect-places">
+          {shows('weekly-review') && (
+            <MoreRow
+              icon={<BookIcon size={22} />}
+              title="Weekly review"
+              detail="A quiet look at the week."
+              onClick={() => navigate('review')}
+            />
+          )}
           {shows('meditate') && (
-            <button type="button" className="place-row" onClick={() => navigate('meditate')}>
-              <span className="place-row__thumb place-row__thumb--glyph place-row__thumb--room" aria-hidden="true"><LotusIcon size={32} /></span>
-              <span className="place-row__text">
-                <span className="place-row__title">Meditate</span>
-                <span className="place-row__detail">Sessions, breathing, sounds and music</span>
-              </span>
-              <ChevronRightIcon size={18} className="place-row__chevron" />
-            </button>
+            <MoreRow
+              icon={<LotusIcon size={22} />}
+              title="Meditate"
+              detail="Breathing, sounds and time to pause."
+              onClick={() => navigate('meditate')}
+            />
           )}
-          <button type="button" className="place-row" onClick={() => navigate('compass')}>
-            <span className="place-row__thumb place-row__thumb--glyph place-row__thumb--room" aria-hidden="true"><CompassIcon size={32} /></span>
-            <span className="place-row__text">
-              <span className="place-row__title">Compass</span>
-              <span className="place-row__detail">Direction, pursuits and people</span>
-            </span>
-            <ChevronRightIcon size={18} className="place-row__chevron" />
-          </button>
         </div>
-      </div>
+      </section>
 
-      <div className="settings-list">
-        <MoreRow
-          icon={<CompassIcon size={22} />}
-          title="Library"
-          detail="Search and revisit your reflections, decisions and experiences."
-          onClick={() => navigate('connections')}
-        />
-        {shows('insights') && (
-        <MoreRow
-          icon={<BreatheIcon size={22} />}
-          title="Insights"
-          onClick={() => navigate('insights')}
-        />
+      <section className="reflect-recent" aria-labelledby="reflect-recent-title">
+        <div className="reflect-section-heading reflect-recent__heading">
+          <h2 id="reflect-recent-title">Recent reflections</h2>
+          <button type="button" className="text-link" onClick={() => navigate('connections')}>View all</button>
+        </div>
+        {recent.length > 0 ? (
+          <ol className="timeline reflect-recent__list">
+            {recent.map((reflection) => (
+              <TimelineEntry key={reflection.id} reflection={reflection} showDay />
+            ))}
+          </ol>
+        ) : (
+          <div className="reflect-recent__empty">
+            <p>{all ? 'Your reflections will gather here as you write them.' : 'Loading reflections…'}</p>
+            {all && <button type="button" className="text-link" onClick={() => navigate('connections')}>Open Library</button>}
+          </div>
         )}
-        {shows('weekly-review') && (
-        <MoreRow
-          icon={<BookIcon size={22} />}
-          title="Weekly review"
-          detail={`About 15 minutes.${lastReview ? ` Last one ${dayLabel(lastReview.createdAt).toLowerCase()}.` : ''}`}
-          onClick={() => navigate('review')}
-        />
-        )}
-      </div>
-
+      </section>
     </div>
   );
 }
