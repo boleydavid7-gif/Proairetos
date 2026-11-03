@@ -115,6 +115,7 @@ export default function ValueConnections({
         <input
           className="field-input"
           type="search"
+          aria-label="Search connected items"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search reflections, decisions, pursuits…"
