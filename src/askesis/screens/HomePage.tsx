@@ -336,7 +336,7 @@ function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) 
               <span className="week-calendar__weekday">{weekdayNames[index].slice(0, 3)}</span>
               <span className="week-calendar__date">{Number(date.slice(-2))}</span>
               <span className="week-calendar__indicator" aria-hidden="true">
-                {completed ? <CheckIcon size={14} /> : scheduled.length || logged ? <span /> : null}
+                {completed ? <CheckIcon size={16} /> : scheduled.length || logged ? <span /> : null}
               </span>
             </button>
           );
