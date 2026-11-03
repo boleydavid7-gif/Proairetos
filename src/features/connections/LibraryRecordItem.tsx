@@ -89,6 +89,7 @@ export default function LibraryRecordItem({
               <input
                 type="checkbox"
                 checked={selected}
+                disabled={busy}
                 onChange={(event) => onToggleSelected(record, event.target.checked)}
                 aria-label={`Select ${record.title}`}
               />
