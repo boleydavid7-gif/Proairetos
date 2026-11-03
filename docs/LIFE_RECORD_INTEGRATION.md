@@ -49,7 +49,7 @@ Run every adapter through `validateLifeRecordAdapter` in its tests. Tests should
 
 ## Deliberately excluded
 
-Hydros is hidden and is not part of the Reflect integration contract or Library feed. It should remain excluded unless the product decision changes.
+Hydros is hidden and is deliberately excluded from the Reflect integration contract and Library feed. Do not add Hydros records or hydration summaries.
 
 Oikonomia is intentionally different from the other sources: Reflect must never query its underlying financial records for automatic summaries. Only the separate, user-authored milestone entries with `inReflect: true` are projected. Those entries contain no amount or account fields.
 
