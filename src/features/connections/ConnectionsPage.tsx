@@ -15,7 +15,7 @@ import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorite
 import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
 import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
-import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
+import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, isLibraryTrashExpired, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -191,8 +191,7 @@ export default function ConnectionsPage() {
   useEffect(() => {
     const now = Date.now();
     trashEntries.forEach((entry) => {
-      const trashedAt = new Date(entry.trashedAt).getTime();
-      if (!entry.deletedAt && Number.isFinite(trashedAt) && now - trashedAt >= LIBRARY_TRASH_RETENTION_DAYS * 86_400_000) {
+      if (!entry.deletedAt && isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) {
         clearLibraryMetadata(entry.id);
       }
     });
