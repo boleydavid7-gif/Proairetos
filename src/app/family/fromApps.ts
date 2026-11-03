@@ -49,7 +49,7 @@ export type FromAppsRow = {
 const open = (app: string, what: string) => `/${app}/?open=${encodeURIComponent(what)}`;
 const since = (text: string) => (text === 'Today' ? '' : text);
 
-/** The actionable rows, in a steady order: doses by time, then chores, plants, upkeep and today's meals. */
+/** The actionable rows, in a steady order: doses, upcoming refills, visits, chores, plants, upkeep and today's meals. */
 export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
