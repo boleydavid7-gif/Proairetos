@@ -1,3 +1,7 @@
+import type { LogEntry as AskesisWorkout } from '../../askesis/core/log';
+import type { Workout as DynamisWorkout } from '../../dynamis/core/plan';
+import type { StudySession } from '../../app/praxis/study';
+import type { Recipe } from '../../soma/core/recipes';
 import type { Decision } from '../decisions/types';
 import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
@@ -15,28 +19,12 @@ export interface LifeRecordInput {
     valueNotes?: Record<string, string>; createdAt: string; updatedAt: string;
   }[];
   items?: readonly LifeItem[];
-  workouts?: readonly {
-    id: string; date: string; activity: 'run' | 'walk' | 'hike' | 'bike' | 'other';
-    createdAt: string; seconds?: number; meters?: number; felt?: string; notes?: string;
-    wentWell?: string; nextTime?: string; intention?: string; workoutTitle?: string;
-  }[];
-  strengthWorkouts?: readonly {
-    id: string; date: string; session: string; createdAt: string;
-    exercises: readonly {
-      exercise: string; step?: number; name: string;
-      sets: readonly { weight?: number; reps: number }[];
-    }[];
-    felt?: 'easy' | 'good' | 'hard'; minutes?: number; note?: string;
-  }[];
+  workouts?: readonly AskesisWorkout[];
+  strengthWorkouts?: readonly DynamisWorkout[];
   strengthUnit?: 'kg' | 'lb';
-  recipes?: readonly {
-    id: string; title: string; notes?: string; tags?: string[]; ingredients?: string[];
-    source?: string; cookedFor?: Record<string, string[]>;
-  }[];
+  recipes?: readonly Recipe[];
   distanceUnit?: 'km' | 'mi';
-  studySessions?: readonly {
-    id: string; itemId: string; title: string; minutes: number; at: string; kind: 'study' | 'reading';
-  }[];
+  studySessions?: readonly StudySession[];
 }
 
 const compact = (value: string | undefined) => value?.trim() ?? '';
@@ -90,7 +78,7 @@ function decisionRecord(entry: Decision): LifeRecord {
 }
 
 type PursuitRecord = NonNullable<LifeRecordInput['pursuits']>[number];
-type WorkoutRecord = NonNullable<LifeRecordInput['workouts']>[number];
+type WorkoutRecord = AskesisWorkout;
 
 function pursuitRecord(entry: PursuitRecord): LifeRecord {
   const status = entry.status === 'complete' ? 'Complete' : entry.status === 'paused' ? 'Paused' : entry.status === 'archived' ? 'Archived' : 'Active';
@@ -151,7 +139,7 @@ function workoutRecord(entry: WorkoutRecord, unit: 'km' | 'mi'): LifeRecord {
 }
 
 function strengthWorkoutRecord(
-  entry: NonNullable<LifeRecordInput['strengthWorkouts']>[number],
+  entry: DynamisWorkout,
   unit: 'kg' | 'lb',
 ): LifeRecord {
   const exercises = entry.exercises.filter((exercise) => exercise.sets.length > 0);
@@ -189,7 +177,7 @@ function strengthWorkoutRecord(
   });
 }
 
-function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeRecord[] {
+function mealRecords(recipes: readonly Recipe[]): LifeRecord[] {
   return recipes.flatMap((recipe) =>
     Object.entries(recipe.cookedFor ?? {})
       .filter(([, people]) => people.length > 0)
@@ -232,7 +220,7 @@ function studyRecord(entry: NonNullable<LifeRecordInput['studySessions']>[number
 }
 
 type AskesisAdapterInput = { workouts: readonly WorkoutRecord[]; unit: 'km' | 'mi' };
-type DynamisAdapterInput = { workouts: NonNullable<LifeRecordInput['strengthWorkouts']>; unit: 'kg' | 'lb' };
+type DynamisAdapterInput = { workouts: readonly DynamisWorkout[]; unit: 'kg' | 'lb' };
 type CompassAdapterInput = {
   decisions: readonly Decision[];
   pursuits: NonNullable<LifeRecordInput['pursuits']>;
@@ -284,14 +272,14 @@ export const lifeRecordAdapters = {
     id: 'soma.cooked-meals',
     owner: 'soma',
     kinds: ['meal'],
-    toRecords: (entries: NonNullable<LifeRecordInput['recipes']>) => mealRecords(entries),
-  } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['recipes']>>,
+    toRecords: (entries: readonly Recipe[]) => mealRecords(entries),
+  } satisfies LifeRecordAdapter<readonly Recipe[]>,
   theoria: {
     id: 'theoria.study-sessions',
     owner: 'theoria',
     kinds: ['study'],
-    toRecords: (entries: NonNullable<LifeRecordInput['studySessions']>) => entries.map(studyRecord),
-  } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['studySessions']>>,
+    toRecords: (entries: readonly StudySession[]) => entries.map(studyRecord),
+  } satisfies LifeRecordAdapter<readonly StudySession[]>,
 };
 
 /** Builds the shared library projection without changing or duplicating source records. */
