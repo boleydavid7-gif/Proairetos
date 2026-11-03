@@ -9,7 +9,8 @@ import type { Decision } from '../../core/decisions/types';
 import type { LifeItem } from '../../core/life-items/types';
 import type { Reflection } from '../../core/reflections/types';
 import PageHero from '../../components/layout/PageHero';
-import { openCompassTab, openPursuit } from '../compass/CompassPage';
+import { openCompassTab } from '../compass/CompassPage';
+import { openPursuit } from '../compass/PursuitsSection';
 
 type Category = 'all' | 'reflections' | 'decisions' | 'pursuits' | 'life';
 type View = 'active' | 'archived';
