@@ -13,8 +13,9 @@ import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } 
 import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
+import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
-import { canArchiveLifeRecord, groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
+import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -23,7 +24,7 @@ import { openPursuit } from '../compass/PursuitsSection';
 import LibraryRecordItem from './LibraryRecordItem';
 
 type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life' | 'thoughts' | 'travel' | 'financial';
-type View = 'library' | 'saved' | 'archived';
+type View = 'library' | 'saved' | 'archived' | 'trash';
 type Range = 'all' | '30' | '90' | '365';
 type SortOrder = 'newest' | 'oldest';
 
@@ -79,6 +80,7 @@ export default function ConnectionsPage() {
   const tripToday = poreiaToday();
   const favorites = libraryFavorites.use();
   const valueConnections = libraryValueConnections.use();
+  const trashEntries = libraryTrash.use();
 
   const [category, setCategory] = useState<Category>('all');
   const [view, setView] = useState<View>('library');
@@ -95,6 +97,8 @@ export default function ConnectionsPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
   const [bulkValueId, setBulkValueId] = useState('');
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>({});
+  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
@@ -119,17 +123,31 @@ export default function ConnectionsPage() {
   }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
   const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
 
+  const trashByRecord = useMemo(() => new Map(trashEntries.map((entry) => [entry.id, entry])), [trashEntries]);
+  const trashedKeys = useMemo(() => new Set(trashEntries.filter((entry) => !entry.deletedAt).map((entry) => entry.id)), [trashEntries]);
+  const deletedKeys = useMemo(() => new Set(trashEntries.filter((entry) => Boolean(entry.deletedAt)).map((entry) => entry.id)), [trashEntries]);
   const records = useMemo(
     () => mergeLibraryValueConnections(sourceRecords, valueConnections),
     [sourceRecords, valueConnections],
   );
+  const notPermanentlyRemovedRecords = useMemo(
+    () => records.filter((record) => !deletedKeys.has(record.key)),
+    [records, deletedKeys],
+  );
+  const activeRecords = useMemo(
+    () => notPermanentlyRemovedRecords.filter((record) => !trashedKeys.has(record.key)),
+    [notPermanentlyRemovedRecords, trashedKeys],
+  );
   const query = search.trim();
   const hasFilters = Boolean(query || category !== 'all' || valueId || sourceApp || range !== 'all');
-  const availableRecords = useMemo(() => records.filter((record) => {
-    if (view === 'archived' ? !record.archived : record.archived) return false;
-    if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
-    return true;
-  }), [records, view, favoriteKeys]);
+  const availableRecords = useMemo(() => {
+    if (view === 'trash') return notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key));
+    return activeRecords.filter((record) => {
+      if (view === 'archived' ? !record.archived : record.archived) return false;
+      if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
+      return true;
+    });
+  }, [activeRecords, notPermanentlyRemovedRecords, trashedKeys, view, favoriteKeys]);
   const sourceOptions = useMemo(() => {
     const options = new Map<string, string>();
     availableRecords.forEach((record) => options.set(record.sourceApp, record.source));
@@ -157,26 +175,33 @@ export default function ConnectionsPage() {
     });
     return counts;
   }, [baseScoped]);
-  const libraryCount = records.filter((record) => !record.archived).length;
-  const savedCount = records.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
-  const archivedCount = records.filter((record) => record.archived).length;
+  const libraryCount = activeRecords.filter((record) => !record.archived).length;
+  const savedCount = activeRecords.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
+  const archivedCount = activeRecords.filter((record) => record.archived).length;
+  const trashCount = notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key)).length;
   const relationPool = useMemo(
-    () => records.filter((record) => record.archived === (view === 'archived')),
-    [records, view],
+    () => activeRecords.filter((record) => record.archived === (view === 'archived')),
+    [activeRecords, view],
   );
 
   useEffect(() => {
     setVisibleCount(30);
     setSelectedKeys(new Set());
   }, [category, view, range, sortOrder, valueId, sourceApp, query]);
+  useEffect(() => {
+    expireLibraryTrash(trashEntries);
+  }, [trashEntries]);
   const visibleRecords = scoped.slice(0, visibleCount);
   const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
+  const yearGroups = useMemo(() => groupLifeRecordsByYear(scoped), [scoped]);
+  const visibleRecordKeys = useMemo(() => new Set(visibleRecords.map((record) => record.key)), [visibleRecords]);
   const selectedRecords = useMemo(
     () => scoped.filter((record) => selectedKeys.has(record.key)),
     [scoped, selectedKeys],
   );
   const selectedSavedCount = selectedRecords.filter((record) => favoriteKeys.has(record.key)).length;
   const selectedArchivableCount = selectedRecords.filter(canArchiveLifeRecord).length;
+  const selectedTrashedCount = selectedRecords.filter((record) => trashedKeys.has(record.key)).length;
   const selectedLinkedCount = selectedRecords.filter((record) => bulkValueId && record.valueIds.includes(bulkValueId)).length;
   const allResultsSelected = scoped.length > 0 && selectedRecords.length === scoped.length;
 
