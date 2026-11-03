@@ -4,6 +4,7 @@ import { syncStatus } from '../../app/sync/syncController';
 import { useAddedApps } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 import {
+  deleteHousehold,
   dropHouseholdInvite,
   joinHousehold,
   leaveHousehold,
@@ -15,9 +16,10 @@ import {
   shareApp,
   sharingAvailable,
   stopSharing,
+  transferHouseholdOwnership,
   useHousehold,
 } from '../../app/household/household';
-import { HOUSEHOLD_APPS, householdLink, type HouseholdApp } from '../../core/household/household';
+import { HOUSEHOLD_APPS, householdLink, memberId, type HouseholdApp } from '../../core/household/household';
 import { inviteByEmail, refreshInvites, removeInvite, useInvites } from '../../app/household/invites';
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That didn’t go through. Try again.');
@@ -42,6 +44,9 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState('');
   const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
+  const [transferTarget, setTransferTarget] = useState('');
+  const [confirmTransfer, setConfirmTransfer] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { incoming, outgoing } = useInvites();
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
 
@@ -172,6 +177,11 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
 
   const shown = HOUSEHOLD_APPS.filter(({ app }) => app === 'proairetos' || added.includes(app as never));
   const waiting = outgoing;
+  const otherMembers = members.filter((member) => member.id !== memberId(currentUserId ?? ''));
+  const selectedTransferTarget = otherMembers.some((member) => member.id === memberId(transferTarget))
+    ? transferTarget
+    : otherMembers[0]?.id.slice('member:'.length) ?? '';
+  const selectedTransferMember = otherMembers.find((member) => member.id === memberId(selectedTransferTarget));
 
   return (
     <div className="settings-sections household">
@@ -223,7 +233,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                     ) : null}
                     {removeConfirm === userId && canRemove && (
                       <div className="household__remove-confirm">
-                        <span>Remove {member.name} from this family? Their server access ends on their next sync, but they can rejoin with an existing family link. Copies already downloaded to their devices cannot be recalled.</span>
+                        <span>Remove {member.name} from this family? They lose household access and access to connected app lists they do not own on their next sync. Existing family links can still be used to rejoin; downloaded copies cannot be recalled.</span>
                         <div className="button-row">
                           <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setRemoveConfirm(null)}>Cancel</button>
                           <button
@@ -342,8 +352,87 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         </section>
       </section>
 
-      {currentRole === 'owner' ? (
-        <p className="hint household__permissions-note">You own this household. Ownership transfer is not available yet.</p>
+      {currentRole === 'owner' && !rolesReady ? (
+        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply migrations 20261104000000 and 20261105000000 in Supabase first.</p>
+      ) : currentRole === 'owner' ? (
+        <section className="settings-group" aria-label="Household management">
+          <h2 className="settings-group__label">Household management</h2>
+          <div className="settings-card household__lifecycle">
+            <div className="household__lifecycle-section">
+              <div>
+                <h3>Transfer ownership</h3>
+                <p>Give another household member control of this family. You will become a regular member.</p>
+              </div>
+              {otherMembers.length > 0 ? (
+                <>
+                  <label className="field">
+                    <span className="field__label">New owner</span>
+                    <select className="input" value={selectedTransferTarget} onChange={(event) => { setTransferTarget(event.target.value); setConfirmTransfer(false); }}>
+                      {otherMembers.map((member) => (
+                        <option key={member.id} value={member.id.slice('member:'.length)}>{member.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                  {!confirmTransfer ? (
+                    <button type="button" className="button-quiet account-wide" disabled={busy !== null || !selectedTransferTarget} onClick={() => setConfirmTransfer(true)}>
+                      Transfer ownership
+                    </button>
+                  ) : (
+                    <div className="household__lifecycle-confirm">
+                      <p>Transfer {list.name} to {selectedTransferMember?.name ?? 'this member'}? You will lose owner controls and become a regular member.</p>
+                      <div className="button-row">
+                        <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setConfirmTransfer(false)}>Cancel</button>
+                        <button
+                          type="button"
+                          className="button-accent"
+                          disabled={busy !== null || !selectedTransferTarget}
+                          onClick={() => void run('transfer', async () => {
+                            await transferHouseholdOwnership(selectedTransferTarget);
+                            setConfirmTransfer(false);
+                            setTransferTarget('');
+                          })}
+                        >
+                          Confirm transfer
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="hint">Invite another person before transferring ownership.</p>
+              )}
+            </div>
+            <div className="household__lifecycle-section household__danger-zone">
+              <div>
+                <h3>Delete household</h3>
+                <p>Permanently remove this family, its membership, invitations and sharing connections. App lists and their content are kept; their creators, share owners and the household owner retain access.</p>
+              </div>
+              {!confirmDelete ? (
+                <button type="button" className="button-danger account-wide" disabled={busy !== null} onClick={() => setConfirmDelete(true)}>
+                  Delete household
+                </button>
+              ) : (
+                <div className="household__lifecycle-confirm">
+                  <p>This cannot be undone. Every member will lose household access. Shared app lists are not deleted, and data already downloaded to other devices cannot be recalled.</p>
+                  <div className="button-row">
+                    <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setConfirmDelete(false)}>Cancel</button>
+                    <button
+                      type="button"
+                      className="button-danger"
+                      disabled={busy !== null}
+                      onClick={() => void run('delete', async () => {
+                        await deleteHousehold();
+                        setConfirmDelete(false);
+                      })}
+                    >
+                      Permanently delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
       ) : leaving ? (
         <section className="settings-card">
           <p className="section-description">Leave {list.name}? You will stop receiving household updates. Copies already saved on this device remain here.</p>

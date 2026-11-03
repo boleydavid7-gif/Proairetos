@@ -69,7 +69,7 @@ const setRoleState = (next: RoleState) => {
 };
 
 async function refreshRoleState(householdId: string, userId?: string): Promise<void> {
-  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 60_000) return;
+  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 15_000) return;
   try {
     const client = await supabase();
     const [{ data: householdRow, error: householdError }, { data: adminRows, error: rolesError }] = await Promise.all([
@@ -245,6 +245,51 @@ export async function setMemberRole(targetUserId: string, role: 'admin' | 'membe
       ? [...new Set([...roleState.admins, targetUserId])]
       : roleState.admins.filter((id) => id !== targetUserId),
   });
+}
+
+/** Transfers household ownership to an existing member. The former owner becomes a regular member. */
+export async function transferHouseholdOwnership(targetUserId: string): Promise<void> {
+  const list = household();
+  if (!list) throw new Error('There is no household to manage.');
+  if (!targetUserId) throw new Error('Choose a household member.');
+  const { data, error } = await (await supabase()).rpc('transfer_household_ownership', {
+    household: list.id,
+    new_owner: targetUserId,
+  });
+  if (error) {
+    if (/transfer_household_ownership|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Household ownership controls are not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('Household ownership could not be transferred.');
+  setRoleState({
+    ...roleState,
+    ownerId: targetUserId,
+    admins: roleState.admins.filter((id) => id !== targetUserId && id !== roleState.userId),
+    loaded: true,
+    fetchedAt: Date.now(),
+  });
+}
+
+/** Deletes the household and its sharing rules, while preserving the underlying app lists and their owners' access. */
+export async function deleteHousehold(): Promise<void> {
+  const list = household();
+  if (!list) throw new Error('There is no household to delete.');
+  const { data, error } = await (await supabase()).rpc('delete_household', {
+    household: list.id,
+  });
+  if (error) {
+    if (/delete_household|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Household deletion is not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('The household could not be deleted.');
+  // The RPC has already deleted the server-side household row. leaveList clears this device's reference and cache.
+  await households.leaveList(list);
+  setStates({});
+  setRoleState({ admins: [], loaded: false });
 }
 
 /** Removes a member on the server, then removes their encrypted profile from the household list. */

@@ -575,6 +575,52 @@ button.inbox-card {
   margin: 12px 0 0;
 }
 
+.household__lifecycle {
+  display: grid;
+  gap: 18px;
+}
+
+.household__lifecycle-section {
+  display: grid;
+  gap: 12px;
+}
+
+.household__lifecycle-section h3 {
+  margin: 0 0 4px;
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.household__lifecycle-section p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.household__lifecycle-section .field {
+  margin: 0;
+}
+
+.household__lifecycle-confirm {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-raised);
+}
+
+.household__lifecycle-confirm .button-row {
+  justify-content: flex-end;
+}
+
+.household__danger-zone {
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+
 .household__email {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
