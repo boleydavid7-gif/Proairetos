@@ -1,7 +1,7 @@
 /* Hydros keeps the family's typography and calm spacing, with a deep-water palette. */
 :root.hydros {
   --bg: var(--app-background, #061219);
-  --surface: var(--app-surface, rgba(12, 42, 53, .82));
+  --surface: var(--app-surface, #0d2c38);
   --surface-solid: var(--app-surface, #0d2c38);
   --surface-2: var(--app-surface-input, #123b49);
   --line: var(--app-border, rgba(164, 222, 236, .16));
@@ -19,7 +19,7 @@
 
 :root.hydros[data-theme='light'] {
   --bg: var(--app-background, #eaf4f5);
-  --surface: var(--app-surface, rgba(255, 255, 255, .84));
+  --surface: var(--app-surface, #ffffff);
   --surface-solid: var(--app-surface, #ffffff);
   --surface-2: var(--app-surface-input, #d6e9ed);
   --line: var(--app-border, rgba(16, 77, 94, .17));
@@ -33,7 +33,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  :root.hydros[data-theme='system'] { --bg: #eaf4f5; --surface: rgba(255,255,255,.84); --surface-solid: #fff; --surface-2: #d6e9ed; --line: rgba(16,77,94,.17); --text: #0c2b35; --text-soft: #315662; --muted: #4a646d; --cyan: #006690; --cyan-soft: rgba(0,126,174,.13); --cyan-ink: #effbff; color-scheme: light; }
+  :root.hydros[data-theme='system'] { --bg: #eaf4f5; --surface: #ffffff; --surface-solid: #fff; --surface-2: #d6e9ed; --line: rgba(16,77,94,.17); --text: #0c2b35; --text-soft: #315662; --muted: #4a646d; --cyan: #006690; --cyan-soft: rgba(0,126,174,.13); --cyan-ink: #effbff; color-scheme: light; }
 }
 
 html.hydros, body:has(.hydros-shell) { background: var(--bg); }
@@ -54,7 +54,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 56%, rgba(71, 191, 227, .13), transparent 32%); pointer-events: none; }
 .hydros-hero .hydros-brand { position: relative; }
 .hydros-home-head { display: flex; align-items: center; justify-content: space-between; }
-.hydros-settings-button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(220, 249, 255, .28); border-radius: 50%; background: rgba(3, 28, 39, .48); color: #dcf9ff; }
+.hydros-settings-button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--ll-hair); border-radius: 50%; background: var(--ll-material-mica-surface); color: var(--ll-ink); }
 .hydros-hero__words { margin-top: 58px; }
 .hydros-hero__words p { margin: 0; color: rgba(242,250,252,.9); font: 400 2.3rem/1.1 var(--serif); }
 .hydros-hero__words > span { display: block; margin-top: 5px; padding-right: 7px; color: rgba(231,247,251,.88); font-size: .98rem; font-weight: 600; text-align: right; }
@@ -89,16 +89,16 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-screen > *, .hydros-add > * { position: relative; }
 .hydros-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hydros-section-title h2 { margin: 0; color: var(--text); font: 400 1.45rem/1.2 var(--serif); }
-.hydros-section-title button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
-.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: var(--ll-mica, var(--surface-solid)); }
+.hydros-section-title button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--ll-hair); border-radius: 50%; background: var(--ll-material-inset); color: var(--cyan); }
+.hydros-tabs { position: fixed; z-index: 10; bottom: 0; left: 50%; width: min(560px,100%); min-height: var(--tab-height); transform: translateX(-50%); display: grid; grid-template-columns: repeat(4,1fr); padding: 7px 8px env(safe-area-inset-bottom); border-top: 0; background: var(--ll-material-mica-surface); }
 :root.hydros[data-theme='light'] .hydros-tabs { background: var(--ll-mica, var(--surface-solid)); }
 .hydros-tabs__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; border: 0; background: none; color: var(--muted); font-size: .7rem; }
 .hydros-tabs__item[aria-current='page'] { color: var(--cyan); }
-.hydros-tabs__item[aria-current='page'] svg { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cyan) 55%, transparent)); }
+.hydros-tabs__item[aria-current='page'] svg { filter: none; }
 
 .hydros-header { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; min-height: 56px; margin-bottom: 10px; }
 .hydros-header h1 { margin: 0; font: 400 1.35rem var(--serif); text-align: center; }
-.hydros-icon-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; background: none; color: var(--text); font-size: 2rem; font-weight: 300; }
+.hydros-icon-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: none; color: var(--text); font-size: 2rem; font-weight: 300; }
 .hydros-header__action { display: block; }
 .drink-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
 .drink-types button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-height: 88px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text-soft); font-size: 0.75rem; }
@@ -376,17 +376,17 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-more { align-self: center; }
 
 /* Settings */
-.hydros-reference { display: flex; flex-direction: column; gap: 6px; margin: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--cyan-soft); }
+.hydros-reference { display: flex; flex-direction: column; gap: 6px; margin: 8px; padding: 10px 12px; border: 1px solid var(--ll-hair); border-radius: var(--ll-radius-md); background: var(--ll-material-inset); }
 .hydros-reference > span { color: var(--muted); font-size: 0.75rem; }
 .hydros-reference__row { display: flex; align-items: center; gap: 10px; }
 .hydros-reference__row > span { display: flex; min-width: 0; flex: 1; flex-direction: column; }
 .hydros-reference__row strong { font: 400 1rem/1.2 var(--serif); }
 .hydros-reference__row small, .hydros-reference__source { color: var(--text-soft); font-size: 0.75rem; line-height: 1.35; }
-.hydros-reference__row button { min-width: 52px; min-height: 36px; border: 1px solid var(--cyan); border-radius: 999px; background: transparent; color: var(--cyan); font: inherit; font-size: .78rem; }
+.hydros-reference__row button { min-width: 52px; min-height: 44px; border: 1px solid var(--ll-hair); border-radius: var(--ll-radius-pill); background: var(--ll-material-inset); color: var(--cyan); font: inherit; font-size: .78rem; }
 .hydros-glass-row { display: grid; grid-template-columns: minmax(0, 1.2fr) 58px auto minmax(0, 1fr) 36px; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-.hydros-glass-row input, .hydros-glass-row select { min-width: 0; width: 100%; min-height: 36px; padding: 4px 7px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: .8rem; }
+.hydros-glass-row input, .hydros-glass-row select { min-width: 0; width: 100%; min-height: 44px; padding: 6px 8px; border: 1px solid var(--ll-hair); border-radius: var(--ll-radius-xs); background: var(--ll-material-inset); color: var(--text); font: inherit; font-size: .8rem; }
 .hydros-glass-row b { color: var(--text-soft); font-size: 0.75rem; font-weight: 400; }
-.hydros-glass-row button { min-width: 36px; min-height: 36px; border: 0; background: none; color: var(--muted); font-size: 1.3rem; }
+.hydros-glass-row button { min-width: 44px; min-height: 44px; border: 0; background: none; color: var(--muted); font-size: 1.3rem; }
 .hydros-settings-group .account-card, .hydros-settings-group .card { margin: 0; }
 
 .hydros-orb__set { min-height: 44px; padding: 6px 16px; }
@@ -427,7 +427,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-history__items button { min-width: 112px; background: var(--surface); }
 .hydros-today-list { gap: 9px; }
 .hydros-today-list .hydros-section-title { padding: 0; }
-.hydros-today-list .hydros-section-title > button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--cyan); }
+.hydros-today-list .hydros-section-title > button { width: 44px; height: 44px; border: 1px solid var(--ll-hair); border-radius: 50%; background: var(--ll-material-inset); color: var(--cyan); }
 .hydros-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
 .hydros-insight-card--quote { grid-column: 1 / -1; }
 .hydros-insight-card { display: flex; min-width: 0; min-height: 112px; flex-direction: column; gap: 6px; padding: 13px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }
@@ -450,9 +450,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-add__stage .drink-types button::before { display: none; }
 .hydros-add__stage .drink-types button svg { position: static; width: 27px; height: 27px; transform: none; color: currentColor; }
 .hydros-add__stage .drink-types button span, :root.hydros .hydros-add__stage .drink-types button span { position: static; max-width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: currentColor; font-weight: 500; text-shadow: none; transform: none; white-space: normal; }
-.hydros-add__stage .drink-types button.is-selected { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); }
+.hydros-add__stage .drink-types button.is-selected { border-color: var(--cyan); background: color-mix(in srgb, var(--cyan) 16%, var(--ll-material-solid)); color: var(--cyan); }
 .hydros-add__stage .drink-types button.is-selected::before { display: none; }
-.hydros-add__stage .drink-types button.hydros-custom-drink { border-color: color-mix(in srgb, var(--cyan) 45%, transparent); background: color-mix(in srgb, var(--cyan) 8%, transparent); }
+.hydros-add__stage .drink-types button.hydros-custom-drink { border-color: color-mix(in srgb, var(--cyan) 45%, var(--ll-material-solid)); background: color-mix(in srgb, var(--cyan) 8%, var(--ll-material-solid)); }
 .hydros-custom-fields { display: grid; gap: 10px; padding: 15px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: var(--ll-light-1); }
 .hydros-custom-fields label { min-height: 42px; }
 .hydros-custom-details { border-top-color: var(--line); }
@@ -538,7 +538,7 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 .hydros-settings .rows { border: 0; background: var(--surface-solid); }
 .hydros-settings-group .label { margin: 0 4px; }
 .hydros-settings .hydros-glass-row { padding: 10px 14px; border-bottom: 0; }
-.hydros-settings .hydros-reference { margin: 10px 14px; border: 0; }
+.hydros-settings .hydros-reference { margin: 10px 14px; border: 0; background: var(--ll-material-inset); }
 
 /* Lamplight spacing pass: keep utility cards distinct and readable on narrow screens. */
 .hydros-flow .hydros-header {
@@ -606,4 +606,166 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 .hydros-flow .recent-entry + .recent-entry {
   margin-top: 10px;
+}
+
+
+/* ---------- Hydros Today: Lamplight's solid water room ---------- */
+/* The shared hero supplies the same scene band, title handoff and light/dark photo treatment as Askesis. */
+.hydros-home-hero .hero__image { object-position: center 42%; }
+.hydros-home-hero .hero__content { padding-bottom: 22px; }
+.hydros-home__content {
+  width: 100%;
+  max-width: 44rem;
+  margin-inline: auto;
+  padding: var(--ll-gap, 16px) 20px calc(var(--tab-height) + 28px);
+  gap: var(--ll-section-gap, 28px);
+}
+.hydros-amount {
+  display: grid;
+  gap: var(--ll-space-4, 16px);
+  padding: var(--ll-space-4, 16px);
+  border: 0;
+  border-radius: var(--ll-radius-lg, 22px);
+  background: var(--ll-material-solid);
+}
+.hydros-amount__overview {
+  display: grid;
+  grid-template-columns: minmax(104px, .9fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ll-space-4, 16px);
+}
+.hydros-amount__ring {
+  display: grid;
+  width: min(100%, 148px);
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--cyan) 0 var(--hydros-progress, 0%),
+    var(--ll-material-inset) var(--hydros-progress, 0%) 100%
+  );
+}
+.hydros-amount__ring-center {
+  display: grid;
+  width: calc(100% - 10px);
+  aspect-ratio: 1;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  border-radius: 50%;
+  background: var(--ll-material-solid);
+  text-align: center;
+}
+.hydros-amount__ring-center strong {
+  color: var(--ll-ink);
+  font: 400 var(--text-2xl, 1.75rem)/1 var(--serif);
+  font-variant-numeric: tabular-nums;
+}
+.hydros-amount__ring-center span {
+  color: var(--ll-ink-2);
+  font-size: var(--text-xs, .75rem);
+}
+.hydros-amount__stats {
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--ll-space-1, 4px);
+  padding-left: var(--ll-space-4, 16px);
+  border-left: 1px solid var(--ll-hair);
+}
+.hydros-amount__percent {
+  color: var(--ll-ink);
+  font-size: var(--text-2xl, 1.75rem);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.hydros-amount__remaining {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ll-ink-2);
+  font-size: var(--text-sm, .875rem);
+  line-height: 1.35;
+}
+.hydros-amount__remaining svg { flex: none; color: var(--cyan); }
+.hydros-amount__stats .hydros-amount__note { margin-top: 3px; }
+.hydros-amount__stats .button-quiet { margin-top: 6px; }
+.hydros-amount__action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.hydros-quick-log {
+  display: grid;
+  gap: var(--ll-label-gap, 8px);
+}
+.hydros-quick-log .hydros-section-title h2 {
+  color: var(--ll-ink);
+  font: 600 var(--text-lg, 1.125rem)/1.3 var(--sans);
+}
+.hydros-glasses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: var(--ll-space-2, 8px);
+}
+.hydros-glass {
+  display: flex;
+  min-width: 0;
+  min-height: 64px;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border: 0;
+  border-radius: var(--ll-radius-md, 16px);
+  background: var(--ll-material-inset);
+  color: var(--ll-ink);
+  text-align: left;
+}
+.hydros-glass > svg { flex: none; color: var(--cyan); }
+.hydros-glass span { display: grid; min-width: 0; gap: 1px; }
+.hydros-glass strong {
+  overflow: hidden;
+  color: var(--ll-ink);
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hydros-glass small {
+  overflow: hidden;
+  color: var(--ll-ink-2);
+  font-size: var(--text-sm, .875rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hydros-history__items button {
+  border: 1px solid var(--ll-hair);
+  border-radius: var(--ll-radius-md, 16px);
+  background: var(--ll-material-inset);
+  color: var(--ll-ink);
+}
+.hydros-drinks { background: var(--ll-material-solid); }
+.hydros-insight-card { background: var(--ll-material-solid); }
+
+@media (max-width: 370px) {
+  .hydros-amount { padding: 12px; }
+  .hydros-amount__overview { grid-template-columns: minmax(96px, .82fr) minmax(0, 1fr); gap: 10px; }
+  .hydros-amount__stats { padding-left: 10px; }
+  .hydros-amount__ring-center strong { font-size: var(--text-xl, 1.5rem); }
+}
+@media (min-width: 62rem) {
+  .hydros-home-hero.hero--tall { height: 340px; }
+  .hydros-home__content { padding-inline: 0; }
+  .hydros-amount { padding: var(--ll-space-5, 24px); }
+  .hydros-amount__ring { width: 156px; }
+  .hydros-tabs { background: var(--ll-material-mica-surface); border-right: 1px solid var(--ll-hair); }
+  .hydros-tabs__item:hover { background: var(--ll-state-hover); }
+  .hydros-tabs__item[aria-current='page'] { background: var(--ll-state-selected); color: var(--cyan); }
 }

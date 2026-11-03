@@ -7,7 +7,7 @@ import DrinkEntry from '../app/DrinkEntry';
 import { caffeineFacts, dateLabel, defaultDrinkProfiles, effectiveGoalOz, formatVolume, hourLabel, hydrationOz, localDate, unitToOunces, volumeLabel, type HydrosUnit } from '../core/drinks';
 import { rangeForTraining } from '../data/training';
 import { hydrosQuoteFor } from '../core/quotes';
-import { GearIcon, PlusIcon } from '../app/icons';
+import { DropIcon, GearIcon, PlusIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import IconButton from '../../components/ui/IconButton';
 import sceneWide from '../../assets/images/scenes/hydros-stoic-wide.webp';
@@ -64,36 +64,77 @@ export default function TodayPage({ nav }: { nav: Nav }) {
       </header>
 
       <section className="hydros-home__content">
-        <article className="hydros-amount" aria-label={settings.goalChosen ? `${formatVolume(amount, unit)} of ${formatVolume(goal, unit)} ${unit}` : `${formatVolume(amount, unit)} ${unit} today`}>
-          <p className="hydros-amount__figure">
-            <strong><RollingNumber value={amount} format={(n) => formatVolume(n, unit)} /></strong>
-            <span>{settings.goalChosen ? `of ${formatVolume(goal, unit)} ${unit}` : `${unit} today`}</span>
-          </p>
-          {settings.goalChosen ? (
-            <>
-              <div className="hydros-amount__bar ll-signature" role="presentation"><span className="ll-grow ll-lit ll-lit--end" style={{ width: `${percent}%` } as CSSProperties} /></div>
-              <p className="hydros-amount__line">{remaining > 0 ? `${formatVolume(remaining, unit)} ${unit} to go` : 'Daily amount reached'}</p>
-              {extra > 0 && <p className="hydros-amount__note">{volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}</p>}
-            </>
-          ) : (
-            <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>Set goal.</button>
-          )}
+        <article
+          className="hydros-amount"
+          aria-label={settings.goalChosen
+            ? formatVolume(amount, unit) + ' of ' + formatVolume(goal, unit) + ' ' + unit
+            : formatVolume(amount, unit) + ' ' + unit + ' today'}
+        >
+          <div className="hydros-amount__overview">
+            <div
+              className="hydros-amount__ring"
+              style={{ '--hydros-progress': (settings.goalChosen ? percent : 0) + '%' } as CSSProperties}
+              role="img"
+              aria-label={settings.goalChosen ? Math.round(percent) + ' percent of daily hydration goal' : 'Daily goal not set'}
+            >
+              <div className="hydros-amount__ring-center">
+                <strong><RollingNumber value={amount} format={(n) => formatVolume(n, unit) + ' ' + unit} /></strong>
+                <span>{settings.goalChosen ? 'of ' + formatVolume(goal, unit) + ' ' + unit : 'today'}</span>
+              </div>
+            </div>
+
+            <div className="hydros-amount__stats">
+              {settings.goalChosen ? (
+                <>
+                  <span className="hydros-eyebrow">Daily hydration</span>
+                  <strong className="hydros-amount__percent">{Math.round(percent)}%</strong>
+                  <span className="hydros-amount__remaining">
+                    <DropIcon size={17} />
+                    {remaining > 0 ? formatVolume(remaining, unit) + ' ' + unit + ' remaining' : 'Daily goal reached'}
+                  </span>
+                  {extra > 0 && (
+                    <p className="hydros-amount__note">
+                      {volumeLabel(extra, unit)} added for {range.extra && training?.loggedRun ? 'today’s run' : 'a run day'}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="hydros-eyebrow">Daily goal</span>
+                  <strong className="hydros-amount__percent">Not set</strong>
+                  <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>
+                    Set goal
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <button type="button" className="button-main button--lg hydros-amount__action" onClick={() => nav.go({ name: 'add' })}>
+            <DropIcon size={20} />
+            Log a drink
+          </button>
         </article>
 
-        <div className="hydros-glasses" aria-label="Log a drink">
-          {glasses.map((glass) => (
-            <button type="button" key={glass.id} className="hydros-glass" onClick={() => void logDrink(glass, profiles, unit)}>
-              <PlusIcon size={18} />
-              <span><strong>{glass.label}</strong><small>{volumeLabel(glass.amountOz, unit)}</small></span>
-            </button>
-          ))}
-          {last && !sameAsGlass && (
-            <button type="button" className="hydros-glass" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
-              <PlusIcon size={18} />
-              <span><strong>Same again</strong><small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small></span>
-            </button>
-          )}
-        </div>
+        {(glasses.length > 0 || (last && !sameAsGlass)) && (
+          <section className="hydros-quick-log" aria-label="Quick log">
+            <div className="hydros-section-title"><h2>Quick log</h2></div>
+            <div className="hydros-glasses">
+              {glasses.map((glass) => (
+                <button type="button" key={glass.id} className="hydros-glass" onClick={() => void logDrink(glass, profiles, unit)}>
+                  <PlusIcon size={18} />
+                  <span><strong>{glass.label}</strong><small>{volumeLabel(glass.amountOz, unit)}</small></span>
+                </button>
+              ))}
+              {last && !sameAsGlass && (
+                <button type="button" className="hydros-glass" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
+                  <PlusIcon size={18} />
+                  <span><strong>Same again</strong><small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small></span>
+                </button>
+              )}
+            </div>
+          </section>
+        )}
 
       {history.length > 0 && (
         <section className="hydros-history" aria-label="History">

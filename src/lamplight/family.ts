@@ -31,11 +31,12 @@ function shellVars(s: Scheme): Record<string, string> {
   };
 }
 
-/** Hydros keeps its glass over the water: only solid surfaces, text and its lamp follow. */
+/** Hydros keeps a solid water room and its own lamp; the shared Lamplight bars supply Mica. */
 function hydrosVars(s: Scheme): Record<string, string> {
   const dark = s.mode === 'dark';
   return {
     '--bg': s.page,
+    '--surface': s.card,
     '--surface-solid': s.card,
     '--surface-2': s.inset,
     '--text': s.ink,
