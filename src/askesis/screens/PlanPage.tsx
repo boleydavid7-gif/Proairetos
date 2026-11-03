@@ -260,7 +260,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         {!carry && (
           <>
             <section className="field">
-              <h2 className="label">How long can you walk briskly at once?</h2>
+              <h2 className="label">Longest brisk walk</h2>
               <div className="choice-list" role="group" aria-label="How long can you walk briskly at once?">
                 {walkChoices.map((each) => (
                   <button key={each.id} type="button" className="chip" aria-pressed={walkNow === each.id} onClick={() => pickWalk(each.id)}>
@@ -271,7 +271,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
             </section>
 
             <section className="field">
-              <h2 className="label">How long can you run without stopping?</h2>
+              <h2 className="label">Longest continuous run</h2>
               <div className="choice-list" role="group" aria-label="How long can you run without stopping?">
                 {runChoices.map((each) => (
                   <button key={each.id} type="button" className="chip" aria-pressed={runNow === each.id} onClick={() => pickRun(each.id)}>
@@ -286,7 +286,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
             {runs && (
               <section className="field">
-                <h2 className="label">Running each week, about</h2>
+                <h2 className="label">Weekly running</h2>
                 <div className="chip-row" role="group" aria-label="Running each week">
                   {weeklyChoices.map((each) => (
                     <button key={each} type="button" className="chip" aria-pressed={weekly === each} onClick={() => setWeekly(each)}>
@@ -325,7 +325,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
         {first && (
           <section className="field">
-            <h2 className="label">Distance units</h2>
+            <h2 className="label">Units</h2>
             <Segmented
               label="Distance units"
               value={unit}
