@@ -46,10 +46,7 @@ export function ownParts(session: OwnSession): Part[] {
 export function plainTitle(session: OwnSession): string {
   if (session.parts?.length) {
     const first = session.parts[0];
-    const label = isSet(first)
-      ? `${first.repeat} × ${lengthLabel(totalMinutes(first.steps))}`
-      : `${lengthLabel(first.minutes)} ${first.effort}`;
-    return `${label} session`;
+    return `${lengthLabel(totalMinutes(session.parts))} session`;
   }
   const work = lengthLabel(session.work.minutes);
   return session.repeat > 1 ? `${session.repeat} × ${work}` : `${work} run`;
