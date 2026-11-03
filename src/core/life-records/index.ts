@@ -1,11 +1,15 @@
 import type { LogEntry as AskesisWorkout } from '../../askesis/core/log';
+import type { Idea as MnemeIdea, Note as MnemeNote } from '../../mneme/app/state';
+import type { JournalEntry, Trip } from '../../poreia/core/model';
+import { phaseOf, placesOf } from '../../poreia/core/model';
+import type { FinancialMilestone } from '../../oikonomia/data/reflect';
 import type { Workout as DynamisWorkout } from '../../dynamis/core/plan';
 import type { StudySession } from '../../app/praxis/study';
 import type { Recipe } from '../../soma/core/recipes';
 import type { Decision } from '../decisions/types';
 import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
-import { createLifeRecord, type LifeRecordAdapter, type LifeRecordApp, type LifeRecordDraft, type LifeRecordSource } from './contract';
+import { createLifeRecord, lifeRecordKey, type LifeRecordAdapter, type LifeRecordApp, type LifeRecordDraft, type LifeRecordSource } from './contract';
 export type { LifeRecord, LifeRecordAdapter, LifeRecordApp, LifeRecordKind, LifeRecordSource } from './contract';
 export { createLifeRecord, lifeRecordKey, validateLifeRecordAdapter, LIFE_RECORD_APP_LABELS } from './contract';
 import type { LifeRecord } from './contract';
@@ -25,6 +29,12 @@ export interface LifeRecordInput {
   recipes?: readonly Pick<Recipe, 'id' | 'title' | 'notes' | 'tags' | 'ingredients' | 'source' | 'cookedFor'>[];
   distanceUnit?: 'km' | 'mi';
   studySessions?: readonly StudySession[];
+  mnemeNotes?: readonly MnemeNote[];
+  mnemeIdeas?: readonly MnemeIdea[];
+  poreiaTrips?: readonly Trip[];
+  poreiaJournal?: readonly JournalEntry[];
+  poreiaToday?: string;
+  oikonomiaMilestones?: readonly FinancialMilestone[];
 }
 
 const compact = (value: string | undefined) => value?.trim() ?? '';
@@ -219,6 +229,113 @@ function studyRecord(entry: NonNullable<LifeRecordInput['studySessions']>[number
   });
 }
 
+function mnemeNoteRecord(entry: MnemeNote): LifeRecord {
+  return record({
+    key: lifeRecordKey('mneme', 'note', entry.id),
+    kind: 'note',
+    sourceApp: 'mneme',
+    source: 'Mneme',
+    sourceId: entry.id,
+    at: entry.createdAt,
+    title: compact(entry.title) || firstLine(entry.body) || 'Untitled note',
+    detail: entry.pinned ? 'Pinned note' : 'Note',
+    body: entry.body,
+    valueIds: [],
+    archived: entry.archived,
+    searchParts: [entry.source, entry.kind, entry.transcript?.segments.map((segment) => segment.text).join(' ')],
+  });
+}
+
+function mnemeIdeaRecord(entry: MnemeIdea): LifeRecord {
+  const title = firstLine(entry.text) || 'Untitled idea';
+  const stage = ({ spark: 'New idea', shape: 'Developing', next: 'Next step', parked: 'Later' } as const)[entry.stage];
+  return record({
+    key: lifeRecordKey('mneme', 'idea', entry.id),
+    kind: 'idea',
+    sourceApp: 'mneme',
+    source: 'Mneme',
+    sourceId: entry.id,
+    at: entry.createdAt,
+    title,
+    detail: stage,
+    body: entry.text,
+    valueIds: [],
+    archived: false,
+    searchParts: [entry.stage],
+  });
+}
+
+type PoreiaAdapterInput = {
+  trips: readonly Trip[];
+  journal: readonly JournalEntry[];
+  today: string;
+};
+
+function poreiaRecords(input: PoreiaAdapterInput): LifeRecord[] {
+  const completed = input.trips.filter((trip) => phaseOf(trip, input.today).kind === 'past');
+  const completedById = new Map(completed.map((trip) => [trip.id, trip]));
+  const destinations = (trip: Trip) => placesOf(trip).map((stop) =>
+    stop.place.label || [stop.place.name, stop.place.country].filter(Boolean).join(', '),
+  );
+  const trips = completed.map((trip) => {
+    const places = destinations(trip);
+    const day = trip.end ?? trip.start!;
+    return record({
+      key: lifeRecordKey('poreia', 'trip', trip.id),
+      kind: 'trip',
+      sourceApp: 'poreia',
+      source: 'Poreia',
+      sourceId: trip.id,
+      at: `${day}T12:00:00`,
+      title: trip.name,
+      detail: join(places.join(' → '), trip.start && trip.end ? `${trip.start} – ${trip.end}` : trip.start),
+      body: trip.notes,
+      valueIds: [],
+      archived: false,
+      searchParts: [trip.name, ...places, ...placesOf(trip).map((stop) => stop.place.countryCode)],
+    });
+  });
+  const journal = input.journal
+    .filter((entry) => completedById.has(entry.tripId))
+    .map((entry) => {
+      const trip = completedById.get(entry.tripId)!;
+      const places = destinations(trip);
+      const kind = entry.kind === 'memory' ? 'Memory' : entry.kind === 'day' ? 'Day log' : 'Travel note';
+      return record({
+        key: lifeRecordKey('poreia', 'trip', entry.id, 'journal'),
+        kind: 'trip',
+        sourceApp: 'poreia',
+        source: 'Poreia',
+        sourceId: entry.id,
+        at: `${entry.date}T12:00:00`,
+        title: compact(entry.title) || compact(entry.place) || `${trip.name} journal`,
+        detail: join(trip.name, kind, entry.place),
+        body: entry.text,
+        valueIds: [],
+        archived: false,
+        searchParts: [trip.name, ...places, entry.place, entry.kind],
+      });
+    });
+  return [...trips, ...journal];
+}
+
+function oikonomiaMilestoneRecord(entry: FinancialMilestone): LifeRecord {
+  return record({
+    key: lifeRecordKey('oikonomia', 'financial', entry.id),
+    kind: 'financial',
+    sourceApp: 'oikonomia',
+    source: 'Oikonomia',
+    sourceId: entry.id,
+    at: `${entry.date}T12:00:00`,
+    title: entry.title,
+    detail: 'Financial milestone',
+    body: entry.body,
+    valueIds: [],
+    archived: false,
+    searchParts: ['financial progress', 'milestone', 'review'],
+  });
+}
+
 type AskesisAdapterInput = { workouts: readonly WorkoutRecord[]; unit: 'km' | 'mi' };
 type DynamisAdapterInput = { workouts: readonly DynamisWorkout[]; unit: 'kg' | 'lb' };
 type CompassAdapterInput = {
@@ -274,6 +391,36 @@ export const lifeRecordAdapters = {
     kinds: ['meal'],
     toRecords: (entries: NonNullable<LifeRecordInput['recipes']>) => mealRecords(entries),
   } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['recipes']>>,
+  mnemeNotes: {
+    id: 'mneme.selected-notes',
+    owner: 'mneme',
+    kinds: ['note'],
+    toRecords: (entries: readonly MnemeNote[]) => entries
+      .filter((entry) => entry.inReflect ?? entry.pinned)
+      .map(mnemeNoteRecord),
+  } satisfies LifeRecordAdapter<readonly MnemeNote[]>,
+  mnemeIdeas: {
+    id: 'mneme.selected-ideas',
+    owner: 'mneme',
+    kinds: ['idea'],
+    toRecords: (entries: readonly MnemeIdea[]) => entries
+      .filter((entry) => entry.inReflect === true)
+      .map(mnemeIdeaRecord),
+  } satisfies LifeRecordAdapter<readonly MnemeIdea[]>,
+  poreia: {
+    id: 'poreia.completed-trips-and-journal',
+    owner: 'poreia',
+    kinds: ['trip'],
+    toRecords: poreiaRecords,
+  } satisfies LifeRecordAdapter<PoreiaAdapterInput>,
+  oikonomia: {
+    id: 'oikonomia.selected-financial-milestones',
+    owner: 'oikonomia',
+    kinds: ['financial'],
+    toRecords: (entries: readonly FinancialMilestone[]) => entries
+      .filter((entry) => entry.inReflect)
+      .map(oikonomiaMilestoneRecord),
+  } satisfies LifeRecordAdapter<readonly FinancialMilestone[]>,
   theoria: {
     id: 'theoria.study-sessions',
     owner: 'theoria',
@@ -293,5 +440,16 @@ export function buildLifeRecords(input: LifeRecordInput): LifeRecord[] {
     ...lifeRecordAdapters.dynamis.toRecords({ workouts: input.strengthWorkouts ?? [], unit: input.strengthUnit ?? 'kg' }),
     ...lifeRecordAdapters.soma.toRecords(input.recipes ?? []),
     ...lifeRecordAdapters.theoria.toRecords(input.studySessions ?? []),
+    ...lifeRecordAdapters.mnemeNotes.toRecords(input.mnemeNotes ?? []),
+    ...lifeRecordAdapters.mnemeIdeas.toRecords(input.mnemeIdeas ?? []),
+    ...lifeRecordAdapters.poreia.toRecords({
+      trips: input.poreiaTrips ?? [],
+      journal: input.poreiaJournal ?? [],
+      today: input.poreiaToday ?? (() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      })(),
+    }),
+    ...lifeRecordAdapters.oikonomia.toRecords(input.oikonomiaMilestones ?? []),
   ].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
 }
