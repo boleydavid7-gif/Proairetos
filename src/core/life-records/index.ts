@@ -42,6 +42,7 @@ export interface LifeRecordInput {
     id: string; title: string; notes?: string; tags?: string[]; ingredients?: string[];
     source?: string; cookedFor?: Record<string, string[]>;
   }[];
+  distanceUnit?: 'km' | 'mi';
   studySessions?: readonly {
     id: string; itemId: string; title: string; minutes: number; at: string; kind: 'study' | 'reading';
   }[];
@@ -126,10 +127,10 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
   });
 }
 
-function workoutRecord(entry: WorkoutRecord): LifeRecord {
+function workoutRecord(entry: WorkoutRecord, unit: 'km' | 'mi'): LifeRecord {
   const activity = entry.workoutTitle ?? ({ run: 'Run', walk: 'Walk', hike: 'Hike', bike: 'Bike', other: 'Activity' } as const)[entry.activity];
   const details = [
-    entry.meters ? `${(entry.meters / 1000).toFixed(1)} km` : undefined,
+    entry.meters ? `${(entry.meters / (unit === 'mi' ? 1609.344 : 1000)).toFixed(1)} ${unit}` : undefined,
     entry.seconds ? `${Math.round(entry.seconds / 60)} min` : undefined,
     entry.felt ? `Felt ${entry.felt}` : undefined,
   ];
@@ -194,7 +195,7 @@ export function buildLifeRecords(input: LifeRecordInput): LifeRecord[] {
     ...(input.decisions ?? []).map(decisionRecord),
     ...(input.pursuits ?? []).map(pursuitRecord),
     ...(input.items ?? []).map(lifeItemRecord),
-    ...(input.workouts ?? []).map(workoutRecord),
+    ...(input.workouts ?? []).map((entry) => workoutRecord(entry, input.distanceUnit ?? 'km')),
     ...mealRecords(input.recipes ?? []),
     ...(input.studySessions ?? []).map(studyRecord),
   ].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
