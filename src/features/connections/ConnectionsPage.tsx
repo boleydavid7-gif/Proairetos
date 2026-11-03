@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLeave, useNavigate } from '../../app/navigationContext';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -107,6 +107,7 @@ export default function ConnectionsPage() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
+  const [visibleCount, setVisibleCount] = useState(30);
   const query = search.trim().toLocaleLowerCase();
   const valueNames = useMemo(() => new Map<string, string>(values.map((value: ChosenValue) => [value.id, value.name] as const)), [values]);
 
@@ -130,6 +131,9 @@ export default function ConnectionsPage() {
       return includesText(query, entry.record.title, entry.record.notes, entry.record.location, entry.record.type, entry.record.status);
     }).sort((a, b) => b.at.localeCompare(a.at));
   }, [records, view, category, range, valueId, query]);
+
+  useEffect(() => setVisibleCount(30), [category, view, range, valueId, query]);
+  const visibleRecords = scoped.slice(0, visibleCount);
 
   const counts = useMemo(() => {
     const base = records.filter((entry) => view === 'archived' ? entry.archived : !entry.archived);
@@ -213,7 +217,8 @@ export default function ConnectionsPage() {
 
   function openRecord(entry: Connection) {
     if (entry.kind === 'reflection') {
-      setExpanded((current) => ({ ...current, [entry.record.id]: !current[entry.record.id] }));
+      const key = entry.kind + ':' + entry.record.id;
+      setExpanded((current) => ({ ...current, [key]: !current[key] }));
     } else if (entry.kind === 'decision') {
       openDecision(entry.record.id);
     } else if (entry.kind === 'life') {
@@ -283,11 +288,11 @@ export default function ConnectionsPage() {
         </div>
       ) : (
         <ol className="connections-list">
-          {scoped.map((entry) => {
+          {visibleRecords.map((entry) => {
             const key = entry.kind + ':' + entry.record.id;
             const names = linkedValueIds(entry).map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
             const body = bodyFor(entry);
-            const isExpanded = Boolean(expanded[entry.record.id]);
+            const isExpanded = Boolean(expanded[key]);
             return (
               <li key={key}>
                 <article className="connections-record">
