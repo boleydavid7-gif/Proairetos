@@ -11,13 +11,8 @@ import { philiaCalendar } from '../../app/calendars/philiaCalendar';
 import { therapeiaCalendar } from '../../app/calendars/therapeiaCalendar';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
-import TodayRun from '../today/TodayRun';
-import TodayFamily, { TodayMneme, TodayPursuit } from '../today/TodayFamily';
-import { TodayBirthdays, TodayTrip } from '../today/TodayNewFamily';
-import FromYourApps from '../today/FromYourApps';
-import AppGroup from '../today/AppGroup';
-import { NotTodayFold, SwipeDay } from '../today/SwipeLine';
 import TodayOnThisDay from '../today/TodayOnThisDay';
+import { DailyPractices, WorthYourAttention } from '../today/TodayAppsOverview';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -261,21 +256,8 @@ export default function NowPage() {
         <Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />
       </>
     ),
-    apps: <section className="today-apps" aria-labelledby="today-apps-title" data-ll-recede>
-        <h2 id="today-apps-title" className="section-label">From your apps</h2>
-        <SwipeDay.Provider value={today}>
-        <FromYourApps today={today} embedded />
-        {shows('askesis') && <AppGroup app="askesis"><TodayRun today={today} /></AppGroup>}
-        <AppGroup app="poreia"><TodayTrip now={clock} today={today} /></AppGroup>
-        <AppGroup app="oikonomia"><TodayFamily today={today} /></AppGroup>
-        <AppGroup app="philia"><TodayBirthdays today={today} /></AppGroup>
-        <AppGroup app="mneme"><TodayMneme /></AppGroup>
-        <AppGroup app="proairetos" name="Compass"><TodayPursuit /></AppGroup>
-        <div className="today-group today-group--aside">
-          <NotTodayFold />
-        </div>
-        </SwipeDay.Provider>
-      </section>,
+    'daily-practices': <DailyPractices today={today} range={rangeOf(today)} />,
+    'worth-attention': <WorthYourAttention today={today} now={clock} />,
     'on-this-day': <TodayOnThisDay today={today} />,
     'open-time': shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
       <OpenTime stretches={stretches} items={items} today={today} />

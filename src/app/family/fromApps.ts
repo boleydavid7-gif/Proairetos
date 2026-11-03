@@ -1,6 +1,6 @@
 import type { Plant } from '../../phyton/core/plants';
 import type { Chore } from '../../ergon/core/chores';
-import { withWho, type Appointment, type Dose } from '../../therapeia/core/medicines';
+import { withWho, type Appointment, type Dose, type Medicine } from '../../therapeia/core/medicines';
 import type { Upkeep, Due } from '../../ktema/core/things';
 import type { TodayPart } from '../../data/storage/preferences';
 import type { Recipe } from '../../soma/core/recipes';
@@ -16,9 +16,9 @@ export type FromAppsInput = {
   plants?: readonly { plant: Plant; day: string }[];
   chores?: readonly { chore: Chore; day: string }[];
   doses?: readonly Dose[];
+  refills?: readonly { medicine: Medicine; day: string }[];
   visits?: readonly Appointment[];
   upkeep?: readonly { upkeep: Upkeep; due: Due; thing?: string }[];
-  training?: { name: string; minutes: number };
   /** Recipes planned for today in Soma and not yet cooked today. */
   meals?: readonly Recipe[];
   /** "Since Tue", "Today": each app says its own days the same way. */
@@ -35,7 +35,7 @@ export type Mark =
 
 export type FromAppsRow = {
   key: string;
-  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'dynamis' | 'soma';
+  app: 'phyton' | 'ergon' | 'therapeia' | 'ktema' | 'soma';
   part: TodayPart;
   title: string;
   detail: string;
@@ -49,12 +49,15 @@ export type FromAppsRow = {
 const open = (app: string, what: string) => `/${app}/?open=${encodeURIComponent(what)}`;
 const since = (text: string) => (text === 'Today' ? '' : text);
 
-/** The rows, in a steady order: doses by time, then chores, plants, upkeep, today's meals, and a training day last. */
+/** The actionable rows, in a steady order: doses, upcoming refills, visits, chores, plants, upkeep and today's meals. */
 export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   const { today, dayText, clock } = input;
   const rows: FromAppsRow[] = [];
   for (const dose of [...(input.doses ?? [])].sort((a, b) => a.at.getTime() - b.at.getTime())) {
     rows.push({ key: `dose:${dose.medicine.id}:${dose.slot}`, app: 'therapeia', part: 'medicines', title: withWho(dose.medicine, dose.medicine.name), detail: [clock(dose.at), dose.medicine.dose].filter(Boolean).join(' · '), href: open('therapeia', `medicine:${dose.medicine.id}`), mark: { kind: 'dose', dose }, done: 'Taken' });
+  }
+  for (const { medicine, day } of input.refills ?? []) {
+    rows.push({ key: `refill:${medicine.id}`, app: 'therapeia', part: 'medicines', title: withWho(medicine, medicine.name), detail: `Refill due ${since(dayText(day, today)) || 'today'}`, href: open('therapeia', `medicine:${medicine.id}`) });
   }
   for (const visit of input.visits ?? []) {
     rows.push({ key: `visit:${visit.id}`, app: 'therapeia', part: 'medicines', title: withWho(visit, visit.with), detail: [clock(new Date(visit.at)), visit.where].filter(Boolean).join(' · '), href: open('therapeia', `visit:${visit.id}`) });
@@ -70,9 +73,6 @@ export function fromAppsRows(input: FromAppsInput): FromAppsRow[] {
   }
   for (const recipe of input.meals ?? []) {
     rows.push({ key: `meal:${recipe.id}`, app: 'soma', part: 'soma', title: recipe.title, detail: 'Planned for today', href: open('soma', `recipe:${recipe.id}`), mark: { kind: 'meal', recipe }, done: 'Cooked' });
-  }
-  if (input.training) {
-    rows.push({ key: 'training', app: 'dynamis', part: 'training', title: input.training.name, detail: `About ${input.training.minutes} min`, href: '/dynamis/?open=session' });
   }
   return rows;
 }

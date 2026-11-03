@@ -12,20 +12,17 @@ import { nextCheck, water, dayText } from '../../phyton/core/plants';
 import { useChores, putChore, myName as ergonName } from '../../ergon/app/state';
 import { markDone as choreDone, nextDay as choreDay, shownDay as choreShownDay } from '../../ergon/core/chores';
 import { useDaysOff } from '../../ergon/app/daysOff';
-import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { appointments, putMedicine, restoreMedicine, useAnchors, useMedicines } from '../../therapeia/app/state';
-import { dosesOn, isCurrent, take } from '../../therapeia/core/medicines';
+import { dosesOn, isCurrent, refillDay, take } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps, putUpkeep } from '../../ktema/app/state';
 import { grouped as upkeepGrouped, markDone as upkeepDone } from '../../ktema/core/things';
-import { isSetup, plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
-import { isTrainingDay, nextSession, sessionMinutes, targetsFor } from '../../dynamis/core/plan';
 import { useRecipesFromSoma } from '../../app/soma/meals';
 import { putRecipe } from '../../soma/data/store';
 
 const clock = (at: Date) => at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 
 /** Marks the row's thing in its own app, and gives back how to take the mark off again. */
-function markIn(mark: Mark, today: string): () => void {
+export function markFromApp(mark: Mark, today: string): () => void {
   switch (mark.kind) {
     case 'plant': {
       const before = mark.plant;
@@ -57,7 +54,6 @@ function markIn(mark: Mark, today: string): () => void {
 
 function RowLink({ row }: { row: FromAppsRow }) {
   return (
-    // Not draggable, so a mouse pulling the row sideways moves it instead of dragging the link.
     <a className="quiet-row" href={row.href} draggable={false}>
       <span className="quiet-row__icon" aria-hidden="true">
         <FamilyMark app={row.app} size={20} />
@@ -74,18 +70,14 @@ function RowLink({ row }: { row: FromAppsRow }) {
 /** A row: pull left to mark it in its app (where it can be marked), pull right to set it aside until tomorrow. */
 function Row({ row, today }: { row: FromAppsRow; today: string }) {
   return (
-    <SwipeLine id={row.key} title={row.title} doneWord={row.done} mark={row.mark ? () => markIn(row.mark!, today) : undefined}>
+    <SwipeLine id={row.key} title={row.title} doneWord={row.done} mark={row.mark ? () => markFromApp(row.mark!, today) : undefined}>
       <RowLink row={row} />
     </SwipeLine>
   );
 }
 
-/**
- * From your apps: plants to check, chores, today's doses and visits, upkeep, meals planned for today and a training
- * day, as one list. Each row opens its app; a pull to the left marks it there with undo, a pull to the right sets it
- * aside until tomorrow (`notToday.ts`). Nothing else is kept here.
- */
-export default function FromYourApps({ today, embedded = false }: { today: string; embedded?: boolean }) {
+/** Read today's actionable rows from the apps; nothing is copied into Proairetos. */
+export function useFromYourAppsRows(today: string): FromAppsRow[] {
   const shows = useTodayParts();
   const plants = usePlants();
   const phyton = phytonSettings.use();
@@ -93,43 +85,48 @@ export default function FromYourApps({ today, embedded = false }: { today: strin
   const forecast = useForecast(phyton.rain);
   const chores = useChores();
   const choresOff = useDaysOff();
-  useFittedWeek(today);
   const allMedicines = useMedicines();
   const visits = appointments.use();
   const calendarToday = toLocalDate(new Date());
   const { anchors, dayAt } = useAnchors(addDays(calendarToday, -1), addDays(calendarToday, 1));
   const upkeeps = ktemaUpkeeps.use();
   const owned = ktemaThings.use();
-  const training = dynamisPlan.use();
-  const workouts = dynamisWorkouts.use();
   const recipes = useRecipesFromSoma();
 
   const hot = hotDays(forecast);
   const doseDay = dayAt(new Date());
-  const rows = fromAppsRows({
+  return fromAppsRows({
     today,
     dayText,
     clock,
     plants: shows('plants') ? plants.map((plant) => ({ plant, day: nextCheck(plant, today, phyton.hemisphere, rain, hot) })).filter((each) => each.day <= today).sort((a, b) => a.day.localeCompare(b.day) || a.plant.name.localeCompare(b.plant.name)) : [],
     chores: shows('chores') ? chores.map((chore) => { const day = choreDay(chore, choresOff); return { chore, day: day && choreShownDay(chore, day, today) }; }).filter((each): each is { chore: (typeof chores)[number]; day: string } => Boolean(each.day && each.day <= today)).sort((a, b) => a.day.localeCompare(b.day) || a.chore.name.localeCompare(b.chore.name)) : [],
     doses: shows('medicines') ? dosesOn(allMedicines.filter((medicine) => isCurrent(medicine, doseDay)), doseDay, anchors).filter((dose) => !dose.taken) : [],
+    refills: shows('medicines') ? allMedicines.map((medicine) => ({ medicine, day: refillDay(medicine, today) })).filter((entry): entry is { medicine: (typeof allMedicines)[number]; day: string } => Boolean(entry.day && entry.day <= addDays(today, 7))) : [],
     visits: shows('medicines') ? visits.filter((visit) => visit.at.slice(0, 10) === calendarToday) : [],
     upkeep: shows('upkeep') ? upkeepGrouped(upkeeps, owned, today).now.map((each) => ({ ...each, thing: owned.find((thing) => thing.id === each.upkeep.thingId)?.name })) : [],
     meals: shows('soma') ? recipes.filter((recipe) => recipe.planned?.includes(today) && !recipe.cooked?.includes(today)).sort((a, b) => a.title.localeCompare(b.title)) : [],
-    training: shows('training') && isSetup(training) && isTrainingDay(training, today, liftDays(today)) && !workouts.some((workout) => workout.date === today)
-      ? (() => {
-          const session = nextSession(training, workouts);
-          return { name: session.name, minutes: sessionMinutes(targetsFor(training, session, workouts)) };
-        })()
-      : undefined,
   });
+}
+
+/** One app's actionable rows, kept together so its mark and name are easy to scan. */
+export function FromAppsGroup({ app, rows, today, compact = false }: { app: FromAppsRow['app']; rows: FromAppsRow[]; today: string; compact?: boolean }) {
   if (!rows.length) return null;
-  // One group per app, in the order the apps first come in the rows.
-  const apps = [...new Set(rows.map((row) => row.app))];
-  const list = apps.map((app) => (
-    <AppGroup key={app} app={app}>
-      {rows.filter((row) => row.app === app).map((row) => <Row key={row.key} row={row} today={today} />)}
+  return (
+    <AppGroup app={app} compact={compact}>
+      {rows.map((row) => <Row key={row.key} row={row} today={today} />)}
     </AppGroup>
+  );
+}
+
+/** The detailed, swipeable version remains available to screens that need the full task list. */
+export default function FromYourApps({ today, embedded = false, compact = false }: { today: string; embedded?: boolean; compact?: boolean }) {
+  const rows = useFromYourAppsRows(today);
+  if (!rows.length) return null;
+  const preferred: FromAppsRow['app'][] = ['ergon', 'ktema', 'phyton', 'soma', 'therapeia'];
+  const apps = preferred.filter((app) => rows.some((row) => row.app === app));
+  const list = apps.map((app) => (
+    <FromAppsGroup key={app} app={app} rows={rows.filter((row) => row.app === app)} today={today} compact={compact} />
   ));
   if (embedded) return <>{list}</>;
 

@@ -95,6 +95,7 @@ import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 import { Waiting } from '../../lamplight/Waiting';
 import PwaInstallSection from './PwaInstallSection';
+import TodayAppsSettings from './TodayAppsSettings';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -583,7 +584,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
             app: 'Askesis',
-            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'A running plan around your week; today’s run on Today and finished runs in Reflect.' }] }],
+            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Finished runs in Done today and Reflect; the current session appears in Daily practices.' }] }],
   },
   {
     app: 'Soma',
@@ -591,7 +592,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Pomodoro reading time in Done today and Reflect.' }] }],
+    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Reading sessions in Done today and Reflect; the daily total appears in Daily practices.' }] }],
   },
   {
     app: 'Philia',
@@ -613,10 +614,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
     sections: [{ parts: [{ part: 'medicines', label: 'Medicines', detail: 'Today’s doses not yet marked, and a visit today.' }] }],
   },
   {
-    app: 'Dynamis',
-    sections: [{ parts: [{ part: 'training', label: 'Training days', detail: 'The session waiting on a planned day.' }] }],
-  },
-  {
     app: 'Ktema',
     sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep', detail: 'Upkeep whose day has come.' }] }],
   },
@@ -627,10 +624,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   {
     app: 'Poreia',
     sections: [{ parts: [{ part: 'trips', label: 'Trips', detail: 'A trip under way or a few days off, with its next thing.' }] }],
-  },
-  {
-    app: 'Mneme',
-    sections: [{ parts: [{ part: 'mneme', label: 'Ideas and notes', detail: 'An idea ready for its next step or a pinned note on Today.' }] }],
   },
   {
     app: 'Oikonomia',
@@ -861,6 +854,7 @@ function TodaySection() {
   );
   return (
     <div className="settings-sections" aria-label="What’s included">
+      <TodayAppsSettings />
       {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).flatMap(({ app, sections }) =>
         sections.map((section) => {
           const main = section.parts.filter((entry) => !entry.rare);

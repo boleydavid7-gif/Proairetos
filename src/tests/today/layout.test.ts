@@ -10,13 +10,17 @@ describe('Today layout', () => {
   });
 
   it('keeps a stored order, drops unknown names and doubles, and slots new sections in after their usual neighbor', () => {
-    const layout = readLayout({ order: ['apps', 'day', 'apps', 'gone'], off: ['day', 'line', 'nope'] });
-    expect(layout.order.indexOf('apps')).toBeLessThan(layout.order.indexOf('day'));
+    const layout = readLayout({ order: ['daily-practices', 'day', 'daily-practices', 'gone'], off: ['day', 'line', 'nope'] });
+    expect(layout.order.indexOf('daily-practices')).toBeLessThan(layout.order.indexOf('day'));
     expect(new Set(layout.order).size).toBe(TODAY_SECTIONS.length);
-    // 'next' usually follows 'together', which follows 'intention'; none were stored, so they lead.
-    expect(layout.order.indexOf('next')).toBeLessThan(layout.order.indexOf('apps'));
-    // Sections with a What's included part are switched there, never by this list.
+    expect(layout.order.indexOf('next')).toBeLessThan(layout.order.indexOf('daily-practices'));
     expect(layout.off).toEqual(['day']);
+  });
+
+  it('migrates the old combined app section without losing its position or visibility choice', () => {
+    const layout = readLayout({ order: ['day', 'apps', 'on-this-day'], off: ['apps'] });
+    expect(layout.order.slice(layout.order.indexOf('day') + 1, layout.order.indexOf('on-this-day'))).toEqual(['daily-practices', 'worth-attention']);
+    expect(layout.off).toEqual(['daily-practices', 'worth-attention']);
   });
 
   it('moves a section one place and leaves the ends alone', () => {
