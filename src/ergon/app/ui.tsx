@@ -3,7 +3,7 @@ import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
-import { dayText, markDone, nextDay, repeatText, shownDay, type Chore, type DaysOff } from '../core/chores';
+import { choreAssignee, dayText, markDone, nextDay, repeatText, shownDay, type Chore, type ChorePerson, type DaysOff } from '../core/chores';
 import { addPerson, myName, putChore } from './state';
 
 export function done(chore: Chore, today: string): void {
@@ -12,7 +12,20 @@ export function done(chore: Chore, today: string): void {
   offerUndo(`${chore.name} done`, () => putChore(chore));
 }
 
-export function ChoreRow({ chore, today, onOpen, room = true, daysOff }: { chore: Chore; today: string; onOpen: () => void; room?: boolean; daysOff?: DaysOff }) {
+export function HouseholdWhoChips({ people, value, onChange, meId, label = 'Who' }: { people: readonly ChorePerson[]; value: string; onChange: (id: string) => void; meId?: string; label?: string }) {
+  return (
+    <div className="chip-row" role="group" aria-label={label}>
+      <button type="button" className="chip" aria-pressed={!value} onClick={() => onChange('')}>Anyone</button>
+      {people.map((person) => (
+        <button key={person.id} type="button" className="chip" aria-pressed={value === person.id} onClick={() => onChange(person.id)}>
+          {person.name}{person.id === meId ? ' (you)' : ''}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function ChoreRow({ chore, today, onOpen, room = true, daysOff, people = [] }: { chore: Chore; today: string; onOpen: () => void; room?: boolean; daysOff?: DaysOff; people?: readonly ChorePerson[] }) {
   const day = nextDay(chore, daysOff);
   return (
     <SwipeItem className="chore" label="Done" onSwipe={() => done(chore, today)}>
@@ -22,7 +35,7 @@ export function ChoreRow({ chore, today, onOpen, room = true, daysOff }: { chore
       <button type="button" className="chore__open" onClick={onOpen}>
         <span>
           {chore.name}
-          {chore.who && <span className="who-chip">{chore.who}</span>}
+          {choreAssignee(chore, people) && <span className="who-chip">{choreAssignee(chore, people)}</span>}
         </span>
         <small>{[room ? chore.room : undefined, repeatText(chore.repeat)].filter(Boolean).join(' · ')}</small>
       </button>
@@ -31,10 +44,10 @@ export function ChoreRow({ chore, today, onOpen, room = true, daysOff }: { chore
   );
 }
 
-export function ChoreList({ chores, today, onOpen, room = true, daysOff }: { chores: readonly Chore[]; today: string; onOpen: (chore: Chore) => void; room?: boolean; daysOff?: DaysOff }) {
+export function ChoreList({ chores, today, onOpen, room = true, daysOff, people = [] }: { chores: readonly Chore[]; today: string; onOpen: (chore: Chore) => void; room?: boolean; daysOff?: DaysOff; people?: readonly ChorePerson[] }) {
   return (
     <ul className="chore-list">
-      {chores.map((chore) => <ChoreRow key={chore.id} chore={chore} today={today} onOpen={() => onOpen(chore)} room={room} daysOff={daysOff} />)}
+      {chores.map((chore) => <ChoreRow key={chore.id} chore={chore} today={today} onOpen={() => onOpen(chore)} room={room} daysOff={daysOff} people={people} />)}
     </ul>
   );
 }
