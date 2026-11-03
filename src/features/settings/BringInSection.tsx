@@ -72,7 +72,7 @@ export default function BringInSection() {
       setChosen(new Set(next.rows.flatMap((row, index) => (row.done ? [] : [index]))));
       if (next.rows.length === 0) setError('Nothing to bring in from that.');
     } catch {
-      setError('Couldn’t read that file. Use a calendar file, a CSV, a Google Tasks export, or a plain list.');
+      setError('Couldn’t read file. Try a calendar, CSV, Google Tasks export or plain list.');
     }
   }
 
@@ -96,7 +96,7 @@ export default function BringInSection() {
       offerUndo(added.length === 1 ? 'Brought in 1 thing' : `Brought in ${added.length} things`, async () => {
         for (const id of added) await lifeService.deleteItem(id);
       });
-      setMessage(added.length === 1 ? 'Brought in 1 thing.' : `Brought in ${added.length} things. They are in Capture and on their days.`);
+      setMessage(added.length === 1 ? 'Brought in 1 thing.' : `${added.length} items saved to Capture and Days ahead.`);
       setResult(null);
       setPasted('');
     } catch {
@@ -159,7 +159,7 @@ export default function BringInSection() {
     <section className="settings-card" aria-label="Bring things in">
       <ul className="import-sources">
         <li>
-          <strong>A calendar file</strong> (.ics) from Google, Apple, or Outlook: events become things with a time.
+          <strong>Calendar (.ics)</strong> from Google, Apple or Outlook.
         </li>
         <li>
           <strong>Todoist</strong> or any <strong>spreadsheet</strong> saved as CSV.
@@ -168,7 +168,7 @@ export default function BringInSection() {
           <strong>Google Tasks</strong>, from Google Takeout (Tasks.json).
         </li>
         <li>
-          <strong>A list</strong> from Notes, Apple Reminders, or anywhere: one per line, pasted below.
+          <strong>Any list</strong>: paste one item per line.
         </li>
       </ul>
       <label className="button-accent import-file">
