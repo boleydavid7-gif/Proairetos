@@ -205,6 +205,16 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     const work = (async () => {
       if (typeof navigator !== 'undefined' && !navigator.onLine) return;
       const client = await supabase();
+      // A SELECT policy filters inaccessible rows instead of throwing. Check list visibility first so a revoked
+      // household share clears its stale local reference even when there are no queued writes.
+      const { data: access, error: accessError } = await client.from('shared_lists').select('id').eq('id', list.id).maybeSingle();
+      plain(accessError);
+      if (!access) {
+        saveLists(sharedLists().filter((each) => each.id !== list.id));
+        localStorage.removeItem(cacheKey(list.id));
+        localStorage.removeItem(pendingKey(list.id));
+        throw new Error('This list is no longer shared with you.');
+      }
       const pending = read<Pending[]>(pendingKey(list.id), []);
       for (const change of pending) {
         const row = change.item
