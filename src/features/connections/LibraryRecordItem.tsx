@@ -2,14 +2,18 @@ import { useState } from 'react';
 import { linkTo } from '../../app/family/opening';
 import { Sym } from '../../lamplight/icons';
 import type { LifeRecord } from '../../core/life-records';
+import { canArchiveLifeRecord } from '../../core/life-records/library';
 
 type Props = {
   record: LifeRecord;
   saved: boolean;
+  selectionMode: boolean;
+  selected: boolean;
   availableValues: { id: string; name: string }[];
   relatedRecords: LifeRecord[];
   busy: boolean;
   onToggleFavorite: (record: LifeRecord) => void;
+  onToggleSelected: (record: LifeRecord, selected: boolean) => void;
   onOpen: (record: LifeRecord) => void;
   onArchive: (record: LifeRecord) => void;
   onRestore: (record: LifeRecord) => void;
@@ -32,10 +36,6 @@ function hrefFor(record: LifeRecord): string | undefined {
   return undefined;
 }
 
-function canArchive(record: LifeRecord): boolean {
-  return record.kind === 'reflection' || record.kind === 'decision' || record.kind === 'pursuit' || record.kind === 'life' || (record.kind === 'note' && record.sourceApp === 'mneme');
-}
-
 function dateLabel(value: string): string {
   const date = new Date(value);
   return Number.isFinite(date.getTime())
@@ -46,10 +46,13 @@ function dateLabel(value: string): string {
 export default function LibraryRecordItem({
   record,
   saved,
+  selectionMode,
+  selected,
   availableValues,
   relatedRecords,
   busy,
   onToggleFavorite,
+  onToggleSelected,
   onOpen,
   onArchive,
   onRestore,
@@ -80,14 +83,24 @@ export default function LibraryRecordItem({
   return (
     <li className="connections-list__item">
       <article className="connections-record">
-        <div className="connections-record__meta">
+        <div className={selectionMode ? 'connections-record__meta connections-record__meta--selecting' : 'connections-record__meta'}>
+          {selectionMode && (
+            <label className="connections-record__select">
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={(event) => onToggleSelected(record, event.target.checked)}
+                aria-label={`Select ${record.title}`}
+              />
+            </label>
+          )}
           <span className={'connections-record__kind connections-record__kind--' + record.kind}>{kindLabel}</span>
           <span className="connections-record__source">{record.source}</span>
           <time dateTime={record.at}>{dateLabel(record.at)}</time>
           <button type="button" className="connections-save" aria-label={saved ? 'Remove from saved' : 'Save to library'} aria-pressed={saved} onClick={() => onToggleFavorite(record)}>
             <Sym name="bookmark" size={18} />
           </button>
-          {canArchive(record) && (
+          {canArchiveLifeRecord(record) && (
             <details className="connections-actions">
               <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
               <div className="connections-actions__menu">
