@@ -13,13 +13,13 @@ const bridgeLabel = (status: AskesisCapabilities['bridgeStatus']) => {
   return 'Browser mode';
 };
 
-const nativeFeatures: { key: NativeCapability; title: string; detail: string }[] = [
-  { key: 'healthWorkouts', title: 'Health workouts', detail: 'Read completed runs and other workouts from Apple Health or Health Connect.' },
-  { key: 'heartRate', title: 'Health heart rate', detail: 'Use heart-rate records from the phone’s health platform.' },
-  { key: 'backgroundGps', title: 'Background GPS', detail: 'Continue recording a run when the screen is locked.' },
-  { key: 'haptics', title: 'Native haptics', detail: 'Use the phone’s vibration and haptic controls during a guided session.' },
-  { key: 'lockScreenControls', title: 'Lock-screen controls', detail: 'See and control an active session without reopening Askesis.' },
-  { key: 'watchSync', title: 'Watch sync', detail: 'Receive supported workout records from a paired watch.' },
+const nativeFeatures: { key: NativeCapability; flag: keyof Pick<AskesisCapabilities, 'healthWorkouts' | 'healthHeartRate' | 'backgroundGps' | 'haptics' | 'lockScreenControls' | 'watchSync'>; title: string; detail: string }[] = [
+  { key: 'healthWorkouts', flag: 'healthWorkouts', title: 'Health workouts', detail: 'Read completed runs and other workouts from Apple Health or Health Connect.' },
+  { key: 'heartRate', flag: 'healthHeartRate', title: 'Health heart rate', detail: 'Use heart-rate records from the phone’s health platform.' },
+  { key: 'backgroundGps', flag: 'backgroundGps', title: 'Background GPS', detail: 'Continue recording a run when the screen is locked.' },
+  { key: 'haptics', flag: 'haptics', title: 'Native haptics', detail: 'Use the phone’s vibration and haptic controls during a guided session.' },
+  { key: 'lockScreenControls', flag: 'lockScreenControls', title: 'Lock-screen controls', detail: 'See and control an active session without reopening Askesis.' },
+  { key: 'watchSync', flag: 'watchSync', title: 'Watch sync', detail: 'Receive supported workout records from a paired watch.' },
 ];
 
 export default function DevicePage({ nav }: { nav: Nav }) {
@@ -110,7 +110,7 @@ export default function DevicePage({ nav }: { nav: Nav }) {
         <h2 className="label">Optional phone capabilities</h2>
         <div className="card device-list">
           {nativeFeatures.map((feature) => {
-            const enabled = capabilities?.[feature.key] === true;
+            const enabled = capabilities?.[feature.flag] === true;
             return (
               <div className="device-row" key={feature.key}>
                 <div className="device-row__copy">
