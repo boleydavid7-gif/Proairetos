@@ -186,6 +186,7 @@ describe('a household', () => {
     await household.makeHousehold('Family');
     await household.shareApp('ergon');
     const made = household.household()!;
+    expect(homes.sharedLists()).toHaveLength(1);
 
     user = 'user-b';
     device('Alex');
@@ -193,7 +194,8 @@ describe('a household', () => {
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
-    const removedMemberAppList = homes.sharedLists()[0];
+    expect(homes.sharedLists()).toHaveLength(1);
+    const removedMemberAppList = homes.sharedLists()[0]!;
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'admin');
