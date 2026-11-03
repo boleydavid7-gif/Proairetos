@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: TherapeiaNav }) {
       name="Therapeia"
       mark={<AppMark app="therapeia" size={44} light />}
       line="Medicines and appointments."
-      about="Doses at the times you set, or after waking and before sleep on any schedule. Refills, visits and what was taken."
+      about="Track doses, refills and appointments around your schedule."
       photo={photo}
       photoWide={photoWide}
       fine="Follow the directions you were given. Therapeia reminds and records; it gives no medical advice."
