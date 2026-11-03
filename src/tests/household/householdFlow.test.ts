@@ -188,14 +188,25 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    user = 'user-c';
+    device('Jo');
+    await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'admin');
+    await household.setMemberRole('user-c', 'admin');
     expect(tables.household_member_roles).toContainEqual(expect.objectContaining({ household_id: made.id, user_id: 'user-b', role: 'admin' }));
 
     user = 'user-b';
     await expect(household.setMemberRole('user-a', 'admin')).rejects.toThrow('Only the household owner');
     await expect(household.removeHouseholdMember('user-a')).rejects.toThrow('owner cannot be removed');
+    await expect(household.removeHouseholdMember('user-c')).rejects.toThrow('cannot remove another administrator');
+
+    user = 'user-a';
+    await household.setMemberRole('user-c', 'member');
+    user = 'user-b';
+    await household.removeHouseholdMember('user-c');
+    expect(tables.shared_list_members.some((row) => row.list_id === made.id && row.user_id === 'user-c')).toBe(false);
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'member');
