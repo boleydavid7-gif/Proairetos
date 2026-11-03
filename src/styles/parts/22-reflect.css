@@ -350,6 +350,10 @@
 .reflect-checkin__toggle {
   width: 100%;
   min-width: 0;
+  background-image: linear-gradient(var(--color-border), var(--color-border));
+  background-size: calc(100% - 3.9rem - var(--ll-hair-end)) 1px;
+  background-position: right var(--ll-hair-end) bottom;
+  background-repeat: no-repeat;
 }
 
 .reflect-checkin__toggle .settings-row__text {
