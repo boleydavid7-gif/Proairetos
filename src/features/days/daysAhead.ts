@@ -18,7 +18,7 @@ export function takeDaysAheadOpening(): { start?: string; focusKey?: string } {
   return current;
 }
 
-export type Timed = Exclude<TimelineEntry, { kind: 'off' } | { kind: 'allday' }>;
+export type Timed = Exclude<TimelineEntry, { kind: 'off' } | { kind: 'allday' } | { kind: 'planned' }>;
 export type EntryIcon = 'work' | 'protected' | 'item' | 'event';
 
 /** Date-only to-dos belong in the all-day area, not in an arbitrary hour slot. */
