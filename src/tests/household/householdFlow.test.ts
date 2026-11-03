@@ -295,6 +295,32 @@ describe('a household', () => {
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(true);
   });
 
+  it('can rejoin directly from an invite even when this device still has a stale household reference', async () => {
+    const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
+    user = 'user-a';
+    device('Sam');
+    await household.makeHousehold('Family');
+    await household.shareApp('ergon');
+    const invite = { ...household.household()! };
+
+    user = 'user-b';
+    device('Alex');
+    await household.joinHousehold(invite);
+    const appList = homes.sharedLists()[0]!;
+
+    user = 'user-a';
+    await household.removeHouseholdMember('user-b');
+    user = 'user-b';
+    expect(household.household()?.id).toBe(invite.id);
+
+    // No background sync runs between removal and opening the invite again.
+    await household.joinHousehold(invite);
+    expect(household.household()?.id).toBe(invite.id);
+    expect(tables.shared_list_members.some((row) => row.list_id === invite.id && row.user_id === 'user-b')).toBe(true);
+    expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(true);
+  });
+
   it('preserves the person who enabled a share when they leave, while revoking other household members', async () => {
     const household = await import('../../app/household/household');
     const { homes } = await import('../../ergon/app/state');
