@@ -23,11 +23,15 @@ function hrefFor(record: LifeRecord): string | undefined {
   if (record.kind === 'workout' && record.sourceApp === 'askesis') return linkTo('askesis', 'entry:' + record.sourceId);
   if (record.kind === 'meal' && record.sourceApp === 'soma') return linkTo('soma', 'recipe:' + record.sourceId);
   if (record.kind === 'study' && record.sourceApp === 'theoria') return '/theoria/?open=pomodoro:sessions';
+  if (record.kind === 'note' && record.sourceApp === 'mneme') return linkTo('mneme', 'note:' + record.sourceId);
+  if (record.kind === 'idea' && record.sourceApp === 'mneme') return linkTo('mneme', 'ideas');
+  if (record.kind === 'trip' && record.sourceApp === 'poreia') return linkTo('poreia', record.key.endsWith(':journal') ? 'journal' : 'trip:' + record.sourceId);
+  if (record.kind === 'financial' && record.sourceApp === 'oikonomia') return linkTo('oikonomia', 'more');
   return undefined;
 }
 
 function canArchive(record: LifeRecord): boolean {
-  return record.kind === 'reflection' || record.kind === 'decision' || record.kind === 'pursuit' || record.kind === 'life';
+  return record.kind === 'reflection' || record.kind === 'decision' || record.kind === 'pursuit' || record.kind === 'life' || (record.kind === 'note' && record.sourceApp === 'mneme');
 }
 
 function dateLabel(value: string): string {
@@ -55,7 +59,7 @@ export default function LibraryRecordItem({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(record.body ?? '');
   const href = hrefFor(record);
-  const kindLabel = record.kind === 'life' ? 'Life' : record.kind.charAt(0).toUpperCase() + record.kind.slice(1);
+  const kindLabel = ({ life: 'Life', trip: 'Travel', financial: 'Milestone' } as Partial<Record<LifeRecord['kind'], string>>)[record.kind] ?? record.kind.charAt(0).toUpperCase() + record.kind.slice(1);
 
   async function saveEdit() {
     if (await onSaveReflection(record, draft)) setEditing(false);
