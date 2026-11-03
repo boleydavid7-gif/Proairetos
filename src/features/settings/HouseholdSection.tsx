@@ -342,7 +342,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
       </section>
 
       {currentRole === 'owner' ? (
-        <p className="hint household__permissions-note">You own this household. Ownership must be transferred before you can leave.</p>
+        <p className="hint household__permissions-note">You own this household. Ownership transfer is not available yet.</p>
       ) : leaving ? (
         <section className="settings-card">
           <p className="section-description">Leave {list.name}? You will stop receiving household updates. Copies already saved on this device remain here.</p>
