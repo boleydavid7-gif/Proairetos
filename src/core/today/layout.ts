@@ -6,7 +6,8 @@ export const TODAY_SECTIONS = [
   'together',
   'next',
   'day',
-  'apps',
+  'daily-practices',
+  'worth-attention',
   'on-this-day',
   'open-time',
   'also',
@@ -21,7 +22,8 @@ export const SECTION_NAMES: Record<TodaySection, string> = {
   together: 'Shared list',
   next: 'Next',
   day: 'Your day',
-  apps: 'From your apps',
+  'daily-practices': 'Daily practices',
+  'worth-attention': 'Worth your attention',
   'on-this-day': 'On this day',
   'open-time': 'Open time',
   also: 'Folded lists',
@@ -44,10 +46,13 @@ export type TodayLayout = { order: TodaySection[]; off: TodaySection[] };
 
 const isSection = (value: unknown): value is TodaySection => (TODAY_SECTIONS as readonly unknown[]).includes(value);
 
-/** A stored layout made whole: known sections in the stored order, any new ones in their usual place, nothing twice. */
+/** A stored layout made whole, migrating the former combined app section into the two new groups. */
 export function readLayout(saved: unknown): TodayLayout {
   const raw = (saved && typeof saved === 'object' ? saved : {}) as Partial<Record<'order' | 'off', unknown>>;
-  const stored = Array.isArray(raw.order) ? [...new Set(raw.order.filter(isSection))] : [];
+  const legacyOrder = Array.isArray(raw.order) ? raw.order : [];
+  const stored = [...new Set(legacyOrder.flatMap((value): TodaySection[] =>
+    value === 'apps' ? ['daily-practices', 'worth-attention'] : isSection(value) ? [value] : [],
+  ))];
   const order = [...stored];
   // A section the stored order does not know yet goes in after the section that comes before it usually.
   TODAY_SECTIONS.forEach((section, at) => {
@@ -55,7 +60,10 @@ export function readLayout(saved: unknown): TodayLayout {
     const before = TODAY_SECTIONS.slice(0, at).reverse().find((each) => order.includes(each));
     order.splice(before ? order.indexOf(before) + 1 : 0, 0, section);
   });
-  const off = Array.isArray(raw.off) ? [...new Set(raw.off.filter(isSection))].filter((section) => !SECTION_PART[section]) : [];
+  const legacyOff = Array.isArray(raw.off) ? raw.off : [];
+  const off = [...new Set(legacyOff.flatMap((value): TodaySection[] =>
+    value === 'apps' ? ['daily-practices', 'worth-attention'] : isSection(value) ? [value] : [],
+  ))].filter((section) => !SECTION_PART[section]);
   return { order, off };
 }
 
