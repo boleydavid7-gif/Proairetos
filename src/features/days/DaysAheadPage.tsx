@@ -42,7 +42,7 @@ import SettingsButton from '../../components/layout/SettingsButton';
 import SearchButton from '../../components/layout/SearchButton';
 import QuickSortSheet, { sortable } from '../capture/QuickSortSheet';
 import SwipeItem from '../../app/family/SwipeItem';
-import { entryLook, setDaysAheadOpening, takeDaysAheadOpening, type EntryIcon, type Timed } from './daysAhead';
+import { entryLook, plannedItemsForDay, setDaysAheadOpening, takeDaysAheadOpening, type EntryIcon, type Timed } from './daysAhead';
 
 export type DaysView = 'list' | 'calendar';
 type CalendarMode = 'week' | 'month' | 'year';
@@ -575,7 +575,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 >
                   <span>{formatLocalDay(date, { weekday: 'narrow' })}</span>
                   <strong>{formatLocalDay(date, { day: 'numeric' })}</strong>
-                  {data.days.find((day) => day.date === date)?.entries.some((entry) => entry.kind !== 'off') && <i aria-hidden="true" />}
+                  {(data.days.find((day) => day.date === date)?.entries.some((entry) => entry.kind !== 'off') || plannedItemsForDay(date, data.items).length > 0) && <i aria-hidden="true" />}
                 </button>
               ))}
             </div>
@@ -600,6 +600,29 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       {line.name}
                     </a>
                   ))}
+                </span>
+              ))}
+            </div>
+          )}
+          {(narrow ? [focusDay] : data.days.map((day) => day.date)).some((date) => plannedItemsForDay(date, data.items).length > 0) && (
+            <div className="cal-head cal-planned" style={{ ['--days' as string]: String(narrow ? 1 : span) }}>
+              <span className="cal-planned__label">To-do</span>
+              {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date }) => (
+                <span key={date} className="cal-planned__day">
+                  {plannedItemsForDay(date, data.items).map((item) => {
+                    const color = item.color ?? (item.goalId ? data.goals.goals.find((goal) => goal.id === item.goalId)?.color : undefined);
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={`cal-planned__chip tag--${color ?? 'none'}`}
+                        title={item.title}
+                        onClick={() => openItem(item.id)}
+                      >
+                        {item.title}
+                      </button>
+                    );
+                  })}
                 </span>
               ))}
             </div>
@@ -745,6 +768,10 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 const looks = entries.flatMap((entry): { title: string; color?: string }[] =>
                   entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
                 );
+                for (const item of plannedItemsForDay(date, data.items)) {
+                  const color = item.color ?? (item.goalId ? data.goals.goals.find((goal) => goal.id === item.goalId)?.color : undefined);
+                  looks.push({ title: item.title, color });
+                }
                 for (const line of billsFor(date)) looks.push({ title: line.name, color: line.color });
                 const outside = date.slice(0, 7) !== monthStart(start).slice(0, 7);
                 return (
@@ -792,7 +819,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
             if (!day) return null;
             const timed = day.entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
             const allDay = day.entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
-            const count = timed.length + allDay.length;
+            const planned = plannedItemsForDay(start, data.items);
+            const count = timed.length + allDay.length + planned.length;
             return (
               <section className="month-day" aria-label={formatLocalDay(start, { weekday: 'long', month: 'long', day: 'numeric' })}>
                 <div className="month-day__head">
@@ -905,8 +933,11 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   ))}
                   {inMonth.map(({ date, entries }) => {
                     const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
-                    const color = timed[0] ? entryLook(timed[0], data.patterns, data.sources, data.goals).color ?? 'none' : undefined;
-                    const marked = timed.length > 0 || entries.some((entry) => entry.kind === 'allday');
+                    const planned = plannedItemsForDay(date, data.items);
+                    const firstPlanned = planned[0];
+                    const plannedColor = firstPlanned?.color ?? (firstPlanned?.goalId ? data.goals.goals.find((goal) => goal.id === firstPlanned.goalId)?.color : undefined);
+                    const color = timed[0] ? entryLook(timed[0], data.patterns, data.sources, data.goals).color ?? 'none' : planned.length > 0 ? plannedColor ?? 'none' : undefined;
+                    const marked = timed.length > 0 || entries.some((entry) => entry.kind === 'allday') || planned.length > 0;
                     return (
                       <span
                         key={date}
