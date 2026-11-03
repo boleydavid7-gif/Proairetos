@@ -1,7 +1,7 @@
 import { collection } from '../family/shell';
+import { isLibraryTrashExpired } from '../../core/life-records/library';
 
 export const LIBRARY_TRASH_RETENTION_DAYS = 30;
-const RETENTION_MS = LIBRARY_TRASH_RETENTION_DAYS * 86_400_000;
 
 export interface LibraryTrashEntry {
   /** Stable Life Record key. This is a Reflect-level tombstone, not a source record ID. */
@@ -37,8 +37,7 @@ export function permanentlyRemoveFromLibraryTrash(recordKey: string, deletedAt =
 export function expireLibraryTrash(entries: readonly LibraryTrashEntry[], now = Date.now()): void {
   for (const entry of entries) {
     if (entry.deletedAt) continue;
-    const trashedAt = new Date(entry.trashedAt).getTime();
-    if (!Number.isFinite(trashedAt) || now - trashedAt < RETENTION_MS) continue;
+    if (!isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) continue;
     permanentlyRemoveFromLibraryTrash(entry.id, new Date(now).toISOString());
   }
 }
