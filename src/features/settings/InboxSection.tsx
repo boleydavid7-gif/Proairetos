@@ -81,7 +81,7 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
           <p className="inbox-intro">Make a Shortcut once. Then send a thought to Proairetos without opening the app.</p>
           <ol className="inbox-steps">
             <Step number={1} title="Ask for the text">
-              <p>Open <strong>Shortcuts</strong>, tap <strong>+</strong>, and add <strong>Ask for Input</strong>. Set the input type to <strong>Text</strong>.</p>
+              <p>Open <strong>Shortcuts</strong>, tap the <strong>Add</strong> button, and add <strong>Ask for Input</strong>. Set the input type to <strong>Text</strong>.</p>
             </Step>
             <Step number={2} title="Send it to Proairetos">
               <p>Add <strong>Get Contents of URL</strong> and paste the address below. Tap <strong>Show More</strong>, then set:</p>
