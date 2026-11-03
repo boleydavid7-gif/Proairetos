@@ -1213,7 +1213,6 @@ export default function SettingsPage() {
   // On a wide screen the list stays beside the page it opens.
   const wide = useSyncExternalStore(subscribeWide, isWide);
   // Every hook stays above the early return below.
-  const added = useAddedApps();
   const detail = view ? (
       <>
         {!wide && (
@@ -1385,10 +1384,14 @@ export default function SettingsPage() {
     {
       label: 'Apps',
       entries: [
-        { id: 'store', icon: <CompassIcon size={18} />, tone: 'gold', title: 'Store', onClick: () => setView('store'), words: 'apps add more askesis soma oikonomia theoria pomodoro diaita philia ergon therapeia dynamis ktema phyton running recipes bills study reading sleep people chores medicines strength upkeep warranty plants garden' },
-        ...familyApps
-          .filter((each) => each.id !== 'proairetos' && added.includes(each.id as AddOn))
-          .map((each) => ({ id: each.id, icon: app(each.icon), tone: 'app' as Tone, title: each.name, onClick: () => window.location.assign(each.href), words: each.line.toLowerCase() })),
+        {
+          id: 'store',
+          icon: <CompassIcon size={18} />,
+          tone: 'gold',
+          title: 'App Store',
+          onClick: () => setView('store'),
+          words: ['apps add more discover install', ...familyApps.map((each) => `${each.name} ${each.line}`)].join(' ').toLowerCase(),
+        },
       ],
     },
     {
@@ -1420,6 +1423,7 @@ export default function SettingsPage() {
         className="field-input settings-find"
         type="search"
         aria-label="Find a setting"
+        placeholder="Search settings…"
         value={find}
         onChange={(event) => setFind(event.target.value)}
       />
