@@ -69,7 +69,7 @@ const setRoleState = (next: RoleState) => {
 };
 
 async function refreshRoleState(householdId: string, userId?: string): Promise<void> {
-  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 60_000) return;
+  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 15_000) return;
   try {
     const client = await supabase();
     const [{ data: householdRow, error: householdError }, { data: adminRows, error: rolesError }] = await Promise.all([
