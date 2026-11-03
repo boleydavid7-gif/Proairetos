@@ -80,6 +80,7 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
       setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
       return;
     }
+    if (userId && !(await stillSignedInAs(userId))) return;
     const ownerId = (householdRow as { created_by: string }).created_by;
     if (rolesError) {
       // Even if the role migration is not installed yet, we can still identify the owner and prevent an orphaned home.
@@ -104,8 +105,23 @@ async function me(): Promise<string | undefined> {
 }
 
 async function signedInAs(): Promise<{ id: string; email: string } | undefined> {
-  const { data } = await (await supabase()).auth.getUser();
-  return data.user ? { id: data.user.id, email: data.user.email ?? '' } : undefined;
+  const { data, error } = await (await supabase()).auth.getUser();
+  return !error && data.user ? { id: data.user.id, email: data.user.email ?? '' } : undefined;
+}
+
+function belongsToDeviceAccount(userId: string): boolean {
+  try {
+    const deviceAccount = localStorage.getItem('proairetosAccount');
+    return !deviceAccount || deviceAccount === userId;
+  } catch {
+    return true;
+  }
+}
+
+async function stillSignedInAs(userId: string): Promise<boolean> {
+  if (!belongsToDeviceAccount(userId)) return false;
+  const user = await signedInAs().catch(() => undefined);
+  return user?.id === userId && belongsToDeviceAccount(userId);
 }
 
 async function setAppShare(householdId: string, app: HouseholdApp, sharedListId: string, enabled: boolean): Promise<void> {
@@ -124,52 +140,140 @@ async function setAppShare(householdId: string, app: HouseholdApp, sharedListId:
   if (data !== true) throw new Error('The family sharing setting could not be saved.');
 }
 
-let running: Promise<void> | undefined;
+let running: { key: string; promise: Promise<void> } | undefined;
+
+function isRevokedList(cause: unknown): boolean {
+  return cause instanceof Error && /This list is no longer shared with you/i.test(cause.message);
+}
+
+function cannotJoinList(cause: unknown): boolean {
+  return cause instanceof Error && /This link does not open a list/i.test(cause.message);
+}
+
+/** Re-check old app-list references when a household share disappears or household membership is revoked. */
+async function refreshLinkedParts(parts: readonly Extract<HouseholdItem, { kind: 'part' }>[], userId: string): Promise<void> {
+  const checked = new Set<string>();
+  for (const part of parts) {
+    const key = `${part.app}:${part.list.id}`;
+    if (checked.has(key)) continue;
+    checked.add(key);
+    if (!(await stillSignedInAs(userId))) return;
+    try {
+      const lists = await listsOf(part.app);
+      // A successful check preserves personal access (the list creator or share owner); a denied check clears
+      // only this device's stale reference, cached copy and unsent queue.
+      await lists.refreshList(part.list);
+    } catch {
+      // The next online household check can retry a transient failure.
+    }
+  }
+}
 
 /**
- * Brings the household up to date: reads it, writes this person's name in it, and joins every part's list this
- * device does not have yet (an app that keeps to one list and already shares elsewhere is left as it is).
+ * Reconciles this account's household and every connected app list. Authentication and the device-account marker
+ * are checked before any server read, so a signed-out or switching account never looks like a revoked member.
  */
-export function syncHousehold(): Promise<void> {
-  if (running) return running;
-  running = (async () => {
-    const list = household();
-    if (!list) {
-      setStates({});
-      setRoleState({ admins: [], loaded: false });
+export async function syncHousehold(): Promise<void> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+  const user = await signedInAs().catch(() => undefined);
+  if (!user || !belongsToDeviceAccount(user.id)) return;
+
+  const list = household();
+  if (!list) {
+    setStates({});
+    setRoleState({ admins: [], loaded: false });
+    return;
+  }
+
+  const runKey = `${user.id}:${list.id}`;
+  if (running?.key === runKey) return running.promise;
+
+  const work = (async () => {
+    // Keep the cached index before refreshing it. If access was revoked, its app-list references are still needed
+    // to check and clear the corresponding local app caches.
+    const previousItems = households.sharedItems(list);
+    try {
+      await households.refreshList(list);
+    } catch (cause) {
+      if (!isRevokedList(cause)) throw cause;
+      await refreshLinkedParts(partsOf(previousItems), user.id);
+      if (await stillSignedInAs(user.id)) {
+        setStates({});
+        setRoleState({ admins: [], loaded: false });
+      }
       return;
     }
-    await households.refreshList(list);
+    if (!(await stillSignedInAs(user.id))) return;
+
     const items = households.sharedItems(list);
-    const user = await signedInAs();
-    const userId = user?.id;
-    await refreshRoleState(list.id, userId);
-    const name = displayName().trim() || user?.email.split('@')[0] || 'Someone';
-    const mine = userId ? items.find((item) => item.id === memberId(userId)) : undefined;
-    if (user && userId && (!mine || (mine.kind === 'member' && (mine.name !== name || mine.email !== user.email)))) {
-      households.changeItem(list, memberId(userId), { id: memberId(userId), kind: 'member', name, email: user.email, at: mine?.at ?? new Date().toISOString() });
+    const previousParts = partsOf(previousItems);
+    const currentParts = partsOf(items);
+    const currentPartKeys = new Set(currentParts.map((part) => `${part.app}:${part.list.id}`));
+    const removedParts = previousParts.filter((part) => !currentPartKeys.has(`${part.app}:${part.list.id}`));
+    if (removedParts.length) await refreshLinkedParts(removedParts, user.id);
+    if (!(await stillSignedInAs(user.id))) return;
+
+    await refreshRoleState(list.id, user.id);
+    if (!(await stillSignedInAs(user.id))) return;
+
+    const name = displayName().trim() || user.email.split('@')[0] || 'Someone';
+    const mine = items.find((item) => item.id === memberId(user.id));
+    if (!mine || (mine.kind === 'member' && (mine.name !== name || mine.email !== user.email))) {
+      households.changeItem(list, memberId(user.id), {
+        id: memberId(user.id),
+        kind: 'member',
+        name,
+        email: user.email,
+        at: mine?.at ?? new Date().toISOString(),
+      });
     }
+
     const next: Partial<Record<HouseholdApp, PartState>> = {};
-    for (const part of partsOf(items)) {
+    for (const part of currentParts) {
       if (!offered(part.app)) continue;
+      if (!(await stillSignedInAs(user.id))) return;
       const single = HOUSEHOLD_APPS.find((each) => each.app === part.app)?.single ?? true;
       try {
         const lists = await listsOf(part.app);
-        const state = partState(part, lists.sharedLists(), single);
-        if (state === 'join') {
+        const existing = lists.sharedLists().find((each) => each.id === part.list.id);
+        if (existing) {
+          try {
+            await lists.refreshList(existing);
+            next[part.app] = 'shared';
+            continue;
+          } catch (cause) {
+            if (!isRevokedList(cause)) continue;
+            // A member may have left and then rejoined while this device was offline. The household index is
+            // current, so try the app-list invite again after the stale local reference has been cleared.
+          }
+        } else {
+          const state = partState(part, lists.sharedLists(), single);
+          if (state === 'elsewhere') {
+            next[part.app] = state;
+            continue;
+          }
+        }
+
+        try {
           const joined = await lists.joinList(part.list);
-          await lists.refreshList(joined).catch(() => undefined);
+          await lists.refreshList(joined);
           next[part.app] = 'shared';
-        } else next[part.app] = state;
+        } catch (cause) {
+          if (cannotJoinList(cause) || isRevokedList(cause)) next[part.app] = 'unavailable';
+        }
       } catch {
-        // Tried again on the next look.
+        // Network errors are retried on the next visible or scheduled household check.
       }
     }
-    setStates(next);
-  })().finally(() => {
-    running = undefined;
-  });
-  return running;
+    if (await stillSignedInAs(user.id)) setStates(next);
+  })();
+
+  running = { key: runKey, promise: work };
+  try {
+    await work;
+  } finally {
+    if (running?.promise === work) running = undefined;
+  }
 }
 
 /** Shares one app with the household: the list it already shares through, else a new one named after the household. */
@@ -286,8 +390,9 @@ export async function deleteHousehold(): Promise<void> {
     throw new Error(error.message);
   }
   if (data !== true) throw new Error('The household could not be deleted.');
-  // The RPC has already deleted the server-side household row. leaveList clears this device's reference and cache.
+  // Preserve each app list only where this account still has independent creator/share-owner access.
   await households.leaveList(list);
+  await refreshLinkedParts(partsOf(households.sharedItems(list)), (await me().catch(() => '')) || '');
   setStates({});
   setRoleState({ admins: [], loaded: false });
 }
@@ -342,11 +447,13 @@ export async function leaveHousehold(): Promise<void> {
   if (userId && roleState.ownerId === userId) {
     throw new Error('The household owner cannot leave yet. Ownership transfer is not available.');
   }
+  const linkedParts = partsOf(households.sharedItems(list));
   if (userId) {
     households.changeItem(list, memberId(userId), null);
     await households.refreshList(list).catch(() => undefined);
   }
   await households.leaveList(list);
+  if (userId) await refreshLinkedParts(linkedParts, userId);
   setStates({});
   setRoleState({ admins: [], loaded: false });
 }
