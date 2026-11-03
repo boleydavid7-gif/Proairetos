@@ -89,7 +89,7 @@ export default function LookAhead() {
     setHidden(true);
   };
 
-  if (orientation.values.length === 0 && orientation.remember.length === 0) {
+  if (orientation.values.length === 0 && orientation.remember.length === 0 && orientation.pushedAside.length === 0) {
     // Offered, never asked twice: once turned down it stays away until values are chosen in Compass.
     if (inviteAside || !inviteReady) return null;
     return (
@@ -132,6 +132,15 @@ export default function LookAhead() {
           {line}
         </blockquote>
       ))}
+
+      {orientation.pushedAside.length > 0 && (
+        <details className="look-ahead__set-down">
+          <summary>Set down · {orientation.pushedAside.length}</summary>
+          <ul>
+            {orientation.pushedAside.map((line) => <li key={line}>{line}</li>)}
+          </ul>
+        </details>
+      )}
 
       {orientation.scheduledToday.length > 0 && (
         <div className="look-ahead__day">
