@@ -43,7 +43,7 @@ begin
   if auth.uid() is null then
     raise exception 'Sign in first.';
   end if;
-  if app_name not in ('proairetos', 'soma', 'ergon', 'phyton', 'therapeia') then
+  if app_name is null or app_name not in ('proairetos', 'soma', 'ergon', 'phyton', 'therapeia') then
     raise exception 'That app cannot be shared with a household.';
   end if;
   if household = shared_list then
@@ -73,7 +73,7 @@ begin
   ) and not exists (
     select 1 from public.shared_lists
     where id = shared_list and created_by = auth.uid()
-  ) then
+  ) and existing_owner is distinct from auth.uid() then
     raise exception 'You need access to this app list before sharing it.';
   end if;
 
