@@ -299,7 +299,9 @@ describe('a household', () => {
 
     user = 'user-a';
     await expect(household.setMemberRole('user-c', 'admin')).rejects.toThrow('Only the household owner');
+    await expect(household.deleteHousehold()).rejects.toThrow('Only the household owner');
     user = 'user-b';
+    await expect(household.transferHouseholdOwnership('user-x')).rejects.toThrow('must already be a member');
     await household.removeHouseholdMember('user-c');
     expect(tables.shared_list_members.some((item) => item.list_id === appList.id && item.user_id === 'user-c')).toBe(false);
     await household.deleteHousehold();
