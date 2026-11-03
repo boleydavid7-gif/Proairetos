@@ -1508,7 +1508,10 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   Proairetos cloud, 1 GB at `priceText('cloud')`/mo); "Skip this" under Continue passes it over.
 - Premium round for the older apps: Askesis Progress and Oikonomia Spent use the shared `ColumnChart` (8 weeks; six
   months); Askesis Progress compares distance, time and workout count with the same elapsed days in the previous week,
-  month or year (all-time has no comparison); Askesis entries open as `EntryView` with Edit (`EntryForm`); Soma groceries swipe to tick. `SwipeItem` and
+  month or year (all-time has no comparison). Progress is split into Overview, Performance, Consistency and History;
+  Performance charts the last 12 weeks of running distance and time, Consistency summarizes the last 8 weeks and
+  self-reported effort, and History can search/filter the full log; Askesis entries open as `EntryView` with Edit
+  (`EntryForm`); Soma groceries swipe to tick. `SwipeItem` and
   `Empty` (`app/family/Empty.tsx`, class `.list-empty`; `.empty` is Askesis's older style) carry their own CSS
   (`swipe.css`, `empty.css`) so any app can use them. Askesis light `--mint` is `#24724f` (5.3:1 as text, 5.8:1 under
   white). Praxis's Time bars and Hydros's Flow keep their own drawn charts.

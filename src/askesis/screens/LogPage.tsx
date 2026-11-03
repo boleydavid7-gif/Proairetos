@@ -1,17 +1,28 @@
 import { RollingNumber } from '../../lamplight/RollingNumber';
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useRef, useState } from 'react';
-import { ColumnChart } from '../../app/family/charts';
+import { ColumnChart, LineChart, type ChartPoint } from '../../app/family/charts';
 import { readActivityFile } from '../core/track';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, LogIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand, dayLabel, Segmented } from '../app/ui';
-import { activities, feelings, logCsv, newestFirst, periodComparison, periodRange, recordFacts, totalsBetween, weeklyTotals, type Period } from '../core/log';
+import { activities, feelings, logCsv, newestFirst, periodComparison, periodRange, recordFacts, totalsBetween, weeklyTotals, type Activity, type LogEntry, type Period } from '../core/log';
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
+import { howItFelt } from '../core/progress';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
+
+type ProgressView = 'overview' | 'performance' | 'consistency' | 'history';
+type HistoryActivity = Activity | 'all';
+
+const views: { id: ProgressView; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'performance', label: 'Performance' },
+  { id: 'consistency', label: 'Consistency' },
+  { id: 'history', label: 'History' },
+];
 
 const periods: { id: Period; label: string }[] = [
   { id: 'week', label: 'Week' },
@@ -20,18 +31,23 @@ const periods: { id: Period; label: string }[] = [
   { id: 'all', label: 'All time' },
 ];
 
+const weekLabel = (from: string) => {
+  const start = new Date(`${from}T12:00:00`);
+  return start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+};
 
-/** What was done, as it was written down: totals, a plain bar for each week, and every entry. */
+/** Progress is split into four useful views: a quick read, performance, consistency and the full log. */
 export default function LogPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
   const entries = useEntries();
+  const [view, setView] = useState<ProgressView>('overview');
   const [period, setPeriod] = useState<Period>('week');
+  const [historySearch, setHistorySearch] = useState('');
+  const [historyActivity, setHistoryActivity] = useState<HistoryActivity>('all');
   const file = useRef<HTMLInputElement>(null);
   const [fileProblem, setFileProblem] = useState('');
-  // A run from a watch or another app's file: opened as a new entry to look over before saving.
-  // A watch file opened with Askesis on a computer comes here.
-  useLaunchedFile(endsWith('.gpx', '.tcx'), (chosen) => void bringIn(chosen));
+
   const bringIn = async (chosen: File | undefined) => {
     if (!chosen) return;
     const read = readActivityFile(await chosen.text(), toLocalDate);
@@ -39,6 +55,8 @@ export default function LogPage({ nav }: { nav: Nav }) {
     setFileProblem('');
     nav.go({ name: 'entry', date: read.date, seconds: read.seconds, meters: read.meters, activity: read.activity });
   };
+  useLaunchedFile(endsWith('.gpx', '.tcx'), (chosen) => void bringIn(chosen));
+
   const unit = settings.unit;
   const list = [...(entries ?? [])].sort(newestFirst);
   const range = periodRange(period, today);
@@ -59,9 +77,51 @@ export default function LogPage({ nav }: { nav: Nav }) {
     value < 30 ? 'less than 1 min' : formatHours(value),
   );
   const workoutChange = compared(totals.count, previousTotals?.count, (value) => `${value} ${value === 1 ? 'workout' : 'workouts'}`);
-  const weeks = weeklyTotals(list, 8, today);
-  const byDistance = weeks.some((week) => week.meters > 0);
-  const records = recordFacts(list, unit);
+
+  const runningEntries = list.filter((entry) => entry.activity === 'run' || Boolean(entry.workoutId));
+  const runningTotals = totalsBetween(runningEntries, range.from, range.to);
+  const averagePace = runningTotals.meters && runningTotals.seconds
+    ? paceOf(runningTotals.seconds, runningTotals.meters, unit)
+    : undefined;
+  const runRecords = recordFacts(runningEntries, unit);
+  const overviewWeeks = weeklyTotals(list, 8, today);
+  const overviewByDistance = overviewWeeks.some((week) => week.meters > 0);
+  const trendWeeks = weeklyTotals(runningEntries, 12, today);
+  const performanceDistance = trendWeeks.map((week): ChartPoint => ({
+    at: new Date(`${week.from}T12:00:00`).getTime(),
+    values: [Math.round(inUnit(week.meters, unit) * 10) / 10],
+    label: `Week of ${weekLabel(week.from)}`,
+  }));
+  const performanceTime = trendWeeks.map((week): ChartPoint => ({
+    at: new Date(`${week.from}T12:00:00`).getTime(),
+    values: [Math.round(week.seconds / 60)],
+    label: `Week of ${weekLabel(week.from)}`,
+  }));
+
+  const consistencyWeeks = weeklyTotals(runningEntries, 8, today);
+  const consistencyFrom = consistencyWeeks[0]?.from ?? mondayOnOrBefore(today);
+  const consistencyEntries = runningEntries.filter((entry) => entry.date >= consistencyFrom && entry.date <= today);
+  const activeDays = new Set(consistencyEntries.map((entry) => entry.date)).size;
+  const activeWeeks = consistencyWeeks.filter((week) => week.count > 0).length;
+  const sessionCount = consistencyWeeks.reduce((sum, week) => sum + week.count, 0);
+  const averageSessions = activeWeeks ? sessionCount / activeWeeks : 0;
+  const feltSummary = howItFelt(runningEntries, today);
+
+  const filteredHistory = list.filter((entry) => {
+    if (historyActivity !== 'all' && entry.activity !== historyActivity) return false;
+    const query = historySearch.trim().toLocaleLowerCase();
+    if (!query) return true;
+    const searchable = [
+      entry.date,
+      activities[entry.activity],
+      entry.workoutTitle,
+      entry.notes,
+      entry.wentWell,
+      entry.nextTime,
+    ].filter(Boolean).join(' ').toLocaleLowerCase();
+    return searchable.includes(query);
+  });
+
   const exportLog = () => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([logCsv(list, unit)], { type: 'text/csv;charset=utf-8' }));
@@ -70,6 +130,29 @@ export default function LogPage({ nav }: { nav: Nav }) {
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(link.href), 0);
   };
+
+  const workoutRows = (items: LogEntry[]) => items.map((entry) => {
+    const pace = (entry.activity === 'run' || entry.workoutId) && entry.seconds && entry.meters
+      ? paceOf(entry.seconds, entry.meters, unit)
+      : undefined;
+    const facts = [
+      entry.meters ? formatDistance(entry.meters, unit) : undefined,
+      entry.seconds ? formatDuration(entry.seconds) : undefined,
+      pace ? formatPace(pace, unit) : undefined,
+      entry.avgHr ? `${entry.avgHr} bpm` : undefined,
+    ].filter(Boolean);
+    return (
+      <button key={entry.id} type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
+        <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
+        <span className="entry-row__text">
+          <span>{entry.workoutTitle ?? activities[entry.activity]}</span>
+          <span className="entry-row__facts">{facts.join(' · ') || activities[entry.activity]}</span>
+        </span>
+        <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
+        <ChevronIcon size={16} />
+      </button>
+    );
+  });
 
   return (
     <div className="page log-page">
@@ -83,100 +166,223 @@ export default function LogPage({ nav }: { nav: Nav }) {
       </div>
       <h1 className="title">Progress</h1>
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-      <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
-      {comparison && <p className="progress__comparison-note">Compared with the same point in the previous period.</p>}
 
-      <div className="tiles">
-        <div className="tile">
-          <span className="tile__label">Total distance</span>
-          <span className="tile__value"><RollingNumber value={totals.meters} format={(meters) => formatDistance(meters, unit)} /></span>
-          {period !== 'all' && <span className="tile__change">{distanceChange}</span>}
-        </div>
-        <div className="tile">
-          <span className="tile__label">Total time</span>
-          <span className="tile__value"><RollingNumber value={totals.seconds} format={(seconds) => formatHours(Math.round(seconds))} /></span>
-          {period !== 'all' && <span className="tile__change">{timeChange}</span>}
-        </div>
-        <div className="tile">
-          <span className="tile__label">Workouts</span>
-          <span className="tile__value"><RollingNumber value={totals.count} /></span>
-          {period !== 'all' && <span className="tile__change">{workoutChange}</span>}
-        </div>
-        <div className="tile">
-          <span className="tile__label">Longest</span>
-          <span className="tile__value">
-            {totals.longestMeters ? formatDistance(totals.longestMeters, unit) : totals.longestSeconds ? formatHours(totals.longestSeconds) : '–'}
-          </span>
-        </div>
+      <div className="progress__views">
+        <Segmented label="Progress sections" value={view} options={views} onChange={setView} small />
       </div>
-      {(records.longestDistance || records.longestDuration || records.fastestPace) && (
-        <section className="card records" aria-label="Recorded facts">
-          <div className="records__head">
-            <h2 className="card__title card__title--small">Recorded facts</h2>
-            <span className="card__eyebrow">All time</span>
-          </div>
-          <div className="records__grid">
-            {records.longestDistance && <div><span className="tile__label">Longest distance</span><strong>{formatDistance(records.longestDistance.meters!, unit)}</strong></div>}
-            {records.longestDuration && <div><span className="tile__label">Longest workout</span><strong>{formatHours(records.longestDuration.seconds!)}</strong></div>}
-            {records.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(records.fastestPace.secondsPerUnit, unit)}</strong></div>}
-          </div>
-        </section>
+
+      {(view === 'overview' || view === 'performance') && (
+        <div className="progress__period">
+          <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
+          {comparison && <p className="progress__comparison-note">Compared with the same point in the previous period.</p>}
+        </div>
       )}
-      {list.length > 0 && <ColumnChart
-        title={byDistance ? `Distance (${unit}), each week` : 'Minutes, each week'}
-        days={weeks.map((week) => {
-          const start = new Date(`${week.from}T12:00:00`);
-          return {
-            label: start.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }),
-            long: `Week of ${start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`,
-            value: byDistance ? Math.round(inUnit(week.meters, unit) * 10) / 10 : Math.round(week.seconds / 60),
-          };
-        })}
-      />}
 
-      <section aria-label="Workouts" className="entries">
-        <h2 className="label">Workouts</h2>
-        {entries && list.length === 0 && (
-          <Empty icon={<LogIcon size={28} />} title="Nothing logged yet">
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>
-              Log a workout
-            </button>
-          </Empty>
-        )}
-        {list.map((entry) => {
-          const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
-          const facts = [
-            entry.meters ? formatDistance(entry.meters, unit) : undefined,
-            entry.seconds ? formatDuration(entry.seconds) : undefined,
-            pace ? formatPace(pace, unit) : undefined,
-            entry.avgHr ? `${entry.avgHr} bpm` : undefined,
-          ].filter(Boolean);
-          return (
-            <button key={entry.id} type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
-              <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
-              <span className="entry-row__text">
-                <span>{entry.workoutTitle ?? activities[entry.activity]}</span>
-                <span className="entry-row__facts">{facts.join(' · ') || activities[entry.activity]}</span>
+      {view === 'overview' && (
+        <div className="progress__content progress__content--overview">
+          <div className="tiles">
+            <div className="tile">
+              <span className="tile__label">Total distance</span>
+              <span className="tile__value"><RollingNumber value={totals.meters} format={(meters) => formatDistance(meters, unit)} /></span>
+              {period !== 'all' && <span className="tile__change">{distanceChange}</span>}
+            </div>
+            <div className="tile">
+              <span className="tile__label">Total time</span>
+              <span className="tile__value"><RollingNumber value={totals.seconds} format={(seconds) => formatHours(Math.round(seconds))} /></span>
+              {period !== 'all' && <span className="tile__change">{timeChange}</span>}
+            </div>
+            <div className="tile">
+              <span className="tile__label">Workouts</span>
+              <span className="tile__value"><RollingNumber value={totals.count} /></span>
+              {period !== 'all' && <span className="tile__change">{workoutChange}</span>}
+            </div>
+            <div className="tile">
+              <span className="tile__label">Longest</span>
+              <span className="tile__value">
+                {totals.longestMeters ? formatDistance(totals.longestMeters, unit) : totals.longestSeconds ? formatHours(totals.longestSeconds) : '–'}
               </span>
-              <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
-              <ChevronIcon size={16} />
-            </button>
-          );
-        })}
-      </section>
+            </div>
+          </div>
 
-      {/* Bringing in and taking out sit at the foot, after what they act on. */}
-      <div className="button-row">
-        <button type="button" className="button-quiet" onClick={() => file.current?.click()}>
-          From a watch file
-        </button>
-        {list.length > 0 && (
-          <button type="button" className="button-quiet" onClick={exportLog}>
-            Export log (CSV)
-          </button>
-        )}
-      </div>
-      {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
+          {list.length > 0 && (
+            <section className="card progress__panel progress__overview-trend">
+              <ColumnChart
+                title={overviewByDistance ? `Distance (${unit}), each week` : 'Minutes, each week'}
+                days={overviewWeeks.map((week) => ({
+                  label: weekLabel(week.from),
+                  long: `Week of ${weekLabel(week.from)}`,
+                  value: overviewByDistance ? Math.round(inUnit(week.meters, unit) * 10) / 10 : Math.round(week.seconds / 60),
+                }))}
+              />
+            </section>
+          )}
+
+          {(runRecords.longestDistance || runRecords.longestDuration || runRecords.fastestPace) && (
+            <section className="card records progress__panel progress__overview-records" aria-label="Recorded facts">
+              <div className="records__head">
+                <h2 className="card__title card__title--small">Personal records</h2>
+                <span className="card__eyebrow">All time</span>
+              </div>
+              <div className="records__grid">
+                {runRecords.longestDistance && <div><span className="tile__label">Longest distance</span><strong>{formatDistance(runRecords.longestDistance.meters!, unit)}</strong></div>}
+                {runRecords.longestDuration && <div><span className="tile__label">Longest run</span><strong>{formatHours(runRecords.longestDuration.seconds!)}</strong></div>}
+                {runRecords.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(runRecords.fastestPace.secondsPerUnit, unit)}</strong></div>}
+              </div>
+            </section>
+          )}
+
+          <section aria-label="Recent workouts" className="entries progress__panel progress__recent">
+            <div className="progress__section-head">
+              <h2 className="label">Recent workouts</h2>
+              {list.length > 4 && <button type="button" className="text-link" onClick={() => setView('history')}>View history</button>}
+            </div>
+            {entries && list.length === 0 && (
+              <Empty icon={<LogIcon size={28} />} title="Nothing logged yet">
+                <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>Log a workout</button>
+              </Empty>
+            )}
+            {workoutRows(list.slice(0, 4))}
+          </section>
+        </div>
+      )}
+
+      {view === 'performance' && (
+        <div className="progress__content progress__content--performance">
+          <div className="tiles">
+            <div className="tile">
+              <span className="tile__label">Running distance</span>
+              <span className="tile__value">{formatDistance(runningTotals.meters, unit)}</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Running time</span>
+              <span className="tile__value">{formatHours(runningTotals.seconds)}</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Average pace</span>
+              <span className="tile__value">{averagePace ? formatPace(averagePace, unit) : '–'}</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Longest run</span>
+              <span className="tile__value">{runningTotals.longestMeters ? formatDistance(runningTotals.longestMeters, unit) : runningTotals.longestSeconds ? formatHours(runningTotals.longestSeconds) : '–'}</span>
+            </div>
+          </div>
+
+          {runningEntries.length > 0 && (
+            <>
+              {runningEntries.some((entry) => (entry.meters ?? 0) > 0) && (
+                <section className="card progress__panel progress__performance-distance">
+                  <LineChart title={`Distance per week (${unit}), last 12 weeks`} points={performanceDistance} series={[{ name: 'Distance' }]} unit={unit} />
+                </section>
+              )}
+              {runningEntries.some((entry) => (entry.seconds ?? 0) > 0) && (
+                <section className="card progress__panel progress__performance-time">
+                  <LineChart title="Running time per week, last 12 weeks" points={performanceTime} series={[{ name: 'Time' }]} unit="min" />
+                </section>
+              )}
+            </>
+          )}
+
+          {(runRecords.longestDistance || runRecords.longestDuration || runRecords.fastestPace) && (
+            <section className="card records progress__panel progress__performance-records" aria-label="Personal records">
+              <div className="records__head">
+                <h2 className="card__title card__title--small">Personal records</h2>
+                <span className="card__eyebrow">All time</span>
+              </div>
+              <div className="records__grid">
+                {runRecords.longestDistance && <div><span className="tile__label">Longest distance</span><strong>{formatDistance(runRecords.longestDistance.meters!, unit)}</strong></div>}
+                {runRecords.longestDuration && <div><span className="tile__label">Longest run</span><strong>{formatHours(runRecords.longestDuration.seconds!)}</strong></div>}
+                {runRecords.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(runRecords.fastestPace.secondsPerUnit, unit)}</strong></div>}
+              </div>
+            </section>
+          )}
+
+          {runningEntries.length === 0 && (
+            <p className="muted progress__empty-note">Your running trends will take shape as you log workouts with distance or time.</p>
+          )}
+        </div>
+      )}
+
+      {view === 'consistency' && (
+        <div className="progress__content progress__content--consistency">
+          <div className="tiles">
+            <div className="tile">
+              <span className="tile__label">Training days</span>
+              <span className="tile__value"><RollingNumber value={activeDays} /></span>
+              <span className="tile__change">Last 8 weeks</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Active weeks</span>
+              <span className="tile__value">{activeWeeks} of 8</span>
+              <span className="tile__change">At least one run or plan session</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Sessions</span>
+              <span className="tile__value"><RollingNumber value={sessionCount} /></span>
+              <span className="tile__change">Last 8 weeks</span>
+            </div>
+            <div className="tile">
+              <span className="tile__label">Per active week</span>
+              <span className="tile__value">{averageSessions.toFixed(1)}</span>
+              <span className="tile__change">Average sessions</span>
+            </div>
+          </div>
+
+          <section className="card progress__panel progress__consistency-chart">
+            <ColumnChart
+              title="Sessions each week"
+              days={consistencyWeeks.map((week) => ({
+                label: weekLabel(week.from),
+                long: `Week of ${weekLabel(week.from)}`,
+                value: week.count,
+              }))}
+            />
+          </section>
+
+          {feltSummary && (
+            <section className="card progress__panel progress__feelings">
+              <h2 className="card__title card__title--small">How your runs felt</h2>
+              <p className="muted">Your own ratings over the last four weeks.</p>
+              <div className="records__grid">
+                <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
+                <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
+                <div><span className="tile__label">Hard</span><strong>{feltSummary.hard}</strong></div>
+              </div>
+            </section>
+          )}
+          {runningEntries.length === 0 && <p className="muted progress__empty-note">Log a run to start seeing your training rhythm here.</p>}
+        </div>
+      )}
+
+      {view === 'history' && (
+        <div className="progress__content progress__content--history">
+          <section aria-label="Workout history" className="entries progress__history">
+            <div className="progress__section-head">
+              <h2 className="label">Workout history</h2>
+              <span className="card__eyebrow">{filteredHistory.length} {filteredHistory.length === 1 ? 'workout' : 'workouts'}</span>
+            </div>
+            <div className="progress__filters">
+              <input className="input" type="search" value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} placeholder="Search workouts" aria-label="Search workouts" />
+              <select className="input" value={historyActivity} onChange={(event) => setHistoryActivity(event.target.value as HistoryActivity)} aria-label="Filter by activity">
+                <option value="all">All activities</option>
+                {(Object.keys(activities) as Activity[]).map((activity) => <option key={activity} value={activity}>{activities[activity]}</option>)}
+              </select>
+            </div>
+            {entries && list.length === 0 && (
+              <Empty icon={<LogIcon size={28} />} title="Nothing logged yet">
+                <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}>Log a workout</button>
+              </Empty>
+            )}
+            {list.length > 0 && filteredHistory.length === 0 && <p className="muted progress__empty-note">No workouts match those filters.</p>}
+            {workoutRows(filteredHistory)}
+          </section>
+
+          <div className="button-row progress__history-actions">
+            <button type="button" className="button-quiet" onClick={() => file.current?.click()}>From a watch file</button>
+            {list.length > 0 && <button type="button" className="button-quiet" onClick={exportLog}>Export log (CSV)</button>}
+          </div>
+          {fileProblem && <p className="form-error" role="alert">{fileProblem}</p>}
+        </div>
+      )}
     </div>
   );
 }
