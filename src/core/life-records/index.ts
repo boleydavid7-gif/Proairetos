@@ -3,7 +3,7 @@ import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
 
 export type LifeRecordKind = 'reflection' | 'decision' | 'pursuit' | 'life' | 'workout' | 'meal' | 'study';
-export type LifeRecordSource = 'Proairetos' | 'Compass' | 'Askesis' | 'Soma' | 'Theoria';
+export type LifeRecordSource = 'Proairetos' | 'Compass' | 'Askesis' | 'Soma' | 'Theoria' | 'Dynamis' | 'Poreia';
 
 /**
  * A read-only, searchable view of something the person recorded or did.
@@ -61,10 +61,18 @@ const record = (
 function reflectionRecord(entry: Reflection): LifeRecord {
   const kind = entry.kind === 'INTENTION' ? 'Daily intention' : entry.kind.replaceAll('_', ' ').toLocaleLowerCase();
   const prompt = entry.promptKey?.replaceAll('-', ' ');
+  const appSources: Record<string, LifeRecordSource> = {
+    'after-run': 'Askesis',
+    'after-meal': 'Soma',
+    'after-study': 'Theoria',
+    'after-reading': 'Theoria',
+    'after-strength': 'Dynamis',
+    'after-trip': 'Poreia',
+  };
   return record({
     key: `reflection:${entry.id}`,
     kind: 'reflection',
-    source: 'Proairetos',
+    source: appSources[entry.promptKey ?? ''] ?? 'Proairetos',
     sourceId: entry.id,
     at: entry.createdAt,
     title: firstLine(entry.body) || 'Reflection',
