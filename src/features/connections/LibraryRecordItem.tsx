@@ -160,7 +160,7 @@ export default function LibraryRecordItem({
           ) : (
             <>
               {record.body && <p className="connections-record__body">{record.body}</p>}
-              <button type="button" className="connections-edit-link" onClick={() => { setDraft(record.body ?? ''); setEditing(true); }}>Edit reflection</button>
+              {!trashed && <button type="button" className="connections-edit-link" onClick={() => { setDraft(record.body ?? ''); setEditing(true); }}>Edit reflection</button>}
             </>
           )
         )}
