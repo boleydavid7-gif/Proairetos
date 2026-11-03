@@ -96,6 +96,7 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
       fetchedAt: Date.now(),
     });
   } catch {
+    if (userId && !(await stillSignedInAs(userId))) return;
     setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
   }
 }
@@ -380,7 +381,9 @@ export async function transferHouseholdOwnership(targetUserId: string): Promise<
 export async function deleteHousehold(): Promise<void> {
   const list = household();
   if (!list) throw new Error('There is no household to delete.');
-  const userId = await me();
+  const current = await signedInAs();
+  if (!current || !belongsToDeviceAccount(current.id)) throw new Error('Sign in to delete this household.');
+  const userId = current.id;
   const linkedParts = partsOf(households.sharedItems(list));
   const { data, error } = await (await supabase()).rpc('delete_household', {
     household: list.id,
