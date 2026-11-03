@@ -365,7 +365,7 @@
 .connections-actions {
   position: relative;
   flex: none;
-  margin-left: auto;
+  margin-left: 0;
 }
 
 .connections-actions > summary {
