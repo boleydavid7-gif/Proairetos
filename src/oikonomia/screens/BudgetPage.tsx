@@ -222,7 +222,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
       </section>
 
       {billAreaCategories.length > 0 && <section className="oiko-budget-section">
-        <div className="oiko-section-head"><h2>Monthly Bill Types</h2></div>
+        <div className="oiko-section-head"><h2>Bill types</h2></div>
         <div className="oiko-budget-areas">
           {billAreaCategories.map(({ id, label }) => (
             <label className="oiko-budget-area" key={id}>
