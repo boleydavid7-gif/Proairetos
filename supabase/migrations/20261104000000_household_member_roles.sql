@@ -4,6 +4,10 @@
 -- only administrators need a row in household_member_roles. This keeps role metadata server-authoritative while
 -- names and email display details remain end-to-end encrypted in the household list.
 
+-- Tie email invitations to a household so the server can enforce owner/admin permissions.
+alter table public.household_invites
+  add column if not exists household_id uuid references public.shared_lists (id) on delete cascade;
+
 create table if not exists public.household_member_roles (
   household_id uuid not null references public.shared_lists (id) on delete cascade,
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -150,10 +154,6 @@ $$;
 
 revoke all on function public.remove_household_member(uuid, uuid) from public, anon;
 grant execute on function public.remove_household_member(uuid, uuid) to authenticated;
-
--- Tie email invitations to a household so the server can enforce owner/admin permissions.
-alter table public.household_invites
-  add column if not exists household_id uuid references public.shared_lists (id) on delete cascade;
 
 create index if not exists household_invites_household
   on public.household_invites (household_id, created_at);
