@@ -178,7 +178,8 @@ export function createLifeService({ userId, context, items, events }: LifeServic
         const item = await items.getById(id);
         if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
         if (item.archivedAt) return present(item);
-        const archived = { ...item, archivedAt: context.now().toISOString() };
+        const at = context.now().toISOString();
+        const archived = { ...item, archivedAt: at, updatedAt: at };
         await items.update(archived);
         listeners.notify();
         return present(archived);
@@ -190,7 +191,8 @@ export function createLifeService({ userId, context, items, events }: LifeServic
         const item = await items.getById(id);
         if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
         if (!item.archivedAt) return present(item);
-        const { archivedAt: _archivedAt, ...restored } = item;
+        const { archivedAt: _archivedAt, ...restoredFields } = item;
+        const restored = { ...restoredFields, updatedAt: context.now().toISOString() };
         await items.update(restored);
         listeners.notify();
         return present(restored);
