@@ -1,5 +1,5 @@
 import { newSession, ownParts, ownWorkout, plainTitle } from '../../askesis/core/own';
-import { totalMinutes, flatten } from '../../askesis/core/workouts';
+import { totalMinutes, flatten, set, step } from '../../askesis/core/workouts';
 
 describe('your own sessions', () => {
   it('lays out warm-up, the repeats and cool-down for the guide', () => {
@@ -15,5 +15,32 @@ describe('your own sessions', () => {
     expect(ownParts(session)).toEqual([{ effort: 'tempo', minutes: 20, note: undefined }]);
     expect(ownWorkout(session).title).toBe('Tempo Tuesday');
     expect(plainTitle(session)).toBe('20 min run');
+  });
+
+  it('uses an ordered custom sequence with repeat groups', () => {
+    const session = {
+      ...newSession('own-3'),
+      title: 'Progression intervals',
+      parts: [
+        step('easy', 10, 'Warm up'),
+        set(4, step('tempo', 3), step('recovery', 2)),
+        step('steady', 5),
+        step('easy', 5, 'Cool down'),
+      ],
+    };
+    expect(ownParts(session)).toEqual(session.parts);
+    expect(totalMinutes(ownParts(session))).toBe(40);
+    expect(flatten(ownParts(session)).map((part) => part.effort)).toEqual([
+      'easy', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'steady', 'easy',
+    ]);
+    expect(ownWorkout(session)).toMatchObject({ id: 'own-3', kind: 'intervals', title: 'Progression intervals' });
+    expect(plainTitle({ ...session, title: '' })).toBe('40 min session');
+  });
+
+  it('keeps older saved sessions working when no custom sequence exists', () => {
+    const legacy = newSession('own-4');
+    expect(ownParts(legacy)).toHaveLength(3);
+    expect(totalMinutes(ownParts(legacy))).toBe(44);
+    expect(ownWorkout(legacy).kind).toBe('intervals');
   });
 });

@@ -1,5 +1,5 @@
 import type { Effort } from './effort';
-import { lengthLabel, set, step, totalMinutes, type Part, type Workout } from './workouts';
+import { isSet, lengthLabel, set, step, totalMinutes, type Part, type Workout } from './workouts';
 
 /**
  * A session the runner builds for themselves: a warm-up, a set repeated (a stretch of work and, if they like, one of
@@ -13,6 +13,8 @@ export type OwnSession = {
   work: { effort: Effort; minutes: number };
   rest?: { effort: Effort; minutes: number };
   coolDown: number;
+  /** New builder sessions use an ordered sequence of steps and repeat groups. Older saved sessions remain valid. */
+  parts?: Part[];
 };
 
 export const WORK_EFFORTS: Effort[] = ['easy', 'steady', 'tempo', 'hard', 'stride'];
@@ -28,6 +30,7 @@ export function newSession(id: string): OwnSession {
 }
 
 export function ownParts(session: OwnSession): Part[] {
+  if (session.parts?.length) return session.parts;
   const parts: Part[] = [];
   if (session.warmUp > 0) parts.push(step('easy', session.warmUp, 'Warm up'));
   const work = step(session.work.effort, session.work.minutes);
@@ -41,6 +44,9 @@ export function ownParts(session: OwnSession): Part[] {
 
 /** "6 × 2 min" style name, when the runner gives none. */
 export function plainTitle(session: OwnSession): string {
+  if (session.parts?.length) {
+    return `${lengthLabel(totalMinutes(session.parts))} session`;
+  }
   const work = lengthLabel(session.work.minutes);
   return session.repeat > 1 ? `${session.repeat} × ${work}` : `${work} run`;
 }
@@ -50,7 +56,7 @@ export function ownWorkout(session: OwnSession): Workout {
   const parts = ownParts(session);
   return {
     id: session.id,
-    kind: session.repeat > 1 ? 'intervals' : 'easy',
+    kind: session.parts?.some(isSet) || (!session.parts && session.repeat > 1) ? 'intervals' : 'easy',
     title: session.title.trim() || plainTitle(session),
     summary: `${lengthLabel(totalMinutes(parts))} · your own session`,
     parts,

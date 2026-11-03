@@ -1125,10 +1125,12 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`trainingClearOfNaps`, off until chosen, shown when Askesis or Dynamis is added); without Diaita, the hour before quiet hours.
   A schedule change (`scheduleService.subscribe`, 0.5 s settle, sync skipped) runs `scheduleClashes`: the next 8 days'
   sessions that a work or protected block now crowds out, keyed so only new ones are offered (named after the block).
-- Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: warm-up, repeats of
-  a work stretch and an optional rest, cool-down; `ownWorkout` makes a `Workout` with id `own-…`), kept in the setting
-  `askesis:own` (backed up, synced; `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log
-  take them like plan sessions; they never count toward the plan's week. Remove has undo.
+- Your own sessions (Train > Your sessions > New session, route `own`): `core/own.ts` (`OwnSession`: older
+  warm-up/repeat/rest/cool-down records remain supported; new sessions can save an ordered `parts` sequence of steps
+  and repeat sets). The builder can add/remove/reorder steps, edit effort and duration, add repeat groups and preview
+  the whole session; `ownWorkout` makes a `Workout` with id `own-…`. Kept in `askesis:own` (backed up, synced;
+  `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log take them like plan sessions;
+  they never count toward the plan's week. Remove has undo.
 - Progress portability and plain records: `core/log.ts` finds the longest
   distance, longest workout and fastest recorded pace from run entries, and
   `logCsv` exports the full entered log (including notes and heart rate) as a
