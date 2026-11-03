@@ -62,7 +62,10 @@ function query(table: string) {
 }
 
 const client = {
-  auth: { getUser: async () => ({ data: { user: user ? { id: user, email: `${user}@example.test` } : null }, error: null }) },
+  auth: {
+    getUser: async () => ({ data: { user: user ? { id: user, email: `${user}@example.test` } : null }, error: null }),
+    getSession: async () => ({ data: { session: user ? { user: { id: user } } : null }, error: null }),
+  },
   from: (table: string) => query(table),
   rpc: async (name: string, args: Record<string, unknown>) => {
     if (name === 'transfer_household_ownership') {
