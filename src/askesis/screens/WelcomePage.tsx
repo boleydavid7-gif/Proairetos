@@ -12,7 +12,7 @@ export default function WelcomePage({ nav }: { nav: Nav }) {
         <Mark size={48} />
         <h1 className="welcome__name">Askesis</h1>
         <p className="welcome__about">
-          A running plan from your first walk-run to a marathon, built on endurance research.
+          Research-based running plans, from your first walk-run to a marathon.
         </p>
         <div className="welcome__actions">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan', first: true })}>
