@@ -474,3 +474,36 @@
     justify-content: center;
   }
 }
+@media (min-width: 62rem) {
+  .page.reflect-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--ll-gap, 24px);
+    row-gap: var(--ll-section-gap, 28px);
+  }
+
+  .reflect-home > .page-header {
+    grid-column: 1 / -1;
+  }
+
+  .reflect-write-button,
+  .reflect-tools-section {
+    grid-column: 1;
+  }
+
+  .reflect-write-button {
+    grid-row: 2;
+    margin-bottom: 0;
+  }
+
+  .reflect-tools-section {
+    grid-row: 3;
+  }
+
+  .reflect-recent {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    margin-top: 0;
+  }
+}
