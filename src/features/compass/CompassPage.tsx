@@ -7,6 +7,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, MAX_VALUE_PRINCIPLES, MAX_VALUE_PRINCIPLE_LENGTH, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
