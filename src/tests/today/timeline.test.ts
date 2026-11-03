@@ -41,6 +41,37 @@ describe('day timeline', () => {
     expect(entries.map((e) => (e.kind === 'item' ? e.item.title : e.kind))).toEqual(['shift', 'Dentist']);
   });
 
+  it('shows date-only to-dos on the home timeline without assigning them a time', () => {
+    const date = '2026-10-01';
+    const dateOnly = (title: string, plannedFor: string, overrides: Partial<LifeItem> = {}): LifeItem => ({
+      id: title,
+      userId: 'u',
+      type: 'DO',
+      title,
+      status: 'OPEN',
+      important: false,
+      source: 'MANUAL',
+      carried: false,
+      plannedFor,
+      createdAt: '',
+      updatedAt: '',
+      ...overrides,
+    });
+    const timed = { ...item('Timed appointment', new Date(2026, 9, 1, 16)), plannedFor: date };
+    const entries = buildDayTimeline(date, [], [
+      dateOnly('Today task', date),
+      dateOnly('Waiting task', date, { status: 'WAITING' }),
+      dateOnly('Tomorrow task', '2026-10-02'),
+      dateOnly('Completed task', date, { status: 'DONE' }),
+      dateOnly('Archived task', date, { archivedAt: '2026-09-30T00:00:00.000Z' }),
+      dateOnly('Checklist', date, { checklist: [{ id: '1', text: 'One', done: false }] }),
+      timed,
+    ], [], []);
+
+    expect(entries.filter((entry) => entry.kind === 'planned').map((entry) => entry.kind === 'planned' ? entry.item.title : '')).toEqual(['Today task', 'Waiting task']);
+    expect(entries.filter((entry) => entry.kind === 'item').map((entry) => entry.kind === 'item' ? entry.item.title : '')).toEqual(['Timed appointment']);
+  });
+
   it('shows the morning end of a night shift on a day off, and marks the day off', () => {
     const date = '2026-10-22';
     const entries = buildDayTimeline(date, occurrencesFor(new Date(2026, 9, 22), new Date(2026, 9, 23)), [], [rotation]);
