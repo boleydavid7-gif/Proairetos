@@ -307,7 +307,7 @@ The household creator is the owner. Members are ordinary members by default; the
 Owners and administrators can invite people. Administrators can remove ordinary members, while only the owner can
 change administrator roles or remove another administrator. The optional household link is a bearer invite: anyone
 holding it can join, so share it only with people you trust. Removing someone blocks future server access to household
-lists and enabled app lists on their next sync. It cannot recall copies already downloaded to their devices.
+lists and enabled app lists on their next sync. Leaving a household also revokes access to connected app lists the person does not own. It cannot recall copies already downloaded to their devices.
 
 Names and email display details remain encrypted in the household list. Roles and membership are server-authoritative
 so changing a role or removing a person cannot be bypassed by editing local data. Ownership transfer is limited to an
