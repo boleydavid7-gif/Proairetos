@@ -7,7 +7,6 @@ import { pursuits } from '../../app/pursuits';
 import { useRuns } from '../../app/askesis/runs';
 import { combineReadingSessions, useStudy } from '../../app/praxis/study';
 import { useRecipesFromSoma } from '../../app/soma/meals';
-import { linkTo } from '../../app/family/opening';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { buildLifeRecords, type LifeRecord, type LifeRecordKind } from '../../core/life-records';
 import type { ChosenValue } from '../../core/values/types';
@@ -15,6 +14,7 @@ import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
+import LibraryRecordItem from './LibraryRecordItem';
 
 type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life';
 type View = 'library' | 'saved' | 'archived';
@@ -30,23 +30,6 @@ const categoryLabels: Record<Category, string> = {
   life: 'Life',
 };
 
-const kindLabels: Record<LifeRecordKind, string> = {
-  reflection: 'Reflection',
-  decision: 'Decision',
-  pursuit: 'Pursuit',
-  life: 'Life',
-  workout: 'Workout',
-  meal: 'Meal',
-  study: 'Study',
-};
-
-function dateLabel(value: string): string {
-  const date = new Date(value);
-  return Number.isFinite(date.getTime())
-    ? date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-    : 'Date unavailable';
-}
-
 function isInRange(at: string, range: Range, now: number): boolean {
   if (range === 'all') return true;
   const stamp = new Date(at).getTime();
@@ -60,21 +43,6 @@ function categoryMatches(record: LifeRecord, category: Category): boolean {
   if (category === 'experiences') return record.kind === 'workout' || record.kind === 'meal' || record.kind === 'study';
   if (category === 'pursuits') return record.kind === 'pursuit';
   return record.kind === 'life';
-}
-
-function hrefFor(record: LifeRecord): string | undefined {
-  if (record.kind === 'workout') return linkTo('askesis', 'entry:' + record.sourceId);
-  if (record.kind === 'meal') return linkTo('soma', 'recipe:' + record.sourceId);
-  if (record.kind === 'study') return '/theoria/?open=pomodoro:sessions';
-  return undefined;
-}
-
-function linkedValueIds(record: LifeRecord): string[] {
-  return record.valueIds;
-}
-
-function canArchive(record: LifeRecord): boolean {
-  return record.kind === 'reflection' || record.kind === 'decision' || record.kind === 'pursuit' || record.kind === 'life';
 }
 
 export default function ConnectionsPage() {
@@ -97,9 +65,6 @@ export default function ConnectionsPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [valueId, setValueId] = useState('');
   const [search, setSearch] = useState('');
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [editingKey, setEditingKey] = useState('');
-  const [editBody, setEditBody] = useState('');
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [visibleCount, setVisibleCount] = useState(30);
@@ -127,7 +92,7 @@ export default function ConnectionsPage() {
       if (view === 'saved' && !favoriteKeys.has(record.key)) return false;
       if (!categoryMatches(record, category)) return false;
       if (!isInRange(record.at, range, now)) return false;
-      if (valueId && !linkedValueIds(record).includes(valueId)) return false;
+      if (valueId && !record.valueIds.includes(valueId)) return false;
       if (query && !record.searchText.includes(query)) return false;
       return true;
     }).sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at));
@@ -221,11 +186,7 @@ export default function ConnectionsPage() {
   }
 
   function openRecord(record: LifeRecord) {
-    if (record.kind === 'reflection') {
-      const key = record.key;
-      setExpanded((current) => ({ ...current, [key]: !current[key] }));
-      setEditingKey('');
-    } else if (record.kind === 'decision') {
+    if (record.kind === 'decision') {
       openDecision(record.sourceId);
     } else if (record.kind === 'life') {
       openItem(record.sourceId);
@@ -236,20 +197,15 @@ export default function ConnectionsPage() {
     }
   }
 
-  function beginEdit(record: LifeRecord) {
-    setEditingKey(record.key);
-    setEditBody(record.body ?? '');
-    setExpanded((current) => ({ ...current, [record.key]: true }));
-  }
-
-  async function saveEdit(record: LifeRecord) {
+  async function saveEdit(record: LifeRecord, body: string): Promise<boolean> {
     setBusyId(record.key);
     setError('');
     try {
-      await reflectionService.updateBody(record.sourceId, editBody);
-      setEditingKey('');
+      await reflectionService.updateBody(record.sourceId, body);
+      return true;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That reflection could not be saved.');
+      return false;
     } finally {
       setBusyId('');
     }
@@ -333,78 +289,25 @@ export default function ConnectionsPage() {
       ) : (
         <ol className="connections-list">
           {visibleRecords.map((record) => {
-            const key = record.key;
-            const names = linkedValueIds(record).map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
-            const isExpanded = Boolean(expanded[key]);
-            const isEditing = editingKey === key;
-            const saved = favoriteKeys.has(key);
-            const canOpenExternally = Boolean(hrefFor(record));
+            const names = record.valueIds.map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
             return (
-              <li key={key} className="connections-list__item">
-                <article className="connections-record">
-                  <div className="connections-record__meta">
-                    <span className={'connections-record__kind connections-record__kind--' + record.kind}>{kindLabels[record.kind]}</span>
-                    <span className="connections-record__source">{record.source}</span>
-                    <time dateTime={record.at}>{dateLabel(record.at)}</time>
-                    <button type="button" className="connections-save" aria-label={saved ? 'Remove from saved' : 'Save to library'} aria-pressed={saved} onClick={() => toggleFavorite(record)}>
-                      <Sym name="bookmark" size={18} />
-                    </button>
-                    {canArchive(record) && (
-                      <details className="connections-actions">
-                        <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
-                        <div className="connections-actions__menu">
-                          {valueId && linkedValueIds(record).includes(valueId) && (
-                            <button type="button" disabled={busyId === key} onClick={() => void unlink(record)}>Unlink {valueNames.get(valueId)}</button>
-                          )}
-                          <button type="button" disabled={busyId === key} onClick={() => void (record.archived ? restore(record) : archive(record))}>
-                            {busyId === key ? 'Saving…' : record.archived ? 'Restore to library' : 'Move to archive'}
-                          </button>
-                        </div>
-                      </details>
-                    )}
-                  </div>
-                  {canOpenExternally ? (
-                    <a className="connections-record__title" href={hrefFor(record)}>
-                      <span>{record.title}</span>
-                      {record.detail && <small>{record.detail}</small>}
-                    </a>
-                  ) : (
-                    <button type="button" className="connections-record__title" aria-expanded={record.kind === 'reflection' ? isExpanded : undefined} onClick={() => openRecord(record)}>
-                      <span>{record.title}</span>
-                      {record.detail && <small>{record.detail}</small>}
-                    </button>
-                  )}
-                  {record.kind === 'reflection' && isExpanded && (
-                    isEditing ? (
-                      <div className="connections-edit">
-                        <textarea className="field-input field-input--area" rows={5} aria-label="Edit reflection" value={editBody} onChange={(event) => setEditBody(event.target.value)} />
-                        <div className="connections-edit__actions">
-                          <button type="button" className="button-quiet" onClick={() => setEditingKey('')}>Cancel</button>
-                          <button type="button" className="button-accent button--sm" disabled={!editBody.trim() || busyId === key} onClick={() => void saveEdit(record)}>{busyId === key ? 'Saving…' : 'Save changes'}</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        {record.body && <p className="connections-record__body">{record.body}</p>}
-                        <button type="button" className="connections-edit-link" onClick={() => beginEdit(record)}>Edit reflection</button>
-                      </>
-                    )
-                  )}
-                  {record.kind !== 'reflection' && record.body && (
-                    <details className="connections-record__details">
-                      <summary>Read details</summary>
-                      <p className="connections-record__body">{record.body}</p>
-                    </details>
-                  )}
-                  {names.length > 0 && (
-                    <div className="connections-record__values" aria-label="Connected values">
-                      {names.map((name) => <span key={name}>{name}</span>)}
-                    </div>
-                  )}
-                </article>
-              </li>
+              <LibraryRecordItem
+                key={record.key}
+                record={record}
+                saved={favoriteKeys.has(record.key)}
+                valueNames={names}
+                selectedValueId={valueId}
+                selectedValueName={valueNames.get(valueId) ?? ''}
+                busy={busyId === record.key}
+                onToggleFavorite={toggleFavorite}
+                onOpen={openRecord}
+                onArchive={(entry) => void archive(entry)}
+                onRestore={(entry) => void restore(entry)}
+                onUnlink={(entry) => void unlink(entry)}
+                onSaveReflection={saveEdit}
+              />
             );
-          })}
+          })})}
         </ol>
       )}
       {scoped.length > visibleCount && (
