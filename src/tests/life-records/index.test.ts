@@ -46,6 +46,17 @@ describe('Life Record projection', () => {
     });
   });
 
+  it('retains the originating companion app for reflections written there', () => {
+    const records = buildLifeRecords({
+      reflections: [
+        { id: 'run-note', userId: 'u', body: 'A note after running.', kind: 'FREE', createdAt: '2026-11-02T08:00:00.000Z', promptKey: 'after-run' },
+        { id: 'trip-note', userId: 'u', body: 'A note after the trip.', kind: 'FREE', createdAt: '2026-11-02T09:00:00.000Z', promptKey: 'after-trip' },
+      ],
+    });
+    expect(records.find((entry) => entry.key === 'reflection:run-note')?.source).toBe('Askesis');
+    expect(records.find((entry) => entry.key === 'reflection:trip-note')?.source).toBe('Poreia');
+  });
+
   it('keeps archived records marked and preserves the source identity', () => {
     const source = {
       id: 'r2', userId: 'u', body: 'Keep the original.', kind: 'FREE' as const,
