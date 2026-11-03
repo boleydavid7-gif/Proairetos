@@ -39,13 +39,13 @@ Most valuable gaps:
 
 ### Askesis
 
-Already strong: progressive running plan, placement test, gentler path, guided audio sessions, bells, wake lock, GPS distance, manual workout log, heart-rate field, effort/felt notes, watch GPX/TCX import, pace/zones, progress, year, and reminders.
+Already strong: progressive running plan, placement test, gentler path, guided audio sessions, bells, wake lock, foreground GPS distance, manual workout log, heart-rate field, effort/felt notes, GPX/TCX watch-file import, pace/zones, custom ordered workouts and interval sets, a weekly training calendar, shoe rotation and mileage by pair, progress, year, and reminders.
 
 Most valuable gaps:
 
-- Apple Health, Health Connect, Garmin/Strava, or another wearable import. Today a runner must enter most results manually or import a file.
-- A route map and reliable background GPS. The current web GPS keeps the screen awake; a locked phone cannot provide the experience people expect from a paid running app.
-- Custom workouts and plan editing. The generated path is good, but a runner cannot build a reusable interval session or edit a session structure.
+- HealthKit, Health Connect and other wearable import. The optional native capability handshake and web fallback are now in place; the native health permissions, normalized workout reads, review-before-import flow and duplicate handling remain to be implemented.
+- A route map and reliable background GPS. The current web GPS keeps the screen awake; the optional bridge contract can advertise background tracking, but native tracking and route privacy controls are not implemented.
+- Lock-screen controls, watch sync and native haptics remain optional bridge capabilities, not web dependencies.
 - Progress now shows plain all-time records (longest distance, longest workout and fastest recorded pace) and exports the entered run log as CSV. Route maps and route-point export remain open because the web GPS deliberately keeps distance only.
 - Askesis music remains device-only, with Save a copy and Restore a copy archives; an encrypted account copy would make a phone change one step.
 

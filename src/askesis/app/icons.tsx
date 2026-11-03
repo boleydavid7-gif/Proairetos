@@ -50,6 +50,12 @@ export const GaugeIcon = (p: IconProps) => (
 );
 export const ShieldIcon = glyphIcon('shield', 22);
 export const GearIcon = glyphIcon('gear', 22);
+export const DeviceIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="6" y="2.8" width="12" height="18.4" rx="2.4" />
+    <path d="M10 6h4M11 18h2" />
+  </Icon>
+);
 export const BoxIcon = glyphIcon('box', 22);
 export const InfoIcon = glyphIcon('info', 22);
 export const LeafIcon = glyphIcon('leaf', 22);

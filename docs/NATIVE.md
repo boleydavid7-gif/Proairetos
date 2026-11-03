@@ -39,6 +39,52 @@ What is not done, and needs your accounts and computers:
   rules as `sw.js`). They arrive with the app closed, without the server. Android also needs the exact-alarm
   permission line in `AndroidManifest.xml` (`SCHEDULE_EXACT_ALARM`), added after `npx cap add android`.
 
+## Optional Askesis phone bridge
+
+Askesis remains a web-first app. The browser provider is always available; the phone bridge adds capabilities only when the installed Capacitor app actually implements them. A missing or incompatible bridge must never prevent Askesis from opening or logging workouts.
+
+The first capability-discovery slice is in:
+
+- `src/askesis/app/capabilities.ts`: always resolves web capabilities first; imports `@capacitor/core` only when `isNativeApp()` is true; discovers the optional `AskesisBridge` plugin and validates its protocol.
+- `src/askesis/screens/DevicePage.tsx`: shows which browser features work and which optional phone features the bridge advertises.
+- `src/tests/askesis/capabilities.test.ts`: verifies web fallback, explicit native capability flags, and protocol/platform mismatch handling.
+
+### Bridge handshake, protocol v1
+
+The iOS and Android Capacitor projects are generated locally (the `ios/` and `android/` folders are not kept in git). Each native project may register a Capacitor plugin named `AskesisBridge` with this method:
+
+```ts
+type AskesisBridgeHandshake = {
+  protocolVersion: 1;
+  platform: 'ios' | 'android';
+  capabilities: {
+    healthWorkouts?: boolean;
+    heartRate?: boolean;
+    backgroundGps?: boolean;
+    haptics?: boolean;
+    lockScreenControls?: boolean;
+    watchSync?: boolean;
+  };
+};
+
+interface AskesisBridgePlugin {
+  getCapabilities(): Promise<AskesisBridgeHandshake>;
+}
+```
+
+Only an explicit `true` is treated as supported. The protocol version and platform must match. Missing plugins, rejected calls, and incompatible versions fall back to the web provider.
+
+A capability flag means the bridge can provide that feature; it does **not** mean the user has granted permission or that Askesis is already reading health data. Health permission and workout-reading methods are deliberately not part of this discovery-only slice. They must be added later as explicit user actions, with a review step before imported workouts are saved.
+
+### Web fallback (always available)
+
+- Browser foreground GPS when `navigator.geolocation` exists; the current guide keeps the screen awake because browser location can stop when the screen locks.
+- Manual heart-rate entry.
+- GPX/TCX watch-file import.
+- Guided sessions, timers, spoken cues and bells.
+
+The bridge can later add HealthKit on iOS, Health Connect on Android, background GPS, native haptics, lock-screen controls and watch sync. None of those are prerequisites for the web app, and no health permission is requested merely by opening Device integrations.
+
 ## Known gaps before a store release
 - **Reminders past the next 60.** The phone keeps the soonest 60; they are set again whenever the app opens or
   something changes. Someone who does not open the app for weeks gets the first 60. Server push to the phone (Apple
