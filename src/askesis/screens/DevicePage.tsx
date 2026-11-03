@@ -4,7 +4,7 @@ import { BackLink } from '../app/ui';
 import { askesisCapabilities, type AskesisCapabilities, type NativeCapability } from '../app/capabilities';
 
 const platformName = (platform: AskesisCapabilities['platform']) =>
-  platform === 'ios' ? 'iPhone' : platform === 'android' ? 'Android' : 'Browser';
+  platform === 'ios' ? 'iOS' : platform === 'android' ? 'Android' : 'Browser';
 
 const bridgeLabel = (status: AskesisCapabilities['bridgeStatus']) => {
   if (status === 'connected') return 'Bridge detected';
@@ -101,7 +101,7 @@ export default function DevicePage({ nav }: { nav: Nav }) {
           </div>
           <div className="device-row">
             <span className="device-row__title">Foreground GPS distance</span>
-            <span className="device-row__status">{capabilities?.foregroundGps ? 'Available' : loading ? 'Checking' : 'Browser unavailable'}</span>
+            <span className="device-row__status">{capabilities?.foregroundGps ? 'Supported' : loading ? 'Checking' : 'Browser unavailable'}</span>
           </div>
         </div>
       </section>
