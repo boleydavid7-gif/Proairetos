@@ -738,4 +738,5 @@ export function setTodayAppShown(app: string, shown: boolean): void {
   if (shown) hidden.delete(app);
   else hidden.add(app);
   writeJson(TODAY_APPS_HIDDEN_KEY, [...hidden]);
+  void import('../../app/sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
 }
