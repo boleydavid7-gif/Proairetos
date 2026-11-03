@@ -380,6 +380,8 @@ export async function transferHouseholdOwnership(targetUserId: string): Promise<
 export async function deleteHousehold(): Promise<void> {
   const list = household();
   if (!list) throw new Error('There is no household to delete.');
+  const userId = await me();
+  const linkedParts = partsOf(households.sharedItems(list));
   const { data, error } = await (await supabase()).rpc('delete_household', {
     household: list.id,
   });
@@ -392,7 +394,7 @@ export async function deleteHousehold(): Promise<void> {
   if (data !== true) throw new Error('The household could not be deleted.');
   // Preserve each app list only where this account still has independent creator/share-owner access.
   await households.leaveList(list);
-  await refreshLinkedParts(partsOf(households.sharedItems(list)), (await me().catch(() => '')) || '');
+  await refreshLinkedParts(linkedParts, userId);
   setStates({});
   setRoleState({ admins: [], loaded: false });
 }
