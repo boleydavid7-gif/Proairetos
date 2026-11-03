@@ -56,7 +56,7 @@ describe('the log', () => {
     expect(periodComparison('week', '2026-10-02')).toEqual({
       current: { from: '2026-09-28', to: '2026-10-02' },
       previous: { from: '2026-09-21', to: '2026-09-25' },
-      label: 'the same days last week',
+      label: 'last week',
     });
   });
 
