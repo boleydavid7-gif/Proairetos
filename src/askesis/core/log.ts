@@ -47,6 +47,56 @@ export const feelings: Record<Felt, string> = {
 
 export type Period = 'week' | 'month' | 'year' | 'all';
 
+export type PeriodComparison = {
+  current: { from: string; to: string };
+  previous: { from: string; to: string };
+  label: string;
+};
+
+/**
+ * A fair, like-for-like comparison for the part of the selected period that has elapsed.
+ * Weeks compare Monday through the same weekday; months and years compare through the same
+ * calendar day, clamped when the previous month/year is shorter. All time has no comparison.
+ */
+export function periodComparison(period: Period, today: string): PeriodComparison | undefined {
+  if (period === 'all') return undefined;
+  const date = new Date(`${today}T12:00:00`);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  if (period === 'week') {
+    const from = mondayOnOrBefore(today);
+    return {
+      current: { from, to: today },
+      previous: { from: addDays(from, -7), to: addDays(today, -7) },
+      label: 'the same days last week',
+    };
+  }
+
+  if (period === 'month') {
+    const from = toLocalDate(new Date(year, month, 1));
+    const previousStart = new Date(year, month - 1, 1);
+    const previousLastDay = new Date(year, month, 0).getDate();
+    const previousTo = toLocalDate(new Date(previousStart.getFullYear(), previousStart.getMonth(), Math.min(day, previousLastDay)));
+    return {
+      current: { from, to: today },
+      previous: { from: toLocalDate(previousStart), to: previousTo },
+      label: 'the same days last month',
+    };
+  }
+
+  const previousLastDay = new Date(year - 1, month + 1, 0).getDate();
+  return {
+    current: { from: `${year}-01-01`, to: today },
+    previous: {
+      from: `${year - 1}-01-01`,
+      to: toLocalDate(new Date(year - 1, month, Math.min(day, previousLastDay))),
+    },
+    label: 'the same dates last year',
+  };
+}
+
 /** [first, last] local dates of the period containing `today`, and of the one before it. */
 export function periodRange(period: Period, today: string): { from: string; to: string; before?: { from: string; to: string } } {
   if (period === 'week') {
