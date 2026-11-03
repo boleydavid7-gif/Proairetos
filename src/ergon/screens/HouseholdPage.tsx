@@ -149,12 +149,12 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
     );
   }
 
-  const familyName = family.list?.name ?? home.name;
+  const familyName = familyConnected ? family.list?.name ?? home.name : home.name;
   const members = family.members.map((member) => {
     const userId = member.id.slice('member:'.length);
     const assigned = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name))).length;
     const completed = activity.find((fact) => fact.name === member.name)?.times ?? 0;
-    return { ...member, userId, assigned, completed, role: family.roles[userId] ?? 'member' };
+    return { ...member, userId, assigned, completed, role: family.rolesReady ? family.roles[userId] ?? 'member' : 'member' };
   });
 
   return (
