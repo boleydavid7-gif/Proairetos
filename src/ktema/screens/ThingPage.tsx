@@ -98,7 +98,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         <label className="field"><span className="field__label">Bought (optional)</span><input className="input" type="date" value={boughtOn} onChange={(event) => setBoughtOn(event.target.value)} /></label>
         <label className="field"><span className="field__label">Price (optional)</span><input className="input" value={price} onChange={(event) => setPrice(event.target.value)} /></label>
       </div>
-      <label className="field"><span className="field__label">Where from (optional)</span><input className="input" value={store} onChange={(event) => setStore(event.target.value)} /></label>
+      <label className="field"><span className="field__label">Store (optional)</span><input className="input" value={store} onChange={(event) => setStore(event.target.value)} /></label>
       <label className="field">
         <span className="field__label">{category === 'Documents' ? 'Renews or ends (optional)' : 'Warranty until (optional)'}</span>
         <input className="input" type="date" value={warranty} onChange={(event) => setWarranty(event.target.value)} />
@@ -109,7 +109,7 @@ function ThingForm({ existing, onDone }: { existing?: Thing; onDone: () => void 
         </div>
       )}
       <label className="field">
-        <span className="field__label">Manual or receipt link (optional)</span>
+        <span className="field__label">Manual / receipt URL (optional)</span>
         <div className="add-line">
           <input className="input" type="url" inputMode="url" value={link} onChange={(event) => setLink(event.target.value)} />
           {safeLink && <a className="button-quiet" href={safeLink} target="_blank" rel="noreferrer noopener">Open</a>}
