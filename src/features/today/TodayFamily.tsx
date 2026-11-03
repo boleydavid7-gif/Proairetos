@@ -38,7 +38,7 @@ export default function TodayFamily({ today }: { today: string }) {
             {soon.length > 2 ? ` and ${soon.length - 2} more` : ''}
           </span>
           <span className="quiet-row__detail">
-            {soon.every((bill) => bill.when === soon[0].when) ? `Bills due ${soon[0].when}` : `Bills from ${soon[0].when}`} · Oikonomia
+            {soon.every((bill) => bill.when === soon[0].when) ? `Bills due ${soon[0].when}` : `Bills from ${soon[0].when}`}
           </span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
@@ -87,7 +87,7 @@ export function TodayPursuit() {
     .sort((a, b) => (a.dueDate ?? a.nextMoveDue ?? '9999-12-31').localeCompare(b.dueDate ?? b.nextMoveDue ?? '9999-12-31') || b.updatedAt.localeCompare(a.updatedAt))[0];
   if (!current || (!due && !current.nextMove)) return null;
   const title = due ? `Check in: ${current.title}` : current.nextMove!;
-  const detail = due ? `No check-in recently · ${current.title} · Compass` : `Next move · ${current.title} · Compass`;
+  const detail = due ? `No check-in recently · ${current.title}` : `Next move · ${current.title}`;
   return (
     <SwipeLine id={`pursuit:${current.id}`} title={title}>
       <button type="button" className="quiet-row" onClick={() => { openPursuit(current.id); openCompassTab('motion'); navigate('compass'); }}>
