@@ -8,7 +8,7 @@ import { useRuns } from '../../app/askesis/runs';
 import { combineReadingSessions, useStudy } from '../../app/praxis/study';
 import { useRecipesFromSoma } from '../../app/soma/meals';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
-import { buildLifeRecords, type LifeRecord, type LifeRecordKind } from '../../core/life-records';
+import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -307,7 +307,7 @@ export default function ConnectionsPage() {
                 onSaveReflection={saveEdit}
               />
             );
-          })})}
+          })}
         </ol>
       )}
       {scoped.length > visibleCount && (
