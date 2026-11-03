@@ -3,7 +3,7 @@ import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { useRef, useState } from 'react';
 import { ColumnChart, LineChart, type ChartPoint } from '../../app/family/charts';
 import { readActivityFile } from '../core/track';
-import { addDays, mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
+import { mondayOnOrBefore, toLocalDate } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
 import { ChevronIcon, LogIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
@@ -105,7 +105,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const activeWeeks = consistencyWeeks.filter((week) => week.count > 0).length;
   const sessionCount = consistencyWeeks.reduce((sum, week) => sum + week.count, 0);
   const averageSessions = activeWeeks ? sessionCount / activeWeeks : 0;
-  const feelings = howItFelt(runningEntries, today);
+  const feltSummary = howItFelt(runningEntries, today);
 
   const filteredHistory = list.filter((entry) => {
     if (historyActivity !== 'all' && entry.activity !== historyActivity) return false;
@@ -313,7 +313,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
             <div className="tile">
               <span className="tile__label">Active weeks</span>
               <span className="tile__value">{activeWeeks} of 8</span>
-              <span className="tile__change">At least one run logged</span>
+              <span className="tile__change">At least one run or plan session</span>
             </div>
             <div className="tile">
               <span className="tile__label">Sessions</span>
@@ -338,14 +338,14 @@ export default function LogPage({ nav }: { nav: Nav }) {
             />
           </section>
 
-          {feelings && (
+          {feltSummary && (
             <section className="card progress__panel progress__feelings">
               <h2 className="card__title card__title--small">How your runs felt</h2>
               <p className="muted">Your own ratings over the last four weeks.</p>
               <div className="records__grid">
-                <div><span className="tile__label">Easy or good</span><strong>{feelings.good}</strong></div>
-                <div><span className="tile__label">Challenging</span><strong>{feelings.challenging}</strong></div>
-                <div><span className="tile__label">Hard</span><strong>{feelings.hard}</strong></div>
+                <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
+                <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
+                <div><span className="tile__label">Hard</span><strong>{feltSummary.hard}</strong></div>
               </div>
             </section>
           )}
