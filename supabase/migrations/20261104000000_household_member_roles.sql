@@ -67,7 +67,7 @@ begin
   if target_user is null or target_user = owner_id then
     raise exception 'The household owner role cannot be changed.';
   end if;
-  if new_role not in ('admin', 'member') then
+  if new_role is null or new_role not in ('admin', 'member') then
     raise exception 'Choose administrator or member.';
   end if;
   if not exists (
