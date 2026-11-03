@@ -1818,73 +1818,6 @@ input[type='date'].input {
   line-height: 1.35;
 }
 
-.progress__views,
-.progress__period {
-  min-width: 0;
-}
-
-.progress__views .segmented {
-  width: 100%;
-}
-
-.progress__views .segmented__option {
-  min-width: 0;
-  padding-inline: 8px;
-  font-size: 0.8rem;
-}
-
-.progress__period {
-  display: grid;
-  gap: 8px;
-}
-
-.progress__content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
-  min-width: 0;
-}
-
-.progress__panel {
-  min-width: 0;
-}
-
-.progress__section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.progress__section-head .label {
-  margin: 0;
-}
-
-.progress__filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr);
-  gap: 10px;
-  margin: 0 0 8px;
-}
-
-.progress__filters .input {
-  min-width: 0;
-}
-
-.progress__empty-note {
-  margin: 0;
-  padding: 12px 0;
-}
-
-.progress__history-actions {
-  margin-top: 2px;
-}
-
-.progress__recent {
-  gap: 8px;
-}
-
-
 
 
 @media (max-width: 380px) {
@@ -2902,6 +2835,141 @@ html[data-nav='back']::view-transition-new(root) {
 .own-builder .field + .field {
   margin-top: 6px;
 }
+
+.own-builder__sequence {
+  display: grid;
+  gap: 12px;
+}
+
+.own-builder__heading,
+.own-preview__head,
+.own-part__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.own-builder__heading .card__title,
+.own-builder__heading .muted {
+  margin: 0;
+}
+
+.own-builder__heading .muted {
+  margin-top: 3px;
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.own-part {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  display: grid;
+  gap: 10px;
+}
+
+.own-part__head > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.own-part__actions,
+.own-step__tools {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.own-part__actions .icon-button,
+.own-step__tools .icon-button {
+  width: 34px;
+  height: 34px;
+}
+
+.own-part__steps {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.own-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.own-step__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(5.5rem, 0.7fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.own-step__field,
+.own-step__note {
+  min-width: 0;
+}
+
+.own-step__field .input,
+.own-step__note .input {
+  width: 100%;
+  min-width: 0;
+}
+
+.own-step__note {
+  grid-column: 1 / -1;
+}
+
+.own-step__tools {
+  justify-content: flex-end;
+}
+
+.own-builder__add {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.own-builder__add .button-quiet,
+.own-part__add {
+  min-width: 0;
+  white-space: normal;
+}
+
+.own-preview__head {
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.own-preview__head .own-preview__length {
+  margin: 3px 0 0;
+}
+
+.own-preview__lines {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 380px) {
+  .own-step {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .own-step__tools {
+    justify-content: flex-start;
+  }
+  .own-part__head {
+    align-items: flex-start;
+  }
+  .own-part__actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 
 /* ---------- Weather at your run ---------- */
 
