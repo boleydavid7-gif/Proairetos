@@ -226,7 +226,7 @@ export default function ConnectionsPage() {
     const previous = trashByRecord.get(record.key);
     if (previous && !previous.deletedAt) return;
     moveToLibraryTrash(record.key);
-    offerUndo('Moved to Recently Deleted', async () => restoreFromLibraryTrash(record.key));
+    offerUndo('Moved to Recently Deleted', async () => { restoreFromLibraryTrash(record.key); });
   }
 
   function restoreRecordFromTrash(record: LifeRecord) {
