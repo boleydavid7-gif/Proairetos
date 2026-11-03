@@ -43,15 +43,40 @@ What is not done, and needs your accounts and computers:
 
 Askesis remains a web-first app. The browser provider is always available; the phone bridge adds capabilities only when the installed Capacitor app actually implements them. A missing or incompatible bridge must never prevent Askesis from opening or logging workouts.
 
-The first capability-discovery slice is in:
+### Reproducible native source (Phase 7A)
 
-- `src/askesis/app/capabilities.ts`: always resolves web capabilities first; imports `@capacitor/core` only when `isNativeApp()` is true; discovers the optional `AskesisBridge` plugin and validates its protocol.
+The bridge is a local Capacitor plugin package committed to this repository at `packages/askesis-bridge/`. The generated app projects remain local and ignored by Git, but the code that Capacitor installs into those projects is versioned and reproducible:
+
+- `packages/askesis-bridge/ios/Sources/AskesisBridgePlugin/`: Swift plugin implementation.
+- `packages/askesis-bridge/Package.swift`: Swift Package Manager definition for Capacitor 8.
+- `packages/askesis-bridge/AskesisBridge.podspec`: CocoaPods definition for existing CocoaPods-based native projects.
+- `packages/askesis-bridge/android/`: Kotlin plugin, Android library Gradle file and manifest.
+- `packages/askesis-bridge/src/`: shared TypeScript plugin contract and registration.
+- Root `package.json` installs the package through `file:packages/askesis-bridge`; the lockfile records the local dependency.
+
+Before native sync, `npm run cap:verify` checks that the tracked plugin source and Capacitor metadata are present. `npm run cap:sync` runs that verification, builds the native web bundle, and then runs Capacitor sync so the plugin is registered automatically. Do not copy plugin files manually into generated projects.
+
+For a fresh checkout:
+
+1. Run `npm ci`.
+2. Run `npx cap add ios` and/or `npx cap add android` once for the platforms you use.
+3. Run `npm run cap:sync`.
+4. Open the generated project with `npm run cap:ios` or `npm run cap:android`.
+
+For an existing generated project, run `npm ci` after pulling the change, then `npm run cap:sync`. Keep generated `ios/` and `android/` app folders out of Git; the reusable plugin source is what belongs in the repository.
+
+Phase 7A implements only protocol-v1 capability discovery. Both native implementations currently report every optional capability as `false`. They request no HealthKit, Health Connect, location or background permissions. This is intentional: a bridge can be detected before any native feature is implemented or any permission is requested.
+
+### Existing capability discovery
+
+- `src/askesis/app/capabilities.ts`: resolves web capabilities first; loads the local bridge package only when `isNativeApp()` is true; validates protocol and platform before accepting capabilities.
 - `src/askesis/screens/DevicePage.tsx`: shows which browser features work and which optional phone features the bridge advertises.
 - `src/tests/askesis/capabilities.test.ts`: verifies web fallback, explicit native capability flags, and protocol/platform mismatch handling.
+- `scripts/native/verify-askesis-bridge.mjs`: validates the committed plugin package before sync.
 
 ### Bridge handshake, protocol v1
 
-The iOS and Android Capacitor projects are generated locally (the `ios/` and `android/` folders are not kept in git). Each native project may register a Capacitor plugin named `AskesisBridge` with this method:
+The generated iOS and Android app projects (the root `ios/` and `android/` folders) are not kept in Git. Capacitor discovers the local plugin package from its `capacitor` metadata and registers a plugin named `AskesisBridge` with this method:
 
 ```ts
 type AskesisBridgeHandshake = {
