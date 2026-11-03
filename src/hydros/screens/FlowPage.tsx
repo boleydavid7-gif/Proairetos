@@ -132,7 +132,7 @@ function MonthlyLineChart({ range, values, max, goal, unit }: { range: string[];
   const points = values.map((value, index) => `${x(index)},${y(value)}`).join(' ');
   const labelIndexes = Array.from(new Set([0, Math.floor((range.length - 1) / 2), range.length - 1]));
   return <div className="flow-line-chart" role="img" aria-label={`Daily hydration for the month. ${description}${target}`}>
-    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-hidden="true">
+    <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
       {[0, .25, .5, .75, 1].map((fraction) => <g key={fraction}><line className="flow-line-chart__grid" x1={left} x2={width - right} y1={top + plotHeight * (1 - fraction)} y2={top + plotHeight * (1 - fraction)} /><text className="flow-line-chart__value" x={left - 7} y={top + plotHeight * (1 - fraction) + 3} textAnchor="end">{formatVolume(max * fraction, unit)}</text></g>)}
       {goal ? <line className="flow-line-chart__goal" x1={left} x2={width - right} y1={y(goal)} y2={y(goal)} /> : null}
       <polyline className="flow-line-chart__line ll-draw" points={points} pathLength={1} />
