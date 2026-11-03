@@ -93,6 +93,7 @@ export default function ConnectionsPage() {
   const [visibleCount, setVisibleCount] = useState(30);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
+  const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
   const sourceRecords = useMemo(() => buildLifeRecords({
     reflections,
     decisions,
@@ -403,7 +404,7 @@ export default function ConnectionsPage() {
                     key={record.key}
                     record={record}
                     saved={favoriteKeys.has(record.key)}
-                    availableValues={values.map((value: ChosenValue) => ({ id: value.id, name: value.name }))}
+                    availableValues={valueOptions}
                     relatedRecords={relatedLifeRecords(record, relationPool, 3)}
                     busy={busyId === record.key}
                     onToggleFavorite={toggleFavorite}
