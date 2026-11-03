@@ -49,9 +49,9 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
       const result = readRecipeFiles(await Promise.all(files.map(async (file) => ({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) }))));
       setFound(result);
       setChosen(new Set(result.recipes.flatMap((each, i) => (alreadyKept(each.draft, shelf ?? []) ? [] : [i]))));
-      if (!result.recipes.length) setProblem('No recipes in that file. Export from the other app again, or try another file.');
+      if (!result.recipes.length) setProblem('No recipes found. Try another export.');
     } catch {
-      setProblem('Couldn’t read that file. Try again.');
+      setProblem('Couldn’t read the file. Try again.');
     } finally {
       setReading(false);
     }
@@ -101,7 +101,7 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
   const apps = [...new Set(found?.recipes.map((each) => each.from))];
 
   return (
-    <FileDropZone label="Drop a recipe export here" onFiles={(files) => void read(files)}>
+    <FileDropZone label="Drop a recipe file here" onFiles={(files) => void read(files)}>
     <div className="from-app">
       <input
         ref={input}
@@ -131,16 +131,16 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
         <>
           <p className="hint">
             {found.recipes.length === 1 ? '1 recipe' : `${found.recipes.length} recipes`} from {apps.join(' and ')}
-            {kept.size ? `. ${kept.size} already here, not chosen` : ''}
+            {kept.size ? `. ${kept.size} already saved` : ''}
             {found.unread.length ? `. Couldn’t read ${found.unread.join(', ')}` : ''}
           </p>
           {found.recipes.length > 1 && (
             <div className="chip-row">
               <button type="button" className="chip" onClick={() => setChosen(new Set(found.recipes.map((_, i) => i)))}>
-                Choose all
+                All
               </button>
               <button type="button" className="chip" onClick={() => setChosen(new Set())}>
-                Choose none
+                None
               </button>
             </div>
           )}
@@ -162,7 +162,7 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
               {adding !== undefined ? (
                 <Waiting>{`Adding… ${adding} of ${chosen.size}`}</Waiting>
               ) : chosen.size === 1 ? (
-                'Look it over'
+                'Review'
               ) : chosen.size === 0 ? (
                 'Add recipes'
               ) : (
@@ -178,7 +178,7 @@ export default function FromAnotherApp({ nav }: { nav: Nav }) {
                 input.current?.click();
               }}
             >
-              Another file
+              Choose another
             </button>
           </div>
         </>
