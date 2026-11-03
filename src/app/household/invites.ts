@@ -81,13 +81,13 @@ export async function inviteByEmail(email: string, household: ListRef): Promise<
   if (!user) throw new Error('Sign in first.');
   if (address === user.email.toLowerCase()) throw new Error('That’s your own email.');
   const client = await supabase();
-  const { data, error } = await client.rpc('invitee_key', { address });
+  const { data, error } = await client.rpc('invitee_key', { address, household: household.id });
   plain(error);
   const found = data as { user_id: string; public_key: JsonWebKey } | null;
   if (!found) throw new Error('No account with that email has opened Proairetos on this version yet. Send the link instead.');
   const from = displayName().trim() || user.email;
   const sealed = await sealFor(found.public_key, { household, from });
-  plain((await client.from('household_invites').insert({ to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
+  plain((await client.from('household_invites').insert({ household_id: household.id, to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
   await refreshInvites();
 }
 
