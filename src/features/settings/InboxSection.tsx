@@ -89,11 +89,20 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
                 <li><strong>Method:</strong> POST</li>
                 <li><strong>Request Body:</strong> JSON</li>
               </ul>
-              <p>Add these two fields to the JSON body:</p>
+              <p>Add two entries to the JSON body. For each one, fill in the <strong>Key</strong>, <strong>Type</strong> and <strong>Value</strong> fields like this:</p>
               <div className="inbox-fields">
-                <div className="inbox-field"><code>token</code><span>Text · paste the token below</span></div>
-                <div className="inbox-field"><code>text</code><span>Text · choose <strong>Provided Input</strong></span></div>
+                <div className="inbox-field">
+                  <div className="inbox-field__row"><span>Key</span><code>token</code></div>
+                  <div className="inbox-field__row"><span>Type</span><strong>Text</strong></div>
+                  <div className="inbox-field__row"><span>Value</span><span>Paste the token from below</span></div>
+                </div>
+                <div className="inbox-field">
+                  <div className="inbox-field__row"><span>Key</span><code>text</code></div>
+                  <div className="inbox-field__row"><span>Type</span><strong>Text</strong></div>
+                  <div className="inbox-field__row"><span>Value</span><span>Choose <strong>Provided Input</strong></span></div>
+                </div>
               </div>
+              <p className="inbox-key-note"><strong>Important:</strong> Type <code>token</code> and <code>text</code> into the <strong>Key</strong> boxes. Paste your secret token into the first <strong>Value</strong> box — not the Key box.</p>
             </Step>
             <Step number={3} title="Name it Capture">
               <p>Tap the shortcut name at the top, rename it <strong>Capture</strong>, and tap <strong>Done</strong>.</p>
