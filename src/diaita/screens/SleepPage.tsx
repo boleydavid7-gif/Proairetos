@@ -94,7 +94,7 @@ function ExperimentCard({ records, today }: { records: readonly SleepRecord[]; t
   }
   return (
     <details className="card diaita-experiment">
-      <summary className="card__title">Try something for two weeks</summary>
+      <summary className="card__title">Two-week experiment</summary>
       <div className="diaita-experiment__options">
         {EXPERIMENTS.map((item) => <div key={item.kind} className="diaita-experiment__option"><div><strong>{item.label}</strong><span>{item.detail}</span><details className="diaita-source-detail"><summary>Source</summary><span>{item.source}</span></details></div><button type="button" className="button-quiet button--sm" onClick={() => experiment.save({ current: { kind: item.kind, startedOn: today, endsOn: addDays(today, 13) } })}>Try this</button></div>)}
       </div>
