@@ -58,6 +58,38 @@ describe('Life Record projection', () => {
     expect(records.find((entry) => entry.key === 'reflection:trip-note')?.source).toBe('Poreia');
   });
 
+  it('includes Dynamis strength sessions with searchable sets and source identity', () => {
+    const [record] = buildLifeRecords({
+      strengthUnit: 'lb',
+      strengthWorkouts: [{
+        id: 'lift1',
+        date: '2026-11-02',
+        session: 'A',
+        createdAt: '2026-11-02T17:30:00.000Z',
+        minutes: 42,
+        felt: 'good',
+        note: 'More stable form today.',
+        exercises: [
+          { exercise: 'bench-press', name: 'Bench press', sets: [{ weight: 95, reps: 8 }, { weight: 95, reps: 7 }] },
+          { exercise: 'row', name: 'Dumbbell row', sets: [{ weight: 35, reps: 10 }] },
+        ],
+      }],
+    });
+
+    expect(record).toMatchObject({
+      key: 'dynamis-workout:lift1',
+      kind: 'workout',
+      source: 'Dynamis',
+      sourceId: 'lift1',
+      title: 'Bench press, Dumbbell row',
+      detail: '3 sets · 42 min · Felt good',
+    });
+    expect(record.body).toContain('Bench press: 95 lb × 8, 95 lb × 7');
+    expect(record.body).toContain('More stable form today.');
+    expect(record.searchText).toContain('bench-press');
+    expect(record.searchText).toContain('95');
+  });
+
   it('keeps archived records marked and preserves the source identity', () => {
     const source = {
       id: 'r2', userId: 'u', body: 'Keep the original.', kind: 'FREE' as const,
