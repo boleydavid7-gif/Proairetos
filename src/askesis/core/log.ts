@@ -24,6 +24,8 @@ export type LogEntry = {
   intention?: string;
   /** The plan session this was, if any. */
   workoutId?: string;
+  /** The pair of running shoes used, if the runner chose one. */
+  shoeId?: string;
   workoutTitle?: string;
   /** Brought in from Strava: its activity id, so it is never brought in twice. */
   stravaId?: number;
