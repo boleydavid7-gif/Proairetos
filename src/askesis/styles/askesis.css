@@ -2011,6 +2011,18 @@ input[type='date'].input {
   color: var(--mint);
 }
 
+.week-calendar__day--partial .week-calendar__indicator > span {
+  width: 7px;
+  height: 7px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 25%, transparent);
+}
+
+.week-calendar__day:disabled {
+  opacity: 0.58;
+  cursor: default;
+}
+
+
 .week-calendar__hint {
   margin: 0;
   color: var(--muted);
