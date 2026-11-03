@@ -23,7 +23,6 @@ export type LifeRecordSource =
   | 'Soma'
   | 'Theoria'
   | 'Poreia'
-  | 'Hydros'
   | 'Oikonomia'
   | 'Mneme';
 
@@ -49,7 +48,6 @@ export type LifeRecordKind =
   | 'study'
   | 'note'
   | 'idea'
-  | 'hydration'
   | 'trip'
   | 'financial';
 
