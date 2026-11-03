@@ -69,8 +69,9 @@ export default function App() {
     const from = current.current;
     if (next === from) return;
     const depth = depthFromHistoryState(history.state);
-    if (options?.replace) history.replaceState({ proairetosRoute: next, proairetosDepth: depth }, '', pathForRoute(next));
-    else history.pushState({ proairetosRoute: next, proairetosDepth: depth + 1 }, '', pathForRoute(next));
+    const path = pathForRoute(next) + (options?.search ?? '');
+    if (options?.replace) history.replaceState({ proairetosRoute: next, proairetosDepth: depth }, '', path);
+    else history.pushState({ proairetosRoute: next, proairetosDepth: depth + 1 }, '', path);
     if (options?.immediate) {
       setRoute(next);
       return;
