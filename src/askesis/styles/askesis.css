@@ -2048,6 +2048,121 @@ input[type='date'].input {
   }
 }
 
+.shoe-list {
+  display: grid;
+  gap: 12px;
+}
+
+.shoe-card {
+  gap: 10px;
+}
+
+.shoe-card__head,
+.shoe-form__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shoe-card__name {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.shoe-card__name .card__title {
+  overflow-wrap: anywhere;
+}
+
+.shoe-card__default {
+  color: var(--mint);
+  font-size: 0.78rem;
+}
+
+.shoe-card__mileage {
+  flex: 0 0 auto;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.shoe-card__facts,
+.shoe-card__reminder,
+.shoe-card__target .hint {
+  margin: 0;
+}
+
+.shoe-card__target {
+  display: grid;
+  gap: 6px;
+}
+
+.shoe-card__track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--mint) 13%, var(--surface));
+}
+
+.shoe-card__track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mint);
+}
+
+.shoe-card__reminder {
+  color: var(--text-soft);
+  font-size: 0.84rem;
+}
+
+.shoe-card__target .hint {
+  font-size: 0.76rem;
+}
+
+.shoe-card__actions {
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.shoe-form {
+  gap: 14px;
+}
+
+.shoe-form__head {
+  align-items: center;
+}
+
+.shoe-empty {
+  gap: 8px;
+}
+
+.shoe-empty .card__title,
+.shoe-empty .muted {
+  margin: 0;
+}
+
+.shoe-retired {
+  margin-top: 4px;
+}
+
+.shoe-retired .shoe-list {
+  margin-top: 12px;
+}
+
+@media (max-width: 360px) {
+  .shoe-card__head {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .shoe-card__mileage {
+    font-size: 1.2rem;
+  }
+}
+
 .entries {
   display: flex;
   flex-direction: column;
