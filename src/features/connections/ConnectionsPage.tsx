@@ -644,7 +644,7 @@ export default function ConnectionsPage() {
           <label>
             <span>Group by</span>
             <select className="field-input" value={groupBy} onChange={(event) => setGroupBy(event.target.value as LifeRecordGroupBy)}>
-              <option value="month">Month</option>
+              <option value="month">Year &amp; month</option>
               <option value="source">App</option>
               <option value="none">No groups</option>
             </select>
@@ -713,8 +713,8 @@ export default function ConnectionsPage() {
       {scoped.length === 0 ? (
         <div className="connections-empty">
           <span className="connections-empty__mark"><Sym name={view === 'trash' ? 'trash' : view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
-          <p className="connections-empty__title">{view === 'trash' ? 'Recently Deleted is empty.' : view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
-          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'trash' ? 'Entries you move here stay for 30 days. Removing them from Reflect never deletes the original in its source app.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
+          <p className="connections-empty__title">{view === 'trash' && trashCount > 0 ? 'No matching entries are available.' : view === 'trash' ? 'Recently Deleted is empty.' : view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'trash' && trashCount > 0 ? 'Some original records may have been removed from their source apps. Empty Trash clears the remaining Reflect markers.' : view === 'trash' ? 'Entries you move here stay for 30 days. Removing them from Reflect never deletes the original in its source app.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
