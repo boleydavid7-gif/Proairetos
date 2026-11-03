@@ -284,9 +284,12 @@ describe('a household', () => {
 
     user = 'user-a';
     await household.removeHouseholdMember('user-b');
+    expect(tables.shared_list_members.some((row) => row.list_id === invite.id && row.user_id === 'user-b')).toBe(false);
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(false);
 
     user = 'user-b';
+    expect(navigator.onLine).toBe(true);
+    expect((await client.from('shared_lists').select('id').eq('id', invite.id).maybeSingle()).data).toBeNull();
     await household.syncHousehold();
     expect(household.household()).toBeUndefined();
     expect(homes.sharedLists()).toHaveLength(0);
@@ -327,8 +330,10 @@ describe('a household', () => {
     user = 'user-a';
     restore(ownerDevice);
     await household.removeHouseholdMember('user-b');
+    expect(tables.shared_list_members.some((row) => row.list_id === invite.id && row.user_id === 'user-b')).toBe(false);
     user = 'user-b';
     restore(memberDevice);
+    expect(navigator.onLine).toBe(true);
     expect(household.household()?.id).toBe(invite.id);
 
     // No background sync runs between removal and opening the invite again.
