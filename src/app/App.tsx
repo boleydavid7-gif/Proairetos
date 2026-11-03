@@ -15,7 +15,7 @@ import SharedSheet from '../features/share/SharedSheet';
 import InboxOpener from './capture/InboxOpener';
 import TrainingClash from '../features/training/TrainingClash';
 import { takeShared } from '../features/share/shared';
-import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview } from './laterPages';
+import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview, ConnectionsPage } from './laterPages';
 import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
 import { startHousehold } from './household/household';
@@ -202,6 +202,7 @@ export default function App() {
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       {route === 'meditate' && <MeditatePage />}
+      {route === 'connections' && !locked && <ConnectionsPage />
       </Suspense>
       </AppShell>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
