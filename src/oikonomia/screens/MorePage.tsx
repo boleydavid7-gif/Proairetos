@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { BillsIcon, CalendarIcon, ChevronIcon, DownloadIcon, SettingsIcon, WalletIcon } from '../app/icons';
 import { HistoryIcon } from '../../app/family/icons';
-import { useSettings } from '../app/state';
+import { newId, useSettings } from '../app/state';
 import { offerUndo } from '../app/undo';
 import { exportAll, listBills, listBudgets, listEnvelopes, loadSettings, putBill, putBudget, restore, saveSettings } from '../data/store';
 import { envelopesCsv, billsCsv, expensesCsv } from '../core/export';
@@ -74,7 +74,7 @@ function FinancialMilestones() {
     const now = new Date().toISOString();
     const previous = editingId ? reflectMilestones.get(editingId) : undefined;
     const entry: FinancialMilestone = {
-      id: editingId || `milestone-${crypto.randomUUID?.() ?? Date.now().toString(36)}`,
+      id: editingId || newId(),
       title: title.trim(),
       ...(body.trim() ? { body: body.trim() } : {}),
       date,
@@ -110,7 +110,7 @@ function FinancialMilestones() {
               </label>
               <div className="button-row">
                 <button type="button" className="text-link" onClick={() => { setEditingId(entry.id); setTitle(entry.title); setBody(entry.body ?? ''); setDate(entry.date); }}>Edit</button>
-                <button type="button" className="text-link" onClick={() => reflectMilestones.remove(entry.id)}>Delete</button>
+                <button type="button" className="text-link" onClick={() => { reflectMilestones.remove(entry.id); if (editingId === entry.id) reset(); }}>Delete</button>
               </div>
             </li>
           ))}
