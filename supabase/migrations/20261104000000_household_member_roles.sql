@@ -207,3 +207,51 @@ $$;
 
 revoke all on function public.invitee_key(text, uuid) from public, anon;
 grant execute on function public.invitee_key(text, uuid) to authenticated;
+
+
+-- A departing member should not regain administrator status if they are invited back later.
+-- This trigger is harmless for ordinary app lists because only household ids have role/invite metadata.
+create or replace function public.cleanup_household_member_role()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  delete from public.household_member_roles
+  where household_id = old.list_id and user_id = old.user_id;
+  delete from public.household_invites
+  where household_id = old.list_id and from_user = old.user_id;
+  return old;
+end;
+$$;
+
+revoke all on function public.cleanup_household_member_role() from public, anon, authenticated;
+
+drop trigger if exists cleanup_household_member_role_after_leave on public.shared_list_members;
+create trigger cleanup_household_member_role_after_leave
+  after delete on public.shared_list_members
+  for each row execute function public.cleanup_household_member_role();
+
+-- The creator owns the list and must transfer ownership or delete it rather than leaving their own list.
+create or replace function public.is_list_owner(list uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.shared_lists
+    where id = list and created_by = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_list_owner(uuid) from public, anon;
+grant execute on function public.is_list_owner(uuid) to authenticated;
+
+drop policy if exists "anyone can leave" on public.shared_list_members;
+create policy "members can leave lists they do not own" on public.shared_list_members
+  for delete to authenticated using (
+    user_id = auth.uid() and not public.is_list_owner(list_id)
+  );
