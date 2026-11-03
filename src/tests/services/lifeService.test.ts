@@ -125,4 +125,19 @@ describe('life service', () => {
     expect(await service.get(item.id)).toEqual(before);
     expect(await service.history(item.id)).toEqual(history);
   });
+
+  it('archives and restores a life item without deleting its history or value links', async () => {
+    const { service } = setup();
+    const item = await service.capture('Keep this for later');
+    await service.connectValue(item.id, 'family');
+    const history = await service.history(item.id);
+
+    await service.archive(item.id);
+    expect(await service.list()).toEqual([]);
+    expect(await service.listAll(true)).toMatchObject([{ id: item.id, archivedAt: expect.any(String), valueIds: ['family'] }]);
+    expect(await service.history(item.id)).toEqual(history);
+
+    await service.restore(item.id);
+    expect(await service.list()).toMatchObject([{ id: item.id, valueIds: ['family'] }]);
+  });
 });

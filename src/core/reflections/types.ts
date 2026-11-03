@@ -27,6 +27,8 @@ export interface Reflection {
   weather?: InnerWeather;
   /** The outdoor sky when this was written, if the person turned weather on. A fact, not a mood. */
   sky?: Sky;
+  /** Hidden from the everyday Reflect timeline, but retained in the archive. */
+  archivedAt?: string;
   /** Values the person tagged this with. */
   valueIds?: string[];
 }

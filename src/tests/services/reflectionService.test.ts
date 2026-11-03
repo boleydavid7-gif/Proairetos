@@ -55,4 +55,27 @@ describe('reflection service', () => {
     await deletion.undo();
     expect(await service.all()).toEqual([written]);
   });
+
+  it('archives and restores a reflection without losing its original text', async () => {
+    const { context } = testContext();
+    const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
+    const written = await service.write({ body: 'Keep this thought.', valueIds: ['family'] });
+
+    await service.archive(written.id);
+    expect(await service.all()).toEqual([]);
+    expect(await service.listFor('today')).toEqual([]);
+    expect((await service.all(true))[0]).toMatchObject({ body: written.body, archivedAt: expect.any(String) });
+
+    await service.restore(written.id);
+    expect(await service.all()).toEqual([written]);
+  });
+
+  it('unlinks a value without deleting or changing the reflection', async () => {
+    const { context } = testContext();
+    const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
+    const written = await service.write({ body: 'A thought about home.', valueIds: ['family', 'presence'] });
+
+    await service.disconnectValue(written.id, 'family');
+    expect(await service.all()).toMatchObject([{ id: written.id, body: written.body, valueIds: ['presence'] }]);
+  });
 });

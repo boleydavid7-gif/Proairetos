@@ -81,4 +81,23 @@ describe('decision service', () => {
     expect(looked.lookBack).toMatchObject({ process: 'AGAIN', outcome: 'NOT_AS_HOPED' });
     expect(await service.toRevisit()).toEqual([]);
   });
+
+  it('archives and restores decisions, and can remove one value connection safely', async () => {
+    const { context } = testContext('2026-10-01T12:00:00.000Z');
+    const service = createDecisionService({ userId: 'u', context, decisions: createMemoryDecisionRepository() });
+    const decision = await service.decide({
+      question: 'How should I spend my time?',
+      options: ['Rest', 'Work'],
+      choice: 'Rest',
+      valueNotes: { health: 'Protect recovery', family: 'Be present' },
+    });
+
+    await service.disconnectValue(decision.id, 'family');
+    expect(await service.get(decision.id)).toMatchObject({ valueNotes: { health: 'Protect recovery' } });
+    await service.archive(decision.id);
+    expect(await service.list()).toEqual([]);
+    expect(await service.list(true)).toHaveLength(1);
+    await service.restore(decision.id);
+    expect(await service.list()).toHaveLength(1);
+  });
 });

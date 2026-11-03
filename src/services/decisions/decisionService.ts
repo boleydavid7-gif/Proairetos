@@ -32,8 +32,10 @@ export function createDecisionService({ userId, context, decisions }: DecisionSe
     refresh: listeners.notify,
 
     /** Newest first. */
-    async list(): Promise<Decision[]> {
-      return (await decisions.list(userId)).sort((a, b) => b.decidedAt.localeCompare(a.decidedAt));
+    async list(includeArchived = false): Promise<Decision[]> {
+      return (await decisions.list(userId))
+        .filter((decision) => includeArchived || !decision.archivedAt)
+        .sort((a, b) => b.decidedAt.localeCompare(a.decidedAt));
     },
 
     async get(id: string): Promise<Decision | null> {
@@ -45,6 +47,29 @@ export function createDecisionService({ userId, context, decisions }: DecisionSe
       await decisions.add(decision);
       listeners.notify();
       return decision;
+    },
+
+    async archive(id: string): Promise<Decision> {
+      const decision = await load(id);
+      if (decision.archivedAt) return decision;
+      return save({ ...decision, archivedAt: context.now().toISOString() });
+    },
+
+    async restore(id: string): Promise<Decision> {
+      const decision = await load(id);
+      if (!decision.archivedAt) return decision;
+      const { archivedAt: _archivedAt, ...restored } = decision;
+      return save(restored);
+    },
+
+    /** Removes only the chosen value link; the decision itself remains intact. */
+    async disconnectValue(id: string, valueId: string): Promise<Decision> {
+      const decision = await load(id);
+      if (!decision.valueNotes?.[valueId]) return decision;
+      const valueNotes = { ...decision.valueNotes };
+      delete valueNotes[valueId];
+      const { valueNotes: _previous, ...withoutNotes } = decision;
+      return save(Object.keys(valueNotes).length ? { ...decision, valueNotes } : withoutNotes);
     },
 
     async setRevisit(id: string, revisitAt: string | undefined): Promise<Decision> {
@@ -67,7 +92,7 @@ export function createDecisionService({ userId, context, decisions }: DecisionSe
     },
 
     async toRevisit(): Promise<Decision[]> {
-      return decisionsToRevisit(await decisions.list(userId), context.now());
+      return decisionsToRevisit((await decisions.list(userId)).filter((decision) => !decision.archivedAt), context.now());
     },
   };
 }

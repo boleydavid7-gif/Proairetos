@@ -1,4 +1,4 @@
-import { useLeave } from '../../app/navigationContext';
+import { useLeave, useNavigate } from '../../app/navigationContext';
 import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { useEffect, useState, type FormEvent } from 'react';
@@ -7,6 +7,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
 import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, MAX_VALUE_PRINCIPLES, MAX_VALUE_PRINCIPLE_LENGTH, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
@@ -179,6 +180,7 @@ export default function CompassPage() {
   const shows = useTodayParts();
   // Back (button, gesture, browser) returns where Compass was opened from; Reflect when opened from its address.
   const leave = useLeave('reflect');
+  const navigate = useNavigate();
   const tabs = compassTabs.filter((option) => option.id !== 'close' || shows('people') || shows('words'));
   const [chosenTab, chooseTab] = useState<CompassTab>(lastCompassTab);
   // A tab set aside in Settings falls back to direction.
@@ -190,6 +192,11 @@ export default function CompassPage() {
   return (
     <div className="page">
       <PageHero title="Compass" back={{ label: 'Reflect', onBack: leave }} />
+
+      <button type="button" className="connections-manager-link" onClick={() => navigate('connections')}>
+        <span><strong>Connections</strong><small>Search and organize your saved thoughts and decisions</small></span>
+        <ChevronRightIcon size={18} />
+      </button>
 
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>

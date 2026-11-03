@@ -33,11 +33,12 @@ export const SettingsPage = later(() => import('../features/settings/SettingsPag
 export const JournalPage = later(() => import('../features/journal/JournalPage'));
 export const InsightsPage = later(() => import('../features/insights/InsightsPage'));
 export const MeditatePage = later(() => import('../features/meditate/MeditatePage'));
+export const ConnectionsPage = later(() => import('../features/connections/ConnectionsPage'));
 
 /** Fetches the later pages once the browser is idle (or after a few seconds where it cannot say). */
 export function laterPages(): void {
   const fetchAll = () => {
-    for (const page of [SettingsPage, MeditatePage, JournalPage, InsightsPage, WeeklyReview, ScheduleScreen]) page.fetch();
+    for (const page of [SettingsPage, MeditatePage, JournalPage, InsightsPage, WeeklyReview, ScheduleScreen, ConnectionsPage]) page.fetch();
   };
   const idle = (window as { requestIdleCallback?: (run: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
   window.setTimeout(() => (idle ? idle(fetchAll, { timeout: 4000 }) : fetchAll()), 2500);

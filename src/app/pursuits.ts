@@ -37,6 +37,8 @@ export type Pursuit = {
   title: string;
   kind: PursuitKind;
   status: PursuitStatus;
+  /** Restored to this status after archiving; absent on older archived records. */
+  archivedStatus?: Exclude<PursuitStatus, 'archived'>;
   /** Legacy data is retained, but this is no longer shown as a workflow. */
   stage?: PursuitStage;
   area?: string;

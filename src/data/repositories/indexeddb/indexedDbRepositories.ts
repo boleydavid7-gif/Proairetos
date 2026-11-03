@@ -96,6 +96,10 @@ export function createIndexedDbReflectionRepository(db: Db): ReflectionRepositor
     list(userId) {
       return read<ReflectionModel[]>(db, stores.reflections, (store) => store.index('userId').getAll(userId));
     },
+    async update(reflection) {
+      await write(db, stores.reflections, (store) => store.put(reflection));
+      return reflection;
+    },
     async remove(id) {
       await write(db, stores.reflections, (store) => store.delete(id));
     },

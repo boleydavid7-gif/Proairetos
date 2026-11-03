@@ -376,6 +376,12 @@ export default function ReflectPage() {
       </div>
 
       <div className="settings-list">
+        <MoreRow
+          icon={<CompassIcon size={22} />}
+          title="Connections"
+          detail="Find and organize what you have saved."
+          onClick={() => navigate('connections')}
+        />
         {shows('insights') && (
         <MoreRow
           icon={<BreatheIcon size={22} />}

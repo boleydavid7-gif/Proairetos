@@ -125,17 +125,17 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     /** The person's own items. Items a family app keeps for itself (Praxis study blocks) are left out. */
     async list(): Promise<LifeItem[]> {
-      return (await items.list(userId)).filter((item) => !item.app).map(present);
+      return (await items.list(userId)).filter((item) => !item.app && !item.archivedAt).map(present);
     },
 
     /** Everything, a family app's items included (goals count their steps from all of them). */
-    async listAll(): Promise<LifeItem[]> {
-      return (await items.list(userId)).map(present);
+    async listAll(includeArchived = false): Promise<LifeItem[]> {
+      return (await items.list(userId)).filter((item) => includeArchived || !item.archivedAt).map(present);
     },
 
     /** One family app's own items. */
     async listForApp(app: LifeItemApp): Promise<LifeItem[]> {
-      return (await items.list(userId)).filter((item) => item.app === app).map(present);
+      return (await items.list(userId)).filter((item) => item.app === app && !item.archivedAt).map(present);
     },
 
     /** Changes the minutes of a recorded focus session (a correction), with an undo. */
@@ -169,6 +169,33 @@ export function createLifeService({ userId, context, items, events }: LifeServic
               listeners.notify();
             }),
         };
+      });
+    },
+
+    /** Archive hides an item from everyday lists while retaining its history. */
+    archive(id: string): Promise<LifeItem> {
+      return serial(async () => {
+        const item = await items.getById(id);
+        if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
+        if (item.archivedAt) return present(item);
+        const at = context.now().toISOString();
+        const archived = { ...item, archivedAt: at, updatedAt: at };
+        await items.update(archived);
+        listeners.notify();
+        return present(archived);
+      });
+    },
+
+    restore(id: string): Promise<LifeItem> {
+      return serial(async () => {
+        const item = await items.getById(id);
+        if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
+        if (!item.archivedAt) return present(item);
+        const { archivedAt: _archivedAt, ...restoredFields } = item;
+        const restored = { ...restoredFields, updatedAt: context.now().toISOString() };
+        await items.update(restored);
+        listeners.notify();
+        return present(restored);
       });
     },
 
@@ -209,7 +236,7 @@ export function createLifeService({ userId, context, items, events }: LifeServic
 
     /** The history of the person's own items; with `includeApps`, a family app's items too. */
     async historyForAll(includeApps = false): Promise<ItemEvent[]> {
-      const all = (await items.list(userId)).filter((item) => includeApps || !item.app);
+      const all = (await items.list(userId)).filter((item) => !item.archivedAt && (includeApps || !item.app));
       return events.listForItems(all.map((item) => item.id));
     },
 

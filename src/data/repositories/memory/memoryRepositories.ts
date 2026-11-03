@@ -77,6 +77,12 @@ export function createMemoryReflectionRepository(): ReflectionRepository {
     async list(userId) {
       return reflections.filter((reflection) => reflection.userId === userId).map(copy);
     },
+    async update(reflection) {
+      const index = reflections.findIndex((entry) => entry.id === reflection.id && entry.userId === reflection.userId);
+      if (index < 0) throw new Error(`Reflection ${reflection.id} does not exist.`);
+      reflections[index] = copy(reflection);
+      return copy(reflection);
+    },
     async remove(id) {
       reflections = reflections.filter((reflection) => reflection.id !== id);
     },

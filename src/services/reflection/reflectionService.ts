@@ -74,22 +74,57 @@ export function createReflectionService({ userId, context, reflections }: Reflec
     /** Follow-up notes on one decision, oldest first. */
     async forDecision(decisionId: string): Promise<Reflection[]> {
       return (await reflections.list(userId))
-        .filter((reflection) => reflection.decisionId === decisionId)
+        .filter((reflection) => !reflection.archivedAt && reflection.decisionId === decisionId)
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     },
 
-    async all(): Promise<Reflection[]> {
-      return reflections.list(userId);
+    async all(includeArchived = false): Promise<Reflection[]> {
+      const all = await reflections.list(userId);
+      return includeArchived ? all : all.filter((reflection) => !reflection.archivedAt);
+    },
+
+    /** Archive keeps the original reflection intact and removes it from everyday Reflect views. */
+    async archive(id: string): Promise<Reflection> {
+      const reflection = (await reflections.list(userId)).find((entry) => entry.id === id);
+      if (!reflection) throw new Error('That reflection no longer exists.');
+      if (reflection.archivedAt) return reflection;
+      const archived = { ...reflection, archivedAt: context.now().toISOString() };
+      await reflections.update(archived);
+      listeners.notify();
+      return archived;
+    },
+
+    async restore(id: string): Promise<Reflection> {
+      const reflection = (await reflections.list(userId)).find((entry) => entry.id === id);
+      if (!reflection) throw new Error('That reflection no longer exists.');
+      if (!reflection.archivedAt) return reflection;
+      const { archivedAt: _archivedAt, ...restored } = reflection;
+      await reflections.update(restored);
+      listeners.notify();
+      return restored;
+    },
+
+    /** Removes only the chosen value link; the reflection itself stays untouched. */
+    async disconnectValue(id: string, valueId: string): Promise<Reflection> {
+      const reflection = (await reflections.list(userId)).find((entry) => entry.id === id);
+      if (!reflection) throw new Error('That reflection no longer exists.');
+      const valueIds = (reflection.valueIds ?? []).filter((entry) => entry !== valueId);
+      if (valueIds.length === (reflection.valueIds ?? []).length) return reflection;
+      const { valueIds: _previous, ...withoutValues } = reflection;
+      const updated = valueIds.length ? { ...reflection, valueIds } : withoutValues;
+      await reflections.update(updated);
+      listeners.notify();
+      return updated;
     },
 
     /** The person's intention for a local date, if they wrote one. */
     async intentionFor(date: string): Promise<Reflection | undefined> {
-      return (await reflections.list(userId)).find((r) => r.kind === 'INTENTION' && r.periodStart === date);
+      return (await reflections.list(userId)).find((r) => !r.archivedAt && r.kind === 'INTENTION' && r.periodStart === date);
     },
 
     /** Writes, replaces, or (with empty text) clears the intention for a day. */
     async setIntention(date: string, body: string, valueIds: string[] = []): Promise<void> {
-      const existing = (await reflections.list(userId)).filter((r) => r.kind === 'INTENTION' && r.periodStart === date);
+      const existing = (await reflections.list(userId)).filter((r) => !r.archivedAt && r.kind === 'INTENTION' && r.periodStart === date);
       for (const old of existing) await reflections.remove(old.id);
       if (body.trim()) {
         await reflections.create({
@@ -110,7 +145,7 @@ export function createReflectionService({ userId, context, reflections }: Reflec
       const range = periodRange(period, context.now());
       const all = await reflections.list(userId);
       return all
-        .filter((reflection) => reflection.kind !== 'INTENTION' && isWithin(reflection.createdAt, range))
+        .filter((reflection) => !reflection.archivedAt && reflection.kind !== 'INTENTION' && isWithin(reflection.createdAt, range))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     },
   };

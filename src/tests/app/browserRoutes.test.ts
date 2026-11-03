@@ -4,12 +4,14 @@ import { pathForRoute, routeForPath, routeFromHistoryState } from '../../app/rou
 describe('browser routes', () => {
   it('maps shareable paths to app screens', () => {
     expect(routeForPath('/capture')).toBe('capture');
+    expect(routeForPath('/connections')).toBe('connections');
     expect(routeForPath('/plan/')).toBe('plan');
     expect(routeForPath('/unknown')).toBe('today');
   });
 
   it('creates paths and reads only valid route history', () => {
     expect(pathForRoute('reflect')).toBe('/reflect');
+    expect(pathForRoute('connections')).toBe('/connections');
     expect(routeFromHistoryState({ proairetosRoute: 'settings' })).toBe('settings');
     expect(routeFromHistoryState({ proairetosRoute: 'secret' })).toBeUndefined();
     expect(routeFromHistoryState(null)).toBeUndefined();
