@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: ErgonNav }) {
       name="Ergon"
       mark={<AppMark app="ergon" size={44} light />}
       line="Household chores."
-      about="Each one comes around from when it was last done. Shared with your household."
+      about="Recurring chores, shared with your household."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {
