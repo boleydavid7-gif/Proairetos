@@ -1,14 +1,14 @@
 import { useLeave } from '../../app/navigationContext';
 import { directionAlong, transition } from '../../app/transitions';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService } from '../../app/services';
 import CompassRose from '../../components/brand/CompassRose';
 import PageHero from '../../components/layout/PageHero';
 import { describeValue, practiceOfValue } from '../../core/values/descriptions';
-import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
+import { MAX_USER_VALUES, MAX_VALUE_MEANING_LENGTH, MAX_VALUE_PRINCIPLES, MAX_VALUE_PRINCIPLE_LENGTH, type ChosenValue } from '../../core/values/types';
 import StatementList from './StatementList';
 import PeopleSection from './PeopleSection';
 import ValuePicker from './ValuePicker';
@@ -21,15 +21,53 @@ function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; edit
   const { offerUndo } = useOverlays();
   const [open, setOpen] = useState(false);
   const [meaning, setMeaning] = useState(value.meaning ?? '');
+  const [principles, setPrinciples] = useState(value.principles ?? []);
+  const [principleDraft, setPrincipleDraft] = useState('');
+  const [principleError, setPrincipleError] = useState('');
+  const [savingPrinciples, setSavingPrinciples] = useState(false);
   const description = describeValue(value.name);
   const practice = practiceOfValue(value.name);
   const Icon = valueIcon(value.name);
 
-  useEffect(() => setMeaning(value.meaning ?? ''), [value.meaning]);
+  useEffect(() => {
+    setMeaning(value.meaning ?? '');
+    setPrinciples(value.principles ?? []);
+  }, [value.meaning, value.principles]);
 
   const saveMeaning = async () => {
     await compassService.updateValue(value.id, { meaning });
   };
+
+  async function savePrinciples(next: string[]) {
+    setSavingPrinciples(true);
+    setPrincipleError('');
+    try {
+      const updated = await compassService.updateValue(value.id, { principles: next });
+      setPrinciples(updated.principles ?? []);
+      return true;
+    } catch (cause) {
+      setPrincipleError(cause instanceof Error ? cause.message : 'That principle could not be saved.');
+      return false;
+    } finally {
+      setSavingPrinciples(false);
+    }
+  }
+
+  async function addPrinciple(event: FormEvent) {
+    event.preventDefault();
+    const principle = principleDraft.trim();
+    if (!principle || savingPrinciples) return;
+    if (principles.some((item) => item.toLocaleLowerCase() === principle.toLocaleLowerCase())) {
+      setPrincipleError('That principle is already here.');
+      return;
+    }
+    if (await savePrinciples([...principles, principle])) setPrincipleDraft('');
+  }
+
+  async function removePrinciple(index: number) {
+    if (savingPrinciples) return;
+    await savePrinciples(principles.filter((_, itemIndex) => itemIndex !== index));
+  }
 
   return (
     <li className="value-card">
@@ -54,6 +92,48 @@ function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; edit
             {practice && <span className="value-card__practice"><span className="daily-line__label">A possible expression</span>{practice}</span>}
             {meaning.trim() !== (value.meaning ?? '') && <button type="button" className="chip chip--small" onClick={() => void saveMeaning()}>Save meaning</button>}
           </div>
+          <section className="value-card__principles" aria-label={`Personal principles for ${value.name}`}>
+            <div className="value-card__principles-heading">
+              <span className="daily-line__label">Your principles</span>
+              <span>{principles.length}/{MAX_VALUE_PRINCIPLES}</span>
+            </div>
+            <p className="value-card__principles-help">Small commitments that show how you want to live this value. They are guides, not rules you have to meet perfectly.</p>
+            {principles.length > 0 && (
+              <ul className="value-card__principles-list">
+                {principles.map((principle, index) => (
+                  <li key={`${value.id}-principle-${index}`}>
+                    <span>{principle}</span>
+                    <button
+                      type="button"
+                      className="value-card__principle-remove"
+                      aria-label={`Remove principle: ${principle}`}
+                      disabled={savingPrinciples}
+                      onClick={() => void removePrinciple(index)}
+                    >
+                      <Sym name="close" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {principles.length < MAX_VALUE_PRINCIPLES && (
+              <form className="value-card__principle-form" onSubmit={(event) => void addPrinciple(event)}>
+                <input
+                  className="field-input"
+                  aria-label={`Add a personal principle for ${value.name}`}
+                  maxLength={MAX_VALUE_PRINCIPLE_LENGTH}
+                  placeholder="A small choice I want to practice…"
+                  value={principleDraft}
+                  onChange={(event) => { setPrincipleDraft(event.target.value); setPrincipleError(''); }}
+                />
+                <button type="submit" className="chip chip--small" disabled={!principleDraft.trim() || savingPrinciples}>
+                  {savingPrinciples ? 'Saving…' : 'Add'}
+                </button>
+              </form>
+            )}
+            {principles.length >= MAX_VALUE_PRINCIPLES && <p className="value-card__principles-help">You can keep up to {MAX_VALUE_PRINCIPLES} principles here. Remove one to make room.</p>}
+            {principleError && <p className="form-error" role="alert">{principleError}</p>}
+          </section>
         </div>
       )}
       {open && !editing && (
