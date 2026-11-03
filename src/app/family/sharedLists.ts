@@ -188,7 +188,7 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
 
   /** Joins from an invite link; the list is then kept here like one of one's own. */
   async function joinList(invite: { id: string; key: string; name: string }): Promise<SharedList> {
-    await me();
+    const userId = await me();
     const existing = sharedLists().find((list) => list.id === invite.id);
     if (existing) return existing;
     const client = await supabase();
