@@ -163,13 +163,13 @@ function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeReco
       .filter(([, people]) => people.length > 0)
       .map(([day, people]) => {
         const who = people.length <= 1 ? people[0] : `${people.slice(0, -1).join(', ')} and ${people.at(-1)}`;
-        const occurredAt = new Date(day + 'T23:59:00');
         return record({
           key: `meal:${recipe.id}@${day}`,
           kind: 'meal',
           source: 'Soma',
           sourceId: recipe.id,
-          at: Number.isFinite(occurredAt.getTime()) ? occurredAt.toISOString() : day + 'T23:59:00',
+          // Soma stores a calendar day, not a time; local noon keeps that day stable across time zones.
+          at: day + 'T12:00:00',
           title: recipe.title,
           detail: `Cooked for ${who}`,
           body: recipe.notes,
