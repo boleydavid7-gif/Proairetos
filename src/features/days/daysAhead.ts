@@ -2,6 +2,7 @@ import type { CalendarSource } from '../../app/calendars/otherCalendars';
 import type { TagColor } from '../../core/look/tagColors';
 import type { CompassStatement } from '../../core/compass/types';
 import type { SchedulePattern } from '../../core/scheduling/types';
+import type { LifeItem } from '../../core/life-items/types';
 import { blockTitle, type TimelineEntry } from '../today/timeline';
 
 /** Where Days ahead opens: the day being looked at, and the entry tapped, if any. Read once by the page. */
@@ -19,6 +20,13 @@ export function takeDaysAheadOpening(): { start?: string; focusKey?: string } {
 
 export type Timed = Exclude<TimelineEntry, { kind: 'off' } | { kind: 'allday' }>;
 export type EntryIcon = 'work' | 'protected' | 'item' | 'event';
+
+/** Date-only to-dos belong in the all-day area, not in an arbitrary hour slot. */
+export function plannedItemsForDay(date: string, items: readonly LifeItem[]): LifeItem[] {
+  return items
+    .filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && !item.archivedAt && !item.scheduledAt && item.plannedFor === date)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
 
 export type EntryLook = { title: string; color?: TagColor; icon: EntryIcon; location?: string; detail?: string; short?: string };
 
