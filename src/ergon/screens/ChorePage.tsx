@@ -44,7 +44,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   const [whoId, setWhoId] = useState(existing?.whoId ?? '');
   const [turns, setTurns] = useState(Boolean(existing?.rota?.length || existing?.rotaIds?.length));
   const [rota, setRota] = useState<string[]>(existing?.rota ?? []);
-  const [rotaIds, setRotaIds] = useState<string[]>(existing?.rotaIds ?? []);
+  const [rotaIds, setRotaIds] = useState<string[] | undefined>(existing?.rotaIds);
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState(existing?.note ?? '');
   const [remindAt, setRemindAt] = useState(existing?.remindAt ?? '');
@@ -57,9 +57,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   const names = [...new Set([...peopleFor(all), ...rota])];
   const selectedWhoId = whoId || memberIdForName(who, familyPeople) || '';
   const selectedWhoIsCurrent = familyPeople.some((person) => person.id === selectedWhoId);
-  const selectedRotaIds = (rotaIds.length
-    ? rotaIds
-    : rota.map((person) => memberIdForName(person, familyPeople)).filter((id): id is string => Boolean(id)))
+  const selectedRotaIds = (rotaIds ?? rota.map((person) => memberIdForName(person, familyPeople)).filter((id): id is string => Boolean(id)))
     .filter((id) => familyPeople.some((person) => person.id === id));
   const repeat = (): Repeat => {
     switch (kind) {
@@ -91,7 +89,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         nextWho = familyPeople.find((person) => person.id === currentId)?.name ?? nextRota[0];
       } else if (turns) {
         nextRota = existing?.rota ?? (rota.length ? rota : undefined);
-        nextRotaIds = familyPeople.length === 0 && rota.join('|') === (existing?.rota ?? []).join('|')
+        nextRotaIds = familyPeople.length === 0 && rotaIds === undefined && rota.join('|') === (existing?.rota ?? []).join('|')
           ? existing?.rotaIds
           : undefined;
         nextWho = who.trim() || nextRota?.[0];
