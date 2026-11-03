@@ -592,7 +592,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Pomodoro reading time in Done today and Reflect.' }] }],
+    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Reading sessions in Done today and Reflect; the daily total appears in Daily practices.' }] }],
   },
   {
     app: 'Philia',
@@ -628,10 +628,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   {
     app: 'Poreia',
     sections: [{ parts: [{ part: 'trips', label: 'Trips', detail: 'A trip under way or a few days off, with its next thing.' }] }],
-  },
-  {
-    app: 'Mneme',
-    sections: [{ parts: [{ part: 'mneme', label: 'Ideas and notes', detail: 'An idea ready for its next step or a pinned note on Today.' }] }],
   },
   {
     app: 'Oikonomia',
